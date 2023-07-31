@@ -160,7 +160,7 @@ classdef test_boxArrayClass < TestCase
             assertTrue (ok, mess)
         end
         
-        function test_validate_points_in_boxArray_shifted_BADTEST (obj)
+        function test_validate_points_in_boxArray_shifted_outOfRange (obj)
             % Test failure if do not test with shifted x1col, x1row, x12
             shift1c = [1000; 1200; 1400];
             shift1r = [1100; 1120; 1140];

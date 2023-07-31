@@ -148,7 +148,7 @@ classdef test_object_lookup_2 < TestCase
         %------------------------------------------------------------------
         % Single point
         %------------------------------------------------------------------
-        function test_rand_ind_1 (obj)
+        function test_rand_ind_singlePnt (obj)
             % Test single random point: array 2, index 5: this is box 4
             iarray = 2;
             ind = 5;
@@ -164,7 +164,7 @@ classdef test_object_lookup_2 < TestCase
             assertTrue (ok, mess);
         end
         
-        function test_rand_ind_2 (obj)
+        function test_rand_ind_singlePnt_forceError (obj)
             % Test single random point: array 2, index 5: this is box 4
             % Force a failure - a test of boxClass/validate_points_in_box
             iarray = 2;
@@ -186,7 +186,7 @@ classdef test_object_lookup_2 < TestCase
         %------------------------------------------------------------------
         % Single box, multiple points (output array shape tests)
         %------------------------------------------------------------------
-        function test_rand_ind_3a (obj)
+        function test_rand_ind_rowInd (obj)
             % Test array of random points from a single box:
             % array 2, index 5: this is box 4
             iarray = 2;
@@ -199,7 +199,7 @@ classdef test_object_lookup_2 < TestCase
             assertTrue (ok, mess);
         end
         
-        function test_rand_ind_3b (obj)
+        function test_rand_ind_colInd (obj)
             % Test array of random points from a single box:
             % array 2, index 5: this is box 4
             iarray = 2;
@@ -212,7 +212,7 @@ classdef test_object_lookup_2 < TestCase
             assertTrue (ok, mess);
         end
         
-        function test_rand_ind_3c (obj)
+        function test_rand_ind_vecInd_leadingSingletons (obj)
             % Test array of random points from a single box:
             % array 2, index 5: this is box 4
             iarray = 2;
@@ -225,7 +225,7 @@ classdef test_object_lookup_2 < TestCase
             assertTrue (ok, mess);
         end
         
-        function test_rand_ind_3d (obj)
+        function test_rand_ind_arrInd_leadingSingletons (obj)
             % Test array of random points from a single box:
             % array 2, index 5: this is box 4
             iarray = 2;
@@ -241,7 +241,7 @@ classdef test_object_lookup_2 < TestCase
         %------------------------------------------------------------------
         % Multiple boxes, multiple points (output array shape tests)
         %------------------------------------------------------------------
-        function test_rand_ind_4a (obj)
+        function test_rand_ind_2Boxes_unique (obj)
             % Test array of random points from two distinct boxes:
             % array 2, index 5: this is box 4
             % array 2, index 3: this is box 2
@@ -277,7 +277,7 @@ classdef test_object_lookup_2 < TestCase
             assertTrue (ok, mess);
         end
         
-        function test_rand_ind_4b (obj)
+        function test_rand_ind_3boxes_2unique (obj)
             % Test array of random points from three distinct boxes:
             % array 2, index 5: this is box 4
             % array 2, index 2 and 6: this is box 1
@@ -300,7 +300,7 @@ classdef test_object_lookup_2 < TestCase
         %------------------------------------------------------------------
         % Single box, single point, with shifts
         %------------------------------------------------------------------
-        function test_rand_ind_5 (obj)
+        function test_rand_ind_oneBox_withArgs_errorInNumber (obj)
             % Test single random point: array 2, index 5: this is box 4
             % Should fail as only one shift given, not three (can give
             % none, or all three)
@@ -311,7 +311,7 @@ classdef test_object_lookup_2 < TestCase
             assertExceptionThrown (f, 'HERBERT:boxClass:invalid_argument');
         end
         
-        function test_rand_ind_6 (obj)
+        function test_rand_ind_oneBox_withArgs (obj)
             % Test single random point: array 2, index 5: this is box 4
             iarray = 2;
             ind = 5;
@@ -334,7 +334,7 @@ classdef test_object_lookup_2 < TestCase
         %------------------------------------------------------------------
         % Single box, multiple points, with shifts
         %------------------------------------------------------------------
-        function test_rand_ind_7 (obj)
+        function test_rand_ind_oneBox_rowInd_withArgs_replicateArgs (obj)
             % Test single box, multiple points, single shift
             % iarray = 2, ind = 5 is box 4
             iarray = 2;
@@ -356,7 +356,7 @@ classdef test_object_lookup_2 < TestCase
             assertTrue (ok, mess);
         end
         
-        function test_rand_ind_8 (obj)
+        function test_rand_ind_oneBox_arrInd_splitArgs (obj)
             % Test single box, multiple points, multiple shifts
             % array 2, index 5: this is box 4
             iarray = 2;
@@ -383,7 +383,7 @@ classdef test_object_lookup_2 < TestCase
             assertTrue (ok, mess);
         end
         
-        function test_rand_ind_9 (obj)
+        function test_rand_ind_oneBox_arrInd_splitSomeArgs (obj)
             % Test single box, multiple points, multiple shifts
             % One of the shifts will be a single vector, so is an argument
             % to be used in its entirety  for every point
@@ -414,7 +414,7 @@ classdef test_object_lookup_2 < TestCase
         %------------------------------------------------------------------
         % Multiple boxes, multiple points, with shifts
         %------------------------------------------------------------------
-        function test_rand_ind_10 (obj)
+        function test_rand_ind_multiBox_arrInd_withArgs (obj)
             % Test single box, multiple points, single shift
             % iarray 2, index 5: this is box 4
             % iarray 2, index 3: this is box 2
@@ -440,7 +440,7 @@ classdef test_object_lookup_2 < TestCase
             assertTrue (ok, mess);
         end
         
-        function test_rand_ind_11 (obj)
+        function test_rand_ind_multiBox_arrInd_splitArgs (obj)
             % Test single box, multiple points, multiple shifts
             % iarray 2, index 5: this is box 4
             % iarray 2, index 3: this is box 2
@@ -472,7 +472,7 @@ classdef test_object_lookup_2 < TestCase
             assertTrue (ok, mess);
         end
         
-        function test_rand_ind_12 (obj)
+        function test_rand_ind_multiBox_arrInd_splitSomeArgs (obj)
             % Test single box, multiple points, multiple shifts
             % One of the shifts will be a single vector, so is an argument
             % to be used in its entirety  for every point
@@ -511,7 +511,7 @@ classdef test_object_lookup_2 < TestCase
         %------------------------------------------------------------------
         % Single boxArray, multiple boxes, multiple points, with shifts
         %------------------------------------------------------------------
-        function test_rand_ind_13 (obj)
+        function test_rand_ind_singleBoxArray_arrInd_ielmts_withArgs (obj)
             % Test single boxArray, two boxes, multiple points, single shift
             % iarray 2, index 5: this is boxArray 3
             % then ielmts 4 & 6 are boxes 2 & 8
@@ -548,7 +548,7 @@ classdef test_object_lookup_2 < TestCase
         %------------------------------------------------------------------
         % Multiple boxArray objects, multiple points, with shifts
         %------------------------------------------------------------------
-        function test_rand_ind_14 (obj)
+        function test_rand_ind_multiBoxArray_arrInd_ielmts_someSplitArgs (obj)
             % Test two boxArray, two boxes, multiple points, single shift
             % iarray 2, index 5: this is boxArray 3
             %    - ielmts 4 & 6 are boxes 2 & 8
@@ -594,7 +594,7 @@ classdef test_object_lookup_2 < TestCase
         %------------------------------------------------------------------
         % Test func_eval_ind
         %------------------------------------------------------------------
-        function test_func_eval_ind_1 (obj)
+        function test_func_eval_ind_1box_1ind_1funcEval (obj)
             % Single function evaluation
             % array 2, index 5: this is box 4
             iarray = 2;
@@ -612,7 +612,7 @@ classdef test_object_lookup_2 < TestCase
             assertEqual (r12, r12_ref);
         end
         
-        function test_func_eval_ind_2 (obj)
+        function test_func_eval_ind_1box_arrInd_1funcEval (obj)
             % Multiple function evaluations but on single box; single shift
             % array 2, index 5: this is box 4
             iarray = 2;
@@ -636,7 +636,7 @@ classdef test_object_lookup_2 < TestCase
             assertEqual (r12, r12_ref);
         end
         
-        function test_func_eval_ind_3 (obj)
+        function test_func_eval_ind_multiBox_arrInd_arrFuncEval (obj)
             % Multiple function evaluations across multiple boxes; single shift
             % array 2, index 5: this is box 4
             % array 2, index 3: this is box 2

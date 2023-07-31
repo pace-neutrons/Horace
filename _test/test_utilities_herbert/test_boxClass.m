@@ -143,7 +143,7 @@ classdef test_boxClass < TestCase
         %--------------------------------------------------------------------------
         % Test range calculation
         %--------------------------------------------------------------------------
-        function test_range_1 (obj)
+        function test_range_unshifted_box (obj)
             % Test range for unshifted box
             [r1col, r1row, r12] = range (obj.box);
             assertEqual (r1col, [4.5,5.5; 980,1020; 9900,10100])
@@ -153,7 +153,7 @@ classdef test_boxClass < TestCase
             assertEqual (r12, cat(3,lower,upper))
         end
         
-        function test_range_2 (obj)
+        function test_range_shifted_box (obj)
             % Test range for shifted box
             shift1c = [10,12,14];
             shift1r = [110,112,114];
@@ -170,7 +170,7 @@ classdef test_boxClass < TestCase
             assertEqual (r12, r12_ref)
         end
         
-        function test_range_3 (obj)
+        function test_range_shifted_box_stacked (obj)
             % Test range for shifted box
             % Different branch is followed if one or more shifts are
             % stacks of vectors
@@ -205,7 +205,7 @@ classdef test_boxClass < TestCase
         % Test validate_points_in_box (assumes method range has been tested
         % as validate_points_in_box depends on it)
         %--------------------------------------------------------------------------
-        function test_validate_points_in_box_1a (obj)
+        function test_validate_points_in_box_1pnt_noShift (obj)
             % Test validation for a single point, no shift
             
             % Points in the box
@@ -219,7 +219,7 @@ classdef test_boxClass < TestCase
             assertTrue(ok, mess)
         end
         
-        function test_validate_points_in_box_1b (obj)
+        function test_validate_points_in_box_1pnt_noShift_THROW (obj)
             % Test validation for a single point, no shift
             % Should fail as x1row out of range
             
@@ -234,7 +234,7 @@ classdef test_boxClass < TestCase
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
-        function test_validate_points_in_box_2a (obj)
+        function test_validate_points_in_box_1pnt_shift (obj)
             % Test validation for a single point, with shift
             shift1c = [10; 12; 14];
             shift1r = [110; 112; 114];
@@ -257,7 +257,7 @@ classdef test_boxClass < TestCase
             assertTrue(ok, mess)
         end
         
-        function test_validate_points_in_box_2b (obj)
+        function test_validate_points_in_box_1pnt_shift_THROW (obj)
             % Test validation for a single point, with shift
             % Should fail as x1row out of range
             shift1c = [10; 12; 14];
@@ -282,7 +282,7 @@ classdef test_boxClass < TestCase
 
         end
 
-        function test_validate_points_in_box_3 (obj)
+        function test_validate_points_in_box_arrPnt_shift (obj)
             % Test validation for a multiple points, with single shift
             
             % Points in unshifted box
@@ -321,7 +321,7 @@ classdef test_boxClass < TestCase
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
-        function test_validate_points_in_box_4 (obj)
+        function test_validate_points_in_box_arrPnt_manyShift (obj)
             % Test validation for a multiple points, with different shifts
             % per point
             % Points in unshifted box
@@ -364,7 +364,7 @@ classdef test_boxClass < TestCase
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
-        function test_validate_points_in_box_5a (obj)
+        function test_validate_points_in_box_colvecPnt_shift (obj)
             % Test validation for a multiple points, with single shift
             % Testing size: column vector
             
@@ -385,7 +385,7 @@ classdef test_boxClass < TestCase
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
-        function test_validate_points_in_box_5b (obj)
+        function test_validate_points_in_box_arrPnt_shift_THROW (obj)
             % Test validation for a multiple points, with single shift
             % Testing size: 2D array
             
@@ -406,7 +406,7 @@ classdef test_boxClass < TestCase
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
-        function test_validate_points_in_box_5c (obj)
+        function test_validate_points_in_box_4DArrPnt_shift (obj)
             % Test validation for a multiple points, with single shift
             % Testing size: weird array
             
@@ -430,7 +430,7 @@ classdef test_boxClass < TestCase
         %--------------------------------------------------------------------------
         % Test rand_position output; assumes we have tested validate_points_in_box
         %--------------------------------------------------------------------------
-        function test_rand_position_1 (obj)
+        function test_rand_position_2D_noShift (obj)
             % Test rand_position with no shift vectors
             sz = [1000,10];
             
@@ -442,7 +442,7 @@ classdef test_boxClass < TestCase
             assertTrue(ok, mess)
         end
         
-        function test_rand_position_2 (obj)
+        function test_rand_position_2D_shift (obj)
             % Test rand_position with just one shift vector
             shift1c = [10,12,14];
             shift1r = [110,112,114];
@@ -458,7 +458,7 @@ classdef test_boxClass < TestCase
             assertTrue(ok, mess)
         end
         
-        function test_rand_position_3 (obj)
+        function test_rand_position_2D_manyShift (obj)
             % Test rand_position with stack of shift vectors
             sz = [1000,10];
             sz_shift = size_array_stack([3,1],sz);
@@ -476,7 +476,7 @@ classdef test_boxClass < TestCase
             assertTrue(ok, mess)
         end
         
-        function test_rand_position_4 (obj)
+        function test_rand_position_2D_manyShift_2 (obj)
             % Test rand_position with shift vectors stacked by the array
             % size of the random sampling. Test by validating that all
             % random points generated for the array of shifts lie in the
@@ -535,7 +535,7 @@ classdef test_boxClass < TestCase
         %------------------------------------------------------------------
         % Test object_lookup with boxClass
         %------------------------------------------------------------------
-        function test_create_object_lookup_1 (~)
+        function test_create_object_lookup_1arr (~)
             % Create an object_lookup with a single array input
             b1=boxClass([0,0,0],[0,0,0]);
             b2=boxClass([-18,0,0],[10,20,30]);
@@ -553,7 +553,7 @@ classdef test_boxClass < TestCase
             
         end
                 
-        function test_create_object_lookup_2 (~)
+        function test_create_object_lookup_1arr_arrayFetchERROR (~)
             % Create an object_lookup with a single array input
             b1=boxClass([0,0,0],[0,0,0]);
             b2=boxClass([-18,0,0],[10,20,30]);
@@ -569,7 +569,7 @@ classdef test_boxClass < TestCase
             
         end
                 
-        function test_create_object_lookup_3 (~)
+        function test_create_object_lookup_3arr (~)
             % Create an object_lookup with three array inputs
             b1=boxClass([0,0,0],[0,0,0]);
             b2=boxClass([-18,0,0],[10,20,30]);

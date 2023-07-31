@@ -1,10 +1,8 @@
-classdef test_IX_det_He3tube < TestCaseWithSave
-    % Test the calculation of quantities for IX_det_He3tube object
+classdef test_IX_det_TobyfitClassic < TestCaseWithSave
+    % Test the calculation of quantities for IX_det_TobyfitClassic object
     properties
         dia
         height
-        wall
-        atms
         path
         
         seed
@@ -13,15 +11,13 @@ classdef test_IX_det_He3tube < TestCaseWithSave
     
     methods
         %--------------------------------------------------------------------------
-        function obj = test_IX_det_He3tube (name)
+        function obj = test_IX_det_TobyfitClassic (name)
             obj@TestCaseWithSave(name);
             
             % Arrays for construction of detectors
             % Note: have varying paths w.r.t. detector coordinate frame
             obj.dia =    [0.0254 , 0.0300 , 0.0400 , 0.0400 , 0.0400 ];
             obj.height = [0.015  , 0.025  , 0.035  , 0.035  , 0.035  ];
-            obj.wall =   [6.35e-4, 10.0e-4, 15.0e-4, 15.0e-4, 15.0e-4];
-            obj.atms =   [10     , 6      , 4      , 7      , 9      ];
             th =         [pi/2   , 0.9    , 0.775  , 0.775  , 0.775  ];
             obj.path = [sin(th); zeros(size(th)); cos(th)];
             
@@ -48,25 +44,21 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             [~, det_array] = construct_detectors (obj);
             assertEqual (obj.dia(:), det_array.dia)
             assertEqual (obj.height(:), det_array.height)
-            assertEqual (obj.wall(:), det_array.wall)
-            assertEqual (obj.atms(:), det_array.atms)
         end
         
         function test_det_constructor_argExpand (obj)
             % Test constructor with one scalar argument input
             val = 0.00344;
-            det_array = IX_det_He3tube (obj.dia, obj.height, val, obj.atms);
-            assertEqual (obj.dia(:), det_array.dia)
+            det_array = IX_det_TobyfitClassic (val, obj.height);
+            assertEqual (val.*ones(size(obj.dia(:))), det_array.dia)
             assertEqual (obj.height(:), det_array.height)
-            assertEqual (val*ones(size(obj.dia(:))), det_array.wall)
-            assertEqual (obj.atms(:), det_array.atms)
         end
         
         function test_det_constructor_tooFewArgs_THROW (obj)
             % Test constructor with insufficient input arguments
             % Should throw error
             assertExceptionThrown( ...
-                @()IX_det_He3tube (obj.dia, obj.height, obj.wall), ...
+                @()IX_det_TobyfitClassic (obj.dia), ...
                 'HERBERT:serializable:invalid_argument');
         end
         
@@ -74,7 +66,7 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             % Test constructor with too many input arguments
             % Should throw error
             assertExceptionThrown( ...
-                @()IX_det_He3tube (obj.dia, obj.height, obj.wall), ...
+                @()IX_det_TobyfitClassic (obj.dia, obj.height, 0.1), ...
                 'HERBERT:serializable:invalid_argument');
         end
         
@@ -86,8 +78,7 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             [~, det_array_ref] = construct_detectors (obj);
             
             % Equivalent
-            det_array = IX_det_He3tube (obj.dia, obj.height, ...
-                'atms', obj.atms, 'wall', obj.wall);
+            det_array = IX_det_TobyfitClassic (obj.dia, 'height', obj.height);
             
             assertEqual (det_array_ref, det_array)
         end
@@ -109,6 +100,7 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             % Calculated for detector_array
             eff_array = det_array.effic (obj.path, wvec);
             
+            assertEqualToTol (ones(1,5), eff_array, 'tol',[1e-13,1e-13])
             assertEqualToTol (effs, eff_array, 'tol',[1e-13,1e-13])
             assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
         end
@@ -130,6 +122,7 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             eff_array = det_array.effic (ind, obj.path(:,ind), wvec);
             
             assertEqualToTol (effs(ind), eff_array, 'tol',[1e-13,1e-13])
+            assertEqualToTol (ones(size(ind)), eff_array, 'tol',[1e-13,1e-13])
             assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
         end
         
@@ -151,6 +144,7 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             eff_array = det_array.effic (ind, obj.path(:,ind), wvec);
             
             assertEqualToTol (effs, eff_array, 'tol',[1e-13,1e-13])
+            assertEqualToTol (ones(1,5), eff_array, 'tol',[1e-13,1e-13])
             assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
         end
         
@@ -172,6 +166,7 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             eff_array = det_array.effic (ind, obj.path(:,ind), wvec(ind));
             
             assertEqualToTol (effs(ind), eff_array, 'tol',[1e-13,1e-13])
+            assertEqualToTol (ones(1,4), eff_array, 'tol',[1e-13,1e-13])
             assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
         end
         
@@ -191,6 +186,7 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             mean_d_array = det_array.mean_d (obj.path, wvec);
 
             assertEqualToTol (means_d, mean_d_array, 'tol', [1e-13,1e-13])
+            assertEqualToTol (zeros(1,5), mean_d_array, 'tol', [1e-13,1e-13])
             assertEqualToTolWithSave (obj, mean_d_array, 'tol', [1e-13,1e-13])
         end
         
@@ -218,33 +214,9 @@ classdef test_IX_det_He3tube < TestCaseWithSave
         %--------------------------------------------------------------------------
         %   Test random numbers
         %--------------------------------------------------------------------------
-        function test_random_points_noAtten (~)
-            dia0 = 0.01; height0 = 0.03; wall0 = 0.0001; atms0 = 1e-8;
-            det = IX_det_He3tube (dia0, height0, wall0, atms0);
-
-            nsamples = 1e5;
-            ntol = 3;
-            npath = [1,1,0];
-            wvec = 1;
-            [ok, mess] = validate_det_rand (det, nsamples, ntol, npath, wvec);
-            assertTrue (ok, mess)
-        end
-        
-        function test_random_points_fullAtten (~)
-            dia0 = 0.01; height0 = 0.03; wall0 = 0.0001; atms0 = 1e8;
-            det = IX_det_He3tube (dia0, height0, wall0, atms0);
-
-            nsamples = 1e5;
-            ntol = 3;
-            npath = [1,1,0];
-            wvec = 1;
-            [ok, mess] = validate_det_rand (det, nsamples, ntol, npath, wvec);
-            assertTrue (ok, mess)
-        end
-        
-        function test_random_points_intermediateAtten (~)
-            dia0 = 0.01; height0 = 0.03; wall0 = 0.0001; atms0 = 10;
-            det = IX_det_He3tube (dia0, height0, wall0, atms0);
+        function test_random_points (~)
+            dia0 = 0.01; height0 = 0.03;
+            det = IX_det_TobyfitClassic (dia0, height0);
 
             nsamples = 1e5;
             ntol = 3;
@@ -259,14 +231,14 @@ classdef test_IX_det_He3tube < TestCaseWithSave
         % Utility methods
         %--------------------------------------------------------------------------
         function [dets, det_array] = construct_detectors (obj)
-            % Create array of single IX_det_He3tube objects, and the 
-            % equivalent IX_det_He3tube object containing an array of
+            % Create array of single IX_det_TobyfitClassic objects, and the 
+            % equivalent IX_det_TobyfitClassic object containing an array of
             % detectors.
-            dets = repmat(IX_det_He3tube, [1,5]);
+            dets = repmat(IX_det_TobyfitClassic, [1,5]);
             for i=1:5
-                dets(i) = IX_det_He3tube (obj.dia(i), obj.height(i), obj.wall(i), obj.atms(i));
+                dets(i) = IX_det_TobyfitClassic (obj.dia(i), obj.height(i));
             end
-            det_array = IX_det_He3tube (obj.dia, obj.height, obj.wall, obj.atms);
+            det_array = IX_det_TobyfitClassic (obj.dia, obj.height);
             
         end
         

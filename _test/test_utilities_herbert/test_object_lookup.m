@@ -283,7 +283,7 @@ classdef test_object_lookup < TestCase
         %--------------------------------------------------------------------------
         % Test rand_ind
         %--------------------------------------------------------------------------
-        function test_random_sampling_of_distributions_1 (obj)
+        function test_random_sampling_of_distributions_arr1 (obj)
             % Test that randomly selected points from an array of objects 
             % stored in the object_lookup object are correctly pulled from
             % the different pdf for the different unique objects.
@@ -307,10 +307,10 @@ classdef test_object_lookup < TestCase
         end
         
         
-        function test_random_sampling_of_distributions_2 (obj)
+        function test_random_sampling_of_distributions_arr2 (obj)
             % Same as test_random_sampling_of_distributions_1 except for
             % second stored object array. This test some internal indexing
-            % that picks out the correct 
+            % that picks out the correct array
 
             sz = [100, 5e3, 10];     % size of desired random selection of points
             ind = randselection (1:numel(obj.carr2), sz); 
@@ -329,7 +329,7 @@ classdef test_object_lookup < TestCase
         end
         
         
-        function test_random_sampling_of_distributions_3 (obj)
+        function test_random_sampling_of_distributions_arr3 (obj)
             % Same as test_random_sampling_of_distributions_1 except for
             % third stored object array.
 
@@ -351,7 +351,7 @@ classdef test_object_lookup < TestCase
         
         
         %--------------------------------------------------------------------------
-        function test_random_sampling_of_distributions_ind_sorted (obj)
+        function test_random_sampling_of_distributions_arr3_indSorted (obj)
             % Same as test_random_sampling_of_distributions_3 except that
             % the index array is already sorted. Follows a different branch
             % in the code.
@@ -403,7 +403,7 @@ classdef test_object_lookup < TestCase
         %--------------------------------------------------------------------------
         % Test operation of func_eval_ind
         %--------------------------------------------------------------------------
-        function test_func_eval_ind_1 (obj)
+        function test_func_eval_ind_singleUniqueObject (obj)
             % Function evaluated for an array of what corresponds to a single unique object
             % Also checks size of output arrays match the size of the index array ind
             ind = [6,3,5,6,3,3,3];    % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
@@ -416,7 +416,7 @@ classdef test_object_lookup < TestCase
             assertEqual (thi_ref, thi)
         end
         
-        function test_func_eval_ind_2 (obj)
+        function test_func_eval_ind_threeUniqueObjects (obj)
             % Function evaluated for an array of objects that corresponds to more than
             % one unique object, but which are not all unique.
             % Also checks size of output arrays match the size of the index array ind
@@ -435,7 +435,7 @@ classdef test_object_lookup < TestCase
             assertEqual (thi_ref, thi)
         end
         
-        function test_func_eval_ind_output_size_1 (obj)
+        function test_func_eval_ind_rowInd_rowStack (obj)
             % Test the output argument
             % Stack [1,10] by [1,5] should be [1,10,5]
             
@@ -457,7 +457,7 @@ classdef test_object_lookup < TestCase
             assertEqual (y_ref, yout)
         end
         
-        function test_func_eval_ind_output_size_2 (obj)
+        function test_func_eval_ind_rowInd_colStack (obj)
             % Test the output argument arrays
             % Stack [10,1] by [1,5] should be [10,5]
             
@@ -478,7 +478,7 @@ classdef test_object_lookup < TestCase
             assertEqual (y_ref, yout)
         end
         
-        function test_func_eval_ind_output_size_3 (obj)
+        function test_func_eval_ind_arrInd_colStack (obj)
             % Test the output argument arrays
             % Stack [10,1] by [1,1,5] should be [10,1,5]
             
