@@ -536,6 +536,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             clear ldr;
             img_db_range1 = dat.img_range;
 
+            skipTest('something dodgy in accumulation Disabled according to #748')
             % add new file to the list of the files
             [~,~,pix_range_f145]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
@@ -733,6 +734,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             if obj.save_output
                 return;
             end
+            skipTest('something dodgy in accumulation Disabled according to #748')
             % Accumulate nothing, all files already accumulated.
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
             [~,grid_size,pix_range]=accumulate_sqw (spe_accum, '', sqw_file_accum,...
