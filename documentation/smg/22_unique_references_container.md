@@ -35,8 +35,9 @@ The name is not the same as `IX_inst` to allow other singleton containers for `I
  
 The singleton global container is created using 
 ```
-glc = global_container(‘init’, GLOBAL_NAME_INSTRUMENTS_CONTAINER,’IX_inst’) which returns the new singleton. This corresponds to instance() for the case where the singleton is not yet instantiated.
+glc = global_container(‘init’, GLOBAL_NAME_INSTRUMENTS_CONTAINER,’IX_inst’)
 ```
+which returns the new singleton. This corresponds to instance() for the case where the singleton is not yet instantiated.
  
 The singleton global container is accessed using 
 ```
