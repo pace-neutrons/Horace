@@ -1,4 +1,4 @@
-function [obj, data] = apply(obj, func_handle, args, data)
+function [obj, data] = apply(obj, func_handle, args, data, compute_variance)
 % Apply a function (`func_handle`) to pixels (`obj`) with extra arguments `args`
 %  and recomputes the DnD if provided in `data`
 %
@@ -26,9 +26,14 @@ function [obj, data] = apply(obj, func_handle, args, data)
         args = {{}};
     end
 
+    if ~exist('compute_variance', 'var')
+        compute_variance = false;
+    end
+
     if ~iscell(args)
         args = {{args}};
     end
+
     if isa(func_handle, 'function_handle')
         func_handle = {func_handle};
     end
@@ -47,7 +52,11 @@ function [obj, data] = apply(obj, func_handle, args, data)
     obj = obj.reset_changed_coord_range({'all'});
 
     if exist('data', 'var')
-        [data.s, data.e] = obj.compute_bin_data(data.npix);
+        if compute_variance
+            [data.s, data.e, obj.variance] = average_bin_data(data.npix, obj.signal);
+        else
+            [data.s, data.e] = compute_bin_data(obj, data.npix);
+        end
     end
 
 end

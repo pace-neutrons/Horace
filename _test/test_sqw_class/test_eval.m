@@ -4,6 +4,7 @@ classdef test_eval < TestCase
 
     properties
         sqw_obj;
+        sqw_obj_fb;
     end
 
     methods
@@ -12,6 +13,9 @@ classdef test_eval < TestCase
             pths = horace_paths;
             test_sqw_file = fullfile(pths.test_common, 'sqw_2d_2.sqw');
             obj.sqw_obj = sqw(test_sqw_file);
+            obj.sqw_obj_fb = obj.sqw_obj;
+            obj.sqw_obj_fb.pix = PixelDataFileBacked(obj.sqw_obj_fb.pix);
+
         end
 
         function test_disp2sqw_eval(obj)
@@ -48,6 +52,25 @@ classdef test_eval < TestCase
             pix = ds.pix.get_fields('signal', 'all');
             assertEqual(pix, 2.*ones(size(pix)));
         end
+
+        function test_sqw_eval_average_fb(obj)
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+
+            ds_mb = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, [], '-average');
+            ds_fb = sqw_eval(obj.sqw_obj_fb, @test_eval.sqw_eval_tester, [], '-average');
+
+            assertEqual(ds_mb, ds_fb, 'tol', 1e-6);
+        end
+
+        function test_sqw_eval_fb(obj)
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+
+            ds_mb = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, []);
+            ds_fb = sqw_eval(obj.sqw_obj_fb, @test_eval.sqw_eval_tester, []);
+
+            assertEqual(ds_mb, ds_fb, 'tol', 1e-6);
+        end
+
 
         function test_sqw_eval_no_pix(obj)
 
