@@ -38,7 +38,7 @@ function [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w1,w2,varargin)
 %
 %  'xtol'   Tolerance on x-axis value matching; format same as tol above.
 %           Default: [0,0].
-%           The test is nly applied if 'rebin' is false.
+%           The test is only applied if 'rebin' is false.
 % 
 %  'norm'   Normalise w1 and w2 to unit area before comparing
 %           Default: false

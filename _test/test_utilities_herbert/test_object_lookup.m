@@ -406,7 +406,7 @@ classdef test_object_lookup < TestCase
         function test_func_eval_ind_singleUniqueObject (obj)
             % Function evaluated for an array of what corresponds to a single unique object
             % Also checks size of output arrays match the size of the index array ind
-            ind = [6,3,5,6,3,3,3];    % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            ind = [6,3,5,6,3,3,3];    % indices into carr2 = [c4, c3, c3; c2, c1, c3];
             [tlo_ref, thi_ref] = obj.c3.pulse_range;
             tlo_ref = repmat (tlo_ref, size(ind));
             thi_ref = repmat (thi_ref, size(ind));
@@ -420,7 +420,7 @@ classdef test_object_lookup < TestCase
             % Function evaluated for an array of objects that corresponds to more than
             % one unique object, but which are not all unique.
             % Also checks size of output arrays match the size of the index array ind
-            ind = [6,1; 5,2; 1,1];    % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            ind = [6,1; 5,2; 1,1];    % indices into carr2 = [c4, c3, c3; c2, c1, c3];
             tlo_ref = zeros(size(ind));
             thi_ref = zeros(size(ind));
             [tlo_ref(1,1), thi_ref(1,1)] = obj.c3.pulse_range;
@@ -440,7 +440,7 @@ classdef test_object_lookup < TestCase
             % Stack [1,10] by [1,5] should be [1,10,5]
             
             sz_output = [1,10];
-            ind = [5,1,1,5,3];  % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            ind = [5,1,1,5,3];  % indices into carr2 = [c4, c3, c3; c2, c1, c3];
             
             t = time_array (obj.c4, sz_output);     % a suitable array of times
             y3 = obj.c3.pulse_shape(t);
@@ -462,7 +462,7 @@ classdef test_object_lookup < TestCase
             % Stack [10,1] by [1,5] should be [10,5]
             
             sz_output = [10,1];
-            ind = [5,1,1,5,3];  % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            ind = [5,1,1,5,3];  % indices into carr2 = [c4, c3, c3; c2, c1, c3];
             
             t = time_array (obj.c4, sz_output);     % a suitable array of times
             t_ref = repmat(t, [1,5]);
@@ -484,7 +484,7 @@ classdef test_object_lookup < TestCase
             
             sz_output = [10,1];
             ind = zeros(1,1,5);
-            ind(1,1,:) = [5,1,1,5,3];  % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            ind(1,1,:) = [5,1,1,5,3];  % indices into carr2 = [c4, c3, c3; c2, c1, c3];
             
             t = time_array (obj.c4, sz_output);     % a suitable array of times
             t_ref = repmat(t, [1,1,5]);

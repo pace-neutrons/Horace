@@ -1,7 +1,7 @@
 function varargout = vals2distr(vals,varargin)
 % Create an IX_dataset_1d of a pdf from an array of sampled values
 %
-% The function produces a histogram of the values in the inut argumnet vals,
+% The function produces a histogram of the values in the input argument vals,
 % which can be optionally normalised to have area unity and assigned error
 % bars as the square root of the number of values that are placed in each bin
 % of the histogram. If the input argument vals is not from a randomly
@@ -21,7 +21,7 @@ function varargout = vals2distr(vals,varargin)
 % Input:
 % ------
 %   vals        Array of values to be histogrammed. The dimensionality of
-%               the array is igored as internally it is converted into a
+%               the array is ingored as internally it is converted into a
 %               vector before histogramming.
 %
 % Optional arguments:
