@@ -14,6 +14,25 @@ classdef test_IX_experiment <  TestCase
             end
             this = this@TestCase(name);
         end
+        function test_comparison_hash_neq(~)
+            exp1 = IX_experiment('my_file','my_path',1,20,1,'psi',10);
+            exp2 = exp1;
+            exp2.omega = 4;
+
+            ch1 = exp1.get_comparison_hash();
+            ch2 = exp2.get_comparison_hash();
+            assertFalse(isequal(ch1,ch2));
+        end
+
+        function test_comparison_hash_eq(~)
+            exp1 = IX_experiment('my_file','my_path',1,20,1,'psi',10);
+            exp2 = exp1;
+            exp2.filepath = 'other_path';
+
+            ch1 = exp1.get_comparison_hash();
+            ch2 = exp2.get_comparison_hash();
+            assertEqual(ch1,ch2);
+        end
 
         function test_convert_to_and_from_old_binfile_headers(~)
             exp = IX_experiment();
@@ -137,12 +156,10 @@ classdef test_IX_experiment <  TestCase
         end
 
         function test_full_construnctor(~)
-            par_names={'filename', 'filepath', 'efix','emode','cu',...
-                'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
-                'u_to_rlu','ulen','ulabel','run_id'};
-            par_val = {'my_file','my_name',10,1,[1,0,0],[0,1,0],...
-                10,1,2,3,4,[1,2,4,8]',[0,0,0,0],eye(4),ones(4,1),...
-                {'a','b','c','d'},100};
+            par_names={'filename', 'filepath','run_id', 'efix','emode','cu',...
+                'cv','psi','omega','dpsi','gl','gs','en','uoffset'};
+            par_val = {'my_file','my_name',666,10,1,[1,0,0],[0,1,0],...
+                10,1,2,3,4,[1,2,4,8]',[0,0,0,0]};
 
             pv_map = containers.Map(par_names,par_val);
 

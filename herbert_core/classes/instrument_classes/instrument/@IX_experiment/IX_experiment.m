@@ -42,7 +42,7 @@ classdef IX_experiment < goniometer
     properties(Access= private)
         % the hash used to compare IX_experiments for equality
         hash_valid_ = false;
-        equality_hash_
+        comparison_hash_
     end
     methods
         function obj = IX_experiment(varargin)
@@ -113,9 +113,9 @@ classdef IX_experiment < goniometer
             mode = obj.emode_;
         end
         function obj = set.emode(obj,val)
-            if ~isnumeric(val) || val<0 || val>2
+            if ~isnumeric(val) || ~isscalar(val) || val<0 || val>2
                 error('HERBERT:IX_experiment:invalid_argument',...
-                    'Transformation mode can be numeric in range from 0 to 2. It is %s',...
+                    'Transformation mode can be numeric scalar in range from 0 to 2.\n It is: %s',...
                     disp2str(val));
             end
             obj.emode_ = val;
@@ -218,34 +218,41 @@ classdef IX_experiment < goniometer
             old_hdr = convert_to_binfile_header_(obj,mode,arg1,arg2,nomangle);
         end
         %
-        function [hash,obj] = get_eq_hash(obj)
+        function [hash,obj] = get_comparison_hash(obj)
             % get hash used for comparison of IX_experiment objects against
             % equality while building sqw objects
 
-
-            % list of properties which can not be all equal for
-            % experiments to be diffetent
-            %
-            eq_properties = {'filename','cu','cv','efix', 'psi', 'omega', 'dpsi', 'gl', 'gs'};
-
+            if obj.hash_valid_
+                hash = obj.comparison_hash_;
+                return;
+            end
             persistent engine;
             if isempty(engine)
                 engine= java.security.MessageDigest.getInstance('MD5');
             end
-            if obj.hash_valid_
-                hash = obj.equality_hash_;
-                return;
-            end
+
+            % list of properties which can not be all equal for
+            % experiments to be diffetent
+            eq_properties = {'filename','cu','cv','efix',...
+                'psi', 'omega', 'dpsi', 'gl', 'gs'};
+
             n_par = numel(eq_properties);
             contents = cell(1,n_par);
             for i=1:n_par
-                contents{i} = typecast(obj.(eq_properties{i}),'uint8');
+                contents{i} = obj.(eq_properties{i});
+                if istext(contents{i})
+                    contents{i} = uint8(contents{i});
+                elseif isnumeric(contents{i})
+                    contents{i} = typecast(single(contents{i}),'uint8');
+                else
+                    contents{i} = typecast(contents{i},'uint8');
+                end
             end
             contents = [contents{:}];
-            Engine.update(contents);
-            hash = typecast(Engine.digest,'uint8');
+            engine.update(contents);
+            hash = typecast(engine.digest,'uint8');
             hash = char(hash');
-            obj.equality_hash_ = hash;
+            obj.comparison_hash_ = hash;
             obj.hash_valid_ = true;
         end
         %
@@ -274,6 +281,17 @@ classdef IX_experiment < goniometer
             % return the version of the IX-experiment class
             ver = 3;
         end
+        % Do we need this? current usage of the hash is very restricted so
+        % it is reasonable to calculate it on request only
+        %         function obj = check_combo_arg(obj)
+        %             % verify interdependent variables and the validity of the
+        %             % obtained lattice object
+        %             obj = check_combo_arg@goniometer(obj);
+        %             if ~obj.hash_valid_
+        %                 [~,obj.comparison_hash_] = obj.get_comparison_hash();
+        %             end
+        %         end
+
     end
 
     methods(Access=protected)
@@ -313,8 +331,7 @@ classdef IX_experiment < goniometer
         function [obj,alatt,angdeg] = build_from_binfile_header(inputs)
             % Inputs: the old header structure, stored in binfile
             old_fldnms = {'filename','filepath','efix','emode','cu',...
-                'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
-                'ulen','ulabel'};
+                'cv','psi','omega','dpsi','gl','gs','en','uoffset'};
             obj = IX_experiment();
             for i=1:numel(old_fldnms)
                 obj.(old_fldnms{i}) = inputs.(old_fldnms{i});

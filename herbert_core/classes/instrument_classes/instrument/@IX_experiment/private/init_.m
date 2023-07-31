@@ -7,10 +7,6 @@ function obj = init_(obj,varargin)
 
 % the list of the fieldnames, which may appear in constructor
 % in the order they may appear in the constructor.
-flds = {'filename', 'filepath', 'efix','emode','cu',...
-    'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
-    'u_to_rlu','ulen','ulabel','run_id'};
-
 if nargin == 2
     input = varargin{1};
     if isa(input,'IX_experiment')
@@ -32,6 +28,7 @@ elseif nargin > 2
     % end of positional arguments and the beginning of the
     % key-value pairs. The accurate validation should occur on
     % setters.
+    flds = obj.saveableFields();
     [obj,remains] = set_positional_and_key_val_arguments(obj,...
         flds,false,varargin{:});
     if ~isempty(remains)
