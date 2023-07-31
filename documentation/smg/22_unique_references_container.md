@@ -17,9 +17,9 @@ https://uk.mathworks.com/matlabcentral/fileexchange/24911-design-pattern-singlet
 This singleton implementation works for a singleton class with one only class and one only instance.
  
 However, in the case of unique_references_container, what we need is
--          Multiple containers (e.g. for instruments or detectors), each templated by their contained data type
--          For each data type, a singleton container containing the compressed data
--          Methods of accessing the singletons as if they were ordinary cell arrays, separately for each container.
+- Multiple containers (e.g. for instruments or detectors), each templated by their contained data type
+- For each data type, a singleton container containing the compressed data
+- Methods of accessing the singletons as if they were ordinary cell arrays, separately for each container.
  
 The unique_references_container combines all of these. 
 For a container of a given type e.g IX_inst
