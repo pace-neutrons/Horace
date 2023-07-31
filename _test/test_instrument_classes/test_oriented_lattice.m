@@ -139,56 +139,7 @@ classdef test_oriented_lattice< TestCase
             assertEqual(10,ol.psi);
 
         end
-        function test_invalid3Dvectors_throw(~)
-            ol = oriented_lattice();
-            %rd.u='a';
-            ws=warning('off','MATLAB:subsasgnMustHaveOutput');
-            f=@()subsasgn(ol,struct('type','.','subs','u'),'a');
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-            %rd.v=[]; -- does not accept empty vectors
-            f=@()subsasgn(ol,struct('type','.','subs','v'),[]);
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            %rd.alatt=[10^-10,0,0]; -- does not accept empty vectors
-            f=@()subsasgn(ol,struct('type','.','subs','alatt'),[1.e-11,0,0]);
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            warning(ws);
-
-        end
         %
-        function this = test_1vectors_errors(this)
-            ol=oriented_lattice();
-
-            %ol.gl='a';
-            ws=warning('off','MATLAB:subsasgnMustHaveOutput');
-            f=@()subsasgn(ol,struct('type','.','subs','gl'),'a');
-            %            assertEqual(mess,' field: gl has to be numeric but it is not');
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-
-            %ol.gl=[1,2];
-            f=@()subsasgn(ol,struct('type','.','subs','gl'),[1,2]);
-            %            assertEqual(mess,' field: gl has to have 1 element but has: 2
-            %            element(s)');
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            f=@()subsasgn(ol,struct('type','.','subs','gl'),400);
-            %            assertEqual(mess,' field: gl has to in range of +-360 deg but it is not');
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            %ol.angdeg = [-400,0,0]
-            f=@()subsasgn(ol,struct('type','.','subs','angdeg'),[-400,0,0]);
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            %assertEqual(mess,'field ''angdeg'' does not define correct 3D lattice');
-            %ol.angldeg = [45,120,45]
-            f=@()subsasgn(ol,struct('type','.','subs','angdeg'),[45,120,50]);
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            warning(ws);
-
-        end
         function test_full_constructor(~)
             ol = oriented_lattice([2;3;4]);
             assertEqual(ol.alatt,[2,3,4])

@@ -106,54 +106,6 @@ classdef goniometer < serializable
             end
             [obj,rem] = init_(obj,varargin{:});
         end
-        %------------------------------------------------------------------
-        function uf = get.undef_fields(obj)
-            uf = get_undef_fields(obj);
-        end
-        %
-        function units = get.angular_units(obj)
-            if obj.angular_is_degree_
-                units = 'deg';
-            else
-                units = 'rad';
-            end
-        end
-        function obj = set.angular_units(obj,val)
-            old_val = obj.angular_is_degree_;
-            if val(1) == 'd'
-                obj.angular_is_degree_ = true;
-            elseif val(1) == 'r'
-                obj.angular_is_degree_ = false;
-            else
-                error('HERBERT:oriented_lattice:invalid_argument',...
-                    'Angular units can be set to ''degree''(d) or ''radian''(r)')
-            end
-            obj = recalculate_angular_units_values_(obj,old_val);
-        end
-        %
-        function obj = set_deg(obj)
-            old_val = obj.angular_is_degree_;
-            obj.angular_is_degree_=true;
-            obj = recalculate_angular_units_values_(obj,old_val);
-        end
-        %
-        function obj = set_rad(obj)
-            old_val = obj.angular_is_degree_;
-            obj.angular_is_degree_=false;
-            obj = recalculate_angular_units_values_(obj,old_val);
-        end
-        function is = get.angular_is_degree(obj)
-            is = obj.angular_is_degree_;
-        end
-        function obj = set.angular_is_degree(obj,val)
-            % the hidden method to change the meaning
-            % of the angular units. Should be used only as a part of the
-            % serializable interface, as does not do any checks and does
-            % not modify actual values.
-            % To change the class behaviour, use public property
-            % "angular_units" = ['deg'|'rad'] or method set_deg/set_rad;
-            obj.angular_is_degree_ = logical(val);
-        end
         %-----------------------------------------------------------------
         function psi = get.psi(obj)
             psi = obj.psi_;
@@ -210,13 +162,68 @@ classdef goniometer < serializable
         function obj=set.v(obj,v)
             obj = check_and_set_uv_(obj,'v',v);
         end
+    end
+    %======================================================================
+    % partial load and angular transformations.
+    methods
+        % ANGULAR TRANSFORMATIONS (is it necessary? A bit overcomplecated
+        % usage)
+        %------------------------------------------------------------------
+        function units = get.angular_units(obj)
+            if obj.angular_is_degree_
+                units = 'deg';
+            else
+                units = 'rad';
+            end
+        end
+        function obj = set.angular_units(obj,val)
+            old_val = obj.angular_is_degree_;
+            if val(1) == 'd'
+                obj.angular_is_degree_ = true;
+            elseif val(1) == 'r'
+                obj.angular_is_degree_ = false;
+            else
+                error('HERBERT:oriented_lattice:invalid_argument',...
+                    'Angular units can be set to ''degree''(d) or ''radian''(r)')
+            end
+            obj = recalculate_angular_units_values_(obj,old_val);
+        end
+        %
+        function obj = set_deg(obj)
+            old_val = obj.angular_is_degree_;
+            obj.angular_is_degree_=true;
+            obj = recalculate_angular_units_values_(obj,old_val);
+        end
+        %
+        function obj = set_rad(obj)
+            old_val = obj.angular_is_degree_;
+            obj.angular_is_degree_=false;
+            obj = recalculate_angular_units_values_(obj,old_val);
+        end
+        function is = get.angular_is_degree(obj)
+            is = obj.angular_is_degree_;
+        end
+        function obj = set.angular_is_degree(obj,val)
+            % the hidden method to change the meaning
+            % of the angular units. Should be used only as a part of the
+            % serializable interface, as does not do any checks and does
+            % not modify actual values.
+            % To change the class behaviour, use public property
+            % "angular_units" = ['deg'|'rad'] or method set_deg/set_rad;
+            obj.angular_is_degree_ = logical(val);
+        end
+        %
+        % Partial loading class interface.
         %-----------------------------------------------------------------
         function is=is_defined(obj,field_name)
             % check if field, which should be defined as do not have
             % meaningful defaults is actually defined.
             % input:
             % field_name :: the name of the field to check
-            is = ismember(field_name,obj.get_fields_to_define());
+            is = ~ismember(field_name,get_undef_fields(obj));
+        end
+        function uf = get.undef_fields(obj)
+            uf = get_undef_fields(obj);
         end
 
     end
@@ -241,7 +248,7 @@ classdef goniometer < serializable
         end
 
     end
-    %----------------------------------------------------------------------
+    %======================================================================
     % SERIALIABLE INTERFACE:
     %----------------------------------------------------------------------
     methods
@@ -258,7 +265,7 @@ classdef goniometer < serializable
             obj = check_combo_arg_(obj);
         end
         function obj = from_bare_struct (obj, S)
-            % 
+            %
             [is,val,S] = obj.check_angular_units_present(S);
             if is
                 obj.angular_units = val;
@@ -268,6 +275,12 @@ classdef goniometer < serializable
     end
     %---------------------------------------------------------------------
     methods(Static)
+        function fields = fields_with_defaults()
+            % List of fields which have default values and do not have 
+            % to be always defined by either file or command arguments;            
+            fields ={'omega','dpsi','gl','gs','u','v'};
+        end
+        
         function obj = loadobj(input)
             obj = goniometer();
             obj = loadobj@serializable(input,obj);
