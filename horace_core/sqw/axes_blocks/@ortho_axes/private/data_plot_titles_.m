@@ -1,13 +1,12 @@
-function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (data,proj)
+function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
 % Get titling and caption information for an sqw data structure
 %
 % Syntax:
-%   >> [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (data)
+%   >> [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
 %
 % Input:
 % ------
-%   data            Structure for which titles are to be created from the data in its fields.
-%                   Type >> help check_sqw_data for a full description of the fields
+%   obj            Instance of ortho_axes object
 %
 % Output:
 % -------
@@ -26,33 +25,25 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 %
-% TODO: violates OOP design. Needs refactoring
 
 Angstrom=char(197);     % Angstrom symbol
 
 % Prepare input arguments
-file = fullfile(data.filepath,data.filename);
-title = data.title;
+file = fullfile(obj.filepath,obj.filename);
+title = obj.title;
 
-offset = data.offset;
-if isa(data,'DnDBase')
-    % every projections now have to have this, though it may have different
-    % meaning for different projecions
-    u_to_rlu = data.proj.u_to_rlu;
-    ulen = data.axes.ulen;
-else
-    u_to_rlu = data.u_to_rlu;
-    ulen = data.ulen;
-end
+offset     = obj.offset;
+img_scales = obj.img_scales;
+u_to_rlu   = obj.hkle_axes_directions;
 
-label = data.label;
-iax = data.iax;
-iint = data.iint;
-pax = data.pax;
+label = obj.label;
+iax   = obj.iax;
+iint  = obj.iint;
+pax   = obj.pax;
 uplot = zeros(3,length(pax));
-dax = data.dax;
+dax = obj.dax;
 for i=1:length(pax)
-    pvals = data.p{i};
+    pvals = obj.p{i};
     uplot(1,dax(i)) = pvals(1);
     uplot(2,dax(i)) = (pvals(end)-pvals(1))/(length(pvals)-1);
     uplot(3,dax(i)) = pvals(end);
@@ -72,12 +63,12 @@ for i=1:length(iax)
     end
     iint_offset(iax(i))= iint_ave;  % overall displacement of plot volume image coordinate system
 end
-if ~isempty(proj) && isa(proj,"aProjectionBase")
-    offset_tot = proj.tansform_img_to_hkl(iint_offset(:));
-else
-    iint_hkle = data.u_to_rlu*iint_offset(:);
-    offset_tot= offset(:)' + iint_hkle(:)';    
+if ~isequal(iint_offset,zeros(4,1))
+    iint_offset = u_to_rlu*iint_offset(:);
 end
+offset_tot= offset(:)' + iint_offset(:)';
+
+
 % overal displacement of plot volume in hkle;
 
 
@@ -178,8 +169,8 @@ for j=1:4
         % Create captioning
         if any(j==pax)   % j appears in the list of plot axes
             ipax = find(j==pax(dax));
-            if abs(ulen(j)-1) > small
-                title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' ',Angstrom,'^{-1}'];
+            if abs(img_scales(j)-1) > small
+                title_pax{ipax} = [totvector{j},' in ',num2str(img_scales(j)),' ',Angstrom,'^{-1}'];
             else
                 title_pax{ipax} = [totvector{j},' (',Angstrom,'^{-1})'];
             end
@@ -250,8 +241,8 @@ for j=1:4
 
         if any(j==pax)   % j appears in the list of plot axes
             ipax = find(j==pax(dax));
-            if abs(ulen(j)-1) > small
-                title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' meV'];
+            if abs(img_scales(j)-1) > small
+                title_pax{ipax} = [totvector{j},' in ',num2str(img_scales(j)),' meV'];
             else
                 title_pax{ipax} = [totvector{j},' (meV)'];
             end

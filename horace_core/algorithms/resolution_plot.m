@@ -203,10 +203,9 @@ header.gl = lat.gl;
 header.gs = lat.gs;
 header.en = en;
 header.uoffset = [0,0,0,0]';
-header.u_to_rlu = zeros(4,4);
+header.u_to_rlu = eye(4);
 [~, header.u_to_rlu(1:3,1:3),spec_to_rlu] = lat.calc_proj_matrix();
 %[~, header.u_to_rlu(1:3,1:3)] = lat.calc_proj_matrix();
-header.u_to_rlu(4,4) = 1;
 header.ulen = [1,1,1,1];
 header.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 expdata = IX_experiment(header);
@@ -278,7 +277,7 @@ else
             ' Other types of projections have not been implemented']);
     end
     % plot aspect ratio is adjusted according to ulen
-    ax.ulen = proj.ulen;
+
 end
 %
 wres.data = DnDBase.dnd(ax,proj, ...

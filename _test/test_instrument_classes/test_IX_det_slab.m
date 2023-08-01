@@ -18,16 +18,11 @@ classdef test_IX_det_slab < TestCaseWithSave
             
             % Arrays for construction of detectors
             % Note: have varying paths w.r.t. detector coordinate frame
-            depth(1) = 0.10; width(1) = 0.20; height(1) = 0.30; atten(1) = 0.10; th(1) = 0;
-            depth(2) = 0.12; width(2) = 0.22; height(2) = 0.32; atten(2) = 0.08; th(2) = 10;
-            depth(3) = 0.14; width(3) = 0.24; height(3) = 0.34; atten(3) = 0.06; th(3) = 20;
-            depth(4) = 0.16; width(4) = 0.26; height(4) = 0.36; atten(4) = 0.04; th(4) = 30;
-            depth(5) = 0.18; width(5) = 0.28; height(5) = 0.38; atten(5) = 0.02; th(5) = 40;
-
-            obj.depth = depth;
-            obj.width = width;
-            obj.height = height;
-            obj.atten = atten;
+            obj.depth  = [0.1000,  0.1200,  0.1400,  0.1600,  0.1800];
+            obj.width  = [0.2000,  0.2200,  0.2400,  0.2600,  0.2800];
+            obj.height = [0.3000,  0.3200,  0.3400,  0.3600,  0.3800];
+            obj.atten  = [0.1000,  0.0800,  0.0600,  0.0400,  0.0200];
+            th         = [     0, 10.0000, 20.0000, 30.0000, 40.0000];
             obj.path = [cos(th); zeros(size(th)); sin(th)];
             
             % Random numbers
@@ -57,7 +52,7 @@ classdef test_IX_det_slab < TestCaseWithSave
             assertEqual (obj.atten(:), det_array.atten)
         end
         
-        function test_det_constructor_2 (obj)
+        function test_det_constructor_argExpand (obj)
             % Test constructor with one scalar argument input
             val = 0.00344;
             det_array = IX_det_slab (obj.depth, obj.width, val, obj.atten);
@@ -67,7 +62,7 @@ classdef test_IX_det_slab < TestCaseWithSave
             assertEqual (obj.atten(:), det_array.atten)
         end
         
-        function test_det_constructor_3 (obj)
+        function test_det_constructor_tooFewArgs_THROW (obj)
             % Test constructor with insufficient input arguments
             % Should throw error
             assertExceptionThrown( ...
@@ -75,7 +70,7 @@ classdef test_IX_det_slab < TestCaseWithSave
                 'HERBERT:serializable:invalid_argument');
         end
         
-        function test_det_constructor_4 (obj)
+        function test_det_constructor_tooManyArgs_THROW (obj)
             % Test constructor with too many input arguments
             % Should throw error
             assertExceptionThrown( ...
@@ -83,7 +78,7 @@ classdef test_IX_det_slab < TestCaseWithSave
                 'HERBERT:serializable:invalid_argument');
         end
         
-        function test_det_constructor_5 (obj)
+        function test_det_constructor_mixPosKeywrdArgs (obj)
             % Test constructor with mixed positional and keyword arguments in
             % non-standard order
             
@@ -100,7 +95,7 @@ classdef test_IX_det_slab < TestCaseWithSave
         %--------------------------------------------------------------------------
         %   Test methods
         %--------------------------------------------------------------------------
-        function test_effic_1 (obj)
+        function test_effic_allDets_singleWvec (obj)
             % Test efficiency calculation
             [dets, det_array] = construct_detectors (obj);
             wvec = 10;
@@ -119,7 +114,7 @@ classdef test_IX_det_slab < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_effic_2 (obj)
+        function test_effic_arrInd_singleWvec (obj)
             % Test efficiency calculation, with explicit index ordering
             [dets, det_array] = construct_detectors (obj);
             wvec = 10;
@@ -139,8 +134,9 @@ classdef test_IX_det_slab < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_effic_3 (obj)
-            % Test efficiency calculation, with explicit index ordering
+        function test_effic_singleInd_arrWvec (obj)
+            % Test efficiency calculation, single det
+            % and different wavlengths
             [dets, det_array] = construct_detectors (obj);
             wvec = [10,9,8,7,6];
             
@@ -159,7 +155,7 @@ classdef test_IX_det_slab < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_effic_4 (obj)
+        function test_effic_arrInd_arrWvec (obj)
             % Test efficiency calculation, with explicit index ordering
             % and different wavlengths
             [dets, det_array] = construct_detectors (obj);

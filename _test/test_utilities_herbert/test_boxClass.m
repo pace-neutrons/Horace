@@ -1,8 +1,8 @@
-classdef boxClass_test < TestCaseWithSave
+classdef test_boxClass < TestCase
     % Test boxClass, a class created to test object_lookup methods
     % rand_ind and func_eval_ind
     %
-    % Forms a pair with boxArrayClass defined elsewhere
+    % Forms a pair with boxClass defined elsewhere
     
     properties
         box
@@ -10,32 +10,31 @@ classdef boxClass_test < TestCaseWithSave
     
     methods
         %--------------------------------------------------------------------------
-        function obj = boxClass_test (name)
-            obj@TestCaseWithSave(name);
+        function obj = test_boxClass (name)
+            obj = obj@TestCase(name);
             
             obj.box = boxClass ([5,1000,10000], [1,40,200]);
             
-            obj.save()
         end
         
         %--------------------------------------------------------------------------
         % Test constructor
         %--------------------------------------------------------------------------
-        function test_boxClass_1 (~)
+        function test_boxClass_constructor_noArgs (~)
             % Test constructor with no arguments
             box_tmp = boxClass();
             assertEqual (box_tmp.position, [0;0;0])
             assertEqual (box_tmp.sides, [0;0;0])
         end
         
-        function test_boxClass_2 (~)
+        function test_boxClass_constructor_oneBox (~)
             % Test constructor of one box
             box_tmp = boxClass ([5,1000,10000], [1,40,200]);
             assertEqual (box_tmp.position, [5;1000;10000])
             assertEqual (box_tmp.sides, [1;40;200])
         end
         
-        function test_boxClass_3 (~)
+        function test_boxClass_constructor_multipleBoxes (~)
             % Test constructor of array of boxes
             pos1 = [101,102,103];
             sides1 = [11,22,33];
@@ -47,12 +46,11 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (box_tmp, [box1_tmp, box2_tmp])
         end
         
-        function test_boxClass_4 (~)
-            % Test constructor of array of boxes
+        function test_boxClass_constructor_multiplePosn_singleSide (~)
+            % Test constructor of array of boxes with same side lengths
             pos1 = [101,102,103];
             sides1 = [11,22,33];
             pos2 = [5,1000,10000];
-            sides2 = [1,40,200];
             box1_tmp = boxClass (pos1, sides1);
             box2_tmp = boxClass (pos2, sides1);
             box_tmp = boxClass ([pos1(:),pos2(:)], sides1(:));
@@ -62,7 +60,7 @@ classdef boxClass_test < TestCaseWithSave
         %--------------------------------------------------------------------------
         % Test sizes of arrays produced by rand_position
         %--------------------------------------------------------------------------
-        function test_size_1a (obj)
+        function test_output_size_noShifts (obj)
             % Test size of output arrays when stacked [2,4]
             [x1col, x1row, x12] = rand_position (obj.box, [2,4]);
             assertEqual (size(x1col), [3,2,4])
@@ -70,7 +68,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,2,4])
         end
         
-        function test_size_1b (obj)
+        function test_outputSize_zeroShifts (obj)
             % Test size of output arrays when stacked [2,4]
             [x1col, x1row, x12] = rand_position (obj.box, [2,4], ...
                 [0,0,0], [0,0,0], [0,0,0]);
@@ -79,7 +77,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,2,4])
         end
         
-        function test_size_1c (obj)
+        function test_outputSize_stackedShift (obj)
             % Test size of output arrays when stacked [2,4]
             % Different branch is followed if one or more shifts are
             % stacks of vectors
@@ -90,7 +88,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,2,4])
         end
         
-        function test_size_2a (obj)
+        function test_output_size_shift_arraySampling (obj)
             % Test with shift and size of output arrays when stacked [4,5]
             shift1c = [10,12,14];
             shift1r = [110,112,114];
@@ -102,7 +100,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,4,5])
         end
         
-        function test_size_2b (obj)
+        function test_outputSize_stackedShifts_arraySampling (obj)
             % Test with shift and size of output arrays when stacked [4,5]
             % Different branch is followed if one or more shifts are
             % stacks of vectors
@@ -116,7 +114,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,4,5])
         end
         
-        function test_size_3a (obj)
+        function test_outputSize_shift_rowVectorSampling (obj)
             % Test with shift and size of output arrays when stacked [1,5]
             shift1c = [10,12,14];
             shift1r = [110,112,114];
@@ -128,7 +126,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,5])
         end
         
-        function test_size_3b (obj)
+        function test_outputSize_stackedShift_rowVectorSampling (obj)
             % Test with shift and size of output arrays when stacked [1,5]
             % Different branch is followed if one or more shifts are
             % stacks of vectors
@@ -145,7 +143,7 @@ classdef boxClass_test < TestCaseWithSave
         %--------------------------------------------------------------------------
         % Test range calculation
         %--------------------------------------------------------------------------
-        function test_range_1 (obj)
+        function test_range_unshifted_box (obj)
             % Test range for unshifted box
             [r1col, r1row, r12] = range (obj.box);
             assertEqual (r1col, [4.5,5.5; 980,1020; 9900,10100])
@@ -155,7 +153,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (r12, cat(3,lower,upper))
         end
         
-        function test_range_2 (obj)
+        function test_range_shifted_box (obj)
             % Test range for shifted box
             shift1c = [10,12,14];
             shift1r = [110,112,114];
@@ -172,7 +170,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (r12, r12_ref)
         end
         
-        function test_range_3 (obj)
+        function test_range_shifted_box_stacked (obj)
             % Test range for shifted box
             % Different branch is followed if one or more shifts are
             % stacks of vectors
@@ -207,7 +205,7 @@ classdef boxClass_test < TestCaseWithSave
         % Test validate_points_in_box (assumes method range has been tested
         % as validate_points_in_box depends on it)
         %--------------------------------------------------------------------------
-        function test_validate_points_in_box_1a (obj)
+        function test_validate_points_in_box_1pnt_noShift (obj)
             % Test validation for a single point, no shift
             
             % Points in the box
@@ -221,7 +219,7 @@ classdef boxClass_test < TestCaseWithSave
             assertTrue(ok, mess)
         end
         
-        function test_validate_points_in_box_1b (obj)
+        function test_validate_points_in_box_1pnt_noShift_THROW (obj)
             % Test validation for a single point, no shift
             % Should fail as x1row out of range
             
@@ -236,7 +234,7 @@ classdef boxClass_test < TestCaseWithSave
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
-        function test_validate_points_in_box_2a (obj)
+        function test_validate_points_in_box_1pnt_shift (obj)
             % Test validation for a single point, with shift
             shift1c = [10; 12; 14];
             shift1r = [110; 112; 114];
@@ -259,7 +257,7 @@ classdef boxClass_test < TestCaseWithSave
             assertTrue(ok, mess)
         end
         
-        function test_validate_points_in_box_2b (obj)
+        function test_validate_points_in_box_1pnt_shift_THROW (obj)
             % Test validation for a single point, with shift
             % Should fail as x1row out of range
             shift1c = [10; 12; 14];
@@ -284,7 +282,7 @@ classdef boxClass_test < TestCaseWithSave
 
         end
 
-        function test_validate_points_in_box_3 (obj)
+        function test_validate_points_in_box_arrPnt_shift (obj)
             % Test validation for a multiple points, with single shift
             
             % Points in unshifted box
@@ -323,7 +321,7 @@ classdef boxClass_test < TestCaseWithSave
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
-        function test_validate_points_in_box_4 (obj)
+        function test_validate_points_in_box_arrPnt_manyShift (obj)
             % Test validation for a multiple points, with different shifts
             % per point
             % Points in unshifted box
@@ -366,7 +364,7 @@ classdef boxClass_test < TestCaseWithSave
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
-        function test_validate_points_in_box_5a (obj)
+        function test_validate_points_in_box_colvecPnt_shift (obj)
             % Test validation for a multiple points, with single shift
             % Testing size: column vector
             
@@ -387,7 +385,7 @@ classdef boxClass_test < TestCaseWithSave
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
-        function test_validate_points_in_box_5b (obj)
+        function test_validate_points_in_box_arrPnt_shift_THROW (obj)
             % Test validation for a multiple points, with single shift
             % Testing size: 2D array
             
@@ -408,7 +406,7 @@ classdef boxClass_test < TestCaseWithSave
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
-        function test_validate_points_in_box_5c (obj)
+        function test_validate_points_in_box_4DArrPnt_shift (obj)
             % Test validation for a multiple points, with single shift
             % Testing size: weird array
             
@@ -432,7 +430,7 @@ classdef boxClass_test < TestCaseWithSave
         %--------------------------------------------------------------------------
         % Test rand_position output; assumes we have tested validate_points_in_box
         %--------------------------------------------------------------------------
-        function test_rand_position_1 (obj)
+        function test_rand_position_2D_noShift (obj)
             % Test rand_position with no shift vectors
             sz = [1000,10];
             
@@ -444,7 +442,7 @@ classdef boxClass_test < TestCaseWithSave
             assertTrue(ok, mess)
         end
         
-        function test_rand_position_2 (obj)
+        function test_rand_position_2D_shift (obj)
             % Test rand_position with just one shift vector
             shift1c = [10,12,14];
             shift1r = [110,112,114];
@@ -460,7 +458,7 @@ classdef boxClass_test < TestCaseWithSave
             assertTrue(ok, mess)
         end
         
-        function test_rand_position_3 (obj)
+        function test_rand_position_2D_manyShift (obj)
             % Test rand_position with stack of shift vectors
             sz = [1000,10];
             sz_shift = size_array_stack([3,1],sz);
@@ -478,7 +476,7 @@ classdef boxClass_test < TestCaseWithSave
             assertTrue(ok, mess)
         end
         
-        function test_rand_position_4 (obj)
+        function test_rand_position_2D_manyShift_2 (obj)
             % Test rand_position with shift vectors stacked by the array
             % size of the random sampling. Test by validating that all
             % random points generated for the array of shifts lie in the
@@ -537,7 +535,7 @@ classdef boxClass_test < TestCaseWithSave
         %------------------------------------------------------------------
         % Test object_lookup with boxClass
         %------------------------------------------------------------------
-        function test_create_object_lookup_1 (~)
+        function test_create_object_lookup_1arr (~)
             % Create an object_lookup with a single array input
             b1=boxClass([0,0,0],[0,0,0]);
             b2=boxClass([-18,0,0],[10,20,30]);
@@ -555,7 +553,7 @@ classdef boxClass_test < TestCaseWithSave
             
         end
                 
-        function test_create_object_lookup_2 (~)
+        function test_create_object_lookup_1arr_arrayFetchERROR (~)
             % Create an object_lookup with a single array input
             b1=boxClass([0,0,0],[0,0,0]);
             b2=boxClass([-18,0,0],[10,20,30]);
@@ -571,7 +569,7 @@ classdef boxClass_test < TestCaseWithSave
             
         end
                 
-        function test_create_object_lookup_3 (~)
+        function test_create_object_lookup_3arr (~)
             % Create an object_lookup with three array inputs
             b1=boxClass([0,0,0],[0,0,0]);
             b2=boxClass([-18,0,0],[10,20,30]);

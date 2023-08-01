@@ -35,20 +35,20 @@ function varargout = read_horace(files,varargin)
 n_outputs = nargout;
 if n_outputs > nargin
     error('HORACE:read_horace:invalid_argument',...
-          'number of output objects requested is bigger then the number of input files provided')
+        'number of output objects requested is bigger then the number of input files provided')
 end
 
 [ok,mess,get_dnd,force_sqw,file_backed,filebacked,argi] = parse_char_options(varargin, ...
     {'-get_dnd','-force_sqw','-file_backed','-filebacked'});
 if ~ok
     error('HORACE:read_horace:invalid_argument',...
-          mess);
+        mess);
 end
 file_backed = filebacked||file_backed;
 
 if get_dnd && force_sqw
     error('HORACE:read_horace:invalid_argument',...
-          'only one option allowed i.e. -get_dnd and -force_sqw cannot be provided simultaneously');
+        'only one option allowed i.e. -get_dnd and -force_sqw cannot be provided simultaneously');
 end
 
 if file_backed && ~get_dnd
@@ -62,10 +62,10 @@ if force_sqw
     is_not_sqw = ~cellfun(@(x) x.sqw_type, loaders);
     if any(is_not_sqw)
         bad_files = cellfun(@(x) fullfile(x.filepath,x.filename), ...
-                            loaders(is_not_sqw), 'UniformOutput', false);
+            loaders(is_not_sqw), 'UniformOutput', false);
         error('HORACE:read_horace:invalid_argument',...
-              'Files %s only contain dnd information but sqw file required.',...
-              strjoin(bad_files, ', '));
+            'Files %s only contain dnd information but sqw file required.',...
+            strjoin(bad_files, ', '));
     end
 end
 

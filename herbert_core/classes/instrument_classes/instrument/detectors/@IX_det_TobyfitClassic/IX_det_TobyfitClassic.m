@@ -48,7 +48,8 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
                 % Define parameters accepted by constructor as keys and also the
                 % order of the positional parameters, if the parameters are
                 % provided without their names
-                [property_names, mandatory] = obj.saveableFields();
+                property_names = {'dia','height'};
+                mandatory = [true, true];
 
                 % Set positional parameters and key-value pairs and check their
                 % consistency using public setters interface. Run
@@ -117,11 +118,10 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
             ver = 2;
         end
         
-        function [flds, mandatory] = saveableFields(~)
+        function flds = saveableFields(~)
             % Return the names of public properties which fully define the
             % object state.
             flds = {'dia','height'};
-            mandatory = true(1,2);
         end
 
         function obj = check_combo_arg(obj)

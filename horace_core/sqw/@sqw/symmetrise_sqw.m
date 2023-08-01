@@ -69,31 +69,8 @@ win = sqw(win);
 wout = copy(win);
 
 [sym, fold] = validate_sym(sym);
-
-if wout.pix.is_filebacked
-
-    wout = wout.get_new_handle();
-
-    for i = 1:wout.pix.num_pages
-        wout.pix.page_num = i;
-        curr_page = wout.pix.data;
-        for i = 1:fold
-            sel = ~sym(i).in_irreducible(curr_page(1:3, :));
-            curr_page(1:3, sel) = sym(i).transform_vec(curr_page(1:3, sel));
-        end
-        wout.pix.format_dump_data(curr_page);
-    end
-    wout.pix = wout.pix.finalise();
-
-else
-
-    for i = 1:fold
-        sel = ~sym(i).in_irreducible(wout.pix.q_coordinates);
-        wout.pix.q_coordinates(:, sel) = sym(i).transform_vec(wout.pix.q_coordinates(:, sel));
-    end
-
-end
-
+transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
+wout = wout.apply(transforms, {}, false);
 
 %=========================================================================
 % Transform Ranges:

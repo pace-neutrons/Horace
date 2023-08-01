@@ -1,4 +1,4 @@
-classdef test_object_lookup < TestCaseWithSave
+classdef test_object_lookup < TestCase
     % Test of object_lookup class
     properties
         c1
@@ -32,7 +32,7 @@ classdef test_object_lookup < TestCaseWithSave
     methods
         %--------------------------------------------------------------------------
         function obj = test_object_lookup (name)
-            obj@TestCaseWithSave(name);
+            obj = obj@TestCase(name);
             
             % Make some test data
             c1=IX_fermi_chopper(10, 150, 0.049, 1.3, 0.003, Inf, 0, 0, 50, 1, 0, 'Chopper 1');
@@ -95,20 +95,16 @@ classdef test_object_lookup < TestCaseWithSave
             obj.c_lookup1 = c_lookup1;
             
             obj.seed = 0;   % seed for random numbers at start of each test
-            
-            obj.save()
         end
         
         function obj = setUp(obj)
             % Save current rng state and force random seed and method
             obj.rng_state = rng(obj.seed, 'twister');
-            warning('off', 'HERBERT:mask_data_for_fit:bad_points')
         end
         
         function obj = tearDown(obj)
             % Undo rng state
             rng(obj.rng_state);
-            warning('on', 'HERBERT:mask_data_for_fit:bad_points')
         end
                    
         %--------------------------------------------------------------------------
@@ -287,10 +283,12 @@ classdef test_object_lookup < TestCaseWithSave
         %--------------------------------------------------------------------------
         % Test rand_ind
         %--------------------------------------------------------------------------
-        function test_random_sampling_of_distributions_1 (obj)
-            % Test that randomly selected points from an array of objects 
-            % stored in the object_lookup object are correctly pulled from
-            % the different pdf for the different unique objects.
+        function test_random_sampling_of_distributions_arr1 (obj)
+            % Test that a large set of random samples drawn from the probability 
+            % distribution functions (PDFs) for an array of objects 
+            % stored in the object_lookup object are pulled from
+            % the correct PDFs for the different unique objects held in that
+            % object_lookup object.
             
             % Get a large random array of indices in the range 1 to the number
             % of objects in one of the arrays stored in the object_lookup instance
@@ -311,10 +309,10 @@ classdef test_object_lookup < TestCaseWithSave
         end
         
         
-        function test_random_sampling_of_distributions_2 (obj)
-            % Same as test_random_sampling_of_distributions_1 except for
-            % second stored object array. This test some internal indexing
-            % that picks out the correct 
+        function test_random_sampling_of_distributions_arr2 (obj)
+            % Same as test_random_sampling_of_distributions_arr1 except now 
+            % performed for the second stored object array. This test some
+            % internal indexing that picks out the correct array
 
             sz = [100, 5e3, 10];     % size of desired random selection of points
             ind = randselection (1:numel(obj.carr2), sz); 
@@ -333,7 +331,7 @@ classdef test_object_lookup < TestCaseWithSave
         end
         
         
-        function test_random_sampling_of_distributions_3 (obj)
+        function test_random_sampling_of_distributions_arr3 (obj)
             % Same as test_random_sampling_of_distributions_1 except for
             % third stored object array.
 
@@ -355,7 +353,7 @@ classdef test_object_lookup < TestCaseWithSave
         
         
         %--------------------------------------------------------------------------
-        function test_random_sampling_of_distributions_ind_sorted (obj)
+        function test_random_sampling_of_distributions_arr3_indSorted (obj)
             % Same as test_random_sampling_of_distributions_3 except that
             % the index array is already sorted. Follows a different branch
             % in the code.
@@ -407,10 +405,10 @@ classdef test_object_lookup < TestCaseWithSave
         %--------------------------------------------------------------------------
         % Test operation of func_eval_ind
         %--------------------------------------------------------------------------
-        function test_func_eval_ind_1 (obj)
+        function test_func_eval_ind_singleUniqueObject (obj)
             % Function evaluated for an array of what corresponds to a single unique object
             % Also checks size of output arrays match the size of the index array ind
-            ind = [6,3,5,6,3,3,3];    % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            ind = [6,3,5,6,3,3,3];    % indices into carr2 = [c4, c3, c3; c2, c1, c3];
             [tlo_ref, thi_ref] = obj.c3.pulse_range;
             tlo_ref = repmat (tlo_ref, size(ind));
             thi_ref = repmat (thi_ref, size(ind));
@@ -420,11 +418,11 @@ classdef test_object_lookup < TestCaseWithSave
             assertEqual (thi_ref, thi)
         end
         
-        function test_func_eval_ind_2 (obj)
+        function test_func_eval_ind_threeUniqueObjects (obj)
             % Function evaluated for an array of objects that corresponds to more than
             % one unique object, but which are not all unique.
             % Also checks size of output arrays match the size of the index array ind
-            ind = [6,1; 5,2; 1,1];    % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            ind = [6,1; 5,2; 1,1];    % indices into carr2 = [c4, c3, c3; c2, c1, c3];
             tlo_ref = zeros(size(ind));
             thi_ref = zeros(size(ind));
             [tlo_ref(1,1), thi_ref(1,1)] = obj.c3.pulse_range;
@@ -439,12 +437,12 @@ classdef test_object_lookup < TestCaseWithSave
             assertEqual (thi_ref, thi)
         end
         
-        function test_func_eval_ind_output_size_1 (obj)
+        function test_func_eval_ind_rowInd_rowStack (obj)
             % Test the output argument
             % Stack [1,10] by [1,5] should be [1,10,5]
             
             sz_output = [1,10];
-            ind = [5,1,1,5,3];  % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            ind = [5,1,1,5,3];  % indices into carr2 = [c4, c3, c3; c2, c1, c3];
             
             t = time_array (obj.c4, sz_output);     % a suitable array of times
             y3 = obj.c3.pulse_shape(t);
@@ -461,12 +459,12 @@ classdef test_object_lookup < TestCaseWithSave
             assertEqual (y_ref, yout)
         end
         
-        function test_func_eval_ind_output_size_2 (obj)
+        function test_func_eval_ind_rowInd_colStack (obj)
             % Test the output argument arrays
             % Stack [10,1] by [1,5] should be [10,5]
             
             sz_output = [10,1];
-            ind = [5,1,1,5,3];  % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            ind = [5,1,1,5,3];  % indices into carr2 = [c4, c3, c3; c2, c1, c3];
             
             t = time_array (obj.c4, sz_output);     % a suitable array of times
             t_ref = repmat(t, [1,5]);
@@ -482,13 +480,13 @@ classdef test_object_lookup < TestCaseWithSave
             assertEqual (y_ref, yout)
         end
         
-        function test_func_eval_ind_output_size_3 (obj)
+        function test_func_eval_ind_arrInd_colStack (obj)
             % Test the output argument arrays
             % Stack [10,1] by [1,1,5] should be [10,1,5]
             
             sz_output = [10,1];
             ind = zeros(1,1,5);
-            ind(1,1,:) = [5,1,1,5,3];  % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            ind(1,1,:) = [5,1,1,5,3];  % indices into carr2 = [c4, c3, c3; c2, c1, c3];
             
             t = time_array (obj.c4, sz_output);     % a suitable array of times
             t_ref = repmat(t, [1,1,5]);

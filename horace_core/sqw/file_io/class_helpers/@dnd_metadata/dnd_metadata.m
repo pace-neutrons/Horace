@@ -4,7 +4,7 @@ classdef dnd_metadata < serializable
     %
     % The purpose of this class is storing/restoring DnD object metadata
     % into custom binary file to separate dnd image, which may be accessed
-    % by external applications and other information, serialized within MATLAB   
+    % by external applications and other information, serialized within MATLAB
     %
     properties(Dependent)
         %------------------------------------------------------------------
@@ -41,12 +41,15 @@ classdef dnd_metadata < serializable
         pax % Index of plot axes into the projection axes  [row vector]
         %
         ulen;
+        img_scales
         %
         creation_date;
+        % number of axes bins
+        nbins;
     end
     properties(Access=protected)
         axes_ = ortho_axes();
-        proj_ = ortho_proj();
+        proj_ = ortho_proj('alatt',2*pi,'angdeg',90);
         %
         creation_date_ = '';
         creation_date_defined_ = false;
@@ -67,8 +70,12 @@ classdef dnd_metadata < serializable
             urlu = obj.proj_.u_to_rlu;
         end
         function ulen = get.ulen(obj)
-            ulen = obj.axes_.ulen;
+            ulen = obj.axes_.img_scales;
         end
+        function scale = get.img_scales(obj)
+            scale = obj.axes_.img_scales;
+        end
+
         function lbl = get.label(obj)
             lbl = obj.axes_.label;
         end
@@ -111,6 +118,9 @@ classdef dnd_metadata < serializable
                 else
                     obj.creation_date_str = datetime('now');
                 end
+            elseif nargin == 1 && isstruct(varargin{1})
+                obj = dnd_metadata();
+                obj = serializable.from_struct(varargin{1},obj);
             else
                 flds = obj.saveableFields();
                 [obj,remains] = obj.set_positional_and_key_val_arguments(...
@@ -151,6 +161,9 @@ classdef dnd_metadata < serializable
             % Path to sqw file that is being read, including terminating file separator.
             %            Used in titles
             obj.axes_.filepath = val;
+        end
+        function nb = get.nbins(obj)
+            nb = obj.axes_.data_nbins;
         end
         %------------------------------------------------------------------
         function nd = get.dimensions(obj)
@@ -212,6 +225,21 @@ classdef dnd_metadata < serializable
                 obj.creation_date_defined_ = true;
             end
         end
+        function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
+                data_plot_titles(obj)
+            % Return main description of the dnd object used in plots
+            %
+            % note: axes annotations correctly account for permutation in w.data_.dax
+            [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = ...
+                obj.axes.data_plot_titles();
+        end
+        function str = head(obj)
+            flds = DnDBase.head_form(false);
+            str = struct();
+            for i=1:numel(flds )
+                str.(flds{i}) =  obj.(flds{i});
+            end
+        end
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
@@ -233,5 +261,40 @@ classdef dnd_metadata < serializable
             %
             flds = {'axes','proj','creation_date_str'};
         end
+    end
+    methods(Access=protected)
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by lodobj in the case if the input
+            % structure does not contain a version or the version, stored
+            % in the structure does not correspond to the current version
+            % of the class.
+            %
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
+            %
+            %if isfield(inputs,'version') % do checks for previous versions
+            %   Add appropriate code to convert from specific version to
+            %   modern version
+            %end
+            if numel(inputs)>1
+                out = cell(numel(inputs),1);
+                for i=1:numel(inputs)
+                    out{i} = modify_old_structure_(inputs(i));
+                end
+                outa = [out{:}];
+
+                out = struct('array_dat',[]);
+                out.array_dat = outa;
+            else
+                out = modify_old_structure_(inputs);
+            end
+            obj = from_old_struct@serializable(obj,out);
+        end
+
     end
 end

@@ -30,18 +30,12 @@ for i=1:args.array_numel
     elseif ~isempty(args.set_of_fields)
         if isempty(args.keys)
             keys = obj.saveableFields();
-            obj_in{i} = set_positional_and_key_val_arguments(obj,...
-                keys,false,args.set_of_fields{:});
-            % copy label from projection to axes block in case it
-            % has been redefined on projection
-            is_proj = cellfun(@(x)isa(x,'aProjectionBase'),args.set_of_fields);
-            if any(is_proj)
-                obj_in{i}.axes.label = args.set_of_fields{is_proj}.label;
-            end
         else
-            obj_in{i} = set_positional_and_key_val_arguments(obj,...
-                args.keys,false,args.set_of_fields{:});
+            keys = args.keys;
         end
+        obj_in{i} = set_positional_and_key_val_arguments(obj,...
+            keys,false,args.set_of_fields{:});
+
     elseif ~isempty(args.sqw_obj)
         obj_in{i} = args.sqw_obj(i).data;
     end

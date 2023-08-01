@@ -1,4 +1,4 @@
-function pix_out = noisify(obj, varargin)
+function [pix_out, data] = noisify(obj, varargin)
 %=========================================================================
 % This is a method of the PixelData class.
 % It is called from the noisify(sqw_object,[options]) function to allow
@@ -16,6 +16,7 @@ function pix_out = noisify(obj, varargin)
 % Input:
 % -----
 % obj         The PixelData instance.
+% data        (Optional) DnD to recompute on the fly
 % varargs     Options for random number distribution and noise magnitude
 %             scaling.
 %
@@ -24,6 +25,7 @@ function pix_out = noisify(obj, varargin)
 % pix_out     If specified, returns a "noisified" copy of the input data
 %             Otherwise it is a reference to the input object, which is
 %             "noisified" in place.
+% data        If input `data` is provided will be recomputed DnD object
 %=========================================================================
 
 % Output specification determines object copying behaviour.
@@ -31,9 +33,6 @@ function pix_out = noisify(obj, varargin)
 % otherwise perform the operation on obj itself.
 
 pix_out = obj;
-s_ind = obj.check_pixel_fields('signal');
-v_ind = obj.check_pixel_fields('variance');
-
 
 uses_poisson_distribution = (   ...
     nargin==3 ...                            % only 3 args for poisson
@@ -53,7 +52,7 @@ if ~uses_poisson_distribution
         end
     else
         range = pix_out.data_range;
-        max_sig = range(2,s_ind);
+        max_sig = range(2,pix_out.check_pixel_fields('signal'));
     end
     % tell the Herbert noisify that we are providing a max signal value
     % by appending it with its flag to varargin
@@ -61,28 +60,16 @@ if ~uses_poisson_distribution
     varargin{end+1} = max_sig;
 end
 
-% page over pix_out noisifying each page using either Poisson or the max
-% value extracted above
-
-% If we're being called from tests
-if isempty(pix_out.file_handle_)
-    pix_out = pix_out.get_new_handle();
+if ~isempty(varargin{1}) && isa(varargin{1}, 'DnDBase')
+    data = varargin{1};
+    varargin = varargin(2:end);
+    [pix_out, data] = pix_out.apply(@add_noise, {varargin}, data);
+else
+    pix_out = pix_out.apply(@add_noise, {varargin});
 end
 
-pix_out.data_range = PixelDataBase.EMPTY_RANGE;
-
-% TODO: #975 loop have to be moved level up calculating image in single
-% loop too
-num_pages = pix_out.num_pages;
-for i = 1:num_pages
-    pix_out.page_num = i;
-    data = pix_out.data;
-    [data(s_ind,:), data(v_ind, :)] = noisify(data(s_ind,:), data(v_ind,:), varargin{:});
-    pix_out.data_range = ...
-        pix_out.pix_minmax_ranges(data, pix_out.data_range);
-    pix_out.format_dump_data(data);
 end
 
-pix_out = pix_out.finalise();
-
+function pix = add_noise(pix, varargin)
+    [pix.signal, pix.variance] = noisify(pix.signal, pix.variance, varargin{:});
 end

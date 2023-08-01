@@ -162,11 +162,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     % Comparing against a saved value:
     %   assertEqualWithSave                 - assert equality with saved variable
     %   assertEqualToTolWithSave            - assert near-equality with saved variable
-    %   assertElementsAlmostEqualWithSave   - test floating array elements near-equality
-    %   assertVectorsAlmostEqualWithSave    - test vector near-equality in L2 norm sense
+    %   assertElementsAlmostEqualWithSave   - assert floating array elements have near-equality
+    %   assertVectorsAlmostEqualWithSave    - assert vector near-equality in L2 norm sense
     %
-    %   assertTestWithSave                  - user-supplied test function with save saved
-    %                                         variable
+    %   assertTestWithSave                  - assert truth of a user-supplied test function
     %
     %
     % Utility methods:
@@ -198,7 +197,6 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
 
 
     % Original author A. Buts, rewritten T.G.Perring
-    %
 
 
     properties(Dependent)

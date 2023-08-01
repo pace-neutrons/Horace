@@ -5,7 +5,7 @@ function [nodes_ind,edges_ind] = get_geometry(n_dims)
 % of all edges)
 %
 % Inputs:
-% n_dims  -- number of dimensions (ND)
+% n_dims     -- number of dimensions (ND)
 % Outputs:
 % nodes_ind  -- the NDx2^ND cellarray of indexes, used to expand
 %               a box defined by its min/max points in appropriate

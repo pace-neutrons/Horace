@@ -7,14 +7,14 @@ function obj = from_bare_struct (obj_template, S)
 % to be recovered, an object is needed to define it. This template object must
 % be a serializable object.
 %
-% Typically obj_template will will simply be the object created by the 
+% Typically obj_template will will simply be the object created by the
 % constructor with no arguments for the class type to recover. (This use-case
 % would only have required this method to have been a static method).
 %
 % However, there are circumstances when it might be convenient to have a source
 % of extra fields other than the defaults for the empty constructor. In this
 % case, obj_template is used to provide any properties that might be missing
-% from the structure, in addition to defining the class type and the property 
+% from the structure, in addition to defining the class type and the property
 % names (via the class method saveableFields) to be set from S.
 %
 % OVERLOADING:
@@ -30,12 +30,12 @@ function obj = from_bare_struct (obj_template, S)
 %                  to_bare_struct does not contain the class type. The object
 %                  is used to provide the class to be recovered, and the value
 %                  of any missing properties if recovering from an older
-%                  version. 
+%                  version.
 %
 %   S               Structure or structure array of data with the structure as
 %                  created by the method to_bare_struct.
 %                   Note that structures created by to_struct (i.e. with the
-%                  fields 'serial_name', 'version' and (if from an array of 
+%                  fields 'serial_name', 'version' and (if from an array of
 %                  objects) 'array_dat' are *NOT* valid.
 %
 % Output:

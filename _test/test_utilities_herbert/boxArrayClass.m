@@ -36,10 +36,14 @@ classdef boxArrayClass
             %               Array size [3,nbox] where nbox is the number of
             %               boxes
             
-            if nargin==2
+                
+            if nargin==0
+                obj.box = boxClass ();
+                
+            elseif nargin==2
                 if numel(position)==3
                     position = position(:);
-                elseif ~(numel(size(position))==2 && size(position,1)==3 && size(position,2)>=1)
+                elseif ~ismatrix(position) || isempty(position) || size(position,1)~=3
                     error('HERBERT:boxArrayClass:invalid_argument', ...
                         'Check size of ''position'' argument')
                 end
@@ -47,7 +51,7 @@ classdef boxArrayClass
                 nbox = size(position,2);
                 if numel(sides)==3
                     sides = repmat(sides(:),[1,nbox]);
-                elseif ~(numel(size(sides))==2 && size(sides,1)==3 && size(position,2)==nbox)
+                elseif ~isequal(size(sides), [3, nbox])
                     error('HERBERT:boxArrayClass:invalid_argument', ...
                         'Check size of ''sides'' argument matches that of ''position''')
                 end
@@ -57,9 +61,6 @@ classdef boxArrayClass
                     box(i) = boxClass(position(:,i),sides(:,i));
                 end
                 obj.box = box;
-                
-            elseif nargin==0
-                obj.box = boxClass ();
                 
             else
                 error('HERBERT:boxArrayClass:invalid_argument', ...

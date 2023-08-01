@@ -22,7 +22,9 @@ if nargin>2
     if ~obj.bat.initialized
         obj = obj.init(varargin{:});
     else
+        old_obj = obj.sqw_holder;
         obj = obj.put_sqw_block(block_name_or_instance,varargin{1});
+        obj.sqw_holder_ = old_obj;
         return;
     end
 end

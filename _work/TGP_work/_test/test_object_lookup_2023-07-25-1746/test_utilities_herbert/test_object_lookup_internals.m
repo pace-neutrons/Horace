@@ -36,19 +36,19 @@ classdef test_object_lookup_internals < TestCaseWithSave
         function test_parse_split_4 (~)
             % Invalid option
             f = @()object_lookup.test_gateway ('parse_split', 2, 'spla', [1]);
-            assertExceptionThrown (f, 'HERBERT:parse_rand_ind:invalid_argument');
+            assertExceptionThrown (f, 'HERBERT:parse_split:invalid_argument');
         end
         
         function test_parse_split_5 (~)
             % iargs = [1,3] refers to argument index 3 when maximum is 2
             f = @()object_lookup.test_gateway ('parse_split', 2, 'split', [1,3]);
-            assertExceptionThrown (f, 'HERBERT:parse_rand_ind:invalid_argument');
+            assertExceptionThrown (f, 'HERBERT:parse_split:invalid_argument');
         end
         
         function test_parse_split_6 (~)
             % iargs = [1,1] has a repeated argument
             f = @()object_lookup.test_gateway ('parse_split', 2, 'split', [1,1]);
-            assertExceptionThrown (f, 'HERBERT:parse_rand_ind:invalid_argument');
+            assertExceptionThrown (f, 'HERBERT:parse_split:invalid_argument');
         end
         
         function test_parse_split_7 (~)

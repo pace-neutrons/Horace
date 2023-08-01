@@ -20,12 +20,14 @@ sam = obj.samples;
 exper = obj.expdata;
 alatt = alignment_info.alatt;
 angdeg = alignment_info.angdeg;
-compat_mode = alignment_info.legacy_mode;
+compat_mode = alignment_info.hkl_mode;
 if compat_mode
     rlu_corr = alignment_info.get_corr_mat(proj);
 end
 for i=1:obj.n_runs
     s = sam{i};
+    alatt0 = s.alatt;
+    angdeg0 = s.angdeg;
     s.alatt=alatt;
     s.angdeg=angdeg;
     sam{i} = s;
@@ -36,6 +38,14 @@ for i=1:obj.n_runs
         exper(i).cv=(rlu_corr*exper(i).cv')';
         exper(i).uoffset(1:3)=rlu_corr*exper(i).uoffset(1:3);
         exper(i).u_to_rlu(1:3,1:3)=rlu_corr*exper(i).u_to_rlu(1:3,1:3);
+    else
+        [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_pars_correct(...
+            exper(i).cu, exper(i).cv, alatt0, angdeg0, ...
+            exper(i).omega, exper(i).dpsi, exper(i).gl, exper(i).gs,...
+            alignment_info);
+        exper(i).dpsi = dpsi_deg;
+        exper(i).gl   = gl_deg;
+        exper(i).gs   = gs_deg;
     end
 end
 obj.samples = sam;

@@ -43,27 +43,27 @@ classdef test_unary_ops < TestCase
         
         function test_all_functions_are_defined_in_0d(obj)
             ab = ortho_axes([-0.1,0.1],[-2,2],[0,1],[-2,2]);                                                
-            dnd_obj = d0d(ab,ortho_proj());
+            dnd_obj = d0d(ab,ortho_proj('alatt',3,'angdeg',90));
             obj.assert_allfunctions_defined(dnd_obj);
         end
         function test_all_functions_are_defined_in_1d(obj)
             ab = ortho_axes([-0.1,0.1],[-2,2],[0,1],[-2,0.05,2]);                                    
-            dnd_obj = d1d(ab,ortho_proj());
+            dnd_obj = d1d(ab,ortho_proj('alatt',3,'angdeg',90));
             obj.assert_allfunctions_defined(dnd_obj);
         end
         function test_all_functions_are_defined_in_2d(obj)
             ab = ortho_axes([-0.1,0.01,0.1],[-2,2],[0,1],[-2,0.05,2]);                        
-            dnd_obj = d2d(ab,ortho_proj());
+            dnd_obj = d2d(ab,ortho_proj('alatt',3,'angdeg',90));
             obj.assert_allfunctions_defined(dnd_obj);
         end
         function test_all_functions_are_defined_in_3d(obj)
             ab = ortho_axes([-0.1,0.01,0.1],[-2,2],[0,0.1,1],[-2,0.05,2]);            
-            dnd_obj = d3d(ab,ortho_proj());
+            dnd_obj = d3d(ab,ortho_proj('alatt',3,'angdeg',90));
             obj.assert_allfunctions_defined(dnd_obj);
         end
         function test_all_functions_are_defined_in_4d(obj)
             ab = ortho_axes([-0.1,0.01,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
-            dnd_obj = d4d(ab,ortho_proj());
+            dnd_obj = d4d(ab,ortho_proj('alatt',3,'angdeg',90));
             obj.assert_allfunctions_defined(dnd_obj);
         end
         
@@ -91,7 +91,7 @@ classdef test_unary_ops < TestCase
         
         function test_unary_op_updates_image_signal_and_error(~)
             ax = ortho_axes('nbins_all_dims',[2,1,1,1]);
-            pr = ortho_proj();
+            pr = ortho_proj('alatt',3,'angdeg',90);
             dnd_obj = d1d(ax,pr,[2, 10245],[1.5, 1021],[1,1]);
             
             % arbitrary unary op for test

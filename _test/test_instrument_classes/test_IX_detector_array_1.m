@@ -184,7 +184,8 @@ classdef test_IX_detector_array_1 < TestCaseWithSave
                 assertEqual(ME.identifier, 'HERBERT:IX_detector_array:invalid_argument')
                 return
             end
-            error('Should have failed on invalid detector identifiers')
+            error('HERBERT:test_IX_detector_array:test_failure',...
+                'Should have failed on invalid detector identifiers')
         end
 
         function test_change_x2 (obj)
@@ -210,7 +211,8 @@ classdef test_IX_detector_array_1 < TestCaseWithSave
                 assertEqual(ME.identifier, 'HERBERT:IX_detector_bank:invalid_argument')
                 return
             end
-            error('Should have failed on invalid value of phi')
+            error('HERBERT:test_IX_detector_array:test_failure',...
+                'Should have failed on invalid value of phi')
         end
 
         function test_change_azim (obj)

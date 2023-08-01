@@ -232,10 +232,10 @@ classdef test_faccess_sqw_v4< TestCase
 
             mheader = to.get_main_header('-keep_');
             assertEqual(numel(mheader.title),0);
-            assertEqual(mheader.filename,'Fe_ei787.sqw');
+            assertEqual(mheader.filename,'faccess_sqw_v4_sample.sqw');
             assertEqual(mheader.filepath,...
-                'c:\data\Fe\sqw\');
-            assertEqual(mheader.creation_date,'2023-01-19T13:48:04')
+                'C:\Temp\Horace_4.0.0.342a84a5a');
+            assertEqual(mheader.creation_date,'2023-07-20T17:41:29')
 
             [exp_info,~] = to.get_exp_info('-all');
 
@@ -269,7 +269,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             data_dnd = to.get_dnd('-verb');
             assertTrue(isa(data_dnd,'DnDBase'));
-            assertEqual(data_dnd.filename,'Fe_ei787.sqw');
+            assertEqual(data_dnd.filename,'faccess_sqw_v4_sample.sqw');
 
             data = to.get_data('-ver');
             assertEqual(data.filename,data_dnd.filename)
@@ -595,9 +595,9 @@ classdef test_faccess_sqw_v4< TestCase
 
         end
         %         function test_build_correct(obj)
-        %             %TEST used in preparation of first v4 sample file and
-        %             is not testing
-        %             %any other functionality. Left for references
+        %             % TEST used in preparation of first v4 sample file and
+        %             % is not testing
+        %             % any other functionality. Left for references
         %             sample = read_sqw(obj.old_origin,'-verbatim');
         %             %fac0 = faccess_sqw_v4(obj.sample_file);
         %             %sample = fac0.get_sqw('-verbatim');

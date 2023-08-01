@@ -34,7 +34,7 @@ if nref==0
     if all(n==0)
         varargout = varargin(1:nout);
     else
-        error ('HERBERT:expand_args_by_ref:invalid_arguments',...
+        error ('HERBERT:expand_args_by_ref:invalid_argument',...
             'Arguments must all be empty if the reference object is empty')
     end
 elseif nref==1
@@ -42,7 +42,7 @@ elseif nref==1
     if all(n==1)
         varargout = varargin(1:nout);
     else
-        error ('HERBERT:expand_args_by_ref:invalid_arguments',...
+        error ('HERBERT:expand_args_by_ref:invalid_argument',...
             'Arguments must all be scalar if the reference object is scalar')
     end
 else
@@ -61,7 +61,7 @@ else
             end
         end
     else
-        error ('HERBERT:expand_args_by_ref:invalid_arguments',...
+        error ('HERBERT:expand_args_by_ref:invalid_argument',...
             ['Arguments must all be scalar or non-empty arrays with the ',...
             'same number of elements as reference object'])
     end
