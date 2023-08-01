@@ -271,7 +271,7 @@ classdef IX_experiment < goniometer
     properties(Constant,Access=private)
         % fields, which fully define public interface to the class
         fields_to_save_ = {'filename','filepath','run_id','efix','emode','cu',...
-            'cv','psi','omega','dpsi','gl','gs','en','uoffset'};
+            'cv','psi','omega','dpsi','gl','gs','en','uoffset','u_to_rlu'};
     end
     methods
         function flds = saveableFields(~)
@@ -331,7 +331,7 @@ classdef IX_experiment < goniometer
         function [obj,alatt,angdeg] = build_from_binfile_header(inputs)
             % Inputs: the old header structure, stored in binfile
             old_fldnms = {'filename','filepath','efix','emode','cu',...
-                'cv','psi','omega','dpsi','gl','gs','en','uoffset'};
+                'cv','psi','omega','dpsi','gl','gs','en','uoffset','u_to_rlu'};
             obj = IX_experiment();
             for i=1:numel(old_fldnms)
                 obj.(old_fldnms{i}) = inputs.(old_fldnms{i});

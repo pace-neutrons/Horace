@@ -255,13 +255,15 @@ classdef goniometer < serializable
     %======================================================================
     % SERIALIABLE INTERFACE:
     %----------------------------------------------------------------------
+    properties(Constant,Hidden)
+        gon_fields_ = {'psi','u','v','omega','dpsi','gl','gs'}
+    end
     methods
         function   ver  = classVersion(~)
             ver = 1;
         end
         function flds = saveableFields(~)
-            flds = {'psi','u','v',...
-                'omega','dpsi','gl','gs','angular_units'};
+            flds = [goniometer.gon_fields_(:);'angular_units'];
         end
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the

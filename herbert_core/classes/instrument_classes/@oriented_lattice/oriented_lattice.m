@@ -61,6 +61,9 @@ classdef oriented_lattice < goniometer
         isvalid
         reason_for_invalid;
     end
+    properties(Constant,Hidden)
+        lattice_fields = [goniometer.gon_fields_(:);oriented_lattice.lat_fields_(:)];
+    end
 
     properties(Access=private)
         %
@@ -149,6 +152,7 @@ classdef oriented_lattice < goniometer
         end
     end
     properties(Constant,Access=private)
+        lat_fields_ = {'alatt','angdeg'}
         % fields to set up for loader considered to be defined
         fields_to_define_ = {'alatt','angdeg','psi'};
         % List of all fields to describe lattice. Provided in order a

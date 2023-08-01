@@ -112,7 +112,7 @@ classdef IX_fermi_chopper < serializable
                 pos_params = obj.saveableFields();
                 % process deprecated interface where the "name" property
                 % value is first among the input arguments.
-                if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
+                if istext(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
                     argi = varargin(2:end);
                     obj.name = varargin{1};
                 else
@@ -139,8 +139,8 @@ classdef IX_fermi_chopper < serializable
         % for the non-dependent properties. However, any interdependencies with
         % other properties must be checked here.
         function obj=set.name(obj,val)
-            if is_string(val)
-                obj.name_=val;
+            if istext(val)
+                obj.name_=char(val);
             else
                 error('HERBERT:IX_fermi_chopper:invalid_argument', ...
                     'Fermi chopper name must be a character string (or empty string). It is %s', ...

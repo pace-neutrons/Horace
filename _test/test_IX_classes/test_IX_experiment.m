@@ -157,9 +157,9 @@ classdef test_IX_experiment <  TestCase
 
         function test_full_construnctor(~)
             par_names={'filename', 'filepath','run_id', 'efix','emode','cu',...
-                'cv','psi','omega','dpsi','gl','gs','en','uoffset'};
+                'cv','psi','omega','dpsi','gl','gs','en','uoffset','u_to_rlu'};
             par_val = {'my_file','my_name',666,10,1,[1,0,0],[0,1,0],...
-                10,1,2,3,4,[1,2,4,8]',[0,0,0,0]};
+                10,1,2,3,4,[1,2,4,8]',[0,0,0,0],eye(4)};
 
             pv_map = containers.Map(par_names,par_val);
 

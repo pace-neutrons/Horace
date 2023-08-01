@@ -55,7 +55,7 @@ classdef fixedNameList
             ok = false;
             mess = '';
             name = '';
-            if ~isempty(arg) && is_string(arg)
+            if ~isempty(arg) && istext(arg)
                 tf = strncmpi(arg, obj.names, numel(arg));
                 n = sum(tf);
                 if n==1         % unambiguous abbreviation or match
@@ -80,7 +80,7 @@ classdef fixedNameList
         %------------------------------------------------------------------
         function ok = match(obj, name, str)
             % Test if
-            if is_string(name) && is_string(str)
+            if is_string(name) && istext(str)
                 if any(strcmpi(name, obj.names))
                     if strcmpi(str, name)
                         ok = true;

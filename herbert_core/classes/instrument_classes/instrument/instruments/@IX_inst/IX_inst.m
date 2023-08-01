@@ -98,10 +98,11 @@ classdef IX_inst < serializable
         %------------------------------------------------------------------
         % Set methods for dependent properties
         function obj=set.name(obj,val)
-            if ~is_string(val)
-                error('The source name must be a character string')
+            if ~istext(val)
+                error('HORACE:IX_inst:invalid_argument', ...
+                    'The source name must be a character string')
             end
-            obj.name_ = val;
+            obj.name_ = char(val);
         end
 
         function obj=set.source(obj,val)

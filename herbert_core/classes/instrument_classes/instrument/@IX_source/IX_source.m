@@ -51,14 +51,14 @@ classdef IX_source < serializable
                 if nargin == 1 && isnumeric(varargin{1})
                     obj.frequency = varargin{1};
                 else
-                accept_params = obj.saveableFields();
-                [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                    accept_params,true,varargin{:});
-                if ~isempty(remains)
-                    error('HERBERT:IX_source:invalid_argument', ...
-                        'Unrecognized extra parameters provided as input to IX_source constructor: %s',...
-                        disp2str(remains));
-                end
+                    accept_params = obj.saveableFields();
+                    [obj,remains] = set_positional_and_key_val_arguments(obj,...
+                        accept_params,true,varargin{:});
+                    if ~isempty(remains)
+                        error('HERBERT:IX_source:invalid_argument', ...
+                            'Unrecognized extra parameters provided as input to IX_source constructor: %s',...
+                            disp2str(remains));
+                    end
                 end
             end
         end
@@ -78,11 +78,13 @@ classdef IX_source < serializable
             if isempty(val)
                 val = '';
             end
-            if is_string(val)
-                obj.name_ = val;
+            if istext(val)
+                obj.name_ = char(val);
             else
                 error('HERBERT:IX_source:invalid_argument',...
-                    'The source name must be a character string')
+                    ['The source name must be a character string.\n' ...
+                    ' Its type is: %s and value %s'], ...
+                    class(val),disp2str(val))
             end
         end
 
@@ -91,10 +93,13 @@ classdef IX_source < serializable
                 val = '';
             end
 
-            if ~is_string(val)
-                error('The target name must be a character string')
+            if ~istext(val)
+                error('HERBERT:IX_source:invalid_argument',...                
+                ['The target name must be a character string.\n ' ...
+                ' Its type is: %s and value %s'], ...
+                    class(val),disp2str(val))                
             end
-            obj.target_name_ = val;
+            obj.target_name_ = char(val);
         end
 
         function obj=set.frequency(obj,val)
