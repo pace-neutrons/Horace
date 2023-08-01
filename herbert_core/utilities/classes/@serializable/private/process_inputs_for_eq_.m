@@ -14,27 +14,25 @@ end
 if numel(lhs_obj) ~= numel(rhs_obj)
     is = false;
     if nargout>1
-        [name1,name2] = check_and_extract_name(names{1},names{2},argi{:});
+        [name_a,name_b] = check_and_extract_name(names{1},names{2},argi{:});
         mess = sprintf('number of elements in %s (%d) is not equal to number of elements in %s (%d)',...
-            name1,numel(lhs_obj),name2,numel(rhs_obj));
+            name_a,numel(lhs_obj),name_b,numel(rhs_obj));
     end
-    return;
-end
-if any(size(lhs_obj) ~= size(rhs_obj))
+elseif any(size(lhs_obj) ~= size(rhs_obj))
     is = false;
     if nargout>1
-        [name1,name2] = check_and_extract_name(names{1},names{2},argi{:});
+        [name_a,name_b] = check_and_extract_name(names{1},names{2},argi{:});
         mess = sprintf('Shape of %s is not equal to shape of %s', ...
-            name1,name2);
+            name_a,name_b);
     end
-    return
+else
+    is = true;
+    if narg_out == 2
+        mess = cell(size(lhs_obj));
+    end
+    [name_a,name_b,argi] = check_and_extract_name(names{1},names{2},argi{:});
 end
 
-is = true;
-if narg_out == 2
-    mess = cell(size(lhs_obj));
-end
-[name_a,name_b,argi] = check_and_extract_name(names{1},names{2},argi{:});
 if nargout>1
     if numel(lhs_obj)>1
         namer = @(x,i)sprintf('%s(%d)',x,i);

@@ -1,43 +1,53 @@
-function val = mean (obj, npath_in, varargin)
+function val = mean (obj, varargin)
 % Mean position of absorption in a slab detector
 %
 %   >> val = mean (obj, npath, wvec)
-%   >> val = mean (obj, npath, ind, wvec)
+%   >> val = mean (obj, ind, npath, wvec)
 %
 % Input:
 % ------
 %   obj         IX_det_slab object
 %
-%   npath       Unit vectors along the neutron path in the detector coordinate
-%               frame for each detector. Vector length 3 or an array size [3,n]
-%               where n is the number of indices (see ind below). If a vector
-%               then npath is expanded internally to [3,n] array
-%
 %   ind         Indices of detectors for which to calculate. Scalar or array.
 %               Default: all detectors (i.e. ind = 1:ndet)
 %
-%   wvec        Wavevector of absorbed neutrons (Ang^-1). Scalar or array.
+%   npath       Unit vectors along the neutron path in the detector coordinate
+%               frame for each detector. Vector length 3 or an array size [3,n]
+%               where n is the number of indices (see ind below). If a vector
+%               then npath is expanded internally to [3,n] array.
 %
-% If both ind and wvec are arrays, then they must have the same number of elements
+%   wvec        Wavevector of absorbed neutrons (Ang^-1). Scalar or array.
+%               If both ind and wvec are arrays, then they must have the same
+%               number of elements, but not necessarily the same shape.
 %
 %
 % Output:
 % -------
-%   val         Mean position of absorption in the detector frame (m)
-%               The size is [3,sz] where sz is the shape of whichever of ind
-%               or wvec is an array, and then the array is squeezed.
-%               If both ind and wvec are arrays, the shape is that of wvec
+%   val         Mean depth of absorption in the detector frame (m)
+%               The output is a stack of column 3-vectors, with the size of 
+%               the stacking array being whichever of ind or wvec is an
+%               array. A leading singleton dimension is squeezed away.
+%
+%               EXAMPLES
+%                   size(wvec) == [2,5]     ==> size(val) == [3,2,5]
+%                   size(wvec) == [1,5]     ==> size(val) == [3,5]
+%                   size(wvec) == [1,1,5]   ==> size(val) == [3,1,5]
+%
+%               Note:
+%                 - if ind is a scalar, the calculation is performed for
+%                  that value at each of the values of wvec
+%                 - if wvec is a scalar, the calculation is performed for
+%                  that value at each of the values of ind
+%
+%               If both ind and wvec are arrays, the shape is that of wvec.
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
-mx = mean_x (obj, npath_in, varargin{:});
-my = mean_y (obj, npath_in, varargin{:});
-mz = mean_z (obj, npath_in, varargin{:});
+mx = mean_x (obj, varargin{:});
+my = mean_y (obj, varargin{:});
+mz = mean_z (obj, varargin{:});
 
-val = reshape([mx(:)';my(:)';mz(:)'], [3,size(mx)]);
-val = squeeze(val);
-
+sz_full = size_array_stack ([3,1], size(mx));
+val = reshape([mx(:)';my(:)';mz(:)'], sz_full);

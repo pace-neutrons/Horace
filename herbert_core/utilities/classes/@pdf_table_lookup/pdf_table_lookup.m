@@ -19,10 +19,10 @@ classdef pdf_table_lookup < serializable
     %
     % Relationship to object_lookup:
     % ------------------------------
-    % This class is similar to <a href="matlab:help('object_lookup');">object_lookup</a>
-    % That class is more general because it supports random sampling that results
+    % The pdf_table_lookup class is similar to <a href="matlab:help('object_lookup');">object_lookup</a>
+    % The object_lookup class is more general because it supports random sampling that results
     % in a vector or array e.g. when the object method rand suplies a set of
-    % points in 3D volume. This class provides random sampling from a one-
+    % points in a 3D volume. This class provides random sampling from a one-
     % dimensional probability distribution function only.
     %
     % Generally, it is better to create an object_lookup object from your set of objects

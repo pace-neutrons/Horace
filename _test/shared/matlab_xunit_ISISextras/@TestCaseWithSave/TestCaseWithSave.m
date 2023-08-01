@@ -162,8 +162,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     % Comparing against a saved value:
     %   assertEqualWithSave                 - assert equality with saved variable
     %   assertEqualToTolWithSave            - assert near-equality with saved variable
-    %   assertElementsAlmostEqualWithSave   - test floating array elements near-equality
-    %   assertVectorsAlmostEqualWithSave    - test vector near-equality in L2 norm sense
+    %   assertElementsAlmostEqualWithSave   - assert floating array elements have near-equality
+    %   assertVectorsAlmostEqualWithSave    - assert vector near-equality in L2 norm sense
+    %
+    %   assertTestWithSave                  - assert truth of a user-supplied test function
     %
     %
     % Utility methods:
@@ -195,7 +197,6 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
 
 
     % Original author A. Buts, rewritten T.G.Perring
-    %
 
 
     properties(Dependent)
@@ -423,11 +424,11 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %       [ok, out1, out2,..] = my_other_test_func (A, Aref, arg1 ,arg2,...)
             %
             %   where the return argument ok is a logical value that indicates
-            %   whether or not the test has passed. The function should print an
-            %   message to be useful. Additional return arguments out1, out2,...can be
-            %   passed but these are ignored by the unit testing framework. This
-            %   alternative form allows many pre-existing validity check functions
-            %   to be used without modification.
+            %   whether or not the test has passed. This alternative form allows
+            %   pre-existing validity check functions to be used without modification.
+            %   The function should print a message to be useful. Additional return
+            %   arguments out1, out2,...can be passed but these are ignored by the
+            %   unit testing framework. 
             %
             %   The input arguments to your test function are:
             %       A           test variable
