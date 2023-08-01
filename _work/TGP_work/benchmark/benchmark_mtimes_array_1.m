@@ -15,7 +15,7 @@ function [T, TL] = benchmark_mtimes_array_1 (n, nloop)
 
 
 % Multiplying matricies of increasing size: conclude mtimesx_horace is about 10
-% times faster
+% times faster (TGP's Dell XPS 15 laptop,(2023))
 
 if isempty(n)
     n = 10.^[0,1,2,3,4,5,6];

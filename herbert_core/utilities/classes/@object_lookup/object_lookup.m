@@ -422,7 +422,7 @@ classdef object_lookup
             %
             % Use <a href="matlab:help('structArrIndep');">structArrIndep</a> to convert an object array to a structure array
             %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
+            % Has the same behaviour as the Matlab intrinsic struct in that:
             % - Any structure array is returned unchanged
             % - If an object is empty, an empty structure is returned with fieldnames
             %   but the same size as the object
@@ -453,14 +453,14 @@ classdef object_lookup
             % Use <a href="matlab:help('structIndep');">structIndep</a> for behaviour that more closely matches the Matlab
             % intrinsic function struct.
             %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
+            % Has the same behaviour as the Matlab intrinsic struct in that:
             % - Any structure array is returned unchanged
             % - If an object is empty, an empty structure is returned with fieldnames
             %   but the same size as the object
             %
             % However, differs in the behaviour if an object array:
             % - If the object is non-empty array, returns a structure array of the same
-            %   size. This is different to the instrinsic Matlab, which returns a scalar
+            %   size. This is different to the intrinsic Matlab, which returns a scalar
             %   structure from the first element in the array of objects
             %
             %
@@ -520,14 +520,14 @@ classdef object_lookup
             % Use <a href="matlab:help('structPublic');">structPublic</a> for behaviour that more closely matches the Matlab
             % intrinsic function struct.
             %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
+            % Has the same behaviour as the Matlab intrinsic struct in that:
             % - Any structure array is returned unchanged
             % - If an object is empty, an empty structure is returned with fieldnames
             %   but the same size as the object
             %
             % However, differs in the behaviour if an object array:
             % - If the object is non-empty array, returns a structure array of the same
-            %   size. This is different to the instrinsic Matlab, which returns a scalar
+            %   size. This is different to the intrinsic Matlab, which returns a scalar
             %   structure from the first element in the array of objects
             %
             %

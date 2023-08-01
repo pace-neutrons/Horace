@@ -18,7 +18,7 @@ function [ix,npix,p,grid_size,ibin]=sort_pixels_by_bins(u,pix_range,grid_size_in
 %   npix(nbin,1)    Number of contributing pixels to the bins in the Cartesian grid
 %                  as a column vector. Bin indicies of reshaped Cartesian grid
 %                  are numbered in the same sequence as would be returned by the
-%                  matlab instrinsic sub2ind)
+%                  matlab intrinsic sub2ind)
 %   p               Cell array [1 x nd] of column vectors of bin boundaries
 %                  in Cartesian grid
 %   grid_size       Scalar or row vector (1xnd) of number of actual bins along each axis
