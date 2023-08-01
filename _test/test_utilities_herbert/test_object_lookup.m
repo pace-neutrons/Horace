@@ -284,9 +284,11 @@ classdef test_object_lookup < TestCase
         % Test rand_ind
         %--------------------------------------------------------------------------
         function test_random_sampling_of_distributions_arr1 (obj)
-            % Test that randomly selected points from an array of objects 
-            % stored in the object_lookup object are correctly pulled from
-            % the different pdf for the different unique objects.
+            % Test that a large set of random samples drawn from the probability 
+            % distribution functions (PDFs) for an array of objects 
+            % stored in the object_lookup object are pulled from
+            % the correct PDFs for the different unique objects held in that
+            % object_lookup object.
             
             % Get a large random array of indices in the range 1 to the number
             % of objects in one of the arrays stored in the object_lookup instance
@@ -308,9 +310,9 @@ classdef test_object_lookup < TestCase
         
         
         function test_random_sampling_of_distributions_arr2 (obj)
-            % Same as test_random_sampling_of_distributions_1 except for
-            % second stored object array. This test some internal indexing
-            % that picks out the correct array
+            % Same as test_random_sampling_of_distributions_arr1 except now 
+            % performed for the second stored object array. This test some
+            % internal indexing that picks out the correct array
 
             sz = [100, 5e3, 10];     % size of desired random selection of points
             ind = randselection (1:numel(obj.carr2), sz); 

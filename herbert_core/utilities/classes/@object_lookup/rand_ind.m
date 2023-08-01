@@ -1,5 +1,17 @@
 function varargout = rand_ind (obj, iarray, varargin)
 % Generate random samples for indexed occurences within a particular object array
+%
+% It is assumed that there is a method of the class of the objects in the array
+% that provides random samples - which can be of any class (numeric, logical,
+% user-defined classes...) and any number of return arguments. This could be,
+% for example a random vector describing a point in space together with a random
+% colour returned as a character string.
+%
+% The purpose of this method is to efficiently handle the book-keeping of
+% generating and returning the samples for a large number of indexed occurences
+% into a compressed representation of the object array as an object_lookup
+% object.
+% 
 % There are two forms:
 %   - The indexed occurences are to objects in an object array:
 %       >> [X1, X2,...] = rand_ind (obj, iarray, ind, randfunc, ...)
@@ -17,7 +29,7 @@ function varargout = rand_ind (obj, iarray, varargin)
 %   >> [X1, X2,...] = rand_ind (..., 'split', randfunc, p1, p2, ...)
 %   >> [X1, X2,...] = rand_ind (..., 'split', iargs, randfunc, p1, p2, ...)
 %
-% The purpose is to return random points from an array of objects, defined by
+% The purpose is to return random samples from an array of objects, defined by
 % index iarray into the compressed array-of-arrays held in argument obj, and
 % then select one random sample per element in that array as indexed by
 % the array ind.
@@ -87,7 +99,7 @@ function varargout = rand_ind (obj, iarray, varargin)
 %
 %               - If ielmts not present:
 %       [X1, X2,...] = randfunc (object)               % generate a single random point
-%       [X1, X2,...] = randfunc (object, n)            % n x n matrix of random points
+%       [X1, X2,...] = randfunc (object, n)            % n x n matrix of random samples
 %       [X1, X2,...] = randfunc (object, sz)           % array of size sz
 %       [X1, X2,...] = randfunc (object, sz1, sz2,...) % array of size [sz1,sz2,...]
 %       [X1, X2,...] = randfunc (..., p1, p2, ...)     % with further optional arguments
@@ -113,7 +125,7 @@ function varargout = rand_ind (obj, iarray, varargin)
 %
 % Output:
 % -------
-%   X1, X2,...  Arrays of random points. The output arrays for each value of
+%   X1, X2,...  Arrays of random samples. The output arrays for each value of
 %               ind are stacked. For example, if the size of X1 for a single
 %               call to randfunc is sz1, then the size of X1 returned by
 %               rand_ind is [sz1,size(ind)] but with leading singleton
@@ -179,7 +191,7 @@ function varargout = rand_ind_private (obj, ind, ielmts, randfunc, args, split)
 %
 %               - If ielmts not present:
 %       [X1, X2,...] = randfunc (object)               % generate a single random point
-%       [X1, X2,...] = randfunc (object, n)            % n x n matrix of random points
+%       [X1, X2,...] = randfunc (object, n)            % n x n matrix of random samples
 %       [X1, X2,...] = randfunc (object, sz)           % array of size sz
 %       [X1, X2,...] = randfunc (object, sz1, sz2,...) % array of size [sz1,sz2,...]
 %       [X1, X2,...] = randfunc (..., p1, p2, ...)     % with further optional arguments
@@ -197,7 +209,7 @@ function varargout = rand_ind_private (obj, ind, ielmts, randfunc, args, split)
 %
 % Output:
 % -------
-%   X1, X2,...  Arrays of random points. The output arrays for each value of
+%   X1, X2,...  Arrays of random samples. The output arrays for each value of
 %               ind are stacked. For example, if the size of X1 for a single
 %               call to randfunc is sz1, then the size of X1 returned by
 %               rand_ind is [sz1,size(ind)] but with leading singleton

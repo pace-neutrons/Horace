@@ -26,7 +26,7 @@ function split = parse_split (narg, char_opt, iargs)
 
 if ~isempty(char_opt) && is_string(char_opt) && ...
         strncmpi(char_opt, 'split', numel(char_opt))
-    if nargin==2 || isempty(iargs)  % input argument iargs is given
+    if nargin==2 || isempty(iargs)  % input argument iargs is not given
         split = true(1,narg);
     else
         if isnumeric(iargs) && all(iargs(:)>=1) && all(iargs(:)<=narg) &&...
