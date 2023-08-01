@@ -23,6 +23,28 @@ classdef test_IX_experiment <  TestCase
             ch2 = exp2.get_comparison_hash();
             assertFalse(isequal(ch1,ch2));
         end
+        function test_goniometer_key_construction(~)
+            gon = goniometer(10,[0,1,0],[1,0,0]);
+
+            exp1 = IX_experiment('my_file','my_path',666,10,1,1:9,'uoffset',[1,0,0,10], ...
+                'goniometer',gon);
+
+            assertEqual(exp1.psi,10)
+            assertEqual(exp1.filename,'my_file')
+            assertEqual(exp1.cu,[0,1,0])
+            assertEqual(exp1.cv,[1,0,0])
+            assertEqual(exp1.uoffset,[1,0,0,10])
+        end
+
+        function test_goniometer_construction(~)
+            gon = goniometer(10,[0,1,0],[1,0,0]);
+            exp1 = IX_experiment('my_file','my_path',666,10,1,1:9,gon);
+
+            assertEqual(exp1.psi,10)
+            assertEqual(exp1.filename,'my_file')
+            assertEqual(exp1.cu,[0,1,0])
+            assertEqual(exp1.cv,[1,0,0])
+        end
 
         function test_comparison_hash_eq(~)
             exp1 = IX_experiment('my_file','my_path',1,20,1,'psi',10);
@@ -156,10 +178,10 @@ classdef test_IX_experiment <  TestCase
         end
 
         function test_full_construnctor(~)
-            par_names={'filename', 'filepath','run_id', 'efix','emode','cu',...
-                'cv','psi','omega','dpsi','gl','gs','en','uoffset','u_to_rlu'};
-            par_val = {'my_file','my_name',666,10,1,[1,0,0],[0,1,0],...
-                10,1,2,3,4,[1,2,4,8]',[0,0,0,0],eye(4)};
+            par_names={'filename', 'filepath','run_id', 'efix','emode','en','cu',...
+                'cv','psi','omega','dpsi','gl','gs','uoffset','u_to_rlu'};
+            par_val = {'my_file','my_name',666,10,1,[1,2,4,8]',[1,0,0],[0,1,0],...
+                10,1,2,3,4,[0,0,0,0],eye(4)};
 
             pv_map = containers.Map(par_names,par_val);
 

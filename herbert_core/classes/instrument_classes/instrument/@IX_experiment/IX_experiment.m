@@ -17,11 +17,12 @@ classdef IX_experiment < goniometer
         emode;
         efix;
         en;  % array of all energy transfers, present in the experiment
-        cu;
-        cv;
+        goniometer;
     end
     properties(Dependent,Hidden)
         u_to_rlu;
+        cu % alternative names for u and v, used in goniometer class
+        cv % and during gen_sqw generation
     end
 
     properties(Hidden)
@@ -161,22 +162,45 @@ classdef IX_experiment < goniometer
             obj.u_to_rlu_ = val;
         end
         %
-        function u = get.cu(obj)
+        function u=get.cu(obj)
             u = obj.u_;
         end
-        function obj = set.cu(obj,val)
-            obj.u = val;
-            obj.hash_valid_  = false;
+        function obj=set.cu(obj,u)
+            obj = check_and_set_uv(obj,'u',u);
         end
         %
-        function v = get.cv(obj)
+        function v=get.cv(obj)
             v = obj.v_;
         end
-        function obj = set.cv(obj,val)
-            obj.v = val;
-            obj.hash_valid_  = false;
+        function obj=set.cv(obj,v)
+            obj = check_and_set_uv(obj,'v',v);
         end
-
+        %
+        function gon = get.goniometer(obj)
+            str = obj.to_bare_struct();
+            str.u = obj.cu;
+            str.v = obj.cv;
+            gon = goniometer(str);
+        end
+        function obj = set.goniometer(obj,val)
+            if isstruct(val)
+                if isfield(val,'u')
+                    val.cu = val.u;
+                end
+                if isfield(val,'v')
+                    val.cv = val.v;
+                end
+            elseif isa(val,'goniometer')
+                val = val.to_bare_struct();
+                val.cu = val.u;
+                val.cv = val.v;
+            else
+                error('HORACE:IX_experiment:invalid_argument', ...
+                    'Goniometer property accepts input as a class "goniometer" or a structure, convertable into goniometer.\n Provided %s', ...
+                    class(val));
+            end
+            obj = obj.from_bare_struct(val);
+        end
     end
     %----------------------------------------------------------------------
     methods
@@ -259,6 +283,12 @@ classdef IX_experiment < goniometer
 
     end
     methods(Access=protected)
+        function obj = check_and_set_uv(obj,name,val)
+            % main overloadable setter for u and v
+            obj = check_and_set_uv@goniometer(obj,name,val);
+            obj.hash_valid_  = false;
+        end
+
         function [val,obj] = check_angular_val(obj,val)
             % main overloadable setter function for goniometer angles
             [val,obj] = check_angular_val@goniometer(obj,val);
@@ -266,12 +296,33 @@ classdef IX_experiment < goniometer
         end
 
     end
+    methods(Static)
+        %------------------------------------------------------------------
+        % SQW_binfile_common methods related to saving to old format binfile and
+        % run_id scrambling:
+        function [obj,alatt,angdeg] = build_from_binfile_header(inputs)
+            % Inputs: the old header structure, stored in binfile
+            old_fldnms = {'filename','filepath','efix','emode','en','cu',...
+                'cv','psi','omega','dpsi','gl','gs','uoffset','u_to_rlu'};
+            obj = IX_experiment();
+            for i=1:numel(old_fldnms)
+                obj.(old_fldnms{i}) = inputs.(old_fldnms{i});
+            end
+            alatt = inputs.alatt;
+            angdeg = inputs.angdeg;
+            [runid,filename] = rundata.extract_id_from_filename(inputs.filename);
+            if ~isnan(runid)
+                obj.run_id = runid;
+                obj.filename = filename;
+            end
+        end
+    end
     %----------------------------------------------------------------------
     % SERIALIZABLE interface
     properties(Constant,Access=private)
         % fields, which fully define public interface to the class
-        fields_to_save_ = {'filename','filepath','run_id','efix','emode','cu',...
-            'cv','psi','omega','dpsi','gl','gs','en','uoffset','u_to_rlu'};
+        fields_to_save_ = {'filename','filepath','run_id','efix','emode','en',...
+            'cu','cv','psi','omega','dpsi','gl','gs','uoffset','u_to_rlu'};
     end
     methods
         function flds = saveableFields(~)
@@ -324,25 +375,6 @@ classdef IX_experiment < goniometer
             % only
             obj = IX_experiment();
             obj = loadobj@serializable(S,obj);
-        end
-        %------------------------------------------------------------------
-        % SQW_binfile_common methods related to saving to binfile and
-        % run_id scrambling:
-        function [obj,alatt,angdeg] = build_from_binfile_header(inputs)
-            % Inputs: the old header structure, stored in binfile
-            old_fldnms = {'filename','filepath','efix','emode','cu',...
-                'cv','psi','omega','dpsi','gl','gs','en','uoffset','u_to_rlu'};
-            obj = IX_experiment();
-            for i=1:numel(old_fldnms)
-                obj.(old_fldnms{i}) = inputs.(old_fldnms{i});
-            end
-            alatt = inputs.alatt;
-            angdeg = inputs.angdeg;
-            [runid,filename] = rundata.extract_id_from_filename(inputs.filename);
-            if ~isnan(runid)
-                obj.run_id = runid;
-                obj.filename = filename;
-            end
         end
     end
 end

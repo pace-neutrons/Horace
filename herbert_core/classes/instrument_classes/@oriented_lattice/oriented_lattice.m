@@ -62,6 +62,7 @@ classdef oriented_lattice < goniometer
         reason_for_invalid;
     end
     properties(Constant,Hidden)
+        % fields defined in lattice
         lattice_fields = [goniometer.gon_fields_(:);oriented_lattice.lat_fields_(:)];
     end
 

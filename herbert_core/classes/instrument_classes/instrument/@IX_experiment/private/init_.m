@@ -23,12 +23,29 @@ if nargin == 2
             class(input));
     end
 elseif nargin > 2
-    % list of crude validators, checking the type of all input
-    % parameters for constructor. Mainly used to identify the
-    % end of positional arguments and the beginning of the
-    % key-value pairs. The accurate validation should occur on
-    % setters.
+    %
     flds = obj.saveableFields();
+    % select possible costruction using goniometer itself and goniometer
+    % parameters
+    is_gon = cellfun(@(x)isa(x,'goniometer'),varargin);
+    if any(is_gon) % then goniometer parameters should not be provided independently
+        gon_num = find(is_gon);
+        % if goniometer parameter is provided as a key
+        is_gon_key = cellfun(@(x)(istext(x)&&strncmp(x,'goniometer',max(3,numel(x)))),varargin);
+        if any(is_gon_key)
+            gon_key_num = find(is_gon_key);
+            if numel(gon_num)>1 || gon_key_num+1 ~=gon_num
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    ['Goniometer key (input N:%d) and Goniometer value (input N:%d) are inconsistent\n' ...
+                    'goniometer key inconsistent with goniometer value or two goniometers provided'],...
+                    gon_key_num,gon_num);
+            end
+            flds = [flds(:);'goniometer'];
+        else % goniometer as positional parameter
+            % remove goniometer properties from the list of the input parameters
+            flds = [flds(1:gon_num-1)';'goniometer';'uoffset'];
+        end
+    end
     [obj,remains] = set_positional_and_key_val_arguments(obj,...
         flds,false,varargin{:});
     if ~isempty(remains)

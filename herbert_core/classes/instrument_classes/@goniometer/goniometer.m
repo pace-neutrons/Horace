@@ -153,15 +153,14 @@ classdef goniometer < serializable
             u = obj.u_;
         end
         function obj=set.u(obj,u)
-            obj = check_and_set_uv_(obj,'u',u);
+            obj = check_and_set_uv(obj,'u',u);
         end
-        %
         function v=get.v(obj)
             v = obj.v_;
         end
         function obj=set.v(obj,v)
-            obj = check_and_set_uv_(obj,'v',v);
-        end
+            obj = check_and_set_uv(obj,'v',v);
+        end        
     end
     %======================================================================
     % partial load and angular transformations.
@@ -228,6 +227,10 @@ classdef goniometer < serializable
 
     end
     methods(Access=protected)
+        function obj = check_and_set_uv(obj,name,val)
+            % main overloadable setter for u and v
+            obj = check_and_set_uv_(obj,name,val);
+        end
         function [val,obj] = check_angular_val(obj,val)
             % main overloadable setter function for goniometer angles
             val = check_angular_set_(obj,val);

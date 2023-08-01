@@ -80,7 +80,6 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
 [fp,fn,fe]=fileparts(obj.data_file_name);
 
 lat = obj.lattice.set_rad();
-[~, u_to_rlu] = obj.lattice.calc_proj_matrix();
 offset = [0;0;0;0];
 
 % set projection lattice, which transforms initial pixel coordinates to
@@ -95,10 +94,7 @@ proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg, 'type','aaa');
 
 sqw_data = DnDBase.dnd(axes_bl,proj);
 
-expdata = IX_experiment([fn,fe], [fp,filesep], ...
-    obj.efix,obj.emode,lat.u,lat.v,...
-    lat.psi,lat.omega,lat.dpsi,lat.gl,lat.gs,...
-    obj.en,offset,  u_to_rlu, ...
-    [1,1,1,1],sqw_data.label,obj.run_id);
+expdata = IX_experiment([fn,fe], [fp,filesep],obj.run_id, ...
+    obj.efix,obj.emode,obj.en,lat,'uoffset',offset);
 
 header = Experiment([],obj.instrument,obj.sample,expdata);

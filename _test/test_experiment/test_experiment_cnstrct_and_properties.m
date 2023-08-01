@@ -74,7 +74,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertTrue(isempty(expt.expdata));
         end
         function test_constructor_raises_error_with_invalid_single_input(~)
-            assertExceptionThrown(@()Experiment('something icorrect'),...
+            assertExceptionThrown(@()Experiment('something incorrect'),...
                 'HORACE:Experiment:invalid_argument');
         end
 
