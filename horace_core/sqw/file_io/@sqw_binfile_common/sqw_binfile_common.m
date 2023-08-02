@@ -135,7 +135,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             [exp_info,~]  = obj.get_exp_info(1);
             header_av = exp_info.header_average;
             u_to_rlu  = header_av.u_to_rlu(1:3,1:3);
-            if any(abs(subdiag_elements(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
+            if any(abs(subdiag_elements(u_to_rlu))>4*eps('single')) % if all 0, its B-matrix so certainly
                 proj = dnd_obj.proj; % no alignment; otherwise, may be aligned. 
                 % be cautious.
                 dnd_obj.proj = proj.set_ub_inv_compat(u_to_rlu);

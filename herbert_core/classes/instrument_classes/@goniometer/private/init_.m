@@ -24,7 +24,7 @@ elseif isnumeric(varargin{1}) || ischar(varargin{1}) % the initialization is don
     % arguments followed by key-value pairs or numeric positional arguments
     % followed (optionally) by key-value pairs
     %
-    flds = obj.saveableFields();
+    flds = obj.constructionFields();
     [is,value,argi] = obj.check_angular_units_present(varargin{:});
     if is% the constructor defines specific units for
         % the angular values. It has to be set first

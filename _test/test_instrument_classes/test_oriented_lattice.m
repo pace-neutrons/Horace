@@ -70,7 +70,7 @@ classdef test_oriented_lattice< TestCase
             ol.angdeg= 90;
             assertEqual('deg',ol.angular_units)
 
-            ol = ol.set_rad();
+            ol.angular_units = 'rad';
             assertEqual('rad',ol.angular_units)
 
             toRad=pi/180.;
@@ -80,7 +80,7 @@ classdef test_oriented_lattice< TestCase
             assertElementsAlmostEqual(40*toRad,ol.gl)
             assertElementsAlmostEqual(50*toRad,ol.gs)
 
-            ol=ol.set_deg();
+            ol.angular_units='deg';
             assertElementsAlmostEqual(10,ol.psi)
             assertElementsAlmostEqual(20,ol.omega)
             assertElementsAlmostEqual(30,ol.dpsi)
@@ -200,7 +200,7 @@ classdef test_oriented_lattice< TestCase
 
             assertEqual(ol.alatt,[2,3,4]) % key arguments redefines positional argument
             assertEqual(ol.angular_units,'deg')
-            ol = ol.set_rad();
+            ol.angular_units = 'rad';
             assertEqual(ol.psi,20*pi/180)
         end
 

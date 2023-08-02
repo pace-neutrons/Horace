@@ -79,7 +79,8 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
 % -------------------
 [fp,fn,fe]=fileparts(obj.data_file_name);
 
-lat = obj.lattice.set_rad();
+lat = obj.lattice;
+lat.angular_units = 'rad';
 offset = [0;0;0;0];
 
 % set projection lattice, which transforms initial pixel coordinates to

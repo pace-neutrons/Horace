@@ -124,7 +124,6 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_nopix(obj)
-            skipTest('Re #892 There is issue with cut alignment in master, sorted within the ticket #892')
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
 
             ref_sqw = read_dnd(obj.ref_cut_file);
@@ -392,13 +391,16 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_out_of_memory_cut_tmp_files_no_mex(obj)
-            mem_chunk_size = 5e5;  % this gives two pages of pixels over obj.sqw_file
+            num_pixels = 200118; % number of pixels in the test file.
+            mem_chunk_size = floor(num_pixels/1.9/10);  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cleanup_config_handle = set_temporary_config_options( ...
                 hor_config, ...
                 'mem_chunk_size', mem_chunk_size, ...
                 'use_mex', false ...
                 );
+            % assure that we are realy doing filebacked cut
+            assertTrue(PixelDataBase.do_filebacked(num_pixels));
 
             cut(obj.sqw_file, obj.ref_params{:}, outfile);
             cleanup_tmp_file = onCleanup(@() clean_up_file(outfile));

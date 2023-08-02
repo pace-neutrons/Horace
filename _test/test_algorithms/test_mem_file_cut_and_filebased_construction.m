@@ -84,16 +84,15 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             sqw_1d_source = {fullfile(source,'sqw_1d_1.sqw'),...
                 fullfile(source,'sqw_1d_2.sqw')};
 
-            obj.sqw1d_arr = repmat(sqw(),1,2);
-            obj.sqw1d_arr(1)=read_sqw(sqw_1d_source{1});
-            obj.sqw1d_arr(2)=read_sqw(sqw_1d_source{2});
+
+            obj.sqw1d_arr=read_sqw(sqw_1d_source);
+
 
             sqw_2d_source = {fullfile(source,'sqw_2d_1.sqw'),...
                 fullfile(source,'sqw_2d_2.sqw')};
 
-            obj.sqw2d_arr = repmat(sqw(),1,2);
-            obj.sqw2d_arr(1)=read_sqw(sqw_2d_source{1});
-            obj.sqw2d_arr(2)=read_sqw(sqw_2d_source{2});
+            obj.sqw2d_arr=read_sqw(sqw_2d_source);
+
 
             obj.d1d_arr=dnd(obj.sqw1d_arr);
             obj.d2d_arr=dnd(obj.sqw2d_arr);

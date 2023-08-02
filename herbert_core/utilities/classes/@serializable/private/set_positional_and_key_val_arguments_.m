@@ -50,10 +50,11 @@ obj.do_check_combo_arg_ = false;
 % process positional arguments
 if any(is_positional)
     if sum(is_positional)> numel(positional_arg_names)
-        error('HERBERT:serializable:invalid_argument',...
-            ['More positional arguments identified: (%d) then properties values required: (%d).\n', ...
-            ' Looks like some keys from key-value pairs have been identified as property values'],...
-            sum(is_positional),numel(positional_arg_names))
+        npa        = numel(positional_arg_names);
+        pos_remains = is_positional;
+        pos_remains(1:npa) = false;
+        is_positional = ~pos_remains;
+        remains = [remains(:);argi(pos_remains)'];
     end
     pos_arg_val   = argi(is_positional);
     pos_arg_names = positional_arg_names(1:numel(pos_arg_val));

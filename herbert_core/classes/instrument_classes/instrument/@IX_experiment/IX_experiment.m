@@ -17,28 +17,30 @@ classdef IX_experiment < goniometer
         emode;
         efix;
         en;  % array of all energy transfers, present in the experiment
-        goniometer;
+
     end
     properties(Dependent,Hidden)
+        % returns goniometer sliced from this object
+        goniometer;
+        % redundant poperty. Was inv(b_matrix). left for compartibility
+        % with legacy alignment
         u_to_rlu;
         cu % alternative names for u and v, used in goniometer class
         cv % and during gen_sqw generation
     end
 
     properties(Hidden)
+        % Always 0. Candidate for removal
         uoffset=[0,0,0,0];
-
-        ulen=[];
-        ulabel=[];
     end
     properties(Access=protected)
         filename_=''
         filepath_='';
         run_id_ = NaN;
-        emode_ = 1;
-        en_ = zeros(0,1);
-        efix_ = [];
-        u_to_rlu_ = eye(3);
+        emode_ = 0;
+        en_   = zeros(0,1);
+        efix_ = 0;
+        u_to_rlu_ = [];
     end
     properties(Access= private)
         % the hash used to compare IX_experiments for equality
@@ -139,19 +141,27 @@ classdef IX_experiment < goniometer
             ef = obj.efix_;
         end
         function obj = set.efix(obj,val)
-            if val<=0
+            if val < 0
                 error('HERBERT:IX_experiment:invalid_argument',...
-                    'efix (incident energy) have to be positive')
+                    'efix (incident energy) can not be negative')
             end
             obj.efix_ = val;
             obj.hash_valid_  = false;
         end
         %
         function mat = get.u_to_rlu(obj)
-            mat = eye(4);
-            mat(1:3,1:3) = obj.u_to_rlu_;
+            if isempty(obj.u_to_rlu_)
+                mat = [];
+            else
+                mat = eye(4);
+                mat(1:3,1:3) = obj.u_to_rlu_;
+            end
         end
         function obj = set.u_to_rlu(obj,val)
+            if isempty(val)
+                obj.u_to_rlu_ = [];
+                return
+            end
             if all(size(val)== [4,4])
                 val = val(1:3,1:3);
             end
@@ -321,27 +331,42 @@ classdef IX_experiment < goniometer
     % SERIALIZABLE interface
     properties(Constant,Access=private)
         % fields, which fully define public interface to the class
-        fields_to_save_ = {'filename','filepath','run_id','efix','emode','en',...
-            'cu','cv','psi','omega','dpsi','gl','gs','uoffset','u_to_rlu'};
+        fields_to_save_ = {'filename','filepath','run_id','efix','emode','en'};
     end
     methods
-        function flds = saveableFields(~)
-            flds = IX_experiment.fields_to_save_;
+        function flds = saveableFields(obj)
+            base= saveableFields@goniometer(obj);
+            flds = [IX_experiment.fields_to_save_(:);base(:)];
+            if ~isempty(obj.u_to_rlu_) || isnan(obj.run_id_) % run_id_ is NaN on non-initialized file
+                flds = [flds(:);'u_to_rlu'];
+            end
         end
+        function flds = constructionFields(obj)
+            base= constructionFields@goniometer(obj);
+            flds = [IX_experiment.fields_to_save_(:);base(:)];
+
+        end
+
         function ver  = classVersion(~)
             % return the version of the IX-experiment class
             ver = 3;
         end
-        % Do we need this? current usage of the hash is very restricted so
-        % it is reasonable to calculate it on request only
-        %         function obj = check_combo_arg(obj)
-        %             % verify interdependent variables and the validity of the
-        %             % obtained lattice object
-        %             obj = check_combo_arg@goniometer(obj);
-        %             if ~obj.hash_valid_
-        %                 [~,obj.comparison_hash_] = obj.get_comparison_hash();
-        %             end
-        %         end
+        function obj = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained lattice object
+            obj = check_combo_arg@goniometer(obj);
+            if obj.efix_ == 0 && obj.emode_ ~=0
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'efix (incident energy) can be 0 in elastic mode only. Emode=%d', ...
+                    obj.emode_)
+
+            end
+            % Do we need this? current usage of the hash is very restricted so
+            % it is reasonable to calculate it on request only
+            %             if ~obj.hash_valid_
+            %                 [~,obj.comparison_hash_] = obj.get_comparison_hash();
+            %             end
+        end
 
     end
 
@@ -363,6 +388,18 @@ classdef IX_experiment < goniometer
                     % These fields are redundant for instr_proj and moved
                     % to sqw.data (DnD object)
                     inputs.version = 3;
+                    inputs.angular_is_degree = false;
+                    if isfield(inputs,'cu')
+                        inputs.u = inputs.cu;
+                    end
+                    if isfield(inputs,'cv')
+                        inputs.v = inputs.cv;
+                    end
+                    
+                    if ~(isfield(inputs,'u_to_rlu') && ...
+                            any(subdiag_elements(inputs.u_to_rlu)>4*eps('single')))
+                        inputs = rmfield(inputs,'u_to_rlu');
+                    end
                 end
             end
             obj = from_old_struct@serializable(obj,inputs);
@@ -370,11 +407,17 @@ classdef IX_experiment < goniometer
     end
     methods(Static)
         function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
+            % crafted loadobj method, calling generic method of
             % saveable class, necessary to load data from old structures
-            % only
+            % + support for legacy alignment matrix
             obj = IX_experiment();
             obj = loadobj@serializable(S,obj);
+            % support for legacy alignment:
+            for i=1:numel(obj)
+                if isfield(S(i),'u_to_rlu') && any(subdiag_elements(inputs.u_to_rlu)>4*eps('single'))
+                    obj(i).u_to_rlu = S(i).u_to_rlu;
+                end
+            end
         end
     end
 end

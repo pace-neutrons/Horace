@@ -170,6 +170,11 @@ classdef oriented_lattice < goniometer
             fld_b = saveableFields@goniometer(obj);
             flds = [fld_l(:);fld_b(:)];
         end
+        function flds = constructionFields(obj)
+            fld_l = {'alatt';'angdeg'};
+            fld_b = constructionFields@goniometer(obj);
+            flds = [fld_l(:);fld_b(:)];
+        end
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained lattice object

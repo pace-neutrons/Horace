@@ -27,8 +27,6 @@ classdef goniometer < serializable
     %
     %
     % where:
-    %   alatt           [1x3] vector of Lattice parameters (Ang^-1)
-    %   angdeg          [1x3] vector of Lattice angles (deg)
     %   psi             Angle of u w.r.t. ki (deg) - The rotation angle
     %                   between the beam direction and the selected
     %                   orientation of the crystal defined by vector u
@@ -41,11 +39,18 @@ classdef goniometer < serializable
     %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
     %
     %  angular_units    deg|rad -- the angular units values are expressed
-    %                   in degrees or radians
+    %                   in degrees or radians. Default value is 'deg'
     %
     % All  angular values are set in degrees or radians depending on angular_units
-    % property values. They are retrieved in units of degrees or radians
+    % property value. They are retrieved in units of degrees or radians
     % depending on the angular_units property value
+    %
+    % NOTE: setting angular_units into different unit recalculates values
+    % of goniometer angles. Set hidden property angular_is_degree to
+    % true/false if you want to change units without modifying angular
+    % values.
+    %
+    %
     %
     %
     properties(Dependent)
@@ -160,7 +165,7 @@ classdef goniometer < serializable
         end
         function obj=set.v(obj,v)
             obj = check_and_set_uv(obj,'v',v);
-        end        
+        end
     end
     %======================================================================
     % partial load and angular transformations.
@@ -188,17 +193,6 @@ classdef goniometer < serializable
             obj = recalculate_angular_units_values_(obj,old_val);
         end
         %
-        function obj = set_deg(obj)
-            old_val = obj.angular_is_degree_;
-            obj.angular_is_degree_=true;
-            obj = recalculate_angular_units_values_(obj,old_val);
-        end
-        %
-        function obj = set_rad(obj)
-            old_val = obj.angular_is_degree_;
-            obj.angular_is_degree_=false;
-            obj = recalculate_angular_units_values_(obj,old_val);
-        end
         function is = get.angular_is_degree(obj)
             is = obj.angular_is_degree_;
         end
@@ -266,8 +260,12 @@ classdef goniometer < serializable
             ver = 1;
         end
         function flds = saveableFields(~)
+            flds = [goniometer.gon_fields_(:);'angular_is_degree'];
+        end
+        function flds = constructionFields(~)
             flds = [goniometer.gon_fields_(:);'angular_units'];
         end
+        
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained lattice object

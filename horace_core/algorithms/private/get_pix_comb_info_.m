@@ -188,7 +188,8 @@ clear nopix
 if keep_runid
     run_label = 'nochange';
 else
-    run_label=cumsum(nspe(1:end));
+    keys = exper_combined.runid_map.keys;
+    run_label=[keys{:}];
 end
 % if old_matlab
 %     npix_cumsum = cumsum(double(sqw_data.npix(:)));

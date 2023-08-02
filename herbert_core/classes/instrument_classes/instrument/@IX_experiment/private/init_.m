@@ -24,7 +24,7 @@ if nargin == 2
     end
 elseif nargin > 2
     %
-    flds = obj.saveableFields();
+    flds = obj.constructionFields();
     % select possible costruction using goniometer itself and goniometer
     % parameters
     is_gon = cellfun(@(x)isa(x,'goniometer'),varargin);
@@ -43,7 +43,7 @@ elseif nargin > 2
             flds = [flds(:);'goniometer'];
         else % goniometer as positional parameter
             % remove goniometer properties from the list of the input parameters
-            flds = [flds(1:gon_num-1)';'goniometer';'uoffset'];
+            flds = [flds(1:gon_num-1);'goniometer';'uoffset'];
         end
     end
     [obj,remains] = set_positional_and_key_val_arguments(obj,...
