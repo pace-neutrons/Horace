@@ -62,7 +62,7 @@ else
     proj = {};
 end
 
-if ~proj.isorthogonal
+if ~proj.nonorthogonal
     error('HORACE:symmetrise_sqw:invalid_argument', ...
           'Cannot symmetrise to non-orthogonal projection');
 end
