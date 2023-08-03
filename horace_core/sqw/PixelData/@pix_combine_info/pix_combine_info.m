@@ -166,7 +166,7 @@ classdef pix_combine_info < serializable
         function obj = set.infiles(obj,val)
             if ~iscellstr(val)
                 if istext(val)
-                    val = {val};
+                    val = cellstr(val);
                 else
                     error('HORACE:pix_combine_info:invalid_argument',...
                         'infiles input should be cellarray of filenames to combine');

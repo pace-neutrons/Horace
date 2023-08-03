@@ -118,7 +118,7 @@ classdef test_goniometer< TestCase
             assertExceptionThrown(@()to_throw(ol,'v',[]), ...
                 'HERBERT:goniometer:invalid_argument');
 
-            %rd.v = [10^-10,0,0]; -- does not accept empty vectors
+            %rd.v = [10^-10,0,0]; -- does not accept small vectors
             assertExceptionThrown(@()to_throw(ol,'v',[1.e-11,0,0]), ...
                 'HERBERT:goniometer:invalid_argument');
         end
@@ -152,11 +152,20 @@ classdef test_goniometer< TestCase
             undef = ol.undef_fields;
             assertTrue(isempty(undef));
         end
+        function test_constructor_with_wrong_keyval_throw(~)
+
+            mult = pi/180;
+            assertExceptionThrown(@()goniometer('psi',20,...
+                'gl',3*mult,'angdeg',[40,45,50]*mult,'angular_units','rad',...
+                'HERBERT:goniometer:invalid_argument'));
+        end
+
+
         function test_full_constructor_with_keyval(~)
 
             mult = pi/180;
             ol = goniometer('psi',20*mult,...
-                'gl',3*mult,'angdeg',[40,45,50]*mult,'angular_units','rad');
+                'gl',3*mult,'angular_units','rad');
 
             assertTrue(ol.is_defined('psi'));
 

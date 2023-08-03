@@ -54,10 +54,9 @@ else
         end
     end
     % check if 'angular_units' is present as key-value pair
-    is_ang = cellfun(@(x)istext(x)&&strncmp(x,'angular_units',numel(x)),argi);
+    is_ang = cellfun(@(x)istext(x)&&strncmp(x,'angular_units',max(3,numel(x))),argi);
     % check if angular units are defined using key-value pair
-    if any(is_ang) % the constructor defines specific units for
-        % the angular values. It has to be set first
+    if any(is_ang)
         is = true;
         au_key_num = find(is_ang);
         au_val_num = au_key_num +1;

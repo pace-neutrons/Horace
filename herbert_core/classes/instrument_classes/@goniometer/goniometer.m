@@ -4,26 +4,27 @@ classdef goniometer < serializable
     % and contains various service functions to work with such goniometer
     %
     % Usage:
-    %>>lat = oriented_lattice() -- build oriented lattice with default
-    %                             parameters. Some parameters of such
-    %                             lattice can be considered undefined and
-    %                             some -- have default values
+    %>>lat = goniometer() -- build goniometer with default
+    %                             parameters. angle psi of such
+    %                             goniometer can be considered undefined and
+    %                             all others - have default values
     % or:
-    %>>lat = oriented_lattice(psi)       !- build goniometer using
-    %>>lat = oriented_lattice(psi,u)     ! default positional
-    %>>lat = oriented_lattice(psi,u,v)   ! parameters
-    %>>lat = oriented_lattice(....,key,value)       --!
+    %>>lat = goniometer(psi)       !- build goniometer using
+    %>>lat = goniometer(psi,u)     ! default positional
+    %>>lat = goniometer(psi,u,v)   ! parameters
+    %>>lat = goniometer(....,key,value)       --!
     % or:
     % Constructor which defines all lattice parameters in the positions,
     % specified as below:
-    %>>lat = oriented_lattice(alatt,angdeg,psi,u,v,omega,dpsi,gl,gs,['deg'|'rad'])
+    %>>lat = goniometer(psi,u,v,omega,dpsi,gl,gs,['deg'|'rad'])
     %
     %        where optional 'deg'|'rad' key specifies degree or radian
-    %        units used for angular parameters. Default is 'degree'
+    %        units input angular parameters are expressed in.
+    %        Default is 'degree'
     % or:
-    %>>lat = oriented_lattice(struct) -- build oriented lattice from
+    %>>lat = goniometer(struct) -- build goniometer from
     %                  structure with field names, corresponding to names
-    %                  of oriented_lattice structure
+    %                  of goniometer public properties.
     %
     %
     % where:
@@ -46,11 +47,9 @@ classdef goniometer < serializable
     % depending on the angular_units property value
     %
     % NOTE: setting angular_units into different unit recalculates values
-    % of goniometer angles. Set hidden property angular_is_degree to
-    % true/false if you want to change units without modifying angular
-    % values.
-    %
-    %
+    % of goniometer angles appropriately. Set hidden property
+    % "angular_is_degree" to true/false if you want to change units
+    % without modifying angular values.
     %
     %
     properties(Dependent)
@@ -103,7 +102,12 @@ classdef goniometer < serializable
             if nargin == 0
                 return;
             end
-            self = self.init(varargin{:});
+            [self,rem] = self.init(varargin{:});
+            if ~isempty(rem)
+                error('HORACE:goniometer:invalid_argument', ...
+                    'Provided Unrecognized additional parameter(s): %s', ...
+                    disp2str(rem))
+            end
         end
         function [obj,rem] = init(obj,varargin)
             if nargin == 1
@@ -130,12 +134,8 @@ classdef goniometer < serializable
         %
         function obj = set.psi(obj,val)
             obj.psi_=check_angular_val(obj,val);
-            % psi is third in the list of fields to be defined
-            if isnan(obj.psi_)
-                obj.psi_defined_ = false;
-            else
-                obj.psi_defined_ = true;
-            end
+
+            obj.psi_defined_ = ~(isnan(obj.psi_)||isempty(obj.psi_));
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -265,7 +265,7 @@ classdef goniometer < serializable
         function flds = constructionFields(~)
             flds = [goniometer.gon_fields_(:);'angular_units'];
         end
-        
+
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained lattice object

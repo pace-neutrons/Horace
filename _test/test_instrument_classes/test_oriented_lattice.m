@@ -162,7 +162,7 @@ classdef test_oriented_lattice< TestCase
 
             mult = pi/180;
             ol = oriented_lattice('alatt',[2;3;4],'psi',20*mult,...
-                'gl',3*mult,'angdeg',[40,45,50]*mult,'angular_units','rad');
+                'gl',3*mult,'angdeg',[40,45,50],'angular_units','rad');
 
             assertTrue(ol.isvalid);
 
@@ -173,7 +173,8 @@ classdef test_oriented_lattice< TestCase
             assertEqual(ol.alatt,[2,3,4])
             assertEqual(ol.angular_units,'rad')
             assertEqual(ol.psi,20*mult)
-            assertEqual(ol.angdeg,[40,45,50]*mult)
+            assertEqual(ol.angdeg,[40,45,50])
+
         end
         function test_mixed_constructor_with_keyval(~)
 
