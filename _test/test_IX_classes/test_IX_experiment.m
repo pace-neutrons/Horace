@@ -64,6 +64,8 @@ classdef test_IX_experiment <  TestCase
             exp(1).filepath = 'bc';
             exp.run_id = 10;
             exp.en = 1:10;
+            exp.psi = 10;
+
 
             oh = exp.convert_to_binfile_header('-alatt_angdeg',[1,2,3],[90,90,90]);
             oh.filename = 'aa';
@@ -73,6 +75,8 @@ classdef test_IX_experiment <  TestCase
             assertEqual(alatt,[1,2,3]);
             assertEqual(angdeg,[90,90,90]);
             exp.run_id = NaN;
+            % old headers are stored in radians
+            exp.angular_units = 'rad';
             assertEqual(exp,exp_rec);
         end
         function test_get_runids(~)
@@ -95,6 +99,7 @@ classdef test_IX_experiment <  TestCase
             exp(1).filepath = 'bc';
             exp.run_id = 10;
             exp.en = 1:10;
+            exp.psi = 10;
 
             oh = exp.convert_to_binfile_header('-alatt_angdeg',[1,2,3],[90,90,90]);
 
@@ -102,6 +107,9 @@ classdef test_IX_experiment <  TestCase
 
             assertEqual(alatt,[1,2,3]);
             assertEqual(angdeg,[90,90,90]);
+            % old headers are stored in radians
+            exp.angular_units = 'rad';
+
             assertEqual(exp,exp_rec);
         end
 
@@ -112,6 +120,7 @@ classdef test_IX_experiment <  TestCase
             exp(1).filepath = 'bc';
             exp.run_id = 10;
             exp.en = 1:10;
+            exp.psi = 10;
 
             oh = exp.convert_to_binfile_header('-alatt_angdeg',[1,2,3],[90,90,90]);
 
@@ -119,6 +128,8 @@ classdef test_IX_experiment <  TestCase
 
             assertEqual(alatt,[1,2,3]);
             assertEqual(angdeg,[90,90,90]);
+            % old headers are stored in radians
+            exp.angular_units = 'rad';
             assertEqual(exp,exp_rec);
 
         end

@@ -27,6 +27,10 @@ function old_hdr = convert_to_binfile_header_(obj,mode,arg1,arg2,nomangle)
 % Outputs:
 % old_hdr  -- struct with the old-style header data
 
+if obj.angular_is_degree % old header stores its angular values in radians
+    obj.angular_units = 'rad';
+end
+
 old_hdr = obj.to_bare_struct();
 if ~isnan(old_hdr.run_id) && ~nomangle
     old_hdr.filename = sprintf('%s$id$%d',old_hdr.filename,old_hdr.run_id);
