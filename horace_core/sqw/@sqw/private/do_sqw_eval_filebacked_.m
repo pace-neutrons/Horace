@@ -43,9 +43,9 @@ pix.data_range = PixelDataBase.EMPTY_RANGE;
 
 npg = wout.pix.num_pages;
 
-proj    = win.data.proj;
+proj = wout.data.proj;
 for i = 1:npg
-	pix.page_num = i;
+    pix.page_num = i;
     data = pix.data;
     npix_chunk = npix_chunks{i};
     idx_chunk = idxs(:, i);
@@ -61,7 +61,7 @@ for i = 1:npg
 
     pix.format_dump_data(data);
     pix.data_range = pix.pix_minmax_ranges(data, ...
-                                                pix.data_range);
+                                           pix.data_range);
 
     img_signal = increment_signal_sums_(img_signal, sig_chunk, ...
                                         npix_chunk, idx_chunk);

@@ -161,8 +161,9 @@ classdef (Abstract=true) serializable
     % If reading older class versions, then overload:
     %   convert_old_struct - Update structure created from earlier class versions
     %   from_old_struct    - Update earlier structures in complex design patterns
+    %                        (Declare as Access=protected)
     %   loadobj            - If an old class version pre-dates the serializable interface
-
+    %                        (Declare as static; note: it is fixed boilerplate code)
 
     properties (Access=protected)
         % Flag to control validation checking of interdependent properties

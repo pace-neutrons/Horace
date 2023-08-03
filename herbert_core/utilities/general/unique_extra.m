@@ -15,8 +15,8 @@ function [C, ix, nelmts, nbeg, nend] = unique_extra (A)
 %
 %   ix      Array such that ix(nbeg(i):nend(i)) are the elements of A that
 %           are equal to C(i) i.e. A(ix(nbeg(i):nend(i))) = C(i)
-%           the indices ix preserve the order of equal elements in A, so
-%           that diff(ix(nbeg(i):nend(i)))>=0
+%           The indices ix preserve the order of equal elements in A, so
+%           that all(diff(ix(nbeg(i):nend(i)))>=1) is true
 %           Column vector
 %
 %   nelmts  The number of occurences of the values of C
@@ -26,14 +26,12 @@ function [C, ix, nelmts, nbeg, nend] = unique_extra (A)
 %           corresponding to unique values of A
 %           Column vector
 %
-%   nbeg    Indices into ix of the end of each range of indices
+%   nend    Indices into ix of the end of each range of indices
 %           corresponding to unique values of A
 %           Column vector
 
 
 % Original author: T.G.Perring  2019-03-25
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % NOTE: If want to add the functionality of Matlab intrinsic unique, need
@@ -48,7 +46,7 @@ function [C, ix, nelmts, nbeg, nend] = unique_extra (A)
 % This routine is faster than unique in the case of an already sorted array
 
 
-% Trivial case of empty input array
+% Trivial case of empty input array or single element
 if isempty(A)
     if isrowvector(A)
         C = A;
@@ -61,6 +59,15 @@ if isempty(A)
     nelmts = zeros(0,1);
     nbeg = zeros(0,1);
     nend = zeros(0,1);
+    return
+elseif isscalar(A)
+    C = A;
+%     ia = 1;
+%     ic = 1;
+    ix = 1;
+    nelmts = 1;
+    nbeg = 1;
+    nend = 1;
     return
 end
 

@@ -1,30 +1,30 @@
 classdef IX_det_TobyfitClassic < IX_det_abstractType
-    % Defines a detector type that reproduces the results of original Tobyfit.
-    % The tube axes are assumed always to be perpendicular to the neutron path.
-    % The distance variances and random points are returned as old Tobyfit.
-    % Efficiency is returned as unity and distance averages as zero.
+    % IX_det_TobyfitClassic    Reproduces results of original Tobyfit detectors
+    % Defines a detector type that reproduces the random point sampling of the
+    % original Tobyfit. The 3He tube axes are assumed always to be perpendicular
+    % to the neutron path. The distance variances and random points are returned
+    % as old Tobyfit. Efficiency is returned as unity and distance averages as
+    % zero.
     %
     % Created solely to enable tests of Tobyfit against the original version.
 
-
     % Original author: T.G.Perring
-    %
 
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
-        % require checks against the other properties
-        dia_ = 0;       % Outer diameter of tube (m)
-        height_ = 0     % Height (m)
-        mandatory_field_set_ = false(1,2);
+        % may require checks against the other properties
+        dia_ = 0;       % Outer diameter of tube (m) (column vector)
+        height_ = 0;    % Height (m) (column vector)
     end
 
     properties (Dependent)
-        % Mirrors of private properties
-        dia         % Outer diameter of tube (m)
-        height      % height (m)
-        % Other dependent properties required by abstract template
-        ndet        % Number of detectors
+        % Mirrors of private properties; these define object state:
+        dia         % Outer diameter of tube (m) (column vector)
+        height      % Height (m) (column vector)
+        
+        % Other dependent properties required by abstract template:
+        ndet        % Number of detectors (get access only) (scalar)
     end
 
     methods
@@ -45,23 +45,27 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
 
 
             if nargin>0
-                % define parameters accepted by constructor as keys and also the
+                % Define parameters accepted by constructor as keys and also the
                 % order of the positional parameters, if the parameters are
                 % provided without their names
-                pos_params = obj.saveableFields();
-                % set positional parameters and key-value pairs and check their
+                property_names = {'dia','height'};
+                mandatory = [true, true];
+
+                % Set positional parameters and key-value pairs and check their
                 % consistency using public setters interface. Run
-                % check_compo_arg after all settings have been done.
-                [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
-                    true,varargin{:});
+                % check_combo_arg after all settings have been done.
+                % All is done within set_positional_and_key_val_arguments
+                options = struct('key_dash', true, 'mandatory_props', mandatory);
+                [obj, remains] = set_positional_and_key_val_arguments (obj, ...
+                    property_names, options, varargin{:});
+                
                 if ~isempty(remains)
                     error('HERBERT:IX_det_TobyfitClassic:invalid_argument', ...
-                        'Unrecognised extra parameters provided as input to IX_det_TobyfitClassic constructor: %s',...
-                        disp2str(remains));
+                        ['Unrecognised extra parameters provided as input to ',...
+                        'IX_det_TobyfitClassic constructor:\n %s'], disp2str(remains));
                 end
             end
         end
-
 
         %------------------------------------------------------------------
         % Set methods for dependent properties
@@ -71,7 +75,6 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
                     'Tube diameter(s) must be greater or equal to zero')
             end
             obj.dia_ = val(:);
-            obj.mandatory_field_set_(1) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -83,7 +86,6 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
                     'Detector element height(s) must be greater or equal to zero')
             end
             obj.height_ = val(:);
-            obj.mandatory_field_set_(2) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -105,40 +107,41 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
         %------------------------------------------------------------------
 
     end
+    
     %======================================================================
+    % SERIALIZABLE INTERFACE
+    %======================================================================
+
     methods
-        % SERIALIZABLE INTERFACE
-        %------------------------------------------------------------------
-        function obj = check_combo_arg(obj)
-            % verify interdependent variables and the validity of the
-            % obtained serializable object. Return the result of the check
-            %
-            % Throw if the properties are inconsistent and return without
-            % problem it they are not, after recomputing pdf table if
-            % requested.
-
-            flds = obj.saveableFields();
-            if ~all(obj.mandatory_field_set_)
-                error('HERBERT:IX_det_TobyfitClassic:invalid_argument',...
-                    'Must give all mandatory inputs namely: %s\n. Properties: %s have not been set', ...
-                    disp2str(flds),...
-                    disp2str(flds(~obj.mandatory_field_set_)));
-
-            end
-            obj = obj.expand_internal_propeties_to_max_length(flds);
+        function ver = classVersion(~)
+            % Returns the current class version number.
+            ver = 2;
         end
+        
         function flds = saveableFields(~)
-            % Return cellarray of properties defining the class
-            %
+            % Return the names of public properties which fully define the
+            % object state.
             flds = {'dia','height'};
         end
 
-        function ver = classVersion(~)
-            ver = 2;
+        function obj = check_combo_arg(obj)
+            % Verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check.
+            %
+            % Recompute any cached arguments.
+            %
+            % Throw an error if the properties are inconsistent and return
+            % without problem it they are not.
+
+            flds = obj.saveableFields();
+
+            % Inherited method from IX_det_abstractType
+            obj = obj.expand_internal_properties_to_max_length (flds);                        
+            end
         end
-    end
+
+    %----------------------------------------------------------------------
     methods(Access=protected)
-        %------------------------------------------------------------------
         function [inputs,obj] = convert_old_struct(obj,inputs,ver)
             % Update structure created from earlier class versions to the current
             % version. Converts the bare structure for a scalar instance of an object.
@@ -152,15 +155,12 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
-            % overloaded loadobj method, calling generic method of
-            % saveable class necessary for loading old class versions
-            % which are converted into structure when recovered as class is
-            % not available any more
+            % Boilerplate loadobj method, calling the generic loadobj method of
+            % the serializable class
             obj = IX_det_TobyfitClassic();
             obj = loadobj@serializable(S,obj);
         end
-        %------------------------------------------------------------------
     end
+    %======================================================================
 
 end
-

@@ -1,4 +1,4 @@
-function [obj, data] = apply(obj, func_handle, args, data)
+function [obj, data] = apply(obj, func_handle, args, data, compute_variance)
 % Apply a function (`func_handle`) to pixels (`obj`) with extra arguments `args`
 %  and recomputes the DnD if provided in `data`
 %
@@ -28,6 +28,10 @@ function [obj, data] = apply(obj, func_handle, args, data)
         args = {{}};
     end
 
+    if ~exist('compute_variance', 'var')
+        compute_variance = false;
+    end
+
     if ~iscell(args)
         args = {{args}};
     end
@@ -44,13 +48,13 @@ function [obj, data] = apply(obj, func_handle, args, data)
     end
 
     if exist('data', 'var')
-        [obj, data] = apply_op_dnd(obj, func_handle, args, data);
+        [obj, data] = apply_op_dnd(obj, func_handle, args, data, compute_variance);
     else
         obj = apply_op_no_dnd(obj, func_handle, args);
     end
 end
 
-function [obj, data] = apply_op_dnd(obj, func_handle, args, data)
+function [obj, data] = apply_op_dnd(obj, func_handle, args, data, compute_variance)
 
     obj = obj.prepare_dump();
 
@@ -67,8 +71,14 @@ function [obj, data] = apply_op_dnd(obj, func_handle, args, data)
             curr_pix = func_handle{j}(curr_pix, args{j}{:});
         end
 
-        [data.s(indices(1, i):indices(2, i)), ...
-         data.e(indices(1, i):indices(2, i))] = compute_bin_data(curr_pix, chunks{i});
+        if compute_variance
+            [data.s(indices(1, i):indices(2, i)), ...
+             data.e(indices(1, i):indices(2, i)), ...
+             curr_pix.variance] = average_bin_data(chunks{i}, curr_pix.signal);
+        else
+            [data.s(indices(1, i):indices(2, i)), ...
+             data.e(indices(1, i):indices(2, i))] = compute_bin_data(curr_pix, chunks{i});
+        end
 
         obj.data_range = ...
             obj.pix_minmax_ranges(curr_pix.data, obj.data_range);

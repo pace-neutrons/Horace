@@ -88,7 +88,6 @@ classdef PixelDataMemory < PixelDataBase
         [pix_out, data] = do_unary_op(obj, unary_op, data);
 
         pix_out = mask(obj, mask_array, npix);
-        pix_out = noisify(obj, varargin);
     end
 
     methods

@@ -12,8 +12,8 @@ function c=mtimes_array(a,b)
 %   M=4     four columns of B are four verticies of a rectangle
 
 
-sa=size(a);
-sb=size(b);
+sa=size(a); if numel(sa)==2, sa=[sa,1]; end
+sb=size(b); if numel(sb)==2, sb=[sb,1]; end
 
 if numel(sa)~=3||sa(1)~=3||sa(2)~=3
     error('Check dimensions of left hand array')
