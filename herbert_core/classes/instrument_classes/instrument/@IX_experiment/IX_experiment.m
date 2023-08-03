@@ -171,6 +171,9 @@ classdef IX_experiment < goniometer
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'input u_to_rlu matrix have to have size 3x3 or 4x4')
             end
+            if all(abs(subdiag_elements(val))<4.e-7)
+                val = [];
+            end
             obj.u_to_rlu_ = val;
         end
         %

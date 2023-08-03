@@ -154,10 +154,9 @@ classdef test_goniometer< TestCase
         end
         function test_constructor_with_wrong_keyval_throw(~)
 
-            mult = pi/180;
             assertExceptionThrown(@()goniometer('psi',20,...
-                'gl',3*mult,'angdeg',[40,45,50]*mult,'angular_units','rad',...
-                'HERBERT:goniometer:invalid_argument'));
+                'gl',3,'angdeg',[40,45,50],'angular_units','rad'),...
+                'HERBERT:goniometer:invalid_argument');
         end
 
 
