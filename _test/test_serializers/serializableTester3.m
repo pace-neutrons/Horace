@@ -191,7 +191,7 @@ classdef serializableTester3 < serializable
             end
         end
 
-        function S_updated = convert_old_struct(~, S, ver)
+        function [S_updated,obj] = convert_old_struct(obj, S, ver)
             % Restore object from an old structure
             S_updated = S;
             if ver==1

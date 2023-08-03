@@ -8,7 +8,7 @@ function  [obj, remains] = set_positional_and_key_val_arguments_ (obj, ...
 %
 % The keys are the names of the properties and the values are their values.
 % The positional parameters are intended to be the values of the properties
-% with names defined in the positional_arg_names list. 
+% with names defined in the positional_arg_names list.
 %
 % Everything not identified as Key-Value pair where the keys,
 % belong to the property names returned by saveableFields function
@@ -50,11 +50,18 @@ obj.do_check_combo_arg_ = false;
 % process positional arguments
 if any(is_positional)
     if sum(is_positional)> numel(positional_arg_names)
-        npa        = numel(positional_arg_names);
-        pos_remains = is_positional;
-        pos_remains(1:npa) = false;
-        is_positional = ~pos_remains;
-        remains = [remains(:);argi(pos_remains)'];
+        if all(is_positional)
+            npa        = numel(positional_arg_names);
+            pos_remains = is_positional;
+            pos_remains(1:npa) = false;
+            is_positional = ~pos_remains;
+            remains = [remains(:);argi(pos_remains)'];
+        else
+            error('HERBERT:serializable:invalid_argument',...
+                ['More positional arguments identified: (%d) then positional values allowed: (%d).\n', ...
+                ' Looks like some keys from key-value pairs have been identified as property values'],...
+                sum(is_positional),numel(positional_arg_names))
+        end
     end
     pos_arg_val   = argi(is_positional);
     pos_arg_names = positional_arg_names(1:numel(pos_arg_val));
@@ -165,7 +172,7 @@ for i=1:numel(varargin)
         end
 
     end
-    
+
     if support_dash
         is_key = cellfun(@(x)compare_par(par,x,min_comp_base),key_list);
         is_depr_key = cellfun(@(x)compare_par(par,['-',x],min_comp_base+1),key_list);

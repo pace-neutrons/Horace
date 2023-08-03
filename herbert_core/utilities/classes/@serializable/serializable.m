@@ -178,7 +178,7 @@ classdef (Abstract=true) serializable
         %   one after another and do not want to overload the class. Use with
         %   caution, as you may get an invalid object if the property is used
         %   incorrectly.
-        % - Use when building and checking th evalidity of a serializable object
+        % - Use when building and checking the validity of a serializable object
         %   from other serializable objects. In this case, the method
         %   set_do_check_combo_arg has to be overloaded appropriately.
         do_check_combo_arg;
@@ -263,7 +263,7 @@ classdef (Abstract=true) serializable
         % Update structure created from earlier class versions to the current
         % version. Converts the bare structure for a scalar instance of an object.
         % Overload this method for customised
-        S_updated = convert_old_struct (obj, S, ver)
+        [S_updated,obj] = convert_old_struct (obj, S, ver)
     end
 
     methods (Access=protected)

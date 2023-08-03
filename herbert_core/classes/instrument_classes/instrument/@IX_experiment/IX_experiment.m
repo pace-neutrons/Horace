@@ -367,41 +367,42 @@ classdef IX_experiment < goniometer
             %                 [~,obj.comparison_hash_] = obj.get_comparison_hash();
             %             end
         end
+        function [S,obj] = convert_old_struct (obj, S, ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised
+
+            if ver == 1
+                % version 1 does not contain run_id so it is set to NaN
+                % and recalculated on sqw object level
+                S.run_id = NaN;
+            elseif ver == 2
+                % version 3 does not save/load u_to_rlu, ulen, ulabel
+                % These fields are redundant for instr_proj and moved
+                % to sqw.data (DnD object)
+                S.angular_is_degree = false;
+                if isfield(S,'cu')
+                    S.u = S.cu;
+                end
+                if isfield(S,'cv')
+                    S.v = S.cv;
+                end
+            end
+            if isfield(S,'u_to_rlu')
+                % support for legacy alignment:
+                if ~any(subdiag_elements(S.u_to_rlu)>4*eps('single'))
+                    S = rmfield(S,'u_to_rlu');
+                else
+                    obj.u_to_rlu = S.u_to_rlu;
+                end
+            end
+        end
 
     end
 
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)
             % recover the object from old structure
-            if isfield(inputs,'version')
-                if inputs.version == 1
-                    % version 1 does not contain run_id so it is set to NaN
-                    % and recalculated on sqw object level
-                    for i=1:numel(inputs)
-                        inputs(i).run_id = NaN;
-                    end
-                    inputs.version = 2;
-                    obj = obj.from_struct(inputs);
-                    return;
-                elseif inputs.version == 2
-                    % version 3 does not save/load u_to_rlu, ulen, ulabel
-                    % These fields are redundant for instr_proj and moved
-                    % to sqw.data (DnD object)
-                    inputs.version = 3;
-                    inputs.angular_is_degree = false;
-                    if isfield(inputs,'cu')
-                        inputs.u = inputs.cu;
-                    end
-                    if isfield(inputs,'cv')
-                        inputs.v = inputs.cv;
-                    end
-                    
-                    if ~(isfield(inputs,'u_to_rlu') && ...
-                            any(subdiag_elements(inputs.u_to_rlu)>4*eps('single')))
-                        inputs = rmfield(inputs,'u_to_rlu');
-                    end
-                end
-            end
             obj = from_old_struct@serializable(obj,inputs);
         end
     end
@@ -412,12 +413,7 @@ classdef IX_experiment < goniometer
             % + support for legacy alignment matrix
             obj = IX_experiment();
             obj = loadobj@serializable(S,obj);
-            % support for legacy alignment:
-            for i=1:numel(obj)
-                if isfield(S(i),'u_to_rlu') && any(subdiag_elements(inputs.u_to_rlu)>4*eps('single'))
-                    obj(i).u_to_rlu = S(i).u_to_rlu;
-                end
-            end
+
         end
     end
 end
