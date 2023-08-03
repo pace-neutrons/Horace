@@ -31,7 +31,11 @@ old_hdr = obj.to_bare_struct();
 if ~isnan(old_hdr.run_id) && ~nomangle
     old_hdr.filename = sprintf('%s$id$%d',old_hdr.filename,old_hdr.run_id);
 end
-old_hdr = rmfield(old_hdr,'run_id');
+old_hdr.uoffset = [0,0,0,0];
+old_hdr.u_to_rlu = eye(4);
+old_hdr.cu = old_hdr.u;
+old_hdr.cv = old_hdr.v;
+old_hdr = rmfield(old_hdr,{'run_id','u','v'});
 if strcmp( mode, '-inst_samp')
     old_hdr.instrument = arg1;
     old_hdr.sample     = arg2;

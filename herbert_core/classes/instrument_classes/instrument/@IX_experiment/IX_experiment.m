@@ -23,7 +23,8 @@ classdef IX_experiment < goniometer
         % returns goniometer sliced from this object
         goniometer;
         % redundant property. Was inv(b_matrix). left for compatibility
-        % with legacy alignment
+        % with legacy alignment, as it multiplies it by alignment rotation
+        % matrix
         u_to_rlu;
         cu % alternative names for u and v, used in goniometer class
         cv % and during gen_sqw generation
@@ -194,16 +195,14 @@ classdef IX_experiment < goniometer
         end
         function obj = set.goniometer(obj,val)
             if isstruct(val)
-                if isfield(val,'u')
-                    val.cu = val.u;
+                if isfield(val,'cu')
+                    val.u = val.cu;
                 end
-                if isfield(val,'v')
-                    val.cv = val.v;
+                if isfield(val,'cv')
+                    val.v = val.cv;
                 end
             elseif isa(val,'goniometer')
                 val = val.to_bare_struct();
-                val.cu = val.u;
-                val.cv = val.v;
             else
                 error('HORACE:IX_experiment:invalid_argument', ...
                     'Goniometer property accepts input as a class "goniometer" or a structure, convertable into goniometer.\n Provided %s', ...
@@ -325,19 +324,23 @@ classdef IX_experiment < goniometer
                 obj.run_id = runid;
                 obj.filename = filename;
             end
+            if all(abs(subdiag_elements(obj.u_to_rlu))<4*eps('single'))
+                obj.u_to_rlu = [];
+            end
         end
     end
     %----------------------------------------------------------------------
     % SERIALIZABLE interface
     properties(Constant,Access=private)
-        % fields, which fully define public interface to the class
+        % fields, which fully define IX_experiment part of the public
+        % interface to the class
         fields_to_save_ = {'filename','filepath','run_id','efix','emode','en'};
     end
     methods
         function flds = saveableFields(obj)
             base= saveableFields@goniometer(obj);
             flds = [IX_experiment.fields_to_save_(:);base(:)];
-            if ~isempty(obj.u_to_rlu_) || isnan(obj.run_id_) % run_id_ is NaN on non-initialized file
+            if ~isempty(obj(1).u_to_rlu_) || isnan(obj(1).run_id_) % run_id_ is NaN on non-initialized file
                 flds = [flds(:);'u_to_rlu'];
             end
         end
@@ -383,6 +386,9 @@ classdef IX_experiment < goniometer
             % version 3 does not save/load u_to_rlu, ulen, ulabel
             % These fields are redundant for instr_proj and moved
             % to sqw.data (DnD object)
+
+            % Old IX_experiment data were containing angular values in
+            % radians
             S.angular_is_degree = false;
             if isfield(S,'cu')
                 S.u = S.cu;
