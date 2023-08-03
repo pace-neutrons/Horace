@@ -253,6 +253,7 @@ classdef test_data_block < TestCase
 
 
             tob.experiment_info.instruments = [];
+            clWarn = set_temporary_warning('off','HORACE:Experiment:lattice_changed');
             tob.experiment_info.samples = [];
             [~,rec_obj] = dp1.get_sqw_block(fid,tob);
             [~,rec_obj] = dp2.get_sqw_block(fid,rec_obj);

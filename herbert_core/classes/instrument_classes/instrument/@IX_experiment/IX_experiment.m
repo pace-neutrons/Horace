@@ -31,8 +31,9 @@ classdef IX_experiment < goniometer
     end
 
     properties(Hidden)
-        % Always 0. Candidate for removal
-        uoffset=[0,0,0,0];
+        % Never usefully ised except loading from old files so candidates
+        % for removal
+        uoffset=[0,0,0,0];  % Always 0.
     end
     properties(Access=protected)
         filename_=''
@@ -317,6 +318,8 @@ classdef IX_experiment < goniometer
             for i=1:numel(old_fldnms)
                 obj.(old_fldnms{i}) = inputs.(old_fldnms{i});
             end
+            % old headers always contain angular values in radians
+            obj.angular_is_degree_ = false;
             alatt = inputs.alatt;
             angdeg = inputs.angdeg;
             [runid,filename] = rundata.extract_id_from_filename(inputs.filename);
@@ -358,7 +361,7 @@ classdef IX_experiment < goniometer
             % verify interdependent variables and the validity of the
             % obtained lattice object
             obj = check_combo_arg@goniometer(obj);
-            if obj.efix_ == 0 && obj.emode_ ~=0
+            if numel(obj.efix_) == 1 && obj.efix_ == 0 && obj.emode_ ~=0
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'efix (incident energy) can be 0 in elastic mode only. Emode=%d', ...
                     obj.emode_)

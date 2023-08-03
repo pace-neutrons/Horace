@@ -35,6 +35,8 @@ old_hdr.uoffset = [0,0,0,0];
 old_hdr.u_to_rlu = eye(4);
 old_hdr.cu = old_hdr.u;
 old_hdr.cv = old_hdr.v;
+old_hdr.ulabel = {''};
+old_hdr.ulen   = [1,1,1,1];
 old_hdr = rmfield(old_hdr,{'run_id','u','v'});
 if strcmp( mode, '-inst_samp')
     old_hdr.instrument = arg1;

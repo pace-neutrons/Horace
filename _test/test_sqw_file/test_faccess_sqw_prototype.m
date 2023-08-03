@@ -77,8 +77,6 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(numel(expdata),1);
             assertFalse(isempty(expdata));
             assertEqual(expdata.filename,'map11014.spe')
-            assertEqual(expdata.ulabel{4},'E')
-            assertEqual(expdata.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'demo_par.PAR')
