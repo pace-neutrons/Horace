@@ -104,7 +104,7 @@ exp_range = expand_box(existing_range(1,1:3), existing_range(2,1:3));
 cc_ranges = proj.transform_img_to_pix(exp_range);
 
 % identify intersection points between the image range and the symmetry plane
-if isa(sym, 'SymopReflection') && isempty(proj)
+if isa(sym, 'SymopReflection')
 
     cc_exist_range = [cc_ranges];
     for i = 1:fold
