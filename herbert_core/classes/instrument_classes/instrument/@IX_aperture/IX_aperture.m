@@ -186,7 +186,9 @@ classdef IX_aperture < serializable
             end
 
         end
-        function [inputs,obj] = convert_old_struct(obj,inputs)
+    end
+    methods (Access=protected)
+        function [inputs,obj] = convert_old_struct(obj,inputs,varargin)
             % By default, this function interfaces the default from_struct
             % function, but when the old structure substantially differs from
             % the modern structure, this method needs the specific overloading

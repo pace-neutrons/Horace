@@ -28,7 +28,7 @@ classdef IX_det_slab < IX_det_abstractType
         atten       % Attenuation length (to 1/e) at 2200 m/s (m) (column vector)
 
         % Other dependent properties required by abstract template
-        ndet    % Number of detectors        
+        ndet    % Number of detectors
     end
 
     properties (Dependent, Hidden)
@@ -174,7 +174,7 @@ classdef IX_det_slab < IX_det_abstractType
                     disp2str(flds(~obj.mandatory_field_set_)));
 
             end
-            obj = obj.expand_internal_propeties_to_max_length(flds);            
+            obj = obj.expand_internal_propeties_to_max_length(flds);
         end
         function flds = saveableFields(~)
             % Return cellarray of properties defining the class
@@ -188,23 +188,13 @@ classdef IX_det_slab < IX_det_abstractType
     end
     methods(Access=protected)
         %------------------------------------------------------------------
-        function obj = from_old_struct(obj,inputs)
-            % restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % By default, this function interfaces the default from_struct
-            % function, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+        function [inputs,obj] = convert_old_struct(obj,inputs,ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised conversion. Called within
+            % from_old_struct on each element of S and each obj in array of objects
+            % (in case of serializable array of objects)
             inputs = convert_old_struct_(obj,inputs);
-            % optimization here is possible to not to use the public
-            % interface. But is it necessary? its the question
-            obj = from_old_struct@serializable(obj,inputs);
-
         end
     end
 

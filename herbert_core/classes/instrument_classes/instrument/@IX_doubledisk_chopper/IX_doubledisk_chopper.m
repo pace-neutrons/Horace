@@ -101,7 +101,7 @@ classdef IX_doubledisk_chopper < serializable
                 % consistency using public setters interface. check_compo_arg
                 % after all settings have been done.
                 [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
-                    true,argi{:});                
+                    true,argi{:});
                 if ~isempty(remains)
                     error('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
                         'Unrecognized extra parameters provided as input to IX_doubledisk_chopper constructor: %s',...
@@ -277,7 +277,7 @@ classdef IX_doubledisk_chopper < serializable
             if obj.aperture_width_defined_
                 if obj.aperture_width_<obj.slot_width
                     warning('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
-                        'aperture_width=%g have been set smaller than the slot_width=%g. This is inorrect so will use slot_width as aperture_width',...
+                        'aperture_width=%g have been set smaller than the slot_width=%g. This is incorrect so will use slot_width as aperture_width',...
                         obj.aperture_width_,obj.slod_width)
                     obj.aperture_width = obj.slot_width;
                     do_recompute_pdf= true;
@@ -291,15 +291,15 @@ classdef IX_doubledisk_chopper < serializable
                 obj.pdf_ = recompute_pdf_(obj);   % recompute the lookup table
             end
         end
-        function [inputs,obj] = convert_old_struct(obj,inputs)
+    end
+    methods(Access=protected)
+        function [inputs,obj] = convert_old_struct(obj,inputs,varargin)
             % By default, this function interfaces the default from_struct
             % function, but when the old structure substantially differs from
             % the modern structure, this method needs the specific overloading
             % to allow loadobj to recover new structure from an old structure.
             inputs = convert_old_struct_(obj,inputs);
         end
-		
-
     end
     methods (Static)
         function obj = loadobj(S)

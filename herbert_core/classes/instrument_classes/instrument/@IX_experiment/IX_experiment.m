@@ -10,7 +10,7 @@ classdef IX_experiment < goniometer
         %         % experiment
         filepath; % path where the experiment data were initially stored
         run_id    % the identifier, which uniquely defines this experiment
-        %         % this indentifier is also stored within the PixelData,
+        %         % this identifier is also stored within the PixelData,
         %         % providing connection between the particular pixel and
         %         % the experiment info
 
@@ -22,7 +22,7 @@ classdef IX_experiment < goniometer
     properties(Dependent,Hidden)
         % returns goniometer sliced from this object
         goniometer;
-        % redundant poperty. Was inv(b_matrix). left for compartibility
+        % redundant property. Was inv(b_matrix). left for compatibility
         % with legacy alignment
         u_to_rlu;
         cu % alternative names for u and v, used in goniometer class
@@ -58,7 +58,7 @@ classdef IX_experiment < goniometer
         end
 
         function obj = init(obj,varargin)
-            % construcnt non-empty instance of this class
+            % construct non-empty instance of this class
             % Usage:
             %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,...
             %               omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,...
@@ -367,6 +367,8 @@ classdef IX_experiment < goniometer
             %                 [~,obj.comparison_hash_] = obj.get_comparison_hash();
             %             end
         end
+    end
+    methods(Access=protected)
         function [S,obj] = convert_old_struct (obj, S, ver)
             % Update structure created from earlier class versions to the current
             % version. Converts the bare structure for a scalar instance of an object.
@@ -376,18 +378,19 @@ classdef IX_experiment < goniometer
                 % version 1 does not contain run_id so it is set to NaN
                 % and recalculated on sqw object level
                 S.run_id = NaN;
-            elseif ver == 2
-                % version 3 does not save/load u_to_rlu, ulen, ulabel
-                % These fields are redundant for instr_proj and moved
-                % to sqw.data (DnD object)
-                S.angular_is_degree = false;
-                if isfield(S,'cu')
-                    S.u = S.cu;
-                end
-                if isfield(S,'cv')
-                    S.v = S.cv;
-                end
+
             end
+            % version 3 does not save/load u_to_rlu, ulen, ulabel
+            % These fields are redundant for instr_proj and moved
+            % to sqw.data (DnD object)
+            S.angular_is_degree = false;
+            if isfield(S,'cu')
+                S.u = S.cu;
+            end
+            if isfield(S,'cv')
+                S.v = S.cv;
+            end
+
             if isfield(S,'u_to_rlu')
                 % support for legacy alignment:
                 if ~any(subdiag_elements(S.u_to_rlu)>4*eps('single'))
@@ -400,12 +403,6 @@ classdef IX_experiment < goniometer
 
     end
 
-    methods(Access=protected)
-        function obj = from_old_struct(obj,inputs)
-            % recover the object from old structure
-            obj = from_old_struct@serializable(obj,inputs);
-        end
-    end
     methods(Static)
         function obj = loadobj(S)
             % crafted loadobj method, calling generic method of

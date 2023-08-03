@@ -5,7 +5,7 @@ classdef IX_inst < serializable
 
     properties (Access=protected)
         name_ = '';             % Name of instrument (e.g. 'LET')
-        source_ = IX_source;    % Source (name, or class of type IX_source)        
+        source_ = IX_source;    % Source (name, or class of type IX_source)
         %
         valid_from_ = datetime(1900,01,01);
         valid_to_ = [];
@@ -181,25 +181,15 @@ classdef IX_inst < serializable
             error('HERBERT:IX_inst:runtime_error',...
                 'You can not set moderator on IX_inst abstraction or empty instrument')
         end
-        
-        %------------------------------------------------------------------
-        function obj = from_old_struct(obj,inputs)
-            % restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % By default, this function interfaces the default from_struct
-            % function, but when the old structure substantially differs from
-            % the modern structure, this method needs the specific overloading
-            % to allow loadobj to recover new structure from an old structure.
-            inputs = convert_old_struct_(obj,inputs);
-            % optimization here is possible to not to use the public
-            % interface. But is it necessary? its the question
-            obj = from_old_struct@serializable(obj,inputs);
 
+        %------------------------------------------------------------------
+        function [inputs,obj] = convert_old_struct(obj,inputs,ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised conversion. Called within
+            % from_old_struct on each element of S and each obj in array of objects
+            % (in case of serializable array of objects)
+            inputs = convert_old_struct_(obj,inputs);
         end
     end
     methods

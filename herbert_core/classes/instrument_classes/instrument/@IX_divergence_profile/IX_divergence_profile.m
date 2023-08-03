@@ -186,14 +186,15 @@ classdef IX_divergence_profile < serializable
                 obj.pdf_ = pdf_table (obj.angles_, obj.profile_);
             end
         end
-        function [inputs,obj] = convert_old_struct(obj,inputs)
+    end
+    methods(Access=protected)
+        function [inputs,obj] = convert_old_struct(obj,inputs,varargin)
             % By default, this function interfaces the default from_struct
             % function, but when the old structure substantially differs from
             % the modern structure, this method needs the specific overloading
             % to allow loadobj to recover new structure from an old structure.
             inputs = convert_old_struct_(obj,inputs);
         end
-		
     end
 
     methods(Access=protected)
