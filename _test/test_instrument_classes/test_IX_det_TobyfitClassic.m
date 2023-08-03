@@ -67,7 +67,7 @@ classdef test_IX_det_TobyfitClassic < TestCaseWithSave
             % Should throw error
             assertExceptionThrown( ...
                 @()IX_det_TobyfitClassic (obj.dia, obj.height, 0.1), ...
-                'HERBERT:serializable:invalid_argument');
+                'HERBERT:IX_det_TobyfitClassic:invalid_argument');
         end
         
         function test_det_constructor_mixPosKeywrdArgs (obj)

@@ -137,11 +137,13 @@ n_positional_arg_names = numel(positional_arg_names);
 n_positional = sum(is_positional);
 if n_positional> n_positional_arg_names
     if all(is_positional)
-        npa        = numel(positional_arg_names);
-        pos_remains = is_positional;
-        pos_remains(1:npa) = false;
-        is_positional = ~pos_remains;
+        n_positional_arg_names                = numel(positional_arg_names);
+        n_positional                          = n_positional_arg_names;
+        pos_remains                           = is_positional;
+        pos_remains(1:n_positional_arg_names) = false;
+        is_positional                         = ~pos_remains;
         remains = [remains(:);argi(pos_remains)'];
+        argi = argi(is_positional);
     else
         error('HERBERT:serializable:invalid_argument',...
             ['More positional arguments identified: (%d) then positional values allowed: (%d).\n', ...
