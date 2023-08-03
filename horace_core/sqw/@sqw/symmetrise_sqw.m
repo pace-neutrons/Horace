@@ -58,14 +58,16 @@ end
 if isa(varargin{end}, 'aProjection')
     proj = varargin(end);
     varargin = varargin(1:end-1);
+
+    if ~proj{1}.nonorthogonal
+        error('HORACE:symmetrise_sqw:invalid_argument', ...
+              'Cannot symmetrise to non-orthogonal projection');
+    end
+
 else
     proj = {};
 end
 
-if ~proj.nonorthogonal
-    error('HORACE:symmetrise_sqw:invalid_argument', ...
-          'Cannot symmetrise to non-orthogonal projection');
-end
 
 
 
@@ -87,9 +89,7 @@ wout = copy(win);
 
 [sym, fold] = validate_sym(sym);
 transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
-wout = wout.apply(transforms, {win.data.proj}, false);
-
-wout.pix = sym.transform_pix(wout.pix, proj{:});
+wout = wout.apply(transforms, {proj{:}}, false);
 
 %=========================================================================
 % Transform Ranges:
