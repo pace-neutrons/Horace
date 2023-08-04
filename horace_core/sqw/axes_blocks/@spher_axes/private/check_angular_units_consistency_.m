@@ -1,6 +1,7 @@
 function  obj = check_angular_units_consistency_(obj)
-%UNTITLED5 Summary of this function goes here
-%   Detailed explanation goes here
+% Verify if the spherical axes ranges consistent with the limits of the 
+% axes block and convert the limits into appropriate units if the limits
+% have changed the units.
 
 
 if ~obj.img_range_set_

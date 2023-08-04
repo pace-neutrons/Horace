@@ -28,8 +28,11 @@ classdef test_proj_captions<TestCase
         function test_spher_proj_description(obj)
             dat = obj.data;
             range = [0,0,-180,-5;8,90,-180,20];
+            dat.do_check_combo_arg = false;
             dat.axes = spher_axes('img_range',range,'nbins_all_dims',[50,1,1,40]);
-            dat.proj = spher_proj();            
+            dat.proj = spher_proj();       
+            dat.do_check_combo_arg = true;            
+            dat = dat.check_combo_arg();
 
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
                dat.data_plot_titles();

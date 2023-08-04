@@ -6,10 +6,10 @@ function sz_full = size_array_stack (sz_root, sz_stack)
 % Input:
 % ------
 %   sz_root     Size of the arrays to be stacked, as obtained by using the
-%              matlab instrinsic function 'size'
+%              matlab intrinsic function 'size'
 %
 %   sz_stack    Size of the array by which to stack arrays of size sz_root,
-%              as obtained by using the matlab instrinsic function 'size'
+%              as obtained by using the matlab intrinsic function 'size'
 %
 % Output:
 % -------

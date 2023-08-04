@@ -6,9 +6,7 @@ function [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w1,w2,varargin)
 %
 % Input:
 % ------
-%   w1, w2  Datasets to compare. If one is hostogram and the other point
-%           data, then the point data is converted to histogram before
-%           comparison. w2 is also rebinned to the same
+%   w1, w2  Datasets to compare.
 %
 %   tol     Tolerance on matching signal. Same convention as the function
 %           equal_to_tol:
@@ -23,30 +21,36 @@ function [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w1,w2,varargin)
 %           If scalar:
 %               +ve : absolute tolerance  abserr = abs(a-b)
 %               -ve : relative tolerance  relerr = abs(a-b)/max(abs(a),abs(b))
-%
 %           Default: [0,0]
 %
 % Optional arguments:
 %  'tol'    Alternative to third argument tol above. That is,
 %               >> ... IX_dataset_1d_same (w1,w2,tol)
 %               >> ... IX_dataset_1d_same (w1,w2,'tol',tol)
-%           are identical.
+%           are identical. The two alternative syntaxes are available for
+%           hisstorical reasons.
 %
-%  'rebin'  If true, rebin w2 to the same x values as w1 if they do not match
+%  'rebin'  If true, then
+%           (1) If one is histogram and the other point data, then the point
+%               data is converted to a histogram
+%           (2) rebin w2 to have the same x values as w1 if they do not match
 %           Default: false
 %
 %  'xtol'   Tolerance on x-axis value matching; format same as tol above.
 %           Default: [0,0].
-%           Only applies if 'rebin' is false.
+%           The test is only applied if 'rebin' is false.
 % 
 %  'norm'   Normalise w1 and w2 to unit area before comparing
+%           Default: false
 %
 %  'chisqr' Comparison of signal is done on the value of chisqr for (w1-w2)
 %           The tolerance 'tol' appies to the average value of
 %           (signal./error)^2 with respect to unity.
+%           Default: false
 %
 %  'nozeros'Eliminate points which have zero signal and error bar
 %           Only applies in the case of 'chisqr' comparison; ignored otherwise
+%           Default: false
 %
 %
 % Output:
@@ -75,7 +79,7 @@ end
 
 % Check x-axis tolerance, or rebin:
 if ~keyval.rebin
-    if xor(ishistogram(w1),ishistogram(w2)) && numel(w1.x)==numel(w2.x)
+    if ~xor(ishistogram(w1),ishistogram(w2)) && numel(w1.x)==numel(w2.x)
         [ok, mess] = equal_to_tol (w1.x, w2.x, keyval.xtol);
         if ~ok
             mess = ['x-axes: ',mess];
@@ -119,6 +123,7 @@ if keyval.chisqr
     e = wdiff.error(:)';
     if keyval.nozeros
         % Set signal and error to zero if that was the case for *either*
+        % dataset
         s1 = w1.signal(:)';
         e1 = w1.error(:)';
         rem1 = (s1==0 & e1==0);

@@ -22,11 +22,15 @@ if use_u_to_rlu_transitional
 end
 % this has to be last operation, as it needs fully defined projection class
 % containing the lattice
-if isfield(data_struct,'uoffset')
-    proj.img_offset = data_struct.uoffset;
+if isfield(data_struct,'uoffset') 
+    data_struct.img_offset = data_struct.uoffset;
 end
 if isfield(data_struct,'img_offset')
-    proj.img_offset = data_struct.img_offset;
+    if isequal(data_struct.img_offset(:),zeros(4,1))
+        proj.offset = [];
+    else
+        proj.img_offset = data_struct.img_offset;
+    end
 end
 
 proj.do_check_combo_arg = true;

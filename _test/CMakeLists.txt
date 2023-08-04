@@ -3,8 +3,7 @@
 # ===                                                                  ===
 # ===  Please ensure that any alterations you make to the directories  ===
 # ===  in TEST_DIRECTORIES_HERBERT and TEST_DIRECTORIES_HORACE are     ===
-# ===  also made in validate_herbert.m and validate_horace.m           ===
-# ===  respectively.                                                   ===
+# ===  also made in validate_horace.m                                  ===
 # ===                                                                  ===
 # ===  This will ensure that they perform the same tests.              ===
 # ===                                                                  ===
@@ -39,7 +38,6 @@ set(TEST_DIRECTORIES_HORACE
     "test_ascii_column_data"
     "test_change_crystal"
     "test_combine"
-    "test_converters"
     "test_dnd_class"
     "test_experiment"
     "test_gen_sqw_for_powders"
@@ -112,7 +110,7 @@ foreach(_test_dir ${TEST_DIRECTORIES_HORACE})
     set(TEST_NAME "Matlab.${_test_dir}")
     matlab_add_unit_test(
         NAME "${TEST_NAME}"
-        CUSTOM_TEST_COMMAND "validate_horace ${_test_dir} -talkative -forcemex -exit_on_completion"
+        CUSTOM_TEST_COMMAND "validate_horace ${_test_dir} -talkative -disp_skipped -forcemex -exit_on_completion"
         ADDITIONAL_PATH "${Horace_ROOT}/admin"
         TIMEOUT ${TEST_TIMEOUT_LENGTH})
     set_tests_properties("${TEST_NAME}"

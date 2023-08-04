@@ -1,7 +1,7 @@
-function [ok,mess,fun] = fun_parse (fun_in,size_fun)
+function fun = fun_parse (fun_in, size_fun)
 % Make a cell array of function handles
 %
-%   >> [ok,mess,fun] = fun_parse (fun_in,size_fun)
+%   >> fun = fun_parse (fun_in, size_fun)
 %
 % Input:
 % ------
@@ -14,8 +14,6 @@ function [ok,mess,fun] = fun_parse (fun_in,size_fun)
 %
 % Output:
 % -------
-%   ok      Status flag: =true if all OK; =false if not
-%   mess    Error message: empty if OK, non-empty otherwise
 %   fun    Cell array of function handles. Missing functions are represented
 %          by [].
 %           if local: fun is a cell array with size given by size_w
@@ -24,40 +22,35 @@ function [ok,mess,fun] = fun_parse (fun_in,size_fun)
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
+fun = is_valid_function_handles(fun_in);
 
-[ok,mess,fun]=is_valid_function_handles(fun_in);
-if ~ok, return, end
+if numel(fun) > 0
+    if prod(size_fun) > 0
 
-if numel(fun)>0
-    if prod(size_fun)>0
-        if isscalar(fun) && prod(size_fun)>1
-            fun=repmat(fun,size_fun);
-        elseif numel(fun)==prod(size_fun)
-            if ~(numel(size(fun))==numel(size_fun) && all(size(fun)==size_fun))
-                fun=reshape(fun,size_fun);  % get to same shape as data array
+        if isscalar(fun) && prod(size_fun) > 1
+            fun=repmat(fun, size_fun);
+
+        elseif numel(fun) == prod(size_fun)
+
+            if ndims(fun) ~= numel(size_fun) || any(size(fun) ~= size_fun)
+                fun=reshape(fun, size_fun);  % get to same shape as data array
             end
+
         else
-            ok=false;
-            mess='Function handle argument must be scalar or have same number of elements as number to be set';
-            fun={};
+            error('HORACE:fun_parse:invalid_argument', ...
+                  'Function handle argument must be scalar or have same number of elements as number to be set');
         end
-    else
-        if ~isscalar(fun) || ~isequal(fun{1},[])
-            % Case of fun=[] is ok if prod(size_fun)==0
-            ok=false;
-            mess='Function handle(s) given but none required';
-            fun={};
-        end
+
+    elseif ~isscalar(fun) || ~isequal(fun{1}, [])
+        % Case of fun=[] is ok if prod(size_fun) == 0
+        error('HORACE:fun_parse:invalid_argument', ...
+              'Function handle(s) given but none required');
     end
-    
-else
-    if prod(size_fun)>0
-        ok=false;
-        mess='Function handle argument is empty but function handle(s) are expected';
-        fun={};
-    end
+
+elseif prod(size_fun) > 0
+    error('HORACE:fun_parse:invalid_argument', ...
+          'Function handle argument is empty but function handle(s) are expected');
 end
 
+end

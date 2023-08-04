@@ -32,6 +32,11 @@ function varargout=head_horace(fnames_or_loaders,varargin)
 %
 % Check number of arguments
 
+[ok,mess,full] = parse_char_options(varargin,'-full');
+if ~ok
+    error('HORACE:algorithms:invalid_argument',mess);
+end
+
 n_outputs = nargout;
 if iscell(fnames_or_loaders)
     n_inputs = numel(fnames_or_loaders);
@@ -70,15 +75,26 @@ if ~isempty(loaders)
     inputs(all_fnames) = loaders;
 end
 
-if n_outputs==0
-    for i=1:n_inputs
-        data = inputs{i}.head(varargin{:});
-        if isfield(data,'npixtot')
-            sqw_display_single(data,npixtot,nfiles,'a');
+info = cell(1,n_inputs);
+for i=1:n_inputs
+    if full
+        data = inputs{i}.get_dnd();
+    else
+        data = inputs{i}.get_dnd_metadata();
+    end
+    if n_outputs == 0
+        if inputs{i}.sqw_type
+            sqw_display_single(data, ...
+                inputs{i}.npixels,inputs{i}.num_contrib_files,'a');
         else
             sqw_display_single(data,1,1,'b+');
         end
+    else
+        info{i} = data;
     end
+end
+
+if n_outputs==0
     return
 end
 
@@ -94,7 +110,12 @@ else
 end
 
 for i=1:nfi
-    vout{i} = inputs{i}.head(varargin{:});
+    vout{i} = info{i}.head(varargin{:});
+    if inputs{i}.sqw_type    
+        vout{i}.npixels = inputs{i}.npixels;
+        vout{i}.num_contrib_files = inputs{i}.num_contrib_files;
+        vout{i}.data_range = inputs{i}.get_data_range();
+    end
 end
 
 if cell_out

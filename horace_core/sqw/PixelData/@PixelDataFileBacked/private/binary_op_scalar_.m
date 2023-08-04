@@ -3,9 +3,7 @@ function obj = binary_op_scalar_(obj, scalar, binary_op, flip)
 % PixelData object and scalar.
 %
 
-if isempty(obj.file_handle_)
-    obj = obj.get_new_handle();
-end
+obj = obj.prepare_dump();
 
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
@@ -33,6 +31,6 @@ for i = 1:num_pages
         obj.pix_minmax_ranges(data, obj.data_range);
 
 end
-obj = obj.finalise();
+obj = obj.finish_dump();
 
-
+end

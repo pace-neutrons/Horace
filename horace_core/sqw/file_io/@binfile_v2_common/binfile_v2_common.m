@@ -350,6 +350,10 @@ classdef binfile_v2_common < horace_binfile_interface
         function [dnd_obj,obj] = get_dnd(obj,varargin)
             [dnd_obj,obj] = obj.get_data(varargin{:});
         end
+        function [dnd_meta,obj] = get_dnd_metadata(obj,varargin)
+            ds = obj.get_data('-head');
+            dnd_meta = dnd_metadata(ds);
+        end
 
         function pix_range = get_pix_range(~)
             % get [2x4] array of min/max ranges of the pixels contributing

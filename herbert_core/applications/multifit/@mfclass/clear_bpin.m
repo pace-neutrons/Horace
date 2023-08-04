@@ -15,12 +15,10 @@ function obj = clear_bpin (obj, varargin)
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Process input
 isfore = false;
-[ok, mess, obj] = clear_pin_private_ (obj, isfore, varargin);
-if ~ok, error(mess), end
+obj = clear_pin_private_ (obj, isfore, varargin);
 
+end

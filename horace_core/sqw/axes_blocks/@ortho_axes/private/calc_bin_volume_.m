@@ -32,7 +32,3 @@ else
     vol = cellfun(@(x)x(1),grid_sizes);
     volume = prod(vol);
 end
-if obj.nonorthogonal
-    cell_vol = cross(obj.unit_cell(1:3,1),obj.unit_cell(1:3,2))'*obj.unit_cell(1:3,3);
-    volume  = volume.*cell_vol;
-end

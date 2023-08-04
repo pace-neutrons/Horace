@@ -1,5 +1,5 @@
 function varargout = cut_single_(w, tag_proj, targ_axes,return_cut, ...
-    outfile,proj_given,log_level)
+                                 opt,log_level)
 %%CUT_SINGLE Perform a cut on a single sqw object
 %
 % Input:
@@ -9,11 +9,12 @@ function varargout = cut_single_(w, tag_proj, targ_axes,return_cut, ...
 % targ_axes   `ortho_axes` object defining the ranges, binning and geometry
 %             of the target cut
 % return_cut  if false, save output cut into the file  (name provided)
-% outfile     The output file to write the cut to, empty if cut is not to be
-%             written to file (char).
-% proj_given  if true, user provided projection and cut_interpolate algorithm
-%             should be used, if false, rebinning/integration algorithm
-%             should be invoked
+% opt         Structure containing the following args:
+%     outfile     The output file to write the cut to, empty if cut is not to be
+%                 written to file (char).
+%     proj_given  if true, user provided projection and cut_interpolate algorithm
+%                 should be used, if false, rebinning/integration algorithm
+%                 should be invoked
 % log_level   verbosity of the cut progress report. Taken from
 %             hor_config.log_level and propagated through the parameters to
 %             avoid subsequent calls to hor_config.
@@ -24,6 +25,9 @@ function varargout = cut_single_(w, tag_proj, targ_axes,return_cut, ...
 %            else it will be DnD object.
 %            This output argument can be omitted if `outfile` is specified.
 %
+outfile = opt.outfile;
+proj_given = opt.proj_given;
+
 if ~return_cut
     if ~ischar(outfile) || isempty(outfile)
         error('HORACE:cut_dnd:invalid_argument',...
@@ -34,7 +38,7 @@ end
 
 %proj_given = true;
 if proj_given
-    % Interpolate image on non-commensurate grid and accumulate interpolated 
+    % Interpolate image on non-commensurate grid and accumulate interpolated
     % data for cut
     [s, e, npix] = cut_interpolate_data_( ...
         w, tag_proj,targ_axes);

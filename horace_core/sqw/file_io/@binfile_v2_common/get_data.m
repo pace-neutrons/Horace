@@ -163,6 +163,15 @@ end
 %
 proj = ortho_proj.get_from_old_data(data_str);
 ax   = ortho_axes.get_from_old_data(data_str);
+% really old file format does not contain lattice
+% in real life we will probably never face this file format
+if ~proj.alatt_defined
+    proj.alatt = 2*pi;
+end
+if ~proj.angdeg_defined
+    proj.angdeg = 90;
+end
+
 
 data_str = DnDBase.dnd(ax,proj,data_str.s,data_str.e,data_str.npix);
 obj.sqw_holder_ = data_str;

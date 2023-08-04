@@ -1,7 +1,7 @@
-function alf = macro_xs_thick (obj, npath, ind, wvec)
+function [alf, atten] = macro_xs_thick (obj, ind, npath, wvec)
 % Path length through a slab in multiples of the macroscopic absorption cross-section
 %
-%   >> alf = macro_xs_thick (obj, npath, ind, wvec)
+%   >> alf = macro_xs_thick (obj, ind, npath, wvec)
 %
 % The thickness is divided by the cosine of the angle of the neutron path
 % w.r.t. the face normal. That is, the return argument alf is distance through
@@ -10,10 +10,10 @@ function alf = macro_xs_thick (obj, npath, ind, wvec)
 % Input:
 % ------
 %   obj         IX_det_slab object
+%   ind         Indices of detector elements. Scalar or array
 %   npath       Unit vectors along the neutron path in the detector coordinate
 %               frame for each detector. Array size [3,n] where n is the
 %               number of indices (see ind below)
-%   ind         Indices of detector elements. Scalar or array
 %   wvec        Wavevector of absorbed neutrons (Ang^-1). Scalar or array
 %
 % If both ind and wvec are arrays, they must have the same number of elements
@@ -24,11 +24,12 @@ function alf = macro_xs_thick (obj, npath, ind, wvec)
 %              of the attenuation length.
 %               The shape is whichever of ind or wvec is an array.
 %               If both ind and wvec are arrays, the shape is that of wvec
+%
+%   atten       Attenuation distance.
+%               The shape is the same as alf.
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Define constant so that alf=const*atms*inner_rad(m)/(wvec*sintheta)
@@ -36,16 +37,24 @@ function alf = macro_xs_thick (obj, npath, ind, wvec)
 
 wvec0 = 3.494157974647365;  % wvec at 2200 m/s
 
-thickness = (obj.depth_(ind(:))./npath(1,:)') ./ obj.atten_(ind(:));
+% Thickness along neutron path in multiples of attenuation length(s) at 2200 m/s
+atten0 = obj.atten_(ind(:));
+thickness = (obj.depth_(ind(:))./npath(1,:)') ./ atten0;
 
+% Convert to thickness at the input wavevector(s)
 if isscalar(ind)
+    % atten0 and thickness are both scalar; wvec may be scalar or array
     alf = (wvec0 * thickness) ./ wvec;
+    atten = wvec * (atten0 / wvec0);
     
 elseif isscalar(wvec)
+    % atten0 and thickness will be arrays (scalar case already caught above)
     alf = (wvec0/wvec) * reshape(thickness, size(ind));
+    atten = (wvec/wvec0) * reshape(atten0, size(ind));
     
-else    % both non-scalar
-    alf = wvec0 * reshape(thickness, size(wvec)) ./ wvec;
+else
+    % Both non-scalar
+    alf = wvec0 * (reshape(thickness, size(wvec)) ./ wvec);
+    atten = (wvec .* reshape(atten0, size(wvec))) / wvec0;
     
 end
-

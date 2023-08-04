@@ -11,10 +11,10 @@ function obj = clear_mask(obj,idata_in)
 % For details about the keyword-value pairs, see <a href="matlab:help('mfclass/set_mask');">set_mask</a>
 %
 % See also set_mask add_mask
- 
- 
-% Original author: T.G.Perring 
-% 
+
+
+% Original author: T.G.Perring
+%
 % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
@@ -28,10 +28,8 @@ if isempty(obj.data_)
 end
 
 % Now check validity of input
-[ok,mess,idata] = indicies_parse (idata_in, obj.ndatatot_, 'Dataset');
-if ~ok, error(mess), end
+idata = indices_parse(idata_in, obj.ndatatot_, 'Dataset');
 
 % Set object
 % ----------
 obj.msk_(idata) = cellfun( @(x)true(size(x)), obj.msk_(idata), 'UniformOutput', false);
-

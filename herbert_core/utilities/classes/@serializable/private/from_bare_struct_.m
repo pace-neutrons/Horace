@@ -10,12 +10,12 @@ function obj = from_bare_struct_ (obj_template, S)
 %                  to_bare_struct does not contain the class type. The object
 %                  is used to provide the class to be recovered, and the value
 %                  of any missing properties if recovering from an older
-%                  version. 
+%                  version.
 %
 %   S               Structure or structure array of data with the structure as
 %                  created by the method to_bare_struct.
 %                   Note that structures created by to_struct (i.e. with the
-%                  fields 'serial_name', 'version' and (if from an array of 
+%                  fields 'serial_name', 'version' and (if from an array of
 %                  objects) 'array_dat' are *NOT* valid.
 %
 % Output:
@@ -37,7 +37,7 @@ end
 % poor design as a valid object to save/load is one with no fields and no
 % size. Serializable also interprets an empty object *with* fields in the
 % same way - again possibly inconsistent design. Catch this case too until
-% a robust design is made. 
+% a robust design is made.
 if numel(S)==0
     obj = obj_template;
     return

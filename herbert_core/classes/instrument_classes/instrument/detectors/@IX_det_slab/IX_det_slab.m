@@ -1,37 +1,31 @@
 classdef IX_det_slab < IX_det_abstractType
-    % IX_det_slab Slab detector type
-    % Defines the size and absorption of a cuboidal detector
+    % IX_det_slab    Array of cuboidal detectors
+    % Defines the size and absorption of an array of cuboidal detectors.
     %
     % The class does not define the position or orientation, which is done
     % elsewhere.
 
-
     % Original author: T.G.Perring
-    %
-
+    
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
         % may require checks against the other properties
-        depth_  = 0;    % Column vector
-        width_  = 0;    % Column vector
-        height_ = 0;    % Column vector
-        atten_  = 0;    % Column vector
-        mandatory_field_set_ = false(1,4);
+        depth_  = 0;    % Detector element thicknesses (m) (column vector)
+        width_  = 0;    % Detector element widths (m) (column vector)
+        height_ = 0;    % Detector element heights (m) (column vector)
+        atten_  = 0;    % Attenuation length (to 1/e) at 2200 m/s (m) (column vector)
     end
 
     properties (Dependent)
-        % Mirrors of private properties
+        % Mirrors of private properties; these define object state:
         depth       % Detector element thicknesses (m) (column vector)
         width       % Detector element widths (m) (column vector)
         height      % Detector element heights (m) (column vector)
         atten       % Attenuation length (to 1/e) at 2200 m/s (m) (column vector)
 
-        % Other dependent properties required by abstract template
-        ndet    % Number of detectors        
-    end
-
-    properties (Dependent, Hidden)
+        % Other dependent properties required by abstract template:
+        ndet        % Number of detectors (get access only) (scalar)s        
     end
 
     methods
@@ -51,79 +45,75 @@ classdef IX_det_slab < IX_det_abstractType
             % All arguments can be scalar or arrays; all arrays must have the
             % same number of elements
             %
-            %   depth       Depth of detector elements (m)      (x axis)
-            %   width       Width of detector elements (m)       (y axis)
-            %   height      Height of detector elements (m)   (z axis)
+            %   depth       Depth of detector elements (m) (x axis)
+            %   width       Width of detector elements (m) (y axis)
+            %   height      Height of detector elements (m) (z axis)
             %   atten       Attenuation distance at 2200 m/s (m)
 
             if nargin>0
-                % define parameters accepted by constructor as keys and also the
+                % Define parameters accepted by constructor as keys and also the
                 % order of the positional parameters, if the parameters are
                 % provided without their names
-                pos_params = obj.saveableFields();
-                % set positional parameters and key-value pairs and check their
+                property_names = {'depth', 'width', 'height', 'atten'};
+                mandatory = [true, true, true, true];
+
+                % Set positional parameters and key-value pairs and check their
                 % consistency using public setters interface. Run
-                % check_compo_arg after all settings have been done.
-                [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
-                    true,varargin{:});
+                % check_combo_arg after all settings have been done.
+                % All is done within set_positional_and_key_val_arguments
+                options = struct('key_dash', true, 'mandatory_props', mandatory);
+                [obj, remains] = set_positional_and_key_val_arguments (obj, ...
+                    property_names, options, varargin{:});
+                
                 if ~isempty(remains)
                     error('HERBERT:IX_det_slab:invalid_argument', ...
-                        'Unrecognised extra parameters provided as input to IX_fermi_chopper constructor: %s',...
-                        disp2str(remains));
+                        ['Unrecognised extra parameters provided as input to ',...
+                        'IX_det_slab constructor:\n %s'], disp2str(remains));
                 end
             end
         end
 
         %------------------------------------------------------------------
-
-        %------------------------------------------------------------------
         % Set methods for dependent properties
-        function obj=set.depth(obj,val)
+        function obj = set.depth(obj, val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element depth(s) must be greater or equal to zero')
             end
             obj.depth_ = val(:);
-            obj.mandatory_field_set_(1) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
 
-        function obj=set.width(obj,val)
+        function obj = set.width(obj, val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element width(s) must be greater or equal to zero')
             end
             obj.width_ = val(:);
-            obj.mandatory_field_set_(2) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
-
-
         end
 
-        function obj=set.height(obj,val)
+        function obj = set.height(obj, val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element height(s) must be greater or equal to zero')
             end
             obj.height_ = val(:);
-
-            obj.mandatory_field_set_(3) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
 
-        function obj=set.atten(obj,val)
+        function obj = set.atten(obj, val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element attenuation length(s) must be greater or equal to zero')
             end
             obj.atten_ = val(:);
-            obj.mandatory_field_set_(4) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -150,44 +140,43 @@ classdef IX_det_slab < IX_det_abstractType
         function val = get.ndet(obj)
             val = numel(obj.depth_);
         end
-
         %------------------------------------------------------------------
 
     end
+    
     %======================================================================
+    % SERIALIZABLE INTERFACE
+    %======================================================================
+
     methods
-        % SERIALIZABLE INTERFACE
-        %------------------------------------------------------------------
-        function obj = check_combo_arg(obj)
-            % verify interdependent variables and the validity of the
-            % obtained serializable object. Return the result of the check
-            %
-            % Throw if the properties are inconsistent and return without
-            % problem it they are not, after recomputing pdf table if
-            % requested.
-
-            flds = obj.saveableFields();
-            if ~all(obj.mandatory_field_set_)
-                error('HERBERT:IX_det_slab:invalid_argument',...
-                    'Must give all mandatory inputs namely: %s\n. Properties: %s have not been set', ...
-                    disp2str(flds),...
-                    disp2str(flds(~obj.mandatory_field_set_)));
-
-            end
-            obj = obj.expand_internal_propeties_to_max_length(flds);            
-        end
-        function flds = saveableFields(~)
-            % Return cellarray of properties defining the class
-            %
-            flds = {'depth', 'width', 'height', 'atten'};
-        end
-
         function ver = classVersion(~)
             ver = 2;
         end
+        
+        function flds = saveableFields(~)
+            % Return cellarray of properties defining the class
+            flds = {'depth', 'width', 'height', 'atten'};
+        end
+
+        function obj = check_combo_arg(obj)
+            % Verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check.
+            %
+            % Recompute any cached arguments.
+            %
+            % Throw an error if the properties are inconsistent and return
+            % without problem it they are not.
+
+            flds = obj.saveableFields();
+            
+            % Inherited method from IX_det_abstractType
+            obj = obj.expand_internal_properties_to_max_length (flds);            
+        end
+        
     end
+    
+    %----------------------------------------------------------------------
     methods(Access=protected)
-        %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % restore object from the old structure, which describes the
             % previous version of the object.
@@ -211,16 +200,12 @@ classdef IX_det_slab < IX_det_abstractType
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
-            % overloaded loadobj method, calling generic method of
-            % saveable class necessary for loading old class versions
-            % which are converted into structure when recovered as class is
-            % not available any more
+            % Boilerplate loadobj method, calling the generic loadobj method of
+            % the serializable class
             obj = IX_det_slab();
             obj = loadobj@serializable(S,obj);
         end
-        %------------------------------------------------------------------
     end
-
-
+    %======================================================================
+    
 end
-

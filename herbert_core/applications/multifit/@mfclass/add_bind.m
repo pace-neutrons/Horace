@@ -29,6 +29,6 @@ function obj = add_bind (obj,varargin)
 % Process input
 % -------------
 isfore = true;
-[ok, mess, obj] = add_bind_private_ (obj, isfore, varargin);
-if ~ok, error(mess), end
+obj = add_bind_private_ (obj, isfore, varargin);
 
+end

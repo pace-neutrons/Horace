@@ -1,4 +1,4 @@
-function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj,proj)
+function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
 % Get titling and caption information for the axes sqw data structure
 %
 % Syntax:
@@ -22,11 +22,6 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %   energy_axis     The index of the column in the 4x4 matrix din.u that corresponds
 %                  to the energy axis
 
-if ~isa(proj,'spher_proj')
-    error('HORACE:spher_axes:inalid_argument', ...
-        'Spherical projection titiles request spherical projection asof axes block and projection.\n Needed: spher_axes and spher_proj. Available: %s and %s', ...
-        class(obj),class(proj));
-end
 
 energy_axis = 4;
 small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
@@ -51,7 +46,7 @@ plot_bin_centers = reshape([br{dax}],3,n_dim);
 % Axes and integration titles
 % Character representations of input data
 %==========================================================================
-offset   = proj.offset;
+offset   = obj.offset;
 uofftot  = offset;
 
 iax  = obj.iax;
@@ -64,7 +59,7 @@ end
 
 % add energy type to the types the projection defines. TODO:  Should energy type be part of
 % type?
-type = [proj.type,'e'];
+type = obj.axes_units;
 
 % pre-allocate cell arrays for titling:
 title_pax = cell(length(pax),1);

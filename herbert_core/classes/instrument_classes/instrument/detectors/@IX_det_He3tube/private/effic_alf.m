@@ -37,8 +37,6 @@ function val = effic_alf (alf)
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 c_eff_f = [0.7648360390553052,...

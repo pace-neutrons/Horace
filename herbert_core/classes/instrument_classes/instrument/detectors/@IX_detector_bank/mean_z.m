@@ -9,25 +9,28 @@ function val = mean_z (obj, varargin)
 %   obj         IX_detector_bank object
 %
 %   ind         Indices of detectors for which to calculate. Scalar or array.
-%               Default: all detectors (i.e. ind = 1:ndet)
+%               Default: all detectors (i.e. ind = 1:ndet) as a row vector.
 %
 %   wvec        Wavevector of absorbed neutrons (Ang^-1). Scalar or array.
-%
-% If both ind and wvec are arrays, then they must have the same number of elements
+%               If both ind and wvec are arrays, then they must have the same
+%               number of elements, but not necessarily the same shape.
 %
 %
 % Output:
 % -------
 %   val         Mean point of absorption along the z-axis (m)
 %               The shape is whichever of ind or wvec is an array.
+%
+%               Note:
+%                 - if ind is a scalar, the calculation is performed for
+%                  that value at each of the values of wvec
+%                 - if wvec is a scalar, the calculation is performed for
+%                  that value at each of the values of ind
+%
 %               If both ind and wvec are arrays, the shape is that of wvec
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
-[~, ind] = parse_ind_wvec_ (obj.det, varargin{:});
-val = mean_z (obj.det, squeeze(obj.dmat(1,:,ind(:))), varargin{:});
-
+val = func_eval (obj, @mean_z, varargin{:});

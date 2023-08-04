@@ -50,4 +50,3 @@ elseif x0==0
 else
     error('The limit of the truncated exponential must be in range 0 to +Inf')
 end
-

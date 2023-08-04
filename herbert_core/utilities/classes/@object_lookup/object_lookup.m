@@ -37,67 +37,131 @@ classdef object_lookup
     %   object_lookup   - constructor
     %
     %   object_array    - retrieve a given object array from the set of object arrays
+    %
     %   object_elements - retrieve one or more elements from a given object array in the set
     %
-    %   func_eval       - evaluate a method or function for indexed occurences in the object_lookup
     %   func_eval_ind   - evaluate a method or function for indexed occurences in the object_lookup
-    %                     with indexed function arguments too
+    %
     %   rand_ind        - generate random points for indexed occurences in object_lookup
     %
     % See also pdf_table_lookup
-
+    
     properties (Access=private)
         % Class version number
         class_version_ = 1;
-
+        
         % Object array (column vector)
         object_store_ = []
-
+        
         % Cell array of sizes of original object arrays
         sz_ = cell(0,1)
-
+        
         % Index array (column vector)
         % Cell array of indices into the object_store_, where
         % ind{i} is a column vector of indices for the ith object array.
         % The length of ind{i} = number of objects in the ith object array
         indx_ = cell(0,1)
     end
-
+    
     properties (Dependent)
         % Object array of unique instance of objects in the input array or cell array
         object_store
-
+        
         % Cell array of indices into object_store.
-        % ind{i} is a column vector of indices for the ith object array.
-        % The length of ind{i} = number of objects in the ith object array
+        % indx{i} is a column vector of indices for the ith object array.
+        % The length of indx{i} = number of objects in the ith object array
+        % Read only
         indx
-
-        % True or false according as the object containing one or more pdfs or not
+        
+        % The number of arrays stored in the object_lookup
+        % Read only
+        narray
+        
+        % The number of elements in each of the stored arrays
+        % Read only
+        nelmts
+        
+        % The sizes of each of the stored arrays (column cellarray of row
+        % vectors)
+        % Read only
+        sz
+        
+        % True or false according as the object having at least one object array
+        % Read only
         filled
-
+        
     end
-
+    
     methods
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
-        function obj = object_lookup (objects)
+        function obj = object_lookup (objects, varargin)
             % Create object lookup from an array of objects
             %
+            % Create object_lookup from object array(s):
             %   >> obj = object_lookup (objects)
+            %
+            %   >> obj = object_lookup (objects, '-repeat', sz_repmat)
+            %
+            % Directly set the object store and indexing array(s):
+            %   >> obj = object_lookup (object_store, indx)
+            %
             %
             % Input:
             % ------
             %   objects     Object array, or cell array of object arrays
             %               or cell array of unique_objects_containers
-
-
+            %               Each of the object arrays must contaion at least one
+            %               element.
+            %
+            % Optional:
+            %   sz_repmat   Size of array, or cell array of size arrays, by
+            %               which to repeat copies of the object arrays using
+            %               Matlab function repmat.
+            %               Size arrays must be valid output from the Matlab
+            %               function size for non-empty arrays i.e. row vectors
+            %               of at least two integers all of which must be
+            %               greater than zero.
+            %
+            %   Either or both of object and sz_repmat can be a cell array; if
+            %   one is not a cell array, it is expanded by copying to a a cell
+            %   array of the same size as the other.
+            %
+            %   For example, suppose objArr1 and objArr2 are two arrays of
+            %   objects, and sz1 and sz2 are two size arrays, then the following
+            %   pairs of constructors are equivalent:
+            %
+            %       object_lookup ({objArr1, objArr2}, '-repeat', sz1)
+            %       object_lookup ({objArr1, objArr2}, '-repeat', {sz1, sz1})
+            %
+            %       object_lookup ( objArr1, '-repeat', {sz1, sz2})
+            %       object_lookup ({objArr1, objArr1}, '-repeat', {sz1, sz2})
+            %
+            %
+            % Direct setting of object store and indexing arrays:
+            % - - - - - - - - - - - - - - - - - - - - - - - - - -
+            %   object_store    Array of objects containing from which the
+            %                   uncompressed object arrays can be recovered
+            %                   from the index arrays in indx (below).
+            %
+            %   indx            Cell array of indices into object_store.
+            %                   indx{i} is the vector of indices for the ith
+            %                   object array. The length of ind{i} is the number
+            %                   of objects in the ith object array.
+            %
+            %
+            % Output:
+            % -------
+            %   obj         Object_lookup object
+            
+            
             if nargin==1 && isstruct(objects)
                 % Assume trying to initialise from a structure array of properties
                 obj = object_lookup.loadobj(objects);
-
-            elseif nargin>0
                 
+            elseif nargin>0
+            
                 if isa(objects, 'unique_objects_container')
                     
                     nw = numel(objects); % number of unique_object_containers
@@ -148,60 +212,144 @@ classdef object_lookup
                     obj.sz_ = sz(:);
                     
 
-                else % arrays, cells etc.
-
+                elseif nargin==1 || (nargin==3 && ischar(varargin{1}) &&  numel(varargin{1})>=2 ...
+                        && strncmpi(varargin{1},'-repeat',numel(varargin{1})))
+                    % Input can only be one of the forms:
+                    %   >> obj = object_lookup (objects)
+                    %   >> obj = object_lookup (objects, '-repeat', sz_repmat)
+                    
                     % Make a cell array for convenience, if not already
                     if ~iscell(objects)
-                        objects = {objects};
+                        objects = {objects};    % make objects a cell array length unity
+                    end
+                    
+                    % set locally and check number of available objects
+                    nobj_arr = numel(objects);
+                    if nobj_arr==0
+                        error('HERBERT:object_lookup:invalid_argument', ...
+                            'There must be at least one object array to optimise')
                     end
 
                     % Check all arrays have the same class - requirement for sorting later on
                     if numel(objects)>1
-                        class_name = class(objects{1});
-                        tf = cellfun(@(x)(strcmp(class(x),class_name)),objects);
+	                    class_name = class(objects{1});
+	                    tf = cellfun (@(x)(strcmp(class(x), class_name)), objects);
+	                    if ~all(tf)
+	                        error('HERBERT:object_lookup:invalid_argument', ...
+	                            'The classes of the object arrays are not all the same')
+	                    end
+                    end
+                    
+                    % Check validity of sz_repmat, if present (check now before
+                    % performing any expensive operations on the objects)
+                    if nargin==3
+                        repeat = true;
+                        if iscell(varargin{2})
+                            sz_repeat = varargin{2};
+                        else
+                            sz_repeat = varargin(2);   % make it a cell array length unity
+                        end
+                        nsz_repeat = numel(sz_repeat);
+                        if nsz_repeat==0
+                            error('HERBERT:object_lookup:invalid_argument', ...
+                                'If it has been given, the set of repeat sizes cannot be empty')
+                        end
+                        tf = cellfun (@isnumeric, sz_repeat(:)) & ...
+                            cellfun(@isrow, sz_repeat(:)) & ...
+                            ~cellfun(@isempty, sz_repeat(:)) & ...
+                            cellfun(@(x)(all(x>0)), sz_repeat(:));
                         if ~all(tf)
                             error('HERBERT:object_lookup:invalid_argument', ...
-                                  ['The classes of the object arrays are not ', ...
-                                  'all the same']);
+                                ['Repeat sizes must all be an integer>=1 or a valid Matlab array ',...
+                                'sizes for non-empty arrays'])
                         end
+                        if ~(isscalar(nobj_arr) || isscalar(nsz_repeat) || ...
+                                nobj_arr==nsz_repeat)
+                            error('HERBERT:object_lookup:invalid_argument', ...
+                                ['The number of object arrays and repeat sizes must ',...
+                                'be the same if they are both greater than one'])
+                        end
+                        ncopies = cellfun (@prod, sz_repeat(:), 'uniformoutput', false);    % cellarray of scalars
+                    else % nargin=1
+                        repeat = false;
                     end
-
-                    % Assemble the objects in one array
-                    nw = numel(objects);
-                    nel = cellfun(@numel,objects(:));
-                    sz = cellfun(@size,objects(:),'uniformoutput',false);
+                    
+                    % Assemble the objects into one array
+                    nel = cellfun (@numel, objects(:));
+                    sz = cellfun (@size, objects(:), 'uniformoutput', false);
                     if any(nel==0)
                         error('HERBERT:object_lookup:invalid_argument', ...
-                              'Cannot have any empty object arrays');
+                            'Cannot have any empty object arrays')
                     end
+                    
                     nend = cumsum(nel);
                     nbeg = nend - nel + 1;
                     ntot = nend(end);
-
+                    
                     obj_all=repmat(objects{1}(1),[ntot,1]);
-                    for i=1:nw
+                    for i=1:nobj_arr
                         obj_all(nbeg(i):nend(i))=objects{i}(:);
                     end
-
-                    % Get unique entries
+                    
+                    % Get unique entries and cell array of index arrays
+>>>>>>> master
                     if fieldsNumLogChar (obj_all, 'indep')
                         [obj_unique,~,ind] = uniqueObj(obj_all);    % simple object
                     else
                         [obj_unique,~,ind] = genunique(obj_all,'resolve','indep');
                     end
 
+                    ind = mat2cell(ind,nel,1);
+                    
+                    % Expand the index and sz arrays if required
+                    % The unique objects do not need to be altered, and repeated
+                    % elements of the object arrays does not alter the unique
+                    % objects required to reconstruct the object arrays
+                    if repeat
+                        if nobj_arr>1
+                            if nsz_repeat>1
+                                sz = cellfun(@(x,y)(sz_repmat(x,y)), sz, sz_repeat(:),...
+                                    'uniformoutput', false);
+                                ind = cellfun(@(x,y)(repmat(x,[y,1])), ind, ncopies,...
+                                    'uniformoutput', false);
+                            else
+                                sz = cellfun(@(x)(sz_repmat(x,sz_repeat{1})), sz,...
+                                    'uniformoutput', false);
+                                ind = cellfun(@(x)(repmat(x,[ncopies{1},1])), ind,...
+                                    'uniformoutput', false);
+                            end
+                        else
+                            if nsz_repeat>1
+                                sz = cellfun(@(x)(sz_repmat(sz{1},x)), sz_repeat(:),...
+                                    'uniformoutput', false);
+                                ind = cellfun(@(x)(repmat(ind{1},[x,1])), ncopies,...
+                                    'uniformoutput', false);
+                            else
+                                sz = {sz_repmat(sz{1},sz_repeat{1})};
+                                ind = {repmat(ind{1},[ncopies{1},1])};
+                            end
+                        end
+                    end
+                    
                     % Fill lookup properties
                     obj.object_store_ = obj_unique;
-                    obj.indx_ = mat2cell(ind,nel,1);
+                    obj.indx_ = ind;
                     obj.sz_ = sz;
+                    
+                elseif nargin==2
+                    % Input can only be of form: object_lookup (object_store, indx)
+                    error('***DIRECT SETTING OF OBJECT_STORE AND INDX NOT YET IMPLEMENTED')
+                else
+                    error('HERBERT:object_lookup:invalid_argument', ...
+                        'Invalid number and/or type of input argument(s)')
                 end
             end
-
+            
         end
-
+        
         %------------------------------------------------------------------
         % Set methods for dependent properties
-
+        
         function obj=set.object_store(obj,val)
             % Replace the object lookup table with another set of objects
             %
@@ -209,13 +357,15 @@ classdef object_lookup
             %
             % The number of objects in new array must be scalar or match the
             % number in the current value of the property object_store.
+            %
             % - If scalar, then it is assumed that every object in the current
             %   array is to be replaced by a copy of the new object
+            %
             % - If array of same size as current object array, no check is
             %   made that the objects are unique. This will not cause an error,
             %   but calls to function evaluations or random point generation
             %   will not be as efficient as they could be.
-
+            
             if numel(val)==numel(obj.object_store_) || isscalar(val)
                 if numel(obj.object_store_)>0
                     if numel(val)==numel(obj.object_store_)
@@ -233,22 +383,35 @@ classdef object_lookup
                     'Replacement for property ''object_store'' must be scalar or have the same number of objects')
             end
         end
-
+        
         %------------------------------------------------------------------
         % Get methods for dependent properties
-
+        
         function val=get.indx(obj)
             val=obj.indx_;
         end
-
+        
         function val=get.object_store(obj)
             val=obj.object_store_;
         end
-
+        
+        function val=get.narray(obj)
+            val=numel(obj.indx_);
+        end
+        
+        function val=get.nelmts(obj)
+            val=cellfun(@numel, obj.indx_);
+        end
+        
+        function val=get.sz(obj)
+            val=obj.sz_;
+        end
+        
         function val=get.filled(obj)
             val=(numel(obj.object_store_)>0);
         end
         
+<<<<<<< HEAD
         function val = get_unique(obj,idx)
             if (idx==0)
                 val = numel(obj.object_store_);
@@ -284,10 +447,12 @@ classdef object_lookup
             end
         end
 
+=======
+>>>>>>> master
         %------------------------------------------------------------------
     end
 
-
+    
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -300,7 +465,7 @@ classdef object_lookup
             end
             names = names_store;
         end
-
+        
         function names = propNamesPublic_
             % Determine the visible public property names and cache the result.
             % Code is boilerplate
@@ -310,7 +475,7 @@ classdef object_lookup
             end
             names = names_store;
         end
-
+        
         function struc = scalarEmptyStructIndep_
             % Create a scalar structure with empty fields, and cache the result
             % Code is boilerplate
@@ -322,7 +487,7 @@ classdef object_lookup
             end
             struc = struc_store;
         end
-
+        
         function struc = scalarEmptyStructPublic_
             % Create a scalar structure with empty fields, and cache the result
             % Code is boilerplate
@@ -335,7 +500,7 @@ classdef object_lookup
             struc = struc_store;
         end
     end
-
+    
     methods
         function S = structIndep(obj)
             % Return the independent properties of an object as a structure
@@ -353,7 +518,7 @@ classdef object_lookup
             %
             %
             % See also structPublic, structArrIndep, structArrPublic
-
+            
             names = obj.propNamesIndep_';
             if ~isempty(obj)
                 tmp = obj(1);
@@ -366,7 +531,7 @@ classdef object_lookup
                 S = struct(args{:});
             end
         end
-
+        
         function S = structArrIndep(obj)
             % Return the independent properties of an object array as a structure array
             %
@@ -387,13 +552,13 @@ classdef object_lookup
             %
             %
             % See also structIndep, structPublic, structArrPublic
-
+            
             if numel(obj)>1
                 S = arrayfun(@fill_it, obj);
             else
                 S = structIndep(obj);
             end
-
+            
             function S = fill_it (obj)
                 names = obj.propNamesIndep_';
                 S = obj.scalarEmptyStructIndep_;
@@ -401,9 +566,9 @@ classdef object_lookup
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
-
+        
         function S = structPublic(obj)
             % Return the public properties of an object as a structure
             %
@@ -420,7 +585,7 @@ classdef object_lookup
             %
             %
             % See also structIndep, structArrPublic, structArrIndep
-
+            
             names = obj.propNamesPublic_';
             if ~isempty(obj)
                 tmp = obj(1);
@@ -433,7 +598,7 @@ classdef object_lookup
                 S = struct(args{:});
             end
         end
-
+        
         function S = structArrPublic(obj)
             % Return the public properties of an object array as a structure array
             %
@@ -454,13 +619,13 @@ classdef object_lookup
             %
             %
             % See also structPublic, structIndep, structArrIndep
-
+            
             if numel(obj)>1
                 S = arrayfun(@fill_it, obj);
             else
                 S = structPublic(obj);
             end
-
+            
             function S = fill_it (obj)
                 names = obj.propNamesPublic_';
                 S = obj.scalarEmptyStructPublic_;
@@ -468,15 +633,15 @@ classdef object_lookup
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
     end
-
+    
     %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-
+    
     methods
         %------------------------------------------------------------------
         function S = saveobj(obj)
@@ -492,13 +657,13 @@ classdef object_lookup
             % Output:
             % -------
             %   S       Structure created from obj that is to be saved
-
+            
             % The following is boilerplate code
-
+            
             S = structIndep(obj);
         end
     end
-
+    
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -517,11 +682,11 @@ classdef object_lookup
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
             %           or structure array)
-
+            
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-
+            
             if isobject(S)
                 obj = S;
             else
@@ -552,8 +717,35 @@ classdef object_lookup
 
 
         %------------------------------------------------------------------
-
+        
     end
     %======================================================================
+    
+end
+
+%--------------------------------------------------------------------------
+function sz_out = sz_repmat (sz, sz_repeat)
+% Return the size of the array that would be output by using repmat
+% 
+%   >> sz_out = sz_repmat (sz, sz_repeat)
+%
+% sz_out is the size of the array A_out obtained by the function call:
+%   >> A_out = repmat (A, sz_repmat)
+% 
+% where sz = size(A). sz_repmat is a scalar or a row vector with length >= 2
+
+
+if numel(sz_repeat)==1
+    sz_repeat = [sz_repeat,sz_repeat];
+end
+n1 = numel(sz);
+n2 = numel(sz_repeat);
+if n1>n2
+    sz_out = [sz(1:n2).*sz_repeat, sz(n2+1:end)];
+elseif n1<n2
+    sz_out = [sz.*sz_repeat(1:n1), sz_repeat(n1+1:end)];
+else
+    sz_out = sz.*sz_repeat;
+end
 
 end

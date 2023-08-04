@@ -172,9 +172,9 @@ for cut_num = 1:prod(sz)
     [targ_ax_block, targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp, sym);
 
     if return_cut
-        wout{cut_num} = cut_single_(obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile, log_level);
+        wout{cut_num} = cut_single_(obj, targ_proj, targ_ax_block, opt, log_level);
     else
-        cut_single_(obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile, log_level);
+        cut_single_(obj, targ_proj, targ_ax_block, opt, log_level);
     end
 end
 
