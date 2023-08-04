@@ -73,7 +73,7 @@ classdef test_IX_detector_array_1 < TestCaseWithSave
                 0.4:0.01:0.4501, 0.2:0.01:0.25001, 1e-12);
             
             rotvec5 = [0,10,0; 0,23,0; 0,55,0; 0,60,0; 0,65,0; 0,80,0]';
-            obj.bank5 = IX_detector_bank (2001:2006,x2_5,phi_5,azim_5,det_5,'rotvec',rotvec5);
+            obj.bank5 = IX_detector_bank (5001:5006,x2_5,phi_5,azim_5,det_5,'rotvec',rotvec5);
             
             % Random numbers
             % --------------
@@ -155,7 +155,7 @@ classdef test_IX_detector_array_1 < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_constructor_4 (obj)
+        function test_constructor_bad_det_ids_THROW (obj)
             % Check fails if there are non-unique detector id values
             bank2_tmp = obj.bank2;
             bank2_tmp.id(4) = obj.bank1.id(2);
@@ -238,13 +238,30 @@ classdef test_IX_detector_array_1 < TestCaseWithSave
         %--------------------------------------------------------------------------
         %   Test save and load
         %--------------------------------------------------------------------------
-        function test_save_load_1 (obj)
+        function test_save_load_scalar (obj)
             % Test save and load: save then reload, and check identical
             banks_123 = [obj.bank1, obj.bank2, obj.bank3];
             D = IX_detector_array (banks_123, obj.bank4);
             
             % Save detector bank
-            test_file = fullfile (tmp_dir(), 'test_save_load_1.mat');
+            test_file = fullfile (tmp_dir(), 'test_save_load_scalar.mat');
+            cleanup = onCleanup(@()delete(test_file));
+            save (test_file, 'D');
+            
+            % Recover detector bank
+            tmp = load (test_file);
+            
+            assertEqual (D, tmp.D)
+        end
+        
+        function test_save_load_array (obj)
+            % Test save and load: save then reload, and check identical
+            banks_123 = [obj.bank1, obj.bank2, obj.bank3];
+            D(1) = IX_detector_array (banks_123, obj.bank4);
+            D(2) = IX_detector_array (obj.bank1, obj.bank4);
+            
+            % Save detector bank
+            test_file = fullfile (tmp_dir(), 'test_save_load_array.mat');
             cleanup = onCleanup(@()delete(test_file));
             save (test_file, 'D');
             

@@ -1,8 +1,8 @@
 function A = object_elements (obj, varargin)
 % Return selected object elements of a given array from the original set of arrays
 %
-%   >> obj = object_elements (obj, iarray, ind)
-%   >> obj = object_elements (obj, ind)         % OK if only one original array
+%   >> A = object_elements (obj, iarray, ind)
+%   >> A = object_elements (obj, ind)           % OK if only one original array
 %
 % Input:
 % ------
@@ -27,17 +27,20 @@ function A = object_elements (obj, varargin)
 
 % Check validity
 if ~isscalar(obj)
-    error('HERBERT:object_lookup:invalid_argument', 'Only operates on a single object_lookup (i.e. object must be scalar');
+    error('HERBERT:object_lookup:invalid_argument', ...
+        'Only operates on a single object_lookup (i.e. object must be scalar');
 end
 if ~obj.filled
-    error('HERBERT:object_lookup:invalid_argument', 'The object_lookup is not initialised')
+    error('HERBERT:object_lookup:invalid_argument', ...
+        'The object_lookup is not initialised')
 end
 
 % Get return argument
 if numel(varargin)==2
     iarray = varargin{1};
     if ~isscalar(iarray)
-        error('HERBERT:object_lookup:invalid_argument', 'Index to original object array, ''iarray'', must be a scalar')
+        error('HERBERT:object_lookup:invalid_argument', ...
+            'Index to original object array, ''iarray'', must be a scalar')
     end
     ind = varargin{2};
 elseif numel(varargin)==1
@@ -45,10 +48,12 @@ elseif numel(varargin)==1
         iarray = 1;
         ind = varargin{1};
     else
-        error('HERBERT:object_lookup:invalid_argument', 'Must give index to the object array from which elements are to be recovered')
+        error('HERBERT:object_lookup:invalid_argument', ...
+            'Must give index to the object array from which elements are to be recovered')
     end
 else
-    error('HERBERT:object_lookup:invalid_argument', 'Invalid number of input arguments')
+    error('HERBERT:object_lookup:invalid_argument', ...
+        'Invalid number of input arguments')
 end
 
 % Get return argument
