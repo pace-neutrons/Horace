@@ -10,12 +10,12 @@ function obj = from_old_struct (obj, S)
 %
 % Overloading: customising how structures from earlier class versions are updated
 % -------------------------------------------------------------------------------
-% In the simplest cases when the older structure has missing fields which can 
+% In the simplest cases when the older structure has missing fields which can
 % simply be filled from default properties of the current object version,
 % nothing needs to be done.
 %
-% In most other cases, all that is needed is to overload the default 
-% serializable method convert_old_struct. For details see 
+% In most other cases, all that is needed is to overload the default
+% serializable method convert_old_struct. For details see
 % <a href="matlab:help('serializable/convert_old_struct');">convert_old_struct</a>.
 %
 % If the design pattern for your class is particularly complex it might be
@@ -41,7 +41,7 @@ function obj = from_old_struct (obj, S)
 %                   S_updated = ...
 %               end
 %           else
-%               % Created from version before the class was defined as a 
+%               % Created from version before the class was defined as a
 %               % child class of serializable
 %                   :
 %               S_updated = ...
@@ -62,8 +62,8 @@ function obj = from_old_struct (obj, S)
 %
 %           and either:
 %               .array_dat          Structure array each element of
-%                                   the array being the structure 
-%                                   created from one object. The 
+%                                   the array being the structure
+%                                   created from one object. The
 %                                   field names match the property
 %                                   names returned from the method
 %                                   "saveableFields".
@@ -88,7 +88,7 @@ function obj = from_old_struct (obj, S)
 %                  to_bare_struct does not contain the class type. The object
 %                  is used to provide the class to be recovered, and the value
 %                  of any missing properties if recovering from an older
-%                  version. 
+%                  version.
 %
 %   S               Structure or structure array of data.
 %
@@ -100,24 +100,33 @@ function obj = from_old_struct (obj, S)
 
 % Convert older structure to one that would be produced by the current class
 % version
+
 if isfield (S, 'version')
     % Created from earlier class version
     ver = S.version;
     if isfield (S, 'array_dat')
-        % S corresponds to an array of objects
-        datastruct = arrayfun (@(x)convert_old_struct(obj,x,ver), S.array_dat);
+        dat = S.array_dat;
     else
-        datastruct = convert_old_struct (obj, S, ver);
+        dat = S; % this should not happen
     end
 else
     % Created from version before the class was defined as a child class of
     % serializable
     ver = NaN;    % convention for no explicit version
-    if numel(S) > 1
-        % S corresponds to an array of objects
-        datastruct = arrayfun (@(x)convert_old_struct(obj,x,ver), S);
-    else
-        datastruct = convert_old_struct (obj, S, ver);
+    dat = S;
+end
+nobj = numel(dat);
+if nobj == 1
+    [datastruct,obj] = convert_old_struct (obj, dat, ver);
+else
+    % S corresponds to an array of objects
+    if ~isequal(size(obj),size(dat))
+        obj = repmat(obj(1),size(dat));
+    end
+    i=1:nobj;
+    [datastruct,obj] = arrayfun (@(n)convert_old_struct(obj(n),dat(n),ver), i);
+    if ~isequal(size(datastruct),size(dat))
+        datastruct= reshape(datastruct,size(dat));
     end
 end
 

@@ -1,5 +1,5 @@
 classdef IX_det_He3tube < IX_det_abstractType
-    % IX_det_He3tube    Defines array of cylindrical 3He detectors
+    % IX_det_He3tube Defines array of cylindrical 3He detectors
     % Defines cylindrical 3He gas tube properties on which efficiency,
     % depth of absorption etc depend, namely diameter, wall thickness
     % partial pressure of 3He.
@@ -8,7 +8,7 @@ classdef IX_det_He3tube < IX_det_abstractType
     % elsewhere.
 
     % Original author: T.G.Perring
-    
+
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
@@ -26,7 +26,7 @@ classdef IX_det_He3tube < IX_det_abstractType
         wall        % Wall thickness (m) (column vector)
         atms        % 3He partial pressure (atmospheres) (column vector)
 
-        % Other dependent properties: 
+        % Other dependent properties:
         inner_rad   % Inner radius of tube (get access only) (m)
         
         % Other dependent properties required by abstract template:
@@ -36,7 +36,7 @@ classdef IX_det_He3tube < IX_det_abstractType
     methods
         %------------------------------------------------------------------
         % Constructor
-        function obj = IX_det_He3tube (varargin)
+        function obj=IX_det_He3tube(varargin)
             % Constructor for a set of cylindrical 3He detector
             %
             %   >> obj = IX_det_He3tube (dia, height, wall, atms)
@@ -79,18 +79,18 @@ classdef IX_det_He3tube < IX_det_abstractType
 
         %------------------------------------------------------------------
         % Set methods for dependent properties
-        function obj = set.dia (obj, val)
+        function obj=set.dia(obj,val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
                     'Tube diameter(s) must be greater or equal to zero')
             end
-            obj.dia_ = val(:);
+            obj.dia_=val(:);
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
         
-        function obj = set.height (obj, val)
+        function obj=set.height(obj,val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
                     'Detector element height(s) must be greater or equal to zero')
@@ -100,19 +100,19 @@ classdef IX_det_He3tube < IX_det_abstractType
                 obj = obj.check_combo_arg();
             end
         end
-        
-        function obj = set.wall (obj, val)
+
+        function obj=set.wall(obj,val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
                     'Wall thickness(es) must be greater or equal to zero')
             end
-            obj.wall_ = val(:);
+            obj.wall_=val(:);
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
         
-        function obj = set.atms (obj, val)
+        function obj=set.atms(obj,val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
                     'Partial pressure(s) of 3He must be greater or equal to zero')
@@ -125,27 +125,27 @@ classdef IX_det_He3tube < IX_det_abstractType
         
         %------------------------------------------------------------------
         % Get methods for dependent properties
-        function val = get.dia (obj)
+        function val = get.dia(obj)
             val = obj.dia_;
         end
 
-        function val = get.height (obj)
+        function val = get.height(obj)
             val = obj.height_;
         end
 
-        function val = get.wall (obj)
+        function val = get.wall(obj)
             val = obj.wall_;
         end
 
-        function val = get.atms (obj)
+        function val = get.atms(obj)
             val = obj.atms_;
         end
 
-        function val = get.inner_rad (obj)
+        function val = get.inner_rad(obj)
             val = 0.5*(obj.dia_ - 2*obj.wall_);
         end
 
-        function val = get.ndet (obj)
+        function val = get.ndet(obj)
             val = numel(obj.dia_);
         end
         %------------------------------------------------------------------
@@ -176,38 +176,29 @@ classdef IX_det_He3tube < IX_det_abstractType
             % without problem it they are not.
 
             flds = obj.saveableFields();
-            
+
             % Inherited method from IX_det_abstractType
             obj = obj.expand_internal_properties_to_max_length (flds);
             
             % Check the consistency of tube diameter and wall thickness
             if  ~all(obj.dia_>=2*obj.wall_)
-                error ('HERBERT:IX_det_He3tube:invalid_argument',...
+                error('HERBERT:IX_det_He3tube:invalid_argument',...
                     ['Tube diameter(s) must be greater or equal to twice ',...
                     'the wall thickness(es)'])
             end
         end
         
-    end
-    
+        end
+
     %----------------------------------------------------------------------
     methods(Access=protected)
-        function obj = from_old_struct(obj,inputs)
-            % restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % By default, this function interfaces the default from_struct
-            % function, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+        function [inputs,obj] = convert_old_struct(obj,inputs,ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised conversion. Called within
+            % from_old_struct on each element of S and each obj in array of objects
+            % (in case of serializable array of objects)
             inputs = convert_old_struct_(obj,inputs);
-            % optimization here is possible to not to use the public
-            % interface. But is it necessary? its the question
-            obj = from_old_struct@serializable(obj,inputs);
         end
     end
 

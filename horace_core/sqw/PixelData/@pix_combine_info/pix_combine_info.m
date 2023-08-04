@@ -93,11 +93,11 @@ classdef pix_combine_info < serializable
         % Global range of all pixels, intended for combining
         data_range_ = PixelDataBase.EMPTY_RANGE;
         full_filename_;
+
     end
     methods
         %
-        function obj = pix_combine_info(infiles,nbins,pos_npixstart, ...
-                pos_pixstart,npix_each_file,run_label,filenums)
+        function obj = pix_combine_info(varargin)
             % Build instance of the class, which provides the information
             % for combining pixels obtained from separate sqw(tmp) files.
             %
@@ -106,28 +106,33 @@ classdef pix_combine_info < serializable
             % nbins   -- number of bins (number of elements in npix array)
             %            in the tmp files and target sqw file (should be
             %            the same for all components so one number)
-            %pos_npixstart -- array containing the locations of the npix
+            %pos_npixstart
+            %         -- array containing the locations of the npix
             %            array in binary sqw files on hdd. Size equal to
             %             number of contributing files.
-            %pos_pixstart -- array containing the locations of the pix
+            %pos_pixstart
+            %         -- array containing the locations of the pix
             %            array in binary sqw files on hdd. Size equal to
             %            number of contributing files.
-            %npix_each_file -- array containing number of pixels in each
+            %npix_each_file
+            %         -- array containing number of pixels in each
             %            contributing sqw(tmp) file.
             %run_label
-            %      --either
-            %            the string containing information on the
-            %            treatment of the run_ids, identifying each each
-            %            pixel of the PixelData. As string it may be equal
-            %      either:
-            % 'nochange' - the pixel id-s should be kept as provided within
-            %              contributing files
+            %     either:
+            %          - the string containing information on the
+            %            treatment of the run_ids, identifying each
+            %            pixel of the PixelData. It may be equal
             %      or:
-            % 'fileno'   -- the pixels id-s should be modified and be equal
+            %          - 'nochange' the string stating that the pixel id-s
+            %             should be kept as provided within contributing
+            %             files
+            %      or:
+            %         -  'fileno' the string stating that the pixels id-s
+            %             should be modified and be equal
             %               to the numbers of contributing files
-            %     -- or
-            %            array of unique numbers, providing run_id for each
-            %            contributing run(file)
+            %      or:
+            %         -   array of unique numbers, providing run_id for each
+            %             contributing run(file)
             % OPTIONAL:
             % filenums  -- array, defining the numbers for each
             %              contributing file. If not present, the contributing
@@ -136,31 +141,19 @@ classdef pix_combine_info < serializable
             if nargin == 0
                 return
             end
-            obj.do_check_combo_arg_ = false;
-            obj.infiles = infiles;
-            if ~exist('pos_npixstart','var') % pre-initialization for file-based combining of the cuts.
-                nfiles = obj.nfiles;
-                obj.pos_npixstart = zeros(1,nfiles);
-                obj.pos_pixstart  = zeros(1,nfiles);
-                obj.npix_each_file = zeros(1,nfiles);
-                if exist('nbins','var')
-                    obj.nbins   = nbins;
+            flds = obj.saveableFields();
+            [obj, remains] = set_positional_and_key_val_arguments (obj, ...
+                flds(1:end-1), false, varargin{:});
+            if ~isempty(remains)
+                if numel(remains)==1
+                    obj.filenum_ = remains{1};
+                else
+                    error('HORACE:pix_combine_info:invalid_argument',[ ...
+                        'pix_combine_info accepts up to 7 input arguments.\n' ...
+                        'got: %d arguments. Last have not been recognized: %s\n'], ...
+                        numel(varargin),disp2str(remains))
                 end
-                return;
             end
-            obj.nbins         = nbins;
-            obj.pos_npixstart = pos_npixstart;
-            obj.pos_pixstart  = pos_pixstart;
-            obj.npix_each_file = npix_each_file;
-            if exist('run_label','var')
-                obj.run_label     = run_label;
-            end
-            if exist('filenums','var')
-                obj.filenum_ = filenums;
-            end
-            obj.do_check_combo_arg_= true;
-            obj = check_combo_arg(obj);
-
         end
         %------------------------------------------------------------------
         function nf   = get.nfiles(obj)
@@ -172,8 +165,8 @@ classdef pix_combine_info < serializable
         end
         function obj = set.infiles(obj,val)
             if ~iscellstr(val)
-                if isstring(val)
-                    val = {val};
+                if istext(val)
+                    val = cellstr(val);
                 else
                     error('HORACE:pix_combine_info:invalid_argument',...
                         'infiles input should be cellarray of filenames to combine');
@@ -451,37 +444,38 @@ classdef pix_combine_info < serializable
             data_range= ldr.get_data_range();
             for i=2:n_files
                 ldr = ldrs{i};
-                loc_range = ldr.get_data_range();
-                data_range = [min([loc_range(1,:);data_range(1,:)],[],1);
-                    max([loc_range(2,:);data_range(2,:)],[],1)];
+                loc_range  = ldr.get_data_range();
+                data_range = minmax_ranges(loc_range,data_range);
             end
             % the run_id will be recalculated according to the file names
             if ~keep_runid
                 idx = PixelDataBase.field_index('run_idx');
                 data_range(:,idx) = [1;n_files];
-            end            
+            end
         end
     end
     %----------------------------------------------------------------------
     % SERIALIZABLE INTERFACE
-    properties(Constant,Access=protected)
-        fields_to_save_ = {'infiles','npix_each_file',...
-            'pos_npixstart','pos_pixstart','run_label','nbins',...
-            'npix_cumsum'};
-    end
-
     methods
         function ver  = classVersion(~)
             ver = 1;
         end
         function  flds = saveableFields(~)
-            flds = pix_combine_info.fields_to_save_;
+            flds = {'infiles','nbins','pos_npixstart','pos_pixstart',...
+                'npix_each_file','run_label','npix_cumsum'};
         end
+
         %
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
             %
+            if ~isempty(obj.infiles_) && isempty(obj.pos_npixstart_)
+                nfls = obj.nfiles;
+                obj.pos_npixstart_  = zeros(1,nfls);
+                obj.pos_pixstart_   = zeros(1,nfls);
+                obj.npix_each_file_ = zeros(1,nfls);
+            end
             if numel(obj.infiles_) ~= numel(obj.pos_npixstart_)
                 error('HORACE:pix_combine_info:invalid_argument',...
                     'number of npixstart positions: %d not equal to the number of files to combine: %d',...

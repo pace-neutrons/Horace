@@ -66,9 +66,7 @@ if opt.keep_pix
                 w.experiment_info.runid_map = id;
             end
         end
-
         exp_info = w.experiment_info.get_subobj(runid_contributed);
-
     end
 
     wout.experiment_info = exp_info;

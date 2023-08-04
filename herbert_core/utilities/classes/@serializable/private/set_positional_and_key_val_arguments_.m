@@ -3,7 +3,7 @@ function  [obj, remains] = set_positional_and_key_val_arguments_ (obj, ...
 % Utility function to parse the input to a serializable class constructor
 % It allows the constructor parameters to be specified with the syntax:
 %
-%   ObjConstructor (positional_par1, positional_par2, positional_par3,...
+% ObjConstructor(positional_par1,positional_par2,positional_par3,...
 %                       positional_parM, key1, val1, key2, val2,...keyN, valN);
 %
 % The keys are the names of the properties and the values are their values.
@@ -19,7 +19,7 @@ function  [obj, remains] = set_positional_and_key_val_arguments_ (obj, ...
 % Do nothing:
 %   >> [obj, remains] = set_positional_and_key_val_arguments_ (obj)
 %
-% 
+%
 %   >> [obj, remains] = set_positional_and_key_val_arguments_ (obj, ...
 %                               positional_arg_names, options, ...
 %                               par1, par2,...parM, ...
@@ -41,7 +41,7 @@ function  [obj, remains] = set_positional_and_key_val_arguments_ (obj, ...
 %
 %               Current syntax: structure with fields
 %                   .key_dash   True: keys may have the form '-keyN'; false if not
-%                   .mandatory_fields   Logical vector with which fields of 
+%                   .mandatory_fields   Logical vector with which fields of
 %                                       positional_arg_names must appear in the
 %                                       input (either as a positional or a
 %                                       key-value pair)
@@ -108,7 +108,7 @@ function  [obj, remains] = set_positional_and_key_val_arguments_ (obj, ...
 
 % Case of no input arguments
 % *** shouldn't this be generalised to numel(varargin)==0?
-if nargin == 1      
+if nargin == 1
     remains = {};
     return;
 end
@@ -136,12 +136,21 @@ obj.do_check_combo_arg_ = false;
 n_positional_arg_names = numel(positional_arg_names);
 n_positional = sum(is_positional);
 if n_positional> n_positional_arg_names
-    error('HERBERT:serializable:invalid_argument',...
-        ['More positional arguments identified: (%d) then properties values required: (%d).\n', ...
-        ' Looks like some keys from key-value pairs have been identified as property values'],...
-        n_positional, n_positional_arg_names)
+    if all(is_positional)
+        n_positional_arg_names                = numel(positional_arg_names);
+        n_positional                          = n_positional_arg_names;
+        pos_remains                           = is_positional;
+        pos_remains(1:n_positional_arg_names) = false;
+        is_positional                         = ~pos_remains;
+        remains = [remains(:);argi(pos_remains)'];
+        argi = argi(is_positional);
+    else
+        error('HERBERT:serializable:invalid_argument',...
+            ['More positional arguments identified: (%d) then positional values allowed: (%d).\n', ...
+            ' Looks like some keys from key-value pairs have been identified as property values'],...
+            n_positional, n_positional_arg_names)
+    end
 end
-
 % Check that mandatory property assignment will be performed
 % Do this check before changing the object properties, which might be an
 % expensive procedure
@@ -150,7 +159,7 @@ if ~isempty(mandatory_properties)
     property_set(1:n_positional) = true;
     property_set(key_ind) = true;
     mandatory_missing = (mandatory_properties & ~property_set);
-%    if ~all(property_set(mandatory_properties))
+    %    if ~all(property_set(mandatory_properties))
     if any(mandatory_missing)
         properties_not_set = positional_arg_names(mandatory_missing);
         error('HERBERT:serializable:invalid_argument',...
@@ -162,7 +171,7 @@ end
 
 % Process positional arguments first
 if any(is_positional)
-    pos_arg_val = argi(is_positional);
+    pos_arg_val   = argi(is_positional);
     pos_arg_names = positional_arg_names(1:n_positional);
     for i=1:n_positional
         obj.(pos_arg_names{i}) = pos_arg_val{i};
@@ -206,7 +215,7 @@ end
 
 is_positional = ~is_key;
 if any(is_key)
-    % One or more keywords found in the argument list  
+    % One or more keywords found in the argument list
 
     % Assign arguments that appear before the first keyword as positional
     % arguments
@@ -225,12 +234,12 @@ if any(is_key)
             ['should be even number of key-value pairs, but some keys do not ',...
             'have corresponding value argument'])
     end
-    
+
     % Determine any arguments not matches to keyword-value pairs
     is_key(val_pos) = true;
     remains = varargin(~is_key & ~is_positional);
-    
-    
+
+
 else
     % All arguments are assumed to be positional
     key_ind = [];
@@ -310,7 +319,7 @@ deprecated_fields = {};
 
 % Initialise state of keyword search
 argi = varargin;
-in_pos_parameters = true;   % 
+in_pos_parameters = true;   %
 prev_input_is_key = false;  % previous parameter was a keyword
 
 for i=1:numel(varargin)
@@ -326,8 +335,8 @@ for i=1:numel(varargin)
         continue;
     end
     if prev_input_is_key
-        % Is a character array or string, but 
-        % Argument cannot be 
+        % Is a character array or string, but
+        % Argument cannot be
         prev_input_is_key = false;
         continue;
     end
@@ -347,7 +356,7 @@ for i=1:numel(varargin)
             end
         end
     end
-    
+
     if support_dash_option
         matches_key = cellfun(@(x)compare_par(arg,x,min_comp_base),key_list);
         matches_depr_key = cellfun(@(x)compare_par(arg,['-',x],min_comp_base+1),key_list);
@@ -358,7 +367,7 @@ for i=1:numel(varargin)
     else
         matches_key = cellfun(@(x)compare_par(arg,x,min_comp_base),key_list);
     end
-    
+
     found = sum(matches_key);
     if found>1
         error('HERBERT:serializable:invalid_argument',...
@@ -389,7 +398,7 @@ end
 
 
 %-------------------------------------------------------------------------------
-function eq = compare_par (par, key, min_comp)
+function eq = compare_par(par,key,min_comp)
 % let's prohibit keyword abbreviation to less then specified number of symbols.
 if isinf(min_comp)
     comp_base  = numel(key);

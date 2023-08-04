@@ -50,7 +50,7 @@ classdef test_change_crystal_file_eq_memory < TestCase
             % purpose of the test is to verify if the transformation works
             % on file and in memory, not if it is physiclly valid.
             % So it has to be just notinally valid
-            b0_inf = wref_.header_average.u_to_rlu;
+            b0_inf = inv(wref_.data.proj.bmatrix());
             scale = norm(obj.rlu_corr);
             rotmat = obj.rlu_corr/scale;
             rotvec = rotmat_to_rotvec2(rotmat);

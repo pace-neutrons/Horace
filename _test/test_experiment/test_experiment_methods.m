@@ -22,10 +22,18 @@ classdef test_experiment_methods < TestCase
             exp = repmat(IX_experiment,3,1);
             exp(1).run_id = 10;
             exp(1).filename = 'a1';
+            exp(1).psi = 10;
+            exp(1).angular_units = 'rad';            
+
             exp(2).run_id = 20;
             exp(2).filename = 'a2';
+            exp(2).psi = 10;            
+            exp(2).angular_units = 'rad';            
+
             exp(3).run_id = 30;
             exp(3).filename = 'a3';
+            exp(3).psi = 10;            
+            exp(3).angular_units = 'rad';                        
 
             obj.sample_exper= Experiment(IX_detector_array,instruments,samples,exp);
         end
@@ -42,7 +50,7 @@ classdef test_experiment_methods < TestCase
             urc = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
             urc = urc.add(sample);
             urc = urc.replicate_runs(3);
-
+            clOwr =set_temporary_warning('off','HORACE:Experiment:lattice_changed');
             exp.samples = urc;
 
             ts = exp.samples(3);
@@ -63,7 +71,7 @@ classdef test_experiment_methods < TestCase
 
             sample = IX_sample();
             sample.name = 'ugly_sample';
-
+            clOwr =set_temporary_warning('off','HORACE:Experiment:lattice_changed');
             exp.samples = sample;
 
             ts = exp.samples(3);

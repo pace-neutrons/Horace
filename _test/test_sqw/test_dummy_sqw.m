@@ -85,8 +85,8 @@ classdef test_dummy_sqw < TestCase
             assertEqual(sum(de0),96);
 
             q_range = pix(1:3,de0); % this is q-range in crystal catresizan
-            u_to_rlu = tsqw.experiment_info.expdata.u_to_rlu(1:3,1:3);
-            q_range = (u_to_rlu*q_range)' ; % convert q into hkl
+            bmat = bmatrix(obj.gen_sqw_par{3},obj.gen_sqw_par{4});
+            q_range = (bmat\q_range)' ; % convert q into hkl
             % verify the fact that the detector positions, processed from
             % the pixel information provide the same result as normal
             % detector positions

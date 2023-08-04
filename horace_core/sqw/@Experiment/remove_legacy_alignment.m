@@ -33,7 +33,8 @@ for i=1:obj.n_runs
 
     exper(i).cu=(rlu_corr*exper(i).cu')';
     exper(i).cv=(rlu_corr*exper(i).cv')';
-    exper(i).uoffset(1:3)=rlu_corr*exper(i).uoffset(1:3);
+    off = exper(i).uoffset(1:3);
+    exper(i).uoffset(1:3)=rlu_corr*off(:);
     exper(i).u_to_rlu(1:3,1:3)=rlu_corr*exper(i).u_to_rlu(1:3,1:3);
 end
 obj.samples = sam;

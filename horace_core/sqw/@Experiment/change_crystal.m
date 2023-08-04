@@ -36,9 +36,11 @@ for i=1:obj.n_runs
         % only
         exper(i).cu=(rlu_corr*exper(i).cu')';
         exper(i).cv=(rlu_corr*exper(i).cv')';
-        exper(i).uoffset(1:3)=rlu_corr*exper(i).uoffset(1:3);
-        exper(i).u_to_rlu(1:3,1:3)=rlu_corr*exper(i).u_to_rlu(1:3,1:3);
+        off = exper(i).uoffset(1:3);
+        exper(i).uoffset(1:3)=rlu_corr*off(:);
+        exper(i).u_to_rlu(1:3,1:3)=rlu_corr/(bmatrix(alatt0,angdeg0));
     else
+        exper(i).angular_units = 'deg';
         [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_pars_correct(...
             exper(i).cu, exper(i).cv, alatt0, angdeg0, ...
             exper(i).omega, exper(i).dpsi, exper(i).gl, exper(i).gs,...
@@ -46,6 +48,7 @@ for i=1:obj.n_runs
         exper(i).dpsi = dpsi_deg;
         exper(i).gl   = gl_deg;
         exper(i).gs   = gs_deg;
+        exper(i).angular_units = 'rad';
     end
 end
 obj.samples = sam;

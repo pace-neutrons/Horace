@@ -20,25 +20,74 @@ classdef test_unique_references < TestCase
             obj.nul_sm1 = IX_null_sample();
 
         end
-        function test_save_load_two_objects_add_to_experiment(~)
-            clObC = onCleanup(@()unique_references_container.global_container('CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER'));
-            %
+        function delete(~)
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            unique_references_container.global_container( ...
+                'CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+            unique_references_container.global_container( ...
+                'CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER')
+        end
 
+        function test_unique_reference_non_pollute_ws(obj)
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            unique_references_container.global_container( ...
+                'CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+            sqw1 = sqw.generate_cube_sqw(4);
+            sqw1.experiment_info.instruments=obj.mi1;
+            assertTrue(isa(sqw1.experiment_info.instruments(1),'IX_inst_DGfermi'))
 
+            sqw2 = sqw.generate_cube_sqw(5);
+            sqw2.experiment_info.instruments =obj.li;
+            assertTrue(isa(sqw2.experiment_info.instruments(1),'IX_inst_DGdisk'))
+            glc = unique_references_container.global_container( ...
+                'value','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+
+            assertEqual(glc.n_objects,3);
+            contents = glc.unique_objects();
+            classnames = cellfun(@class,contents,'UniformOutput',false);
+            assertTrue(ismember('IX_inst_DGfermi',classnames));
+            assertTrue(ismember('IX_inst_DGdisk',classnames));
+
+            tf = fullfile(tmp_dir,'test_unique_ref_pollution.mat');
+            clOb_file = onCleanup(@()delete(tf));
+
+            save(tf,'sqw2');
+            unique_references_container.global_container( ...
+                'CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+            glc = unique_references_container.global_container( ...
+                'value','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+            assertEqual(glc.n_objects,0);
+
+            lobj = load(tf);
+            assertTrue(isa(lobj.sqw2.experiment_info.instruments(1),'IX_inst_DGdisk'))
+            glc = unique_references_container.global_container( ...
+                'value','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+
+            assertEqual(glc.n_objects,1);
+            contents = glc.unique_objects();
+            classnames = cellfun(@class,contents,'UniformOutput',false);
+
+            assertTrue(ismember('IX_inst_DGdisk',classnames));
+            assertFalse(ismember('IX_inst_DGfermi',classnames));
+        end
+        function test_save_load_two_objects_adds_to_experiments(~)
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            unique_references_container.global_container( ...
+                'CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER')
+            %
             ex1 = Experiment();
             sam1 = IX_samp(4,90);
             ex1.samples(1) = sam1;
             assertEqual(ex1.samples(1),sam1);
 
             ex2 = Experiment();
-            ex2.samples(1) = IX_samp(3,90);
+            ex2.samples(1) = sam1;
             ex2.samples(2) = IX_samp(3.1,90);
             ex2.samples(3) = IX_samp(3.2,90);
 
-            assertEqual(ex2.samples(1),IX_samp(3,90));
+            assertEqual(ex2.samples(1),sam1);
             gc = unique_references_container.global_container('value','GLOBAL_NAME_SAMPLES_CONTAINER');
-            assertEqual(gc.n_objects,4);
+            assertEqual(gc.n_objects,3);
 
             ser_str = ex2.to_struct();
             clear('exp2','exp1');
@@ -50,11 +99,11 @@ classdef test_unique_references < TestCase
             assertEqual(gc.n_objects,3);
             assertEqual(gc.unique_objects{1},ex2_rec.samples(1));
             assertEqual(gc.unique_objects{3},ex2_rec.samples(3));
-        end
-
+        end        
         %
         function test_save_load_add_to_experiment(~)
-            %unique_references_container.global_container('CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER');
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');            
+            unique_references_container.global_container('CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER');
             ex = Experiment();
             sam = IX_samp(4,90);
             ex.samples(1) = sam;
@@ -353,7 +402,8 @@ function test_replace_unique_same_number_works(~)
         function test_baseclass_issues(obj)
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
-
+            clOb2 = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
+            clOb3 = set_temporary_warning('off','HERBERT:unique_references_container:incomplete_setup');
             % legal constructor with no arguments but cannot be used until
             % populated e.g. with loadobj
             urc1 = unique_references_container();
@@ -523,7 +573,7 @@ function test_replace_unique_same_number_works(~)
             %}
         end
         %----------------------------------------------------------------
-        function test_global_container_spans_multiple_containers(obj)
+        function test_global_container_spans_multiple_containers(~)
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
 
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
