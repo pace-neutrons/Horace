@@ -6,7 +6,7 @@ function A = object_array (obj, varargin)
 %
 % Input:
 % ------
-%   obj         object_lookup object
+%   obj         object_lookup object containing one or more object arrays
 %
 %   iarray      Scalar index of the original object array from the
 %              cell array of object arrays from which the object lookup
