@@ -395,7 +395,13 @@ classdef IX_experiment < goniometer
 
             % Old IX_experiment data were containing angular values in
             % radians
-            S.angular_is_degree = false;
+
+            if isfield(S,'goniometer')
+                S.goniometer.angular_is_degree = false;
+                obj.goniometer = S.goniometer;
+            else
+                S.angular_is_degree = false;                
+            end
             if isfield(S,'cu')
                 S.u = S.cu;
             end

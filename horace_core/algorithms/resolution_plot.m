@@ -192,13 +192,14 @@ header.filepath = '';
 header.efix =  efix;
 header.emode = emode;
 header.en = en;
-lat.angular_units = 'rad';
-header.goniometer = lat;
+expdata = IX_experiment(header);
+lat.angular_units  = 'rad';
+expdata.goniometer = lat;
 
 [~, ~,spec_to_rlu] = lat.calc_proj_matrix();
 %[~, header.u_to_rlu(1:3,1:3),spec_to_rlu] = lat.calc_proj_matrix();
 %[~, header.u_to_rlu(1:3,1:3)] = lat.calc_proj_matrix();
-expdata = IX_experiment(header);
+
 
 if ~(isa(instrument,'IX_inst') && isscalar(instrument))
     error('HORACE:resolution_plot:invalid_argument',...
