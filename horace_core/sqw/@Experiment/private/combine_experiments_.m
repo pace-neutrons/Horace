@@ -28,7 +28,7 @@ n_tot = sum(nspe);
 instr  = cell(1,n_tot);
 sampl  = cell(1,n_tot);
 
-ic = 1;
+
 instr{1}   = exp_cellarray{1}.instruments{1};
 sampl{1}   = exp_cellarray{1}.samples{1};
 expinfo    = repmat(IX_experiment(),1,n_tot);
@@ -37,7 +37,17 @@ if ~allow_equal_headers
     neq_hashes = cell(1,n_tot);
     neq_hashes{1} = expinfo(1).get_neq_hash();
 end
-
+if exp_cellarray{1}.n_runs == 1
+    i_start = 2;
+    j_start = 1;
+else % despice headers in the first run are certainly satisfy
+    % the conditions, the following Experiment-s may contain the same
+    % IX_experiments, so hashes for the first Experiment have to be
+    % recalculated
+    i_start = 1;
+    j_start = 2;
+end
+ic = 2;
 for i=i_start:n_contrib
     for j=j_start:exp_cellarray{i}.n_runs
         instr{ic}  = exp_cellarray{i}.instruments{j};
