@@ -73,8 +73,8 @@ if ~(all(new_lat_def) && all(new_ang_def))
                 obj.samples_ = obj.samples_.set_all(uni_targ);            % update all the non-unique target samples with the
                                                         % revised unique target
                 warning('HORACE:Experiment:lattice_changed', ...
-                        ['the common lattice was not defined ', ...
-                        'and was updated from the previous sample']);
+                        ['the lattice on the new sample was not defined ', ...
+                        'and was retrieved from the previous sample']);
                 
             % unspecified number of lattice parameters unset so change what
             % is required
@@ -100,8 +100,8 @@ if ~(all(new_lat_def) && all(new_ang_def))
                 end
                 obj.samples_ = targ_samp;
                 warning('HORACE:Experiment:lattice_changed', ...
-                        ['some lattices were not defined ', ...
-                        'and were updated from the previous sample(s)']);
+                        ['some new sample lattices were not defined ', ...
+                        'and were retrieved from the previous sample(s)']);
             else
                 warning('HORACE:Experiment:no_available_fixup', ...
                         'number of old lattice parameters does not match current samples');
@@ -120,14 +120,3 @@ if ~(all(new_lat_def) && all(new_ang_def))
         end
     end
 end
-
-
-% % ensure sample lattice and expdata lattice are consistent.
-% if obj.samples_set_ || obj.expdata_set_
-%     samp = obj.samples_.unique_objects;
-%     no_samp = cellfun(@(x)isa(x,'IX_null_samp'),samp);
-%     if all(no_samp)
-%         return; % no sample lattice No need to worry
-%     end
-%
-% end

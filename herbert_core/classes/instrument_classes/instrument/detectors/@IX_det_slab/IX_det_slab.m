@@ -6,7 +6,7 @@ classdef IX_det_slab < IX_det_abstractType
     % elsewhere.
 
     % Original author: T.G.Perring
-    
+
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
@@ -45,9 +45,9 @@ classdef IX_det_slab < IX_det_abstractType
             % All arguments can be scalar or arrays; all arrays must have the
             % same number of elements
             %
-            %   depth       Depth of detector elements (m) (x axis)
-            %   width       Width of detector elements (m) (y axis)
-            %   height      Height of detector elements (m) (z axis)
+            %   depth       Depth of detector elements (m)      (x axis)
+            %   width       Width of detector elements (m)       (y axis)
+            %   height      Height of detector elements (m)   (z axis)
             %   atten       Attenuation distance at 2200 m/s (m)
 
             if nargin>0
@@ -75,7 +75,7 @@ classdef IX_det_slab < IX_det_abstractType
 
         %------------------------------------------------------------------
         % Set methods for dependent properties
-        function obj = set.depth(obj, val)
+        function obj=set.depth(obj,val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element depth(s) must be greater or equal to zero')
@@ -86,7 +86,7 @@ classdef IX_det_slab < IX_det_abstractType
             end
         end
 
-        function obj = set.width(obj, val)
+        function obj=set.width(obj,val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element width(s) must be greater or equal to zero')
@@ -97,7 +97,7 @@ classdef IX_det_slab < IX_det_abstractType
             end
         end
 
-        function obj = set.height(obj, val)
+        function obj=set.height(obj,val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element height(s) must be greater or equal to zero')
@@ -108,7 +108,7 @@ classdef IX_det_slab < IX_det_abstractType
             end
         end
 
-        function obj = set.atten(obj, val)
+        function obj=set.atten(obj,val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element attenuation length(s) must be greater or equal to zero')
@@ -145,14 +145,14 @@ classdef IX_det_slab < IX_det_abstractType
     end
     
     %======================================================================
-    % SERIALIZABLE INTERFACE
+        % SERIALIZABLE INTERFACE
     %======================================================================
 
     methods
         function ver = classVersion(~)
             ver = 2;
         end
-        
+
         function flds = saveableFields(~)
             % Return cellarray of properties defining the class
             flds = {'depth', 'width', 'height', 'atten'};
@@ -177,23 +177,13 @@ classdef IX_det_slab < IX_det_abstractType
     
     %----------------------------------------------------------------------
     methods(Access=protected)
-        function obj = from_old_struct(obj,inputs)
-            % restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % By default, this function interfaces the default from_struct
-            % function, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+        function [inputs,obj] = convert_old_struct(obj,inputs,ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised conversion. Called within
+            % from_old_struct on each element of S and each obj in array of objects
+            % (in case of serializable array of objects)
             inputs = convert_old_struct_(obj,inputs);
-            % optimization here is possible to not to use the public
-            % interface. But is it necessary? its the question
-            obj = from_old_struct@serializable(obj,inputs);
-
         end
     end
 
@@ -207,5 +197,5 @@ classdef IX_det_slab < IX_det_abstractType
         end
     end
     %======================================================================
-    
+
 end

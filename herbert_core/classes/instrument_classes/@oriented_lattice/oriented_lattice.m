@@ -1,4 +1,4 @@
-classdef oriented_lattice < serializable
+classdef oriented_lattice < goniometer
     % class describes main properties of a sample with oriented lattice
     % under neutron scattering or x-ray investigation.
     % and contains various service functions to work with such sample
@@ -54,21 +54,6 @@ classdef oriented_lattice < serializable
         alatt    % Lattice parameters [a,b,c] (Ang^-1)
         angdeg   % Lattice angles [alf,bet,gam] (deg)
 
-        % Crystal orientation wrt the beam direction
-        u % vector along beam direction when psi = 0
-
-        v % together with u vector defines the rotation plane,
-
-        % Goniometer parameters
-        psi;    %  Angle between u w.r.t. ki (deg)  [Default=nan]
-        omega;  %  Angle of axis of small goniometer arc w.r.t. notional u (deg)  [Default=0]
-        dpsi;   %  Correction to psi (deg)  [Default=0]
-        gl;     %  Large goniometer arc angle (deg)  [Default=0]
-        gs;     %  Small goniometer arc angle (deg)  [Default=0]
-
-        % what units (deg or rad) used for all angular units. (All angular
-        % units have to be set in degrees, but can be retrieved as radians)
-        angular_units;
         % fully defined oriented lattice need at least alatt, angdeg and
         % psi to be defined. When data loaded from nxspe, alatt, angdeg,
         % and may be psi can remain undefined and need to be defined
@@ -76,53 +61,23 @@ classdef oriented_lattice < serializable
         isvalid
         reason_for_invalid;
     end
-    properties(Dependent,Hidden)
-        angular_is_degree;
-        undef_fields;
+    properties(Constant,Hidden)
+        % fields defined in lattice
+        lattice_fields = [goniometer.gon_fields_(:);oriented_lattice.lat_fields_(:)];
     end
-
 
     properties(Access=private)
         %
         alatt_  = [2*pi,2*pi,2*pi];
         angdeg_ = [90,90,90];
 
-        % the defaults for these fields are:
-        u_   = [1,0,0];
-        v_   = [0,1,0];
-        % Goniometer parameters
-        psi_   = 0;         %  Angle of u w.r.t. ki (deg)  [Default=0]
-        omega_ = 0;         %  Angle of axis of small goniometer arc w.r.t. notional u (deg)  [Default=0]
-        dpsi_  = 0;         %  Correction to psi (deg)  [Default=0]
-        gl_    = 0;         %  Large goniometer arc angle (deg)  [Default=0]
-        gs_    = 0;         %  Small goniometer arc angle (deg)  [Default=0]
-
-        % by default, units used in the class are degree.
-        angular_is_degree_= true %'deg';
 
         % the boolean used to check if field has been set up (defined). The
         % field names and number defined by fields_to_define_ private
         % property
-        undef_fields_ = true(3,1);
+        undef_fields_ = true(2,1);
         isvalid_ = false; % empty lattice is invalid
         reason_for_invalid_ = 'empty lattice is invalid';
-    end
-    properties(Constant,Access=private)
-        % fields to set up for loader considered to be defined
-        fields_to_define_ = {'alatt','angdeg','psi'};
-        % List of fields which have default values and do not have to be always defined by either file or command arguments;
-        fields_have_defaults_ = {'omega','dpsi','gl','gs','u','v'};
-        % List of all fields to describe lattice. Provided in order a
-        % lattice constructor with positional parameters uses them
-        % The order is used in providing meanings to the positional parameters
-        % of the constructor. The same parameters, except the last one are
-        % the input parameters for serializable indepFiels
-        lattice_parameters_ = {'alatt','angdeg','psi','u','v',...
-            'omega','dpsi','gl','gs','angular_units'}
-        % radian to degree transformation constant
-        deg_to_rad_=pi/180;
-        % the minimal norm for two vectors considered to be parallell or 0
-        tol_  = 1.e-9
     end
     %
     methods
@@ -148,132 +103,18 @@ classdef oriented_lattice < serializable
             if nargin == 1
                 return;
             end
-            [obj,rem] = build_oriented_lattice_(obj,varargin{:});
+            [obj,rem] = init@goniometer(obj,varargin{:});
             if ~isempty(rem)
                 error('HERBERT:oriented_lattice:invalud_argument',...
                     'Unrecognized oriented_lattice parameters: %s',...
-                    evalc('disp(rem)'));
+                    disp2str(rem));
             end
         end
         %
-        function units = get.angular_units(obj)
-            if obj.angular_is_degree_
-                units = 'deg';
-            else
-                units = 'rad';
-            end
-        end
-        function obj = set.angular_units(obj,val)
-            old_val = obj.angular_is_degree_;
-            if val(1) == 'd'
-                obj.angular_is_degree_ = true;
-            elseif val(1) == 'r'
-                obj.angular_is_degree_ = false;
-            else
-                error('HERBERT:oriented_lattice:invalid_argument',...
-                    'Angular units can be set to ''degree''(d) or ''radian''(r)')
-            end
-            obj = recalculate_angular_units_values_(obj,old_val);
-        end
         %
-        function obj = set_deg(obj)
-            old_val = obj.angular_is_degree_;
-            obj.angular_is_degree_=true;
-            obj = recalculate_angular_units_values_(obj,old_val);
-        end
-        %
-        function obj = set_rad(obj)
-            old_val = obj.angular_is_degree_;
-            obj.angular_is_degree_=false;
-            obj = recalculate_angular_units_values_(obj,old_val);
-        end
-        function is = get.angular_is_degree(obj)
-            is = obj.angular_is_degree_;
-        end
-        function obj = set.angular_is_degree(obj,val)
-            % the hidden method to change the meaning
-            % of the angular units. Should be used only as a part of the
-            % serializable interface, as does not do any checks and does
-            % not modify actual values.
-            % To change the class behaviour, use public property
-            % "angular_units" = ['deg'|'rad'] or method set_deg/set_rad;
-            obj.angular_is_degree_ = logical(val);
-        end
-
         %------------------------------------------------------------------
-        function is=is_defined(obj,field_name)
-            % check if field, which should be defined as do not have
-            % meaningful defaults is actually defined.
-            % input:
-            % field_name :: the name of the field to check
-            mem = ismember(oriented_lattice.fields_to_define_,field_name);
-            if any(mem)
-                is = ~obj.undef_fields_(mem);
-            else
-                is = true;
-            end
-        end
         %
-        function udf = get.undef_fields(obj)
-            udf  = obj.fields_to_define_(obj.undef_fields_);
-        end
         %-----------------------------------------------------------------
-        function psi = get.psi(obj)
-            psi = obj.psi_;
-        end
-        function omega = get.omega(obj)
-            omega=obj.omega_;
-        end
-        function dpsi = get.dpsi(obj)
-            dpsi=obj.dpsi_;
-        end
-        function gl=get.gl(obj)
-            gl=obj.gl_;
-        end
-        function gs=get.gs(obj)
-            gs=obj.gs_;
-        end
-        %
-        function obj = set.psi(obj,val)
-            obj.psi_=check_angular_set_(obj,val);
-            % psi is third in the list of fields to be defined
-            if isnan(obj.psi_)
-                obj.undef_fields_(3) = true;
-            else
-                obj.undef_fields_(3) = false;
-            end
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-        end
-        %
-        function obj = set.omega(obj,val)
-            obj.omega_=check_angular_set_(obj,val);
-        end
-        function obj  = set.dpsi(obj,val)
-            obj.dpsi_=check_angular_set_(obj,val);
-        end
-        function obj =set.gl(obj,val)
-            obj.gl_=check_angular_set_(obj,val);
-        end
-        function obj =set.gs(obj,val)
-            obj.gs_=check_angular_set_(obj,val);
-        end
-        %-----------------------------------------------------------------
-        function u=get.u(obj)
-            u = obj.u_;
-        end
-        function obj=set.u(obj,u)
-            obj = check_and_set_uv_(obj,'u',u);
-        end
-        %
-        function v=get.v(obj)
-            v = obj.v_;
-        end
-        function obj=set.v(obj,v)
-            obj = check_and_set_uv_(obj,'v',v);
-        end
-        %------------------------------------------------------------------
         %------------------------------------------------------------------
         function alat=get.alatt(obj)
             alat = obj.alatt_;
@@ -298,32 +139,52 @@ classdef oriented_lattice < serializable
                 obj = check_combo_arg(obj);
             end
         end
-
-        %------------------------------------------------------------------
-        % SERIALIABLE INTERFACE:
-        %------------------------------------------------------------------
+    end
+    methods(Access=protected)
+        function uf = get_undef_fields(obj)
+            % get list of undefined fields
+            fld_l = {'alatt','angdeg'};
+            uf_ = fld_l(obj.undef_fields_);
+            fld_b = get_undef_fields@goniometer(obj);
+            uf  = [uf_(:);fld_b(:)];
+        end
+        function flds = get_fields_to_define(~)
+            flds =  oriented_lattice.fields_to_define_;
+        end
+    end
+    properties(Constant,Access=private)
+        lat_fields_ = {'alatt','angdeg'}
+        % fields to set up for loader considered to be defined
+        fields_to_define_ = {'alatt','angdeg','psi'};
+        % List of all fields to describe lattice. Provided in order a
+    end
+    %======================================================================
+    % SERIALIABLE INTERFACE:
+    %----------------------------------------------------------------------
+    methods
         function   ver  = classVersion(~)
             ver = 1;
         end
         function flds = saveableFields(obj)
-            call_stack = dbstack;
-            for_saving = strncmp(call_stack(2).name,'to',2);
-            flds = oriented_lattice.lattice_parameters_;
-            if for_saving % do not save undefined fields
-                udf = obj.undef_fields;
-                is_udf = ismember(flds,udf);
-                if any(is_udf)
-                    flds = flds(~is_udf);
-                end
-            end
-            % place angular units properties first to set up contest
-            % for saveable properties
-            flds = ['angular_is_degree',flds(1:end-1)];
-
+            fld_l = {'alatt';'angdeg'};
+            fld_b = saveableFields@goniometer(obj);
+            flds = [fld_l(:);fld_b(:)];
+        end
+        function flds = constructionFields(obj)
+            fld_l = {'alatt';'angdeg'};
+            fld_b = constructionFields@goniometer(obj);
+            flds = [fld_l(:);fld_b(:)];
         end
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained lattice object
+            try
+                obj = check_combo_arg@goniometer(obj);
+            catch ME
+                obj.isvalid_ = false;
+                obj.reason_for_invalid_ = ME.message;
+                return;
+            end
             obj = check_combo_arg_(obj);
         end
         function is = get.isvalid(obj)
@@ -335,17 +196,7 @@ classdef oriented_lattice < serializable
 
     end
     %---------------------------------------------------------------------
-    %---------------------------------------------------------------------
     methods(Static)
-        function fields = lattice_fields()
-            % fields which belong to lattice
-            fields = oriented_lattice.lattice_parameters_;
-        end
-        function fields = fields_with_defaults()
-            % lattice fields which have default values
-            fields =oriented_lattice.fields_have_defaults_;
-        end
-        %------------------------------------------------------------------
         function obj = loadobj(input)
             obj = oriented_lattice();
             obj = loadobj@serializable(input,obj);

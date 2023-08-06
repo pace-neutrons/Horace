@@ -39,6 +39,7 @@ classdef test_instrument_methods < TestCaseWithSave
 
             w_mod = [obj.w_fe,obj.w_rb];
 
+            clWarn = set_temporary_warning('off','HORACE:Experiment:lattice_changed');
             w_mod = w_mod.set_sample(samp);
 
             ref_samp1 = obj.w_fe.experiment_info.samples(1);
@@ -59,6 +60,7 @@ classdef test_instrument_methods < TestCaseWithSave
             samp = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
             samp = repmat(samp,1,120);
             samp2 = IX_sample ([0,1,0],[0,0,1],'cuboid',[12,13,34]);
+            clWarn = set_temporary_warning('off','HORACE:Experiment:lattice_changed');            
             samp(100) = samp2;
             w_mod = obj.w_fe.set_sample(samp);
 
@@ -74,6 +76,7 @@ classdef test_instrument_methods < TestCaseWithSave
         
         function test_set_sample(obj)
             samp = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
+            clWarn = set_temporary_warning('off','HORACE:Experiment:lattice_changed');            
             w_mod = obj.w_fe.set_sample(samp);
 
             ref_samp = obj.w_fe.experiment_info.samples(1);            
