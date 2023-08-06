@@ -41,7 +41,7 @@ function [img_db_range,data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Output:
 % -------
 %  img_db_range   -- the limits of the image coordinates (value for axes.img_range)
-%                    defining the grit the pixel data base is binned on
+%                    defining the grid the pixel data base is binned on
 %  pix_data_range -- the actual range of the pixels data, contributing into the
 %                    sqw file (useful if input pix_range is not provided)
 

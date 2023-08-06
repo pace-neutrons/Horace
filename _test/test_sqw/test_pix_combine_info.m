@@ -82,7 +82,7 @@ classdef test_pix_combine_info < TestCase
         function test_only_fnames_constructor(~)
             pc = pix_combine_info({'file_a','file_b','file_c'});
             assertEqual(pc.nfiles,3);
-            assertEqual(pc.num_pixels,uint64(0));
+            assertEqual(pc.num_pixels,0);
             assertEqual(pc.nbins,0);
 
             assertEqual(pc.infiles,{'file_a','file_b','file_c'}');

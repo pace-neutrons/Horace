@@ -94,10 +94,10 @@ classdef IX_source < serializable
             end
 
             if ~istext(val)
-                error('HERBERT:IX_source:invalid_argument',...                
-                ['The target name must be a character string.\n ' ...
-                ' Its type is: %s and value %s'], ...
-                    class(val),disp2str(val))                
+                error('HERBERT:IX_source:invalid_argument',...
+                    ['The target name must be a character string.\n ' ...
+                    ' Its type is: %s and value %s'], ...
+                    class(val),disp2str(val))
             end
             obj.target_name_ = char(val);
         end
@@ -170,22 +170,13 @@ classdef IX_source < serializable
     end
     methods(Access=protected)
         %------------------------------------------------------------------
-        function obj = from_old_struct(obj,inputs)
-            % restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % By default, this function interfaces the default from_struct
-            % function, but when the old structure substantially differs from
-            % the modern structure, this method needs the specific overloading
-            % to allow loadobj to recover new structure from an old structure.
+        function [inputs,obj] = convert_old_struct(obj,inputs,ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised conversion. Called within
+            % from_old_struct on each element of S and each obj in array of objects
+            % (in case of serializable array of objects)
             inputs = convert_old_struct_(obj,inputs);
-            %
-            obj = from_old_struct@serializable(obj,inputs);
-
         end
     end
 

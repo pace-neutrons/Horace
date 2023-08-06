@@ -18,7 +18,9 @@ function obj_out = reorder (obj, ix)
 ndet = obj.ndet;
 [~,~,ix,perm] = is_integer_id(ix);
 if ~(perm && numel(ix)==ndet)
-    error('Index array is not a permutation of the integers 1 to the number of detector elements')
+    error('HERBERT:IX_det_TobyfitClassic:invalid_argument',...
+        ['Index array is not a permutation of the integers 1 to the ',...
+        'number of detector elements'])
 end
 
 % Reorder the detector arrays

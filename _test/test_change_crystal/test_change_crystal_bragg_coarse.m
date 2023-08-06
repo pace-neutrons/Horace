@@ -102,7 +102,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             copyfile(obj.misaligned_sqw_file,sim_sqw_file_corr)
             cleanup_obj=onCleanup(@()delete(sim_sqw_file_corr));
 
-            change_crystal_sqw(sim_sqw_file_corr,alignment_info)
+            change_crystal_sqw(sim_sqw_file_corr,alignment_info);
             rlu0_corr=get_bragg_positions(read_sqw(sim_sqw_file_corr), proj,...
                 bragg_pos, half_len, half_thick, bin_width);
 

@@ -1,11 +1,11 @@
-function [ok,mess,ix,perm] = is_integer_id(id_in)
+function [ok, mess, ix, perm] = is_integer_id (id_in)
 % Check that identifiers are unique, and return indexing array
 %
-%   >> [ok,mess,ix,perm] = is_integer_id(id)
+%   >> [ok, mess, ix, perm] = is_integer_id (id)
 %
 % Input:
 % ------
-%   id      Input index array
+%   id      Input index array (assumed to be numeric)
 %
 % Output:
 % -------
@@ -14,15 +14,23 @@ function [ok,mess,ix,perm] = is_integer_id(id_in)
 %   ix      Indexing array (column vector)
 %           If already sorted in ascending order, ix = []
 %           If not, ix is such that id_in(ix) is sorted in ascending order
+%           If not OK, ix = []
 %   perm    True if id is a permutation of the integers 1:numel(id)
+%           False otherwise
+%           If not OK, perm = false
 
-% empty id_in will crash the all(id>=1) below
-if isempty(id_in)
+
+% Catch case of empty input or non-numeric
+% (Empty id_in will crash the all(id>=1) below)
+if isempty(id_in) || ~isnumeric(id_in)
     ok = false;
-    mess = 'HERBERT:is_integer_id:invalid_argument';
+    mess = 'identifiers empty or invalid type';
+    ix = [];
+    perm = false;
     return;
 end
 
+% Non-empty numeric input
 id = id_in(:);
 
 ok = true;

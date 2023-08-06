@@ -120,8 +120,8 @@ classdef pix_combine_info < serializable
             %run_label
             %     either:
             %          - the string containing information on the
-            %            treatment of the run_ids, identifying each each
-            %            pixel of the PixelData. As string it may be equal
+            %            treatment of the run_ids, identifying each
+            %            pixel of the PixelData. It may be equal
             %      or:
             %          - 'nochange' the string stating that the pixel id-s
             %             should be kept as provided within contributing
@@ -166,7 +166,7 @@ classdef pix_combine_info < serializable
         function obj = set.infiles(obj,val)
             if ~iscellstr(val)
                 if istext(val)
-                    val = {val};
+                    val = cellstr(val);
                 else
                     error('HORACE:pix_combine_info:invalid_argument',...
                         'infiles input should be cellarray of filenames to combine');
@@ -462,9 +462,9 @@ classdef pix_combine_info < serializable
         end
         function  flds = saveableFields(~)
             flds = {'infiles','nbins','pos_npixstart','pos_pixstart',...
-            'npix_each_file','run_label','npix_cumsum'};
-
+                'npix_each_file','run_label','npix_cumsum'};
         end
+
         %
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the

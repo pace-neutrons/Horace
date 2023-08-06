@@ -124,6 +124,7 @@ wout = copy(win);
 state_out = cell(size(win));    % create output argument
 store_out = [];
 
+
 % Create pointers to parts of lookup structure
 % --------------------------------------------
 moderator_table = lookup.moderator_table;
@@ -146,7 +147,7 @@ if ~iscell(pars), pars={pars}; end
 if refine_moderator
     % Get the (single) moderator to be refined. Assume that any checks
     % on moderator models in the sqw objects being fitted have been performed
-    % searlier on so that here all moderators are replaced by a single one
+    % earlier on so that here all moderators are replaced by a single one
     % derived from the first object in the lookup table.
     moderator = moderator_table.object_store(1);
 
@@ -228,7 +229,10 @@ for i=1:numel(ind)
 
     % Find out if the crystal has a mosaic spread
     % -------------------------------------------
-    mosaic_spread = mosaic_crystal(sample_table.object_elements(iw).eta);
+    % Get array of mosaic spreads for the runs, and determine if any of them
+    % have other than the default no spread
+    mosaic = arrayfun (@(x)(x.eta), sample_table.object_array(iw));
+    mosaic_spread = any(mosaic_crystal (mosaic));
 
     % Simulate the signal for the data set
     % ------------------------------------
@@ -237,28 +241,28 @@ for i=1:numel(ind)
 
         % Fill time deviations for moderator
         if mc_contributions.moderator
-            [~,mod_t_av] = moderator_table.func_eval(iw,irun,@pulse_width);
-            yvec(1,1,:) = (1e-6)*(moderator_table.rand_ind(iw,irun) - mod_t_av);
+            [~,mod_t_av] = moderator_table.func_eval_ind(iw, irun, @pulse_width);
+            yvec(1,1,:) = (1e-6)*(moderator_table.rand_ind(iw, irun, @rand) - mod_t_av);
         end
 
         % Aperture deviations
         if mc_contributions.aperture
-            yvec(2:3,1,:) = aperture_table.rand_ind(iw,irun);
+            yvec(2:3,1,:) = aperture_table.rand_ind(iw, irun, @rand);
         end
 
         % Fermi chopper deviations
         if mc_contributions.chopper
-            yvec(4,1,:) = (1e-6)*(fermi_table.rand_ind(iw,irun));
+            yvec(4,1,:) = (1e-6)*(fermi_table.rand_ind(iw, irun, @rand));
         end
 
         % Sample deviations
         if mc_contributions.sample
-            yvec(5:7,1,:) = sample_table.func_eval(iw,@rand,[1,npix]);
+            yvec(5:7,1,:) = sample_table.rand_ind (iw, irun, @rand);
         end
 
         % Detector deviations
         if mc_contributions.detector_depth || mc_contributions.detector_area
-            det_points = detector_table.func_eval(iw,@rand,idet,kf);
+            det_points = detector_table.rand_ind (iw, irun, idet, 'split', @rand, kf);
             if ~mc_contributions.detector_area
                 yvec(8,1,:) = det_points(1,:);
             elseif ~mc_contributions.detector_depth
@@ -270,7 +274,7 @@ for i=1:numel(ind)
 
         % Energy bin
         if mc_contributions.energy_bin
-            yvec(11,1,:) = dt'.*(rand(1,npix)-0.5);
+            yvec(11,1,:) = dt'.*(rand(1,npix) - 0.5);
         end
 
         % Calculate the deviations in Q and energy, and then the S(Q,w) intensity
@@ -280,7 +284,7 @@ for i=1:numel(ind)
 
         % Mosaic spread
         if mosaic_spread && mc_contributions.mosaic
-            Rrlu = sample_table.func_eval(iw,@rand_mosaic,[1,npix],alatt,angdeg);
+            Rrlu = sample_table.rand_ind (iw, irun, @rand_mosaic, alatt, angdeg);
             q(1:3,:,:) = mtimesx_horace(Rrlu, q(1:3,:,:));
         end
         q = squeeze(q);    % 4 x 1 x npix ==> 4 x npix
@@ -301,19 +305,19 @@ for i=1:numel(ind)
 		pix = wout.pix;
 		pix.data_range = PixelDataBase.EMPTY_RANGE;
 
-		npg = wout.pix.num_pages
-		for page = 1:npg
-			pix.page_num = page;
-
+		npg = wout.pix.num_pages;
+        for page = 1:npg
+            pix.page_num = page;
+            
             data = pix.data;
             [start_idx, end_idx] = pix.get_page_idx_(page);
-		
+            
             data(s_ind, :) = stmp(start_idx:end_idx)/mc_points;
             data(v_ind, :) = 0;
-			
-			pix.data_range = pix.pix_minmax_ranges(data, ...
-                                           pix.data_range);
-
+            
+            pix.data_range = pix.pix_minmax_ranges(data, ...
+                pix.data_range);
+            
             pix.format_dump_data(data);
         end
         wout.pix = pix.finish_dump();

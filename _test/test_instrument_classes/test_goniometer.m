@@ -18,6 +18,16 @@ classdef test_goniometer< TestCase
             this.test_data_path = pths.test_common;
         end
 
+        function test_serial_keeps_units(~)
+            ol = goniometer(pi/4,[1,1,0],[0;0;1],1,2,3,4,'angular_units','rad');
+            assertEqual(ol.psi,pi/4);
+            ss = ol.to_struct();
+
+            rec = serializable.from_struct(ss);
+
+            assertEqual(ol,rec);
+        end
+
         %
         function test_serial_fields(~)
             ol = goniometer(10,[1,1,0],[0;0;1],1,2,3,4);
@@ -38,7 +48,7 @@ classdef test_goniometer< TestCase
             ol.gs    = 50;
             assertEqual('deg',ol.angular_units)
 
-            ol = ol.set_rad();
+            ol.angular_units = 'r';
             assertEqual('rad',ol.angular_units)
 
             toRad=pi/180.;
@@ -48,7 +58,7 @@ classdef test_goniometer< TestCase
             assertElementsAlmostEqual(40*toRad,ol.gl)
             assertElementsAlmostEqual(50*toRad,ol.gs)
 
-            ol=ol.set_deg();
+            ol.angular_units = 'd';
             assertElementsAlmostEqual(10,ol.psi)
             assertElementsAlmostEqual(20,ol.omega)
             assertElementsAlmostEqual(30,ol.dpsi)
@@ -56,7 +66,7 @@ classdef test_goniometer< TestCase
             assertElementsAlmostEqual(50,ol.gs)
 
             ol.angular_units = 'rad';
-            assertEqual('rad',ol.angular_units)
+            assertEqual(ol.angular_units,'rad')
 
 
             assertElementsAlmostEqual(10*toRad,ol.psi)
@@ -66,7 +76,7 @@ classdef test_goniometer< TestCase
             assertElementsAlmostEqual(50*toRad,ol.gs)
 
             ol.angular_units = 'degree';
-            assertEqual('deg',ol.angular_units)
+            assertEqual(ol.angular_units,'deg')
 
             assertElementsAlmostEqual(10,ol.psi)
             assertElementsAlmostEqual(20,ol.omega)
@@ -108,7 +118,7 @@ classdef test_goniometer< TestCase
             assertExceptionThrown(@()to_throw(ol,'v',[]), ...
                 'HERBERT:goniometer:invalid_argument');
 
-            %rd.v = [10^-10,0,0]; -- does not accept empty vectors
+            %rd.v = [10^-10,0,0]; -- does not accept small vectors
             assertExceptionThrown(@()to_throw(ol,'v',[1.e-11,0,0]), ...
                 'HERBERT:goniometer:invalid_argument');
         end
@@ -142,11 +152,19 @@ classdef test_goniometer< TestCase
             undef = ol.undef_fields;
             assertTrue(isempty(undef));
         end
+        function test_constructor_with_wrong_keyval_throw(~)
+
+            assertExceptionThrown(@()goniometer('psi',20,...
+                'gl',3,'angdeg',[40,45,50],'angular_units','rad'),...
+                'HERBERT:goniometer:invalid_argument');
+        end
+
+
         function test_full_constructor_with_keyval(~)
 
             mult = pi/180;
             ol = goniometer('psi',20*mult,...
-                'gl',3*mult,'angdeg',[40,45,50]*mult,'angular_units','rad');
+                'gl',3*mult,'angular_units','rad');
 
             assertTrue(ol.is_defined('psi'));
 
@@ -169,9 +187,10 @@ classdef test_goniometer< TestCase
             ol = goniometer(in_str);
 
             assertTrue(ol.is_defined('psi'));
+            assertEqual(ol.psi,20);
 
             assertEqual(ol.angular_units,'deg')
-            ol = ol.set_rad();
+            ol.angular_units = 'rad';
             assertEqual(ol.psi,20*pi/180)
         end
 

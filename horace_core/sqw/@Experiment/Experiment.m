@@ -323,7 +323,7 @@ classdef Experiment < serializable
             %            -- run_id-s,which identify particular experiments(runs)
             %              to include the  experiments(runs) contributing
             %              into the final subset  of experiments.
-            % Optional switches:
+            % Optional parameters and switches:
             % '-indexes'   - if provided, tread input runids_to_keep as
             %              direct indexes of the experiments to keep rather
             %              then run_id(s). Mainly used for debugging.

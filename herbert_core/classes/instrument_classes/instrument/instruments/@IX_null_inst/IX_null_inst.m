@@ -4,33 +4,33 @@ classdef IX_null_inst < IX_inst
     % something derived from IX_inst to hold the case where the file from
     % which the sqw is created has these empty struct instruments.
     % This class will provide a conversion to an empty struct.
-    
+
     properties
         % none in addition to the base IX_inst
     end
-    
+
     methods
-    
+
         % Constructor
         %-------------------------------
         function obj = IX_null_inst()
             % constructs a vanilla instance based on IX_inst
             obj = obj@IX_inst();
         end
-        
+
         % ?
         %------
         function str = null_struct(~)
             %makes the null struct for storage in a file
             str = struct();
         end
-        
+
         % SERIALIZABLE interface
         %------------------------------------------------------------------
         function ver = classVersion(~)
             ver = 2;
         end
-        
+
         function flds = saveableFields(obj)
             flds = saveableFields@IX_inst(obj);
         end
@@ -38,26 +38,16 @@ classdef IX_null_inst < IX_inst
 
     methods(Access=protected)
         %------------------------------------------------------------------
-        function obj = from_old_struct(obj,inputs)
-            % restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % By default, this function interfaces the default from_struct
-            % function, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+        function [inputs,obj] = convert_old_struct(obj,inputs,ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised conversion. Called within
+            % from_old_struct on each element of S and each obj in array of objects
+            % (in case of serializable array of objects)
             inputs = convert_old_struct_(obj,inputs);
-            % optimization here is possible to not to use the public
-            % interface. But is it necessary? its the question
-            obj = from_old_struct@serializable(obj,inputs);
-            
         end
     end
-        
+
     %======================================================================
     % Custom loadobj
     % - to enable custom saving to .mat files and bytestreams
@@ -80,7 +70,7 @@ classdef IX_null_inst < IX_inst
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
             %       	or structure array)
-            
+
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
@@ -96,9 +86,9 @@ classdef IX_null_inst < IX_inst
 
         end
         %------------------------------------------------------------------
-        
+
     end
     %======================================================================
-    
+
 end
 

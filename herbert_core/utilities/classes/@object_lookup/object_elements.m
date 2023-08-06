@@ -1,5 +1,5 @@
 function A = object_elements (obj, varargin)
-% Return a given object elements of a given array from the original set of arrays
+% Return selected object elements of a given array from the original set of arrays
 %
 %   >> obj = object_elements (obj, iarray, ind)
 %   >> obj = object_elements (obj, ind)         % OK if only one original array
@@ -52,10 +52,14 @@ else
 end
 
 % Get return argument
-Afull = obj.object_store_(obj.indx_{iarray});
-Afull = reshape(Afull,obj.sz_{iarray});
-
-A = Afull(ind);
+% - indices to elements in object_store_ for the array with index iarray
+%   Reshape to the original input array of the objects
+indx = reshape(obj.indx_{iarray}, obj.sz_{iarray});   
+% - Indices of the elements to extract
+ix = indx(ind);
+% - Extract elements, and reshape to size of ix because this is the shape the
+%   output would have had we directly indexed into the original object array.
+A = obj.object_store_(ix);
+A = reshape(A, size(ix));
 
 end
-

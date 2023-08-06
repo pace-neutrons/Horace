@@ -10,34 +10,39 @@ classdef IX_experiment < goniometer
         %         % experiment
         filepath; % path where the experiment data were initially stored
         run_id    % the identifier, which uniquely defines this experiment
-        %         % this indentifier is also stored within the PixelData,
+        %         % this identifier is also stored within the PixelData,
         %         % providing connection between the particular pixel and
         %         % the experiment info
 
         emode;
         efix;
         en;  % array of all energy transfers, present in the experiment
-        cu;
-        cv;
+
     end
     properties(Dependent,Hidden)
+        % returns goniometer sliced from this object
+        goniometer;
+        % redundant property. Was inv(b_matrix). left for compatibility
+        % with legacy alignment, as it multiplies it by alignment rotation
+        % matrix and keeps legacy alignment matrix this way.
         u_to_rlu;
+        cu % alternative names for u and v, used in goniometer class
+        cv % and during gen_sqw generation
     end
 
     properties(Hidden)
-        uoffset=[0,0,0,0];
-
-        ulen=[];
-        ulabel=[];
+        % Never usefully ised except loading from old files so candidates
+        % for removal
+        uoffset=[0,0,0,0];  % Always 0.
     end
     properties(Access=protected)
         filename_=''
         filepath_='';
         run_id_ = NaN;
-        emode_ = 1;
+        emode_ = 0;
         en_ = zeros(0,1);
-        efix_ = [];
-        u_to_rlu_ = eye(3);
+        efix_ = 0;
+        u_to_rlu_ = [];
     end
     properties(Access= private)
         % the hash used to compare IX_experiments for equality
@@ -55,7 +60,7 @@ classdef IX_experiment < goniometer
         end
 
         function obj = init(obj,varargin)
-            % construcnt non-empty instance of this class
+            % construct non-empty instance of this class
             % Usage:
             %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,...
             %               omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,...
@@ -138,19 +143,27 @@ classdef IX_experiment < goniometer
             ef = obj.efix_;
         end
         function obj = set.efix(obj,val)
-            if val<=0
+            if val < 0
                 error('HERBERT:IX_experiment:invalid_argument',...
-                    'efix (incident energy) have to be positive')
+                    'efix (incident energy) can not be negative')
             end
             obj.efix_ = val;
             obj.hash_valid_  = false;
         end
         %
         function mat = get.u_to_rlu(obj)
-            mat = eye(4);
-            mat(1:3,1:3) = obj.u_to_rlu_;
+            if isempty(obj.u_to_rlu_)
+                mat = [];
+            else
+                mat = eye(4);
+                mat(1:3,1:3) = obj.u_to_rlu_;
+            end
         end
         function obj = set.u_to_rlu(obj,val)
+            if isempty(val)
+                obj.u_to_rlu_ = [];
+                return
+            end
             if all(size(val)== [4,4])
                 val = val(1:3,1:3);
             end
@@ -158,25 +171,49 @@ classdef IX_experiment < goniometer
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'input u_to_rlu matrix have to have size 3x3 or 4x4')
             end
+            if all(abs(subdiag_elements(val))<4.e-7)
+                val = [];
+            end
             obj.u_to_rlu_ = val;
         end
         %
         function u = get.cu(obj)
             u = obj.u_;
         end
-        function obj = set.cu(obj,val)
-            obj.u = val;
-            obj.hash_valid_  = false;
+        function obj=set.cu(obj,u)
+            obj = check_and_set_uv(obj,'u',u);
         end
         %
         function v = get.cv(obj)
             v = obj.v_;
         end
-        function obj = set.cv(obj,val)
-            obj.v = val;
-            obj.hash_valid_  = false;
+        function obj=set.cv(obj,v)
+            obj = check_and_set_uv(obj,'v',v);
         end
-
+        %
+        function gon = get.goniometer(obj)
+            str = obj.to_bare_struct();
+            str.u = obj.cu;
+            str.v = obj.cv;
+            gon = goniometer(str);
+        end
+        function obj = set.goniometer(obj,val)
+            if isstruct(val)
+                if isfield(val,'cu')
+                    val.u = val.cu;
+                end
+                if isfield(val,'cv')
+                    val.v = val.cv;
+                end
+            elseif isa(val,'goniometer')
+                val = val.to_bare_struct();
+            else
+                error('HORACE:IX_experiment:invalid_argument', ...
+                    'Goniometer property accepts input as a class "goniometer" or a structure, convertable into goniometer.\n Provided %s', ...
+                    class(val));
+            end
+            obj = obj.from_bare_struct(val);
+        end
     end
     %----------------------------------------------------------------------
     methods
@@ -217,7 +254,7 @@ classdef IX_experiment < goniometer
             end
             old_hdr = convert_to_binfile_header_(obj,mode,arg1,arg2,nomangle);
         end
-        %        
+        %
         function [hash,obj] = get_neq_hash(obj)
             % get hash used for comparison of IX_experiment objects against
             % equality while building sqw objects
@@ -241,18 +278,12 @@ classdef IX_experiment < goniometer
             end
         end
         %
-
     end
     methods(Access=protected)
-        function [val,obj] = check_angular_val(obj,val)
-            % main overloadable setter function for goniometer angles
-            [val,obj] = check_angular_val@goniometer(obj,val);
-            obj.hash_valid_ = false;
-        end
         function hash = get_comparison_hash(obj,prop_list)
             % get hash to check partial set of properties for comparison
             % Inputs:
-            % prop_list -- the list of properties to compare agains
+            % prop_list -- the list of properties to compare against
             %
             persistent engine;
             if isempty(engine)
@@ -276,78 +307,34 @@ classdef IX_experiment < goniometer
             hash = typecast(engine.digest,'uint8');
             hash = char(hash');
         end
-
-    end
-    %----------------------------------------------------------------------
-    % SERIALIZABLE interface
-    properties(Constant,Access=private)
-        % fields, which fully define public interface to the class
-        fields_to_save_ = {'filename','filepath','run_id','efix','emode','cu',...
-            'cv','psi','omega','dpsi','gl','gs','en','uoffset','u_to_rlu'};
-    end
-    methods
-        function flds = saveableFields(~)
-            flds = IX_experiment.fields_to_save_;
+        %
+        function obj = check_and_set_uv(obj,name,val)
+            % main overloadable setter for u and v
+            obj = check_and_set_uv@goniometer(obj,name,val);
+            obj.hash_valid_  = false;
         end
-        function ver  = classVersion(~)
-            % return the version of the IX-experiment class
-            ver = 3;
-        end
-        % Do we need this? current usage of the hash is very restricted so
-        % it is reasonable to calculate it on request only
-        %         function obj = check_combo_arg(obj)
-        %             % verify interdependent variables and the validity of the
-        %             % obtained lattice object
-        %             obj = check_combo_arg@goniometer(obj);
-        %             if ~obj.hash_valid_
-        %                 [~,obj.comparison_hash_] = obj.get_comparison_hash();
-        %             end
-        %         end
 
-    end
-
-    methods(Access=protected)
-        function obj = from_old_struct(obj,inputs)
-            % recover the object from old structure
-            if isfield(inputs,'version')
-                if inputs.version == 1
-                    % version 1 does not contain run_id so it is set to NaN
-                    % and recalculated on sqw object level
-                    for i=1:numel(inputs)
-                        inputs(i).run_id = NaN;
-                    end
-                    inputs.version = 2;
-                    obj = obj.from_struct(inputs);
-                    return;
-                elseif inputs.version == 2
-                    % version 3 does not save/load u_to_rlu, ulen, ulabel
-                    % These fields are redundant for instr_proj and moved
-                    % to sqw.data (DnD object)
-                    inputs.version = 3;
-                end
-            end
-            obj = from_old_struct@serializable(obj,inputs);
+        function [val,obj] = check_angular_val(obj,val)
+            % main overloadable setter function for goniometer angles
+            [val,obj] = check_angular_val@goniometer(obj,val);
+            obj.hash_valid_ = false;
         end
+
     end
     methods(Static)
-        function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
-            % saveable class, necessary to load data from old structures
-            % only
-            obj = IX_experiment();
-            obj = loadobj@serializable(S,obj);
-        end
         %------------------------------------------------------------------
-        % SQW_binfile_common methods related to saving to binfile and
+        % SQW_binfile_common methods related to saving to old format binfile and
         % run_id scrambling:
         function [obj,alatt,angdeg] = build_from_binfile_header(inputs)
             % Inputs: the old header structure, stored in binfile
-            old_fldnms = {'filename','filepath','efix','emode','cu',...
-                'cv','psi','omega','dpsi','gl','gs','en','uoffset','u_to_rlu'};
+            old_fldnms = {'filename','filepath','efix','emode','en','cu',...
+                'cv','psi','omega','dpsi','gl','gs','uoffset','u_to_rlu'};
             obj = IX_experiment();
             for i=1:numel(old_fldnms)
                 obj.(old_fldnms{i}) = inputs.(old_fldnms{i});
             end
+            % old headers always contain angular values in radians
+            obj.angular_is_degree_ = false;
             alatt = inputs.alatt;
             angdeg = inputs.angdeg;
             [runid,filename] = rundata.extract_id_from_filename(inputs.filename);
@@ -355,6 +342,104 @@ classdef IX_experiment < goniometer
                 obj.run_id = runid;
                 obj.filename = filename;
             end
+            if all(abs(subdiag_elements(obj.u_to_rlu))<4*eps('single'))
+                obj.u_to_rlu = [];
+            end
+        end
+    end
+    %----------------------------------------------------------------------
+    % SERIALIZABLE interface
+    properties(Constant,Access=private)
+        % fields, which fully define IX_experiment part of the public
+        % interface to the class
+        fields_to_save_ = {'filename','filepath','run_id','efix','emode','en'};
+    end
+    methods
+        function flds = saveableFields(obj)
+            base= saveableFields@goniometer(obj);
+            flds = [IX_experiment.fields_to_save_(:);base(:)];
+            if ~isempty(obj(1).u_to_rlu_) || isnan(obj(1).run_id_) % run_id_ is NaN on non-initialized file
+                flds = [flds(:);'u_to_rlu'];
+            end
+        end
+        function flds = constructionFields(obj)
+            base= constructionFields@goniometer(obj);
+            flds = [IX_experiment.fields_to_save_(:);base(:)];
+
+        end
+
+        function ver  = classVersion(~)
+            % return the version of the IX-experiment class
+            ver = 3;
+        end
+        function obj = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained lattice object
+            obj = check_combo_arg@goniometer(obj);
+            if numel(obj.efix_) == 1 && obj.efix_ == 0 && obj.emode_ ~=0
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'efix (incident energy) can be 0 in elastic mode only. Emode=%d', ...
+                    obj.emode_)
+
+            end
+            % Do we need this? current usage of the hash is very restricted so
+            % it is reasonable to calculate it on request only
+            %             if ~obj.hash_valid_
+            %                 [~,obj.comparison_hash_] = obj.get_comparison_hash();
+            %             end
+        end
+    end
+    methods(Access=protected)
+        function [S,obj] = convert_old_struct (obj, S, ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised
+
+            if ver == 1
+                % version 1 does not contain run_id so it is set to NaN
+                % and recalculated on sqw object level
+                S.run_id = NaN;
+
+            end
+            % version 3 does not save/load u_to_rlu, ulen, ulabel
+            % These fields are redundant for instr_proj and moved
+            % to sqw.data (DnD object)
+
+            % Old IX_experiment data were containing angular values in
+            % radians
+            if isfield(S,'goniometer')
+                S.goniometer.angular_is_degree = false;
+                obj.goniometer = S.goniometer;
+            else
+                S.angular_is_degree = false;
+            end
+            if isfield(S,'cu')
+                S.u = S.cu;
+            end
+            if isfield(S,'cv')
+                S.v = S.cv;
+            end
+
+            if isfield(S,'u_to_rlu')
+                % support for legacy alignment:
+                if ~any(subdiag_elements(S.u_to_rlu)>4*eps('single'))
+                    S = rmfield(S,'u_to_rlu');
+                else
+                    obj.u_to_rlu = S.u_to_rlu;
+                end
+            end
+        end
+
+    end
+
+    methods(Static)
+        function obj = loadobj(S)
+            % crafted loadobj method, calling generic method of
+            % saveable class, necessary to load data from old structures
+            % + support for legacy alignment matrix
+            obj = IX_experiment();
+            obj = loadobj@serializable(S,obj);
+
         end
     end
 end

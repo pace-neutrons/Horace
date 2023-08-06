@@ -62,6 +62,7 @@ classdef oriented_lattice < goniometer
         reason_for_invalid;
     end
     properties(Constant,Hidden)
+        % fields defined in lattice
         lattice_fields = [goniometer.gon_fields_(:);oriented_lattice.lat_fields_(:)];
     end
 
@@ -167,6 +168,11 @@ classdef oriented_lattice < goniometer
         function flds = saveableFields(obj)
             fld_l = {'alatt';'angdeg'};
             fld_b = saveableFields@goniometer(obj);
+            flds = [fld_l(:);fld_b(:)];
+        end
+        function flds = constructionFields(obj)
+            fld_l = {'alatt';'angdeg'};
+            fld_b = constructionFields@goniometer(obj);
             flds = [fld_l(:);fld_b(:)];
         end
         function obj = check_combo_arg(obj)

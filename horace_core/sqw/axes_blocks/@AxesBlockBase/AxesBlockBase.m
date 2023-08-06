@@ -823,12 +823,6 @@ classdef AxesBlockBase < serializable
     end
 
     methods
-        function S = convert_old_struct (~, S, varargin)
-            % Convert old AxesBlock structure to the modern form
-            if isfield(S,'ulen')
-                S.img_scale = S.ulen;
-            end
-        end
         %
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
@@ -842,5 +836,18 @@ classdef AxesBlockBase < serializable
             flds = AxesBlockBase.fields_to_save_;
         end
         %
+    end
+    methods(Access=protected)
+        function [inputs,obj] = convert_old_struct(obj,inputs,ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised conversion. Called within
+            % from_old_struct on each element of S and each obj in array of objects
+            % (in case of serializable array of objects)
+            if isfield(inputs,'ulen')
+                inputs.img_scale = inputs.ulen;
+            end
+        end
+
     end
 end

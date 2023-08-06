@@ -161,8 +161,9 @@ classdef (Abstract=true) serializable
     % If reading older class versions, then overload:
     %   convert_old_struct - Update structure created from earlier class versions
     %   from_old_struct    - Update earlier structures in complex design patterns
+    %                        (Declare as Access=protected)
     %   loadobj            - If an old class version pre-dates the serializable interface
-
+    %                        (Declare as static; note: it is fixed boilerplate code)
 
     properties (Access=protected)
         % Flag to control validation checking of interdependent properties
@@ -178,7 +179,7 @@ classdef (Abstract=true) serializable
         %   one after another and do not want to overload the class. Use with
         %   caution, as you may get an invalid object if the property is used
         %   incorrectly.
-        % - Use when building and checking th evalidity of a serializable object
+        % - Use when building and checking the validity of a serializable object
         %   from other serializable objects. In this case, the method
         %   set_do_check_combo_arg has to be overloaded appropriately.
         do_check_combo_arg;
@@ -259,13 +260,6 @@ classdef (Abstract=true) serializable
         obj = from_struct (S, varargin)
     end
 
-    methods
-        % Update structure created from earlier class versions to the current
-        % version. Converts the bare structure for a scalar instance of an object.
-        % Overload this method for customised
-        S_updated = convert_old_struct (obj, S, ver)
-    end
-
     methods (Access=protected)
         % Restore object from a structure which describes earlier versions of an
         % object.
@@ -274,6 +268,13 @@ classdef (Abstract=true) serializable
         % overload this method for the class you are writing to be able
         % to read old structures.
         obj = from_old_struct (obj_template, S)
+
+        % Update structure created from earlier class versions to the current
+        % version. Converts the bare structure for a scalar instance of an object.
+        % Overload this method for customised conversion. Called within
+        % from_old_struct on each element of S and each obj in array of objects
+        % (in case of serializable array of objects)
+        [S_updated,obj] = convert_old_struct (obj, S, ver)
     end
 
 
@@ -364,11 +365,10 @@ classdef (Abstract=true) serializable
             val = obj.do_check_combo_arg_;
         end
     end
-
     methods(Access=protected)
         function obj = set_do_check_combo_arg (obj, val)
             % Allows overloading the property do_check_combo_arg_ over the tree
-            % of serializable objects where each contains its own 
+            % of serializable objects where each contains its own
             % do_check_combo_ property or inheritance of different serializable
             % objects where parent and a child have their own do_check_combo_arg_
             % property.

@@ -40,9 +40,10 @@ hor_log_level = get(hor_config,'log_level');
 
 % Check that the input files all exist and give warning if the output files overwrite the input files.
 % ----------------------------------------------------------------------------------------------------
-% Convert to cell array of strings if single file provided
+% Convert to cell array of strings if single file name or array of strings
+% is provided.
 if istext(infiles)
-    infiles={infiles};
+    infiles=cellstr(infiles);
 end
 
 % Check input files exist
@@ -82,13 +83,13 @@ img_range=datahdr{1}.img_range;
 proj = datahdr{1}.proj;
 for i=2:nfiles
     loc_range = datahdr{i}.img_range;
-    if ne(proj,datahdr{i}.proj)
+    if ~equal_to_tol(proj,datahdr{i}.proj,'tol',4*eps('single'))
         error('HORACE:algorithms:invalid_arguments',[...
             'The image projection for contributing sqw/tmp files have to be the same.\n ' ...
             'the projection for file N%d, name: %s different from the projection for the first contributing file %s\n'],...
             i,ldrs{i}.full_filename,ldrs{1}.full_filename);
     end
-    if any(abs(img_range(:)-loc_range(:))) > eps('single')
+    if any(abs(img_range(:)-loc_range(:))) > 4*eps('single')
         error('HORACE:algorithms:invalid_arguments',[...
             'The binning ranges for all contributing sqw/tmp files have to be the same.\n ' ...
             'Range for file N%d, name: %s different from the range of the first contributing file: %s\n' ...
@@ -188,7 +189,8 @@ clear nopix
 if keep_runid
     run_label = 'nochange';
 else
-    run_label=cumsum(nspe(1:end));
+    keys = exper_combined.runid_map.keys;
+    run_label=[keys{:}];
 end
 % if old_matlab
 %     npix_cumsum = cumsum(double(sqw_data.npix(:)));

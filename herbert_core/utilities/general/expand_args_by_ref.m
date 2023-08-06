@@ -1,5 +1,5 @@
 function varargout = expand_args_by_ref (Aref, varargin)
-% Expand the number of input arguments to vectors
+% Expand input arguments to arrays
 %
 %   >> [B1,B2,B3...] = expand_args (Aref,A1,A2,A3...)
 %
@@ -34,16 +34,16 @@ if nref==0
     if all(n==0)
         varargout = varargin(1:nout);
     else
-        throwAsCaller(MException('expand_args_by_ref:invalid_arguments',...
-            'Arguments must all be empty if the reference object is empty'))
+        error ('HERBERT:expand_args_by_ref:invalid_argument',...
+            'Arguments must all be empty if the reference object is empty')
     end
 elseif nref==1
     % Scalar reference object
     if all(n==1)
         varargout = varargin(1:nout);
     else
-        throwAsCaller(MException('expand_args_by_ref:invalid_arguments',...
-            'Arguments must all be scalar if the reference object is scalar'))
+        error ('HERBERT:expand_args_by_ref:invalid_argument',...
+            'Arguments must all be scalar if the reference object is scalar')
     end
 else
     % Non-scalar reference object
@@ -61,7 +61,8 @@ else
             end
         end
     else
-        throwAsCaller(MException('expand_args_by_ref:invalid_arguments',...
-            'Arguments must all be scalar or non-empty arrays with the same number of elements as reference object'))
+        error ('HERBERT:expand_args_by_ref:invalid_argument',...
+            ['Arguments must all be scalar or non-empty arrays with the ',...
+            'same number of elements as reference object'])
     end
 end
