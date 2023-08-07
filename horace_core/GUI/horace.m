@@ -133,7 +133,7 @@ if exist('cellofvars','var')
     drawnow;
     set(handles.obj_list_popupmenu,'String',cellofvars);
     guidata(hObject, handles);
-    
+
     str = get(handles.obj_list_popupmenu, 'String');
     val = get(handles.obj_list_popupmenu,'Value');
     %
@@ -290,10 +290,10 @@ ds = sqw(w_in);
 
 %Get the info about the object:
 if has_pixels(w_in)
-    getit=get(w_in);
-    gg=getit.data;
+    getit = w_in;
+    gg = w_in.data;
 else
-    gg=get(w_in);
+    gg = w_in;
 end
 
 
@@ -948,7 +948,7 @@ drawnow;
 guidata(gcbo,handles);
 
 % if isfield(handles,'w_in');
-% %     if is_sqw_type(sqw(handles.w_in))
+% %     if has_pixels(sqw(handles.w_in))
 % %         mess='No replication initialised -- object selected is sqw type, which cannot be replicated';
 % %         set(handles.message_info_text,'String',mess);
 % %         drawnow;
@@ -1016,7 +1016,7 @@ drawnow;
 guidata(gcbo,handles);
 
 % if isfield(handles,'w_in');
-% %     if is_sqw_type(sqw(handles.w_in))
+% %     if has_pixels(sqw(handles.w_in))
 % %         mess='No replication initialised -- object selected is sqw type, which cannot be replicated';
 % %         set(handles.message_info_text,'String',mess);
 % %         drawnow;
@@ -1081,7 +1081,7 @@ drawnow;
 guidata(gcbo,handles);
 
 % if isfield(handles,'w_in');
-% %     if is_sqw_type(sqw(handles.w_in))
+% %     if has_pixels(sqw(handles.w_in))
 % %         mess='No replication initialised -- object selected is sqw type, which cannot be replicated';
 % %         set(handles.message_info_text,'String',mess);
 % %         drawnow;
@@ -1164,7 +1164,7 @@ guidata(gcbo, handles);
 % guidata(gcbo,handles);
 
 % if isfield(handles,'w_in');
-% %     if is_sqw_type(sqw(handles.w_in))
+% %     if has_pixels(sqw(handles.w_in))
 % %         mess='No replication initialised -- object selected is sqw type, which cannot be replicated';
 % %         set(handles.message_info_text,'String',mess);
 % %         drawnow;
@@ -1528,7 +1528,7 @@ end
 %Also need to deal with the case where we specify a scalar as one of the
 %binning arguments (i.e. just a step size) but the object is dnd, since
 %otherwise we get an error message from the cut routine.
-if ~is_sqw_type(sqw(win))
+if ~has_pixels(sqw(win))
     if (numel(a1new)==1 && a1new~=0) || (numel(a2new)==1 && a2new~=0) || ...
             (numel(a3new)==1 && a3new~=0) || (numel(a4new)==1 && a4new~=0)
         mess1='Object is dnd -- cannot use scalar input to rebin along an axis.';
@@ -1586,13 +1586,13 @@ end
 %We now have to deal explicitly with the cases for the 4 possible
 %dimensionalities of cut, plus whether keeping pixels is valid or not. The
 %latter is not so difficult to deal with.
-if keeppix && ~is_sqw_type(sqw(win))
+if keeppix && ~has_pixels(sqw(win))
     mess='Selected object has no pixel info -- proceeding with cut, but no pixel info retained';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     keeppix=true;%bizarrely, this is what we need to do (so there is no '-nopix' argument)
     extra_flag=true;
-elseif ~is_sqw_type(sqw(win))
+elseif ~has_pixels(sqw(win))
     keeppix=true;
 end
 
@@ -1602,7 +1602,7 @@ end
 %based on what is/isn't greyed out.
 a1old=a1; a2old=a2; a3old=a3; a4old=a4;
 getit=get(win);
-if is_sqw_type(sqw(win))
+if has_pixels(sqw(win))
     gg=getit.data;
 else
     gg=getit;
@@ -2009,7 +2009,7 @@ if manspec==nummax
             guidata(gcbo,handles);
             return;
         end
-        
+
         for i=1:numel(lostephinew)
             if ~all(isnan(lostephinew{i})) && ...
                     (numel(lostephinew{i})==3 || numel(lostephinew{i})==1 || numel(lostephinew{i})==0)
@@ -2027,11 +2027,11 @@ if manspec==nummax
             the_err.identifier,the_err.message),...
             '**** Formatting error of manual rebinning entries: ',...
             '**** Ensure they are of the form [lo,step,hi], [step], or [], and are numeric'};
-        
+
         set(handles.message_info_text,'String',char(err));
         guidata(gcbo,handles);
-        
-        
+
+
         return;
     end
 end
@@ -2123,7 +2123,7 @@ try
         end
         save(out,outfilename);
     end
-    
+
 catch the_err
     report_error(handles,the_err,'**** rebin failed at: ',mess_initialise)
 end
@@ -2439,7 +2439,7 @@ else
         %==
         %Case for v3 is slightly different
         v3=get(handles.Sym_v3_edit,'String');
-        
+
         if ~isempty(v3)
             %must strip out square brackets, if user has inserted them:
             [v3new,ok] = read_vector(v3);
@@ -2473,7 +2473,7 @@ end
 %====
 
 %Work out which of the symmetrise functions is required:
-if is_sqw_type(sqw(win))
+if has_pixels(sqw(win))
     funcstr='symmetrise_sqw';
 elseif ndims==1
     funcstr='symmetrise_horace_1d';
@@ -2488,7 +2488,7 @@ end
 
 %====
 %Recall we cannot use the midpoint arg in for sqw-type data:
-if is_sqw_type(sqw(win)) && ismid
+if has_pixels(sqw(win)) && ismid
     mess='For sqw objects you can only use a specified plane to symmetrise, not a midpoint';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
@@ -2550,7 +2550,7 @@ try
         end
         save(out,outfilename);
     end
-    
+
 catch the_err
     report_error(handles,the_err,'**** symmetrise  failed at: ',mess_initialise)
 end
@@ -2814,7 +2814,7 @@ if tolspec==nummax
             guidata(gcbo,handles);
             return;
         end
-        
+
         if ~all(isnan(tolnew)) && numel(tolnew)==ndims1
             istol=true;
         elseif numel(tolnew)~=ndims1
@@ -2867,9 +2867,9 @@ if (ndims1 ~= ndims2)
 end
 
 %Work out which of the combine functions is required:
-if is_sqw_type(sqw(win1)) && is_sqw_type(sqw(win2))
+if has_pixels(sqw(win1)) && has_pixels(sqw(win2))
     funcstr='combine_sqw';
-elseif is_sqw_type(sqw(win1)) && ~is_sqw_type(sqw(win2))
+elseif has_pixels(sqw(win1)) && ~has_pixels(sqw(win2))
     mess='1st object is sqw type, but second is not -- cannot do combine operation';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
@@ -2908,7 +2908,7 @@ try
         end
         save(out,outfilename);
     end
-    
+
 catch the_err
     report_error(handles,the_err,'**** combine failed at: ',mess_initialise)
 end
@@ -3166,7 +3166,7 @@ if saveafile && isempty(outfilename)
 end
 %===
 sqw_flag=false;
-if is_sqw_type(sqw(win1))
+if has_pixels(sqw(win1))
     sqw_flag=true;
     if ndims1==0
         obj_to_cut_dnd=d0d(win1);
@@ -3987,7 +3987,7 @@ if ~isfield(handles,'un_funcstr')
     %return;
     funcstr='acos';
 else
-    funcstr=handles.funcstr;
+    funcstr=handles.un_funcstr;
 end
 
 outobjname=get(handles.Unary_outobj_edit,'String');
@@ -4430,34 +4430,35 @@ if isempty(u) || isempty(v)
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-else
-    try
-        [u,oku] = read_vector(u);
-        [v,okv] = read_vector(v);
-        if ~oku || ~okv || numel(u)~=3 || numel(v)~=3
-            mess='u and v must comprise 3 numbers specifying h, k, and l of projection axes';
-            set(handles.message_info_text,'String',char({mess_initialise,mess}));
-            guidata(gcbo,handles);
-            return;
-        end
-        if ~isempty(w)
-            [w,okw] = read_vector(s);
-            if ~okw
-                mess='Check the format of the vectors w. It must be empty or numeric with 3 elements';
+end
 
-                set(handles.message_info_text,'String',char({mess_initialise,mess}));
-                guidata(gcbo,handles);
-                return;
-            end
-            
-        end
-    catch
-        mess='Check the format of the vectors u, v, and/or w. They must be numeric with 3 elements';
+try
+    [u,oku] = read_vector(u);
+    [v,okv] = read_vector(v);
+    if ~oku || ~okv || numel(u)~=3 || numel(v)~=3
+        mess='u and v must comprise 3 numbers specifying h, k, and l of projection axes';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
     end
+    if ~isempty(w)
+        [w,okw] = read_vector(s);
+        if ~okw
+            mess='Check the format of the vectors w. It must be empty or numeric with 3 elements';
+
+            set(handles.message_info_text,'String',char({mess_initialise,mess}));
+            guidata(gcbo,handles);
+            return;
+        end
+
+    end
+catch
+    mess='Check the format of the vectors u, v, and/or w. They must be numeric with 3 elements';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles);
+    return;
 end
+
 %==
 angstring='';
 if u_rlu==get(handles.Cutfile_rlu_1_radiobutton,'Max')
@@ -4475,13 +4476,13 @@ if w_rlu==get(handles.Cutfile_rlu_3_radiobutton,'Max')
 else
     angstring=[angstring,'a'];
 end
-%
+
 if orth_axes
     nonorth=0;
 else
     nonorth=1;
 end
-%
+
 proj.u=u'; proj.v=v';
 if ~isempty(w)
     proj.w=w';
@@ -4692,7 +4693,7 @@ if isfield(handles,'w_in')
         return;
     end
     ndims=dimensions(win);
-    if is_sqw_type(sqw(win))
+    if has_pixels(sqw(win))
         mess='Object selected is sqw type -- converted to dnd to smooth';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         drawnow;
@@ -5759,4 +5760,3 @@ set(handles.message_info_text,'String',char(err));
 guidata(gcbo,handles);
 
 rethrow(the_err);
-

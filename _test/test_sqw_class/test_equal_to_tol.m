@@ -78,6 +78,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
         function test_paged_mem_sqw_ne_change_2nd_page(obj)
             new_sqw = sqw.generate_cube_sqw(10);
+            coWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
             clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 50);
             new_sqw_paged = new_sqw.copy();
             new_sqw_paged.pix.data(4, 180) = -1;

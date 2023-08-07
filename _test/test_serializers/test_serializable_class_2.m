@@ -153,7 +153,7 @@ classdef test_serializable_class_2 < TestCaseWithSave
         function test_ver1_reserialize (obj)
             % Test save and load for multiple detectors
             % save/load will treat each detector in the array individually i.e
-            % internally it loops over each detector and so tests the scalaar
+            % internally it loops over each detector and so tests the scalar
             % object functionality
             % serialize/deserialize treats the array as a whole, so exercises
             % the .array_dat field in to_struct/from_struct

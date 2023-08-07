@@ -115,7 +115,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function pix = transform_pix(obj, pix)
+        function pix = transform_pix(obj, pix, proj)
             % Transform pixel coordinates into symmetry related coordinates
             %
             % The transformation converts the components of a vector which is
@@ -142,6 +142,10 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % -------
             %   pix         Transformed PixelData object
 
+            if ~exist('proj', 'var')
+                proj = {};
+            end
+
             % Check input
             if ~isa(pix, 'PixelDataBase')
                 error('HORACE:Symop:invalid_argument', ...
@@ -150,11 +154,21 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
             % Get transformation
             if isa(pix, 'PixelDataMemory')
-                sel = obj.in_irreducible(pix.q_coordinates);
-                pix.q_coordinates(:, ~sel) = obj.transform_vec(pix.q_coordinates(:, ~sel));
+                for i = numel(obj):-1:1
+                    sel = obj(i).in_irreducible(pix.q_coordinates, proj{:});
+                    pix.q_coordinates(:, ~sel) = obj(i).transform_vec(pix.q_coordinates(:, ~sel));
+                end
             else
-                error('HORACE:Symop:not_implemented', ...
-                    'filebacked pix symmetry reduction not possible')
+                for i = 1:pix.num_pages
+                    pix.page_num = i;
+                    curr_page = pix.data;
+                    for i = numel(obj):-1:1
+                        sel = ~obj(i).in_irreducible(curr_page(1:3, :), proj{:});
+                        curr_page(1:3, sel) = obj(i).transform_vec(curr_page(1:3, sel));
+                    end
+                    pix.format_dump_data(curr_page);
+                end
+                pix = pix.finalise();
             end
 
         end

@@ -57,7 +57,7 @@ classdef SymopRotation < Symop
             theta_deg = obj.theta_deg_;
         end
 
-        function selected = in_irreducible(obj, coords)
+        function selected = in_irreducible(obj, coords, proj)
         % Compute whether the coordinates in `coords` (Q) are in the irreducible
         % set following the symmetry reduction under this operator
         %
@@ -68,6 +68,11 @@ classdef SymopRotation < Symop
         % And thus any coordinate `q` from `Q` where
         % q*(n x u) > 0 && q*(v x n) > 0
         % belong to the irreducible set in the upper right quadrant
+
+            if ~exist('proj', 'var')
+                proj = ortho_proj();
+            end
+
             n = obj.n / norm(obj.n);
             if sum(abs(n - [1; 0; 0])) > 1e-1
                 u = [1; 0; 0];
@@ -76,6 +81,10 @@ classdef SymopRotation < Symop
             end
 
             v = obj.transform_vec(u);
+
+            u = proj.transform_img_to_pix(u);
+            v = proj.transform_img_to_pix(v);
+
             normvec_u = cross(n, u);
             normvec_v = cross(v, n);
 

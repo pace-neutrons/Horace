@@ -19,6 +19,7 @@ classdef test_section < TestCase
             w = sqw.generate_cube_sqw(10);
             test_sec_mb = w.section([-3 3], [], [], []);
 
+            coWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');            
             clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 500);
             w.pix = PixelDataFileBacked(w.pix);
 

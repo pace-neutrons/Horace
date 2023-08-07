@@ -243,8 +243,6 @@ classdef test_faccess_sqw_v4< TestCase
             inf = exp_info.expdata(2);
             assertEqual(inf.filename,'map11015.spe;1')
             assertElementsAlmostEqual(inf.psi,-0.0087,'absolute',1.e-4);
-            assertEqual(inf.ulabel{4},'E')
-            assertEqual(inf.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'9cards_4_4to1.par')

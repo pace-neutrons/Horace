@@ -62,6 +62,7 @@ classdef test_set_instr_and_sample < TestCase
             assertEqual(sqw_rec,sqw_out)
         end
         function test_change_instr_sampl_in_file(obj)
+            clWarn = set_temporary_warning('off','HORACE:Experiment:lattice_changed');
             f1_1_s1_ref=set_header_fudge(obj.ds.f1_1,'sample',obj.sam1);
             f1_1_s2_ref=set_header_fudge(obj.ds.f1_1,'sample',obj.sam2);
             f1_1_s3_ref=set_header_fudge(obj.ds.f1_1,'sample',obj.sam3);

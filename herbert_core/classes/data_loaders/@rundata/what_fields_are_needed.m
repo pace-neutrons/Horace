@@ -20,6 +20,6 @@ if crystal_needed
     if isempty(lattice_fields)
         lattice_fields = oriented_lattice.lattice_fields();
     end
-    data_fields = [data_fields,lattice_fields];
+    data_fields = [data_fields(:);lattice_fields(:)];
 end
 
