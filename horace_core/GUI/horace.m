@@ -290,10 +290,10 @@ ds = sqw(w_in);
 
 %Get the info about the object:
 if has_pixels(w_in)
-    getit=get(w_in);
-    gg=getit.data;
+    getit = w_in;
+    gg = w_in.data;
 else
-    gg=get(w_in);
+    gg = w_in;
 end
 
 
