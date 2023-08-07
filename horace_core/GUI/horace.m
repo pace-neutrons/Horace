@@ -3987,7 +3987,7 @@ if ~isfield(handles,'un_funcstr')
     %return;
     funcstr='acos';
 else
-    funcstr=handles.funcstr;
+    funcstr=handles.un_funcstr;
 end
 
 outobjname=get(handles.Unary_outobj_edit,'String');
