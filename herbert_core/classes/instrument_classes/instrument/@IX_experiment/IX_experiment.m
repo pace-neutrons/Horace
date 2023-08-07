@@ -26,8 +26,13 @@ classdef IX_experiment < goniometer
         % with legacy alignment, as it multiplies it by alignment rotation
         % matrix and keeps legacy alignment matrix this way.
         u_to_rlu;
-        cu % alternative names for u and v, used in goniometer class
-        cv % and during gen_sqw generation
+    end
+    properties(Constant)
+        % the list of properties which define IX_experiment uniques
+        % if all properties values are the same, IX_experiments are
+        % considered the same
+        unique_prop = {'filename','cu','cv','efix',...
+            'psi', 'omega', 'dpsi', 'gl', 'gs'}
     end
 
     properties(Hidden)
@@ -177,20 +182,6 @@ classdef IX_experiment < goniometer
             obj.u_to_rlu_ = val;
         end
         %
-        function u = get.cu(obj)
-            u = obj.u_;
-        end
-        function obj=set.cu(obj,u)
-            obj = check_and_set_uv(obj,'u',u);
-        end
-        %
-        function v = get.cv(obj)
-            v = obj.v_;
-        end
-        function obj=set.cv(obj,v)
-            obj = check_and_set_uv(obj,'v',v);
-        end
-        %
         function gon = get.goniometer(obj)
             str = obj.to_bare_struct();
             str.u = obj.cu;
@@ -268,10 +259,9 @@ classdef IX_experiment < goniometer
             end
             % list of properties which can not be all equal for
             % experiments to be diffetent
-            neq_properties = {'filename','cu','cv','efix',...
-                'psi', 'omega', 'dpsi', 'gl', 'gs'};
+            comp_prop = IX_experiment.unique_prop ;
 
-            hash = obj.get_comparison_hash(neq_properties);
+            hash = IX_experiment.get_comparison_hash(obj,comp_prop);
             if nargout>1
                 obj.comparison_hash_ =  hash;
                 obj.hash_valid_      = true;
@@ -280,33 +270,6 @@ classdef IX_experiment < goniometer
         %
     end
     methods(Access=protected)
-        function hash = get_comparison_hash(obj,prop_list)
-            % get hash to check partial set of properties for comparison
-            % Inputs:
-            % prop_list -- the list of properties to compare against
-            %
-            persistent engine;
-            if isempty(engine)
-                engine= java.security.MessageDigest.getInstance('MD5');
-            end
-
-            n_par = numel(prop_list);
-            contents = cell(1,n_par);
-            for i=1:n_par
-                contents{i} = obj.(prop_list{i});
-                if istext(contents{i})
-                    contents{i} = uint8(contents{i});
-                elseif isnumeric(contents{i})
-                    contents{i} = typecast(single(contents{i}),'uint8');
-                else
-                    contents{i} = typecast(contents{i},'uint8');
-                end
-            end
-            contents = [contents{:}];
-            engine.update(contents);
-            hash = typecast(engine.digest,'uint8');
-            hash = char(hash');
-        end
         %
         function obj = check_and_set_uv(obj,name,val)
             % main overloadable setter for u and v
@@ -322,6 +285,36 @@ classdef IX_experiment < goniometer
 
     end
     methods(Static)
+        function hash = get_comparison_hash(comp_obj,prop_list)
+            % get hash to check partial set of properties for comparison
+            % Inputs:
+            % comp_obj  -- object for partial hashing
+            % prop_list -- the list of properties of comp_obj object
+            %              to extract values and build comparison hash
+            %
+            persistent engine;
+            if isempty(engine)
+                engine= java.security.MessageDigest.getInstance('MD5');
+            end
+
+            n_par = numel(prop_list);
+            contents = cell(1,n_par);
+            for i=1:n_par
+                contents{i} = comp_obj.(prop_list{i});
+                if istext(contents{i})
+                    contents{i} = uint8(contents{i});
+                elseif isnumeric(contents{i})
+                    contents{i} = typecast(single(contents{i}),'uint8');
+                else
+                    contents{i} = typecast(contents{i},'uint8');
+                end
+            end
+            contents = [contents{:}];
+            engine.update(contents);
+            hash = typecast(engine.digest,'uint8');
+            hash = char(hash');
+        end
+
         %------------------------------------------------------------------
         % SQW_binfile_common methods related to saving to old format binfile and
         % run_id scrambling:

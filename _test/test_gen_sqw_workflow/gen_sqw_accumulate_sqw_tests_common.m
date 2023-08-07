@@ -545,7 +545,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
             dat = ldr.get_data();
             clear ldr;
-            img_db_range2 = dat.img_db_range;
+            img_db_range2 = dat.img_range;
             assertEqual(img_db_range1,img_db_range2);
 
 
@@ -565,8 +565,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % img_db_range wider then pix_range because of energies estimate
             % for initially missed runfiles from existing runfiles is wider
             % then actual energy range for the existing runfiles.
-            assertTrue(all(pix_range_f1456(1,:)>=img_db_range3(1,:)));
-            assertTrue(all(pix_range_f1456(2,:)<=img_db_range3(2,:)));
+            assertTrue(all(pix_range_f1456(1,1:4)>=img_db_range3(1,:)));
+            assertTrue(all(pix_range_f1456(2,1:4)<=img_db_range3(2,:)));
 
             %----------------------------
             c_proj = struct('u',u,'v',v);
