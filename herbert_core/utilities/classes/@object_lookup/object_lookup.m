@@ -292,7 +292,7 @@ classdef object_lookup
                     end
                     
                     % Get unique entries and cell array of index arrays
->>>>>>> master
+
                     if fieldsNumLogChar (obj_all, 'indep')
                         [obj_unique,~,ind] = uniqueObj(obj_all);    % simple object
                     else
@@ -411,7 +411,6 @@ classdef object_lookup
             val=(numel(obj.object_store_)>0);
         end
         
-<<<<<<< HEAD
         function val = get_unique(obj,idx)
             if (idx==0)
                 val = numel(obj.object_store_);
@@ -431,13 +430,13 @@ classdef object_lookup
             obj.object_store_ = obj.object_store_(sorted_idx);
             [present inverse_idx] = ismember([1:N], sorted_idx);
             if any(~present)
-                error('BAD');
+                error('HERBERT:object_lookup:invalid_argument','missing indices');
             end
             if numel(unique(inverse_idx))<numel(inverse_idx)
-                error('ALSO BAD');
+                error('HERBERT:object_lookup:invalid_argument','duplicate indices');
             end
             if max(inverse_idx)>N || min(inverse_idx)>1
-                error('VERY BAD');
+                error('HERBERT:object_lookup:invalid_argument','incorrect indices');
             end
             for ii=1:numel(obj.indx)
                 for jj=1:numel(obj.indx{ii})
@@ -447,8 +446,6 @@ classdef object_lookup
             end
         end
 
-=======
->>>>>>> master
         %------------------------------------------------------------------
     end
 
