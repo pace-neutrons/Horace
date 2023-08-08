@@ -2,10 +2,10 @@ function obj_out = object_repmat (obj, varargin)
 % Return a given object array from the original set of arrays
 %
 % Apply to a specific array or set of arrays in in the object_lookup:
-%   >> obj_out = object_repmat (obj, iarray, '-repeat', sz_repmat)
+%   >> obj_out = object_repmat (obj, iarray, sz_repmat)
 %
 % Apply to the whole object_lookup:
-%   >> obj_out = object_repmat (obj, '-repeat', sz_repmat)
+%   >> obj_out = object_repmat (obj, sz_repmat)
 %
 % Input:
 % ------
@@ -55,7 +55,7 @@ function obj_out = object_repmat (obj, varargin)
 %               expensive multiple checks of object equivalence
 %
 %               EXAMPLE (assuming obj contains just one object array)
-%                   object_repmat (obj, '-repeat', {1,1,1,1,1})
+%                   object_repmat (obj, {1,1,1,1,1})
 %
 %
 % Output:
@@ -78,29 +78,23 @@ end
 % -----------
 % Determine number and type OK
 narg = numel(varargin);
-if ~(narg==2 || narg==3) || ~ischar(varargin{end-1})
-    error('HERBERT:object_lookup:invalid_argument', ...
-        'Invalid number or type of input argument(s)')
-end
 
 % Get iarray
-if narg==3
+if narg==1
+    iarray = (1:obj.narray)';   % column vector
+elseif narg==2
     if ~is_integer_id (varargin{1}) || max(varargin{1})>obj.narray
         error('HERBERT:object_lookup:invalid_argument', ...
             'Index array must be contain unique integers in the range 1-%d', obj.narray)
     end
     iarray = varargin{1}(:);    % column vector
 else
-    iarray = (1:obj.narray)';   % column vector
+    error('HERBERT:object_lookup:invalid_argument', ...
+        'Invalid number or type of input argument(s)')
 end
 
-% Get sz_repmat
-keyword = varargin{end-1};
-if numel(keyword)<2 || ~strncmpi(keyword, '-repeat', numel(keyword))
-    error('HERBERT:object_lookup:invalid_argument', ...
-        'Unrecognised keyword option %s', keyword)
-end
-sz_repmat = parse_sz_repmat (varargin{end}, numel(iarray), obj.narray); % col vector
+% Get sz_repmat (the call to parse_sz_repmat returns a column vector)
+sz_repmat = parse_sz_repmat (varargin{end}, numel(iarray), obj.narray);
 
 
 % Expand arrays
@@ -118,7 +112,7 @@ indx_sel = cellfun (@(x,y)reshape(x,y), indx(iarray), sz_sel, 'uniformoutput', f
 % into column vectors as the object definition requires
 if numel(iarray) > 1
     if numel(sz_repmat)>1
-        sz(iarray) = cellfun(@(x,y)size_repmat(x,y), sz_sel, sz_repmat,...
+        sz(iarray) = cellfun(@size_repmat, sz_sel, sz_repmat,...
             'uniformOutput', false);
         indx(iarray) = cellfun(@(x,y)reshape((repmat(x,y)),[],1), indx_sel, sz_repmat,...
             'uniformOutput', false);

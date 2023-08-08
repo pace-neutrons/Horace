@@ -4,16 +4,16 @@ function sz_repmat_out = parse_sz_repmat (sz_repmat, n_objArr, ntot_objArr)
 %
 %   >> sz_repmat_out = parse_sz_repmat (sz_repmat, n_objArr, ntot_objArr)
 
-% Make sz_repeat a cell array for convenience
-if ~iscell(sz_repmat)
-    sz_repmat = {sz_repmat};    
-end
-
 % Check input is not empty
 nsz_repmat = numel(sz_repmat);
 if nsz_repmat==0
     error('HERBERT:object_lookup:invalid_argument', ...
         'If it has been given, the set of repeat sizes cannot be empty')
+end
+
+% Make sz_repmat a cell array for convenience
+if ~iscell(sz_repmat)
+    sz_repmat = {sz_repmat};    
 end
 
 % Check each input is a valid single expansion argument to repmat

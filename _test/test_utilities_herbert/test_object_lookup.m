@@ -198,7 +198,7 @@ classdef test_object_lookup < TestCase
             assertEqual(Lref.sz, Lref_sz)
             
             sz1 = [3,2];    % increase size of the input object array
-            L = object_lookup(obj.carr1, '-repeat', sz1);
+            L = object_lookup(obj.carr1, 'repeat', sz1);
             [ok, mess] = check_size_and_type (L);
             assertTrue(ok, mess)
             
@@ -225,7 +225,7 @@ classdef test_object_lookup < TestCase
             sz1 = [3,2];
             sz2 = [5,2,4];
             sz12 = {sz1,sz2};    % create two increased-size input object arrays
-            L = object_lookup(obj.carr1, '-repeat', sz12);
+            L = object_lookup(obj.carr1, 'repeat', sz12);
             [ok, mess] = check_size_and_type (L);
             assertTrue(ok, mess)
             
@@ -255,7 +255,7 @@ classdef test_object_lookup < TestCase
             assertEqual(Lref.sz, Lref_sz)
             
             sz1 = [3,2];    % increase size of the input object array
-            L = object_lookup({obj.carr1, obj.carr2}, '-repeat', sz1);
+            L = object_lookup({obj.carr1, obj.carr2}, 'repeat', sz1);
             [ok, mess] = check_size_and_type (L);
             assertTrue(ok, mess)
             
@@ -284,7 +284,7 @@ classdef test_object_lookup < TestCase
             sz1 = [3,2];
             sz2 = [5,2,4];
             sz12 = {sz1,sz2};    % create two increased-size input object arrays
-            L = object_lookup({obj.carr1, obj.carr2}, '-repeat', sz12);
+            L = object_lookup({obj.carr1, obj.carr2}, 'repeat', sz12);
             [ok, mess] = check_size_and_type (L);
             assertTrue(ok, mess)
             

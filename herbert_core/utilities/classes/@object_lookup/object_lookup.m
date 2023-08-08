@@ -1,5 +1,5 @@
 classdef object_lookup < serializable
-    % An instance of object_lookup is a container for set of arrays of objects 
+    % An instance of object_lookup is a container for set of arrays of objects
     %
     % The purpose of this class is twofold:
     %
@@ -109,7 +109,7 @@ classdef object_lookup < serializable
             %   >> obj = object_lookup ({objArr1, objArr2, objArr3,...})
             %
             %   With implicit repmat of each of the object arrays:
-            %   >> obj = object_lookup (..., '-repeat', sz_repmat)
+            %   >> obj = object_lookup (..., 'repeat', sz_repmat)
             %
             %
             % Directly set the object store and indexing array(s):
@@ -123,8 +123,9 @@ classdef object_lookup < serializable
             %               Object arrays to be contained in the object_lookup
             %               object
             %
-            % Optional:
-            %   sz_repmat   One of:
+            % Optional keyword-value pair:
+            %   'repeat', sz_repmat   
+            %               sz_repmat is one of:
             %                 - the size of a single array:   sz
             %                 - a cell array of array sizes: {sz1,sz2,...szN}
             %
@@ -140,9 +141,9 @@ classdef object_lookup < serializable
             %                 - cell array of array sizes:
             %                       objArr1 => repmat(objArr1, sz1)
             %                       objArr2 => repmat(objArr2, sz2)
-            %                           :               : 
+            %                           :               :
             %               The arguments sz (or sz1, sz2,...) must be valid
-            %               single argument input to the Matlab intrinsic 
+            %               single argument input to the Matlab intrinsic
             %               function repmat i.e.
             %               - Valid array size from the Matlab function called
             %                 size i.e. row vectors of at least two integers all
@@ -164,8 +165,8 @@ classdef object_lookup < serializable
             %               with many identical stored arrays:
             %
             %               EXAMPLE
-            %                   object_lookup (objArr, '-repeat', {1,1,1,1,1})
-            %               is equivalent to 
+            %                   object_lookup (objArr, 'repeat', {1,1,1,1,1})
+            %               is equivalent to
             %                   object_lookup (repmat(objArr,[1,5]))
             %               without the overhead of finding unique occurences of
             %               elements in objArr multiple times.
@@ -195,111 +196,111 @@ classdef object_lookup < serializable
             %   obj         Object_lookup object
             
             
+            % No input arguments: default constructor - do nothing
             if nargin==0
-                % Default constructor - do nothing
-
+                return  
+            end
+            
+            % Input arguments
+            if (nargin==2 || nargin==3) && all(cellfun (@isnumeric, varargin(2:end)))
+                % Input can only be one of:
+                %   >> obj = object_lookup (object_store, indx)
+                %   >> obj = object_lookup (object_store, indx, sz)
+                object_store = varargin{1};
+                indx = varargin{2};
+                sz = varargin{3};
+                repeat = false;     % no implicit repmat
+                
             else
-                if (nargin==2 || nargin==3) && all(cellfun (@isnumeric, varargin(2:end)))
-                    % Input can only be one of:
-                    %   >> obj = object_lookup (object_store, indx)
-                    %   >> obj = object_lookup (object_store, indx, sz)
-                    object_store = varargin{1};
-                    indx = varargin{2};
-                    sz = varargin{3};
-                    repeat = false;     % no implicit repmat
-                    
+                % Input can only be one of:
+                %   >> obj = object_lookup (objects)
+                %   >> obj = object_lookup (objects, 'repeat', sz_repmat)
+                
+                % Strip off 'repeat' option, if present
+                if numel(varargin)>=3 && ischar(varargin{end-1})
+                    % If the penultimate argument is a character array, then it
+                    % can only be an optional keyword. It cannot be a valid
+                    % object to be stored in the object_lookup
+                    keyword = varargin{end-1};
+                    if isempty(keyword) || ~strncmpi(keyword, 'repeat', numel(keyword))
+                        error('HERBERT:object_lookup:invalid_argument', ...
+                            'Unrecognised keyword option %s', keyword)
+                    end
+                    objArr = varargin(1:end-2);
+                    repeat = true;
+                    sz_repmat = varargin{end};
                 else
-                    % Input can only be one of:
-                    %   >> obj = object_lookup (objects)
-                    %   >> obj = object_lookup (objects, '-repeat', sz_repmat)
-                    
-                    % Strip off '-repeat' option, if present
-                    if numel(varargin)>=3 && ischar(varargin{end-1})
-                        % If the penultimate argument is a character array, then it
-                        % can only be an optional keyword. It cannot be a valid
-                        % object to be stored in the object_lookup
-                        keyword = varargin{end-1};
-                        if numel(keyword) < 2 || ~strncmpi(keyword, '-repeat', numel(keyword))
-                            error('HERBERT:object_lookup:invalid_argument', ...
-                                'Unrecognised keyword option %s', keyword)
-                        end
-                        objArr = varargin(1:end-2);
-                        repeat = true;
-                        sz_repmat = varargin{end};
-                    else
-                        objArr = varargin;
-                        repeat = false;
-                    end
-                    
-                    % If there is only one argument before any keyword, and it is a
-                    % cell array, pick this out as the set of object arrays
-                    if numel(objArr)==1 && iscell(objArr{1})
-                        objArr = objArr{1};
-                    end
-                    
-                    % Check all objects are in fact Matlab objects (i.e. we exclude
-                    % instances of MATLAB numeric, logical, char, cell, struct, and
-                    % function handle classes) and they have the same class
-                    class_name = class(objArr{1});
-                    tf = cellfun (@(x)(strcmp(class(x), class_name)), objArr);
-                    if ~all(tf)
-                        error('HERBERT:object_lookup:invalid_argument', ...
-                            'The classes of the object arrays are not all the same')
-                    end
-                    if ~isobject(objArr{1})
-                        error('HERBERT:object_lookup:invalid_argument', ...
-                            ['The object arrays to be stored cannot be MATLAB ',...
-                            'numeric, logical, char, cell, struct or handle classes'])
-                    end
-                    
-                    % Prepare properties
-                    n_objArr = numel(objArr);
-
-                    % Now that the object arrays have been identified, validate the
-                    % repeat option argument before the unique object array is
-                    % determined - that could be a very expensive operation
-                    if repeat
-                        sz_repmat = parse_sz_repmat (sz_repmat, n_objArr, n_objArr);
-                    end
-                    
-                    % Assemble the objects into one array
-                    nel = cellfun (@numel, objArr(:));
-                    nend = cumsum(nel);
-                    nbeg = nend - nel + 1;
-                    ntot = nend(end);
-                    
-                    object_store = repmat(objArr{1}(1),[ntot,1]);
-                    for i=1:n_objArr
-                        object_store(nbeg(i):nend(i)) = objArr{i}(:);
-                    end
-                    
-                    % Create column cell array of index arrays into the full object list
-                    indx = mat2cell ((1:ntot)', nel, 1);
-                    
-                    % Get object array sizes as a column cell array
-                    sz = cellfun (@size, objArr(:), 'uniformOutput', false);
-                    
+                    objArr = varargin;
+                    repeat = false;
                 end
                 
-                % Build the object
-                % - Disable interdependency validation
-                obj.do_check_combo_arg_ = false;
+                % If there is only one argument before any keyword, and it is a
+                % cell array, pick this out as the set of object arrays
+                if numel(objArr)==1 && iscell(objArr{1})
+                    objArr = objArr{1};
+                end
                 
-                % - Build object from the state-defining properties
-                obj.object_store = object_store;
-                obj.indx = indx;
-                obj.sz = sz;
+                % Check all objects are in fact Matlab objects (i.e. we exclude
+                % instances of MATLAB numeric, logical, char, cell, struct, and
+                % function handle classes) and they have the same class
+                class_name = class(objArr{1});
+                tf = cellfun (@(x)(strcmp(class(x), class_name)), objArr);
+                if ~all(tf)
+                    error('HERBERT:object_lookup:invalid_argument', ...
+                        'The classes of the object arrays are not all the same')
+                end
+                if ~isobject(objArr{1})
+                    error('HERBERT:object_lookup:invalid_argument', ...
+                        ['The object arrays to be stored cannot be MATLAB ',...
+                        'numeric, logical, char, cell, struct or handle classes'])
+                end
                 
-                % - Turn on interdependency checking and check property
-                %   interdependencies
-                obj.do_check_combo_arg_ = true;
-                obj = obj.check_combo_arg();
+                % Prepare properties
+                n_objArr = numel(objArr);
                 
-                % - Implicit repmat of stored objects, if requested
+                % Now that the object arrays have been identified, validate the
+                % repeat option argument before the unique object array is
+                % determined - that could be a very expensive operation
                 if repeat
-                    obj = obj.object_repmat ('-repeat', sz_repmat);
+                    sz_repmat = parse_sz_repmat (sz_repmat, n_objArr, n_objArr);
                 end
                 
+                % Assemble the objects into one array
+                nel = cellfun (@numel, objArr(:));
+                nend = cumsum(nel);
+                nbeg = nend - nel + 1;
+                ntot = nend(end);
+                
+                object_store = repmat(objArr{1}(1),[ntot,1]);
+                for i=1:n_objArr
+                    object_store(nbeg(i):nend(i)) = objArr{i}(:);
+                end
+                
+                % Create column cell array of index arrays into the full object list
+                indx = mat2cell ((1:ntot)', nel, 1);
+                
+                % Get object array sizes as a column cell array
+                sz = cellfun (@size, objArr(:), 'uniformOutput', false);
+                
+            end
+            
+            % Build the object
+            % - Disable interdependency validation
+            obj.do_check_combo_arg_ = false;
+            
+            % - Build object from the state-defining properties
+            obj.object_store = object_store;
+            obj.indx = indx;
+            obj.sz = sz;
+            
+            % - Turn on interdependency checking and check property
+            %   interdependencies
+            obj.do_check_combo_arg_ = true;
+            obj = obj.check_combo_arg();
+            
+            % - Implicit repmat of stored objects, if requested
+            if repeat
+                obj = obj.object_repmat (sz_repmat);
             end
             
         end
@@ -345,7 +346,7 @@ classdef object_lookup < serializable
                 error('HERBERT:object_lookup:invalid_argument', ...
                     'Property ''object_store'' must be a Matlab object or array of objects')
             end
-
+            
             obj.object_store_ = val(:);     % ensure column vector
             
             % Check interdependencies
@@ -390,7 +391,7 @@ classdef object_lookup < serializable
             % Make the set of indices a column cell array of column vectors
             % Note x(:) makes any empty array have size (0,1), as desired for
             % this property for any empty object array
-            obj.indx_ = cellfun (@(x)(x(:)), val(:), 'uniformOutput', false); 
+            obj.indx_ = cellfun (@(x)(x(:)), val(:), 'uniformOutput', false);
             
             % Check interdependencies
             if obj.do_check_combo_arg_
@@ -405,7 +406,7 @@ classdef object_lookup < serializable
             %
             %   >> obj.sz = sz
             %
-            %   sz      The size(s) of the stored object array(s) as would be 
+            %   sz      The size(s) of the stored object array(s) as would be
             %           returned by the Matlab size function
             %           - Row vector if a single stored object array
             %           - Cell array of row vectors where sz{i} is the Matlab
@@ -427,7 +428,7 @@ classdef object_lookup < serializable
             % Trim excess trailing singleton dimensions in the size vectors, and
             % make the set of indices a column cell array
             sz_trim = @(sz)(sz(1:max([2, find(sz~=1,1,'last')])));
-            obj.sz_ = cellfun (@(x)(sz_trim(x)), val(:), 'uniformOutput', false); 
+            obj.sz_ = cellfun (@(x)(sz_trim(x)), val(:), 'uniformOutput', false);
             
             % Check interdependencies
             if obj.do_check_combo_arg_
@@ -467,12 +468,12 @@ classdef object_lookup < serializable
         
         %------------------------------------------------------------------
     end
-
+    
     
     %======================================================================
     % SERIALIZABLE INTERFACE
     %======================================================================
-
+    
     methods
         function ver = classVersion (~)
             % Current version of class definition
@@ -483,7 +484,7 @@ classdef object_lookup < serializable
             % Return cellarray of properties defining the class
             flds = {'object_store', 'indx', 'sz'};
         end
-
+        
         function obj = check_combo_arg (obj)
             % Verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check.
@@ -492,7 +493,7 @@ classdef object_lookup < serializable
             %
             % Throw an error if the properties are inconsistent and return
             % without problem it they are not.
-
+            
             % Check the number of index arrays and the number of size vectors are
             % the same. This gives the number of stored arrays
             if numel(obj.indx_) ~= numel(obj.sz_)
@@ -522,7 +523,7 @@ classdef object_lookup < serializable
             end
             
             % Get unique entries and update index arrays
-            % Use the fact that if: 
+            % Use the fact that if:
             %   A = B(m), where m is an indexing array, and
             %   B = C(n),
             % then
@@ -536,11 +537,11 @@ classdef object_lookup < serializable
             obj.object_store_ = obj_unique;
             ind_m = cell2mat(obj.indx_);
             obj.indx_ = mat2cell (ind_n(ind_m), nel, 1);
-
+            
         end
         
     end
-
+    
     %----------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -551,5 +552,5 @@ classdef object_lookup < serializable
         end
     end
     %======================================================================
-
+    
 end
