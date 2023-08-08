@@ -301,8 +301,8 @@ if keywrd.tables
     % Expand indexing of lookups to refer to n_runs copies (recall one element
     % of n_runs per sqw object)
     sz_cell = num2cell([n_runs, ones(nw,1)], 2);    % sz_repeat for object_lookup
-    lookup.sample_table = object_lookup(sample, '-repeat', sz_cell);
-    lookup.detector_table = object_lookup(detectors, '-repeat', sz_cell);
+    lookup.sample_table = object_lookup(sample, 'repeat', sz_cell);
+    lookup.detector_table = object_lookup(detectors, 'repeat', sz_cell);
 end
 lookup.ei=ei;
 lookup.x0=x0;

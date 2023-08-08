@@ -1,5 +1,5 @@
 classdef test_sampling_statistics < TestCase
-    % Test the calculation of quantities for IX_det_He3tube object
+    % Test the calculation of quantities for utility function sampling_statistics
     properties
         mean_ref
         cov_ref

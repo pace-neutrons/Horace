@@ -22,7 +22,10 @@ classdef test_object_lookup < TestCase
         warr1_norm
         warr2_norm
         warr3_norm
+        warr4_norm
+        warr5_norm
         c_lookup1
+        c_lookup2
         
         tol_dist
         seed
@@ -67,6 +70,15 @@ classdef test_object_lookup < TestCase
             
             c_lookup1 = object_lookup({carr1,carr2,carr3});
             
+            % Create a second object_lookup
+            carr4 = [c4, c2, c4, c4, c5];
+            carr5 = [c3, c1; c4, c4; c2, c5];
+            
+            warr4_norm = [w4norm,w2norm,w4norm,w4norm,w5norm];
+            warr5_norm = [w3norm,w4norm,w2norm,w1norm,w4norm,w5norm];
+            
+            c_lookup2 = object_lookup({carr4,carr3,carr1,carr5});
+            
             % Tolerance permitted
             obj.tol_dist = [2,0];   % allows chisqr to be as large as 3 (1 +/- 2)
             
@@ -92,7 +104,10 @@ classdef test_object_lookup < TestCase
             obj.warr1_norm = warr1_norm;
             obj.warr2_norm = warr2_norm;
             obj.warr3_norm = warr3_norm;
+            obj.warr4_norm = warr4_norm;
+            obj.warr5_norm = warr5_norm;
             obj.c_lookup1 = c_lookup1;
+            obj.c_lookup2 = c_lookup2;
             
             obj.seed = 0;   % seed for random numbers at start of each test
         end
@@ -183,12 +198,13 @@ classdef test_object_lookup < TestCase
             assertEqual(Lref.sz, Lref_sz)
             
             sz1 = [3,2];    % increase size of the input object array
-            L = object_lookup(obj.carr1, '-repeat', sz1);
+            L = object_lookup(obj.carr1, 'repeat', sz1);
             [ok, mess] = check_size_and_type (L);
             assertTrue(ok, mess)
             
+            expand_indx = @(indx,sz,szrep)(make_column(repmat(reshape(indx,sz),szrep)));
             assertEqual(L.object_store, Lref.object_store)
-            assertEqual(L.indx{1}, repmat(Lref.indx{1}, [prod(sz1),1]))
+            assertEqual(L.indx{1}, expand_indx(Lref.indx{1}, Lref.sz{1}, sz1))
             assertEqual(L.narray, 1)
             assertEqual(L.nelmts, prod(sz1)*Lref_nelmts)
             assertEqual(L.sz{1}, size(repmat(ones(Lref_sz{1}),sz1)))
@@ -209,13 +225,14 @@ classdef test_object_lookup < TestCase
             sz1 = [3,2];
             sz2 = [5,2,4];
             sz12 = {sz1,sz2};    % create two increased-size input object arrays
-            L = object_lookup(obj.carr1, '-repeat', sz12);
+            L = object_lookup(obj.carr1, 'repeat', sz12);
             [ok, mess] = check_size_and_type (L);
             assertTrue(ok, mess)
             
+            expand_indx = @(indx,sz,szrep)(make_column(repmat(reshape(indx,sz),szrep)));
             assertEqual(L.object_store, Lref.object_store)
-            assertEqual(L.indx{1}, repmat(Lref.indx{1}, [prod(sz1),1]))
-            assertEqual(L.indx{2}, repmat(Lref.indx{1}, [prod(sz2),1]))
+            assertEqual(L.indx{1}, expand_indx(Lref.indx{1}, Lref.sz{1}, sz1))
+            assertEqual(L.indx{2}, expand_indx(Lref.indx{1}, Lref.sz{1}, sz2))
             assertEqual(L.narray, 2)
             assertEqual(L.nelmts, [prod(sz1);prod(sz2)]*Lref_nelmts)
             assertEqual(L.sz{1}, size(repmat(ones(Lref_sz),sz1)))
@@ -238,13 +255,14 @@ classdef test_object_lookup < TestCase
             assertEqual(Lref.sz, Lref_sz)
             
             sz1 = [3,2];    % increase size of the input object array
-            L = object_lookup({obj.carr1, obj.carr2}, '-repeat', sz1);
+            L = object_lookup({obj.carr1, obj.carr2}, 'repeat', sz1);
             [ok, mess] = check_size_and_type (L);
             assertTrue(ok, mess)
             
+            expand_indx = @(indx,sz,szrep)(make_column(repmat(reshape(indx,sz),szrep)));
             assertEqual(L.object_store, Lref.object_store)
-            assertEqual(L.indx{1}, repmat(Lref.indx{1}, [prod(sz1),1]))
-            assertEqual(L.indx{2}, repmat(Lref.indx{2}, [prod(sz1),1]))
+            assertEqual(L.indx{1}, expand_indx(Lref.indx{1}, Lref.sz{1}, sz1))
+            assertEqual(L.indx{2}, expand_indx(Lref.indx{2}, Lref.sz{2}, sz1))
             assertEqual(L.narray, 2)
             assertEqual(L.nelmts, prod(sz1).*Lref_nelmts)
             assertEqual(L.sz{1}, size(repmat(ones(Lref_sz{1}),sz1)))
@@ -266,18 +284,56 @@ classdef test_object_lookup < TestCase
             sz1 = [3,2];
             sz2 = [5,2,4];
             sz12 = {sz1,sz2};    % create two increased-size input object arrays
-            L = object_lookup({obj.carr1, obj.carr2}, '-repeat', sz12);
+            L = object_lookup({obj.carr1, obj.carr2}, 'repeat', sz12);
             [ok, mess] = check_size_and_type (L);
             assertTrue(ok, mess)
             
+            expand_indx = @(indx,sz,szrep)(make_column(repmat(reshape(indx,sz),szrep)));
             assertEqual(L.object_store, Lref.object_store)
-            assertEqual(L.indx{1}, repmat(Lref.indx{1}, [prod(sz1),1]))
-            assertEqual(L.indx{2}, repmat(Lref.indx{2}, [prod(sz2),1]))
+            assertEqual(L.indx{1}, expand_indx(Lref.indx{1}, Lref.sz{1}, sz1))
+            assertEqual(L.indx{2}, expand_indx(Lref.indx{2}, Lref.sz{2}, sz2))
             assertEqual(L.narray, 2)
             assertEqual(L.nelmts, [prod(sz1);prod(sz2)].*Lref_nelmts)
             assertEqual(L.sz{1}, size(repmat(ones(Lref_sz{1}),sz1)))
             assertEqual(L.sz{2}, size(repmat(ones(Lref_sz{2}),sz2)))
 
+        end
+        
+        %--------------------------------------------------------------------------
+        % Test save and load
+        %--------------------------------------------------------------------------
+        function test_save_then_load_equality_scalar (obj)
+            % Test save then reload of a scalar object_lookup object (which itself
+            % contains several array of arrays)
+            chopper_lookup1 = obj.c_lookup1;
+            
+            % Save detector bank
+            test_file = fullfile (tmp_dir(), 'test_object_lookup_save_load_scalar.mat');
+            cleanup = onCleanup(@()delete(test_file));
+            save (test_file, 'chopper_lookup1');
+            
+            % Recover detector bank
+            tmp = load (test_file);
+            
+            assertEqual (chopper_lookup1, tmp.chopper_lookup1)
+        end
+        
+        function test_save_then_load_equality_arr (obj)
+            % Test save then reload of an array of  object_lookup objects
+            % (each element of which contains several array of arrays)
+            chopper_lookup1 = obj.c_lookup1;
+            chopper_lookup2 = obj.c_lookup2;
+            chopper_lookup = [chopper_lookup1, chopper_lookup2];
+            
+            % Save detector bank
+            test_file = fullfile (tmp_dir(), 'test_object_lookup_save_load_arr.mat');
+            cleanup = onCleanup(@()delete(test_file));
+            save (test_file, 'chopper_lookup');
+            
+            % Recover detector bank
+            tmp = load (test_file);
+            
+            assertEqual (chopper_lookup, tmp.chopper_lookup)
         end
         
         %--------------------------------------------------------------------------
@@ -545,7 +601,6 @@ classdef test_object_lookup < TestCase
 end
 
 
-
 %==========================================================================
 function [ok, mess] = check_size_and_type (obj)
 % Utility method that checks that the size and class of properties
@@ -598,7 +653,7 @@ if numel(sz)==1
 end
 nel = prod(sz);
 if ~isrow(sz) || ~all(rem(sz,1)==0) || any(sz<0) || ~all(isfinite(sz)) || nel<1
-    error('Check input arguments')
+    error('HERBERT:test_object_lookup:invalid_argument','Check input arguments')
 end
 
 [tlo, thi] = fermi_chopper.pulse_range();

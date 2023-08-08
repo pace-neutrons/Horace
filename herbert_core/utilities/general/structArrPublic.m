@@ -3,21 +3,18 @@ function s = structArrPublic(obj)
 %
 %   >> s = structArrPublic(obj)
 %
-% Use <a href="matlab:help('structPublic');">structPublic</a> for behaviour that more closely matches the Matlab
-% intrinsic function struct.
-%
-% Has the same behaviour as the Matlab instrinsic struct in that:
+% Has the same behaviour as the Matlab intrinsic struct in that:
 % - Any structure array is returned unchanged
 % - If an object is empty, an empty structure is returned with fieldnames
 %   but the same size as the object
 %
 % However, differs in the behaviour if an object array:
 % - If the object is non-empty array, returns a structure array of the same
-%   size. This is different to the instrinsic Matlab, which returns a scalar
+%   size. This is different to the intrinsic Matlab, which returns a scalar
 %   structure from the first element in the array of objects
 %
 %
-% See also structPublic, structIndep, structArrIndep
+% See also structArr, structArrIndep, struct, structPublic, structIndep
 
 
 if isobject(obj)
@@ -37,7 +34,8 @@ if isobject(obj)
 elseif isstruct(obj)
     s = obj;
 else
-    error('Invalid input argument type. Input must be an object or a structure')
+    error('HERBERT:structArrPublic:invalid_argument',...
+        'Input argument is not an object or a structure. It has class %s', class(obj))
 end
 
 %----------------------------------------------------------------------------
