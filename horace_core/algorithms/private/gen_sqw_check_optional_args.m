@@ -1,8 +1,8 @@
-function [ok,mess,present,grid,pix_db_range,instrument,sample]=gen_sqw_check_optional_args...
-    (nfile,grid_default,instrument_default,sample_default,varargin)
+function [present,grid,pix_db_range,instrument,sample]=gen_sqw_check_optional_args...
+    (nfile,grid_default,instrument_default,sample_default,lattice,varargin)
 % Check optional input arguments to gen_sqw, and set defaults to those that are missing
 %
-%   >> [ok,mess,grid,pix_db_range,inst,sample] = gen_sqw_check_optional_args...
+%   >> [grid,pix_db_range,inst,sample] = gen_sqw_check_optional_args...
 %          (nfile,grid_default,inst_default,sample_default,arg1,arg2,...)
 %
 % where arg1,arg2,.. can be:
@@ -26,14 +26,12 @@ function [ok,mess,present,grid,pix_db_range,instrument,sample]=gen_sqw_check_opt
 %   pix_db_range_in           Range of data grid for output as a 2x4 matrix:
 %                           [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                       If not given or [], returned as [] (to signifiy that
-%                      it needs to be autoscaled or set later)
+%                       it needs to be autoscaled or set later)
 %   instrument_in       Structure or object [scalar or array]
 %   sample_in           Structure or object [scalar or array]
 %
 % Output:
 % -------
-%   ok                  Logical: true if all fine, false otherwise
-%   mess                Error message if not ok; ='' if ok
 %   present             Structure with following fields each set to true or false
 %                      according as whether or not the input arguments were present
 %                           present.grid
@@ -56,18 +54,19 @@ grid=[]; pix_db_range=[]; instrument=[]; sample=[];
 % Check defaults
 [grid_default,mess]=check_grid_size(grid_default);
 if ~isempty(mess)
-    ok=false; mess='Default grid invalid - problem in code'; 
-    return
+    error('HORACE:gen_sqw:runtime_error',...
+        'Default grid invalid - problem in code');
+
 end
 
 if numel(instrument_default)~=1 || ~(isobject(instrument_default)||isstruct(instrument_default))
-    ok=false; mess='Default instrument must be a scalar structure or object'; 
-    return
+    error('HORACE:gen_sqw:invalid_argument',...
+        'Default instrument must be a scalar structure or object');
 end
 
 if  ~(isa(sample_default,'IX_samp')||isstruct(sample_default))
-    ok=false; mess='Default sample descriptor must be a scalar structure or object'; 
-    return
+    error('HORACE:gen_sqw:invalid_argument',...
+        'Default sample descriptor must be a scalar structure or object');
 end
 
 
@@ -76,64 +75,110 @@ narg=numel(varargin);
 if narg==0
     grid=grid_default;
     pix_db_range=[];
-    
+
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
-    
+
 elseif narg==1  % grid
-    [grid,mess]=check_grid_size(varargin{1},grid_default);  
-    if ~isempty(mess), ok=false; return, end
+    [grid,mess]=check_grid_size(varargin{1},grid_default);
+    if ~isempty(mess)
+        error('HORACE:gen_sqw:invalid_argument',mess)
+    end
     present.grid=true;
     pix_db_range=[];
-    
+
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
 
 elseif narg==2 && isnumeric(varargin{1})    % grid, pix_db_range
-    [grid,mess]=check_grid_size(varargin{1},grid_default);  
-    if ~isempty(mess), ok=false; return, end
+    [grid,mess]=check_grid_size(varargin{1},grid_default);
+    if ~isempty(mess)
+        error('HORACE:gen_sqw:invalid_argument',mess)
+    end
     present.grid=true;
-    [pix_db_range,mess]=check_pix_range(varargin{2});                
-    if ~isempty(mess), ok=false; return, end
+    [pix_db_range,mess]=check_pix_range(varargin{2});
+    if ~isempty(mess)
+        error('HORACE:gen_sqw:invalid_argument',mess)
+    end
+
     present.pix_db_range=true;
-    
+
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
 
 elseif narg==2 && ~isnumeric(varargin{1})   % instrument, sample
     grid=grid_default;
     pix_db_range=[];
-    
+
     [instrument,mess]=check_inst_or_sample(varargin{1},nfile,'instrument',instrument_default);
-    if ~isempty(mess), ok=false; return, end
+    if ~isempty(mess)
+        error('HORACE:gen_sqw:invalid_argument',mess)
+    end
+
     present.instrument=true;
     [sample,mess]=check_inst_or_sample(varargin{2},nfile,'sample',sample_default);
-    if ~isempty(mess), ok=false; return, end
+    if ~isempty(mess)
+        error('HORACE:gen_sqw:invalid_argument',mess)
+    end
+
     present.sample=true;
 
 elseif narg==4                              % grid, pix_db_range, instrument, sample
-    [grid,mess]=check_grid_size(varargin{1},grid_default);  
-    if ~isempty(mess), ok=false; return, end
+    [grid,mess]=check_grid_size(varargin{1},grid_default);
+    if ~isempty(mess)
+        error('HORACE:gen_sqw:invalid_argument',mess)
+    end
+
     present.grid=true;
-    [pix_db_range,mess]=check_pix_range(varargin{2});                
-    if ~isempty(mess), ok=false; return, end
+    [pix_db_range,mess]=check_pix_range(varargin{2});
+    if ~isempty(mess)
+        error('HORACE:gen_sqw:invalid_argument',mess)
+    end
+
     present.pix_db_range=true;
-    
+
     [instrument,mess]=check_inst_or_sample(varargin{3},nfile,'instrument',instrument_default);
-    if ~isempty(mess), ok=false; return, end
+    if ~isempty(mess)
+        error('HORACE:gen_sqw:invalid_argument',mess)
+    end
+
     present.instrument=true;
     [sample,mess]=check_inst_or_sample(varargin{4},nfile,'sample',sample_default);
-    if ~isempty(mess), ok=false; return, end
+    if ~isempty(mess)
+        error('HORACE:gen_sqw:invalid_argument',mess)
+    end
+
     present.sample=true;
 
 else
-    ok=false; mess='Check number and type of optional arguments';
-    return
+    if ~isempty(mess)
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'Incorrect number and type of optional arguments')
+    end
+end
+if numel(lattice) == numel(sample)
+    single_lattice = false;
+elseif numel(lattice) == 1
+    single_lattice = true;
+else
+    error('HORACE:gen_sqw:invalid_argument', ...
+        'number of lattice elements (%d) is not consistent with number of samples (%d)',...
+        numel(lattice),numel(sample));
 end
 
-% Fill error flags
-ok=true;
-mess='';
+for i=1:numel(sample)
+    if single_lattice
+        lat = lattice;
+    else
+        lat = lattice(i);
+    end
+    if isempty(sample(i).alatt)
+        sample(i).alatt = lat.alatt;
+    end
+    if isempty(sample(i).angdeg)
+        sample(i).angdeg = lat.angdeg;
+    end
+end
 
 
 %--------------------------------------------------------------------------------------------------
@@ -157,7 +202,7 @@ elseif isnumeric(grid) && (isscalar(grid)||(isvector(grid)&&all(size(grid)==[1,4
         all(grid-round(grid)==zeros(size(grid))) && all(grid>0)
     grid_out=grid;
     mess='';
-    
+
 else
     grid_out=[];
     mess='Grid size must be scalar or row vector length 4';
@@ -174,7 +219,7 @@ elseif isnumeric(pix_db_range) && numel(size(pix_db_range))==2 &&...
         all(size(pix_db_range)==[2,4]) && all(pix_db_range(2,:)>=pix_db_range(1,:))
     pix_db_range_out=pix_db_range;
     mess='';
-    
+
 else
     mess='pix_db_range must be 2x4 array, first row lower limits, second row upper limits, with lower<=upper';
 end
@@ -198,7 +243,7 @@ elseif isobject(val)||isstruct(val)
         mess=[val_name,' descriptor must be a scalar structure or object, or array of ',...
             'the same with size that matches the number of files'];
     end
-    
+
 else
     val_out=[];
     mess=[val_name,' descriptor must be a scalar structure or object'];

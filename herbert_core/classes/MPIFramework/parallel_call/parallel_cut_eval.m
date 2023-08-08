@@ -1,4 +1,4 @@
-function wout = parallel_cut_eval(nWorkers, args);
+function wout = parallel_cut_eval(nWorkers, args)
 
     w = args{1};
     args = args(2:end);
@@ -18,7 +18,7 @@ function wout = parallel_cut_eval(nWorkers, args);
           case {'cell'}
             if iscellstr(w)
                 tmp_files{i} = cellfun(@TmpFileHandler, w);
-                w = cellfun(@sqw, w, 'UniformOutput', false')
+                w = cellfun(@sqw, w, 'UniformOutput', false');
             elseif all(cellfun(@(x) isa(x, 'sqw'), w))
                 tmp_files{i} = cellfun(@(x) TmpFileHandler(x.full_filename), w);
             else
@@ -62,7 +62,7 @@ function wout = parallel_cut_eval(nWorkers, args);
     if isempty(outfile)
         tmp_outfile = TmpFileHandler(w{1}.full_filename);
         outfile = tmp_outfile.file_name;
-        write_nsqw_to_sqw([filenames{:}], outfile, '-parallel');
+        write_nsqw_to_sqw([filenames{:}], outfile, '-parallel','-allow_equal_headers');
         wout = sqw(outfile);
 
         if wout.pix.is_filebacked % Preserve pix
@@ -70,7 +70,7 @@ function wout = parallel_cut_eval(nWorkers, args);
             clear tmp_outfile;
         end
     else
-        write_nsqw_to_sqw([filenames{:}], outfile, '-parallel');
+        write_nsqw_to_sqw([filenames{:}], outfile, '-parallel','-allow_equal_headers');
         wout = [];
     end
 

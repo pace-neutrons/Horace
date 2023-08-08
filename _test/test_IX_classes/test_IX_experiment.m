@@ -19,8 +19,8 @@ classdef test_IX_experiment <  TestCase
             exp2 = exp1;
             exp2.omega = 4;
 
-            ch1 = exp1.get_comparison_hash();
-            ch2 = exp2.get_comparison_hash();
+            ch1 = exp1.get_neq_hash();
+            ch2 = exp2.get_neq_hash();
             assertFalse(isequal(ch1,ch2));
         end
         function test_goniometer_key_construction(~)
@@ -53,8 +53,8 @@ classdef test_IX_experiment <  TestCase
             exp2 = exp1;
             exp2.filepath = 'other_path';
 
-            ch1 = exp1.get_comparison_hash();
-            ch2 = exp2.get_comparison_hash();
+            ch1 = exp1.get_neq_hash();
+            ch2 = exp2.get_neq_hash();
             assertEqual(ch1,ch2);
         end
 

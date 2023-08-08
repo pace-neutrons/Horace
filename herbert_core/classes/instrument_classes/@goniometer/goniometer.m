@@ -72,6 +72,9 @@ classdef goniometer < serializable
     properties(Dependent,Hidden)
         angular_is_degree;
         undef_fields;
+        % Unified interface with IX_experiment
+        cu % alternative names for u and v, used in goniometer class
+        cv % and during gen_sqw generation
     end
 
 
@@ -166,6 +169,21 @@ classdef goniometer < serializable
         function obj=set.v(obj,v)
             obj = check_and_set_uv(obj,'v',v);
         end
+        %-----------------------------------------------------------------
+        function u = get.cu(obj)
+            u = obj.u_;
+        end
+        function obj=set.cu(obj,u)
+            obj = check_and_set_uv(obj,'u',u);
+        end
+        %
+        function v = get.cv(obj)
+            v = obj.v_;
+        end
+        function obj=set.cv(obj,v)
+            obj = check_and_set_uv(obj,'v',v);
+        end
+        %-----------------------------------------------------------------
     end
     %======================================================================
     % partial load and angular transformations.

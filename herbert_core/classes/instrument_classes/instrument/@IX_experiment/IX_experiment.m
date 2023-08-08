@@ -24,10 +24,15 @@ classdef IX_experiment < goniometer
         goniometer;
         % redundant property. Was inv(b_matrix). left for compatibility
         % with legacy alignment, as it multiplies it by alignment rotation
-        % matrix
+        % matrix and keeps legacy alignment matrix this way.
         u_to_rlu;
-        cu % alternative names for u and v, used in goniometer class
-        cv % and during gen_sqw generation
+    end
+    properties(Constant)
+        % the list of properties which define IX_experiment uniques
+        % if all properties values are the same, IX_experiments are
+        % considered the same
+        unique_prop = {'filename','cu','cv','efix',...
+            'psi', 'omega', 'dpsi', 'gl', 'gs'}
     end
 
     properties(Hidden)
@@ -40,7 +45,7 @@ classdef IX_experiment < goniometer
         filepath_='';
         run_id_ = NaN;
         emode_ = 0;
-        en_   = zeros(0,1);
+        en_ = zeros(0,1);
         efix_ = 0;
         u_to_rlu_ = [];
     end
@@ -177,20 +182,6 @@ classdef IX_experiment < goniometer
             obj.u_to_rlu_ = val;
         end
         %
-        function u=get.cu(obj)
-            u = obj.u_;
-        end
-        function obj=set.cu(obj,u)
-            obj = check_and_set_uv(obj,'u',u);
-        end
-        %
-        function v=get.cv(obj)
-            v = obj.v_;
-        end
-        function obj=set.cv(obj,v)
-            obj = check_and_set_uv(obj,'v',v);
-        end
-        %
         function gon = get.goniometer(obj)
             str = obj.to_bare_struct();
             str.u = obj.cu;
@@ -255,47 +246,31 @@ classdef IX_experiment < goniometer
             old_hdr = convert_to_binfile_header_(obj,mode,arg1,arg2,nomangle);
         end
         %
-        function [hash,obj] = get_comparison_hash(obj)
+        function [hash,obj] = get_neq_hash(obj)
             % get hash used for comparison of IX_experiment objects against
             % equality while building sqw objects
+
+            % At present, we insist that the contributing spe data are distinct in that:
+            %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
 
             if obj.hash_valid_
                 hash = obj.comparison_hash_;
                 return;
             end
-            persistent engine;
-            if isempty(engine)
-                engine= java.security.MessageDigest.getInstance('MD5');
-            end
-
             % list of properties which can not be all equal for
             % experiments to be diffetent
-            eq_properties = {'filename','cu','cv','efix',...
-                'psi', 'omega', 'dpsi', 'gl', 'gs'};
+            comp_prop = IX_experiment.unique_prop ;
 
-            n_par = numel(eq_properties);
-            contents = cell(1,n_par);
-            for i=1:n_par
-                contents{i} = obj.(eq_properties{i});
-                if istext(contents{i})
-                    contents{i} = uint8(contents{i});
-                elseif isnumeric(contents{i})
-                    contents{i} = typecast(single(contents{i}),'uint8');
-                else
-                    contents{i} = typecast(contents{i},'uint8');
-                end
+            hash = IX_experiment.get_comparison_hash(obj,comp_prop);
+            if nargout>1
+                obj.comparison_hash_ =  hash;
+                obj.hash_valid_      = true;
             end
-            contents = [contents{:}];
-            engine.update(contents);
-            hash = typecast(engine.digest,'uint8');
-            hash = char(hash');
-            obj.comparison_hash_ = hash;
-            obj.hash_valid_ = true;
         end
         %
-
     end
     methods(Access=protected)
+        %
         function obj = check_and_set_uv(obj,name,val)
             % main overloadable setter for u and v
             obj = check_and_set_uv@goniometer(obj,name,val);
@@ -310,6 +285,36 @@ classdef IX_experiment < goniometer
 
     end
     methods(Static)
+        function hash = get_comparison_hash(comp_obj,prop_list)
+            % get hash to check partial set of properties for comparison
+            % Inputs:
+            % comp_obj  -- object for partial hashing
+            % prop_list -- the list of properties of comp_obj object
+            %              to extract values and build comparison hash
+            %
+            persistent engine;
+            if isempty(engine)
+                engine= java.security.MessageDigest.getInstance('MD5');
+            end
+
+            n_par = numel(prop_list);
+            contents = cell(1,n_par);
+            for i=1:n_par
+                contents{i} = comp_obj.(prop_list{i});
+                if istext(contents{i})
+                    contents{i} = uint8(contents{i});
+                elseif isnumeric(contents{i})
+                    contents{i} = typecast(single(contents{i}),'uint8');
+                else
+                    contents{i} = typecast(contents{i},'uint8');
+                end
+            end
+            contents = [contents{:}];
+            engine.update(contents);
+            hash = typecast(engine.digest,'uint8');
+            hash = char(hash');
+        end
+
         %------------------------------------------------------------------
         % SQW_binfile_common methods related to saving to old format binfile and
         % run_id scrambling:
@@ -395,12 +400,11 @@ classdef IX_experiment < goniometer
 
             % Old IX_experiment data were containing angular values in
             % radians
-
             if isfield(S,'goniometer')
                 S.goniometer.angular_is_degree = false;
                 obj.goniometer = S.goniometer;
             else
-                S.angular_is_degree = false;                
+                S.angular_is_degree = false;
             end
             if isfield(S,'cu')
                 S.u = S.cu;
