@@ -290,10 +290,10 @@ ds = sqw(w_in);
 
 %Get the info about the object:
 if has_pixels(w_in)
-    getit=get(w_in);
-    gg=getit.data;
+    getit = w_in;
+    gg = w_in.data;
 else
-    gg=get(w_in);
+    gg = w_in;
 end
 
 
@@ -3987,7 +3987,7 @@ if ~isfield(handles,'un_funcstr')
     %return;
     funcstr='acos';
 else
-    funcstr=handles.funcstr;
+    funcstr=handles.un_funcstr;
 end
 
 outobjname=get(handles.Unary_outobj_edit,'String');
