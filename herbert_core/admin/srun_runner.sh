@@ -27,7 +27,7 @@ export HERBERT_PARALLEL_EXECUTOR='matlab'
 # HERBERT_PARALLEL_WORKER -- the parameters string used as input arguments for the parallel job. If its Matlab, 
 # it is the worker name and the run parameters. If PARALLEL_EXECUTOR is compiled Matlab job,
 # the string may be empty
-export HERBERT_PARALLEL_WORKER='-batch worker_v2'
+export HERBERT_PARALLEL_WORKER='-batch worker_v4'
 #------------------------------------------------
 # Data to be read by script from environment to understand what to do
 # WORKER_CONTROL_STRING -- the base64 encoded string, which defines location

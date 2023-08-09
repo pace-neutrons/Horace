@@ -165,7 +165,7 @@ The ``parallel_config`` contains information relating to how the parallel cluste
 
     parallel_config with properties:
 
-                       worker: 'worker_v2'
+                       worker: 'worker_v4'
                   is_compiled: 0
              parallel_cluster: 'herbert'
                cluster_config: 'local'
