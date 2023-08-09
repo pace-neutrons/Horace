@@ -63,7 +63,7 @@ set(TEST_DIRECTORIES_HORACE
     "test_TF_refine_crystal"
 )
 
-# Add the local_init directory - which contains worker_v2 and herbert_on -
+# Add the local_init directory - which contains worker_v4 and herbert_on -
 # to the MATLABPATH environment variable when tests are run.
 # This adds the paths to every new Matlab session, so parallel workers can
 # access the scripts in tests.

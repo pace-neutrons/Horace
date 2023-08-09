@@ -818,7 +818,7 @@ classdef test_job_executor< MPI_Test_Common
 
             pid = int64(feature('getpid'));
             log_file = fullfile(getuserdir,...
-                sprintf('WORKER_V2_Process_%d_failure.log',pid));
+                sprintf('WORKER_V4_Process_%d_failure.log',pid));
             assertTrue(is_file(log_file));
             delete(log_file);
         end
@@ -885,7 +885,7 @@ classdef test_job_executor< MPI_Test_Common
 
             pid = int64(feature('getpid'));
             log_file = fullfile(getuserdir,...
-                sprintf('WORKER_V2_Process_%d_failure.log',pid));
+                sprintf('WORKER_V4_Process_%d_failure.log',pid));
 
             assertTrue(is_file(log_file))
             delete(log_file)

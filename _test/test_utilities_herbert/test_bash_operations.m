@@ -23,7 +23,7 @@ classdef test_bash_operations < TestCase
             assertEqual(k1,k2);
             
             assertEqual(var_map('MATLAB_PARALLEL_EXECUTOR'),'''matlab''')
-            assertEqual(var_map('PARALLEL_WORKER'),'''worker_v2''')
+            assertEqual(var_map('PARALLEL_WORKER'),'''worker_v4''')
             assertEqual(var_map('WORKER_CONTROL_STRING'),'''''')
             
             pos_val = var_pos.values;

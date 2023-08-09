@@ -124,9 +124,9 @@ available in the **User** folder above.
 `herbert_on/horace_on` commands within this script should be modifued to point
 to the bugfix version of the code. The user's **parallel_config** class
 `worker` field should then be assigned with `worker_4tests` value.
-The default value of this field is `worker_v2` which initializes default
+The default value of this field is `worker_v4` which initializes default
 Horace/Herbert code base.
-The `worker_v2` script will continue to be used by other users for their data
+The `worker_v4` script will continue to be used by other users for their data
 processing, until bug-fixing is completed and merged into the code base.
 
 Patch releases will be made to release branches to resolve specific bugs
