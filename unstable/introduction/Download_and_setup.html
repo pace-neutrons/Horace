@@ -274,7 +274,7 @@ automatically detect the folders).</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> installation script then modifies two files:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/admin/horace_on.m.template">horace_on.m.template</a>,</p></li>
-<li><p><a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/admin/worker_v2.m.template">worker_v2.m.template</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/admin/worker_v4.m.template">worker_v4.m.template</a></p></li>
 </ul>
 <p>by inserting the location of the <cite>Horace</cite> folders into these files, and copies them to a folder
 (<code class="docutils literal notranslate"><span class="pre">&lt;extracted_folder&gt;/ISIS</span></code> by default) which it adds to the Matlab path by modifying the global <code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file.
@@ -283,7 +283,7 @@ where Matlab has been started.  Unfortunately, this requires administrative (roo
 <p>It is possible to install <cite>Horace</cite> without admin rights, in which case the <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> script will create a
 <code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file in the default <cite>userpath</cite> folder (as defined in the <a class="reference external" href="https://uk.mathworks.com/help/matlab/matlab_env/what-is-the-matlab-search-path.html">Matlab documentation for search paths</a>).  Some versions of Matlab,
 however, use different <cite>userpath</cite> folders if they are started as a parallel worker, which may lead the parallel
-extensions to fail because they cannot find the <code class="docutils literal notranslate"><span class="pre">worker_v2.m</span></code> file, but not to report any errors.  In these cases, you
+extensions to fail because they cannot find the <code class="docutils literal notranslate"><span class="pre">worker_v4.m</span></code> file, but not to report any errors.  In these cases, you
 should run Matlab from the <cite>userpath</cite> folder (e.g. the folder with the <code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file).</p>
 <p>If instead of using the release packages you’ve cloned the <cite>Horace</cite> repository, then you should still run
 <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> which is located in the <code class="docutils literal notranslate"><span class="pre">admin</span></code> subfolder of the Horace repository folder.  However, you should now
@@ -309,7 +309,7 @@ give the path to the <cite>Horace</cite> folders using the <code class="docutils
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Aug 8, 2023, 10:16:06 AM.
+      <span class="lastupdated">Last updated on Aug 9, 2023, 3:35:42 PM.
       </span></p>
   </div>
 
