@@ -310,7 +310,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 #ifdef MX_COMPAT_32
   for (i=0; i<nrhs; i++)  {
     if (mxIsSparse(prhs[i])) {
-      mexErrMsgIdAndTxt("MATLAB:c_serialize:NoSparseCompat",
+      mexErrMsgIdAndTxt("MATLAB:serialize:NoSparseCompat",
                         "MEX-files compiled on a 64-bit platform that use sparse array functions "
                         "need to be compiled using -largeArrayDims.");
     }
@@ -319,10 +319,10 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 #endif
 
   if (nlhs > 1) {
-    mexErrMsgIdAndTxt("MATLAB:c_serialize:badLHS", "Bad number of LHS arguments in c_serialize");
+    mexErrMsgIdAndTxt("MATLAB:serialize:badLHS", "Bad number of LHS arguments in c_serialize");
   }
   if (nrhs != 1) {
-    mexErrMsgIdAndTxt("MATLAB:c_serialize:badRHS", "Bad number of RHS arguments in c_serialize");
+    mexErrMsgIdAndTxt("MATLAB:serialize:badRHS", "Bad number of RHS arguments in c_serialize");
   }
 
   mxArray* size_arr;

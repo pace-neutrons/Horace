@@ -1,11 +1,11 @@
 function s = structPublic(obj)
-% Return the public properties of an object as a structure
+% Return the public properties of a scalar object as a structure
 %
 %   >> s = structPublic(obj)
 %
 % Use <a href="matlab:help('structArrPublic');">structArrPublic</a> to convert an object array to a structure array
 %
-% Has the same behaviour as struct in that
+% Has the same behaviour as the Matlab intrinsic struct in that:
 % - Any structure array is returned unchanged
 % - If an object is empty, an empty structure is returned with fieldnames
 %   but the same size as the object
@@ -13,7 +13,7 @@ function s = structPublic(obj)
 %   to the the first element in the array of objects
 %
 %
-% See also structIndep, structArrPublic, structArrIndep
+% See also struct, structIndep, structArr, structArrPublic, structArrIndep
 
 
 if isobject(obj)
@@ -37,5 +37,6 @@ if isobject(obj)
 elseif isstruct(obj)
     s = obj;
 else
-    error('Invalid input argument type. Input must be an object or a structure')
+    error('HERBERT:structPublic:invalid_argument',...
+        'Input argument is not an object or a structure. It has class %s', class(obj))
 end

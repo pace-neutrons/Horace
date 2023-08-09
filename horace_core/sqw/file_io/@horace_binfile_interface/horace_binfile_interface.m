@@ -69,7 +69,7 @@ classdef horace_binfile_interface < serializable
         data_in_file;
 
         %
-        % get access to internal sqw object to store/resrore from hdd
+        % get access to internal sqw object to store/restore from hdd
         % if any is defined.
         % Normally it is necessary for testing purposes
         sqw_holder
@@ -139,7 +139,7 @@ classdef horace_binfile_interface < serializable
     % Main class methods & constructor
     methods
         function obj = horace_binfile_interface(varargin)
-            % constructor. All operations are performed througn init
+            % constructor. All operations are performed through init
             % function.
             if nargin == 0
                 return;
@@ -218,6 +218,7 @@ classdef horace_binfile_interface < serializable
         %                                           nothing is stored. Always empty for dnd objects.
         [sqw_obj,varargout] = get_sqw(obj,varargin); % retrieve the whole sqw or dnd object from properly initialized sqw file
         [dnd_obj,varargout] = get_dnd(obj,varargin); % retrieve any sqw/dnd object as dnd object
+        [dnd_meta,obj] = get_dnd_metadata(obj,varargin) % retrieve dnd object metadata (all data stored in dnd object except data arrays)
 
         % -----------------------------------------------------------------
         % get [2x4] array of min/max ranges of the pixels contributing into
@@ -266,11 +267,11 @@ classdef horace_binfile_interface < serializable
         is_sqw = get_sqw_type(~)
         % getter for the object type
         obj_type = get_format_for_object(obj);
-        % main part of upgrade file format, which conputes and transforms missing
+        % main part of upgrade file format, which computes and transforms missing
         % properties from old file format to the new file format
         new_obj = do_class_dependent_updates(new_obj,old_obj,varargin);
 
-        % main part of the accessor to the npix array postion on hdd
+        % main part of the accessor to the npix array position on hdd
         pos = get_npix_position(obj);
     end
     %======================================================================
@@ -383,6 +384,8 @@ classdef horace_binfile_interface < serializable
                     '%s -- Reason: %s',pos_mess,mess);
             end
         end
+    end
+    methods(Static,Access=protected)
         function  opts = parse_get_sqw_args(varargin)
             % processes keywords and input options of get_sqw function.
             % See get_sqw function for the description of the options
@@ -397,7 +400,7 @@ classdef horace_binfile_interface < serializable
             %
             % Inputs:
             % fid -- open file id
-            % pos -- potition from beginning of the file
+            % pos -- position from beginning of the file
             % error_message
             %     -- text to add to the error message in case of failure to
             %        identify the code, attempting the move
@@ -408,7 +411,7 @@ classdef horace_binfile_interface < serializable
             move_to_position_(fid,pos);
         end
         function check_write_error(fid)
-            % check if write operation have completed sucsesfully.
+            % check if write operation have completed successfully.
             %
             % Inputs:
             % fid -- open file id for write operation
@@ -419,7 +422,7 @@ classdef horace_binfile_interface < serializable
             check_io_error_(fid,'writing');
         end
         function check_read_error(fid)
-            % check if read operation have completed sucsesfully.
+            % check if read operation have completed successfully.
             %
             % Inputs:
             % fid -- open file id for write operation

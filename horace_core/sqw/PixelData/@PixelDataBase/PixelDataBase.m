@@ -166,7 +166,7 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     methods (Static)
-        function isfb = do_filebacked(num_pixels)
+        function isfb = do_filebacked(num_pixels, scale_fac)
             % function defines the rule to make pixels filebased or memory
             % based
             if ~(isnumeric(num_pixels)&&isscalar(num_pixels)&&num_pixels>=0)
@@ -174,9 +174,13 @@ classdef (Abstract) PixelDataBase < serializable
                     'Input number of pixels should have single non-negative value. It is %s', ...
                     disp2str(num_pixels))
             end
+            if ~exist('scale_fac', 'var')
+                scale_fac = config_store.instance().get_value('hor_config','fb_scale_factor');
+            end
+
             mem_chunk_size = config_store.instance().get_value('hor_config','mem_chunk_size');
             % 3 should go to configuration too
-            isfb = num_pixels > 3*mem_chunk_size;
+            isfb = num_pixels > scale_fac*mem_chunk_size;
         end
 
         function obj = create(varargin)
@@ -341,6 +345,11 @@ classdef (Abstract) PixelDataBase < serializable
             %               PixelData objects
 
             % Take the dataclass of the first object.
+            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
+                obj = varargin{1};
+                return;
+            end
+
             obj = varargin{1}.cat(varargin{:});
         end
 
@@ -375,11 +384,11 @@ classdef (Abstract) PixelDataBase < serializable
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
-        pix_out = do_unary_op(obj, unary_op);
+        [pix_out, data] = do_unary_op(obj, unary_op, data);
 
 
         pix_out = mask(obj, mask_array, npix);
-        pix_out = noisify(obj, varargin);
+        [pix_out, data] = apply(obj, func_handle, args, data, compute_variance);
 
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
@@ -411,9 +420,10 @@ classdef (Abstract) PixelDataBase < serializable
         obj = set_page_num(obj,val);
         np = get_num_pages(obj);
     end
+
     %======================================================================
     % the same interface on FB and MB files
-    methods       
+    methods
        function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
         end
@@ -422,9 +432,10 @@ classdef (Abstract) PixelDataBase < serializable
             recalculate_pix_ranges,keep_precision);
 
         obj = set_fields(obj, data, fields, abs_pix_indices);
+        [pix_out, data] = noisify(obj, varargin);
 
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
-        [ok, mess] = equal_to_tol(obj, other_pix, varargin);        
+        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         function obj = invalidate_range(obj,fld)
             % set the data range to inverse values
             % to allow
@@ -794,7 +805,20 @@ classdef (Abstract) PixelDataBase < serializable
             %           of pixel averages
             obj = set_alignment_matr_(obj,val,pix_average_treatment_function);
         end
-        
+        function [keep_array, npix] = validate_input_args_for_mask(obj, keep_array, varargin)
+            % check input arguments for masking routines
+            % Inputs:
+            % obj        -- an instance of PixelDataBase object
+            % keep_array -- logical array specifying which pixels to keep
+            % Optional:
+            % npix       -- if present, array specifying number of pixels
+            %               contriburing to each bin of DnD object image.
+            % If npix is absent or empty, keep_array size should be equal
+            % to number of pixels and if present, numel(keep_array(:)) ==
+            % numel(npix(:));
+            [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, varargin{:});
+        end
+
         function [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
                 parse_get_pix_args(obj,varargin)
 
@@ -851,6 +875,9 @@ classdef (Abstract) PixelDataBase < serializable
             pix_fields = obj.check_pixel_fields(pix_fields);
 
             if exist('abs_pix_indices', 'var')
+                if isempty(abs_pix_indices)
+                    return;
+                end
                 if ~isindex(abs_pix_indices)
                     error('HORACE:PixelDataBase:invalid_argument', ...
                         'abs_pix_indices must be logical or numeric array of pixels to modify');

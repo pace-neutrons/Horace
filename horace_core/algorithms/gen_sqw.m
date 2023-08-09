@@ -88,7 +88,7 @@ function [tmp_file,grid_size,data_range,varargout] = gen_sqw (spe_file, par_file
 %   grid_size      Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   data_range     The actual range of pixels contributing into sqw file
-%                  constisting of 4 first elements of pixel coordinates 
+%                  constisting of 4 first elements of pixel coordinates
 %                   (min/max coordinates in crystal cartesian)
 %                   and 5 elements of min/max values of pixel signal/error/etc.
 %
@@ -181,8 +181,8 @@ end
 
 
 % Check file names are valid, and their existence or otherwise
-require_spe_unique = ~opt.replicate;
-require_spe_exist = ~opt.accumulate;
+require_spe_unique  = ~opt.replicate;
+require_spe_exist   = ~opt.accumulate;
 require_sqw_exist=false;
 
 [spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
@@ -193,7 +193,7 @@ n_all_spe_files=numel(spe_file);
 
 % Set the status of flags for the three cases we must handle
 % (One and only of the three cases below will be true, the others false.)
-accumulate_old_sqw=false;   % true if want to accumulate spe data to an existing sqw file (not all spe data files need exist)
+accumulate_old_sqw=false;   % true if want to accumulate spe data to an existing sqw file (not all spe data files need to exist)
 accumulate_new_sqw=false;   % true if want to accumulate spe data to a new sqw file (not all spe data files need exist)
 use_partial_tmp = false;    % true to generate a combined sqw file during accumulate sqw using tmp files calculated at
 % previous accumulation steps
@@ -206,7 +206,7 @@ if opt.accumulate
     else
         accumulate_new_sqw=true;
     end
-    if ~strcmpi(combine_algorithm,'matlab') % use tmp rather than sqw file as source of
+    if ~strcmpi(combine_algorithm,'mpi_code') % use tmp rather than sqw file as source of
         opt.clean = true;                   % input data (works faster as parallel jobs are better balanced)
         use_partial_tmp = true;
     end
@@ -222,12 +222,11 @@ if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
 % Check optional arguments (grid, pix_db_range, instrument, sample) for size, type and validity
 grid_default=[];
 instrument_default=IX_null_inst();  %
-sample_default = IX_null_sample();  % default empty sample will be replaced by
+sample_default = IX_samp();  % default empty sample will be replaced by
 %                                   % IX_samp containing lattice at setting
 %                                   % it to rundatah
-[ok,mess,present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
-    n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
-if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
+[present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
+    n_all_spe_files,grid_default,instrument_default,sample_default,lattice,args{:});
 if accumulate_old_sqw && (present.grid||present.pix_db_range)
     error('HORACE:gen_sqw:invalid_argument',...
         'If data is being accumulated to an existing sqw file, then you cannot specify the grid or pix_db_range.')
@@ -278,9 +277,8 @@ if accumulate_old_sqw    % combine with existing sqw file
         update_runid = false;
     end
     %
-    [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode,...
+    [spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode,...
         lattice, instrument, sample, opt.replicate, header_sqw);
-    if ~ok, error(mess), end
     if any(head_only) && log_level>-1
         disp('********************************************************************************')
         disp('***  WARNING: The sqw file contains at least one data set that does not      ***')
@@ -319,11 +317,10 @@ if accumulate_old_sqw    % combine with existing sqw file
     end
     ix=(spe_exist & spe_only);    % the spe data that needs to be processed
 else
-    [ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode,...
+    gen_sqw_check_distinct_input (spe_file, efix, emode,...
         lattice, instrument, sample, opt.replicate);
-    if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
-    % Have already checked that all the spe files exist for the case of generate_new_sqw is true
 
+    % Have already checked that all the spe files exist for the case of generate_new_sqw is true
     if accumulate_new_sqw && ~any(spe_exist)
         error('HORACE:gen_sqw:invalid_argument', ...
             'None of the spe data files exist, so cannot create new sqw file.')
@@ -348,8 +345,9 @@ end
 if accumulate_old_sqw % build only runfiles to process
     run_files = rundatah.gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),...
         lattice(ix),instrument(ix),sample(ix),rundata_par{:});
-else % build all runfiles, including missing runfiles. TODO: Lost generality
-    if isempty(par_file) && sum(spe_exist) ~= n_all_spe_files % missing rf need to use par file from existing runfiles
+else % build all runfiles, including missing runfiles. TODO: Lost generality, assume detectors are all equvalent
+    if isempty(par_file) && sum(spe_exist) ~= n_all_spe_files % missing rf may need to use different
+        % par file (what is currently there) from what will be there later
         % Get detector parameters
         iex1 = indx(1);
         rf1 = rundatah.gen_runfiles(spe_file{iex1},par_file,efix(1),emode(1),...
@@ -444,7 +442,12 @@ else
     % Generate unique temporary sqw files, one for each of the spe files
     [grid_size,data_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
         pix_db_range,grid_size_in,opt.tmp_only,keep_par_cl_running);
-    verify_pix_range_est(data_range(:,1:4),pix_range_est,log_level);
+    if numel(ix) == numel(indx) % if all files are present, check if
+        % estimated pixel range is equal to the actual range of all
+        % contributing runfiles. Give warning about possibility to lose
+        % pixels if actual range differs from the expected range
+        verify_pix_range_est(data_range(:,1:4),pix_range_est,log_level);
+    end
 
     if keep_par_cl_running
         varargout{1} = parallel_job_dispatcher;
@@ -553,7 +556,7 @@ end
 
 %------------------------------------------------------------------------------------------------
 
-function [header_sqw,grid_size_sqw,pix_data_range_sqw,data_range,tmp_present,update_runid] = get_tmp_file_headers(tmp_file_names)
+function [exp_info,grid_size_sqw,pix_data_range_sqw,data_range,tmp_present,update_runid] = get_tmp_file_headers(tmp_file_names)
 % get sqw header for prospective sqw file from range of tmp files
 %
 % Input:
@@ -570,12 +573,11 @@ function [header_sqw,grid_size_sqw,pix_data_range_sqw,data_range,tmp_present,upd
 tmp_present = ~cellfun(@empty_or_missing,tmp_file_names,...
     'UniformOutput',true);
 files_to_check = tmp_file_names(tmp_present);
-header_sqw = cell(numel(files_to_check),1);
-multiheaders = false;
-ic = 1;
+exp_info = cell(numel(files_to_check),1);
+
+grid_size_sqw      = [];
+data_range         = PixelDataBase.EMPTY_RANGE;
 pix_data_range_sqw = [];
-grid_size_sqw = [];
-data_range = PixelDataBase.EMPTY_RANGE;
 
 run_ids = zeros(1,numel(files_to_check));
 for i=1:numel(files_to_check)
@@ -591,23 +593,19 @@ for i=1:numel(files_to_check)
         tmp_present(i) = false;
         continue;
     end
-    if multiheaders
-        ic = ic+1;
-    end
 
 
     % Get header information to check other fields
     % --------------------------------------------
-    header = ldr.get_exp_info('-all');
-    data   = ldr.get_dnd_metadata();
+    exp_info{i} = ldr.get_exp_info('-all');
+    data        = ldr.get_dnd_metadata();
 
 
     pix_data_range_l = ldr.get_data_range();
     run_ids(i) = pix_data_range_l(1,5);
-    data_range = [min(data_range(1,:),pix_data_range_l(1,:));...
-        max(data_range(2,:),pix_data_range_l(2,:))];
+    data_range =minmax_ranges(data_range,pix_data_range_l);
 
-    img_db_range_l = data.img_db_range;
+    img_db_range_l = data.img_range;
     grid_size_l    = data.axes.nbins_all_dims;
 
     if isempty(pix_data_range_sqw)
@@ -620,17 +618,17 @@ for i=1:numel(files_to_check)
         % TGP (15/5/2015) I am not sure if this is necessary: both the header and data sections are saved as float32, so
         % should be rounded identically.
         if ~equal_to_relerr(pix_data_range_sqw, img_db_range_l, tol, 1)
-            error('GEN_SQW:invalid_argument',...
+            error('HORACE:gen_sqw:invalid_argument',...
                 'the tmp file to combine: %s does not have the same range as first tmp file',...
                 ldr.filename)
         end
         if ~equal_to_relerr(grid_size_sqw, grid_size_l, tol, 1)
-            error('GEN_SQW:invalid_argument',...
+            error('HORACE:gen_sqw:invalid_argument',...
                 'the tmp file to combine: %s does not have the same binning as first tmp file',...
                 ldr.filename)
         end
 
-        [ok,mess] =equal_to_tol(data_ref,data,'tol',tol);
+        [ok,mess] =equal_to_tol(data_ref,data,'tol',tol,'ignore_str',true);
         if ~ok
             error('HORACE:algorithms:invalid_argument',...
                 'the tmp file to combine: %s does not have the the projections for operations. Reason %s',...
@@ -638,23 +636,6 @@ for i=1:numel(files_to_check)
         end
 
     end
-    % TODO: Re #748 Check if this is correct when fixing accumulate sqw
-    if iscell(header) % if tmp files contain more than one header. This is not normal situation
-        multiheaders = true;
-        if ic<i; ic = i; end
-        if ic==numel(header_sqw)
-            header_sqw = {header_sqw{1:ic},header{:}};
-        else
-            header_sqw = {header_sqw{1:ic},header{:},header_sqw{ic+1:end}};
-        end
-    else
-        if multiheaders
-            header_sqw{ic} = header;
-        else
-            header_sqw{i} = header;
-        end
-    end
-
 end
 unique_id = unique(run_ids);
 if numel(unique_id)== numel(run_ids)
@@ -713,8 +694,7 @@ if ~all(ief)
     pix_range_est = rundata_find_pix_range(missing_rf);
 
     % Expand range to include pix_range_est, if necessary
-    pix_range=[min(pix_range(1,:),pix_range_est(1,:));...
-        max(pix_range(2,:),pix_range_est(2,:))];
+    pix_range=minmax_ranges(pix_range,pix_range_est);
 end
 
 % Add a border

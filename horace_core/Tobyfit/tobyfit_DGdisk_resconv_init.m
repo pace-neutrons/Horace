@@ -195,12 +195,12 @@ horiz_div=cell(nw,1);   %       "
 vert_div=cell(nw,1);    %       "
 ki=cell(nw,1);          %       "
 kf=cell(nw,1);          % element size [npix,1]
-sample=repmat(IX_sample,nw,1);
+sample=cell(nw,1);      % element size [nrun,1]
 s_mat=cell(nw,1);       % element size [3,3,nrun]
 spec_to_rlu=cell(nw,1); % element size [3,3,nrun]
 alatt=cell(nw,1);       % element size [1,3]
 angdeg=cell(nw,1);      % element size [1,3]
-detectors=repmat(IX_detector_array,nw,1);
+detectors=cell(nw,1);   % element size [nrun,1]
 f_mat=cell(nw,1);       % element size [3,3,ndet]
 d_mat=cell(nw,1);       % element size [3,3,ndet]
 detdcn=cell(nw,1);      % element size [3,ndet]
@@ -209,7 +209,9 @@ dt=cell(nw,1);          % element size [npix,1]
 qw=cell(nw,1);          % element is cell array size [1,4], each element size [npix,1]
 dq_mat=cell(nw,1);      % element size [4,11,npix]
 
-% Get quantities and dervied quantities from the header
+
+% Get quantities and derived quantities from the header
+n_runs = NaN(nw,1);
 for iw=1:nw
     % Get pointer to a specific sqw pobject
     if iscell(win)
@@ -217,7 +219,10 @@ for iw=1:nw
     else
         wtmp = win(iw);
     end
-
+    
+    % Get number of runs in the sqw object
+    n_runs(iw) = wtmp.experiment_info.n_runs;
+    
     % Pixel indicies
     if all_pixels
         [irun,idet,ien] = parse_pixel_indices(wtmp);
@@ -225,7 +230,7 @@ for iw=1:nw
         [irun,idet,ien] = parse_pixel_indices(wtmp,indx,iw);
     end
     npix(iw) = numel(irun);
-
+    
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
     %  pixels have been shifted, so recalculate)
@@ -239,48 +244,48 @@ for iw=1:nw
     else
         eps=eps_lo;     % only one bin, so ne=1 eps_lo=eps_hi, and the above line fails
     end
-
-    % Get instrument data
+    
+    % Get instrument information
     [ei{iw},x0{iw},xa{iw},x1{iw},mod_shape_mono{iw},...
         horiz_div{iw},vert_div{iw}] = instpars_DGdisk(wtmp.experiment_info);
-
+    
     % Compute ki and kf
     ki{iw}=sqrt(ei{iw}/k_to_e);
     kf{iw}=sqrt((ei{iw}(irun)-eps)/k_to_e);
-
+    
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
-    [sample(iw),s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
+    [sample{iw},s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
         sample_coords_to_spec_to_rlu(wtmp.experiment_info);
-
+    
     % Get detector information
     % Because detpar only contains minimal information, hardwire in the detector type here
     detpar = wtmp.detpar();   % just get a pointer
     if use_tubes
-        detectors(iw) = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
+        detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
             IX_det_He3tube (detpar.width, detpar.height, 6.35e-4, 10));   % 10atms, wall thickness=0.635mm
     else
-        detectors(iw) = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
+        detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
             IX_det_TobyfitClassic (detpar.width, detpar.height));
     end
-    x2{iw} = detectors(iw).x2;
-    d_mat{iw} = detectors(iw).dmat;
-    f_mat{iw} = spec_to_secondary(detectors(iw));
-    detdcn{iw} = det_direction(detectors(iw));
-
+    x2{iw} = detectors{iw}.x2;
+    d_mat{iw} = detectors{iw}.dmat;
+    f_mat{iw} = spec_to_secondary(detectors{iw});
+    detdcn{iw} = det_direction(detectors{iw});
+    
     % Time width corresponding to energy bins for each pixel
     dt{iw} = deps_to_dt*(x2{iw}(idet).*deps(irun)./kf{iw}.^3);
-
+    
     % Calculate h,k,l (symmetrised objects will not have true pixel coordinates)
     qw{iw} = cell(1,4);
     qw{iw}(1:3) = calculate_q (ki{iw}(irun), kf{iw}, detdcn{iw}(:,idet), spec_to_rlu{iw}(:,:,irun));
     qw{iw}{4} = eps;
-
+    
     % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
     dq_mat{iw} = dq_matrix_DGdisk (ki{iw}(irun), kf{iw},...
         xa{iw}(irun), x1{iw}(irun), x2{iw}(idet),...
         s_mat{iw}(:,:,irun), f_mat{iw}(:,:,idet), d_mat{iw}(:,:,idet),...
         spec_to_rlu{iw}(:,:,irun), k_to_v, k_to_e);
-
+    
 end
 
 % Package output
@@ -288,12 +293,16 @@ ok=true;
 mess='';
 lookup = struct();    % reinitialise
 
-if keywrd.tables    % lookup tables to minimise memory and optimiose speed of random sampling
+% Lookup tables to minimise memory and optimiose speed of random sampling
+if keywrd.tables
     lookup.mod_shape_mono_table = object_lookup(mod_shape_mono);
     lookup.horiz_div_table = object_lookup(horiz_div);
     lookup.vert_div_table = object_lookup(vert_div);
-    lookup.sample_table = object_lookup(sample);
-    lookup.detector_table = object_lookup(detectors);
+    % Expand indexing of lookups to refer to n_runs copies (recall one element
+    % of n_runs per sqw object)
+    sz_cell = num2cell([n_runs, ones(nw,1)], 2);    % sz_repeat for object_lookup
+    lookup.sample_table = object_lookup(sample, 'repeat', sz_cell);
+    lookup.detector_table = object_lookup(detectors, 'repeat', sz_cell);
 end
 lookup.ei=ei;
 lookup.x0=x0;

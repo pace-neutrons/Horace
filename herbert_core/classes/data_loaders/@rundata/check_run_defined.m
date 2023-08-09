@@ -55,7 +55,7 @@ end
 is_empty_f = @(field)is_empty_field(run,field);
 %
 is_undef      = cellfun(is_empty_f,all_fields);
-fields_undef  = [all_fields(is_undef),undef_lattice{:}];
+fields_undef  =[all_fields(is_undef);undef_lattice(:)];
 if isempty(fields_undef)
     return;
 end

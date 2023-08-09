@@ -1,4 +1,4 @@
-function [q_to_img,shift,ulen,obj]=get_pix_img_transformation_(obj,ndim,varargin)
+function [q_to_img,shift,img_scales,obj]=get_pix_img_transformation_(obj,ndim,varargin)
 %get_pix_img_transformation_    Return the transformation, necessary for conversion
 %from pix to image coordinate system and vice-versa
 %
@@ -8,18 +8,19 @@ function [q_to_img,shift,ulen,obj]=get_pix_img_transformation_(obj,ndim,varargin
 %         returns 3D or 4D transformation matrix
 % Optional:
 % pix_transf_info
-%      -- PixelDataBase or pix_metadata class, providing the
-%         information about pixel alignment. If present and
-%         pixels are misaligned, contains additional rotation
-%         matrix, used for aligning the pixels data into
-%         Crystal Cartesian coordinate system
+%          -- PixelDataBase or pix_metadata class, providing the
+%             information about pixel alignment. If present and
+%             pixels are misaligned, contains additional rotation
+%             matrix, used for aligning the pixels data into
+%             Crystal Cartesian coordinate system
 % Outputs:
 % q_to_img -- [ndim x ndim] matrix used to transform pixels
 %             in Crystal Cartesian coordinate system to image
 %             coordinate system
 % shift    -- [1 x ndim] array of the offsets of image coordinates
 %              expressed in Crystal Cartesian coordinate system
-% ulen     -- [1 x ndim] array of scales along the image axes used
+% img_scales
+%          -- [1 x ndim] array of scales along the image axes used
 %             in the transformation
 
 if ~obj.alatt_defined||~obj.angdeg_defined
@@ -29,9 +30,13 @@ end
 
 if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
     pix = varargin{1};
-    if pix.is_misaligned
+    if pix.is_misaligned 
         alignment_needed = true;
         alignment_mat = pix.alignment_matr;
+        if obj.proj_aligned_ % double rotate pixels as projection rotated 
+            % in opposite direction to pixels
+            alignment_mat = alignment_mat*alignment_mat;
+        end
     else
         alignment_needed = false;
     end
@@ -39,9 +44,9 @@ else
     alignment_needed = false;
 end
 if ~isempty(obj.q_to_img_cache_) && isempty(obj.ub_inv_legacy)
-    q_to_img = obj.q_to_img_cache_(1:ndim,1:ndim);
-    shift    = obj.q_offset_cache_(1:ndim);
-    ulen     = obj.ulen_cache_(1:ndim);
+    q_to_img   = obj.q_to_img_cache_(1:ndim,1:ndim);
+    shift      = obj.q_offset_cache_(1:ndim);
+    img_scales = obj.ulen_cache_(1:ndim);
     if alignment_needed
         q_to_img  = q_to_img*alignment_mat;
     end
@@ -49,14 +54,14 @@ if ~isempty(obj.q_to_img_cache_) && isempty(obj.ub_inv_legacy)
 end
 %
 if isempty(obj.ub_inv_legacy)
-    [q_to_img,ulen,rlu_to_q,obj] = projtransf_to_img_(obj);
+    [q_to_img,img_scales,rlu_to_q,obj] = projtransf_to_img_(obj);
     % Modern alignment with rotation matrix attached to pixel
     % coordinate system
     if alignment_needed
         q_to_img  = q_to_img*alignment_mat;
     end
 else% Legacy alignment, with multiplication of rotation matrix
-    [rlu_to_u,~,ulen]  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
+    [rlu_to_u,~,img_scales]  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
     u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
     q_to_img  = (rlu_to_u*u_to_rlu_);
     rlu_to_q  = inv(u_to_rlu_);
@@ -66,7 +71,7 @@ if ndim==4
     shift  = obj.offset;
     rlu_to_q  = [rlu_to_q,[0;0;0];[0,0,0,1]];
     q_to_img = [q_to_img,[0;0;0];[0,0,0,1]];
-    ulen = [ulen(:)',1];
+    img_scales = [img_scales(:)',1];
 elseif ndim == 3
     shift  = obj.offset(1:3);
 else

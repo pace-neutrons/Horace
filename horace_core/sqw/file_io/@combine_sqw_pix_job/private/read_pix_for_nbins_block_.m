@@ -38,12 +38,12 @@ pix_tb=cell(nfiles,n_bin2_process);  % buffer for pixel information
 bin_filled = false(n_bin2_process,1);
 if ischar(run_label)
     if strcmpi(run_label,'nochange')
-        run_label = filenum; % will not be used, just to keep common 
+        run_label = filenum; % will not be used, just to keep common
         % interface to split_pix_per_bin_
     else
         error('HORACE:combine_sqw_pix_job:invalid_argument',...
-        'If runlabel is a character string, it can be only "nochange". Got: %s',...
-        run_label);        
+            'If runlabel is a character string, it can be only "nochange". Got: %s',...
+            run_label);
     end
 end
 
@@ -72,22 +72,22 @@ if is_deployed
     payload = obj.mess_struct_;
     payload.n_source = n_source;
 
-    if nfiles > 1
-        % combine pix from all files according to the bin
-        pix_buf = cat(2,pix_tb{:});
-        % split pixels over bins like it would be a single combined file
-        npix_per_bin = sum(npix_per_bin,1);
-        %[pix_tb,filled_bin_ind] = split_pix_per_bin_(pix_buf,npix_per_bin);
-    end
+
+    % combine pix from all files according to the bin
+    pix_buf = cat(2,pix_tb{:});
+    % split pixels over bins like it would be a single combined file
+    npix_per_bin = sum(npix_per_bin,1);
+    %[pix_tb,filled_bin_ind] = split_pix_per_bin_(pix_buf,npix_per_bin);
+
     % the positions of pixels block in linear array of pixels
     bin_edges =[1,cumsum(npix_per_bin)+1];
     payload.npix = size(pix_buf,2);
     payload.pix_data = pix_buf;
     payload.bin_edges = bin_edges';
-    
-    pix_section  = DataMessage(payload);    
+
+    pix_section  = DataMessage(payload);
 else
     % combine pix from all files according to the bin
     pix_section = cat(2,pix_tb{:});
-    
+
 end

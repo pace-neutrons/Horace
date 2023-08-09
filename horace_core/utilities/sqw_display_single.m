@@ -10,7 +10,7 @@ function sqw_display_single(din,npixtot,nfiles,type)
 %
 % Optionally:
 %   npixtot         total number of pixels if sqw type
-%   nfiles          number of contribuging files
+%   nfiles          number of contributing files
 %   type            data type: 'a' or 'b+'
 %                  
 %   If the optional parameters are given, then only the header information
@@ -37,14 +37,6 @@ function sqw_display_single(din,npixtot,nfiles,type)
 ndim = din.dimensions;
 if ~exist('npixtot','var') || isempty(npixtot)
     npixtot = sum(din.data.npix(:));
-end
-
-if ~exist('type','var') || isempty(type)
-    if isempty(din.pix)
-        type = 'b+';        
-    else
-        type = 'a';
-    end
 end
 
 if isa(din,'sqw') || isfield(din,'main_header')
@@ -92,7 +84,7 @@ if sqw_type || exist('nfiles','var') && isnumeric(nfiles)
     disp(' ')
 end
 
-[title_main, title_pax, title_iax, display_pax, display_iax] = data_plot_titles (din);
+[title_main, title_pax, title_iax, display_pax, display_iax] = din.data_plot_titles;
 if ndim~=0
     sz = din.nbins;
     npchar = '[';

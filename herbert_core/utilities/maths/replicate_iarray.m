@@ -1,4 +1,4 @@
-function vout = replicate_iarray (v, npix)
+function vout = replicate_iarray (iv, n)
 % Replicate integer array elements according to list of repeat indicies
 %
 %   >> ivout = replicate_iarray (iv, n)
@@ -16,24 +16,26 @@ function vout = replicate_iarray (v, npix)
 % NOTE: This is designed for integer arrays only, as it assumes that
 %       there are no rounding errors on addition.
 
-% Original author: T.G.Perring
-%
 
-if numel(npix)==numel(v)
-    if ~isempty(npix)
-        % Start and end pixels for each bin
-        nend=cumsum(npix(:));
-        nbeg=nend-npix(:)+1;    % nbeg(i)=nend(i)+1 if npix(i)==0, but that's OK below
+% Original author: T.G.Perring
+
+
+if numel(n)==numel(iv)
+    if ~isempty(n)
+        % Start and end indices for each range to replicate
+        nend=cumsum(n(:));
+        nbeg=nend-n(:)+1;    % nbeg(i)=nend(i)+1 if npix(i)==0, but that's OK below
         % Set up array of values to accumulate
-        ok=(npix~=0);
-        dv=diff(v(ok));
+        ok=(n~=0);
+        dv=diff(iv(ok));
         vout=zeros(nend(end),1);
-        vout(nbeg(ok))=[v(find(ok,1));dv(:)];
+        vout(nbeg(ok))=[iv(find(ok,1));dv(:)];
         vout=cumsum(vout);
     else
         vout=zeros(0,1);
     end
 else
-    error('Number of elements in input array(s) incompatible')
+    error('HERBERT:replicate_iarray:invalid_argument',...
+        ['The number of elements in input array ''iv'' (%d) is different from \n', ...
+        'the number of elements in input array ''n'' (%d)'], numel(iv),numel(n));
 end
-

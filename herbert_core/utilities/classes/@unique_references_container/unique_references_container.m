@@ -108,7 +108,7 @@ classdef unique_references_container < serializable
         unique_objects; % returns unique_objects_container
 
         % other dependent properties
-        n_unique_objects; % size of unique_objects (without creating it)
+        n_unique_objects; % number of unique_objects (without creating it)
         idx; % object indices into the global unique objects container.
         n_objects; % numel(idx)
     end
@@ -459,13 +459,13 @@ classdef unique_references_container < serializable
         end
 
         %
-        function [self, nuix] = add_single_(self,obj)
+        function [self, nuix] = add_single_(self,inobj)
             %ADD_SINGLE - add a single object obj at the end of the container
             if isempty(self.stored_baseclass_)
                 error('HERBERT:unique_references_container:incomplete_setup', ...
                     'stored baseclass unset');
             end
-            if ~isa(obj,self.stored_baseclass_)
+            if ~isa(inobj,self.stored_baseclass_)
                 warning('HERBERT:unique_references_container:invalid_argument', ...
                     'not correct stored base class; object was not added');
                 nuix = 0;
@@ -475,10 +475,10 @@ classdef unique_references_container < serializable
                 error('HERBERT:unique_references_container:incomplete_setup', ...
                     'global name unset');
             end
-            [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(obj);
+            [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(inobj);
             if isempty(glindex)
                 glcont = self.global_container('value',self.global_name_);
-                [glcont,glindex] = glcont.add(obj);
+                [glcont,glindex] = glcont.add(inobj);
                 if glindex == 0
                     % object was not added
                     nuix = 0;

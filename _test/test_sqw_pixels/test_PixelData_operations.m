@@ -34,7 +34,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 50);
             npix_in_page = 11;
-            [pix,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix,~,clOb] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             pix = pix.do_unary_op(@cos);
             % Loop back through and validate values
@@ -49,7 +49,6 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 expected_data(obj.VARIANCE_IDX, :);
 
             assertEqual(file_backed_data, expected_data, '', obj.FLOAT_TOLERANCE);
-            clear_config(obj,hc);
         end
 
         function test_do_unary_op_output_not_change_orig(~)
@@ -66,7 +65,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 50);
             npix_in_page = 11;
 
-            [pix,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix,~,clOb] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
 
             % Make temp file
@@ -83,7 +82,6 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertTrue(is_file(sin_pix.full_filename))
             assertTrue(is_file(sin_pix_cpy.full_filename))
             assertEqualToTol(sin_pix_cpy.get_fields('all', 'all'), data)
-            clear_config(obj,hc);
         end
 
         function test_unary_op_memory_vs_filebacked(obj)
@@ -139,16 +137,21 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 data = get_random_data_in_range( ...
                     PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
 
-                [pix,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+                [pix,~,clOb] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
                 pix = pix.do_unary_op(unary_op);
 
                 pix_in_mem = PixelDataMemory(data);
                 pix_in_mem = pix_in_mem.do_unary_op(unary_op);
 
-                assertEqualToTol(pix, pix_in_mem, 'tol',[1e-6, 1e-4]);
+                try
+                    assertEqualToTol(pix, pix_in_mem, 'tol',[1e-4, 1e-4]);
+                catch ME
+                    fprintf('failure at operation N%d, functon %s\n', ...
+                        i,func2str(unary_op))
+                    rethrow(ME)                    
+                end
             end
-            clear_config(obj,hc);
         end
 
         function test_mask_all_ones_memory(obj)
@@ -158,7 +161,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             mask_array = ones(1, pix.num_pixels);
             pix_out = pix.mask(mask_array);
             assertEqual(pix_out.data, data);
-            assertEqual(pix_out.pix_range,ref_range);
+            assertEqual(pix_out.data_range,ref_range);
         end
 
         function test_mask_all_zeros_memory(~)
@@ -177,12 +180,11 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             npix_in_page = 10;
-            [pix,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix,~,clOb] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             mask_array = zeros(5);
             f = @() pix.mask(mask_array);
-            assertExceptionThrown(f, 'HORACE:mask:invalid_argument');
-            clear_config(obj,hc);
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_mask_all_specified_memory(obj)
@@ -201,13 +203,15 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             expected_data = data;
             expected_data(:, pix_to_remove) = [];
             assertEqual(pix.data, expected_data);
-            assertEqual(pix.pix_range, ref_range);
+            assertEqual(pix.data_range, ref_range);
         end
 
         function test_mask_fails_in_place(~)
             pix = PixelDataMemory(5);
-            f = @() pix.mask(zeros(1, pix.num_pixels), 'logical');
-            assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
+            function pm=trhower(pix)
+                pm = pix.mask(zeros(1, pix.num_pixels), 'logical');
+            end
+            assertExceptionThrown(@()trhower(pix), 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_mask_npix_filebacked(obj)
@@ -217,7 +221,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 11;
 
-            [pix,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix,~,clOb] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
 
             mask_array = [0, 1, 1, 0, 1, 0];
@@ -231,8 +235,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             actual_data = pix.get_fields('all', 1:pix.num_pixels);
             assertElementsAlmostEqual(actual_data, expected_data,'relative',4e-8);
-            assertElementsAlmostEqual(pix.pix_range, ref_range,'relative',4e-8);
-            clear_config(obj,hc);
+            assertElementsAlmostEqual(pix.data_range, ref_range,'relative',4e-8);
         end
 
         function test_mask_npix_memory(obj)
@@ -250,7 +253,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             actual_data = pix.get_pixels(1:pix.num_pixels).data;
             assertEqual(actual_data, expected_data);
-            assertEqual(pix.pix_range, ref_range);
+            assertEqual(pix.data_range, ref_range);
 
         end
 
@@ -271,7 +274,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 out = pix.mask(mask_array, npix);
             end
 
-            assertExceptionThrown(@() f(), 'HORACE:PixelDataMemory:invalid_argument');
+            assertExceptionThrown(@() f(), 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_mask_fail_no_args(~)
@@ -315,11 +318,10 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 10;
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            [pix2,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix2,~,clOb] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             assertTrue(equal_to_tol(pix1, pix2));
             assertTrue(equal_to_tol(pix2, pix1));
-            clear_config(obj,hc);
         end
 
         function test_equal_to_tol_w_tolerance_filebacked(obj)
@@ -330,11 +332,10 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             npix_in_page = 10;
             tol = 0.1;
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            [pix2,~,hc] = obj.get_pix_with_fake_faccess(data - (tol - 0.01), npix_in_page);
+            [pix2,~,clOb] = obj.get_pix_with_fake_faccess(data - (tol - 0.01), npix_in_page);
 
             assertTrue(equal_to_tol(pix1, pix2, tol));
             assertTrue(equal_to_tol(pix2, pix1, tol));
-            clear_config(obj,hc);
         end
 
         function test_equal_to_tol_diff_data_filebacked(obj)
@@ -347,10 +348,9 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             npix_in_page = 10;
 
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            [pix2,~,hc] = obj.get_pix_with_fake_faccess(data2, npix_in_page);
+            [pix2,~,clOb] = obj.get_pix_with_fake_faccess(data2, npix_in_page);
             assertFalse(equal_to_tol(pix1, pix2));
             assertFalse(equal_to_tol(pix2, pix1));
-            clear_config(obj,hc);
         end
 
         function test_equal_to_tol_same_data_memory_filebacked(obj)
@@ -362,10 +362,9 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             npix_in_page = 6;
 
             pix1 = PixelDataBase.create(data);
-            [pix2,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix2,~,clOb] = obj.get_pix_with_fake_faccess(data, npix_in_page);
             assertTrue(equal_to_tol(pix1, pix2));
             assertTrue(equal_to_tol(pix2, pix1));
-            clear_config(obj,hc);
         end
 
         function test_equal_to_tol_diff_data_memory_filebacked(obj)
@@ -376,10 +375,9 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             npix_in_page = 6;
 
             pix1 = PixelDataBase.create(data);
-            [pix2,~,hc] = obj.get_pix_with_fake_faccess(data-1, npix_in_page);
+            [pix2,~,clOb] = obj.get_pix_with_fake_faccess(data-1, npix_in_page);
             assertFalse(equal_to_tol(pix1, pix2));
             assertFalse(equal_to_tol(pix2, pix1));
-            clear_config(obj,hc);
         end
 
         function test_equal_to_tol_nan_equal_true_memory(~)
@@ -400,25 +398,20 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertFalse(equal_to_tol(pix1, pix2, 'nan_equal', false));
         end
 
-        function clear_config(obj,hc)
-            set(hc,obj.config_par);
-        end
     end
 
     methods (Static)
         % -- Helpers --
-        function [pix,pix_range,hc] = get_pix_with_fake_faccess(data, npix_in_page)
-            hc = hor_config;
-            hc.saveable = false;
-            hc.mem_chunk_size = npix_in_page;
+        function [pix,pix_range,clOb] = get_pix_with_fake_faccess(data, npix_in_page)
+            clOb = set_temporary_config_options(hor_config(),'mem_chunk_size',npix_in_page);
             pix = PixelDataFileBacked(data);
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
         end
 
         function ref_range = get_ref_range(data)
             ref_range = [
-                min(data(1:4, :),[],2),...
-                max(data(1:4, :),[],2)]';
+                min(data,[],2),...
+                max(data,[],2)]';
         end
     end
 

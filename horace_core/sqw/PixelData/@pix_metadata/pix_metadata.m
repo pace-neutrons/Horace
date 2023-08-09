@@ -41,7 +41,7 @@ classdef pix_metadata < serializable
                     obj.data_range    = inputs.data_range;
                     obj.full_filename = inputs.full_filename;
                     if inputs.is_misaligned
-                        obj.alignment_matr = input.alignment_matr;
+                        obj.alignment_matr = inputs.alignment_matr;
                     end
                 else
                     remains = varargin{1};

@@ -1,6 +1,5 @@
 classdef test_cpp_deserialize < TestCase
     properties
-        warned
         use_mex
         old_mex
     end
@@ -13,7 +12,6 @@ classdef test_cpp_deserialize < TestCase
                 name  = 'test_cpp_deserialize';
             end
             this = this@TestCase(name);
-            this.warned = get(hor_config, 'log_level') > 0;
             this.old_mex = get(hor_config, 'use_mex');
             [~,nerr] = check_herbert_mex();
             this.use_mex = nerr == 0;
@@ -568,14 +566,13 @@ classdef test_cpp_deserialize < TestCase
             test_cell_rec{7} = func2str(test_cell_rec{7});
             assertEqual(test_cell, test_cell_rec)
         end
+
         function test_deserialize_invalid(obj)
-            skipTest('invalid arguments test disabled #817')
             if ~obj.use_mex
                 skipTest('MEX not enabled');
             end
             input = 'wrong input';
-            [a,n]=hlp_deserialize(input);
-            assertExcetionThrown(@()c_deserialize(input),'');
+            assertExceptionThrown(@()c_deserialize(input),'MATLAB:deserialize:invalid_argument');
 
         end
 

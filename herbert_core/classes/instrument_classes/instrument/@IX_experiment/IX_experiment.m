@@ -1,55 +1,77 @@
-classdef IX_experiment < serializable
-    %IX_EXPERIMENT
+classdef IX_experiment < goniometer
+    %IX_EXPERIMENT -- transient class which describes transformation of a
+    %single run into Crystal Cartesian coordinate system during sqw file
+    %generation
+    %
+    % Should be replaced by instr_proj in a future.
 
     properties(Dependent)
         filename; % name of the file which was the source of data for this
         %         % experiment
         filepath; % path where the experiment data were initially stored
         run_id    % the identifier, which uniquely defines this experiment
-        %         % this indentifier is also stored within the PixelData,
+        %         % this identifier is also stored within the PixelData,
         %         % providing connection between the particular pixel and
         %         % the experiment info
 
+        emode;
+        efix;
         en;  % array of all energy transfers, present in the experiment
+
+    end
+    properties(Dependent,Hidden)
+        % returns goniometer sliced from this object
+        goniometer;
+        % redundant property. Was inv(b_matrix). left for compatibility
+        % with legacy alignment, as it multiplies it by alignment rotation
+        % matrix and keeps legacy alignment matrix this way.
         u_to_rlu;
     end
+    properties(Constant)
+        % the list of properties which define IX_experiment uniques
+        % if all properties values are the same, IX_experiments are
+        % considered the same
+        unique_prop = {'filename','cu','cv','efix',...
+            'psi', 'omega', 'dpsi', 'gl', 'gs'}
+    end
 
-    properties
-        efix = []
-        emode=1
-
-        cu=[1,0,0];
-        cv=[0,1,0];
-        psi=0;
-        omega=0;
-        dpsi=0;
-        gl=0;
-        gs=0;
-        uoffset=[0,0,0,0];
-
-        ulen=[];
-        ulabel=[];
+    properties(Hidden)
+        % Never usefully ised except loading from old files so candidates
+        % for removal
+        uoffset=[0,0,0,0];  % Always 0.
     end
     properties(Access=protected)
         filename_=''
         filepath_='';
         run_id_ = NaN;
+        emode_ = 0;
         en_ = zeros(0,1);
-        u_to_rlu_ = eye(3);
+        efix_ = 0;
+        u_to_rlu_ = [];
     end
-    properties(Constant,Access=private)
-        % fields, which fully define public interface to the class
-        fields_to_save_ = {'filename','filepath','run_id','efix','emode','cu',...
-            'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
-            'u_to_rlu','ulen','ulabel'};
+    properties(Access= private)
+        % the hash used to compare IX_experiments for equality
+        hash_valid_ = false;
+        comparison_hash_
     end
     methods
-        function flds = saveableFields(~)
-            flds = IX_experiment.fields_to_save_;
+        function obj = IX_experiment(varargin)
+            % IX_EXPERIMENT Construct an instance of this class
+            obj.angular_units = 'deg';
+            if nargin==0
+                return
+            end
+            obj = obj.init(varargin{:});
         end
-        function ver  = classVersion(~)
-            % return the version of the IX-experiment class
-            ver = 2;
+
+        function obj = init(obj,varargin)
+            % construct non-empty instance of this class
+            % Usage:
+            %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,...
+            %               omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,...
+            %               ulabel,run_id)
+            %
+            obj = init_(obj,varargin{:});
         end
         %------------------------------------------------------------------
         % ACCESSORS:
@@ -62,7 +84,8 @@ classdef IX_experiment < serializable
                     'filename can be only character array or string. It is %s',...
                     class(val))
             end
-            obj.filename_ = val;
+            obj.filename_     = val;
+            obj.hash_valid_  = false;
         end
         %
         function fn = get.filepath(obj)
@@ -75,6 +98,7 @@ classdef IX_experiment < serializable
                     class(val))
             end
             obj.filepath_ = val;
+            obj.hash_valid_  = false;
         end
         %
         function id = get.run_id(obj)
@@ -95,6 +119,19 @@ classdef IX_experiment < serializable
             ids = arrayfun(@(in)(obj(in).run_id_),ind);
         end
         %
+        function mode = get.emode(obj)
+            mode = obj.emode_;
+        end
+        function obj = set.emode(obj,val)
+            if ~isnumeric(val) || ~isscalar(val) || val<0 || val>2
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'Transformation mode can be numeric scalar in range from 0 to 2.\n It is: %s',...
+                    disp2str(val));
+            end
+            obj.emode_ = val;
+        end
+
+        %
         function en = get.en(obj)
             en = obj.en_;
         end
@@ -107,11 +144,31 @@ classdef IX_experiment < serializable
             obj.en_ = val(:);
         end
         %
+        function ef = get.efix(obj)
+            ef = obj.efix_;
+        end
+        function obj = set.efix(obj,val)
+            if val < 0
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'efix (incident energy) can not be negative')
+            end
+            obj.efix_ = val;
+            obj.hash_valid_  = false;
+        end
+        %
         function mat = get.u_to_rlu(obj)
-            mat = eye(4);
-            mat(1:3,1:3) = obj.u_to_rlu_;
+            if isempty(obj.u_to_rlu_)
+                mat = [];
+            else
+                mat = eye(4);
+                mat(1:3,1:3) = obj.u_to_rlu_;
+            end
         end
         function obj = set.u_to_rlu(obj,val)
+            if isempty(val)
+                obj.u_to_rlu_ = [];
+                return
+            end
             if all(size(val)== [4,4])
                 val = val(1:3,1:3);
             end
@@ -119,10 +176,38 @@ classdef IX_experiment < serializable
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'input u_to_rlu matrix have to have size 3x3 or 4x4')
             end
+            if all(abs(subdiag_elements(val))<4.e-7)
+                val = [];
+            end
             obj.u_to_rlu_ = val;
         end
-
-        %------------------------------------------------------------------
+        %
+        function gon = get.goniometer(obj)
+            str = obj.to_bare_struct();
+            str.u = obj.cu;
+            str.v = obj.cv;
+            gon = goniometer(str);
+        end
+        function obj = set.goniometer(obj,val)
+            if isstruct(val)
+                if isfield(val,'cu')
+                    val.u = val.cu;
+                end
+                if isfield(val,'cv')
+                    val.v = val.cv;
+                end
+            elseif isa(val,'goniometer')
+                val = val.to_bare_struct();
+            else
+                error('HORACE:IX_experiment:invalid_argument', ...
+                    'Goniometer property accepts input as a class "goniometer" or a structure, convertable into goniometer.\n Provided %s', ...
+                    class(val));
+            end
+            obj = obj.from_bare_struct(val);
+        end
+    end
+    %----------------------------------------------------------------------
+    methods
         % SQW_binfile_common methods related to saving to binfile and
         % run_id scrambling:
         function old_hdr = convert_to_binfile_header(obj,mode,arg1,arg2,nomangle)
@@ -158,120 +243,91 @@ classdef IX_experiment < serializable
             if ~exist('nomangle','var')
                 nomangle = false;
             end
-            old_hdr = obj.to_bare_struct();
-            if ~isnan(old_hdr.run_id) && ~nomangle
-                old_hdr.filename = sprintf('%s$id$%d',old_hdr.filename,old_hdr.run_id);
-            end
-            old_hdr = rmfield(old_hdr,'run_id');
-            if strcmp( mode, '-inst_samp')
-                old_hdr.instrument = arg1;
-                old_hdr.sample     = arg2;
-                old_hdr.alatt      = arg2.alatt;
-                old_hdr.angdeg     = arg2.angdeg;
-            elseif strcmp( mode, '-alatt_angdeg')
-                old_hdr.instrument = IX_null_inst();
-                old_hdr.sample = IX_null_sample('',arg1,arg2);
-                old_hdr.alatt      = arg1;
-                old_hdr.angdeg     = arg2;
-            else
-                error('HERBERT:IX_experiment:invalid_argument',...
-                    'mode arg is not "-inst_samp" or "-alatt_angdeg". It is: %s', ...
-                    disp2str(mode));
-            end
+            old_hdr = convert_to_binfile_header_(obj,mode,arg1,arg2,nomangle);
         end
-        function obj = IX_experiment(varargin)
-            if nargin==0
-                return
-            end
-            obj = obj.init(varargin{:});
-        end
+        %
+        function [hash,obj] = get_neq_hash(obj)
+            % get hash used for comparison of IX_experiment objects against
+            % equality while building sqw objects
 
-        function obj = init(obj,varargin)
-            % Usage:
-            %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,...
-            %               omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,...
-            %               ulabel,run_id)
-            %
-            %   IX_EXPERIMENT Construct an instance of this class
+            % At present, we insist that the contributing spe data are distinct in that:
+            %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
 
-            % the list of the fieldnames, which may appear in constructor
-            % in the order they may appear in the constructor.
-            flds = {'filename', 'filepath', 'efix','emode','cu',...
-                'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
-                'u_to_rlu','ulen','ulabel','run_id'};
-
-            if nargin == 2
-                input = varargin{1};
-                if isa(input,'IX_experiment')
-                    obj = input ;
-                    return
-                elseif isstruct(input)
-                    % constructor
-                    % The constructor parameters names in the order, then can
-                    % appear in constructor
-                    obj = IX_experiment.loadobj(input);
-                else
-                    error('HERBERT:IX_experiment:invalid_argument',...
-                        'Unrecognised single input argument of class %s',...
-                        class(input));
-                end
-            elseif nargin > 2
-                % list of crude validators, checking the type of all input
-                % parameters for constructor. Mainly used to identify the
-                % end of positional arguments and the beginning of the
-                % key-value pairs. The accurate validation should occur on
-                % setters.
-                [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                    flds,false,varargin{:});
-                if ~isempty(remains)
-                    error('HERBERT:IX_experiment:invalid_argument',...
-                        'Non-recognized extra-arguments provided as input for constructor for IX_experiemt: %s', ...
-                        disp2str(remains));
-                end
-            else
-                error('HERBERT:IX_experiment:invalid_argument',...
-                    'unrecognised number of input arguments: %d',nargin);
-            end
-            if isempty(obj)
-                error('HERBERT:IX_experiment:invalid_argument',...
-                    'initialized IX_experiment can not be empty')
-            end
-        end
-    end
-    methods(Access=protected)
-        function obj = from_old_struct(obj,inputs)
-            % recover the object from old structure
-            if isfield(inputs,'version') && inputs.version == 1
-                for i=1:numel(inputs)
-                    inputs(i).run_id = NaN;
-                end
-                inputs.version = 2;
-                obj = obj.from_struct(inputs);
+            if obj.hash_valid_
+                hash = obj.comparison_hash_;
                 return;
             end
-            obj = from_old_struct@serializable(obj,inputs);
+            % list of properties which can not be all equal for
+            % experiments to be diffetent
+            comp_prop = IX_experiment.unique_prop ;
+
+            hash = IX_experiment.get_comparison_hash(obj,comp_prop);
+            if nargout>1
+                obj.comparison_hash_ =  hash;
+                obj.hash_valid_      = true;
+            end
         end
+        %
+    end
+    methods(Access=protected)
+        %
+        function obj = check_and_set_uv(obj,name,val)
+            % main overloadable setter for u and v
+            obj = check_and_set_uv@goniometer(obj,name,val);
+            obj.hash_valid_  = false;
+        end
+
+        function [val,obj] = check_angular_val(obj,val)
+            % main overloadable setter function for goniometer angles
+            [val,obj] = check_angular_val@goniometer(obj,val);
+            obj.hash_valid_ = false;
+        end
+
     end
     methods(Static)
-        function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
-            % saveable class, necessary to load data from old structures
-            % only
-            obj = IX_experiment();
-            obj = loadobj@serializable(S,obj);
+        function hash = get_comparison_hash(comp_obj,prop_list)
+            % get hash to check partial set of properties for comparison
+            % Inputs:
+            % comp_obj  -- object for partial hashing
+            % prop_list -- the list of properties of comp_obj object
+            %              to extract values and build comparison hash
+            %
+            persistent engine;
+            if isempty(engine)
+                engine= java.security.MessageDigest.getInstance('MD5');
+            end
+
+            n_par = numel(prop_list);
+            contents = cell(1,n_par);
+            for i=1:n_par
+                contents{i} = comp_obj.(prop_list{i});
+                if istext(contents{i})
+                    contents{i} = uint8(contents{i});
+                elseif isnumeric(contents{i})
+                    contents{i} = typecast(single(contents{i}),'uint8');
+                else
+                    contents{i} = typecast(contents{i},'uint8');
+                end
+            end
+            contents = [contents{:}];
+            engine.update(contents);
+            hash = typecast(engine.digest,'uint8');
+            hash = char(hash');
         end
+
         %------------------------------------------------------------------
-        % SQW_binfile_common methods related to saving to binfile and
+        % SQW_binfile_common methods related to saving to old format binfile and
         % run_id scrambling:
         function [obj,alatt,angdeg] = build_from_binfile_header(inputs)
             % Inputs: the old header structure, stored in binfile
-            old_fldnms = {'filename','filepath','efix','emode','cu',...
-                'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
-                'u_to_rlu','ulen','ulabel'};
+            old_fldnms = {'filename','filepath','efix','emode','en','cu',...
+                'cv','psi','omega','dpsi','gl','gs','uoffset','u_to_rlu'};
             obj = IX_experiment();
             for i=1:numel(old_fldnms)
                 obj.(old_fldnms{i}) = inputs.(old_fldnms{i});
             end
+            % old headers always contain angular values in radians
+            obj.angular_is_degree_ = false;
             alatt = inputs.alatt;
             angdeg = inputs.angdeg;
             [runid,filename] = rundata.extract_id_from_filename(inputs.filename);
@@ -279,6 +335,104 @@ classdef IX_experiment < serializable
                 obj.run_id = runid;
                 obj.filename = filename;
             end
+            if all(abs(subdiag_elements(obj.u_to_rlu))<4*eps('single'))
+                obj.u_to_rlu = [];
+            end
+        end
+    end
+    %----------------------------------------------------------------------
+    % SERIALIZABLE interface
+    properties(Constant,Access=private)
+        % fields, which fully define IX_experiment part of the public
+        % interface to the class
+        fields_to_save_ = {'filename','filepath','run_id','efix','emode','en'};
+    end
+    methods
+        function flds = saveableFields(obj)
+            base= saveableFields@goniometer(obj);
+            flds = [IX_experiment.fields_to_save_(:);base(:)];
+            if ~isempty(obj(1).u_to_rlu_) || isnan(obj(1).run_id_) % run_id_ is NaN on non-initialized file
+                flds = [flds(:);'u_to_rlu'];
+            end
+        end
+        function flds = constructionFields(obj)
+            base= constructionFields@goniometer(obj);
+            flds = [IX_experiment.fields_to_save_(:);base(:)];
+
+        end
+
+        function ver  = classVersion(~)
+            % return the version of the IX-experiment class
+            ver = 3;
+        end
+        function obj = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained lattice object
+            obj = check_combo_arg@goniometer(obj);
+            if numel(obj.efix_) == 1 && obj.efix_ == 0 && obj.emode_ ~=0
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'efix (incident energy) can be 0 in elastic mode only. Emode=%d', ...
+                    obj.emode_)
+
+            end
+            % Do we need this? current usage of the hash is very restricted so
+            % it is reasonable to calculate it on request only
+            %             if ~obj.hash_valid_
+            %                 [~,obj.comparison_hash_] = obj.get_comparison_hash();
+            %             end
+        end
+    end
+    methods(Access=protected)
+        function [S,obj] = convert_old_struct (obj, S, ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised
+
+            if ver == 1
+                % version 1 does not contain run_id so it is set to NaN
+                % and recalculated on sqw object level
+                S.run_id = NaN;
+
+            end
+            % version 3 does not save/load u_to_rlu, ulen, ulabel
+            % These fields are redundant for instr_proj and moved
+            % to sqw.data (DnD object)
+
+            % Old IX_experiment data were containing angular values in
+            % radians
+            if isfield(S,'goniometer')
+                S.goniometer.angular_is_degree = false;
+                obj.goniometer = S.goniometer;
+            else
+                S.angular_is_degree = false;
+            end
+            if isfield(S,'cu')
+                S.u = S.cu;
+            end
+            if isfield(S,'cv')
+                S.v = S.cv;
+            end
+
+            if isfield(S,'u_to_rlu')
+                % support for legacy alignment:
+                if ~any(subdiag_elements(S.u_to_rlu)>4*eps('single'))
+                    S = rmfield(S,'u_to_rlu');
+                else
+                    obj.u_to_rlu = S.u_to_rlu;
+                end
+            end
+        end
+
+    end
+
+    methods(Static)
+        function obj = loadobj(S)
+            % crafted loadobj method, calling generic method of
+            % saveable class, necessary to load data from old structures
+            % + support for legacy alignment matrix
+            obj = IX_experiment();
+            obj = loadobj@serializable(S,obj);
+
         end
     end
 end

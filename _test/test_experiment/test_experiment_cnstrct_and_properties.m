@@ -38,7 +38,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             exp(2).filename = 'a2';
             exp(3).run_id = 30;
             exp(3).filename = 'a3';
-
+            clOwr =set_temporary_warning('off','HORACE:Experiment:invalid_argument');
             exper= Experiment(IX_detector_array,instruments,samples,exp);
 
             assertEqual(exper.n_runs,3)
@@ -57,6 +57,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             instrument = IX_inst_DGfermi();
             sample = IX_sample;
             info = IX_experiment();
+            clOwr =set_temporary_warning('off','HORACE:Experiment:invalid_argument');
             expt = Experiment(detector_array, instrument, sample,info);
 
             assertEqual(expt.samples{1}, sample);
@@ -74,7 +75,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertTrue(isempty(expt.expdata));
         end
         function test_constructor_raises_error_with_invalid_single_input(~)
-            assertExceptionThrown(@()Experiment('something icorrect'),...
+            assertExceptionThrown(@()Experiment('something incorrect'),...
                 'HORACE:Experiment:invalid_argument');
         end
 
@@ -100,6 +101,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             instrument = IX_inst_DGfermi();
             sample = IX_sample;
             info = [IX_experiment,IX_experiment];
+            clOwr =set_temporary_warning('off','HORACE:Experiment:invalid_argument');
             expt = Experiment( ...
                 [detector_array, detector_array], ...
                 [instrument, instrument], ...
@@ -129,7 +131,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             sample2.name = 'sample2';
             samples = [sample1, sample2];
             data = [IX_experiment(),IX_experiment()];
-
+            clOwr =set_temporary_warning('off','HORACE:Experiment:invalid_argument');
             expt = Experiment(IX_detector_array, instruments, samples,data);
             info = expt.expdata;
             assertTrue(expt.runid_recalculated)

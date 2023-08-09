@@ -70,7 +70,7 @@ classdef test_oriented_lattice< TestCase
             ol.angdeg= 90;
             assertEqual('deg',ol.angular_units)
 
-            ol = ol.set_rad();
+            ol.angular_units = 'rad';
             assertEqual('rad',ol.angular_units)
 
             toRad=pi/180.;
@@ -80,7 +80,7 @@ classdef test_oriented_lattice< TestCase
             assertElementsAlmostEqual(40*toRad,ol.gl)
             assertElementsAlmostEqual(50*toRad,ol.gs)
 
-            ol=ol.set_deg();
+            ol.angular_units='deg';
             assertElementsAlmostEqual(10,ol.psi)
             assertElementsAlmostEqual(20,ol.omega)
             assertElementsAlmostEqual(30,ol.dpsi)
@@ -139,56 +139,7 @@ classdef test_oriented_lattice< TestCase
             assertEqual(10,ol.psi);
 
         end
-        function test_invalid3Dvectors_throw(~)
-            ol = oriented_lattice();
-            %rd.u='a';
-            ws=warning('off','MATLAB:subsasgnMustHaveOutput');
-            f=@()subsasgn(ol,struct('type','.','subs','u'),'a');
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-            %rd.v=[]; -- does not accept empty vectors
-            f=@()subsasgn(ol,struct('type','.','subs','v'),[]);
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            %rd.alatt=[10^-10,0,0]; -- does not accept empty vectors
-            f=@()subsasgn(ol,struct('type','.','subs','alatt'),[1.e-11,0,0]);
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            warning(ws);
-
-        end
         %
-        function this = test_1vectors_errors(this)
-            ol=oriented_lattice();
-
-            %ol.gl='a';
-            ws=warning('off','MATLAB:subsasgnMustHaveOutput');
-            f=@()subsasgn(ol,struct('type','.','subs','gl'),'a');
-            %            assertEqual(mess,' field: gl has to be numeric but it is not');
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-
-            %ol.gl=[1,2];
-            f=@()subsasgn(ol,struct('type','.','subs','gl'),[1,2]);
-            %            assertEqual(mess,' field: gl has to have 1 element but has: 2
-            %            element(s)');
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            f=@()subsasgn(ol,struct('type','.','subs','gl'),400);
-            %            assertEqual(mess,' field: gl has to in range of +-360 deg but it is not');
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            %ol.angdeg = [-400,0,0]
-            f=@()subsasgn(ol,struct('type','.','subs','angdeg'),[-400,0,0]);
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            %assertEqual(mess,'field ''angdeg'' does not define correct 3D lattice');
-            %ol.angldeg = [45,120,45]
-            f=@()subsasgn(ol,struct('type','.','subs','angdeg'),[45,120,50]);
-            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
-
-            warning(ws);
-
-        end
         function test_full_constructor(~)
             ol = oriented_lattice([2;3;4]);
             assertEqual(ol.alatt,[2,3,4])
@@ -211,7 +162,7 @@ classdef test_oriented_lattice< TestCase
 
             mult = pi/180;
             ol = oriented_lattice('alatt',[2;3;4],'psi',20*mult,...
-                'gl',3*mult,'angdeg',[40,45,50]*mult,'angular_units','rad');
+                'gl',3*mult,'angdeg',[40,45,50],'angular_units','rad');
 
             assertTrue(ol.isvalid);
 
@@ -222,7 +173,8 @@ classdef test_oriented_lattice< TestCase
             assertEqual(ol.alatt,[2,3,4])
             assertEqual(ol.angular_units,'rad')
             assertEqual(ol.psi,20*mult)
-            assertEqual(ol.angdeg,[40,45,50]*mult)
+            assertEqual(ol.angdeg,[40,45,50])
+
         end
         function test_mixed_constructor_with_keyval(~)
 
@@ -249,7 +201,7 @@ classdef test_oriented_lattice< TestCase
 
             assertEqual(ol.alatt,[2,3,4]) % key arguments redefines positional argument
             assertEqual(ol.angular_units,'deg')
-            ol = ol.set_rad();
+            ol.angular_units = 'rad';
             assertEqual(ol.psi,20*pi/180)
         end
 

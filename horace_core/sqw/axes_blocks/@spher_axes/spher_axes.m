@@ -30,14 +30,19 @@ classdef spher_axes < AxesBlockBase
         % caption.
         capt_units = containers.Map({'a','r','d','e'}, ...
             {[char(197),'^{-1}'],'rad','^{o}','mEv'})
-        default_img_range_ = ...
-            [0,  0,-180,0;...  % the range, a object defined with dimensions
-            1 ,180, 180,1];    % only would have
+        default_img_range_ =[ ...
+            0,   0, -180,0;...  % the range, a object defined with dimensions
+            1 ,180,  180,1];    % only would have
+        % what symbols axes_units can have
+        types_available_ = {'a',{'d','r'},{'d','r'},'e'};
 
     end
     properties(Dependent)
+        % what each axes units are
+        axes_units
         % if angular dimensions of the axes are expressed in radians or degrees
         angular_unit_is_rad
+
     end
     properties(Dependent,Hidden)
         % if angular dimensions of the axes are expressed in radians or degrees
@@ -47,6 +52,7 @@ classdef spher_axes < AxesBlockBase
     properties(Access = protected)
         % if angular dimensions of the axes are expressed in radians or degrees
         angular_unit_is_rad_ = [false,false];
+        axes_units_ = 'adde';
     end
     properties(Access=private)
         % helper properties used in setting angular units image range and
@@ -73,9 +79,9 @@ classdef spher_axes < AxesBlockBase
             %                                       from binning parameters
             %
 
-            obj.max_img_range_ = ...
-                [0 ,  0,-180,-inf;...
-                inf,180, 180, inf];
+            obj.max_img_range_ = [...
+                0  ,  0, -180, -inf;...
+                inf,180,  180,  inf];
             % empty spherical range:
             obj.img_range_ = [obj.max_img_range_(2,:);obj.max_img_range_(1,:)];
 
@@ -113,18 +119,28 @@ classdef spher_axes < AxesBlockBase
 
         end
         function [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
-                data_plot_titles(obj,dnd_obj)
+                data_plot_titles(obj)
             % Get titling and caption information for the sqw data
             % structure containing spherical projection
-            proj = dnd_obj.proj;
             [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
-                data_plot_titles_(obj,proj);
+                data_plot_titles_(obj);
         end
+        %
         function anr = get.angular_unit_is_rad(obj)
             anr = obj.angular_unit_is_rad_;
         end
         function obj = set.angular_unit_is_rad(obj,val)
             obj = set_angles_in_rad_(obj,val);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+        %
+        function val = get.axes_units(obj)
+            val = obj.axes_units_;
+        end
+        function obj = set.axes_units(obj,val)
+            obj = set_axes_units_(obj,val);
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -142,12 +158,12 @@ classdef spher_axes < AxesBlockBase
     %----------------------------------------------------------------------
     methods(Access=protected)
         function  volume = calc_bin_volume(obj,axis_cell)
-            % calculate bin volume from the  axes of the axes block or input 
+            % calculate bin volume from the  axes of the axes block or input
             % axis organized in cellarray of 4 axis. Will return array of
-            % bin volumes 
+            % bin volumes
             volume = calc_bin_volume_(obj,axis_cell);
         end
-        
+
         function  obj = check_and_set_img_range(obj,val)
             % main setter for spherical image range.
             obj = check_and_set_img_range_(obj,val);
@@ -191,15 +207,37 @@ classdef spher_axes < AxesBlockBase
             % and nxsqw/sqw data format. Each new version would presumably
             % read the older version, so version substitution is based on
             % this number
-            ver = 1;
+            ver = 3;
         end
         %
         function flds = saveableFields(obj,varargin)
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = saveableFields@AxesBlockBase(obj);
-            flds = [flds(:);'angular_unit_is_rad'];
+            flds = [flds(:);'axes_units'];
         end
         %
+    end
+    methods(Access=protected)
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain a version or the version, stored
+            % in the structure does not correspond to the current version
+            % of the class.
+            if isfield(inputs,'angular_unit_is_rad')
+                ax_unit = {'a','d','d','e'};
+                if inputs.angular_unit_is_rad(1)
+                    ax_unit{2} = 'r';
+                end
+                if inputs.angular_unit_is_rad(2)
+                    ax_unit{3} = 'r';
+                end
+                inputs.axes_units = [ax_unit{:}];
+            end
+            obj = obj.from_bare_struct(inputs);
+        end
     end
 end

@@ -1,6 +1,6 @@
-function  [data_sum,img_range,job_disp]=get_pix_comb_info_(infiles, ...
+function  [sqw_sum_struc,img_range,data_range,job_disp]=get_pix_comb_info_(infiles, ...
     data_range,job_disp, ...
-    allow_equal_headers,keep_runid,drop_subzone_headers)
+    allow_equal_headers,keep_runid)
 % The part of write_nsqw_to_sqw algorithm, responsible for preparing write
 % pix operation
 %
@@ -29,9 +29,10 @@ function  [data_sum,img_range,job_disp]=get_pix_comb_info_(infiles, ...
 %          -- if true, the runid-s attached to each experiment are left
 %             as they are. If false, all run numbers are redefined to be
 %             from 1-number of runs.
-% drop_subzone_headers
-%          -- currently deprecated. Will be removed in the future
-%
+% returns:
+% sqw_sum_struc
+%          -- the structure of sqw object with all sqw fields filled in
+%             except pix containing pix_combine_info class
 
 combine_in_parallel = ~isempty(job_disp);
 hor_log_level = get(hor_config,'log_level');
@@ -39,8 +40,9 @@ hor_log_level = get(hor_config,'log_level');
 
 % Check that the input files all exist and give warning if the output files overwrite the input files.
 % ----------------------------------------------------------------------------------------------------
-% Convert to cell array of strings if necessary
-if ~iscellstr(infiles)
+% Convert to cell array of strings if single file name or array of strings
+% is provided.
+if istext(infiles)
     infiles=cellstr(infiles);
 end
 
@@ -67,44 +69,57 @@ if hor_log_level>-1
 end
 
 %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs]
-[~,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+[~,experiments_from_files,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
     accumulate_headers_job.read_input_headers(infiles);
 undef = data_range == PixelDataBase.EMPTY_RANGE;
 if any(undef(:))
     data_range = pix_combine_info.recalc_data_range_from_loaders(ldrs,keep_runid);
-    data_range_calculated = true;
-else
-    data_range_calculated = false;
+end
+
+% check the consistency of image headers as this is the grid where pixels
+% are binned on and they have to be binned on the same grid
+% We must have same data information for transforming pixels coordinates to image coordinates
+img_range=datahdr{1}.img_range;
+proj = datahdr{1}.proj;
+for i=2:nfiles
+    loc_range = datahdr{i}.img_range;
+    if ~equal_to_tol(proj,datahdr{i}.proj,'tol',4*eps('single'))
+        error('HORACE:algorithms:invalid_arguments',[...
+            'The image projection for contributing sqw/tmp files have to be the same.\n ' ...
+            'the projection for file N%d, name: %s different from the projection for the first contributing file %s\n'],...
+            i,ldrs{i}.full_filename,ldrs{1}.full_filename);
+    end
+    if any(abs(img_range(:)-loc_range(:))) > 4*eps('single')
+        error('HORACE:algorithms:invalid_arguments',[...
+            'The binning ranges for all contributing sqw/tmp files have to be the same.\n ' ...
+            'Range for file N%d, name: %s different from the range of the first contributing file: %s\n' ...
+            ' *** min1: %s min%d: %s\,' ...
+            ' *** max1: %s max%d: %s\n'], ...
+            i,ldrs{i}.full_filename,ldrs{1}.full_filename, ...
+            mat2str(img_range(1,:)),i,mat2str(loc_range(1,:)), ...
+            mat2str(img_range(2,:)),i,mat2str(loc_range(2,:)))
+    end
+
+    % define total img range as minmax of contributing ranges to
+    % avoid round-off errors
+    img_range=minmax_ranges(img_range,loc_range);
 end
 
 % Check consistency:
 % At present, we insist that the contributing spe data are distinct in that:
 %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
 %   - emode, lattice parameters, u, v, sample must be the same for all spe data input
-% We must have same data information for transforming pixels coordinates to image coordinates
-% This guarantees that the pixels are independent (the data may be the same if an spe file name is repeated, but
-% it is assigned a different Q, and is in the spirit of independence)
-[header_combined,nspe] = Experiment.combine_experiments(header,allow_equal_headers,keep_runid);
-%[header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
+[exper_combined,nspe] = Experiment.combine_experiments(experiments_from_files,allow_equal_headers,keep_runid);
 
 
-img_range=datahdr{1}.img_range;
-for i=2:nfiles
-    img_range=[min(img_range(1,:),datahdr{i}.img_range(1,:));max(img_range(2,:),datahdr{i}.img_range(2,:))];
-end
+
 
 
 %  Build combined header
-if drop_subzone_headers
-    nfiles_2keep = nspe>0;
-    nspec = nspe(nfiles_2keep);
-    nfiles_tot=sum(nspec);
-else
-    nfiles_tot=sum(nspe);
-end
+nfiles_tot=sum(nspe);
 mhc = main_header_cl('nfiles',nfiles_tot);
 
-if isa(datahdr{1},'dnd_metadata') % have to be all the same and it 
+if isa(datahdr{1},'dnd_metadata') % have to be all the same and it
     % should have been checked at previous stages
     ab = datahdr{1}.axes;
     proj = datahdr{1}.proj;
@@ -157,8 +172,6 @@ if combine_in_parallel
         job_disp.display_fail_job_results(outputs,n_failed,n_workers, ...
             'HORACE:write_nsqw_to_sqw:runtime_error');
     end
-
-
 else
     % read arrays and accumulate headers directly
     [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
@@ -173,10 +186,11 @@ clear nopix
 
 % Prepare writing to output file
 % ---------------------------
-if drop_subzone_headers || keep_runid
+if keep_runid
     run_label = 'nochange';
 else
-    run_label=cumsum(nspe(1:end));
+    keys = exper_combined.runid_map.keys;
+    run_label=[keys{:}];
 end
 % if old_matlab
 %     npix_cumsum = cumsum(double(sqw_data.npix(:)));
@@ -189,7 +203,6 @@ end
 pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
 pix.data_range = data_range;
 
-data_sum= struct('main_header',mhc,'experiment_info',[],'detpar',det);
-data_sum.data = sqw_data;
-data_sum.experiment_info = header_combined;
-data_sum.pix = pix;
+sqw_sum_struc= struct('main_header',mhc,'experiment_info',exper_combined,'detpar',det);
+sqw_sum_struc.data = sqw_data;
+sqw_sum_struc.pix = pix;

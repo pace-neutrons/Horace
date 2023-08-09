@@ -18,7 +18,8 @@ function ind = stringmatchi (str, strcell)
 
 
 if ~is_string(str)
-    error('First argument must be a string')
+    error('HERBERT:stringmatchi:invalid_argument',...
+        'First argument must be a string')
 end
 
 nch=numel(str);

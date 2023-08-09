@@ -7,6 +7,6 @@ function  obj = put_bindata_in_file_(obj,fid,bindata)
 %
 obj.move_to_position(fid);
 %
-fwrite(fid,bindata,"uint8");
+fwrite(fid,bindata,'uint8');
 %
 obj.check_write_error(fid);

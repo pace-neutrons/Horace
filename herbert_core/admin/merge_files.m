@@ -16,7 +16,7 @@ function [err,message] = merge_files(file1,file2,varargin)
 %
 % in case of error, if function called without right hand arguments, 
 % the function will throw the error with ID 'MERGE_FILES:invalid_argument' 
-% with error message explaning the reason for error.
+% with error message explaining the reason for error.
 %
 % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %

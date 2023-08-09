@@ -98,8 +98,6 @@ classdef test_faccess_sqw_v2< TestCase
             exper = to.get_exp_info();
             exp_info = exper.expdata;
             assertEqual(exp_info.filename,'slice_n_c_m1_ei140')
-            assertEqual(exp_info .ulabel{4},'E')
-            assertEqual(exp_info.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'slice_n_c_m1_ei140.par')
@@ -130,8 +128,6 @@ classdef test_faccess_sqw_v2< TestCase
             exper = to.get_exp_info();
             header = exper.expdata;
             assertEqual(header.filename,'map11014.spe;1')
-            assertEqual(header.ulabel{4},'E')
-            assertEqual(header.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'9cards_4_4to1.par')
@@ -152,10 +148,6 @@ classdef test_faccess_sqw_v2< TestCase
             exp_n = exp_info.expdata(186);
             assertEqual(exp_n.filename,'map11201.spe;1');
             assertEqual(exp_n.filepath,'c:\data\Fe\data_nov06\const_ei\');
-            assertEqual(exp_n.ulabel{1},'Q_\zeta')
-            assertEqual(exp_n.ulabel{2},'Q_\xi')
-            assertEqual(exp_n.ulabel{4},'E')
-
 
             main_h = to.get_main_header('-keep_original');
             assertEqual(main_h.nfiles,186);
@@ -235,7 +227,9 @@ classdef test_faccess_sqw_v2< TestCase
             %
             % new file has been upgraded with runid_map so its size have
             % increased? one byte is missing, why?
-            assertEqual(sz1+numel('$id$1')+numel(char(datetime("now"))),sz2);
+            assertEqual(sz1+numel('$id$1')+numel(char(datetime("now")))- ...
+                28,... % save small dummy ulabel instead of large old one
+                sz2);
             %
             tn = faccess_sqw_v2(tf);
             rec_sqw = tn.get_sqw('-ver');

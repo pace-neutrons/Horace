@@ -58,10 +58,10 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %                   Default: if not given or empty: assume to be spectrometer axes
 %                  i.e. x || ki, z vertical upwards, y perpendicular to z and y.
 %
-%   pax            Indicies of axes into the projection axes for purposes of plotting:
+%   pax            Indices of axes into the projection axes for purposes of plotting:
 %                       [pax1, pax2]        plotting axes
 %                       [pax1, pax2, pax3]  plotting axes and intersection axis
-%                  where pax1 etc. are distinct axes indicies in the range 1 to 4.
+%                  where pax1 etc. are distinct axes indices in the range 1 to 4.
 %
 %                   Default: if not given or empty, assume first two projection axes
 %                  and draw intersection with non-zero positive energy transfer deviation
@@ -153,7 +153,7 @@ end
 if ~(isnumeric(pax) && (numel(pax)==2 || numel(pax)==3) &&...
         numel(unique(pax))==numel(pax) && all(pax>=1) && all(pax<=4))
     error('HORACE:resolution_plot:invalid_argument',...
-        'Check axes indicies')
+        'Check axes indices')
 end
 
 % - Plot target
@@ -191,25 +191,15 @@ header.filename = '';
 header.filepath = '';
 header.efix =  efix;
 header.emode = emode;
-header.alatt = lat.alatt;
-header.angdeg = lat.angdeg;
-header.cu = lat.u;
-header.cv = lat.v;
-lat.angular_units = 'rad';
-header.psi = lat.psi;
-header.omega = lat.omega;
-header.dpsi = lat.dpsi;
-header.gl = lat.gl;
-header.gs = lat.gs;
 header.en = en;
-header.uoffset = [0,0,0,0]';
-header.u_to_rlu = zeros(4,4);
-[~, header.u_to_rlu(1:3,1:3),spec_to_rlu] = lat.calc_proj_matrix();
-%[~, header.u_to_rlu(1:3,1:3)] = lat.calc_proj_matrix();
-header.u_to_rlu(4,4) = 1;
-header.ulen = [1,1,1,1];
-header.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 expdata = IX_experiment(header);
+lat.angular_units  = 'rad';
+expdata.goniometer = lat;
+
+[~, ~,spec_to_rlu] = lat.calc_proj_matrix();
+%[~, header.u_to_rlu(1:3,1:3),spec_to_rlu] = lat.calc_proj_matrix();
+%[~, header.u_to_rlu(1:3,1:3)] = lat.calc_proj_matrix();
+
 
 if ~(isa(instrument,'IX_inst') && isscalar(instrument))
     error('HORACE:resolution_plot:invalid_argument',...
@@ -278,7 +268,7 @@ else
             ' Other types of projections have not been implemented']);
     end
     % plot aspect ratio is adjusted according to ulen
-    ax.ulen = proj.ulen;
+
 end
 %
 wres.data = DnDBase.dnd(ax,proj, ...

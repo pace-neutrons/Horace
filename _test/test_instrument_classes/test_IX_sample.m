@@ -1,5 +1,5 @@
 classdef test_IX_sample < TestCaseWithSave
-    % Test of obj2struct
+    % Test of IX_sample
     properties
         sam1
         sam2
@@ -94,7 +94,7 @@ classdef test_IX_sample < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_covariance (self)
             s = self.slookup;
-            cov = s.func_eval(2,[2,2,1,4,3],@covariance);
+            cov = s.func_eval_ind(2,[2,2,1,4,3],@covariance);
             assertEqualWithSave (self,cov);
         end
 
@@ -143,7 +143,7 @@ classdef test_IX_sample < TestCaseWithSave
         function test_pdf (self)
             nsamp = 1e7;
             ind = randselection([2,3],[ceil(nsamp/10),10]);     % random indicies from 2 and 3
-            samp = rand_ind(self.slookup,2,ind);
+            samp = rand_ind(self.slookup,2,ind,@rand);
             samp2 = samp(:,ind==2);
             samp3 = samp(:,ind==3);
 

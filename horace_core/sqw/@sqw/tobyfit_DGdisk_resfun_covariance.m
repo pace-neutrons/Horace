@@ -91,11 +91,20 @@ for iw = 1:numel(win)
     dt = lookup.dt{iw};
 
     % Compute variances
-    cov_sh_ch = 1e-12 * mod_shape_mono_table.func_eval(iw, irun, @covariance);
-    var_horiz_div = (horiz_div_table.func_eval(iw, irun, @profile_width)).^2;
-    var_vert_div = (vert_div_table.func_eval(iw, irun, @profile_width)).^2;
-    cov_sample = sample_table.func_eval(iw, @covariance);
-    cov_detector = detector_table.func_eval(iw, @covariance, idet, kf);
+    cov_sh_ch = 1e-12 * mod_shape_mono_table.func_eval_ind(iw, irun, @covariance);
+    var_horiz_div = (horiz_div_table.func_eval_ind(iw, irun, @profile_width)).^2;
+    var_vert_div = (vert_div_table.func_eval_ind(iw, irun, @profile_width)).^2;
+    cov_sample = sample_table.func_eval_ind(iw, irun, @covariance);
+    % The following calculation of cov_detector will benefit from the generalised
+    % func_eval_ind to be implemented. In the the meantime, just expose the loop
+    % that will eventually be inside func_eval_ind [TGP 19 July 2023]. The loop
+    % is very inefficient in general if the number of pixels at which to
+    % calculate is large.
+    cov_detector = NaN(3,3,npix);
+    for i=1:npix
+        cov_detector(:,:,i) = detector_table.func_eval_ind(iw, irun(i), ...
+            @covariance, idet(i), kf(i));
+    end
     var_tbin = dt.^2 / 12;
 
     % Fill covariance matrix
@@ -103,7 +112,7 @@ for iw = 1:numel(win)
     cov_x([1,4],[1,4],:) = cov_sh_ch;
     cov_x(2,2,:) = var_horiz_div;
     cov_x(3,3,:) = var_vert_div;
-    cov_x(5:7,5:7,:) = repmat(cov_sample,[1,1,npix]);
+    cov_x(5:7,5:7,:) = cov_sample;
     cov_x(8:10,8:10,:) = cov_detector;
     cov_x(11,11,:) = var_tbin;
 

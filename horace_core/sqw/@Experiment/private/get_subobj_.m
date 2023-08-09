@@ -61,7 +61,6 @@ end
 info{2} = obj.instruments_.get_subset(head_num);
 info{3} = obj.samples_.get_subset(head_num);
 info{4} = obj.expdata_(head_num);
-
 subexper  = Experiment(info{:});
 if obj.runid_recalculated_
     subexper.runid_recalculated_ = true;

@@ -57,18 +57,31 @@ classdef test_spher_axes < TestCase
             bin0 = {[dbr(1,1),0.5,dbr(2,1)];[dbr(1,2),1,dbr(2,2)];...
                 [dbr(1,3),1,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = spher_axes(bin0{:});
-            dobj = DnDBase.dnd(ab,ortho_proj);
+            dobj = DnDBase.dnd(ab,spher_proj('alatt',3,'angdeg',90));
             range = dobj.targ_range([],'-bin');
-            ac_range = {[0.25,0.5,10.25];[0.5,1,179.5];[-179.5,1,179.5];[dbr(1,4),1,dbr(2,4)]};
-            assertEqual(ac_range,range');
+            ref_range = {[0.25,0.5,10.25];[0.5,1,179.5];[-179.5,1,179.5];[dbr(1,4),1,dbr(2,4)]};
+            assertEqual(ref_range,range');
         end
+        function test_invalid_axes_proj_combination_throws(~)           
+             ab = spher_axes();
+             proj = ortho_proj();
+             assertExceptionThrown(@()DnDBase.dnd(ab,proj), ...
+                 'HORACE:DnDBase:invalid_argument');
+
+             ab = ortho_axes();
+             proj = spher_proj();
+             assertExceptionThrown(@()DnDBase.dnd(ab,proj), ...
+                 'HORACE:DnDBase:invalid_argument');
+             
+        end
+
 
         function test_axes_ranges_within(~)
             dbr = [0.25,1,-90,-10;10.25,45,80,50];
             bin0 = {[dbr(1,1),0.5,dbr(2,1)];[dbr(1,2),1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = spher_axes(bin0{:});
-            dobj = DnDBase.dnd(ab,ortho_proj);
+            dobj = DnDBase.dnd(ab,spher_proj('alatt',2.7,'angdeg',90));
             range = dobj.targ_range([],'-bin');
             assertEqual(bin0,range');
         end

@@ -11,7 +11,7 @@ function [exper,obj]  = get_exp_info(obj,varargin)
 %>>exp_info = obj.get_exp_info(number); -- get header with specified number
 %>>exp_info = obj.get_exp_info(numbers);-- where numbers are array of numbers
 %                                          return headers with these numbers
-% 
+%
 %>>exp_info = obj.get_exp_info('-all');
 %>>exp_info = obj.get_exp_info('-no_samp_inst'); % do not set up sample and instrument to header
 %                    even if they are defined in the file, except the basic sample and inst,
@@ -20,11 +20,11 @@ function [exper,obj]  = get_exp_info(obj,varargin)
 % First three forms return single header, first two return header number 1.
 
 %NOTE:
-% The sample number corresponds to the header number. 
+% The sample number corresponds to the header number.
 % TODO: Clarify, % should it be run_id?
 %
 [argi,samp_inst_number] = parse_get_inst_sample_arg_(obj,varargin{:});
-% after that, the only parameters may 
+% after that, the only parameters may
 [ok,mess,no_isamp_inst,argi]= parse_char_options(argi,{'-no_sampinst'});
 if ~ok
     error('HORACE:faccess_sqw_v4:invalid_argument',mess);
@@ -34,7 +34,7 @@ end
 if no_isamp_inst
     if ~isinf(samp_inst_number)
         exp_data = exp_data(samp_inst_number);
-    end    
+    end
     exper = Experiment([],IX_null_inst(),IX_null_sample,exp_data);
     return;
 end

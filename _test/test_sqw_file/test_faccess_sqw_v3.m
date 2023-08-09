@@ -121,8 +121,6 @@ classdef test_faccess_sqw_v3< TestCase
             inf = exp_info.expdata(1);
             assertEqual(inf.filename,'')
             assertElementsAlmostEqual(inf.psi,0.2967,'absolute',1.e-4);
-            assertEqual(inf.ulabel{4},'E')
-            assertEqual(inf.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'')

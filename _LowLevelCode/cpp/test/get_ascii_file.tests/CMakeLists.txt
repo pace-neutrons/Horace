@@ -1,5 +1,5 @@
 set(TEST_SRC_FILES
-    "IIget_ascii_file.test"
+    "IIget_ascii_file.test.cpp"
 )
 
 set(SRC_FILES

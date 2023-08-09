@@ -44,8 +44,7 @@ end
 % Check validity of input
 % -----------------------
 % Get dataset indicies to mask
-[ok,mess,idata] = indicies_parse (ind{1}, obj.ndatatot_, 'Dataset');
-if ~ok, error(mess), end
+idata = indices_parse (ind{1}, obj.ndatatot_, 'Dataset');
 
 % Check optional arguments
 [ok,mess,xkeep,xremove,msk] = mask_syntax_valid (numel(idata), keyval.keep, keyval.remove, keyval.mask);
@@ -66,4 +65,3 @@ end
 % Update object
 % -------------
 obj.msk_(idata) = msk_out;
-

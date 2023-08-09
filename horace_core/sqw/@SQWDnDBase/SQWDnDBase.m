@@ -28,6 +28,7 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
         %
         wout = func_eval(win, func_handle, pars, varargin);
+
     end
     %======================================================================
     % METHODS, Available on SQW but requesting only DND object for
@@ -40,6 +41,8 @@ classdef (Abstract) SQWDnDBase < serializable
         %                             % coordinates along each of the axes
         %                             % of the smallest cuboid that contains
         %                             % bins with non-zero values of contributing pixels.
+        wout = compact(win)           % Compress DnD to remove empty bins on border
+        wout = section(win, varargin) % Cut a subsection of the bins without rebinning
         %------------------------------------------------------------------
         % sigvar block
         wout              = sigvar(w); % Create sigvar object from sqw or dnd object
@@ -65,10 +68,20 @@ classdef (Abstract) SQWDnDBase < serializable
         %
         qw=calculate_qw_bins(win,varargin) % Calculate qh,qk,ql,en for the
         %                             % centres of the bins of an n-dimensional
-        %                             % sqw or dnd dataset.                
+        %                             % sqw or dnd dataset.
         [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
         %                             % of the bins of an n-dimensional sqw
-        %                             % or dnd dataset        
+        %                             % or dnd dataset
+        %------------------------------------------------------------------
+        % Change the crystal lattice and orientation of an sqw object or
+        % array of objects
+        varargout = change_crystal (varargin);
+        % modify crystal lattice and orientation matrix to remove legacy
+        % alignment.
+        [wout,al_info] = remove_legacy_alignment(obj,varargin)
+        % remove legacy alignment and put modern alignment instead
+        [wout,al_info] = upgrade_legacy_alignment(obj,varargin)
+        %------------------------------------------------------------------
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -79,7 +92,7 @@ classdef (Abstract) SQWDnDBase < serializable
     methods (Static,Hidden) % should be protected but Matlab have some
         % issues with calling this from children
         %
-        function [proj, pbin, opt] = process_and_validate_cut_inputs(data,...
+        function [proj, pbin, sym, opt] = process_and_validate_cut_inputs(data,...
                 return_cut, varargin)
             % interface to private cut parameters parser/validator
             % checking and parsing cut inputs in any acceptable form.
@@ -90,7 +103,7 @@ classdef (Abstract) SQWDnDBase < serializable
             % TODO: do we want an option to express cut ranges in the source
             %       coordinate system?
             ndims = data.dimensions;
-            [proj, pbin, opt]= cut_parse_inputs_(data,ndims, return_cut, varargin{:});
+            [proj, pbin, sym, opt]= cut_parse_inputs_(data, ndims, return_cut, varargin{:});
         end
         %
     end
@@ -106,8 +119,6 @@ classdef (Abstract) SQWDnDBase < serializable
 
     methods  % Public
         [sel,ok,mess] = mask_points(win, varargin);
-        % Change the crystal lattice and orientation of an sqw object or array of objects
-        varargout = change_crystal (varargin);
 
         cl = save(w, varargin);
 

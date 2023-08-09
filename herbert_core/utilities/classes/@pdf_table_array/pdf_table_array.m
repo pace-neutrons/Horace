@@ -16,7 +16,7 @@ classdef pdf_table_array < serializable
     % Useage:
     % -------
     % If pdf is an array of pdf_table objects, and ind is a large array of
-    %  indices into pdf, then replace:
+    % indices into pdf, then replace the very inefficient lines of code:
     %
     %   X = zeros(1,numel(ind));
     %   for i=1:numel(ind)
@@ -25,9 +25,10 @@ classdef pdf_table_array < serializable
     %
     % with:
     %   pdfarr = pdf_array(pdf);
-    %     :
     %   X = rand_ind(pdfarr, ind)
     %
+    % The first code fragment is very inefficient because of the overhead
+    % of calling the rand function for each element of the array ind.
     %
     % pdf_table_array Methods:
     %   pdf_table_array - constructor
