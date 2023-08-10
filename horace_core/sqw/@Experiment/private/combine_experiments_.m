@@ -1,4 +1,5 @@
 function [exp,nspe] = combine_experiments_(exp_cellarray,allow_equal_headers,keep_runid)
+%COMBINE_EXPEERIMENTS_
 % Take cellarray of experiments (e.g., generated from each runfile build
 % during gen_sqw generation)
 % and combine then together into single Experiment info class

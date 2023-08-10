@@ -101,7 +101,7 @@ classdef object_lookup < serializable
         % Constructor
         %------------------------------------------------------------------
         function obj = object_lookup (varargin)
-            % Create object lookup from various types of arrays of objects.
+            % CONSTRUCTOR Create object lookup from various types of arrays of objects.
             % This can be done by one of the following 4 argument
             % combinations:
             % 
@@ -571,9 +571,9 @@ classdef object_lookup < serializable
             for ii=2:numel(obj.object_store)
                 object_hashes{ii} = obj.hashify(obj.object_store_(ii));
             end
-            [sorted_hashes, sorted_idx] = sort(object_hashes);
+            [~, sorted_idx] = sort(object_hashes);
             obj.object_store_ = obj.object_store_(sorted_idx);
-            [present inverse_idx] = ismember([1:N], sorted_idx);
+            [present, inverse_idx] = ismember(1:N, sorted_idx);
             if any(~present)
                 error('HERBERT:object_lookup:invalid_argument','missing indices');
             end
