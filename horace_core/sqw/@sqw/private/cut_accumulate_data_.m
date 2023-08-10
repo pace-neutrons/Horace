@@ -343,7 +343,8 @@ function [npix, s, e, pix_out, unique_runid] = cut_tmp_files(pix, block_starts, 
             % the files - this object then recombines the files once it is
             % passed to 'put_sqw'.
             pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file(pix_comb_info, false, ...
-                                                                          pix_ok, pix_indx, npix, chunk_size);
+                                                                          pix_ok, pix_indx, npix, ...
+                                                                          0);
         end
     end  % loop over pixel blocks
 
