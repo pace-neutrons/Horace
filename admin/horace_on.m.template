@@ -88,6 +88,8 @@ end
 init_horace(horace_path);
 
 %
+hor = fileparts(which('horace_init'));
+fprintf('HORACE located in folder:\n %s\n',hor)
 
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 end
