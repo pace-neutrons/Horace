@@ -115,14 +115,16 @@ classdef test_asciipar_loader < TestCase
             par_file = fullfile(obj.test_data_path,'wrong_demo_par_7Col.PAR');
 
             f = @()al.load_par(par_file);
-            clOb = set_temporary_config_options(hor_config, ...
+            clObC = set_temporary_config_options(hor_config, ...
                                                 'use_mex', true, ...
-                                                'force_mex_if_use_mex', true ...
+                                                'force_mex_if_use_mex', false ...
                                                );
+            clObW = set_temporary_warning('off','ASCIIPAR_LOADER:load_par');
 
             % should throw; par file has 7 columns
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:load_par');
-
+            ME=assertExceptionThrown(f,'HERBERT:asciipar_loader:invalid_argument');
+            assertTrue(strncmp(ME.message, ...
+                ' proper par file has to have 5 or 6 column but this one has 7',60))
         end
 
         function test_mslice_par(obj)

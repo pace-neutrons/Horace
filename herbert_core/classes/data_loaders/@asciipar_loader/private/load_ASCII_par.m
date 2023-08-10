@@ -48,13 +48,15 @@ use_mex = get(hor_config,'use_mex');
 if use_mex
     try     %using C routine
         par=get_ascii_file(filename,'par');
-    catch   %using matlab routine
+    catch ME  %using matlab routine
         force_mex = get(hor_config,'force_mex_if_use_mex');
         if ~force_mex
             warning('ASCIIPAR_LOADER:load_par','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
             use_mex = false;
         else
-            error('ASCIIPAR_LOADER:load_par','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
+            error('HERBERT:asciipar_loader:invalid_argument', ...
+                'Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s', ...
+                mexext(),filename,ME.message);
         end
     end
 end
