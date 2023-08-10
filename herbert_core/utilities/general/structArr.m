@@ -1,9 +1,9 @@
 function s = structArr(obj)
-% Convert the object obj into its equivalent structure.
+% Convert the object array obj into its equivalent structure.
 %
 %   >> s = structArr(obj)
 %
-% Has the same behaviour as the Matlab instrinsic struct in that:
+% Has the same behaviour as the Matlab intrinsic struct in that:
 % - Any structure array is returned unchanged
 % - If an object is empty, an empty structure is returned with fieldnames
 %   but the same size as the object
@@ -12,11 +12,15 @@ function s = structArr(obj)
 %
 % However, differs in the behaviour if an object array:
 % - If the object is non-empty array, returns a structure array of the same
-%   size. This is different to the instrinsic Matlab, which returns a scalar
+%   size. This is different to the intrinsic Matlab, which returns a scalar
 %   structure from the first element in the array of objects
+%
+%
+% See also structArrPublic, structArrIndep, struct, structPublic, structIndep
 
 
 % Get warning state that we must turn of if obj is a new style object array
+% If not done, then the call to Matlab intrinsic struct will throw a warning
 state = warning('query','MATLAB:structOnObject');
 reset_warning = onCleanup(@()warning(state));
 warning('off','MATLAB:structOnObject')
@@ -40,5 +44,6 @@ if isobject(obj)
 elseif isstruct(obj)
     s = obj;
 else
-    error('Invalid input argument type. Input must be an object or a structure')
+    error('HERBERT:structArr:invalid_argument',...
+        'Input argument is not an object or a structure. It has class %s', class(obj))
 end

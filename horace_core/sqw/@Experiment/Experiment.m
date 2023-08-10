@@ -2,12 +2,12 @@ classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
 
     properties(Access=private)
-        % if no other instrument input is provided Experiment instrument
-        % remain empty.
-        instruments_ = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
-        detector_arrays_ = []
-        samples_ = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
-        samples_set_ = false; % Two properties used to harmonize lattice
+        % String input here (a) invalid value so should be caught if not
+        % redefined later (b) describes what the construction process is.
+        instruments_ = 'initialised in constructor';
+        detector_arrays_ = 'initialised in constructor';
+        samples_ = 'initialised in constructor';
+        samples_set_ = false; % Two prperties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata
         %holder to store old sample lattice if the new lattice is set
         old_lattice_holder_ = [];
@@ -94,13 +94,78 @@ classdef Experiment < serializable
             %              object.
             %
             % Each argument can be a single object or array of objects.
-            if nargin == 0
-                % add one null instrument if using the vanilla constructor
-                % to satisfy the requirements of subsequent initialisation
+            
+            obj = obj@serializable();
+            
+            % initialising the compressed component containers.
+            % these may be overwritten if they are passed in as arguments
+            % below
+            obj.instruments_ = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
+            obj.detector_arrays_ = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
+            obj.samples_ = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
+            % expdata is not compressed and has been initialised as an
+            % empty array
+            
+            if nargin == 0 || (nargin == 1 && isempty(varargin{1}))
+                % no components in initialising arguments
+                % so finish
                 return;
+                
+            elseif nargin == 4
+                % arguments are the component arrays, 
+                % initialise them
+                detector_arrays = varargin{1};
+                instruments     = varargin{2};
+                samples         = varargin{3};
+                expdata         = varargin{4};
+
+                % define expdata first, as the size of this determines the
+                % number of runs which obj will hold
+                if isa(expdata, 'IX_experiment')
+                    % add to default compressed container
+                    % this must be of the right size to define number of
+                    % runs for the experiment - the other fields can handle
+                    % adding duplicates once they know this numberval,
+                    obj.expdata_ = expdata;
+                elseif isempty(expdata)
+                    % do nothing, leave default array container empty
+                else
+                    error('HORACE:Experiment:invalid_argument', ...
+                          'input is not empty or IX_experiment');
+                end
+                                
+                obj = obj.add_input_with_checks(detector_arrays, 'IX_detector_array');
+                
+                obj = obj.add_input_with_checks(instruments,     'IX_inst');
+                
+                obj = obj.add_input_with_checks(samples,         'IX_samp');
+                
+                                
+            elseif nargin == 1 
+                arg = varargin{1};
+                if ~iscell(arg)
+                    % make arg a cell so that it is a cell array regardless
+                    % of whether it is a single header struct or a cell
+                    % array of header structs
+                    arg = { arg };
+                end
+                if ~obj.isoldheader(arg{1})
+                    error('HORACE:Experiment:invalid_argument', ...
+                           ['single argument is not an oldstyle header struct', ...
+                            ' or cell of such structs']);
+                end
+                % now have cell array of headers, init_ will process
+                varargin{1} = arg;
+                
+            else
+                error('HORACE:Experiment:invalid_argument', ...
+                      ['the other cases do not yet have examples ',...
+                       'so catching them here until we can do them ',...
+                       'properly']);
             end
             obj = init_(obj,varargin{:});
         end
+        
         %
         function obj = init(obj,varargin)
             % initialize Experiment object using various possible forms of inputs,
@@ -116,12 +181,13 @@ classdef Experiment < serializable
             val=obj.detector_arrays_;
         end
         function obj=set.detector_arrays(obj, val)
-            if isa(val,'IX_detector_array') || isempty(val)
-                obj.detector_arrays_ = val;
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    'Detector array must be one or an array of IX_detector_array object')
+            if isempty(val)
+                % many inputs have unset detectors, leave container as-is
+                % from default initialisation
+                return
             end
+            std_form = check_si_input(obj,val,'IX_detector_array');
+            obj.detector_arrays_ = std_form;
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -198,16 +264,10 @@ classdef Experiment < serializable
     % legacy instrument methods interface
     %----------------------------------------------------------------------
     methods
-        %------------------------------------------------------------------
+    
         %Change fields in the experiment with corrections related to aligned
         %crystal lattice parameters and orientation
-        obj=change_crystal(obj,alignment_info,varargin)
-        % modify crystal lattice and orientation matrix to remove legacy
-        % alignment.
-        obj = remove_legacy_alignment(obj,deal_info)
-        % remove legacy alignment and put modern alignment instead
-        wout = upgrade_legacy_alignment(obj,deal_info,varargin)
-        %------------------------------------------------------------------
+
         % add or reset instrument, related to the given experiment object
         % array of instruments, or function, which defines the instrument
         % with its possible parameters
@@ -429,6 +489,84 @@ classdef Experiment < serializable
             std_form = check_sample_or_inst_array_and_return_std_form_(...
                 sample_or_instrument,class_base);
         end
+        
+        function obj = add_input_with_checks(obj, val,type)
+            % ADD_INPUT_WITH_CHECKS
+            % Add val to one of the unique_reference_container properties.
+            % This makes sure that the right thing is added and any
+            % duplicates are handled.
+            %
+            % Input
+            % -----
+            % - obj:   the Experiment object to which val is being added
+            % - val:   the object or container of objects which is being
+            %          added. this could be a unique_references_container
+            %          or unique_objects_container with baseclass 'type'
+            %          or an object which 'isa(,type)'
+            % - type:  string naming the baseclass to which val should
+            %          belong
+            %
+            % Output
+            % ------
+            % - obj:   the modified Experiment object where the value of
+            %          the field named by the calling form of val (using
+            %          inputname(val#argnum) is modified by adding val if
+            %          val is not a unique_references-container or setting
+            %          it if it is a unique_references_container
+
+            % get the name of the calling variable which enters as 'val'
+            field = [inputname(2) '_'];
+
+            if isa(val, 'unique_references_container') && ...
+                   strcmp(val.stored_baseclass,type)
+                % if size is right, overwrite default compressed container
+                if val.n_runs == obj.n_runs
+                    obj.(field) = val;
+                else
+                    error('HORACE:Experiment:invalid_argument', ...
+                          'input %d size must match number of runs',obj.n_runs);
+                end
+
+
+            elseif ( isa(val, type) &&                       ...
+                     numel(val) == obj.n_runs )              ...
+                   ||                                        ...                   
+                   ( isa(val, 'unique_objects_container') && ...
+                     val.n_runs == obj.n_runs             && ...
+                     strcmp(val.baseclass, type) )           ...
+                   ||                                        ...
+                   ( iscell(val)                          && ...
+                     numel(val) == obj.n_runs             && ...
+                     isa(val{1}, type) )
+
+                % add to default compressed container
+                obj.(field) = obj.(field).add(val);
+
+            elseif ( isa(val, type) &&                       ...
+                     numel(val) == 1 )                       ...
+                   ||                                        ...
+                   ( iscell(val)                          && ...
+                     numel(val) == 1                      && ...
+                     isa(val{1}, type) )
+                % assume we're adding n_runs identical copies
+                % 
+                % add to default compressed container
+                %{
+                for i=1:obj.n_runs
+                    obj.(field) = obj.(field).add(val);
+                end
+                %}
+                obj.(field) = obj.(field).add_copies_(val, obj.n_runs);
+
+            elseif isempty(val)
+                % do nothing, leave default compressed container empty
+                ;
+            else
+                error('HORACE:Experiment:invalid_argument', ...
+                      ['input is not empty, does not have the right number ' ...
+                       'of runs, or is not of type %s'], type);
+            end
+        end
     end
     %
     methods(Static)
@@ -471,52 +609,27 @@ classdef Experiment < serializable
         end
 
         function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,keep_runid)
+            %COMBINE_EXPRIMENTS
             % Take cellarray of experiments (e.g., generated from each runfile build
             % during gen_sqw generation)
             % and combine then together into single Experiment info class
+            % Inputs:
+            % exp_cellarray -- cellarray of Experiment classes, related to
+            %                  different runs or combination of runs
+            % allow_equal_headers
+            %               -- if true, equal runs are allowed.
+            % At present, we insist that the contributing spe data are distinct
+            % in that:
+            %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be
+            %     equal for two spe data input. If allow_equal_headers is
+            %     set to true, this check is disabled
             %
-            %This is the HACK, providing only basic functionality. Previous
-            %header-s on the basis of sqw_header and part, present in
-            %write_nsqw_to_sqw implementation offers much more.
-            %
-            %TODO: Do proper optimization on the way. See
-            % sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)
-            %TODO: use allow_equal_headers,drop_subzone_headers variables
-            %      appropriately
-            %TODO: repeat at least the logic within sqw_header helper class
-            %      and write_nsqw_to_sqw combine/check headers operation
-
-% Check experiment consistency:
-% At present, we insist that the contributing spe data are distinct in that:
-%   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
-%   - emode, lattice parameters, u, v, sample must be the same for all spe data input
-
-
-            n_contrib = numel(exp_cellarray);
-            nspe = zeros(n_contrib,1);
-            for i=1:n_contrib
-                nspe(i) = exp_cellarray{i}.n_runs;
-            end
-            n_tot = sum(nspe);
-            instr  = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst'); %cell(1,n_tot);
-            sampl  = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp'); %cell(1,n_tot);
-            %warning('stop here so you can check that instr and sampl should no longer be set as cells');
-            expinfo= repmat(IX_experiment(),1,n_tot);
-            ic = 1;
-            %TODO: combine instruments using unique_objects_container
-            %      rather than doing a complete unpack and repack
-            for i=1:n_contrib
-                for j=1:exp_cellarray{i}.n_runs
-                    instr{ic}  = exp_cellarray{i}.instruments{j};
-                    sampl{ic}  = exp_cellarray{i}.samples{j};
-                    expinfo(ic)= exp_cellarray{i}.expdata(j);
-                    if ~keep_runid
-                        expinfo(ic).run_id = ic;
-                    end
-                    ic = ic+1;
-                end
-            end
-            exp = Experiment([], instr, sampl,expinfo);
+            % keep_runid    -- if true, the procedure keeps run_id-s
+            %                  defined for contributing experiments.
+            %                  if false, the run-ids are reset from 1 for
+            %                  first contributed run to n_runs for the
+            %                  last contributing run (nxspe file)
+            [exp,nspe] = combine_experiments_(exp_cellarray,allow_equal_headers,keep_runid);
         end
     end
     %======================================================================
@@ -526,9 +639,9 @@ classdef Experiment < serializable
         % the order is important as in this order the component will be set
         % during deserialization, so this order is chosen to avoid
         % repetitive unnecessary checks
-        fields_to_save_ = {'detector_arrays','instruments','samples',...
-            'expdata'};
+        fields_to_save_ = { 'expdata','detector_arrays','instruments','samples'};
     end
+    
     methods
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
@@ -587,6 +700,11 @@ classdef Experiment < serializable
         end
     end
     methods(Static)
+        function ishdr = isoldheader(val)
+            ishdr = isstruct(val) && ...
+                    all(isfield(val,{'alatt','angdeg','efix','emode'}));
+        end
+        
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % save-able class

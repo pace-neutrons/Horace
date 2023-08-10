@@ -71,11 +71,7 @@ if ~(all(new_lat_def) && all(new_ang_def))
                 uni_targ.alatt = uni_source.alatt;   % assign the single source lattice to the single target
                 uni_targ.angdeg = uni_source.angdeg;
                 obj.samples_ = obj.samples_.set_all(uni_targ);            % update all the non-unique target samples with the
-                                                        % revised unique target
-                warning('HORACE:Experiment:lattice_changed', ...
-                        ['the lattice on the new sample was not defined ', ...
-                        'and was retrieved from the previous sample']);
-                
+                                                        % revised unique target                
             % unspecified number of lattice parameters unset so change what
             % is required
             elseif obj.old_lattice_holder_.n_runs == obj.samples.n_runs
@@ -99,9 +95,6 @@ if ~(all(new_lat_def) && all(new_ang_def))
                     end
                 end
                 obj.samples_ = targ_samp;
-                warning('HORACE:Experiment:lattice_changed', ...
-                        ['some new sample lattices were not defined ', ...
-                        'and were retrieved from the previous sample(s)']);
             else
                 warning('HORACE:Experiment:no_available_fixup', ...
                         'number of old lattice parameters does not match current samples');

@@ -1,9 +1,22 @@
 function names = fieldnamesIndep(obj)
-% Get the names of the independent properties of an object i.e. those that
-% are not dependent, transient or constant (this is what the Matlab
-% function 'save' does, according to the documentation of release 2019a)
+% Get the names of the independent properties of an object
 %
-% Use metaclass data to disocver the property names
+%   >> names = fieldnamesIndep(obj)
+%
+% These are fields that are not dependent, transient or constant (this is what
+% the Matlab function 'save' saves, according to the documentation of 
+% release R2019a)
+%
+% Input:
+% ------
+%   obj     Object or array of objects
+%
+% Output:
+% -------
+%   names   Column cellarray of field names.
+%
+% Use metaclass data to discover the property names. This is not a fast
+% operation.
 
 
 if isobject(obj)
@@ -39,7 +52,7 @@ end
 % % are not dependent, transient or constant (this is what the Matlab
 % % function 'save' does, according to the documentation of release 2019a)
 % %
-% % Use metaclass data to disocver the property names
+% % Use metaclass data to discover the property names
 %
 % if isobject(obj)
 %     mc = metaclass(obj);

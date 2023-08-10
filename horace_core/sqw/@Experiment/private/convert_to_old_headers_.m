@@ -21,7 +21,13 @@ else
 end
 
 if ~isempty(header_num)
-    inst = obj.instruments{header_num};
+    if header_num > obj.n_runs || header_num<1
+        error('HORACE:Experiment:invalid_argument', ...
+            'Run N%d requested but experiment contains only %d runs', ...
+            header_num,obj.n_runs)
+    else
+        inst = obj.instruments{header_num};
+    end
     samp = obj.samples{header_num};
     oldhdrs = obj.expdata_(header_num).convert_to_binfile_header( ...
         '-inst_samp',inst,samp,nomangle);

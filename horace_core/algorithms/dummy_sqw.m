@@ -155,10 +155,9 @@ end
 grid_default=[];
 instrument_default=IX_null_inst();  % default 1x1 structure with no fields
 sample_default=IX_null_sample();      % default 1x1 structure with no fields
-[ok,mess,present,grid_size,img_db_range,instrument,sample]=gen_sqw_check_optional_args(...
-    nfiles,grid_default,instrument_default,sample_default,varargin{:});
+[present,grid_size,img_db_range,instrument,sample]=gen_sqw_check_optional_args(...
+    nfiles,grid_default,instrument_default,sample_default,lattice,varargin{:});
 
-if ~ok, error(mess), end
 
 
 % Create tmp files

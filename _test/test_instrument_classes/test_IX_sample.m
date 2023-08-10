@@ -1,5 +1,5 @@
 classdef test_IX_sample < TestCaseWithSave
-    % Test of obj2struct
+    % Test of IX_sample
     properties
         sam1
         sam2
