@@ -35,7 +35,8 @@ classdef test_experiment_methods < TestCase
             exp(3).psi = 10;            
             exp(3).angular_units = 'rad';                        
 
-            obj.sample_exper= Experiment(IX_detector_array,instruments,samples,exp);
+            %obj.sample_exper= Experiment(IX_detector_array,instruments,samples,exp);
+            obj.sample_exper= Experiment([],instruments,samples,exp);
         end
         function test_samples_sets_keeps_lattice_with_no_lattice(obj)
             %
