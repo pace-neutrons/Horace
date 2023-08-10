@@ -10,7 +10,7 @@ function path=horace4_on(non_default_hor_path,non_default_her_path)
 %                                         of Horace/Herbert pairs)
 %
 %
-default_horace_path  = '/usr/local/mprogs/Horace/';
+default_horace_path  = '${Horace_CORE}';
 
 % To use spinW together with Horace, modify the row below pointing to correct
 % spinW location. Also need to modify spinw_on template and place it together
