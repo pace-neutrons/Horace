@@ -45,7 +45,7 @@ The ``parallel_config`` contains most of the information to manage parallelism, 
 
       parallel_config with properties:
 
-                         worker: 'worker_v2'
+                         worker: 'worker_v4'
                     is_compiled: 0
                parallel_cluster: 'herbert'
                  cluster_config: 'local'

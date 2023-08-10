@@ -29,6 +29,12 @@ else
 end
 
 warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
+% Temporary inefficient code, needed only during transition from Horace v3 to Horace V4 on iDAAAS until its config not changed
+try
+    herbert_off();
+catch
+end
+% End temporary code
 try
     horace_off();
 catch

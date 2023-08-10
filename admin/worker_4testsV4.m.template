@@ -1,4 +1,4 @@
-function [ok,err_mess,je]=worker_v2(worker_controls_string)
+function [ok,err_mess,je]=worker_4testsV4(worker_controls_string)
 % function used as standard worker to do a job in a separate Matlab
 % session.
 %
@@ -13,40 +13,50 @@ function [ok,err_mess,je]=worker_v2(worker_controls_string)
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system.
-
-if nargin<1 || isempty(worker_controls_string)
+if nargin<1 || isempty(worker_controls_string)    
     worker_controls_string = getenv('WORKER_CONTROL_STRING');
 end
-
-% Don't print warnings on remote workers
-warning('off', 'all')
-
+%pause(30); % enable pause to be able to connect to MPI worker cpp_communicator with VS debugger
 je = [];
 ok = false;
 if isempty(which('horace_init.m'))
     try
-        horace_on();
+        horace_on()
     catch ME
         err_mess = ME;
         write_fail_log(ME)
         return;
     end
 end
-
-%DO_DEBUGGING = parse_env_var_logical('DO_PARALLEL_MATLAB_DEBUGGING');
-DO_DEBUGGING = false;
+mis = MPI_State.instance();
+% Uncomment the row below to enable tracing initial steps of the
+% worker operations into file.
+% The first time access to debug_log_handle opens debug_log_file located 
+% in tempdir(). The File name is worker_log_XXXXXXXXXX.log  
+% where XXXXXXXXXX is the selection  of 10 random ASCII characters
+%fh= mis.debug_log_handle;
+%
+if mis.trace_log_enabled
+    fwrite(fh,sprintf('Horace is on at %s\n',which('horace_init')));
+end
 % logging occurs into config_exchange_folder, where all MPI processes write
 % files with names:
 % 'Job_job_id_wkNlabIndex#numLabs.log'
 % The logging may be enabled in ClusterWrapper setting DEBUG_REMOTE
 % property to true.
-DO_LOGGING = parse_env_var_logical('DO_PARALLEL_MATLAB_LOGGING');
-DO_PROFILING = parse_env_var_logical('DO_PARALLEL_MATLAB_PROFILING');
-DO_MEMORY_PROFILE = parse_env_var_logical('DO_PARALLEL_MATLAB_MEMORY_PROFILING');
-DO_HTML_PROFILE = parse_env_var_logical('DO_PARALLEL_MATLAB_HTML_PROFILING');
-
+DO_LOGGING = getenv('DO_PARALLEL_MATLAB_LOGGING');
+if isempty(DO_LOGGING)
+    DO_LOGGING = false;
+else
+    DO_LOGGING = feval(DO_LOGGING);
+end
+if mis.trace_log_enabled
+    fwrite(fh,sprintf('Do logging: %d\n',DO_LOGGING));
+end
+DO_DEBUGGING = false;
 try
-    [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING,DO_PROFILING,DO_MEMORY_PROFILE,DO_HTML_PROFILE);
+    [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING,...
+        false,false,false);
 catch ME1 % intercepted exception in processing failure or some odd bug indeed
     write_fail_log(ME1);
     err_mess = ME1;
@@ -54,13 +64,12 @@ end
 if ~ok
     write_fail_log(err_mess);
 end
-
-end
+MPI_State.instance('clear');
 
 function write_fail_log(ERROR)
-
+%
 pid = int64(feature('getpid'));
-log_file_name  = sprintf('WORKER_V2_Process_%d_failure.log',pid);
+log_file_name  = sprintf('WORKER_V4_Process_%d_failure.log',pid);
 log_file = fullfile(getuserdir,log_file_name );
 
 if isa(ERROR,'MException')
@@ -83,11 +92,4 @@ catch ERR % again, may be log will clarify the situation
     warning('Can not write log file %s; Reason %s',log_file,getReport(ERR));
 end
 
-end
 
-function tf = parse_env_var_logical(env_var_name)
-
-env_var = getenv(env_var_name);
-tf = str2logical(env_var);
-
-end

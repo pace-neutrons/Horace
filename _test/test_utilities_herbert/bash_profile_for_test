@@ -11,5 +11,5 @@ PATH=$PATH:$HOME/.local/bin:$HOME/bin
 
 export PATH
 export MATLAB_PARALLEL_EXECUTOR='matlab'
-export PARALLEL_WORKER='worker_v2'
+export PARALLEL_WORKER='worker_v4'
 export WORKER_CONTROL_STRING=''

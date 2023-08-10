@@ -16,7 +16,7 @@ classdef MPI_Test_Common < TestCase
         % current name of the framework to test
         cluster_name;
         % current worker used in tests
-        worker='worker_4tests'
+        worker='worker_4testsV4'
     end
 
     properties(Access=private)
@@ -49,24 +49,24 @@ classdef MPI_Test_Common < TestCase
 
             if is_idaaas && ~isempty(which('worker_4tests_idaaas'))
                 warning(' Setting parallel worker to special value: %s',...
-                    which('worker_4tests_idaaas'));
-                pc.worker = 'worker_4tests_idaaas';
-                obj.worker = 'worker_4tests_idaaas';
+                    which('worker_4testsV3_idaaas'));
+                pc.worker = 'worker_4testsV3_idaaas';
+                obj.worker = 'worker_4testsV3_idaaas';
             end
 
             if is_jenkins
                 warning(' Setting parallel worker to special value: %s',...
-                    which('worker_v2'));
-                pc.worker = 'worker_v2';
-                obj.worker = 'worker_v2';
+                    which('worker_v4'));
+                pc.worker = 'worker_v4';
+                obj.worker = 'worker_v4';
             end
 
             ws = which(obj.worker);
             if isempty(ws)
                 warning(' Setting parallel worker to special value: %s',...
-                    which('worker_v2'));
-                pc.worker = 'worker_v2';
-                obj.worker = 'worker_v2';
+                    which('worker_v4'));
+                pc.worker = 'worker_v4';
+                obj.worker = 'worker_v4';
                 ws = which(obj.worker);
                 if isempty(ws)
                     error('HERBERT:MPI_Test_Common:runtime_error',...

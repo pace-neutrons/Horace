@@ -214,7 +214,7 @@ automatically detect the folders).
 The ``horace_install`` installation script then modifies two files:
 
 - `horace_on.m.template <https://github.com/pace-neutrons/Horace/blob/master/admin/horace_on.m.template>`__,
-- `worker_v2.m.template <https://github.com/pace-neutrons/Horace/blob/master/admin/worker_v2.m.template>`__
+- `worker_v4.m.template <https://github.com/pace-neutrons/Horace/blob/master/admin/worker_v4.m.template>`__
 
 by inserting the location of the `Horace` folders into these files, and copies them to a folder
 (``<extracted_folder>/ISIS`` by default) which it adds to the Matlab path by modifying the global ``pathdef.m`` file.
@@ -225,7 +225,7 @@ It is possible to install `Horace` without admin rights, in which case the ``hor
 ``pathdef.m`` file in the default `userpath` folder (as defined in the `Matlab documentation for search paths
 <https://uk.mathworks.com/help/matlab/matlab_env/what-is-the-matlab-search-path.html>`__).  Some versions of Matlab,
 however, use different `userpath` folders if they are started as a parallel worker, which may lead the parallel
-extensions to fail because they cannot find the ``worker_v2.m`` file, but not to report any errors.  In these cases, you
+extensions to fail because they cannot find the ``worker_v4.m`` file, but not to report any errors.  In these cases, you
 should run Matlab from the `userpath` folder (e.g. the folder with the ``pathdef.m`` file).
 
 If instead of using the release packages you've cloned the `Horace` repository, then you should still run

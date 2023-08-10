@@ -17,7 +17,7 @@
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
-         <worker>worker_v2</worker>
+         <worker>worker_v4</worker>
          <parallel_workers_number>2</parallel_workers_number>
          <threads>8</threads>
          <parallel_cluster>herbert</parallel_cluster>
@@ -45,7 +45,7 @@
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
-         <worker>worker_v2</worker>
+         <worker>worker_v4</worker>
          <threads>8</threads>
          <parallel_workers_number>2</parallel_workers_number>
          <parallel_cluster>herbert</parallel_cluster>
@@ -73,7 +73,7 @@
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
-         <worker>worker_v2</worker>
+         <worker>worker_v4</worker>
          <parallel_cluster>herbert</parallel_cluster>
          <threads>8</threads>
          <parallel_workers_number>4</parallel_workers_number>
@@ -101,7 +101,7 @@
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
-         <worker>worker_v2</worker>
+         <worker>worker_v4</worker>
          <parallel_cluster>parpool</parallel_cluster>
          <threads>4</threads>
          <parallel_workers_number>2</parallel_workers_number>
@@ -129,7 +129,7 @@
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
-         <worker>worker_v2</worker>
+         <worker>worker_v4</worker>
          <parallel_cluster>parpool</parallel_cluster>
          <threads>6</threads>
          <parallel_workers_number>6</parallel_workers_number>
@@ -157,7 +157,7 @@
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
-         <worker>worker_v2</worker>
+         <worker>worker_v4</worker>
          <parallel_cluster>herbert</parallel_cluster>
          <threads>8</threads>
          <parallel_workers_number>2</parallel_workers_number>
@@ -185,7 +185,7 @@
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
-         <worker>worker_v2</worker>
+         <worker>worker_v4</worker>
          <parallel_cluster>parpool</parallel_cluster>
          <threads>8</threads>
          <parallel_workers_number>10</parallel_workers_number>
@@ -213,7 +213,7 @@
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
-         <worker>worker_v2</worker>
+         <worker>worker_v4</worker>
          <parallel_cluster>parpool</parallel_cluster>
          <threads>8</threads>
          <parallel_workers_number>4</parallel_workers_number>
@@ -241,7 +241,7 @@
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
-         <worker>worker_v2</worker>
+         <worker>worker_v4</worker>
          <external_mpiexec>0</external_mpiexec>
          <parallel_cluster>parpool</parallel_cluster>
          <threads>2</threads>
