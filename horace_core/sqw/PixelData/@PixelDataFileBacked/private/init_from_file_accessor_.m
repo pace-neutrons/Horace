@@ -27,19 +27,11 @@ if norange
     return;
 end
 
-fac_range = obj.data_range;
-undefined = fac_range == PixelDataBase.EMPTY_RANGE;
-
-if ~any(undefined(:))
-    obj.data_range_ = fac_range;
-end
-
-undefined = obj.data_range == PixelDataBase.EMPTY_RANGE;
-if any(undefined(:))
+if ~obj.is_range_valid()
     warning('HORACE:old_file_format',....
         ['\n*** SQW file: %s\n    contains data in old binary format without pixel data averages.\n', ...
-        '*** These averages are calculating after loading pixels which may take substantial time for filebacked sqw objects\n',...
-        '*** Update file format of your sqw objects not to recalculate these averages each time the sqw file is accessed\n'],...
+        '*** For such files averages are calculating on request which may take substantial time for filebacked sqw objects\n',...
+        '*** Update file format of your sqw objects not to recalculate these averages each time the averages are requested\n' ...
+        '*** Run upgrade_file_format(filename) from horace_core/admin folder to do that'],...
         obj.full_filename);
-    obj = obj.recalc_data_range();
 end
