@@ -74,21 +74,7 @@ classdef test_upgrade_file_format< TestCase
                 copyfile(source,target,"f");
                 targ_f{i} = target;
             end
-            clOb = onCleanup(@()del_files(obj,targ_f));
-        end
-        function del_files(~,filelist)
-            for i=1:numel(filelist)
-                fn = filelist{i};
-                delete(fn);
-                if isfile(fn) % deleteon for files accessed trough matlab
-                    % memmapfile
-                    if isunix()
-                        system(sprintf('rm %s',fn));
-                    else
-                        system(sprintf('delete %s',fn));
-                    end
-                end
-            end
+            clOb = onCleanup(@()del_memmapfile_files(targ_f));
         end
     end
 end

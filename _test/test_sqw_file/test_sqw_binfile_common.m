@@ -78,7 +78,7 @@ classdef test_sqw_binfile_common <  TestCase
             sample_V2_file = fullfile(obj.tests_data_folder, ...
                 'w3d_sqw.sqw');
             out_file = fullfile(obj.this_test_folder,'test_no_mangling_updata_v2.sqw');
-            clOb = onCleanup(@()delete(out_file));
+            clOb = onCleanup(@()del_memmapfile_files(out_file));
             copyfile(sample_V2_file,out_file,'f');
 
             v2reader = faccess_sqw_v2(out_file);

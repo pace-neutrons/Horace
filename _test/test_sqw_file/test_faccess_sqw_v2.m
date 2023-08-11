@@ -212,7 +212,7 @@ classdef test_faccess_sqw_v2< TestCase
             fresh_sqw = faccess_sqw_v2();
 
             tf = fullfile(tmp_dir,'test_put_sqw_v2.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
 
             fresh_sqw = fresh_sqw.init(tob_sqw);
             fresh_sqw = fresh_sqw.set_file_to_update(tf);
@@ -248,7 +248,7 @@ classdef test_faccess_sqw_v2< TestCase
 
 
             tf = fullfile(tmp_dir,'test_upgrade_sqwV2.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
             copyfile(samplef,tf);
 
             tob = faccess_sqw_v2(tf);
@@ -276,7 +276,7 @@ classdef test_faccess_sqw_v2< TestCase
 
 
             tf = fullfile(tmp_dir,'test_upgrade_sqwV2_multiheader.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
             copyfile(samplef,tf);
 
             tob = faccess_sqw_v2(tf);
@@ -307,7 +307,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertFalse(sqwob.main_header.creation_date_defined);
 
             tf = fullfile(tmp_dir,'test_upgrade_sqwV2_wac.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
             tob = faccess_sqw_v2(sqwob,tf);
             tob = tob.put_sqw();
 
@@ -346,7 +346,7 @@ classdef test_faccess_sqw_v2< TestCase
             sqwob = read_sqw(samplef);
 
             tf = fullfile(tmp_dir,'test_put_dnd_from_sqw.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
             tob = faccess_sqw_v2(sqwob,tf);
             tob = tob.put_dnd();
             tob.delete();
@@ -371,7 +371,7 @@ classdef test_faccess_sqw_v2< TestCase
             dnob = read_dnd(samplef);
 
             tf = fullfile(tmp_dir,'test_put_dnd_from_sqw.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
 
             tob = faccess_dnd_v2(dnob,tf);
             tob = tob.put_sqw();
@@ -398,7 +398,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(isa(sq_obj,'sqw'));
 
             test_f = fullfile(tmp_dir,'test_sqw_reopen_to_wrire.sqw');
-            clob = onCleanup(@()delete(test_f));
+            clob = onCleanup(@()del_memmapfile_files(test_f));
 
             % using already initialized object to write new data.
             % its better to initialize object again as with this form
