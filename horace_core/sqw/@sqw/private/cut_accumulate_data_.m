@@ -71,8 +71,9 @@ end
 n_candidate_pix = sum(block_sizes);
 
 
-cut_in_mem = ~obj.pix.is_filebacked || ~PixelDataBase.do_filebacked(n_candidate_pix);
-cut_to_file = ~return_cut && ~cut_in_mem;
+cut_to_file = ~return_cut || PixelDataBase.do_filebacked(n_candidate_pix);
+% Always cut in mem if not in file, leave as debugging option to compare with filebacked ops.
+cut_in_mem = ~cut_to_file;
 
 fb_scale = config_store.instance().get_value('hor_config','fb_scale_factor');
 if ~cut_to_file && PixelDataBase.do_filebacked(n_candidate_pix, fb_scale )
@@ -343,13 +344,13 @@ for iter = 1:num_chunks
         % the files - this object then recombines the files once it is
         % passed to 'put_sqw'.
         pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file(pix_comb_info, false, ...
-            pix_ok, pix_indx, npix, chunk_size);
+                                                                          pix_ok, pix_indx, npix, ...
+                                                                          0);
     end
 end  % loop over pixel blocks
 
 % store partial pixel_blocks remaining memory to tmp files
 % return pix_out which here is the pix_combine_info.
-% clear pix_block from memory.
 pix_out = cut_data_from_file_job.accumulate_pix_to_file(pix_comb_info, true);
 end
 

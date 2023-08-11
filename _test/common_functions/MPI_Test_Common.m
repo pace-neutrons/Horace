@@ -49,9 +49,9 @@ classdef MPI_Test_Common < TestCase
 
             if is_idaaas && ~isempty(which('worker_4tests_idaaas'))
                 warning(' Setting parallel worker to special value: %s',...
-                    which('worker_4testsV3_idaaas'));
-                pc.worker = 'worker_4testsV3_idaaas';
-                obj.worker = 'worker_4testsV3_idaaas';
+                    which('worker_4testsV4_idaaas'));
+                pc.worker = 'worker_4testsV4_idaaas';
+                obj.worker = 'worker_4testsV4_idaaas';
             end
 
             if is_jenkins

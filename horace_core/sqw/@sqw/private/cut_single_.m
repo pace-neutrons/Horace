@@ -23,16 +23,24 @@ function [wout,log_info] = cut_single_(w, targ_proj, targ_axes, opt, log_level)
 %
 
 % Rework of legacy function cut_sqw_main_single
-
 return_cut = nargout > 0;
+
+outfile_specified = isfield(opt, 'outfile') && ~isempty(opt.outfile);
 
 % Accumulate image and pixel data for cut
 [s, e, npix, pix_out,runid_contributed] = cut_accumulate_data_( ...
     w, targ_proj, targ_axes, opt.keep_pix, log_level, return_cut);
 
+
 if isa(pix_out, 'pix_combine_info')
     % Make sure we clean up temp files.
     cleanup = onCleanup(@() clean_up_tmp_files(pix_out));
+
+    if ~outfile_specified
+        tmp_file = TmpFileHandler(w.full_filename);
+        opt.outfile = tmp_file.file_name;
+        outfile_specified = true;
+    end
 end
 
 
@@ -84,7 +92,7 @@ else
 end
 
 % Write result to file if necessary
-if ~isempty(opt.outfile)
+if outfile_specified
     if log_level >= 0
         disp(['*** Writing cut to output file ', opt.outfile, '...']);
     end
@@ -96,6 +104,11 @@ if ~isempty(opt.outfile)
               'Error writing to file ''%s''.\n%s: %s', ...
               opt.outfile, ME.identifier, ME.message);
     end
+end
+
+if exist('tmp_file', 'var')
+    wout = sqw(opt.outfile);
+    wout.file_holder_ = tmp_file;
 end
 
 end
