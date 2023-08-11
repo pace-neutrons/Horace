@@ -57,14 +57,17 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             raw_data = pdf.get_raw_data();
             assertElementsAlmostEqual(raw_data,pix_data);
-
+            % now the range is calculated on request
+            clWarn = set_temporary_warning('off','HORACE:old_file_format');
             al_range = pdf.data_range;
+            [~,lw] = lastwarn; % data range have been recalculated on request with
+            % warning
+            assertEqual(lw,'HORACE:old_file_format');
             assertFalse(all(initial_range(:) == al_range(:)));
+            % range is still invalid as int is calculated on request
             assertFalse(pdf.is_range_valid);
 
             assertElementsAlmostEqual(aligned_data(1:3,1:3),al_matr);
-            ref_range = PixelDataBase.EMPTY_RANGE(:,1:3);
-            assertElementsAlmostEqual(al_range(:,1:3),ref_range);
         end
         %
         function test_pix_alignment_set_membacked_properties(~)

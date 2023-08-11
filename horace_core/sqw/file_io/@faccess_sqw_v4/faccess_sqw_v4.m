@@ -211,13 +211,12 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % build data range as if it has not been stored with
             % majority of old data files
             %
-            missing_range = sqw_obj.pix.data_range == PixelDataBase.EMPTY_RANGE;
-            if any(missing_range(:))
+            if ~sqw_obj.pix.is_range_valid()
                 hc = hor_config;
                 log_level = hc.log_level;
                 %log_level = config_store.instance().get_value('hor_config','log_level');
                 if log_level > 0
-                    fprintf(2,['*** Recalculating actual data range missing in file %s:\n', ...
+                    fprintf(2,['\n*** Recalculating actual data range missing in file %s:\n', ...
                         '*** This is one-off operation occurring during upgrade from file format version %d to file format version %d\n',...
                         '*** Do not interrupt this operation after the page count completion, as the input data file may become corrupted\n'],...
                         obj.full_filename,other_obj.faccess_version,obj.faccess_version);

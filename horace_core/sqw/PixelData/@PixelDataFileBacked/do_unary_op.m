@@ -64,7 +64,7 @@ function pix_out = unary_op_no_dnd(pix_out, unary_op)
     v_ind = pix_out.check_pixel_fields('variance');
 
     n_pages = pix_out.num_pages;
-    pix_out.data_range = PixelDataBase.EMPTY_RANGE;
+    data_range = PixelDataBase.EMPTY_RANGE;
 
     for i = 1:n_pages
         pix_out.page_num = i;
@@ -75,11 +75,12 @@ function pix_out = unary_op_no_dnd(pix_out, unary_op)
 
         data(s_ind, :) = pg_result.s;
         data(v_ind, :) = pg_result.e;
-        pix_out.data_range = ...
-            pix_out.pix_minmax_ranges(data, pix_out.data_range);
-
+        loc_range = [min(data,[],2),...
+            max(data,[],2)]';
+        data_range = minmax_ranges(data_range,loc_range);        
         pix_out.format_dump_data(data);
     end
+    pix_out.data_range = data_range;
 
     pix_out = pix_out.finish_dump();
 

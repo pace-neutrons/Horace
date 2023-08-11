@@ -297,7 +297,7 @@ classdef PixelDataFileBacked < PixelDataBase
     % File handling/migration
     methods
         function obj = prepare_dump(obj)
-        % Get new handle iff not already opened by sqw
+            % Get new handle iff not already opened by sqw
             if ~obj.has_open_file_handle
                 obj = obj.get_new_handle();
             end
@@ -339,7 +339,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = finish_dump(obj, final_num_pixels)
             if ~obj.has_open_file_handle
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
-                      'Cannot finish dump writing, object does not have open filehandle')
+                    'Cannot finish dump writing, object does not have open filehandle')
             end
 
             if exist('final_num_pixels', 'var')
@@ -454,6 +454,33 @@ classdef PixelDataFileBacked < PixelDataBase
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
+        function data_range = get_data_range(obj,varargin)
+            % overloadable data range getter
+            if nargin == 1
+                data_range = obj.data_range_;
+                undefined = data_range == PixelDataBase.EMPTY_RANGE;
+            else
+                data_range = obj.data_range_(:,varargin{1});
+                undefined = data_range == PixelDataBase.EMPTY_RANGE(:,varargin{1});
+            end
+
+            if any(undefined(:))
+                warning('HORACE:old_file_format',[...
+                    '*** Pixels in this sqw object are obtained from file ' ...
+                    'containing data in old binary format without pixel data averages.\n', ...
+                    '*** Alternatively, pixel data have been realigned\n',...
+                    '*** Update file format of your sqw objects not to ' ...
+                    'recalculate these averages each time you accessing them\n' ...
+                    '*** Run upgrade_file_format(filename) from horace_core/admin folder to do that\n'])
+                obj = obj.recalc_data_range();
+                if nargin == 1
+                    data_range = obj.data_range_;
+                else
+                    data_range = obj.data_range_(:,varargin{1});
+                end
+            end
+        end
+
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
             num_pix = obj.num_pixels_;

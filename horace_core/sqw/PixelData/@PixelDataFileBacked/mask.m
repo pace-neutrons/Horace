@@ -95,8 +95,8 @@ obj_out = obj_out.prepare_dump();
 keep_array = logical(keep_array);
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.default_page_size);
-obj_out.data_range = obj.EMPTY_RANGE;
 
+data_range = obj.EMPTY_RANGE;
 curr = 1;
 npg = obj.num_pages;
 for i = 1:npg
@@ -110,14 +110,15 @@ for i = 1:npg
     if isempty(data)
         continue;
     end
-
-    obj_out.data_range = obj_out.pix_minmax_ranges(data, ...
-        obj_out.data_range);
+    loc_range = [min(data,[],2),...
+        max(data,[],2)]';
+    data_range = minmax_ranges(data_range,loc_range);
 
     obj_out.format_dump_data(data, curr);
 
     curr = curr + size(data,2);
 end
+obj_out.data_range = data_range;
 
 obj_out.num_pixels_ = sum(npix(:) .* keep_array(:), 'all');
 obj_out = obj_out.finish_dump();

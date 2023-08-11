@@ -37,7 +37,8 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             hc = hor_config;
             obj.stored_config = hc.get_data_to_store();
             hc.saveable = false;
-
+            %
+            obj.ws_cache = warning('off','HORACE:old_file_format');
 
             % Load a 1D SQW file
             mem_chunk_size = hc.mem_chunk_size;
@@ -48,7 +49,7 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             obj.pix_with_pages = sqw_test_obj.pix;
             obj.pix_in_memory  = PixelDataMemory(sqw_test_obj.pix);
             obj.ref_raw_pix_data   = obj.pix_in_memory.data;
-            obj.ws_cache = warning('off','HORACE:old_file_format');
+
         end
         function setUp(obj)
             hc = hor_config;
@@ -236,7 +237,9 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             expected_diff(obj.SIGNAL_IDX, :) = pix1.signal - pix2.signal;
             expected_diff(obj.VARIANCE_IDX, :) = pix1.variance + pix2.variance;
 
+            range = [min(expected_diff,[],2),max(expected_diff,[],2)]';
             assertElementsAlmostEqual(pix_diff.data, expected_diff);
+            assertElementsAlmostEqual(pix_diff.data_range,range)
         end
 
         function test_minus_PixelData_filebacked_memory(obj)
