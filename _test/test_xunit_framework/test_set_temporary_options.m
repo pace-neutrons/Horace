@@ -5,13 +5,13 @@ classdef test_set_temporary_options < TestCase
             obj = obj@TestCase(name);
         end
 
-        function test_set_config(obj)
+        function test_set_config(~)
             hc = hor_config;
             mch_sz = hc.mem_chunk_size;
 
             % Ensure that if function fails things are reset
             safety_clob = onCleanup(@() set(hor_config, 'mem_chunk_size', mch_sz, ...
-                                                        'saveable', true));
+                'saveable', true));
 
 
             clob = set_temporary_config_options(hor_config, 'mem_chunk_size', mch_sz+1);
@@ -26,12 +26,12 @@ classdef test_set_temporary_options < TestCase
         end
 
 
-        function test_set_warning(obj)
+        function test_set_warning(~)
             wa = warning('query', 'MATLAB:singularMatrix');
             % Ensure that if function fails things are reset
             safety_clob = onCleanup(@() warning(wa));
 
-            if wa.state ~= 'on'
+            if ~strcmp(wa.state,'on')
                 warning('on', 'MATLAB:singularMatrix');
             end
 
@@ -47,7 +47,7 @@ classdef test_set_temporary_options < TestCase
 
         end
 
-        function test_set_config_throws_no_return(obj)
+        function test_set_config_throws_no_return(~)
             function thrower()
                 hc = hor_config;
                 mch_sz = hc.mem_chunk_size;
@@ -58,15 +58,12 @@ classdef test_set_temporary_options < TestCase
         end
 
 
-        function test_set_warning_throws_no_return(obj)
+        function test_set_warning_throws_no_return(~)
             function thrower()
                 set_temporary_warning('off', 'MATLAB:warning');
             end
 
             assertExceptionThrown(@thrower, 'TEST:set_temporary_warning');
         end
-
-
     end
-
 end

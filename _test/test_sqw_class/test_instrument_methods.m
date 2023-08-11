@@ -13,10 +13,11 @@ classdef test_instrument_methods < TestCaseWithSave
             self@TestCaseWithSave(name);
 
             % load data
-            load('data/test_instrument_methods_data.mat','w_fe','w_rb')
+            this_dir = fileparts(mfilename('fullpath'));
+            ld = load(fullfile(this_dir,'data','test_instrument_methods_data.mat'),'w_fe','w_rb');
 
-            self.w_fe = w_fe;     % iron dataset
-            self.w_rb = w_rb;     % RbMnF3 dataset
+            self.w_fe =ld.w_fe;     % iron dataset
+            self.w_rb =ld.w_rb;     % RbMnF3 dataset
 
             % Make an instrument(distance,frequency,radius,curvature,slit_width
             mod_1 = IX_moderator(10,11,'ikcarp',[11,111,0.1]);
@@ -35,7 +36,7 @@ classdef test_instrument_methods < TestCaseWithSave
         end
         function test_set_obj_array_sample_array(obj)
             samp = [IX_sample([1,0,0],[0,1,0],'cuboid',[2,3,4]),...
-                    IX_sample([0,1,0],[0,0,1],'cuboid',[12,13,34])];            
+                IX_sample([0,1,0],[0,0,1],'cuboid',[12,13,34])];
 
             w_mod = [obj.w_fe,obj.w_rb];
 
@@ -44,44 +45,44 @@ classdef test_instrument_methods < TestCaseWithSave
 
             ref_samp1 = obj.w_fe.experiment_info.samples(1);
             samp1 = samp(1);
-          
+
             samp1.alatt = ref_samp1.alatt;
-            samp1.angdeg = ref_samp1.angdeg;            
+            samp1.angdeg = ref_samp1.angdeg;
             assertEqual(w_mod(1).experiment_info.samples(3),samp1);
 
-            ref_samp2 = obj.w_rb.experiment_info.samples(1); 
+            ref_samp2 = obj.w_rb.experiment_info.samples(1);
             samp2 = samp(2);
             samp2.alatt = ref_samp2.alatt;
-            samp2.angdeg = ref_samp2.angdeg;            
+            samp2.angdeg = ref_samp2.angdeg;
             assertEqual(w_mod(2).experiment_info.samples(10),samp2);
         end
-        
+
         function test_set_sample_array(obj)
             samp = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
             samp = repmat(samp,1,120);
             samp2 = IX_sample ([0,1,0],[0,0,1],'cuboid',[12,13,34]);
-            clWarn = set_temporary_warning('off','HORACE:Experiment:lattice_changed');            
+            clWarn = set_temporary_warning('off','HORACE:Experiment:lattice_changed');
             samp(100) = samp2;
             w_mod = obj.w_fe.set_sample(samp);
 
             ref_samp = obj.w_fe.experiment_info.samples(1);
             samp(3).alatt = ref_samp.alatt;
-            samp(3).angdeg = ref_samp.angdeg;            
+            samp(3).angdeg = ref_samp.angdeg;
             assertEqual(w_mod.experiment_info.samples(3),samp(3));
 
             samp2.alatt = ref_samp.alatt;
-            samp2.angdeg = ref_samp.angdeg;            
+            samp2.angdeg = ref_samp.angdeg;
             assertEqual(w_mod.experiment_info.samples(100),samp2);
         end
-        
+
         function test_set_sample(obj)
             samp = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
-            clWarn = set_temporary_warning('off','HORACE:Experiment:lattice_changed');            
+            clWarn = set_temporary_warning('off','HORACE:Experiment:lattice_changed');
             w_mod = obj.w_fe.set_sample(samp);
 
-            ref_samp = obj.w_fe.experiment_info.samples(1);            
+            ref_samp = obj.w_fe.experiment_info.samples(1);
             samp.alatt = ref_samp.alatt;
-            samp.angdeg = ref_samp.angdeg;            
+            samp.angdeg = ref_samp.angdeg;
             assertEqual(w_mod.experiment_info.samples(100),samp);
 
         end
@@ -143,7 +144,7 @@ classdef test_instrument_methods < TestCaseWithSave
             assertEqual(hdr.instruments{99}, self.inst_1);
             assertEqual(hdr.instruments{100}, self.inst_2);
             assertEqual(hdr.instruments{101}, self.inst_1);
-        end        
+        end
 
         function test_set_instrument_updates_all_headers_to_single_value(self)
             % Set all spe file to the same instrument

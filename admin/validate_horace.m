@@ -16,7 +16,7 @@ function err = validate_horace(varargin)
 %   >> validate_horace (...'-nomex')               %  Validate matlab code by forcefully disabling
 %                                                  % mex even if mex files are available
 %   >> validate_horace (...'-forcemex')            %  Enforce use of mex files only. The default
-%                                                  % otherwise for Horace to revert to using 
+%                                                  % otherwise for Horace to revert to using
 %                                                  % matlab code.
 %   >> validate_horace (...'-disp_skipped')        %  Print list of both failed and skipped tests
 %                                                  % (the default is not to print skipped test listing)
@@ -25,6 +25,9 @@ function err = validate_horace(varargin)
 %                                                  % and Tobyfit tests)
 %   >> validate_horace (...'-herbert_only')        %  Run only tests related to herbert_core
 %   >> validate_horace (...'-horace_only')         %  Run only tests related to horace_core
+%   >> validate_horace (...'-combine_all')         % Combine all requested tests together
+%                                                  % and run them in commonworkspace rather then
+%                                                  % each test folder separately
 %
 % Exits with non-zero error code if any tests failed
 
@@ -36,10 +39,10 @@ end
 % ---------------
 options = {'-parallel',  '-talkative',  '-nomex',  '-forcemex',...
     '-disp_skipped','-exit_on_completion','-no_system_tests',...
-    '-herbert_only', '-horace_only'};
+    '-herbert_only', '-horace_only','-combine_all'};
 [ok, mess, parallel, talkative, nomex, forcemex, ...
- disp_skipped, exit_on_completion, no_system, ...
- herbert_only, horace_only, test_folders] = ...
+    disp_skipped, exit_on_completion, no_system, ...
+    herbert_only, horace_only,combile_all, test_folders] = ...
     parse_char_options(varargin, options);
 
 if ~ok
@@ -67,7 +70,7 @@ if isempty(test_folders)
         'test_geometry',...
         'test_mpi_wrappers', ...
         'test_mpi', ...
-                    };
+        };
 
     horace_tests = {...
         'test_admin', ...
@@ -99,7 +102,7 @@ if isempty(test_folders)
         'test_TF_components', ...
         'test_TF_let', ...
         'test_TF_refine_crystal' ...
-                   };
+        };
 
     if herbert_only && ~horace_only
         test_folders = herbert_tests;
@@ -156,11 +159,11 @@ clear config_store;
 
 % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
 cleanup_obj = onCleanup(@() ...
-                        validate_horace_cleanup(cur_horace_config, ...
-                                                cur_hpc_config, ...
-                                                cur_par_config, ...
-                                                test_folders, ...
-                                                initial_warn_state));
+    validate_horace_cleanup(cur_horace_config, ...
+    cur_hpc_config, ...
+    cur_par_config, ...
+    test_folders, ...
+    initial_warn_state));
 
 % Run unit tests
 % --------------
@@ -196,12 +199,15 @@ else
 
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
-
-    for i = 1:numel(test_folders_full)
-        test_stage_reset(i, hor, hpc, par, nomex, forcemex, talkative);
-        test_ok(i) = runtests(test_folders_full{i}, argi{:});
+    if combile_all
+        test_stage_reset(1, hor, hpc, par, nomex, forcemex, talkative);
+        test_ok = runtests(test_folders_full{:}, argi{:});
+    else
+        for i = 1:numel(test_folders_full)
+            test_stage_reset(i, hor, hpc, par, nomex, forcemex, talkative);
+            test_ok(i) = runtests(test_folders_full{i}, argi{:});
+        end
     end
-
     bigtoc(time,  '===COMPLETED UNIT TESTS RUN ');
 
 end
