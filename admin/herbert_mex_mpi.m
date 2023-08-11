@@ -5,7 +5,7 @@ function [ok,mess] = herbert_mex_mpi(varargin)
 % Manually modify this script to specify the mpi libraries location in your
 % system.
 %
-use_her_mpich = true;
+use_her_mpich = false;
 verbose = nargin > 0;
 pths = horace_paths;
 
@@ -66,13 +66,13 @@ if verbose
 else
     add_include = {add_include};
 end
-outdir = fullfile(pths.herbert,'DLL',['_',computer],'_R2015a');
+outdir = fullfile(pths.horace,'DLL',['_',computer],'_R2015a');
 
 build_version_h(pths.root)
 try
     opt = sprintf('CXXFLAGS=$CFLAGS -fopenmp -std=c++11 -Wl,-rpath=%s,--enable-new-dtags,--no-undefined,-fopenmp',mpi_lib_folder);
     if isempty(opt_file)
-        mex(add_include{:},opt,input_files{:},...
+        mex('-v',add_include{:},opt,input_files{:},...
             mpi_lib{:},'-outdir',outdir);
     else
         mex(add_include{:},opt,input_files{:},...
