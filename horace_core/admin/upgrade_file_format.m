@@ -28,7 +28,7 @@ is_sqw = cellfun(@is_sqw_extension,filenames);
 %
 for i=1:n_inputs
     if is_sqw(i)
-        ld = sqw_format_factory.instance().get_loader(filenames{i});
+        ld = sqw_formats_factory.instance().get_loader(filenames{i});
         ld_new = ld.upgrade_file_format();
         ld_new.delete();
     else

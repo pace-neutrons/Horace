@@ -89,11 +89,11 @@ classdef (Abstract) PixelDataBase < serializable
 
     properties(Constant,Access=protected)
         COLS = {'u1', 'u2', 'u3', 'dE', ...
-                'run_idx', ...
-                'detector_idx', ...
-                'energy_idx', ...
-                'signal', ...
-                'variance'};
+            'run_idx', ...
+            'detector_idx', ...
+            'energy_idx', ...
+            'signal', ...
+            'variance'};
         FIELD_INDEX_MAP_ = containers.Map(...
             {'u1', 'u2', 'u3', 'dE', ...
             'coordinates', ...
@@ -303,7 +303,7 @@ classdef (Abstract) PixelDataBase < serializable
                     obj = PixelDataMemory(init);
                 end
 
-                undef = obj.data_range == obj.EMPTY_RANGE;
+                undef = obj.data_range_ == obj.EMPTY_RANGE;
                 if ~any(undef(:))
                     return;
                 end
@@ -424,7 +424,7 @@ classdef (Abstract) PixelDataBase < serializable
     %======================================================================
     % the same interface on FB and MB files
     methods
-       function cnt = get_field_count(obj, field)
+        function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
         end
 
@@ -444,7 +444,7 @@ classdef (Abstract) PixelDataBase < serializable
             else
                 idx = obj.FIELD_INDEX_MAP_(fld);
             end
-            obj.data_range(:,idx) = obj.EMPTY_RANGE(:,idx);
+            obj.data_range_(:,idx) = obj.EMPTY_RANGE(:,idx);
         end
         %
         function is = is_range_valid(obj,fld)
@@ -457,7 +457,7 @@ classdef (Abstract) PixelDataBase < serializable
             else
                 idx = obj.FIELD_INDEX_MAP_(fld);
             end
-            invalid = obj.data_range(:,idx) == obj.EMPTY_RANGE(:,idx);
+            invalid = obj.data_range_(:,idx) == obj.EMPTY_RANGE(:,idx);
             is = ~any(invalid(:));
         end
         %
@@ -587,7 +587,7 @@ classdef (Abstract) PixelDataBase < serializable
         end
         %------------------------------------------------------------------
         function range = get.pix_range(obj)
-            range = obj.data_range_(:,1:4);
+            range = get_data_range(obj,1:4);
         end
 
         function obj = set.pix_range(obj,range)
@@ -603,7 +603,7 @@ classdef (Abstract) PixelDataBase < serializable
         end
 
         function srange = get.data_range(obj)
-            srange = obj.data_range_;
+            srange = get_data_range(obj);
         end
 
         function obj = set.data_range(obj,val)
@@ -982,6 +982,15 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     methods(Access=protected)
+        function data_range = get_data_range(obj,varargin)
+            % overloadable data range getter, which recalculates data range
+            % on pixel_dile backed if this range is undefined
+            if nargin == 1
+                data_range = obj.data_range_;
+            else
+                data_range = obj.data_range_(:,varargin{1});
+            end
+        end
 
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
