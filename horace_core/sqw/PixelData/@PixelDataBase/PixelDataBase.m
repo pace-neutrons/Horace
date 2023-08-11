@@ -103,8 +103,9 @@ classdef (Abstract) PixelDataBase < serializable
             'energy_idx', ...
             'signal', ...
             'variance',...
+            'sig_var',...
             'all'}, ...
-            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,1:9});
+            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,[8,9],1:9});
     end
 
     properties (Dependent)
@@ -137,7 +138,7 @@ classdef (Abstract) PixelDataBase < serializable
         data_range  % the range of pix data. 2x9 array of [min;max] values
         % of pixels data field
 
-        data; % The full raw pixel data block. Usage of this attribute exposes
+        data; % The full pixel data block. Usage of this attribute exposes
         % current pixels layout, so when the pixels layout changes in a
         % future, the code using this attribute will change too. So, the usage
         % of this attribute is discouraged as the structure of the return
@@ -156,6 +157,10 @@ classdef (Abstract) PixelDataBase < serializable
         %             % to convert their coordinates into CrystalCartesian
         %             % coordinate system. If pixels are not misaligned,
         %             % the matrix is eye(3);
+    end
+    properties(Dependent,Hidden)
+        % hidden not to pollute interface
+        sig_var
     end
 
     methods(Static,Hidden)
@@ -301,26 +306,6 @@ classdef (Abstract) PixelDataBase < serializable
                     obj = PixelDataFileBacked(init, upgrade,norange);
                 else
                     obj = PixelDataMemory(init);
-                end
-
-                undef = obj.data_range_ == obj.EMPTY_RANGE;
-                if ~any(undef(:))
-                    return;
-                end
-
-                % may be long operation. Should be able to inform about
-                % these intentions
-                if ~norange
-                    for i=1:numel(obj)
-                        if obj.is_filebacked
-                            warning('HORACE:old_file_format', ...
-                                ['sqw file %s is written in old file format, which does not contain all necessary pixel averages.\n', ...
-                                ' Update file format to the recent version to avoid recalculating these averages each time the file is loaded from disk'], ...
-                                init.full_filename);
-                        end
-                        obj(i) = obj(i).recalc_data_range();
-                        obj(i) = obj(i).move_to_first_page();
-                    end
                 end
             else
                 error('HORACE:PixelDataBase:invalid_argument', ...
@@ -572,6 +557,13 @@ classdef (Abstract) PixelDataBase < serializable
             obj=obj.set_prop('variance', val);
         end
         %
+        function sig_var = get.sig_var(obj)
+            sig_var  = obj.get_prop('sig_var');            
+        end
+        function obj= set.sig_var(obj, val)
+            obj=obj.set_prop('sig_var', val);
+        end        
+        %------------------------------------------------------------------
         function is = get.is_misaligned(obj)
             is = obj.is_misaligned_;
         end
