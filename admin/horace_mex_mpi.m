@@ -1,4 +1,4 @@
-function [ok,mess] = herbert_mex_mpi(varargin)
+function [ok,mess] = horace_mex_mpi(varargin)
 % the script to build cpp communicator using Matlab compiler and not using
 % cmake.
 %
