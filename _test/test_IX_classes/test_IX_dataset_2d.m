@@ -17,8 +17,8 @@ classdef test_IX_dataset_2d <  TestCase
             this = this@TestCase(name);
         end
         function test_d2d_to_IX_dataset2D(~ )
-            ax = ortho_axes([0,1],[0,0.1,1],[0,1],[5,1,10]);
-            proj = ortho_proj('alatt',3,'angdeg',90);
+            ax = line_axes([0,1],[0,0.1,1],[0,1],[5,1,10]);
+            proj = line_proj('alatt',3,'angdeg',90);
             d2d_obj = d2d(ax,proj);
             d2d_obj.s = ones(11,6);
             d2d_obj.e = 2*ones(11,6);

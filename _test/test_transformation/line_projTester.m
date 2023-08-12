@@ -1,4 +1,4 @@
-classdef ortho_projTester < ortho_proj
+classdef line_projTester < line_proj
     %  Helper class to test protected ortho-proj methods
     %----------------------------------------------------------------------
     properties(Dependent)
@@ -7,8 +7,8 @@ classdef ortho_projTester < ortho_proj
     end
     
     methods
-        function obj=ortho_projTester(varargin)
-            obj = obj@ortho_proj(varargin{:});
+        function obj=line_projTester(varargin)
+            obj = obj@line_proj(varargin{:});
         end
         %
         function [img_to_u, q_to_img, ulen]=projaxes_to_rlu_public(obj,varargin)

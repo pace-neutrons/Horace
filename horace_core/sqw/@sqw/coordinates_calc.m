@@ -105,7 +105,7 @@ switch name
   case {'h','k','l'}
 
     this_proj = w.data.proj;
-    hkl_proj = ortho_proj([1,0,0],[0,1,0],[0,0,1], ...
+    hkl_proj = line_proj([1,0,0],[0,1,0],[0,0,1], ...
                           'alatt',this_proj.alatt,'angdeg',this_proj.angdeg);
     get_ind = mod(ind-1, 4)+1;
 
@@ -118,7 +118,7 @@ switch name
   case 'Q'
 
     this_proj = w.data.proj;
-    hkl_proj = ortho_proj([1,0,0],[0,1,0],[0,0,1], ...
+    hkl_proj = line_proj([1,0,0],[0,1,0],[0,0,1], ...
         'alatt',this_proj.alatt,'angdeg',this_proj.angdeg);
     get_ind = 1:3;
 

@@ -6,7 +6,7 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %
 % Input:
 % ------
-%   obj            Instance of ortho_axes object
+%   obj            Instance of line_axes object
 %
 % Output:
 % -------

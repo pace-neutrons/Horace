@@ -51,7 +51,7 @@ function [obj, merge_data] = distribute(dnd_in, varargin)
         obj(i).do_check_combo_arg = false;
         npix{i} = dnd_in.npix(points(i)+1:points(i+1));
 
-        obj(i) = d1d(ortho_axes('nbins_all_dims', [numel(npix{i}),1,1,1]), ...
+        obj(i) = d1d(line_axes('nbins_all_dims', [numel(npix{i}),1,1,1]), ...
                           dnd_in.proj);
         obj(i).do_check_combo_arg = false;
         obj(i).npix = npix{i};
@@ -62,7 +62,7 @@ function [obj, merge_data] = distribute(dnd_in, varargin)
 
 %
 %         obj(i).npix = dnd_in.npix(points(i)+1:points(i+1));
-%         obj(i).axes = ortho_axes('nbins_all_dims', [num_pixels(i), 1, 1, 1]);
+%         obj(i).axes = line_axes('nbins_all_dims', [num_pixels(i), 1, 1, 1]);
 %
 %         obj(i).do_check_combo_arg = true;
 %         obj(i).check_combo_arg();

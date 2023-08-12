@@ -64,11 +64,11 @@ classdef test_spher_axes < TestCase
         end
         function test_invalid_axes_proj_combination_throws(~)           
              ab = spher_axes();
-             proj = ortho_proj();
+             proj = line_proj();
              assertExceptionThrown(@()DnDBase.dnd(ab,proj), ...
                  'HORACE:DnDBase:invalid_argument');
 
-             ab = ortho_axes();
+             ab = line_axes();
              proj = spher_proj();
              assertExceptionThrown(@()DnDBase.dnd(ab,proj), ...
                  'HORACE:DnDBase:invalid_argument');

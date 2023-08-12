@@ -1,14 +1,14 @@
-classdef test_ortho_axes < TestCase
-    % Tests for main operations of the ortho_axes
+classdef test_line_axes < TestCase
+    % Tests for main operations of the line_axes
 
     properties
         out_dir=tmp_dir();
     end
 
     methods
-        function obj=test_ortho_axes(varargin)
+        function obj=test_line_axes(varargin)
             if nargin<1
-                name = 'test_ortho_axes';
+                name = 'test_line_axes';
             else
                 name = varargin{1};
             end
@@ -20,7 +20,7 @@ classdef test_ortho_axes < TestCase
             dbr = [0,0.1,0,0.5;1,1.9,3,9.5];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -82,7 +82,7 @@ classdef test_ortho_axes < TestCase
             dbr = [0,0.1,0,0.5;1,1.9,3,9.5];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd = ab.dimensions;
             assertEqual(nd,2)
@@ -124,7 +124,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -160,7 +160,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -193,7 +193,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -226,7 +226,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -260,7 +260,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -293,7 +293,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -325,7 +325,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -358,7 +358,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -383,7 +383,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -409,7 +409,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -435,7 +435,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nd = ab.dimensions;
             szs = ab.dims_as_ssize();
@@ -461,7 +461,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axesTester(bin0{:});
+            ab = line_axesTester(bin0{:});
 
             pix_data = ones(4,10);
             npix = zeros(11,1);
@@ -479,7 +479,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axesTester(bin0{:});
+            ab = line_axesTester(bin0{:});
 
             pix_data = ones(4,10);
             pix = PixelDataBase.create();
@@ -503,7 +503,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axesTester(bin0{:});
+            ab = line_axesTester(bin0{:});
 
             pix_data = ones(4,10);
             pix = PixelDataBase.create();
@@ -524,7 +524,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axesTester(bin0{:});
+            ab = line_axesTester(bin0{:});
 
             pix_data = ones(4,10);
 
@@ -538,7 +538,7 @@ classdef test_ortho_axes < TestCase
         end
         %--
         function test_0Dbin_inputs_1par_provided(~)
-            ab = ortho_axesTester(4);
+            ab = line_axesTester(4);
             pix_data = ones(4,10);
             npix = 0;
 
@@ -553,7 +553,7 @@ classdef test_ortho_axes < TestCase
         end
         %
         function test_0Dbin_inputs_3par_provided(~)
-            ab = ortho_axesTester(4);
+            ab = line_axesTester(4);
             pix_data = ones(4,10);
             pix = PixelDataBase.create();
             npix = 0;
@@ -573,7 +573,7 @@ classdef test_ortho_axes < TestCase
         end
         %
         function test_0Dbin_inputs_3par(~)
-            ab = ortho_axesTester(4);
+            ab = line_axesTester(4);
             pix_data = ones(4,10);
             pix = PixelDataBase.create();
 
@@ -590,7 +590,7 @@ classdef test_ortho_axes < TestCase
         end
         %
         function test_0Dbin_inputs_1par(~)
-            ab = ortho_axesTester(4);
+            ab = line_axesTester(4);
             pix_data = ones(4,10);
 
             [npix,s,e,pix_candidates,argi]= ...
@@ -606,7 +606,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             [nodes,en] = ab.get_bin_nodes('-3D');
             assertEqual(size(nodes,1),3);
@@ -624,7 +624,7 @@ classdef test_ortho_axes < TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
 	        % Define 2-dimensional grid.
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             % create multiplier to produce 4-dimensional grid 
 			% with requested number of bins (10x10x10x10)
@@ -646,7 +646,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             [centers,en,ncenters] = ab.get_bin_nodes('-bin_centre');
             assertEqual(size(centers,1),4);
@@ -665,7 +665,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
             mult = ones(3,1);
             ex = assertExceptionThrown(@()get_bin_nodes(ab,'-bin_centre',mult),...
                 'HORACE:AxesBlockBase:invalid_argument');
@@ -676,7 +676,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 			% procedure to produce multiplier, which gives requested number of bins
 			% does not used here but left for correct code execution in case of 
 			% the requested exception is not thrown 
@@ -694,7 +694,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             [nodes,en] = ab.get_bin_nodes('-3D');
             assertEqual(size(nodes,1),3);
@@ -714,7 +714,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nodes = ab.get_bin_nodes();
             assertEqual(size(nodes,1),4);
@@ -730,7 +730,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
 
             [nodes,en,nbins] = ab.get_bin_nodes(2);
@@ -750,7 +750,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nnodes_mult = [2,40,40,10];
             [nodes3D,dEgrid,npoints_in_axes] = ab.get_bin_nodes(nnodes_mult,'-3D');
@@ -771,7 +771,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
             nodes = ab.get_bin_nodes();
             assertEqual(size(nodes,1),4);
@@ -788,9 +788,9 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)],[dbr(1,2),dbr(2,2)],...
                 [dbr(1,3),0.3,dbr(2,3)],[dbr(1,4),dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
-            tob = DnDBase.dnd(ab,ortho_proj('alatt',2.7,'angdeg',90));
+            tob = DnDBase.dnd(ab,line_proj('alatt',2.7,'angdeg',90));
             range  = tob.targ_range([],'-binning');
 
             assertEqual(bin0,range);
@@ -800,10 +800,10 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-1.05,-3,0;1,1.05,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
-            proj2 = ortho_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj2 = line_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
 
             tob = DnDBase.dnd(ab,proj1);
             bin = tob.targ_range(proj2,'-binning');
@@ -827,10 +827,10 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-1,-3,0;1,1,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
-            proj2 = ortho_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj2 = line_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
 
             tob = DnDBase.dnd(ab,proj1);
             bin = tob.targ_range(proj2,'-binning');
@@ -841,15 +841,15 @@ classdef test_ortho_axes < TestCase
             assertEqualToTol(bin0{4},bin{4},'abstol',1.e-12);
         end
         %
-        function test_default_binning_4D_ortho_proj(~)
+        function test_default_binning_4D_line_proj(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
 
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             tob = DnDBase.dnd(ab,proj1);
-            proj2 = ortho_proj([1,0,0],[0,0,1],'alatt',1,'angdeg',90);
+            proj2 = line_proj([1,0,0],[0,0,1],'alatt',1,'angdeg',90);
 
             bin = tob.targ_range(proj2,'-binning');
 
@@ -864,13 +864,13 @@ classdef test_ortho_axes < TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)],[dbr(1,2),dbr(2,2)],...
                 [dbr(1,3),0.3,dbr(2,3)],[dbr(1,4),dbr(2,4)]};
 
-            ab = ortho_axes(bin0{:});
+            ab = line_axes(bin0{:});
             assertEqual(ab.pax,[1,3]);
             assertEqual(ab.dax,[1,2]);
             assertEqual(ab.iax,[2,4]);
             assertEqual(ab.iint,[-2,0;2,10]);
 
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             tob = DnDBase.dnd(ab,proj1);
 
             bin = tob.targ_range(proj1,'-binning');
@@ -881,8 +881,8 @@ classdef test_ortho_axes < TestCase
         function test_build_from_input_binning_more_infs(~)
             default_binning = {[-1,0.1,1],[-2,0.2,2],[-3,0.3,3],[0,1,10.05]};
             pbin = {[-inf,inf],[inf,0.1,1],[-2,0.1,inf],[-inf,0.1,inf]};
-            block = AxesBlockBase.build_from_input_binning('ortho_axes',default_binning,pbin);
-            assertTrue(isa(block,'ortho_axes'));
+            block = AxesBlockBase.build_from_input_binning('line_axes',default_binning,pbin);
+            assertTrue(isa(block,'line_axes'));
             assertElementsAlmostEqual(block.img_range,...
                 [-1.,-2.05,-2.05,-0.05;...
                 1, 1.05,3.05,10.15]);
@@ -899,8 +899,8 @@ classdef test_ortho_axes < TestCase
         function test_build_from_input_binning(~)
             default_binning = {[-1,0.1,1],[-2,0.2,2],[-3,0.3,3],[0,1,10]};
             pbin = {[],[-1,1],[-2,0.1,2],[-inf,0,inf]};
-            block = AxesBlockBase.build_from_input_binning('ortho_axes',default_binning,pbin);
-            assertTrue(isa(block,'ortho_axes'));
+            block = AxesBlockBase.build_from_input_binning('line_axes',default_binning,pbin);
+            assertTrue(isa(block,'line_axes'));
             assertElementsAlmostEqual(block.img_range,[-1.05,-1,-2.05,-0.5;1.05,1,2.05,10.5]);
             assertEqual(block.nbins_all_dims,[21,1,41,11]);
             assertEqual(block.dax,[1,2,3]);
@@ -913,7 +913,7 @@ classdef test_ortho_axes < TestCase
             assertElementsAlmostEqual(block.p{3},-0.5:1:10.5,'absolute',1.e-12)
         end
         function test_dax_eq_pax(~)
-            ab = ortho_axes('img_range',ones(2,4),'nbins_all_dims',[50,1,1,40]);
+            ab = line_axes('img_range',ones(2,4),'nbins_all_dims',[50,1,1,40]);
 
             assertEqual(ab.pax,[1,4])
             assertEqual(ab.dax,[1,2])
@@ -923,7 +923,7 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab = ortho_axes(bin0{:},'single_bin_defines_iax',[true,false,false,true]);
+            ab = line_axes(bin0{:},'single_bin_defines_iax',[true,false,false,true]);
 
             assertEqual(ab.img_range,[-1,-2,-3,0;1,2,3,10])
             assertEqual(ab.dimensions(),2)
@@ -934,23 +934,23 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:},'single_bin_defines_iax',[true,false,false,true]);
+            ab = line_axes(bin0{:},'single_bin_defines_iax',[true,false,false,true]);
 
             assertEqual(ab.img_range,[-1-0.05,-2,-3,0-0.5;1+0.05,2,3,10+0.5])
             assertEqual(ab.dimensions(),4)
 
         end
         %
-        function test_ortho_axes_0D_explicit(~)
-            ab = ortho_axes(0);
+        function test_line_axes_0D_explicit(~)
+            ab = line_axes(0);
             assertEqual(ab.dimensions,0);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             iiax = true(1,4);
             assertEqual(ab.single_bin_defines_iax,iiax)
         end
         %
-        function test_ortho_axes_1D_explicit(~)
-            ab = ortho_axes(1);
+        function test_line_axes_1D_explicit(~)
+            ab = line_axes(1);
             assertEqual(ab.dimensions,1);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             iiax = true(1,4);
@@ -958,8 +958,8 @@ classdef test_ortho_axes < TestCase
             assertEqual(ab.single_bin_defines_iax,iiax)
         end
         %
-        function test_ortho_axes_2D_explicit(~)
-            ab = ortho_axes(2);
+        function test_line_axes_2D_explicit(~)
+            ab = line_axes(2);
             assertEqual(ab.dimensions,2);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             iiax = false(1,4);
@@ -968,8 +968,8 @@ classdef test_ortho_axes < TestCase
             assertEqual(ab.single_bin_defines_iax,iiax)
         end
         %
-        function test_ortho_axes_3D_explicit(~)
-            ab = ortho_axes(3);
+        function test_line_axes_3D_explicit(~)
+            ab = line_axes(3);
             assertEqual(ab.dimensions,3);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             iiax = false(1,4);
@@ -977,22 +977,22 @@ classdef test_ortho_axes < TestCase
             assertEqual(ab.single_bin_defines_iax,iiax)
         end
         %
-        function test_ortho_axes_4D_explicit(~)
-            ab = ortho_axes(4);
+        function test_line_axes_4D_explicit(~)
+            ab = line_axes(4);
             assertEqual(ab.dimensions,4);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             assertEqual(ab.single_bin_defines_iax,false(1,4))
         end
 
-        function test_ortho_axes_bin_points(~)
-            ab = ortho_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
+        function test_line_axes_bin_points(~)
+            ab = line_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
 
             idx = ab.bin_points([5 -5 0 0]);
             assertEqual(idx, [6 6 2 2])
     end
 
-        function test_ortho_axes_bin_points_multiple(~)
-            ab = ortho_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
+        function test_line_axes_bin_points_multiple(~)
+            ab = line_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
 
             idx = ab.bin_points([5 -5 0 0; ...
                                  7 -3 1 1]);
@@ -1000,15 +1000,15 @@ classdef test_ortho_axes < TestCase
                               8 8 3 3])
 end
 
-        function test_ortho_axes_bin_points_outside(~)
-            ab = ortho_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
+        function test_line_axes_bin_points_outside(~)
+            ab = line_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
 
             idx = ab.bin_points([12 12 12 12]);
             assertEqual(idx, [NaN NaN NaN NaN])
         end
 
-        function test_ortho_axes_bin_points_wrong_dims(~)
-            ab = ortho_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
+        function test_line_axes_bin_points_wrong_dims(~)
+            ab = line_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
 
             function thrower(~)
                 idx = ab.bin_points([12 12 12]);

@@ -3,7 +3,7 @@ function spher_cut()
 sample = false;
 if sample
     data_source= fullfile('d:\Data\Fe\Jan2015\sqw','Fe_ei200.sqw');
-    proj = ortho_proj([1,0,0],[0,1,0]);
+    proj = line_proj([1,0,0],[0,1,0]);
     cut = cut_sqw(data_source,proj,[0.9,1.1],0.05,0.05,[40,60]);    
 else    
     data_source= fullfile('d:\users\abuts\SVN\Fe\Feb2013\sqw','Fe_ei200.sqw');

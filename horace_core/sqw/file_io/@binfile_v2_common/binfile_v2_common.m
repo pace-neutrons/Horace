@@ -373,7 +373,7 @@ classdef binfile_v2_common < horace_binfile_interface
             if isfield(ds,'img_db_range')
                 img_db_range  = ds.img_db_range;
             else
-                img_db_range = ortho_axes.calc_img_db_range(ds);
+                img_db_range = line_axes.calc_img_db_range(ds);
             end
         end
         function hd = head(obj,varargin)

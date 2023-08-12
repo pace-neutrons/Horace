@@ -6,7 +6,7 @@ function varargout = cut_single_(w, tag_proj, targ_axes,return_cut, ...
 % ------
 % w           The dnd object to take a cut from.
 % tag_proj    A `projection` object, defining the projection of the cut.
-% targ_axes   `ortho_axes` object defining the ranges, binning and geometry
+% targ_axes   `line_axes` object defining the ranges, binning and geometry
 %             of the target cut
 % return_cut  if false, save output cut into the file  (name provided)
 % opt         Structure containing the following args:

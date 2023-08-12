@@ -27,12 +27,12 @@ classdef test_cut_sym_cube < TestCase
         function test_cut_sym_identity_stripped(obj)
             tsqw = sqw.generate_cube_sqw(10);
 
-            res_sqw = cut(tsqw, ortho_proj([1 0 0], [0 1 0]), ...
+            res_sqw = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                           [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5]);
-            res_sqw2 = cut(tsqw, ortho_proj([1 0 0], [0 1 0]), ...
+            res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                            [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
                            {SymopIdentity()});
-            res_sqw3 = cut(tsqw, ortho_proj([1 0 0], [0 1 0]), ...
+            res_sqw3 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                            [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
                            SymopIdentity());
 
@@ -51,9 +51,9 @@ classdef test_cut_sym_cube < TestCase
             id = [obj.ref_x_op, obj.ref_x_op]; % Reflect -> reflect back
             tsqw = sqw.generate_cube_sqw(10);
 
-            res_sqw = cut(tsqw, ortho_proj([1 0 0], [0 1 0]), ...
+            res_sqw = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                           [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5]);
-            res_sqw2 = cut(tsqw, ortho_proj([1 0 0], [0 1 0]), ...
+            res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                            [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
                            {id});
 
@@ -65,7 +65,7 @@ classdef test_cut_sym_cube < TestCase
         % Test with basic reflection
             data = sqw.generate_cube_sqw(10);
 
-            proj = ortho_proj([1 0 0], [0 1 0]);
+            proj = line_proj([1 0 0], [0 1 0]);
             ubin_half = [0.5 1 1.5];
             all_data = {[-5 5] [-5 5] [-5 5]};
 
@@ -81,7 +81,7 @@ classdef test_cut_sym_cube < TestCase
         % test with reflection in x=-y (into positive quadrant)
             data = sqw.generate_cube_sqw(2);
 
-            proj = ortho_proj([1 0 0], [0 1 0]);
+            proj = line_proj([1 0 0], [0 1 0]);
             ubin_half = [0.5 1 1.5];
             all_data = {[-5 5] [-5 5] [-5 5]};
             x = cut(data, proj, ubin_half, all_data{:});
@@ -98,7 +98,7 @@ classdef test_cut_sym_cube < TestCase
         % test with reflection in x offset by 0.5
             data = sqw.generate_cube_sqw(10);
 
-            proj = ortho_proj([1 0 0], [0 1 0]);
+            proj = line_proj([1 0 0], [0 1 0]);
             ubin_half = [0.5 1 1.5];
             all_data = {[-5 5] [-5 5] [-5 5]};
             offset = [0.5 0 0];
@@ -117,7 +117,7 @@ classdef test_cut_sym_cube < TestCase
         function test_cut_sym_reflect_multi(obj)
             data = sqw.generate_cube_sqw(10);
 
-            proj = ortho_proj([1 0 0], [0 1 0]);
+            proj = line_proj([1 0 0], [0 1 0]);
             ubin_half = [0.5 1 1.5];
             all_data = {[-5 5] [-5 5] [-5 5]};
 

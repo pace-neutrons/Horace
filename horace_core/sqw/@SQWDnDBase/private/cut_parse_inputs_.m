@@ -159,7 +159,7 @@ if opt.proj_given
     if isa(par{1},'aProjectionBase')
         proj=par{1};
     else
-        proj=ortho_proj(par{1});
+        proj=line_proj(par{1});
     end
     par = par(2:end);
     % all components of Q and energy

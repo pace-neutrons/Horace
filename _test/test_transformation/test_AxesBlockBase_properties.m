@@ -12,8 +12,8 @@ classdef test_AxesBlockBase_properties < TestCase
         % Redefine sample file name and set_save_sample to true
         % to obtain different sample file if(when) the internal sample
         % structure changes again
-        ortho_axes_v1_file = 'axes_block_sample_v1.mat'; % savobj/loadobj reference file for version 1
-        ortho_axes_v2_file = 'axes_block_sample_v2.mat'; % savobj/loadobj reference file for version 2
+        line_axes_v1_file = 'axes_block_sample_v1.mat'; % savobj/loadobj reference file for version 1
+        line_axes_v2_file = 'axes_block_sample_v2.mat'; % savobj/loadobj reference file for version 2
         sample_sqw_file = 'w2d_qq_sqw.sqw'
         % save sample -- simplified TestWithSave interface.
         % Generates v2 test files when save_sample = true
@@ -34,7 +34,7 @@ classdef test_AxesBlockBase_properties < TestCase
         function test_bin_volume_array(~)
             dbr = [0,-2,-3,0;10,2,3,10];
             nbins_all_dims = [10,1,6,5];
-            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
+            ab = line_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
             ax = cell(4,1);
             ax{1} = [0,1,2,3,5,10];
             ax{2} = [0,1,2,3,5,6];
@@ -58,7 +58,7 @@ classdef test_AxesBlockBase_properties < TestCase
         function test_bin_volume_single(~)
             dbr = [0,-2,-3,0;10,2,3,10];
             nbins_all_dims = [10,1,6,5];
-            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
+            ab = line_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
             calc_vol = (dbr(2,:)-dbr(1,:))./nbins_all_dims;
             calc_vol = prod(calc_vol);
 
@@ -69,7 +69,7 @@ classdef test_AxesBlockBase_properties < TestCase
         function test_axes_block_nodes_hull_grid_mult_2(~)
             dbr = [0,-2,-3,0;8,2,3,10];
             nbins_all_dims = [8,1,4,1];
-            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
+            ab = line_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
 
             hull_sizes = nbins_all_dims*2 + 1;
             assize = 0;
@@ -85,7 +85,7 @@ classdef test_AxesBlockBase_properties < TestCase
         function test_axes_block_nodes_hull_grid_mult_1(~)
             dbr = [0,-2,-3,0;8,2,3,10];
             nbins_all_dims = [8,1,4,1];
-            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
+            ab = line_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
 
             hull_sizes = nbins_all_dims + 1;
             assize = 0;
@@ -101,7 +101,7 @@ classdef test_AxesBlockBase_properties < TestCase
         function test_axes_block_nodes_hull_no_halo(~)
             dbr = [0,-2,-3,0;8,2,3,10];
             nbins_all_dims = [8,1,4,1];
-            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
+            ab = line_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
 
             ax = ab.get_bin_nodes('-axes_only','-hull');
             assertEqual(numel(ax),4)
@@ -124,7 +124,7 @@ classdef test_AxesBlockBase_properties < TestCase
         function test_axes_block_nodes_hull(~)
             dbr = [0,-2,-3,0;8,2,3,10];
             nbins_all_dims = [8,1,4,1];
-            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims );
+            ab = line_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims );
 
             ax = ab.get_bin_nodes('-axes_only','-hull','-halo');
             assertEqual(numel(ax),4)
@@ -176,20 +176,20 @@ classdef test_AxesBlockBase_properties < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin2D = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab2D = ortho_axes(bin2D{:});
+            ab2D = line_axes(bin2D{:});
             bin4D = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab4D = ortho_axes(bin4D{:});
+            ab4D = line_axes(bin4D{:});
             %--------------------------------------------------------------
             % check version 1
-            sample_file = fullfile(obj.working_dir,obj.ortho_axes_v1_file);
+            sample_file = fullfile(obj.working_dir,obj.line_axes_v1_file);
 
             ld = load(sample_file);
             assertEqual(ld.ab2D,ab2D);
             assertEqual(ld.ab4D,ab4D);
             %--------------------------------------------------------------
             % Check version 2
-            sample_file = fullfile(obj.working_dir,obj.ortho_axes_v2_file);
+            sample_file = fullfile(obj.working_dir,obj.line_axes_v2_file);
             if obj.save_sample
                 save(sample_file,'ab2D','ab4D')
             end
@@ -201,7 +201,7 @@ classdef test_AxesBlockBase_properties < TestCase
         function test_set_nbin_all_dim_all_2D(~)
             range = [0,0,0,0;1,2,3,4];
             nbins = [1;4;1;2];
-            ab = ortho_axes();
+            ab = line_axes();
             ab.nbins_all_dims = nbins;
             ab.img_range = range;
             assertEqual(ab.nbins_all_dims,nbins')
@@ -219,7 +219,7 @@ classdef test_AxesBlockBase_properties < TestCase
 
         function test_set_nbin_all_dim_all_1D(~)
             nbins = [1;1;1;2];
-            ab = ortho_axes();
+            ab = line_axes();
             ab.nbins_all_dims = nbins ;
             assertEqual(ab.nbins_all_dims,nbins')
 
@@ -234,7 +234,7 @@ classdef test_AxesBlockBase_properties < TestCase
         end
 
         function test_set_nbin_all_dim_wrong(~)
-            ab = ortho_axes();
+            ab = line_axes();
             function set_wrong_nbin(ax,val)
                 ax.nbins_all_dims = val;
             end
@@ -250,7 +250,7 @@ classdef test_AxesBlockBase_properties < TestCase
         %------------------------------------------------------------------
         function test_set_nbins_range_one(~)
             range = [-1,0,0,0;1,2,3,10];
-            ab = ortho_axes();
+            ab = line_axes();
             ab.img_range = range ;
             assertEqual(ab.img_range,range)
 
@@ -262,7 +262,7 @@ classdef test_AxesBlockBase_properties < TestCase
 
         function test_set_img_range_one(~)
             range = [-1,0,0,0;1,2,3,10];
-            ab = ortho_axes();
+            ab = line_axes();
             ab.img_range = range ;
             assertEqual(ab.img_range,range)
             assertEqual(ab.nbins_all_dims,[1,1,1,1])
@@ -275,7 +275,7 @@ classdef test_AxesBlockBase_properties < TestCase
         %
         function test_set_img_range_all(~)
             range = [-1,0,0,0;1,2,3,10];
-            ab = ortho_axes();
+            ab = line_axes();
             ab.img_range = range ;
             assertEqual(ab.img_range,range)
 
@@ -288,7 +288,7 @@ classdef test_AxesBlockBase_properties < TestCase
         end
         %
         function test_set_img_range_wrong(~)
-            ab = ortho_axes();
+            ab = line_axes();
             function set_wrong_img_range(ax,val)
                 ax.img_range = val;
             end
@@ -301,7 +301,7 @@ classdef test_AxesBlockBase_properties < TestCase
         end
         %
         function test_default_constructor(~)
-            ab = ortho_axes();
+            ab = line_axes();
             assertEqual(ab.img_range,PixelDataBase.EMPTY_RANGE_)
             assertEqual(ab.nbins_all_dims,ones(1,4))
 

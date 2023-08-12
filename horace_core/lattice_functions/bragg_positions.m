@@ -154,7 +154,7 @@ for i=1:size(rlu,1)
         v=u2_rlu;
     end
     type='aaa';        % force unit length of projection axes to be 1 Ang^-1
-    proj = ortho_proj('u',u,'v',v,'type',type,'offset',offset, ...
+    proj = line_proj('u',u,'v',v,'type',type,'offset',offset, ...
         'alatt',img.alatt,'angdeg',img.angdeg);
 
     % if old file has been already aligned, ignore this alignment

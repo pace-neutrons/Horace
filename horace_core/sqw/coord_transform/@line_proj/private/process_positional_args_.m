@@ -1,5 +1,5 @@
 function [obj,remains] = process_positional_args_(obj,varargin)
-% Process positional arguments of an ortho_projection init method
+% Process positional arguments of an line_projection init method
 % Inputs:
 
 %   u    if present, [1x3] Vector of first axis (r.l.u.) defining projection axes
@@ -9,11 +9,11 @@ function [obj,remains] = process_positional_args_(obj,varargin)
 %               character of argument 'type' is 'p'. Will otherwise be ignored.
 % Returns:
 
-% ortho_proj object with properties set
+% line_proj object with properties set
 if numel(varargin)>0 && isnumeric(varargin{1})
     obj = check_and_set_uv_(obj,'u',varargin{1});
-elseif isa(varargin{1},'ortho_proj') % copy constructor
-    if strcmp(class(obj),'ortho_proj')
+elseif isa(varargin{1},'line_proj') % copy constructor
+    if strcmp(class(obj),'line_proj')
         obj = varargin{1}; % clear copy constructor
     else % works for children of the orho_proj; Needs check for arrays.
         % It may be better to convert to_struct (certainly works for arrays, but this one may work too)

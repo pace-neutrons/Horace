@@ -1,5 +1,5 @@
 function [obj,remains] = process_keyval_args_(obj,varargin)
-% Process optional key-val arguments of the ortho_proj constructor and
+% Process optional key-val arguments of the line_proj constructor and
 % set them up if they are present
 % The possible
 %
@@ -30,7 +30,7 @@ function [obj,remains] = process_keyval_args_(obj,varargin)
 %
 % Output:
 % -------
-%   proj    ortho_proj object with defaults for absent fields
+%   proj    line_proj object with defaults for absent fields
 %           proj.u              [1x3] Vector of first axis (r.l.u.)
 %           proj.v              [1x3] Vector of second axis (r.l.u.)
 %           proj.w              [1x3] Vector of third axis (r.l.u.)
@@ -61,7 +61,7 @@ try
 catch ME
     if strcmp(ME.identifier,'MATLAB:InputParser:ParamMissingValue')
         throw(MException('HORACE:aProjectionBase:invalid_argument',...
-            sprintf('This constructor accepts only key,value pairs of ortho_porj properties:\n %s',...
+            sprintf('This constructor accepts only key,value pairs of line_porj properties:\n %s',...
             ME.message)));
     else
         rethrow(ME);

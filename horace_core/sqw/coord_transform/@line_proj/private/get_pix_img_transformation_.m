@@ -24,7 +24,7 @@ function [q_to_img,shift,img_scales,obj]=get_pix_img_transformation_(obj,ndim,va
 %             in the transformation
 
 if ~obj.alatt_defined||~obj.angdeg_defined
-    error('HORACE:ortho_proj:runtime_error', ...
+    error('HORACE:line_proj:runtime_error', ...
         'Attempt to use coordinate transformations before lattice is defined. Define lattice parameters first')
 end
 

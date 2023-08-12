@@ -23,11 +23,11 @@ function wout = cut(obj, varargin)
 % ------
 %   data_source    Data source: sqw-type object (sqw or sqw data accessor)
 %
-%   proj           instance of aProjectionBase class (ortho_proj by default)
+%   proj           instance of aProjectionBase class (line_proj by default)
 %                  which describes the target coordinate system of the cut
 %                  or Data structure containing the projection class fields,
 %                  (names and its values)
-%                  (type >> help ortho_proj   for details)
+%                  (type >> help line_proj   for details)
 %
 %   p1_bin          Binning along first Q axis
 %   p2_bin          Binning along second Q axis

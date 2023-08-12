@@ -131,7 +131,7 @@ img_db_range_minmax = [min(img_box_points,[],2),max(img_box_points,[],2)]';
 % add fourth dimension to the range
 all_sym_range = [img_db_range_minmax,existing_range(:,4)];
 
-% Extract existing binning: TODO: refactor using future ortho_axes, extract
+% Extract existing binning: TODO: refactor using future line_axes, extract
 % common code with combine_sqw
 
 new_range_arg = cell(1,4);

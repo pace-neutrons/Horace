@@ -1,9 +1,9 @@
 function obj = init_(obj,narg,varargin)
-%INIT_ Main part of ortho_proj constructor
+%INIT_ Main part of line_proj constructor
 %
 % initialization routine taking any parameters that non-default
 % constructor would take and initiating internal state of the
-% ortho_proj class.
+% line_proj class.
 %
 if narg == 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjectionBase'))
     if isstruct(varargin{1}) && isfield(varargin{1},'serial_name')
@@ -17,7 +17,7 @@ end
 
 function obj = init_by_input_parameters_(obj,varargin)
 %INIT_BY_INPUT_PARAMETERS_ is the helper allowing to support various mainly
-%outdated forms of input of the ortho_proj constructor.
+%outdated forms of input of the line_proj constructor.
 %
 % Inputs:
 % list of input parameters of projection, produced as set of positional
@@ -32,7 +32,7 @@ function obj = init_by_input_parameters_(obj,varargin)
 %
 
 
-opt =  [ortho_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
+opt =  [line_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
 % check if the type is defined explicitly
 n_type = find(ismember(opt,'type'));
 text_in = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false); 
@@ -44,7 +44,7 @@ end
 is_uoffset = ismember(text_in,'uoffset');
 is_img_offset = ismember(text_in,'img_offset');
 if any(is_uoffset) && any(is_img_offset)
-    error('HORACE:ortho_proj:invalid_argument',...    
+    error('HORACE:line_proj:invalid_argument',...    
         'only one key describing image offset (img_offset or uoffset) may be provided as input')
 end
 is_uoffset = is_uoffset | is_img_offset;
@@ -61,8 +61,8 @@ end
     set_positional_and_key_val_arguments(obj,...
     opt,false,argi{:});
 if ~isempty(remains)
-    error('HORACE:ortho_proj:invalid_argument',...
-        'The parameters %s provided as input to ortho_proj initialization have not been recognized',...
+    error('HORACE:line_proj:invalid_argument',...
+        'The parameters %s provided as input to line_proj initialization have not been recognized',...
         disp2str(remains));
 end
 if uoffset_provided

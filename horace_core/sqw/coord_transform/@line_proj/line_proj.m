@@ -1,4 +1,4 @@
-classdef ortho_proj<aProjectionBase
+classdef line_proj<aProjectionBase
     %  Class defines coordinate transformations necessary to make Horace cuts
     %  in crystal coordinate system (orthogonal or non-orthogonal)
     %
@@ -8,38 +8,38 @@ classdef ortho_proj<aProjectionBase
     %  Object that defines the ortholinear projection operations
     %
     % Input accepting the structure:
-    %   >> proj = ortho_proj(proj_struct)
+    %   >> proj = line_proj(proj_struct)
     %             where proj_struct is the
     %             structure, containing any fields, with names, equal any
-    %             public fields of the ortho_proj class.
+    %             public fields of the line_proj class.
     %
-    % As a standard serializable class, class ortho_proj accepts full set of
+    % As a standard serializable class, class line_proj accepts full set of
     % positional and key-value parameters, which constitute its properties
     %
     % Argument input:
-    %   >> proj = ortho_proj(u,v)
-    %   >> proj = ortho_proj(u,v,w)
+    %   >> proj = line_proj(u,v)
+    %   >> proj = line_proj(u,v,w)
     %
     %   Full positional arguments input (can be truncated at any argument
     %   leaving other arguments default):
-    %   >> proj = ortho_proj(u,v,w,nonorthogonal,type,alatt,angdeg,...
+    %   >> proj = line_proj(u,v,w,nonorthogonal,type,alatt,angdeg,...
     %                        offset,label,title,lab1,lab2,lab3,lab4)
     %
     %   plus any of other arguments, provided as key-value pair e.g.:
     %
-    %   >> proj = ortho_proj(...,'nonorthogonal',nonorthogonal,..)
-    %   >> proj = ortho_proj(...,'type',type,...)
-    %   >> proj = ortho_proj(...,'offset',offset,...)
-    %   >> proj = ortho_proj(...,'label',labelcellstr,...)
-    %   >> proj = ortho_proj(...,'lab1',labelstr,...)
+    %   >> proj = line_proj(...,'nonorthogonal',nonorthogonal,..)
+    %   >> proj = line_proj(...,'type',type,...)
+    %   >> proj = line_proj(...,'offset',offset,...)
+    %   >> proj = line_proj(...,'label',labelcellstr,...)
+    %   >> proj = line_proj(...,'lab1',labelstr,...)
     %                   :
-    %   >> proj = ortho_proj(...,'lab4',labelstr,...)
+    %   >> proj = line_proj(...,'lab4',labelstr,...)
     %
     % Minimal fully functional form:
-    %   >> proj =  ortho_proj(u,v,'alatt',lat_param,'angdeg',lattice_angles_in_degrees);
+    %   >> proj =  line_proj(u,v,'alatt',lat_param,'angdeg',lattice_angles_in_degrees);
     %
     %IMPORTANT:
-    % if you want to use ortho_proj as input for the cut algorithm, it needs
+    % if you want to use line_proj as input for the cut algorithm, it needs
     % at least two input parameters u and v, (or their default values) as
     % the lattice parameters for cut will be taken from sqw object
     % if not provided with projection.
@@ -163,7 +163,7 @@ classdef ortho_proj<aProjectionBase
         %
         % The properties used to optimize from_current_to_targ method
         % transformation, if both current and target projections are
-        % ortho_proj
+        % line_proj
         ortho_ortho_transf_mat_;
         ortho_ortho_offset_;
 
@@ -188,7 +188,7 @@ classdef ortho_proj<aProjectionBase
     methods
         %------------------------------------------------------------------
         % Interfaces:
-        function obj=ortho_proj(varargin)
+        function obj=line_proj(varargin)
             obj = obj@aProjectionBase();
             obj.label = {'\zeta','\xi','\eta','E'};
             % try to use specific range-range identification algorithm,
@@ -205,7 +205,7 @@ classdef ortho_proj<aProjectionBase
         function obj = init(obj,varargin)
             % initialization routine taking any parameters non-default
             % constructor would take and initiating internal state of the
-            % ortho_proj class.
+            % line_proj class.
             %
             narg = numel(varargin);
             if narg == 0
@@ -413,7 +413,7 @@ classdef ortho_proj<aProjectionBase
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
             % Converts from current to target projection coordinate system.
             %
-            % Overloaded to optimize a ortho_proj to ortho_proj
+            % Overloaded to optimize a line_proj to line_proj
             % transformation.
             %
             % Inputs:
@@ -486,16 +486,16 @@ classdef ortho_proj<aProjectionBase
             % Inputs:
             % obj -- initialized instance of the projection info
             % alignment_info
-            %     -- crystal_alignment_info class, containign information
+            %     -- crystal_alignment_info class, containing information
             %        about new alignment
             % Optional:
-            % axes -- ortho_axes class, containing information about
+            % axes -- line_axes class, containing information about
             %         axes block, related to this projection.
             % Returns:
             % obj  -- the projection class, modified by information,
             %         containing in the alignment info block
             % optional
-            % axes -- the input ortho_axes, modified according to the
+            % axes -- the input line_axes, modified according to the
             %         realigned projection.
             [obj,axes] = align_proj_(obj,alignment_info,varargin{:});
             [obj,axes] = align_proj@aProjectionBase(obj,alignment_info,axes);
@@ -546,10 +546,10 @@ classdef ortho_proj<aProjectionBase
             % sets up target projection as the parent method.
             % In addition:
             % sets up matrices, necessary for optimized transformations
-            % if both projections are ortho_proj
+            % if both projections are line_proj
             %
             obj = check_and_set_targ_proj@aProjectionBase(obj,val);
-            if isa(obj.targ_proj_,'ortho_proj') && ~obj.disable_srce_to_targ_optimization
+            if isa(obj.targ_proj_,'line_proj') && ~obj.disable_srce_to_targ_optimization
                 obj = set_ortho_ortho_transf_(obj);
             else
                 obj.ortho_ortho_transf_mat_ = [];
@@ -627,7 +627,7 @@ classdef ortho_proj<aProjectionBase
             %
             %   >> obj = check_combo_arg(w)
             %
-            % Throws HORACE:ortho_proj:invalid_argument with the message
+            % Throws HORACE:line_proj:invalid_argument with the message
             % suggesting the reason for failure if the inputs are incorrect
             % w.r.t. each other.
             %
@@ -663,7 +663,7 @@ classdef ortho_proj<aProjectionBase
 
             if nargout == 2
                 if nargin>2
-                    names = ortho_proj.extract_eq_neq_names(varargin{:});
+                    names = line_proj.extract_eq_neq_names(varargin{:});
                 else
                     names = cell(2,1);
                     names{1} = inputname(1);
@@ -680,7 +680,7 @@ classdef ortho_proj<aProjectionBase
             %
             if nargout == 2
                 if nargin > 2
-                    names = ortho_proj.extract_eq_neq_names(varargin{:});
+                    names = line_proj.extract_eq_neq_names(varargin{:});
                 else
                     names{1} = inputname(1);
                     names{2} = inputname(2);
@@ -698,15 +698,15 @@ classdef ortho_proj<aProjectionBase
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % saveable class
-            obj = ortho_proj();
+            obj = line_proj();
             obj = loadobj@serializable(S,obj);
         end
         %
         function proj = get_from_old_data(data_struct,header_av)
-            % construct ortho_proj from old style data structure
+            % construct line_proj from old style data structure
             % normally stored in binary Horace files versions 3 and lower.
             %
-            proj = ortho_proj();
+            proj = line_proj();
             if ~exist('header_av','var')
                 header_av = [];
             end

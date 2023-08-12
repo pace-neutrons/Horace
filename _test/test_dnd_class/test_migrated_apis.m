@@ -68,7 +68,7 @@ classdef test_migrated_apis < TestCaseWithSave
         function test_cut(obj)
             skipTest('Incorrect test data for cut');
             dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
-            proj = ortho_proj([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
+            proj = line_proj([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
             range = [0,0.2];    % range of cut
             step = 0.01;        % Q step
             bin = [range(1)+step/2,step,range(2)-step/2];
@@ -81,7 +81,7 @@ classdef test_migrated_apis < TestCaseWithSave
         function test_cut_sym(obj)
             skipTest('Incorrect test data for cut_sym');
             dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
-            proj = ortho_proj([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
+            proj = line_proj([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
             range = [0,0.2];    % range of cut
             step = 0.01;        % Q step
             bin = [range(1)+step/2,step,range(2)-step/2];
@@ -161,7 +161,7 @@ classdef test_migrated_apis < TestCaseWithSave
 
             % Reference data calculated from call on old class
             expected_pbin = {[-0.7, 0.02, -0.4],  [-0.65, 0.02, -0.45], [-0.05, 0.05], [-0.25, 0.25]};
-            expected_proj = ortho_proj('alatt',4.2275,'angdeg',90, ...
+            expected_proj = line_proj('alatt',4.2275,'angdeg',90, ...
                 'u',[1,1,0],'v',[0,0,1], ...
                 'type', 'ppr', ...
                 'nonorthogonal', 0, ...

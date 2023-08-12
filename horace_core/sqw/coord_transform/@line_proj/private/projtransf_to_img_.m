@@ -9,8 +9,8 @@ function [q_to_img,ulen,b_mat,obj] = projtransf_to_img_(obj)
 %
 % Input:
 % ------
-%   proj   ortho_proj object containing information about the transformation
-%          (type >> help ortho_proj for details)
+%   proj   line_proj object containing information about the transformation
+%          (type >> help line_proj for details)
 %
 % Output:
 % -------
@@ -20,7 +20,7 @@ function [q_to_img,ulen,b_mat,obj] = projtransf_to_img_(obj)
 %               u1,u2,u3, as multiples of the step size along those axes
 %                   Vstep(i) = rlu_to_ustep(i,j)*Vrlu(j)
 %   ulen        Row vector of scales of ui in Ang^-1
-%   b_mat       Matrix transforimng hkl coordinate system into Crystal
+%   b_mat       Matrix transforming hkl coordinate system into Crystal
 %               Cartesian coordinate system
 %   obj         the projection object iteslf modified if necessary so that
 %               u,v,w form a rh set if initial object wectors were not

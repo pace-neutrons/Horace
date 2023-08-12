@@ -10,7 +10,7 @@ function [obj,ax_block] = align_proj_(obj,alignment_info,varargin)
 % ax_block
 %     -- instance of the axes_block class
 % Returns:
-% obj  -- the ortho_proj class, modified by information,
+% obj  -- the line_proj class, modified by information,
 %         containing in the alignment info class
 % ax_block
 %      -- instance of the input axes_block class,with the ranges, modified

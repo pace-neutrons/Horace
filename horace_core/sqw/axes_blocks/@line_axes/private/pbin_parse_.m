@@ -37,7 +37,7 @@ elseif isnumeric(p)
             range=[p(1);p(2)];
             nbin  = 1;
         else
-            error('HORACE:ortho_axes:invalid_argument',...
+            error('HORACE:line_axes:invalid_argument',...
                 'Range N%d: Upper integration range must be greater than or equal to the lower integration range',i);
         end
 
@@ -67,16 +67,16 @@ elseif isnumeric(p)
                 range=[min_v;max_v];
             end
         else
-            error('HORACE:ortho_axes:invalid_argument',...
+            error('HORACE:line_axes:invalid_argument',...
                 'Range N%d: Check that range has form [plo,pstep,phi], plo<=phi and pstep>0',i);
         end
 
     else
-        error('HORACE:ortho_axes:invalid_argument',...
+        error('HORACE:line_axes:invalid_argument',...
             'Range N%d: Binning description must have form [plo,pstep,phi], [plo,phi], or [pcent] or cell array of bin boundaries',i);
     end
 else
-    error('HORACE:ortho_axes:invalid_argument',...
+    error('HORACE:line_axes:invalid_argument',...
         'Binning description must have form [plo,pstep,phi], [plo,phi], or [pcent]');
 end
 

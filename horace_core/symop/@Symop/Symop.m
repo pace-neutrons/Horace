@@ -225,7 +225,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % orthonormal components
 
             switch class(proj)
-                case 'ortho_proj'
+                case 'line_proj'
 
                     u_new = obj.R * proj.u(:);
                     v_new = obj.R * proj.v(:);

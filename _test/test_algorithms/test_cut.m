@@ -19,7 +19,7 @@ classdef test_cut < TestCase & common_state_holder
         dnd_file = '../common_data/w1d_d1d.sqw';
         ref_cut_file = 'test_cut_ref_sqw.sqw'
         ref_params = { ...
-            ortho_proj([1, -1 ,0], [1, 1, 0]/sqrt(2), 'offset', [1, 1, 0], 'type', 'paa'), ...
+            line_proj([1, -1 ,0], [1, 1, 0]/sqrt(2), 'offset', [1, 1, 0], 'type', 'paa'), ...
             [-0.1, 0.025, 0.1], ...
             [-0.1, 0.025, 0.1], ...
             [-0.1, 0.1], ...
@@ -139,7 +139,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_integrating_multi_axes(obj)
-            proj = ortho_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
+            proj = line_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
 
             u_axis_lims = [-0.1, 0.025, 0.1];
             v_axis_lims = [-0.1, 0.1];
@@ -286,7 +286,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_multiple_cuts_integration_axis(obj)
-            proj = ortho_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
+            proj = line_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
 
             u_axis_lims = [-0.1, 0.025, 0.1];
             v_axis_lims = [-0.1, 0.025, 0.1];
@@ -319,7 +319,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_multiple_cuts_int_axis_nopix(obj)
-            proj = ortho_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
+            proj = line_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
 
             u_axis_lims = [-0.1, 0.025, 0.1];
             v_axis_lims = [-0.1, 0.025, 0.1];

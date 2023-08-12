@@ -3,7 +3,7 @@ function [u,v,w,type,nonortho]=uv_from_rlu_mat_(obj,u_to_img,ulen,varargin)
 % lattice parameters and the matrix converting vectors in
 % crystal Cartesian coordinate system into rlu.
 %
-% partially inverting projaxes_to_rlu function of ortho_proj class
+% partially inverting projaxes_to_rlu function of line_proj class
 % as only orthogonal to u part of the v-vector can be recovered
 %
 % Inputs:

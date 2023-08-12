@@ -1,4 +1,4 @@
-classdef ortho_axes < AxesBlockBase
+classdef line_axes < AxesBlockBase
     % The class contains information about axes and scales used for
     % displaying sqw/dnd object and provides scales for neutron image data.
     %
@@ -6,19 +6,19 @@ classdef ortho_axes < AxesBlockBase
     % sqw/dnd object
     %
     % Construction:
-    %1) ab = ortho_axes(num) where num belongs to [0,1,2,3,4];
-    %2) ab = ortho_axes([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
+    %1) ab = line_axes(num) where num belongs to [0,1,2,3,4];
+    %2) ab = line_axes([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
     %                                          parameters
     %        or
-    %   ab = ortho_axes([min1,max1],...,[min4,max4]); - 4 binning
+    %   ab = line_axes([min1,max1],...,[min4,max4]); - 4 binning
     %                                          parameters
     %        or any combination of ranges [min,step,max] or [min,max]
-    %3) ab = ortho_axes(structure) where structure contains any fields
+    %3) ab = line_axes(structure) where structure contains any fields
     %                              returned by savebleFields method
-    %4) ab = ortho_axes(param1,param2,param3,'key1',value1,'key2',value2....)
+    %4) ab = line_axes(param1,param2,param3,'key1',value1,'key2',value2....)
     %        where param(1-n) are the values of the fields in the order
     %        fields are returned by saveableFields function.
-    %5) ab = ortho_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
+    %5) ab = line_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     properties(Dependent)
@@ -40,15 +40,15 @@ classdef ortho_axes < AxesBlockBase
     end
 
     methods
-        function obj = ortho_axes(varargin)
+        function obj = line_axes(varargin)
             % constructor
             %
-            %>>obj = ortho_axes() % return empty axis block
-            %>>obj = ortho_axes(ndim) % return unit block with ndim
+            %>>obj = line_axes() % return empty axis block
+            %>>obj = line_axes(ndim) % return unit block with ndim
             %                           dimensions
-            %>>obj = ortho_axes(p1,p2,p3,p4) % build axis block from axis
+            %>>obj = line_axes(p1,p2,p3,p4) % build axis block from axis
             %                                  arrays
-            %>>obj = ortho_axes(pbin1,pbin2,pbin3,pbin4) % build axis block
+            %>>obj = line_axes(pbin1,pbin2,pbin3,pbin4) % build axis block
             %                                       from binning parameters
             %
             if nargin == 0
@@ -103,7 +103,7 @@ classdef ortho_axes < AxesBlockBase
     %----------------------------------------------------------------------
     methods(Static)
         function input = convert_old_struct_into_nbins(input)
-            % the function, used to convert old v1 ortho_axes structure,
+            % the function, used to convert old v1 line_axes structure,
             % containing axes information, into the v2 structure,
             % containing only range and bin numbers
             input = convert_old_struct_into_nbins_(input);
@@ -111,7 +111,7 @@ classdef ortho_axes < AxesBlockBase
         function img_range = calc_img_db_range(ax_data)
             % LEGACY FUNCTION, left for compatibility with old binary sqw
             % files for transforming the data, stored there into modern
-            % ortho_axes form
+            % line_axes form
             %
             % Retrieve 4D range used for rebinning pixels
             % from old style sqw objects, where this range was not stored
@@ -181,14 +181,14 @@ classdef ortho_axes < AxesBlockBase
         function ax = get_from_old_data(input)
             % supports getting axes block from the data, stored in binary
             % Horace files versions 3 and lower.
-            ax = ortho_axes();
+            ax = line_axes();
             ax = ax.from_old_struct(input);
         end
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % saveable class allowing loading ortho_axes from a suitable
-            % structure (e.g. obtaned from struct(ortho_axes) operation)
-            obj = ortho_axes();
+            % saveable class allowing loading line_axes from a suitable
+            % structure (e.g. obtaned from struct(line_axes) operation)
+            obj = line_axes();
             obj = loadobj@serializable(S,obj);
         end
     end
@@ -216,7 +216,7 @@ classdef ortho_axes < AxesBlockBase
             %
             if isfield(inputs,'version') && (inputs.version == 1) || ...
                     isfield(inputs,'iint')
-                inputs = ortho_axes.convert_old_struct_into_nbins(inputs);
+                inputs = line_axes.convert_old_struct_into_nbins(inputs);
             end
             if isfield(inputs,'one_nb_is_iax')
                 inputs.single_bin_defines_iax = inputs.one_nb_is_iax;

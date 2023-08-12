@@ -81,7 +81,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             if nargin == 1 %read ge information form file (better accuracy)
                 img_db_range = read_img_range(obj);
             else % calculate image range from axes
-                img_db_range = ortho_axes.calc_img_db_range(data_str);
+                img_db_range = line_axes.calc_img_db_range(data_str);
                 if any(isinf(img_db_range(:)))
                     img_data_range = read_img_range(obj);
                     undef = isinf(img_db_range);
@@ -349,7 +349,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
                 % this is original gen_sqw, which have pixels binned into Crystal Cartesian
                 % coordinate system. It should be correct projection recovered anyway,
                 % Just in case:
-                proj = ortho_proj([1,0,0],[0,1,0],[0,0,1],'alatt',proj.alatt,...
+                proj = line_proj([1,0,0],[0,1,0],[0,0,1],'alatt',proj.alatt,...
     				'angdeg',proj.angdeg,'type','aaa');
                 if ~isempty(sqw_data.data.proj.ub_inv_legacy)
                     proj = proj.set_ub_inv_compat(sqw_data.data.proj.ub_inv_legacy);

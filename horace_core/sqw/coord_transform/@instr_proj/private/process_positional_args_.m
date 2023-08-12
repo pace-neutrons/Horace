@@ -1,5 +1,5 @@
 function [obj,remains] = process_positional_args_(obj,varargin)
-% Process positional arguments of an ortho_projection init method
+% Process positional arguments of an instr_proj init method
 % Inputs:
 
 %   u    if present, [1x3] Vector of first axis (r.l.u.) defining projection axes

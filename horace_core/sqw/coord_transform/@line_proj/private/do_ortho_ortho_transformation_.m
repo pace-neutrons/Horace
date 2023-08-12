@@ -15,7 +15,7 @@ else
 end
 
 if isa(img_input, 'PixelDataBase')
-    error('HORACE:ortho_proj:invalid_argument',...
+    error('HORACE:line_proj:invalid_argument',...
         'ortho-ortho transformation should not expect PixelData');
 else
     if ndim == 4

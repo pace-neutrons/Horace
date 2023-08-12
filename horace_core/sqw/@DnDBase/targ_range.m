@@ -21,7 +21,7 @@ else
         if serializable.is_serial_struct(targ_proj)
             targ_proj = serializable.from_struct(targ_proj);
         else
-            op = ortho_proj();
+            op = line_proj();
             targ_proj = op.from_bare_struct(targ_proj);
         end
     end
@@ -31,7 +31,7 @@ else
     if ~targ_proj.angdeg_defined
         targ_proj.angdeg = source_proj.angdeg;
     end
-    if ~isa(targ_proj,'ortho_proj') && (isa(source_proj,'ortho_proj') && ~isempty(source_proj.ub_inv_legacy))
+    if ~isa(targ_proj,'line_proj') && (isa(source_proj,'line_proj') && ~isempty(source_proj.ub_inv_legacy))
         warning('HORACE:old_file_format', ...
             ['\n Non-linear projections are fully supported by version 4.0 and higher Horace sqw objects only.\n', ...
             ' If you use aligned sqw object produced by old Horace version,\n', ...

@@ -76,11 +76,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         uoffset % old interface to img_offset
     end
     properties(Access = protected)
-        s_    %cumulative signal for each bin of the image  size(data.s) == ortho_axes.dims_as_ssize)
-        e_    %cumulative variance size(data.e) == ortho_axes.dims_as_ssize
-        npix_ %No. contributing pixels to each bin of the plot axes. size(data.npix) == ortho_axes.dims_as_ssize
-        axes_ = ortho_axes(); % axes block describing size and shape of the dnd object.
-        proj_ = ortho_proj('alatt',2*pi,'angdeg',90); % Object defining the transformation, used to convert data from
+        s_    %cumulative signal for each bin of the image  size(data.s) == line_axes.dims_as_ssize)
+        e_    %cumulative variance size(data.e) == line_axes.dims_as_ssize
+        npix_ %No. contributing pixels to each bin of the plot axes. size(data.npix) == line_axes.dims_as_ssize
+        axes_ = line_axes(); % axes block describing size and shape of the dnd object.
+        proj_ = line_proj('alatt',2*pi,'angdeg',90); % Object defining the transformation, used to convert data from
         %                      crystal Cartesian coordinate system to this
         %                      image coordinate system.
         % The date when the object has been stored on hdd first time
@@ -351,7 +351,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %           the object. The dimensionality and binning of array
             %           have to be equal to the dimensionality and binning
             %           of the axes block. If the arrays are missing, they
-            %           are automatically initialized to 0 with ortho_axes
+            %           are automatically initialized to 0 with line_axes
             %           dimensionality and binning.
             % creation_data
             %        -- the date when this object should be recorded

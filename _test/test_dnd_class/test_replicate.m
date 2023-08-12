@@ -18,11 +18,11 @@ classdef test_replicate< TestCase
 
         % tests
         function test_replicate_2Dto4D(~)
-            pr = ortho_proj([1,0,0],[0,1,0],'alatt',[1,2,4],'angdeg',90);
-            ax = ortho_axes([-0.1,0.01,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
+            pr = line_proj([1,0,0],[0,1,0],'alatt',[1,2,4],'angdeg',90);
+            ax = line_axes([-0.1,0.01,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
             d4 = d4d(ax,pr);
             assertTrue(isa(d4,'d4d'))
-            ax = ortho_axes([-0.1,0.1],[-2,0.05,2],[0,0.1,1],[-2,2]);
+            ax = line_axes([-0.1,0.1],[-2,0.05,2],[0,0.1,1],[-2,2]);
             d2 = d2d(ax,pr);
             assertTrue(isa(d2,'d2d'))
 
@@ -32,11 +32,11 @@ classdef test_replicate< TestCase
         end
 
         function test_replicate_0Dto4D(~)
-            pr = ortho_proj([1,0,0],[0,1,0],'alatt',[1,2,4],'angdeg',90);
-            ax = ortho_axes([-0.1,0.01,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
+            pr = line_proj([1,0,0],[0,1,0],'alatt',[1,2,4],'angdeg',90);
+            ax = line_axes([-0.1,0.01,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
             d4 = d4d(ax,pr);
             assertTrue(isa(d4,'d4d'))
-            ax = ortho_axes([-0.1,0.1],[-2,-1],[0,1],[-2,2]);
+            ax = line_axes([-0.1,0.1],[-2,-1],[0,1],[-2,2]);
             d0 = d0d(ax,pr);
             assertTrue(isa(d0,'d0d'))
 
@@ -46,11 +46,11 @@ classdef test_replicate< TestCase
         end
 
         function test_replicate_1Dto4D(~)
-            pr = ortho_proj([1,0,0],[0,1,0],'alatt',[1,2,4],'angdeg',90);
-            ax = ortho_axes([-0.1,0.02,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
+            pr = line_proj([1,0,0],[0,1,0],'alatt',[1,2,4],'angdeg',90);
+            ax = line_axes([-0.1,0.02,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
             d4 = d4d(ax,pr);
             assertTrue(isa(d4,'d4d'))
-            ax = ortho_axes([-0.1,0.1],[-2,-1],[0,1],[-2,0.05,2]);
+            ax = line_axes([-0.1,0.1],[-2,-1],[0,1],[-2,0.05,2]);
             d1 = d1d(ax,pr);
             assertTrue(isa(d1,'d1d'))
 
@@ -60,11 +60,11 @@ classdef test_replicate< TestCase
         end
 
         function test_replicate_1Dto3D(~)
-            pr = ortho_proj([1,0,0],[0,1,0],'alatt',[1,2,4],'angdeg',90);
-            ax = ortho_axes([-0.1,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
+            pr = line_proj([1,0,0],[0,1,0],'alatt',[1,2,4],'angdeg',90);
+            ax = line_axes([-0.1,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
             d3 = d3d(ax,pr);
             assertTrue(isa(d3,'d3d'))
-            ax = ortho_axes([-0.1,0.1],[-2,-1],[0,1],[-2,0.05,2]);
+            ax = line_axes([-0.1,0.1],[-2,-1],[0,1],[-2,0.05,2]);
             d1 = d1d(ax,pr);
             assertTrue(isa(d1,'d1d'))
 
@@ -74,11 +74,11 @@ classdef test_replicate< TestCase
         end
 
         function test_replicate_1Dto2D(~)
-            pr = ortho_proj([1,0,0],[0,1,0],'alatt',[1,2,4],'angdeg',90);
-            ax = ortho_axes([-0.1,0.1],[-2,0.1,2],[0,1],[-2,0.05,2]);
+            pr = line_proj([1,0,0],[0,1,0],'alatt',[1,2,4],'angdeg',90);
+            ax = line_axes([-0.1,0.1],[-2,0.1,2],[0,1],[-2,0.05,2]);
             d2 = d2d(ax,pr);
             assertTrue(isa(d2,'d2d'))
-            ax = ortho_axes([-0.1,0.1],[-2,0.1,2],[0,1],[-2,-1]);
+            ax = line_axes([-0.1,0.1],[-2,0.1,2],[0,1],[-2,-1]);
             d1 = d1d(ax,pr);
             assertTrue(isa(d1,'d1d'))
 
