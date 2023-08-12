@@ -362,8 +362,8 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
 
             nwkc = num2str(n_workers);
             clob = set_temporary_config_options(hpc_config, ...
-                                                'build_sqw_in_parallel', true, ...
-                                                'parallel_workers_number', n_workers));
+                'build_sqw_in_parallel', true, ...
+                'parallel_workers_number', n_workers);
         end  %function
     end %Methods
 end

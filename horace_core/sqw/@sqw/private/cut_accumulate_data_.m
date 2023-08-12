@@ -101,6 +101,8 @@ elseif cut_in_mem
 elseif keep_pixels
     [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
         targ_axes, npix, s, e, log_level, pixel_contrib_name);
+    %     [npix, s, e, pix_out, unique_runid] = cut_in_memory_w_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
+    %                                                                 targ_axes, npix, s, e, log_level, pixel_contrib_name);
 
 else
     [npix, s, e, pix_out, unique_runid] = cut_filebacked_no_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
@@ -344,8 +346,8 @@ for iter = 1:num_chunks
         % the files - this object then recombines the files once it is
         % passed to 'put_sqw'.
         pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file(pix_comb_info, false, ...
-                                                                          pix_ok, pix_indx, npix, ...
-                                                                          0);
+            pix_ok, pix_indx, npix, ...
+            0);
     end
 end  % loop over pixel blocks
 
