@@ -614,7 +614,7 @@ classdef line_proj<aProjectionBase
     end
     methods
         function ver  = classVersion(~)
-            ver = 6;
+            ver = 7;
         end
         function  flds = saveableFields(obj)
             flds = saveableFields@aProjectionBase(obj);
@@ -724,6 +724,12 @@ classdef line_proj<aProjectionBase
             % of the class.
             if ~exist('header_av', 'var')
                 header_av = [];
+            end
+            if isfield(inputs,'version') && inputs.version<7
+                if strcmp(inputs.serial_name,'ortho_proj')
+                    obj = line_proj();
+                    inputs.serial_name = 'line_proj';
+                end
             end
             obj = build_from_old_data_struct_(obj,inputs,header_av);
         end

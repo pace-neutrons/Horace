@@ -3,7 +3,7 @@ function inputs = modify_old_structure_(inputs)
 % be acceptable by modern DnD object loader
 if isfield(inputs,'version') && inputs.version<4
     if isfield(inputs,'proj')
-        inputs.proj = serializable.from_struct(inputs.proj);
+        inputs.proj = serializable.loadobj(inputs.proj);
     else
         inputs.proj = line_proj.get_from_old_data(inputs);
         if isfield(inputs,'uoffset')
@@ -11,7 +11,7 @@ if isfield(inputs,'version') && inputs.version<4
         end
     end
     if isfield(inputs,'axes')
-        inputs.axes = serializable.from_struct(inputs.axes);
+        inputs.axes = serializable.loadobj(inputs.axes);
     else
         inputs.axes = line_axes.get_from_old_data(inputs);
     end

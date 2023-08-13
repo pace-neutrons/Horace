@@ -228,6 +228,10 @@ classdef line_axes < AxesBlockBase
             if isfield(inputs,'u_to_rlu_legacy')
                 inputs.hkle_axes_directions = inputs.u_to_rlu_legacy;
             end
+            if isfield(inputs,'seral_name') && ~strcmp(inputs.serial_name,'line_axes')
+                inputs.seral_name = 'line_axes';
+                obj = line_axes();
+            end
 
 
             if isfield(inputs,'array_dat')

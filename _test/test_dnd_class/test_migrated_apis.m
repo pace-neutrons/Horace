@@ -101,6 +101,7 @@ classdef test_migrated_apis < TestCaseWithSave
             assertEqual(sz, size(sqw_2d_obj.data.s));
         end
         function test_dimensions_sqw_4d(obj)
+            clWr = set_temporary_warning('off','HORACE:old_file_format');            
             sqw_4d_obj = read_sqw(obj.test_sqw_4d_fullpath);
             [nd, sz] = sqw_4d_obj.dimensions();
 

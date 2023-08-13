@@ -211,6 +211,7 @@ classdef test_dnd_constructor < TestCaseWithSave
 
         %% SQW and dimensions checks
         function test_d2d_sqw_constuctor_raises_error_from_1d_sqw_object(obj)
+            clWr = set_temporary_warning('off','HORACE:old_file_format');            
             sqw_obj = read_sqw(obj.test_sqw_1d_fullpath);
             f = @() d2d(sqw_obj);
 
@@ -218,6 +219,7 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
 
         function test_d1d_sqw_constuctor_creates_d1d_from_1d_sqw_object(obj)
+            clWr = set_temporary_warning('off','HORACE:old_file_format');            
             sqw_obj = read_sqw(obj.test_sqw_1d_fullpath);
             d1d_obj = d1d(sqw_obj);
 
@@ -238,6 +240,7 @@ classdef test_dnd_constructor < TestCaseWithSave
 
 
         function test_d2d_sqw_constuctor_creates_d2d_from_2d_sqw_object(obj)
+            clWr = set_temporary_warning('off','HORACE:old_file_format');            
             sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
             d2d_obj = d2d(sqw_obj);
 
@@ -245,6 +248,7 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
 
         function test_d4d_sqw_constuctor_creates_d4d_from_4d_sqw_object(obj)
+            clWr = set_temporary_warning('off','HORACE:old_file_format');            
             sqw_obj = read_sqw(obj.test_sqw_4d_fullpath);
             d4d_obj = d4d(sqw_obj);
 
