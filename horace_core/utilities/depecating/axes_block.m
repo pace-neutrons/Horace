@@ -9,11 +9,13 @@ classdef axes_block < line_axes
         function obj = axes_block(varargin)
             % constructor
             %
-			if nargin ==0
-				return;
-			end
-            error('HORACE:deprecated:invalid_argument',
-			'"axes_block" class is deprecated. Use "line_axes" instead')
+
+            if nargin ==0
+                return;
+            end
+            warning('HORACE:deprecated:invalid_argument',...
+                '"axes_block" class is deprecated. Use "line_axes" instead')
+            obj = obj@line_axes(varargin{:});
         end
     end
     %======================================================================
