@@ -9,13 +9,12 @@ classdef ortho_axes < line_axes
         function obj = ortho_axes(varargin)
             % constructor
             %
-
+            obj = obj@line_axes(varargin{:});
             if nargin ==0
                 return;
             end
             warning('HORACE:deprecated:invalid_argument',...
                 '"ortho_axes" class is deprecated. Use "line_axes" class instead')
-            obj = obj@line_axes(varargin{:});
         end
     end
     %======================================================================

@@ -2,19 +2,21 @@ classdef spher_axes < sphere_axes
     % Transient class, left for support of old data loading from .mat files
     % and v4 sqw binary files (if released with old ortho_proj class)
     %
-    % The functionality of the ortho_proj class have been moved to
-    % line_proj class
+    % The functionality of the spher_axes class have been moved to
+    % sphere_axes class
     %
     methods
         function obj = spher_axes(varargin)
             % constructor
             %
+            obj = obj@sphere_axes(varargin{:});
             if nargin ==0
                 return;
             end
+
             warning('HORACE:deprecated:invalid_argument',...
                 '"spher_axes" class is deprecated. Use "sphere_axes" class instead')
-            obj = obj@sphere_axes(varargin{:});
+
         end
     end
     %======================================================================

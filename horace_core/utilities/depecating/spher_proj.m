@@ -9,13 +9,13 @@ classdef spher_proj < sphere_proj
         function obj = spher_proj(varargin)
             % constructor
             %
-
+            obj = obj@sphere_proj(varargin{:});
             if nargin ==0
                 return;
             end
             warning('HORACE:deprecated:invalid_argument',...
                 '"spher_proj" class is deprecated. Use "sphere_proj " class instead')
-            obj = obj@sphere_proj(varargin{:});
+
         end
     end
     %======================================================================

@@ -9,13 +9,13 @@ classdef ortho_proj < line_proj
         function obj = ortho_proj(varargin)
             % constructor
             %
-
+            obj = obj@line_proj(varargin{:});
             if nargin ==0
                 return;
             end
             warning('HORACE:deprecated:invalid_argument',...
                 '"ortho_proj" class is deprecated. Use "line_proj" class instead')
-            obj = obj@line_proj(varargin{:});
+
         end
     end
     %======================================================================
