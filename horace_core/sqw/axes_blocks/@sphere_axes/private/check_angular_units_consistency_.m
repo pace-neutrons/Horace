@@ -11,7 +11,7 @@ if ~obj.img_range_set_
     end
 end
 range = obj.img_range;
-% check if teta is in range [0; pi] and throw if the value is outside
+% check if theta is in range [0; pi] and throw if the value is outside
 % of this interval
 check_angular_range(range(:,2),obj.angular_unit_is_rad_(1),[0 ,pi]);
 % check if phi is in range [-pi; pi] and transform any other value into
@@ -31,7 +31,7 @@ else
     limits = rad2deg(limits_in_rad);
 end
 if range(1)<limits(1) || range(2)>limits(2)
-    error('HORACE:spher_axes:invalid_argument', ...
+    error('HORACE:sphere_axes:invalid_argument', ...
         'Angular range: %s is outside of its alowed range: %s', ...
         mat2str(range),mat2str(limits));
 end

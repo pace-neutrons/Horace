@@ -19,5 +19,5 @@ r  = sqrt(x1.*x1+x2.*x2+x3.*x3);
 rmax = max(max(max(r)));
 
 %TODO -- generalize on the case when centre is outside the box
-% 2x4 array of limits in output spher_proj. axes
+% 2x4 array of limits in output sphere_proj. axes
 urange_out=[0,-90,-180,urange_in(1,4);rmax,90,180,urange_in(2,4)];

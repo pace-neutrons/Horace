@@ -3,14 +3,14 @@ function obj = check_and_set_img_range_(obj,val)
 % value of the image range
 %
 if ~isnumeric(val)
-    error('HORACE:spher_axes:invalid_argument',...
+    error('HORACE:sphere_axes:invalid_argument',...
         'Image range has to be numeric. Attempting to set type: %s',...
         class(val));
 end
 if any(size(val)~=[2,4])
-    error('HORACE:spher_axes:invalid_argument',...
+    error('HORACE:sphere_axes:invalid_argument',...
         'correct image range have to be 2x4 array of min/max range values. Getting: %s',...
-        evalc('disp(val)'));
+        disp2str(val));
 end
 
 undef = val == PixelDataBase.EMPTY_RANGE_;
@@ -38,10 +38,10 @@ if any(val(1,:)>val(2,:))
         val(1,:),val(2,:));
     % despite statement that it can take sprintf - like argument directly,
     % it does not accept these arguments correctly
-    error('HORACE:spher_axes:invalid_argument',mess);
+    error('HORACE:sphere_axes:invalid_argument',mess);
 end
 if val(1,1)<0
-    error('HORACE:spher_axes:invalid_argument','minimal Q-value can not be negative');
+    error('HORACE:sphere_axes:invalid_argument','minimal Q-value can not be negative');
 end
 
 obj.img_range_      = val;

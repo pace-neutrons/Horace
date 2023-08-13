@@ -1,4 +1,4 @@
-classdef spher_proj<aProjectionBase
+classdef sphere_proj<aProjectionBase
     % Class defines spherical coordinate projection, used by cut_sqw
     % to make spherical cuts.
     %
@@ -67,7 +67,7 @@ classdef spher_proj<aProjectionBase
     end
 
     methods
-        function obj=spher_proj(varargin)
+        function obj=sphere_proj(varargin)
             obj = obj@aProjectionBase();
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
             obj.label = {'|Q|','\theta','\phi','En'};
@@ -94,13 +94,13 @@ classdef spher_proj<aProjectionBase
                     obj = obj.check_combo_arg();
                 end
             else
-                opt =  [spher_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
+                opt =  [sphere_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
                     opt,false,varargin{:});
                 if ~isempty(remains)
-                    error('HORACE:spher_proj:invalid_argument',...
-                        'The parameters: "%s" provided as input to spher_proj constructor initialization have not been recognized',...
+                    error('HORACE:sphere_proj:invalid_argument',...
+                        'The parameters: "%s" provided as input to sphere_proj constructor initialization have not been recognized',...
                         disp2str(remains));
                 end
             end
@@ -142,7 +142,7 @@ classdef spher_proj<aProjectionBase
             % back
             %
             % Inputs:
-            % obj  -- initialized instance of the spher_proj class
+            % obj  -- initialized instance of the sphere_proj class
             % ndim -- number 3 or 4 -- depending on what kind of
             %         transformation (3D -- momentum only or
             %         4D -- momentum and energy) are requested
@@ -227,7 +227,7 @@ classdef spher_proj<aProjectionBase
             %
             %   >> obj = check_combo_arg(w)
             %
-            % Throws HORACE:spher_proj:invalid_argument with the message
+            % Throws HORACE:sphere_proj:invalid_argument with the message
             % suggesting the reason for failure if the inputs are incorrect
             % w.r.t. each other.
             %
@@ -251,7 +251,7 @@ classdef spher_proj<aProjectionBase
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % savable class. Useful for recovering class from a structure
-            obj = spher_proj();
+            obj = sphere_proj();
             obj = loadobj@serializable(S,obj);
         end
     end

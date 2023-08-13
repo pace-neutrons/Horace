@@ -23,4 +23,4 @@ ulen = proj.usteps;
 %u_to_rlu = [[u_to_rlu,[0;0;0]];[0,0,0,1]];
 %ulen = [ulen,1];
 % class which generates captions for spherical projection
-axis_titles = spher_proj_caption();
+axis_titles = sphere_proj_caption();

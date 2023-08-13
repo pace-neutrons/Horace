@@ -49,11 +49,6 @@ function [istart,iend,irange,inside,outside] = get_irange_proj_(this,urange,vara
 %          then outside=true;
 
 
-% Original author: T.G.Perring
-%
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
-
-
 ndim=numel(varargin);
 if ndim<3
     error('Must give at least three bin boundary arrays')

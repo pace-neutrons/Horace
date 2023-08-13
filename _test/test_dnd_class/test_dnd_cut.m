@@ -28,7 +28,7 @@ classdef test_dnd_cut< TestCaseWithSave
         function test_2D_to2D_cut_with_spher_proj(obj)
             clOb = set_temporary_warning('off','HORACE:runtime_error');
 
-            proj = spher_proj();
+            proj = sphere_proj();
             cut_range = obj.d2d_obj.targ_range(proj);
             w2 = cut(obj.d2d_obj,proj,[1,0.1,2], ...
                 [113,114],[cut_range(1,3),0.1,cut_range(2,3)],[-0.25,0.25]);

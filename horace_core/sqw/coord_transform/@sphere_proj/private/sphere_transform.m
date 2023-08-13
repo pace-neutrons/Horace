@@ -1,5 +1,5 @@
-function new_coord = spher_transform(this,rs)
-% Convert grid expressed in input cartesian coordinate sustem into output
+function new_coord = sphere_transform(this,rs)
+% Convert grid expressed in input cartesian coordinate system into output
 % spherical coordinate system.
 
 %TODO : alight appropriately. 

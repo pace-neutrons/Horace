@@ -1,32 +1,32 @@
-classdef spher_axes < AxesBlockBase
+classdef sphere_axes < AxesBlockBase
     % The class contains information about axes and scales used for
     % displaying sqw/dnd object and provides scales for neutron image data
-    % when the data are analyzed in spherical coordinate system
+    % when the data are analysed in spherical coordinate system
     %
     % It also contains main methods, used to produce physical image of the
     % sqw/dnd object
     %
     % Construction:
-    %1) ab = spher_axes(num) where num belongs to [0,1,2,3,4];
-    %2) ab = spher_axes([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
+    %1) ab = sphere_axes(num) where num belongs to [0,1,2,3,4];
+    %2) ab = sphere_axes([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
     %                                          parameters
     %        or
-    %   ab = spher_axes([min1,max1],...,[min4,max4]); - 4 binning
+    %   ab = sphere_axes([min1,max1],...,[min4,max4]); - 4 binning
     %                                          parameters
     %        or any combination of ranges [min,step,max] or [min,max]
-    %3) ab = spher_axes(structure) where structure contains any fields
+    %3) ab = sphere_axes(structure) where structure contains any fields
     %                              returned by savebleFields method
-    %4) ab = spher_axes(param1,param2,param3,'key1',value1,'key2',value2....)
+    %4) ab = sphere_axes(param1,param2,param3,'key1',value1,'key2',value2....)
     %        where param(1-n) are the values of the fields in the order
     %        fields are returned by saveableFields function.
-    %5) ab = spher_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
+    %5) ab = sphere_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     properties(Constant,Access = private)
         % What units each possible dimension type of the spherical projection
         % have:  Currently momentum, angle, and energy transfer may be
         % expressed in Anstrom, radian, degree, mEv. The key is the type
-        % letter present in spher_projection and the value is the unit
+        % letter present in sphere_projection and the value is the unit
         % caption.
         capt_units = containers.Map({'a','r','d','e'}, ...
             {[char(197),'^{-1}'],'rad','^{o}','mEv'})
@@ -67,15 +67,15 @@ classdef spher_axes < AxesBlockBase
 
     methods
         %
-        function obj = spher_axes(varargin)
+        function obj = sphere_axes(varargin)
             % constructor
             %
-            %>>obj = spher_axes() % return empty axis block
-            %>>obj = spher_axes(ndim) % return unit block with ndim
+            %>>obj = sphere_axes() % return empty axis block
+            %>>obj = sphere_axes(ndim) % return unit block with ndim
             %                           dimensions
-            %>>obj = spher_axes(p1,p2,p3,p4) % build axis block from axis
+            %>>obj = sphere_axes(p1,p2,p3,p4) % build axis block from axis
             %                                  arrays
-            %>>obj = spher_axes(pbin1,pbin2,pbin3,pbin4) % build axis block
+            %>>obj = sphere_axes(pbin1,pbin2,pbin3,pbin4) % build axis block
             %                                       from binning parameters
             %
 
@@ -189,7 +189,7 @@ classdef spher_axes < AxesBlockBase
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % savable class
-            obj = spher_axes();
+            obj = sphere_axes();
             obj = loadobj@serializable(S,obj);
         end
     end

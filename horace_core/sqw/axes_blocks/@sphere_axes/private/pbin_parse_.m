@@ -36,7 +36,7 @@ elseif isnumeric(p)
             range=[p(1);p(2)];
             nbin  = 1;
         else
-            error('HORACE:spher_axes:invalid_argument',...
+            error('HORACE:sphere_axes:invalid_argument',...
                 'Range N%d: Upper integration range must be greater than or equal to the lower integration range',i);
         end
     elseif numel(p)==3
@@ -65,7 +65,7 @@ elseif isnumeric(p)
                     case 4
                         % all ok
                     otherwise
-                        error('HORACE:spher_axes:runtime_error',...
+                        error('HORACE:sphere_axes:runtime_error',...
                             'Unknown axis index %d',i);
                 end
                 nbin = floor((max_v-min_v)/p(2));
@@ -79,7 +79,7 @@ elseif isnumeric(p)
                             p(2) = (max_v-min_v)/nbin;
                         end
                     otherwise
-                        error('HORACE:spher_axes:runtime_error',...
+                        error('HORACE:sphere_axes:runtime_error',...
                             'Unknown axis index %d',i);
                 end
                 % recalculate to avoid round/off errors
@@ -94,15 +94,15 @@ elseif isnumeric(p)
                 range=[min_v;max_v];
             end
         else
-            error('HORACE:spher_axes:invalid_argument',...
+            error('HORACE:sphere_axes:invalid_argument',...
                 'Range N%d: Check that range has form [plo,pstep,phi], plo<=phi and pstep>0',i);
         end
 
     else
-        error('HORACE:spher_axes:invalid_argument',...
+        error('HORACE:sphere_axes:invalid_argument',...
             'Range N%d: Binning description must have form [plo,pstep,phi], [plo,phi], or [pcent] or cell array of bin boundaries',i);
     end
 else
-    error('HORACE:spher_axes:invalid_argument',...
+    error('HORACE:sphere_axes:invalid_argument',...
         'Binning description must have form [plo,pstep,phi], [plo,phi], or [pcent]');
 end

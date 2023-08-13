@@ -35,12 +35,12 @@ classdef test_cut_parameters < TestCase
             obj.sample_files{4} = sqw_4d_samp;
         end
         %==================================================================
-        function test_default_spher_from_ortho(obj)
+        function test_default_sphere_from_ortho(obj)
             sqw_samp = obj.sample_files{4};
             clOb = set_temporary_warning('off','HORACE:targ_range');
 
             img_block = sqw_samp.data;
-            targ_proj = spher_proj();
+            targ_proj = sphere_proj();
             targ_range = img_block.targ_range(targ_proj);
 
             assertElementsAlmostEqual(targ_range(:,1)',[0,sqrt(1.5^2+0.5^2)], ...
@@ -79,16 +79,16 @@ classdef test_cut_parameters < TestCase
                 'absolute',5e-5)
         end
 
-        function test_transf_range_spher_ortho_2D_Q(~)
+        function test_transf_range_sphere_ortho_2D_Q(~)
             data_range = ...
                 [0,          0,    0,   -5;...
                 12.2474, 180.0, 90.0, 20.0];
 
             bin_range = [50,50,1,1];
 
-            ax = spher_axes('img_range',data_range, ...
+            ax = sphere_axes('img_range',data_range, ...
                 'nbins_all_dims',bin_range);
-            proj = spher_proj();
+            proj = sphere_proj();
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
@@ -100,7 +100,7 @@ classdef test_cut_parameters < TestCase
                 12.2474 , 12.2474, 12.2474, 20],'absolute',5e-5)
         end
 
-        function test_transf_range_ortho_spher_2D_Q(~)
+        function test_transf_range_ortho_sphere_2D_Q(~)
             data_range = ...
                 [-5,0, 0,-5;
                 5  ,6,10,20];
@@ -112,7 +112,7 @@ classdef test_cut_parameters < TestCase
             dnd_obj = DnDBase.dnd(ax,proj);
 
 
-            targ_proj = spher_proj('alatt',1,'angdeg',90);
+            targ_proj = sphere_proj('alatt',1,'angdeg',90);
 
             range = dnd_obj.targ_range(targ_proj);
             ref_range = [...
@@ -122,16 +122,16 @@ classdef test_cut_parameters < TestCase
                 'absolute',5e-5)
         end
 
-        function test_transf_range_spher_ortho_2D_dE(~)
+        function test_transf_range_sphere_ortho_2D_dE(~)
             data_range = ...
                 [0,          0,    0,   -5;...
                 79.7247, 180.0, 90.0, 20.0];
 
             bin_range = [1,50,1,50];
 
-            ax = spher_axes('img_range',data_range,'nbins_all_dims', ...
+            ax = sphere_axes('img_range',data_range,'nbins_all_dims', ...
                 bin_range );
-            proj = spher_proj();
+            proj = sphere_proj();
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
@@ -146,7 +146,7 @@ classdef test_cut_parameters < TestCase
 
         end
 
-        function test_transf_range_ortho_spher_2D_dE(~)
+        function test_transf_range_ortho_sphere_2D_dE(~)
             data_range = [-5,0,0,-5;5,5,10,20];
             bin_range = [1,50,1,50];
 
@@ -156,7 +156,7 @@ classdef test_cut_parameters < TestCase
             dnd_obj = DnDBase.dnd(ax,proj);
 
 
-            targ_proj = spher_proj('alatt',1,'angdeg',90);
+            targ_proj = sphere_proj('alatt',1,'angdeg',90);
 
             range = dnd_obj.targ_range(targ_proj);
             ref_range = [...

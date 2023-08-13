@@ -4,7 +4,7 @@ function obj = check_combo_arg_(obj)
 %
 %   >> obj = check_combo_arg(w)
 %
-% Throws HORACE:spher_proj:invalid_argument with the message
+% Throws HORACE:sphere_proj:invalid_argument with the message
 % suggesting the reason for failure if the inputs are incorrect
 % w.r.t. each other.
 %
@@ -26,7 +26,7 @@ uv_norm(:,2) = uv_cc(:,2)/norm(uv_cc(:,2));
 e3 = cross(uv_norm(:,1),uv_norm(:,2));
 ne3 = norm(e3);
 if ne3 < obj.tol_
-    error('HORACE:spher_proj:invalid_argument', ...
+    error('HORACE:sphere_proj:invalid_argument', ...
         'Input vectors ez(%s) and ex(%s) are parallel or almost parallel to each other', ...
         mat2str(e12(:,2)),mat2str(e12(:,1)));
 end
