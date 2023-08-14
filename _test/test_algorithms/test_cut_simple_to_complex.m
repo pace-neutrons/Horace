@@ -125,7 +125,7 @@ classdef test_cut_simple_to_complex < TestCaseWithSave
             source_ab = obj.sqw_4D_tricl.data.axes;
             source_proj = obj.sqw_4D_tricl.data.proj;
             
-            targ_proj = ortho_proj([1,0,0],[0,1,0],'alatt',source_proj.alatt,'angdeg',source_proj.angdeg);
+            targ_proj = line_proj([1,0,0],[0,1,0],'alatt',source_proj.alatt,'angdeg',source_proj.angdeg);
             targ_ax   = targ_proj.get_proj_axes_block(source_ab.get_cut_range(), ...
                 {[-1.5,0.02,1.5],[-0.1,0.1],[-0.1,0.1],[-5,5]});
             npix = ones(source_ab.dims_as_ssize);
@@ -147,7 +147,7 @@ classdef test_cut_simple_to_complex < TestCaseWithSave
             source_ab = obj.sqw_4D_ortho.data.axes;
             source_proj = obj.sqw_4D_ortho.data.proj;
             
-            targ_proj = ortho_proj([1,0,0],[0,1,0],'alatt',source_proj.alatt,'angdeg',source_proj.angdeg);
+            targ_proj = line_proj([1,0,0],[0,1,0],'alatt',source_proj.alatt,'angdeg',source_proj.angdeg);
             targ_ax   = targ_proj.get_proj_axes_block(source_ab.get_cut_range(), ...
                 {[-1.5,0.02,1.5],[-0.1,0.1],[-0.1,0.1],[-5,5]});
             npix = ones(source_ab.dims_as_ssize);

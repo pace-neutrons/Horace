@@ -8,7 +8,7 @@ classdef test_compact < TestCase
         function test_compact_slice_cube_remove_dim(obj)
             data = sqw.generate_cube_sqw(10);
 
-            test_data = cut(data, ortho_proj([1 0 0], [0 1 0]), ...
+            test_data = cut(data, line_proj([1 0 0], [0 1 0]), ...
                             [0.2 0.05 0.7], [], [], []);
 
             comp = test_data.compact();
@@ -47,7 +47,7 @@ classdef test_compact < TestCase
 
         function test_compact_oversized_cut(obj)
             data = sqw.generate_cube_sqw(2);
-            test_data = cut(data, ortho_proj([1 0 0], [0 1 0]), ...
+            test_data = cut(data, line_proj([1 0 0], [0 1 0]), ...
                        [-9.5 1 9.5], [-9.5 1 9.5], [-9.5 1 9.5], [-9.5 1 9.5]);
 
             comp = compact(test_data);

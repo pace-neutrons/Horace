@@ -15,7 +15,7 @@ classdef test_parallel_cut < TestCase
 
             data = sqw.generate_cube_sqw(2);
 
-            proj = ortho_proj([1 0 0], [0 1 0]);
+            proj = line_proj([1 0 0], [0 1 0]);
             params = {[0.5, 1, 2.5], [-5 5], [-5 5], [-5 5]};
 
             cut_ser = cut(data, proj, params{:});
@@ -33,7 +33,7 @@ classdef test_parallel_cut < TestCase
 
             data = sqw.generate_cube_sqw(2);
 
-            proj = ortho_proj([1 0 0], [0 1 0]);
+            proj = line_proj([1 0 0], [0 1 0]);
             params = {[0.5, 1, 2.5], [-5 5], [-5 5], [-5 5]};
 
             cut_ser = cut(data, proj, params{:});
@@ -51,7 +51,7 @@ classdef test_parallel_cut < TestCase
 
             data = sqw.generate_cube_sqw(2);
 
-            proj = ortho_proj([1 0 0], [0 1 0]);
+            proj = line_proj([1 0 0], [0 1 0]);
             params = {[0.5, 1, 2.5], [-5 5], [-5 5], [-5 5]};
 
             cut_ser = cut(data, proj, params{:});

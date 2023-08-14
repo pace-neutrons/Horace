@@ -49,9 +49,9 @@ classdef test_data_in_sqw < TestCaseWithSave
         end
         %
         function test_loadobj_v0_v1(obj)
-            ax = ortho_axes([ 1,0.01,2],[-1,1],[0,1],[0,1,10],...
+            ax = line_axes([ 1,0.01,2],[-1,1],[0,1],[0,1,10],...
                 'label',{'\zeta','\xi','\eta','E'});
-            ref_obj = data_sqw_dnd(ax,ortho_proj('alatt',2*pi,'angdeg',90));
+            ref_obj = data_sqw_dnd(ax,line_proj('alatt',2*pi,'angdeg',90));
             % occasionally old objects contain npix == 1
             ref_obj.npix = ones(size(ref_obj.npix));
 
@@ -63,7 +63,7 @@ classdef test_data_in_sqw < TestCaseWithSave
             assertEqualToTol(ref_obj,loaded_v0_obj,[1.e-9,1.e-9]);
 
             % Here we are preparing to restore data_sqw_dnd stored as common
-            % object when it is split to projection and ortho_axes
+            % object when it is split to projection and line_axes
             %ld = load('data_sqw_dnd_V1_ref_data.mat');
             %loaded_v1_obj = ld.test_loadobj_v0_v1.ref_obj;
             %assertEqualToTol(ref_obj,loaded_v1_obj,[1.e-9,1.e-9]);
@@ -72,7 +72,7 @@ classdef test_data_in_sqw < TestCaseWithSave
 
 
         function test_get_proj_hkl_from_cut(obj)
-            proj = ortho_proj([1,1,0],[1,-1,0]);
+            proj = line_proj([1,1,0],[1,-1,0]);
             proj.type='rrr';
             % Be sure that cut is within the ranges of the real pixel range
             % and cuts some pixels from all sides for the cut limits to be
@@ -111,7 +111,7 @@ classdef test_data_in_sqw < TestCaseWithSave
 
 
 
-            proj1 = ortho_proj([1,0,0],[0,0,1]);
+            proj1 = line_proj([1,0,0],[0,0,1]);
             proj.type='rrr';
             % Cut in the data within existing image ranges to make new
             % pixels range correspond to transformed pixels range
@@ -153,7 +153,7 @@ classdef test_data_in_sqw < TestCaseWithSave
         end
 
         function test_proj_hkl_3D_45deg_old_and_extracted_proj_cut_equals(obj)
-            proj = ortho_proj([1,1,0],[1,-1,0]);
+            proj = line_proj([1,1,0],[1,-1,0]);
 
             ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
 
@@ -171,7 +171,7 @@ classdef test_data_in_sqw < TestCaseWithSave
         end
 
         function test_get_proj_same_cut_with_extracted_proj_is_the_same(obj)
-            proj = ortho_proj([1,0,0],[0,0,1]);
+            proj = line_proj([1,0,0],[0,0,1]);
             ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
 
             proj1 =  ref_cut.data.proj;
@@ -181,7 +181,7 @@ classdef test_data_in_sqw < TestCaseWithSave
             proj1.u = round(proj1.u,9);
             proj1.v = round(proj1.v,9);
 
-            assertTrue(isa(proj1,'ortho_proj'));
+            assertTrue(isa(proj1,'line_proj'));
 
             same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
 

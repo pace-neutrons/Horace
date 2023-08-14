@@ -35,12 +35,12 @@ classdef test_cut_parameters < TestCase
             obj.sample_files{4} = sqw_4d_samp;
         end
         %==================================================================
-        function test_default_spher_from_ortho(obj)
+        function test_default_sphere_from_ortho(obj)
             sqw_samp = obj.sample_files{4};
             clOb = set_temporary_warning('off','HORACE:targ_range');
 
             img_block = sqw_samp.data;
-            targ_proj = spher_proj();
+            targ_proj = sphere_proj();
             targ_range = img_block.targ_range(targ_proj);
 
             assertElementsAlmostEqual(targ_range(:,1)',[0,sqrt(1.5^2+0.5^2)], ...
@@ -61,15 +61,15 @@ classdef test_cut_parameters < TestCase
                 5, 5,10,20];
             bin_range = [50,50,1,1];
 
-            ax = ortho_axes('img_range',data_range,'nbins_all_dims',bin_range);
-            proj = ortho_proj('alatt',1,'angdeg',90);
+            ax = line_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            proj = line_proj('alatt',1,'angdeg',90);
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
             % the resulting range is divided by the length of the
             % projection vector, so we make it unit vector to avoid
             % confusion
-            targ_proj = ortho_proj('u',[1,-1,0]/sqrt(2),'v',[1,1,0]/sqrt(2), ...
+            targ_proj = line_proj('u',[1,-1,0]/sqrt(2),'v',[1,1,0]/sqrt(2), ...
                 'alatt',1,'angdeg',90);
 
             range = dnd_obj.targ_range(targ_proj);
@@ -79,20 +79,20 @@ classdef test_cut_parameters < TestCase
                 'absolute',5e-5)
         end
 
-        function test_transf_range_spher_ortho_2D_Q(~)
+        function test_transf_range_sphere_ortho_2D_Q(~)
             data_range = ...
                 [0,          0,    0,   -5;...
                 12.2474, 180.0, 90.0, 20.0];
 
             bin_range = [50,50,1,1];
 
-            ax = spher_axes('img_range',data_range, ...
+            ax = sphere_axes('img_range',data_range, ...
                 'nbins_all_dims',bin_range);
-            proj = spher_proj();
+            proj = sphere_proj();
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
-            targ_proj = ortho_proj('alatt',2*pi,'angdeg',90);
+            targ_proj = line_proj('alatt',2*pi,'angdeg',90);
 
             range = dnd_obj.targ_range(targ_proj);
             assertElementsAlmostEqual(range, ...
@@ -100,19 +100,19 @@ classdef test_cut_parameters < TestCase
                 12.2474 , 12.2474, 12.2474, 20],'absolute',5e-5)
         end
 
-        function test_transf_range_ortho_spher_2D_Q(~)
+        function test_transf_range_ortho_sphere_2D_Q(~)
             data_range = ...
                 [-5,0, 0,-5;
                 5  ,6,10,20];
             bin_range = [50,50,1,1];
 
-            ax = ortho_axes('img_range',data_range,'nbins_all_dims',bin_range);
-            proj = ortho_proj('alatt',1,'angdeg',90);
+            ax = line_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            proj = line_proj('alatt',1,'angdeg',90);
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
 
-            targ_proj = spher_proj('alatt',1,'angdeg',90);
+            targ_proj = sphere_proj('alatt',1,'angdeg',90);
 
             range = dnd_obj.targ_range(targ_proj);
             ref_range = [...
@@ -122,20 +122,20 @@ classdef test_cut_parameters < TestCase
                 'absolute',5e-5)
         end
 
-        function test_transf_range_spher_ortho_2D_dE(~)
+        function test_transf_range_sphere_ortho_2D_dE(~)
             data_range = ...
                 [0,          0,    0,   -5;...
                 79.7247, 180.0, 90.0, 20.0];
 
             bin_range = [1,50,1,50];
 
-            ax = spher_axes('img_range',data_range,'nbins_all_dims', ...
+            ax = sphere_axes('img_range',data_range,'nbins_all_dims', ...
                 bin_range );
-            proj = spher_proj();
+            proj = sphere_proj();
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
-            targ_proj = ortho_proj('alatt',2*pi,'angdeg',90);
+            targ_proj = line_proj('alatt',2*pi,'angdeg',90);
 
             range = dnd_obj.targ_range(targ_proj);
             ref_range = [...
@@ -146,17 +146,17 @@ classdef test_cut_parameters < TestCase
 
         end
 
-        function test_transf_range_ortho_spher_2D_dE(~)
+        function test_transf_range_ortho_sphere_2D_dE(~)
             data_range = [-5,0,0,-5;5,5,10,20];
             bin_range = [1,50,1,50];
 
-            ax = ortho_axes('img_range',data_range,'nbins_all_dims',bin_range);
-            proj = ortho_proj('alatt',1,'angdeg',90);
+            ax = line_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            proj = line_proj('alatt',1,'angdeg',90);
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
 
-            targ_proj = spher_proj('alatt',1,'angdeg',90);
+            targ_proj = sphere_proj('alatt',1,'angdeg',90);
 
             range = dnd_obj.targ_range(targ_proj);
             ref_range = [...
@@ -171,9 +171,9 @@ classdef test_cut_parameters < TestCase
             sqw_test = cut_sqw_tester(sqw_samp);
 
             [proj, pbin, opt]= cut_inputs_tester(sqw_test,true,...
-                ortho_proj([1,0,0],[0,1,0]),...
+                line_proj([1,0,0],[0,1,0]),...
                 [-1,1],[-1,0.5,1,1],[-1,0.5,1,1],[-1,0.8,0,1]);
-            op = ortho_proj([1,0,0],[0,1,0], ...
+            op = line_proj([1,0,0],[0,1,0], ...
                 'alatt',sqw_test.data.proj.alatt, ...
                 'angdeg',sqw_test.data.proj.angdeg);
             assertEqual(proj,op);
@@ -206,9 +206,9 @@ classdef test_cut_parameters < TestCase
             sqw_test = cut_sqw_tester(sqw_samp);
 
             [proj, pbin, opt]= cut_inputs_tester(sqw_test,true,...
-                ortho_proj([1,0,0],[0,1,0]),...
+                line_proj([1,0,0],[0,1,0]),...
                 [-1,1],[-1,0.5,1,1],[-1,0.5,1,1],[]);
-            op = ortho_proj([1,0,0],[0,1,0], ...
+            op = line_proj([1,0,0],[0,1,0], ...
                 'alatt',sqw_test.data.proj.alatt, ...
                 'angdeg',sqw_test.data.proj.angdeg);
             assertEqual(proj,op);
@@ -237,9 +237,9 @@ classdef test_cut_parameters < TestCase
             sqw_test = cut_sqw_tester(sqw_samp);
 
             [proj, pbin, opt]= cut_inputs_tester(sqw_test,true,...
-                ortho_proj([1,0,0],[0,1,0]),...
+                line_proj([1,0,0],[0,1,0]),...
                 [-1,1],[-1,0.5,1,1],[],[]);
-            op = ortho_proj([1,0,0],[0,1,0], ...
+            op = line_proj([1,0,0],[0,1,0], ...
                 'alatt',sqw_test.data.proj.alatt, ...
                 'angdeg',sqw_test.data.proj.angdeg);
             assertEqual(proj,op);
@@ -260,23 +260,23 @@ classdef test_cut_parameters < TestCase
             sqw_samp = obj.sample_files{2};
             sqw_test = cut_sqw_tester(sqw_samp);
             assertExceptionThrown(@()cut_inputs_tester(sqw_test,true,...
-                ortho_proj([1,0,0],[0,1,0]),...
+                line_proj([1,0,0],[0,1,0]),...
                 [-1,1],[-1,0.5,-1,2],[],[]),'HORACE:cut:invalid_argument');
 
             assertExceptionThrown(@()cut_inputs_tester(sqw_test,true,...
-                ortho_proj([1,0,0],[0,1,0]),...
+                line_proj([1,0,0],[0,1,0]),...
                 [-1,1],[-1,-0.5,1,2],[],[]),'HORACE:cut:invalid_argument');
 
             assertExceptionThrown(@()cut_inputs_tester(sqw_test,true,...
-                ortho_proj([1,0,0],[0,1,0]),...
+                line_proj([1,0,0],[0,1,0]),...
                 [-1,1],[-1,0,1,2],[],[]),'HORACE:cut:invalid_argument');
 
             assertExceptionThrown(@()cut_inputs_tester(sqw_test,true,...
-                ortho_proj([1,0,0],[0,1,0]),...
+                line_proj([1,0,0],[0,1,0]),...
                 [-1,1],[-1,0.5,1,0],[],[]),'HORACE:cut:invalid_argument');
 
             assertExceptionThrown(@()cut_inputs_tester(sqw_test,true,...
-                ortho_proj([1,0,0],[0,1,0]),...
+                line_proj([1,0,0],[0,1,0]),...
                 [-1,1],[-1,0.5,1,-1],[],[]),'HORACE:cut:invalid_argument');
 
         end
@@ -307,7 +307,7 @@ classdef test_cut_parameters < TestCase
             assertElementsAlmostEqual(pbin{3},[-0.105,0.01,0.105])
             assertEqual(pbin{4},[0,10])
 
-            assertTrue(isa(proj,'ortho_proj'));
+            assertTrue(isa(proj,'line_proj'));
             assertElementsAlmostEqual(proj.u,[1,0,0])
             assertElementsAlmostEqual(proj.v,[0,1,0])
 

@@ -8,7 +8,7 @@ classdef test_section < TestCase
         function obj = test_section_works(obj)
             w = sqw.generate_cube_sqw(10);
             test_sec = w.section([-3 3], [], [], []);
-            test_cut = w.cut(ortho_proj([1 0 0], [0 1 0]), [-2.5 1 2.5],[],[],[]);
+            test_cut = w.cut(line_proj([1 0 0], [0 1 0]), [-2.5 1 2.5],[],[],[]);
 
 
             assertEqualToTol(test_sec, test_cut);
@@ -32,7 +32,7 @@ classdef test_section < TestCase
         function obj = test_section_collapse_dim(obj)
             w = sqw.generate_cube_sqw(10);
             test_sec = w.section([-1 0], [], [], []);
-            test_cut = w.cut(ortho_proj([1 0 0], [0 1 0]), [-1 0],[],[],[]);
+            test_cut = w.cut(line_proj([1 0 0], [0 1 0]), [-1 0],[],[],[]);
 
             assertEqualToTol(test_sec, test_cut);
 
@@ -46,7 +46,7 @@ classdef test_section < TestCase
             test(1) = w;
             test(2) = w;
             test_sec = test.section([-3 3], [], [], []);
-            test_cut = w.cut(ortho_proj([1 0 0], [0 1 0]), [-2.5 1 2.5],[],[],[]);
+            test_cut = w.cut(line_proj([1 0 0], [0 1 0]), [-2.5 1 2.5],[],[],[]);
 
             assertEqualToTol(test_sec(1), test_cut);
             assertEqualToTol(test_sec(2), test_cut);
@@ -77,7 +77,7 @@ classdef test_section < TestCase
 
         function obj = test_section_fails_0_dim(obj)
             w = sqw.generate_cube_sqw(2);
-            w = w.cut(ortho_proj([1 0 0], [0 1 0]), [-1 1],[-1 1],[-1 1],[-1 1]);
+            w = w.cut(line_proj([1 0 0], [0 1 0]), [-1 1],[-1 1],[-1 1],[-1 1]);
             assertEqual(w.dimensions(), 0);
             throw = @() section(w, [], [], [], []);
 
@@ -89,7 +89,7 @@ classdef test_section < TestCase
         % Section calls cellfun, so obj array not supported
         % However, section not defined for type cell
             w = sqw.generate_cube_sqw(2);
-            test(1) = w.cut(ortho_proj([1 0 0], [0 1 0]), [],[],[-1 1],[-1 1]);
+            test(1) = w.cut(line_proj([1 0 0], [0 1 0]), [],[],[-1 1],[-1 1]);
             test(2) = w.copy();
             assertEqual(test(1).dimensions(), 2);
             assertEqual(test(2).dimensions(), 4);

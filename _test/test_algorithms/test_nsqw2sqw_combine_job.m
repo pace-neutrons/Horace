@@ -139,16 +139,16 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             assertEqual(ok,MESS_CODES.ok,err);
 
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-1,0.1,5],[-0.4,0.4],[-0.4,0.4],[10,20]);
+                line_proj,[-1,0.1,5],[-0.4,0.4],[-0.4,0.4],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-6.5,0.3,6.5],[-0.4,0.4],[10,20]);
+                line_proj,[-0.4,0.4],[-6.5,0.3,6.5],[-0.4,0.4],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-0.4,0.4],[-6.5,0.3,6.5],[10,20]);
+                line_proj,[-0.4,0.4],[-0.4,0.4],[-6.5,0.3,6.5],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-0.4,0.4],[-0.4,0.4],[2,5,145]);
+                line_proj,[-0.4,0.4],[-0.4,0.4],[-0.4,0.4],[2,5,145]);
             assertTrue(ok,mess);
 
         end
@@ -221,16 +221,16 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             assertEqual(ok,MESS_CODES.ok,err);
 
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-1,0.1,5],[-0.4,0.4],[-0.4,0.4],[10,20]);
+                line_proj,[-1,0.1,5],[-0.4,0.4],[-0.4,0.4],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-6.5,0.3,6.5],[-0.4,0.4],[10,20]);
+                line_proj,[-0.4,0.4],[-6.5,0.3,6.5],[-0.4,0.4],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-0.4,0.4],[-6.5,0.3,6.5],[10,20]);
+                line_proj,[-0.4,0.4],[-0.4,0.4],[-6.5,0.3,6.5],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-0.4,0.4],[-0.4,0.4],[2,5,145]);
+                line_proj,[-0.4,0.4],[-0.4,0.4],[-0.4,0.4],[2,5,145]);
             assertTrue(ok,mess);
 
         end

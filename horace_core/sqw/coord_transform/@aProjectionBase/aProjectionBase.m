@@ -465,7 +465,7 @@ classdef aProjectionBase < serializable
             % method defines what axes become intertangled if some
             % projection is involved.
             %
-            % E.g. if source projection and target projections are ortho_proj,
+            % E.g. if source projection and target projections are line_proj,
             % only projection axes contribute into projection axess of each other.
             % if target projection is a spherical projection, changes to
             % one projection axis of the orthogonal source projectin would
@@ -680,7 +680,7 @@ classdef aProjectionBase < serializable
             % targ_range  -- the range of the pixels, transformed to target
             %                coordinate system.
             % NOTE:
-            % Need verification for non ortho_proj
+            % Need verification for non line_proj
             pix_transformed = obj.transform_pix_to_img(pix_origin,varargin{:});
             if isa(pix_origin, 'PixelDataBase')
                 targ_range = pix_transformed.pixel_range;

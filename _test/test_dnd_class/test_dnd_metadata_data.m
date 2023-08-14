@@ -21,8 +21,8 @@ classdef test_dnd_metadata_data < TestCase
         end
         function test_d2d_metadata_data_construct_reconstruct(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),...
-                ortho_proj('alatt',3,'angdeg',90),...
+            input = {line_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),...
+                line_proj('alatt',3,'angdeg',90),...
                 ones(11,11),2*ones(11,11),3*ones(11,11)};
             dnd_obj = d2d(input{:});
 
@@ -36,8 +36,8 @@ classdef test_dnd_metadata_data < TestCase
             assertEqualToTol(dnd_obj,dnd_obj_rec,'-ignore_date' )
         end
         function test_dnd_data_get_set(~)
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),...
-                ortho_proj('alatt',3,'angdeg',90),...
+            input = {line_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),...
+                line_proj('alatt',3,'angdeg',90),...
                 ones(11,11),2*ones(11,11),3*ones(11,11)};
             dnd_obj = d2d(input{:});
 
@@ -62,7 +62,7 @@ classdef test_dnd_metadata_data < TestCase
 
         function test_d2d_metadata_get_set(~)
             %axis, proj, s,e,npix
-            proj = ortho_proj('alatt',3,'angdeg',90);
+            proj = line_proj('alatt',3,'angdeg',90);
             ax = proj.get_proj_axes_block(cell(1,4), ...
                 {[0,1],[0,1],[0,0.1,1],[0,0.2,2]});
             input = {ax,proj,...
@@ -109,8 +109,8 @@ classdef test_dnd_metadata_data < TestCase
         end
 
         function test_dnd_metadata_serialization_no_date(~)
-            ab = ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]);
-            pr = ortho_proj([1,1,0],[0,0,1]);
+            ab = line_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]);
+            pr = line_proj([1,1,0],[0,0,1]);
             md = dnd_metadata(ab,pr);
 
             mds = md.to_struct();
@@ -121,8 +121,8 @@ classdef test_dnd_metadata_data < TestCase
         end
 
         function test_dnd_metadata_serialization_with_date(~)
-            ab = ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]);
-            pr = ortho_proj([1,1,0],[0,0,1],'alatt',3,'angdeg',90);
+            ab = line_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]);
+            pr = line_proj([1,1,0],[0,0,1],'alatt',3,'angdeg',90);
             md = dnd_metadata(ab,pr,datetime(1900,01,01));
 
             mds = md.to_struct();

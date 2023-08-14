@@ -1,5 +1,5 @@
 classdef test_proj_alignment<TestCase
-    % testing ortho_proj class constructor
+    % testing line_proj class constructor
     %
     properties
         h0 = 2;  % the position and the extend of the
@@ -18,7 +18,7 @@ classdef test_proj_alignment<TestCase
         end
         function test_align_simple_lat_change_alatt(obj)
             %
-            ax = ortho_axes('img_range',[-5,-5,-2,-2;5,5,2,2],'nbins_all_dims',[100,100,1,1]);
+            ax = line_axes('img_range',[-5,-5,-2,-2;5,5,2,2],'nbins_all_dims',[100,100,1,1]);
             w2 = sqw.generate_cube_sqw(ax,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
 
             % this alignment moves the peak into actual [1,0,0] position where
@@ -30,7 +30,7 @@ classdef test_proj_alignment<TestCase
             w2 = w2.change_crystal(al_inf);
             % now we do normal cut and should find the peak in the
             % [1,0,0] position
-            targ_proj = ortho_proj([1,0,0],[0,1,0], ...
+            targ_proj = line_proj([1,0,0],[0,1,0], ...
                 'alatt',w2.data.alatt,'angdeg',w2.data.angdeg);
             targ_ab   = targ_proj.get_proj_axes_block(cell(4,1), ...
                 {[-5,0.1,5],[-5,0.1,5],[-2,2],[-2,2]});
@@ -65,8 +65,8 @@ classdef test_proj_alignment<TestCase
         end
 
         function test_align_simple_lattice_latt_no_change_with_offset(obj)
-            ax = ortho_axes('img_range',[-6,-6,-2,-2;4,4,2,2],'nbins_all_dims',[100,100,1,1]);
-            proj = ortho_proj([1,0,0],[0,1,0],'offset',[1.0,1.0,0,0], ...
+            ax = line_axes('img_range',[-6,-6,-2,-2;4,4,2,2],'nbins_all_dims',[100,100,1,1]);
+            proj = line_proj([1,0,0],[0,1,0],'offset',[1.0,1.0,0,0], ...
                 'alatt',2*pi,'angdeg',90);
             w2 = sqw.generate_cube_sqw(ax,proj,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
             assertEqual(w2.pix.pix_range, [...
@@ -78,7 +78,7 @@ classdef test_proj_alignment<TestCase
             al_inf.rotvec  = [0,0,pi/4];
             w2 = w2.change_crystal(al_inf);
             %
-            targ_proj = ortho_proj([1,0,0],[0,1,0], ...
+            targ_proj = line_proj([1,0,0],[0,1,0], ...
                 'alatt',w2.data.alatt,'angdeg',w2.data.angdeg);
             targ_ab   = targ_proj.get_proj_axes_block(cell(4,1), ...
                 {[-5*sqrt(2),0.1,5*sqrt(2)],[-5*sqrt(2),0.1,5*sqrt(2)],[-2,2],[-2,2]});
@@ -117,7 +117,7 @@ classdef test_proj_alignment<TestCase
 
         function test_align_simple_lattice_latt_no_change(obj)
             %
-            ax = ortho_axes('img_range',[-5,-5,-2,-2;5,5,2,2],'nbins_all_dims',[100,100,1,1]);
+            ax = line_axes('img_range',[-5,-5,-2,-2;5,5,2,2],'nbins_all_dims',[100,100,1,1]);
             w2 = sqw.generate_cube_sqw(ax,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
 
             % this alignment moves the peak into actual [1,0,0] position where
@@ -128,7 +128,7 @@ classdef test_proj_alignment<TestCase
             w2 = w2.change_crystal(al_inf);
             % now we do normal cut and should find the peak in the
             % [1,0,0] position
-            targ_proj = ortho_proj([1,0,0],[0,1,0], ...
+            targ_proj = line_proj([1,0,0],[0,1,0], ...
                 'alatt',w2.data.alatt,'angdeg',w2.data.angdeg);
             targ_ab   = targ_proj.get_proj_axes_block(cell(4,1), ...
                 {[-5*sqrt(2),0.1,5*sqrt(2)],[-5*sqrt(2),0.1,5*sqrt(2)],[-2,2],[-2,2]});

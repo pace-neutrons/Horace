@@ -178,8 +178,8 @@ classdef test_main_mex < TestCase
             [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
             pix.coordinates = [ux(:)';uy(:)';uz(:)';et(:)'];
             npix = 4*ones(10,10,10,10);
-            ab = ortho_axes('nbins_all_dims',[10,10,10,10],'img_range',[0,0,0,0;2,2,2,2]);
-            test_sqw.data = DnDBase.dnd(ab,ortho_proj('alatt',3,'angdeg',90));
+            ab = line_axes('nbins_all_dims',[10,10,10,10],'img_range',[0,0,0,0;2,2,2,2]);
+            test_sqw.data = DnDBase.dnd(ab,line_proj('alatt',3,'angdeg',90));
             test_sqw.data.npix = npix;
             test_sqw.pix  = pix;
 
@@ -334,8 +334,8 @@ classdef test_main_mex < TestCase
             E0=min(en);
             E1=max(en);
             Es=2;
-            proj = ortho_proj(u,v,'alatt',[3,4,5],'angdeg',[90,90,90]);
-            ab = ortho_axes([0,1,L1],[0,1,L2],[0,0.1,L3],[E0,Es,E1]);
+            proj = line_proj(u,v,'alatt',[3,4,5],'angdeg',[90,90,90]);
+            ab = line_axes([0,1,L1],[0,1,L2],[0,0.1,L3],[E0,Es,E1]);
             data = DnDBase.dnd(ab,proj);
 
             vv=ones(9,nPixels);

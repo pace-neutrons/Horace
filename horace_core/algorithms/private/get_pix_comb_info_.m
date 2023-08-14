@@ -124,8 +124,8 @@ if isa(datahdr{1},'dnd_metadata') % have to be all the same and it
     ab = datahdr{1}.axes;
     proj = datahdr{1}.proj;
 else
-    ab = ortho_axes.get_from_old_data(datahdr{1});
-    proj = ortho_proj.get_from_old_data(datahdr{1});
+    ab = line_axes.get_from_old_data(datahdr{1});
+    proj = line_proj.get_from_old_data(datahdr{1});
 end
 sqw_data = DnDBase.dnd(ab,proj);
 sqw_data.filename=mhc.filename;

@@ -284,14 +284,14 @@ classdef test_data_block < TestCase
         function test_get_set_proper_dnd_subobj_proj(obj)
             dp = data_block('data','proj');
 
-            proj = ortho_proj([1,1,0],[1,-1,0]);
+            proj = line_proj([1,1,0],[1,-1,0]);
             dnd_mod = dp.set_subobj(obj.sqw_obj_for_tests.data,proj);
             assertEqual(dnd_mod.proj,proj);
         end
         function test_get_set_proper_subobj_proj(obj)
             dp = data_block('data','proj');
 
-            proj = ortho_proj([1,1,0],[1,-1,0]);
+            proj = line_proj([1,1,0],[1,-1,0]);
             sqw_mod = dp.set_subobj(obj.sqw_obj_for_tests.data,proj);
 
             assertEqual(sqw_mod.proj,proj);

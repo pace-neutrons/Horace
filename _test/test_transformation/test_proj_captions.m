@@ -17,8 +17,8 @@ classdef test_proj_captions<TestCase
 
             obj_range(1,4) = -5;
             obj_range(2,4) = 20;
-            proj  = ortho_proj('alatt',2,'angdeg',90,'u',[1,1,0],'v',[-1,1,0]);                        
-            ab = ortho_axes('img_range',obj_range,'nbins_all_dims',[50,1,1,40]);
+            proj  = line_proj('alatt',2,'angdeg',90,'u',[1,1,0],'v',[-1,1,0]);                        
+            ab = line_axes('img_range',obj_range,'nbins_all_dims',[50,1,1,40]);
             [~,~,ulen]  = proj.get_pix_img_transformation(3);
             ab.ulen  = ulen;
 
@@ -29,8 +29,8 @@ classdef test_proj_captions<TestCase
             dat = obj.data;
             range = [0,0,-180,-5;8,90,-180,20];
             dat.do_check_combo_arg = false;
-            dat.axes = spher_axes('img_range',range,'nbins_all_dims',[50,1,1,40]);
-            dat.proj = spher_proj();       
+            dat.axes = sphere_axes('img_range',range,'nbins_all_dims',[50,1,1,40]);
+            dat.proj = sphere_proj();       
             dat.do_check_combo_arg = true;            
             dat = dat.check_combo_arg();
 
@@ -62,7 +62,7 @@ classdef test_proj_captions<TestCase
         end
         
 
-        function test_ortho_proj_description_with_dax_non_default(obj)
+        function test_line_proj_description_with_dax_non_default(obj)
 
             dat = obj.data;
             dat.axes.dax = [2,1];
@@ -102,7 +102,7 @@ classdef test_proj_captions<TestCase
 
         end
 
-        function test_ortho_proj_description_with_offset(obj)
+        function test_line_proj_description_with_offset(obj)
 
             dat = obj.data;
             dat.proj.offset = [1,1,1,1];
@@ -140,7 +140,7 @@ classdef test_proj_captions<TestCase
         end
         
 
-        function test_ortho_proj_description(obj)
+        function test_line_proj_description(obj)
 
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
                 obj.data.data_plot_titles();

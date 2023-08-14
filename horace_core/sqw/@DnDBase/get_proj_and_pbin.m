@@ -18,7 +18,7 @@ function [proj, pbin] = get_proj_and_pbin(w)
 if numel(w)==1
     [proj, pbin] = get_proj_and_pbin_single(w);
 elseif numel(w)>1
-    proj = repmat(ortho_proj, size(w));
+    proj = repmat(line_proj, size(w));
     pbin = repmat({{[],[],[],[]}}, size(w));
     for i=1:numel(w)
         [proj(i), pbin{i}] = get_proj_and_pbin_single(w(i));

@@ -93,7 +93,7 @@ classdef test_rebin_operations < TestCase
             w2d_qe_sqw_reb=rebin(w2d_qe_sqw,[-0.5,0.05,1],[10,0.7,80]);
 
             % Cut the input arg, and we should get something identical
-            proj = ortho_proj([1,1,0], [-1,1,0], 'type', 'rrr');
+            proj = line_proj([1,1,0], [-1,1,0], 'type', 'rrr');
             w2d_qe_sqw_cut = cut(w2d_qe_sqw,proj,[-0.5,0.05,1],[-0.1,0.1],[-Inf,Inf],[10,0.7,80]);
 
             assertEqualToTol(w2d_qe_sqw_cut,w2d_qe_sqw_reb,3e-9,'ignore_str', 1);

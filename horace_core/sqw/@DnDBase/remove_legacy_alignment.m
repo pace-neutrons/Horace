@@ -27,7 +27,7 @@ if nargin > 1
             disp2str(varargin{1}),nargin);
     end
     % use tmp proj class to check the lattice parameters validity
-    tmp_proj = ortho_proj('alatt',varargin{1},'angdeg',varargin{2});
+    tmp_proj = line_proj('alatt',varargin{1},'angdeg',varargin{2});
     alatt0  = tmp_proj.alatt;
     angdeg0 = tmp_proj.angdeg;
     if any(abs(alatt0-obj.alatt)>4*eps('single')) || ...

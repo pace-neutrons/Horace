@@ -48,8 +48,8 @@ classdef dnd_metadata < serializable
         nbins;
     end
     properties(Access=protected)
-        axes_ = ortho_axes();
-        proj_ = ortho_proj('alatt',2*pi,'angdeg',90);
+        axes_ = line_axes();
+        proj_ = line_proj('alatt',2*pi,'angdeg',90);
         %
         creation_date_ = '';
         creation_date_defined_ = false;

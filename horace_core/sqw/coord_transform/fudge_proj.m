@@ -1,5 +1,5 @@
-classdef fudge_proj < ortho_proj
-    % Fudge projection introuduced as fudge to fix resolution plot.
+classdef fudge_proj < line_proj
+    % Fudge projection introduced as fudge to fix resolution plot.
     %
     % TODO: clarify and make it the proper projection. Ticket #840
     properties
@@ -8,7 +8,7 @@ classdef fudge_proj < ortho_proj
 
     methods
         function obj = fudge_proj(varargin)
-            obj = obj@ortho_proj(varargin{:})
+            obj = obj@line_proj(varargin{:})
         end
         function axes_bl = copy_proj_defined_properties_to_axes(obj,axes_bl)
             % copy the properties, which are normally defined on projection
@@ -36,7 +36,7 @@ classdef fudge_proj < ortho_proj
         function name = get_axes_name(~)
             % return the name of the axes class, which corresponds to this
             % projection
-            name = 'ortho_axes';
+            name = 'line_axes';
         end
 
     end

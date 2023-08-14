@@ -50,6 +50,7 @@ classdef test_smooth < TestCaseWithSave
             assertTrue(isa(d, 'd3d'));
         end
         function test_smooth_sqwd4d_returns_sqwd4d_object(obj)
+            clWr = set_temporary_warning('off','HORACE:old_file_format');
             sqw4d_obj = read_sqw(obj.test_sqw_4d_fullpath);
             sqw4d_obj.pix = [];
 

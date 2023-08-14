@@ -4,7 +4,7 @@ classdef crystal_alignment_info < serializable
     %
     % Created to support common interface between legacy alignment,
     % applicable for orthonormal or triclinic coordinate systems only and
-    % generic alignemnt, applicable for any projections
+    % generic alignment, applicable for any projections
     %
     % The properties class should contain:
     %
@@ -193,7 +193,7 @@ classdef crystal_alignment_info < serializable
             %                  to Crystal Cartesian coordinate system
             %
             %  qframe_corr  rotation matrix to
-            if isa(varargin{1},'ortho_proj')
+            if isa(varargin{1},'line_proj')
                 b0 = varargin{1}.bmatrix();
                 hkle_mode_ = obj.hkl_mode;
                 proj = varargin{1};
@@ -202,7 +202,7 @@ classdef crystal_alignment_info < serializable
                 hkle_mode_ = true;
             else
                 error('HORACE:lattice_functions:invalid_argument', ...
-                    'Method accepts either ortho_proj class instance, or two-element initial lattice parameters vector.\n Provided: %s', ...
+                    'Method accepts either line_proj class instance, or two-element initial lattice parameters vector.\n Provided: %s', ...
                     disp2str(varargin));
             end
 

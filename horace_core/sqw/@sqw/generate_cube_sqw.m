@@ -20,7 +20,7 @@ function out = generate_cube_sqw(shape,varargin)
 % --    initialized instance of AxesBlockBase which defines the shape of
 %       the resulting sqw object
 % proj_instance
-% --   intialized instance of aProjectionBase class, which defines the
+% --   initialized instance of aProjectionBase class, which defines the
 %      image transformation, used by sqw object.
 % func_handle
 % --  the handle to the function which calculates signal on sqw object.
@@ -50,7 +50,7 @@ if isscalar(shape) && isnumeric(shape)
         maxloc = (shape-1)/2;
     end
     img_range = [ones(1,4)*minloc;ones(1,4)*maxloc];
-    sqw_axes = ortho_axes('img_range',img_range,'nbins_all_dims',ones(1,4)*shape);
+    sqw_axes = line_axes('img_range',img_range,'nbins_all_dims',ones(1,4)*shape);
 elseif isa(shape,'AxesBlockBase')
     sqw_axes = shape;
     img_range = sqw_axes.img_range;
@@ -107,7 +107,7 @@ out.experiment_info.detector_arrays = IX_detector_array();
 out.experiment_info.expdata = IX_experiment(expdata);
 
 
-ax0  = ortho_axes('img_range',img_range,'nbins_all_dims',ones(1,4));
+ax0  = line_axes('img_range',img_range,'nbins_all_dims',ones(1,4));
 out.data = DnDBase.dnd(ax0,proj,npix,npix,npix);
 
 % evaluate signal on the sqw object if this is requested
@@ -144,5 +144,5 @@ if nargin> 2 && isa(varargin{1},'aProjectionBase')
     end
 else
     argi = varargin;
-    proj = ortho_proj([1 0 0], [0 1 0],'alatt',alatt,'angdeg',angdeg,'type','ppr');
+    proj = line_proj([1 0 0], [0 1 0],'alatt',alatt,'angdeg',angdeg,'type','ppr');
 end

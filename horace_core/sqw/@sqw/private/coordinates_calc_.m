@@ -84,7 +84,7 @@ ind=cell2struct(num2cell(ind),xname,1);
 xpix=cell(1,numel(xlist));
 if ind.h||ind.k||ind.l||ind.Q
     this_proj = w.data.proj;
-    hkl_proj = ortho_proj([1,0,0],[0,1,0],[0,0,1], ...
+    hkl_proj = line_proj([1,0,0],[0,1,0],[0,0,1], ...
         'alatt',this_proj.alatt,'angdeg',this_proj.angdeg);    
 
     % Matrix and translation to convert from pixel coords to hkl

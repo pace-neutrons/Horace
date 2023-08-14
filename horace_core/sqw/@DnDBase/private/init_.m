@@ -66,8 +66,8 @@ args = struct(...
 
 if isempty(input_data)
     % create struct holding default instance contents
-    args.data_struct.axes =   ortho_axes(obj.NUM_DIMS);
-    args.data_struct.proj =   ortho_proj();
+    args.data_struct.axes =   line_axes(obj.NUM_DIMS);
+    args.data_struct.proj =   line_proj();
     sz = args.data_struct.axes.dims_as_ssize;
     args.data_struct = init_arrays_(args.data_struct,sz);
 elseif isa(input_data{1}, 'SQWDnDBase')

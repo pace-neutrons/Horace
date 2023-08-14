@@ -23,7 +23,7 @@ function [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin)
 % Example:
 %   >> f1={'sqw_12.sqw',sqw_34.sqw'};
 %   >> f2='sqw_1234.sqw';
-%   >> proj = ortho_proj([1,1,0], [0,0,1]);
+%   >> proj = line_proj([1,1,0], [0,0,1]);
 %   >> w1_2=cut_sqw(f1,f2,proj,[-1.5,0.05,-0.5],[-0.6,-0.44],[-0.5,0.5],[5,10]);
 
 keyval_def = struct('tol',[1.e-12,1.e-12]);

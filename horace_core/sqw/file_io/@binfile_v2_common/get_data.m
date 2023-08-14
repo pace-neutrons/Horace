@@ -149,20 +149,20 @@ end
 if obj.convert_to_double
     data_str = binfile_v2_common.do_convert_to_double(data_str);
 end
-%data_str = ortho_axes.convert_old_struct_into_nbins(data_str);
+%data_str = line_axes.convert_old_struct_into_nbins(data_str);
 %
 if ~header_only
     data_str = obj.get_se_npix(data_str);
 end
 
 if header_only || noclass
-    data_str.img_range = ortho_axes.calc_img_db_range(data_str );
+    data_str.img_range = line_axes.calc_img_db_range(data_str );
     data_str.dimensions = numel(data_str.p);
     return;
 end
 %
-proj = ortho_proj.get_from_old_data(data_str);
-ax   = ortho_axes.get_from_old_data(data_str);
+proj = line_proj.get_from_old_data(data_str);
+ax   = line_axes.get_from_old_data(data_str);
 % really old file format does not contain lattice
 % in real life we will probably never face this file format
 if ~proj.alatt_defined

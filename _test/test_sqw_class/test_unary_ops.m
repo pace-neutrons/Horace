@@ -69,8 +69,8 @@ methods
 
     function test_unary_op_updates_image_signal_and_error_if_no_pixeldata(~)
         sqw_obj = sqw();
-        ax = ortho_axes('img_range',[-1,-1,-1,-1;1,1,1,1],'nbins_all_dims',[2,1,1,1]);
-        sqw_obj.data = d1d(ax,ortho_proj('alatt',3,'angdeg',90));
+        ax = line_axes('img_range',[-1,-1,-1,-1;1,1,1,1],'nbins_all_dims',[2,1,1,1]);
+        sqw_obj.data = d1d(ax,line_proj('alatt',3,'angdeg',90));
         sqw_obj.pix = PixelDataBase.create();
         sqw_obj.data.s = [2, 21951]; % simple dataset for ease of testing
         sqw_obj.data.e = [1.5, 4123];

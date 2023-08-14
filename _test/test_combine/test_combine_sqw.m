@@ -75,7 +75,7 @@ classdef test_combine_sqw < TestCase
             %  img_db_range generated with non-orthogonal lattice is equal
             %  to pix_range, when in fact it should be diffetent
             % (see cut_source_range below).
-            proj = ortho_proj([1,0,0],[0,1,0]);
+            proj = line_proj([1,0,0],[0,1,0]);
             proj.alatt = obj.sqw_sample_gen.data.alatt;
             proj.angdeg = obj.sqw_sample_gen.data.angdeg;
             pr = obj.sqw_sample_gen.pix.pix_range;
@@ -124,7 +124,7 @@ classdef test_combine_sqw < TestCase
             assertEqual(2*n_pix,npix2);
         end
 
-        function test_combine1D_ortho_2ranges(obj)
+        function test_combine1D_line_2ranges(obj)
 
             img_db_range = obj.sqw_sample_ortho.data.img_range;
 

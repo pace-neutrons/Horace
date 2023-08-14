@@ -21,8 +21,8 @@ bs = [box_size,ones(1,4-numel(box_size))];
 sample_properties('s') = val;
 sample_properties('e') = val;
 sample_properties('npix') = val;
-sample_properties('axes') = ortho_axes('nbins_all_dims',bs);
-sample_properties('proj') = ortho_proj('alatt',4,'angdeg',90);
+sample_properties('axes') = line_axes('nbins_all_dims',bs);
+sample_properties('proj') = line_proj('alatt',4,'angdeg',90);
 
 sample_properties('dax') = 1:numel(box_size);
 

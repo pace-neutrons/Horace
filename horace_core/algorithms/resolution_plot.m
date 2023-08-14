@@ -53,7 +53,7 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %
 % {optional]
 %   proj           Projection structure or object. Defines the coordinate frame in which
-%                  to plot the resolution ellipsoid. Type help ortho_proj for details or <a href="matlab:help('ortho_proj');">Click here</a>.
+%                  to plot the resolution ellipsoid. Type help line_proj for details or <a href="matlab:help('line_proj');">Click here</a>.
 %
 %                   Default: if not given or empty: assume to be spectrometer axes
 %                  i.e. x || ki, z vertical upwards, y perpendicular to z and y.
@@ -235,7 +235,7 @@ wres.detpar = detpar;
 
 
 % Make data structure
-ax = ortho_axes('nbins_all_dims',[3,3,1,1],'img_range',range_add_border(zeros(2,4)));
+ax = line_axes('nbins_all_dims',[3,3,1,1],'img_range',range_add_border(zeros(2,4)));
 ax.label = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 
 
@@ -245,7 +245,7 @@ if isempty(proj)
     % plot aspect ratio is adjusted only in case of projection provided
 else
     % create ortho projection and assign lattice to it
-    if isa(proj,'ortho_proj')
+    if isa(proj,'line_proj')
         if ~proj.alatt_defined
             proj.alatt = alatt;
         end
@@ -259,12 +259,12 @@ else
         if ~isfield(proj,'angdeg')
             proj.angdeg = angdeg;
         end
-        proj = ortho_proj(proj);
+        proj = line_proj(proj);
 
     else
         error('HORACE:resolution_plot:invalid_argument',...
-            ['projection, if provided, must be an instance of ortho_proj ' ...
-            'class or structure convertable into it.\n' ...
+            ['projection, if provided, must be an instance of line_proj ' ...
+            'class or structure convertible into it.\n' ...
             ' Other types of projections have not been implemented']);
     end
     % plot aspect ratio is adjusted according to ulen

@@ -225,7 +225,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % orthonormal components
 
             switch class(proj)
-                case 'ortho_proj'
+                case 'line_proj'
 
                     u_new = obj.R * proj.u(:);
                     v_new = obj.R * proj.v(:);
@@ -238,7 +238,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                         proj = proj.set_axes(u_new, v_new, [], offset_new);
                     end
 
-                case 'spher_proj'
+                case 'sphere_proj'
 
                     %% TODO non-aligned ez/ey not supported
                     % ez_new = obj.R * proj.ez(:);
