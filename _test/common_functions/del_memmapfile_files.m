@@ -1,5 +1,9 @@
 function del_memmapfile_files(filelist)
-% delete files which are unlocked but were accessed using memmapfile
+% Delete files which are unlocked but were accessed using memmapfile
+%
+% Input:
+% filelist -- name of file or cellarray of filenames to delete
+%
 % 
 if istext(filelist)
     filelist = cellstr(filelist);

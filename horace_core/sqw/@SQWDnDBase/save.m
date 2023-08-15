@@ -1,11 +1,13 @@
 function cl=save(w, varargin)
-% Save a sqw object or array of sqw objects to file
+% Save a sqw object or array of sqw objects to a binary sqw file with
+% recommended version
 %
 %   >> save (w)              % prompt for file
-%   >> save (w, file)        % give file
-%   >> save (w, file,loader) % save file using specific data loader
-%                             (-update option, is provided, will be
-%                             ignored)
+%   >> save (w, file)        % save to file with the name provided
+%   >> save (w, file,loader) % save file using specific binary data
+%                              accessor
+%                             ("-update" option, if provided with together
+%                             with loader will be ignored)
 %   >> save (w, file,['-parallel'|JobDispatcher])
 %                             combine file using parallel algorithm.
 %                             Useful and would works only if (when) pix
@@ -38,105 +40,115 @@ function cl=save(w, varargin)
 % Original author: T.G.Perring
 %
 
-cl = []; % parallel cluster used to combine and save
-[ok,mess,upgrade,argi] = parse_char_options(varargin,{'-update'});
+[ok,mess,upgrade,update,argi] = parse_char_options(varargin,{'-update','-upgrade'});
 if ~ok
-    error('HORACE:save:invalid_argument',mess);
+    error('HORACE:sqw:invalid_argument',mess);
 end
+upgrade = upgrade||update;
+
+if numel(argi) == 0
+    filenames = '';
+else
+    filenames = argi{1};
+    argi      = argi(2:end);
+end
+
+if numel(w)>1 % We do not want to manually provide filename for every file to save
+    % cellarray of filenames have to be provided to save multiple files
+    if isempty(filenames)
+        error('HORACE:sqw:invalid_argument',...
+            'If you want to save array of sqw files, you need to provide cellarray of filenames to save');
+    end
+    if numel(filenames) ~= numel(w)
+        error('HORACE:sqw:invalid_argument',...
+            'Number of data objects in array to save does not match number of file names')
+    end
+    for i=1:numel(w)
+        cl = save_one(w(i),filenames{i},upgrade,argi{:});
+    end
+else
+    cl = save_one(w,filenames,upgrade,argi{:});
+end
+
+
+function cl = save_one(w,filename,upgrade,varargin)
+cl = []; % parallel cluster used to combine and save. Not tested, not used
 
 % Get file name - prompting if necessary
-ldw = [];
-switch numel(argi)
-  case 0
-    error ('HORACE:save:invalid_argument',...
-           'No file given to save result')
-
-  case 1
-    [file_internal,mess]=putfile_horace(argi{1});
-    if ~isempty(mess)
-        error('HORACE:save:invalid_argument',mess)
-    end
-
-    if numel(argi) > 1 % Matlab 2021b bug?
-        argi  = argi{2:end};
-    else
-        argi  = {};
-    end
-
-  case 2
-    if isa(argi{2},'horace_binfile_interface') % specific loader provided
-        file_internal = argi{1};
-        ldw  = argi{2};
-        n_found = 2;
-    else
-        n_found = 1;
-    end
-
-    if numel(argi) > n_found % Matlab 2021b bug?
-        argi  = argi{n_found+1:end};
-    else
-        argi  = {};
-    end
-  otherwise
-    error ('HORACE:save:invalid_argument',...
-           'Too many args passed to save')
-
+[file_internal,mess]=putfile_horace(filename);
+if ~isempty(mess)
+    error('HORACE:sqw:invalid_argument',mess)
 end
 
-if ~iscellstr(file_internal)
-    file_internal=cellstr(file_internal);
-end
-
-if numel(file_internal) ~= numel(w)
-    error('HORACE:save:invalid_argument',...
-        'Number of data objects in array does not match number of file names')
-end
-
-hor_log_level = get(hor_config,'log_level');
-
-for i=1:numel(w)
-    if isempty(ldw)
-        sqw_type = ~isa(w(i), 'DnDBase');
-
-        if sqw_type
-            if ~isempty(w(i).file_holder_)
-                movefile(w(i).full_filename, file_internal{i});
-                continue;
-            else
-                ldw = sqw_formats_factory.instance().get_pref_access(w(i));
-            end
-        else
-            ldw = sqw_formats_factory.instance().get_pref_access('dnd');
+if ~isempty(varargin)
+    if isa(varargin{1},'horace_binfile_interface') % specific loader provided
+        ldw  = varargin{1};
+        argi = varargin(2:end);
+        if upgrade % we do not want to support upgrade to previous faccess versions
+            error('HORACE:sqw:invalid_argument',...
+                'specific loader and option "-upgrade" can not be used together');
         end
     else
-        sqw_type = isa(w(i),'sqw');
+        ldw = [];
+        argi = varargin;
     end
-
-    % Write data to file   x
-    if hor_log_level>0
-        disp(['*** Writing to ',file_internal{i},'...'])
-    end
-
-    if ~upgrade && exist(file_internal{i},'file') == 2
-        delete(file_internal{i});
-    end
-
-    ldw = ldw.init(w(i),file_internal{i});
-    %     if ldw.upgrade_mode % as we delete file, this never happens. The question is where it should?
-    %         if sqw_type
-    %             ldw = ldw.put_sqw('-update','-nopix');
-    %         else  %TODO:  OOP violation -- save dnd should be associated with dnd class
-    %             ldw = ldw.put_dnd('-update','-nopix');
-    %         end
-    %     else
-
-    if sqw_type  % Actually, can be removed, as put_sqw for dnd does put dnd for faccess_dnd
-        % only the possible issue that is currently put_dnd and put_sqw do not
-        % accept the same key set. Should it be reconsicled?
-        ldw = ldw.put_sqw(argi{:});
-    else
-        ldw = ldw.put_dnd();
-    end
-    %    end
-    ldw = ldw.delete();
+else
+    ldw = [];
+    argi = {};
 end
+
+
+hor_log_level = get(hor_config,'log_level');
+sqw_type = isa(w,'sqw');
+
+% Write data to file   x
+if hor_log_level>0
+    disp(['*** Writing to: ',file_internal,'...'])
+end
+
+if upgrade
+    if isfile(file_internal)
+        error('HORACE:sqw:not_implemented',...
+            'Update mode has not been yet implemented. See Re #1186');
+
+        ldw = sqw_formats_factory.instance().get_loader(file_internal);
+        if sqw_type && ldw.sqw_type
+            if ldw.npixels ~= w.npixels
+                error('HORACE:sqw:invalid_argument',[...
+                    ' Upgrade makes sence only for the files with identical pixels .\n' ...
+                    ' file: "%s" contains: %d pixels and upgrade object has: %d\n'
+                    ' Its your responsibility to ensure the pixels for source and upgrade are the same'], ...
+                    file_internal,ldw.num_pixels,w.npixels);
+            end
+        end
+        ldw = ldw.upgrade_file_format();
+        ldw = ldw.put_sqw(w,'-update','-nopix');
+        ldw.delete();
+        return;
+    else
+        wargning('HORACE:missing_file',[...
+            'Upgrade for file: %s requested but the file does not exist.\n' ...
+            ' Saving provided sqw object into the file'])
+        ldw = sqw_formats_factory.instance().get_pref_access(w);
+    end
+else
+    if isfile(file_internal)
+        delete(file_internal);
+    end
+    if isempty(ldw)
+        ldw = sqw_formats_factory.instance().get_pref_access(w);
+    end
+    ldw = ldw.init(w,file_internal);
+end
+
+if sqw_type  % Actually, can be removed, as put_sqw for dnd does put dnd for faccess_dnd
+    % only the possible issue that is currently put_dnd and put_sqw do not
+    % accept the same key set. Should it be reconciled?
+    ldw = ldw.put_sqw(argi{:});
+else
+    ldw = ldw.put_dnd();
+end
+
+
+ldw.delete();
+

@@ -41,7 +41,11 @@ if ~isempty(argi)
             error('HORACE:sqw_binfile_common:invalid_argument',...
                 'only one sqw object can be provided as input for put_sqw');
         end
+        %         if update
+        %             obj = obj.init_from_sqw_obj(argi{is_sqw},'-insertion');
+        %         else
         obj.sqw_holder = argi{is_sqw};
+        %        end
         argi = argi(~is_sqw);
     end
 
@@ -49,7 +53,7 @@ if ~isempty(argi)
     if any(is_jd)
         if sum(is_jd) > 1
             error('HORACE:sqw_binfile_common:invalid_argument',...
-                  'only one JobDispatcher object can be provided as input for put_sqw');
+                'only one JobDispatcher object can be provided as input for put_sqw');
         end
         jobDispatcher = argi{is_jd};
     end
@@ -68,8 +72,8 @@ if ~obj.sqw_holder.main_header.creation_date_defined ||...
 end
 
 if ~(isa(obj.sqw_holder.pix,'pix_combine_info') || ...
-     obj.sqw_holder.pix.is_filebacked || ...
-     nopix)
+        obj.sqw_holder.pix.is_filebacked || ...
+        nopix)
     obj = obj.put_all_blocks();
     return;
 end
@@ -99,7 +103,7 @@ if reserve
 end
 
 if nopix
-     argi = [argi(:),'-nopix'];
+    argi = [argi(:),'-nopix'];
 end
 
 obj = obj.put_all_blocks('ignore_blocks',{'bl_pix_metadata','bl_pix_data_wrap'});
