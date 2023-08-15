@@ -31,7 +31,12 @@ switch cmd
     case 'min'
         % Only change i_min if numeric value entered and would not make range=0
         temp=get(slider_min_value,'String');
-        if str2double(temp)==i_max % do not change i_min if range becomes 0
+        if iscell(temp) && numel(temp)>1
+            temp = temp{1};
+            i_max = i_max{1};
+        end
+        
+        if str2double(temp)>=i_max % do not change i_min if range becomes 0
             i_min=get(slider_min,'value');
         else
             i_min=str2double(temp);
@@ -40,7 +45,11 @@ switch cmd
     case 'max'
         % Only change i_max if numeric value entered and would not make range=0
         temp = get(slider_max_value,'String');
-        if str2double(temp)==i_max % do not change i_min if range becomes 0
+        if iscell(temp) && numel(temp)>1
+            temp = temp{1};
+            i_min = i_min{1};
+        end
+        if str2double(temp)<=i_min % do not change i_min if range becomes 0
             i_max=get(slider_min,'value');
         else
             i_max=str2double(temp);
