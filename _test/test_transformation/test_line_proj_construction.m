@@ -162,12 +162,12 @@ classdef test_line_proj_construction<TestCase
             assertElementsAlmostEqual(proj.v,[0,1,0])
             assertTrue(isempty(proj.w))
             assertElementsAlmostEqual(proj.offset,[0,0,0,0])
-            assertEqual(proj.type,'aaa')
-            full_box = expand_box([0,0,0,0],[1,1,1,1]);
+            assertEqual(proj.type,'ppr')
+            full_box = expand_box([0,0,0],[1,1,1]);
             proj.alatt = 1;
             proj.angdeg = 90;
             pixi = proj.transform_pix_to_img(full_box );
-            assertElementsAlmostEqual(full_box,pixi);
+            assertElementsAlmostEqual(full_box/(2*pi),pixi);
             pixp = proj.transform_img_to_pix(pixi);
             assertElementsAlmostEqual(full_box,pixp);
         end
