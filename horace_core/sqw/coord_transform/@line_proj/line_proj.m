@@ -196,7 +196,7 @@ classdef line_proj<aProjectionBase
             obj.do_generic = false;
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
-                obj = obj.init([1,0,0],[0,1,0],[],'type','aaa');
+                obj = obj.init([1,0,0],[0,1,0],[],'type','ppr');
             else
                 obj = obj.init(varargin{:});
             end
