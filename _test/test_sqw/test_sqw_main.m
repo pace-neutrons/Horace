@@ -64,7 +64,7 @@ classdef test_sqw_main < TestCase & common_state_holder
         end
 
         function test_save_upgrade(obj)
-            skipTest('Re #1186 upgrade option is not yet implemented')
+            skipTest('Re #1186 save -upgrade option is not yet implemented')
             targ_file = fullfile(tmp_dir,obj.sqw_file_res);
             clOb = onCleanup(@()del_memmapfile_files(targ_file));
 
@@ -170,10 +170,10 @@ classdef test_sqw_main < TestCase & common_state_holder
 
         function test_pixels_not_paged_if_pixel_page_size_arg_not_given(obj)
             fpath = fullfile(obj.tests_dir, 'common_data', 'sqw_1d_2.sqw');
-            sqw_obj = sqw(fpath);
+            sq_obj = sqw(fpath);
 
-            sqw_pix_pg_size = sqw_obj.pix.page_size;
-            assertEqual(sqw_pix_pg_size, sqw_obj.pix.num_pixels);
+            sqw_pix_pg_size = sq_obj.pix.page_size;
+            assertEqual(sqw_pix_pg_size, sq_obj.pix.num_pixels);
         end
 
         function test_sqw_constructor(~)
