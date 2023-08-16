@@ -4,7 +4,16 @@ function is = is_legacy_aligned(filename)
 % Inputs:
 % filename -- name of sqw
 
-ld = sqw_formats_factory.instance().get_loader(filename);
+try
+    ld = sqw_formats_factory.instance().get_loader(filename);
+catch ME
+    if strcmp(ME.identifier,'HORACE:file_io:runtime_error')
+        is = false;
+        return
+    else
+        rethrow(ME);
+    end
+end
 clOb = onCleanup(@()delete(ld));
 if ld.faccess_version >= 4 % new files can not be legacy aligned
     is = false;
