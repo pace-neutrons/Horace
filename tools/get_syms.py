@@ -889,7 +889,7 @@ def to_horace_symops(rotations, translations):
     outstr = "sym = {...\n"
     outstr += ", ...\n".join(
         (f"SymopGeneral([{'; '.join(', '.join(str(elem) for elem in row) for row in rot)}], "
-         f"[{', '.join(str(elem) for elem in off)})]")
+         f"[{', '.join(str(elem) for elem in off)}])")
         for rot, off in zip(rotations, translations)
     )
     outstr += "...\n};"
