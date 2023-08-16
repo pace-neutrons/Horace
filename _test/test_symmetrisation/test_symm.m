@@ -105,6 +105,24 @@ classdef test_symm < TestCase
             assertEqualToTol(cc1,cc2,-1e-6,'ignore_str', 1)
         end
 
+        function obj = test_sym_rot(obj)
+            w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'));
+
+            sym = SymopRotation([0 0 1], 90);
+
+            sqw_sym = w2d_sqw.symmetrise_sqw(sym);
+
+        end
+
+        function obj = test_sym_rot_in_proj(obj)
+            w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'));
+
+            sym = SymopRotation([0 0 1], 90);
+
+            sqw_sym = w2d_sqw.symmetrise_sqw(sym, w2d_sqw.data.proj);
+
+        end
+
         function obj = test_sym_sqw_fb(obj)
             w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'), 'file_backed', false);
 

@@ -55,17 +55,19 @@ if ~has_pixels(win)
           'input object must be sqw type with detector pixel information');
 end
 
-if isa(varargin{end}, 'aProjection')
+if isa(varargin{end}, 'aProjectionBase')
     proj = varargin(end);
     varargin = varargin(1:end-1);
 
-    if ~proj{1}.nonorthogonal
+    if proj{1}.nonorthogonal
         error('HORACE:symmetrise_sqw:invalid_argument', ...
               'Cannot symmetrise to non-orthogonal projection');
     end
 
 else
-    proj = {};
+    proj = {line_proj([1 0 0], [0 1 0], ...
+                      'alatt', win.data.proj.alatt, ...
+                      'angdeg', win.data.proj.angdeg)};
 end
 
 
@@ -89,7 +91,7 @@ wout = copy(win);
 
 [sym, fold] = validate_sym(sym);
 transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
-wout = wout.apply(transforms, {proj{:}}, false);
+wout = wout.apply(transforms, {{{proj{:}}}}, false);
 
 %=========================================================================
 % Transform Ranges:
