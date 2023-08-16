@@ -134,7 +134,7 @@ classdef sqw_file_interface
         % retrieve different parts of sqw data
         %------------------------------------------------------------------
         main_header = get_main_header(obj,varargin);
-        exper       = get_exp_info(obj,varargin);
+        [exper,obj] = get_exp_info(obj,varargin);
         detpar      = get_detpar(obj,varargin);
         pix         = get_pix(obj,varargin);
         pix         = get_raw_pix(obj,varargin);

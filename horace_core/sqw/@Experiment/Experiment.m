@@ -351,9 +351,12 @@ classdef Experiment < serializable
             %
             if isempty(obj.expdata)
                 avh = [];
+                u_to_rlu = []; % actually inverted B-matrix
             else
                 avh = obj.expdata_(1);
+                u_to_rlu = avh.u_to_rlu;
             end
+
             if nargout>1
                 ebins_are_the_same = obj.is_same_ebins();
             else
@@ -363,6 +366,9 @@ classdef Experiment < serializable
                 avh = struct();
             else
                 avh = avh.to_bare_struct();
+            end
+            if ~isempty(u_to_rlu)
+                avh.u_to_rlu = u_to_rlu;
             end
             sampl = obj.samples_{1};
             if ~isempty(sampl)
