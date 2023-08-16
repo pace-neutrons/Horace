@@ -132,7 +132,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         % retrieve the whole or partial sqw object from properly initialized sqw file
         [sqwobj,varargout] = get_sqw(obj,varargin)
         [mn_hdr,obj] = get_main_header(obj,varargin);
-        [expinf,obj] = get_exp_info(obj,varargin);
+        [expinf,pos] = get_exp_info(obj,varargin);
         [detpar,obj] = get_detpar(obj,varargin);
         [pix,obj]    = get_pix(obj,varargin);
         [pix,obj]    = get_raw_pix(obj,varargin);

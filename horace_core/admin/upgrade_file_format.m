@@ -34,7 +34,7 @@ msln_files_list = {};
 for i=1:n_inputs
     if is_sqw(i)
         ld = sqw_formats_factory.instance().get_loader(filenames{i});
-        [exp,ld] = ld.get_exp_info();
+        exp = ld.get_exp_info(1);
         hav = exp.header_average;
         if isfield(hav,'u_to_rlu') % legacy aligned file
             msln_files_list{end+1} = filenames{i};

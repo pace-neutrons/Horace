@@ -6,6 +6,7 @@ classdef test_upgrade_file_format< TestCase
         ff_source_mat;
         ff_source_sqw;
         working_dir
+        test_common;
     end
     methods
         %
@@ -15,9 +16,17 @@ classdef test_upgrade_file_format< TestCase
             end
             obj = obj@TestCase(name);
             hc = horace_paths;
-            obj.ff_source_mat = fullfile(hc.test_common,obj.source_mat);
-            obj.ff_source_sqw = fullfile(hc.test_common,obj.source_sqw1);
+            obj.test_common = hc.test_common;
+            obj.ff_source_mat = fullfile(obj.test_common,obj.source_mat);
+            obj.ff_source_sqw = fullfile(obj.test_common,obj.source_sqw1);
             obj.working_dir = tmp_dir();
+        end
+        function test_no_upgrade_for_legacy_alignment(obj)
+            % legacy aligned file
+            laf = fullfile(obj.test_common,'sqw_4d.sqw');
+            clWarn = set_temporary_warning('off', 'HORACE:legacy_alignment');            
+            fl = upgrade_file_format(laf);
+            assertEqual(fl{1},laf);
         end
         function test_upgrade_single_sqw_filebacked(obj)
             [clFile,targ_f] = obj.copy_my_file(obj.ff_source_sqw);
