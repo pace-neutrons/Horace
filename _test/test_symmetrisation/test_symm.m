@@ -112,6 +112,11 @@ classdef test_symm < TestCase
 
             sqw_sym = w2d_sqw.symmetrise_sqw(sym);
 
+            sym = SymopRotation.fold(4, [0 0 1]);
+
+            sqw_sym_fold = w2d_sqw.symmetrise_sqw(sym);
+
+            assertEqual(sqw_sym, sqw_sym_fold);
         end
 
         function obj = test_sym_rot_in_proj(obj)
