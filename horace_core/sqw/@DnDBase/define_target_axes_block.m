@@ -22,17 +22,19 @@ function [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pb
 % check if default binning is necessary
 default_needed = cellfun(@is_default_needed, pbin);
 
+targ_proj = cellfun(@(x) x.transform_proj(targ_proj), ...
+                    sym, 'UniformOutput', false);
+
 if any(default_needed)
     % Get the source binning ranges, transformed into target coordinate system.
-    source_binning = obj.targ_range(targ_proj,'-binning');
+    source_binning = cellfun(@(proj) obj.targ_range(proj,'-binning'), ...
+                             targ_proj, 'UniformOutput', false);
 else
     % empty binning as it will not be deployed
-    source_binning = cell(1,4);
+    source_binning = repmat({cell(1,4)}, numel(sym), 1);
 end
 
-[targ_proj, source_binning] = cellfun(@(x)x.transform_proj(targ_proj, source_binning), ...
-                                      sym, 'UniformOutput', false);
-targ_ax_block = cellfun(@(proj, sb) get_proj_axes_block(proj,sb, pbin), targ_proj, source_binning);
+targ_ax_block = cellfun(@(proj, sb) get_proj_axes_block(proj, sb, pbin), targ_proj, source_binning);
 targ_ax_block = targ_ax_block(:);
 targ_proj = vertcat(targ_proj{:});
 for i = 1:numel(targ_ax_block)

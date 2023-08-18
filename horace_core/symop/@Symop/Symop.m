@@ -173,7 +173,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
         end
 
-        function [proj, pbin] = transform_proj (obj, proj, pbin)
+        function proj = transform_proj (obj, proj)
             % Transform projection axes description by the symmetry operation
             %
             %   >> proj = transform_proj (obj, proj)
@@ -187,24 +187,10 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %               u, v, w (optionally)
             %           (other fields are unaffected)
             %
-            %   pbin    Cell array with the exact bin descriptor along each Q axis. That is,
-            %           if the ith axis is an integration axis pbin_in{i} is a vector
-            %           length 2; if a plot axis it is a vector length 3 where the
-            %           final element is the true bin centre of the last bin i.e. the
-            %           range is an integer multiple of the step. (row, length 3)
-            %
             % Output:
             % -------
             %   proj    Transformed projection
             %
-            %   pbin    Cell array with transformed bin descriptors. (row, length 3)
-            %
-            %
-            % Note: the reason for requiring the condition on projection axes in the
-            % description of pbin_in is that in the case of a reflection and all three
-            % momentum axes being plot axes, the third axis has to be inverted to ensure
-            % a right-hand coordinate set. Strictly, the condition only applies to the
-            % third axis when all three momentum axes are plot axes.
 
             % Check input
             if ~isa(proj, 'aProjectionBase')
@@ -220,7 +206,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
 
     methods (Access=private)
-        function [proj, sgn] = transform_proj_single (obj, proj)
+        function proj = transform_proj_single (obj, proj)
             % Note this function uses matrix Minv which transforms from rlu to
             % orthonormal components
 
@@ -233,7 +219,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     offset_new(1:3) = obj.transform_vec(offset_new(1:3));
                     if ~isempty(proj.w)
                         w_new = obj.R * proj.w(:);
-                        proj = proj.set_axes(u_new, v_new, w_new, offset_new);
+                        proj = proj.set_axes(u_new, v_new, [], offset_new);
                     else
                         proj = proj.set_axes(u_new, v_new, [], offset_new);
                     end
