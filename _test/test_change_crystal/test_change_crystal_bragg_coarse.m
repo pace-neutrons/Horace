@@ -160,6 +160,32 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertEqualToTol(test_obj,ref_obj  ,'tol',1.e-9,'ignore_str',true)
         end
 
+        function test_apply_alignment(obj)
+            % testing the possibility to align the crystal using
+            % apply_alignment routine in memory
+            test_obj = read_sqw(obj.misaligned_sqw_file);
+            proj = test_obj.data.proj;
+
+            corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250],[-0.0530 0.0519 0.0345]);
+            proj.alatt  = corrections.alatt;
+            proj.angdeg = corrections.angdeg;
+            wout_corrected = change_crystal (test_obj,corrections);
+            [wout_aligned,corr_rev]    = apply_alignment(wout_corrected);
+
+            corr_rev.rotvec = -corr_rev.rotvec;
+            assertEqualToTol(corrections,corr_rev,'tol',1.e-9)
+
+            % test cut ranges:
+            cr = [...
+                -0.3,  -2, -0.5, -0.5;...
+                +3.5, 4.2,    1,  0.5];
+
+            cut_range = {[cr(1,1),0.05,cr(2,1)],[cr(1,2),0.05,cr(2,2)],cr(:,3)',cr(:,4)'};
+            cut_cor= cut(wout_corrected,proj,cut_range{:});
+            cut_al = cut(wout_aligned,proj,cut_range{:});
+            assertEqualToTol(cut_cor,cut_al);
+        end
 
         function test_upgrade_legacy_alignment(obj)
             % testing the possibility to realign the crystal, aligned by
@@ -172,7 +198,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             proj = test_obj.data.proj;
             proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
 
-            wout_legacy  = test_obj;
+            wout_legacy           = test_obj;
             wout_legacy.data.proj = proj;
             % get the crystal aligned according to legacy algorithm.
             wout_legacy = change_crystal (wout_legacy,corrections);

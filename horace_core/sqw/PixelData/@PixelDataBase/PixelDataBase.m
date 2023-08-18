@@ -377,8 +377,8 @@ classdef (Abstract) PixelDataBase < serializable
 
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
-
-
+        % realign pixels using alignment matrix stored with pixels
+        obj = apply_alignment(obj);
     end
     %======================================================================
     methods(Abstract,Access=protected)
@@ -558,11 +558,11 @@ classdef (Abstract) PixelDataBase < serializable
         end
         %
         function sig_var = get.sig_var(obj)
-            sig_var  = obj.get_prop('sig_var');            
+            sig_var  = obj.get_prop('sig_var');
         end
         function obj= set.sig_var(obj, val)
             obj=obj.set_prop('sig_var', val);
-        end        
+        end
         %------------------------------------------------------------------
         function is = get.is_misaligned(obj)
             is = obj.is_misaligned_;
@@ -811,12 +811,12 @@ classdef (Abstract) PixelDataBase < serializable
             [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, varargin{:});
         end
 
-        function [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
+        function [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
                 parse_get_pix_args(obj,varargin)
 
-            [ok, mess, ignore_range, raw_data, keep_precision, argi] = ...
+            [ok, mess, ignore_range, raw_data, keep_precision, align,argi] = ...
                 parse_char_options(varargin, ...
-                {'-ignore_range','-raw_data','-keep_precision'});
+                {'-ignore_range','-raw_data','-keep_precision','-align'});
             if ~ok
                 error('HORACE:PixelDataBase:invalid_argument',mess);
             end

@@ -223,7 +223,7 @@ end
 % Get unsorted pixels, contributed to the bins
 %--------------------------------------------------------------------------
 % s,e,pix_ok,unique_runid,pix_indx
-pix_ok = pix_cand.get_pixels(ok);
+pix_ok = pix_cand.get_pixels(ok,'-align');
 if nout<5
     return;
 end

@@ -12,6 +12,61 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             hc = hor_config;
             obj.stored_config = hc.get_data_to_store();
         end
+        function test_apply_alignment_filebacked(~)
+            clW = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clCf = set_temporary_config_options(hor_config,'mem_chunk_size',300);
+            pix_data = rand(9,700);
+
+            pdm = PixelDataFileBacked(pix_data);
+           assertElementsAlmostEqual(pix_data(:,1:300),pdm.data, ...
+               'absolute',4*eps('single'))  
+
+            al_matr = rotvec_to_rotmat2([0,0,pi/4]);
+            pdm.alignment_matr = al_matr ;
+            assertTrue(pdm.is_misaligned);
+
+            ref_data = pix_data;
+            ref_data(1:3,:) = al_matr*pix_data(1:3,:);
+
+            assertElementsAlmostEqual(ref_data(:,1:300),pdm.data, ...
+                'absolute',4*eps('single'));
+            ref_range = [min(ref_data,[],2),max(ref_data,[],2)]';
+
+            pdm = pdm.apply_alignment();
+
+            assertFalse(pdm.is_misaligned);
+            assertElementsAlmostEqual(pdm.data_range,ref_range, ...
+                'absolute',4*eps('single'));
+            pdm.page_num = 1;
+            assertElementsAlmostEqual(pdm.data,ref_data(:,1:300), ...
+                'absolute',4*eps('single'));
+            pdm.page_num = 2;
+            assertElementsAlmostEqual(pdm.data,ref_data(:,301:600), ...
+                'absolute',4*eps('single'));
+        end
+        function test_apply_alignment_membacked(~)
+            pix_data = rand(9,700);
+
+            pdm = PixelDataMemory(pix_data);
+
+            al_matr = rotvec_to_rotmat2([0,pi/4,pi/4]);
+            pdm.alignment_matr = al_matr ;
+            assertTrue(pdm.is_misaligned);
+
+            ref_data = pix_data;
+            ref_data(1:3,:) = al_matr*pix_data(1:3,:);
+            assertElementsAlmostEqual(ref_data,pdm.data);
+
+            ref_range = [min(ref_data,[],2),max(ref_data,[],2)]';
+
+            pdm = pdm.apply_alignment();
+
+            assertFalse(pdm.is_misaligned);
+            assertElementsAlmostEqual(pdm.data_range,ref_range);
+            assertElementsAlmostEqual(pdm.data,ref_data);
+        end
+
+
         function test_pix_alignment_set_filebacked_properties(~)
             pix_data = ones(9,5);
             pix_data(1:4,1:4) = eye(4);

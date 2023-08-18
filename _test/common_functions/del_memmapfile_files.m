@@ -4,7 +4,7 @@ function del_memmapfile_files(filelist)
 % Input:
 % filelist -- name of file or cellarray of filenames to delete
 %
-% 
+%
 if istext(filelist)
     filelist = cellstr(filelist);
 end
@@ -14,10 +14,10 @@ for i=1:numel(filelist)
     delete(fn);
     if isfile(fn) % deleteon for files accessed trough matlab
         % memmapfile
-        if isunix()
-            system(sprintf('rm %s',fn));
-        else
+        if ispc()
             system(sprintf('del %s',fn));
+        else
+            system(sprintf('rm %s',fn));
         end
     end
 end

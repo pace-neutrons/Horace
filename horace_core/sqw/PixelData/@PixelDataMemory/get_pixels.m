@@ -29,29 +29,36 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %
 %  '-keep_precision'-- keep the precision of output raw data as it is (not
 %                      doubling it if possible)
+%  '-align'         -- if provided and pixels are realigned, apply
+%                      alignment transformation to pixels
 
 % Output:
 % -------
 %   pix_out        Another PixelData object containing only the pixels
 %                  specified in the abs_pix_indices argument.
 %
-[abs_pix_indices,ignore_range,raw_data,keep_precision] =...
+[abs_pix_indices,ignore_range,raw_data,keep_precision,align] =...
     obj.parse_get_pix_args(abs_pix_indices,varargin{:});
 
-
-pix_out = obj.data_(:, abs_pix_indices);
+misaligned = obj.is_misaligned;
+pix_data = obj.data_(:, abs_pix_indices);
+if align && misaligned
+    pix_data(1:3,:) = obj.alignment_matr*pix_data(1:3,:);
+end
 
 if ~keep_precision
-    pix_out = double(pix_out);
+    pix_data = double(pix_data);
 end
-
 if raw_data
+    pix_out = pix_data;
     return;
 end
-if ignore_range
-    pix_out = PixelDataMemory();
-    pix_out = pix_out.set_raw_data(pix_out);
+pix_out = PixelDataMemory();
+if ~align && misaligned
+    pix_out.alignment_matr  = obj.alignment_matr;
+end
+pix_out = pix_out.set_raw_data(pix_data);
 
-else
-    pix_out = PixelDataMemory(pix_out);
+if ~ignore_range
+    pix_out.data_range_ = pix_out.pix_minmax_ranges(pix_out.data);
 end

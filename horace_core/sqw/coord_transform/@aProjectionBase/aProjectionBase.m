@@ -99,6 +99,10 @@ classdef aProjectionBase < serializable
         % Helper property, which specifies the name of the axes class,
         % which corresponds to this projection
         axes_name
+        % The property specifies if the projection is aligned. Depending on
+        % the value of this property, pix to img transformation calculated
+        % differently
+        proj_aligned        
     end
 
     properties(Constant, Hidden)
@@ -382,6 +386,13 @@ classdef aProjectionBase < serializable
         function name = get.axes_name(obj)
             name = get_axes_name(obj);
         end
+        function is = get.proj_aligned(obj)
+            is = get_proj_aligned(obj);
+        end
+        function obj = set.proj_aligned(obj,val)
+            obj = obj.set_proj_aligned(val);
+        end
+        
     end
 
     %======================================================================
@@ -762,6 +773,13 @@ classdef aProjectionBase < serializable
     end
     %======================================================================
     methods(Access = protected)
+        function is = get_proj_aligned(~)
+            is = false;
+        end
+        function obj = set_proj_aligned(obj,varargin)
+            % do nothing -- have not implemented alignment on generic
+            % projection
+        end
         function name = get_axes_name(obj)
             % return the name of the axes class, which corresponds to this
             % projection

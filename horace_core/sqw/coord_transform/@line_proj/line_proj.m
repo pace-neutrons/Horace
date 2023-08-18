@@ -133,12 +133,11 @@ classdef line_proj<aProjectionBase
 
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
-        unit_cell;        
+        unit_cell;
         % scaling factors used in transformation from pix to image
         % coordinate system. Defined by type property
-        img_scales % new interface         
+        img_scales % new interface
         ulen       % old interface
-
     end
     properties(Hidden)
         % Developers option. Use old (v3 and below) sub-algorithm in
@@ -178,7 +177,7 @@ classdef line_proj<aProjectionBase
         q_offset_cache_ = [];
         ulen_cache_     = [];
         % Internal property, which specifies if alignment algorithm has
-        % been applied to pixels. These two transformations are 
+        % been applied to pixels. These two transformations are
         % equivalent, so if it was, pix_to_img transformation
         % should use proj alignment rather then pix alignment provided to
         % transformation
@@ -279,7 +278,7 @@ classdef line_proj<aProjectionBase
             else
                 ul = obj.ulen_cache_;
             end
-        end        
+        end
         function ul = get.ulen(obj)
             ul = obj.img_scales;
         end
@@ -322,8 +321,8 @@ classdef line_proj<aProjectionBase
         function obj = set.ub_inv_legacy(obj,val)
             % no comprehensive checks performed here.  It is compatibility
             % with old file format. The method should be used
-            % by saveobj/loadobj only. Use set_ub_inv_compat, which does all 
-            % necessary checks in any other case. 
+            % by saveobj/loadobj only. Use set_ub_inv_compat, which does all
+            % necessary checks in any other case.
             obj.ub_inv_legacy_ = val;
         end
         function obj = set_ub_inv_compat(obj,u_to_rlu)
@@ -343,6 +342,7 @@ classdef line_proj<aProjectionBase
                 str.(flds{i}) = obj.(flds{i});
             end
         end
+        %
     end
     %======================================================================
     % TRANSFORMATIONS:
@@ -517,6 +517,13 @@ classdef line_proj<aProjectionBase
     end
     %======================================================================
     methods(Access = protected)
+        function is = get_proj_aligned(obj)
+            is = obj.proj_aligned_;
+        end
+        function obj = set_proj_aligned(obj,val)
+            obj.proj_aligned_ = logical(val);
+        end
+
         function  mat = get_u_to_rlu_mat(obj)
             % u_to_rlu defines the transformation from coordinates in
             % image coordinate system to coordinates in hkl(dE) (rlu) coordinate
@@ -610,7 +617,8 @@ classdef line_proj<aProjectionBase
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
     properties(Constant, Access=private)
-        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';'ub_inv_legacy'}
+        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';
+            'proj_aligned';'ub_inv_legacy'}
     end
     methods
         function ver  = classVersion(~)
