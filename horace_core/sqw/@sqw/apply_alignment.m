@@ -29,6 +29,6 @@ else
   angdeg  = obj.data.proj.angdeg;  
   al_info = crystal_alignment_info(alatt,angdeg,rotvec);
 end
-obj.data = obj.data.change_crystal(al_info);
+
 obj.data.proj.proj_aligned  = false;
 obj.pix = obj.pix.apply_alignment();
