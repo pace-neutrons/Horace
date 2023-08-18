@@ -97,14 +97,21 @@ else
 end
 
 if opts.legacy
-    sqw_object   = sqw_skel.main_header;
-    varargout{1} = sqw_skel.experiment_info;
-    varargout{2} = sqw_skel.detpar;
-    varargout{3} = sqw_skel.data;
-    if isfield(sqw_skel,'pix')
-        varargout{4} = sqw_skel.pix;
+    if nargout == 1
+        sqw_object  = sqw_skel;
+    elseif nargout == 2
+        sqw_object   = sqw_skel;
+        varargout{1} = obj;
     else
-        varargout{4} = [];
+        sqw_object   = sqw_skel.main_header;
+        varargout{1} = sqw_skel.experiment_info;
+        varargout{2} = sqw_skel.detpar;
+        varargout{3} = sqw_skel.data;
+        if isfield(sqw_skel,'pix')
+            varargout{4} = sqw_skel.pix;
+        else
+            varargout{4} = [];
+        end
     end
     return
 elseif opts.head || opts.his

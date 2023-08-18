@@ -310,6 +310,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
             if exist('f_accessor', 'var') && ~isempty(f_accessor)
                 obj.file_handle_ = f_accessor;
+                obj.full_filename = f_accessor.full_filename;
             else
                 if isempty(obj.full_filename)
                     obj.full_filename = 'in_mem';

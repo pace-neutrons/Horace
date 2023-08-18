@@ -13,7 +13,7 @@ function [sqw_obj,al_info] = apply_alignment(filename,varargin)
 %            (reverse) applies to the object.
 %            empty if no alignment was identified/applied
 
-[ok,mess,keep_original] = parse_char_options(varargin,{'-keeep_original'});
+[ok,mess,keep_original] = parse_char_options(varargin,{'-keep_original'});
 if ~ok
     error('HORACE:algorithms:invalid_argument',mess)
 end
@@ -32,26 +32,5 @@ if ~pmd.is_misaligned % nothing to do
 end
 
 sqw_obj = sqw(ld);
-
-new_file = get_tmp_filename(filename);
-sqw_obj = sqw_obj.get_new_handle(new_file);
-[sqw_obj,al_info] = sqw_obj.apply_alignment();
-
-
-function fn_out = get_tmp_filename(orig_fn)
-[fp,fn,fe] = fileparts(orig_fn);
-fn_out = fullfile(fp,[fn,'_aligned',fe]);
-if ~isfile(fn_out)
-    return;
-end
-for i=1:100
-    fname = sprintf('%s_aligned_%d%s',fn,i,fe);
-    fn_out = fullfile(fp,fname);
-    if ~isfile(fn_out)
-        return;
-    end
-end
-error('HORACE:apply_alignment:runtime_error', ...
-    'Can not find temporarty filename in the form %s_aligned_<Num>.%s for Num from 1 to 100 in the folder %s',...
-    fn,fe,fp);
+[sqw_obj,al_info] = sqw_obj.apply_alignment(keep_original);
 

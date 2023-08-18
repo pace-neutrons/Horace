@@ -128,11 +128,22 @@ if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
 end
 %
 if opts.legacy
-    sqw_object = sqw_struc.main_header;
-    varargout{1} = sqw_struc.experiment_info;
-    varargout{2} = sqw_struc.detpar;
-    varargout{3} = sqw_struc.data;
-    varargout{4} = sqw_struc.pix;
+    if nargout == 1
+        sqw_object  = sqw_skel;
+    elseif nargout == 2
+        sqw_object   = sqw_skel;
+        varargout{1} = obj;
+    else
+        sqw_object   = sqw_skel.main_header;
+        varargout{1} = sqw_skel.experiment_info;
+        varargout{2} = sqw_skel.detpar;
+        varargout{3} = sqw_skel.data;
+        if isfield(sqw_skel,'pix')
+            varargout{4} = sqw_skel.pix;
+        else
+            varargout{4} = [];
+        end
+    end
 elseif opts.head || opts.his || opts.sqw_struc
     sqw_object  = sqw_struc;
 else

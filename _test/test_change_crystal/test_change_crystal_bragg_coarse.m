@@ -131,6 +131,43 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(rlu0_corr,rlu1_corr,'absolute',0.01);
         end
         %
+        function test_apply_alignment_on_file(obj)
+            % testing the possibility to align the crystal using
+            % apply_alignment routine on file
+            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',10000);
+            test_path = fileparts(obj.misaligned_sqw_file);
+            tf_ref_corr = fullfile(test_path,'ref_aligned_sqw.sqw');
+            tf_ref_al = fullfile(test_path,'ref_aligned_sqw_aligned.sqw');
+            %
+            copyfile(obj.misaligned_sqw_file,tf_ref_corr ,'f');
+            clOb1 = onCleanup(@()delete(tf_ref_corr ));
+
+            clOb2 = onCleanup(@()delete(tf_ref_al));
+
+            corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250],[-0.0530 0.0519 0.0345]);
+            % apply new crystal alignment
+            change_crystal (tf_ref_corr,corrections);
+            [wout_aligned,corr_rev]    = apply_alignment(tf_ref_corr,'-keep');
+            % ensure we indeed do filebacked algorithm
+            assertTrue(wout_aligned.pix.is_filebacked);
+
+            corr_rev.rotvec = -corr_rev.rotvec;
+            assertEqualToTol(corrections,corr_rev,'tol',1.e-9)
+
+            % test cut ranges:
+            cr = [...
+                -0.3,  -2, -0.5, -0.5;...
+                +3.5, 4.2,    1,  0.5];
+
+            proj = line_proj;
+            cut_range = {[cr(1,1),0.05,cr(2,1)],[cr(1,2),0.05,cr(2,2)],cr(:,3)',cr(:,4)'};
+            cut_cor= cut_sqw(tf_ref_corr,proj,cut_range{:});
+            cut_al = cut_sqw(tf_ref_al,proj,cut_range{:});
+            assertEqualToTol(cut_cor,cut_al);
+
+        end
+
         function test_upgrade_legacy_alignment_on_file(obj)
             % testing the possibility to realign the crystal, aligned by
             % legacy algorithm when object stored in sqw file.
@@ -191,8 +228,8 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % testing the possibility to realign the crystal, aligned by
             % legacy algorithm.
             test_obj = read_sqw(obj.misaligned_sqw_file);
-            alatt0 = test_obj.data.alatt;
-            angdeg0 = test_obj.data.angdeg;
+            alatt0   = test_obj.data.alatt;
+            angdeg0  = test_obj.data.angdeg;
             corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
                 [90.1793 90.9652 89.9250],[-0.0530 0.0519 0.0345]);
             proj = test_obj.data.proj;

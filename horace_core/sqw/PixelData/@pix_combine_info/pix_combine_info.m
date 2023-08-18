@@ -65,6 +65,9 @@ classdef pix_combine_info < serializable
         % the property here to support PixelData interface. Never false, as
         % this kind of data should be never (knowingly) misaligned
         is_misaligned
+        % equal to data_range of PixelDataBase but duplicated to maintain
+        % the same interface
+        raw_data_range
     end
     %
     properties(Access=public)
@@ -266,6 +269,9 @@ classdef pix_combine_info < serializable
         function range = get.data_range(obj)
             range = obj.data_range_;
         end
+        function range = get.raw_data_range(obj)
+            range = obj.data_range_;
+        end
         function obj = set.data_range(obj,val)
             if ~(isnumeric(val) && isequal(size(val),[2,9]) )
                 error('HORACE:pix_combine_info:invalid_argument',...
@@ -400,6 +406,7 @@ classdef pix_combine_info < serializable
             if nfiles_to_leave >= obj.nfiles
                 return;
             end
+            obj.do_check_combo_arg = false;
             obj.infiles = obj.infiles(1:nfiles_to_leave);
             %
             obj.pos_npixstart = obj.pos_npixstart(1:nfiles_to_leave);
@@ -412,6 +419,8 @@ classdef pix_combine_info < serializable
             if ~isempty(obj.filenum_)
                 obj.filenum_ = obj.filenum_(1:nfiles_to_leave);
             end
+            obj.do_check_combo_arg = true;
+            obj = obj.check_combo_arg();
         end
         function fn = get.full_filename(obj)
             fn = obj.full_filename_;

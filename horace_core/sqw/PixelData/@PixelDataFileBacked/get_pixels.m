@@ -38,30 +38,12 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %                  specified in the abs_pix_indices argument.
 %
 
-[abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
+[abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
     obj.parse_get_pix_args(abs_pix_indices,varargin{:});
 
-misaligned = obj.is_misaligned;
+
 mmf = obj.f_accessor_;
 % Return raw pixels
 pix_data = mmf.Data.data(:,abs_pix_indices);
-if align && misaligned
-    pix_data(1:3,:) = obj.alignment_matr*pix_data(1:3,:);
-end
 
-if ~keep_precision
-    pix_data = double(pix_data);
-end
-if raw_data
-    pix_out = pix_data;
-    return;
-end
-pix_out = PixelDataMemory();
-if ~align && misaligned
-    pix_out.alignment_matr  = obj.alignment_matr;
-end
-pix_out = pix_out.set_raw_data(pix_data);
-
-if ~ignore_range
-    pix_out.data_range_ = pix_out.pix_minmax_ranges(pix_out.data);
-end
+pix_out = obj.pack_get_pix_result(pix_data,ignore_range,raw_data,keep_precision,align);

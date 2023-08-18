@@ -25,14 +25,7 @@ difr = val - eye(3);
 if max(abs(difr(:))) > 1.e-8
     obj.alignment_matr_ = val;
     obj.is_misaligned_ = true;
-    % nullify pixel range as it is invalid any more
-    obj.data_range_(:,1:3) = PixelDataBase.EMPTY_RANGE(:,1:3);
 else
     obj.alignment_matr_ = eye(3);
-    if obj.is_misaligned_
-        % nullify pixel range as it is invalid any more
-        obj.data_range_(:,1:3) = PixelDataBase.EMPTY_RANGE_();
-    end
-
     obj.is_misaligned_ = false;
 end
