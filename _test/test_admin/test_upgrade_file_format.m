@@ -30,6 +30,7 @@ classdef test_upgrade_file_format< TestCase
             
             fl = upgrade_file_format(test_fl,alatt,angdeg);
             assertTrue(isempty(fl));
+            skipTest('Re #1195 This routine needs more tests')
             
         end
         function test_no_upgrade_for_legacy_alignment(obj)
