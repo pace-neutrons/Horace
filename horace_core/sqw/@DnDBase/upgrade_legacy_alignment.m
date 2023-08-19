@@ -7,12 +7,13 @@ function [obj,deal_info,no_alignment] = upgrade_legacy_alignment(obj,varargin)
 % obj    -- legacy realigned dnd object. Algorithm does nothing if the
 %           object has not been aligned using legacy algorithm.
 % Optional
-% alatt   -- lattice parameters with new values for lattice. (presumably
-%            before alignment)
-% angdeg  -- lattice angles with values necessary to set.
+% alatt   -- lattice parameters with old values for lattice. (before alignment)
+% angdeg  -- lattice angles with old values for lattice angles (before alignment).
+%  IMPORTANT:
 %            Of one is present, another one have to be present.
 %            If these values are missing, assumes that the lattice have not
-%            been changed.
+%            been changed, but if it has in fact been changed, upgrade
+%            would not be  correct.
 % Outputs:
 % obj     -- realigned according to modern algorithm instance of input dnd
 %            object or unchanged input object it legacy alignment has not

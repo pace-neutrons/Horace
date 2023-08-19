@@ -21,10 +21,22 @@ classdef test_upgrade_file_format< TestCase
             obj.ff_source_sqw = fullfile(obj.test_common,obj.source_sqw1);
             obj.working_dir = tmp_dir();
         end
+        function test_upgrade_legacy_alignment_with_lattice(obj)
+            source = fullfile(obj.test_common,'sqw_4d.sqw');
+            [clFile,test_fl] = obj.copy_my_file(source);            
+
+            alatt = [2.858,2.858,2.858];
+            angdeg = [90,90,90];
+            
+            fl = upgrade_file_format(test_fl,alatt,angdeg);
+            assertTrue(isempty(fl));
+            
+        end
         function test_no_upgrade_for_legacy_alignment(obj)
-            % legacy aligned file
+            % legacy aligned file. Does nut upgraded as need larrice to be
+            % upgraded
             laf = fullfile(obj.test_common,'sqw_4d.sqw');
-            clWarn = set_temporary_warning('off', 'HORACE:legacy_alignment');            
+            clWarn = set_temporary_warning('off', 'HORACE:legacy_alignment');
             fl = upgrade_file_format(laf);
             assertEqual(fl{1},laf);
         end

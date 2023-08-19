@@ -27,7 +27,7 @@ function out = upgrade_legacy_alignment(in_data,alatt0,angdeg0)
 
 % Parse input
 % -----------
-if istext(in_data) % process single file
+if istext(in_data)|| isa(in_data,'horace_binfile_interface') % process single file
     in_data = {in_data};
 end
 if ~isnumeric(alatt0) || ~isnumeric(angdeg0) || numel(alatt0) ~= 3 || numel(angdeg0) ~= 3 || nargin < 3
@@ -39,15 +39,22 @@ ll = hc.log_level;
 
 % Perform operations
 out = cell(1,numel(in_data));
+
 for i=1:numel(in_data)
     if isa(in_data{i},'SQWDnDBase')
         out{i} = in_data{i}.upgrade_legacy_alignment(alatt0,angdeg0);
     else
+        input_is_file = true;
         out{i} = in_data{i};
-        ld = sqw_formats_factory.instance().get_loader(in_data{i});
+        if isa(in_data{i},'horace_binfile_interface')
+            input_is_file  = false;
+            ld = in_data{i};
+        else
+            ld = sqw_formats_factory.instance().get_loader(in_data{i});
+        end
         data    = ld.get_dnd();
         alatt_al  = data.proj.alatt;
-        angdeg_al = data.proj.angdeg;        
+        angdeg_al = data.proj.angdeg;
         [data,deal_info,no_alignment_found] = upgrade_legacy_alignment(data,alatt0,angdeg0);
         if no_alignment_found
             ld.delete();
@@ -73,7 +80,9 @@ for i=1:numel(in_data)
             ld = ld.put_pix_metadata(pix_info);
         end
 
-        ld.delete();
-        clear ld;
+        if input_is_file
+            ld.delete();
+            clear ld;
+        end
     end
 end

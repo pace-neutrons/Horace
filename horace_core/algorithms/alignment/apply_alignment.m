@@ -4,7 +4,8 @@ function [sqw_obj,al_info] = apply_alignment(filename,varargin)
 % the beginning and the aligment information is not necessary any more.
 %
 % Input:
-% filename -- name of sqw file to apply alignment on
+% filename -- name of sqw file to apply alignment on or loader for this
+%             file
 % Optional:
 % '-keep_original' -- store result in different file. By default, original
 %                     file is aligned and overwritten
@@ -17,9 +18,12 @@ function [sqw_obj,al_info] = apply_alignment(filename,varargin)
 if ~ok
     error('HORACE:algorithms:invalid_argument',mess)
 end
-
-
-ld = sqw_formats_factory.instance().get_loader(filename);
+%
+if isa(filename,'horace_binfile_interface')
+    ld = filename;
+else
+    ld = sqw_formats_factory.instance().get_loader(filename);
+end
 if ~ld.sqw_type % can not realign dnd object
     al_info = [];
     return;
