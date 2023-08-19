@@ -321,7 +321,7 @@ classdef PixelDataFileBacked < PixelDataBase
             end
         end
 
-        function format_dump_data(obj, pix, start_idx)
+        function format_dump_data(obj, data, start_idx)
             if ~obj.has_open_file_handle
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                     'Cannot dump data, object does not have open filehandle')
@@ -331,9 +331,9 @@ classdef PixelDataFileBacked < PixelDataBase
                 if ~exist('start_idx', 'var')
                     start_idx = obj.get_page_idx_();
                 end
-                obj.file_handle_.put_raw_pix(pix, start_idx);
+                obj.file_handle_.put_raw_pix(data, start_idx);
             else
-                fwrite(obj.file_handle_, single(pix), 'single');
+                fwrite(obj.file_handle_, single(data), 'single');
             end
         end
 
@@ -354,6 +354,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.file_handle_ = obj.file_handle_.put_num_pixels(obj.num_pixels);
 
                 obj = obj.init_from_file_accessor_(obj.file_handle_, false, true);
+                obj.file_handle_.delete();
                 obj.file_handle_ = [];
 
             else
@@ -372,7 +373,6 @@ classdef PixelDataFileBacked < PixelDataBase
                     'Repeat', 1, ...
                     'Writable', true, ...
                     'offset', obj.offset_);
-
             end
         end
 
@@ -529,8 +529,7 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             data =  obj.get_raw_data(page_number);
             if obj.is_misaligned_
-                pix_coord = obj.alignment_matr_*data(1:3,:);
-                data(1:3,:) = pix_coord;
+                data(1:3,:) = obj.alignment_matr_*data(1:3,:);
             end
         end
         %------------------------------------------------------------------

@@ -11,6 +11,10 @@ obj = obj.prepare_dump();
 [ll,fm]  = config_store.instance().get_value('hor_config', ...
     'log_level','fb_scale_factor');
 obj.data_range = obj.EMPTY_RANGE;
+if ll> 0
+    fprintf('*** Applying alignment for pixels in file: %s\n', ...
+        obj.full_filename);
+end
 
 npages = obj.num_pages;
 npr = 0;
@@ -30,7 +34,6 @@ for pg = 1:npages
         npr = 0;
     end
 end
-
-obj = obj.finish_dump();
-obj.alignment_matr_ = eye(3);
+obj.alignment_matr_  = eye(3);
 obj.is_misaligned_   = false;
+obj = obj.finish_dump();

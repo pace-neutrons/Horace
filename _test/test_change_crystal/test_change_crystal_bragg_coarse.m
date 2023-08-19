@@ -130,19 +130,61 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(bragg_pos,rlu1_corr,'absolute',half_thick);
             assertElementsAlmostEqual(rlu0_corr,rlu1_corr,'absolute',0.01);
         end
-        %
-        function test_apply_alignment_on_file(obj)
+        function test_apply_alignment_on_file_same(obj)
             % testing the possibility to align the crystal using
             % apply_alignment routine on file
-            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',10000);
+            clConf = set_temporary_config_options(hor_config, ...
+                'mem_chunk_size',100000,'fb_scale_factor',4);
             test_path = fileparts(obj.misaligned_sqw_file);
             tf_ref_corr = fullfile(test_path,'ref_aligned_sqw.sqw');
-            tf_ref_al = fullfile(test_path,'ref_aligned_sqw_aligned.sqw');
             %
             copyfile(obj.misaligned_sqw_file,tf_ref_corr ,'f');
-            clOb1 = onCleanup(@()delete(tf_ref_corr ));
+            clOb1 = onCleanup(@()del_memmapfile_files(tf_ref_corr ));
 
-            clOb2 = onCleanup(@()delete(tf_ref_al));
+
+            corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250],[-0.0530 0.0519 0.0345]);
+            % apply new crystal alignment
+            change_crystal (tf_ref_corr,corrections);
+            tf_ref_al = fullfile(test_path,'ref_aligned_sqw_al.sqw');
+            copyfile(tf_ref_corr,tf_ref_al ,'f');
+            clOb2 = onCleanup(@()del_memmapfile_files(tf_ref_al));
+
+            [wout_aligned,corr_rev]    = apply_alignment(tf_ref_al);
+            % ensure we indeed do filebacked algorithm
+            assertTrue(wout_aligned.pix.is_filebacked);
+            assertEqual(wout_aligned.pix.full_filename,tf_ref_al);
+            assertFalse(isfile(fullfile(test_path,'ref_aligned_sqw_aligned.sqw')))
+
+
+            corr_rev.rotvec = -corr_rev.rotvec;
+            assertEqualToTol(corrections,corr_rev,'tol',1.e-9)
+
+            % test cut ranges:
+            cr = [...
+                -0.3,  -2, -0.5, -0.5;...
+                +3.5, 4.2,    1,  0.5];
+
+            proj = line_proj;
+            cut_range = {[cr(1,1),0.05,cr(2,1)],[cr(1,2),0.05,cr(2,2)],cr(:,3)',cr(:,4)'};
+            cut_cor= cut_sqw(tf_ref_corr,proj,cut_range{:});
+            cut_al = cut_sqw(wout_aligned,proj,cut_range{:});
+            assertEqualToTol(cut_cor,cut_al,4*eps('single'),'ignore_str',true);
+        end
+
+        %
+        function test_apply_alignment_on_file_keep(obj)
+            % testing the possibility to align the crystal using
+            % apply_alignment routine on file
+            clConf = set_temporary_config_options(hor_config, ...
+                'mem_chunk_size',100000,'fb_scale_factor',4);
+            test_path = fileparts(obj.misaligned_sqw_file);
+            tf_ref_corr = fullfile(test_path,'ref_aligned_sqw.sqw');
+            %
+            copyfile(obj.misaligned_sqw_file,tf_ref_corr ,'f');
+            clOb1 = onCleanup(@()del_memmapfile_files(tf_ref_corr ));
+
+
 
             corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
                 [90.1793 90.9652 89.9250],[-0.0530 0.0519 0.0345]);
@@ -151,6 +193,8 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             [wout_aligned,corr_rev]    = apply_alignment(tf_ref_corr,'-keep');
             % ensure we indeed do filebacked algorithm
             assertTrue(wout_aligned.pix.is_filebacked);
+            tf_ref_al = wout_aligned.pix.full_filename;
+            clOb2 = onCleanup(@()del_memmapfile_files(tf_ref_al));
 
             corr_rev.rotvec = -corr_rev.rotvec;
             assertEqualToTol(corrections,corr_rev,'tol',1.e-9)
@@ -164,8 +208,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             cut_range = {[cr(1,1),0.05,cr(2,1)],[cr(1,2),0.05,cr(2,2)],cr(:,3)',cr(:,4)'};
             cut_cor= cut_sqw(tf_ref_corr,proj,cut_range{:});
             cut_al = cut_sqw(tf_ref_al,proj,cut_range{:});
-            assertEqualToTol(cut_cor,cut_al);
-
+            assertEqualToTol(cut_cor,cut_al,4*eps('single'),'ignore_str',true);
         end
 
         function test_upgrade_legacy_alignment_on_file(obj)
@@ -197,7 +240,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertEqualToTol(test_obj,ref_obj  ,'tol',1.e-9,'ignore_str',true)
         end
 
-        function test_apply_alignment(obj)
+        function test_apply_alignment_in_mem(obj)
             % testing the possibility to align the crystal using
             % apply_alignment routine in memory
             test_obj = read_sqw(obj.misaligned_sqw_file);

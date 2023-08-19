@@ -1,4 +1,4 @@
-function [obj_out,al_info] = apply_alignment(obj,keep_original)
+function [obj,al_info] = apply_alignment(obj,keep_original)
 %APPLY_ALIGNMEMT Method takes realigned sqw object and applies the
 % alignment info stored in this object
 % to pixels and image so the object becomes realigned as from
@@ -23,29 +23,42 @@ alatt   = obj.data.proj.alatt;
 angdeg  = obj.data.proj.angdeg;
 al_info = crystal_alignment_info(alatt,angdeg,rotvec);
 
-
+% this modifies this proj transformation not to use double transformation
+% when calculating pix_to_img transformation with aligned pixels as argument.
+% All other thransfornations are not affected
 obj.data.proj.proj_aligned  = false;
 if obj.pix.is_filebacked
     new_file = get_tmp_filename(obj.pix.full_filename);
+    old_file = obj.pix.full_filename;
 else
     new_file  = [];
 end
 obj = obj.get_new_handle(new_file);
 pix = obj.pix.apply_alignment();
+if ~isempty(new_file) % or if it is filebacked in other words
+    if ~keep_original
+        % unlike majority of other operations, save would not be effective
+        % here, as image have not changed and have already been saved while
+        % getting new handle. Just swap pixels to take the new file as a
+        % source.
+        pix.delete();
+        del_memmapfile_files(old_file)
+        [ok,mess]=movefile(new_file,old_file,'f');
+        if ok
+            pix = PixelDataFileBacked(old_file);
+            new_file = old_file;
+        else
+            warning('HORACE:file_locked', ...
+                'Can not replace old file %s with new file %s. Remaining with new file', ...
+                old_file,new_file);
+            pix = PixelDataFileBacked(new_file);            
+        end
+    end
+end
 obj.pix = pix;
 if ~isempty(new_file)
-    if keep_original
-        obj_out = obj;
-    else
-
-    end
-
-else
-    obj_out = obj;
+    obj.full_filename = new_file;
 end
-
-
-
 
 
 function fn_out = get_tmp_filename(orig_fn)
