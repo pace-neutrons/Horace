@@ -395,7 +395,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % test cut ranges:
             cr = [-0.3,-2,-1.8,-0.5;3.5,4.2,2,0.5];
 
-            cut_old1d = cut(wout_legacy,proj_leg,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');
+            cut_old1d  = cut(wout_legacy,proj_leg,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');
             cut_new1d  = cut(wout_align,proj_leg,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');
 
             assertEqual(cut_old1d.experiment_info.n_runs, ...
@@ -403,8 +403,9 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % old alignment changes the direction of cu,cv components and
             % new one does not so they can not be compared directly.
             cut_old1d.experiment_info = cut_new1d.experiment_info;
-
-            assertEqualToTol(cut_old1d,cut_new1d);
+            % images look the same but pixels remain misaligned in old cut
+            % and aligned afer new cut so you can not do direct comparison
+            assertEqualToTol(cut_old1d.data,cut_new1d.data);
 
             ranges = {[cr(1,1),0.05,cr(2,1)],[cr(1,2),0.1,cr(2,2)],[cr(1,3),0.1,cr(2,3)],[cr(1,4),0.1,cr(2,4)]};
             cut_old = cut(wout_legacy,proj_leg,ranges{:});
@@ -415,7 +416,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % old alignment changes the direction of cu,cv components and
             % new one does not so they can not be compared directly. Yet!
             cut_old.experiment_info = cut_new.experiment_info;
-            assertEqualToTol(cut_old,cut_new);
+            assertEqualToTol(cut_old.data,cut_new.data);
 
         end
         %
