@@ -1,5 +1,5 @@
 function [exper,obj]  = get_exp_info(obj,varargin)
-% Get full data header or headers for sqw file written in format v3
+% Get full data header or headers for sqw file written in format v4
 %
 % If instrument and sample are present in the file (not the empty
 % structures) it loads instruments and samples from the file and attaches
@@ -46,4 +46,8 @@ if ~isinf(samp_inst_number)
     Inst =     Inst(samp_inst_number);
     samp =     samp(samp_inst_number);
 end
-exper    = Experiment([],Inst,samp,exp_data);
+if isa(exp_data,'sqw') % data set to the sqw object
+    exper    = exp_data.experiment_info;
+else
+    exper    = Experiment([],Inst,samp,exp_data);
+end

@@ -29,6 +29,8 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %                      array of pixel_data as they are.
 %  '-keep_precision'-- keep the precision of output raw data as it is (not
 %                      doubling it if possible)
+%  '-align'         -- if provided and pixels are realigned, apply
+%                      alignment transformation to pixels
 
 % Output:
 % -------
@@ -36,25 +38,12 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %                  specified in the abs_pix_indices argument.
 %
 
-[abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
+[abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
     obj.parse_get_pix_args(abs_pix_indices,varargin{:});
+
 
 mmf = obj.f_accessor_;
 % Return raw pixels
-pix_out = mmf.Data.data(:,abs_pix_indices);
+pix_data = mmf.Data.data(:,abs_pix_indices);
 
-
-if ~keep_precision
-    pix_out = double(pix_out);
-end
-
-if raw_data
-    return;
-end
-
-if ignore_range
-    pix = PixelDataMemory();
-    pix_out = pix.set_raw_data(pix_out);
-else
-    pix_out = PixelDataMemory(pix_out);
-end
+pix_out = obj.pack_get_pix_result(pix_data,ignore_range,raw_data,keep_precision,align);

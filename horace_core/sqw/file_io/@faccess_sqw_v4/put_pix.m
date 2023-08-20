@@ -14,8 +14,11 @@ function   obj = put_pix(obj,varargin)
 % '-reserve' -- if applied together with nopix, pixel information is not
 %               written but the space dedicated for pixels is filled in with zeros.
 %               If -nopix is not used, the option is ignored.
+% '-hold_pix_place'
+%           -- if present, arrange writing pix_metadata and place for pixel
+%              data but do not write pixels themselves
 %
-[ok,mess,~,nopix,reserve,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve'});
+[ok,mess,~,nopix,reserve,hold_pix_place,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve','-hold_pix_place'});
 if ~ok
     error('HORACE:faccess_sqw_v4:invalid_argument',...
         'SQW_BINFILE_COMMON::put_pix: %s',mess);
@@ -93,6 +96,9 @@ end
 
 % write pixel data block information; number of dimensions and number of pixels
 pdb.put_data_header(obj.file_id_);
+if hold_pix_place
+    return;
+end
 
 
 % write pixels themselves

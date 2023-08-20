@@ -22,11 +22,15 @@ function    obj = put_sqw(obj,varargin)
 %                     of the current file to write data into
 % '-nopix'         -- do not store pixel array within the sqw object.
 %                     Write sqw object with empty pixels record
+% '-hold_pix_place'
+%                  -- do not store pixels array within the sqw object but
+%                     write all pixel metadata and prepare pixel data block
+%                     for writing
 %
 %
 
-[ok,mess,~,verbatim,nopix,reserve,argi]=parse_char_options(varargin, ...
-    {'-update','-verbatim','-nopix','-reserve'});
+[ok,mess,~,verbatim,nopix,reserve,hold_pix,argi]=parse_char_options(varargin, ...
+    {'-update','-verbatim','-nopix','-reserve','-hold_pix_place'});
 if ~ok
     error('HORACE:faccess_sqw_v4:invalid_argument', ...
         mess);
@@ -80,11 +84,13 @@ end
 
 if ~verbatim
     sqw_obj = obj.sqw_holder;
-    sqw_obj.pix.full_filename =obj.full_filename;
+    sqw_obj.full_filename =obj.full_filename;
     obj.sqw_holder = sqw_obj;
+else
+    sqw_obj.pix.full_filename =obj.full_filename;
 end
 
-if nopix && ~reserve % Modify writeable object to contain no pixels
+if nopix && ~(reserve||hold_pix) % Modify writeable object to contain no pixels
     sqw_obj  = obj.sqw_holder;
     old_pix = sqw_obj.pix;
     sqw_obj.pix = PixelDataMemory();
@@ -100,6 +106,9 @@ end
 
 if reserve
     argi = [argi(:),'-reserve'];
+end
+if hold_pix
+    argi = [argi(:),'-hold_pix_place'];
 end
 
 if nopix

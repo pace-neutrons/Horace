@@ -77,6 +77,8 @@ classdef (Abstract) PixelDataBase < serializable
         % coordinate system or page of raw data (not multiplied by alignment
         % matrix) if pixels are misaligned.
         raw_data;
+        % the data range which is not processes its value when requested
+        raw_data_range;
     end
 
     properties (Constant,Hidden)
@@ -377,8 +379,8 @@ classdef (Abstract) PixelDataBase < serializable
 
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
-
-
+        % realign pixels using alignment matrix stored with pixels
+        obj = apply_alignment(obj);
     end
     %======================================================================
     methods(Abstract,Access=protected)
@@ -558,11 +560,11 @@ classdef (Abstract) PixelDataBase < serializable
         end
         %
         function sig_var = get.sig_var(obj)
-            sig_var  = obj.get_prop('sig_var');            
+            sig_var  = obj.get_prop('sig_var');
         end
         function obj= set.sig_var(obj, val)
             obj=obj.set_prop('sig_var', val);
-        end        
+        end
         %------------------------------------------------------------------
         function is = get.is_misaligned(obj)
             is = obj.is_misaligned_;
@@ -660,6 +662,10 @@ classdef (Abstract) PixelDataBase < serializable
         function ro = get.read_only(obj)
             ro = get_read_only(obj);
         end
+        %
+        function range = get.raw_data_range(obj)
+            range = obj.data_range_;
+        end        
     end
     %----------------------------------------------------------------------
     methods
@@ -810,45 +816,35 @@ classdef (Abstract) PixelDataBase < serializable
             % numel(npix(:));
             [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, varargin{:});
         end
-
-        function [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
+        %------------------------------------------------------------------
+        function [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
                 parse_get_pix_args(obj,varargin)
+            % process input of get_pix method and return input parameters
+            % in the standard form.
 
-            [ok, mess, ignore_range, raw_data, keep_precision, argi] = ...
-                parse_char_options(varargin, ...
-                {'-ignore_range','-raw_data','-keep_precision'});
-            if ~ok
-                error('HORACE:PixelDataBase:invalid_argument',mess);
-            end
-
-            switch numel(argi)
-                case 0
-                    [ind_min,ind_max] = obj.get_page_idx_();
-                    abs_pix_indices = ind_min:ind_max;
-
-                case 1
-                    abs_pix_indices = argi{1};
-
-                    if islogical(abs_pix_indices)
-                        abs_pix_indices = obj.logical_to_normal_index_(abs_pix_indices);
-                    end
-
-                    if ~isindex(abs_pix_indices)
-                        error('HORACE:PixelDataBase:invalid_argument',...
-                            'pixel indices should be an array of numeric positive numbers, which define indices or vector of logical values')
-                    end
-
-                    if any(abs_pix_indices > obj.num_pixels)
-                        error('HORACE:PixelDataBase:invalid_argument', ...
-                            'Some numerical indices exceed the total number of pixels')
-                    end
-
-                otherwise
-                    error('HORACE:PixelDataBase:invalid_argument', ...
-                        'Too many inputs provided to parse_get_pix_args_')
-
-            end
+            [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
+                parse_get_pix_args_(obj,varargin{:});
         end
+        function pix_out = pack_get_pix_result(obj,pix_data,ignore_range,raw_data,keep_precision,align)
+            % pack output of get_pixels method depending on various
+            % get_pixels input options
+            % Input:
+            % obj          -- original PixelDataBase object
+            % pix_data     -- array of raw pixel data retrieved by
+            %                 get_pixel method core code
+            % ignore_range -- if true, do not calculate pixels range
+            % raw_data     -- if true, do not wrap pix_data into
+            %                 PixelDataBase class
+            % keep_precision
+            %              -- if true, keep original pixel precision
+            %                 intact. Do not make it double
+            % align        -- if true and data are misaligned, apply
+            %                 alignment matrix and dealign the data
+            %
+            pix_out = pack_get_pix_result_(obj,pix_data, ...
+                ignore_range,raw_data,keep_precision,align);
+        end
+        %------------------------------------------------------------------
 
         function [pix_fields, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, abs_pix_indices)
             % process set_fields arguments and return them in standard form suitable for

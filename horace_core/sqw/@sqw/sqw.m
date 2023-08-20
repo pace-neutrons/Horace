@@ -432,7 +432,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % and npix array, saving in chunks so they do not need to be held in memory.
             ldr = sqw_formats_factory.instance().get_pref_access(obj);
             ldr = ldr.init(obj, outfile);
-            ldr =ldr.put_sqw('-nopix');
+            ldr =ldr.put_sqw('-hold_pix_place');
             obj.pix = obj.pix.get_new_handle(ldr);
 
         end

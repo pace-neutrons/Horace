@@ -50,9 +50,9 @@ elseif istext(init_data)
             'Cannot find file to load (%s)', init_data)
     end
 
-    init_data = sqw_formats_factory.instance().get_loader(init_data);
-    obj = init_from_file_accessor_(obj,init_data,update,norange);
-
+    ldr = sqw_formats_factory.instance().get_loader(init_data);
+    obj = init_from_file_accessor_(obj,ldr,update,norange);
+    ldr.delete();
 elseif isa(init_data, 'sqw_file_interface')
     obj = init_from_file_accessor_(obj,init_data,update,norange);
 

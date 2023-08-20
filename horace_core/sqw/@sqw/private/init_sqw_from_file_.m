@@ -33,8 +33,9 @@ if ~ldr.sqw_type % not a valid sqw-type structure
 end
 
 in_struc.sqw_struc = true;
+in_struc.legacy = true;
 [sqw_struc,ldr] = ldr.get_sqw(in_struc);
-
+sqw_struc.pix.full_filename = ldr.full_filename;
 obj = init_from_loader_struct_(obj, sqw_struc);
 ldr.delete();
 end

@@ -33,16 +33,28 @@ classdef TmpFileHandler < handle
             % Unlikely to happen, but best to check fail to generate
             if i == 5 && is_file(obj.file_name)
                 error('HORACE:TmpFileHandler:runtime_error', ...
-                      ['Can not generate available tmp file name for %s. \n\n', ...
-                       'Check %s and clear any .pix_<id> files'], ...
-                      orig_name, tmp_dir());
+                    ['Can not generate available tmp file name for %s. \n\n', ...
+                    'Check %s and clear any .pix_<id> files'], ...
+                    orig_name, tmp_dir());
             end
 
         end
 
         function delete(obj)
-            if ~isempty(obj.file_name) && is_file(obj.file_name)
-                delete(obj.file_name);
+           fn = obj.file_name;
+            if ~isempty(fn) && is_file(fn)
+                ws = warning('off','MATLAB:DELETE:Permission');
+                delete(fn);
+                if isfile(fn) % deleteon for files accessed trough matlab
+                    % memmapfile. Windows bug?
+                    if ispc()
+                        system(sprintf('del %s',fn));
+                    else
+                        system(sprintf('rm %s',fn));
+                    end
+                end
+                warning(ws);
+
             end
         end
 

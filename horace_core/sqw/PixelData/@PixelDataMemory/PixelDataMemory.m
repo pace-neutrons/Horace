@@ -88,6 +88,8 @@ classdef PixelDataMemory < PixelDataBase
         [pix_out, data] = do_unary_op(obj, unary_op, data);
 
         pix_out = mask(obj, mask_array, npix);
+
+        obj = apply_alignment(obj);
     end
 
     methods
@@ -156,16 +158,16 @@ classdef PixelDataMemory < PixelDataBase
 
     methods
         function obj = tag(obj, selected)
-        % Function to tag pixels to avoid e.g. duplicating pixels on
-        % cut. Returned pixels have negative sign on detector index. When
-        % operation is complete caller should discard pixels or use `untag`
-        % function (below).
-        %
-        % Input
-        % ------
-        %   selected     indices of pixels to be tagged
+            % Function to tag pixels to avoid e.g. duplicating pixels on
+            % cut. Returned pixels have negative sign on detector index. When
+            % operation is complete caller should discard pixels or use `untag`
+            % function (below).
+            %
+            % Input
+            % ------
+            %   selected     indices of pixels to be tagged
             if ~exist('selected', 'var')
-                selected = [1:obj.num_pixels];
+                selected = 1:obj.num_pixels;
             end
 
             obj = obj.set_raw_fields(...
@@ -174,16 +176,16 @@ classdef PixelDataMemory < PixelDataBase
         end
 
         function obj = untag(obj, selected)
-        % Function to untag pixels when operation finished.
-        %
-        % Should generally be called without `selected` specified to
-        % untag all pixels.
-        %
-        % Input
-        % ------
-        %   selected     indices of pixels to be untagged
+            % Function to untag pixels when operation finished.
+            %
+            % Should generally be called without `selected` specified to
+            % untag all pixels.
+            %
+            % Input
+            % ------
+            %   selected     indices of pixels to be untagged
             if ~exist('selected', 'var')
-                selected = [1:obj.num_pixels];
+                selected = 1:obj.num_pixels;
             end
 
             obj.set_raw_fields(...
@@ -195,19 +197,19 @@ classdef PixelDataMemory < PixelDataBase
 
     methods(Static)
         function obj = cat(varargin)
-        % Concatenate the given PixelData objects' pixels. This function performs
-        % a straight-forward data concatenation.
-        %
-        %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
-        %
-        % Input:
-        % ------
-        %   varargin    A cell array of PixelData objects
-        %
-        % Output:
-        % -------
-        %   obj         A PixelData object containing all the pixels in the inputted
-        %               PixelData objects
+            % Concatenate the given PixelData objects' pixels. This function performs
+            % a straight-forward data concatenation.
+            %
+            %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
+            %
+            % Input:
+            % ------
+            %   varargin    A cell array of PixelData objects
+            %
+            % Output:
+            % -------
+            %   obj         A PixelData object containing all the pixels in the inputted
+            %               PixelData objects
 
             if isempty(varargin)
                 obj = PixelDataMemory();
