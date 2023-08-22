@@ -14,27 +14,25 @@ function  data =  get_raw_data(obj,varargin)
 %                or [ncol x page_size] if idx present, where ncol is defined
 %                by idx array of pixel information.
 %
-% Note: 
+% Note:
 % idx defines the pixel indexes as described in PixelDataBase.FIELD_INDEX_MAP_
 %
-if nargin == 1
-    page_number = obj.page_num_;
-end
-if nargin > 1
-    if iscell(varargin{1})|| ischar(varargin{1})
+
+page_number = obj.page_num_;
+fld = [];
+
+if ~isempty(varargin)
+    if iscell(varargin{1}) || ischar(varargin{1})
         fld = varargin{1};
+
     elseif isnumeric(varargin{1})
         page_number = varargin{1};
+
         if nargin > 2 && (iscell(varargin{2})|| ischar(varargin{2}))
             fld = varargin{2};
-        else
-            fld= [];
         end
-    else
-        fld= [];
+
     end
-else
-    fld = [];
 end
 
 if isempty(obj.f_accessor_)
@@ -48,4 +46,3 @@ else
         data = double(obj.f_accessor_.Data.data(idx, pix_idx_start:pix_idx_end));
     end
 end
-

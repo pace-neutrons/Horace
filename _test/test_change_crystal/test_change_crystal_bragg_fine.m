@@ -118,8 +118,8 @@ classdef test_change_crystal_bragg_fine < TestCase
 
             % Apply to a copy of the sqw object to see that the alignment is now OK
             % ---------------------------------------------------------------------
-            copyfile(obj.sim_sqw_file,obj.sim_sqw_file_corr)
-            change_crystal_sqw(obj.sim_sqw_file_corr,al_info)
+            copyfile(obj.sim_sqw_file,obj.sim_sqw_file_corr);
+            change_crystal_sqw(obj.sim_sqw_file_corr,al_info);
             rlu0_corr=get_bragg_positions(sqw(obj.sim_sqw_file_corr), proj, rlu, half_len, half_thick, bin_width);
 
 

@@ -380,7 +380,6 @@ classdef (Abstract) PixelDataBase < serializable
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
         % realign pixels using alignment matrix stored with pixels
-        obj = apply_alignment(obj);
     end
     %======================================================================
     methods(Abstract,Access=protected)
@@ -420,6 +419,13 @@ classdef (Abstract) PixelDataBase < serializable
 
         obj = set_fields(obj, data, fields, abs_pix_indices);
         [pix_out, data] = noisify(obj, varargin);
+        obj = realign(obj);
+
+        function obj = apply_alignment(obj)
+            obj = obj.apply(@realign);
+            obj.alignment_matr_ = eye(3);
+            obj.is_misaligned_ = false;
+        end
 
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
@@ -665,7 +671,7 @@ classdef (Abstract) PixelDataBase < serializable
         %
         function range = get.raw_data_range(obj)
             range = obj.data_range_;
-        end        
+        end
     end
     %----------------------------------------------------------------------
     methods
