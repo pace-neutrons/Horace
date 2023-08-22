@@ -2,7 +2,12 @@
 Correcting for sample misalignment
 ##################################
 
-When mounting your sample on a spectrometer, it can often be the case that it is slightly misaligned compared the to the 'perfect' alignment assumed when generating the SQW file (the u and v vectors provided in ``gen_sqw`` and ``accumulate_sqw``). It is straightforward to correct such misalignment once enough data have been accumulated by comparing the positions of Bragg peaks compared to what they should be. The alignment correction is thus a process to be done in several steps - first the misalignment must be determined and checked, and then the correction must be applied to the data.
+When mounting your sample on a spectrometer, it can often be the case that it is slightly misaligned compared the to the
+'perfect' alignment assumed when generating the SQW file (the u and v vectors provided in ``gen_sqw`` and
+``accumulate_sqw``). It is straightforward to correct such misalignment once enough data have been accumulated by
+comparing the positions of Bragg peaks compared to what they should be. The alignment correction is thus a process to be
+done in several steps - first the misalignment must be determined and checked, and then the correction must be applied
+to the data.
 
 
 Step 1 - determine the true positions of Bragg peaks
@@ -11,13 +16,14 @@ Step 1 - determine the true positions of Bragg peaks
 Bragg Positions
 ===============
 
-First you should find several non-parallel strong Bragg peaks in your data. Next run the following routine, which generates radial and transverse cuts around specified Bragg peaks and determines the deviation from the expected values.
+First you should find several non-parallel strong Bragg peaks in your data. Next run the following routine, which
+generates radial and transverse cuts around specified Bragg peaks and determines the deviation from the expected values.
 
 ::
 
    [rlu0, widths, wcut, wpeak] = bragg_positions (sqw_file, bp, ...
-		   radial_cut_length, radial_bin_width, radial_thickness,...
-		   trans_cut_length, trans_bin_width, trans_thickness, energy_window,<keyword options>)
+                   radial_cut_length, radial_bin_width, radial_thickness,...
+                   trans_cut_length, trans_bin_width, trans_thickness, energy_window,<keyword options>)
 
 
 The **inputs** are
@@ -38,13 +44,21 @@ The **inputs** are
 
 - ``trans_thickness`` - integration thickness along the two perpendicular directions to the transverse cuts
 
-- ``energy_window`` - Energy integration window around elastic line (meV). Choose according to the instrument resolution. A good value is 2 x full-width half-height. Note that this is the full energy window, e.g. for -1meV to +1 meV, set energy_window=2
+- ``energy_window`` - Energy integration window around elastic line (meV). Choose according to the instrument
+  resolution. A good value is 2 x full-width half-height. Note that this is the full energy window, e.g. for -1meV to +1
+  meV, set energy_window=2
 
 The following **keyword options** are available:
 
-For **binning** choose either ``'bin_absolute'``, which denotes that the radial and transverse cut lengths, bin sizes, and thicknesses are in inverse Angstroms [Default]; or choose ``'bin_relative'``, which denotes that cut lengths, bin sizes and thicknesses are fractions of \|Q\| for radial cuts and degrees for transverse cuts.
+For **binning** choose either ``'bin_absolute'``, which denotes that the radial and transverse cut lengths, bin sizes,
+and thicknesses are in inverse Angstroms [Default]; or choose ``'bin_relative'``, which denotes that cut lengths, bin
+sizes and thicknesses are fractions of \|**Q**\| for radial cuts and degrees for transverse cuts.
 
-For **fitting** options choose ``'outer'``, which determines peak position from centre of peak half-height by finding the peak width moving inwards from the limits of the data - useful if there is known to be a single peak in the data as it is more robust to too finely binned data. [Default]; ``'inner'`` determines the peak position from centre of peak half height by finding the peak width moving outwards from peak maximum; ``'gaussian'`` fits a Gaussian on a linear background.
+For **fitting** options choose ``'outer'``, which determines peak position from centre of peak half-height by finding
+the peak width moving inwards from the limits of the data - useful if there is known to be a single peak in the data as
+it is more robust to too finely binned data. [Default]; ``'inner'`` determines the peak position from centre of peak
+half height by finding the peak width moving outwards from peak maximum; ``'gaussian'`` fits a Gaussian on a linear
+background.
 
 The **outputs** are:
 
@@ -52,28 +66,40 @@ The **outputs** are:
 
 - ``widths`` - an array of size n-by-3 containing the FWHH in Ang^-1 of the peaks along each of the three projection axes
 
-- ``wcut`` - an array of cuts, size n-by-3, along three orthogonal directions through each Bragg point from which the peak positions were determined. (Note that this can be passed to ``bragg_positions_view`` together with ``wpeak`` to view the output. [Note: the cuts are IX_dataset_1d objects and can be plotted using the plot functions for these methods.]
+- ``wcut`` - an array of cuts, size n-by-3, along three orthogonal directions through each Bragg point from which the
+  peak positions were determined. (Note that this can be passed to ``bragg_positions_view`` together with ``wpeak`` to
+  view the output. [Note: the cuts are IX_dataset_1d objects and can be plotted using the plot functions for these
+  methods.]
 
-- ``wpeak`` - an array of spectra, size n-by-3, that summarise the peak analysis. Pass to ``bragg_positions_view`` together with ``wcut`` to view the output. [Note: for aficionados: the cuts are IX_dataset_1d objects and can also be plotted using the plot functions for these objects.]
+- ``wpeak`` - an array of spectra, size n-by-3, that summarise the peak analysis. Pass to ``bragg_positions_view``
+  together with ``wcut`` to view the output. [Note: for aficionados: the cuts are IX_dataset_1d objects and can also be
+  plotted using the plot functions for these objects.]
 
 
 Step 2 - check the Bragg positions fits worked properly
 -------------------------------------------------------
 
-You can make plots of the cuts and fits of your notional Bragg peaks to check that the program has correctly fitted everything, using outputs from the ``bragg_positions`` describe above.
+You can make plots of the cuts and fits of your notional Bragg peaks to check that the program has correctly fitted
+everything, using outputs from the ``bragg_positions`` describe above.
 
 ::
 
    bragg_positions_view(wcut,wpeak)
 
 
-You will be prompted in the Matlab command window as to which plot and fit you wish to view. Press 'q' to exit this interactive mode. It is important to use this function to scrutinise the peaks and the fits because there many parameters that may need adjusting depending on the degree of misalignment of your crystal: the length, binning and thicknesses of the cuts you specified in ``bragg_positions``, the quality of the cuts (for example the Bragg peaks may be near gaps in the detectors so the cuts are poorly defined), the Bragg peaks may have strange shapes which deceived the automatic fitting etc.
+You will be prompted in the Matlab command window as to which plot and fit you wish to view. Press 'q' to exit this
+interactive mode. It is important to use this function to scrutinise the peaks and the fits because there many
+parameters that may need adjusting depending on the degree of misalignment of your crystal: the length, binning and
+thicknesses of the cuts you specified in ``bragg_positions``, the quality of the cuts (for example the Bragg peaks may
+be near gaps in the detectors so the cuts are poorly defined), the Bragg peaks may have strange shapes which deceived
+the automatic fitting etc.
 
 
 Step 3 - calculate the misalignment correction
 ----------------------------------------------
 
-Using the outputs of ``bragg_positions``, together with certain optional keyword arguments, you can determine a transformation matrix that goes from the original misaligned frame to the correct aligned frame.
+Using the outputs of ``bragg_positions``, together with certain optional keyword arguments, you can determine a
+transformation matrix that goes from the original misaligned frame to the correct aligned frame.
 
 ::
 
@@ -96,7 +122,8 @@ The **keyword options** for defining exactly what is and is not-corrected for ar
 
 - ``fix_angdeg`` - Fix [alpha,beta,gamma] but allow the lattice parameters [a,b,c] to be refined together with crystal orientation
 
-- ``fix_alatt_ratio`` Fix the ratio of the lattice parameters as given by the values in the inputs, but allow the overall scale of the lattice to be refined together with crystal orientation
+- ``fix_alatt_ratio`` Fix the ratio of the lattice parameters as given by the values in the inputs, but allow the
+  overall scale of the lattice to be refined together with crystal orientation
 
 - ``fix_orient`` - Fix the crystal orientation i.e. only refine the lattice parameters
 
@@ -112,13 +139,15 @@ e.g. 'free_angdeg',[1,1,0],... fixes lattice angle gamma buts allows alpha and b
 
 The **outputs** are:
 
-- ``rlu_corr`` - Conversion matrix to relate notional rlu to true rlu, accounting for the the refined crystal lattice parameters and orientation qhkl(i) = rlu_corr(i,j) \* qhkl_0(j)
+- ``rlu_corr`` - Conversion matrix to relate notional rlu to true rlu, accounting for the the refined crystal lattice
+  parameters and orientation qhkl(i) = rlu_corr(i,j) \* qhkl_0(j)
 
 - ``alatt`` - Refined lattice parameters [a,b,c] (Angstroms)
 
 - ``angdeg`` - Refined lattice angles [alpha,beta,gamma] (degrees)
 
-- ``rotmat`` - Rotation matrix that relates crystal Cartesian coordinate frame of the refined lattice and orientation as a rotation of the initial crystal frame. Coordinates in the two frames are related by v(i)= rotmat(i,j)v0(j)
+- ``rotmat`` - Rotation matrix that relates crystal Cartesian coordinate frame of the refined lattice and orientation as
+  a rotation of the initial crystal frame. Coordinates in the two frames are related by v(i)= rotmat(i,j)v0(j)
 
 - ``distance`` - Distances between peak positions and points given by true indexes, in input argument rlu, in the refined crystal lattice. (Ang^-1)
 
@@ -127,7 +156,10 @@ The **outputs** are:
 Step 4 - apply the correction to the data
 -----------------------------------------
 
-There are two ways to do this, either to apply the correction to an existing file without regenerating (good for when you have a complete scan). Or you can calculate what the goniometer offsets ``gl, gs, dpsi`` are, and then use these when you regenerate the sqw file (good for situations when you are still accumulating data, such as on the beamline during an experiment).
+There are two ways to do this, either to apply the correction to an existing file without regenerating (good for when
+you have a complete scan). Or you can calculate what the goniometer offsets ``gl, gs, dpsi`` are, and then use these
+when you regenerate the sqw file (good for situations when you are still accumulating data, such as on the beamline
+during an experiment).
 
 
 Option 1 : apply the correction to an existing sqw file
@@ -165,9 +197,12 @@ The **inputs** are:
 
 The following **optional keywords** can be provided:
 
-- ``u_new, v_new`` - Replacement vectors u, v that define the scattering plane. Normally these would not be given, and the input u and v will be used. The extent to which u_new and v_new do not correctly give the true scattering plane will be accommodated in the output misorientation angles dpsi, gl and gs below. (Default: input arguments u and v)
+- ``u_new, v_new`` - Replacement vectors u, v that define the scattering plane. Normally these would not be given, and
+  the input u and v will be used. The extent to which u_new and v_new do not correctly give the true scattering plane
+  will be accommodated in the output misorientation angles dpsi, gl and gs below. (Default: input arguments u and v)
 
-- ``omega_new`` - Replacement value for the orientation of the virtual goniometer arcs with reference to which dpsi, gl, gs will be calculated. (Default: input argument omega) (deg)
+- ``omega_new`` - Replacement value for the orientation of the virtual goniometer arcs with reference to which dpsi, gl,
+  gs will be calculated. (Default: input argument omega) (deg)
 
 
 The **outputs** are:
@@ -224,7 +259,7 @@ bragg_positions
 ::
 
    [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu, radial_cut_length, radial_bin_width, radial_thickness,...
-							       trans_cut_length, trans_bin_width, trans_thickness)
+                                                               trans_cut_length, trans_bin_width, trans_thickness)
 
 
 Get actual Bragg peak positions, given initial estimates of their positions, from an sqw object or file
@@ -247,7 +282,9 @@ calc_proj_matrix
    [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 
 
-Calculate matrix that convert momentum from coordinates in spectrometer frame to projection axes defined by u1 \|\| a*, u2 in plane of a\* and b\ i.e. crystal Cartesian axes. Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
+Calculate matrix that convert momentum from coordinates in spectrometer frame to projection axes defined by u1 \|\| a*,
+u2 in plane of a\* and b\ i.e. crystal Cartesian axes. Allows for correction scattering plane (omega, dpsi, gl, gs) -
+see Tobyfit for conventions
 
 crystal_pars_correct
 ====================
@@ -287,7 +324,8 @@ ubmatrix
    [ub, mess, umat] = ubmatrix (u, v, b)
 
 
-Calculate UB matrix that transforms components of a vector given in r.l.u. into the components in an orthonormal frame defined by the two vectors u and v (each given in r.l.u)
+Calculate UB matrix that transforms components of a vector given in r.l.u. into the components in an orthonormal frame
+defined by the two vectors u and v (each given in r.l.u)
 
 uv_correct
 ==========
