@@ -580,7 +580,7 @@ classdef object_lookup < serializable
             if numel(unique(inverse_idx))<numel(inverse_idx)
                 error('HERBERT:object_lookup:invalid_argument','duplicate indices');
             end
-            if max(inverse_idx)>N || min(inverse_idx)>1
+            if max(inverse_idx)>N || min(inverse_idx)<1
                 error('HERBERT:object_lookup:invalid_argument','incorrect indices');
             end
             for ii=1:numel(obj.indx)

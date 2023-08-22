@@ -19,7 +19,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
                 expt.instruments{1};
             end
             assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
-            assertTrue(expt.detector_arrays.n_runs==0);
+            assertEqual(expt.detector_arrays.n_runs, 0);
             assertTrue(isempty(expt.expdata));
         end
         function test_nontrivial_runid_map(~)

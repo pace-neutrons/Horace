@@ -72,7 +72,7 @@ classdef Experiment < serializable
             %
             %
             % Inputs:
-            % 1) special_struct -- the structure, obtained from
+            % 1) special_struct -- the structure obtained from
             %                      experiment by to_struct or to_bare_struct methods
             %
             % 2)
@@ -83,6 +83,7 @@ classdef Experiment < serializable
             %                      objects.
             %   The number of elements in instrument sample and expdata
             %   containers have to be equal
+            %
             % 3)
             %    The set of key-value pairs where the key is the name of the
             %    property and the value -- its value.
@@ -170,6 +171,7 @@ classdef Experiment < serializable
         function obj = init(obj,varargin)
             % initialize Experiment object using various possible forms of inputs,
             % provided to Experiment constructor.
+            error('Why are we here?');
             if nargin == 1
                 return;
             end
@@ -520,13 +522,11 @@ classdef Experiment < serializable
             if isa(val, 'unique_references_container') && ...
                    strcmp(val.stored_baseclass,type)
                 % if size is right, overwrite default compressed container
-                if val.n_runs == obj.n_runs
-                    obj.(field) = val;
-                else
+                if val.n_runs ~= obj.n_runs
                     error('HORACE:Experiment:invalid_argument', ...
                           'input %d size must match number of runs',obj.n_runs);
                 end
-
+                obj.(field) = val;
 
             elseif ( isa(val, type) &&                       ...
                      numel(val) == obj.n_runs )              ...
@@ -551,11 +551,6 @@ classdef Experiment < serializable
                 % assume we're adding n_runs identical copies
                 % 
                 % add to default compressed container
-                %{
-                for i=1:obj.n_runs
-                    obj.(field) = obj.(field).add(val);
-                end
-                %}
                 obj.(field) = obj.(field).add_copies_(val, obj.n_runs);
 
             elseif isempty(val)
