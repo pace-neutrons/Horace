@@ -55,23 +55,26 @@ if ~has_pixels(win)
           'input object must be sqw type with detector pixel information');
 end
 
-if isa(varargin{end}, 'aProjection')
+if isa(varargin{end}, 'aProjectionBase')
     proj = varargin(end);
     varargin = varargin(1:end-1);
 
-    if ~proj{1}.nonorthogonal
+    if proj{1}.nonorthogonal
         error('HORACE:symmetrise_sqw:invalid_argument', ...
               'Cannot symmetrise to non-orthogonal projection');
     end
 
 else
-    proj = {};
+    proj = {line_proj([1 0 0], [0 1 0], ...
+                      'alatt', win.data.proj.alatt, ...
+                      'angdeg', win.data.proj.angdeg)};
 end
 
 
 
 
-if numel(varargin) == 1 && isa(varargin{1}, 'Symop')
+if numel(varargin) == 1 && isa(varargin{1}, 'Symop') || ...
+        (iscell(varargin{1}) && all(cellfun(@(x) isa(x, 'Symop'), varargin{1})))
 
     sym = varargin{1};
 elseif numel(varargin) == 3
@@ -89,7 +92,11 @@ wout = copy(win);
 
 [sym, fold] = validate_sym(sym);
 transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
-wout = wout.apply(transforms, {proj{:}}, false);
+% Need the projections to be wrapped in a cell array to be duplicated
+% for each symmetry operation we're applying, since the first cell array
+% may be unwrapped as an argument if 1 arg (as in this case), need
+% double wrapped cellarray
+wout = wout.apply(transforms, {{proj(:)}}, false);
 
 %=========================================================================
 % Transform Ranges:
@@ -216,9 +223,13 @@ function [sym, fold] = validate_sym(sym)
 
     elseif iscell(sym)
         % If it's come from SymopRotation.fold or manual equivalent
-        if all(cellfun(@(x) isa(x, {'SymopRotation', 'SymopIdentity'}), sym))
-            if ~sym{1} == SymopIdentity() || ...
-                        isa(sym{1}, 'SymopRotation') && sym{1}.theta_deg ~= 0
+        % We might have rot(0), or ID as first arg, all subsequent
+        % rotations may be incremental (0, 90, 180, 270)
+        % or repeated (0, 90, 90, 90) need to account for these
+        if all(cellfun(@(x) isa(x, 'SymopRotation') || ...
+                            isa(x, 'SymopIdentity'), sym))
+            if sym{1} ~= SymopIdentity() || ...
+                         isa(sym{1}, 'SymopRotation') && sym{1}.theta_deg ~= 0
                 error('HORACE:symmetrise_sqw:invalid_argument', ...
                       'For rotational reduction first element must be identity.')
             end
@@ -237,10 +248,10 @@ function [sym, fold] = validate_sym(sym)
                        'Expected: %d, received: %d', fold, numel(sym)])
             end
 
-            for i = 1:fold-1
+            for i = 3:fold
                 % If not regular fold
-                if sym{i+1}.theta_deg ~= sym{2}.theta_deg || ...
-                        sym{i+1}.theta_deg / fold ~= sym{2}.theta_deg
+                if ~(equal_to_tol(sym{i}.theta_deg, sym{2}.theta_deg, 'tol', 1e-4) || ...
+                     equal_to_tol(sym{i}.theta_deg / (i-1), sym{2}.theta_deg, 'tol', 1e-2))
                     error('HORACE:symmetrise_sqw:invalid_argument', ...
                           ['Cell array rotation reduction must be either repeated array' ...
                            ' of one rotation or evenly-spaced progression around unit circle'])
@@ -250,7 +261,8 @@ function [sym, fold] = validate_sym(sym)
             fold = fold - 1;
             sym = repmat(sym{2}, fold, 1);
 
-        elseif all(cellfun(@(x) isa(x, {'SymopReflection', 'SymopIdentity'}), sym))
+        elseif all(cellfun(@(x) isa(x, 'SymopReflection') || ...
+                                isa(x, 'SymopIdentity'), sym))
             sym = cell2mat(sym);
             fold = numel(sym);
         else
