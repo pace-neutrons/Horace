@@ -92,12 +92,18 @@ classdef test_set_instr_and_sample < TestCase
                 '-ignore_date','ignore_str',1);
 
             % Dummy sample, empty sample
+            % REMOVING THIS TEST SECTION
+            % As the number of runs for these sqws is 1, you should not be
+            % able to set any sample (or all samples) to an empty set.
+            %TODO: restructure this test section sensibly
+            %{
             set_sample_horace(tmpsqwfile,[]);
             tmp=sqw(tmpsqwfile);
             ws = obj.ds.f1_1;
             ws.experiment_info.samples = [];
             assertEqualToTol(ws,tmp,[5.e-8,5.e-8], ...
                 '-ignore_date','ignore_str',1); 
+            %}
 
         end
 

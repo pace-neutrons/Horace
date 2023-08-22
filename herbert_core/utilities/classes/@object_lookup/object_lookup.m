@@ -1,10 +1,10 @@
 classdef object_lookup < serializable
-    % An instance of object_lookup is a container for set of arrays of objects
+    % An instance of object_lookup is a container for a set of arrays of objects
     %
     % The purpose of this class is twofold:
     %
     %   (1) To minimise memory requirements by retaining only unique instances
-    %       of the objects in the set of arrays
+    %       of the objects in the set of arrays.
     %
     %   (2) To optimise the speed of selection of random points, or the speed
     %       of function evaluations, for an array of indices into one of the
@@ -101,29 +101,61 @@ classdef object_lookup < serializable
         % Constructor
         %------------------------------------------------------------------
         function obj = object_lookup (varargin)
-            % Create object lookup from an array of objects
+            % CONSTRUCTOR Create object lookup from various types of arrays of objects.
+            % This can be done by one of the following 4 argument
+            % combinations:
+            % 
+            % A. No arguments
+            % 
+            % Create an "empty" object. It is expected that this will be
+            % immediately followed by a serialisable loadobj to populate
+            % the lookup:
             %
-            % Create object_lookup from object array(s):
+            %   >> obj = object_lookup()
+            %
+            % B. A single argument which is a unique_objects_container or
+            % cellarray of unique_objects_containers. It is expected that
+            % this option will take objects created from a parent
+            % unique_references_container (e.g. all moderators from a
+            % unique_references_container of instruments - the output 
+            % unique_objects_container has a very similar function to
+            % object_lookup) and insert them as the equivalent contents of
+            % the object_lookup.
+            %
+            %   >> obj = object_lookup(unique_objects_container1)
+            %   >> obj = object_lookup({unique_objects_container1, ...
+            %                           unique_objects_container2,...})
+            %
+            % C. Create object_lookup from one or more object (cell-)array(s):
+            % 
             %   >> obj = object_lookup (objArr)
             %   >> obj = object_lookup (objArr1, objArr2, objArr3,...)
             %   >> obj = object_lookup ({objArr1, objArr2, objArr3,...})
             %
             %   With implicit repmat of each of the object arrays:
+            %
             %   >> obj = object_lookup (..., 'repeat', sz_repmat)
             %
+            % D. Directly set the object store and indexing array(s):
             %
-            % Directly set the object store and indexing array(s):
             %   >> obj = object_lookup (object_store, indx)
             %   >> obj = object_lookup (object_store, indx, sz)
             %
             %
             % Input:
             % ------
+            %   For option B:
+            %   unique_objects_container1, unique_objects_container2, ...
+            %              unique_objects_containers all containing one
+            %              only type of object which will populate the
+            %              object_lookup
+            %
+            %   For option C:
             %   objArr1, objArr2, ... objArrN
             %               Object arrays to be contained in the object_lookup
             %               object
-            %
-            % Optional keyword-value pair:
+            %   Also for option C if required:
+            %   Optional keyword-value pair:
             %   'repeat', sz_repmat   
             %               sz_repmat is one of:
             %                 - the size of a single array:   sz
@@ -172,8 +204,7 @@ classdef object_lookup < serializable
             %               elements in objArr multiple times.
             %
             %
-            % Direct setting of object store and indexing arrays:
-            % - - - - - - - - - - - - - - - - - - - - - - - - - -
+            %   For option D:
             %   object_store    Array of objects containing from which the
             %                   uncompressed object arrays can be recovered
             %                   from the index arrays in indx (below).
@@ -183,7 +214,7 @@ classdef object_lookup < serializable
             %                   object array. The length of ind{i} is the number
             %                   of objects in the ith object array.
             %
-            % Optional:
+            %   Optional:
             %   sz              Cell array of sizes of the stored object arrays.
             %                   sz{i} is the size of the ith object array.
             %                   If not given, then it is assumed that the object
@@ -196,12 +227,13 @@ classdef object_lookup < serializable
             %   obj         Object_lookup object
             
             
+            % Option A for input arguments:
             % No input arguments: default constructor - do nothing
             if nargin==0
                 return  
             end
             
-            % Input arguments
+            % Option D for input arguments:
             if (nargin==2 || nargin==3) && all(cellfun (@isnumeric, varargin(2:end)))
                 % Input can only be one of:
                 %   >> obj = object_lookup (object_store, indx)
@@ -210,7 +242,62 @@ classdef object_lookup < serializable
                 indx = varargin{2};
                 sz = varargin{3};
                 repeat = false;     % no implicit repmat
-                
+
+            % Option B for input arguments (single container):
+            elseif isa(varargin{1}, 'unique_objects_container')
+
+                objects = varargin{1};
+                nw = numel(objects); % number of unique_object_containers
+
+                % it is not possible to distinguish access of the first
+                % element of a scalar unique_objects_container from access of
+                % the first unique_objects_container in a
+                % cell of such containers, when using a subscript. So the
+                % cases are distinguished in this code
+                if nw == 1
+                    nel = objects.n_runs;
+                    sz  = {objects.runs_sz};
+                    obj_all = objects;
+                else
+                    nel = arrayfun( @get_nruns, objects );
+                    sz = arrayfun( @runs_sz, objects, 'uniformoutput',false );
+
+                    obj_all = unique_objects_container.concatenate(objects,'()');
+                end
+
+                if any(nel==0)
+                    error('HERBERT:object_lookup:invalid_argument', ...
+                          'Cannot have empty object containers');
+                end
+
+                % Fill lookup properties
+                tmp = obj_all.unique_objects;
+                object_store = vertcat(tmp{:}); %same orientation as for ordinary cells
+                indx = mat2cell(obj_all.idx(:),nel,1);
+                sz = sz(:);
+                repeat = false; % no implicit repmat
+
+            % Option B for input arguments (multiple containers):
+            elseif iscell(varargin{1}) && all(cellfun(@(x) isa(x, 'unique_objects_container'), varargin{1}))
+
+                objects = varargin{1};
+                nel = cellfun( @get_nruns, objects );
+                sz = cellfun( @runs_sz, objects, 'uniformoutput',false );
+                obj_all = unique_objects_container.concatenate(objects,'{}');
+
+                if any(nel==0)
+                    error('HERBERT:object_lookup:invalid_argument', ...
+                          'Cannot have empty object containers');
+                end
+
+                % Fill lookup properties
+                tmp = obj_all.unique_objects;
+                object_store = vertcat(tmp{:});
+                indx = mat2cell(obj_all.idx(:),nel,1);
+                sz = sz(:);
+                repeat = false; % no implicit repmat
+
+            % Option C for input arguments:
             else
                 % Input can only be one of:
                 %   >> obj = object_lookup (objects)
@@ -283,8 +370,10 @@ classdef object_lookup < serializable
                 sz = cellfun (@size, objArr(:), 'uniformOutput', false);
                 
             end
+            % End of argument option combinations
             
-            % Build the object
+            % Now build the object:
+            
             % - Disable interdependency validation
             obj.do_check_combo_arg_ = false;
             
@@ -299,6 +388,7 @@ classdef object_lookup < serializable
             obj = obj.check_combo_arg();
             
             % - Implicit repmat of stored objects, if requested
+            % NB true only for some of option C for arguments
             if repeat
                 obj = obj.object_repmat (sz_repmat);
             end
@@ -465,7 +555,41 @@ classdef object_lookup < serializable
         function val = get.filled(obj)
             val = (numel(obj.object_store_)>0);
         end
-        
+
+        function val = get_unique(obj,idx)
+            if (idx==0)
+                val = numel(obj.object_store_);
+                return;
+            end
+            val = obj.object_store_(idx);
+        end
+
+        function obj = sort(obj)
+            N = numel(obj.object_store_);
+            hash1 = obj.hashify(obj.object_store_(1));
+            object_hashes = repmat({hash1},numel(obj.object_store_),1);
+            for ii=2:numel(obj.object_store)
+                object_hashes{ii} = obj.hashify(obj.object_store_(ii));
+            end
+            [~, sorted_idx] = sort(object_hashes);
+            obj.object_store_ = obj.object_store_(sorted_idx);
+            [present, inverse_idx] = ismember(1:N, sorted_idx);
+            if any(~present)
+                error('HERBERT:object_lookup:invalid_argument','missing indices');
+            end
+            if numel(unique(inverse_idx))<numel(inverse_idx)
+                error('HERBERT:object_lookup:invalid_argument','duplicate indices');
+            end
+            if max(inverse_idx)>N || min(inverse_idx)<1
+                error('HERBERT:object_lookup:invalid_argument','incorrect indices');
+            end
+            for ii=1:numel(obj.indx)
+                for jj=1:numel(obj.indx{ii})
+                    k = obj.indx{ii}(jj);
+                    obj.indx_{ii}(jj) = inverse_idx(k);
+                end
+            end
+        end        
         %------------------------------------------------------------------
     end
     
@@ -549,6 +673,27 @@ classdef object_lookup < serializable
             % the serializable class
             obj = object_lookup();
             obj = loadobj@serializable(S,obj);
+        end
+
+        function hash = hashify(obj)
+            % makes a hash from the argument object
+            % which will be unique to any identical object
+            %
+            % Input:
+            % - obj : object to be hashed
+            % Output:
+            % - hash : the resulting hash, a row vector of uint8's
+            %
+            Engine = java.security.MessageDigest.getInstance('MD5');
+            if isa(obj,'serializable') 
+                % use default serializer, build up by us for serializable objects
+                Engine.update(obj.serialize());
+            else
+                %convert_to_stream_f_ = @getByteStreamFromArray;
+                Engine.update(getByteStreamFromArray(obj));
+            end
+            hash = typecast(Engine.digest,'uint8');
+            hash = char(hash');
         end
     end
     %======================================================================

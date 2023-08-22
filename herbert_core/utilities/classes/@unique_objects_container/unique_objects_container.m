@@ -285,6 +285,10 @@ classdef unique_objects_container < serializable
         %-----------------------------------------------------------------
         % Overloaded indexers
         function varargout = subsref(self,idxstr)
+            if numel(self)>1 % input is array or cell of unique_object_containers
+                [varargout{1:nargout}] = builtin('subsref',self,idxstr);
+                return;
+            end
             % overloaded indexing for retrieving object from container
             switch idxstr(1).type
                 case {'()','{}'}
@@ -293,7 +297,13 @@ classdef unique_objects_container < serializable
                         if isempty(self.unique_objects_)
                             varargout{1} = self.unique_objects_;
                         else
-                            varargout{1} = self.unique_objects_{self.idx_(b)};
+                            c = self.unique_objects_{self.idx_(b)};
+                            if numel(idxstr)==1
+                                varargout{1} = c;
+                            else
+                                idx2 = idxstr(2:end);
+                                [varargout{1:nargout}] = builtin('subsref',c,idx2);
+                            end
                         end
                     else
                         error('HERBERT:unique_objects_container:invalid_argument', ...
@@ -319,6 +329,11 @@ classdef unique_objects_container < serializable
                     error('HERBERT:unique_objects_container:invalid_argument', ...
                         'index outside legal range');
                 elseif nuix == numel(self.idx_)+1
+                    if numel(idxstr)>1
+                        error('HERBERT:unique_objects_container:invalid_subscript', ...
+                              ['when adding to the end of a container, additionally setting ', ...
+                               'properties is not permitted']);
+                    end
                     self = self.add(val);
                     return;
                 end
@@ -332,7 +347,14 @@ classdef unique_objects_container < serializable
             % bracket use
             switch idxstr(1).type
                 case {'()','{}'}
-                    self = self.replace(val,nuix);
+                    c = self.get(nuix);
+                    if numel(idxstr)>1
+                        idx2 = idxstr(2:end);
+                        c = builtin('subsasgn',c,idx2,varargin{:});
+                        self = self.replace(c,nuix);
+                    else
+                        self = self.replace(val,nuix);
+                    end
                 case '.'
                     self = builtin('subsasgn',self,idxstr,varargin{:});
             end
@@ -494,6 +516,19 @@ classdef unique_objects_container < serializable
             % should be kept synchronized.
 
             n = numel(self.idx_);
+        end
+        function n =  get_nruns(self)
+            %GET_NRUNS non-dependent-property form of n_runs
+            % for use with arrayfun in object_lookup
+            
+            n = numel(self.idx_);
+        end
+        function n = runs_sz(self)
+            %RUNS_SZ converts n_runs to the form of output from size
+            % to put unique_objectss_container on the same footing as
+            % array/cell in object_lookup
+            
+            n = size(self.idx_);
         end
 
         function n = get.n_unique(self)
@@ -711,6 +746,17 @@ classdef unique_objects_container < serializable
                 newself = newself.add(self.get(i));
             end
         end
+        
+        function field_vals = get_unique_field(self, field)
+            s1 = self.get(1);
+            v = s1.(field);
+            field_vals = unique_objects_container(class(v));
+            for ii=1:self.n_runs
+                sii = self.get(ii);
+                v = sii.(field);
+                field_vals = field_vals.add(v);
+            end
+        end
 
 
     end % end methods (general)
@@ -776,6 +822,56 @@ classdef unique_objects_container < serializable
                 obj.check_combo_arg(true,true);
             end
         end
+        
+        function out = concatenate(objs, type)
+            %CONCATENATE takes the unique_object and idx (index) arrays from
+            % an array of one or more unique_object_containers and concatenates
+            % separately the unique objects and the indices to single outputs
+            % suitable for use with object_lookup
+            %
+            % Input
+            % -----
+            % - objs - one cell or array of one or more unique_object_containers
+            % - type - '{}' if objs is a cell; anything else (but by
+            %          convention '()') if objs is an array
+            %
+            % Outputs
+            % -------
+            % - out - single unique_objects_container combining the contents of
+            %         the elements of the input array objs
+        
+            if isempty(objs)
+                error('HERBERT:unique_objects_container:invalid_input', ...
+                      'at least one object must be supplied to concatenate');
+            end
+
+            concat_cells = strcmp(type,'{}');
+
+            if numel(objs)==1
+                if concat_cells
+                    out = objs{1};
+                else
+                    out = objs;
+                end
+            else
+                if concat_cells
+                    out = objs{1};
+                    for ii=2:numel(objs)
+                        for jj=1:objs{ii}.n_runs
+                            out = out.add( objs{ii}.get(jj) );
+                        end
+                    end
+                else
+                    out = objs(1);
+                    for ii=2:numel(objs)
+                        for jj=1:objs(ii).n_runs
+                            out = out.add( objs(ii).get(jj) );
+                        end
+                    end
+                end
+            end
+        end
+        
     end % static methods
 
 end % classdef unique_objects_container

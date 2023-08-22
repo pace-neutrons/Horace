@@ -408,6 +408,7 @@ function test_replace_unique_same_number_works(~)
             % populated e.g. with loadobj
             urc1 = unique_references_container();
             % so this will throw
+            cl4b = set_temporary_warning('off','HERBERT:unique_references_container:incomplete_setup');                     
             function throw1()
                 urc1(1) = obj.mi1;
             end
@@ -416,6 +417,7 @@ function test_replace_unique_same_number_works(~)
             [lwn,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_references_container:incomplete_setup');
             assertEqual(lwn, 'baseclass not initialised, using first assigned type');
+            clear cl4b;
 
             % setup container of char
             unique_references_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS2');
@@ -425,14 +427,19 @@ function test_replace_unique_same_number_works(~)
             % fail extending with wrong type
             assertEqual(urc2.n_runs,1);
             assertEqual(urc2.n_objects,1);
+            cl2b = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');            
             urc2(2) = obj.mi1;
             [lwn,lw] = lastwarn;
             assertEqual(lwn,'not correct stored base class; object was not added');
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
             assertEqual(urc2.n_objects,1); % warning was issued and object was not added
+            clear cl2b;
 
             % fail inserting with wrong type
+            cl3b = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');            
             urc2(1) = obj.mi1;
+            [a,~]=lastwarn;
+            assertTrue(strcmp(a,'not correct base class; object was not added'));
             assertEqual( urc2(1),'aaaaa'); % warning was issued and object was not replaced
         end
 
@@ -716,6 +723,40 @@ function test_replace_unique_same_number_works(~)
             urc3 = unique_references_container('Joby3','double');
             urc3 = urc3.add([6 7 8]);
             urc4 = unique_references_container('Biby','IX_inst');
+        end
+        %-----------------------------------------------------------------
+        function test_use_properties(obj)
+            urc = unique_references_container('global_thingies','thingy');
+            urc{1} = thingy(111);
+            assertEqual(urc{1}, thingy(111));
+            assertEqual(urc{1}.data, 111);
+            urc{1}.data = 222;
+            function throw1()
+	            assertEqual(urc{1}, thingy(222));
+	            assertEqual(urc{1}.data, 222);
+                urc{2}.data = 666;
+            end
+            me = assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_subscript');
+            assertTrue(strcmp(me.message, ...
+            'when adding to the end of a container, additionally setting properties is not permitted'));
+        end
+        %-----------------------------------------------------------------
+        function test_arrays_of_containers(obj)
+            urc1 = unique_references_container('global_test_doubles','double');
+            urc1 = urc1.add([6 7]);
+            urc2 = unique_references_container('global_test_doubles','double');
+            urc2 = urc2.add([8 9]);
+            % make an array of unique_references_containers, test that
+            % subscripting it will give the individual container.
+            arr = [urc1 urc2];
+            assertTrue(isa(arr(2),'unique_references_container'));
+            % it is not possible to distinguish an array of one container
+            % from the container itself, so subscripting it may return
+            % element one of its contents.
+            % For this reason always prefer cellarrays of these containers;
+            % the next lines test the same thing for cells
+            arr = {urc1 urc2};
+            assertTrue(isa(arr{2},'unique_references_container'));
         end
     end
 end

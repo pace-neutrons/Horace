@@ -250,16 +250,20 @@ classdef test_data_block < TestCase
             dp1 = dp1.put_sqw_block(fid,tob);
             dp2.position = dp1.size;
             dp2 = dp2.put_sqw_block(fid,tob);
-
-
+            
+            
+            %{
+            DISABLE test section as this experiment_info has 1 run so
+            setting empty instruments is not allowed
             tob.experiment_info.instruments = [];
             clWarn = set_temporary_warning('off','HORACE:Experiment:lattice_changed');
             tob.experiment_info.samples = [];
             [~,rec_obj] = dp1.get_sqw_block(fid,tob);
             [~,rec_obj] = dp2.get_sqw_block(fid,rec_obj);
-            fclose(fid);
 
             assertEqual(obj.sqw_obj_for_tests,rec_obj);
+            %}
+            fclose(fid);
 
         end
 
@@ -273,11 +277,16 @@ classdef test_data_block < TestCase
             tob = obj.sqw_obj_for_tests;
             dp = dp.put_sqw_block(fid,tob);
 
+            %{
+            DISABLE test section.
+            There is one run in this experiment info so removing the
+            instruments container is not allowed.
             tob.experiment_info.instruments = [];
             [~,rec_obj] = dp.get_sqw_block(fid,tob);
-            fclose(fid);
 
             assertEqual(obj.sqw_obj_for_tests,rec_obj);
+            %}
+            fclose(fid);
 
         end
         %------------------------------------------------------------------

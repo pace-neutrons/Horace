@@ -19,7 +19,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
                 expt.instruments{1};
             end
             assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
-            assertTrue(isempty(expt.detector_arrays));
+            assertEqual(expt.detector_arrays.n_runs, 0);
             assertTrue(isempty(expt.expdata));
         end
         function test_nontrivial_runid_map(~)
@@ -62,16 +62,16 @@ classdef test_experiment_cnstrct_and_properties < TestCase
 
             assertEqual(expt.samples{1}, sample);
             assertEqual(expt.instruments{1}, instrument);
-            assertEqual(expt.detector_arrays, detector_array);
+            assertEqual(expt.detector_arrays{1}, detector_array);
         end
 
         function test_creates_object_with_empty_object_arguments(~)
             expt = Experiment([], [], [],[]);
             assertEqual(expt.n_runs,0);
 
-            assertTrue(isa(expt.samples{1},'IX_null_sample'));
-            assertTrue(isa(expt.instruments{1},'IX_null_inst'));
-            assertTrue(isempty(expt.detector_arrays));
+            assertEqual(expt.samples.n_runs,0);
+            assertEqual(expt.instruments.n_runs,0);
+            assertEqual(expt.detector_arrays.n_runs,0);
             assertTrue(isempty(expt.expdata));
         end
         function test_constructor_raises_error_with_invalid_single_input(~)
@@ -109,7 +109,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
 
             assertEqual({expt.samples{1}, expt.samples{2}}, {sample, sample});
             assertEqual({expt.instruments{1}, expt.instruments{2}}, {instrument, instrument});
-            assertEqual(expt.detector_arrays, [detector_array, detector_array]);
+            assertEqual([expt.detector_arrays{1}, expt.detector_arrays{2}] ...
+                                 , [detector_array, detector_array]);
             info = expt.expdata;
             assertTrue(expt.runid_recalculated)
             assertEqual(numel(info),2)
@@ -151,7 +152,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertEqual(s2.name, 'sample2')
             assertTrue(isa(expt.instruments{1}, 'IX_inst_DGfermi'));
             assertTrue(isa(expt.instruments{2}, 'IX_inst_DGdisk'));
-            assertEqual(expt.detector_arrays, IX_detector_array);
+            assertEqual(expt.detector_arrays{1}, IX_detector_array);
             info = expt.expdata;
             assertEqual(numel(info),2)
             assertEqual(info(1).run_id,1)
@@ -184,7 +185,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
                 expt.instruments{1};
             end
             assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
-            assertEqual(expt.detector_arrays, []);
+            assertEqual(expt.detector_arrays.n_runs, 0);
         end
 
         function test_instruments_setter_updates_value_for_valid_value(~)
@@ -235,7 +236,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             expt = Experiment();
             expt.detector_arrays = detector_arrays;
 
-            assertEqual(expt.detector_arrays, detector_arrays);
+            assertEqual(expt.detector_arrays{1}, detector_arrays);
         end
 
         function test_detector_arrays_setter_raises_error_for_invalid_value(~)

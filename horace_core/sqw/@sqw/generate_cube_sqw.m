@@ -103,7 +103,7 @@ out.detpar = struct( ...
 
 out.experiment_info.samples = out.experiment_info.samples.add(samp);
 out.experiment_info.instruments = out.experiment_info.instruments.add(IX_null_inst());
-out.experiment_info.detector_arrays = IX_detector_array();
+out.experiment_info.detector_arrays = []; %IX_detector_array();
 out.experiment_info.expdata = IX_experiment(expdata);
 
 

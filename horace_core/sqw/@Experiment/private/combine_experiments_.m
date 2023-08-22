@@ -1,4 +1,5 @@
 function [exp,nspe] = combine_experiments_(exp_cellarray,allow_equal_headers,keep_runid)
+%COMBINE_EXPEERIMENTS_
 % Take cellarray of experiments (e.g., generated from each runfile build
 % during gen_sqw generation)
 % and combine then together into single Experiment info class
@@ -25,9 +26,19 @@ for i=1:n_contrib
     nspe(i) = exp_cellarray{i}.n_runs;
 end
 n_tot = sum(nspe);
-instr  = cell(1,n_tot);
-sampl  = cell(1,n_tot);
 
+instr  = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER', ...
+                                     'IX_inst');                         % previously cell(1,n_tot);
+sampl  = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER', ...
+                                     'IX_samp');                         % previously cell(1,n_tot);
+%{
+% temporary suppression of use of compressed detectors until #959/PR999 
+% is merged here and in the for loop below
+detectors = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER', ...
+                                        'IX_detector_array');
+%}
+% warning('stop here so you can check that instr and sampl should no longer be set as cells');
+detectors = []; % default empty detectors until the unique_references_containers are activated.
 
 instr{1}   = exp_cellarray{1}.instruments{1};
 sampl{1}   = exp_cellarray{1}.samples{1};
@@ -79,4 +90,6 @@ for i=i_start:n_contrib
         ic = ic+1;
     end
 end
-exp = Experiment([], instr, sampl,expinfo);
+% Here detectors==[] but will be a unique_references_container when the
+% above code for it is activated.
+exp = Experiment(detectors, instr, sampl,expinfo);
