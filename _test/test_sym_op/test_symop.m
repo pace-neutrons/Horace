@@ -21,8 +21,6 @@ classdef test_symop < TestCase
                                1  0  0
                                0 -1  0]);
 
-        binning = {[0 0.1 1], [0 0.1 1], [0 0.1 1]};
-
         proj = line_proj([1 0 0], [0 1 0], ...
                           'alatt', [3 3 3], ...
                           'angdeg', [90 90 90]);
@@ -219,94 +217,83 @@ classdef test_symop < TestCase
         end
 
         function test_apply_proj_rotation(obj)
-            [out_proj, out_bin] = obj.rot_op.transform_proj(obj.proj, obj.binning);
+            out_proj = obj.rot_op.transform_proj(obj.proj);
 
             assertEqualToTol(out_proj.u, [1, 0, 0], 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, [0, 0, 1], 'abstol', 1e-10)
-            assertEqualToTol(out_bin, {[0 0.1 1], [0 0.1 1], [0 0.1 1]})
 
-            [out_proj_mat, out_bin_mat] = obj.rot_op_mat.transform_proj(obj.proj, obj.binning);
+            out_proj_mat = obj.rot_op_mat.transform_proj(obj.proj);
 
             assertEqualToTol(out_proj.u, out_proj_mat.u, 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, out_proj_mat.v, 'abstol', 1e-10)
-            assertEqualToTol(out_bin, out_bin_mat, 'abstol', 1e-10)
         end
 
         function test_apply_proj_reflection(obj)
-            [out_proj, out_bin] = obj.ref_op.transform_proj(obj.proj, obj.binning);
+            out_proj = obj.ref_op.transform_proj(obj.proj);
 
             assertEqualToTol(out_proj.u, [1, 0, 0], 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, [0, -1, 0], 'abstol', 1e-10)
-            assertEqualToTol(out_bin, {[0 0.1 1], [0 0.1 1], [0 0.1 1]})
 
-            [out_proj_mat, out_bin_mat] = obj.ref_op_mat.transform_proj(obj.proj, obj.binning);
+            out_proj_mat = obj.ref_op_mat.transform_proj(obj.proj);
             assertEqualToTol(out_proj.u, out_proj_mat.u, 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, out_proj_mat.v, 'abstol', 1e-10)
-            assertEqualToTol(out_bin, out_bin_mat, 'abstol', 1e-10)
 
         end
 
         function test_apply_proj_matrix(obj)
-            [out_proj, out_bin] = obj.mot_op.transform_proj(obj.proj, obj.binning);
+            out_proj = obj.mot_op.transform_proj(obj.proj);
 
             assertEqualToTol(out_proj.u, [0, 1, 0], 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, [0, 0, -1], 'abstol', 1e-10)
-            assertEqualToTol(out_bin, {[0 0.1 1], [0 0.1 1], [0 0.1 1]})
         end
 
         function test_apply_proj_comp(obj)
 
-            [out_proj, out_bin] = obj.mot_op.transform_proj(obj.proj, obj.binning);
-            [out_proj2, out_bin2] = obj.mot_op_comp.transform_proj(obj.proj, obj.binning);
+            out_proj = obj.mot_op.transform_proj(obj.proj);
+            out_proj2 = obj.mot_op_comp.transform_proj(obj.proj);
 
             assertEqualToTol(out_proj.u, out_proj2.u, 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, out_proj2.v, 'abstol', 1e-10)
-            assertEqualToTol(out_bin, out_bin2, 'abstol', 1e-10)
         end
 
         function test_apply_ref_ref_back(obj)
-            [out_proj, out_bin] = obj.ref_op.transform_proj(obj.proj, obj.binning);
-            [out_proj2, out_bin2] = obj.ref_op.transform_proj(out_proj, out_bin);
+            out_proj = obj.ref_op.transform_proj(obj.proj);
+            out_proj2 = obj.ref_op.transform_proj(out_proj);
 
             assertEqualToTol(out_proj2.u, obj.proj.u, 'abstol', 1e-10)
             assertEqualToTol(out_proj2.v, obj.proj.v, 'abstol', 1e-10)
-            assertEqualToTol(out_bin2, obj.binning, 'abstol', 1e-10)
         end
 
         function test_apply_ref_ref_back_comp(obj)
             op = [obj.ref_op, obj.ref_op];
-            [out_proj, out_bin] = op.transform_proj(obj.proj, obj.binning);
+            out_proj = op.transform_proj(obj.proj);
 
             assertEqualToTol(out_proj.u, obj.proj.u, 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, obj.proj.v, 'abstol', 1e-10)
-            assertEqualToTol(out_bin, obj.binning, 'abstol', 1e-10)
         end
 
         function test_apply_rot_180_180(obj)
             op = [SymopRotation([1 0 0], 180), SymopRotation([1 0 0], 180)];
-            [out_proj, out_bin] = op.transform_proj(obj.proj, obj.binning);
+            out_proj = op.transform_proj(obj.proj);
 
             assertEqualToTol(out_proj.u, obj.proj.u, 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, obj.proj.v, 'abstol', 1e-10)
-            assertEqualToTol(out_bin, obj.binning, 'abstol', 1e-10)
         end
 
         function test_apply_rot_360(obj)
             op = [SymopRotation([1 0 0], 360)];
-            [out_proj, out_bin] = op.transform_proj(obj.proj, obj.binning);
+            out_proj = op.transform_proj(obj.proj);
 
             assertEqualToTol(out_proj.u, obj.proj.u, 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, obj.proj.v, 'abstol', 1e-10)
-            assertEqualToTol(out_bin, obj.binning, 'abstol', 1e-10)
         end
 
         function test_apply_rot_60_min_60(obj)
             op = [SymopRotation([1 0 0], 60), SymopRotation([1 0 0], -60)];
-            [out_proj, out_bin] = op.transform_proj(obj.proj, obj.binning);
+            out_proj = op.transform_proj(obj.proj);
 
             assertEqualToTol(out_proj.u, obj.proj.u, 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, obj.proj.v, 'abstol', 1e-10)
-            assertEqualToTol(out_bin, obj.binning, 'abstol', 1e-10)
         end
 
     end
