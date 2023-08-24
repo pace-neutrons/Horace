@@ -13,41 +13,6 @@ function wout = slim (win, reduce)
 % -------
 %   wout    Output sqw object or array of szqw objects
 
+wout = mask_pixels_random_fraction(win, 1/reduce);
 
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-
-% Check input
-if ~(isnumeric(reduce) && isscalar(reduce) && isfinite(reduce) && reduce>=1)
-    error ('Input argument ''reduce'' must be greater or equal to unity')
 end
-
-% Perform action using existing sqw methods for masking pixels
-wout = copy(win);
-if reduce>1     % nothing to do if reduce==1
-    for i=1:numel(wout)
-        npix = wout.data.pix.num_pixels;
-        npix_keep = round(npix/reduce);
-        mask_arr = randi_unique(npix,npix_keep);
-        wout(i) = mask_pixels(win(i),mask_arr);
-    end
-end
-
-%========================================================================================
-function keep = randi_unique (imax, n)
-% Select n unique random integers in the range 1 to imax
-if n>imax
-    error('Number of indicies to select must be less than or equal to the vector length')
-end
-keep = false(imax,1);
-keep(randi(imax,n,1)) = true;
-nkeep = sum(keep);
-while nkeep<n
-    tmp = keep(~keep);
-    tmp(randi(numel(tmp),n-nkeep,1)) = true;
-    keep(~keep) = tmp;
-    nkeep = sum(keep);
-end
-

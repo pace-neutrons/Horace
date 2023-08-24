@@ -2,37 +2,69 @@ classdef test_join < TestCase
     properties
         test_dir;
     end
+
     methods
         function obj = test_join(~)
             obj = obj@TestCase('test_join');
             hc = horace_paths;
-            obj.test_dir = hc.test;
+            obj.test_dir = hc.test_common;
         end
 
-        function test_split_and_join_returns_same_object_excluding_pixels(obj)
-            skipTest('Updated for correct range handling as urange no longer valid, metods are broken #531');
-            fpath = fullfile(obj.test_dir, 'common_data', 'sqw_2d_1.sqw');
-            %sqw_obj = read_sqw(fpath); % CMDEV
-            sqw_obj = sqw(fpath);
+        function test_split_cube_1_run(obj)
+            sqw_obj = sqw.generate_cube_sqw(10);
+
             split_obj = split(sqw_obj);
-            reformed_obj = join(split_obj);
+            reformed_obj = join(sqw_obj);
 
-            sqw_obj_copy = sqw_obj;
-            sqw_obj_copy.pix = PixelDataBase.create();
-
-            assertEqualToTol(sqw_obj_copy, reformed_obj);
+            assertEqualToTol(split_obj, reformed_obj)
+            assertEqualToTol(sqw_obj, reformed_obj)
         end
 
-        % Test disabled as there is a know bug with the returned pixeldata (#531)
+        function test_split_cube_2_run(obj)
+            sqw_obj = sqw.generate_cube_sqw(10);
+
+            sqw_obj.pix.run_idx(8:end) = 2;
+            sqw_obj.main_header.nfiles = 2;
+
+            sqw_obj.experiment_info.expdata(2) = struct( ...
+                "filename", 'fake', ...
+                "filepath", '/fake', ...
+                "efix", 1, ...
+                "emode", 1, ...
+                "cu", [1,0,0], ...
+                "cv", [0,1,0], ...
+                "psi", 1, ...
+                "omega", 1, ...
+                "dpsi", 1, ...
+                "gl", 1, ...
+                "gs", 1, ...
+                "en", 10, ...
+                "run_id", 1);
+            sqw_obj.experiment_info.runid_map(2) = 2;
+
+            split_obj = sqw_obj.split();
+
+            assertEqual(numel(split_obj), 2)
+
+            reformed_obj = join(sqw_obj);
+
+            assertEqualToTol(sqw_obj, reformed_obj)
+        end
+
         function test_split_and_join_returns_same_object_including_pixels(obj)
-            skipTest('There is a known bug with the returned pixeldata (#531). methods are broken');
 
-            fpath = fullfile(obj.test_dir, 'test_sqw_file', 'sqw_2d_1.sqw');
+            fpath = fullfile(obj.test_dir, 'sqw_2d_1.sqw');
             sqw_obj = sqw(fpath);
             split_obj = split(sqw_obj);
+
+            assertTrue(all(arrayfun(@(x) x.main_header.nfiles == 1, split_obj)));
+
             reformed_obj = join(split_obj);
 
-            assertEqualToTol(sqw_obj, reformed_obj);
+            % Split reindexes from 1
+            reformed_obj.pix.run_idx = reformed_obj.pix.run_idx + min(sqw_obj.pix.run_idx) - 1;
+
+            assertEqualToTol(sqw_obj, reformed_obj, [1e-6, 1e-4], 'ignore_str', true);
         end
     end
 end

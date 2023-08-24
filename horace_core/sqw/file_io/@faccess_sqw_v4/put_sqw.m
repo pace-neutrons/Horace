@@ -22,11 +22,15 @@ function    obj = put_sqw(obj,varargin)
 %                     of the current file to write data into
 % '-nopix'         -- do not store pixel array within the sqw object.
 %                     Write sqw object with empty pixels record
+% '-hold_pix_place'
+%                  -- do not store pixels array within the sqw object but
+%                     write all pixel metadata and prepare pixel data block
+%                     for writing
 %
 %
 
-[ok,mess,~,verbatim,nopix,reserve,argi]=parse_char_options(varargin, ...
-    {'-update','-verbatim','-nopix','-reserve'});
+[ok,mess,~,verbatim,nopix,reserve,hold_pix,argi]=parse_char_options(varargin, ...
+    {'-update','-verbatim','-nopix','-reserve','-hold_pix_place'});
 if ~ok
     error('HORACE:faccess_sqw_v4:invalid_argument', ...
         mess);
@@ -41,7 +45,11 @@ if ~isempty(argi)
             error('HORACE:sqw_binfile_common:invalid_argument',...
                 'only one sqw object can be provided as input for put_sqw');
         end
+        %         if update
+        %             obj = obj.init_from_sqw_obj(argi{is_sqw},'-insertion');
+        %         else
         obj.sqw_holder = argi{is_sqw};
+        %        end
         argi = argi(~is_sqw);
     end
 
@@ -49,7 +57,7 @@ if ~isempty(argi)
     if any(is_jd)
         if sum(is_jd) > 1
             error('HORACE:sqw_binfile_common:invalid_argument',...
-                  'only one JobDispatcher object can be provided as input for put_sqw');
+                'only one JobDispatcher object can be provided as input for put_sqw');
         end
         jobDispatcher = argi{is_jd};
     end
@@ -68,19 +76,21 @@ if ~obj.sqw_holder.main_header.creation_date_defined ||...
 end
 
 if ~(isa(obj.sqw_holder.pix,'pix_combine_info') || ...
-     obj.sqw_holder.pix.is_filebacked || ...
-     nopix)
+        obj.sqw_holder.pix.is_filebacked || ...
+        nopix)
     obj = obj.put_all_blocks();
     return;
 end
 
 if ~verbatim
     sqw_obj = obj.sqw_holder;
-    sqw_obj.pix.full_filename =obj.full_filename;
+    sqw_obj.full_filename =obj.full_filename;
     obj.sqw_holder = sqw_obj;
+else
+    sqw_obj.pix.full_filename =obj.full_filename;
 end
 
-if nopix && ~reserve % Modify writeable object to contain no pixels
+if nopix && ~(reserve||hold_pix) % Modify writeable object to contain no pixels
     sqw_obj  = obj.sqw_holder;
     old_pix = sqw_obj.pix;
     sqw_obj.pix = PixelDataMemory();
@@ -97,9 +107,12 @@ end
 if reserve
     argi = [argi(:),'-reserve'];
 end
+if hold_pix
+    argi = [argi(:),'-hold_pix_place'];
+end
 
 if nopix
-     argi = [argi(:),'-nopix'];
+    argi = [argi(:),'-nopix'];
 end
 
 obj = obj.put_all_blocks('ignore_blocks',{'bl_pix_metadata','bl_pix_data_wrap'});

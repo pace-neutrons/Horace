@@ -46,9 +46,9 @@ classdef test_head < TestCase
             out4 = head_horace(obj.files{3});
             assertTrue(isstruct(out4))
             assertEqual(numel(fields(out4)),17)
-            
+
             % old files creation date is dynamic so may be different
-            out.creation_date = out4.creation_date;            
+            out.creation_date = out4.creation_date;
             assertEqual(out,out4);
         end
 
@@ -63,7 +63,9 @@ classdef test_head < TestCase
 
             outc = head(obj.files,'-full');
             assertEqual(numel(outc),3)
+            out1.creation_date = outc{1}.creation_date;
             assertEqual(outc{1},out1)
+            out2.creation_date = outc{2}.creation_date;
             assertEqual(outc{2},out2)
             % old files creation date is dynamic so may be different
             out3a.creation_date = outc{3}.creation_date;

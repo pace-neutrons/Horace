@@ -9,8 +9,8 @@ classdef test_cut_inputs < TestCase
 
         function obj = test_cut_inputs(~)
             obj = obj@TestCase('test_cut_inputs');
-            obj.sample_proj = ortho_proj('u',[1,1,0],'v',[1,-1,0]);
-            ab = ortho_axes('nbins_all_dims',[1,10,1,10],'img_range',[-2,-3,-4,0;1,2,3,20]);
+            obj.sample_proj = line_proj('u',[1,1,0],'v',[1,-1,0],'alatt',3,'angdeg',90);
+            ab = line_axes('nbins_all_dims',[1,10,1,10],'img_range',[-2,-3,-4,0;1,2,3,20]);
             obj.sample_d2d_obj= d2d(ab,obj.sample_proj);
         end
         function test_invalid_binning_throws(obj)

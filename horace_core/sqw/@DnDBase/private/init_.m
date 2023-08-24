@@ -30,18 +30,12 @@ for i=1:args.array_numel
     elseif ~isempty(args.set_of_fields)
         if isempty(args.keys)
             keys = obj.saveableFields();
-            obj_in{i} = set_positional_and_key_val_arguments(obj,...
-                keys,false,args.set_of_fields{:});
-            % copy label from projection to axes block in case it
-            % has been redefined on projection
-            is_proj = cellfun(@(x)isa(x,'aProjectionBase'),args.set_of_fields);
-            if any(is_proj)
-                obj_in{i}.axes.label = args.set_of_fields{is_proj}.label;
-            end
         else
-            obj_in{i} = set_positional_and_key_val_arguments(obj,...
-                args.keys,false,args.set_of_fields{:});
+            keys = args.keys;
         end
+        obj_in{i} = set_positional_and_key_val_arguments(obj,...
+            keys,false,args.set_of_fields{:});
+
     elseif ~isempty(args.sqw_obj)
         obj_in{i} = args.sqw_obj(i).data;
     end
@@ -72,8 +66,8 @@ args = struct(...
 
 if isempty(input_data)
     % create struct holding default instance contents
-    args.data_struct.axes =   ortho_axes(obj.NUM_DIMS);
-    args.data_struct.proj =   ortho_proj();
+    args.data_struct.axes =   line_axes(obj.NUM_DIMS);
+    args.data_struct.proj =   line_proj();
     sz = args.data_struct.axes.dims_as_ssize;
     args.data_struct = init_arrays_(args.data_struct,sz);
 elseif isa(input_data{1}, 'SQWDnDBase')

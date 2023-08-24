@@ -1,7 +1,7 @@
 function [ok,mess,ix,perm,id] = is_integer_id(id_in)
 % Check that identifiers are unique, and return indexing array
 %
-%   >> [ok,mess,ix,perm] = is_integer_id(id)
+%   >> [ok, mess, ix, perm] = is_integer_id (id)
 %
 % Input:
 % ------
@@ -14,16 +14,20 @@ function [ok,mess,ix,perm,id] = is_integer_id(id_in)
 %   ix      Indexing array (column vector)
 %           If already sorted in ascending order, ix = []
 %           If not, ix is such that id_in(ix) is sorted in ascending order
+%           If not OK, ix = []
 %   perm    True if id is a permutation of the integers 1:numel(id)
+%           False otherwise
+%           If not OK, perm = false
 %   id      Input index array id_in sorted after conversion to column vector
 
 % columnize
 id = id_in(:);
 
-% empty id_in will crash the all(id>=1) below
-if isempty(id)
+% Catch case of empty input or non-numeric
+% (Empty id_in will crash the all(id>=1) below)
+if isempty(id_in) || ~isnumeric(id_in)
     ok = false;
-    mess = 'id array must not be empty';
+    mess = 'identifiers empty or invalid type';
     ix = [];
     perm = false;
     return;

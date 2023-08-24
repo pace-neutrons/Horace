@@ -57,6 +57,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         working_dir
 
     end
+
     methods(Static)
         function new_names = rename_file_list(input_list,new_ext)
             % change extension for list of files
@@ -96,8 +97,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
 
 
             obj = obj@TestCaseWithSave(test_class_name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
-            obj.test_pref = test_prefix;
-
+            if exist('test_prefix', 'var')
+                obj.test_pref = test_prefix;
+            end
             % do other initialization
             obj.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
             obj.tol = 1.e-5;
@@ -242,17 +244,13 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % various amounts of noise to various detectors according to the
             % ordering
 
+            % uses Matlab single thread to generate source sqw files
+            clob_hc = set_temporary_config_options(hor_config, 'use_mex', false);
+            clob_pc = set_temporary_config_options(parallel_config, 'threads', 1);
 
-            hc = hor_config();
-            um = hc.get_data_to_store;
-            clob = onCleanup(@()set(hc,um));
-            hc.use_mex = false; % so use Matlab single thread to generate source sqw files
-            hpcc = hpc_config();
-            ds1 = hpcc.get_data_to_store;
-            clob1 = onCleanup(@()set(hpcc ,ds1));
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             for i=1:n_files
-                if ~(exist(spe_files{i},'file') == 2)
+                if ~is_file(spe_files{i})
                     simulate_spe_testfunc (en{i}, obj.par_file,spe_files{i}, @sqw_sc_hfm_testfunc, obj.pars, obj.scale,...
                         efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i));
                 end
@@ -357,17 +355,12 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % ---------------------------------------
 
             [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
-            hh = hpc_config;
-            hh.saveable = false;
-            hpc_settings = hh.get_data_to_store();
-            hpc_config_cleanup = onCleanup(@()set(hpc_config,hpc_settings));
-            hh.build_sqw_in_parallel = false;
-            hh.combine_sqw_using = 'mex_code';
-            hc = hor_config;
-            hc.saveable = false;
-            hc_settings = hc.get_data_to_store();
-            hc_config_cleanup = onCleanup(@()set(hor_config,hc_settings));
-            hc.delete_tmp = 1;
+
+            hpc_config_cleanup = set_temporary_config_options(hpc_config, ...
+                                                              'build_sqw_in_parallel', false, ...
+                                                              'combine_sqw_using', 'mex_code' ...
+                                                             );
+            hc_config_cleanup = set_temporary_config_options(hor_config, 'delete_tmp', true);
 
             % Test symmetrisation ---------------------------------------
             % Standard reference file. Done serially with mex combining for
@@ -377,8 +370,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
 
             % symmetrise in memory
             w_inm = read_sqw(sqw_file_base);
-            v1=[0,1,0]; v2=[0,0,1]; v3=[0,0,0];
-            w_mem_sym=symmetrise_sqw(w_inm,v1,v2,v3);
+            sym = SymopReflection([0,1,0], [0,0,1], [0,0,0]);
+
+            w_mem_sym=symmetrise_sqw(w_inm, sym);
             % return the configuration to the state,
             % specified by tests
 
@@ -386,22 +380,23 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % symmetrisation
             assertEqual(w_inm.pix.num_pixels,w_mem_sym.pix.num_pixels)
 
-            gen_sqw (obj.spe_file, '', sqw_file_sym,...
-                efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
-                'transform_sqw',@(x)symmetrise_sqw(x,v1,v2,v3));
+            gen_sqw(obj.spe_file, '', sqw_file_sym,...
+                    efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
+                    'transform_sqw',@(x)symmetrise_sqw(x,sym));
 
 
             loc_proj=struct('u',u,'v',v);
 
-            w1_inf_sym=cut_sqw(sqw_file_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
-            w1_inm_sym=cut_sqw(w_mem_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            w1_inf_sym = cut(sqw_file_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            w1_inm_sym = cut(w_mem_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             % Uncomment to see the cut shapes
-            acolor('r')
-            plot(w1_inf_sym)
-            acolor('k')
-            pd(w1_inm_sym)
+%             acolor('r')
+%             plot(w1_inf_sym)
+%             acolor('k')
+%             pd(w1_inm_sym)
+
             assertEqualToTol(w1_inf_sym,w1_inm_sym,'ignore_str',true,'tol',1.e-6)
-            %
+
             w_inf_sym = read_sqw(sqw_file_sym);
             assertEqual(w_inf_sym.npixels,w_mem_sym.npixels)
             %TODO: with proper projection the error should be lower. The
@@ -412,7 +407,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             clear config_cleanup;
 
         end
-        %
+
         function test_accumulate_sqw14(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
@@ -512,15 +507,13 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
 
             new_names = gen_sqw_accumulate_sqw_tests_common.rename_file_list(spe_names(3:4),'.tnxs');
             co3 = onCleanup(@()gen_sqw_accumulate_sqw_tests_common.rename_file_list(new_names,'.nxspe'));
-            %
-            hc = hor_config;
-            ohc = hc.get_data_to_store();
-            hc.saveable = false;
-            co5 = onCleanup(@()set(hc,ohc));
+
             % Allow nan-s and inf-s to keep masked pixels, to ensure
             % consistency of estimated and actual pix_ranges
-            hc.ignore_nan = false;
-            hc.ignore_inf = false;
+            co5 = set_temporary_config_options(hor_config, ...
+                                               'ignore_nan', false, ...
+                                               'ignore_inf', false ...
+                                               );
 
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
@@ -543,7 +536,6 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             clear ldr;
             img_db_range1 = dat.img_range;
 
-            skipTest('something dodgy in accumulation Disabled according to #748')
             % add new file to the list of the files
             [~,~,pix_range_f145]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
@@ -553,7 +545,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
             dat = ldr.get_data();
             clear ldr;
-            img_db_range2 = dat.img_db_range;
+            img_db_range2 = dat.img_range;
             assertEqual(img_db_range1,img_db_range2);
 
 
@@ -573,8 +565,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % img_db_range wider then pix_range because of energies estimate
             % for initially missed runfiles from existing runfiles is wider
             % then actual energy range for the existing runfiles.
-            assertTrue(all(pix_range_f1456(1,:)>=img_db_range3(1,:)));
-            assertTrue(all(pix_range_f1456(2,:)<=img_db_range3(2,:)));
+            assertTrue(all(pix_range_f1456(1,1:4)>=img_db_range3(1,:)));
+            assertTrue(all(pix_range_f1456(2,1:4)<=img_db_range3(2,:)));
 
             %----------------------------
             c_proj = struct('u',u,'v',v);
@@ -596,11 +588,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             end
             %-------------------------------------------------------------
             % Do not delete tmp file for future accumulation
-            hc = hor_config;
-            recovery = hc.get_data_to_store();
-            hc.saveable = false;
-            hc.delete_tmp = false;
-            co2 = onCleanup(@()set(hc,recovery));
+
+            co2 = set_temporary_config_options(hor_config, 'delete_tmp', false);
+
             %-------------------------------------------------------------
 
             % build test files if they have not been build
@@ -678,11 +668,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
 
             %-------------------------------------------------------------
             % Do not delete tmp file for future accumulation
-            hc = hor_config;
-            recovery = hc.get_data_to_store();
-            hc.saveable = false;
-            hc.delete_tmp = false;
-            co2 = onCleanup(@()set(hc,recovery));
+
+            co2 = set_temporary_config_options(hor_config, 'delete_tmp', false);
+
             %-------------------------------------------------------------
 
             % build test files if they have not been build
@@ -745,7 +733,6 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             if obj.save_output
                 return;
             end
-            skipTest('something dodgy in accumulation Disabled according to #748')
             % Accumulate nothing, all files already accumulated.
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
             [~,grid_size,pix_range]=accumulate_sqw (spe_accum, '', sqw_file_accum,...

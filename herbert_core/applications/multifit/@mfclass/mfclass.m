@@ -608,14 +608,14 @@ classdef mfclass
         [ok, mess, obj] = set_fun_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_fun_private_ (obj, isfore, ifun)
 
-        [ok, mess, obj] = set_pin_private_ (obj, isfore, args)
-        [ok, mess, obj] = clear_pin_private_ (obj, isfore, args)
+        obj = set_pin_private_ (obj, isfore, args)
+        obj = clear_pin_private_ (obj, isfore, args)
 
         [ok, mess, obj] = set_free_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_free_private_ (obj, isfore, args)
 
-        [ok, mess, obj] = add_bind_private_ (obj, isfore, args)
-        [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)
+        obj = add_bind_private_ (obj, isfore, args)
+        obj = clear_bind_private_ (obj, isfore, ifun)
 
         [ok_sim, ok_fit, mess, pf, p_info] = ptrans_initialise_ (obj)
 
@@ -665,14 +665,10 @@ classdef mfclass
             %   mf_handle       Handle to the legacy multifit function
             %   arg1, arg2,...  All arguments to pass to legacy function (including data)
 
-            try
-                [varargout{1:nargout}] = mf_handle (varargin{:});
-            catch ME
-                rethrow(ME);
-                %                 ex = MException('legacy_call:failure', '%s', ME.message);
-                %                 ex = ex.addCause(ME);
-                %                 throw(ex);
-            end
+            error('HORACE:tobyfit:deprecated', ...
+                  ['This function was used with the obsolete Tobyfit syntax.\n',...
+                   'Please migrate to the new Tobyfit syntax supported since January 2018\n',...
+                   'For details of the new syntax:  <a href="matlab:doc(''sqw/tobyfit'');">Click here</a>'])
         end
     end
 

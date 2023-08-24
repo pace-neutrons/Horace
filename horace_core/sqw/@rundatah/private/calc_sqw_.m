@@ -40,7 +40,7 @@ instproj = obj.get_projection();
 axes_bl = instproj.get_proj_axes_block(pix_db_range_in,grid_size_in);
 [exp_info,data] = calc_sqw_data_and_header (obj,axes_bl);
 
-% in addition to standard operations, recalculates ortho_axes img_range if
+% in addition to standard operations, recalculates line_axes img_range if
 % the range has not been defined before:
 [data.npix,data.s,data.e,pix,run_id,det0,axes_bl] = ...
     instproj.bin_pixels(axes_bl,obj,data.npix,data.s,data.e);
@@ -81,9 +81,8 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
 % -------------------
 [fp,fn,fe]=fileparts(obj.data_file_name);
 
-lat = obj.lattice.set_rad();
-[~, u_to_rlu] = obj.lattice.calc_proj_matrix();
-offset = [0;0;0;0];
+lat = obj.lattice;
+lat.angular_units = 'rad';
 
 % set projection lattice, which transforms initial pixel coordinates to
 % initial image coordinates. As initial image coordinates are Crystal
@@ -91,17 +90,13 @@ offset = [0;0;0;0];
 % from crystal Cartesian pixels to crystal Cartesian image.
 % Initial crystal orientation vrt. the beam have been accounted for by
 % transformation to spectrometer coordinate system
-proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg, 'type','aaa');
-
+proj = line_proj('alatt',lat.alatt,'angdeg',lat.angdeg, 'type','aaa');
 
 
 sqw_data = DnDBase.dnd(axes_bl,proj);
 
-expdata = IX_experiment([fn,fe], [fp,filesep], ...
-    obj.efix,obj.emode,lat.u,lat.v,...
-    lat.psi,lat.omega,lat.dpsi,lat.gl,lat.gs,...
-    obj.en,offset,  u_to_rlu, ...
-    [1,1,1,1],sqw_data.label,obj.run_id);
+expdata = IX_experiment([fn,fe], [fp,filesep],obj.run_id, ...
+    obj.efix,obj.emode,obj.en,lat);
 
 detpar = obj.det_par;
 

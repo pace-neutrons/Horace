@@ -18,8 +18,7 @@ classdef test_axes_block_integration < TestCase
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         function test_4d_to2D_partial_region(~)
-            ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off', 'HORACE:realign_bin_edges:invalid_argument');
 
             dbr0 = [ -1,1;-2,2;-3,3;0,10]';
             dbr1 = [  0,1;-2,0;-2,2;2,8]';
@@ -28,8 +27,8 @@ classdef test_axes_block_integration < TestCase
             bin1 = {[dbr1(1,1),0.2,dbr1(2,1)];[dbr1(1,2),dbr1(2,2)];
                 [dbr1(1,3),0.2,dbr1(2,3)];[dbr1(1,4),dbr1(2,4)]};
 
-            ab_base = ortho_axes(bin0{:});
-            ab_sample = ortho_axes(bin1{:});
+            ab_base = line_axes(bin0{:});
+            ab_sample = line_axes(bin1{:});
 
             ab_r = ab_base.realign_bin_edges(ab_sample);
             assertElementsAlmostEqual(ab_r.img_range,[-0.15,1.05;-2.1,0.1; ...
@@ -50,8 +49,8 @@ classdef test_axes_block_integration < TestCase
             bin0 = {[dbr0(1,1),0.1,dbr0(2,1)];[dbr0(1,2),dbr0(2,2)];[dbr0(1,3),dbr0(2,3)];[dbr0(1,4),dbr0(2,4)]};
             bin1 = {[dbr1(1,1),0.2,dbr1(2,1)];[dbr1(1,2),dbr1(2,2)];[dbr1(1,3),dbr1(2,3)];[dbr1(1,4),dbr1(2,4)]};
 
-            ab_base = ortho_axes(bin0{:});
-            ab_sample = ortho_axes(bin1{:});
+            ab_base = line_axes(bin0{:});
+            ab_sample = line_axes(bin1{:});
 
             ab_r = ab_base.realign_bin_edges(ab_sample);
             assertElementsAlmostEqual(ab_r.img_range,[[-0.05;5.15],ab_sample.img_range(:,2:4)]);
@@ -72,8 +71,8 @@ classdef test_axes_block_integration < TestCase
             bin0 = {[dbr0(1,1),0.1,dbr0(2,1)];[dbr0(1,2),dbr0(2,2)];[dbr0(1,3),dbr0(2,3)];[dbr0(1,4),dbr0(2,4)]};
             bin1 = {[dbr1(1,1),0.1,dbr1(2,1)];[dbr1(1,2),dbr1(2,2)];[dbr1(1,3),dbr1(2,3)];[dbr1(1,4),dbr1(2,4)]};
 
-            ab_base = ortho_axes(bin0{:});
-            ab_sample = ortho_axes(bin1{:});
+            ab_base = line_axes(bin0{:});
+            ab_sample = line_axes(bin1{:});
 
             ab_r = ab_base.realign_bin_edges(ab_sample);
             assertEqual(ab_r,ab_sample);
@@ -88,15 +87,15 @@ classdef test_axes_block_integration < TestCase
             assertEqual(reb_data{1},ones(ab_r.dims_as_ssize))
         end
         function test_ab_alignment_iax_aligned(~)
-            ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HORACE:realign_bin_edges:invalid_argument');
+
             dbr0 = [-1,1;-2,2;-3,3;0,10]';
             dbr1 = [ 0,1;-1,1; -0.25,0.25; 0,1]';
             bin0 = {[dbr0(1,1),dbr0(2,1)];[dbr0(1,2),dbr0(2,2)];[dbr0(1,3),0.2,dbr0(2,3)];[dbr0(1,4),1,dbr0(2,4)]};
             bin1 = {[dbr1(1,1),dbr1(2,1)];[dbr1(1,2),0.2,dbr1(2,2)];[dbr1(1,3),0.05,dbr1(2,3)];[dbr1(1,4),5,dbr1(2,4)]};
 
-            ab_base = ortho_axes(bin0{:});
-            ab_sample = ortho_axes(bin1{:});
+            ab_base = line_axes(bin0{:});
+            ab_sample = line_axes(bin1{:});
 
             ab_r = ab_base.realign_bin_edges(ab_sample);
 
@@ -119,24 +118,23 @@ classdef test_axes_block_integration < TestCase
             bin0 = {[dbr0(1,1),0.1,dbr0(2,1)];[dbr0(1,2),0.1,dbr0(2,2)];[dbr0(1,3),0.1,dbr0(2,3)];[dbr0(1,4),1,dbr0(2,4)]};
             bin1 = {[dbr1(1,1),0.1,dbr1(2,1)];[dbr1(1,2),0.2,dbr1(2,2)];[dbr1(1,3),0.05,dbr1(2,3)];[dbr1(1,4),2,dbr1(2,4)]};
 
-            ab_base = ortho_axes(bin0{:});
-            ab_sample = ortho_axes(bin1{:});
+            ab_base = line_axes(bin0{:});
+            ab_sample = line_axes(bin1{:});
 
             assertExceptionThrown(@()realign_bin_edges(ab_base,ab_sample),...
                 'HORACE:realign_bin_edges:invalid_argument');
         end
         %
         function test_ab_alignment_pax_selected(~)
-            ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HORACE:realign_bin_edges:invalid_argument');
 
             dbr0 = [-1,1;-2,2;-3,3;-1,11]';
             dbr1 = [ 0,1;-2,2;-5,5; 0,10]';
             bin0 = {[dbr0(1,1),0.1,dbr0(2,1)];[dbr0(1,2),0.1,dbr0(2,2)];[dbr0(1,3),0.1,dbr0(2,3)];[dbr0(1,4),1,dbr0(2,4)]};
             bin1 = {[dbr1(1,1),0.1,dbr1(2,1)];[dbr1(1,2),0.2,dbr1(2,2)];[dbr1(1,3),0.05,dbr1(2,3)];[dbr1(1,4),2,dbr1(2,4)]};
 
-            ab_base = ortho_axes(bin0{:});
-            ab_sample = ortho_axes(bin1{:});
+            ab_base = line_axes(bin0{:});
+            ab_sample = line_axes(bin1{:});
 
             ab_r = ab_base.realign_bin_edges(ab_sample);
 

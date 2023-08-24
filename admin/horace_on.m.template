@@ -1,4 +1,4 @@
-function path=horace_on(non_default_hor_path,non_default_her_path)
+function path=horace4_on(non_default_hor_path,non_default_her_path)
 %  safely switches Horace on
 %  horace_on()                         -- initializes Horace with default settings
 %  horace_on(non_default_horace_path)  -- initializes Horace with non-default Horace folder;
@@ -27,8 +27,21 @@ if exist('non_default_hor_path','var') && ~isempty(non_default_hor_path)
 else
     horace_path = default_horace_path;
 end
+root_path = find_root_path(horace_path);
+if isempty(root_path)
+    error('HORACE:horace_on:invalid_argument', ...
+        'Can not find horace init on path %s or %s/horace_core', ...
+        horace_path,horace_path);
+end
+horace_path = fullfile(root_path,'horace_core');
 
 warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
+% Temporary inefficient code, needed only during transition from Horace v3 to Horace V4 on iDAAAS until its config not changed
+try
+    herbert_off();
+catch
+end
+% End temporary code
 try
     horace_off();
 catch
@@ -37,9 +50,11 @@ warning(warn_state);    % return warnings to initial state
 
 % if spinW start up file exist, try to initialize it
 sw_start = which('spinw_on.m');
+ws = warning('off','MATLAB:rmpath:DirNotFound');
 if ~isempty(sw_start)
     spinw_on(default_spinw_path);
 end
+warning(ws);
 
 if nargin > 1
     independent_herbert = true;
@@ -57,7 +72,7 @@ if ~herbert_initated
     try
         init_herbert(herbert_path);
     catch ME
-        disp('HORACE:horace_on:bad_dependencies cannot initialise Herbert');
+        disp('HORACE:horace_on:invalid_argument: cannot initialise Herbert');
         rethrow(ME);
     end
 else % reinitialize Herbert on where it is now.
@@ -72,8 +87,9 @@ end
 % init Horace
 init_horace(horace_path);
 
-horace_path = fileparts(which('horace_init.m'));
 %
+hor = fileparts(which('horace_init'));
+fprintf('HORACE located in folder:\n %s\n',hor)
 
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 end
@@ -86,6 +102,24 @@ end
 addpath(path);
 horace_init;
 
+end
+%
+function root_path = find_root_path(trial_path)
+% identify real path to Horace package resolving simulinks
+addpath(trial_path);
+full_path = which('horace_init');
+rmpath(trial_path);
+if isempty(full_path)
+    trial_path = full_path(trial_path,'horace_core');
+    if exist(trial_path,'dir') == 7
+        root_path = find_root_path(trial_path);
+    else
+        root_path = '';
+    end
+    return
+else
+    root_path = fileparts(fileparts(full_path));
+end
 end
 
 function her_path = build_default_her_path(hor_path)
@@ -108,9 +142,9 @@ if isempty(path)
         path='';
     end
 else
-    path=fileparts(path);
-end
 
+end
+path=fileparts(path);
 end
 
 function init_herbert(path)

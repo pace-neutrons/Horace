@@ -76,7 +76,7 @@ classdef test_faccess_sqw_v3_21< TestCase
 
             % we can save the object as previous version of the file
             test_file=fullfile(obj.working_dir,'test_read_wr_upd_indirect_v3_2.sqw');
-            co2 = onCleanup(@()delete(test_file));
+            co2 = onCleanup(@()del_memmapfile_files(test_file));
             save(sqw_obj,test_file,faccess_sqw_v3_2());
 
 

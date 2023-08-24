@@ -117,7 +117,7 @@ classdef test_horace_install < TestCase
             clob = onCleanup(@()(rmdir(test_install,'s')));
             
             template_files = {'horace_install.m','horace_on.m.template',...
-                'worker_v2.m.template'};
+                'worker_v4.m.template'};
             obj.copy_install_files(template_files,test_admin);
             hor_test_source = fullfile(test_install,'horace_core');
             mkdir(hor_test_source);
@@ -168,7 +168,7 @@ classdef test_horace_install < TestCase
             clob = onCleanup(@()(rmdir(test_install,'s')));
             
             template_files = {'horace_install.m','horace_on.m.template',...
-                'worker_v2.m.template'};
+                'worker_v4.m.template'};
             obj.copy_install_files(template_files,test_admin);
             hor_test_source = fullfile(test_install,'Horace','horace_core');
             mkdir(hor_test_source);
@@ -217,7 +217,7 @@ classdef test_horace_install < TestCase
             clob = onCleanup(@()(rmdir(test_install,'s')));
             
             template_files = {'horace_install.m','horace_on.m.template',...
-                'worker_v2.m.template'};
+                'worker_v4.m.template'};
             obj.copy_install_files(template_files,test_install);
             hor_test_source = fullfile(test_install,'Horace');
             mkdir(hor_test_source);

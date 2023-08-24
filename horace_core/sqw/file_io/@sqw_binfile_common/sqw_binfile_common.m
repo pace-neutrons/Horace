@@ -81,7 +81,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             if nargin == 1 %read ge information form file (better accuracy)
                 img_db_range = read_img_range(obj);
             else % calculate image range from axes
-                img_db_range = ortho_axes.calc_img_db_range(data_str);
+                img_db_range = line_axes.calc_img_db_range(data_str);
                 if any(isinf(img_db_range(:)))
                     img_data_range = read_img_range(obj);
                     undef = isinf(img_db_range);
@@ -134,11 +134,13 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             % by alignment matrix
             [exp_info,~]  = obj.get_exp_info(1);
             header_av = exp_info.header_average;
-            u_to_rlu  = header_av.u_to_rlu(1:3,1:3);
-            if any(abs(subdiag_elements(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
-                proj = dnd_obj.proj; % no alignment; otherwise, may be aligned. 
-                % be cautious.
-                dnd_obj.proj = proj.set_ub_inv_compat(u_to_rlu);
+            if isfield(header_av,'u_to_rlu')
+                u_to_rlu  = header_av.u_to_rlu(1:3,1:3);
+                if any(abs(subdiag_elements(u_to_rlu))>4*eps('single')) % if all 0, its B-matrix so certainly
+                    proj = dnd_obj.proj; % no alignment; otherwise, may be aligned.
+                    % be cautious.
+                    dnd_obj.proj = proj.set_ub_inv_compat(u_to_rlu);
+                end
             end
         end
 
@@ -345,16 +347,16 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             proj = sqw_data.data.proj;
             if ~any(abs(difr(:))>1.e-4)
                 % this is original gen_sqw, which have pixels binned into Crystal Cartesian
-                % coordinate system. It should be correct projection recovered anyway, 
-				% Just in case:
-				proj = ortho_proj([1,0,0],[0,1,0],[0,0,1],'alatt',proj.alatt,...
-				'angdeg',proj.angdeg,'type','aaa');	
+                % coordinate system. It should be correct projection recovered anyway,
+                % Just in case:
+                proj = line_proj([1,0,0],[0,1,0],[0,0,1],'alatt',proj.alatt,...
+    				'angdeg',proj.angdeg,'type','aaa');
                 if ~isempty(sqw_data.data.proj.ub_inv_legacy)
-					proj = proj.set_ub_inv_compat(sqw_data.data.proj.ub_inv_legacy);
-				end
-				sqw_data.data.proj = proj;
+                    proj = proj.set_ub_inv_compat(sqw_data.data.proj.ub_inv_legacy);
+                end
+                sqw_data.data.proj = proj;
             else % this is cut, where the pixels are binned on some projection
-			% pix ranges can not be processed from image ranges anyway
+    			% pix ranges can not be processed from image ranges anyway
             end
 
         end

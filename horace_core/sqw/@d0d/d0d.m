@@ -15,7 +15,7 @@ classdef d0d < DnDBase
             if nargin == 0
                 obj.s_ = 0;
                 obj.e_ = 0;
-                obj.npix_ = 0;
+                obj.npix_ = 1;
             end
         end
         %

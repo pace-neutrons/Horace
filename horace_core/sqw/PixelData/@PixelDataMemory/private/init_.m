@@ -59,3 +59,6 @@ else
     error('HORACE:PixelDataMemory:invalid_argument', ...
         'Cannot construct PixelDataMemory from class (%s)', class(init))
 end
+if ~obj.is_range_valid()
+    obj = obj.recalc_data_range();
+end

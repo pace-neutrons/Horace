@@ -1,11 +1,11 @@
-function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
-% function sorts pixels according to their indexes in n-D array npix
+function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
+% function sorts pixels according to their indices in n-D array npix
 %
 %input:
 % pix_retained   PixelData object, which is to be sorted or a cell array
 %       containing arrays of PixelData objects
 %
-% ix    indexes of these pixels in n-D array or cell array of such indexes
+% ix    indices of these pixels in n-D array or cell array of such indices
 % npix  auxiliary array, containing numbers of pixels in each cell of
 %       n-D array
 % Optional input:
@@ -26,31 +26,31 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 %
 
 %Output:
-%pix  array of pixels sorted into 1D array according to indexes provided
-%
-%
-%
+%pix  array of pixels sorted into 1D array according to indices provided
 %
 
 %  Process inputs
 options = {'-nomex','-force_mex','-force_double'};
 %[ok,mess,nomex,force_mex,missing]=parse_char_options(varargin,options);
-[ok,mess,nomex,force_mex,force_double,argi]=parse_char_options(varargin,options);
+[ok, mess, nomex, force_mex, force_double, argi] = ...
+    parse_char_options(varargin,options);
+
 if ~ok
     error('HORACE:utilities:invalid_argument', ...
         ['sort_pixels: invalid argument',mess])
 end
+
 if nomex && force_mex
     error('HORACE:utilities:invalid_argument', ...
         'sort_pixels: invalid argument -- nomex and force mex options can not be used together' )
 end
-if isempty(argi)
-    use_given_pix_range = false;
-else
-    use_given_pix_range =true;
+
+use_given_pix_range = ~isempty(argi);
+
+if use_given_pix_range
     data_range = argi{:};
-    if any(size(data_range) ~= [2,9])
-        error('HORACE:utilities:invalid_argument',...
+    if ~isequal(size(data_range), [2,9])
+        error('HORACE:sort_pix:invalid_argument',...
             'if data_range is provided, it has to be 2x9 array. Actually its size is: %s',...
             disp2str(size(data_range)))
     end
@@ -62,17 +62,24 @@ end
 if ~iscell(pix_ix_retained)
     pix_ix_retained = {pix_ix_retained};
 end
-if nomex
-    use_mex = false;
-else
-    use_mex=get(hor_config,'use_mex');
-end
-if ~exist('npix','var') || isempty(npix)
-    use_mex=false;
-end
-if force_mex
-    use_mex = true;
-end
+
+% Don't use mex with file-backed
+% TODO Make mex available to file-backed
+% Mex disabled see issue #1018
+% Consider refactor of
+% _LowLevelCode/cpp/sort_pixels_by_bins/sort_pixels_by_bins.{h,cpp}
+% to fix MEX for sort_pix by replacing reinterpret_cast & case with
+% function signature dispatch
+
+use_mex = false;
+
+% use_mex = ~pix_retained{1}.is_filebacked && ...
+%           force_mex || ...
+%           (exist('npix', 'var') && ...
+%            ~isempty(npix) && ...
+%            ~nomex && ...
+%            get(hor_config, 'use_mex'));
+
 %
 % Do the job -- sort pixels
 %
@@ -83,11 +90,8 @@ if use_mex
         % so returns double or single resolution pixels depending on this
         %IMPORTANT: use double type as mex code asks for double type, not
         %logical.
-        if force_double % keep_type is extracted by sort_pix_by_bins routine
-            keep_type = 0; %
-        else
-            keep_type = 1;
-        end
+        keep_type = double(force_double);
+
         raw_pix = cellfun(@(pix_data) pix_data.data, pix_retained, ...
             'UniformOutput', false);
         pix = PixelDataBase.create();
@@ -103,6 +107,7 @@ if use_mex
             pix = pix.set_data_range(data_range_l);
         end
         clear pix_retained pix_ix_retained;  % clear big arrays
+
     catch ME
         use_mex=false;
         if get(hor_config,'log_level')>=1
@@ -116,26 +121,46 @@ if use_mex
         end
     end
 end
+
 if ~use_mex
-    if numel(pix_ix_retained) == 1
-        ix = pix_ix_retained{1};
-    else
-        ix = cat(1,pix_ix_retained{:});
-    end
-    clear pix_ix_retained;
-    [~,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-    clear ix ;          % clear big arrays so that final output variable pix is not way up the stack
-    if numel(pix_retained) == 1
-        pix = pix_retained{1};
-    else
-        pix = PixelDataBase.cat(pix_retained{:});
-    end
+    % maintain type of pix
+    pix = pix_retained{1}.cat(pix_retained{:});
     clear pix_retained;
     if isempty(pix)  % return early if no pixels
         pix = PixelDataMemory();
         return;
     end
 
-    pix=pix.get_pixels(ind); % reorders pix according to pix indexes within bins
+    ix = cat(1, pix_ix_retained{:});
+
+    clear pix_ix_retained;
+
+    if issorted(ix)
+        return;
+    end
+
+    [~,ind] = sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
+    clear ix;          % clear big arrays so that final output variable pix is not way up the stack
+
+
+    if pix.is_filebacked
+        mch_sz = get(hor_config, 'mem_chunk_size');
+
+        pix = pix.get_new_handle();
+
+        for i = 1:mch_sz:numel(ind)
+            end_idx = min(i+mch_sz-1, numel(ind));
+            slice = ind(i:end_idx);
+            data = pix.get_fields('all', slice);
+            pix.format_dump_data(data);
+        end
+
+        pix = pix.finish_dump(numel(ind));
+
+    else
+        pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
+    end
     clear ind;
+end
+
 end

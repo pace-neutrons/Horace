@@ -95,7 +95,7 @@ classdef serializableTester3 < serializable
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         function obj=set.height(obj,val)
             if val<0
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
@@ -107,7 +107,7 @@ classdef serializableTester3 < serializable
             end
 
         end
-        
+
         function obj=set.wall(obj,val)
             if val<0
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
@@ -118,7 +118,7 @@ classdef serializableTester3 < serializable
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         function obj=set.atms(obj,val)
             if val<0
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
@@ -190,8 +190,9 @@ classdef serializableTester3 < serializable
                     'Tube diameter(s) must be greater or equal to twice the wall thickness(es)')
             end
         end
-
-        function S_updated = convert_old_struct(~, S, ver)
+    end
+    methods(Access=protected)
+        function [S_updated,obj] = convert_old_struct(obj, S, ver)
             % Restore object from an old structure
             S_updated = S;
             if ver==1
@@ -231,16 +232,16 @@ classdef serializableTester3 < serializable
             %   serializableTester3.version_holder(val);
 
             persistent version_store
-            
-            % Version 2: 
+
+            % Version 2:
             %   'dia','height','wall','atms'
             %
             % Version 1:
             %   'dia','height','atms'
             %
-            % Unserialised: (set ver==NaN)
+            % Unserialized: (set ver==NaN)
             %   'dia', 'height'
-            
+
             latest_version = 2;
 
             if isempty(version_store)
@@ -252,6 +253,6 @@ classdef serializableTester3 < serializable
             ver = version_store;
         end
     end
-    
+
     %======================================================================
 end

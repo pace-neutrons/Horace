@@ -154,7 +154,7 @@ for i=1:size(rlu,1)
         v=u2_rlu;
     end
     type='aaa';        % force unit length of projection axes to be 1 Ang^-1
-    proj = ortho_proj('u',u,'v',v,'type',type,'offset',offset, ...
+    proj = line_proj('u',u,'v',v,'type',type,'offset',offset, ...
         'alatt',img.alatt,'angdeg',img.angdeg);
 
     % if old file has been already aligned, ignore this alignment
@@ -249,7 +249,10 @@ if ~isfinite(xcent) % unable to find a peak
 end
 
 % Now fit Gaussian
-[~,fitdata]=fit(w,@gauss_bkgd,[ypeak,xcent,width/2.3548,0,0]);
+kk = w.multifit();
+kk = kk.set_fun(@gauss_bkgd, [ypeak,xcent,width/2.3548,0,0]);
+[~, fitdata] = kk.fit();
+
 if all(isfinite(fitdata.sig)) && all(fitdata.sig>0)
     xcent=fitdata.p(2);
     width=2.3548*fitdata.p(3);
@@ -371,4 +374,3 @@ else
     error('HORACE:lattice_functions:runtime_error', ...
         'Logic problem - see T.G.Perring')
 end
-

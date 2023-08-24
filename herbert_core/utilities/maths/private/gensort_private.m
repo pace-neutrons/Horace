@@ -35,7 +35,7 @@ function [B,ix] = gensort_private (A, public)
 %--------------------------------------------------------------------------
 % T.G.Perring 9 May 2019:
 % Modified from mergesort written by Brian Moore (see details below)
-% TGP added index array with the same behaviour as the instrinsic Matlab
+% TGP added index array with the same behaviour as the intrinsic Matlab
 % sort function
 %
 %--------------------------------------------------------------------------

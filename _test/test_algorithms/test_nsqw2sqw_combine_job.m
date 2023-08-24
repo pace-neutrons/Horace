@@ -37,16 +37,11 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             obj.test_sample_file = targ_file;
             obj.test_targ_file = fullfile(obj.out_dir,'combine_sqw_pix_test.sqw');
 
-            hc = hor_config;
-            del_tmp_state = hc.delete_tmp;
-            hc.delete_tmp = false;
-            clob1 = onCleanup(@()set(hc,'delete_tmp',del_tmp_state));
-            hpc = hpc_config;
-            [comb_state,combine_sqw_using] = get(hpc,'build_sqw_in_parallel','combine_sqw_using');
-            hpc.build_sqw_in_parallel = false;
-            hpc.combine_sqw_using  = 'matlab';
-            clob2 = onCleanup(@()set(hpc,'build_sqw_in_parallel',comb_state,'combine_sqw_using',combine_sqw_using));
-
+            clob1 = set_temporary_config_options(hor_config, 'delete_tmp', false);
+            clob2 = set_temporary_config_options(hpc_config, ...
+                                                 'build_sqw_in_parallel', false, ...
+                                                 'combine_sqw_using', 'matlab' ...
+                                                 );
 
             temp_files=gen_sqw(source_test_file,'',targ_file,...
                 787.,1,[2.87,2.87,2.87],[90,90,90],...
@@ -76,14 +71,11 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             mis = MPI_State.instance('clear');
             mis.is_tested = true;
             mis.is_deployed = true;
-            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+            clob = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
             %
             % to make careful and consistent testing, decrease the size of the pixel
             % access buffer to make multiple IO operations
-            hc = hor_config;
-            pix_buf_size = hc.mem_chunk_size;
-            clob1 = onCleanup(@()(set(hc,'mem_chunk_size',pix_buf_size)));
-            hc.mem_chunk_size = 10000000;
+            clob1 = set_temporary_config_options(hor_config, 'mem_chunk_size', 1e7);
 
             serverfbMPI  = MessagesFilebased('combine_sqw_pix_write_separate_job');
             serverfbMPI.mess_exchange_folder = tmp_dir();
@@ -147,16 +139,16 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             assertEqual(ok,MESS_CODES.ok,err);
 
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-1,0.1,5],[-0.4,0.4],[-0.4,0.4],[10,20]);
+                line_proj,[-1,0.1,5],[-0.4,0.4],[-0.4,0.4],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-6.5,0.3,6.5],[-0.4,0.4],[10,20]);
+                line_proj,[-0.4,0.4],[-6.5,0.3,6.5],[-0.4,0.4],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-0.4,0.4],[-6.5,0.3,6.5],[10,20]);
+                line_proj,[-0.4,0.4],[-0.4,0.4],[-6.5,0.3,6.5],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-0.4,0.4],[-0.4,0.4],[2,5,145]);
+                line_proj,[-0.4,0.4],[-0.4,0.4],[-0.4,0.4],[2,5,145]);
             assertTrue(ok,mess);
 
         end
@@ -169,14 +161,11 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             mis = MPI_State.instance('clear');
             mis.is_tested = true;
             mis.is_deployed = true;
-            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+            clob = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
             %
             % to make careful and consistent testing, decrease the size of the pixel
             % access buffer to make multiple IO operations
-            hc = hor_config;
-            pix_buf_size = hc.mem_chunk_size;
-            clob1 = onCleanup(@()(set(hc,'mem_chunk_size',pix_buf_size)));
-            hc.mem_chunk_size = 10000000;
+            clob1 = set_temporary_config_options(hor_config, 'mem_chunk_size', 1e7);
 
             serverfbMPI  = MessagesFilebased('combine_sqw_pix_test_job');
             serverfbMPI.mess_exchange_folder = tmp_dir();
@@ -232,16 +221,16 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             assertEqual(ok,MESS_CODES.ok,err);
 
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-1,0.1,5],[-0.4,0.4],[-0.4,0.4],[10,20]);
+                line_proj,[-1,0.1,5],[-0.4,0.4],[-0.4,0.4],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-6.5,0.3,6.5],[-0.4,0.4],[10,20]);
+                line_proj,[-0.4,0.4],[-6.5,0.3,6.5],[-0.4,0.4],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-0.4,0.4],[-6.5,0.3,6.5],[10,20]);
+                line_proj,[-0.4,0.4],[-0.4,0.4],[-6.5,0.3,6.5],[10,20]);
             assertTrue(ok,mess);
             [ok,mess] = is_cut_equal(obj.test_sample_file,fout_name, ...
-                ortho_proj,[-0.4,0.4],[-0.4,0.4],[-0.4,0.4],[2,5,145]);
+                line_proj,[-0.4,0.4],[-0.4,0.4],[-0.4,0.4],[2,5,145]);
             assertTrue(ok,mess);
 
         end

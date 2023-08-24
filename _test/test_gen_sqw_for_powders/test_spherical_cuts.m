@@ -100,7 +100,7 @@ classdef test_spherical_cuts < TestCaseWithSave
             % Create sqw files, combine and check results
             % -------------------------------------------
 
-            spp = spher_proj;
+            spp = sphere_proj;
             spp.type = 'add';
 
             w2_fine  = cut_sqw(obj.sqw_file_fine  ,spp,[0,0.05,8],[0,180],[-180,180],[-10,95]);            
@@ -113,7 +113,7 @@ classdef test_spherical_cuts < TestCaseWithSave
             % Create sqw files, combine and check results
             % -------------------------------------------
 
-            spp = spher_proj;
+            spp = sphere_proj;
             spp.type = 'add';
 
             w2_fine  = cut_sqw(obj.sqw_file_fine,  spp,[0,8],[0,1,180],[-180,1,180],[-10,90]);
@@ -127,7 +127,7 @@ classdef test_spherical_cuts < TestCaseWithSave
             % Create sqw files, combine and check results
             % -------------------------------------------
 
-            spp = spher_proj;
+            spp = sphere_proj;
             spp.type = 'add';
 
             w2_tot = cut_sqw(obj.sqw_file_fine,spp,[0,8],[0,1,180],[-180,1,180],[-10,90],'-nopix');
@@ -146,7 +146,7 @@ classdef test_spherical_cuts < TestCaseWithSave
             % Create sqw files, combine and check results
             % -------------------------------------------
 
-            spp = spher_proj;
+            spp = sphere_proj;
             spp.type = 'add';
 
             w2_tot = cut_sqw(obj.sqw_file_fine,spp,[0,0.05,8],[0,180],[-180,180],1,'-nopix');
@@ -164,7 +164,7 @@ classdef test_spherical_cuts < TestCaseWithSave
             % Create sqw files, combine and check results
             % -------------------------------------------
 
-            spp = spher_proj;
+            spp = sphere_proj;
             spp.type = 'add';
 
             w1_tot = cut_sqw(obj.sqw_file_fine,spp,[0,3],[0,180],[-180,1,180],[40,50],'-nopix');
@@ -183,7 +183,7 @@ classdef test_spherical_cuts < TestCaseWithSave
             % Create sqw files, combine and check results
             % -------------------------------------------
 
-            spp = spher_proj;
+            spp = sphere_proj;
             spp.type = 'add';
 
             w1_tot = cut_sqw(obj.sqw_file_fine,spp,[0,0.05,3],[0,180],[-180,180],[40,50],'-nopix');
@@ -199,7 +199,7 @@ classdef test_spherical_cuts < TestCaseWithSave
         end
 
         function test_spher_cut_coarse_grid_1d_Theta(obj)
-            spp = spher_proj;
+            spp = sphere_proj;
             spp.type = 'arr';
             w1_1 = cut_sqw(obj.sqw_file_coarse,spp,[0,3],[0,0.1,pi],[-pi,pi],[40,50],'-nopix');
             plh = plot(w1_1);
@@ -210,7 +210,7 @@ classdef test_spherical_cuts < TestCaseWithSave
         end
 
         function test_spher_cut_coarse_grid_1d_Q(obj)
-            spp = spher_proj;
+            spp = sphere_proj;
             spp.type = 'arr';
             w1_1 = cut_sqw(obj.sqw_file_coarse,spp,[0,0.05,3],[0,pi],[-pi,pi],[40,50],'-nopix');
             plh=plot(w1_1);
@@ -222,7 +222,7 @@ classdef test_spherical_cuts < TestCaseWithSave
         end
 
         function test_spher_cut_coarse_grid_2D_ThetaPhi(obj)
-            spp = spher_proj;
+            spp = sphere_proj;
             spp.type = 'arr';
             w2_1 = cut_sqw(obj.sqw_file_coarse,spp,[0,8],[0,0.1,pi],[-pi,0.1,pi],[-10,90],'-nopix');
             plh=plot(w2_1);
@@ -233,7 +233,7 @@ classdef test_spherical_cuts < TestCaseWithSave
         end
 
         function test_spher_cut_coarse_grid_2D_qdE(obj)
-            spp = spher_proj;
+            spp = sphere_proj;
             spp.type = 'arr';
             w2_1 = cut_sqw(obj.sqw_file_coarse,spp,[0,0.05,8],[0,pi],[-pi,pi],1,'-nopix');
             plh=plot(w2_1);

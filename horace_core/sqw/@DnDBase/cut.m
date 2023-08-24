@@ -23,11 +23,11 @@ function wout = cut(obj, varargin)
 % ------
 %   data_source    Data source: sqw-type object (sqw or sqw data accessor)
 %
-%   proj           instance of aProjectionBase class (ortho_proj by default)
+%   proj           instance of aProjectionBase class (line_proj by default)
 %                  which describes the target coordinate system of the cut
 %                  or Data structure containing the projection class fields,
 %                  (names and its values)
-%                  (type >> help ortho_proj   for details)
+%                  (type >> help line_proj   for details)
 %
 %   p1_bin          Binning along first Q axis
 %   p2_bin          Binning along second Q axis
@@ -102,27 +102,27 @@ end
 hc= hor_config;
 log_level = hc.log_level;
 
-
 return_cut = nargout > 0;
-[targ_proj, pbin, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
-    obj,return_cut, varargin{:});
-%
+[targ_proj, pbin, sym, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
+    obj, return_cut, varargin{:});
+
 sz = size(pbin);
 % This loop enables multicuts
 if return_cut
     wout = cell(sz);
 end
+
 for cut_num = 1:prod(sz)
     pbin_tmp = pbin{cut_num};
-    [targ_ax_block,targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp );
+    [targ_ax_block,targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp, sym);
 
-    args = {obj, targ_proj, targ_ax_block, opt.outfile,opt.proj_given,log_level};
     if return_cut
-        wout{cut_num} = cut_single(args{:});
+        wout{cut_num} = cut_single(obj, targ_proj, targ_ax_block, opt,log_level);
     else
-        cut_single(args{:});
+        cut_single(obj, targ_proj, targ_ax_block, opt,log_level);
     end
 end
+
 if return_cut
     wout = [wout{:}]';
 end

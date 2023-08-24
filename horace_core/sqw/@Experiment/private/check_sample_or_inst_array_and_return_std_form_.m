@@ -72,7 +72,7 @@ elseif iscell(sid)
     is = cellfun(@(x)isa(x,class_base),sid);
     if ~all(is)
         error('HORACE:Experiment:invalid_argument', ...
-            'must be inst or sample but some elements of the input cellarray are not');
+            'must be instrument, detector or sample but some elements of the input cellarray are not');
     end
     std_form = std_form.add(sid);
 elseif isa(sid,'unique_objects_container')

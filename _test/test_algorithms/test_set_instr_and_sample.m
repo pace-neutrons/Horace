@@ -62,6 +62,7 @@ classdef test_set_instr_and_sample < TestCase
             assertEqual(sqw_rec,sqw_out)
         end
         function test_change_instr_sampl_in_file(obj)
+            clWarn = set_temporary_warning('off','HORACE:Experiment:lattice_changed');
             f1_1_s1_ref=set_header_fudge(obj.ds.f1_1,'sample',obj.sam1);
             f1_1_s2_ref=set_header_fudge(obj.ds.f1_1,'sample',obj.sam2);
             f1_1_s3_ref=set_header_fudge(obj.ds.f1_1,'sample',obj.sam3);
@@ -91,21 +92,20 @@ classdef test_set_instr_and_sample < TestCase
                 '-ignore_date','ignore_str',1);
 
             % Dummy sample, empty sample
-            % the code now requires that the sample should be set to a
-            % valid value, not empty [], so do this
-            nullsamp = IX_samp();
-            nullsamp.name = 'null';
-            % nullsamp must have alatt and angdeg set otherwise they will
-            % be reset to other available values in the sqw. If that were
-            % not done, the two internal samples would end up different
-            nullsamp.alatt = [0 0 0];
-            nullsamp.angdeg = [0 0 0];
+            % REMOVING THIS TEST SECTION
+            % As the number of runs for these sqws is 1, you should not be
+            % able to set any sample (or all samples) to an empty set.
+            %TODO: restructure this test section sensibly
+            %{
+            set_sample_horace(tmpsqwfile,[]);
+            tmp=sqw(tmpsqwfile);
             ws = obj.ds.f1_1;
             ws.experiment_info.samples = nullsamp;
             set_sample_horace(tmpsqwfile,nullsamp);
             tmp=sqw(tmpsqwfile);
             assertEqualToTol(ws,tmp,[5.e-8,5.e-8], ...
                 '-ignore_date','ignore_str',1); 
+            %}
 
         end
 

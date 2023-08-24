@@ -110,7 +110,7 @@ if isempty(old_ldr)
     old_ldr = obj;
 end
 obj = obj.fclose();
-obj.file_id_ = fopen(obj.full_filename,perm);
+obj.file_id_ = sqw_fopen(obj.full_filename,perm);
 
 if obj.file_id_ <=0
     error('HORACE:horace_binfile_interface:io_error',...

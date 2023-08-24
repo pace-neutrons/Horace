@@ -110,7 +110,7 @@ classdef unique_references_container < serializable
         unique_objects; % returns unique_objects_container
 
         % other dependent properties
-        n_unique_objects; % size of unique_objects (without creating it)
+        n_unique_objects; % number of unique_objects (without creating it)
         idx; % object indices into the global unique objects container.
         n_objects; % numel(idx)
     end
@@ -340,7 +340,23 @@ classdef unique_references_container < serializable
     end
 
     methods % overloaded indexers, subsets, find functions
+        
+        function field_vals = get_unique_field(self, field)
+            s1 = self.get(1);
+            v = s1.(field);
+            field_vals = unique_objects_container(class(v));
+            for ii=1:self.n_runs
+                sii = self.get(ii);
+                v = sii.(field);
+                field_vals = field_vals.add(v);
+            end
+        end
+        
         function varargout = subsref(self, idxstr)
+            if numel(self)>1 % input is array or cell of unique_references_containers
+                [varargout{1:nargout}] = builtin('subsref',self,idxstr);
+                return;
+            end
             switch idxstr(1).type
                 case {'()','{}'}
                     b = idxstr(1).subs{:};
@@ -359,7 +375,13 @@ classdef unique_references_container < serializable
                     end
                     glindex = self.idx_(b);
                     glc = self.global_container('value',self.global_name_);
-                    varargout{1} = glc(glindex);
+                    c = glc(glindex);
+                    if numel(idxstr)==1
+                        varargout{1} = c;
+                    else
+                        idx2 = idxstr(2:end);
+                        [varargout{1:nargout}] = builtin('subsref',c,idx2);
+                    end
                 case '.'
                     [varargout{1:nargout}] = builtin('subsref',self,idxstr);
             end
@@ -385,10 +407,34 @@ classdef unique_references_container < serializable
         function self = subsasgn(self,idxstr,varargin)
             if strcmp(idxstr(1).type,'.')
                 self = builtin('subsasgn',self,idxstr,varargin{:});
-            else
+            else % idxstr(1).type=='()'/'{}'
                 val = varargin{1}; % value to assign
+                if isempty(self.stored_baseclass_)
+                    self.stored_baseclass = class(val);
+                    warning('HERBERT:unique_references_container:incomplete_setup', ...
+                        'baseclass not initialised, using first assigned type');
+                end
                 nuix = idxstr(1).subs{:};
-                self = self.local_assign_(val,nuix);
+                if nuix<1 || nuix>self.n_objects+1
+                    error('HERBERT:unique_references_container:invalid_argument', ...
+                        'subscript %d out of range 1..%d', nuix, numel(self.idx_));
+                elseif nuix == self.n_objects+1
+                    if numel(idxstr)>1
+                        error('HERBERT:unique_references_container:invalid_subscript', ...
+                              ['when adding to the end of a container, additionally setting ', ...
+                               'properties is not permitted']);
+                    end
+                    self = self.add(val);
+                    return;
+                end
+                c = self.get(nuix);
+                if numel(idxstr)>1
+                    idx2 = idxstr(2:end);
+                    c = builtin('subsasgn',c,idx2,varargin{:});
+                    self = self.replace(c,nuix);
+                else
+                    self = self.replace(val, nuix);
+                end
             end
         end
 
@@ -424,8 +470,53 @@ classdef unique_references_container < serializable
         end
 
         %
-        function [self, nuix] = add_single_(self,obj)
+        function [self, nuix] = add_single_(self,inobj)
             %ADD_SINGLE - add a single object obj at the end of the container
+            if isempty(self.stored_baseclass_)
+                error('HERBERT:unique_references_container:incomplete_setup', ...
+                    'stored baseclass unset');
+            end
+            if ~isa(inobj,self.stored_baseclass_)
+                warning('HERBERT:unique_references_container:invalid_argument', ...
+                    'not correct stored base class; object was not added');
+                nuix = 0;
+                return;
+            end
+            if isempty(self.global_name_)
+                error('HERBERT:unique_references_container:incomplete_setup', ...
+                    'global name unset');
+            end
+            [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(inobj);
+            if isempty(glindex)
+                glcont = self.global_container('value',self.global_name_);
+                [glcont,glindex] = glcont.add(inobj);
+                if glindex == 0
+                    % object was not added
+                    nuix = 0;
+                    return
+                end
+                self.global_container('reset',self.global_name_,glcont);
+            end
+            self.idx_ = [ self.idx(:)', glindex ];
+            nuix = numel(self.idx_);
+        end
+
+        function [self, nuix] = add_copies_(self,obj,n)
+            %ADD_COPIES - add a single object obj at the end of the container
+            % multiple times
+            %
+            % Input:
+            % ------
+            % obj - the single object to be added. This must not be a
+            %       unique container or an array of size.1 or cell.
+            % n   - the number of copies to add
+            %
+            % Output
+            % ------
+            % self - the revised container with the additional indices for
+            %        the added objects
+            % nuix - the range of added non-unique indices
+            
             if isempty(self.stored_baseclass_)
                 error('HERBERT:unique_references_container:incomplete_setup', ...
                     'stored baseclass unset');
@@ -451,8 +542,11 @@ classdef unique_references_container < serializable
                 end
                 self.global_container('reset',self.global_name_,glcont);
             end
-            self.idx_ = [ self.idx(:)', glindex ];
-            nuix = numel(self.idx_);
+            multiple_copies = repmat( glindex, n, 1);
+            oldsize = numel(self.idx_);
+            self.idx_ = [ self.idx(:)', multiple_copies(:)' ];
+            newsize = numel(self.idx_);
+            nuix = oldsize+1:newsize;
         end
 
         function [self, nuix] = add_copies_(self,obj,n)
@@ -705,6 +799,7 @@ classdef unique_references_container < serializable
             %                      arg3 is the baseclass
             %            'value' - return the container for the category
             %                      arg3 is not used
+            %            'list'  - return struct of the global containers 
             %            (internal access only)
             %            'reset' - change the container for the category as
             %                      it has been modified. Used because it is
@@ -726,9 +821,17 @@ classdef unique_references_container < serializable
 
             % If the global container does not exist, initialise it with no
             % categories
-            if isempty(glcontainer)
+            if isempty(glcontainer) 
                 glcontainer = struct();
+            elseif strcmpi(opflag,'CLEAR_ALL')
+                glcontainer = struct();
+                return;
             end
+            
+            if strcmpi(opflag,'list')
+                disp(glcontainer);
+                return;
+            end            
 
             % check minimum arguments
             if nargin<2
@@ -741,7 +844,7 @@ classdef unique_references_container < serializable
                 error('HERBERT:unique_references_container:invalid_argument', ...
                     'global container name is %s not char',glname);
             end
-
+            
             % if the category has not yet been created anywhere
             % create a global container for it
             if ~isfield(glcontainer,glname)
@@ -763,8 +866,8 @@ classdef unique_references_container < serializable
 
                     otherwise
                         error('HERBERT:unique_references_container:invalid_argument', ...
-                            ['try to set up a global container for this glname' ...
-                            ' without the init opflag']);
+                            ['try to set up a global container for glname %s' ...
+                            ' without the init opflag'], glname);
                 end
             end
 

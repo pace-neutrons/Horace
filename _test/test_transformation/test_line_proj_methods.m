@@ -1,5 +1,5 @@
 classdef test_line_proj_methods<TestCase
-    % The tests to verify main ortho_proj methods.
+    % The tests to verify main line_proj methods.
     %
     properties
         tests_folder
@@ -26,21 +26,7 @@ classdef test_line_proj_methods<TestCase
             this.fake_sqw_par{1} = en;
             this.fake_sqw_par{2} = this.par_file;
         end
-
         %------------------------------------------------------------------
-        function test_get_axes_block_nonortho(~)
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_proj([1,1,0],[0, 1,0],'w',[1,1,1],'alatt',alatt,'angdeg',angdeg);
-            pra.nonorthogonal = true;
-
-            binning = {[-1,1],[-2,0.2,2],[0,1],[0,0.1,10]};
-            ax = pra.get_proj_axes_block(binning,binning);
-
-            assertTrue(ax.nonorthogonal)
-            assertEqual(ax.unit_cell,[1,1,0,0;0,1,0,0;1,1,1,0;0,0,0,1]');
-        end
-
     end
     %------------------------------------------------------------------
     methods % Test offset
@@ -48,7 +34,7 @@ classdef test_line_proj_methods<TestCase
             alatt = [2,2,2];
             angdeg = 90;
 
-            pra = ortho_proj([1,-1,0],[1, 1,0],'alatt',alatt,'angdeg',angdeg);
+            pra = line_proj([1,-1,0],[1, 1,0],'alatt',alatt,'angdeg',angdeg);
             assertEqual(pra.offset,zeros(1,4));
             in_offset = [1,1,0,0];
             pra.img_offset = [0,1,0,0];
@@ -61,7 +47,7 @@ classdef test_line_proj_methods<TestCase
             alatt = [2,2,2];
             angdeg = 90;
 
-            pra = ortho_proj([1,-1,0],[1, 1,0],'alatt',alatt,'angdeg',angdeg);
+            pra = line_proj([1,-1,0],[1, 1,0],'alatt',alatt,'angdeg',angdeg);
             assertEqual(pra.offset,zeros(1,4));
             in_offset = [1,1,0,0];
             pra.offset = in_offset;
@@ -75,7 +61,7 @@ classdef test_line_proj_methods<TestCase
             alatt = [1,2,3];
             angdeg = 90;
 
-            pra = ortho_proj([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg,'type','aaa');
+            pra = line_proj([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg,'type','aaa');
             assertEqual(pra.offset,zeros(1,4));
             in_offset = [1,1,0,0];
             img_offset = in_offset.*(2*pi./[alatt,1]);
@@ -89,7 +75,7 @@ classdef test_line_proj_methods<TestCase
             alatt = [1,2,3];
             angdeg = 90;
 
-            pra = ortho_proj([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg,'type','aaa');
+            pra = line_proj([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg,'type','aaa');
             assertEqual(pra.offset,zeros(1,4));
             in_offset = [1,1,0,0];
             pra.offset = in_offset;
@@ -103,7 +89,7 @@ classdef test_line_proj_methods<TestCase
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
 
-            pra = ortho_proj([1,1,0],[0, 1,0],'w',[1,1,1],'alatt',alatt,'angdeg',angdeg);
+            pra = line_proj([1,1,0],[0, 1,0],'w',[1,1,1],'alatt',alatt,'angdeg',angdeg);
             assertEqual(pra.offset,zeros(1,4));
             assertEqual(pra.offset,pra.img_offset);
         end
@@ -113,7 +99,7 @@ classdef test_line_proj_methods<TestCase
         function test_bin_range_05_samp_proj2Drot45_3D_opt_vs4D_generic_withdE(~)
             % full 4D transformation with orthogonal dE axis tested against
             % equivalent 3d+1 transformation. Should give equal results
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             proj1.do_3D_transformation = false;
             proj1.convert_targ_to_source = false;
@@ -121,13 +107,13 @@ classdef test_line_proj_methods<TestCase
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab0 = ortho_axes(bin0{:});
+            ab0 = line_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[0.5*(dbr(1,4)+dbr(2,4)),1,dbr(2,4)]};
-            ab1 = ortho_axes(bin1{:});
-            proj2 = ortho_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
+            ab1 = line_axes(bin1{:});
+            proj2 = line_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
             %
             proj2.do_generic = true;
             proj2.do_3D_transformation = false;
@@ -158,7 +144,7 @@ classdef test_line_proj_methods<TestCase
         function test_binning_range_05_samp_proj2Drot45_3D_opt_vs4D_generic(~)
             % full 4D transformation with orthogonal dE axis tested against
             % equivalent 3d+1 transformation. Should give the same results
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
             proj1.do_generic = true;
             proj1.do_3D_transformation = false;
             proj1.convert_targ_to_source = false;
@@ -166,13 +152,13 @@ classdef test_line_proj_methods<TestCase
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = ortho_axes(bin0{:});
+            ab0 = line_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab1 = ortho_axes(bin1{:});
-            proj2 = ortho_proj([1,1,0],[1,-1,0],'alatt',2,'angdeg',90);
+            ab1 = line_axes(bin1{:});
+            proj2 = line_proj([1,1,0],[1,-1,0],'alatt',2,'angdeg',90);
             %
             proj2.do_generic = true;
             proj2.do_3D_transformation = false;
@@ -208,20 +194,20 @@ classdef test_line_proj_methods<TestCase
         function test_binning_range_half_sampe_proj2Drot45(~)
             % compare default generic cut (3D+1 now) with
             % old-style ranges cut
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
             proj1.do_generic = true;
             proj1.convert_targ_to_source = false;
 
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = ortho_axes(bin0{:});
+            ab0 = line_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab1 = ortho_axes(bin1{:});
-            proj2 = ortho_proj([1,1,0],[-1,1,0],'alatt',2,'angdeg',90);
+            ab1 = line_axes(bin1{:});
+            proj2 = line_proj([1,1,0],[-1,1,0],'alatt',2,'angdeg',90);
             proj2.do_generic = true;
             proj2.convert_targ_to_source = false;
 
@@ -273,18 +259,18 @@ classdef test_line_proj_methods<TestCase
         end
         %
         function test_binning_range_half_sampe_proj2Drot90(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
 
             dbr = [0,0,0,0;1,1,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = ortho_axes(bin0{:});
+            ab0 = line_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,dbr(2,1)];[0,0.1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab1 = ortho_axes(bin1{:});
-            proj2 = ortho_proj([0,1,0],[-1,0,0],'alatt',1,'angdeg',90);
+            ab1 = line_axes(bin1{:});
+            proj2 = line_proj([0,1,0],[-1,0,0],'alatt',1,'angdeg',90);
 
 
 
@@ -298,24 +284,24 @@ classdef test_line_proj_methods<TestCase
             assertEqual(bl_size, ones(1,7)*1);
         end
         function test_binning_range_half_sampe_proj2D_offset_eq_ranges_shif(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
 
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = ortho_axes(bin0{:});
+            ab0 = line_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab1 = ortho_axes(bin1{:});
+            ab1 = line_axes(bin1{:});
 
             [bl_start_r,bl_size_r] = proj1.get_nrange(npix,ab0,ab1,proj1);
             assertEqual(numel(bl_start_r),numel(bl_size_r));
 
             bin2 = {[0.0,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab2 = ortho_axes(bin2{:});
+            ab2 = line_axes(bin2{:});
             proj2 = proj1;
             proj2.offset = [0.5,0,0,0];
 
@@ -328,17 +314,17 @@ classdef test_line_proj_methods<TestCase
         end
         %
         function test_binning_range_half_sampe_proj2D(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = ortho_axes(bin0{:});
+            ab0 = line_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab1 = ortho_axes(bin1{:});
+            ab1 = line_axes(bin1{:});
 
 
             proj1.do_3D_transformation = false;
@@ -360,12 +346,12 @@ classdef test_line_proj_methods<TestCase
 
         end
         function test_binning_range_the_same_1D_dE(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab0 = ortho_axes(bin0{:});
+            ab0 = line_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
 
@@ -381,12 +367,12 @@ classdef test_line_proj_methods<TestCase
         end
         %
         function test_binning_range_the_same_4D(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab0 = ortho_axes(bin0{:});
+            ab0 = line_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
 
@@ -405,12 +391,12 @@ classdef test_line_proj_methods<TestCase
         end
         %
         function test_binning_range_the_same_1D(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = ortho_axes(bin0{:});
+            ab0 = line_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
 
@@ -439,7 +425,9 @@ classdef test_line_proj_methods<TestCase
             hc = hor_config();
             cur_mex = hc.use_mex;
             hc.use_mex = 0;
-            clob = onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            clob0 = set_temporary_warning('off','HORACE:realign_bin_edges:invalid_argument');
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
+
             [w, grid_size, pix_range]=dummy_sqw (this.fake_sqw_par{:});
             w = dnd(w{1});
             w.s = ones(size(w.s));
@@ -460,9 +448,9 @@ classdef test_line_proj_methods<TestCase
         function test_rotation_and_shift_4D(~)
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,1],...
+            pra = line_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,1],...
                 'alatt',alatt,'angdeg',angdeg);
-            prb = ortho_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,2],...
+            prb = line_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,2],...
                 'alatt',alatt,'angdeg',angdeg);
             pra.targ_proj = prb;
             pix = eye(4);
@@ -478,9 +466,9 @@ classdef test_line_proj_methods<TestCase
         function test_rotation_and_shift_3D(~)
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,0],...
+            pra = line_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,0],...
                 'alatt',alatt,'angdeg',angdeg);
-            prb = ortho_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,0],...
+            prb = line_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,0],...
                 'alatt',alatt,'angdeg',angdeg);
             pra.targ_proj = prb;
             pix = eye(4);
@@ -496,8 +484,8 @@ classdef test_line_proj_methods<TestCase
         function test_rotation_no_shift(~)
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg);
-            prb = ortho_projTester([1,1,0],[1,-1,0],'alatt',alatt,'angdeg',angdeg);
+            pra = line_projTester([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg);
+            prb = line_projTester([1,1,0],[1,-1,0],'alatt',alatt,'angdeg',angdeg);
 
             pix = eye(4);
 
@@ -518,7 +506,7 @@ classdef test_line_proj_methods<TestCase
             v = [1,-1,0];
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_proj(u,v,'alatt',alatt,'angdeg',angdeg);
+            pra = line_proj(u,v,'alatt',alatt,'angdeg',angdeg);
             pra.targ_proj = pra;
             pix = eye(4);
 
@@ -532,7 +520,7 @@ classdef test_line_proj_methods<TestCase
             v = [1,-1,0];
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_proj(u,v,'alatt',alatt,'angdeg',angdeg);
+            pra = line_proj(u,v,'alatt',alatt,'angdeg',angdeg);
             pix = eye(4);
             assertExceptionThrown(@()from_this_to_targ_coord(pra,pix),...
                 'HORACE:aProjectionBase:runtime_error');

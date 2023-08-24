@@ -1,12 +1,12 @@
 function A = object_elements (obj, varargin)
-% Return a given object elements of a given array from the original set of arrays
+% Return selected object elements of a given array from the original set of arrays
 %
-%   >> obj = object_elements (obj, iarray, ind)
-%   >> obj = object_elements (obj, ind)         % OK if only one original array
+%   >> A = object_elements (obj, iarray, ind)
+%   >> A = object_elements (obj, ind)           % OK if only one original array
 %
 % Input:
 % ------
-%   obj         object_lookup object
+%   obj         object_lookup object containing one or more object arrays
 %
 %   iarray      Scalar index of the original object array from the
 %              cell array of object arrays from which the object lookup
@@ -27,17 +27,20 @@ function A = object_elements (obj, varargin)
 
 % Check validity
 if ~isscalar(obj)
-    error('HERBERT:object_lookup:invalid_argument', 'Only operates on a single object_lookup (i.e. object must be scalar');
+    error('HERBERT:object_lookup:invalid_argument', ...
+        'Only operates on a single object_lookup (i.e. object must be scalar');
 end
 if ~obj.filled
-    error('HERBERT:object_lookup:invalid_argument', 'The object_lookup is not initialised')
+    error('HERBERT:object_lookup:invalid_argument', ...
+        'The object_lookup is not initialised')
 end
 
 % Get return argument
 if numel(varargin)==2
     iarray = varargin{1};
     if ~isscalar(iarray)
-        error('HERBERT:object_lookup:invalid_argument', 'Index to original object array, ''iarray'', must be a scalar')
+        error('HERBERT:object_lookup:invalid_argument', ...
+            'Index to original object array, ''iarray'', must be a scalar')
     end
     ind = varargin{2};
 elseif numel(varargin)==1
@@ -45,17 +48,23 @@ elseif numel(varargin)==1
         iarray = 1;
         ind = varargin{1};
     else
-        error('HERBERT:object_lookup:invalid_argument', 'Must give index to the object array from which elements are to be recovered')
+        error('HERBERT:object_lookup:invalid_argument', ...
+            'Must give index to the object array from which elements are to be recovered')
     end
 else
-    error('HERBERT:object_lookup:invalid_argument', 'Invalid number of input arguments')
+    error('HERBERT:object_lookup:invalid_argument', ...
+        'Invalid number of input arguments')
 end
 
 % Get return argument
-Afull = obj.object_store_(obj.indx_{iarray});
-Afull = reshape(Afull,obj.sz_{iarray});
-
-A = Afull(ind);
+% - indices to elements in object_store_ for the array with index iarray
+%   Reshape to the original input array of the objects
+indx = reshape(obj.indx_{iarray}, obj.sz_{iarray});   
+% - Indices of the elements to extract
+ix = indx(ind);
+% - Extract elements, and reshape to size of ix because this is the shape the
+%   output would have had we directly indexed into the original object array.
+A = obj.object_store_(ix);
+A = reshape(A, size(ix));
 
 end
-

@@ -977,4 +977,16 @@
          <completed_on>[2022 5 6 13 43 8.417]</completed_on>
       </cutE_AllInt_flBsd_nwk0_comb_matlab>
    </ndlt1121_nf10>
+   <host_172_16_111_112_nf5>
+      <gen_tmp_nwk_0_herbert>
+         <time_sec>36.341462</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2023 8 11 10 39 23.584849]</completed_on>
+      </gen_tmp_nwk_0_herbert>
+      <comb_tmp_nwk_0_mex_code_MODE0>
+         <time_sec>3.440096</time_sec>
+         <comment>calc headers and combine all tmp files</comment>
+         <completed_on>[2023 8 11 10 39 27.452572]</completed_on>
+      </comb_tmp_nwk_0_mex_code_MODE0>
+   </host_172_16_111_112_nf5>
 </test_cuts_performance>

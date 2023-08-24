@@ -1,6 +1,6 @@
-function [main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+function [main_header,exp_info,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
     read_input_headers_(infiles)
-
+% Read information necessary for combining various tmp files together
 
 % Read header information:
 if ~iscell(infiles)
@@ -9,7 +9,7 @@ end
 nfiles = numel(infiles);
 
 main_header=cell(nfiles,1);
-header=cell(nfiles,1);
+exp_info=cell(nfiles,1);
 datahdr=cell(nfiles,1);
 %pos_datastart=zeros(nfiles,1);
 pos_npixstart=zeros(nfiles,1);
@@ -24,8 +24,7 @@ for i=1:nfiles
     if ~strcmpi(data_type,'a'); error('WRITE_NSQW_TO_SQW:invalid_argument',...
             ['No pixel information in ',infiles{i}]); end
     main_header{i} = ldrs{i}.get_main_header();
-    header{i}      = ldrs{i}.get_exp_info('-all');
-    %datahdr{i}     = ldrs{i}.get_data('-head');
+    exp_info{i}    = ldrs{i}.get_exp_info('-all');
     datahdr{i}     = ldrs{i}.get_dnd_metadata();
     det_tmp        = ldrs{i}.get_detpar();
     if (~isempty(det_tmp)                                && ...
@@ -39,17 +38,17 @@ for i=1:nfiles
         det=det_tmp;    % store the detector information for the first file
     else
         det_tmp.filename = det.filename;
-        det_tmp.filepath = det.filepath;        
+        det_tmp.filepath = det.filepath;
     end
     if ~equal_to_tol(det,det_tmp,[1.e-9,1.e-9])
         % CM:we will need to get rid of this once detpars start becoming
         % different between runs
         error('HORACE:write_nsqw_to_sqw:invalid_argument',...
-        ' Detector parameters are not the same in first and %d file %s',...
-            i,infiles{i}); 
-    end 
+            ' Detector parameters are not the same in first and %d file %s',...
+            i,infiles{i});
+    end
     clear det_tmp       % save memory on what could be a large variable
-    
+
     %pos_datastart(i)=ldrs{i}.data_position;  % start of data block
     pos_npixstart(i)=ldrs{i}.npix_position;  % start of npix field
     pos_pixstart(i) =ldrs{i}.pix_position;   % start of pix field

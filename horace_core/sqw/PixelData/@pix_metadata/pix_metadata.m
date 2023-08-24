@@ -37,11 +37,11 @@ classdef pix_metadata < serializable
                 if isa(varargin{1},'PixelDataBase') || isa(varargin{1},'pix_combine_info')
                     inputs = varargin{1};
                     remains = {};
-                    obj.npix = inputs.num_pixels;
-                    obj.data_range    = inputs.data_range;
+                    obj.npix          = inputs.num_pixels;
+                    obj.data_range    = inputs.raw_data_range;
                     obj.full_filename = inputs.full_filename;
                     if inputs.is_misaligned
-                        obj.alignment_matr = input.alignment_matr;
+                        obj.alignment_matr = inputs.alignment_matr;
                     end
                 else
                     remains = varargin{1};

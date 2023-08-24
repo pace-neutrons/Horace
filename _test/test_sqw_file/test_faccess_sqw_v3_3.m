@@ -78,8 +78,6 @@ classdef test_faccess_sqw_v3_3< TestCase
 
             assertEqual(inf.filename,'')
             assertElementsAlmostEqual(inf.psi,0.2967,'absolute',1.e-4);
-            assertEqual(inf.ulabel{4},'E')
-            assertEqual(inf.ulabel{3},'Q_\eta')
 
 
             det = file_accessor.get_detpar();
@@ -156,8 +154,7 @@ classdef test_faccess_sqw_v3_3< TestCase
         function test_save_sqw2to3_3(obj)
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3.sqw');
-            warning('off','SQW_FILE_IO:legacy_data');
-            clob0 = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
+            clob0 = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
 
             so = faccess_sqw_v2(samp_f);
             sqw_ob = so.get_sqw();
@@ -243,7 +240,7 @@ classdef test_faccess_sqw_v3_3< TestCase
         end
 
         %
-        function test_serialize_deserialise_faccess(obj)
+        function test_serialize_deserialize_faccess(obj)
             fo = faccess_sqw_v3_3();
             fo = fo.init(obj.sample_file);
 
@@ -252,8 +249,8 @@ classdef test_faccess_sqw_v3_3< TestCase
 
             assertEqual(fo,fr);
 
-            by = hlp_serialise(fo);
-            fr = hlp_deserialise(by);
+            by = hlp_serialize(fo);
+            fr = hlp_deserialize(by);
             assertEqual(fo,fr);
         end
         %

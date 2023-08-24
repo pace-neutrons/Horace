@@ -108,6 +108,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             instrument = IX_inst_DGfermi();
             sample = IX_sample();
             info = IX_experiment();
+            clOwr =set_temporary_warning('off','HORACE:Experiment:invalid_argument');
             expt = Experiment(detector_array, instrument, sample,info);
 
             assertEqual(expt.samples{1}, sample);
@@ -118,9 +119,10 @@ classdef test_experiment_cnstrct_and_properties < TestCase
         function test_creates_object_with_empty_object_arguments(~)
             expt = Experiment([], [], [],[]);
             assertEqual(expt.n_runs,0);
-            assertEqual(expt.instruments.n_runs, 0);
-            assertEqual(expt.samples.n_runs, 0);
-            assertEqual(expt.detector_arrays.n_runs, 0);
+
+            assertEqual(expt.samples.n_runs,0);
+            assertEqual(expt.instruments.n_runs,0);
+            assertEqual(expt.detector_arrays.n_runs,0);
             assertTrue(isempty(expt.expdata));
         end
         
@@ -153,6 +155,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             sample.alatt = [6,6,6];
             sample.angdeg = [90,90,90];
             info = [IX_experiment,IX_experiment];
+            clOwr =set_temporary_warning('off','HORACE:Experiment:invalid_argument');
             expt = Experiment( ...
                 [detector_array, detector_array], ...
                 [instrument, instrument], ...
@@ -231,15 +234,21 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             clear('expt');
 
             load(tmpfile, 'expt');
-            
-            assertTrue( isa( expt.samples, 'unique_references_container'));
-            assertTrue( isa( expt.instruments, 'unique_references_container'));
-            assertTrue( isa( expt.detector_arrays, 'unique_references_container'));
-            assertEqual( expt.samples.n_runs, 0);
-            assertEqual( expt.instruments.n_runs, 0);
-            assertEqual( expt.detector_arrays.n_runs, 0);
-            
-            assertEqual(expt.expdata, []);
+            assertTrue( isa( expt.samples, 'unique_references_container' ) );
+            assertEqual( expt.samples.global_name, 'GLOBAL_NAME_SAMPLES_CONTAINER' );
+            assertEqual( expt.samples.n_runs, 0 );
+            function throw1()
+                expt.samples{1};
+            end
+            assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_argument');
+            assertTrue( isa( expt.instruments, 'unique_references_container' ) );
+            assertEqual( expt.instruments.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
+            assertEqual( expt.instruments.n_runs, 0 );
+            function throw2()
+                expt.instruments{1};
+            end
+            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
+            assertEqual(expt.detector_arrays.n_runs, 0);
         end
 
         function test_instruments_setter_updates_value_for_valid_value(~)

@@ -1,5 +1,5 @@
 function pix_out = get_pixels(obj, abs_pix_indices,varargin)
-% Retrieve the pixels at the given indices in the full pixel block,
+% Retrieve the raw pixels at the given indices in the full pixel block,
 % return a new PixelData object.
 %
 %  >> pix_out = pix.get_pixels(15640:19244)  % retrieve pixels at indices 15640 to 19244
@@ -29,29 +29,17 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %
 %  '-keep_precision'-- keep the precision of output raw data as it is (not
 %                      doubling it if possible)
+%  '-align'         -- if provided and pixels are realigned, apply
+%                      alignment transformation to pixels
 
 % Output:
 % -------
 %   pix_out        Another PixelData object containing only the pixels
 %                  specified in the abs_pix_indices argument.
 %
-[abs_pix_indices,ignore_range,raw_data,keep_precision] =...
+[abs_pix_indices,ignore_range,raw_data,keep_precision,align] =...
     obj.parse_get_pix_args(abs_pix_indices,varargin{:});
 
+pix_data = obj.data_(:, abs_pix_indices);
 
-pix_out = obj.data_(:, abs_pix_indices);
-
-if ~keep_precision
-    pix_out = double(pix_out);
-end
-
-if raw_data
-    return;
-end
-if ignore_range
-    pix_out = PixelDataMemory();
-    pix_out = pix_out.set_raw_data(pix_out);
-
-else
-    pix_out = PixelDataMemory(pix_out);
-end
+pix_out = obj.pack_get_pix_result(pix_data,ignore_range,raw_data,keep_precision,align);

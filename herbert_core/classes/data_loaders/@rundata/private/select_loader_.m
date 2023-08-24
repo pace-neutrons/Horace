@@ -80,8 +80,3 @@ if nargin>addarg_start_from
     end
     obj=set_param_recursively(obj,varargin{addarg_start_from:end});
 end
-
-
-
-
-

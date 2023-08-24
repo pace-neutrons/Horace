@@ -10,12 +10,12 @@ function obj = from_bare_struct_ (obj_template, S)
 %                  to_bare_struct does not contain the class type. The object
 %                  is used to provide the class to be recovered, and the value
 %                  of any missing properties if recovering from an older
-%                  version. 
+%                  version.
 %
 %   S               Structure or structure array of data with the structure as
 %                  created by the method to_bare_struct.
 %                   Note that structures created by to_struct (i.e. with the
-%                  fields 'serial_name', 'version' and (if from an array of 
+%                  fields 'serial_name', 'version' and (if from an array of
 %                  objects) 'array_dat' are *NOT* valid.
 %
 % Output:
@@ -24,12 +24,6 @@ function obj = from_bare_struct_ (obj_template, S)
 %                  argument obj_template.
 
 
-% Check input
-if numel(obj_template)~=1
-    error('HERBERT:serializable:invalid_argument',...
-        'The input template object must be a scalar instance')
-end
-
 % *** Special case
 % Catch the case of an empty input structure with no fields as meaning
 % just return the template object. This is because we have used the case of
@@ -37,7 +31,7 @@ end
 % poor design as a valid object to save/load is one with no fields and no
 % size. Serializable also interprets an empty object *with* fields in the
 % same way - again possibly inconsistent design. Catch this case too until
-% a robust design is made. 
+% a robust design is made.
 if numel(S)==0
     obj = obj_template;
     return
@@ -48,7 +42,11 @@ nobj = numel(S);
 if nobj == 1
     obj = obj_template;
 else
-    obj = repmat(obj_template, size(S));
+    if isequal(size(obj_template),size(S))
+        obj = obj_template;        
+    else
+        obj = repmat(obj_template(1), size(S));
+    end
 end
 
 % Find the fields to be set from the structure
@@ -74,16 +72,15 @@ end
 % Set properties without checking interdependecies by turning off the method
 % check_combo_arg, turning on and performing the check only when all properties
 % have been updated.
-obj_cellarray = cell(nobj,1);
+
 for i=1:nobj
     obj(i).do_check_combo_arg_ = false;
     obj(i) = set_obj (obj(i), S(i), fields_to_set);
     obj(i).do_check_combo_arg_ = true;
     % Check interdependent properties. If the object is invalid, an
     % exception is thrown
-    obj_cellarray{i} = obj(i).check_combo_arg();
+    obj(i) = obj(i).check_combo_arg();
 end
-obj = [obj_cellarray{:}];
 if nobj > 1
     obj = reshape(obj,size(S));
 end

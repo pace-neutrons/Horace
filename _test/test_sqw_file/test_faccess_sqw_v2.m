@@ -98,8 +98,6 @@ classdef test_faccess_sqw_v2< TestCase
             exper = to.get_exp_info();
             exp_info = exper.expdata;
             assertEqual(exp_info.filename,'slice_n_c_m1_ei140')
-            assertEqual(exp_info .ulabel{4},'E')
-            assertEqual(exp_info.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'slice_n_c_m1_ei140.par')
@@ -130,8 +128,6 @@ classdef test_faccess_sqw_v2< TestCase
             exper = to.get_exp_info();
             header = exper.expdata;
             assertEqual(header.filename,'map11014.spe;1')
-            assertEqual(header.ulabel{4},'E')
-            assertEqual(header.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'9cards_4_4to1.par')
@@ -152,10 +148,6 @@ classdef test_faccess_sqw_v2< TestCase
             exp_n = exp_info.expdata(186);
             assertEqual(exp_n.filename,'map11201.spe;1');
             assertEqual(exp_n.filepath,'c:\data\Fe\data_nov06\const_ei\');
-            assertEqual(exp_n.ulabel{1},'Q_\zeta')
-            assertEqual(exp_n.ulabel{2},'Q_\xi')
-            assertEqual(exp_n.ulabel{4},'E')
-
 
             main_h = to.get_main_header('-keep_original');
             assertEqual(main_h.nfiles,186);
@@ -220,7 +212,7 @@ classdef test_faccess_sqw_v2< TestCase
             fresh_sqw = faccess_sqw_v2();
 
             tf = fullfile(tmp_dir,'test_put_sqw_v2.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
 
             fresh_sqw = fresh_sqw.init(tob_sqw);
             fresh_sqw = fresh_sqw.set_file_to_update(tf);
@@ -235,7 +227,9 @@ classdef test_faccess_sqw_v2< TestCase
             %
             % new file has been upgraded with runid_map so its size have
             % increased? one byte is missing, why?
-            assertEqual(sz1+numel('$id$1')+numel(char(datetime("now"))),sz2);
+            assertEqual(sz1+numel('$id$1')+numel(char(datetime("now")))- ...
+                28,... % save small dummy ulabel instead of large old one
+                sz2);
             %
             tn = faccess_sqw_v2(tf);
             rec_sqw = tn.get_sqw('-ver');
@@ -254,7 +248,7 @@ classdef test_faccess_sqw_v2< TestCase
 
 
             tf = fullfile(tmp_dir,'test_upgrade_sqwV2.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
             copyfile(samplef,tf);
 
             tob = faccess_sqw_v2(tf);
@@ -282,7 +276,7 @@ classdef test_faccess_sqw_v2< TestCase
 
 
             tf = fullfile(tmp_dir,'test_upgrade_sqwV2_multiheader.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
             copyfile(samplef,tf);
 
             tob = faccess_sqw_v2(tf);
@@ -313,7 +307,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertFalse(sqwob.main_header.creation_date_defined);
 
             tf = fullfile(tmp_dir,'test_upgrade_sqwV2_wac.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
             tob = faccess_sqw_v2(sqwob,tf);
             tob = tob.put_sqw();
 
@@ -352,7 +346,7 @@ classdef test_faccess_sqw_v2< TestCase
             sqwob = read_sqw(samplef);
 
             tf = fullfile(tmp_dir,'test_put_dnd_from_sqw.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
             tob = faccess_sqw_v2(sqwob,tf);
             tob = tob.put_dnd();
             tob.delete();
@@ -377,7 +371,7 @@ classdef test_faccess_sqw_v2< TestCase
             dnob = read_dnd(samplef);
 
             tf = fullfile(tmp_dir,'test_put_dnd_from_sqw.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()del_memmapfile_files(tf));
 
             tob = faccess_dnd_v2(dnob,tf);
             tob = tob.put_sqw();
@@ -404,7 +398,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(isa(sq_obj,'sqw'));
 
             test_f = fullfile(tmp_dir,'test_sqw_reopen_to_wrire.sqw');
-            clob = onCleanup(@()delete(test_f));
+            clob = onCleanup(@()del_memmapfile_files(test_f));
 
             % using already initialized object to write new data.
             % its better to initialize object again as with this form

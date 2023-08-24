@@ -12,7 +12,7 @@ obj.num_pixels_   = size(pix,2);
 
 obj = obj.get_new_handle();
 obj.format_dump_data(pix);
-obj = obj.finalise();
+obj = obj.finish_dump();
 
 obj = obj.recalc_data_range('all');
 

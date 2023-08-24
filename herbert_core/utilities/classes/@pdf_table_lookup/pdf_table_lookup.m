@@ -19,10 +19,10 @@ classdef pdf_table_lookup < serializable
     %
     % Relationship to object_lookup:
     % ------------------------------
-    % This class is similar to <a href="matlab:help('object_lookup');">object_lookup</a>
-    % That class is more general because it supports random sampling that results
+    % The pdf_table_lookup class is similar to <a href="matlab:help('object_lookup');">object_lookup</a>
+    % The object_lookup class is more general because it supports random sampling that results
     % in a vector or array e.g. when the object method rand suplies a set of
-    % points in 3D volume. This class provides random sampling from a one-
+    % points in a 3D volume. This class provides random sampling from a one-
     % dimensional probability distribution function only.
     %
     % Generally, it is better to create an object_lookup object from your set of objects
@@ -179,23 +179,13 @@ classdef pdf_table_lookup < serializable
     end
     methods(Access=protected)
         %------------------------------------------------------------------
-        function obj = from_old_struct(obj,inputs)
-            % restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % By default, this function interfaces the default from_struct
-            % function, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+        function [inputs,obj] = convert_old_struct(obj,inputs,ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised conversion. Called within
+            % from_old_struct on each element of S and each obj in array of objects
+            % (in case of serializable array of objects)
             inputs = convert_old_struct_(obj,inputs);
-            % optimization here is possible to not to use the public
-            % interface. But is it necessary? its the question
-            obj = from_old_struct@serializable(obj,inputs);
-
         end
     end
 

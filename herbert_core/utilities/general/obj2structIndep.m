@@ -1,7 +1,7 @@
-function output_struct = obj2structIndep(input)
+function output_struct = obj2structIndep (obj)
 % Recursively convert objects into a structures of the independent properties
 %
-%   >> output_struct = obj2structIndep(obj)
+%   >> output_struct = obj2structIndep (obj)
 %
 % This function recursively resolves all objects into structures, keeping
 % the non-dependent properties only, both public and private.
@@ -27,9 +27,9 @@ function output_struct = obj2structIndep(input)
 % See also obj2struct
 
 public = false;
-if isstruct(input) || isobject(input)
-    output_struct = obj2struct_private(input,public);
+if isstruct(obj) || isobject(obj)
+    output_struct = obj2struct_private(obj, public);
 else
     error('HERBERT:obj2structIndep:invalid_argument',...
-        'Input argument is not an object or a structure. It is %s',class(input))
+        'Input argument is not an object or a structure. It has class %s', class(obj))
 end

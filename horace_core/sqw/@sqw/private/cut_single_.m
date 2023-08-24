@@ -1,10 +1,10 @@
-function [wout,log_info] = cut_single_(w, tag_proj, targ_axes, keep_pix, outfile,log_level)
+function [wout,log_info] = cut_single_(w, targ_proj, targ_axes, opt, log_level)
 %%CUT_SINGLE Perform a cut on a single sqw object
 %
 % Input:
 % ------
 % w           The sqw object to take a cut from.
-% tag_proj    A `projection` object, defining the projection of the cut.
+% targ_proj    A `projection` object, defining the projection of the cut.
 % targ_axes   `AxesBlockBase` object defining the ranges, binning and geometry
 %             of the target cut
 %
@@ -23,31 +23,40 @@ function [wout,log_info] = cut_single_(w, tag_proj, targ_axes, keep_pix, outfile
 %
 
 % Rework of legacy function cut_sqw_main_single
-
 return_cut = nargout > 0;
+
+outfile_specified = isfield(opt, 'outfile') && ~isempty(opt.outfile);
 
 % Accumulate image and pixel data for cut
 [s, e, npix, pix_out,runid_contributed] = cut_accumulate_data_( ...
-    w, tag_proj,targ_axes,keep_pix, log_level, return_cut);
+    w, targ_proj, targ_axes, opt.keep_pix, log_level, return_cut);
+
+
 if isa(pix_out, 'pix_combine_info')
     % Make sure we clean up temp files.
     cleanup = onCleanup(@() clean_up_tmp_files(pix_out));
+
+    if ~outfile_specified
+        tmp_file = TmpFileHandler(w.full_filename);
+        opt.outfile = tmp_file.file_name;
+        outfile_specified = true;
+    end
 end
 
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
 data_out = compile_sqw_data(...
-    targ_axes, tag_proj, s, e, npix, pix_out,keep_pix);
+    targ_axes, targ_proj, s, e, npix, pix_out, opt.keep_pix);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
 % dnd.
-if keep_pix
+if opt.keep_pix
     wout = sqw();
     wout.main_header = w.main_header;
     wout.detpar = w.detpar;
     wout.data   = data_out.data;
-    wout.pix  = data_out.pix;    
-    
+    wout.pix  = data_out.pix;
+
     if isempty(runid_contributed) % Empty cut
         exp_info = Experiment();
     else
@@ -66,44 +75,48 @@ if keep_pix
             end
         end
         exp_info = w.experiment_info.get_subobj(runid_contributed);
-        %
     end
-    %
+
     wout.experiment_info = exp_info;
     wout.main_header.nfiles  = exp_info.n_runs;
     % set new cut object creation date defined and equal to now if the
     % resulting cut contributing runs number is smaller then the original
-    % number different
+    % number
     if w.main_header.nfiles ~= wout.main_header.nfiles
         wout.main_header.creation_date = datetime('now');
     end
 else
-    wout = data_out.data; % Should it be sqw without pixels? We may want to 
+    % Should it be sqw without pixels? We may want to
     % do it it the result is an array of sqw cuts, some empty
+    wout = data_out.data;
 end
 
 % Write result to file if necessary
-if exist('outfile', 'var') && ~isempty(outfile)
+if outfile_specified
     if log_level >= 0
-        disp(['*** Writing cut to output file ', outfile, '...']);
+        disp(['*** Writing cut to output file ', opt.outfile, '...']);
     end
+
     try
-        save(wout, outfile);
+        save(wout, opt.outfile);
     catch ME
-        warning('HORACE:cut_sqw:io_error', ...
-            'Error writing to file ''%s''.\n%s: %s', ...
-            outfile, ME.identifier, ME.message);
+        error('HORACE:cut_sqw:io_error', ...
+              'Error writing to file ''%s''.\n%s: %s', ...
+              opt.outfile, ME.identifier, ME.message);
     end
 end
 
+if exist('tmp_file', 'var')
+    wout = sqw(opt.outfile);
+    wout.file_holder_ = tmp_file;
+end
 
-% -----------------------------------------------------------------------------
+end
+
 function data_out = compile_sqw_data(targ_axes, proj, s, e, npix, pix_out, ...
     keep_pix)
-%
 
-data_out.data = DnDBase.dnd(targ_axes,proj,s,e,npix);
-
+data_out.data = DnDBase.dnd(targ_axes(1),proj(1),s,e,npix);
 
 if keep_pix
     data_out.pix = pix_out;
@@ -111,10 +124,11 @@ else
     data_out.pix = PixelDataBase.create();
 end
 
+end
 
 function clean_up_tmp_files(pix_comb_info)
 % Manually clean-up temporary files created by a pix_combine_info object
-for i = 1:numel(pix_comb_info.infiles)
-    tmp_fpath = pix_comb_info.infiles{i};
-    delete(tmp_fpath);
+    for nfile = 1:numel(pix_comb_info.infiles)
+        delete(pix_comb_info.infiles{nfile});
+    end
 end

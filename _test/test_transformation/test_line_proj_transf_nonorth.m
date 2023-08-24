@@ -1,6 +1,6 @@
 classdef test_line_proj_transf_nonorth<TestCase
     % The tests to verify what ortho transformation corresponds to what
-    % kind of detinintions
+    % kind of definitions
     %
     %
     properties
@@ -19,7 +19,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % this test does not work. Should it? With current
             % nonorthogonal lattice definition, such recovery is impossible
 
-            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+            prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','ppp','u',[1,0,0],'v',[0,1,0],'w',[1,1,1]);
 
@@ -32,8 +32,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             data.label = prj_or.label;
             data.ulen = ulen;
 
-            prj_rec = ortho_proj.get_from_old_data(data);
-            prj_rec = ortho_projTester(prj_rec);
+            prj_rec = line_proj.get_from_old_data(data);
+            prj_rec = line_projTester(prj_rec);
             [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
@@ -52,7 +52,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % this test does not work. Should it? With current
             % nonorthogonal lattice definition, such recovery is impossible
 
-            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+            prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','rrr','u',[1,0,0],'v',[0,1,0],'w',[1,1,1]);
 
@@ -65,8 +65,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             data.label = prj_or.label;
             data.ulen = ulen;
 
-            prj_rec = ortho_proj.get_from_old_data(data);
-            prj_rec = ortho_projTester(prj_rec);
+            prj_rec = line_proj.get_from_old_data(data);
+            prj_rec = line_projTester(prj_rec);
             [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
@@ -85,7 +85,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % this test does not work. Should it? With current
             % nonorthogonal lattice definition, such recovery is impossible
 
-            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+            prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','ppp','u',[1,1,0],'v',[0,1,0],'w',[1,1,1]);
 
@@ -98,8 +98,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             data.label = prj_or.label;
             data.ulen = ulen;
 
-            prj_rec = ortho_proj.get_from_old_data(data);
-            prj_rec = ortho_projTester(prj_rec);
+            prj_rec = line_proj.get_from_old_data(data);
+            prj_rec = line_projTester(prj_rec);
             [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
@@ -118,7 +118,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % this test does not work. Should it? With current
             % nonorthogonal lattice definition, such recovery is impossible
 
-            prj_or = ortho_projTester('alatt',[3.1580 3.1752 3.1247], ...
+            prj_or = line_projTester('alatt',[3.1580 3.1752 3.1247], ...
                 'angdeg',[90.0013 89.9985 90.0003],'nonorthogonal',true,...
                 'type','rrr','u',[1,0,0],'v',[0,1,0]);
 
@@ -131,8 +131,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             data.label = prj_or.label;
             data.ulen = ulen;
 
-            prj_rec = ortho_proj.get_from_old_data(data);
-            prj_rec = ortho_projTester(prj_rec);
+            prj_rec = line_proj.get_from_old_data(data);
+            prj_rec = line_projTester(prj_rec);
             [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-5)
@@ -153,7 +153,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % this test does not work. Should it? With current
             % nonorthogonal lattice definition, such recovery is impossible
 
-            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+            prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','par','u',[1,1,0],'v',[0,1,0],'w',[1,1,1]);
 
@@ -166,8 +166,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             data.label = prj_or.label;
             data.ulen = ulen;
 
-            prj_rec = ortho_proj.get_from_old_data(data);
-            prj_rec = ortho_projTester(prj_rec);
+            prj_rec = line_proj.get_from_old_data(data);
+            prj_rec = line_projTester(prj_rec);
             [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
@@ -186,7 +186,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % this test does not work. Should it? With current
             % nonorthogonal lattice definition, such recovery is impossible
 
-            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+            prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','aaa','u',[1,1,0],'v',[1,0,0],'w',[1,1,1]);
 
@@ -199,8 +199,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             data.label = prj_or.label;
             data.ulen = ulen;
 
-            prj_rec = ortho_proj.get_from_old_data(data);
-            prj_rec = ortho_projTester(prj_rec);
+            prj_rec = line_proj.get_from_old_data(data);
+            prj_rec = line_projTester(prj_rec);
             [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
@@ -221,7 +221,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % this test does not work. Should it? With current
             % nonorthogonal lattice definition, such recovery is impossible
 
-            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+            prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','aaa','u',[1,0,0],'v',[1,1,0],'w',[1,1,1]);
 
@@ -234,8 +234,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             data.label = prj_or.label;
             data.ulen = ulen;
 
-            prj_rec = ortho_proj.get_from_old_data(data);
-            prj_rec = ortho_projTester(prj_rec);
+            prj_rec = line_proj.get_from_old_data(data);
+            prj_rec = line_projTester(prj_rec);
             [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
@@ -256,7 +256,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % this test does not work. Should it? With current
             % nonorthogonal lattice definition, such recovery is impossible
 
-            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+            prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','aaa','u',[1,1,1],'v',[1,1,0],'w',[0,-1,1]);
 
@@ -269,8 +269,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             data.label = prj_or.label;
             data.ulen = ulen;
 
-            prj_rec = ortho_proj.get_from_old_data(data);
-            prj_rec = ortho_projTester(prj_rec);
+            prj_rec = line_proj.get_from_old_data(data);
+            prj_rec = line_projTester(prj_rec);
             [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
@@ -299,7 +299,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             v = [0,-0.5,1];
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg, ...
+            pra = line_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg, ...
                 'nonortho',true);
             %
             %TODO: This option does not currently work.
@@ -310,7 +310,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             %
             [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_img,ulen);
 
-            pra = ortho_projTester(u_par,v_par,w, ...
+            pra = line_projTester(u_par,v_par,w, ...
                 'alatt',alatt,'angdeg',angdeg,'type',type, 'nonortho',true);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
@@ -324,14 +324,14 @@ classdef test_line_proj_transf_nonorth<TestCase
             v = [0,-0.5,1];
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg, ...
+            pra = line_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg, ...
                 'nonortho',true);
 
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu, ulen);
 
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt, ...
+            pra = line_projTester(u_par,v_par,w,'alatt',alatt, ...
                 'angdeg',angdeg,'type',typ, 'nonortho',true);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
@@ -347,7 +347,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             v = [0,0,1];
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg, ...
+            pra = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg, ...
                 'nonortho',true);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
@@ -357,7 +357,7 @@ classdef test_line_proj_transf_nonorth<TestCase
 
             % find part of the v vector, orthogonal to u
 
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt, ...
+            pra = line_projTester(u_par,v_par,w,'alatt',alatt, ...
                 'angdeg',angdeg,'type',typ, 'nonortho',true);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
@@ -373,13 +373,13 @@ classdef test_line_proj_transf_nonorth<TestCase
             v = [0,-0.5,1];
             alatt = [2.83,2.83,2.83];
             angdeg = [90,90,90];
-            pro = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg, ...
+            pro = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg, ...
                 'nonortho',true);
             [~, q_to_rlu, ulen] = pro.projaxes_to_rlu_public();
 
             [u_par,v_par,w,type] = pro.uv_from_data_rot_public(q_to_rlu,ulen);
 
-            prr = ortho_projTester(u_par,v_par,w,'alatt',alatt, ...
+            prr = line_projTester(u_par,v_par,w,'alatt',alatt, ...
                 'angdeg',angdeg,'type',type, 'nonortho',true);
             assertEqualToTol(pro,prr,1.e-12)
         end
@@ -390,13 +390,13 @@ classdef test_line_proj_transf_nonorth<TestCase
             v = [0;0.1;-1];
             alatt = [2.83,2.83,2.83];
             angdeg = [90,90,90];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg, ...
+            pra = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg, ...
                 'nonortho',true);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
 
-            prb = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg', ...
+            prb = line_projTester(u_par,v_par,w,'alatt',alatt,'angdeg', ...
                 angdeg,'type',tpe,'nonortho',true);
             [~, ~, ulen_rec] = pra.projaxes_to_rlu_public();
 
@@ -422,13 +422,13 @@ classdef test_line_proj_transf_nonorth<TestCase
             w = [0,0,1];
             pic_cc = [eye(3),[1;1;1]];
 
-            proj = ortho_proj(u,v,w, ...
+            proj = line_proj(u,v,w, ...
                 'alatt',lat_par,'angdeg',90, ...
                 'type','aaa','nonorthogonal',true);
 
 
             img_nonor = proj.transform_pix_to_img(pic_cc);
-            proj = ortho_proj(u,v,w, ...
+            proj = line_proj(u,v,w, ...
                 'alatt',lat_par,'angdeg',90, ...
                 'type','aaa','nonorthogonal',false);
             img_or = proj.transform_pix_to_img(pic_cc);
@@ -443,7 +443,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
             angdeg = [70,60,110];
-            projn = ortho_proj([1,0,0],[1,1,0],[0,1,1], ...
+            projn = line_proj([1,0,0],[1,1,0],[0,1,1], ...
                 'alatt',lat_par,'angdeg',angdeg,'type','ppp','nonorthogonal',true);
             assertEqual(projn.type,'ppp')
             assertEqual(projn.u,[1,0,0])
@@ -468,7 +468,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
             angdeg = [70,60,110];
-            projn = ortho_proj([1,0,0],[1,1,0],[0,1,1], ...
+            projn = line_proj([1,0,0],[1,1,0],[0,1,1], ...
                 'alatt',lat_par,'angdeg',angdeg,'type','aaa','nonorthogonal',true);
             assertEqual(projn.type,'aaa')
             assertEqual(projn.u,[1,0,0])
@@ -493,7 +493,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
             angdeg = [70,60,110];
-            projn = ortho_proj([1,0,0],[1,1,0],[0,1,1], ...
+            projn = line_proj([1,0,0],[1,1,0],[0,1,1], ...
                 'alatt',lat_par,'angdeg',angdeg,'type','rrr','nonorthogonal',true);
             assertEqual(projn.type,'rrr')
             assertEqual(projn.u,[1,0,0])
@@ -518,7 +518,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
-            projn = ortho_proj([1,0,0],[1,1,0],[0,1,1], ...
+            projn = line_proj([1,0,0],[1,1,0],[0,1,1], ...
                 'alatt',lat_par,'angdeg',90,'type','ppp','nonorthogonal',true);
             assertEqual(projn.type,'ppp')
             assertEqual(projn.u,[1,0,0])
@@ -542,7 +542,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
-            projn = ortho_proj([1,0,0],[1,1,0],[0,1,1], ...
+            projn = line_proj([1,0,0],[1,1,0],[0,1,1], ...
                 'alatt',lat_par,'angdeg',90,'type','aaa','nonorthogonal',true);
             assertEqual(projn.type,'aaa')
             assertEqual(projn.u,[1,0,0])
@@ -566,7 +566,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
-            projn = ortho_proj([1,0,0],[1,1,0],[0,1,1], ...
+            projn = line_proj([1,0,0],[1,1,0],[0,1,1], ...
                 'alatt',lat_par,'angdeg',90,'type','rrr','nonorthogonal',true);
             assertEqual(projn.type,'rrr')
             assertEqual(projn.u,[1,0,0])
@@ -591,7 +591,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
-            projn = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
+            projn = line_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
                 'type','ppp','nonorthogonal',true);
             assertEqual(projn.type,'ppp')
             assertEqual(projn.u,[1,0,0])
@@ -615,7 +615,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
-            projn = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
+            projn = line_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
                 'type','aaa','nonorthogonal',true);
             assertEqual(projn.type,'aaa')
             assertEqual(projn.u,[1,0,0])
@@ -639,7 +639,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
-            projn = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
+            projn = line_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
                 'type','rrr','nonorthogonal',true);
             assertEqual(projn.type,'rrr')
             assertEqual(projn.u,[1,0,0])
@@ -665,7 +665,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
             len = (2*pi)./lat_par;
-            projn = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
+            projn = line_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
                 'type','rrr','nonorthogonal',true);
             assertEqual(projn.type,'rrr')
             assertEqual(projn.u,[1,0,0])
@@ -676,7 +676,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             pix_cc = eye(3).*len;
 
             imgn_coord = projn.transform_pix_to_img(pix_cc);
-            projo = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
+            projo = line_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
                 'type','rrr','nonorthogonal',false);
             assertEqual(projo.type,'rrr')
             assertEqual(projo.u,[1,0,0])

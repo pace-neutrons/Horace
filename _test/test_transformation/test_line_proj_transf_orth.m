@@ -1,6 +1,6 @@
 classdef test_line_proj_transf_orth<TestCase
     % The tests to verify what ortho transformation corresponds to what
-    % kind of detinintions
+    % kind of definitions
     %
     %
     properties
@@ -23,7 +23,7 @@ classdef test_line_proj_transf_orth<TestCase
             v = [0,0,1];
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
+            pra = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
@@ -32,7 +32,7 @@ classdef test_line_proj_transf_orth<TestCase
 
             % find part of the v vector, orthogonal to u
 
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg,'type',typ);
+            pra = line_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg,'type',typ);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
@@ -47,13 +47,13 @@ classdef test_line_proj_transf_orth<TestCase
             v = [0,-0.5,1];
             alatt = [2.83,2.83,2.83];
             angdeg = [90,90,90];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
+            pra = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
             dat = struct();
             dat.u_to_rlu = pra.u_to_rlu_legacy;
             dat.alatt = alatt;
             dat.angdeg = angdeg;
             dat.ulen = pra.ulen;
-            rec = ortho_projTester();
+            rec = line_projTester();
             rec = rec.build_from_old_struct_public(dat);
 
             pix_cc = [eye(3),ones(3,1)];
@@ -70,12 +70,12 @@ classdef test_line_proj_transf_orth<TestCase
             v = [0,-0.5,1];
             alatt = [2.83,2.83,2.83];
             angdeg = [90,90,90];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
+            pra = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
 
-            prr = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg,'type',type);
+            prr = line_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg,'type',type);
 
             pix_cc = [eye(3),ones(3,1)];
             img_orig =  pra.transform_pix_to_img(pix_cc);
@@ -92,7 +92,7 @@ classdef test_line_proj_transf_orth<TestCase
             angdeg = [92,85,95];
             %bmat = bmatrix(alatt,angdeg);
 
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
+            pra = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
@@ -102,7 +102,7 @@ classdef test_line_proj_transf_orth<TestCase
             %assertTrue(isempty(w));
             %            assertEqual(tpe,'ppp');
 
-            prb = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg, ...
+            prb = line_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg, ...
                 'type',tpe);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
@@ -111,7 +111,7 @@ classdef test_line_proj_transf_orth<TestCase
 
 
             % check projection comparison operator itself, which compares
-            % these operators internaly
+            % these operators internally
             assertEqual(pra,prb,'absolute',1.e-5);
         end
 
@@ -121,7 +121,7 @@ classdef test_line_proj_transf_orth<TestCase
             v = [0;0;-1];
             alatt = [2.83,2.83,2.83];
             angdeg = [90,90,90];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
+            pra = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
@@ -130,7 +130,7 @@ classdef test_line_proj_transf_orth<TestCase
             %             assertElementsAlmostEqual(w,[0;1;0]);
             %             assertEqual(tpe,'ppp');
 
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg', ...
+            pra = line_projTester(u_par,v_par,w,'alatt',alatt,'angdeg', ...
                 angdeg,'type',tpe);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
@@ -141,7 +141,7 @@ classdef test_line_proj_transf_orth<TestCase
         %
         function transform_to_img_and_back_reverts_proj_ortho_with_offset(~)
             pix = ones(4,5);
-            proj = ortho_proj([1,0,0],[0,1,1],'offset',[1,1,1]);
+            proj = line_proj([1,0,0],[0,1,1],'offset',[1,1,1]);
             proj.alatt = 3;
             proj.angdeg = 90;
 
@@ -153,7 +153,7 @@ classdef test_line_proj_transf_orth<TestCase
         %
         function transform_to_img_and_back_reverts_proj_ortho(~)
             pix = ones(4,5);
-            proj = ortho_proj([1,0,0],[0,1,1]);
+            proj = line_proj([1,0,0],[0,1,1]);
             proj.alatt = 3;
             proj.angdeg = 90;
 
@@ -165,7 +165,7 @@ classdef test_line_proj_transf_orth<TestCase
         %
         function transform_to_img_and_back_reverts_proj_tricl(~)
             pix = ones(4,5);
-            proj = ortho_proj([1,0,0],[0,1,1]);
+            proj = line_proj([1,0,0],[0,1,1]);
             proj.alatt = [3,4,7];
             proj.angdeg = [95,70,85];
 
@@ -186,7 +186,7 @@ classdef test_line_proj_transf_orth<TestCase
             bm = bmatrix(lat_par,angdeg);
             pix_cc = bm'*pix_hkl;
 
-            proj = ortho_proj('alatt',lat_par,'angdeg',angdeg, ...
+            proj = line_proj('alatt',lat_par,'angdeg',angdeg, ...
                 'u',[1,-1,0],'v',[1,1,0],'w',[0,0,1], ...
                 'type','ppp');
 
@@ -210,7 +210,7 @@ classdef test_line_proj_transf_orth<TestCase
             bm = bmatrix(lat_par,angdeg);
             pix_cc = bm'*pix_hkl;
 
-            proj = ortho_proj('alatt',lat_par,'angdeg',angdeg,'w',[0,0,1], ...
+            proj = line_proj('alatt',lat_par,'angdeg',angdeg,'w',[0,0,1], ...
                 'type','ppp');
 
             pix_hkl1 = proj.transform_pix_to_img(pix_cc);
@@ -232,7 +232,7 @@ classdef test_line_proj_transf_orth<TestCase
             bm = bmatrix(lat_par,angdeg);
             pix_cc = bm'*pix_hkl;
 
-            proj = ortho_proj('alatt',lat_par,'angdeg',angdeg, ...
+            proj = line_proj('alatt',lat_par,'angdeg',angdeg, ...
                 'u',[1,-1,0],'v',[1,1,0],'w',[0,0,1], ...
                 'type','aaa');
 
@@ -253,7 +253,7 @@ classdef test_line_proj_transf_orth<TestCase
             bm = bmatrix(lat_par,angdeg);
             pix_cc = bm'*pix_hkl;
 
-            proj = ortho_proj('alatt',lat_par,'angdeg',angdeg, ...
+            proj = line_proj('alatt',lat_par,'angdeg',angdeg, ...
                 'u',[1,-1,0],'v',[1,1,0],'w',[0,0,1], ...
                 'type','ppp');
 
@@ -275,7 +275,7 @@ classdef test_line_proj_transf_orth<TestCase
             bm = bmatrix(lat_par,angdeg);
             pix_cc = bm'*pix_hkl;
 
-            proj = ortho_proj('alatt',lat_par,'angdeg',angdeg,'w',[0,0,1], ...
+            proj = line_proj('alatt',lat_par,'angdeg',angdeg,'w',[0,0,1], ...
                 'type','ppp');
 
             pix_hkl1 = proj.transform_pix_to_img(pix_cc);
@@ -293,7 +293,7 @@ classdef test_line_proj_transf_orth<TestCase
         %------------------------------------------------------------------
         function test_transf_rrr_new_vs_legacy_orthorhombic_lat(~)
             lat_par = [2,3,4];
-            proj = ortho_proj([1,1,0],[0,0,1],'alatt',lat_par,'angdeg',90, ...
+            proj = line_proj([1,1,0],[0,0,1],'alatt',lat_par,'angdeg',90, ...
                 'type','rrr');
             assertEqual(proj.type,'rrr')
             assertEqual(proj.u,[1,1,0])
@@ -313,7 +313,7 @@ classdef test_line_proj_transf_orth<TestCase
             v = [0,-0.5,1];
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
+            pra = line_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
             %
             %TODO: This option does not currently work.
             %pra.nonorthogonal = true;
@@ -338,7 +338,7 @@ classdef test_line_proj_transf_orth<TestCase
             %             v_tr = v_tr/norm(v_tr);
             %             % orthogonal v-part should be recovered from the u_to_rlu matrix
             %             assertElementsAlmostEqual(v_tr,v_par);
-            pra = ortho_projTester(u_par,v_par,w, ...
+            pra = line_projTester(u_par,v_par,w, ...
                 'alatt',alatt,'angdeg',angdeg,'type',type);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
@@ -349,7 +349,7 @@ classdef test_line_proj_transf_orth<TestCase
         function test_transformation_scale_rrr_ortho_rot_xyz_tricl_invertable(~)
 
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',[80,95,70], ...
+            proj = line_proj('alatt',lat_par,'angdeg',[80,95,70], ...
                 'u',[-1,1,1],'v',[1,0,0],'w',[0,1,0],'type','rrr');
 
             assertEqual(proj.type,'rrr')
@@ -373,7 +373,7 @@ classdef test_line_proj_transf_orth<TestCase
             lat_par = [2,3,4];
             len = (2*pi)./lat_par;
 
-            proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
+            proj = line_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[-1,1,1],'v',[1,0,0],'w',[0,1,0],'type','rrr');
 
             assertEqual(proj.type,'rrr')
@@ -402,7 +402,7 @@ classdef test_line_proj_transf_orth<TestCase
 
             lat_par = [2,3,4];
             len = (2*pi)./lat_par;
-            proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
+            proj = line_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[-1,1,0],'v',[1,1,0],'w',[0,0,1],'type','rrr');
 
             assertEqual(proj.type,'rrr')
@@ -428,7 +428,7 @@ classdef test_line_proj_transf_orth<TestCase
         function test_transformation_scale_rrr_ortho(~)
 
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
+            proj = line_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
                 'type','rrr');
             assertEqual(proj.type,'rrr')
             assertEqual(proj.u,[1,0,0])
@@ -448,7 +448,7 @@ classdef test_line_proj_transf_orth<TestCase
     methods
         function test_transf_ppp_new_vs_legacy_orthorhombic_lat(~)
             lat_par = [2,3,4];
-            proj = ortho_proj([1,1,0],[0,0,1],[0,1,0],'alatt',lat_par,'angdeg',90, ...
+            proj = line_proj([1,1,0],[0,0,1],[0,1,0],'alatt',lat_par,'angdeg',90, ...
                 'type','ppp');
             assertEqual(proj.type,'ppp')
             assertEqual(proj.u,[1,1,0])
@@ -467,7 +467,7 @@ classdef test_line_proj_transf_orth<TestCase
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
+            proj = line_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
                 'type','ppp','nonorthogonal',true);
             assertEqual(proj.type,'ppp')
             assertEqual(proj.u,[1,0,0])
@@ -484,7 +484,7 @@ classdef test_line_proj_transf_orth<TestCase
         function test_transformation_scale_ppp_ortho_rot_xyz_tricl_invertable(~)
 
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',[80,95,70], ...
+            proj = line_proj('alatt',lat_par,'angdeg',[80,95,70], ...
                 'u',[-1,1,1],'v',[1,0,0],'w',[0,1,0],'type','ppp');
 
             assertEqual(proj.type,'ppp')
@@ -505,7 +505,7 @@ classdef test_line_proj_transf_orth<TestCase
         function test_transformation_scale_ppp_ortho_rot_xyz(~)
 
             lat_par = [1,2,3];
-            proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
+            proj = line_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[-1,1,1],'v',[1,1,0],'w',[0,1,0],'type','ppp');
 
             assertEqual(proj.type,'ppp')
@@ -532,7 +532,7 @@ classdef test_line_proj_transf_orth<TestCase
 
             lat_par = [1,2,3];
             len = (2*pi)./lat_par;
-            proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
+            proj = line_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[-1,1,0],'v',[1,1,0],'w',[0,0,1]);
 
             assertEqual(proj.type,'ppp')
@@ -557,7 +557,7 @@ classdef test_line_proj_transf_orth<TestCase
 
             lat_par = 3;
             len = (2*pi)./lat_par;
-            proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
+            proj = line_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[-1,1,0],'v',[1,1,0],'w',[0,0,1]);
 
             assertEqual(proj.type,'ppp')
@@ -581,7 +581,7 @@ classdef test_line_proj_transf_orth<TestCase
         function test_transformation_scale_ppp_ortho(~)
 
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1]);
+            proj = line_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1]);
             assertEqual(proj.type,'ppp')
             assertEqual(proj.u,[1,0,0])
             assertEqual(proj.v,[0,1,0])
@@ -603,7 +603,7 @@ classdef test_line_proj_transf_orth<TestCase
         function test_transformation_scale_aaa_nonortho_tricl_invertable(~)
 
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',[85,110,95],'w',[0,0,1], ...
+            proj = line_proj('alatt',lat_par,'angdeg',[85,110,95],'w',[0,0,1], ...
                 'type','aaa','nonorthogonal',true);
             assertEqual(proj.type,'aaa')
             assertEqual(proj.u,[1,0,0])
@@ -620,7 +620,7 @@ classdef test_line_proj_transf_orth<TestCase
 
         function test_transformation_scale_aaa_nonotrho_invertable(~)
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
+            proj = line_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[1,-1,-1],'v',[1,1,-1],'w',[0,0,1], ...
                 'type','aaa','nonorthogonal',true,'offset',[1,1,0,1]);
             assertEqual(proj.type,'aaa')
@@ -645,7 +645,7 @@ classdef test_line_proj_transf_orth<TestCase
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
+            proj = line_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
                 'type','aaa','nonorthogonal',true);
             assertEqual(proj.type,'aaa')
             assertEqual(proj.u,[1,0,0])
@@ -661,7 +661,7 @@ classdef test_line_proj_transf_orth<TestCase
         function test_transformation_scale_aaa_ortho_tricl_rot(~)
 
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
+            proj = line_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[1,-1,-1],'v',[1,1,-1],'w',[0,0,1],'type','aaa');
             assertEqual(proj.type,'aaa')
             assertEqual(proj.u,[1,-1,-1])
@@ -683,7 +683,7 @@ classdef test_line_proj_transf_orth<TestCase
             v = [0,-0.5,1];
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
+            pra = line_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
 
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
@@ -701,7 +701,7 @@ classdef test_line_proj_transf_orth<TestCase
             % this part should be recovered from the u_to_rlu matrix
             %assertElementsAlmostEqual(v_tr,v_par);
 
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg,'type',typ);
+            pra = line_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg,'type',typ);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
@@ -713,7 +713,7 @@ classdef test_line_proj_transf_orth<TestCase
         function test_transformation_scale_aaa_ortho_tricl(~)
 
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',[85,110,95],'w',[0,0,1],'type','aaa');
+            proj = line_proj('alatt',lat_par,'angdeg',[85,110,95],'w',[0,0,1],'type','aaa');
             assertEqual(proj.type,'aaa')
             assertEqual(proj.u,[1,0,0])
             assertEqual(proj.v,[0,1,0])
@@ -729,7 +729,7 @@ classdef test_line_proj_transf_orth<TestCase
 
         function test_transformation_scale_aaa_ortho_rot_xyz(~)
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
+            proj = line_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[1,-1,-1],'v',[1,1,-1],'w',[0,0,1],'type','aaa');
             assertEqual(proj.type,'aaa')
             assertEqual(proj.u,[1,-1,-1])
@@ -746,7 +746,7 @@ classdef test_line_proj_transf_orth<TestCase
 
         function test_transformation_scale_aaa_ortho_rot_xy(~)
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
+            proj = line_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[1,-1,0],'v',[1,1,0],'w',[0,0,1],'type','aaa');
             assertEqual(proj.type,'aaa')
             assertEqual(proj.u,[1,-1,0])
@@ -763,7 +763,7 @@ classdef test_line_proj_transf_orth<TestCase
 
         function test_transformation_scale_aaa_ortho(~)
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1],'type','aaa');
+            proj = line_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1],'type','aaa');
             assertEqual(proj.type,'aaa')
             assertEqual(proj.u,[1,0,0])
             assertEqual(proj.v,[0,1,0])
@@ -779,7 +779,7 @@ classdef test_line_proj_transf_orth<TestCase
         function test_transformation_scale_aaa_ortholat_nonortho_invertable(~)
             %
             lat_par = [2,3,4];
-            proj = ortho_proj([1,0,0],[1,1,0],[0,0,1], ...
+            proj = line_proj([1,0,0],[1,1,0],[0,0,1], ...
                 'alatt',lat_par,'angdeg',90,'type','aaa','nonorthogonal',true);
             assertEqual(proj.type,'aaa')
             assertEqual(proj.u,[1,0,0])
@@ -796,7 +796,7 @@ classdef test_line_proj_transf_orth<TestCase
 
         function test_transformation_scale_aaa_ortho_invertable(~)
             lat_par = [2,3,4];
-            proj = ortho_proj([-1,1,0],[1,1,0],[0,0,1], ...
+            proj = line_proj([-1,1,0],[1,1,0],[0,0,1], ...
                 'alatt',lat_par,'angdeg',90, 'type','aaa','offset',[1,1,0,1]);
             assertEqual(proj.type,'aaa')
             assertEqual(proj.u,[-1,1,0])
@@ -814,7 +814,7 @@ classdef test_line_proj_transf_orth<TestCase
         %
         function test_transf_to_img_and_back_reverts_proj_ortho_3D_with_offset(~)
             pix = ones(3,5);
-            proj = ortho_proj([1,0,0],[0,1,1],'offset',[1,0,0]);
+            proj = line_proj([1,0,0],[0,1,1],'offset',[1,0,0]);
             proj.alatt = 3;
             proj.angdeg = 90;
 
@@ -826,7 +826,7 @@ classdef test_line_proj_transf_orth<TestCase
 
         function test_transform_to_img_and_back_reverts_proj_ortho_3D(~)
             pix = ones(3,5);
-            proj = ortho_proj([1,0,0],[0,1,1]);
+            proj = line_proj([1,0,0],[0,1,1]);
             proj.alatt = 3;
             proj.angdeg = 90;
 
@@ -838,7 +838,7 @@ classdef test_line_proj_transf_orth<TestCase
         %
         function test_transform_to_img_and_back_reverts_noprojaxis(~)
             pix = ones(4,5);
-            proj = ortho_proj('alatt',1,'angdeg',90);
+            proj = line_proj('alatt',1,'angdeg',90);
             pix_transf = proj.transform_pix_to_img(pix);
             assertEqual(size(pix_transf),[4,5]);
             pix_rec = proj.transform_img_to_pix(pix_transf);

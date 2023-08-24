@@ -43,12 +43,10 @@ function benchmark_tobyfit_fit(nDims,dataInfo,dataSet,nProcs,func_handle,params,
 
     % Set hpc config for benchmarks
     if nProcs > 0
-    %     hpc.parallel_multifit = true;
+        hpc.parallel_multifit = true;
         hpc.parallel_workers_number = nProcs;
-    %     warning("HORACE:benchmark_tobyfit_fit:not_implemented",...
-    %         "tobyfit_parallel does not yet exist, setting nProcs to 0")
     else
-    %     hpc.parallel_multifit = false;
+        hpc.parallel_multifit = false;
     end
 
     % Generate the sqw object for tobyfit

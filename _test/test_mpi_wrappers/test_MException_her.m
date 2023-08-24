@@ -58,8 +58,7 @@ classdef test_MException_her < TestCase
             end
 
             MeR = MException_her.build_MException(myExc);
-            w = warning('off','MATLAB:structOnObject');
-            clob = onCleanup(@()warning(w));
+            clob = set_temporary_warning('off','MATLAB:structOnObject');
 
             s1 = struct(ME);
             s2 = struct(MeR);
@@ -67,7 +66,7 @@ classdef test_MException_her < TestCase
             s2 = rmfield(s2,'type');
             if isfield(s1,'enhancedstack') % this is some new hidden property in new version of matlab
                 s1 = rmfield(s1,'enhancedstack');
-                s2 = rmfield(s2,'enhancedstack');                
+                s2 = rmfield(s2,'enhancedstack');
             end
             assertEqual(s1,s2);
 

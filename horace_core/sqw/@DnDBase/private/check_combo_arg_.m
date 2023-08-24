@@ -1,5 +1,14 @@
-function obj = check_combo_arg_(obj)
+function obj = check_combo_arg_(obj,varargin)
 % Check contents of interdependent fields
+%
+% Copy appropriate axes settings from projection to axes
+% Inputs:
+% obj    -- initalized instance of dnd base class
+% Optional:
+% 'no_proj_copy' -- if this parameter is present (any additional parameter
+%                    is present), copying parameters from projection to
+%                    axes does not happen
+%               
 % ------------------------
 
 if obj.NUM_DIMS ~= obj.axes_.dimensions
@@ -32,4 +41,12 @@ if any(sz ~=obj.axes.dims_as_ssize)
     error('HORACE:DnDBase:invalid_argument', ...
         'size of data arrays: [%s] different from the size of the grid, defined by axes: [%s]', ...
         num2str(sz),num2str(obj.axes.dims_as_ssize) )
+end
+if ~isa(obj.axes,obj.proj.axes_name)
+    error('HORACE:DnDBase:invalid_argument', ...
+        'Can not construct DND object with incompartible combination of the projection (class %s) and axes_block (class %s)', ...
+        class(obj.proj),class(obj.axes));
+end
+if nargin == 1
+    obj.axes_ = obj.proj.copy_proj_defined_properties_to_axes(obj.axes);
 end

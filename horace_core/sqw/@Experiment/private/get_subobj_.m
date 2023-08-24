@@ -49,12 +49,16 @@ else
     end
 end
 info = cell(4,1);
-
-info{1} = obj.detector_arrays_.get_subset(head_num);
+if obj.detector_arrays_.n_runs == obj.n_runs
+    info{1} = obj.detector_arrays_(head_num);
+elseif isempty(obj.detector_arrays_) || obj.detector_arrays_.n_runs == 0
+    info{1} = [];
+else
+    info{1} = obj.detector_arrays_(1);
+end
 info{2} = obj.instruments_.get_subset(head_num);
 info{3} = obj.samples_.get_subset(head_num);
 info{4} = obj.expdata_(head_num);
-
 subexper  = Experiment(info{:});
 if obj.runid_recalculated_
     subexper.runid_recalculated_ = true;

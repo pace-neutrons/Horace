@@ -38,12 +38,7 @@ end
 
 if ~(isempty(facc_mode) && isempty(obj.full_filename))
     %
-    obj.file_id_ = fopen(obj.full_filename,facc_mode);
-    if obj.file_id_ == -1
-        error('HORACE:bifile_v4_common:runtime_error',...
-            'Can not open file %s in mode %s', ...
-            obj.full_filename,facc_mode);
-    end
+    obj.file_id_ = sqw_fopen(obj.full_filename,facc_mode);
     if isempty(obj.file_closer_)
         obj.file_closer_ = onCleanup(@()fclose(obj));
     end

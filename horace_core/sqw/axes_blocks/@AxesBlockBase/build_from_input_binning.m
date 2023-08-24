@@ -133,7 +133,8 @@ end
 % check validity of data ranges
 if range(end) < range(1) && ~(numel(range) == 3 && range(2) < 0)
     error('HORACE:AxesBlockBase:invalid_argument',...
-          'Upper limit (%f) less than the lower limit (%f) for positive step - check axis N: d', range(end), range(1), ind);
+          'Upper limit (%f) smaller then the lower limit (%f) for positive step - check axis N: %d', ...
+          range(end), range(1), ind);
 end
 
 end

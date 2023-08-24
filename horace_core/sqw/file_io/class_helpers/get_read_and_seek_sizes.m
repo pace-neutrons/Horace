@@ -13,7 +13,7 @@ function [read_sizes, seek_sizes] = get_read_and_seek_sizes(indices)
 %
 % This can be used to read ranges of bytes within a file:
 %   >> data = cell(1, numel(read_sizes));
-%   >> fid = fopen('mybinary_file', 'r');
+%   >> fid = fopen('mybinary_file', 'r','l','Windows-1252');
 %   >> for i = 1:numel(read_sizes)
 %          do_fseek(fid, seek_sizes(i), 'cof');
 %          data{i} = fread(fid, read_sizes(i));
@@ -27,7 +27,7 @@ end
 
 validateattributes(indices, {'numeric'}, {'positive', 'integer'})
 
-% Get the difference between neighboring array elements, a difference of
+% Get the difference between neighbouring array elements, a difference of
 % more than one suggests we should seek by that many bytes, consecutive 1s
 % means we read as many bytes as there are 1s.
 ind_diff = diff(indices);

@@ -1,7 +1,7 @@
 function obj_out = replicate (obj, n)
 % Replicate detector elements to make n-fold larger detector array
 %
-%   >> obj_out = reorder (obj, n)
+%   >> obj_out = replicate (obj, n)
 %
 % Input:
 % ------
@@ -11,8 +11,8 @@ function obj_out = replicate (obj, n)
 % Output:
 % -------
 %   obj_out     Output array such that all internal data has been
-%               repeated n times, increasing the nmber of detectors by a
-%               facator of n
+%               repeated n times, increasing the number of detectors by a
+%               factor of n
 
 
 % Replicate the detector arrays

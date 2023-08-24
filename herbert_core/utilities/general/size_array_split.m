@@ -7,13 +7,13 @@ function [sz_root, ok, mess] = size_array_split (sz_full, sz_stack)
 % ------
 %   sz_full     Size of the stacked array.
 %
-%   sz_stack    Size of the array by which to stack arrays of size sz0, as
-%              obtained by using the matlab instrinsic function 'size'
+%   sz_stack    Size of the array by which to stack arrays of size sz_root,
+%              as obtained by using the matlab intrinsic function 'size'
 %
 % Output:
 % -------
 %   sz_root     Size of the arrays that were stacked, as obtained by using
-%              the matlab instrinsic function 'size'
+%              the matlab intrinsic function 'size'
 %
 % This is the inverse of the function size_array_stack
 %

@@ -1,4 +1,4 @@
-function S_updated = convert_old_struct (obj, S, ver)
+function [S_updated,obj] = convert_old_struct (obj, S, ver)
 % Update the structure created from earlier class versions to the current version
 %
 %   >> S_updated = convert_old_struct (obj, S, ver)

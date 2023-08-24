@@ -22,6 +22,6 @@ function obj = clear_bbind (obj, varargin)
 % Process input
 % -------------
 isfore = false;
-[ok, mess, obj] = clear_bind_private_ (obj, isfore, varargin);
-if ~ok, error(mess), end
+obj = clear_bind_private_ (obj, isfore, varargin);
 
+end

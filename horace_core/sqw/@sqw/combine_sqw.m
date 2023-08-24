@@ -36,61 +36,61 @@ function wout=combine_sqw(w1,varargin)
 %
 % AB: 16/04/21 fully refactored using generic projection interface.
 %
-if nargin<2
-    error('HORACE:combine_sqw:invalid_argument',...
-        'routine needs at least two arguments');
-end
-%
-if iscell(varargin{1})
-    if nargin>2
+if isempty(varargin)
+    inputs = w1;
+elseif iscell(varargin{1})
+    if nargin > 2
         error('HORACE:combine_sqw:invalid_argument',...
-            'if second argument is a cellarray of sqw objects, combine_sqw can only accept 2 arguments');
+              'if second argument is a cellarray of sqw objects, combine_sqw can only accept 2 arguments');
     end
     inputs = [w1,varargin{1}{:}];
 else
     inputs = [w1,varargin{:}];
 end
-right_type = arrayfun(@(x)has_pixels(x),inputs);
+
+right_type = arrayfun(@(x) isa(x, 'sqw'), inputs);
 if ~all(right_type)
     n_empty = numel(right_type)-sum(right_type);
     error('HORACE:combine_sqw:invalid_argument',...
-        'Input objects must be sqw type with detector pixel information. Input contains %d objects without pixels',...
-        n_empty);
+          'Input objects must be sqw type with detector pixel information. Input contains %d non-sqw objects',...
+          n_empty);
 end
+
 % Ignore empty datasets
 is_empty = arrayfun(@(x)(x.pix.num_pixels == 0),inputs);
-if all(is_empty)
-    wout= w1;
-    return;
-end
-
 inputs = inputs(~is_empty);
-if numel(inputs) == 1
-    wout = copy(inputs(1));
+
+if isempty(inputs)
+    wout = w1;
     return;
+
+elseif isscalar(inputs)
+    wout = copy(inputs);
+    return;
+
 end
 
-%
 % calculate real image ranges for all datasets. Transform the ranges into
 % the coordinate frame of the first dataset
-img_ranges = arrayfun(@(x)(x.data_.img_range),inputs,...
-    'UniformOutput',false);
-full_img_rng = cellfun(@(box)(expand_box(box(1,:),box(2,:))),img_ranges,...
-    'UniformOutput',false);
+img_ranges = arrayfun(@(x) x.data.img_range,inputs,...
+                      'UniformOutput',false);
+full_img_rng = cellfun(@(box) expand_box(box(1,:),box(2,:)),img_ranges,...
+                       'UniformOutput',false);
 
 %
 % retrieve projections for all contributing cuts
-all_proj_block = arrayfun(@(ws)(ws.data_.proj),inputs,...
-    'UniformOutput',false);
+all_proj_block = arrayfun(@(ws) ws.data.proj,inputs,...
+                          'UniformOutput',false);
+
 % transform the ranges into common coordinate system
-full_pix_rng = cellfun(@(proj,data)(proj.transform_img_to_pix(data)),...
-    all_proj_block,full_img_rng,'UniformOutput',false);
+full_pix_rng = cellfun(@(proj, data) proj.transform_img_to_pix(data),...
+                       all_proj_block,full_img_rng,'UniformOutput',false);
 
 
 % do transformation into the first sqw object image coordinate frame
 proj1 = all_proj_block{1};
-full_img_rng = cellfun(@(data)(proj1.transform_pix_to_img(data)),...
-    full_pix_rng,'UniformOutput',false);
+full_img_rng = cellfun(@(data) proj1.transform_pix_to_img(data),...
+                       full_pix_rng,'UniformOutput',false);
 
 full_img_rng = [full_img_rng{:}];
 % get common range for combining pixels
@@ -140,8 +140,8 @@ set(hor_config,'log_level',-1);
 
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin.
-ax = ortho_axes('nbins_all_dims', ones(4,1), 'img_range', combine_range);
+ax = line_axes('nbins_all_dims', ones(4,1), 'img_range', combine_range);
 wout.data = d0d(ax, proj1);
 wout.data.npix = wout.pix.num_pixels;
 
-wout=cut(wout,proj1,new_range_arg{:});
+wout=cut(wout, proj1, new_range_arg{:});

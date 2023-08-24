@@ -19,7 +19,7 @@ The root directory of Herbert allows the user to overload the search paths
 The path to the template file for herbert_on - usually in Herbert/admin
 
 ``Herbert_WORKER_TEMPLATE``
-The path to the template file for worker_v2 - usually in Herbert/admin
+The path to the template file for worker_v4 - usually in Herbert/admin
 
 #]=======================================================================]
 if(Herbert_FOUND)

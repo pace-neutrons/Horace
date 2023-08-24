@@ -112,7 +112,7 @@ classdef IX_fermi_chopper < serializable
                 pos_params = obj.saveableFields();
                 % process deprecated interface where the "name" property
                 % value is first among the input arguments.
-                if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
+                if istext(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
                     argi = varargin(2:end);
                     obj.name = varargin{1};
                 else
@@ -139,8 +139,8 @@ classdef IX_fermi_chopper < serializable
         % for the non-dependent properties. However, any interdependencies with
         % other properties must be checked here.
         function obj=set.name(obj,val)
-            if is_string(val)
-                obj.name_=val;
+            if istext(val)
+                obj.name_=char(val);
             else
                 error('HERBERT:IX_fermi_chopper:invalid_argument', ...
                     'Fermi chopper name must be a character string (or empty string). It is %s', ...
@@ -398,23 +398,13 @@ classdef IX_fermi_chopper < serializable
     end
     methods(Access=protected)
         %------------------------------------------------------------------
-        function obj = from_old_struct(obj,inputs)
-            % restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % By default, this function interfaces the default from_struct
-            % function, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+        function [inputs,obj] = convert_old_struct(obj,inputs,varargin)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised conversion. Called within
+            % from_old_struct on each element of S and each obj in array of objects
+            % (in case of serializable array of objects)
             inputs = convert_old_struct_(obj,inputs);
-            % optimization here is possible to not to use the public
-            % interface. But is it necessary? its the question
-            obj = from_old_struct@serializable(obj,inputs);
-
         end
     end
 

@@ -35,7 +35,7 @@ classdef instr_proj<aProjectionBase
     % rotation in plain [u,v] by psi if initial state deviates from u||ki,
     % plus by labels etc.
     %
-    % The empty constructor builds ortho_instr_proj with u=[1,0,0],v=[0,1,0]
+    % The empty constructor builds line_instr_proj with u=[1,0,0],v=[0,1,0]
     % and psi=0;
     %
     %
@@ -46,7 +46,7 @@ classdef instr_proj<aProjectionBase
         emode % type of instrument (1-direct,2-indirect,0 - elastic)
         %
         lattice; % accessor to the oriented lattice, which holds all
-        % properties related to gonitometer and lattice (lattice is not
+        % properties related to goniometer and lattice (lattice is not
         % used)
     end
 
@@ -88,7 +88,7 @@ classdef instr_proj<aProjectionBase
                 % ignored in emode == 0
             end
             % define possible key-value parameters of the constructor,
-            % using standard serializable contsturctor form.
+            % using standard serializable constructor form.
             [obj,remains] = set_positional_and_key_val_arguments(obj,...
                 input_fields_names,false,varargin{:});
             if ~isempty(remains)
@@ -185,9 +185,9 @@ classdef instr_proj<aProjectionBase
             % return the axes block, corresponding to this projection class.
             %
             % According to its operations, instrument projection generate
-            % ortho_axes directly from data range and number of bin in each
+            % line_axes directly from data range and number of bin in each
             % direction
-            ax_bl = ortho_axes(4);
+            ax_bl = line_axes(4);
             % set up range and number of bins for the selected axes block
             ax_bl.img_range = ranges;
             ax_bl.nbins_all_dims = bin_numbers;
@@ -206,12 +206,15 @@ classdef instr_proj<aProjectionBase
             % return parameters of transformation used for conversion from pixels
             % to image coordinate system
             error('HORACE:inst_proj:not_implemented', ...
-                'this method have not yet been implemnted')
+                'this method have not yet been implemented')
         end
 
         %
     end
     methods(Access = protected)
+        function name = get_axes_name(~)
+            name = 'line_axes';
+        end
     end
     methods(Access = protected)
         function  alat = get_alatt_(obj)
@@ -229,7 +232,7 @@ classdef instr_proj<aProjectionBase
                 'cuts in instrument frame are not yet implemented')
         end
         function proj = get_target_proj(~)
-            proj = ortho_proj();
+            proj = line_proj();
         end
 
     end
@@ -243,7 +246,7 @@ classdef instr_proj<aProjectionBase
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % savable class
+            % saveable class
             obj = instr_proj();
             obj = loadobj@serializable(S,obj);
         end

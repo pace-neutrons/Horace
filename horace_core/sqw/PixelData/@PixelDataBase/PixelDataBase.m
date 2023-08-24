@@ -77,6 +77,8 @@ classdef (Abstract) PixelDataBase < serializable
         % coordinate system or page of raw data (not multiplied by alignment
         % matrix) if pixels are misaligned.
         raw_data;
+        % the data range which is not processes its value when requested
+        raw_data_range;
     end
 
     properties (Constant,Hidden)
@@ -89,11 +91,11 @@ classdef (Abstract) PixelDataBase < serializable
 
     properties(Constant,Access=protected)
         COLS = {'u1', 'u2', 'u3', 'dE', ...
-                'run_idx', ...
-                'detector_idx', ...
-                'energy_idx', ...
-                'signal', ...
-                'variance'};
+            'run_idx', ...
+            'detector_idx', ...
+            'energy_idx', ...
+            'signal', ...
+            'variance'};
         FIELD_INDEX_MAP_ = containers.Map(...
             {'u1', 'u2', 'u3', 'dE', ...
             'coordinates', ...
@@ -103,8 +105,9 @@ classdef (Abstract) PixelDataBase < serializable
             'energy_idx', ...
             'signal', ...
             'variance',...
+            'sig_var',...
             'all'}, ...
-            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,1:9});
+            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,[8,9],1:9});
     end
 
     properties (Dependent)
@@ -137,7 +140,7 @@ classdef (Abstract) PixelDataBase < serializable
         data_range  % the range of pix data. 2x9 array of [min;max] values
         % of pixels data field
 
-        data; % The full raw pixel data block. Usage of this attribute exposes
+        data; % The full pixel data block. Usage of this attribute exposes
         % current pixels layout, so when the pixels layout changes in a
         % future, the code using this attribute will change too. So, the usage
         % of this attribute is discouraged as the structure of the return
@@ -157,6 +160,10 @@ classdef (Abstract) PixelDataBase < serializable
         %             % coordinate system. If pixels are not misaligned,
         %             % the matrix is eye(3);
     end
+    properties(Dependent,Hidden)
+        % hidden not to pollute interface
+        sig_var
+    end
 
     methods(Static,Hidden)
         function range = EMPTY_RANGE_()
@@ -166,7 +173,7 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     methods (Static)
-        function isfb = do_filebacked(num_pixels)
+        function isfb = do_filebacked(num_pixels, scale_fac)
             % function defines the rule to make pixels filebased or memory
             % based
             if ~(isnumeric(num_pixels)&&isscalar(num_pixels)&&num_pixels>=0)
@@ -174,9 +181,13 @@ classdef (Abstract) PixelDataBase < serializable
                     'Input number of pixels should have single non-negative value. It is %s', ...
                     disp2str(num_pixels))
             end
+            if ~exist('scale_fac', 'var')
+                scale_fac = config_store.instance().get_value('hor_config','fb_scale_factor');
+            end
+
             mem_chunk_size = config_store.instance().get_value('hor_config','mem_chunk_size');
             % 3 should go to configuration too
-            isfb = num_pixels > 3*mem_chunk_size;
+            isfb = num_pixels > scale_fac*mem_chunk_size;
         end
 
         function obj = create(varargin)
@@ -298,26 +309,6 @@ classdef (Abstract) PixelDataBase < serializable
                 else
                     obj = PixelDataMemory(init);
                 end
-
-                undef = obj.data_range == obj.EMPTY_RANGE;
-                if ~any(undef(:))
-                    return;
-                end
-
-                % may be long operation. Should be able to inform about
-                % these intentions
-                if ~norange
-                    for i=1:numel(obj)
-                        if obj.is_filebacked
-                            warning('HORACE:old_file_format', ...
-                                ['sqw file %s is written in old file format, which does not contain all necessary pixel averages.\n', ...
-                                ' Update file format to the recent version to avoid recalculating these averages each time the file is loaded from disk'], ...
-                                init.full_filename);
-                        end
-                        obj(i) = obj(i).recalc_data_range();
-                        obj(i) = obj(i).move_to_first_page();
-                    end
-                end
             else
                 error('HORACE:PixelDataBase:invalid_argument', ...
                     'Cannot create a PixelData object from class (%s)', ...
@@ -341,6 +332,11 @@ classdef (Abstract) PixelDataBase < serializable
             %               PixelData objects
 
             % Take the dataclass of the first object.
+            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
+                obj = varargin{1};
+                return;
+            end
+
             obj = varargin{1}.cat(varargin{:});
         end
 
@@ -375,16 +371,16 @@ classdef (Abstract) PixelDataBase < serializable
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
-        pix_out = do_unary_op(obj, unary_op);
+        [pix_out, data] = do_unary_op(obj, unary_op, data);
 
 
         pix_out = mask(obj, mask_array, npix);
-        pix_out = noisify(obj, varargin);
+        [pix_out, data] = apply(obj, func_handle, args, data, compute_variance);
 
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
-
-
+        % realign pixels using alignment matrix stored with pixels
+        obj = apply_alignment(obj);
     end
     %======================================================================
     methods(Abstract,Access=protected)
@@ -411,10 +407,11 @@ classdef (Abstract) PixelDataBase < serializable
         obj = set_page_num(obj,val);
         np = get_num_pages(obj);
     end
+
     %======================================================================
     % the same interface on FB and MB files
-    methods       
-       function cnt = get_field_count(obj, field)
+    methods
+        function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
         end
 
@@ -422,9 +419,10 @@ classdef (Abstract) PixelDataBase < serializable
             recalculate_pix_ranges,keep_precision);
 
         obj = set_fields(obj, data, fields, abs_pix_indices);
+        [pix_out, data] = noisify(obj, varargin);
 
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
-        [ok, mess] = equal_to_tol(obj, other_pix, varargin);        
+        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         function obj = invalidate_range(obj,fld)
             % set the data range to inverse values
             % to allow
@@ -433,7 +431,7 @@ classdef (Abstract) PixelDataBase < serializable
             else
                 idx = obj.FIELD_INDEX_MAP_(fld);
             end
-            obj.data_range(:,idx) = obj.EMPTY_RANGE(:,idx);
+            obj.data_range_(:,idx) = obj.EMPTY_RANGE(:,idx);
         end
         %
         function is = is_range_valid(obj,fld)
@@ -446,7 +444,7 @@ classdef (Abstract) PixelDataBase < serializable
             else
                 idx = obj.FIELD_INDEX_MAP_(fld);
             end
-            invalid = obj.data_range(:,idx) == obj.EMPTY_RANGE(:,idx);
+            invalid = obj.data_range_(:,idx) == obj.EMPTY_RANGE(:,idx);
             is = ~any(invalid(:));
         end
         %
@@ -561,6 +559,13 @@ classdef (Abstract) PixelDataBase < serializable
             obj=obj.set_prop('variance', val);
         end
         %
+        function sig_var = get.sig_var(obj)
+            sig_var  = obj.get_prop('sig_var');
+        end
+        function obj= set.sig_var(obj, val)
+            obj=obj.set_prop('sig_var', val);
+        end
+        %------------------------------------------------------------------
         function is = get.is_misaligned(obj)
             is = obj.is_misaligned_;
         end
@@ -576,7 +581,7 @@ classdef (Abstract) PixelDataBase < serializable
         end
         %------------------------------------------------------------------
         function range = get.pix_range(obj)
-            range = obj.data_range_(:,1:4);
+            range = get_data_range(obj,1:4);
         end
 
         function obj = set.pix_range(obj,range)
@@ -592,7 +597,7 @@ classdef (Abstract) PixelDataBase < serializable
         end
 
         function srange = get.data_range(obj)
-            srange = obj.data_range_;
+            srange = get_data_range(obj);
         end
 
         function obj = set.data_range(obj,val)
@@ -657,6 +662,10 @@ classdef (Abstract) PixelDataBase < serializable
         function ro = get.read_only(obj)
             ro = get_read_only(obj);
         end
+        %
+        function range = get.raw_data_range(obj)
+            range = obj.data_range_;
+        end        
     end
     %----------------------------------------------------------------------
     methods
@@ -794,45 +803,48 @@ classdef (Abstract) PixelDataBase < serializable
             %           of pixel averages
             obj = set_alignment_matr_(obj,val,pix_average_treatment_function);
         end
-        
-        function [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
-                parse_get_pix_args(obj,varargin)
-
-            [ok, mess, ignore_range, raw_data, keep_precision, argi] = ...
-                parse_char_options(varargin, ...
-                {'-ignore_range','-raw_data','-keep_precision'});
-            if ~ok
-                error('HORACE:PixelDataBase:invalid_argument',mess);
-            end
-
-            switch numel(argi)
-                case 0
-                    [ind_min,ind_max] = obj.get_page_idx_();
-                    abs_pix_indices = ind_min:ind_max;
-
-                case 1
-                    abs_pix_indices = argi{1};
-
-                    if islogical(abs_pix_indices)
-                        abs_pix_indices = obj.logical_to_normal_index_(abs_pix_indices);
-                    end
-
-                    if ~isindex(abs_pix_indices)
-                        error('HORACE:PixelDataBase:invalid_argument',...
-                            'pixel indices should be an array of numeric positive numbers, which define indices or vector of logical values')
-                    end
-
-                    if any(abs_pix_indices > obj.num_pixels)
-                        error('HORACE:PixelDataBase:invalid_argument', ...
-                            'Some numerical indices exceed the total number of pixels')
-                    end
-
-                otherwise
-                    error('HORACE:PixelDataBase:invalid_argument', ...
-                        'Too many inputs provided to parse_get_pix_args_')
-
-            end
+        function [keep_array, npix] = validate_input_args_for_mask(obj, keep_array, varargin)
+            % check input arguments for masking routines
+            % Inputs:
+            % obj        -- an instance of PixelDataBase object
+            % keep_array -- logical array specifying which pixels to keep
+            % Optional:
+            % npix       -- if present, array specifying number of pixels
+            %               contriburing to each bin of DnD object image.
+            % If npix is absent or empty, keep_array size should be equal
+            % to number of pixels and if present, numel(keep_array(:)) ==
+            % numel(npix(:));
+            [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, varargin{:});
         end
+        %------------------------------------------------------------------
+        function [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
+                parse_get_pix_args(obj,varargin)
+            % process input of get_pix method and return input parameters
+            % in the standard form.
+
+            [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
+                parse_get_pix_args_(obj,varargin{:});
+        end
+        function pix_out = pack_get_pix_result(obj,pix_data,ignore_range,raw_data,keep_precision,align)
+            % pack output of get_pixels method depending on various
+            % get_pixels input options
+            % Input:
+            % obj          -- original PixelDataBase object
+            % pix_data     -- array of raw pixel data retrieved by
+            %                 get_pixel method core code
+            % ignore_range -- if true, do not calculate pixels range
+            % raw_data     -- if true, do not wrap pix_data into
+            %                 PixelDataBase class
+            % keep_precision
+            %              -- if true, keep original pixel precision
+            %                 intact. Do not make it double
+            % align        -- if true and data are misaligned, apply
+            %                 alignment matrix and dealign the data
+            %
+            pix_out = pack_get_pix_result_(obj,pix_data, ...
+                ignore_range,raw_data,keep_precision,align);
+        end
+        %------------------------------------------------------------------
 
         function [pix_fields, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, abs_pix_indices)
             % process set_fields arguments and return them in standard form suitable for
@@ -851,6 +863,9 @@ classdef (Abstract) PixelDataBase < serializable
             pix_fields = obj.check_pixel_fields(pix_fields);
 
             if exist('abs_pix_indices', 'var')
+                if isempty(abs_pix_indices)
+                    return;
+                end
                 if ~isindex(abs_pix_indices)
                     error('HORACE:PixelDataBase:invalid_argument', ...
                         'abs_pix_indices must be logical or numeric array of pixels to modify');
@@ -955,6 +970,15 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     methods(Access=protected)
+        function data_range = get_data_range(obj,varargin)
+            % overloadable data range getter, which recalculates data range
+            % on pixel_dile backed if this range is undefined
+            if nargin == 1
+                data_range = obj.data_range_;
+            else
+                data_range = obj.data_range_(:,varargin{1});
+            end
+        end
 
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the

@@ -87,28 +87,71 @@ classdef test_symm < TestCase
             % sqw symmetrisation:
             w3d_sqw=read_sqw(fullfile(this.testdir,'w3d_sqw.sqw'));
 
-            w3d_sqw_sym=symmetrise_sqw(w3d_sqw,[0,0,1],[-1,1,0],[0,0,0]);
+            sym = [SymopReflection([0,0,1],[-1,1,0]), ...
+                   SymopReflection([1,1,0],[0,0,1]), ...
+                   SymopReflection([0,0,1],[-1,1,0])];
+
+            w3d_sqw_sym=symmetrise_sqw(w3d_sqw,sym(1));
             % one pixel lost, pity, but bearable.
             assertEqual(w3d_sqw.pix.num_pixels-1,w3d_sqw_sym.pix.num_pixels);
-            w3d_sqw_sym2=symmetrise_sqw(w3d_sqw_sym,[1,1,0],[0,0,1],[0,0,0]);
+            w3d_sqw_sym2=symmetrise_sqw(w3d_sqw_sym,sym(2));
             assertEqual(w3d_sqw_sym.pix.num_pixels,w3d_sqw_sym2.pix.num_pixels);
-            w3d_sqw_sym3=symmetrise_sqw(w3d_sqw_sym2,[0,0,1],[-1,1,0],[0,0,0]);
+            w3d_sqw_sym3=symmetrise_sqw(w3d_sqw_sym2,sym(3));
             assertEqual(w3d_sqw_sym3.pix.num_pixels,w3d_sqw_sym2.pix.num_pixels);
 
             cc1=cut(w3d_sqw_sym,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
             cc2=cut(w3d_sqw_sym3,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
 
-            [ok,mess]=equal_to_tol(d2d(cc1),d2d(cc2),-1e-6,'ignore_str', 1);
-            assertTrue(ok,['sqw symmetrisation fails, most likely due to cut rounding problem: ',mess])
+            assertEqualToTol(cc1,cc2,-1e-6,'ignore_str', 1)
+        end
+
+        function obj = test_sym_rot(obj)
+            w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'));
+
+            sym = SymopRotation([0 0 1], 90);
+
+            sqw_sym = w2d_sqw.symmetrise_sqw(sym);
+
+            sym = SymopRotation.fold(4, [0 0 1]);
+
+            sqw_sym_fold = w2d_sqw.symmetrise_sqw(sym);
+
+            assertEqual(sqw_sym, sqw_sym_fold);
+        end
+
+        function obj = test_sym_rot_in_proj(obj)
+            w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'));
+
+            sym = SymopRotation([0 0 1], 90);
+
+            sqw_sym = w2d_sqw.symmetrise_sqw(sym, w2d_sqw.data.proj);
+
+        end
+
+        function obj = test_sym_sqw_fb(obj)
+            w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'), 'file_backed', false);
+
+            sym = [SymopReflection([0,0,1],[-1,1,0]), ...
+                   SymopReflection([1,1,0],[0,0,1]), ...
+                   SymopReflection([0,0,1],[-1,1,0])];
+
+            w2d_sym_mb = symmetrise_sqw(w2d_sqw, sym);
+
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 100000);
+            w2d_sqw.pix = PixelDataFileBacked(w2d_sqw.pix);
+            w2d_sym_fb = symmetrise_sqw(w2d_sqw, sym);
+
+            assertEqualToTol(w2d_sym_mb, w2d_sym_fb, 1e-3, 'ignore_str', true, '-ignore_date');
+
         end
 
         % ------------------------------------------------------------------------------------------------
         function this = test_sym_d2d(this)
+            skipTest('Symmetrize DND is disabled until DND is refactored #878')
             % d2d symmetrisation:
             w2d_qe_d2d = read_dnd(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
             w2d_qq_d2d = read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
 
-            skipTest('Symmetrize DND is disabled until DND is refactored #878')
             w2_1 = symmetrise_horace_2d(w2d_qe_d2d,[0,NaN]);
             w2_2 = symmetrise_horace_2d(w2d_qq_d2d,[-0.005,NaN]);
 
@@ -148,8 +191,8 @@ classdef test_symm < TestCase
 
         % ------------------------------------------------------------------------------------------------
         function this=test_random_symax(this)
-            w2d_qq_small_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_small_d2d.sqw'));
             skipTest('Symmetrize DND is disabled until DND is refactored #878')
+            w2d_qq_small_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_small_d2d.sqw'));
             % Random symm axis (ensure shoelace algorithm is actually tested)
             disp(' ')
             disp('symmetrise_horace_2d: long operation --- wait for <2 min');
@@ -168,9 +211,9 @@ classdef test_symm < TestCase
 
         % ------------------------------------------------------------------------------------------------
         function this=test_d1d_sym(this)
+            skipTest('Symmetrize DND is disabled until DND is refactored #878')
             w1d_sqw=read_sqw(fullfile(this.testdir,'w1d_sqw.sqw'));
             w1d_d1d=read_dnd(fullfile(this.testdir,'w1d_d1d.sqw'));
-            skipTest('Symmetrize DND is disabled until DND is refactored #878')
             % d1d symmetrisation (a whole lot easier)
             w1_1=symmetrise_horace_1d(w1d_d1d,0.25);
             w1_1s=symmetrise_sqw(w1d_sqw,[0,0,1],[-1,1,0],[0.25,0.25,0]);

@@ -46,7 +46,7 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %
 % Original author: T.G.Perring
 %
-opts = obj.parse_get_sqw_args(varargin{:});
+opts = horace_binfile_interface.parse_get_sqw_args(varargin{:});
 
 sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[], ...
     'data',[],'pix',[]);
@@ -114,10 +114,18 @@ if ~opts.nopix && obj.npixels>0
     else
         argi = {};
     end
-    if opts.file_backed
-        argi = [argi(:),'-file_backed'];
+    if opts.force_pix_location
+        if opts.file_backed
+            sqw_struc.pix = PixelDataFileBacked(obj,argi{:});
+        else
+            sqw_struc.pix = PixelDataMemory(obj,argi{:});
+        end
+    else
+        if opts.file_backed
+            argi = [argi(:),'-filebacked'];
+        end
+        sqw_struc.pix = PixelDataBase.create(obj,argi{:});
     end
-    sqw_struc.pix = PixelDataBase.create(obj,argi{:});
 end
 
 sqw_struc.experiment_info = exp_info;
@@ -130,20 +138,34 @@ if ~opts.nopix && (sqw_struc.pix.num_pixels > 0) && old_file
     sqw_struc = update_pixels_run_id(sqw_struc);
 end
 % needed to support  legacy alignment, where u_to_rlu matrix is multiplied
-% by alignment matrix
+% by alignment rotation matrix
 header_av = exp_info.header_average;
-u_to_rlu  = header_av.u_to_rlu(1:3,1:3);
-if any(abs(subdiag_elements(u_to_rlu))>1.e-7) % if all 0, its inverted B-matrix so certainly
-    proj = sqw_struc.data.proj;         % no alignment, otherwise, may be aligned may be not
-    sqw_struc.data.proj = proj.set_ub_inv_compat(u_to_rlu);
+if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
+    u_to_rlu  = header_av.u_to_rlu(1:3,1:3);
+    if any(abs(subdiag_elements(u_to_rlu))>4*eps('single')) % if all 0, its inverted B-matrix so certainly
+        proj = sqw_struc.data.proj;         % no alignment (lattice may have changed
+        % but this is reflected elsewhere), otherwise legacy alignment.
+        sqw_struc.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu);
+    end
 end
 %
 if opts.legacy
-    sqw_object = sqw_struc.main_header;
-    varargout{1} = sqw_struc.experiment_info;
-    varargout{2} = sqw_struc.detpar;
-    varargout{3} = sqw_struc.data;
-    varargout{4} = sqw_struc.pix;
+    if nargout == 1
+        sqw_object   = sqw_struc;
+    elseif nargout == 2
+        sqw_object   = sqw_struc;
+        varargout{1} = obj;
+    else
+        sqw_object   = sqw_struc.main_header;
+        varargout{1} = sqw_struc.experiment_info;
+        varargout{2} = sqw_struc.detpar;
+        varargout{3} = sqw_struc.data;
+        if isfield(sqw_skel,'pix')
+            varargout{4} = sqw_skel.pix;
+        else
+            varargout{4} = [];
+        end
+    end
 elseif opts.head || opts.his || opts.sqw_struc
     sqw_object  = sqw_struc;
 else

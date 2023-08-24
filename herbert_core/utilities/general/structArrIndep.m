@@ -3,24 +3,22 @@ function s = structArrIndep(obj)
 %
 %   >> s = structArrIndep(obj)
 %
-% Use <a href="matlab:help('structIndep');">structIndep</a> for behaviour that more closely matches the Matlab
-% intrinsic function struct.
-%
-% Has the same behaviour as the Matlab instrinsic struct in that:
+% Has the same behaviour as the Matlab intrinsic struct in that:
 % - Any structure array is returned unchanged
 % - If an object is empty, an empty structure is returned with fieldnames
 %   but the same size as the object
 %
 % However, differs in the behaviour if an object array:
 % - If the object is non-empty array, returns a structure array of the same
-%   size. This is different to the instrinsic Matlab, which returns a scalar
+%   size. This is different to the intrinsic Matlab, which returns a scalar
 %   structure from the first element in the array of objects
 %
 %
-% See also structIndep, structPublic, structArrPublic
+% See also structArr, structArrPublic, struct, structPublic, structIndep
 
 
 % Get warning state that we must turn of if obj is a new style object array
+% If not done, then the call to Matlab intrinsic struct will throw a warning
 state = warning('query','MATLAB:structOnObject');
 reset_warning = onCleanup(@()warning(state));
 warning('off','MATLAB:structOnObject')
@@ -43,15 +41,21 @@ if isobject(obj)
 elseif isstruct(obj)
     s = obj;
 else
-    error('Invalid input argument type. Input must be an object or a structure')
+    error('HERBERT:structArrIndep:invalid_argument',...
+        'Input argument is not an object or a structure. It has class %s', class(obj))
 end
 
 %----------------------------------------------------------------------------
 function s = structIndep_single(obj,names)
 % Convert a scalar object without having to get the names each time
 args = [names';repmat({[]},1,numel(names))];
+% Create empty structure with independent fields
 s = struct(args{:});
-stot = struct(obj);     % all properties, public, hidden, and private
+% Get all properties, public, hidden, and private using Matlab intrinsic struct
+% This is necessary as independent fields may be hidden or private, and so not
+% accessible via the usual get methods for properties. It can be expensive,
+% however, as dependent properties that are expensive to compute will be unused
+stot = struct(obj);
 % Pick out named properties
 for i = 1:numel(names)
     s.(names{i}) = stot.(names{i});

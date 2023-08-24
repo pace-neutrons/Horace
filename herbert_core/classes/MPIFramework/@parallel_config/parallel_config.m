@@ -241,7 +241,7 @@ classdef parallel_config<config_base
 
     properties(Access=protected)
 
-        worker_ = 'worker_v2'
+        worker_ = 'worker_v4'
         % property, which identifies, if the worker is compiled
         is_compiled__ = false;
         % these values provide defaults for the properties above

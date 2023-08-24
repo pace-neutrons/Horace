@@ -45,16 +45,13 @@ classdef test_faccess_sqw_v4< TestCase
                 delete(tf);
             end
             assertFalse(is_file(tf));
-            %
-            ws = warning('off','HORACE:old_file_format');
-            clOnConf = onCleanup(@()warning(ws));
-            %
+
+            clOnConf = set_temporary_warning('off','HORACE:old_file_format');
+
             ref_sqw = read_sqw(obj.sample_file);
             ref_sqw.data.s = ref_sqw.data.s*2; % do sample modification
-            hc    = hor_config;
-            mchs  = hc.mem_chunk_size;
-            hc.mem_chunk_size = 1000;
-            clobConf = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
+
+            clobConf = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000, 'fb_scale_factor', 3);
 
             % ensure filebacked operations for tests. Interface is generic
             assertTrue(PixelDataBase.do_filebacked(ref_sqw.npixels))
@@ -114,10 +111,7 @@ classdef test_faccess_sqw_v4< TestCase
             % test file
         end
         function obj = test_save_load_sqwV4_crossbuf(obj)
-            hc    = hor_config;
-            mchs  = hc.mem_chunk_size;
-            hc.mem_chunk_size = 1000;
-            clob1 = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
+            clob1 = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
 
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3_1.sqw');
@@ -160,18 +154,15 @@ classdef test_faccess_sqw_v4< TestCase
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
             clObF = onCleanup(@()file_delete(tf));
             copyfile(obj.old_origin,tf,'f');
-            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
-            clObW = onCleanup(@()warning(ws));
+            clobW = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
 
             ldr = sqw_formats_factory.instance().get_loader(tf);
             w_old = ldr.get_sqw('-ver');
             %------------ Now the test setting and test
-            hc = hor_config;
-            rec = hc.get_data_to_store();
-            clObConfig = onCleanup(@()set(hc,rec));
-            hc.saveable = false;
+
             % 4324 pixels, let's ensure pixels in file are treated as filebacked
-            hc.mem_chunk_size = 500;
+            clobConf = set_temporary_config_options(hor_config, 'mem_chunk_size', 500, 'fb_scale_factor', 3);
+
             assertTrue(PixelDataBase.do_filebacked(4324));
 
             fac = ldr.upgrade_file_format(tf);
@@ -184,9 +175,7 @@ classdef test_faccess_sqw_v4< TestCase
             w_new = fac.get_sqw('-ver');
             fac.delete();
 
-
             assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date','ignore_str',true)
-
 
             fac1 = sqw_formats_factory.instance().get_loader(tf);
             assertEqual(fac1.faccess_version,4.0)
@@ -195,7 +184,7 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqualToTol(w_new,w_new_new)
             % Cut projection is recovered correctly
             eq_cut = w_new_new.cut(w_new_new.data.proj,[],[],[],[]);
-            assertEqualToTol(eq_cut,w_new_new,1.e-7,'-ignore_date');
+            assertEqualToTol(eq_cut,w_new_new,1.e-7,'-ignore_date', 'ignore_str', true);
             % do clean-up as pixels hold access to the file, which can not
             % be deleted as memmapfile holds it
             w_new.pix = [];
@@ -243,10 +232,10 @@ classdef test_faccess_sqw_v4< TestCase
 
             mheader = to.get_main_header('-keep_');
             assertEqual(numel(mheader.title),0);
-            assertEqual(mheader.filename,'Fe_ei787.sqw');
+            assertEqual(mheader.filename,'faccess_sqw_v4_sample.sqw');
             assertEqual(mheader.filepath,...
-                'c:\data\Fe\sqw\');
-            assertEqual(mheader.creation_date,'2023-01-19T13:48:04')
+                'C:\Temp\Horace_4.0.0.342a84a5a');
+            assertEqual(mheader.creation_date,'2023-07-20T17:41:29')
 
             [exp_info,~] = to.get_exp_info('-all');
 
@@ -254,8 +243,6 @@ classdef test_faccess_sqw_v4< TestCase
             inf = exp_info.expdata(2);
             assertEqual(inf.filename,'map11015.spe;1')
             assertElementsAlmostEqual(inf.psi,-0.0087,'absolute',1.e-4);
-            assertEqual(inf.ulabel{4},'E')
-            assertEqual(inf.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'9cards_4_4to1.par')
@@ -280,7 +267,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             data_dnd = to.get_dnd('-verb');
             assertTrue(isa(data_dnd,'DnDBase'));
-            assertEqual(data_dnd.filename,'Fe_ei787.sqw');
+            assertEqual(data_dnd.filename,'faccess_sqw_v4_sample.sqw');
 
             data = to.get_data('-ver');
             assertEqual(data.filename,data_dnd.filename)
@@ -332,8 +319,7 @@ classdef test_faccess_sqw_v4< TestCase
         function test_read_sqwV2_save_sqwV4(obj)
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3.sqw');
-            warning('off','SQW_FILE_IO:legacy_data');
-            clob0 = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
+            clob0 = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
 
             so = faccess_sqw_v2(samp_f);
             sqw_ob = so.get_sqw();
@@ -366,7 +352,7 @@ classdef test_faccess_sqw_v4< TestCase
         end
 
         %
-        function test_serialize_deserialise_faccess(obj)
+        function test_serialize_deserialize_faccess(obj)
             fo = faccess_sqw_v4();
             fo = fo.init(obj.sample_file);
 
@@ -376,7 +362,7 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqual(fo,fr);
         end
         %
-        function test_serialize_deserialise_empty_faccess(~)
+        function test_serialize_deserialize_empty_faccess(~)
             fo = faccess_sqw_v4();
 
             bys = fo.to_struct();
@@ -523,11 +509,8 @@ classdef test_faccess_sqw_v4< TestCase
             assertExceptionThrown(f, 'HORACE:validate_ranges:invalid_argument');
         end
         function obj = test_write_read_correctV4_filebacked(obj)
-            %
-            hc    = hor_config;
-            mchs  = hc.mem_chunk_size;
-            hc.mem_chunk_size = 1000;
-            clobC = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
+
+            clobC = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000, 'fb_scale_factor', 3);
 
             samp_f = obj.sample_file;
             assertTrue(PixelDataBase.do_filebacked(4000))
@@ -610,9 +593,9 @@ classdef test_faccess_sqw_v4< TestCase
 
         end
         %         function test_build_correct(obj)
-        %             %TEST used in preparation of first v4 sample file and
-        %             is not testing
-        %             %any other functionality. Left for references
+        %             % TEST used in preparation of first v4 sample file and
+        %             % is not testing
+        %             % any other functionality. Left for references
         %             sample = read_sqw(obj.old_origin,'-verbatim');
         %             %fac0 = faccess_sqw_v4(obj.sample_file);
         %             %sample = fac0.get_sqw('-verbatim');
@@ -637,17 +620,17 @@ classdef test_faccess_sqw_v4< TestCase
 
             rdd = to.get_sqw();
             to.delete();
-            % projection in sample contains w==[0,0,1], type='ppp' and projection 
+            % projection in sample contains w==[0,0,1], type='ppp' and projection
             % in rdd contains w == [], type='rrr'. Let's check both are
             % equivalent
             pix_cc = [eye(3),ones(3,1)];
             pr = rdd.data.proj.transform_pix_to_img(pix_cc);
-            po = sample.data.proj.transform_pix_to_img(pix_cc);            
+            po = sample.data.proj.transform_pix_to_img(pix_cc);
 
             assertElementsAlmostEqual(pr,po);
             % as they are equivalent, let's eliminate one for comparison to
             % work
-            sample.data.proj = rdd.data.proj; 
+            sample.data.proj = rdd.data.proj;
 
             assertEqualToTol(sample,rdd,1.e-15,'-ignore_date','ignore_str',true)
         end

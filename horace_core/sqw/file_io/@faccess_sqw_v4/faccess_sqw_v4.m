@@ -132,7 +132,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         % retrieve the whole or partial sqw object from properly initialized sqw file
         [sqwobj,varargout] = get_sqw(obj,varargin)
         [mn_hdr,obj] = get_main_header(obj,varargin);
-        [expinf,obj] = get_exp_info(obj,varargin);
+        [expinf,pos] = get_exp_info(obj,varargin);
         [detpar,obj] = get_detpar(obj,varargin);
         [pix,obj]    = get_pix(obj,varargin);
         [pix,obj]    = get_raw_pix(obj,varargin);
@@ -191,7 +191,8 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         function [obj,missinig_fields] = copy_contents(obj,other_obj,varargin)
             % Copy information, relevant to new file format from the old file format
             [obj,missinig_fields] = copy_contents@binfile_v4_common(obj,other_obj,varargin{:});
-            if ~PixelDataBase.do_filebacked(other_obj.npixels)
+            if ~PixelDataBase.do_filebacked(other_obj.npixels) || ...
+                obj.faccess_version == other_obj.faccess_version
                 return;
             end
             % Fix and freeze the position of the pixels data block
@@ -210,13 +211,12 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % build data range as if it has not been stored with
             % majority of old data files
             %
-            missing_range = sqw_obj.pix.data_range == PixelDataBase.EMPTY_RANGE;
-            if any(missing_range(:))
+            if ~sqw_obj.pix.is_range_valid()
                 hc = hor_config;
                 log_level = hc.log_level;
                 %log_level = config_store.instance().get_value('hor_config','log_level');
                 if log_level > 0
-                    fprintf(2,['*** Recalculating actual data range missing in file %s:\n', ...
+                    fprintf(2,['\n*** Recalculating actual data range missing in file %s:\n', ...
                         '*** This is one-off operation occurring during upgrade from file format version %d to file format version %d\n',...
                         '*** Do not interrupt this operation after the page count completion, as the input data file may become corrupted\n'],...
                         obj.full_filename,other_obj.faccess_version,obj.faccess_version);

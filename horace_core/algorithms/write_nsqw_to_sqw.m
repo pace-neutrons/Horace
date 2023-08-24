@@ -13,10 +13,6 @@ function [img_db_range,data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 %                       equal headers. Two file having equal headers is an error
 %                       in normal operations so this option  used in
 %                       tests or when equal zones are combined.
-% -drop_subzones_headers -- in combine_equivalent_zones all sub-files are cut from
-%                       single sqw file and may be divided into sub-zones.
-%                       this option used to avoid duplicating headers
-%                       from the same zone
 % -parallel           -- combine files using Herbert parallel framework.
 %                       this is duplicate for hpc_config option (currently
 %                       missing) so either this keyword or hpc_config
@@ -30,7 +26,8 @@ function [img_db_range,data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % JobDispatcherInstance-- the initialized instance of JobDispatcher,
 %                       to use in combining sqw files in parallel
 %
-% pix_range          -- [2x4] array of ranges (min/max q-dE coordinates values)
+% pix_data_range     -- [2x9] array of ranges (min/max for q-dE coordinates,
+%                       all indexes and signal and error )
 %                       of all pixels, from all contributing files combined
 %                       together. The value is stored in the file
 % WARNING:
@@ -43,10 +40,10 @@ function [img_db_range,data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 %
 % Output:
 % -------
-%  img_db_range       -- the limits of the internal coordinates contained in
-%                     the combined fil
-%  pix_range       -- the actual range of the pixels, contributing into the
-%                     sqw file (useful if input pix_range is not provided)
+%  img_db_range   -- the limits of the image coordinates (value for axes.img_range)
+%                    defining the grid the pixel data base is binned on
+%  pix_data_range -- the actual range of the pixels data, contributing into the
+%                    sqw file (useful if input pix_range is not provided)
 
 
 % T.G.Perring   27 June 2007
@@ -54,13 +51,13 @@ function [img_db_range,data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 %
 
 accepted_options = {'-allow_equal_headers','-keep_runid',...
-    '-drop_subzones_headers','-parallel'};
+    '-parallel'};
 
 if nargin<2
     error('HORACE:write_nsqw_to_sqw:invalid_argument',...
         'function should have at least 2 input arguments')
 end
-[ok,mess,allow_equal_headers,keep_runid,drop_subzone_headers,combine_in_parallel,argi]...
+[ok,mess,allow_equal_headers,keep_runid,combine_in_parallel,argi]...
     = parse_char_options(varargin,accepted_options);
 if ~ok
     error('HORACE:write_nsqw_to_sqw:invalid_argument',mess);
@@ -113,20 +110,18 @@ end
 % construct target sqw object containing everything except pixel data.
 % Instead of PixelData, it will contain information about how to combine
 % PixelData
-[data_sum,img_db_range,job_disp_4head] =                  ...
-    get_pix_comb_info_(infiles,data_range,job_disp_4head, ...
-                       allow_equal_headers,keep_runid,    ...
-                       drop_subzone_headers);
+[sqw_struc_sum,img_db_range,data_range,job_disp_4head]=get_pix_comb_info_(infiles,data_range,job_disp_4head, ...
+    allow_equal_headers,keep_runid);
 if ~isempty(job_disp_4head)
     job_disp = job_disp_4head;
 end
 %
 %
 %
-data_sum.main_header.full_filename = outfile;
-data_sum.pix.full_filename = outfile;
+sqw_struc_sum.main_header.full_filename = outfile;
+sqw_struc_sum.pix.full_filename = outfile;
 %
-ds = sqw(data_sum);
+ds = sqw(sqw_struc_sum);
 wrtr = sqw_formats_factory.instance().get_pref_access(ds);
 %
 hor_log_level = get(hor_config,'log_level');

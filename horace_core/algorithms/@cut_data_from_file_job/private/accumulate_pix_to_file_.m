@@ -23,7 +23,7 @@ if finish_accum && nargin == 2
     pix_comb_info.npix_cumsum = cumsum(npix_prev(:));
 
     pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
-    
+
     clear_memory();
     return
 end
@@ -38,8 +38,9 @@ if isempty(npix_prev)
 else
     n_pix_in_memory  = n_pix_in_memory + v.num_pixels;
 end
-%
+
 npix_now = npix; % npix is accumulated by outer routines (bin_pixels)
+
 if v.num_pixels > 0
     n_mem_blocks = n_mem_blocks + 1;
     pix_mem_retained{n_mem_blocks} = v;    % accumulate pixels into buffer array

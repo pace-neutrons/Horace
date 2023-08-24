@@ -29,15 +29,15 @@ function obj = replace_data(obj,varargin)
 %
 %
 % See also append_data remove_data set_data
- 
+
 
 % Note for developers:
 %   >> obj = obj.replace_data ()        % Inert operation: does nothing
 %   >> obj = obj.replace_data ([])      % Inert operation: does nothing
 
- 
-% Original author: T.G.Perring 
-% 
+
+% Original author: T.G.Perring
+%
 % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
@@ -63,8 +63,7 @@ else
     if isnumeric(args{1}) || ischar(args{1})
         % Initial numeric array; assume is meant to be dataset index array
         % Catch case of 'all' too!
-        [ok,mess,idata] = indicies_parse (args{1}, obj.ndatatot_, 'Dataset');
-        if ~ok, error(mess), end
+        idata = indices_parse (args{1}, obj.ndatatot_, 'Dataset');
         if ~isempty(idata) && numel(args)==1
             error('Index of dataset(s) to replace have been given, but no data')
         end
@@ -108,4 +107,3 @@ if ~ok, error(mess), end
 obj.data_ = data_out;
 obj.w_(idata) = w;
 obj.msk_(idata) = msk_out;
-

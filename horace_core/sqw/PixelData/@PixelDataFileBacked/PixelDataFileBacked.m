@@ -90,6 +90,10 @@ classdef PixelDataFileBacked < PixelDataBase
         offset;
     end
 
+    properties(Dependent, Hidden)
+        has_open_file_handle;
+    end
+
     properties (Constant)
         is_filebacked = true;
     end
@@ -113,7 +117,7 @@ classdef PixelDataFileBacked < PixelDataBase
         obj=set_raw_fields(obj, data, fields, varargin)
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
 
-        pix_out = do_unary_op(obj, unary_op);
+        [pix_out, data] = do_unary_op(obj, unary_op, data);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
 
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
@@ -175,6 +179,7 @@ classdef PixelDataFileBacked < PixelDataBase
             %             -- initialize filebacked class from array of
             %                data provided as input
 
+            % process possible update parameter
             obj = init_(obj,varargin{:});
         end
 
@@ -282,11 +287,22 @@ classdef PixelDataFileBacked < PixelDataBase
         function offset = get.offset(obj)
             offset = obj.offset_;
         end
+
+        function has = get.has_open_file_handle(obj)
+            has = ~isempty(obj.file_handle_);
+        end
     end
 
     %======================================================================
     % File handling/migration
     methods
+        function obj = prepare_dump(obj)
+            % Get new handle iff not already opened by sqw
+            if ~obj.has_open_file_handle
+                obj = obj.get_new_handle();
+            end
+        end
+
         function obj = get_new_handle(obj, f_accessor)
             % Always create a new PixTmpFile object
             % If others point to it, file will be kept
@@ -294,26 +310,19 @@ classdef PixelDataFileBacked < PixelDataBase
 
             if exist('f_accessor', 'var') && ~isempty(f_accessor)
                 obj.file_handle_ = f_accessor;
+                obj.full_filename = f_accessor.full_filename;
             else
                 if isempty(obj.full_filename)
                     obj.full_filename = 'in_mem';
                 end
                 obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
 
-                fh = fopen(obj.tmp_pix_obj.file_name, 'wb+');
-
-                if fh<1
-                    error('HORACE:PixelDataFileBacked:runtime_error', ...
-                        'Can not open data file %s for file-backed pixels',...
-                        obj.tmp_pix_obj.file_name);
-                end
-
-                obj.file_handle_ = fh;
+                obj.file_handle_ = sqw_fopen(obj.tmp_pix_obj.file_name, 'wb+');
             end
         end
 
-        function format_dump_data(obj, pix, start_idx)
-            if isempty(obj.file_handle_)
+        function format_dump_data(obj, data, start_idx)
+            if ~obj.has_open_file_handle
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                     'Cannot dump data, object does not have open filehandle')
             end
@@ -322,16 +331,20 @@ classdef PixelDataFileBacked < PixelDataBase
                 if ~exist('start_idx', 'var')
                     start_idx = obj.get_page_idx_();
                 end
-                obj.file_handle_.put_raw_pix(pix, start_idx);
+                obj.file_handle_.put_raw_pix(data, start_idx);
             else
-                fwrite(obj.file_handle_, single(pix), 'single');
+                fwrite(obj.file_handle_, single(data), 'single');
             end
         end
 
-        function obj = finalise(obj)
-            if isempty(obj.file_handle_)
+        function obj = finish_dump(obj, final_num_pixels)
+            if ~obj.has_open_file_handle
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'Cannot finalise writing, object does not have open filehandle')
+                    'Cannot finish dump writing, object does not have open filehandle')
+            end
+
+            if exist('final_num_pixels', 'var')
+                obj.num_pixels_ = final_num_pixels;
             end
 
             if isa(obj.file_handle_, 'sqw_file_interface')
@@ -341,12 +354,17 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.file_handle_ = obj.file_handle_.put_num_pixels(obj.num_pixels);
 
                 obj = obj.init_from_file_accessor_(obj.file_handle_, false, true);
+                obj.file_handle_.delete();
                 obj.file_handle_ = [];
 
             else
                 fclose(obj.file_handle_);
-                obj.file_handle_ = [];
+                if obj.num_pixels_ == 0
+                    obj = PixelDataMemory();
+                    return;
+                end
 
+                obj.file_handle_ = [];
                 obj.f_accessor_ = [];
                 obj.offset_ = 0;
                 obj.full_filename = obj.tmp_pix_obj.file_name;
@@ -374,6 +392,7 @@ classdef PixelDataFileBacked < PixelDataBase
             end
         end
     end
+    %======================================================================
     methods(Static)
         function obj = cat(varargin)
             % Concatenate the given PixelData objects' pixels. This function performs
@@ -389,6 +408,18 @@ classdef PixelDataFileBacked < PixelDataBase
             % -------
             %   obj         A PixelData object containing all the pixels in the inputted
             %               PixelData objects
+
+            if isempty(varargin)
+                obj = PixelDataFileBacked();
+                return;
+            elseif numel(varargin) == 1
+                if isa(varargin{1}, 'PixelDataMemory')
+                    obj = PixelDataFileBacked(varargin{1});
+                elseif isa(varargin{1}, 'PixelDataFileBacked')
+                    obj = varargin{1};
+                end
+                return;
+            end
 
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
             if any(is_ldr)
@@ -418,13 +449,42 @@ classdef PixelDataFileBacked < PixelDataBase
                     start_idx = start_idx + size(data,2);
                 end
             end
-            obj = obj.finalise();
+            obj = obj.finish_dump();
         end
     end
 
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
+        function data_range = get_data_range(obj,varargin)
+            % overloadable data range getter
+            if nargin == 1
+                data_range = obj.data_range_;
+                undefined = data_range == PixelDataBase.EMPTY_RANGE;
+            else
+                data_range = obj.data_range_(:,varargin{1});
+                undefined = data_range == PixelDataBase.EMPTY_RANGE(:,varargin{1});
+            end
+
+            if any(undefined(:))
+                warning('HORACE:old_file_format',[...
+                    '*** Pixels data range requested but pixels in this object\n', ...
+                    '*** do not contain correct ranges\n' ...
+                    '*** Either sqw object is from old format sqw file without pixel data averages.\n', ...
+                    '*** or pixel data have been realigned\n',...
+                    '*** Update file format of your sqw objects not to ' ...
+                    'recalculate these averages each time you are accessing them\n' ...
+                    '*** Run upgrade_file_format(filename) from horace_core/admin folder to upgrade file format\n' ...
+                    '*** or apply_alignment(filename) for realigned files\n'])
+                obj = obj.recalc_data_range();
+                if nargin == 1
+                    data_range = obj.data_range_;
+                else
+                    data_range = obj.data_range_(:,varargin{1});
+                end
+            end
+        end
+
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
             num_pix = obj.num_pixels_;
@@ -469,8 +529,7 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             data =  obj.get_raw_data(page_number);
             if obj.is_misaligned_
-                pix_coord = obj.alignment_matr_*data(1:3,:);
-                data(1:3,:) = pix_coord;
+                data(1:3,:) = obj.alignment_matr_*data(1:3,:);
             end
         end
         %------------------------------------------------------------------

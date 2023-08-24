@@ -70,10 +70,9 @@ classdef test_asciipar_loader < TestCase
             al=asciipar_loader();
             par_file = fullfile(obj.test_data_path,obj.test_par_file);
 
-            old_state=get(hor_config,'use_mex');
-            set(hor_config,'use_mex',1,'-buffer');
+            clob = set_temporary_config_options(hor_config, 'use_mex', true);
             [par,al] = al.load_par(par_file);
-            set(hor_config,'use_mex',old_state,'-buffer');
+            clear clob;
 
             [~,fname,fext]= fileparts(al.par_file_name);
             if ispc
@@ -87,17 +86,15 @@ classdef test_asciipar_loader < TestCase
             assertEqual(obj.EXPECTED_DET_NUM,numel(par.x2))
             assertEqual(obj.EXPECTED_DET_NUM,al.n_det_in_par)
 
-            set(hor_config,'use_mex',old_state,'-buffer');
         end
 
         function test_load_ASCII_par_matlab(obj)
             al=asciipar_loader();
             par_file = fullfile(obj.test_data_path,obj.test_par_file);
 
-            old_state=get(hor_config,'use_mex');
-            set(hor_config,'use_mex',0,'-buffer');
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
             [par,al] = al.load_par(par_file);
-            set(hor_config,'use_mex',old_state,'-buffer');
+            clear clob;
 
             [~,fname,fext] = fileparts(al.par_file_name);
             if ispc
@@ -118,12 +115,16 @@ classdef test_asciipar_loader < TestCase
             par_file = fullfile(obj.test_data_path,'wrong_demo_par_7Col.PAR');
 
             f = @()al.load_par(par_file);
-            [use_mex, force_mex_if_use_mex] =get(hor_config,'use_mex','force_mex_if_use_mex');
-            set(hor_config,'use_mex',true,'force_mex_if_use_mex',true,'-buffer');
-            % should throw; par file has 7 columns
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:load_par');
-            set(hor_config,'use_mex',use_mex,'force_mex_if_use_mex',force_mex_if_use_mex,'-buffer');
+            clObC = set_temporary_config_options(hor_config, ...
+                                                'use_mex', true, ...
+                                                'force_mex_if_use_mex', false ...
+                                               );
+            clObW = set_temporary_warning('off','ASCIIPAR_LOADER:load_par');
 
+            % should throw; par file has 7 columns
+            ME=assertExceptionThrown(f,'HERBERT:asciipar_loader:invalid_argument');
+            assertTrue(strncmp(ME.message, ...
+                ' proper par file has to have 5 or 6 column but this one has 7',60))
         end
 
         function test_mslice_par(obj)
@@ -220,10 +221,7 @@ classdef test_asciipar_loader < TestCase
         end
 
         function test_load_phx_matlab(obj)
-            hcfg=hor_config();
-            current = hcfg.use_mex;
-            c = onCleanup(@()set(hcfg,'use_mex',current));
-            hcfg.use_mex = false;
+            clOb = set_temporary_config_options(hor_config, 'use_mex', false);
 
             phx_file = fullfile(obj.test_data_path,'map_4to1_jul09.phx');
             par_file = fullfile(obj.test_data_path,'map_4to1_jul09.par');
@@ -239,10 +237,7 @@ classdef test_asciipar_loader < TestCase
         end
 
         function test_load_phx_as_par_mex(obj)
-            hcfg=hor_config();
-            current = hcfg.use_mex;
-            c = onCleanup(@()set(hcfg,'use_mex',current));
-            hcfg.use_mex = true;
+            clOb = set_temporary_config_options(hor_config, 'use_mex', true);
 
             phx_file = fullfile(obj.test_data_path,'map_4to1_jul09.phx');
             par_file = fullfile(obj.test_data_path,'map_4to1_jul09.par');
@@ -266,10 +261,7 @@ classdef test_asciipar_loader < TestCase
         end
 
         function test_load_phx_mex(obj)
-            hcfg=hor_config();
-            current = hcfg.use_mex;
-            c = onCleanup(@()set(hcfg,'use_mex',current));
-            hcfg.use_mex = true;
+            clOb = set_temporary_config_options(hor_config, 'use_mex', true);
 
             phx_file = fullfile(obj.test_data_path,'map_4to1_jul09.phx');
             par_file = fullfile(obj.test_data_path,'map_4to1_jul09.par');
@@ -320,10 +312,7 @@ classdef test_asciipar_loader < TestCase
         end
 
         function test_load_phx_nomex(obj)
-            hcfg=hor_config();
-            current = hcfg.use_mex;
-            c = onCleanup(@()set(hcfg,'use_mex',current));
-            hcfg.use_mex = false;
+            clOb = set_temporary_config_options(hor_config, 'use_mex', false);
 
             phx_file = fullfile(obj.test_data_path,'map_4to1_jul09.phx');
             par_file = fullfile(obj.test_data_path,'map_4to1_jul09.par');

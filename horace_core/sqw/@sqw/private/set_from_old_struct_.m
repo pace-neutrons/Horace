@@ -64,7 +64,7 @@ if ~isfield(S,'version') || S.version<4
                     end
                 end
                 hav = header_average(ss.experiment_info);
-                proj = ss.data.proj;                
+                proj = ss.data.proj;
                 if isempty(hav.alatt) % no actual header, happens in old test files
                     exper = IX_experiment('','','alatt',proj.alatt,'angdeg',proj.angdeg);
                     if isempty(ss.data.pix)

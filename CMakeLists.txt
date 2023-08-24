@@ -23,6 +23,12 @@ if(POLICY CMP0074)
     # Ignore warnings when setting <MODULE>_ROOT variables
     cmake_policy(SET CMP0074 NEW)
 endif()
+if(POLICY CMP0115)
+  cmake_policy(SET CMP0115 NEW)
+endif()
+if(POLICY CMP0109)
+  cmake_policy(SET CMP0109 OLD)
+endif()
 
 # Add cmake directory to CMake's path
 list(APPEND CMAKE_MODULE_PATH "${Horace_ROOT}/cmake"
@@ -47,7 +53,7 @@ set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL/${Matlab_ARCH}")
 # This is the directory that contains herbert_init.m
 set(Horace_CORE "${CMAKE_CURRENT_LIST_DIR}/horace_core")
 set(Herbert_CORE "${CMAKE_CURRENT_LIST_DIR}/herbert_core")
-# This will hold herbert_on.m and worker_v2.m. This directory will hold any
+# This will hold herbert_on.m and worker_v4.m. This directory will hold any
 # files needed for "local initialization", the files mentioned are required
 # for running tests. So we automatically add this path to the MATLABPATH when
 # we run CTest.

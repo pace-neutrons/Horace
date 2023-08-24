@@ -21,7 +21,8 @@ classdef test_dnd_metadata_data < TestCase
         end
         function test_d2d_metadata_data_construct_reconstruct(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+            input = {line_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),...
+                line_proj('alatt',3,'angdeg',90),...
                 ones(11,11),2*ones(11,11),3*ones(11,11)};
             dnd_obj = d2d(input{:});
 
@@ -35,7 +36,8 @@ classdef test_dnd_metadata_data < TestCase
             assertEqualToTol(dnd_obj,dnd_obj_rec,'-ignore_date' )
         end
         function test_dnd_data_get_set(~)
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+            input = {line_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),...
+                line_proj('alatt',3,'angdeg',90),...
                 ones(11,11),2*ones(11,11),3*ones(11,11)};
             dnd_obj = d2d(input{:});
 
@@ -60,21 +62,26 @@ classdef test_dnd_metadata_data < TestCase
 
         function test_d2d_metadata_get_set(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+            proj = line_proj('alatt',3,'angdeg',90);
+            ax = proj.get_proj_axes_block(cell(1,4), ...
+                {[0,1],[0,1],[0,0.1,1],[0,0.2,2]});
+            input = {ax,proj,...
                 ones(11,11),2*ones(11,11),3*ones(11,11)};
             dnd_obj = d2d(input{:});
 
             assertTrue(isa(dnd_obj,'d2d'));
 
             dnd_met = dnd_obj.metadata;
+            dtt = datetime("now");
+
 
             input{1}.label = dnd_obj.label;
             assertEqual(dnd_met.axes,input{1});
             assertEqual(dnd_met.proj,input{2});
-            % save operation saves metadata with current date
+            % save or get_metadata operation generates metadata with current
+            % date  if it has not been defined earlier
             assertTrue(dnd_met.creation_date_defined);
 
-            dtt = datetime("now");
             assertEqual(dnd_met.creation_date_str, ...
                 main_header_cl.convert_datetime_to_str(dtt))
 
@@ -102,8 +109,8 @@ classdef test_dnd_metadata_data < TestCase
         end
 
         function test_dnd_metadata_serialization_no_date(~)
-            ab = ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]);
-            pr = ortho_proj([1,1,0],[0,0,1]);
+            ab = line_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]);
+            pr = line_proj([1,1,0],[0,0,1]);
             md = dnd_metadata(ab,pr);
 
             mds = md.to_struct();
@@ -114,8 +121,8 @@ classdef test_dnd_metadata_data < TestCase
         end
 
         function test_dnd_metadata_serialization_with_date(~)
-            ab = ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]);
-            pr = ortho_proj([1,1,0],[0,0,1]);
+            ab = line_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]);
+            pr = line_proj([1,1,0],[0,0,1],'alatt',3,'angdeg',90);
             md = dnd_metadata(ab,pr,datetime(1900,01,01));
 
             mds = md.to_struct();

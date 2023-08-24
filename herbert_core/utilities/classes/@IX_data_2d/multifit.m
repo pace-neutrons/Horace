@@ -3,7 +3,6 @@ function varargout = multifit (varargin)
 % <#doc_def:>
 %   class_name = 'IX_dataset_2d'
 %   method_name = 'multifit'
-%   method_name_legacy = 'multifit_legacy'
 %   mfclass_name = 'mfclass_IX_dataset_2d'
 %   function_tag = ''
 %
@@ -13,7 +12,6 @@ function varargout = multifit (varargin)
 %
 %   doc_multifit_header = fullfile(multifit_doc,'doc_multifit_header.m')
 %   doc_fit_functions = fullfile(IX_dataset_doc,'doc_multifit_fit_functions.m')
-%   doc_multifit_legacy_footnote = fullfile(multifit_doc,'doc_multifit_legacy_footnote.m')
 %
 %-------------------------------------------------------------------------------
 % <#doc_beg:> multifit
@@ -21,14 +19,10 @@ function varargout = multifit (varargin)
 %
 %   <#file:>  <doc_fit_functions>  example_2d_function
 %
-%   <#file:>  <doc_multifit_legacy_footnote>  <class_name>/<method_name_legacy>
 % <#doc_end:>
 %-------------------------------------------------------------------------------
 
+mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
+varargout{1} = mfclass_IX_dataset_2d (varargin{:}, 'IX_dataset_2d', mf_init);
 
-if ~mfclass.legacy(varargin{:})
-    mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
-    varargout{1} = mfclass_IX_dataset_2d (varargin{:}, 'IX_dataset_2d', mf_init);
-else
-    [varargout{1:nargout}] = mfclass.legacy_call (@multifit_legacy, varargin{:});
 end

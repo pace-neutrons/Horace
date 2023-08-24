@@ -2,7 +2,7 @@ function wout = mask_random_pixels(win,npix)
 % reduce the number of pixels randomly in a sqw object
 %
 % The function uses the mask_pixels() function to keep only a fixed amount
-% of pixels randomly chosen. Useful when doing numerically intensive
+% of randomly chosen pixels. Useful when doing numerically intensive
 % simulations of sqw objects with sqw_eval or fit_sqw, to speed things up
 %
 % wout = mask_random_pixels(win,npix)
@@ -12,11 +12,12 @@ function wout = mask_random_pixels(win,npix)
 %   win                 Input sqw object
 %
 %   npix                Number of pixels in win.pix array to keep.
-%                       These are chosen at random. If win is an array then
+%                       The kept pixels are chosen at random.
 %                       npix can either be a scalar, in which case all
 %                       outputs will have the same number of retained
-%                       pixels, or an array of the same size as win, in
-%                       which case each mask is applied separately.
+%                       pixels, or an array of the same size as win,
+%                       in which case each output will have the
+%                       respective number of retained pixels.
 % Output:
 % -------
 %   wout                Output dataset.
@@ -25,53 +26,38 @@ function wout = mask_random_pixels(win,npix)
 % Modifications: R. A. Ewings
 
 if ~has_pixels(win)
-    error('Can mask pixels only in an sqw-type object')
+    error('HORACE:sqw:invalid_argument', ...
+        'Can not mask random pixels on sqw object not containing any pixels')
 end
 
-% Initialise output argument
 wout = copy(win);
+sz = numel(win);
 
+npix = round(npix);
+if isscalar(npix)
+    npix = repmat(npix, sz, 1);
+end
 
-%Check size of input array:
-sz=numel(win);
+if numel(npix) ~= numel(win)
+    error('HORACE:sqw:invalid_argument', ...
+        'npix must either be scalar or an array of the same size as input sqw object');
+end
 
-if ~(numel(npix)==1 || numel(npix)==numel(win))
-    error('npix must either be scalar or an array of the same size as input sqw object');
+if any(npix == 0)
+    error('HORACE:sqw:invalid_argument', ...
+        'Cannot mask every pixel');
+end
+
+if any(npix > arrayfun(@(x) x.pix.num_pixels, win))
+    error('HORACE:sqw:invalid_argument', ...
+        'Cannot retain greater number of pixels than data contains');
 end
 
 for i=1:sz
-    if numel(npix)==1
-        %Trivial case when npix==0:
-        if npix==0
-            error('Cannot mask every pixel');
-        end
-
-        %If non integer npix, round to nearest integer:
-        if round(npix)~=npix
-            npix=round(npix);
-        end
-        nn=npix;
-    else
-        %Trivial case when npix==0:
-        if npix(i)==0
-            error('Cannot mask every pixel');
-        end
-
-        %If non integer npix, round to nearest integer:
-        if round(npix(i))~=npix(i)
-            npix(i)=round(npix(i));
-        end
-        nn=npix(i);
-    end
-
-    %Error if npix>= total number pixels:
-    if nn>=win(i).pix.num_pixels
-        error('Cannot retain greater number of pixels than data contains');
-    end
-    % reuce the number of pixels using mask
-    mask0 = false([1 win(i).pix.num_pixels]);
-    mask0(randperm(win(i).pix.num_pixels, nn)) = true;
-    wout(i) = mask_pixels(win(i),mask0);
+    % reduce the number of pixels using mask
+    keep0 = false(1, win(i).pix.num_pixels);
+    keep0(randperm(win(i).pix.num_pixels, npix(i))) = true;
+    wout(i) = mask_pixels(win(i),keep0);
 end
 
 end

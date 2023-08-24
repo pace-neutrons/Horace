@@ -457,10 +457,8 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
         function test_page_size_is_set_after_getter_call_when_given_as_argument(obj)
             expected_page_size = obj.SMALL_PG_SIZE;
-            hc = hor_config;
-            mem_ch_size = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mem_ch_size));
-            hc.mem_chunk_size = obj.SMALL_PG_SIZE;
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', obj.SMALL_PG_SIZE);
+
             % the first page is loaded on access, so this first assert which accesses
             % .variance is necessary to set pix.page_size
             assertEqual(size(obj.pix_data_from_file.variance), ...
@@ -1143,12 +1141,8 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
         % -- Helpers --
 
         function [pix,pix_range,clob] = get_pix_with_fake_faccess(obj, data, npix)
-            warning('off', 'HOR_CONFIG:set_mem_chunk_size');
-            clobW = onCleanup(@() warning('on', 'HOR_CONFIG:set_mem_chunk_size'));
-            hc = hor_config;
-            hc.mem_chunk_size = npix;
-            clob = onCleanup(@()clear_config(obj,hc));
-
+            clobW = set_temporary_warning('off', 'HOR_CONFIG:set_mem_chunk_size');
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', npix);
 
             pix = PixelDataFileBacked(data);
             pix_range = [min(data(1:4, :), [], 2), ...

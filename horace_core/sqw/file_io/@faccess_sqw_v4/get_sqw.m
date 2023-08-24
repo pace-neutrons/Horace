@@ -13,9 +13,9 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 % Input:
 % --------
 %
-% infile      If present, the file name, or file identifier of an open file, 
-%             from which to read data. If absent, the accessor (obj) should be 
-%             initialized. 
+% infile      If present, the file name, or file identifier of an open file,
+%             from which to read data. If absent, the accessor (obj) should be
+%             initialized.
 %
 % Keyword Arguments:
 % ------------------
@@ -53,7 +53,7 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %
 % Original author: T.G.Perring
 %
-opts = obj.parse_get_sqw_args(varargin{:});
+opts = horace_binfile_interface.parse_get_sqw_args(varargin{:});
 
 
 sqw_skel = struct('main_header',[],'experiment_info',[],'detpar',[], ...
@@ -91,22 +91,36 @@ else
     else
         argi = {};
     end
-    if opts.file_backed
-        argi = [argi(:),'-filebacked'];
+    if opts.force_pix_location
+        if opts.file_backed
+            sqw_skel.pix = PixelDataFileBacked(obj,argi{:});
+        else
+            sqw_skel.pix = PixelDataMemory(obj,argi{:});
+        end
+    else
+        if opts.file_backed
+            argi = [argi(:),'-filebacked'];
+        end
+        sqw_skel.pix = PixelDataBase.create(obj,argi{:});
     end
-    sqw_skel.pix = PixelDataBase.create(obj,argi{:});
 end
 
-
 if opts.legacy
-    sqw_object   = sqw_skel.main_header;
-    varargout{1} = sqw_skel.experiment_info;
-    varargout{2} = sqw_skel.detpar;
-    varargout{3} = sqw_skel.data;
-    if isfield(sqw_skel,'pix')
-        varargout{4} = sqw_skel.pix;
+    if nargout == 1
+        sqw_object  = sqw_skel;
+    elseif nargout == 2
+        sqw_object   = sqw_skel;
+        varargout{1} = obj;
     else
-        varargout{4} = [];
+        sqw_object   = sqw_skel.main_header;
+        varargout{1} = sqw_skel.experiment_info;
+        varargout{2} = sqw_skel.detpar;
+        varargout{3} = sqw_skel.data;
+        if isfield(sqw_skel,'pix')
+            varargout{4} = sqw_skel.pix;
+        else
+            varargout{4} = [];
+        end
     end
     return
 elseif opts.head || opts.his

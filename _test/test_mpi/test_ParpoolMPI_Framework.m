@@ -61,15 +61,12 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         %
         function test_finish_tasks_reduce_messages(obj,varargin)
             if is_jenkins() && ispc() && (matlab_version_num()==9.05)
-                skipTest('Test ignored due to instability on Windows Jenkins');                
+                skipTest('Test ignored due to instability on Windows Jenkins');
             end
             if obj.ignore_test
                 skipTest(obj.ignore_cause);
             end
-            if nargin>1
-                obj.setUp();
-                clob0 = onCleanup(@()tearDown(obj));
-            end
+
             pl = obj.start_pool();
             assertFalse(isempty(pl),'problem getting access to parallel pool')
 
@@ -104,10 +101,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             if obj.ignore_test
                 skipTest(obj.ignore_cause);
             end
-            if nargin>1
-                obj.setUp();
-                clob0 = onCleanup(@()tearDown(obj));
-            end
+
             pl = obj.start_pool();
             assertFalse(isempty(pl),'problem getting access to parallel pool')
 
@@ -155,10 +149,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             if obj.ignore_test
                 skipTest(obj.ignore_cause);
             end
-            if nargin>1
-                obj.setUp();
-                clob0 = onCleanup(@()tearDown(obj));
-            end
+
             pl = obj.start_pool();
             assertFalse(isempty(pl),'problem getting access to parallel pool')
 

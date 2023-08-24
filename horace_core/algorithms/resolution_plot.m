@@ -53,15 +53,15 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %
 % {optional]
 %   proj           Projection structure or object. Defines the coordinate frame in which
-%                  to plot the resolution ellipsoid. Type help ortho_proj for details or <a href="matlab:help('ortho_proj');">Click here</a>.
+%                  to plot the resolution ellipsoid. Type help line_proj for details or <a href="matlab:help('line_proj');">Click here</a>.
 %
 %                   Default: if not given or empty: assume to be spectrometer axes
 %                  i.e. x || ki, z vertical upwards, y perpendicular to z and y.
 %
-%   pax            Indicies of axes into the projection axes for purposes of plotting:
+%   pax            Indices of axes into the projection axes for purposes of plotting:
 %                       [pax1, pax2]        plotting axes
 %                       [pax1, pax2, pax3]  plotting axes and intersection axis
-%                  where pax1 etc. are distinct axes indicies in the range 1 to 4.
+%                  where pax1 etc. are distinct axes indices in the range 1 to 4.
 %
 %                   Default: if not given or empty, assume first two projection axes
 %                  and draw intersection with non-zero positive energy transfer deviation
@@ -153,7 +153,7 @@ end
 if ~(isnumeric(pax) && (numel(pax)==2 || numel(pax)==3) &&...
         numel(unique(pax))==numel(pax) && all(pax>=1) && all(pax<=4))
     error('HORACE:resolution_plot:invalid_argument',...
-        'Check axes indicies')
+        'Check axes indices')
 end
 
 % - Plot target
@@ -191,25 +191,15 @@ header.filename = '';
 header.filepath = '';
 header.efix =  efix;
 header.emode = emode;
-header.alatt = lat.alatt;
-header.angdeg = lat.angdeg;
-header.cu = lat.u;
-header.cv = lat.v;
-lat.angular_units = 'rad';
-header.psi = lat.psi;
-header.omega = lat.omega;
-header.dpsi = lat.dpsi;
-header.gl = lat.gl;
-header.gs = lat.gs;
 header.en = en;
-header.uoffset = [0,0,0,0]';
-header.u_to_rlu = zeros(4,4);
-[~, header.u_to_rlu(1:3,1:3),spec_to_rlu] = lat.calc_proj_matrix();
-%[~, header.u_to_rlu(1:3,1:3)] = lat.calc_proj_matrix();
-header.u_to_rlu(4,4) = 1;
-header.ulen = [1,1,1,1];
-header.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 expdata = IX_experiment(header);
+lat.angular_units  = 'rad';
+expdata.goniometer = lat;
+
+[~, ~,spec_to_rlu] = lat.calc_proj_matrix();
+%[~, header.u_to_rlu(1:3,1:3),spec_to_rlu] = lat.calc_proj_matrix();
+%[~, header.u_to_rlu(1:3,1:3)] = lat.calc_proj_matrix();
+
 
 if ~(isa(instrument,'IX_inst') && isscalar(instrument))
     error('HORACE:resolution_plot:invalid_argument',...
@@ -245,7 +235,7 @@ wres.detpar = detpar;
 
 
 % Make data structure
-ax = ortho_axes('nbins_all_dims',[3,3,1,1],'img_range',range_add_border(zeros(2,4)));
+ax = line_axes('nbins_all_dims',[3,3,1,1],'img_range',range_add_border(zeros(2,4)));
 ax.label = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 
 
@@ -255,7 +245,7 @@ if isempty(proj)
     % plot aspect ratio is adjusted only in case of projection provided
 else
     % create ortho projection and assign lattice to it
-    if isa(proj,'ortho_proj')
+    if isa(proj,'line_proj')
         if ~proj.alatt_defined
             proj.alatt = alatt;
         end
@@ -269,16 +259,16 @@ else
         if ~isfield(proj,'angdeg')
             proj.angdeg = angdeg;
         end
-        proj = ortho_proj(proj);
+        proj = line_proj(proj);
 
     else
         error('HORACE:resolution_plot:invalid_argument',...
-            ['projection, if provided, must be an instance of ortho_proj ' ...
-            'class or structure convertable into it.\n' ...
+            ['projection, if provided, must be an instance of line_proj ' ...
+            'class or structure convertible into it.\n' ...
             ' Other types of projections have not been implemented']);
     end
     % plot aspect ratio is adjusted according to ulen
-    ax.ulen = proj.ulen;
+
 end
 %
 wres.data = DnDBase.dnd(ax,proj, ...

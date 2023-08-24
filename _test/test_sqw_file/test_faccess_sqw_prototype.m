@@ -6,7 +6,6 @@ classdef test_faccess_sqw_prototype< TestCase
     properties
         sample_dir;
         sample_file;
-        clob = []
     end
 
     methods
@@ -33,8 +32,7 @@ classdef test_faccess_sqw_prototype< TestCase
             [stream,fid] = to.get_file_header(obj.sample_file);
             co1 = onCleanup(@()(fclose(fid)));
 
-            warning('off','SQW_FILE_IO:legacy_data')
-            this.clob = onCleanup(@()(warning('on','SQW_FILE_IO:legacy_data')));
+            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
 
             [ok,initob] = to.should_load_stream(stream,fid);
 
@@ -48,8 +46,7 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(to.faccess_version,0);
             co = onCleanup(@()to.delete());
 
-            warning('off','SQW_FILE_IO:legacy_data')
-            this.clob = onCleanup(@()(warning('on','SQW_FILE_IO:legacy_data')));
+            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
 
             [ok,inob] = to.should_load(obj.sample_file);
             co1 = onCleanup(@()(fclose(inob.file_id)));
@@ -63,8 +60,7 @@ classdef test_faccess_sqw_prototype< TestCase
             to = faccess_sqw_prototype();
             assertEqual(to.faccess_version,0);
 
-            warning('off','SQW_FILE_IO:legacy_data')
-            this.clob = onCleanup(@()(warning('on','SQW_FILE_IO:legacy_data')));
+            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
 
             [ok,inob] = to.should_load(obj.sample_file);
 
@@ -81,8 +77,6 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(numel(expdata),1);
             assertFalse(isempty(expdata));
             assertEqual(expdata.filename,'map11014.spe')
-            assertEqual(expdata.ulabel{4},'E')
-            assertEqual(expdata.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'demo_par.PAR')
@@ -101,8 +95,7 @@ classdef test_faccess_sqw_prototype< TestCase
         end
         function obj = test_get_data(obj)
             %spath = fileparts(obj.sample_file);
-            warning('off','SQW_FILE_IO:legacy_data')
-            this.clob = onCleanup(@()(warning('on','SQW_FILE_IO:legacy_data')));
+            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
 
             to = faccess_sqw_prototype(obj.sample_file);
 
@@ -126,4 +119,3 @@ classdef test_faccess_sqw_prototype< TestCase
 
     end
 end
-

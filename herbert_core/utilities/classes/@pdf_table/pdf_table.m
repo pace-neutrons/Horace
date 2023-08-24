@@ -249,6 +249,15 @@ classdef pdf_table < serializable
 
     methods(Access=protected)
         %------------------------------------------------------------------
+        function [inputs,obj] = convert_old_struct(obj,inputs,ver)
+            % Update structure created from earlier class versions to the current
+            % version. Converts the bare structure for a scalar instance of an object.
+            % Overload this method for customised conversion. Called within
+            % from_old_struct on each element of S and each obj in array of objects
+            % (in case of serializable array of objects)
+            inputs = convert_old_struct_(obj,inputs);
+        end
+
         function obj = from_old_struct(obj,inputs)
             % restore object from the old structure, which describes the
             % previous version of the object.
@@ -261,7 +270,7 @@ classdef pdf_table < serializable
             % function, but when the old structure substantially differs from
             % the modern structure, this method needs the specific overloading
             % to allow loadobj to recover new structure from an old structure.
-            inputs = convert_old_struct_(obj,inputs);
+            inputs = obj.convert_old_struct(inputs);
             if isfield(inputs,'x')&&isempty(inputs.x)
                 return
             end
