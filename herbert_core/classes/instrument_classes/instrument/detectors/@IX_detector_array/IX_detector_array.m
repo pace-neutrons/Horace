@@ -513,6 +513,29 @@ classdef IX_detector_array < serializable
         
     end
     
+    methods(Static)
+        function is_dp_struct = check_detpar_parms(dp)
+            % checks input dp to see if it is a proper old-style detpar struct.
+            % the recipe for such a struct is given in the isdetpar= line
+            % below. Such a struct can be consumed by the IX_detector_array
+            % constructor. Other inputs may also be interpretable by the
+            % constructor but are not handled here.
+            %{
+             is_dp_struct = false;
+            if ~isstruct(dp)
+                return;
+            end
+
+            is_dp_struct = isfield(dp,'group') && isfield(dp,'x2') && isfield(dp,'phi') ...
+                    && isfield(dp,'azim') && isfield(dp,'filename') && isfield(dp,'filepath') ...
+                    && isfield(dp, 'width') && isfield(dp, 'height');
+            %}
+
+            is_dp_struct = isstruct(dp) && all( isfield(dp,{'group','x2','phi','azim', ...
+                'filename','filepath','width','height'}));
+                end
+    end
+    
     %======================================================================
     % SERIALIZABLE INTERFACE
     %======================================================================

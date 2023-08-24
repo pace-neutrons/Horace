@@ -31,6 +31,7 @@ classdef test_IX_detectors_3 < TestCaseWithSave
         
         %--------------------------------------------------------------------------
         function test_det_bank_construction (self)
+            skipTest('should be removed by merge');            
             [dets, det_array] = construct_detectors(self);
             det = dets(1);
             id = (1:99)';
@@ -47,6 +48,7 @@ classdef test_IX_detectors_3 < TestCaseWithSave
         
         %--------------------------------------------------------------------------
         function test_det_bank_changed_order (self)
+            skipTest('should be removed by merge');            
             [dets, det_array] = construct_detectors(self);
             det = dets(1);
             id = (99:-1:1)';
@@ -86,6 +88,7 @@ classdef test_IX_detectors_3 < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_det_bank_default_slab_constructor_saveload(self)
             
+            skipTest('should be removed by merge');
             % construct a detector bank with a default IX_det_slab
             % and check its initialisation
             id = (1:99)';

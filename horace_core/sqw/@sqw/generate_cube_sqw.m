@@ -101,10 +101,13 @@ out.detpar = struct( ...
 
 
 
-out.experiment_info.samples = out.experiment_info.samples.add(samp);
-out.experiment_info.instruments = out.experiment_info.instruments.add(IX_null_inst());
-out.experiment_info.detector_arrays = []; %IX_detector_array();
-out.experiment_info.expdata = IX_experiment(expdata);
+samples = out.experiment_info.samples.add(samp);
+instruments = out.experiment_info.instruments.add(IX_null_inst());
+detector_arrays = []; %IX_detector_array();
+expdata = IX_experiment(expdata);
+
+expinfo = Experiment(detector_arrays, instruments, samples, expdata);
+out.experiment_info = expinfo;
 
 
 ax0  = line_axes('img_range',img_range,'nbins_all_dims',ones(1,4));

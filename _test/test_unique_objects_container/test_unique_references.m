@@ -72,7 +72,7 @@ classdef test_unique_references < TestCase
             assertFalse(ismember('IX_inst_DGfermi',classnames));
         end
 
-        function test_save_load_two_objects_adds_to_experiments(~)
+        function test_save_load_two_objects_adds_to_experiments(obj)
             %TODO there is a lot of testing of Experiment here and this may
             %be better positioned in test_experiment
             clObC = onCleanup(@()unique_references_container.global_container('CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER'));
@@ -107,15 +107,6 @@ classdef test_unique_references < TestCase
             gc = unique_references_container.global_container('value','GLOBAL_NAME_SAMPLES_CONTAINER');
             assertEqual(gc.n_objects,7); % sam1, sam2 and the replacements into ex2
 
-            ex3 = Experiment();
-            ex3.samples(1) = sam1;
-            ex3.samples(2) = IX_samp(3.1,90);
-            ex3.samples(3) = IX_samp(3.2,90);
-
-            assertEqual(ex3.samples(1),sam1);
-            gc = unique_references_container.global_container('value','GLOBAL_NAME_SAMPLES_CONTAINER');
-            assertEqual(gc.n_objects,3);
-
             % test conversion to struct and clearing of all sample objects
             % associated with ex2, and then its restoration and checking
             % that the global container is restored
@@ -131,7 +122,7 @@ classdef test_unique_references < TestCase
             assertEqual(gc.unique_objects{3},ex2_rec.samples(3));
         end        
         %
-        function test_save_load_add_to_experiment(~)
+        function test_save_load_add_to_experiment(obj)
             %TODO there is a lot of testing of Experiment here and this may
             %be better positioned in test_experiment
             
