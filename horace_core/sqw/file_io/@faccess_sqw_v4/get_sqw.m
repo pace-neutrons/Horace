@@ -69,7 +69,7 @@ end
 
 if ~(opts.head || opts.his)
     detpar = sqw_skel.detpar;
-    if ~isempty(detpar)        
+    if ~isempty(detpar) && ~isempty(detpar.group)
         detpar = IX_detector_array(detpar);
     else
         detpar = IX_detector_array();

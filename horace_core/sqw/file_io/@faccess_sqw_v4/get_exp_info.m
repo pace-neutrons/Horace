@@ -47,7 +47,6 @@ if ~isinf(samp_inst_number)
     samp =     samp(samp_inst_number);
 end
 if isa(exp_data,'sqw') % data set to the sqw object
-    error('wondering where this happens');
     exper    = exp_data.experiment_info;
 else
     exper    = Experiment(IX_detector_array(),Inst,samp,exp_data);
