@@ -31,17 +31,15 @@ instr  = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER', ...
                                      'IX_inst');                         % previously cell(1,n_tot);
 sampl  = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER', ...
                                      'IX_samp');                         % previously cell(1,n_tot);
-%{
-% temporary suppression of use of compressed detectors until #959/PR999 
-% is merged here and in the for loop below
 detectors = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER', ...
                                         'IX_detector_array');
-%}
+
 % warning('stop here so you can check that instr and sampl should no longer be set as cells');
-detectors = []; % default empty detectors until the unique_references_containers are activated.
+%detectors = []; % default empty detectors until the unique_references_containers are activated.
 
 instr{1}   = exp_cellarray{1}.instruments{1};
 sampl{1}   = exp_cellarray{1}.samples{1};
+det{1}     = exp_cellarray{1}.detector_arrays{1};
 expinfo    = repmat(IX_experiment(),1,n_tot);
 expinfo(1) = exp_cellarray{1}.expdata(1);
 if ~allow_equal_headers
@@ -63,6 +61,7 @@ for i=i_start:n_contrib
     for j=j_start:exp_cellarray{i}.n_runs
         instr{ic}  = exp_cellarray{i}.instruments{j};
         sampl{ic}  = exp_cellarray{i}.samples{j};
+        det{ic}    = exp_cellarray{i}.detector_arrays{j};        
         expinfo(ic)= exp_cellarray{i}.expdata(j);
         if ~keep_runid
             expinfo(ic).run_id = ic;
@@ -90,6 +89,4 @@ for i=i_start:n_contrib
         ic = ic+1;
     end
 end
-% Here detectors==[] but will be a unique_references_container when the
-% above code for it is activated.
-exp = Experiment(detectors, instr, sampl,expinfo);
+exp = Experiment(det, instr, sampl,expinfo);

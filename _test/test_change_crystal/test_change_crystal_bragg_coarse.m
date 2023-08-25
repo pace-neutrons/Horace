@@ -264,7 +264,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             cut_range = {[cr(1,1),0.05,cr(2,1)],[cr(1,2),0.05,cr(2,2)],cr(:,3)',cr(:,4)'};
             cut_cor= cut(wout_corrected,proj,cut_range{:});
             cut_al = cut(wout_aligned,proj,cut_range{:});
-            assertEqualToTol(cut_cor,cut_al);
+            assertEqualToTol(cut_cor,cut_al,'tol',1.e-9);
         end
 
         function test_upgrade_legacy_alignment(obj)

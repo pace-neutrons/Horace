@@ -240,14 +240,14 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             function throw1()
                 expt.samples{1};
             end
-            assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_argument');
+            assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_subscript');
             assertTrue( isa( expt.instruments, 'unique_references_container' ) );
             assertEqual( expt.instruments.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
             assertEqual( expt.instruments.n_runs, 0 );
             function throw2()
                 expt.instruments{1};
             end
-            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
+            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_subscript');
             assertEqual(expt.detector_arrays.n_runs, 0);
         end
 

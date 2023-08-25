@@ -29,10 +29,10 @@ for i=1:nfiles
     det_tmp        = ldrs{i}.get_detpar();
     if (~isempty(det_tmp)                                && ...
         IX_detector_array.check_detpar_parms(det_tmp) && ...            
-        header{i}.detector_arrays.n_runs == 0            )        
+        exp_info{i}.detector_arrays.n_runs == 0            )        
     
         detector = IX_detector_array(det_tmp);
-        header{i}.detector_arrays = header{i}.detector_arrays.add(detector);
+        exp_info{i}.detector_arrays = exp_info{i}.detector_arrays.add(detector);
     end
     if i==1
         det=det_tmp;    % store the detector information for the first file
