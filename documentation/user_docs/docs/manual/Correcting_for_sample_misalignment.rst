@@ -3,44 +3,54 @@ Correcting for sample misalignment
 ##################################
 
 When mounting your sample on a spectrometer, it can often be the case that it is slightly misaligned compared the to the
-'perfect' alignment assumed when generating the SQW file (the u and v vectors provided in ``gen_sqw`` and
-``accumulate_sqw``). It is straightforward to correct such misalignment once enough data have been accumulated by
-comparing the positions of Bragg peaks compared to what they should be. The alignment correction is thus a process to be
-done in several steps - first the misalignment must be determined and checked, and then the correction must be applied
-to the data.
+'perfect' alignment assumed when generating the SQW file (the **u** and **v** vectors provided in ``gen_sqw`` and
+``accumulate_sqw``). It is straightforward to correct this misalignment, once enough data have been accumulated, by
+comparing the positions of Bragg peaks with what they are expected to be.
+
+Alignment correction is a two-step process:
+
+1. First, the misalignment must be determined and checked.
+2. Then, the correction must be applied to the data.
 
 
-Step 1 - determine the true positions of Bragg peaks
-----------------------------------------------------
+Step 1 - determining the true Bragg peak positions
+==================================================
 
 Bragg Positions
-===============
+---------------
 
-First you should find several non-parallel strong Bragg peaks in your data. Next run the following routine, which
-generates radial and transverse cuts around specified Bragg peaks and determines the deviation from the expected values.
+First you should identify several Bragg peaks which are strong and not parallel along :math:`\{p \in{} P:
+\Gamma{}\rightarrow{}p\}` in your data, where :math:`\{P\}` is the set of Bragg peaks, where
+:math:`\Gamma{}\rightarrow{}p` is the path from the gamma point to the point :math:`p`.
+
+Henceforth, we define :math:`\{\vec{Q}\}` as the set of :math:`\{p \in{} P: \vec{\Gamma{}p}\}`.
+
+The following routine generates radial and transverse cuts around specified Bragg peaks and calculates the deviation
+from the expected values.
 
 ::
 
-   [rlu0, widths, wcut, wpeak] = bragg_positions (sqw_file, bp, ...
+   [rlu0, widths, wcut, wpeak] = bragg_positions (sqw, bragg_positions, ...
                    radial_cut_length, radial_bin_width, radial_thickness,...
-                   trans_cut_length, trans_bin_width, trans_thickness, energy_window,<keyword options>)
+                   trans_cut_length, trans_bin_width, trans_thickness, ...
+                   energy_window, <keyword options>)
 
 
-The **inputs** are
+The inputs are:
 
-- ``sqw_file`` - the uncorrected data file
+- ``sqw`` - the uncorrected data
 
-- ``bp`` - an n-by-3 array specifying the notional Bragg positions (i.e. integer hkl)
+- ``bragg_positions`` - an n-by-3 array specifying the expected Bragg positions
 
-- ``radial_cut_length`` - length of cuts along the Q of the Bragg peak
+- ``radial_cut_length`` - lengths of the various cuts along each of :math:`\{\vec{Q}\}`.
 
-- ``radial_bin_width`` - bin (step) size along the radial cut
+- ``radial_bin_width`` - bin (step) sizes along the radial cuts
 
 - ``radial_thickness`` - integration thickness along the axes perpendicular to the radial cut direction
 
-- ``trans_cut_length`` - length of cuts along the Q orthogonal to that of the Bragg peak
+- ``trans_cut_length`` - lengths of cuts of each cut orthogonal to :math:`\vec{Q}`.
 
-- ``trans_bin_width`` - bin (step) size along the transverse cuts
+- ``trans_bin_width`` - bin (step) sizes along the transverse cuts
 
 - ``trans_thickness`` - integration thickness along the two perpendicular directions to the transverse cuts
 
