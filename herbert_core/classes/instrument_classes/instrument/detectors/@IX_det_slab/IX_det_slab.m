@@ -70,6 +70,17 @@ classdef IX_det_slab < IX_det_abstractType
                         ['Unrecognised extra parameters provided as input to ',...
                         'IX_det_slab constructor:\n %s'], disp2str(remains));
                 end
+                
+            else
+            
+            	oldval = obj.do_check_combo_arg_;
+                obj.do_check_combo_arg_ = false;
+            	obj.depth = obj.depth_;
+            	obj.width = obj.width_;
+            	obj.height = obj.height_;
+                obj.atten = obj.atten_;
+                obj.do_check_combo_arg_ = oldval;
+                
             end
         end
 

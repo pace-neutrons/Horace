@@ -27,6 +27,13 @@ for i=1:nfiles
     exp_info{i}    = ldrs{i}.get_exp_info('-all');
     datahdr{i}     = ldrs{i}.get_dnd_metadata();
     det_tmp        = ldrs{i}.get_detpar();
+    if (~isempty(det_tmp)                                && ...
+        IX_detector_array.check_detpar_parms(det_tmp) && ...            
+        exp_info{i}.detector_arrays.n_runs == 0            )        
+    
+        detector = IX_detector_array(det_tmp);
+        exp_info{i}.detector_arrays = exp_info{i}.detector_arrays.add(detector);
+    end
     if i==1
         det=det_tmp;    % store the detector information for the first file
     else
@@ -34,6 +41,8 @@ for i=1:nfiles
         det_tmp.filepath = det.filepath;
     end
     if ~equal_to_tol(det,det_tmp,[1.e-9,1.e-9])
+        % CM:we will need to get rid of this once detpars start becoming
+        % different between runs
         error('HORACE:write_nsqw_to_sqw:invalid_argument',...
             ' Detector parameters are not the same in first and %d file %s',...
             i,infiles{i});
@@ -44,6 +53,6 @@ for i=1:nfiles
     pos_npixstart(i)=ldrs{i}.npix_position;  % start of npix field
     pos_pixstart(i) =ldrs{i}.pix_position;   % start of pix field
     npixtot(i)      =ldrs{i}.npixels;
-    mess_completion(i)
+    mess_completion(i) % did not have terminating semi-colon, keeping it that way
 end
-mess_completion
+mess_completion() % did not have terminating semi-colon, keeping it that way

@@ -185,6 +185,7 @@ require_spe_unique  = ~opt.replicate;
 require_spe_exist   = ~opt.accumulate;
 require_sqw_exist=false;
 
+%CM:use of par file
 [spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
     (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
 
@@ -352,7 +353,7 @@ else % build all runfiles, including missing runfiles. TODO: Lost generality, as
         iex1 = indx(1);
         rf1 = rundatah.gen_runfiles(spe_file{iex1},par_file,efix(1),emode(1),...
             lattice(iex1),instrument(iex1),sample(iex1),rundata_par{:});
-        par_file = get_par(rf1{1});
+        par_file = get_par(rf1{1}); %CM:get_par(
     end
 
     % build all runfiles, including missing runfiles

@@ -202,7 +202,7 @@ classdef rundata < serializable
         default_values =get_defaults(this,varargin);
 
         % Returns detector parameter data from properly initiated data loader
-        [par,this]=get_par(this,format);
+        [par,this]=get_par(this,format); %CM:get_par() - this is only the declaration so no break
 
         % Returns whole or partial data from a rundata object
         [varargout] =get_rundata(this,varargin);

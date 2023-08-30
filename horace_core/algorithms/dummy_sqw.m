@@ -163,7 +163,7 @@ sample_default=IX_null_sample();      % default 1x1 structure with no fields
 % Create tmp files
 % ------------------
 % Read par file
-%det=get_par(par_file);
+%det=get_par(par_file); %CM:get_par
 %detdcn=calc_detdcn(det);
 %ndet=size(det.x2,2);
 run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice, ...

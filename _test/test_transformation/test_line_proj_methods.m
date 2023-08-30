@@ -415,6 +415,16 @@ classdef test_line_proj_methods<TestCase
         %------------------------------------------------------------------
         %
         function test_cut_dnd(this)
+            % removed handling this warning as it no longer appears to be
+            % generated and consequently a lastwarn later in the test would
+            % yield random results from other tests.Note left in case this
+            % resurfaces.
+            %ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
+            %clob0 = onCleanup(@()warning(ws));
+            [a,b]=lastwarn
+            hc = hor_config();
+            cur_mex = hc.use_mex;
+            hc.use_mex = 0;
             clob0 = set_temporary_warning('off','HORACE:realign_bin_edges:invalid_argument');
             clob = set_temporary_config_options(hor_config, 'use_mex', false);
 

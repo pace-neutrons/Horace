@@ -8,13 +8,11 @@ function obj = check_combo_arg_(obj)
 %            Throws HORACE:Experiment:invalid_argument with details of the
 %            issue if they are not
 nruns = numel(obj.expdata_);
-if nruns == 0
-    return;
-end
+
 mess = '';
 
 if obj.instruments_.n_runs ~= nruns
-    if obj.instruments_.n_runs == 1
+    if obj.instruments_.n_runs == 1 && nruns>0
         obj.instruments_ = obj.instruments_.replicate_runs(nruns);
     else
         mess = sprintf(...
@@ -22,8 +20,9 @@ if obj.instruments_.n_runs ~= nruns
             obj.instruments_.n_runs,nruns);
     end
 end
+
 if obj.samples_.n_runs ~= nruns
-    if obj.samples_.n_runs == 1
+    if obj.samples_.n_runs == 1 && nruns>0
         obj.samples_ = obj.samples_.replicate_runs(nruns);
     else
         mess = sprintf(...
@@ -31,7 +30,20 @@ if obj.samples_.n_runs ~= nruns
             mess,obj.samples_.n_runs,nruns);
     end
 end
-if isempty(obj.runid_map_)
+
+if obj.detector_arrays_.n_runs ~= nruns
+    if obj.detector_arrays_.n_runs == 0
+        % do nothing, this will be set later
+    elseif obj.detector_arrays_.n_runs == 1 && nruns>0
+        obj.detector_arrays_ = obj.detector_arrays_.replicate_runs(nruns);
+    else
+        mess = sprintf(...
+            '%s\n Number of detector arrays %d is not equal to number of runs: %d; ',...
+            mess,obj.detector_arrays_.n_runs,nruns);
+    end
+end
+
+if ~isa(obj.runid_map_, 'containers.Map') &&isempty(obj.runid_map_)
     mess = sprintf('%s\n runid_map is not defined',mess);
 else
     if obj.runid_map_.Count ~= nruns
@@ -101,14 +113,14 @@ if ~(all(new_lat_def) && all(new_ang_def))
             end
         else
             
-            warning('HORACE:Experiment:invalid_argument', ...
+            warning('HORACE:Experiment:lattice_undefined', ...
                 'Samples in experiment are defined but their lattice is undefined and the old simples define different lattice')
         end
         obj.old_lattice_holder_ = [];
     else
         is_null = cellfun(@(x)isa(x,'IX_null_sample'),new_uni_obj);
         if ~all(is_null)
-            warning('HORACE:Experiment:invalid_argument', ...
+            warning('HORACE:Experiment:lattice_undefined', ...
                 'Samples in experiment are defined but their lattice is undefined')
         end
     end

@@ -20,6 +20,7 @@ classdef test_unique_references < TestCase
             obj.nul_sm1 = IX_null_sample();
 
         end
+
         function delete(~)
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container( ...
@@ -70,25 +71,45 @@ classdef test_unique_references < TestCase
             assertTrue(ismember('IX_inst_DGdisk',classnames));
             assertFalse(ismember('IX_inst_DGfermi',classnames));
         end
-        function test_save_load_two_objects_adds_to_experiments(~)
+
+        function test_save_load_two_objects_adds_to_experiments(obj)
+            %TODO there is a lot of testing of Experiment here and this may
+            %be better positioned in test_experiment
+            clObC = onCleanup(@()unique_references_container.global_container('CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER'));
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container( ...
                 'CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER')
             %
-            ex1 = Experiment();
+            % test initialisation of an Experiment with 1 run - see next
+            % test for what happens initialising individual components for
+            % an empty Experiment()
+            ed = IX_experiment();
+            det = IX_detector_array();
             sam1 = IX_samp(4,90);
-            ex1.samples(1) = sam1;
+            ex1 = Experiment(det, obj.li, sam1, ed);
             assertEqual(ex1.samples(1),sam1);
 
-            ex2 = Experiment();
-            ex2.samples(1) = sam1;
-            ex2.samples(2) = IX_samp(3.1,90);
-            ex2.samples(3) = IX_samp(3.2,90);
-
-            assertEqual(ex2.samples(1),sam1);
+            % test initialisation of an Experiment with 3 runs, and then
+            % modify individual components
+            ed2 = [ed, ed, ed];
+            det2 = [det, det, det];
+            inst2 = { obj.li, obj.li, obj.li };
+            sam2 = { IX_samp(3,90), IX_samp(3.1, 90), IX_samp(3.2, 90) };
+            ex2 = Experiment(det2, inst2, sam2, ed2);
+            
+            ex2.samples(1) = IX_samp(3,80);
+            ex2.samples(2) = IX_samp(3.1,80);
+            ex2.samples(3) = IX_samp(3.2,80);
+            
+            assertEqual(ex2.samples(1),IX_samp(3,80));
+            
+            % check the state of the global container
             gc = unique_references_container.global_container('value','GLOBAL_NAME_SAMPLES_CONTAINER');
-            assertEqual(gc.n_objects,3);
+            assertEqual(gc.n_objects,7); % sam1, sam2 and the replacements into ex2
 
+            % test conversion to struct and clearing of all sample objects
+            % associated with ex2, and then its restoration and checking
+            % that the global container is restored
             ser_str = ex2.to_struct();
             clear('exp2','exp1');
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER');
@@ -101,13 +122,41 @@ classdef test_unique_references < TestCase
             assertEqual(gc.unique_objects{3},ex2_rec.samples(3));
         end        
         %
-        function test_save_load_add_to_experiment(~)
+        function test_save_load_add_to_experiment(obj)
+            %TODO there is a lot of testing of Experiment here and this may
+            %be better positioned in test_experiment
+            
+            % depending on how many times this test or others has been run,
+            % the global samples container may contain various other
+            % samples which may cause problems for the current test. To
+            % allow this test to run without those complications, clear the
+            % global samples container with the next line. In principle
+            % this should not be needed, and it can be left commented.
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');            
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER');
-            ex = Experiment();
+
+            % adding a sample to an empty Experiment() will fail as the
+            % number of runs is defined by the number of IX_experiments it
+            % contains, so Experiment() has no runs and ex.sample{1} = sam
+            % will not work. 
             sam = IX_samp(4,90);
-            ex.samples(1) = sam;
+            ex = Experiment();
+            function throw1()
+                ex.samples{1} = sam;
+            end
+            assertExceptionThrown(@throw1, 'HORACE:Experiment:invalid_argument');
+            % So ex is here initially defined with a complete
+            % complement of contents, and afterwards the first sample can
+            % be succesfully modified.
+            ed = IX_experiment();
+            det = IX_detector_array();
+            ex = Experiment(det,obj.li,sam,ed);
             assertEqual(ex.samples(1),sam);
+            sam2 = IX_samp(5,80);
+            ex.samples{1} = sam2;
+            assertEqual(ex.samples(1),sam2);
+            
+            % Now test save/load
             wkdir = tmp_dir();
             sample_file = fullfile(wkdir,'test_save_load_add_to_experiment.mat');
             save(sample_file,'ex');

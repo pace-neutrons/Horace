@@ -76,12 +76,14 @@ classdef unique_references_container < serializable
     % be modified.
     %
     %USAGE WITH SQW OBJECTS
-    % The instruments and samples in the experiment_info field of an SQW
+    % The instruments, detectors and samples in the experiment_info field of an SQW
     % are stored as unique_references_arrays. The global names for these
     % uses are
     % GLOBAL_NAME_INSTRUMENTS_CONTAINER
     % and
-    % GLOBAL_NAME_SAMPLES_CONTAINER.
+    % GLOBAL_NAME_SAMPLES_CONTAINER
+    % and
+    % GLOBAL_NAME_DETECTORS_CONTAINER.
     % You are free to use other categories for your own containers but
     % should leave these categories for Horace's SQW objects.
     %
@@ -358,9 +360,18 @@ classdef unique_references_container < serializable
             switch idxstr(1).type
                 case {'()','{}'}
                     b = idxstr(1).subs{:};
-                    if b<1 || b>numel(self.idx_)
-                        error('HERBERT:unique_references_container:invalid_argument',...
-                            'subscript %d out of range 1..%d', b, numel(self.idx_));
+                    if any(b<1)
+                        error('HERBERT:unique_references_container:invalid_subscript', ...
+                            'subscript must be positive');
+                    end
+                    if any(b>numel(self.idx_))
+                        if numel(self.idx_)>0
+                            error('HERBERT:unique_references_container:invalid_subscript',...
+                                'subscript must be less than %d',numel(self.idx_));
+                        else
+                            error('HERBERT:unique_references_container:invalid_subscript',...
+                              'container is empty and cannot take a subscript');
+                        end
                     end
                     glindex = self.idx_(b);
                     glc = self.global_container('value',self.global_name_);
@@ -652,6 +663,31 @@ classdef unique_references_container < serializable
                 self.global_container('reset',self.global_name_,glcont);
             end
             self.idx_(nuix) = glindex;
+        end
+        
+        function [self] = replace_all(self,obj)
+            %REPLACE_ALL - substitute object obj at all positions in container
+            %
+            % Input
+            % -----
+            % - obj:  objects to be inserted into the container
+            %         to replace all existing content
+            %
+            % The old values are overwritten.
+
+            [glindex, ~] = self.global_container('value',self.global_name_) ...
+                               .find_in_container(obj);
+            if isempty(glindex)
+                [glcont,glindex] = ...
+                    self.global_container('value',self.global_name_).add(obj);
+                if glindex == 0
+                    % object was not replaced
+                    return
+                end
+                self.global_container('reset',self.global_name_,glcont);
+            end
+            sz = self.n_runs;
+            self.idx_ = repmat(glindex, sz, 1) ;
         end
     end
 

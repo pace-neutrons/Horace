@@ -60,7 +60,7 @@ for i=1:numel(eps_lo)
 end
 % Invoke public get_par routine
 if ischar(det) && size(det,1)==1
-    det=get_par(det);
+    det=get_par(det); %CM:get_par()
 end
 % Get pix_range
 rd_list = rundatah.gen_runfiles(cell(1,numel(efix)),det,...

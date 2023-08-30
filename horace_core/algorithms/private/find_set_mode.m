@@ -59,7 +59,9 @@ else
         set_per_obj = false;
     else
         error('HORACE:sqw:invalid_argument',...
-            'An array of object to set values was given but rhe length of values do not match the number of runs in (all) the sqw objects being altered')
+            ['An array of object to set values was given ', ...
+                                    'but the length of values do not match the number of runs in ',...
+            '(all) the sqw objects being altered'])
     end
 end
 %

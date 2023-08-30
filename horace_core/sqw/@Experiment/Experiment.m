@@ -411,7 +411,7 @@ classdef Experiment < serializable
             % very crude implementation for the header, average over all
             % runs.
             %
-            if isempty(obj.expdata)
+            if isempty(obj.expdata) % true if zero runs
                 avh = [];
                 u_to_rlu = []; % actually inverted B-matrix
             else
@@ -424,9 +424,11 @@ classdef Experiment < serializable
             else
                 ebins_are_the_same=[];
             end
-            if isempty(avh)
+            if isempty(avh) % because zero runs, get lattice parms from data
                 avh = struct();
-            else
+                avh.alatt = alatt;
+                avh.angdeg = angdeg;
+            else % there is at least one run, get lattice parms from first sample
                 avh = avh.to_bare_struct();
             end
             if ~isempty(u_to_rlu)
@@ -671,6 +673,8 @@ classdef Experiment < serializable
             obj = check_combo_arg_(obj);
         end
     end
+    
+    
     %----------------------------------------------------------------------
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)

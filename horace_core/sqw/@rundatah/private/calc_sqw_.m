@@ -60,6 +60,8 @@ w.detpar = det0;
 w.experiment_info = exp_info;
 w.data = data;
 w.pix=pix;
+% move detector data from detpar into the experiment info detector arrays
+w = w.check_combo_arg();
 
 %------------------------------------------------------------------------------------------------------------------
 function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
@@ -96,4 +98,14 @@ sqw_data = DnDBase.dnd(axes_bl,proj);
 expdata = IX_experiment([fn,fe], [fp,filesep],obj.run_id, ...
     obj.efix,obj.emode,obj.en,lat);
 
-header = Experiment([],obj.instrument,obj.sample,expdata);
+detpar = obj.det_par;
+
+if isempty(detpar)
+    header = Experiment([],obj.instrument,obj.sample,expdata);
+    % the detector arrays will be inserted later from detpar
+else
+    detector = IX_detector_array(obj.det_par);
+    obj.compressed_detpars = obj.compressed_detpars.add(detector);
+
+    header = Experiment(obj.compressed_detpars,obj.instrument,obj.sample,expdata);
+end

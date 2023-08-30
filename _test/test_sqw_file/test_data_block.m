@@ -238,6 +238,7 @@ classdef test_data_block < TestCase
 
             assertEqualToTol(tob,rec_obj,1.e-12);
         end
+
         function test_put_get_two_data_blocks(obj)
             dp1 = data_block('experiment_info','samples');
             dp2 = data_block('experiment_info','instruments');
@@ -250,7 +251,6 @@ classdef test_data_block < TestCase
             dp1 = dp1.put_sqw_block(fid,tob);
             dp2.position = dp1.size;
             dp2 = dp2.put_sqw_block(fid,tob);
-            
             
             %{
             DISABLE test section as this experiment_info has 1 run so

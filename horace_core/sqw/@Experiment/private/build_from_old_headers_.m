@@ -21,11 +21,19 @@ headers = varargin{1};
 
 % Make arrays of the hew-style header class types to receive the data
 % coming from each run in headers
+% (over-writes previous initialisation in Experiment constructor)
 expdata     = repmat(IX_experiment(), 1,numel(headers));
 instruments = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
 samples     = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
+detectors   = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
+
 
 hdr = headers{1};
+if ~obj.isoldheader(hdr)
+    error('HORACE:build_from_old_headers_:invalid_argument', ...
+          'arg should be a true header struct')
+end
+    
 alatt = hdr.alatt;
 angdeg =hdr.angdeg;
 % convert old headers, restored differently from sqw and mat files into the
@@ -105,6 +113,7 @@ obj.do_check_combo_arg_ = false;
 
 % Construct the new header Experiment object
 % update with expdata, which maybe should go in the Experiment constructor
+obj.detector_arrays = detectors;
 obj.instruments = instruments;
 obj.samples = samples;
 % this also calculates and sets up consistent runid_map

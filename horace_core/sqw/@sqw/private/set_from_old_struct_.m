@@ -36,6 +36,12 @@ if ~isfield(S,'version') || S.version<4
         if isfield(ss,'experiment_info') && isstruct(ss.experiment_info)
             ss.experiment_info = Experiment.loadobj(ss.experiment_info);
         end
+        if isfield(ss,'detpar') && ~isempty(ss.detpar)
+            detector = IX_detector_array(ss.detpar);
+            ss.experiment_info.detector_arrays = ...
+                ss.experiment_info.detector_arrays.add_copies_(detector, ...
+                                                               ss.experiment_info.n_runs);
+        end
         if isfield(ss,'data_')
             ss.data = ss.data_;
             ss = rmfield(ss,'data_');
@@ -49,6 +55,7 @@ if ~isfield(S,'version') || S.version<4
                 ss.data = data_sqw_dnd.loadobj(ss.data);
             end
             if isa(ss.data,'data_sqw_dnd')
+                hav = header_average(ss.experiment_info);
                 if ss.experiment_info.samples.n_runs == 0
                     sam = IX_samp('alatt',ss.data.alatt,'angdeg',ss.data.angdeg);
                     ss.experiment_info.samples{1} = sam;

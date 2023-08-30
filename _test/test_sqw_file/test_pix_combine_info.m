@@ -12,7 +12,6 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
 
     methods
         function obj=test_pix_combine_info(test_class_name)
-            %
             if ~exist('test_class_name','var')
                 test_class_name = 'test_pix_combine_info';
             end

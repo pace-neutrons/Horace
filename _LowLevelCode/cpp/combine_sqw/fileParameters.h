@@ -28,4 +28,5 @@ private:
     static const std::map<std::string, int> fileParamNames;
 };
 
+
 #endif

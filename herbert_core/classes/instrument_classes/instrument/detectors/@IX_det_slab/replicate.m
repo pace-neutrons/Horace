@@ -17,7 +17,13 @@ function obj_out = replicate (obj, n)
 
 % Replicate the detector arrays
 obj_out = obj;
-obj_out.depth_  = repmat(obj.depth_,[n,1]);
-obj_out.width_  = repmat(obj.width_,[n,1]);
-obj_out.height_ = repmat(obj.height_,[n,1]);
-obj_out.atten_  = repmat(obj.atten_,[n,1]);
+
+store_check = obj_out.do_check_combo_arg_;
+obj_out.do_check_combo_arg_ = false;
+
+obj_out.depth  = repmat(obj.depth_,[n,1]);
+obj_out.width  = repmat(obj.width_,[n,1]);
+obj_out.height = repmat(obj.height_,[n,1]);
+obj_out.atten  = repmat(obj.atten_,[n,1]);
+
+obj_out.do_check_combo_arg_ = store_check;
