@@ -37,21 +37,6 @@ genieplot_init
 % Applications definitions
 addgenpath_message (herbert_path,'applications')
 
-
-% set up multi-users computer specific settings,
-% namely settings which are common for all new users of the specific computer
-% e.g.:
-parc = parallel_config();
-if parc.is_default
-    warning(['Found Herbert is not configured. ',...
-        ' Setting up the configuration, identified as optimal for this type of the machine.',...
-        ' Please, check configurations (typing:',...
-        ' >>parallel_config)',...
-        ' to ensure this configuration is correct.'])
-    ocp = opt_config_manager();
-    ocp.load_configuration('-set_config','-change_only_default','-force_save');
-end
-
 print_banner();
 
 end

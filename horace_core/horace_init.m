@@ -82,8 +82,12 @@ if hc.init_tests % this is developer version
     addpath(fullfile(root_path,'_test','common_functions'));
 end
 
-hpcc = hpc_config;
-if hc.is_default || hpcc.is_default
+% set up multi-users computer specific settings,
+% namely settings which are common for all new users of the specific computer
+% e.g.:
+hpcc = hpc_config();
+parc = parallel_config();
+if hc.is_default || hpcc.is_default || parc.is_default
     warning([' Found Horace is not configured. ',...
         ' Setting up the configuration, identified as optimal for this type of the machine.',...
         ' Please, check configurations (typing:',...
@@ -93,11 +97,8 @@ if hc.is_default || hpcc.is_default
     conf_c = opt_config_manager();
     conf_c.load_configuration('-set_config','-change_only_default','-force_save');
 end
-check_mex = false;
+
 if hc.is_default
-    check_mex = true;
-end
-if check_mex
     [~, n_mex_errors] = check_horace_mex();
     hc.use_mex = n_mex_errors < 1;
 end
