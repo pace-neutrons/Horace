@@ -93,7 +93,7 @@ if ~isfield(S,'version') || S.version<4
         % we need compatibility matrix as can not distinguish between
         % old=style aligned and non-aligned data
         proj = ss.data.proj;
-        header_av = ss.experiment_info.header_average(ss.data);
+        header_av = ss.experiment_info.header_average();
         if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
             u_to_rlu = header_av.u_to_rlu(1:3,1:3);
             if any(abs(subdiag_elements(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly

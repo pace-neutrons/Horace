@@ -407,18 +407,10 @@ classdef Experiment < serializable
         %
         % GEN_SQW interface
         %------------------------------------------------------------------
-        function [avh,ebins_are_the_same] = header_average(obj, data)
+        function [avh,ebins_are_the_same] = header_average(obj)
             % very crude implementation for the header, average over all
             % runs.
             %
-            if exist('data', 'var') % second arg is a data_sqw_dnd object
-                                     % and provides default lattice parms
-                alatt = data.alatt;
-                angdeg = data.angdeg;
-            else
-                alatt = [];
-                angdeg = [];
-            end
             if isempty(obj.expdata) % true if zero runs
                 avh = [];
                 u_to_rlu = []; % actually inverted B-matrix

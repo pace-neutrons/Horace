@@ -104,9 +104,9 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             % testing the bank constructor with the default IX_det_slab.
             % this now tests that the mandatory fields are constructed.
             % First we get out the fields-set logical (not public)
-            warning('off','MATLAB:structOnObject');
+            clob3 = set_temporary_warning('off','MATLAB:structOnObject')
             mandatory = struct(bank.det).mandatory_field_set_;
-            warning('on','MATLAB:structOnObject');
+            clear clob3;
             % then check that the fields have been expanded and set by
             % the replicate function in the bank constructor.
             assertEqual(mandatory,[true true true true]);
@@ -118,11 +118,11 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             
             % now save and reload the bank
             save('bank.mat','bank');
-            clob = onCleanup(@()(delete('bank.mat')));            
+            clob = onCleanup(@()(delete('bank.mat')));  
             xxx = load('bank.mat');
-            ws = warning('off','MATLAB:structOnObject');
+            clob2 = set_temporary_warning('off','MATLAB:structOnObject')
             mandatory = struct(bank.det).mandatory_field_set_;
-            warning(ws);
+            clear clob2;
             % and these are the fields that have been expanded and set by
             % the replicate function in the bank constructor.
             assertEqual(mandatory,logical([1 1 1 1]));
