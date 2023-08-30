@@ -55,7 +55,7 @@ if ~isfield(S,'version') || S.version<4
                 ss.data = data_sqw_dnd.loadobj(ss.data);
             end
             if isa(ss.data,'data_sqw_dnd')
-                hav = header_average(ss.experiment_info, ss.data);
+                hav = header_average(ss.experiment_info);
                 if ss.experiment_info.samples.n_runs == 0
                     sam = IX_samp('alatt',ss.data.alatt,'angdeg',ss.data.angdeg);
                     ss.experiment_info.samples{1} = sam;

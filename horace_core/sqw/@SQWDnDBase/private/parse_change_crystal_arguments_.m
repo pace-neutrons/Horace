@@ -56,10 +56,7 @@ elseif narg>=1 && narg<=4
             error('HORACE:change_crystal:invalid_argument', ...
                 'Alignment vectors u and v are provided, but experiment info, describing initial alignment is missing');
         end
-        lattice_parms = struct();
-        lattice_parms.alatt = alatt;
-        lattice_parms.angdeg = angdeg;
-        header_ave=header.header_average(lattice_parms);  % this gets the header for the first spe file that contributed.
+        header_ave=header.header_average();  % this gets the header for the first spe file that contributed.
 
         u=varargin{3}(:)';
         v=varargin{4}(:)';
