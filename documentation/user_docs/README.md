@@ -38,10 +38,10 @@ Built documents will be put in the `/build/html` folder, the main file is the `i
 ## Online documentation
 Horace documentation is also available from:
 
-https://pace-neutrons.github.io/horace-docs
+https://pace-neutrons.github.io/Horace
 
 to get the latest version.
 
 For this explicit version, see:
 
-https://pace-neutrons.github.io/horace-docs/3.6.3/ 
+https://pace-neutrons.github.io/Horace/v3.6.3
