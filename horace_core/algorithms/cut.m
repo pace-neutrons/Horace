@@ -65,9 +65,14 @@ if is_string(source)
     % Get a loader instance that can tell us what kind of file this is
     % We expect either a .sqw or .dnd file, throw an error otherwise.
     ldr = sqw_formats_factory.instance().get_loader(source);
-    sqw_dnd_obj=obj_from_faccessor(ldr,n_object,sqw_only,dnd_only);
+    % If we're cutting, don't ever want to load whole file
+    sqw_dnd_obj=obj_from_faccessor(ldr, n_object, sqw_only, dnd_only, ...
+                                   'file_backed', true);
+
 elseif isa(source,'horace_binfile_interface')
-    sqw_dnd_obj=obj_from_faccessor(source,n_object,sqw_only,dnd_only);
+    % If we're cutting, don't ever want to load whole file
+    sqw_dnd_obj=obj_from_faccessor(source,n_object,sqw_only,dnd_only, ...
+                                   'file_backed', true);
 elseif isa(source, 'SQWDnDBase')
     sqw_dnd_obj = source;
     if sqw_only || dnd_only
@@ -96,7 +101,7 @@ else
 end
 
 
-function sqw_dnd_obj=obj_from_faccessor(ldr,n_object,sqw_only,dnd_only)
+function sqw_dnd_obj=obj_from_faccessor(ldr,n_object,sqw_only,dnd_only,varargin)
 % Get sqw/dnd object from appropriately initialized file accessor
 %
 if ldr.sqw_type
@@ -106,7 +111,7 @@ if ldr.sqw_type
             'Object N%d file: %s at: %s.\n Cut from only dnd object requested but sqw object provided',...
             n_object,ldr.filename,ldr.filepath);
     end
-    sqw_dnd_obj = sqw(ldr);    
+    sqw_dnd_obj = sqw(ldr, varargin{:});
 else
     if sqw_only
         ldr.delete();
@@ -120,4 +125,3 @@ else
     sqw_dnd_obj = ldr.get_dnd();
     ldr.delete();
 end
-
