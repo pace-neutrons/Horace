@@ -236,8 +236,9 @@ for iw=1:nw
     %  pixels have been shifted, so recalculate)
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
     irun_max = max(irun);
+    id_max = wtmp.runid_map;
     if irun_max>numel(ne)
-        irun = arrayfun(@(x)wtmp.runid_map(x),irun);
+        irun = arrayfun(@(x)id_max(x),irun);
     end
     if ne>1
         eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
