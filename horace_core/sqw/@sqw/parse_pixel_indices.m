@@ -71,17 +71,14 @@ if nargin==1
         for i = 1:nw
             if iscell(win)
                 pix = win{i}.pix;
+                runid_map = win{i}.runid_map;
             else
                 pix = win(i).pix;
+                runid_map = win(i).runid_map;
             end
 
             run_idx= pix.get_fields('run_idx', 'all')';
-            if iscell(win)
-                irun_tmp = arrayfun(@(x) win{i}.runid_map(x),run_idx);
-            else
-                irun_tmp = arrayfun(@(x) win(i).runid_map(x),run_idx);
-            end
-            irun{i} = irun_tmp;
+            irun{i} = arrayfun(@(x)runid_map(x),run_idx);
             idet{i} = pix.get_fields('detector_idx', 'all')';
             ien{i}  = pix.get_fields('energy_idx', 'all')';
         end
