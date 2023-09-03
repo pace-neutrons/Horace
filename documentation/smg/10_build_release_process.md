@@ -65,7 +65,11 @@ The version number is stored in a text file (`VERSION`) in the root of the
 Herbert and Horace source.
 This will follow [semantic versioning](https://semver.org/)
 and is used in the build process to set the version number in the MATLAB
-and compiled C++ components.
+and compiled C++ components
+
+The number of the latest version is referred to in README.md in 
+`documentation/user_docs`. When updating the release as above, that reference
+in the README should also be updated.
 
 ## Deployment on ISIS computational services machines
 

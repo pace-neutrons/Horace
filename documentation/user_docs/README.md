@@ -36,10 +36,23 @@ To build the docs locally:
 Built documents will be put in the `/build/html` folder, the main file is the `index.html` file.
 
 ## Online documentation
-Horace documentation is also available from:
+The latest stable Horace documentation is also available from:
 
-https://pace-neutrons.github.io/horace-docs/latest
+https://pace-neutrons.github.io/Horace/stable
 
-For this version, see:
+where `/stable` can be omitted. The latest development version of the 
+documentation can be obtained by replacing `stable` with `unstable`.
 
-https://pace-neutrons.github.io/horace-docs/3.5.0/ 
+`Horace` and `Horace/stable` both immediately redirect to the path of the 
+latest stable version, which is currently:
+
+https://pace-neutrons.github.io/Horace/v3.6.3/ 
+
+This version number should be changed when a new release is produced; details
+for this can be found in `smg/10_build_release_process.md`.
+
+Older versions are available; to see these, enter the Horace repo at the 
+top level and switch to branch `gh-pages`.
+
+Details on the use of this branch to store release documentation can be
+found in `adr/0002-use-github-for-documentation.md`.
