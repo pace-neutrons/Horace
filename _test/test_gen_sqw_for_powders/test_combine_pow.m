@@ -54,7 +54,7 @@ classdef test_combine_pow < TestCaseWithSave
             en=-5:1:90;
             obj.psi_1=0;
 
-            if ~exist(obj.spe_file_1,'file')
+            if ~is_file(obj.spe_file_1)
                 simulate_spe_testfunc (en, obj.par_file, obj.spe_file_1, @sqw_cylinder, [10,1], 0.3,...
                     obj.efix, emode, alatt, angdeg, u, v, obj.psi_1, omega, dpsi, gl, gs)
             end
@@ -62,19 +62,19 @@ classdef test_combine_pow < TestCaseWithSave
             % -------------------------------------------------------------
             en=-9.5:2:95;
             obj.psi_2=30;
-            if ~exist(obj.spe_file_2,'file')
+            if ~is_file(obj.spe_file_2)
                 simulate_spe_testfunc (en, obj.par_file, obj.spe_file_2, @sqw_cylinder, [10,1], 0.3,...
                     obj.efix, emode, alatt, angdeg, u, v, obj.psi_2, omega, dpsi, gl, gs)
             end
             % test files are in svn
             obj.save();
         end
+
         function delete(obj)
             %delete(obj.spe_file_1);
             %delete(obj.spe_file_2);
             %rmpath(obj.test_helpers_path);
         end
-
 
         function obj=test_combine_pow_1file(obj)
             % Create sqw files, combine and check results
@@ -87,9 +87,10 @@ classdef test_combine_pow < TestCaseWithSave
 
             gen_sqw_powder(obj.spe_file_1, obj.par_file, sqw_file_1, obj.efix, emode);
 
+            sqw_a = read_sqw(sqw_file_1);
 
-            w2_1 = cut_sqw(sqw_file_1,[0,0.05,8],0,'-nopix');
-            w1_1 = cut_sqw(sqw_file_1,[0,0.05,3],[40,50],'-nopix');
+            w1_1 = cut_sqw(sqw_a,[0,0.05,3],[40,50],'-nopix');
+            w2_1 = cut_sqw(sqw_a,[0,0.05,8],0,'-nopix');
 
             obj.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
@@ -98,11 +99,11 @@ classdef test_combine_pow < TestCaseWithSave
 
             %--------------------------------------------------------------
             % Visually inspect
-            acolor k
-            dd(w1_1);
-            acolor b
-            da(w2_1);
-            close all
+            % acolor k
+            % dd(w1_1);
+            % acolor b
+            % da(w2_1);
+            % close all
             %--------------------------------------------------------------
         end
 
@@ -117,8 +118,10 @@ classdef test_combine_pow < TestCaseWithSave
 
             gen_sqw_powder(this.spe_file_2, this.par_file, sqw_file_2, this.efix, emode);
 
-            w2_2=cut_sqw(sqw_file_2,[0,0.05,8],0,'-nopix');
-            w1_2=cut_sqw(sqw_file_2,[0,0.05,3],[40,50],'-nopix');
+            sqw_a = read_sqw(sqw_file_2);
+
+            w1_2=cut(sqw_a,[0,0.05,3],[40,50],'-nopix');
+            w2_2=cut(sqw_a,[0,0.05,8],0,'-nopix');
 
             this.assertEqualToTolWithSave(w2_2,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5]);
@@ -143,9 +146,11 @@ classdef test_combine_pow < TestCaseWithSave
             emode = 1;
             gen_sqw_powder({this.spe_file_1,this.spe_file_2}, this.par_file, sqw_file_tot, this.efix, emode);
 
-            w2_tot=cut_sqw(sqw_file_tot,[0,0.05,8],0,'-nopix');
+            sqw_a = read_sqw(sqw_file_tot);
 
-            w1_tot=cut_sqw(sqw_file_tot,[0,0.05,3],[40,50],'-nopix');
+            w2_tot=cut_sqw(sqw_a,[0,0.05,8],0,'-nopix');
+
+            w1_tot=cut_sqw(sqw_a,[0,0.05,3],[40,50],'-nopix');
 
             this.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
@@ -154,10 +159,10 @@ classdef test_combine_pow < TestCaseWithSave
 
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
-            acolor k
-            dd(w1_tot);
-            acolor b
-            plot(w2_tot);
+            % acolor k
+            % dd(w1_tot);
+            % acolor b
+            % plot(w2_tot);
             % acolor r
             % pd(w1_tot)  % does not overlay - but that is OK
             %--------------------------------------------------------------------------------------------------
