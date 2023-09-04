@@ -15,7 +15,7 @@ classdef test_spherical_cuts < TestCaseWithSave
         sqw_file_fine;
         sqw_file_coarse;
         %
-        test_helpers_path        
+        test_helpers_path
     end
     methods
 
@@ -62,14 +62,14 @@ classdef test_spherical_cuts < TestCaseWithSave
             psi_1=0;
             psi_2=30;
 
-            if ~exist(obj.spe_file_1,'file')
+            if ~is_file(obj.spe_file_1)
                 simulate_spe_testfunc (en1, obj.par_file, obj.spe_file_1, @sqw_cylinder, [10,1], 0.3,...
                     efix(1), emode, alatt, angdeg, u, v, psi_1, omega, dpsi, gl, gs)
             end
             % Simulate second file, with reproducible random looking noise
             % -------------------------------------------------------------
 
-            if ~exist(obj.spe_file_2,'file')
+            if ~is_file(obj.spe_file_2)
                 simulate_spe_testfunc (en2, obj.par_file, obj.spe_file_2, @sqw_cylinder, [10,1], 0.3,...
                     efix(1), emode, alatt, angdeg, u, v, psi_2, omega, dpsi, gl, gs)
             end
@@ -103,8 +103,11 @@ classdef test_spherical_cuts < TestCaseWithSave
             spp = sphere_proj;
             spp.type = 'add';
 
-            w2_fine  = cut_sqw(obj.sqw_file_fine  ,spp,[0,0.05,8],[0,180],[-180,180],[-10,95]);            
-            w2_coars = cut_sqw(obj.sqw_file_coarse,spp,[0,0.05,8],[0,180],[-180,180],[-10,95]);            
+            sqw_f = read_sqw(obj.sqw_file_fine);
+            sqw_c = read_sqw(obj.sqw_file_coarse);
+
+            w2_fine  = cut_sqw(sqw_f,spp,[0,0.05,8],[0,180],[-180,180],[-10,95], '-nopix');
+            w2_coars = cut_sqw(sqw_c,spp,[0,0.05,8],[0,180],[-180,180],[-10,95], '-nopix');
 
             assertEqualToTol(w2_fine,w2_coars,1.e-8,'ignore_str',true);
         end
@@ -116,8 +119,11 @@ classdef test_spherical_cuts < TestCaseWithSave
             spp = sphere_proj;
             spp.type = 'add';
 
-            w2_fine  = cut_sqw(obj.sqw_file_fine,  spp,[0,8],[0,1,180],[-180,1,180],[-10,90]);
-            w2_coars = cut_sqw(obj.sqw_file_coarse,spp,[0,8],[0,1,180],[-180,1,180],[-10,90]);
+            sqw_f = read_sqw(obj.sqw_file_fine);
+            sqw_c = read_sqw(obj.sqw_file_coarse);
+
+            w2_fine  = cut(sqw_f, spp,[0,8],[0,1,180],[-180,1,180],[-10,90], '-nopix');
+            w2_coars = cut(sqw_c, spp,[0,8],[0,1,180],[-180,1,180],[-10,90], '-nopix');
 
             assertEqualToTol(w2_fine,w2_coars,'ignore_str',true);
         end
@@ -130,16 +136,17 @@ classdef test_spherical_cuts < TestCaseWithSave
             spp = sphere_proj;
             spp.type = 'add';
 
-            w2_tot = cut_sqw(obj.sqw_file_fine,spp,[0,8],[0,1,180],[-180,1,180],[-10,90],'-nopix');
-            acolor b
-            plh = da(w2_tot);
+            sqw_f = read_sqw(obj.sqw_file_fine);
 
+            w2_tot = cut_sqw(sqw_f,spp,[0,8],[0,1,180],[-180,1,180],[-10,90],'-nopix');
 
             obj.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
 
             %--------------------------------------------------------------
-            close(plh);
+            % acolor b
+            % plh = da(w2_tot);
+            % close(plh);
         end
 
         function obj = test_spher_cut_fine_grid_2D_QdE(obj)
@@ -149,17 +156,18 @@ classdef test_spherical_cuts < TestCaseWithSave
             spp = sphere_proj;
             spp.type = 'add';
 
-            w2_tot = cut_sqw(obj.sqw_file_fine,spp,[0,0.05,8],[0,180],[-180,180],1,'-nopix');
-            acolor b
-            plh = da(w2_tot);
-
+            sqw_f = read_sqw(obj.sqw_file_fine);
+            w2_tot = cut_sqw(sqw_f,spp,[0,0.05,8],[0,180],[-180,180],1,'-nopix');
 
             obj.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
 
             %--------------------------------------------------------------
-            close(plh);
+            % acolor b
+            % plh = da(w2_tot);
+            % close(plh);
         end
+
         function obj = test_spher_cut_fine_grid_1d_Phi(obj)
             % Create sqw files, combine and check results
             % -------------------------------------------
@@ -167,16 +175,17 @@ classdef test_spherical_cuts < TestCaseWithSave
             spp = sphere_proj;
             spp.type = 'add';
 
-            w1_tot = cut_sqw(obj.sqw_file_fine,spp,[0,3],[0,180],[-180,1,180],[40,50],'-nopix');
-            % Visually inspect
-            acolor k
-            plh=dd(w1_tot);
+            sqw_f = read_sqw(obj.sqw_file_fine);
+            w1_tot = cut_sqw(sqw_f,spp,[0,3],[0,180],[-180,1,180],[40,50],'-nopix');
 
             obj.assertEqualToTolWithSave(w1_tot,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
 
             %--------------------------------------------------------------
-            close(plh);
+            % Visually inspect
+            % acolor k
+            % plh=dd(w1_tot);
+            % close(plh);
         end
 
         function obj = test_spher_cut_fine_grid_1d_Q(obj)
@@ -186,61 +195,78 @@ classdef test_spherical_cuts < TestCaseWithSave
             spp = sphere_proj;
             spp.type = 'add';
 
-            w1_tot = cut_sqw(obj.sqw_file_fine,spp,[0,0.05,3],[0,180],[-180,180],[40,50],'-nopix');
-            % Visually inspect
-            acolor k
-            plh=dd(w1_tot);
+            sqw_f = read_sqw(obj.sqw_file_fine);
+
+            w1_tot = cut_sqw(sqw_f,spp,[0,0.05,3],[0,180],[-180,180],[40,50],'-nopix');
 
             obj.assertEqualToTolWithSave(w1_tot,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
 
             %--------------------------------------------------------------
-            close(plh);
+            % Visually inspect
+            % acolor k
+            % plh=dd(w1_tot);
+            % close(plh);
         end
 
         function test_spher_cut_coarse_grid_1d_Theta(obj)
             spp = sphere_proj;
             spp.type = 'arr';
-            w1_1 = cut_sqw(obj.sqw_file_coarse,spp,[0,3],[0,0.1,pi],[-pi,pi],[40,50],'-nopix');
-            plh = plot(w1_1);
+
+            sqw_c = read_sqw(obj.sqw_file_coarse);
+
+            w1_1 = cut_sqw(sqw_c,spp,[0,3],[0,0.1,pi],[-pi,pi],[40,50],'-nopix');
 
             obj.assertEqualToTolWithSave(w1_1,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
-            close(plh);
+
+            % plh = plot(w1_1);
+            % close(plh);
         end
 
         function test_spher_cut_coarse_grid_1d_Q(obj)
             spp = sphere_proj;
             spp.type = 'arr';
-            w1_1 = cut_sqw(obj.sqw_file_coarse,spp,[0,0.05,3],[0,pi],[-pi,pi],[40,50],'-nopix');
-            plh=plot(w1_1);
+
+            sqw_c = read_sqw(obj.sqw_file_coarse);
+
+            w1_1 = cut_sqw(sqw_c,spp,[0,0.05,3],[0,pi],[-pi,pi],[40,50],'-nopix');
 
             obj.assertEqualToTolWithSave(w1_1,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
 
-            close(plh);
+            % plh=plot(w1_1);
+            % close(plh);
         end
 
         function test_spher_cut_coarse_grid_2D_ThetaPhi(obj)
             spp = sphere_proj;
             spp.type = 'arr';
-            w2_1 = cut_sqw(obj.sqw_file_coarse,spp,[0,8],[0,0.1,pi],[-pi,0.1,pi],[-10,90],'-nopix');
-            plh=plot(w2_1);
+
+            sqw_c = read_sqw(obj.sqw_file_coarse);
+
+            w2_1 = cut_sqw(sqw_c,spp,[0,8],[0,0.1,pi],[-pi,0.1,pi],[-10,90],'-nopix');
 
             obj.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
-            close(plh);
+
+            % plh=plot(w2_1);
+            % close(plh);
         end
 
         function test_spher_cut_coarse_grid_2D_qdE(obj)
             spp = sphere_proj;
             spp.type = 'arr';
-            w2_1 = cut_sqw(obj.sqw_file_coarse,spp,[0,0.05,8],[0,pi],[-pi,pi],1,'-nopix');
-            plh=plot(w2_1);
+
+            sqw_c = read_sqw(obj.sqw_file_coarse);
+
+            w2_1 = cut_sqw(sqw_c,spp,[0,0.05,8],[0,pi],[-pi,pi],1,'-nopix');
 
             obj.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
-            close(plh);
+
+            % plh=plot(w2_1);
+            % close(plh);
         end
     end
 end

@@ -51,7 +51,7 @@ classdef test_combine_cyl < TestCaseWithSave
             en=-5:1:90;
             obj.psi_1=0;
 
-            if ~exist(obj.spe_file_1,'file')
+            if ~is_file(obj.spe_file_1)
                 simulate_spe_testfunc (en, obj.par_file, obj.spe_file_1, @sqw_cylinder, [10,1], 0.3,...
                     obj.efix, emode, obj.alatt, angdeg, u, v, obj.psi_1, omega, dpsi, gl, gs)
             end
@@ -59,7 +59,7 @@ classdef test_combine_cyl < TestCaseWithSave
             % -------------------------------------------------------------
             en=-9.5:2:95;
             obj.psi_2=30;
-            if ~exist(obj.spe_file_2,'file')
+            if ~is_file(obj.spe_file_2)
                 simulate_spe_testfunc (en, obj.par_file, obj.spe_file_2, @sqw_cylinder, [10,1], 0.3,...
                     obj.efix, emode, obj.alatt, angdeg, u, v, obj.psi_2, omega, dpsi, gl, gs)
             end
@@ -78,19 +78,20 @@ classdef test_combine_cyl < TestCaseWithSave
 
             gen_sqw_cylinder(this.spe_file_1, this.par_file, sqw_file_1, this.efix, emode, this.alatt(3), this.psi_1, 90, 0);
 
-            w2_1 = cut_sqw(sqw_file_1,0.1,0.1,[40,50],'-nopix');
-            w1_1 = cut_sqw(sqw_file_1,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
+            sqw_a = read_sqw(sqw_file_1);
 
+            w1_1 = cut(sqw_a,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
+            w2_1 = cut(sqw_a,0.1,0.1,[40,50],'-nopix');
 
-            this.assertEqualToTolWithSave(w2_1,'ignore_str',true,'tol',3.e-7);
             this.assertEqualToTolWithSave(w1_1,'ignore_str',true,'tol',3.e-7);
+            this.assertEqualToTolWithSave(w2_1,'ignore_str',true,'tol',3.e-7);
 
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
-            acolor k
-            plot(w2_1);
-            acolor b
-            dd(w1_1);
+            % acolor k
+            % plot(w2_1);
+            % acolor b
+            % dd(w1_1);
             % acolor r
             % pd(w1_tot)  % does not overlay - but that is OK
             %--------------------------------------------------------------------------------------------------
@@ -108,20 +109,20 @@ classdef test_combine_cyl < TestCaseWithSave
             gen_sqw_cylinder(this.spe_file_2, this.par_file, ...
                 sqw_file_2, this.efix, emode, this.alatt(3), this.psi_2, 90, 0);
 
-            w2_2=cut_sqw(sqw_file_2,0.1,0.1,[40,50],'-nopix');
+            sqw_a = read_sqw(sqw_file_2);
 
-            w1_2=cut_sqw(sqw_file_2,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
-
+            w1_2=cut(sqw_a,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
+            w2_2=cut(sqw_a,0.1,0.1,[40,50],'-nopix');
 
             this.assertEqualToTolWithSave(w2_2,'ignore_str',true,'tol',3.e-7);
             this.assertEqualToTolWithSave(w1_2,'ignore_str',true,'tol',3.e-7);
 
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
-            acolor k
-            plot(w2_2);
-            acolor b
-            dd(w1_2);
+            % acolor k
+            % plot(w2_2);
+            % acolor b
+            % dd(w1_2);
             % acolor r
             % pd(w1_tot)  % does not overlay - but that is OK
             %--------------------------------------------------------------------------------------------------
@@ -137,10 +138,10 @@ classdef test_combine_cyl < TestCaseWithSave
             gen_sqw_cylinder({this.spe_file_1,this.spe_file_2}, ...
                 this.par_file, sqw_file_tot, this.efix, emode, this.alatt(3), [this.psi_1,this.psi_2], 90, 0);
 
-            w2_tot=cut_sqw(sqw_file_tot,0.1,0.1,[40,50],'-nopix');
+            sqw_a = read_sqw(sqw_file_tot);
 
-            w1_tot=cut_sqw(sqw_file_tot,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
-
+            w1_tot=cut(sqw_a,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
+            w2_tot=cut(sqw_a,0.1,0.1,[40,50],'-nopix');
 
             this.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-7]);
@@ -149,12 +150,12 @@ classdef test_combine_cyl < TestCaseWithSave
 
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
-            acolor k
-            plot(w2_tot);
+            % acolor k
+            % plot(w2_tot);
             % acolor b
             % pd(w1_2)
-            acolor r
-            plot(w1_tot);  % does not overlay - but that is OK
+            % acolor r
+            % plot(w1_tot);  % does not overlay - but that is OK
             %--------------------------------------------------------------------------------------------------
         end
     end

@@ -70,13 +70,12 @@ end
 
 n_candidate_pix = sum(block_sizes);
 
-
 cut_to_file = ~return_cut || PixelDataBase.do_filebacked(n_candidate_pix);
 % Always cut in mem if not in file, leave as debugging option to compare with filebacked ops.
 cut_in_mem = ~cut_to_file;
 
 fb_scale = config_store.instance().get_value('hor_config','fb_scale_factor');
-if ~cut_to_file && PixelDataBase.do_filebacked(n_candidate_pix, fb_scale )
+if ~cut_to_file && PixelDataBase.do_filebacked(n_candidate_pix, fb_scale)
     warning('HORACE:cut:large_cut', ['Requested cut may retain up to %d pixel indices, which may exceed system memory\n', ...
         'Suggested fix: use cut with ''-save''\n', ...
         'Recommended limit: b_scale_factor*mem_chunk_size (%d) specified in hor_config'], ...
@@ -98,11 +97,10 @@ elseif cut_in_mem && keep_pixels
 elseif cut_in_mem
     [npix, s, e, pix_out, unique_runid] = cut_in_memory_no_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
         targ_axes, npix, s, e, log_level, pixel_contrib_name);
+
 elseif keep_pixels
     [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
         targ_axes, npix, s, e, log_level, pixel_contrib_name);
-    %     [npix, s, e, pix_out, unique_runid] = cut_in_memory_w_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
-    %                                                                 targ_axes, npix, s, e, log_level, pixel_contrib_name);
 
 else
     [npix, s, e, pix_out, unique_runid] = cut_filebacked_no_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
