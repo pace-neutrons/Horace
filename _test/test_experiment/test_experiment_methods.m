@@ -95,10 +95,17 @@ classdef test_experiment_methods < TestCase
             sample = IX_sample([2,3,4],[91,90,89]);
             sample.name = 'new_sample';
 
+            % this will turn the individual sample into 3 copies,
+            % add to a unique_references_container, and the resulting
+            % container will overwrite the old samples in exp
             exp.samples = sample;
 
+            % test that there are still 3 samples in exp but they are now
+            % identical copies of the inserted sample
+            assertEqual(exp.samples.n_runs, 3);
+            assertEqual(exp.samples(1),sample);
+            assertEqual(exp.samples(2),sample);
             assertEqual(exp.samples(3),sample);
-            skipTest('Ticket #906 -- need to check if this behaviour is desirable')
         end
         %
         function test_to_from_old_structure_nomangle(obj)
