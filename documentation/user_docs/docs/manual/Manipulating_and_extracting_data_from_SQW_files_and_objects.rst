@@ -7,7 +7,7 @@ Manipulating and extracting data from SQW files and objects
 cut
 ===
 
-cut takes data from an SQW file and turns it into a cut of reduced size, either in range or dimensionality. The cut is
+cut takes data from an SQW file and turns it into a cut of any size, either in range or dimensionality. The cut is
 itself an SQW object which can be plotted, manipulated, etc. The "compulsory" inputs are given as follows:
 
 .. code-block:: matlab
