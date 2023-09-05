@@ -59,7 +59,7 @@ for i = 1:npg
     data(s_ind, :) = sig_chunk;
     data(v_ind, :) = 0;
 
-    pix.format_dump_data(data);
+    pix = pix.format_dump_data(data);
     pix.data_range = pix.pix_minmax_ranges(data, ...
                                            pix.data_range);
 

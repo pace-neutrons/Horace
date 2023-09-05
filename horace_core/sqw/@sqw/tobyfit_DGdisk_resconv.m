@@ -312,7 +312,7 @@ for i=1:numel(ind)
 
         s_ind = wout.pix.check_pixel_fields('signal');
         v_ind = wout.pix.check_pixel_fields('variance');
-            
+
         pix = wout.pix;
         pix.data_range = PixelDataBase.EMPTY_RANGE;
 
@@ -329,7 +329,7 @@ for i=1:numel(ind)
             pix.pix_minmax_ranges(data, pix.data_range);
 
 
-            pix.format_dump_data(data);
+            pix = pix.format_dump_data(data);
         end
         wout.pix = pix.finish_dump();
 

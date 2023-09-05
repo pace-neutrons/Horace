@@ -54,7 +54,6 @@ keep_array = logical(keep_array);
 mem_chunk_size = obj.default_page_size;
 obj.data_range = obj.EMPTY_RANGE;
 
-curr = 1;
 page = 1;
 npix = obj.num_pixels;
 for i = 1:mem_chunk_size:npix
@@ -65,15 +64,14 @@ for i = 1:mem_chunk_size:npix
 
     block_size= size(data,2);
 
-    obj.format_dump_data(data, curr);
+    obj = obj.format_dump_data(data);
     obj.data_range = ...
         obj.pix_minmax_ranges(data, obj.data_range);
 
-    curr = curr + block_size;
     page = page+1;
 end
 
-obj = obj.finish_dump(sum(keep_array));
+obj = obj.finish_dump();
 
 end
 
@@ -97,7 +95,6 @@ keep_array = logical(keep_array);
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.default_page_size);
 
 data_range = obj.EMPTY_RANGE;
-curr = 1;
 npg = obj.num_pages;
 for i = 1:npg
     obj.page_num = i;
@@ -114,13 +111,11 @@ for i = 1:npg
         max(data,[],2)]';
     data_range = minmax_ranges(data_range,loc_range);
 
-    obj_out.format_dump_data(data, curr);
+    obj_out = obj_out.format_dump_data(data);
 
-    curr = curr + size(data,2);
 end
 obj_out.data_range = data_range;
 
-obj_out.num_pixels_ = sum(npix(:) .* keep_array(:), 'all');
 obj_out = obj_out.finish_dump();
 
 end

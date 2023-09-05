@@ -166,7 +166,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                         sel = ~obj(i).in_irreducible(curr_page(1:3, :), proj{:});
                         curr_page(1:3, sel) = obj(i).transform_vec(curr_page(1:3, sel));
                     end
-                    pix.format_dump_data(curr_page);
+                    pix = pix.format_dump_data(curr_page);
                 end
                 pix = pix.finalise();
             end

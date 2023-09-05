@@ -185,10 +185,10 @@ for i=1:npg
     pix_out.signal = repelem(img_signal(idx(1):idx(2)), npix_chunk);
     pix_out.variance = 0;
     data = pix_out.data;
-	data_range = pix_out.pix_minmax_ranges(data, ...
+    data_range = pix_out.pix_minmax_ranges(data, ...
                                            data_range);
 
-    sqw_obj.pix.format_dump_data(data,pix_idx);
+    sqw_obj.pix = sqw_obj.pix.format_dump_data(data);
     pix_idx = pix_idx+pix_out.num_pixels;
 end
 sqw_obj.pix.data_range = data_range;
@@ -208,7 +208,7 @@ pix = sqw_obj.pix;
 sqw_obj.pix = PixelDataFileBacked();
 [sqw_obj, ldr] = sqw_obj.get_new_handle(outfile);
 
-sqw_obj.pix.format_dump_data(pix.data);
+sqw_obj.pix = sqw_obj.pix.format_dump_data(pix.data);
 sqw_obj.pix = sqw_obj.pix.finish_dump();
 
 sqw_obj.pix.data_range = pix.data_range;
