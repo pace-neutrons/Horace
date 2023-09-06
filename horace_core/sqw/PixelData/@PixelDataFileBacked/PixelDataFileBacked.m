@@ -94,6 +94,10 @@ classdef PixelDataFileBacked < PixelDataBase
         has_open_file_handle;
     end
 
+    properties (Hidden, Access=private)
+        pix_written = 0;
+    end
+
     properties (Constant)
         is_filebacked = true;
     end
@@ -319,33 +323,30 @@ classdef PixelDataFileBacked < PixelDataBase
 
                 obj.file_handle_ = sqw_fopen(obj.tmp_pix_obj.file_name, 'wb+');
             end
+            obj.pix_written = 0;
         end
 
-        function format_dump_data(obj, data, start_idx)
+        function obj = format_dump_data(obj, data)
             if ~obj.has_open_file_handle
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                     'Cannot dump data, object does not have open filehandle')
             end
 
             if isa(obj.file_handle_, 'sqw_file_interface')
-                if ~exist('start_idx', 'var')
-                    start_idx = obj.get_page_idx_();
-                end
-                obj.file_handle_.put_raw_pix(data, start_idx);
+                obj.file_handle_.put_raw_pix(data, obj.pix_written+1);
             else
                 fwrite(obj.file_handle_, single(data), 'single');
             end
+            obj.pix_written = obj.pix_written + size(data, 2);
         end
 
-        function obj = finish_dump(obj, final_num_pixels)
+        function obj = finish_dump(obj)
             if ~obj.has_open_file_handle
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                     'Cannot finish dump writing, object does not have open filehandle')
             end
 
-            if exist('final_num_pixels', 'var')
-                obj.num_pixels_ = final_num_pixels;
-            end
+            obj.num_pixels_ = obj.pix_written;
 
             if isa(obj.file_handle_, 'sqw_file_interface')
                 obj.full_filename = obj.file_handle_.full_filename;
@@ -376,7 +377,7 @@ classdef PixelDataFileBacked < PixelDataBase
             end
         end
 
-        function format = get_memmap_format(obj,tail)
+        function format = get_memmap_format(obj, tail)
             if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile')
                 if nargin == 1
                     tail = 0;
@@ -443,7 +444,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 for page = 1:num_pages
                     curr_pix.page_num = i;
                     data = curr_pix.data;
-                    obj.format_dump_data(data, start_idx);
+                    obj = obj.format_dump_data(data);
                     obj.data_range = ...
                         obj.pix_minmax_ranges(data, obj.data_range);
                     start_idx = start_idx + size(data,2);

@@ -35,7 +35,7 @@ if pixel_data.is_filebacked
         data(s_ind, :) = signal;
         data(v_ind, :) = variance;
 
-        obj.format_dump_data(data);
+        obj = obj.format_dump_data(data);
 
         obj.data_range = ...
             obj.pix_minmax_ranges(data, obj.data_range);
@@ -64,7 +64,7 @@ else
         data(s_ind, :) = signal;
         data(v_ind, :) = variance;
 
-        obj.format_dump_data(data);
+        obj = obj.format_dump_data(data);
         obj.data_range = ...
             obj.pix_minmax_ranges(data, obj.data_range);
 

@@ -166,7 +166,7 @@ function wout = calc_shift_filebacked(win, dispreln, ave_pix, pars)
         wout.pix.dE = wout.pix.dE - wdisp(:)';
         wout.pix = wout.pix.reset_changed_coord_range('all');
 
-        pix.format_dump_data(data);
+        pix = pix.format_dump_data(data);
     end
 
     wout.pix = pix.finish_dump();

@@ -231,14 +231,14 @@ for iter = 1:num_chunks
         end
 
         % Retain only the pixels that contributed to the cut
-        pix_retained.format_dump_data(pix_ok.data);
+        pix_retained = pix_retained.format_dump_data(pix_ok.data);
         pix_ix_retained{j} = pix_indx;
 
     end
 
 end  % loop over pixel blocks
 
-pix_retained = pix_retained.finish_dump(npix_tot_retained);
+pix_retained = pix_retained.finish_dump();
 pix_out = sort_pix(pix_retained, pix_ix_retained, npix);
 
 end

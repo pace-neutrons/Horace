@@ -46,7 +46,7 @@ for i = 1:numel(npix_chunks)
     wout.pix.data_range = minmax_ranges(pix_chunk.data_range, ...
                                         wout.pix.data_range);
 
-    wout.pix.format_dump_data(pix_chunk.data, pix_start_idx);
+    wout.pix = wout.pix.format_dump_data(pix_chunk.data);
 
 end
 

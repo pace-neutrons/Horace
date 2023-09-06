@@ -152,10 +152,10 @@ if ~use_mex
             end_idx = min(i+mch_sz-1, numel(ind));
             slice = ind(i:end_idx);
             data = pix.get_fields('all', slice);
-            pix.format_dump_data(data);
+            pix = pix.format_dump_data(data);
         end
 
-        pix = pix.finish_dump(numel(ind));
+        pix = pix.finish_dump();
 
     else
         pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins

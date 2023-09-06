@@ -91,13 +91,13 @@ for n = 1:numel(win)
 
                 new_pix_range = minmax_ranges(new_pix_range, data.pix_range);
 
-                wout(n).pix.format_dump_data(data.data, pix_ind);
+                wout(n).pix = wout(n).pix.format_dump_data(data.data);
 
                 pix_ind = pix_ind + data.num_pixels;
 
             end
             wout(n).pix.pix_range = new_pix_range;
-            wout(n).pix = wout(n).pix.finish_dump(pix_ind-1);
+            wout(n).pix = wout(n).pix.finish_dump();
 
         else
             wout(n).pix = win(n).pix.get_pix_in_ranges(bl_start,bl_size);

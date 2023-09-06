@@ -26,7 +26,7 @@ for pg = 1:npages
 
     data = obj.data;
 
-    obj.format_dump_data(data);
+    obj = obj.format_dump_data(data);
     obj.data_range = ...
         obj.pix_minmax_ranges(data, obj.data_range_);
     npr = npr+1;

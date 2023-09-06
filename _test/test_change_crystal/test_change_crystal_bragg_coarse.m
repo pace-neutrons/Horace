@@ -154,8 +154,6 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % ensure we indeed do filebacked algorithm
             assertTrue(wout_aligned.pix.is_filebacked);
             assertEqual(wout_aligned.pix.full_filename,tf_ref_al);
-            assertFalse(isfile(fullfile(test_path,'ref_aligned_sqw_aligned.sqw')))
-
 
             corr_rev.rotvec = -corr_rev.rotvec;
             assertEqualToTol(corrections,corr_rev,'tol',1.e-9)

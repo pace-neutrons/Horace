@@ -36,11 +36,10 @@ else
         obj.page_num = i;
         data = obj.data;
 
-        %[start_idx, end_idx] = obj.get_pix_idx_();
         [loc_indices, global_indices] = get_pg_idx_from_absolute_(obj, abs_pix_indices, i);
 
         data(field_indices, loc_indices) = data(global_indices);
-        obj.format_dump_data(data);
+        obj = obj.format_dump_data(data);
         obj.data_range = ...
             obj.pix_minmax_ranges(data, obj.data_range);
 

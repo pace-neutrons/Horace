@@ -48,7 +48,7 @@ function [pix_out, data] = unary_op_dnd(pix_out, unary_op, data)
         pix_out.data_range = ...
             pix_out.pix_minmax_ranges(curr_pix.data, pix_out.data_range);
 
-        pix_out.format_dump_data(curr_pix.data);
+        pix_out = pix_out.format_dump_data(curr_pix.data);
 
         pix = pix + npix;
     end
@@ -77,8 +77,8 @@ function pix_out = unary_op_no_dnd(pix_out, unary_op)
         data(v_ind, :) = pg_result.e;
         loc_range = [min(data,[],2),...
             max(data,[],2)]';
-        data_range = minmax_ranges(data_range,loc_range);        
-        pix_out.format_dump_data(data);
+        data_range = minmax_ranges(data_range,loc_range);
+        pix_out = pix_out.format_dump_data(data);
     end
     pix_out.data_range = data_range;
 
