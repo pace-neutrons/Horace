@@ -31,6 +31,103 @@ classdef test_compact < TestCase
 
         end
 
+        function test_compact_oversized_cut_3d(obj)
+            data = sqw.generate_cube_sqw(2);
+            test_data = cut(data, line_proj([1 0 0], [0 1 0]), ...
+                            [-9.5 1 9.5], [-9.5 1 9.5], [-9.5 1 9.5], [-9.5 9.5]);
+
+            comp = compact(test_data);
+
+            % Check dims changed appropriately
+            assertEqual(comp.data.iax, [4]);
+            assertEqual(comp.data.pax, [1 2 3]);
+
+            % Check compacted bins subset
+            for ind = 1:numel(comp.data.pax)
+                ind2 = comp.data.pax(ind);
+                assertTrue(all(ismember(comp.data.p{ind}, test_data.data.p{ind2})));
+            end
+
+            % Check data unchanged
+            assertEqual(test_data.data.s(test_data.data.s ~= 0), comp.data.s(comp.data.s ~= 0));
+            assertEqual(test_data.data.e(test_data.data.e ~= 0), comp.data.e(comp.data.e ~= 0));
+            assertEqual(test_data.data.npix(test_data.data.npix ~= 0), comp.data.npix(comp.data.npix ~= 0));
+
+        end
+
+        function test_compact_oversized_cut_2d(obj)
+            data = sqw.generate_cube_sqw(2);
+            test_data = cut(data, line_proj([1 0 0], [0 1 0]), ...
+                            [-9.5 1 9.5], [-9.5 1 9.5], [-9.5 9.5], [-9.5 9.5]);
+
+            comp = compact(test_data);
+
+            % Check dims changed appropriately
+            assertEqual(comp.data.iax, [3 4]);
+            assertEqual(comp.data.pax, [1 2]);
+
+            % Check compacted bins subset
+            for ind = 1:numel(comp.data.pax)
+                ind2 = comp.data.pax(ind);
+                assertTrue(all(ismember(comp.data.p{ind}, test_data.data.p{ind2})));
+            end
+
+            % Check data unchanged
+            assertEqual(test_data.data.s(test_data.data.s ~= 0), comp.data.s(comp.data.s ~= 0));
+            assertEqual(test_data.data.e(test_data.data.e ~= 0), comp.data.e(comp.data.e ~= 0));
+            assertEqual(test_data.data.npix(test_data.data.npix ~= 0), comp.data.npix(comp.data.npix ~= 0));
+
+        end
+
+        function test_compact_oversized_cut_1d(obj)
+            data = sqw.generate_cube_sqw(2);
+            test_data = cut(data, line_proj([1 0 0], [0 1 0]), ...
+                            [-9.5 1 9.5], [-9.5 9.5], [-9.5 9.5], [-9.5 9.5]);
+
+            comp = compact(test_data);
+
+            % Check dims changed appropriately
+            assertEqual(comp.data.iax, [2 3 4]);
+            assertEqual(comp.data.pax, [1]);
+
+            % Check compacted bins subset
+            for ind = 1:numel(comp.data.pax)
+                ind2 = comp.data.pax(ind);
+                assertTrue(all(ismember(comp.data.p{ind}, test_data.data.p{ind2})));
+            end
+
+            % Check data unchanged
+            assertEqual(test_data.data.s(test_data.data.s ~= 0), comp.data.s(comp.data.s ~= 0));
+            assertEqual(test_data.data.e(test_data.data.e ~= 0), comp.data.e(comp.data.e ~= 0));
+            assertEqual(test_data.data.npix(test_data.data.npix ~= 0), comp.data.npix(comp.data.npix ~= 0));
+
+        end
+
+        function test_compact_oversized_cut_0d(obj)
+            data = sqw.generate_cube_sqw(2);
+            test_data = cut(data, line_proj([1 0 0], [0 1 0]), ...
+                            [-9.5 9.5], [-9.5 9.5], [-9.5 9.5], [-9.5 9.5]);
+
+            comp = compact(test_data);
+
+            % Check dims changed appropriately
+            assertEqual(comp.data.iax, [1 2 3 4]);
+            assertEqual(comp.data.pax, zeros(1,0));
+
+            % Check compacted bins subset
+            for ind = 1:numel(comp.data.pax)
+                ind2 = comp.data.pax(ind);
+                assertTrue(all(ismember(comp.data.p{ind}, test_data.data.p{ind2})));
+            end
+
+            % Check data unchanged
+            assertEqual(test_data.data.s(test_data.data.s ~= 0), comp.data.s(comp.data.s ~= 0));
+            assertEqual(test_data.data.e(test_data.data.e ~= 0), comp.data.e(comp.data.e ~= 0));
+            assertEqual(test_data.data.npix(test_data.data.npix ~= 0), comp.data.npix(comp.data.npix ~= 0));
+
+        end
+
+
         function test_compact_empty_sqw(obj)
         % Check it doesn't throw
             data = sqw();
@@ -45,7 +142,7 @@ classdef test_compact < TestCase
         end
 
 
-        function test_compact_oversized_cut(obj)
+        function test_compact_oversized_cut_4d(obj)
             data = sqw.generate_cube_sqw(2);
             test_data = cut(data, line_proj([1 0 0], [0 1 0]), ...
                        [-9.5 1 9.5], [-9.5 1 9.5], [-9.5 1 9.5], [-9.5 1 9.5]);
@@ -55,6 +152,5 @@ classdef test_compact < TestCase
             assertEqualToTol(data, comp, '-ignore_date');
 
         end
-
     end
 end
