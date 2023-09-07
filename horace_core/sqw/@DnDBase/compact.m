@@ -37,11 +37,8 @@ for n = 1:numel(din)
 
     % Get section parameters and axis arrays:
     [val, irange] = data_bin_limits(din);
-
-    dout{n} = din.section([val(1, 1), val(2, 1)], ...
-                          [val(1, 2), val(2, 2)], ...
-                          [val(1, 3), val(2, 3)], ...
-                          [val(1, 4), val(2, 4)]);
+    args = num2cell(val', 2);
+    dout{n} = din.section(args{:});
 end
 
 if isscalar(dout)
