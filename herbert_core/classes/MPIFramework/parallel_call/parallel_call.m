@@ -21,6 +21,23 @@ function varargout = parallel_call(func, args, varargin)
 
         varargout{1} = parallel_cut_eval(nWorkers, args);
 
+      case 'fit'
+
+        if numel(args) ~= 1 || ~isa(args{1}, 'mfclass')
+            error('HERBERT:parallel_call:invalid_argument', ...
+                  'Attempted to call "fit" with non-mfclass argument')
+        end
+
+        hc = hpc_config;
+        pm = hc.parallel_multifit;
+
+        hc.parallel_multifit = true;
+        [data_out, fit_data] = varargin{1}.fit();
+        hc.parallel_multifit = pm;
+
+        varargout{1} = data_out;
+        varargout{2} = fit_data;
+
       otherwise
         error('HERBERT:parallel_call:invalid_argument', ...
               'Unsupported parallel function (%s)', func_info.name)
