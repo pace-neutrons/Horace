@@ -2,110 +2,154 @@
 Binary operations
 #################
 
-Binary operations between two objects can be handled in a variety of ways in Horace. You can either use the Matlab symbols +, - , \*, / and \\\, or you can use the explicit function names ``plus, minus, mtimes, mrdivide`` and ``mldivide``.
-
-There are several options for the input parameters to binary operations
-
+Binary operations between two objects can be applied in a variety of ways in Horace. You can either use the
+symbolic form (``+``, ``-`` , ``*``, ``/``, ``\``), or you can use the explicit function names (``plus, minus, mtimes,
+mrdivide``, ``mldivide``, etc.).
 
 sqw objects
------------
+===========
 
-Let us take for our example the addition operator '+', and our initial single sqw object is called ``w1`` and has the 'pix' array retained (note this is an important point - you can have an sqw object without the pix array by converting a dnd object to sqw. In that case the result is referred to as an sqw object of dnd type. In our example ``w1`` has a pix array, so is referred to as an sqw of sqw type).
+Let us take for our example the addition operator ``+``, and our initial ``sqw`` object is called ``w1`` and has an
+attached ``pix`` array.
+
+.. note::
+
+   In the case of ``sqw`` objects, binary operations transform the ``signal`` and ``variance`` elements of the pixel data.
+..
+   .. note::
+
+      You can have an ``sqw`` object without the pix array by converting a ``dnd`` to ``sqw``. Though this is inadvisable.
 
 Single sqw object
-=================
+-----------------
 
-You can add to w1 in the following way
+You can add values to ``w1`` in the following ways:
 
-::
+- ``w2_sqw`` is an ``sqw`` object with a pix array of identical size to the pix array of ``w1``.
 
-   wout = w1 + w2_sqw
-   wout = w1 + w2_sqw_dnd_type
-   wout = w1 + w2_dnd
-   wout = w1 + scalar
+  ::
+
+     wout = w1 + w2_sqw;
+
+.. note::
+
+   A common use for this is when a background dataset has been created that maps exactly onto the real dataset, and
+   needs to be subtracted.
+
+- ``w2_dnd`` is a ``dnd`` object commensurate with ``w1.data``
+
+  ::
+
+     wout = w1 + w2_dnd;
 
 
-The conditions for these operations are as follows:
+- ``num`` is a numeric array of the same size as the pix array of ``w1``.
 
-- ``w2_sqw`` is an sqw of sqw type, with a pix array of identical size to the pix array of ``w1``. There is only really one circumstance in which doing a binary operation of this type makes sense - when a background dataset has been created that maps exactly onto the real dataset, and needs to be subtracted.
+  ::
 
-- ``w2_sqw_dnd_type`` is an sqw of dnd type (i.e. no it has pix array) whose plot axes overlap exactly with those of ``w1``. An example is taking a 1d cut along the energy axis from two different regions of reciprocal space, and then adding or subtracting one from the other. In this case the output will be a sqw object of dnd type, since the pixel information has lost its connection with the signal and error that are plottable.
+     wout = w1 + num;
 
-- ``w2_dnd`` as above, but ``w2_dnd`` is a dnd object rather than an sqw of dnd type. Similarly to the above, the output is an sqw object of dnd type.
+- ``scalar`` is a single number, e.g. if you want to add 4.782 to all of the data in ``w1``.
 
-- ``scalar`` is a single number, e.g. if you want to add 4.782 to all of the data in ``w1``. The output stays as a full sqw of sqw type (with pix array).
+  ::
+
+     wout = w1 + scalar;
+
+..
+   - ``w2_sqw_dnd_type`` is an sqw of dnd type (i.e. no it has pix array) whose plot axes overlap exactly with those of
+     ``w1``. An example is taking a 1d cut along the energy axis from two different regions of reciprocal space, and then
+     adding or subtracting one from the other. In this case the output will be a sqw object of dnd type, since the pixel
+     information has lost its connection with the signal and error that are plottable.
+
+     ::
+        wout = w1 + w2_sqw_dnd_type;
 
 
 Array of sqw objects
-====================
+--------------------
 
 You can use the same binary operation syntax as for single sqw objects, with the following conditions
 
-- ``w2_sqw`` is either an array of sqw of sqw type objects with the pix array of each element matching the pix array of each element of ``w1``. Or a single sqw object if the pix array happens to be the same size for all elements of the ``w1`` array.
+- ``w2_sqw`` is either a scalar ``sqw`` object of commensurate size, or an array of ``sqw`` objects of commensurate size
+  with each element of ``w1`` respectively.
 
-- ``w2_sqw_dnd`` is as above, i.e. an array of dnd-type sqw objects whose plot axes match element by element those of the array ``w1``.
+..
+   - ``w2_sqw_dnd`` is as above, i.e. an array of dnd-type sqw objects whose plot axes match element by element those of
+   the array ``w1``.
 
 - ``w2_dnd`` same rules as for sqw of dnd type above.
 
+- ``num`` is a numeric array following the size rules above.
+
 - ``scalar`` the same scalar is subtracted from every pix array in the array of sqw objects.
 
-There is one additional possibility
-
-::
-
-   wout = w1 + numeric_array
-
-
-- ``numeric_array`` is an array of scalars whose size matches the size of the sqw array. The output will continue to be an sqw of sqw type, with a pix array.
-
 dnd objects
------------
+===========
 
-Note that here we will use the phrase dnd object also to mean sqw object of dnd type, since the two are very closely related.
+Let us again take for our example the addition operator ``+``, and our initial ``dnd`` object is called ``w1`` .
+
+.. note::
+
+   In the case of ``dnd`` objects, binary operations transform the ``s`` and ``e`` matrices
+
 
 Single dnd object
-=================
+-----------------
 
-The choices for a dnd object are:
+You can add values to ``w1`` in the following ways:
 
-::
+- ``w2_sqw`` is an ``sqw`` object a ``dnd`` (in ``data``) of identical size to ``w1``.
 
-   wout = w1 + w2_sqw
-   wout = w1 + w2_sqw_dnd_type
-   wout = w1 + w2_dnd
-   wout = w1 + scalar
+  ::
+
+     wout = w1 + w2_sqw;
+
+- ``w2_dnd`` is a ``dnd`` object commensurate with ``w1``.
+
+  ::
+
+     wout = w1 + w2_dnd;
 
 
-The forms of these objects are as described for the sqw case. In all cases the output will be a dnd object. Note that the pix field of ``w2_sqw`` is ignored for this operation.
+- ``num`` is a numeric array of the same size as the arrays of ``w1``.
 
+  ::
+
+     wout = w1 + num;
+
+- ``scalar`` is a single number, e.g. if you want to add 4.782 to all of the data in ``w1``.
+
+  ::
+
+     wout = w1 + scalar;
 
 
 Array of dnd objects
-====================
+--------------------
 
-As with arrays of sqw objects, there is one further choice compared to a single dnd:
+Similar to arrays of sqw objects.
 
-::
-
-   wout = w1 + numeric_array
-
-
-As for sqw objects, the numeric array has to be the same size as the array of dnd objects.
+As for sqw objects, arrays have to be the same size as the array of dnd objects with respectively commensurate array
+sizes or a scalar object as the same size of each.
 
 
 List of operations and their equivalent code
 --------------------------------------------
 
-The arithmetic operations above correspond to equivalent Matlab functions. You should never need to use these, but for reference the corresponding functions are:
+The arithmetic operations above correspond to equivalent Matlab functions. You should never need to use these, but for
+reference the corresponding functions are:
 
 ::
 
    w1 + w2 --> plus(w1,w2)
    w1 - w2 --> minus(w1,w2)
-   w1  w2 --> mtimes(w1,w2)
+   w1 * w2 --> mtimes(w1,w2)
    w1 / w2 --> mrdivide(w1,w2)
-   w1 \\ w2 --> mldivide(w1,w2)
+   w1 \ w2 --> mldivide(w1,w2)
    w1 ^ w2 --> mpower(w1,w2)
 
 
-**Important** the matrix operations \*, /, \\\\ and ^ (mtimes, mrdivide, mldivide and mpower) are performed **element-by-element**. So the equivalent Matlab routines would be .*, ./, .\\\ and .^
+.. warning::
+
+   The matrix operations ``*``, ``/``, ``\`` and ``^`` (``mtimes``, ``mrdivide``, ``mldivide`` and ``mpower``) are
+   performed element-by-element. So the equivalent Matlab routines would be ``.*``, ``./``, ``.\`` and ``.^`` respectively.
