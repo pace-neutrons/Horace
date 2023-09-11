@@ -375,6 +375,8 @@ classdef (Abstract) PixelDataBase < serializable
 
 
         pix_out = mask(obj, mask_array, npix);
+        % apply function represented by handle to every pixel of the dataset
+        % and caclculate appropriate averages if requested
         [pix_out, data] = apply(obj, func_handle, args, data, compute_variance);
 
         obj = recalc_data_range(obj);
@@ -665,7 +667,7 @@ classdef (Abstract) PixelDataBase < serializable
         %
         function range = get.raw_data_range(obj)
             range = obj.data_range_;
-        end        
+        end
     end
     %----------------------------------------------------------------------
     methods

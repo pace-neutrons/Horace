@@ -109,6 +109,9 @@ classdef PixelDataFileBacked < PixelDataBase
             error('HORACE:PixelDataFileBacked:not_implemented',...
                 'append does not work on file-based pixels')
         end
+        % apply function represented by handle to every pixel of the dataset
+        % and caclculate appropriate averages if requested
+        [obj, data] = apply(obj, func_handle, args, data, compute_variance);
 
         function obj = set_raw_data(obj,pix)
             if obj.read_only
