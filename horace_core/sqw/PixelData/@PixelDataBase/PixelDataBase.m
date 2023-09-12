@@ -409,6 +409,10 @@ classdef (Abstract) PixelDataBase < serializable
 
     %======================================================================
     % the same interface on FB and MB files
+    methods(Access=private)
+        obj = realign_(obj);
+    end
+
     methods
         function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
@@ -419,10 +423,9 @@ classdef (Abstract) PixelDataBase < serializable
 
         obj = set_fields(obj, data, fields, abs_pix_indices);
         [pix_out, data] = noisify(obj, varargin);
-        obj = realign(obj);
 
         function obj = apply_alignment(obj)
-            obj = obj.apply(@realign);
+            obj = obj.apply(@realign_);
             obj.alignment_matr_ = eye(3);
             obj.is_misaligned_ = false;
         end

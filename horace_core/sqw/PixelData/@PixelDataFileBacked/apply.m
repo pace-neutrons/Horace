@@ -87,7 +87,7 @@ function [obj, data] = apply_op_dnd(obj, func_handle, args, data, compute_varian
         end
 
         obj.data_range = ...
-            obj.pix_minmax_ranges(curr_pix.data, obj.data_range);
+            obj.pix_minmax_ranges(curr_pix.data, obj.data_range_);
 
         obj = obj.format_dump_data(curr_pix.data);
 
@@ -120,7 +120,7 @@ function obj = apply_op_no_dnd(obj, func_handle, args)
             curr_pix = func_handle{j}(curr_pix, args{j}{:});
         end
 
-        obj.data_range = curr_pix.pix_minmax_ranges(curr_pix.data, obj.data_range);
+        obj.data_range = curr_pix.pix_minmax_ranges(curr_pix.data, obj.data_range_);
 
         obj = obj.format_dump_data(curr_pix.data);
     end
