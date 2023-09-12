@@ -41,30 +41,30 @@ With the form
 
 where ``function`` is any of the following, trigonometric or hyperbolic operations may be performed on dnd or sqw objects.
 
-- acos - arc cosine
-- acosh - arc cosh
-- acot - arc cot
-- acoth - arc coth
-- acsc - arc cosec
-- acsch - arc cosech
-- asec - arc sec
-- asech - arc sech
-- asin - arc sine
-- asinh - arc sinh
-- atan - arc tangent
-- atanh - arc tanh
-- cos - cosine
-- cosh - cosh
-- cot - cot
-- coth - coth
-- csc - cosec
-- csch - cosech
-- sec - sec
-- sech - sech
-- sin - sine
-- sinh - sinh
-- tan - tangent
-- tanh - tanh
+- ``acos`` - arc cosine
+- ``acosh`` - arc cosh
+- ``acot`` - arc cot
+- ``acoth`` - arc coth
+- ``acsc`` - arc cosec
+- ``acsch`` - arc cosech
+- ``asec`` - arc sec
+- ``asech`` - arc sech
+- ``asin`` - arc sine
+- ``asinh`` - arc sinh
+- ``atan`` - arc tangent
+- ``atanh`` - arc tanh
+- ``cos`` - cosine
+- ``cosh`` - cosh
+- ``cot`` - cot
+- ``coth`` - coth
+- ``csc`` - cosec
+- ``csch`` - cosech
+- ``sec`` - sec
+- ``sech`` - sech
+- ``sin`` - sine
+- ``sinh`` - sinh
+- ``tan`` - tangent
+- ``tanh`` - tanh
 
 
 Other mathematical functions
@@ -72,6 +72,6 @@ Other mathematical functions
 
 Using the same syntax as above, one can perform the following operations:
 
-- exp - exponential
-- log - natural logarithm
-- log10 - logarithm base 10
+- ``exp`` - exponential
+- ``log`` - natural logarithm
+- ``log10`` - logarithm base 10
