@@ -30,7 +30,7 @@ else
     obj = obj.get_new_handle();
     obj.data_range = PixelDataBase.EMPTY_RANGE;
     % TODO: #975 loop have to be moved level up calculating image in single
-    % TODO: Does this code makes any sence? Does it work.
+    % TODO: Does this code makes any sense? Does it work?
     num_pages= obj.num_pages;
     for i = 1:num_pages
         obj.page_num = i;

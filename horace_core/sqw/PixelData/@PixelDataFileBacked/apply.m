@@ -62,7 +62,7 @@ function [obj, data] = apply_op_dnd(obj, func_handle, args, data, compute_varian
     [chunks, indices] = split_vector_max_sum(data.npix(:), mem_chunk_size);
 
     pix = 1;
-    obj.data_range = PixelDataBase.EMPTY_RANGE;
+    obj.data_range_ = PixelDataBase.EMPTY_RANGE;
     for i = 1:numel(chunks)
         npix = sum(chunks{i});
 
@@ -81,7 +81,7 @@ function [obj, data] = apply_op_dnd(obj, func_handle, args, data, compute_varian
         end
 
         obj.data_range = ...
-            obj.pix_minmax_ranges(curr_pix.data, obj.data_range);
+            obj.pix_minmax_ranges(curr_pix.data, obj.data_range_);
 
         obj = obj.format_dump_data(curr_pix.data);
 
@@ -97,7 +97,7 @@ function obj = apply_op_no_dnd(obj, func_handle, args)
     obj = obj.prepare_dump();
 
     n_pages = obj.num_pages;
-    obj.data_range = PixelDataBase.EMPTY_RANGE;
+    obj.data_range_ = PixelDataBase.EMPTY_RANGE;
 
     for i = 1:n_pages
         [start_idx, end_idx] = obj.get_page_idx_(i);
@@ -108,7 +108,7 @@ function obj = apply_op_no_dnd(obj, func_handle, args)
             curr_pix = func_handle{j}(curr_pix, args{j}{:});
         end
 
-        obj.data_range = curr_pix.pix_minmax_ranges(curr_pix.data, obj.data_range);
+        obj.data_range = curr_pix.pix_minmax_ranges(curr_pix.data, obj.data_range_);
 
         obj = obj.format_dump_data(curr_pix.data);
     end

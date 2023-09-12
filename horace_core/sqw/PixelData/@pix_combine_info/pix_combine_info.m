@@ -66,8 +66,6 @@ classdef pix_combine_info < serializable
         % this kind of data should be never (knowingly) misaligned
         is_misaligned
         % equal to data_range of PixelDataBase but duplicated to maintain
-        % the same interface
-        raw_data_range
     end
     %
     properties(Access=public)
@@ -267,9 +265,6 @@ classdef pix_combine_info < serializable
         end
         %
         function range = get.data_range(obj)
-            range = obj.data_range_;
-        end
-        function range = get.raw_data_range(obj)
             range = obj.data_range_;
         end
         function obj = set.data_range(obj,val)

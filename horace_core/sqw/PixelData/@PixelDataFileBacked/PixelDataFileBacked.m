@@ -226,10 +226,10 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
 
                 if nargout > 1
-                    [obj,unique_id] = obj.reset_changed_coord_range(fld);
+                    [obj,unique_id] = obj.calc_page_range(fld);
                     unique_pix_id = unique([unique_pix_id,unique_id]);
                 else
-                    obj = obj.reset_changed_coord_range(fld);
+                    obj = obj.calc_page_range(fld);
                 end
             end
         end
@@ -268,26 +268,6 @@ classdef PixelDataFileBacked < PixelDataBase
             pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
         end
 
-
-        function [obj,unique_idx] = reset_changed_coord_range(obj,field_name)
-            % Recalculate and set appropriate range of pixel coordinates.
-            % The coordinates are defined by the selected field
-            %
-            % Sets up the property page_range defining the range of block
-            % of pixels changed at current iteration.
-
-            %NOTE:  This range calculations are incorrect unless
-            %       performed in a loop over all pix pages where initial
-            %       range is set to empty!
-            %
-            ind = obj.check_pixel_fields(field_name);
-
-            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:), ...
-                obj.data_range_(:,ind));
-            if nargout > 1
-                unique_idx = unique(obj.run_idx);
-            end
-        end
         % public getter for unmodified page data
         data =  get_raw_data(obj,varargin)
 
@@ -440,7 +420,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = obj.get_new_handle(ldr);
 
             start_idx = 1;
-            obj.data_range = PixelDataBase.EMPTY_RANGE;
+            obj.data_range_ = PixelDataBase.EMPTY_RANGE;
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
                 num_pages= curr_pix .num_pages;
@@ -448,8 +428,8 @@ classdef PixelDataFileBacked < PixelDataBase
                     curr_pix.page_num = i;
                     data = curr_pix.data;
                     obj = obj.format_dump_data(data);
-                    obj.data_range = ...
-                        obj.pix_minmax_ranges(data, obj.data_range);
+                    obj.data_range_ = ...
+                        obj.pix_minmax_ranges(data, obj.data_range_);
                     start_idx = start_idx + size(data,2);
                 end
             end
@@ -459,7 +439,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
-    methods (Access = protected)
+    methods (Access = protected)        
         function data_range = get_data_range(obj,varargin)
             % overloadable data range getter
             if nargin == 1
@@ -480,7 +460,6 @@ classdef PixelDataFileBacked < PixelDataBase
                     'recalculate these averages each time you are accessing them\n' ...
                     '*** Run upgrade_file_format(filename) from horace_core/admin folder to upgrade file format\n' ...
                     '*** or apply_alignment(filename) for realigned files\n'])
-                obj = obj.recalc_data_range();
                 if nargin == 1
                     data_range = obj.data_range_;
                 else

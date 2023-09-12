@@ -123,39 +123,16 @@ classdef PixelDataMemory < PixelDataBase
             % for the same purpose.
             % recalc_pix_range is a normal Matlab value object (not a handle object),
             % returning its changes in LHS
-
-            obj=obj.reset_changed_coord_range('all');
             if nargout == 2
-                unique_pix_id = unique(obj.run_idx);
+                [obj,unique_pix_id]=obj.calc_page_range('all');
+            else
+                obj=obj.calc_page_range('all');
             end
         end
 
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
             pix_idx_start = 1;
             pix_idx_end   = obj.num_pixels;
-        end
-
-        function [obj,varargout]=reset_changed_coord_range(obj,field_name)
-            % Recalculate and set appropriate range of pixel coordinates.
-            % The coordinates are defined by the selected field
-            %
-            % Sets up the property page_range defining the range of block
-            % of pixels changed at current iteration.
-
-            if isempty(obj.data_)
-                obj.data_range_   = PixelDataBase.EMPTY_RANGE;
-                return
-            end
-            if iscell(field_name)
-                ind = obj.check_pixel_fields(field_name);
-            else
-                ind = obj.FIELD_INDEX_MAP_(field_name);
-            end
-
-            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:));
-            if nargout>1
-                varargout{1} = unique(obj.run_idx);
-            end
         end
     end
 
@@ -234,14 +211,14 @@ classdef PixelDataMemory < PixelDataBase
 
             obj = PixelDataMemory();
 
-            obj.data_range = PixelDataBase.EMPTY_RANGE;
+            obj.data_range_ = PixelDataBase.EMPTY_RANGE;
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
                 for page = 1:curr_pix.num_pages
                     curr_pix.page_num = page;
                     data = curr_pix.data;
                     obj.data_range = ...
-                        obj.pix_minmax_ranges(data, obj.data_range);
+                        obj.pix_minmax_ranges(data, obj.data_range_);
                     obj.data = [obj.data, data];
                 end
             end
@@ -250,10 +227,29 @@ classdef PixelDataMemory < PixelDataBase
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods(Access=protected)
+        function [obj,unique_id]=calc_page_range(obj,field_name)
+            % Calculate and set range of pixel data, for block of pixels
+            % stored in memory.
+            % The coordinates are defined by the selected field
+            %
+            % Sets up the property page_range defining the range of block
+            % of pixels changed at current iteration.
+
+            obj.data_range_   = PixelDataBase.EMPTY_RANGE;
+            if isempty(obj.data_)
+                return
+            end
+            if nargout==2
+                [obj,unique_id] = calc_page_range@PixelDataBase(field_name);
+            else
+                obj = calc_page_range@PixelDataBase(field_name);
+            end
+        end
+
         function obj = set_alignment_matrix(obj,val)
             % set new alignment matrix and recalculate new pixel ranges
             % if alignment changes
-            obj = obj.set_alignment(val,@reset_changed_coord_range);
+            obj = obj.set_alignment(val,@calc_page_range);
         end
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
@@ -278,7 +274,7 @@ classdef PixelDataMemory < PixelDataBase
                 obj.is_misaligned_ = false;
                 obj.alignment_matr_= eye(3);
             end
-            obj=obj.reset_changed_coord_range(fld);
+            obj=obj.calc_page_range(fld);
         end
         %
         function data  = get_data(obj,varargin)

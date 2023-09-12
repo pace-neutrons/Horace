@@ -77,8 +77,6 @@ classdef (Abstract) PixelDataBase < serializable
         % coordinate system or page of raw data (not multiplied by alignment
         % matrix) if pixels are misaligned.
         raw_data;
-        % the data range which is not processes its value when requested
-        raw_data_range;
     end
 
     properties (Constant,Hidden)
@@ -153,8 +151,8 @@ classdef (Abstract) PixelDataBase < serializable
 
         %
         is_misaligned % true if pixel data are not in Crystal Cartesian and
-        %             % and true Crystal Cartesian is obtanied by
-        %             % bultiplying data by the alignment matrix
+        %             % and true Crystal Cartesian is obtained by
+        %             % multiplying data by the alignment matrix
         alignment_matr % matrix used for multiplying misaligned pixel data
         %             % to convert their coordinates into CrystalCartesian
         %             % coordinate system. If pixels are not misaligned,
@@ -376,11 +374,10 @@ classdef (Abstract) PixelDataBase < serializable
 
         pix_out = mask(obj, mask_array, npix);
         % apply function represented by handle to every pixel of the dataset
-        % and caclculate appropriate averages if requested
+        % and calculate appropriate averages if requested
         [pix_out, data] = apply(obj, func_handle, args, data, compute_variance);
 
         obj = recalc_data_range(obj);
-        [obj,varargout] = reset_changed_coord_range(obj,range_type);
         % realign pixels using alignment matrix stored with pixels
         obj = apply_alignment(obj);
     end
@@ -665,46 +662,9 @@ classdef (Abstract) PixelDataBase < serializable
             ro = get_read_only(obj);
         end
         %
-        function range = get.raw_data_range(obj)
-            range = obj.data_range_;
-        end
     end
     %----------------------------------------------------------------------
     methods
-        function indices = check_pixel_fields(obj, fields)
-            %CHECK_PIXEL_FIELDS Check the given field names are valid pixel data fields
-            % Raises error with ID 'HORACE:PixelDataBase:invalid_argument' if any fields not valid.
-            %
-            %
-            % Input:
-            % ------
-            % fields    -- A cellstr of field names to validate.
-            %
-            % Output:
-            % indices   -- the indices corresponding to the fields
-            %
-            % NOTE:
-            % it looks like this should be protected method.
-            if istext(fields)
-                fields = cellstr(fields);
-            end
-
-            poss_fields = obj.FIELD_INDEX_MAP_;
-            bad_fields = ~cellfun(@poss_fields.isKey, fields);
-            if any(bad_fields)
-                valid_fields = poss_fields.keys();
-                error( ...
-                    'HORACE:PixelDataBase:invalid_argument', ...
-                    'Invalid pixel field(s) {''%s''}.\nValid keys are: {''%s''}', ...
-                    strjoin(fields(bad_fields), ''', '''), ...
-                    strjoin(valid_fields, ''', ''') ...
-                    );
-            end
-
-            indices = cellfun(@(field) poss_fields(field), fields, 'UniformOutput', false);
-            indices = unique([indices{:}]);
-        end
-
         function pix_copy = copy(obj)
             % Make an independent copy of this object
             %  This method simply constructs a new PixelData instance by calling
@@ -752,7 +712,7 @@ classdef (Abstract) PixelDataBase < serializable
         end
 
         function obj = set_full_filename(obj,val)
-            % main part of filepath setter. Need checks/modification
+            % main part of file path setter. Need checks/modification
             if ~istext(val)
                 error('HORACE:PixelDataBase:invalid_argument',...
                     'full_filename must be a string. Received: %s', ...
@@ -972,6 +932,71 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     methods(Access=protected)
+        function [obj,unique_idx] = calc_page_range(obj,field_name)
+            % Recalculate and set appropriate range of pixel coordinates.
+            % The coordinates are defined by the selected field
+            %
+            % Sets up the property page_range defining the range of block
+            % of pixels changed at current iteration.
+
+            %NOTE:  This range calculations are incorrect unless
+            %       performed in a loop over all pix pages where initial
+            %       range is set to empty!
+            %
+            ind = obj.check_pixel_fields(field_name);
+
+            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:), ...
+                obj.data_range_(:,ind));
+            if nargout > 1
+                unique_idx = unique(obj.run_idx);
+            end
+        end
+                
+        function indices = check_pixel_fields(obj, varargin)
+            % CHECK_PIXEL_FIELDS Check the given field names are valid pixel data fields
+            % Raises error with ID 'HORACE:PixelDataBase:invalid_argument' if any fields not valid.
+            %
+            %
+            % Input:
+            % ------
+            % fields    -- A cellstr of field names to validate.
+            %
+            % Output:
+            % indices   -- the indices corresponding to the fields
+            %
+            % NOTE:
+            % it looks like this should be protected method.
+            if nargin == 1
+                indices = 1:PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
+                return
+            else
+                fields = varargin{1};
+            end
+            if isnumeric(fields)
+                % driven mode used in some loops. No checks are necessary
+                indices = fields;
+                return;
+            end
+            if istext(fields)
+                fields = cellstr(fields);
+            end
+
+            poss_fields = obj.FIELD_INDEX_MAP_;
+            bad_fields = ~cellfun(@poss_fields.isKey, fields);
+            if any(bad_fields)
+                valid_fields = poss_fields.keys();
+                error( ...
+                    'HORACE:PixelDataBase:invalid_argument', ...
+                    'Invalid pixel field(s) {''%s''}.\nValid keys are: {''%s''}', ...
+                    strjoin(fields(bad_fields), ''', '''), ...
+                    strjoin(valid_fields, ''', ''') ...
+                    );
+            end
+
+            indices = cellfun(@(field) poss_fields(field), fields, 'UniformOutput', false);
+            indices = unique([indices{:}]);
+        end
+        
         function data_range = get_data_range(obj,varargin)
             % overloadable data range getter, which recalculates data range
             % on pixel_dile backed if this range is undefined
