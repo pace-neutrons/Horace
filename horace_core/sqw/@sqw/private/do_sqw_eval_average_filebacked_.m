@@ -16,8 +16,9 @@ mem_chunk_size = get(hor_config, 'mem_chunk_size');
 [npix_chunks, idxs, npix_cumsum] = split_vector_max_sum(npix(:), mem_chunk_size);
 pix_bin_starts = npix_cumsum - npix(:) + 1;
 
-wout.pix.data_range = PixelDataBase.EMPTY_RANGE;
 
+pix = wout.pix;
+pix.data_range = PixelDataBase.EMPTY_RANGE;
 for i = 1:numel(npix_chunks)
     npix_chunk = npix_chunks{i};
     pix_start_idx = pix_bin_starts(idxs(1, i));
@@ -25,7 +26,7 @@ for i = 1:numel(npix_chunks)
     pix_block_sizes = pix_end_idx-pix_start_idx+1;
 
     % Get pixels that belong to the bins in the current npix chunk
-    pix_chunk = wout.pix.get_pix_in_ranges(pix_start_idx, pix_block_sizes, false);
+    pix_chunk = pix.get_pix_in_ranges(pix_start_idx, pix_block_sizes, false);
 
     % Calculate qh, qk, ql, and en for the pixels (qw_pix is cell array)
     qw_pix = get_qw_pixels_(wout, pix_chunk);
@@ -40,17 +41,14 @@ for i = 1:numel(npix_chunks)
     % Assign each pixel's signal to bin average, variance set to zero
     pix_chunk.signal = repelem(ave_signal, npix_chunk);
     pix_chunk.variance = 0;
+    data = pix_chunk.data;
+    pix.data_range = pix_chunk.pix_minmax_ranges(data, ...
+        pix.data_range);
 
-    pix_chunk = pix_chunk.reset_changed_coord_range({'signal', 'variance'});
-
-    wout.pix.data_range = minmax_ranges(pix_chunk.data_range, ...
-                                        wout.pix.data_range);
-
-    wout.pix = wout.pix.format_dump_data(pix_chunk.data);
-
+    pix = pix.format_dump_data(data);
 end
-
-wout.pix = wout.pix.finish_dump();
+wout.pix = pix.finish_dump();
+%TODO: IT MUST go with apply
 wout = recompute_bin_data(wout);
 
 % Now go back and overwrite the old image in the file with new data
@@ -59,26 +57,26 @@ wout = recompute_bin_data(wout);
 end % of function do_sqw_eval_average_filebacked
 
 function qw_pix = get_qw_pixels_(sqw_obj, pix)
-    sqw_obj.pix = pix;
-    qw_pix = calculate_qw_pixels(sqw_obj);
+sqw_obj.pix = pix;
+qw_pix = calculate_qw_pixels(sqw_obj);
 end
 
 function qw_ave = average_qw_pix_(sqw_obj, pix, npix)
-    ab = line_axes('nbins_all_dims',[numel(npix),1,1,1],'img_range',sqw_obj.data.img_range);
-    sqw_obj.data = d1d(ab,sqw_obj.data.proj);
-    sqw_obj.data.npix = npix;
-    qw_ave = average_bin_data(sqw_obj, pix);
-    qw_ave = cellfun(@(x) x(:), qw_ave, 'UniformOutput', false);
+ab = line_axes('nbins_all_dims',[numel(npix),1,1,1],'img_range',sqw_obj.data.img_range);
+sqw_obj.data = d1d(ab,sqw_obj.data.proj);
+sqw_obj.data.npix = npix;
+qw_ave = average_bin_data(sqw_obj, pix);
+qw_ave = cellfun(@(x) x(:), qw_ave, 'UniformOutput', false);
 end
 
 function pix = set_pixel_data_(pix, ave_signal, npix_chunk, start_idx, end_idx)
-    sig_var = zeros(2, end_idx - start_idx + 1);
-    sig_var(1, :) = repelem(ave_signal, npix_chunk);
-    pix = pix.set_data({'signal', 'variance'}, sig_var, start_idx:end_idx);
+sig_var = zeros(2, end_idx - start_idx + 1);
+sig_var(1, :) = repelem(ave_signal, npix_chunk);
+pix = pix.set_data({'signal', 'variance'}, sig_var, start_idx:end_idx);
 end
 
 function [s, e] = get_image_bin_averages_(bin_sums, npix)
-    s = reshape(bin_sums(:)./npix(:), size(npix));
-    s(npix == 0) = 0;
-    e = zeros(size(s));
+s = reshape(bin_sums(:)./npix(:), size(npix));
+s(npix == 0) = 0;
+e = zeros(size(s));
 end

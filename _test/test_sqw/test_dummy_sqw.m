@@ -113,7 +113,9 @@ classdef test_dummy_sqw < TestCase
             assertEqual(unique(tval, 'rows', 'stable'), tval);
 
             % Test that all values are unique
-            tval = tsqw.pix.get_fields({'detector_idx', 'signal', 'variance'})';
+			idx = tsqw.pix.detector_idx;
+			sv  = tsqw.pix.sig_var;
+			tval= [idx;sv];
             assertEqual(unique(tval, 'rows', 'stable'), tval);
 
             % One pixel per bin
@@ -132,7 +134,10 @@ classdef test_dummy_sqw < TestCase
             assertEqual(unique(tval, 'rows', 'stable'), tval);
 
             % Test that all values are unique
-            tval = tsqw.pix.get_fields({'detector_idx', 'signal', 'variance'})';
+			idx = tsqw.pix.detector_idx;
+			sv  = tsqw.pix.sig_var;
+			tval= [idx;sv];
+			
             assertEqual(unique(tval, 'rows', 'stable'), tval);
 
             % One pixel per bin

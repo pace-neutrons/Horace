@@ -18,17 +18,7 @@ classdef PixelDataMemory < PixelDataBase
     %   >> pix_data = PixelDataMemory(data)
     %   >> signal = pix_data.signal;
     %
-    %  or equivalently:
-    %
-    %   >> pix_data = PixelDataMemory();
-    %   >> pix_data.data = data;
-    %   >> signal = pix_data.get_fields('signal');
-    %
-    %  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
-    %
-    %   >> pix_data = PixelDataMemory(data);
-    %   >> signal = pix_data.get_fields({'run_idx', 'energy_idx'}, 1:10);
-    %
+   %
     %  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
     %
     %   >> pix_data = PixelDataMemory(data);
@@ -80,7 +70,6 @@ classdef PixelDataMemory < PixelDataBase
                 end
             end
         end
-        pix_out = get_fields(obj, fields, abs_pix_indices);
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
 
         pix     = set_raw_data(obj,pix);
@@ -112,7 +101,7 @@ classdef PixelDataMemory < PixelDataBase
             obj = init_(obj,varargin{:});
         end
 
-        function [obj,unique_pix_id] = recalc_data_range(obj)
+        function [obj,unique_pix_id] = recalc_data_range(obj,fld)
             % Recalculate pixels range in the situations, where the
             % range for some reason appeared to be missing (i.e. loading pixels from
             % old style files) or changed through private interface (for efficiency)
@@ -123,10 +112,13 @@ classdef PixelDataMemory < PixelDataBase
             % for the same purpose.
             % recalc_pix_range is a normal Matlab value object (not a handle object),
             % returning its changes in LHS
+            if nargin == 1
+                fld = 'all';                
+            end
             if nargout == 2
-                [obj,unique_pix_id]=obj.calc_page_range('all');
+                [obj,unique_pix_id]=obj.calc_page_range(fld);
             else
-                obj=obj.calc_page_range('all');
+                obj=obj.calc_page_range(fld);
             end
         end
 
@@ -240,9 +232,9 @@ classdef PixelDataMemory < PixelDataBase
                 return
             end
             if nargout==2
-                [obj,unique_id] = calc_page_range@PixelDataBase(field_name);
+                [obj,unique_id] = calc_page_range@PixelDataBase(obj,field_name);
             else
-                obj = calc_page_range@PixelDataBase(field_name);
+                obj = calc_page_range@PixelDataBase(obj,field_name);
             end
         end
 

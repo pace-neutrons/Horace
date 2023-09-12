@@ -35,8 +35,8 @@ npix = wout.data.npix;
 
 img_signal = zeros(1, numel(npix));
 
-s_ind = wout.pix.check_pixel_fields('signal');
-v_ind = wout.pix.check_pixel_fields('variance');
+sv_ind = wout.pix.get_pixfld_indexes('sig_var');
+
 
 pix = wout.pix;
 pix.data_range = PixelDataBase.EMPTY_RANGE;
@@ -56,12 +56,12 @@ for i = 1:npg
 
     sig_chunk = sqwfunc(qw{:}, pars{:});
 
-    data(s_ind, :) = sig_chunk;
-    data(v_ind, :) = 0;
+    data(sv_ind(1), :) = sig_chunk;
+    data(sv_ind(2), :) = 0;
 
     pix = pix.format_dump_data(data);
-    pix.data_range = pix.pix_minmax_ranges(data, ...
-                                           pix.data_range);
+    pix.data_range_ = pix.pix_minmax_ranges(data, ...
+                                           pix.data_range_);
 
     img_signal = increment_signal_sums_(img_signal, sig_chunk, ...
                                         npix_chunk, idx_chunk);

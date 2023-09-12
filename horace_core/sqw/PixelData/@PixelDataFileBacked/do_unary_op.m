@@ -60,21 +60,19 @@ end
 function pix_out = unary_op_no_dnd(pix_out, unary_op)
 
     pix_out = pix_out.prepare_dump();
-    s_ind = pix_out.check_pixel_fields('signal');
-    v_ind = pix_out.check_pixel_fields('variance');
+    sv_ind = pix_out.get_pixfld_indexes('sig_var');
 
     n_pages = pix_out.num_pages;
     data_range = PixelDataBase.EMPTY_RANGE;
 
+    pix_sigvar = sigvar();
     for i = 1:n_pages
         pix_out.page_num = i;
         data = pix_out.data;
-
-        pix_sigvar = sigvar(data(s_ind,:), data(v_ind,:));
+		pix_sigvar.sig_var = data(sv_ind,:);
         pg_result  = unary_op(pix_sigvar);
 
-        data(s_ind, :) = pg_result.s;
-        data(v_ind, :) = pg_result.e;
+        data(sv_ind, :) = pg_result.sig_var;
         loc_range = [min(data,[],2),...
             max(data,[],2)]';
         data_range = minmax_ranges(data_range,loc_range);

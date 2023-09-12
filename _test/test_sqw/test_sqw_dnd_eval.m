@@ -42,7 +42,7 @@ classdef test_sqw_dnd_eval < TestCase
             %converge
 
             sig = ds.data.s;
-            pix_sig = ds.pix.get_fields('signal', 'all');
+            pix_sig = ds.pix.signal;
 
             assertEqual(sig, 5.*ones(size(sig)));
             assertEqual(pix_sig, 5.*ones(size(pix_sig)));
@@ -73,7 +73,7 @@ classdef test_sqw_dnd_eval < TestCase
             ds = kk.simulate();
 
             sig = ds.data.s;
-            pix_sig = ds.pix.get_fields('signal', 'all');
+            pix_sig = ds.pix.signal;
 
             assertEqual(sig, 6.*ones(size(sig)));
             assertEqual(pix_sig, 6.*ones(size(pix_sig)));
@@ -91,7 +91,7 @@ classdef test_sqw_dnd_eval < TestCase
             ds = kk.simulate();
 
             sig = ds.data.s;
-            pix_sig = ds.pix.get_fields('signal', 'all');
+            pix_sig = ds.pix.signal;
 
             assertEqual(sig, 5.*ones(size(sig)));
             assertEqual(pix_sig, 5.*ones(size(pix_sig)));
@@ -116,7 +116,7 @@ classdef test_sqw_dnd_eval < TestCase
             ds = func_eval(obj.sqw_4_test, @obj.funceval_tester2D, [], '-all');
 
             sig = ds.data.s;
-            pix_sig = ds.pix.get_fields('signal', 'all');
+            pix_sig = ds.pix.signal;
 
             assertEqual(sig, 2.*ones(size(sig)));
             assertEqual(pix_sig, 2.*ones(size(pix_sig)));
@@ -144,7 +144,7 @@ classdef test_sqw_dnd_eval < TestCase
         function test_sqw_eval(obj)
             ds = sqw_eval(obj.sqw_4_test,@obj.sqw_eval_tester,[]);
 
-            sig = ds.pix.get_fields('signal', 'all');
+            sig = ds.pix.signal;
 
             assertEqual(sig, 3.*ones(size(sig)));
         end

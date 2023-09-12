@@ -98,17 +98,18 @@ function obj = apply_op_no_dnd(obj, func_handle, args)
 
     n_pages = obj.num_pages;
     obj.data_range_ = PixelDataBase.EMPTY_RANGE;
-
+    cur_pix = PixelDataMemory();
     for i = 1:n_pages
-        [start_idx, end_idx] = obj.get_page_idx_(i);
+        obj.paje_num = i;
 
-        curr_pix = obj.get_pixels(start_idx:end_idx, '-ignore_range');
+        data = obj.data;
+        cur_pix = cur_pix.set_raw_data(data);
 
         for j = 1:numel(func_handle)
             curr_pix = func_handle{j}(curr_pix, args{j}{:});
         end
 
-        obj.data_range = curr_pix.pix_minmax_ranges(curr_pix.data, obj.data_range_);
+        obj.data_range_ = curr_pix.pix_minmax_ranges(data, obj.data_range_);
 
         obj = obj.format_dump_data(curr_pix.data);
     end

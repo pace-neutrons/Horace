@@ -5,25 +5,24 @@ function obj = binary_op_scalar_(obj, scalar, binary_op, flip)
 
 obj = obj.prepare_dump();
 
-s_ind = obj.check_pixel_fields('signal');
-v_ind = obj.check_pixel_fields('variance');
+sv_ind = obj.get_pixfld_indexes('sig_var');
 obj.data_range = PixelDataBase.EMPTY_RANGE;
 %
 % TODO: #975 loop have to be moved level up calculating image in single
 num_pages= obj.num_pages;
+pix_sigvar  = sigvar();	
 for i = 1:num_pages
     obj.page_num = i;
     data = obj.data;
 
-    pix_sigvar = sigvar(obj.signal, obj.variance);
+    pix_sigvar.sig_var = obj.sig_var;
     %scalar_sigvar = sigvar(scalar, []);
     scalar_sigvar = scalar;     % TGP 2021-04-11: to work with new classdef sigvar
 
-    [signal, variance] = ...
+    sig_var = ...
         sigvar_binary_op_(pix_sigvar, scalar_sigvar, binary_op, flip);
 
-    data(s_ind, :) = signal;
-    data(v_ind, :) = variance;
+    data(sv_ind, :) = sig_var;
 
     obj = obj.format_dump_data(data);
 

@@ -138,7 +138,7 @@ function wout = calc_shift_filebacked(win, dispreln, ave_pix, pars)
     wout = win;
     wout = wout.get_new_handle();
 
-    e_ind = wout.pix.check_pixel_fields('dE');
+    e_ind = wout.pix.get_pixfld_indexes('dE');
 
     pg_size = get(hor_config, 'mem_chunk_size');
 

@@ -31,16 +31,6 @@ classdef PixelDataFileBacked < PixelDataBase
     %   >> pix_data = PixelDataFileBacked(data)
     %   >> signal = pix_data.signal;
     %
-    %  or equivalently:
-    %
-    %   >> pix_data = PixelDataFileBacked();
-    %   >> pix_data.data = data;
-    %   >> signal = pix_data.get_fields('signal');
-    %
-    %  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
-    %
-    %   >> pix_data = PixelDataFileBacked(data);
-    %   >> signal = pix_data.get_fields({'run_idx', 'energy_idx'}, 1:10);
     %
     %  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
     %
@@ -128,7 +118,6 @@ classdef PixelDataFileBacked < PixelDataBase
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
 
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
-        pix_out = get_fields(obj, fields, abs_pix_indices);
         pix_out = mask(obj, mask_array, varargin);
 
     end
@@ -210,7 +199,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % recalc_data_range is a normal Matlab value object (not a handle object),
             % returning its changes in LHS
 
-            if ~exist('fld', 'var')
+            if nargin == 1
                 fld = 'all';
             end
 

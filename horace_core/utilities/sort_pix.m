@@ -151,7 +151,7 @@ if ~use_mex
         for i = 1:mch_sz:numel(ind)
             end_idx = min(i+mch_sz-1, numel(ind));
             slice = ind(i:end_idx);
-            data = pix.get_fields('all', slice);
+            data = pix.data(:, slice);
             pix = pix.format_dump_data(data);
         end
 

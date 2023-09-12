@@ -192,8 +192,8 @@ for i=1:numel(ind)
     dq_mat=lookup.dq_mat{iw};
 
     % Run and detector for each pixel
-    irun = win(i).pix.get_fields('run_idx', 'all')';   % column vector
-    idet = win(i).pix.get_fields('detector_idx', 'all')';   % column vector
+    irun = win(i).pix.run_idx';   % column vector
+    idet = win(i).pix.detector_idx';   % column vector
     npix = win(i).pix.num_pixels;
     %HACK. TODO: do it properly (ticket #901)
     max_irun = max(irun);
@@ -299,8 +299,7 @@ for i=1:numel(ind)
     if wout.pix.is_filebacked
         wout = wout.get_new_handle();
 
-        s_ind = wout.pix.check_pixel_fields('signal');
-        v_ind = wout.pix.check_pixel_fields('variance');
+        sv_ind = wout.pix.get_pixfld_indexes('sig_var');
 
         pix = wout.pix;
         pix.data_range = PixelDataBase.EMPTY_RANGE;
@@ -312,8 +311,8 @@ for i=1:numel(ind)
             data = pix.data;
             [start_idx, end_idx] = pix.get_page_idx_(page);
 
-            data(s_ind, :) = stmp(start_idx:end_idx)/mc_points;
-            data(v_ind, :) = 0;
+            data(sv_ind(1), :) = stmp(start_idx:end_idx)/mc_points;
+            data(sv_ind(2) :) = 0;
 
             pix.data_range = pix.pix_minmax_ranges(data, ...
                 pix.data_range);

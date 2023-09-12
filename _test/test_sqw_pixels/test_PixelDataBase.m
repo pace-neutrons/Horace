@@ -332,48 +332,12 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             assertEqual(pixel_data_obj_copy.data, obj.pixel_data_obj.data);
         end
 
-        function test_get_fields_returns_coordinates_for_given_index_range(obj)
+        function test_get_prop_returns_coordinates_for_given_index_range(obj)
             pix_data_obj = obj.get_random_pix_data_(10);
-            coords = pix_data_obj.get_fields({'coordinates'}, 2:6);
+            coords = pix_data_obj.coordinates(:,2:6);
             assertEqual(coords, pix_data_obj.coordinates(:, 2:6));
         end
 
-        function test_get_fields_returns_multiple_fields_for_given_index_range(obj)
-            pix_data_obj = obj.get_random_pix_data_(10);
-            coord_sig = pix_data_obj.get_fields({'coordinates', 'signal'}, 4:9);
-            expected_coord_sig = [pix_data_obj.coordinates(:, 4:9); ...
-                pix_data_obj.signal(4:9)];
-            assertEqual(coord_sig, expected_coord_sig);
-        end
-
-        function test_get_fields_returns_full_pixel_range_if_no_range_given(obj)
-            pix_data_obj = obj.get_random_pix_data_(10);
-            coord_sig = pix_data_obj.get_fields({'coordinates', 'signal'});
-            expected_coord_sig = [pix_data_obj.coordinates; pix_data_obj.signal];
-            assertEqual(coord_sig, expected_coord_sig);
-        end
-
-        function test_get_fields_allows_data_retrieval_for_single_field(obj)
-            for i = 1:numel(obj.pix_fields)
-                field_data = obj.pixel_data_obj.get_fields(obj.pix_fields{i});
-                assertEqual(field_data, obj.pixel_data_obj.(obj.pix_fields{i}));
-            end
-        end
-
-        function test_get_fields_throws_PixelData_on_non_valid_field_name(obj)
-            f = @() obj.pixel_data_obj.get_fields('not_a_field');
-            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
-        end
-
-        function test_get_fields_orders_columns_by_input_cell_array(obj)
-            pix_data_obj = obj.get_random_pix_data_(10);
-
-            data_subset = pix_data_obj.get_fields({'detector_idx', 'signal', 'run_idx'});
-
-            assertEqual(data_subset(1, :), pix_data_obj.detector_idx);
-            assertEqual(data_subset(2, :), pix_data_obj.signal);
-            assertEqual(data_subset(3, :), pix_data_obj.run_idx);
-        end
 
         function test_cat_combines_given_PixelData_objects(obj)
             pix_data_obj1 = obj.get_random_pix_data_(10);
@@ -867,59 +831,47 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             assertEqual(pix_chunk.data, data(:, idx_array));
         end
 
-        function test_get_fields_returns_data_across_pages_by_absolute_index(obj)
+        function test_get_prop_returns_data_across_pages_by_absolute_index(obj)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             npix_in_page = 11;
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             indices = [9:13, 20:24];
-            sig_var = pix.get_fields({'signal', 'variance'}, indices);
+            sig_var = pix.sig_var(:, indices);
             expected_sig_var = data([obj.SIGNAL_IDX, obj.VARIANCE_IDX], indices);
 
             assertElementsAlmostEqual(sig_var, expected_sig_var,...
                 'relative',obj.tol);
         end
 
-        function test_get_fields_retrieves_correct_data_at_page_boundary(obj)
+        function test_get_prop_retrieves_correct_data_at_page_boundary(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 10;
 
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
-            sig = pix.get_fields('signal', 1:3);
+            sig = pix.signal(1:3);
             assertElementsAlmostEqual(sig, data(obj.SIGNAL_IDX, 1:3),...
                 'relative',obj.tol);
 
-            sig2 = pix.get_fields('signal', 20);
+            sig2 = pix.signal(20);
             assertElementsAlmostEqual(sig2, data(obj.SIGNAL_IDX, 20),...
                 'relative',obj.tol);
 
-            sig3 = pix.get_fields('signal', 1:1);
+            sig3 = pix.signal(1:1);
             assertElementsAlmostEqual(sig3, data(obj.SIGNAL_IDX, 1),...
                 'relative',obj.tol);
         end
 
-        function test_paged_pix_get_fields_returns_full_data_range_if_no_idx_arg(obj)
-            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
-            npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
-
-            var_sig = pix.get_fields({'variance', 'signal'}, 1:pix.num_pixels);
-            expected_var_sig = data([obj.VARIANCE_IDX, obj.SIGNAL_IDX], :);
-
-            assertElementsAlmostEqual(var_sig, expected_var_sig,...
-                'relative',obj.tol);
-        end
-
-        function test_paged_pix_get_fields_can_be_called_with_a_logical(obj)
+        function test_paged_pix_get_prop_can_be_called_with_a_logical(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             logical_array = logical(randi([0, 1], [1, 10]));
-            sig_var = pix.get_fields({'signal', 'variance'}, logical_array);
+            sig_var = pix.sig_var(:,logical_array);
 
             expected_sig_var = data([obj.SIGNAL_IDX, obj.VARIANCE_IDX], ...
                 logical_array);
@@ -927,53 +879,57 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
                 'relative',obj.tol);
         end
 
-        function test_get_fields_throws_if_logical_1_index_out_of_range(obj)
+        function test_get_prop_throws_if_logical_1_index_out_of_range(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), true);
-            f = @() pix.get_fields('signal', logical_array);
+			function ss=thrower(pix,lar)
+			   ss = pix.signal(lar);
+			end
+            f = @()thrower(pix,logical_array);
 
             assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
-        function test_get_fields_ignores_out_of_range_logical_0_indices(obj)
+        function test_get_prop_ignores_out_of_range_logical_0_indices(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), false);
-            var_sig = pix.get_fields({'variance', 'signal'}, logical_array);
+            sig_var = pix.sig_var(:,logical_array);
 
             assertElementsAlmostEqual(var_sig, ...
-                data([obj.VARIANCE_IDX, obj.SIGNAL_IDX], logical_array),...
+                data([obj.SIGNAL_IDX,obj.VARIANCE_IDX], logical_array),...
                 'relative',obj.tol);
         end
 
-        function test_in_mem_pix_get_fields_can_be_called_with_a_logical(obj)
+        function test_in_mem_pix_get_prop_can_be_called_with_a_logical(obj)
             num_pix = 30;
             pix = PixelDataBase.create(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix));
 
             logical_array = logical(randi([0, 1], [1, 10]));
-            sig_var = pix.get_fields({'signal', 'variance'}, logical_array);
+            sig_var = pix.sig_var(:, logical_array);
 
             assertEqual(sig_var, ...
                 pix.data([obj.SIGNAL_IDX, obj.VARIANCE_IDX], logical_array));
         end
 
-        function test_get_fields_can_handle_repeated_indices(obj)
+        function test_get_prop_can_handle_repeated_indices(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             idx_array = [10 1 10 10 10];
+			sig = pix.signal(idx_array);
+			rid = pix.run_idx(idx_array);
 
-            sig_run = pix.get_fields({'signal', 'run_idx'}, idx_array);
-            assertElementsAlmostEqual(sig_run, data([obj.SIGNAL_IDX, obj.RUN_IDX], idx_array),...
+            assertElementsAlmostEqual([sig;rid], data([obj.SIGNAL_IDX, obj.RUN_IDX], idx_array),...
                 'relative',obj.tol);
         end
 
@@ -987,7 +943,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
                 'relative',obj.tol);
         end
 
-        function test_get_fields_reorders_output_according_to_indices(obj)
+        function test_get_prop_reorders_output_according_to_indices(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
@@ -995,52 +951,26 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
             rand_order = randperm(num_pix);
             shuffled_pix = data(:, rand_order);
-            sig_var = pix.get_fields({'signal', 'variance'}, rand_order);
+            sig_var = pix.sig_var(:, rand_order);
 
             assertElementsAlmostEqual(sig_var, ...
                 shuffled_pix([obj.SIGNAL_IDX, obj.VARIANCE_IDX], :),...
                 'relative',obj.tol);
         end
 
-        function test_get_fields_throws_invalid_arg_if_indices_not_vector(~)
-            pix = PixelDataBase.create();
-            f = @() pix.get_fields('signal', ones(2, 2));
-            assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
-        end
-
-        function test_get_fields_throws_if_range_out_of_bounds(obj)
+        function test_get_prop_throws_if_range_out_of_bounds(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+			function ss=thrower(pix,lar)
+			   ss = pix.signal(lar);
+			end
 
             idx_array = 25:35;
-            f = @() pix.get_fields('signal', idx_array);
+            f = @()thrower(pix,idx_array);
             assertExceptionThrown(f, 'PIXELDATA:get_data');
-        end
-
-        function test_get_fields_throws_if_an_idx_lt_1_with_paged_pix(obj)
-            num_pix = 30;
-            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
-
-            idx_array = -1:20;
-            f = @() pix.get_fields('signal', idx_array);
-            assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
-        end
-
-        function test_get_fields_throws_if_an_idx_lt_1_with_in_memory_pix(~)
-            in_mem_pix = PixelDataMemory(5);
-            f = @() in_mem_pix.get_fields('signal', -1:3);
-            assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
-        end
-
-        function test_get_fields_throws_if_indices_not_positive_int(~)
-            pix = PixelDataBase.create();
-            idx_array = 1:0.1:5;
-            f = @() pix.get_fields('signal', idx_array);
-            assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
 
         function test_set_data_sets_fields_with_given_values(~)
@@ -1049,93 +979,15 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             fields = {'run_idx', 'signal', 'variance'};
             idxs = [4, 3, 9, 24, 29, 10, 11];
             pix = pix.set_fields(new_data,fields, idxs);
+			idx = pix.run_idx(idxs);
+			sv  = pix.sig_var(:,idxs);
 
-            assertEqual(pix.get_fields(fields, idxs), new_data);
-
-            % Check other fields/indices unchanged
-            non_edited_idxs = 1:pix.num_pixels;
-            non_edited_idxs(idxs) = [];
-            assertEqual(pix.data(:, non_edited_idxs), zeros(9, 23));
-        end
-
-        function test_set_data_sets_single_fields_with_given_values(~)
-            pix = PixelDataMemory(30);
-            new_data = ones(1, 7);
-            field = 'run_idx';
-            idxs = [4, 3, 9, 24, 29, 10, 11];
-            pix = pix.set_fields(new_data,field, idxs);
-
-            assertEqual(pix.get_fields(field, idxs), new_data);
+            assertEqual([idx;sv], new_data);
 
             % Check other fields/indices unchanged
             non_edited_idxs = 1:pix.num_pixels;
             non_edited_idxs(idxs) = [];
             assertEqual(pix.data(:, non_edited_idxs), zeros(9, 23));
-        end
-
-        function test_set_data_sets_fields_with_given_values_pix_filebacked(obj)
-            num_pix = 30;
-            data = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_per_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_per_page);
-
-            new_data = ones(3, 7);
-            fields = {'run_idx', 'signal', 'variance'};
-            idxs = [4, 3, 9, 24, 29, 10, 11];
-            pix.set_fields(new_data,fields,idxs);
-
-            assertEqual(pix.get_fields(fields, idxs), new_data);
-
-            % Check other fields/indices unchanged
-            non_edited_idxs = 1:pix.num_pixels;
-            non_edited_idxs(idxs) = [];
-            unedited_pix = pix.get_pixels(non_edited_idxs);
-            assertEqual(unedited_pix.data, zeros(9, 23));
-        end
-
-        function test_set_data_errors_if_data_nrows_ne_to_num_fields(~)
-            pix = PixelDataMemory(30);
-            fields = {'run_idx', 'signal', 'variance'};
-            new_data = ones(numel(fields) + 1, 7);
-            idxs = [4, 3, 9, 24, 29, 10, 11];
-            f = @() pix.set_fields(new_data,fields,  idxs);
-            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
-        end
-
-        function test_set_data_errors_if_data_ncols_ne_to_num_indices(~)
-            pix = PixelDataMemory(30);
-            fields = {'run_idx', 'signal', 'variance'};
-            idxs = [4, 3, 9, 24, 29, 10, 11];
-            new_data = ones(numel(fields), numel(idxs) - 1);
-            f = @() pix.set_fields(new_data,fields, idxs);
-            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
-        end
-
-        function test_set_data_sets_fields_with_given_values_with_logical_idxs(~)
-            pix = PixelDataMemory(30);
-            new_data = ones(3, 7);
-            fields = {'run_idx', 'signal', 'variance'};
-            idxs = [4, 3, 9, 24, 29, 10, 11];
-            logical_idxs = zeros(1, 30, 'logical');
-            logical_idxs(idxs) = true;
-            pix = pix.set_fields(new_data,fields,  logical_idxs);
-
-            assertEqual(pix.get_fields(fields, idxs), new_data);
-
-            % Check other fields/indices unchanged
-            non_edited_idxs = 1:pix.num_pixels;
-            non_edited_idxs(idxs) = [];
-            assertEqual(pix.data(:, non_edited_idxs), zeros(9, 23));
-        end
-
-        function test_set_data_sets_all_if_abs_pix_indices_not_given(~)
-            num_pix = 30;
-            pix = PixelDataBase.create(num_pix);
-            new_data = ones(3, num_pix);
-            fields = {'run_idx', 'signal', 'variance'};
-            pix = pix.set_fields(new_data,fields);
-
-            assertEqual(pix.get_fields(fields), new_data);
         end
 
         % -- Helpers --

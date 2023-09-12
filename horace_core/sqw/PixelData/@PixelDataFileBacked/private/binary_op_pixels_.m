@@ -12,8 +12,7 @@ if obj.num_pixels ~= pixel_data.num_pixels
 end
 
 obj = obj.prepare_dump();
-s_ind = obj.check_pixel_fields('signal');
-v_ind = obj.check_pixel_fields('variance');
+sv_ind = obj.get_pixfld_indexes('sig_var');
 
 if pixel_data.is_filebacked
     obj.data_range = PixelDataBase.EMPTY_RANGE;
@@ -21,19 +20,20 @@ if pixel_data.is_filebacked
     % TODO: #975 loop have to be moved level up calculating image in single
     % loop too
     num_pages= obj.num_pages;
+    this_sigvar = sigvar();	
+    other_sigvar =sigvar();
     for i = 1:num_pages
         obj.page_num = i;
         data = obj.data;
         pixel_data.page_num = i;
 
-        this_sigvar = sigvar(obj.signal, obj.variance);
-        other_sigvar = sigvar(pixel_data.signal, pixel_data.variance);
+        this_sigvar.sig_var = obj.sig_var;
+        other_sigvar.sig_var = pixel_data.sig_var;
 
-        [signal, variance] = ...
+        sig_var = ...
             sigvar_binary_op_(this_sigvar, other_sigvar, binary_op, flip);
 
-        data(s_ind, :) = signal;
-        data(v_ind, :) = variance;
+        data(sv_ind, :) = sig_var;
 
         obj = obj.format_dump_data(data);
 

@@ -35,13 +35,13 @@ function [pix_out, data] = noisify(obj, varargin)
 pix_out = obj;
 
 uses_poisson_distribution = (   ...
-    nargin==3 ...                            % only 3 args for poisson
+    nargin==3 ...                            % only 3 args for Poisson
     && ischar(varargin{1}) ...                  % arg is string
-    && is_stringmatchi(varargin{1},'poisson')); % string is poisson
+    && is_stringmatchi(varargin{1},'poisson')); % string is Poisson
 
 if ~uses_poisson_distribution
     if ~pix_out.is_range_valid('signal')
-        % Other options than poisson require the signal maximum.
+        % Other options than Poisson require the signal maximum.
         % As we are paging, we need to get the overall max signal out of pix_out
         % before applying noisify to the individual pages.
         max_sig = -inf;
@@ -52,7 +52,7 @@ if ~uses_poisson_distribution
         end
     else
         range = pix_out.data_range;
-        max_sig = range(2,pix_out.check_pixel_fields('signal'));
+        max_sig = range(2,pix_out.get_pixfld_indexes('signal'));
     end
     % tell the Herbert noisify that we are providing a max signal value
     % by appending it with its flag to varargin
