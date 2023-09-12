@@ -1,21 +1,23 @@
 API Reference
 #############
 
-.. `sphinxcontrib.matlabdomain` can only handle new-style classes 
-.. (defined by `classdef`) - so cannot autodocument sqw class at present
-..
-.. .. automodule:: sqw.@sqw
-..   :members:
 
 .. contents:: Table of Contents
 
 - :ref:`API Index <genindex>`
+
 
 ``SQWDndBase`` class
 --------------------------
 
 .. automodule:: sqw.@SQWDnDBase
    :members:
+
+``SQW`` class
+-------------
+
+.. automodule:: sqw.@sqw
+  :members:
 
 
 ``Experiment`` class
@@ -25,8 +27,8 @@ API Reference
    :members:
 
 
-``PixelData`` class
--------------------
+``PixelDataBase`` class
+-----------------------
 
-.. automodule:: sqw.PixelData.@PixelData
+.. automodule:: sqw.PixelData.@PixelDataBase
    :members:
