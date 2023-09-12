@@ -60,8 +60,8 @@ for i = 1:npg
     data(sv_ind(2), :) = 0;
 
     pix = pix.format_dump_data(data);
-    pix.data_range_ = pix.pix_minmax_ranges(data, ...
-                                           pix.data_range_);
+    pix.data_range = pix.pix_minmax_ranges(data, ...
+                                           pix.data_range);
 
     img_signal = increment_signal_sums_(img_signal, sig_chunk, ...
                                         npix_chunk, idx_chunk);

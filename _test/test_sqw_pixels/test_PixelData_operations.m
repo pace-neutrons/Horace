@@ -39,7 +39,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             pix = pix.do_unary_op(@cos);
             % Loop back through and validate values
 
-            file_backed_data = pix.data(:,1:50);
+            file_backed_data = pix.get_pixels(1:50,'-raw_data');
             expected_data = data;
             expected_data(obj.SIGNAL_IDX, :) = ...
                 cos(expected_data(obj.SIGNAL_IDX, :));
@@ -70,7 +70,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             % Make temp file
             sin_pix = pix.do_unary_op(@sin);
-            data = sin_pix.data;
+            data = sin_pix.get_pixels();
 
             % Copy
             sin_pix_cpy = PixelDataFileBacked(sin_pix);

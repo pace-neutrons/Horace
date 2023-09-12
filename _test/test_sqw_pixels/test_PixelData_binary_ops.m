@@ -269,7 +269,7 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             assertEqualToTol(pix1.data, data1);
             assertEqualToTol(pix2.data, data2);
             assertEqualToTol(pix3.signal), ...
-                ones(1, pix3.num_pixels));
+                ones(1, pix3.num_pixels);
         end
 
         function test_add_double_npix_memory(obj)

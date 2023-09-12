@@ -696,6 +696,52 @@ classdef (Abstract) PixelDataBase < serializable
             %  This function does nothing if pixels are not file-backed.
             %
         end
+
+        function indices = get_pixfld_indexes(obj, varargin)
+            % GET_PIXFLD_INDEXES   Check the given field names are valid pixel data fields
+            % and return array indexes for this field.
+            % Raises error with ID 'HORACE:PixelDataBase:invalid_argument' if any fields not valid.
+            %
+            %
+            % Input:
+            % ------
+            % fields    -- A cellstr of field names to validate.
+            %
+            % Output:
+            % indices   -- the indices corresponding to the fields
+            %
+            % NOTE:
+            % it looks like this should be protected method.
+            if nargin == 1
+                indices = 1:PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
+                return
+            else
+                fields = varargin{1};
+            end
+            if isnumeric(fields)
+                % driven mode used in some loops. No checks are necessary
+                indices = fields;
+                return;
+            end
+            if istext(fields)
+                fields = cellstr(fields);
+            end
+
+            poss_fields = obj.FIELD_INDEX_MAP_;
+            bad_fields = ~cellfun(@poss_fields.isKey, fields);
+            if any(bad_fields)
+                valid_fields = poss_fields.keys();
+                error( ...
+                    'HORACE:PixelDataBase:invalid_argument', ...
+                    'Invalid pixel field(s) {''%s''}.\nValid keys are: {''%s''}', ...
+                    strjoin(fields(bad_fields), ''', '''), ...
+                    strjoin(valid_fields, ''', ''') ...
+                    );
+            end
+
+            indices = cellfun(@(field) poss_fields(field), fields, 'UniformOutput', false);
+            indices = unique([indices{:}]);
+        end
     end
     %======================================================================
     % Overloadable protected getters/setters for properties
@@ -901,52 +947,6 @@ classdef (Abstract) PixelDataBase < serializable
             if nargout > 1
                 unique_idx = unique(obj.run_idx);
             end
-        end
-
-        function indices = get_pixfld_indexes(obj, varargin)
-            % GET_PIXFLD_INDEXES   Check the given field names are valid pixel data fields
-			% and return array indexes for this field.
-            % Raises error with ID 'HORACE:PixelDataBase:invalid_argument' if any fields not valid.
-            %
-            %
-            % Input:
-            % ------
-            % fields    -- A cellstr of field names to validate.
-            %
-            % Output:
-            % indices   -- the indices corresponding to the fields
-            %
-            % NOTE:
-            % it looks like this should be protected method.
-            if nargin == 1
-                indices = 1:PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
-                return
-            else
-                fields = varargin{1};
-            end
-            if isnumeric(fields)
-                % driven mode used in some loops. No checks are necessary
-                indices = fields;
-                return;
-            end
-            if istext(fields)
-                fields = cellstr(fields);
-            end
-
-            poss_fields = obj.FIELD_INDEX_MAP_;
-            bad_fields = ~cellfun(@poss_fields.isKey, fields);
-            if any(bad_fields)
-                valid_fields = poss_fields.keys();
-                error( ...
-                    'HORACE:PixelDataBase:invalid_argument', ...
-                    'Invalid pixel field(s) {''%s''}.\nValid keys are: {''%s''}', ...
-                    strjoin(fields(bad_fields), ''', '''), ...
-                    strjoin(valid_fields, ''', ''') ...
-                    );
-            end
-
-            indices = cellfun(@(field) poss_fields(field), fields, 'UniformOutput', false);
-            indices = unique([indices{:}]);
         end
 
         function data_range = get_data_range(obj,varargin)
