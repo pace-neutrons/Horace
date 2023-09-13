@@ -49,7 +49,7 @@ function [obj, data] = apply(obj, func_handle, args, data, compute_variance)
         obj = func_handle{i}(obj, args{i}{:});
     end
 
-    obj = obj.reset_changed_coord_range({'all'});
+    obj.data_range = obj.pix_minmax_ranges(obj.data, obj.data_range);
 
     if exist('data', 'var')
         if compute_variance

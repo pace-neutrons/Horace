@@ -56,6 +56,8 @@ end
 
 function [obj, data] = apply_op_dnd(obj, func_handle, args, data, compute_variance)
 
+    ll = config_store.instance().get_value('hor_config', 'log_level');
+
     obj = obj.prepare_dump();
 
     mem_chunk_size = config_store.instance().get_value('hor_config', 'mem_chunk_size');
@@ -65,6 +67,10 @@ function [obj, data] = apply_op_dnd(obj, func_handle, args, data, compute_varian
     obj.data_range = PixelDataBase.EMPTY_RANGE;
     for i = 1:numel(chunks)
         npix = sum(chunks{i});
+
+        if ll > 0 && mod(i, 10) == 1
+            fprintf('Processing page %d/%d', i, numel(chunks));
+        end
 
         curr_pix = obj.get_pixels(pix:pix+npix-1, '-ignore_range');
         for j = 1:numel(func_handle)
@@ -81,7 +87,7 @@ function [obj, data] = apply_op_dnd(obj, func_handle, args, data, compute_varian
         end
 
         obj.data_range = ...
-            obj.pix_minmax_ranges(curr_pix.data, obj.data_range);
+            obj.pix_minmax_ranges(curr_pix.data, obj.data_range_);
 
         obj = obj.format_dump_data(curr_pix.data);
 
@@ -94,12 +100,18 @@ end
 
 function obj = apply_op_no_dnd(obj, func_handle, args)
 
+    ll = config_store.instance().get_value('hor_config', 'log_level');
+
     obj = obj.prepare_dump();
 
     n_pages = obj.num_pages;
     obj.data_range = PixelDataBase.EMPTY_RANGE;
 
     for i = 1:n_pages
+        if ll > 0 && mod(i, 10) == 1
+            fprintf('Processing page %d/%d', i, n_pages);
+        end
+
         [start_idx, end_idx] = obj.get_page_idx_(i);
 
         curr_pix = obj.get_pixels(start_idx:end_idx, '-ignore_range');
@@ -108,7 +120,7 @@ function obj = apply_op_no_dnd(obj, func_handle, args)
             curr_pix = func_handle{j}(curr_pix, args{j}{:});
         end
 
-        obj.data_range = curr_pix.pix_minmax_ranges(curr_pix.data, obj.data_range);
+        obj.data_range = curr_pix.pix_minmax_ranges(curr_pix.data, obj.data_range_);
 
         obj = obj.format_dump_data(curr_pix.data);
     end

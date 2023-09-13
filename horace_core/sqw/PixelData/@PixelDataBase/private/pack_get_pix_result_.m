@@ -14,6 +14,7 @@ function pix_out = pack_get_pix_result_(obj,pix_data,ignore_range,raw_data,keep_
 %                 alignment matrix and dealign the data
 %
 misaligned = obj.is_misaligned;
+
 if align && misaligned
     pix_data(1:3,:) = obj.alignment_matr*pix_data(1:3,:);
 end
@@ -25,13 +26,15 @@ if raw_data
     pix_out = pix_data;
     return;
 end
-pix_out = PixelDataMemory();
+
+pix_out = PixelDataMemory(pix_data);
+
 if ~align && misaligned
     pix_out.alignment_matr  = obj.alignment_matr;
 end
-pix_out = pix_out.set_raw_data(pix_data);
 
 if ~ignore_range
     pix_out.data_range_ = pix_out.pix_minmax_ranges(pix_out.data);
 end
+
 end

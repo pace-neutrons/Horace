@@ -380,7 +380,6 @@ classdef (Abstract) PixelDataBase < serializable
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
         % realign pixels using alignment matrix stored with pixels
-        obj = apply_alignment(obj);
     end
     %======================================================================
     methods(Abstract,Access=protected)
@@ -410,6 +409,10 @@ classdef (Abstract) PixelDataBase < serializable
 
     %======================================================================
     % the same interface on FB and MB files
+    methods(Access=private)
+        obj = realign_(obj);
+    end
+
     methods
         function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
@@ -420,6 +423,12 @@ classdef (Abstract) PixelDataBase < serializable
 
         obj = set_fields(obj, data, fields, abs_pix_indices);
         [pix_out, data] = noisify(obj, varargin);
+
+        function obj = apply_alignment(obj)
+            obj = obj.apply(@realign_);
+            obj.alignment_matr_ = eye(3);
+            obj.is_misaligned_ = false;
+        end
 
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
@@ -665,7 +674,7 @@ classdef (Abstract) PixelDataBase < serializable
         %
         function range = get.raw_data_range(obj)
             range = obj.data_range_;
-        end        
+        end
     end
     %----------------------------------------------------------------------
     methods

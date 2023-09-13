@@ -14,9 +14,11 @@ function [obj,al_info] = apply_alignment(obj,keep_original)
 if ~obj.pix.is_misaligned % nothing to do
     return
 end
+
 if nargin == 1
     keep_original = false;
 end
+
 rotmat  = obj.pix.alignment_matr;
 rotvec  = rotmat_to_rotvec2(rotmat');
 alatt   = obj.data.proj.alatt;
@@ -26,40 +28,41 @@ al_info = crystal_alignment_info(alatt,angdeg,rotvec);
 % this modifies this proj transformation not to use double transformation
 % when calculating pix_to_img transformation with aligned pixels as argument.
 % All other thransfornations are not affected
-obj.data.proj.proj_aligned  = false;
+obj.data.proj.proj_aligned = false;
+
 if obj.pix.is_filebacked
     new_file = get_tmp_filename(obj.pix.full_filename);
     old_file = obj.pix.full_filename;
 else
     new_file  = [];
 end
+
 obj = obj.get_new_handle(new_file);
-pix = obj.pix.apply_alignment();
-if ~isempty(new_file) % or if it is filebacked in other words
-    if ~keep_original
-        % unlike majority of other operations, save would not be effective
-        % here, as image have not changed and have already been saved while
-        % getting new handle. Just swap pixels to take the new file as a
-        % source.
-        pix.delete();
-        del_memmapfile_files(old_file)
-        [ok,mess]=movefile(new_file,old_file,'f');
-        if ok
-            pix = PixelDataFileBacked(old_file);
-            new_file = old_file;
-        else
-            warning('HORACE:file_locked', ...
-                'Can not replace old file %s with new file %s. Remaining with new file', ...
+obj.pix = obj.pix.apply_alignment();
+
+if obj.pix.is_filebacked && ~keep_original
+    % unlike majority of other operations, save would not be efficient
+    % here, as image has not changed and has already been saved while
+    % getting new handle. Just swap pixels to take the new file as a
+    % source.
+    del_memmapfile_files(old_file);
+    change_crystal(new_file, crystal_alignment_info(alatt, angdeg, zeros(3,1)));
+    [ok,mess]=movefile(new_file,old_file,'f');
+    if ~ok
+        warning('HORACE:file_locked', ...
+                'Can not replace old file %s with new file %s.', ...
                 old_file,new_file);
-            pix = PixelDataFileBacked(new_file);            
-        end
+    else
+        new_file = old_file;
     end
+    obj.pix = PixelDataFileBacked(new_file);
 end
-obj.pix = pix;
+
 if ~isempty(new_file)
     obj.full_filename = new_file;
 end
 
+end
 
 function fn_out = get_tmp_filename(orig_fn)
 [fp,fn,fe] = fileparts(orig_fn);
@@ -78,3 +81,4 @@ error('HORACE:apply_alignment:runtime_error', ...
     'Can not find temporarty filename in the form %s_aligned_<Num>.%s for Num from 1 to 100 in the folder %s',...
     fn,fe,fp);
 
+end
