@@ -998,5 +998,4 @@ classdef (Abstract) PixelDataBase < serializable
 
         end
     end
-
 end

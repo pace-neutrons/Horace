@@ -1,4 +1,4 @@
-function w = unary_op_manager (w1, unary_op)
+function w = unary_op_manager (obj, unary_op)
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
@@ -24,11 +24,9 @@ function w = unary_op_manager (w1, unary_op)
 % -----------------------------------------------------------------------------
 
 
-w = w1;
-for i=1:numel(w1)
+w = obj;
+for i=1:numel(obj)
     %----------------------------------------------------------------------
-    % The following block may be class specific
-    result = unary_op(sigvar(w1(i)));
-    w(i) = sigvar_set(w(i),result);
+    w(i) = unary_op(obj(i));
     %----------------------------------------------------------------------
 end

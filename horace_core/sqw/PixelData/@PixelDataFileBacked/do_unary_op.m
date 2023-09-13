@@ -60,7 +60,7 @@ end
 function pix_out = unary_op_no_dnd(pix_out, unary_op)
 
     pix_out = pix_out.prepare_dump();
-    sv_ind = pix_out.get_pixfld_indexes('sig_var');
+    sv_ind  = pix_out.get_pixfld_indexes('sig_var');
 
     n_pages = pix_out.num_pages;
     data_range = PixelDataBase.EMPTY_RANGE;
