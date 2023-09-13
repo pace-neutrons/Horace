@@ -17,7 +17,7 @@ types = obj.known_pc_types_;
 nproc = idivide(int64(phys_mem),int64(obj.mem_size_per_worker_*Gb),'floor');
 if ispc
     if phys_mem <  32*Gb
-        pc_type = types{1}; %windows small
+        pc_type = types('win_small'); %windows small
     else
         if free_mem >= 0.5*phys_mem
             if nproc >2

@@ -18,9 +18,6 @@ classdef opt_config_manager
         this_pc_type;
         % return the memory identified as this pc have
         this_pc_memory;
-        % return list of known pc types, one may know an optimal
-        % configurations for.
-        known_pc_types;
         % The folder where optimal class configurations are stored.
         % Normally it is the class folder but may be changed for testing
         % purposes
@@ -35,6 +32,12 @@ classdef opt_config_manager
         known_configurations;
         % The configuration, considered optimal for this particular pc type
         optimal_config;
+        % return list of known pc types, one may know an optimal
+        % configurations for.
+        pc_types;
+        % return map of known pc types, one may know an optimal
+        % configurations for.
+        known_pc_types;        
     end
 
     properties(Constant)
@@ -71,7 +74,7 @@ classdef opt_config_manager
         % the configurations, which may be optimized for a particular pc so
         % should be stored
         known_configs_ = {'hor_config','hpc_config','parallel_config'}
-        pc_types 
+
         % amount of memory (in Gb) presumed to be necessary for a single
         % parallel worker.
         mem_size_per_worker_ = 16;
@@ -134,6 +137,10 @@ classdef opt_config_manager
             config = obj.current_config_;
         end
 
+        function types = get.pc_types(obj)
+            types = obj.pc_types_;
+        end
+
         function obj = set.this_pc_type(obj,val)
             % explicitly setting pc type for testing or debugging purposes.
             %
@@ -143,6 +150,7 @@ classdef opt_config_manager
             if isnumeric(val)
                 n_types = numel(obj.pc_types_);
                 if val>0 && val<=n_types
+                    val = obj.pc_types_{val};
                     pc_type = obj.known_pc_types_(val);
                 else
                     print_help(obj);
@@ -259,7 +267,7 @@ classdef opt_config_manager
         function print_help(obj)
             ll = get(hor_config,'log_level');
             if ll>0
-                types = obj.known_pc_types_;
+                types = obj.pc_types_;
                 fprintf('**** Known pc types are:\n');
                 for i=1:numel(types)
                     fprintf('    :%d  : %s\n',i,types{i});
