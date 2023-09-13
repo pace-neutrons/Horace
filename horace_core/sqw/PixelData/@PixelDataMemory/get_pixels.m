@@ -1,4 +1,4 @@
-function pix_out = get_pixels(obj, abs_pix_indices,varargin)
+function pix_out = get_pixels(obj, varargin)
 % Retrieve the raw pixels at the given indices in the full pixel block,
 % return a new PixelData object.
 %
@@ -37,9 +37,9 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %   pix_out        Another PixelData object containing only the pixels
 %                  specified in the abs_pix_indices argument.
 %
-[abs_pix_indices,ignore_range,raw_data,keep_precision,align] =...
-    obj.parse_get_pix_args(abs_pix_indices,varargin{:});
+[pix_indices,ignore_range,raw_data,keep_precision,align] =...
+    obj.parse_get_pix_args(true,varargin{:});
 
-pix_data = obj.data_(:, abs_pix_indices);
+pix_data = obj.data_(:, pix_indices);
 
 pix_out = obj.pack_get_pix_result(pix_data,ignore_range,raw_data,keep_precision,align);

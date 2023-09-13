@@ -833,12 +833,12 @@ classdef (Abstract) PixelDataBase < serializable
         end
         %------------------------------------------------------------------
         function [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
-                parse_get_pix_args(obj,varargin)
+                parse_get_pix_args(obj,accepts_logical,varargin)
             % process input of get_pix method and return input parameters
             % in the standard form.
 
             [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
-                parse_get_pix_args_(obj,varargin{:});
+                parse_get_pix_args_(obj,accepts_logical,varargin{:});
         end
         function pix_out = pack_get_pix_result(obj,pix_data,ignore_range,raw_data,keep_precision,align)
             % pack output of get_pixels method depending on various

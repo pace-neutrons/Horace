@@ -151,10 +151,13 @@ classdef sigvar < serializable
                     'sig_var property accepts only 2xN or Nx2 numeric array. Assigning %s data with size %s', ...
                     class(val),disp2str(size(val)))
             end
-            nel = numel(val)/2;
-            val = reshape(val(:),nel,2);
-            obj.signal_   = val(:,1)';
-            obj.variance_ = val(:,2)';
+            if size(val,1) == 2
+                obj.signal_   = val(1,:);
+                obj.variance_ = val(2,:);
+            else
+                obj.signal_   = val(:,1)';
+                obj.variance_ = val(:,2)';
+            end
         end
 
         %------------------------------------------------------------------
@@ -278,7 +281,6 @@ classdef sigvar < serializable
             end
         end
     end
-
     methods(Static)
         function obj = loadobj(S)
             % loadobj method, calling generic method of
@@ -287,7 +289,4 @@ classdef sigvar < serializable
             obj = loadobj@serializable(S,obj);
         end
     end
-
-
-
 end

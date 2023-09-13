@@ -1,4 +1,4 @@
-function pix_out = get_pixels(obj, abs_pix_indices,varargin)
+function pix_out = get_pixels(obj, varargin)
 % Retrieve the pixels at the given indices in the full pixel block,
 % return a new PixelData object.
 %
@@ -22,6 +22,10 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %                    "out-of-order". However, you cannot use `end`, but it is
 %                    possible to achieve the same effect using the `num_pixels`
 %                    property.
+%                    Also accepts keyword 'all' in which case tries to load
+%                    in memory all available pixels
+%                    or empty list in which case retunrs the contents of
+%                    cutrent page
 %  Optional:
 %  '-ignore_range'  -- if provided, new pix_object will not contain correct
 %                      pixel ranges
@@ -39,7 +43,7 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %
 
 [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
-    obj.parse_get_pix_args(abs_pix_indices,varargin{:});
+    obj.parse_get_pix_args(false,varargin{:});
 
 
 mmf = obj.f_accessor_;
