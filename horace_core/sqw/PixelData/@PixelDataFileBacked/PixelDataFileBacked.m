@@ -377,17 +377,10 @@ classdef PixelDataFileBacked < PixelDataBase
             end
         end
 
-        function format = get_memmap_format(obj, tail)
+        function format = get_memmap_format(obj)
             if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile')
-                if nargin == 1
-                    tail = 0;
-                end
                 data_size = double([PixelDataBase.DEFAULT_NUM_PIX_FIELDS, obj.num_pixels_]);
-                if tail>0
-                    format = {'single',data_size,'data';'uint8',double(tail),'tail'};
-                else
-                    format = {'single',data_size,'data'};
-                end
+                format = {'single',data_size,'data'};
             else
                 format = obj.f_accessor_.Format;
             end
