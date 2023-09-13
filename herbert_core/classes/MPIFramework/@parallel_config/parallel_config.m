@@ -494,9 +494,12 @@ classdef parallel_config<config_base
             n_poss_threads = floor(obj.n_cores/n_workers);
 
             if n_threads < 0
-                error('HERBERT:parallel_config:invalid_argument', 'parallel_threads must be positive or 0 (automatic)')
+                error('HERBERT:parallel_config:invalid_argument', ...
+                    'parallel_threads must be positive or 0 (automatic)')
             elseif n_threads > n_poss_threads
-                warning('HERBERT:parallel_config:parallel_threads', 'Number of par threads (%d) might exceed computer capacity (%d)', n_threads, n_poss_threads)
+                warning('HERBERT:parallel_config:parallel_threads', ...
+                    'Total number of threads used by all parallel workers n_treads*n_workers = (%d) might exceed computer capacity (%d)', ...
+                    n_threads*n_workers, n_poss_threads)
             end
             config_store.instance().store_config(obj,'parallel_threads',n_threads);
         end
