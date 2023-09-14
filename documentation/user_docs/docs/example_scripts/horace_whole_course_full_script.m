@@ -24,7 +24,7 @@ if ~exist(output_data_folder, 'dir')
 end
 
 %% ========================================================================
-%              Make a fake data set to explore more thoroughly 
+%              Make a fake data set to explore more thoroughly
 % =========================================================================
 
 % Name and folder for output "fake" generated file
@@ -33,9 +33,9 @@ sqw_file = [output_data_folder '/my_fake_file.sqw'];
 % Instrument parameter file (may be in another location to this)
 par_file = [edatc_folder '/crystal_datafiles/4to1_102.par'];
 
-% u and v vectors to define the crystal orientation 
+% u and v vectors to define the crystal orientation
 % (u||ki, uv plane is horizontal but v does not need to be perp to u.
-u = [1, 0, 0]; 
+u = [1, 0, 0];
 v = [0, 1, 0];
 
 % Range of rotation (psi) angles to cover in simulated dataset.
@@ -57,42 +57,31 @@ angdeg = [90, 90, 90];
 omega=0; dpsi=0; gl=0; gs=0;
 
 % This runs the command to generate the "fake" dataset.
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
+dummy_sqw(en, par_file, sqw_file, efix, emode, alatt, angdeg,...
                      u, v, psi, omega, dpsi, gl, gs);
 
 %% ========================================================================
-% Once generated, you can use standard Horace plotting tools to explore 
+% Once generated, you can use standard Horace plotting tools to explore
 % this fake dataset, where the colour scale corresponds to the value of psi
-% that contributed data to a given region of reciprocal space					 
+% that contributed data to a given region of reciprocal space
 
 % First define a view projection (these u and v do not need to be the same
 % as the sample u and v above. They just define the first, second and third
-% axes for making a cut (third axis w is implicit being perpendicular to the 
+% axes for making a cut (third axis w is implicit being perpendicular to the
 % plane defined by u and v).
-proj.u = [-1, -1, 1]; 
-proj.v = [0, 1, 1]; 
-
-% The 4th offset coordinate is energy transfer 
-proj.uoffset = [0, 0, 0, 0];
-
-% Type is Q units for each axis and can be either 'r' for r.l.u. or 'a' 
-% for absolute (A^-1). E.g. 'rar' means u and w are normalissed to in r.l.u, v in A^-1.
-proj.type = 'rrr';
-
-% Actually, it is better to make a projection object with this information
-% rather than a structure. Type: >> doc projaxes   for more details.
-% Note that the default for uoffset is [0,0,0,0] so it doesn't need to be set
-proj = projaxes([-1,-1,1], [0,1,1], 'uoffset', [0,0,0,0], 'type', 'rrr');
+% Type: >> doc line_proj   for more details.
+% Note that the default for offset is [0,0,0,0] so it doesn't need to be set
+proj = line_proj([-1,-1,1], [0,1,1], 'offset', [0,0,0,0], 'type', 'rrr');
 
 % Now make a cut of the fake dataset.
 % The four vectors indicate either the range and step (three-vector) or
 % the integration range (2-vector), with units defined by the proj.type
-% The following makes a 3D volume cut with axes u, v and energy 
-% (first, second and fourth vectors are 3-vectors), 
+% The following makes a 3D volume cut with axes u, v and energy
+% (first, second and fourth vectors are 3-vectors),
 % integrating over w between -0.1 and 0.1.
 % '-nopix' indicates to discard the pixel information and create
 % a dnd (d3d) object.
-my_vol = cut_sqw(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], ...
+my_vol = cut(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], ...
                  [-0.1,0.1], [0,4,360], '-nopix');
 
 % Plot the 3D cut - click on the graph to plot 2D projections of the volume
@@ -100,7 +89,7 @@ plot(my_vol)
 
 % The following makes a 2D cut with axes u and energy (first and fourth
 % vectors are 3-vectors), integrating over v and w between -0.1 and 0.1
-my_cut = cut_sqw(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1], [0,10,400], '-nopix');
+my_cut = cut(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1], [0,10,400], '-nopix');
 
 % Now plot the 2D cut.
 plot(my_cut);
@@ -109,31 +98,31 @@ plot(my_cut);
 % Plotting the dispersion along the [h00] direction (note different u and v)
 % Using keep_figure to keep the figures on screen.
 % Afterwards, you can check which figure gives the largest coverage.
-proj = projaxes([1,0,0], [0,1,0], 'uoffset', [2,0,0,0], 'type', 'rrr');
-plot(cut_sqw(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1], [0,4,360], '-nopix'));
+proj = line_proj([1,0,0], [0,1,0], 'offset', [2,0,0,0], 'type', 'rrr');
+plot(cut(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1], [0,4,360], '-nopix'));
 keep_figure;
 
-proj = projaxes([1,0,0], [0,1,0], 'uoffset', [0,2,0,0], 'type', 'rrr');
-plot(cut_sqw(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1], [0,4,360], '-nopix'));
+proj = line_proj([1,0,0], [0,1,0], 'offset', [0,2,0,0], 'type', 'rrr');
+plot(cut(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1], [0,4,360], '-nopix'));
 keep_figure;
 
-proj = projaxes([1,0,0], [0,1,0], 'uoffset', [0,0,2,0], 'type', 'rrr');
-plot(cut_sqw(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1], [0,4,360], '-nopix'));
+proj = line_proj([1,0,0], [0,1,0], 'offset', [0,0,2,0], 'type', 'rrr');
+plot(cut(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1], [0,4,360], '-nopix'));
 keep_figure;
 
 % As an alternative, we could manually change the integration range in the relevant
 % axes instead, but using uoffset is easier:
-% proj = projaxes([1,0,0], [0,1,0], 'type', 'rrr');
+% proj = line_proj([1,0,0], [0,1,0], 'type', 'rrr');
 % w200 = cut_sqw(sqw_file, proj, [-1,0.05,1]+2, [-0.1,0.1], [-0.1,0.1], [0,4,360], '-nopix')
 % w020 = cut_sqw(sqw_file, proj, [-1,0.05,1], [-0.1,0.1]+2, [-0.1,0.1], [0,4,360], '-nopix')
 % w002 = cut_sqw(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1]+2, [0,4,360], '-nopix')
 
 % Use a different projection to make a 2D slice along [hhh] centred at (200)
-proj = projaxes([1,1,1], [0,1,0], 'uoffset', [2,0,0,0], 'type', 'rrr');
-plot(cut_sqw(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1], [0,4,360], '-nopix'));
+proj = line_proj([1,1,1], [0,1,0], 'offset', [2,0,0,0], 'type', 'rrr');
+plot(cut(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1], [0,4,360], '-nopix'));
 
 %% ========================================================================
-%                        Generating an sqw file 
+%                        Generating an sqw file
 % =========================================================================
 clear variables
 close all
@@ -141,7 +130,7 @@ close all
 global edatc_folder output_data_folder
 
 % Directory where data (spe or nxspe) files are:
-data_path = [edatc_folder '/crystal_datafiles']; 
+data_path = [edatc_folder '/crystal_datafiles'];
 
 % Name of output sqw file (for the 4D combined dataset)
 sqw_file = [output_data_folder '/iron.sqw'];
@@ -151,9 +140,9 @@ sqw_file = [output_data_folder '/iron.sqw'];
 %par_file = [data_path, '4to1_102.par'];
 par_file = '';
 
-% u and v vectors to define the crystal orientation 
+% u and v vectors to define the crystal orientation
 % (u||ki when psi=0; uv plane is horizontal but v does not need to be perp to u).
-u = [1, 0, 0]; 
+u = [1, 0, 0];
 v = [0, 1, 0];
 
 % Range of rotation (psi) angles of the data files.
@@ -247,15 +236,9 @@ gen_sqw (spefile, par_file, sqw_file, efix, emode, alatt, angdeg,...
 % E.g. 'rar' means u and w are in r.l.u, v in A^-1.
 % The offset gives a offset for the zero of that axis, with the fourth
 % coordinate being the energy transfer in meV.
-proj.u  = [1,1,0];
-proj.v  = [-1,1,0];
-proj.uoffset  = [0,0,0,0];
-proj.type  = 'rrr';
-
-% Alternatively, you can make a projection object with this information
-% rather than a structure. Type: >> doc projaxes   for more details.
-% Note that the default for uoffset is [0,0,0,0] so it doesn't need to be set
-proj = projaxes([-1,-1,1], [0,1,1], 'uoffset', [0,0,0,0], 'type', 'rrr');
+% Type: >> doc line_proj   for more details.
+% Note that the default for offset is [0,0,0,0] so it doesn't need to be set
+proj = line_proj([-1,-1,1], [0,1,1], 'offset', [0,0,0,0], 'type', 'rrr');
 
 % The syntax for cut_sqw is:
 %
@@ -279,16 +262,16 @@ proj = projaxes([-1,-1,1], [0,1,1], 'uoffset', [0,0,0,0], 'type', 'rrr');
 % neutron event which is enclosed by each bin. This saves a lot of memory
 % and is good enough for plotting but would not be good enough for fitting,
 % or for re-cutting as shown below.
-my_vol = cut_sqw(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-0.1,0.1], [0,4,360], '-nopix');
+my_vol = cut(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-0.1,0.1], [0,4,360], '-nopix');
 plot(my_vol);
 
 % Now we make 2D slices integrating over both v and w in Q.
-my_slice = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
+my_slice = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
 plot(my_slice);
 
 % Now we make a 1D cut along u, timing how long it takes.
 tic
-my_cut = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [130,150]);
+my_cut = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [130,150]);
 toc
 plot(my_cut);
 
@@ -357,22 +340,21 @@ xycursor
 % from a crystal with hexagonal symmetry
 
 sqw_nonorth = [data_path, '/upd3_elastic.sqw'];
-proj_nonorth.u = [1, 0, 0];
-proj_nonorth.v = [0, 1, 0];
-proj_nonorth.type = 'rrr';
+proj_nonorth = line_proj([1, 0, 0], [0, 1, 0]);
 proj_nonorth.nonorthogonal = false; % <--- Default sets to false
 
 % If proj.nonorthogonal is false, u, v and w will be reconstructed to be
 % orthogonal. The plots will have correct aspect ratio but it will be
 % harder to tell the right reciprocal lattice coordinates by eye.
-ws_orth = cut_sqw(sqw_nonorth, proj_nonorth, [-7,0.02,3], [-2,0.02,2], [-0.1,0.1], [-1,1]);
-plot(ws_orth)
-keep_figure()
+ws_orth = cut(sqw_nonorth, proj_nonorth, [-7,0.02,3], [-2,0.02,2], [-0.1,0.1], [-1,1]);
+plot(ws_orth);
+keep_figure;
 
 % Now set the projection axes to non-orthogonal
 proj_nonorth.nonorthogonal = true;
-ws_nonorth = cut_sqw(sqw_nonorth, proj_nonorth, [-7,0.02,3], [-2,0.02,2], [-0.1,0.1], [-1,1]);
-plot(ws_nonorth); keep_figure();
+ws_nonorth = cut(sqw_nonorth, proj_nonorth, [-7,0.02,3], [-2,0.02,2], [-0.1,0.1], [-1,1]);
+plot(ws_nonorth);
+keep_figure;
 
 %% ========================================================================
 %                    Correcting for sample misalignment
@@ -388,19 +370,19 @@ sqw_file = [output_data_folder '/iron.sqw'];
 % positions we have. Step sizes and energy integration should be customised for your data
 % Step sizes should be as small as possible, and energy integration tight.
 
-proj.u = [1,0,0];
-proj.v = [0,1,0];
-proj.uoffset = [0,0,0];
-proj.type = 'rrr';
+proj = line_proj([1,0,0], [0,1,0]);
 
-alignment_slice1=cut_sqw(sqw_file,proj,[-5,0.03,8],[-5,0.03,8],[-0.05,0.05],[-10,10],'-nopix');
-alignment_slice2=cut_sqw(sqw_file,proj,[0.95,1.05],[-5,0.03,8],[-3,0.03,3],[-10,10],'-nopix');
-alignment_slice3=cut_sqw(sqw_file,proj,[-5,0.03,8],[-0.05,0.05],[-3,0.03,3],[-10,10],'-nopix');
+alignment_slice1=cut(sqw_file, proj, [-5, 0.03, 8], [-5, 0.03, 8], [-0.05, 0.05], [-10, 10], '-nopix');
+alignment_slice2=cut(sqw_file, proj, [0.95, 1.05], [-5, 0.03, 8], [-3, 0.03, 3], [-10, 10], '-nopix');
+alignment_slice3=cut(sqw_file, proj, [-5, 0.03, 8], [-0.05, 0.05], [-3, 0.03, 3], [-10, 10], '-nopix');
 
 % Look at the 3 orthogonal slices to figure out what bragg peaks are visible
-plot(compact(alignment_slice1)); keep_figure;
-plot(compact(alignment_slice2)); keep_figure;
-plot(compact(alignment_slice3)); keep_figure;
+plot(compact(alignment_slice1));
+keep_figure;
+plot(compact(alignment_slice2));
+keep_figure;
+plot(compact(alignment_slice3));
+keep_figure;
 
 % Our notional Bragg peaks - a list of accessible Bragg peaks (in data they
 % may be off from these notional positions)
@@ -411,20 +393,20 @@ bragg_peaks=[4,0,0; 2,0,0; 1,1,0; 4,4,0; 1,0,1];
 % above. See the help for further information about how the routine works -
 % you will in general have to adjust some of the inputs here, especially the
 % energy window
-[rlu0,width,wcut,wpeak]=bragg_positions(sqw_file, bragg_peaks, 1.5, 0.06, 0.4,...
-                                     1.5, 0.06, 0.4, 20, 'gauss','bin_ab');
+[rlu0, width, wcut, wpeak]=bragg_positions(sqw_file, bragg_peaks, 1.5, 0.06, 0.4, ...
+                                     1.5, 0.06, 0.4, 20, 'gauss', 'bin_ab');
 
 % Check how well the function did (note the command line prompts to allow you
 % to scan through the cuts made above)
-bragg_positions_view(wcut,wpeak)
+bragg_positions_view(wcut, wpeak)
 
 % Determine corrections to lattice and orientation (in this example we choose
 % to keep the lattice angles fixed, but allow the lattice parameters to be
 % refined, keeping a cubic structure by keeping ratios of lattice pars to be same):
-alatt = [2.87,2.87,2.87];   % original lattice parameters
-angdeg = [90,90,90];
-[rlu_corr,alatt,angdeg,~,~,rotangle] = refine_crystal(rlu0, alatt, angdeg,...
-    bragg_peaks,'fix_angdeg','fix_alatt_ratio');
+alatt = [2.87, 2.87, 2.87];   % original lattice parameters
+angdeg = [90, 90, 90];
+[rlu_corr, alatt, angdeg, ~, ~, rotangle] = refine_crystal(rlu0, alatt, angdeg, ...
+    bragg_peaks, 'fix_angdeg', 'fix_alatt_ratio');
 
 
 % Apply changes to sqw file. For the purposes of this examples sheet you might
@@ -432,13 +414,13 @@ angdeg = [90,90,90];
 % make a copy as the sqw file could many hundreds of gigabytes and could take
 % along time to copy.
 sqw_file_new = [output_data_folder '/iron_aligned.sqw'];
-copyfile(sqw_file,sqw_file_new)
+copyfile(sqw_file, sqw_file_new)
 change_crystal_horace(sqw_file_new, rlu_corr);
 
 % Check the outcome: Get Bragg peak positions and look at output: should be much better
-[rlu0,width,wcut,wpeak]=bragg_positions(sqw_file_new, bragg_peaks, 1.5, 0.06, 0.4,...
-                                     1.5, 0.06, 0.4, 20, 'gauss','bin_ab');
-bragg_positions_view(wcut,wpeak)
+[rlu0, width, wcut, wpeak]=bragg_positions(sqw_file_new, bragg_peaks, 1.5, 0.06, 0.4, ...
+                                     1.5, 0.06, 0.4, 20, 'gauss', 'bin_ab');
+bragg_positions_view(wcut, wpeak)
 
 %=========
 % Generally you only want to figure out the misorientation once, then apply
@@ -482,9 +464,9 @@ lz 0 3
 
 % Recreate the Q-E slice from earlier, this time without saving the pixel
 % information
-proj.u  = [1,1,0]; proj.v  = [-1,1,0]; proj.uoffset  = [0,0,0,0]; proj.type  = 'rrr';
+proj = line_proj([1,1,0], [-1,1,0]);
 
-my_slice = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280], '-nopix');
+my_slice = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280], '-nopix');
 
 % Plot the 2d slice first:
 plot(smooth(compact(my_slice)));
@@ -540,13 +522,14 @@ print('-depsc', [output_data_folder '/figure.eps']);
 % Make an array of 1d cuts:
 energy_range = [80:20:160];
 for i = 1:numel(energy_range)
-    my_cuts(i) = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], ...
+    my_cuts(i) = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], ...
         [-10 10]+energy_range(i));
 end
 
 % plot them individually, to see what they look like first
 for i = 1:numel(energy_range)
-    plot(my_cuts(i)); keep_figure;
+    plot(my_cuts(i));
+    keep_figure;
 end
 
 % We want to plot them all on the same axes, with different colours and
@@ -635,9 +618,9 @@ acolor k
 % =========================================================================
 % Recreate the Q-E slice from earlier
 sqw_file = [output_data_folder '/iron.sqw'];
-proj = projaxes([1,1,0], [-1,1,0], 'type', 'rrr');
-my_slice = cut_sqw(sqw_file, proj, ...
-                   [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,360]);
+proj = line_proj([1,1,0], [-1,1,0]);
+my_slice = cut(sqw_file, proj, ...
+               [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,360]);
 plot(my_slice)
 keep_figure;
 lz(0,2)
@@ -658,27 +641,31 @@ lz 0 2
 %% ========================================================================
 %                            Symmetrisation
 % =========================================================================
-my_slice2 = cut_sqw(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-0.1,0.1], [100,120]);
+my_slice2 = cut(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-0.1,0.1], [100,120]);
 plot(my_slice2);
 
 % Fold along vertical:
-my_sym = symmetrise_sqw(my_slice2, [-1,1,0], [0,0,1], [0,0,0]);
+sym = SymopReflection([-1,1,0], [0,0,1]);
+my_sym = symmetrise_sqw(my_slice2, sym);
 plot(my_sym);
 
 % Two folds along diagonals
-my_sym2 = symmetrise_sqw(my_slice2, [1,0,0], [0,0,1], [0,0,0]);
-my_sym2 = symmetrise_sqw(my_sym2, [0,1,0], [0,0,1], [0,0,0]);
+sym2 = [SymopReflection([1,0,0], [0,0,1]), ...
+        SymopReflection([0,1,0], [0,0,1])];
+my_sym2 = symmetrise_sqw(my_slice2, sym2);
 plot(my_sym2);
 
 % Some origami!
-my_slice3 = cut_sqw(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-2,0.05,2], [100,120]);
+my_slice3 = cut(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-2,0.05,2], [100,120]);
 plot(my_slice3)
 
-sym1 = symmetrise_sqw(my_slice3, [0,1,0], [1,0,0], [0,0,0]);
+symop1 = SymopReflection([0,1,0], [1,0,0]);
+sym1 = symmetrise_sqw(my_slice3, symop1);
 plot(sym1);
 
-sym2 = symmetrise_sqw(sym1, [1,0,0], [0,0,1], [0,0,0]);
-sym2 = symmetrise_sqw(sym2, [0,1,0], [0,0,1], [0,0,0]);
+symop2 = [SymopReflection([1,0,0], [0,0,1]), ...
+          SymopReflection([0,1,0], [0,0,1])];
+sym2 = symmetrise_sqw(sym1, symop2);
 plot(sym2)
 
 % Squeeze out all the dead volume
@@ -710,8 +697,10 @@ cut1_sp1 = cut(w_sp1, [], [-0.1 0.1], []);
 plot(cut1_sp1)
 % You should see an intense streak at the Bragg position.
 % Lets look at a reciprocal space map of it
-plot(cut(w_sp1, [], [], [-2 2])); lz(0, 2000); keep_figure;
-plot(cut(w_sp1, [], [], [8 12])); lz(0, 2000); keep_figure;
+plot(cut(w_sp1, [], [], [-2 2])); lz(0, 2000);
+keep_figure;
+plot(cut(w_sp1, [], [], [8 12])); lz(0, 2000);
+keep_figure;
 % You should see that there are 3 streaks all in the same direction,
 % all coming out of a Bragg peak.
 run_inspector(cut1_sp1)
@@ -748,8 +737,9 @@ run_inspector(w_sp2, 'col', [0,1000])
 % Mask parts of a dataset out, e.g. if there is a region with a spurion that
 % you wish to remove before proceeding to fitting the data
 sqw_file = [output_data_folder '/iron.sqw'];
-proj = projaxes([1,1,0], [-1,1,0], 'type', 'rrr');
-my_slice = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
+proj = line_proj([1,1,0], [-1,1,0]);
+
+my_slice = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
 mask_arr = ones(size(my_slice.data.npix)); % keeps everything
 mask_arr2 = mask_arr;
 mask_arr2(61:121,:) = 0;
@@ -757,8 +747,10 @@ mask_arr2(61:121,:) = 0;
 my_slice_masked1 = mask(my_slice,mask_arr); % should do nothing
 my_slice_masked2 = mask(my_slice,mask_arr2);
 
-plot(my_slice_masked1); keep_figure;
-plot(my_slice_masked2); keep_figure;
+plot(my_slice_masked1);
+keep_figure;
+plot(my_slice_masked2);
+keep_figure;
 
 % Mask out specific points, if the mask you need for the above is more
 % complex:
@@ -769,8 +761,10 @@ sel2 = mask_points(my_slice, 'remove', [-1,1,100,120]); % specify limits to remo
 my_slice_masked3 = mask(my_slice, sel1);
 my_slice_masked4 = mask(my_slice, sel2);
 
-plot(my_slice_masked3); keep_figure;
-plot(my_slice_masked4); keep_figure;
+plot(my_slice_masked3);
+keep_figure;
+plot(my_slice_masked4);
+keep_figure;
 
 %% Masking spurious data
 cut_sp1 = cut(w_sp1, [-0.6 -0.5], [], [])
@@ -790,7 +784,7 @@ plot(wmasked);
 % Bose correction function.
 % NB it does not do much at high energies, or course!
 
-my_slice = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
+my_slice = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
 plot(my_slice);
 lz 0 2
 keep_figure;
@@ -828,7 +822,8 @@ w_split = split(my_slice);
 % w_split is an array of objects (recall indexing of arrays in Matlab)
 % each element of the array corresponds to the data from a single
 % contributing spe file
-plot(w_split(1)); keep_figure;
+plot(w_split(1));
+keep_figure;
 plot(w_split(10)); % etc.
 % Allows you to determine if a spurious or strange signal is coming from a
 % single run, or if it is from a collection of runs.
@@ -849,15 +844,15 @@ end
 
 % Create cuts and slices for use later
 sqw_file = [output_data_folder '/iron.sqw'];
-proj.u  = [1,1,0]; proj.v  = [-1,1,0]; proj.uoffset  = [0,0,0,0]; proj.type  = 'rrr';
+proj = line_proj([1,1,0], [-1,1,0]);
 
 % Make our usual 2d slice
-my_slice = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
+my_slice = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
 
 % Make the array of 1d cuts previous made in the advance plotting session
 energy_range = [80:20:160];
 for i = 1:numel(energy_range)
-    my_cuts(i) = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], ...
+    my_cuts(i) = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], ...
         [-10 10]+energy_range(i));
 end
 
@@ -870,8 +865,10 @@ sim_cut = sqw_eval(my_cuts, @sr122_xsec, parameter_vector);
 sim_slice_dnd = sqw_eval(d2d(my_slice), @sr122_xsec, parameter_vector);
 sim_cut_dnd = sqw_eval(d1d(my_cuts), @sr122_xsec, parameter_vector);
 
-plot(sim_slice); keep_figure;
-plot(sim_slice_dnd); keep_figure;
+plot(sim_slice);
+keep_figure;
+plot(sim_slice_dnd);
+keep_figure;
 
 acolor blue
 dl(sim_cut(1));
@@ -915,5 +912,3 @@ ecent = [0,0.1,200];
 % Energy broadening term
 fwhh = 5;
 disp2sqw_plot(lattice, rlp, @sr122_disp, pars, ecent, fwhh);
-
-

@@ -24,12 +24,12 @@ end
 % =========================================================================
 
 sqw_file = [output_data_folder '/iron.sqw'];
-proj = projaxes([1,1,0], [-1,1,0], 'type', 'rrr');
+proj = line_proj([1,1,0], [-1,1,0], 'type', 'rrr');
 
 % Bose correction function.
 % NB it does not do much at high energies, or course!
 
-my_slice = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
+my_slice = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
 plot(my_slice);
 lz 0 2
 keep_figure;
@@ -43,19 +43,17 @@ lz 0 2
 %                            Miscellaneous
 % =========================================================================
 
-% Note the following doesn't work on IDAaaS at the moment as the signal() function was wrongly removed!)
-%{
 % If you want to see how a certain parameter varies across a dataset:
-w_sig = signal(my_slice, 'Q'); % mod Q in this case
+w_sig = coordinates_calc(my_slice, 'Q'); % mod Q in this case
 plot(w_sig)
 
 % You can use this now to apply a scale factor to the data. Suppose you wish
 % to multiply signal by energy:
-w_sig = signal(my_slice, 'E');
+w_sig = coordinates_calc(my_slice, 'E');
 my_slice2 = my_slice * w_sig;
 plot(my_slice2)
 lz 0 100
-%}
+
 
 % Take a section out of a dataset:
 w_sec = section(my_slice, [0, 2.5], [100, 250]); % just 0 to 2.5 in Q, 100 to 250 in energy
@@ -71,4 +69,3 @@ plot(w_split(1)); keep_figure;
 plot(w_split(10)); % etc.
 % Allows you to determine if a spurious or strange signal is coming from a
 % single run, or if it is from a collection of runs.
-

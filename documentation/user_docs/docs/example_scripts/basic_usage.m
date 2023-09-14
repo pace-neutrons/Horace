@@ -20,7 +20,7 @@ if ~exist(output_data_folder, 'dir')
 end
 
 %% ========================================================================
-%                        Generating an sqw file 
+%                        Generating an sqw file
 % =========================================================================
 clear variables
 close all
@@ -28,7 +28,7 @@ close all
 global edatc_folder output_data_folder
 
 % Directory where data (spe or nxspe) files are:
-data_path = [edatc_folder '/crystal_datafiles']; 
+data_path = [edatc_folder '/crystal_datafiles'];
 
 % Name of output sqw file (for the 4D combined dataset)
 sqw_file = [output_data_folder '/iron.sqw'];
@@ -38,9 +38,9 @@ sqw_file = [output_data_folder '/iron.sqw'];
 %par_file = [data_path, '4to1_102.par'];
 par_file = '';
 
-% u and v vectors to define the crystal orientation 
+% u and v vectors to define the crystal orientation
 % (u||ki when psi=0; uv plane is horizontal but v does not need to be perp to u).
-u = [1, 0, 0]; 
+u = [1, 0, 0];
 v = [0, 1, 0];
 
 % Range of rotation (psi) angles of the data files.
@@ -94,19 +94,13 @@ gen_sqw (spefile, par_file, sqw_file, efix, emode, alatt, angdeg,...
 % E.g. 'rar' means u and w are in r.l.u, v in A^-1.
 % The offset gives a offset for the zero of that axis, with the fourth
 % coordinate being the energy transfer in meV.
-proj.u  = [1,1,0];
-proj.v  = [-1,1,0];
-proj.uoffset  = [0,0,0,0];
-proj.type  = 'rrr';
-
-% Alternatively, you can make a projection object with this information
-% rather than a structure. Type: >> doc projaxes   for more details.
+% Type: >> doc line_proj   for more details.
 % Note that the default for uoffset is [0,0,0,0] so it doesn't need to be set
-proj = projaxes([-1,-1,1], [0,1,1], 'uoffset', [0,0,0,0], 'type', 'rrr');
+proj = line_proj([-1,-1,1], [0,1,1], 'uoffset', [0,0,0,0], 'type', 'rrr');
 
-% The syntax for cut_sqw is:
+% The syntax for cut is:
 %
-% cut = cut_sqw(sqw_file, proj, u_axis_limits, v_axis_limits, w_axis_limits, ...
+% cut = cut(sqw_file, proj, u_axis_limits, v_axis_limits, w_axis_limits, ...
 %               en_axis_limits, keywords)
 %
 % The *_axis_limits are either:
@@ -126,16 +120,16 @@ proj = projaxes([-1,-1,1], [0,1,1], 'uoffset', [0,0,0,0], 'type', 'rrr');
 % neutron event which is enclosed by each bin. This saves a lot of memory
 % and is good enough for plotting but would not be good enough for fitting,
 % or for re-cutting as shown below.
-my_vol = cut_sqw(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-0.1,0.1], [0,4,360], '-nopix');
+my_vol = cut(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-0.1,0.1], [0,4,360], '-nopix');
 plot(my_vol);
 
 % Now we make 2D slices integrating over both v and w in Q.
-my_slice = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
+my_slice = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
 plot(my_slice);
 
 % Now we make a 1D cut along u, timing how long it takes.
 tic
-my_cut = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [130,150]);
+my_cut = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [130,150]);
 toc
 plot(my_cut);
 
@@ -204,19 +198,17 @@ xycursor
 % from a crystal with hexagonal symmetry
 
 sqw_nonorth = [data_path, '/upd3_elastic.sqw'];
-proj_nonorth.u = [1, 0, 0];
-proj_nonorth.v = [0, 1, 0];
-proj_nonorth.type = 'rrr';
-proj_nonorth.nonorthogonal = false; % <--- Default sets to false
+proj_nonorth = line_proj([1, 0, 0], [0, 1, 0]);
 
 % If proj.nonorthogonal is false, u, v and w will be reconstructed to be
 % orthogonal. The plots will have correct aspect ratio but it will be
 % harder to tell the right reciprocal lattice coordinates by eye.
-ws_orth = cut_sqw(sqw_nonorth, proj_nonorth, [-7,0.02,3], [-2,0.02,2], [-0.1,0.1], [-1,1]);
-plot(ws_orth)
-keep_figure()
+ws_orth = cut(sqw_nonorth, proj_nonorth, [-7,0.02,3], [-2,0.02,2], [-0.1,0.1], [-1,1]);
+plot(ws_orth);
+keep_figure();
 
 % Now set the projection axes to non-orthogonal
 proj_nonorth.nonorthogonal = true;
-ws_nonorth = cut_sqw(sqw_nonorth, proj_nonorth, [-7,0.02,3], [-2,0.02,2], [-0.1,0.1], [-1,1]);
-plot(ws_nonorth); keep_figure();
+ws_nonorth = cut(sqw_nonorth, proj_nonorth, [-7,0.02,3], [-2,0.02,2], [-0.1,0.1], [-1,1]);
+plot(ws_nonorth);
+keep_figure();

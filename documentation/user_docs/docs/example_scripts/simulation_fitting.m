@@ -35,10 +35,10 @@ end
 
 % Create cuts and slices for use later
 sqw_file = [output_data_folder '/iron.sqw'];
-proj.u  = [1,1,0]; proj.v  = [-1,1,0]; proj.uoffset  = [0,0,0,0]; proj.type  = 'rrr';
+proj = line_proj([1,1,0], [-1,1,0]);
 
 % Make our usual 2d slice
-my_slice = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
+my_slice = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
 
 % Make the array of 1d cuts previous made in the advance plotting session
 energy_range = [80:20:160];
@@ -48,7 +48,8 @@ for i = 1:numel(energy_range)
 end
 
 % Simulate on sqw objects
-parameter_vector = [1,0,0,35,-5,15,10,0.1];
+parameter_vector = [1, 0, 0, 35, -5, 15, 10, 0.1];
+
 sim_slice = sqw_eval(my_slice, @sr122_xsec, parameter_vector);
 sim_cut = sqw_eval(my_cuts, @sr122_xsec, parameter_vector);
 
@@ -56,8 +57,11 @@ sim_cut = sqw_eval(my_cuts, @sr122_xsec, parameter_vector);
 sim_slice_dnd = sqw_eval(d2d(my_slice), @sr122_xsec, parameter_vector);
 sim_cut_dnd = sqw_eval(d1d(my_cuts), @sr122_xsec, parameter_vector);
 
-plot(sim_slice); keep_figure;
-plot(sim_slice_dnd); keep_figure;
+plot(sim_slice);
+keep_figure;
+
+plot(sim_slice_dnd);
+keep_figure;
 
 acolor blue
 dl(sim_cut(1));
@@ -101,5 +105,3 @@ ecent = [0,0.1,200];
 % Energy broadening term
 fwhh = 5;
 disp2sqw_plot(lattice, rlp, @sr122_disp, pars, ecent, fwhh);
-
-

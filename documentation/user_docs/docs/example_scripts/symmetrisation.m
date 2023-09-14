@@ -25,27 +25,31 @@ end
 sqw_file = [output_data_folder '/iron.sqw'];
 proj = line_proj([1,1,0], [-1,1,0], 'type', 'rrr');
 
-my_slice2 = cut_sqw(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-0.1,0.1], [100,120]);
+my_slice2 = cut(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-0.1,0.1], [100,120]);
 plot(my_slice2);
 
 % Fold along vertical:
-my_sym = symmetrise_sqw(my_slice2, [-1,1,0], [0,0,1], [0,0,0]);
+sym = SymopReflection([-1,1,0], [0,0,1], [0,0,0]);
+my_sym = symmetrise_sqw(my_slice2, sym);
 plot(my_sym);
 
 % Two folds along diagonals
-my_sym2 = symmetrise_sqw(my_slice2, [1,0,0], [0,0,1], [0,0,0]);
-my_sym2 = symmetrise_sqw(my_sym2, [0,1,0], [0,0,1], [0,0,0]);
+
+sym = [SymopReflection([1,0,0], [0,0,1]), ...
+       SymopReflection([0,1,0], [0,0,1])];
+my_sym2 = symmetrise_sqw(my_slice2, sym);
 plot(my_sym2);
 
 % Some origami!
-my_slice3 = cut_sqw(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-2,0.05,2], [100,120]);
+my_slice3 = cut(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-2,0.05,2], [100,120]);
 plot(my_slice3)
 
-sym1 = symmetrise_sqw(my_slice3, [0,1,0], [1,0,0], [0,0,0]);
+sym = SymopReflection([0,1,0], [1,0,0]);
+sym1 = symmetrise_sqw(my_slice3, sym);
 plot(sym1);
-
-sym2 = symmetrise_sqw(sym1, [1,0,0], [0,0,1], [0,0,0]);
-sym2 = symmetrise_sqw(sym2, [0,1,0], [0,0,1], [0,0,0]);
+sym = [SymopReflection([1,0,0], [0,0,1]), ...
+       SymopReflection([0,1,0], [0,0,1]);
+sym2 = symmetrise_sqw(sym1, sym);
 plot(sym2)
 
 % Squeeze out all the dead volume
@@ -58,7 +62,8 @@ plot(compact(sym2))
 %
 %function wout = my_sym(win)
 %    % Fold above the line [1,0,0] in the H-K plane
-%    wout = symmetrise_sqw(win, [1,0,0], [0,1,0], [0,0,0]);
+%    sym = SymopReflection([1,0,0], [0,1,0]);
+%    wout = symmetrise_sqw(win, sym);
 %end
 %
 % In a separate mfile. Then you can call gen_sqw with the "transform_sqw"

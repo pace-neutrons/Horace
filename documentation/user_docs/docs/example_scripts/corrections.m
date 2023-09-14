@@ -12,8 +12,8 @@ folder = '/mnt/ceph/auxiliary/pace/docs/05_10_corrections_spinw-horace/';
 sqw_file = ['/instrument/MERLIN/CYCLE20191/RB1910504/', 'CaFe2O4_70meV.sqw'];
 
 %Define the projection axes
-proj.u=[1,0,0]; proj.v=[0,1,0]; proj.w=[0,0,1], proj.type='rrr';
-proj1.u=[1,1,0]; proj1.v=[-1,1,0]; proj1.w=[0,0,1]; proj1.nonorthogonal=true; proj1.type='rrr';
+proj = line_proj([1,0,0], [0,1,0], [0,0,1]);
+proj = line_proj([1,1,0], [-1,1,0], [0,0,1], 'nonorthogonal', true);
 
 %%
 %1 Addition/subtraction: Background. For magnetism, common subtraction methods
@@ -33,12 +33,16 @@ proj1.u=[1,1,0]; proj1.v=[-1,1,0]; proj1.w=[0,0,1]; proj1.nonorthogonal=true; pr
 %background one needs to go in Q to values of 8-10 in the first projection
 %axis.
 
-slice=cut_sqw(sqw_file,proj,[-10,0.025,5],[0.9,1.1],3.5+[-0.3,0.3],[0,0.4,40]);
-plot(compact(slice));lz 0 1;grid on;keep_figure;
+slice=cut(sqw_file,proj,[-10,0.025,5],[0.9,1.1],3.5+[-0.3,0.3],[0,0.4,40]);
+plot(compact(slice));
+lz 0 1;
+grid on;
+keep_figure;
 
 %Make 1D cut from the above slice at high Q
 background = cut(slice, [-8.3,-7.7], []);
-plot(background);keep_figure;
+plot(background);
+keep_figure;
 
 %Tile the 1D background cut to match the slice dimension. Note the dnd
 %conversion. The 1D cut is taken from a particular Q,E region with
@@ -46,12 +50,18 @@ plot(background);keep_figure;
 %incorrect, and therefore the pixel information is fully discarded by
 %converting to dnd objects.
 background_rep = replicate(d1d(background), d2d(slice));
-plot(background_rep);lz 0 1;grid on;keep_figure;
+plot(background_rep);
+lz 0 1;
+grid on;
+keep_figure;
 
 %Subtract the background "slice" from the original low temperature slice
 %with magnetic signal
 slice_sub = d2d(slice) - background_rep;
-plot(slice_sub);lz 0 1; grid on; keep_figure
+plot(slice_sub);
+lz 0 1;
+grid on;
+keep_figure
 
 %Compare "slice" and "slice-sub". Some of the intensity, especially around
 %the elastic line, is subtracted.
@@ -67,23 +77,30 @@ plot(slice_sub);lz 0 1; grid on; keep_figure
 %population factor and k_B is the Boltmann constant.
 
 %Plot the slice
-slice=cut_sqw(sqw_file,proj1,-1+[-0.1,0.1],[0,0.025,2],2+[-0.15,0.15],[0,0.4,40]);
-plot(compact(slice));lz 0 1;grid on;keep_figure;
+slice = cut(sqw_file,proj1,-1+[-0.1,0.1],[0,0.025,2],2+[-0.15,0.15],[0,0.4,40]);
+plot(compact(slice));
+lz 0 1;
+grid on;
+keep_figure;
 
 %For this correction the energy from the slice is needed. It used to be
 %possible with "signal" function, however it no longer works. Instead, one can
 %extract parts of the slice with "sqw_eval" function and a function with a
 %dummy parameter p:
-efun = @(h,k,l,en,p) en;
-energy = sqw_eval(slice, efun, []);
-plot(energy); grid on; keep_figure;
+energy = coordinates_calc(slice, 'E');
+plot(energy);
+grid on;
+keep_figure;
 energy_matrix = energy.data.s
 
 %Write the Bose function for temperature T = 5 K to create a slice with
 %bose correction for each datapoint in the slice.
 T = 5
 bose_factor = (1-exp((-11.6044 * energy)/T));
-plot(bose_factor); lz 0 1; grid on; keep_figure;
+plot(bose_factor);
+lz 0 1;
+grid on;
+keep_figure;
 
 %Apply Bose correction to the original slice
 slice_bose_corrected = slice * bose_factor
@@ -93,4 +110,3 @@ plot(compact(slice_bose_corrected));lz 0 1;grid on;keep_figure;
 %bose(input, temperature)
 slice_bose_corrected_2 = bose(slice, 5);
 plot(compact(slice_bose_corrected_2));lz 0 1;grid on;keep_figure;
-

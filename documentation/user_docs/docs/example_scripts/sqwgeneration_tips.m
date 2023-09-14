@@ -35,7 +35,7 @@ hpc on
 
 % You can further tweak the settings by creating a configuration instance:
 hpcconf = hpc_config()
-% Now you can set the properties of this `hpcconf` object to set the 
+% Now you can set the properties of this `hpcconf` object to set the
 % parallel configuration.
 % E.g. to change the number of parallel workers to 6:
 hpcconf.parallel_workers_number = 6
@@ -49,7 +49,7 @@ hpcconf.parallel_cluster = 'parpool'
 
 
 %% ========================================================================
-%                        Generating an sqw file 
+%                        Generating an sqw file
 % =========================================================================
 clear variables
 close all
@@ -57,7 +57,7 @@ close all
 global edatc_folder output_data_folder
 
 % Directory where data (spe or nxspe) files are:
-data_path = [edatc_folder '/crystal_datafiles']; 
+data_path = [edatc_folder '/crystal_datafiles'];
 
 % Name of output sqw file (for the 4D combined dataset)
 sqw_file = [output_data_folder '/iron.sqw'];
@@ -67,9 +67,9 @@ sqw_file = [output_data_folder '/iron.sqw'];
 %par_file = [data_path, '4to1_102.par'];
 par_file = '';
 
-% u and v vectors to define the crystal orientation 
+% u and v vectors to define the crystal orientation
 % (u||ki when psi=0; uv plane is horizontal but v does not need to be perp to u).
-u = [1, 0, 0]; 
+u = [1, 0, 0];
 v = [0, 1, 0];
 
 % Range of rotation (psi) angles of the data files.
@@ -146,51 +146,3 @@ gen_sqw (spefile, par_file, sqw_file, efix, emode, alatt, angdeg,...
 % included in the file.
 %
 % You can run this periodically, for example overnight.
-
-%% ========================================================================
-%                            Symmetrisation
-% =========================================================================
-proj = projaxes([1,1,0], [-1,1,0], 'type', 'rrr');
-
-my_slice2 = cut_sqw(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-0.1,0.1], [100,120]);
-plot(my_slice2);
-
-% Fold along vertical:
-my_sym = symmetrise_sqw(my_slice2, [-1,1,0], [0,0,1], [0,0,0]);
-plot(my_sym);
-
-% Two folds along diagonals
-my_sym2 = symmetrise_sqw(my_slice2, [1,0,0], [0,0,1], [0,0,0]);
-my_sym2 = symmetrise_sqw(my_sym2, [0,1,0], [0,0,1], [0,0,0]);
-plot(my_sym2);
-
-% Some origami!
-my_slice3 = cut_sqw(sqw_file, proj, [-3,0.05,3], [-3,0.05,3], [-2,0.05,2], [100,120]);
-plot(my_slice3)
-
-sym1 = symmetrise_sqw(my_slice3, [0,1,0], [1,0,0], [0,0,0]);
-plot(sym1);
-
-sym2 = symmetrise_sqw(sym1, [1,0,0], [0,0,1], [0,0,0]);
-sym2 = symmetrise_sqw(sym2, [0,1,0], [0,0,1], [0,0,0]);
-plot(sym2)
-
-% Squeeze out all the dead volume
-plot(compact(sym2))
-
-% You can also perform whole-dataset symmetrisation with gen_sqw()
-% when the sqw file is created. (Whole dataset symmetrisation is not
-% supported after the sqw if create at the moment).
-% First you need to define a symmetrisation function such as:
-%
-%function wout = my_sym(win)
-%    % Fold above the line [1,0,0] in the H-K plane
-%    wout = symmetrise_sqw(win, [1,0,0], [0,1,0], [0,0,0]);
-%end
-%
-% In a separate mfile. Then you can call gen_sqw with the "transform_sqw"
-% argument, e.g.:
-%
-%gen_sqw(spefile, par_file, sym_sqw_file, efix, emode, alatt, angdeg,...
-%        u, v, psi, omega, dpsi, gl, gs,'transform_sqw', @my_sym)
-

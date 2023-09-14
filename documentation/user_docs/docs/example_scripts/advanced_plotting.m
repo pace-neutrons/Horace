@@ -31,7 +31,7 @@ global edatc_folder output_data_folder
 sqw_file = [output_data_folder '/iron.sqw'];
 
 rlp = [1,-1,0; 2,0,0; 1,1,0; 1,-1,0];
-wspag = spaghetti_plot(rlp,sqw_file,'qbin',0.1,'qwidth',0.3,'ebin',[0,4,250]);
+wspag = spaghetti_plot(rlp, sqw_file, 'qbin', 0.1, 'qwidth', 0.3, 'ebin', [0, 4, 250]);
 lz 0 3
 
 
@@ -41,9 +41,9 @@ lz 0 3
 
 % Recreate the Q-E slice from earlier, this time without saving the pixel
 % information
-proj.u  = [1,1,0]; proj.v  = [-1,1,0]; proj.uoffset  = [0,0,0,0]; proj.type  = 'rrr';
+proj = line_proj([1,1,0], [-1,1,0]);
 
-my_slice = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280], '-nopix');
+my_slice = cut(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280], '-nopix');
 
 % Plot the 2d slice first:
 plot(smooth(compact(my_slice)));
@@ -105,7 +105,8 @@ end
 
 % plot them individually, to see what they look like first
 for i = 1:numel(energy_range)
-    plot(my_cuts(i)); keep_figure;
+    plot(my_cuts(i));
+    keep_figure;
 end
 
 % We want to plot them all on the same axes, with different colours and
@@ -188,4 +189,3 @@ ly 0 1.8
 
 % Reset the plot color to black
 acolor k
-
