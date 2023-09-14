@@ -1,39 +1,37 @@
-function path=horace_on(non_default_hor_path,non_default_her_path)
+function path=horace4_on(non_default_hor_path)
 %  safely switches Horace on
 %  horace_on()                         -- initializes Horace with default settings
 %  horace_on(non_default_horace_path)  -- initializes Horace with non-default Horace folder;
-%  horace_on(non_default_horace_path,non_default_her_path)
-%                                      -- initializes Horace with non-default Horace folder
-%                                         and non-default Herbert folder,
-%                                         not located within non-default
-%                                         Horace folder (for old versions
-%                                         of Horace/Herbert pairs)
 %
 %
-warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
-% Temporary inefficient code, needed only during transition from Horace v3 to Horace V4 on iDAAAS until its config not changed
-try
-    herbert_off();
-catch
-end
-% End temporary code
-try
-    horace_off();
-    warning(warn_state);    % return warnings to initial state
-    evalin('base','clearvars')
-    clearvars -global;
-    clear classes;
-catch
-    warning(warn_state);    % return warnings to initial state
-end
-warning(warn_state);    % return warnings to initial state
-%--------------------------------------------------------------------------
+
 default_horace_path  = '${Horace_CORE}';
-%--------------------------------------------------------------------------
 % To use spinW together with Horace, modify the row below pointing to correct
 % spinW location. Also need to modify spinw_on template and place it together
 % with horace_on.m script.
 default_spinw_path = '/usr/local/mprogs/spinW';
+
+%
+warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
+try
+    % get old code version if any available. Will throw if no Horace
+    old_version = horace_version('-numeric');
+catch
+    old_version = 0; % may be there was very old Horace version with does
+    % not have the horace_version function. Still want to compare versions
+end
+try
+    herbert_off();
+catch
+end
+try
+    horace_off();
+catch
+    %no Horace was initialized
+    old_version = [];
+end
+warning(warn_state);    % return warnings to initial state
+
 %
 if exist('non_default_hor_path','var') && ~isempty(non_default_hor_path)
     if (strcmpi(non_default_hor_path,'where') || strcmpi(non_default_hor_path,'which'))
@@ -52,6 +50,7 @@ if isempty(root_path)
         horace_path,horace_path);
 end
 horace_path = fullfile(root_path,'horace_core');
+new_version = this_horace_version(root_path);
 
 
 % if spinW start up file exist, try to initialize it
@@ -62,41 +61,28 @@ if ~isempty(sw_start)
 end
 warning(ws);
 
-if nargin > 1
-    independent_herbert = true;
-else
-    independent_herbert = false;
-end
-herbert_initated=~isempty(which('herbert_init.m'));
-% if Herbert is not initiated, try to init it.
-if ~herbert_initated
-    if independent_herbert
-        herbert_path = non_default_her_path;
-    else
-        herbert_path = build_default_her_path(horace_path);
-    end
-    try
-        init_herbert(herbert_path);
-    catch ME
-        disp('HORACE:horace_on:invalid_argument: cannot initialise Herbert');
-        rethrow(ME);
-    end
-else % reinitialize Herbert on where it is now.
-    if independent_herbert
-        init_herbert(non_default_her_path);
-    else
-        her_path = fileparts(which('herbert_init.m'));
-        init_herbert(her_path);
-    end
+if ~isempty(old_version) && new_version ~= old_version
+    clearvars -global;
+    clearvars config_store MPI_State ;
+    evalin('base','clearvars')
+    clearvars -except horace_path;    
 end
 
+
+% if Herbert is not initiated, try to init it.
+herbert_path = build_default_her_path(horace_path);
+try
+    init_herbert(herbert_path);
+catch ME
+    disp('HORACE:horace_on:invalid_argument: cannot initialise Herbert');
+    rethrow(ME);
+end
 % init Horace
 init_horace(horace_path);
 
 %
 hor = fileparts(which('horace_init'));
 fprintf('HORACE located in folder:\n %s\n',hor)
-
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 end
 
@@ -116,7 +102,7 @@ addpath(trial_path);
 full_path = which('horace_init');
 rmpath(trial_path);
 if isempty(full_path)
-    trial_path = full_path(trial_path,'horace_core');
+    trial_path = fullfile(trial_path,'horace_core');
     if exist(trial_path,'dir') == 7
         root_path = find_root_path(trial_path);
     else
@@ -166,4 +152,40 @@ end
 addpath(path);
 herbert_init;
 
+end
+%
+function ver = this_horace_version(root_path)
+% Returns the version of this instance of Horace
+%
+try
+    ver_func_path = fullfile(root_path,'herbert_core','admin');
+    addpath(ver_func_path);
+    VERSION = herbert_get_build_version();
+catch ME
+    if ~strcmp(ME.identifier, 'MATLAB:UndefinedFunction')
+        rethrow(ME);
+    end
+    VERSION = read_from_version_file(root_path);
+end
+
+
+% If only one output requested return whole version string
+version_numbers = split(VERSION, '.');
+
+% Return as many version numbers as requested
+num_patch_digits = numel(version_numbers{3});
+last_digit = 0.1^num_patch_digits*str2double(version_numbers{3});
+
+ver = 100*str2double(version_numbers{1})+...
+    str2double(version_numbers{2})+last_digit;
+end
+
+
+function version_str = read_from_version_file(ver_path)
+try
+    version_file = fullfile(ver_path , 'VERSION');
+    version_str = [strtrim(fileread(version_file)), '.dev'];
+catch
+    version_str = '0.0.0.dev';
+end
 end
