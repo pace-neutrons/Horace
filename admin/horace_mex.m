@@ -40,10 +40,10 @@ else
     warning('HORACE_MEX:not_implemented',...
         ['Matlab uses %d.%d.%d version of HDF library. ',...
         'HDF mex code is provided for HDF 1.8.12 and 1.8.6 versions only.',...
-        ' You need to download appropriate hdf headers yourseld and modify horace_mex to use your version'],...
+        ' You need to download appropriate hdf headers yourself and modify horace_mex to use your version'],...
         ma,me,mi);
 end
-% lib directirues:
+% lib directories:
 %arc = computer('arch');
 %lib_dir = fullfile(matlabroot,'bin',arc);
 
@@ -92,7 +92,7 @@ try % mex C++
         'compute_pix_sums_c.cpp','compute_pix_sums_helpers.cpp');
 
 
-    % create the procedured to access hdf files
+    % create the procedure to access hdf files
     if build_hdf_reader
         cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
             'pix_block_processor.cpp'};
