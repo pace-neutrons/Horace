@@ -6,7 +6,7 @@
 %background subtraction or thermal population factor correction
 
 %Set the data folder
-folder = '/mnt/nomachine/pace/docs/05_10_corrections_spinw-horace/';
+folder = '/mnt/ceph/auxiliary/pace/docs/05_10_corrections_spinw-horace/';
 
 %Load the example raw sqw file
 sqw_file = ['/instrument/MERLIN/CYCLE20191/RB1910504/', 'CaFe2O4_70meV.sqw'];

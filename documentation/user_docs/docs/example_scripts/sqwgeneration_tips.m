@@ -6,7 +6,7 @@ global edatc_folder output_data_folder
 % Please download a zip of the repository here:
 % https://github.com/pace-neutrons/edatc/archive/refs/heads/main.zip
 % And put the location you unzipped it below:
-edatc_folder = '/mnt/nomachine/pace/edatc';
+edatc_folder = '/mnt/ceph/auxiliary/pace/edatc';
 % Note that you should also download the Zenodo archive here:
 % https://zenodo.org/record/5020485
 % And unzip the contents of that file into the crystal_datafiles folder

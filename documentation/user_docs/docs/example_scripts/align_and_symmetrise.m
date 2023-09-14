@@ -12,7 +12,7 @@
 %do for us.
 
 %Set the data folder
-folder = '/mnt/nomachine/pace/docs/04_06_align_and_symmetrise/';
+folder = '/mnt/ceph/auxiliary/pace/docs/04_06_align_and_symmetrise/';
 
 %Load the example raw sqw file
 sqw_file = [folder 'T15K_B3T_5p50meV.sqw'];
