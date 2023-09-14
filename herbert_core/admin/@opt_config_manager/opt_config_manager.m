@@ -62,7 +62,7 @@ classdef opt_config_manager
         this_pc_memory_ = 8*1024*1024*1024; %default PC memory is 8Gb
     end
     properties(Constant,Access=private)
-        % different pc types, we have optimizezed Horace/Herbert for.         
+        % different pc types, where we have estimated specs for Horace.         
         pc_types_ = {'win_small','win_large','a_mac',...
             'unix_small','unix_large',...
             'idaaas_small','idaaas_large', 'jenkins_win', 'jenkins_unix'};

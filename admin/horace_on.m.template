@@ -1,4 +1,4 @@
-function path=horace4_on(non_default_hor_path)
+function path=horace_on(non_default_hor_path)
 %  safely switches Horace on
 %  horace_on()                         -- initializes Horace with default settings
 %  horace_on(non_default_horace_path)  -- initializes Horace with non-default Horace folder;
@@ -12,7 +12,9 @@ default_horace_path  = '${Horace_CORE}';
 default_spinw_path = '/usr/local/mprogs/spinW';
 
 %
-warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
+warn_state=warning('off','all');    % turn off warnings 
+% (so don't get errors if removing non-existent paths 
+% -- if no package have been initialized before, this is normal situation)
 try
     % get old code version if any available. Will throw if no Horace
     old_version = horace_version('-numeric');

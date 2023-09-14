@@ -40,6 +40,9 @@ elseif isunix
     [nok,mess] = system('lscpu');
     if nok  %still MAC or strange unix without lscpu. Assuming mac.
         pc_type = types('a_mac');
+        warning('HERBERT:unknow_machine',...
+            ['Unknown unix machine, which does not have "lscpu" function has been encountered.\n' ...
+            ' Assuming it is mac and selecting configuration for it.'])
         return;
     end
 
