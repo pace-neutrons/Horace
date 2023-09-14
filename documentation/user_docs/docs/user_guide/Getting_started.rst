@@ -11,7 +11,7 @@ data. To do this we will refer to the demonstration files included in
 
 ::
 
-   C:\mprogs\Horace\demo\
+   <horace_root>\demo\
 
 
 which relate to a real experiment to investigate spin excitations in Fe using
@@ -76,14 +76,14 @@ commands described below is located in:
 
 ::
 
-   C:\mprogs\Horace\demo\demo_make_sqw_fe.m
+   <horace_root>\demo\demo_make_sqw_fe.m
 
 
 First we need to tell Horace where the ``.spe`` files are, so we write:
 
 ::
 
-   indir = 'C:\mprogs\Horace\demo\';
+   indir = '<horace_root>\demo\';
 
 
 We also need to know where the ``.par`` file is, and where the ``.sqw`` file that
@@ -91,8 +91,8 @@ we're making is going to go:
 
 ::
 
-   par_file = 'C:\mprogs\Horace\demo\demo_par.par';
-   sqw_file = 'C:\mprogs\Horace\demo\demo_fe_sqw.sqw;'
+   par_file = '<horace_root>\demo\demo_par.par';
+   sqw_file = '<horace_root>\demo\demo_fe_sqw.sqw;'
 
 
 Next we need to specify the (fixed) incident energy that was used and the
@@ -230,7 +230,7 @@ specifying where the ``i`` th ``.spe`` file is located. So the 5th element of th
 
 ::
 
-   spe_file{5} = 'C:\mprogs\Horace\demo\demo_data\MAP11022.SPE';
+   spe_file{5} = '<horace_root>\demo\demo_data\MAP11022.SPE';
 
 
 We are now ready to make our ``.sqw`` file! This is done by a single function:
@@ -301,7 +301,7 @@ located:
 
 ::
 
-   data_source = 'C:\mprogs\Horace\demo\demo_fe_sqw.sqw';
+   data_source = '<horace_root>\demo\demo_fe_sqw.sqw';
 
 
 which is of course the location of the ``.sqw`` file we created in the previous
@@ -447,7 +447,7 @@ would be:
 
 ::
 
-   cut_file = 'C:\mprogs\Horace\demo\plots\w100_1.sqw';
+   cut_file = '<horace_root>\demo\plots\w100_1.sqw';
 
    w100_1b = cut(data_source, proj_100, [-0.2, 0.2], 0.05, [-0.2, 0.2], [60, 70], cut_file);
 
@@ -571,7 +571,7 @@ First create a new 2D slice and save to file:
 
 ::
 
-   cut_file = 'C:\mprogs\Horace\demo\w110.sqw';
+   cut_file = '<horace_root>\demo\w110.sqw';
 
    cut(data_source, proj_110, [-0.2,0.2], [1,0.05,5], [-0.2,0.2], [0,0,150], cut_file);
 
@@ -663,7 +663,7 @@ Read through the code in:
 
 ::
 
-   C:\mprogs\Horace\functions\demo_4gauss.m
+   <horace_root>\functions\demo_4gauss.m
 
 
 to see if you can understand how the function works.
