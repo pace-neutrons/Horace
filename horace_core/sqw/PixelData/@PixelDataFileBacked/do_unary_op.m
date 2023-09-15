@@ -81,5 +81,6 @@ function pix_out = unary_op_no_dnd(pix_out, unary_op)
     pix_out.data_range = data_range;
 
     pix_out = pix_out.finish_dump();
+    pix_out.page_num = 1;
 
 end

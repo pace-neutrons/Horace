@@ -30,7 +30,7 @@ for i = 1:num_pages
     end
 
     sig_var = ...
-        sigvar_binary_op_(pix_sigvar, obj_sigvar, binary_op, flip);
+        obj.sigvar_binary_op(pix_sigvar, obj_sigvar, binary_op, flip);
 
     data(sv_ind, :) = sig_var;
 

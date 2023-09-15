@@ -20,7 +20,7 @@ if pixel_data.is_filebacked
     % TODO: #975 loop have to be moved level up calculating image in single
     % loop too
     num_pages= obj.num_pages;
-    this_sigvar = sigvar();	
+    this_sigvar = sigvar();
     other_sigvar =sigvar();
     for i = 1:num_pages
         obj.page_num = i;
@@ -31,14 +31,14 @@ if pixel_data.is_filebacked
         other_sigvar.sig_var = pixel_data.sig_var;
 
         sig_var = ...
-            sigvar_binary_op_(this_sigvar, other_sigvar, binary_op, flip);
+            obj.sigvar_binary_op(this_sigvar, other_sigvar, binary_op, flip);
 
         data(sv_ind, :) = sig_var;
 
         obj = obj.format_dump_data(data);
 
         obj.data_range = ...
-            obj.pix_minmax_ranges(data, obj.data_range);
+            obj.pix_minmax_ranges(data, obj.data_range_);
 
     end
 
@@ -48,25 +48,27 @@ else
     % TODO: #975 loop have to be moved level up calculating image in single
     % loop too
     num_pages= obj.num_pages;
+    this_sigvar = sigvar();
+    other_sigvar = sigvar();
     for i = 1:num_pages
         obj.page_num = i;
         data = obj.data;
 
-        [start_idx, end_idx] = obj.get_page_idx_(i);
+        this_sigvar.sig_var = obj.sig_var;
+        % this is different from above
+        [start_idx, end_idx] = obj.get_page_idx_(i);        
+        other_sigvar.sig_var = pixel_data.sig_var(:,start_idx:end_idx);
+        %
+        
+        sig_var = ...
+            obj.sigvar_binary_op(this_sigvar, other_sigvar, binary_op, flip);
 
-        this_sigvar = sigvar(obj.signal, obj.variance);
-        other_sigvar = sigvar(pixel_data.signal(start_idx:end_idx), ...
-            pixel_data.variance(start_idx:end_idx));
-
-        [signal, variance] = ...
-            sigvar_binary_op_(this_sigvar, other_sigvar, binary_op, flip);
-
-        data(s_ind, :) = signal;
-        data(v_ind, :) = variance;
+        data(sv_ind, :) = sig_var;
 
         obj = obj.format_dump_data(data);
+
         obj.data_range = ...
-            obj.pix_minmax_ranges(data, obj.data_range);
+            obj.pix_minmax_ranges(data, obj.data_range_);
 
     end
 end

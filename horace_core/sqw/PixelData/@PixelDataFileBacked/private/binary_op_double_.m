@@ -39,7 +39,7 @@ for i = 1:num_pages
     double_sigvar = double_array(start_idx:end_idx);     % TGP 2021-04-11: to work with new classdef sigvar
 
     sig_var = ...
-        sigvar_binary_op_(pix_sigvar, double_sigvar, binary_op, flip);
+        obj.sigvar_binary_op(pix_sigvar, double_sigvar, binary_op, flip);
 
     data(sv_ind, :) = sig_var;
 

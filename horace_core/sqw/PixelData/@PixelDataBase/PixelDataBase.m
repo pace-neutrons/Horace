@@ -858,8 +858,15 @@ classdef (Abstract) PixelDataBase < serializable
             pix_out = pack_get_pix_result_(obj,pix_data, ...
                 ignore_range,raw_data,keep_precision,align);
         end
-        %------------------------------------------------------------------
-
+    end
+    %======================================================================
+    % Static Helper methods.
+    methods(Static,Access = protected)
+        function sig_var = sigvar_binary_op(sigvar1, sigvar2, binary_op, flip)
+            %perform the given binary operation on two sigvar objects or
+            % between a sigvar object and a double scalar or array
+            sig_var = sigvar_binary_op_(sigvar1, sigvar2, binary_op, flip);
+        end
     end
 
     %======================================================================

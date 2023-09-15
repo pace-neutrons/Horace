@@ -20,7 +20,7 @@ for i = 1:num_pages
     scalar_sigvar = scalar;     % TGP 2021-04-11: to work with new classdef sigvar
 
     sig_var = ...
-        sigvar_binary_op_(pix_sigvar, scalar_sigvar, binary_op, flip);
+        obj.sigvar_binary_op(pix_sigvar, scalar_sigvar, binary_op, flip);
 
     data(sv_ind, :) = sig_var;
 

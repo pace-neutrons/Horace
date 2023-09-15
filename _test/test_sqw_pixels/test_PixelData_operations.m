@@ -70,9 +70,9 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             % Make temp file
             sin_pix = pix.do_unary_op(@sin);
-            data = sin_pix.get_pixels();
+            pg_data = sin_pix.get_pixels('-raw');
 
-            % Copy
+            % shallow? Copy
             sin_pix_cpy = PixelDataFileBacked(sin_pix);
             assertEqual(sin_pix.full_filename, sin_pix_cpy.full_filename)
 
@@ -81,7 +81,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertFalse(equal_to_tol(sin_pix.full_filename, sin_pix_cpy.full_filename))
             assertTrue(is_file(sin_pix.full_filename))
             assertTrue(is_file(sin_pix_cpy.full_filename))
-            assertEqualToTol(sin_pix_cpy.data, data)
+            assertEqualToTol(sin_pix_cpy.data, pg_data)
         end
 
         function test_unary_op_memory_vs_filebacked(obj)
@@ -149,7 +149,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 catch ME
                     fprintf('failure at operation N%d, functon %s\n', ...
                         i,func2str(unary_op))
-                    rethrow(ME)                    
+                    rethrow(ME)
                 end
             end
         end
