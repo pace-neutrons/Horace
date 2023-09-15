@@ -53,6 +53,8 @@ classdef MPI_State<handle
         time_per_step_= 0;
         mpi_framework_ = [];
         debug_log_handle_ = [];
+        % counter for number of calls, this class is invoked
+        ref_conter_ = 0;
     end
     properties(Constant, Access=protected)
         % methods to set using setattr method
@@ -69,12 +71,16 @@ classdef MPI_State<handle
     methods(Static)
         function obj = instance(varargin)
             persistent obj_state;
-            if nargin>0 && ischar(varargin{1}) && strcmpi(varargin{1},'clear')
-                obj_state = [];
+            if nargin>0 && ischar(varargin{1}) 
+                obj_state = [];                
+                if strcmpi(varargin{1},'delete')
+                    return;
+                end
             end
             if isempty(obj_state)
                 obj_state = MPI_State();
             end
+            obj_state.ref_conter_ = obj_state.ref_conter_ + 1;
             obj=obj_state;
         end
     end
@@ -240,18 +246,16 @@ classdef MPI_State<handle
                 obj.(varargin{i}) = varargin{i+1};
             end
         end
+        %
         function delete(obj)
+            obj.ref_conter_ = obj.ref_conter_ -1;
+            if obj.ref_conter_ > 0
+                return;
+            end
             if ~isempty(obj.debug_log_handle_)
                 fclose(obj.debug_log_handle_);
             end
-            obj.is_deployed_=false;
-            obj.logger_ = [];
-            obj.check_cancelled_=[];
-            obj.is_tested_ = false;
-            obj.start_time_=[];
-            obj.time_per_step_= 0;
-            obj.mpi_framework_ = [];
-            obj.debug_log_handle_ = [];
+            obj.instance('delete');
         end
     end
 end

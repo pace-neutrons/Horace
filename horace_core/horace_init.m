@@ -1,11 +1,16 @@
-function horace_init
+function horace_init(no_banner)
 % Adds the paths needed by Horace - sqw version
 %
 % In your startup.m, add the Horace root path and call horace_init, e.g.
 %       addpath('c:\mprogs\horace')
 %       horace_init
 % Is PC and Unix compatible.
-
+%
+%Optional input:
+%
+%  no_banner   -- if the variable is present, routine does not print Horace baner
+%
+% Initial author:
 % T.G.Perring
 %
 %
@@ -106,8 +111,9 @@ end
 % Beta version: Suppress warning occurring when old instrument is stored in
 % an sqw file and is automatically converted into MAPS
 warning('off','SQW_FILE:old_version')
-
-print_banner();
+if nargin == 0
+    print_banner();
+end
 
 %--------------------------------------------------------------------------
 function addpath_message (type,varargin)

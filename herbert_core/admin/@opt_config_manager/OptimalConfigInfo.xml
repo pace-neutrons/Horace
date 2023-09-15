@@ -96,8 +96,8 @@
       <hpc_config>
          <build_sqw_in_parallel>[false]</build_sqw_in_parallel>
          <combine_sqw_using>mex_code</combine_sqw_using>
-         <mex_combine_thread_mode>1</mex_combine_thread_mode>
-         <mex_combine_buffer_size>8192</mex_combine_buffer_size>
+         <mex_combine_thread_mode>0</mex_combine_thread_mode>
+         <mex_combine_buffer_size>131072</mex_combine_buffer_size>
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
@@ -124,7 +124,7 @@
       <hpc_config>
          <build_sqw_in_parallel>[true]</build_sqw_in_parallel>
          <combine_sqw_using>mex_code</combine_sqw_using>
-         <mex_combine_thread_mode>1</mex_combine_thread_mode>
+         <mex_combine_thread_mode>0</mex_combine_thread_mode>
          <mex_combine_buffer_size>131072</mex_combine_buffer_size>
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>

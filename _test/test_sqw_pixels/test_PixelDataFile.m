@@ -198,6 +198,47 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
             assertEqual(pdf.pix_range,PixelDataBase.EMPTY_RANGE_)
             assertEqual(pdf.data_range,PixelDataBase.EMPTY_RANGE)
         end
+        function test_tail(~)
+            wkdir = tmp_dir();
+            tmp_file = fullfile(wkdir,'test_tail.bin');
+            clOb = onCleanup(@()del_memmapfile_files(tmp_file));
 
+            npix = 200;
+            ncols = 9;
+            data = rand(ncols,npix);
+            tail_size = 100;
+            [offset,tail_pos]=test_PixelDataFile.write_test_pix_data(tmp_file,data,tail_size);
+
+            data_size = size(data);
+            format1 = {'single',data_size,'data'};
+            fh1 = memmapfile(tmp_file,'format', format1,'Repeat', 1, ...
+                'Writable', true,'offset', offset);
+            pix_data = fh1.Data.data(:,1:npix);
+            assertEqual(pix_data,single(data));
+
+            format2 = {'single',data_size,'data';'uint8',4*double(tail_size),'tail'};
+            fh2 = memmapfile(tmp_file,'format', format2,'Repeat', 1, ...
+                'Writable', true,'offset', offset);
+            pix_data2 = fh2.Data.data(:,1:npix);
+            assertEqual(pix_data2,single(data));
+            clear('fh2');
+            clear('fh1');
+        end
+    end
+    methods(Static,Access=private)
+        function [data_pos,tail_pos] = write_test_pix_data(filename,data,tail_size)
+            fh = fopen(filename,'wb+');
+            if fh<1
+                error('HORACE:test','can not open test file');
+            end
+            clOb = onCleanup(@()fclose(fh));
+            datasize  = size(data);
+            fwrite(fh,datasize,'float32');
+            data_pos = ftell(fh);
+            fwrite(fh,data,'float32');
+            tail_pos = ftell(fh);
+            tail = 1:tail_size;
+            fwrite(fh,tail,'float32');
+        end
     end
 end
