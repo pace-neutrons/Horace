@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Align and Symmetrise &mdash; Horace 4.0.0.a2d1f2c36 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Basic Usage" href="basic_usage.html" />
+    <link rel="prev" title="Advanced Plotting" href="advanced_plotting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.0.0.a2d1f2c36
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Horace_diagnostics.html">Horace Diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced_plotting.html">Advanced Plotting</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Align and Symmetrise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_usage.html">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corrections.html">Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_corrections.html">Data Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnd_vs_sqw.html">dnd vs sqw: the difference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gpo_fitting_spinw.html">GPO fitting SpinW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horace_whole_course_full_script.html">Horace course</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sample_misalignment.html">Sample Misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulation_fitting.html">Simulation Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spinw_gpo_1dfit.html">Spinw GPO 1dfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spurions.html">Spurions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqwgeneration_tips.html">SQW Generation tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="symmetrisation.html">Symmetrisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Example_scripts.html">Example Scripts</a> &raquo;</li>
+      <li>Align and Symmetrise</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/example_scripts/align_and_symmetrise.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="align-and-symmetrise">
+<h1>Align and Symmetrise<a class="headerlink" href="#align-and-symmetrise" title="Permalink to this headline"></a></h1>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Worked example script to correct for sample misalignment and symmetrise</span>
+<span class="c">%data to improve the statistics</span>
+
+<span class="c">%Christian Balz 25/07/2022</span>
+
+<span class="c">%In order to symmetrise data we first need to correct for any existing</span>
+<span class="c">%sample misalingment. As the symmetrisation routines will asume the sample</span>
+<span class="c">%to be perfectly alignetd they will create false results if it is not done</span>
+<span class="c">%in this order. We will start with a raw sqw file and apply the sample</span>
+<span class="c">%alignment corrections after fitting a set of Bragg peaks. Then we</span>
+<span class="c">%will take this corrected sqw and see what the symmetrisation routines can</span>
+<span class="c">%do for us.</span>
+
+<span class="c">%Set the data folder</span>
+<span class="n">folder</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/mnt/ceph/auxiliary/pace/docs/04_06_align_and_symmetrise/&#39;</span><span class="p">;</span>
+
+<span class="c">%Load the example raw sqw file</span>
+<span class="n">sqw_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">folder</span><span class="w"> </span><span class="s">&#39;T15K_B3T_5p50meV.sqw&#39;</span><span class="p">];</span>
+
+<span class="c">%Create a series of 3 perpendicular slices to see the misalignment</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]);</span>
+
+<span class="n">slice1</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="mf">0.02</span><span class="p">,</span><span class="w"> </span><span class="mf">0.02</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span><span class="w"> </span><span class="mf">0.25</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">slice1</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span><span class="p">;</span>
+<span class="n">grid</span><span class="w"> </span><span class="s">on</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">slice2</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span><span class="w"> </span><span class="mf">0.25</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">slice2</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span><span class="p">;</span>
+<span class="n">grid</span><span class="w"> </span><span class="s">on</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">slice3</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span><span class="w"> </span><span class="mf">0.25</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">slice3</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span><span class="p">;</span>
+<span class="n">grid</span><span class="w"> </span><span class="s">on</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">%We can see that we have covered 11 Bragg peaks in the horizontal</span>
+<span class="c">%scattering plane. By comparing the Bragg peak positions with the grid</span>
+<span class="c">%positions we can see the misalignment of the sample. This is especially</span>
+<span class="c">%visible in slice2 and slice3.</span>
+
+<span class="c">%Now we have to work out what the nominal Bragg peak positions are.</span>
+<span class="c">%Calculating it from the x- and y-axes labels of slice1 we get</span>
+
+<span class="n">bragg_peaks</span><span class="p">=[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span><span class="k">...</span>
+<span class="w">             </span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">];</span>
+
+<span class="c">%Now we have to get the actual Bragg peak positions by fitting Gaussians</span>
+<span class="c">%through our elastic scattering data. The function bragg_positions takes</span>
+<span class="c">%one radial and two transverse cuts though every nominal Bragg peak</span>
+<span class="c">%position. We have to define the cut length, the step size along the cut,</span>
+<span class="c">%the perpendicular integration ranges, and energy integration range.</span>
+
+<span class="p">[</span><span class="n">rlu0</span><span class="p">,</span><span class="w"> </span><span class="nb">width</span><span class="p">,</span><span class="w"> </span><span class="n">wcut</span><span class="p">,</span><span class="w"> </span><span class="n">wpeak</span><span class="p">]=</span><span class="n">bragg_positions</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">bragg_peaks</span><span class="p">,</span><span class="w"> </span><span class="mf">0.4</span><span class="p">,</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="w">                                 </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.4</span><span class="p">,</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.25</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;gauss&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;bin_ab&#39;</span><span class="p">);</span>
+
+<span class="c">%Use the command below to plot the fits and see how good they are. Scroll</span>
+<span class="c">%through the fits by pressing Return</span>
+
+<span class="n">bragg_positions_view</span><span class="p">(</span><span class="n">wcut</span><span class="p">,</span><span class="w"> </span><span class="n">wpeak</span><span class="p">)</span>
+
+<span class="c">%After you are satisfied with your fit you can use the fitted Bragg peak</span>
+<span class="c">%positions stored in rlu0 to refine the lattice parameters and create the</span>
+<span class="c">%rotation matrix rlu_corr that relates the notational rlu to the true rlu.</span>
+
+<span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">12.302</span><span class="p">,</span><span class="w"> </span><span class="mf">12.302</span><span class="p">,</span><span class="w"> </span><span class="mf">12.302</span><span class="p">];</span><span class="w">   </span><span class="c">% original lattice parameters</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">];</span><span class="w">              </span><span class="c">% cubic symmetry</span>
+<span class="p">[</span><span class="n">rlu_corr</span><span class="p">,</span><span class="w"> </span><span class="n">alatt_corr</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg_corr</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">refine_crystal</span><span class="p">(</span><span class="n">rlu0</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="w">    </span><span class="n">bragg_peaks</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;fix_angdeg&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;fix_alatt_ratio&#39;</span><span class="p">);</span>
+
+<span class="c">%Now that we have found the misalignment described by the rotation matrix</span>
+<span class="c">%rlu_corr we can calculate the goniometer offsets that we can use in</span>
+<span class="c">%gen_sqw to correct for the sample misalignment.</span>
+
+<span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="c">%original u</span>
+<span class="n">v</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">];</span><span class="c">%original v</span>
+<span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">12.302</span><span class="p">,</span><span class="w"> </span><span class="mf">12.302</span><span class="p">,</span><span class="w"> </span><span class="mf">12.302</span><span class="p">];</span><span class="w">   </span><span class="c">% original lattice parameters</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">];</span><span class="c">%cubic symmetry</span>
+
+<span class="c">%original goniometer values</span>
+<span class="n">omega</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">dpsi</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">gl</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">gs</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+
+<span class="p">[</span><span class="n">alatt_corr</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg_corr</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">crystal_pars_correct</span><span class="k">...</span>
+<span class="w">    </span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="w"> </span><span class="n">rlu_corr</span><span class="p">);</span>
+
+<span class="c">%Like this we get the corrected lattice parameters and the values of the</span>
+<span class="c">%goniometers dpsi, gl, and gs. These can be used for any subsequent</span>
+<span class="c">%generation of sqw files to correct for the misalignment.</span>
+<span class="p">[</span><span class="n">alatt_corr</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">]</span>
+
+<span class="c">%Lastly if we do not want to generate a new sqw file at this point we can</span>
+<span class="c">%copy and correct the existing sqw file by</span>
+<span class="n">sqw_file_corr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">folder</span><span class="w"> </span><span class="s">&#39;T15K_B3T_5p50meV_corr.sqw&#39;</span><span class="p">];</span>
+<span class="nb">copyfile</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file_corr</span><span class="p">)</span>
+<span class="n">change_crystal</span><span class="p">(</span><span class="n">sqw_file_corr</span><span class="p">,</span><span class="w"> </span><span class="n">rlu_corr</span><span class="p">);</span>
+
+<span class="c">%Let us check slice2 and slice3 from above if the misalignment is now</span>
+<span class="c">%corrected:</span>
+
+<span class="n">sqw_file_corr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">folder</span><span class="w"> </span><span class="s">&#39;T15K_B3T_5p50meV_corr.sqw&#39;</span><span class="p">];</span>
+
+<span class="n">slice2_corr</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file_corr</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span><span class="w"> </span><span class="mf">0.25</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">slice2_corr</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span><span class="p">;</span>
+<span class="n">grid</span><span class="w"> </span><span class="s">on</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">slice3_corr</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file_corr</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span><span class="w"> </span><span class="mf">0.25</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">slice3_corr</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span><span class="p">;</span>
+<span class="n">grid</span><span class="w"> </span><span class="s">on</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">%Now that we have corrected the alignment we can apply symmetry operations</span>
+<span class="c">%to improve statistics by combining equivalent areas of reciprocal space.</span>
+
+<span class="c">%In this example we know that we have a 2-fold rotation axis along [1,1,0]</span>
+<span class="c">%and equivalent directions. One of the directions overed in our 140 degree</span>
+<span class="c">%rotation is [-1,0,-1]. We can include the following symmetrisation command</span>
+<span class="c">%in &quot;gen_sqw&quot; after the &quot;transform_sqw&quot; keyword:</span>
+
+<span class="c">%(x)(symmetrise_sqw(x,[-1,0,-1],[-1,1,1],[0,0,0]))</span>
+
+<span class="c">%A sqw file with the symmetry operation applied is located here:</span>
+<span class="n">sqw_file_corr_sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">folder</span><span class="w"> </span><span class="s">&#39;T15K_B3T_5p50meV_corr_sym.sqw&#39;</span><span class="p">];</span>
+
+<span class="c">%To see what the operation has done to our dataset one can plot the</span>
+<span class="c">%horizontal scattering plane after symmetrisation:</span>
+
+<span class="n">slice1_sym</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file_corr_sym</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="mf">0.02</span><span class="p">,</span><span class="w"> </span><span class="mf">0.02</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span><span class="w"> </span><span class="mf">0.25</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">slice1_sym</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span><span class="p">;</span>
+<span class="n">grid</span><span class="w"> </span><span class="s">on</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">%Looking at inealstic data we often suffer from weak statistics. Here you</span>
+<span class="c">%can see that symmetrisation has improved statistics for a particular slice</span>
+<span class="c">%through the sqw:</span>
+
+<span class="c">%before symmetrisation:</span>
+<span class="n">proj2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">slice4_corr</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file_corr</span><span class="p">,</span><span class="w"> </span><span class="n">proj2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="mf">0.04</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">slice4_corr</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.25</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">%after symmetrisation</span>
+<span class="n">slice4_corr_sym</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file_corr_sym</span><span class="p">,</span><span class="w"> </span><span class="n">proj2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="mf">0.04</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">slice4_corr_sym</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.25</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">%Note: One has to be careful with symmetrisations. In this example we have</span>
+<span class="c">%applied a mirror plane symmetry for a 2-fold rotation axis. This is</span>
+<span class="c">%technically not correct. However we were only looking at a slice centered</span>
+<span class="c">%in a narrow region around the horizontal scattering plane where the error</span>
+<span class="c">%due to our symetry operation is minimal.</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="advanced_plotting.html" class="btn btn-neutral float-left" title="Advanced Plotting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="basic_usage.html" class="btn btn-neutral float-right" title="Basic Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Sep 15, 2023, 4:46:32 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/example_scripts/align_and_symmetrise.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced use &mdash; Horace 4.0.0.a2d1f2c36 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Resolution Convolution" href="Resolution_convolution.html" />
+    <link rel="prev" title="Horace GUI" href="Horace_GUI.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.0.0.a2d1f2c36
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../User_guide.html">User’s Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Horace_GUI.html">Horace GUI</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Advanced use</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#preamble">Preamble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#help">Help</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-an-object-from-scratch">Creating an object from scratch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reading-and-writing-to-file">Reading and writing to file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#binary-operations">Binary operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unary-operations">Unary operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#obtaining-information-about-objects">Obtaining information about objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reformatting-the-data">Reformatting the data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plotting">Plotting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simulating">Simulating</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fitting">Fitting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sqw-generation-and-manipulation">SQW generation and manipulation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Resolution_convolution.html">Resolution Convolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Interfacing_with_other_programs.html">Interfacing with other programs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../User_guide.html">User’s Guide</a> &raquo;</li>
+      <li>Advanced use</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user_guide/Advanced_use.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="advanced-use">
+<h1>Advanced use<a class="headerlink" href="#advanced-use" title="Permalink to this headline"></a></h1>
+<p>The following describes the functions in the Horace suite in more comprehensive detail. In the <a class="reference internal" href="Getting_started.html#getting-started"><span class="std std-ref">Getting started</span></a> section there is a brief tutorial on the use of the essential Horace
+functions. In addition there is also a <a class="reference internal" href="../manual/List_of_functions.html#list-of-functions"><span class="std std-ref">list of functions</span></a>, which
+details the syntax for every function.</p>
+<section id="preamble">
+<h2>Preamble<a class="headerlink" href="#preamble" title="Permalink to this headline"></a></h2>
+<p>Horace has been designed to make use of the fact that Matlab can be written in an ‘object-oriented’ manner. We will not
+go into the (numerous) technical details of object oriented programming here, except to make a few points about why it
+is advantageous for the case of Horace to be written this way.</p>
+<p>Examples of objects in Matlab include double-precision arrays, strings, cell arrays, structure arrays,… There are
+certain operations or functions that can only be applied to one kind of object, and are undefined for others. For
+example the <code class="docutils literal notranslate"><span class="pre">det</span></code> operation (which calculates the determinant of a matrix) does not work when applied to a string:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">A</span><span class="p">=[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">3</span><span class="w"> </span><span class="s">4]</span><span class="p">;</span>
+<span class="n">A</span><span class="w"> </span><span class="p">=</span>
+
+<span class="w">     </span><span class="mi">1</span><span class="w">     </span><span class="mi">2</span>
+<span class="w">     </span><span class="mi">3</span><span class="w">     </span><span class="mi">4</span>
+
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">B</span><span class="p">=</span><span class="nb">det</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+
+<span class="n">B</span><span class="w"> </span><span class="p">=</span>
+
+<span class="w">    </span><span class="o">-</span><span class="mi">2</span>
+
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">C</span><span class="p">=</span><span class="s">&#39;hello&#39;</span>
+
+<span class="n">C</span><span class="w"> </span><span class="p">=</span>
+
+<span class="n">hello</span>
+
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">D</span><span class="p">=</span><span class="nb">det</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+???<span class="w"> </span><span class="n">Undefined</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">method</span><span class="w"> </span><span class="s">&#39;det&#39;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nb">input</span><span class="w"> </span><span class="nb">arguments</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="nb">type</span><span class="w"> </span><span class="s">&#39;char&#39;</span><span class="p">.</span>
+</pre></div>
+</div>
+<p>In technical terms the function <code class="docutils literal notranslate"><span class="pre">det</span></code> is not a “method” of (i.e. function that works on) string objects.</p>
+<p>Matlab allows you to create your own objects, and methods to go with them, and this is what has been done with
+Horace. The objects are named d0d, d1d, d2d, d3d, d4d, and sqw, which correspond to 0D datasets, 1D datasets,…, 4D
+datasets without pixel information, and general datasets of any dimensionality with full detector pixel information
+retained. The methods that apply to these objects are contained within the directories <code class="docutils literal notranslate"><span class="pre">Horace\horace_core\sqw\&#64;d0d</span></code>
+etc. Methods that apply to different objects can have the same name, and there are several examples of this within
+Horace, e.g. if you type <code class="docutils literal notranslate"><span class="pre">plot(w)</span></code> then the object <code class="docutils literal notranslate"><span class="pre">w</span></code> will be plotted because there is a <code class="docutils literal notranslate"><span class="pre">plot</span></code> method in all of
+the d1d, d2d, d3d, and sqw directories (<strong>N.B.</strong> 0D and 4D types are not plottable in Horace).</p>
+</section>
+<section id="help">
+<h2>Help<a class="headerlink" href="#help" title="Permalink to this headline"></a></h2>
+<p>To get help concerning a Horace function there are two options, in addition to reading this manual. Simply typing</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">doc</span><span class="w"> </span><span class="n">function_name</span>
+</pre></div>
+</div>
+<p>OR</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">help</span><span class="w"> </span><span class="n">function_name</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">function_name</span></code> is the name of the function you wish to get help with, usually works. For some functions the
+help given by this method is rather terse. For more detailed help you can type</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">horace_help</span><span class="w"> </span><span class="s">function_name</span>
+</pre></div>
+</div>
+<p>If a more detailed help message is available then it will be printed in the Matlab command window. If more detailed
+information is not available then an error is returned.</p>
+</section>
+<section id="creating-an-object-from-scratch">
+<h2>Creating an object from scratch<a class="headerlink" href="#creating-an-object-from-scratch" title="Permalink to this headline"></a></h2>
+<p>Suppose you wish to simulate the scattering over a particular region of reciprocal space, independent of any
+experimental data you have collected. To do this you can create a dnd (where <code class="docutils literal notranslate"><span class="pre">n</span></code> is any number between 0 and 4) from
+scratch that matches your own specifications. Since the sqw object contains detector pixel information it should not be
+created from scratch except in certain circumstances, described later. The command structure to do this is quite
+straightforward, and we will illustrate it with an example where we create a d2d object.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">a</span><span class="p">=</span><span class="mf">3.8</span><span class="p">;</span><span class="w"> </span><span class="n">b</span><span class="p">=</span><span class="mf">3.8</span><span class="p">;</span><span class="w"> </span><span class="n">c</span><span class="p">=</span><span class="mf">12.5</span><span class="p">;</span>
+<span class="n">u0</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
+<span class="n">u1</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
+<span class="n">u2</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span>
+<span class="n">p1</span><span class="p">=[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span>
+<span class="n">p2</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">];</span>
+<span class="n">w_2d</span><span class="p">=</span><span class="n">d2d</span><span class="p">([</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">],</span><span class="n">u0</span><span class="p">,</span><span class="n">u1</span><span class="p">,</span><span class="n">p1</span><span class="p">,</span><span class="n">u2</span><span class="p">,</span><span class="n">p2</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The parameters <code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">b</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code> are the lattice parameters. <code class="docutils literal notranslate"><span class="pre">u0</span></code> is the offset co-ordinates of the origin of all
+four axes, so in this case the reciprocal lattice points stated will be relative to <strong>Q</strong>=(0,1,2) and E=0. <code class="docutils literal notranslate"><span class="pre">u1</span></code>. and
+<code class="docutils literal notranslate"><span class="pre">u2</span></code> give the directions of the axes for our object, so in this case one axis is energy and the other is
+(1,0,0). <code class="docutils literal notranslate"><span class="pre">p1</span></code> and <code class="docutils literal notranslate"><span class="pre">p2</span></code> are vectors of the form <code class="docutils literal notranslate"><span class="pre">[lower</span> <span class="pre">limit,</span> <span class="pre">step,</span> <span class="pre">upper</span> <span class="pre">limit]</span></code>, i.e. they specify the range and
+step size of the object’s variable axes.</p>
+<p>In order to see the data within our d2d object <code class="docutils literal notranslate"><span class="pre">w_2d</span></code> we cannot just click on it in the Matlab workspace. We instead
+have to use the command</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">array_out</span><span class="p">=</span><span class="nb">get</span><span class="p">(</span><span class="n">w_2d</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which gives us a structure array called <code class="docutils literal notranslate"><span class="pre">array_out</span></code> which has the following fields:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">array_out</span><span class="w"> </span><span class="p">=</span>
+
+<span class="w">     </span><span class="n">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">     </span><span class="n">filepath</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">    </span><span class="nb">title</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">    </span><span class="n">alatt</span><span class="p">:[</span><span class="w"> </span><span class="mf">3.8000</span><span class="w"> </span><span class="mf">3.8000</span><span class="w"> </span><span class="mf">3.8000</span><span class="p">]</span>
+<span class="w">    </span><span class="n">angdeg</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="w"> </span><span class="mi">90</span><span class="w"> </span><span class="mi">90</span><span class="p">]</span>
+<span class="w">    </span><span class="n">uoffset</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">    </span><span class="n">u_to_rlu</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>4<span class="n">x4</span><span class="w"> </span><span class="nb">double</span><span class="p">]</span>
+<span class="w">     </span><span class="n">ulen</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">1.6535</span><span class="w"> </span><span class="mf">1.6535</span><span class="w"> </span><span class="mf">0.5027</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span>
+<span class="w">    </span><span class="n">ulabel</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;\\zeta&#39;</span><span class="w">  </span><span class="s">&#39;\\xi&#39;</span><span class="w">  </span><span class="s">&#39;\\eta&#39;</span><span class="w">  </span><span class="s">&#39;E&#39;</span><span class="p">}</span>
+<span class="w">    </span><span class="n">iax</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span>
+<span class="w">    </span><span class="n">iint</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>2<span class="n">x2</span><span class="w"> </span><span class="nb">double</span><span class="p">]</span>
+<span class="w">    </span><span class="n">pax</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span>
+<span class="w">    </span><span class="n">p</span><span class="p">:</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x2</span><span class="w"> </span><span class="nb">cell</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="n">dax</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span>
+<span class="w">    </span><span class="n">s</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>41<span class="n">x101</span><span class="w"> </span><span class="nb">double</span><span class="p">]</span>
+<span class="w">    </span><span class="n">e</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>41<span class="n">x101</span><span class="w"> </span><span class="nb">double</span><span class="p">]</span>
+<span class="w">    </span><span class="n">npix</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>41<span class="n">x101</span><span class="w"> </span><span class="nb">double</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>It should be fairly clear what most of the fields of this structure array are, but it is useful to point out a couple of
+important ones now:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ulen</span></code> gives the conversion factor between reciprocal lattice units and <span class="math notranslate nohighlight">\(\\AA^{-1}\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pax</span></code> and <code class="docutils literal notranslate"><span class="pre">iax</span></code> tell us that the parameter axes are the 1st and 4th, and that the integration axes (i.e the fixed
+ones) are the 2nd and 3rd.</p></li>
+<li><p>The fields <code class="docutils literal notranslate"><span class="pre">s</span></code> and <code class="docutils literal notranslate"><span class="pre">e</span></code> are arrays which contain the scattering signal and the variance (i.e. the square of the
+errorbar that is plotted). These arrays are filled with zeros when the object is created in this manner.</p></li>
+<li><p>The cell array called <code class="docutils literal notranslate"><span class="pre">p</span></code> contains two vectors which specify the bin boundaries of the pixels which were specified
+during the object creation.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">pax</span></code> and <code class="docutils literal notranslate"><span class="pre">dax</span></code> vectors respectively specify which of the axes (from the columns of <code class="docutils literal notranslate"><span class="pre">u_to_rlu</span></code>) are variables
+(as opposed to being integrated over), and which way round the axes will be when plotted.</p></li>
+<li><p>Finally there is the array called <code class="docutils literal notranslate"><span class="pre">npix</span></code>. This tells us whether a pixel is contributing to the scattering, so it is 1 when
+the corresponding element of <code class="docutils literal notranslate"><span class="pre">s</span></code> is a number, and is zero if the corresponding element of <code class="docutils literal notranslate"><span class="pre">s</span></code> is NaN.</p></li>
+</ul>
+<p>If you wish to create an sqw object then there are only two possible inputs you can give to the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> command. You
+must supply either a file name where sqw data can be found, or you can supply a structure array that has all of the
+appropriate fields for an sqw object in it. That is to say if you typed:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="p">=</span><span class="n">sqw</span><span class="p">(</span><span class="n">struc_array</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">struc_array</span></code> would have to be the same as the structure array that would be returned when typing <code class="docutils literal notranslate"><span class="pre">get(output)</span></code>.</p>
+<p>The fields that should be present in the structure array associated with an sqw object are</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">main_header</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x1</span><span class="w"> </span><span class="nb">struct</span><span class="o">&gt;</span>
+<span class="n">header</span><span class="w"> </span><span class="o">&lt;</span><span class="n">nx1</span><span class="w"> </span><span class="nb">cell</span><span class="o">&gt;</span>
+<span class="n">detpar</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x1</span><span class="w"> </span><span class="nb">struct</span><span class="o">&gt;</span>
+<span class="n">data</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x1</span><span class="w"> </span><span class="nb">struct</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">main_header</span></code> structure array contains information about the experimental sqw dataset from which the sqw object
+was derived, specifically the filename, file directory, information about the title (if any) and the number of SPE files
+used to generate the SQW file. For example the main_header array might look like this:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="w"> </span><span class="s">&#39;w2a.sqw&#39;</span>
+<span class="n">filepath</span><span class="w"> </span><span class="s">&#39;c:\\temp&#39;</span>
+<span class="nb">title</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="n">nfiles</span><span class="w"> </span><span class="s">186</span>
+</pre></div>
+</div>
+<p>The header cell array itself contains more structure arrays, one for each of the SPE files that contributed to the
+original SQW file. The fields of one of these structure arrays might look like this:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="w"> </span><span class="s">&#39;map11014.spe&#39;</span>
+<span class="n">filepath</span><span class="w"> </span><span class="s">&#39;C:\\mprogs\\demo\\&#39;</span>
+<span class="n">efix</span><span class="w"> </span><span class="s">787</span>
+<span class="n">emode</span><span class="w"> </span><span class="s">1</span>
+<span class="n">alatt</span><span class="w"> </span><span class="s">[2.87</span><span class="w"> </span><span class="s">2.87</span><span class="w"> </span><span class="s">2.87]</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="s">[90</span><span class="w">  </span><span class="s">90</span><span class="w"> </span><span class="s">90]</span>
+<span class="n">cu</span><span class="w"> </span><span class="s">[1</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0]</span>
+<span class="n">cv</span><span class="w"> </span><span class="s">[0</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">0]</span>
+<span class="nb">psi</span><span class="w"> </span><span class="mi">0</span>
+<span class="n">omega</span><span class="w"> </span><span class="s">0</span>
+<span class="n">dpsi</span><span class="w"> </span><span class="s">0</span>
+<span class="n">gl</span><span class="w"> </span><span class="s">0</span>
+<span class="n">gs</span><span class="w"> </span><span class="s">0</span>
+<span class="n">en</span><span class="w"> </span><span class="o">&lt;</span>167<span class="n">x1</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+<span class="n">uoffset</span><span class="w"> </span><span class="s">[0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="n">u_to_rlu</span><span class="w"> </span><span class="o">&lt;</span>4<span class="n">x4</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+<span class="n">ulen</span><span class="w"> </span><span class="s">[1</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">1]</span>
+<span class="n">ulabel</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x4</span><span class="w"> </span><span class="nb">cell</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The detpar structure array contains information about all of the detectors, including the filename of the PAR file and
+the directory in which it is kept, plus information about the detector group, flight path, scattering angles phi and
+azimuth, the detector width, and the detector height. This might take the form:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="w"> </span><span class="s">&#39;9cards_4_4to1.par&#39;</span>
+<span class="n">filepath</span><span class="w"> </span><span class="s">&#39;C:\\mprogs\\Horace\\demo\\&#39;</span>
+<span class="n">group</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x36864</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+<span class="n">x2</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x36864</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+<span class="n">phi</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x36864</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+<span class="n">azim</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x36864</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+<span class="nb">width</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x36864</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+<span class="nb">height</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x36864</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Finally we have the data structure array. This contains much of the same information that was in the header cell array
+(specifically filename, directory, title, and lattice parameters). There is also some information that has the same
+field name as information in <code class="docutils literal notranslate"><span class="pre">header</span></code>, but is not necessarily the same. An example of the full list of fields is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="w"> </span><span class="s">&#39;w2a.sqw&#39;</span>
+<span class="n">filepath</span><span class="w"> </span><span class="s">&#39;C:\\mprogs\\Horace\\demo\\&#39;</span>
+<span class="nb">title</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="n">alatt</span><span class="w"> </span><span class="s">[2.87</span><span class="w"> </span><span class="s">2.87</span><span class="w"> </span><span class="s">2.87]</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="s">[90</span><span class="w"> </span><span class="s">90</span><span class="w"> </span><span class="s">90]</span>
+<span class="n">uoffset</span><span class="w"> </span><span class="s">[0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="n">u_to_rlu</span><span class="w"> </span><span class="o">&lt;</span>4<span class="n">x4</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+<span class="n">ulen</span><span class="w"> </span><span class="s">[3.0961</span><span class="w"> </span><span class="s">3.0961</span><span class="w"> </span><span class="s">2.1893</span><span class="w"> </span><span class="s">1]</span>
+<span class="n">ulabel</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x4</span><span class="w"> </span><span class="nb">cell</span><span class="o">&gt;</span>
+<span class="n">iax</span><span class="w"> </span><span class="s">[1</span><span class="w"> </span><span class="s">3]</span>
+<span class="n">iint</span><span class="w"> </span><span class="s">[0.95</span><span class="w"> </span><span class="o">-</span><span class="mf">0.05</span><span class="p">;</span><span class="w"> </span><span class="mf">1.05</span><span class="w"> </span><span class="mf">0.05</span><span class="p">]</span>
+<span class="n">pax</span><span class="w"> </span><span class="s">[2</span><span class="w"> </span><span class="s">4]</span>
+<span class="n">p</span><span class="w"> </span><span class="o">&lt;</span>1<span class="n">x2</span><span class="w"> </span><span class="nb">cell</span><span class="o">&gt;</span>
+<span class="n">dax</span><span class="w"> </span><span class="s">[1</span><span class="w"> </span><span class="s">2]</span>
+<span class="n">s</span><span class="w"> </span><span class="o">&lt;</span>21<span class="n">x60</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+<span class="n">e</span><span class="w"> </span><span class="o">&lt;</span>21<span class="n">x60</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+<span class="n">npix</span><span class="w"> </span><span class="o">&lt;</span>21<span class="n">x60</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+<span class="n">urange</span><span class="w"> </span><span class="s">[0.95</span><span class="w"> </span><span class="o">-</span><span class="mf">0.024995</span><span class="w"> </span><span class="o">-</span><span class="mf">0.049953</span><span class="w"> </span><span class="mf">52.5</span><span class="p">;</span><span class="w"> </span><span class="mf">1.05</span><span class="w"> </span><span class="mf">1.025</span><span class="w"> </span><span class="mf">0.049953</span><span class="w"> </span><span class="mf">312.5</span><span class="p">]</span>
+<span class="n">pix</span><span class="w"> </span><span class="o">&lt;</span>9<span class="n">x93270</span><span class="w"> </span><span class="nb">double</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>For this two-dimensional object the new fields are as follows:
+- <code class="docutils literal notranslate"><span class="pre">iax</span></code> are the indices of the axes which are integrated over / held constant in the cut from the original
+4-dimensional dataset. In this case the first and third axes are held constant.  -<code class="docutils literal notranslate"><span class="pre">iint</span></code> gives the ranges over which
+data are integrated to create a lower dimensional cut.
+- <code class="docutils literal notranslate"><span class="pre">pax</span></code> gives the indices of the plot axes.
+- <code class="docutils literal notranslate"><span class="pre">p</span></code> is a cell array whose elements are vectors, each of which describes the grid of bin boundaries from which the
+object’s axes are constructed.
+- <code class="docutils literal notranslate"><span class="pre">dax</span></code> details which way round the axes described in <code class="docutils literal notranslate"><span class="pre">pax</span></code> will be displayed when the object is plotted. In this
+case because it is [1 2] axis-2 will be horizontal and axis-4 will be vertical.
+- <code class="docutils literal notranslate"><span class="pre">s</span></code> and <code class="docutils literal notranslate"><span class="pre">e</span></code> are arrays which give the intensity and variance (i.e. the square of the plotted errorbar)
+respectively for each bin.
+- <code class="docutils literal notranslate"><span class="pre">npix</span></code> is an array which tells us how many pixels contributed to the intensity in each bin.
+- <code class="docutils literal notranslate"><span class="pre">urange</span></code> gives the range of data in the object along each of the 4 axes, column-wise.
+- <code class="docutils literal notranslate"><span class="pre">pix</span></code> details all of the detector pixel information. It has 9 rows, which contain respectively the location
+in Cartesian Q-space + energy of each pixel (in inverse Angstroms and meV respectively), the index of the contributing
+SPE file, the index of the contributing detector, the index of the energy channel, the intensity counted in the pixel,
+and the error on the intensity in the pixel.</p>
+</section>
+<section id="reading-and-writing-to-file">
+<h2>Reading and writing to file<a class="headerlink" href="#reading-and-writing-to-file" title="Permalink to this headline"></a></h2>
+<p>One way of storing datasets that you’ve created is to save your Matlab workspace, however this may not always be the
+most efficient thing to do – for example your Matlab workspace may contain lots of objects that you do not wish to
+save.</p>
+<p>Horace allows you to write single objects into a binary file quite straightforwardly. Suppose you wish to save the d2d
+object we just created, <code class="docutils literal notranslate"><span class="pre">w_2d</span></code>, in a file called <code class="docutils literal notranslate"><span class="pre">my_saved_d2d</span></code>. All you have to do is type:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">save</span><span class="p">(</span><span class="n">w_2d</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;C:\\mprogs\\Horace\\demo\\my_saved_d2d.dat&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>At a later time you may wish to read this object back into your Matlab workspace. To do this, simply use the command:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w_2d_new</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_dnd</span><span class="w"> </span><span class="p">(</span><span class="s">&#39;C:\\mprogs\\Horace\\demo\\my_saved_d2d.dat&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Note that the commands <code class="docutils literal notranslate"><span class="pre">save</span></code> and <code class="docutils literal notranslate"><span class="pre">read_dnd</span></code> are methods specific to each kind of object (i.e. there is a <code class="docutils literal notranslate"><span class="pre">save</span></code>
+function in the &#64;d0d,…,&#64;d4d, &#64;sqw directories). Also note that the file extension .dat does not have to be used. In
+fact it is probably a good idea to use the extensions .d0d,…,.d4d, or .sqw so that you can tell easily what sort of
+object has been saved by just looking at the filename.</p>
+</section>
+<section id="binary-operations">
+<h2>Binary operations<a class="headerlink" href="#binary-operations" title="Permalink to this headline"></a></h2>
+<p>Horace allows you to perform simple binary arithmetic operations on dnd and sqw objects. There are a few constrains on
+how you can use these functions, however:</p>
+<ul class="simple">
+<li><p>You cannot perform arithmetic operations on objects of different dimensionality, e.g. you cannot subtract a d2d object
+from a d3d object.</p></li>
+<li><p>You can perform arithmetic operations on a dnd/sqw object and a scalar, e.g. you can add the number 3 to a d2d object
+– this will add 3 to every element of the intensity array.</p></li>
+<li><p>The objects on which you are performing the arithmetic operation must have the same size, e.g. if adding two d2d
+objects they must both have intensities that are represented by arrays of the same size (in this case m-by-n
+matrices).</p></li>
+<li><p>You must be careful to notice that it is possible perform the operation on two objects that do not cover the same area
+in (<strong>Q</strong>,E)-space. This is fine if, for example, you wish to subtract the scattering around one value of <strong>Q</strong> from
+that around another. However it is in general advisable to be careful since you can end up adding/subtracting/etc
+spectra from completely different parts of reciprocal space that you maybe didn’t want to…</p></li>
+</ul>
+<p>A complete list of binary arithmetic operations can be found <a class="reference internal" href="../manual/Binary_operations.html#binary-operations"><span class="std std-ref">here</span></a></p>
+</section>
+<section id="unary-operations">
+<h2>Unary operations<a class="headerlink" href="#unary-operations" title="Permalink to this headline"></a></h2>
+<p>One can also use Horace to perform unary mathematical operations, i.e. operations that act on a single object. An
+example would be <code class="docutils literal notranslate"><span class="pre">cos</span></code>, which takes the cosine of the intensity at every point in a dnd/sqw object.</p>
+<p>A full list of unary operations can be found <a class="reference internal" href="../manual/Unary_operations.html#unary-operations"><span class="std std-ref">here</span></a>.</p>
+</section>
+<section id="obtaining-information-about-objects">
+<h2>Obtaining information about objects<a class="headerlink" href="#obtaining-information-about-objects" title="Permalink to this headline"></a></h2>
+<p>There are several functions which one can use to find out general information about sqw and dnd objects, i.e. they print
+information to the Matlab command window that you would otherwise have to obtain by using the <code class="docutils literal notranslate"><span class="pre">get</span></code> command and then
+inspecting the resulting structure array.</p>
+<p>You can get an object’s header information by typing</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">head</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">obj</span></code> can be any dnd or sqw. The command <code class="docutils literal notranslate"><span class="pre">display</span></code> does exactly the same thing. In order to find out the
+dimensionality of an sqw object you can use</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">ndims</span><span class="p">=</span><span class="n">dimensions</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>and the number of dimensions will be returned. This method also exists for dnd objects, however it should not be
+possible for, say, a d2d object to contain anything other than 2-dimensional data.  If you have modified an sqw or dnd
+object by hand then you can check that the basic formatting has not been broken by typing</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">ok</span><span class="p">,</span><span class="n">mess</span><span class="p">]=</span><span class="nb">isvalid</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>If the object is a valid sqw or dnd then the variable <code class="docutils literal notranslate"><span class="pre">ok</span></code> will be ‘true’ and the variable <code class="docutils literal notranslate"><span class="pre">mess</span></code> will be an empty
+string. Conversely if the object is not a valid type then the variables will be ‘false’ and will contain an error
+message detailing where the fault lies respectively.</p>
+<p>In order to get direct access to the data, header information, etc. of an object there are two equivalent commands that
+you can use - <code class="docutils literal notranslate"><span class="pre">get</span></code> and <code class="docutils literal notranslate"><span class="pre">struct</span></code>. Both commands return a structure array whose fields are main_header, header,
+detpar, and data, however these structure arrays are not protected in the same way that an sqw or dnd object would
+be. That is to say, you can edit them in any way you wish, and there are no internal checks to ensure that the data are
+consistent and of the correct format.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">get_struc</span><span class="p">=</span><span class="nb">get</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<span class="n">struct_struc</span><span class="p">=</span><span class="nb">struct</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>In the above <code class="docutils literal notranslate"><span class="pre">get_struc</span></code> and <code class="docutils literal notranslate"><span class="pre">struct_struc</span></code> are identical.</p>
+<p>You can find out what the plot titles (i.e. axes’ labels etc.) of an object are without plotting it by typing</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">Output</span><span class="p">=</span><span class="n">plot_titles</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The output returned provides (if such information exists) a vector <code class="docutils literal notranslate"><span class="pre">[title_main,</span> <span class="pre">title_pax,</span> <span class="pre">title_iax,</span> <span class="pre">display_pax,</span>
+<span class="pre">display_iax,</span> <span class="pre">energy_axis]</span></code> where <code class="docutils literal notranslate"><span class="pre">title_main</span></code> is the title that would appear at the top of the plot, <code class="docutils literal notranslate"><span class="pre">title_pax</span></code>
+contains the annotations for each of the plot axes, <code class="docutils literal notranslate"><span class="pre">title_iax</span></code> contains the legend detailing the integration axes
+limits etc, <code class="docutils literal notranslate"><span class="pre">display_pax</span></code> is a cell array containing axes annotations for each of the plot axes suitable for printing
+to the screen, <code class="docutils literal notranslate"><span class="pre">display_iax</span></code> is a cell array containing axes annotations for each of the integration axes suitable for
+printing to the screen, and <code class="docutils literal notranslate"><span class="pre">energy_axis</span></code> gives the index of the column in the 4x4 matrix din.u that corresponds to
+the energy axis.</p>
+</section>
+<section id="reformatting-the-data">
+<h2>Reformatting the data<a class="headerlink" href="#reformatting-the-data" title="Permalink to this headline"></a></h2>
+<p>You can convert an sqw object into a dnd object (i.e. you throw away the individual pixel information) quite easily. You
+simply type</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dnd_out</span><span class="p">=</span><span class="n">dnd</span><span class="p">(</span><span class="n">sqw_obj</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>One can also reformat a dnd object so that it is turned into an sqw object, although the pixel information will be
+empty. This is done by typing</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sqw_out</span><span class="p">=</span><span class="n">sqw</span><span class="p">(</span><span class="n">dnd_obj</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>You can potentially reduce the amount of memory taken up by a dnd or sqw object by using the command <code class="docutils literal notranslate"><span class="pre">compact</span></code>. This
+effectively squeezes the data along all of its dimensions so that the axes ranges are just enough to encompass all of
+the data, but not more. e.g.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w_less_memory</span><span class="p">=</span><span class="n">compact</span><span class="p">(</span><span class="n">w</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>One can permute the order of the axes for ‘’’plotting purposes only’’’ by using the command <code class="docutils literal notranslate"><span class="pre">permute</span></code>. e.g.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w_permuted</span><span class="p">=</span><span class="nb">permute</span><span class="p">(</span><span class="n">w</span><span class="p">,[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>The second argument of this function gives the order in which the new axes will be displayed for this 3-dimensional
+example object, i.e. what was previously the third plot axis will now be the first, the old first plot axis will now be
+the second, and the old second axis will be plotted as the third. Note that this command simply alters the
+<code class="docutils literal notranslate"><span class="pre">w.data.dax</span></code> field, i.e. it does not permute the dimensions of the intensity, error, etc. matrices.</p>
+<p>One can take a section out of a dnd or sqw object using the command <code class="docutils literal notranslate"><span class="pre">section</span></code>, e.g.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w_sectioned</span><span class="p">=</span><span class="n">section</span><span class="p">(</span><span class="n">w</span><span class="p">,[</span><span class="n">ax1_lo</span><span class="p">,</span><span class="n">ax1_hi</span><span class="p">],[</span><span class="n">ax2_lo</span><span class="p">,</span><span class="n">ax2_hi</span><span class="p">],</span><span class="k">...</span><span class="c">);</span>
+</pre></div>
+</div>
+<p>so that the new object <code class="docutils literal notranslate"><span class="pre">w_sectioned</span></code> has the same dimensionality as the input object <code class="docutils literal notranslate"><span class="pre">w</span></code> but data is only kept if it
+is between <code class="docutils literal notranslate"><span class="pre">ax1_lo</span></code> and <code class="docutils literal notranslate"><span class="pre">ax1_hiu</span></code> for the first axis, and so on.</p>
+<p>Finally, one can create higher dimensional datasets by using the command <code class="docutils literal notranslate"><span class="pre">replicate</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="n">replicate</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="n">wref</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This function takes an input object <code class="docutils literal notranslate"><span class="pre">win</span></code> and maps it on to a higher dimensional dataset <code class="docutils literal notranslate"><span class="pre">wref</span></code> by repeating the
+data over the extra dimension(s). At present <code class="docutils literal notranslate"><span class="pre">wout</span></code> and <code class="docutils literal notranslate"><span class="pre">win</span></code> must be dnd objects, and NOT sqw objects, however
+<code class="docutils literal notranslate"><span class="pre">wref</span></code> can be either a dnd or an sqw.</p>
+</section>
+<section id="plotting">
+<h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this headline"></a></h2>
+<p>The command for default plotting is</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">plot</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>which will produce an appropriate plot based on the dimensions of the object <code class="docutils literal notranslate"><span class="pre">obj</span></code> (i.e. a marker and line plot for
+1-d, a colourmap for 2-d, and a sliceomatic colourmap for 3-d). Zero dimensional and 4-dimensional objects cannot be
+plotted, of course.</p>
+<p>There are several different ways of plotting two- and one-dimensional data (e.g. with/without errorbars for 1d,
+etc.). One-dimensional data can be plotted using :ref:<code class="docutils literal notranslate"><span class="pre">dd,</span> <span class="pre">de,</span> <span class="pre">dh,</span> <span class="pre">dl,</span> <span class="pre">dm,</span> <span class="pre">dp,</span> <span class="pre">mp,</span> <span class="pre">pd,</span> <span class="pre">pe,</span> <span class="pre">peoc,</span> <span class="pre">ph,</span> <span class="pre">phoc,</span> <span class="pre">pl,</span> <span class="pre">ploc,</span>
+<span class="pre">pm,</span> <span class="pre">pmoc,</span> <span class="pre">pp</span></code> and <code class="docutils literal notranslate"><span class="pre">sp</span></code>, whereas two-dimensional data can be plotted using <code class="docutils literal notranslate"><span class="pre">da,</span> <span class="pre">ds,</span> <span class="pre">mp</span></code> and <code class="docutils literal notranslate"><span class="pre">sp</span></code>, in addition to
+<code class="docutils literal notranslate"><span class="pre">plot</span></code>. The differences between all of these plot commands is given in detail in the <cite>plot functions
+&lt;manual/List_of_functions:Plotting&gt;</cite> section of this manual. For three-dimensional data only the <code class="docutils literal notranslate"><span class="pre">plot</span></code> command
+exists, since Horace has only one way of plotting 3-d data.  Once a plot has been made there are various commands that
+can be used to alter its appearance (e.g. the axes, labels, etc.).</p>
+<p>To alter the limits along the x, y, or z axes you use the commands <code class="docutils literal notranslate"><span class="pre">lx,</span> <span class="pre">ly</span></code> and <code class="docutils literal notranslate"><span class="pre">lz</span></code>, e.g.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">lx</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">2</span>
+<span class="n">ly</span><span class="w"> </span><span class="o">-</span><span class="mi">3</span><span class="w"> </span><span class="mi">3</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">20</span>
+</pre></div>
+</div>
+<p>to change the limits along x to be 0 and 2, and so on.</p>
+<p>To change the axes to log-scale, you use the commands <code class="docutils literal notranslate"><span class="pre">logx</span></code>, <code class="docutils literal notranslate"><span class="pre">logy</span></code> and <code class="docutils literal notranslate"><span class="pre">logz</span></code>, and to change to a linear scale you
+use <code class="docutils literal notranslate"><span class="pre">linx</span></code>…etc. A full list of formatting options can be found <a class="reference external" href="http://www.libisis.org/User_Manual#Plot_Commands">here</a>.</p>
+</section>
+<section id="simulating">
+<h2>Simulating<a class="headerlink" href="#simulating" title="Permalink to this headline"></a></h2>
+<p>Simulating data involves running a theoretical model a known set of parameters, in order to compare the model’s results
+to those of the experimental data (or another model).</p>
+<p>There are two functions used for doing simulations - <code class="docutils literal notranslate"><span class="pre">func_eval</span></code> and <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code>. The difference between these two
+functions is relatively minor, and relates to the format of the function that you wish to simulate.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout1</span><span class="p">=</span><span class="n">func_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">func_handle</span><span class="p">,</span><span class="w"> </span><span class="n">pars</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">);</span>
+<span class="n">wout2</span><span class="p">=</span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_func_handle</span><span class="p">,</span><span class="w"> </span><span class="n">pars</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>In both cases in the above example <code class="docutils literal notranslate"><span class="pre">win</span></code> can be an sqw or dnd dataset, that is used as a template to tell Horace where
+to simulate the intensity. There is just one option available for both <code class="docutils literal notranslate"><span class="pre">func_eval</span></code> and <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code>, and that is
+‘all’, which has the same meaning as when it is used in conjunction with <code class="docutils literal notranslate"><span class="pre">multifit</span></code>.  The essential difference comes
+for the function used to simulate the data. For <code class="docutils literal notranslate"><span class="pre">func_eval</span></code> the format is the same as for <code class="docutils literal notranslate"><span class="pre">multifit</span></code>, specifically
+the first few input arguments of the function are arrays, all of which have the same number of elements as there are
+data points. For a 2-dimensional object there would be two such arrays, for a 3-dimensional one there would be three,
+and so on. Furthermore the arrays are just the axes of the input object, i.e. <code class="docutils literal notranslate"><span class="pre">win.data.p{1},</span> <span class="pre">win.data.p{2},...</span></code>.</p>
+<p>The arrays input to the <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> function are different, because there must always be 4 arrays before the input
+parameters are given. The 4 arrays correspond to the values of the Miller indices h, k, and l; plus energy. The 4 arrays
+are always supplied, even if the dimensionality of the object to be simulated is lower than 4 – in this case the values
+of all of the elements for one or more of the arrays will all be the same. This means that the same function can be used
+to simulate datasets of different dimensionality with the same model, without having to re-write the function each
+time. It is also useful if you have a model, such as a spin-wave model, where the calculation is easier if the
+co-ordinate system is (H,0,0) / (0,K,0) / (0,0,L).</p>
+<p>Further information concerning simulations can be found in the <a class="reference internal" href="../manual/List_of_functions.html#lof-fitting"><span class="std std-ref">Simulations</span></a> section of the list of functions.</p>
+</section>
+<section id="fitting">
+<h2>Fitting<a class="headerlink" href="#fitting" title="Permalink to this headline"></a></h2>
+<p>You can also use Horace to fit a theoretical model (akin to those used in simulation) to your data by modifying its
+parameters to find a minimal difference between the model and the data. Depending on the size of the data and complexity
+of the model it can take quite a long time for the fit to converge, so it is a good idea to provide a good initial guess
+for the fit parameters. You can work these out simulating and then comparing the result to the data by eye.</p>
+<p>For an introduction and overview of how to use the following fitting functions, please read <a class="reference internal" href="../manual/Multifit.html#multifit"><span class="std std-ref">Fitting data</span></a>. For comprehensive help, please use the Matlab documentation for the various fitting
+functions that can be obtained by using the <code class="docutils literal notranslate"><span class="pre">doc</span></code> command, for example <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">d1d/multifit</span></code> (for fitting function like
+Gaussians to d1d objects) or <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit_sqw</span></code> (fitting models for S(Q,w) to sqw objects).</p>
+</section>
+<section id="sqw-generation-and-manipulation">
+<h2>SQW generation and manipulation<a class="headerlink" href="#sqw-generation-and-manipulation" title="Permalink to this headline"></a></h2>
+<p>When converting a series of SPE files into a single SQW file there are only a few commands that you ever need to
+use. The first is <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code>:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">tmp_file</span><span class="p">,</span><span class="n">grid_size</span><span class="p">,</span><span class="n">urange</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spe_file</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span>
+<span class="w">                                              </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="w"> </span><span class="n">grid_size_in</span><span class="p">,</span><span class="w"> </span><span class="n">urange_in</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This is the full syntax for the :ref:<code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> command. At its most basic it can be used without output arguments, and
+without the input arguments <code class="docutils literal notranslate"><span class="pre">grid_size_in</span></code> and <code class="docutils literal notranslate"><span class="pre">urange_in</span></code>. The other input arguments take the form given <cite>here
+&lt;Generating_SQW_files:Generating SQW files&gt;</cite>.</p>
+<p>There are two circumstances in which you would not wish to use <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code>. The first is if, for some reason, the
+<code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> command has failed (usually due to low-level problems between Matlab and your computer’s operating system),
+and the second is if you wish to view data ‘’on the fly’’ whilst the experiment is still running. In both circumstances
+a time saving is involved because you do not have to rewrite all of the intermediate TMP files.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> has failed after creating all of the necessary TMP files (i.e. one TMP file for every SPE file) then the
+command to use is</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">write_nsqw_to_sqw</span><span class="p">(</span><span class="n">tmp_files</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">tmp_files</span></code> is a cell array, each element of which gives the full filename of one of the TMP files, and
+<code class="docutils literal notranslate"><span class="pre">sqw_file</span></code> is a string giving the full filename of the SQW file you wish to create. This function does the last part
+of the job of <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code>, i.e. it takes data from the TMP files and writes them into the SQW file.</p>
+<p>If not all of the TMP files were written before <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> failed, or if you are generating data ‘’on the fly’’, then
+before using <code class="docutils literal notranslate"><span class="pre">write_nsqw_to_sqw</span></code> you must first make sure all of the necessary TMP files exist. The function that does
+this is <code class="docutils literal notranslate"><span class="pre">write_spe_to_sqw</span></code>, and it is used as follows:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">grid_size</span><span class="p">,</span><span class="w"> </span><span class="n">urange</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">write_spe_to_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spe_file</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span>
+<span class="w">                                                   </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="w"> </span><span class="n">grid_size_in</span><span class="p">,</span><span class="w"> </span><span class="n">urange_in</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where the input arguments take the same meaning as with <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code>, except that <code class="docutils literal notranslate"><span class="pre">sqw_file</span></code> should be a string giving
+the full filename of a TMP file, and <code class="docutils literal notranslate"><span class="pre">spe_file</span></code> is a string giving a single SPE filename. This means that in order to
+generate more than one TMP file this command must be run in a loop.</p>
+<p>If you are generating TMP files in this way then it is important to ensure that the <code class="docutils literal notranslate"><span class="pre">urange_in</span></code> argument is
+supplied. If not then the data range of each TMP file will be different, since by default the program will choose the
+minimum range that includes all of the data. This will then prevent the information in the TMP files from being collated
+into a single SQW fille. There are two ways to ensure this problem does not arise. The simplest is just to choose a
+range (along all 4 axes) for the data, in which case you give</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">urange_in</span><span class="p">=[</span><span class="n">ax1_lo</span><span class="p">,</span><span class="w"> </span><span class="n">ax2_lo</span><span class="p">,</span><span class="w"> </span><span class="n">ax2_lo</span><span class="p">,</span><span class="w"> </span><span class="n">ax4_lo</span><span class="p">;</span><span class="w"> </span><span class="n">ax1_hi</span><span class="p">,</span><span class="w"> </span><span class="n">ax2_hi</span><span class="p">,</span><span class="w"> </span><span class="n">ax3_hi</span><span class="p">,</span><span class="w"> </span><span class="n">ax4_hi</span><span class="p">];</span>
+</pre></div>
+</div>
+<p>Alternatively you can calculate what would be the range of the smallest hypercuboid that contains all of the data (this
+is what is done internally by gen_sqw). To do this you type</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">urange_in</span><span class="p">=</span><span class="n">calc_sqw_urange</span><span class="p">(</span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">eps_lo</span><span class="p">,</span><span class="w"> </span><span class="n">eps_hi</span><span class="p">,</span><span class="w"> </span><span class="nb">det</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">efix,</span> <span class="pre">emode,</span> <span class="pre">alatt,</span> <span class="pre">angdeg,</span> <span class="pre">u,</span> <span class="pre">v,</span> <span class="pre">psi,</span> <span class="pre">omega,</span> <span class="pre">dpsi,</span> <span class="pre">gl</span></code>, and <code class="docutils literal notranslate"><span class="pre">gs</span></code> have the same form as when they are used in
+<code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code>. Note that the vector <code class="docutils literal notranslate"><span class="pre">psi</span></code> should contain all of the values you wish to use for the whole experiment, not
+just the ones you have already got data for. E.g. you may have measured from Psi=0 to Psi=60 in 2 degree steps, but you
+may wish to go to Psi=120, in which case you should put <code class="docutils literal notranslate"><span class="pre">psi=[0:2:120]</span></code>. If you are unsure of what range of Psi you
+will actually use then you should use a conservative estimate, the most pathological of which would be to have
+<code class="docutils literal notranslate"><span class="pre">psi=[0:360]</span></code>. In reality it is a good idea to avoid such a case, because the final data file will have large parts
+which are devoid of any actual data but still take up quite a large amount of disk space on your computer. Also note
+that <code class="docutils literal notranslate"><span class="pre">eps_lo</span></code> and <code class="docutils literal notranslate"><span class="pre">eps_hi</span></code> are respectively the minimum and maximum energy transfers you wish to include (in meV).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Horace_GUI.html" class="btn btn-neutral float-left" title="Horace GUI" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Resolution_convolution.html" class="btn btn-neutral float-right" title="Resolution Convolution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Sep 15, 2023, 4:46:32 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/user_guide/Advanced_use.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

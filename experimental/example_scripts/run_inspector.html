@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using Run Inspector &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Citing Horace" href="../Citing.html" />
+    <link rel="prev" title="Example Scripts" href="../Example_scripts.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Using Run Inspector</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#generating-data">Generating data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-inspector">Run inspector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#understanding-data-from-a-single-orientation">Understanding data from a single orientation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Generating data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#coordinates-calc"><code class="docutils literal notranslate"><span class="pre">coordinates_calc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hkle"><code class="docutils literal notranslate"><span class="pre">hkle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#putting-it-all-together">Putting it all together</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#whole-script">Whole script</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Example_scripts.html">Example Scripts</a> &raquo;</li>
+      <li>Using Run Inspector</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/example_scripts/run_inspector.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-run-inspector">
+<h1>Using Run Inspector<a class="headerlink" href="#using-run-inspector" title="Permalink to this headline"></a></h1>
+<p>This is a tutorial to explore some of the diagnostic features in
+Horace that allow you to understand strange features in your data.</p>
+<p>This will take you through all the steps from generation, spurion
+spotting, and analysis.</p>
+<section id="generating-data">
+<h2>Generating data<a class="headerlink" href="#generating-data" title="Permalink to this headline"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Take a cut from an sqw file, to get a dispersion plot. Ensure we do not</span>
+<span class="c">%select the -nopix option, i.e. the object &quot;cs&quot; will be larger in memory,</span>
+
+<span class="c">%but will retain all of the information about detector pixels from</span>
+<span class="c">%individual runs (sample orientations) during the experiment.</span>
+
+<span class="n">sqw_file</span><span class="p">=</span><span class="s">&#39;/mnt/data/Science/URu2Si2/data/sqw/Ei81_20K.sqw&#39;</span><span class="p">;</span>
+
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="n">cs</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="n">proj</span><span class="p">,[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">],[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="mf">0.04</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.8</span><span class="p">,</span><span class="mi">20</span><span class="p">]);</span>
+
+<span class="c">%Plot this:</span>
+<span class="c">%we use the &quot;compact&quot; routine to ensure we get tight axes around the data, without too much white space</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">cs</span><span class="p">));</span>
+
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">100</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">Taking</span><span class="w"> </span><span class="s">cut</span><span class="w"> </span><span class="s">from</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">file</span><span class="w"> </span><span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">Science</span><span class="o">/</span><span class="n">URu2Si2</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">sqw</span><span class="o">/</span><span class="n">Ei81_20K</span><span class="p">.</span><span class="n">sqw</span><span class="k">...</span>
+<span class="n">Step</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">1</span><span class="p">;</span><span class="w"> </span><span class="n">Have</span><span class="w"> </span><span class="s">read</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">488866</span><span class="w"> </span><span class="s">pixels</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="nb">now</span><span class="w"> </span><span class="n">processing</span><span class="w"> </span><span class="n">data</span><span class="k">...</span><span class="c"> -----&gt; retained 24161 pixels</span>
+</pre></div>
+</div>
+<p>This is not very exciting, but notice there is an intense streak at
+K=-3, E=8. Is this real, or a spurion? One way to find out is to use
+the run inspector tool. This plots out the contributions to a cut from
+each of the individual runs (so long as you retained the detector
+pixel info, as we have here).</p>
+</section>
+<section id="run-inspector">
+<h2>Run inspector<a class="headerlink" href="#run-inspector" title="Permalink to this headline"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Invoke the run inspector:</span>
+<span class="n">run_inspector</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span><span class="s">&#39;ax&#39;</span><span class="p">,[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">],</span><span class="s">&#39;col&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">]);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The option <code class="docutils literal notranslate"><span class="pre">ax</span></code> sets the limits of the plot as follows: [xmin,
+xmax, ymin, ymax].</p>
+<p>If you don’t do this, then data from each run will be plotted with
+different axes, which makes them quite hard to compare.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The option <code class="docutils literal notranslate"><span class="pre">col</span></code> sets the colourmap scale [col_min,col_max]. Again,
+not setting this means data from each run will be plotted with
+different colour scale, which is not so useful.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can explore the data, toggling between runs using the arrow keys,
+and the page-up / page-down keys to skip 10 runs ahead.</p>
+</div>
+<p>Notice that the value of psi and the run number from when you made the
+data file are given in the plot title.</p>
+<p>You should find that run 14 (psi=26) has a high point in the region
+we’re worried about. But runs 89 and 90 (psi=25 and 26), 150
+(psi=26.5) and 209 (psi=25.5) do not have this feature.</p>
+<p>This suggests that it is a spurion. We can test this by masking the
+data just from this run in our object:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>the 14 here corresponds to the 14th run in our complete dataset</p>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">cs_m</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_runs</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span><span class="mi">14</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">cs_m</span><span class="p">));</span>
+
+<span class="n">keep_figure</span>
+</pre></div>
+</div>
+<p>and this confirms that indeed it was a spurion.</p>
+</section>
+<section id="understanding-data-from-a-single-orientation">
+<h2>Understanding data from a single orientation<a class="headerlink" href="#understanding-data-from-a-single-orientation" title="Permalink to this headline"></a></h2>
+<p>If you have a material which is strongly 1d or 2d you may well only
+measure with the sample in a single orientation. You can then
+integrate between +/- infinity on the axes where there is no
+dispersion.  This improves statistics without the need to count lots
+of different orientations and hence is much faster.</p>
+<section id="id1">
+<h3>Generating data<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<p>Generate a suitable sqw file, from a single orientation (see Taylor et
+al) for an explanation of the science of this particular material.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Below is an old style <code class="docutils literal notranslate"><span class="pre">.spe</span></code> file, so we need to supply a
+<code class="docutils literal notranslate"><span class="pre">.par</span></code> file that gives info about the angular positions of the
+detector elements.  For modern <code class="docutils literal notranslate"><span class="pre">.nxspe</span></code> files this information is
+already included and the <code class="docutils literal notranslate"><span class="pre">par</span></code> argument to <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> can be an
+empty string.</p>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">spe_file</span><span class="p">=</span><span class="s">&#39;/mnt/data/Science/Cs245/data/MER11499_one2one_113.spe&#39;</span><span class="p">;</span>
+<span class="n">par_file</span><span class="p">=</span><span class="s">&#39;/usr/local/mprogs/InstrumentFiles/trunk/merlin/one2one_113.par&#39;</span><span class="p">;</span>
+
+<span class="n">alatt</span><span class="p">=[</span><span class="mf">2.8</span><span class="p">,</span><span class="mf">2.8</span><span class="p">,</span><span class="mf">7.7</span><span class="p">];</span>
+<span class="n">angdeg</span><span class="p">=[</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">];</span>
+<span class="nb">psi</span><span class="p">=</span><span class="o">-</span><span class="mi">90</span><span class="p">;</span><span class="w">  </span><span class="c">%single orientation</span>
+
+<span class="n">u</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
+<span class="n">v</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span>
+
+<span class="n">sqw_file2</span><span class="p">=</span><span class="s">&#39;/mnt/data/Science/Cs245/data/CsFeSe.sqw&#39;</span><span class="p">;</span>
+<span class="n">omega</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">dpsi</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">gl</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">gs</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+
+<span class="n">gen_sqw</span><span class="p">(</span><span class="n">spe_file</span><span class="p">,</span><span class="n">par_file</span><span class="p">,</span><span class="n">sqw_file2</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">alatt</span><span class="p">,</span><span class="n">angdeg</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="nb">psi</span><span class="p">,</span><span class="n">omega</span><span class="p">,</span><span class="n">dpsi</span><span class="p">,</span><span class="n">gl</span><span class="p">,</span><span class="n">gs</span><span class="p">);</span>
+
+<span class="c">%Take a cut to show how the data look:</span>
+<span class="n">ccs</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file2</span><span class="p">,</span><span class="n">proj</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.35</span><span class="p">],[</span><span class="o">-</span><span class="nb">Inf</span><span class="p">,</span><span class="nb">Inf</span><span class="p">],</span>
+<span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.8</span><span class="p">,</span><span class="mi">40</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">ccs</span><span class="p">)</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">20</span>
+<span class="n">keep_figure</span>
+</pre></div>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">--------------------------------------------------------------------------------</span>
+<span class="n">Calculating</span><span class="w"> </span><span class="s">limits</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">spe</span><span class="w"> </span><span class="s">files...</span>
+<span class="n">Time</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">compute</span><span class="w"> </span><span class="s">limits:</span>
+<span class="n">Elapsed</span><span class="w"> </span><span class="s">time</span><span class="w"> </span><span class="s">is</span><span class="w"> </span><span class="s">0.25054</span><span class="w"> </span><span class="s">seconds</span>
+<span class="w"> </span><span class="n">CPU</span><span class="w"> </span><span class="nb">time</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mf">0.26</span><span class="w"> </span><span class="nb">seconds</span>
+<span class="o">--------------------------------------------------------------------------------</span>
+<span class="n">Creating</span><span class="w"> </span><span class="s">output</span><span class="w"> </span><span class="s">sqw</span><span class="w"> </span><span class="s">file:</span>
+<span class="n">Time</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">read</span><span class="w"> </span><span class="s">spe</span><span class="w"> </span><span class="s">and</span><span class="w"> </span><span class="s">detector</span><span class="w"> </span><span class="s">data:</span>
+<span class="n">Elapsed</span><span class="w"> </span><span class="s">time</span><span class="w"> </span><span class="s">is</span><span class="w"> </span><span class="s">14.5507</span><span class="w"> </span><span class="s">seconds</span>
+<span class="w"> </span><span class="n">CPU</span><span class="w"> </span><span class="nb">time</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mf">14.86</span><span class="w"> </span><span class="nb">seconds</span>
+<span class="n">Calculating</span><span class="w"> </span><span class="s">projections...</span>
+<span class="n">Time</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">convert</span><span class="w"> </span><span class="s">from</span><span class="w"> </span><span class="s">spe</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">sqw</span><span class="w"> </span><span class="s">data:</span>
+<span class="n">Elapsed</span><span class="w"> </span><span class="s">time</span><span class="w"> </span><span class="s">is</span><span class="w"> </span><span class="s">0.32091</span><span class="w"> </span><span class="s">seconds</span>
+<span class="w"> </span><span class="n">CPU</span><span class="w"> </span><span class="nb">time</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mf">0.53</span><span class="w"> </span><span class="nb">seconds</span>
+<span class="o">--------------------------------------------------------------------------------</span>
+<span class="n">Taking</span><span class="w"> </span><span class="s">cut</span><span class="w"> </span><span class="s">from</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">file</span><span class="w"> </span><span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">Science</span><span class="o">/</span><span class="n">Cs245</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">CsFeSe</span><span class="p">.</span><span class="n">sqw</span><span class="k">...</span>
+<span class="n">Step</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">1</span><span class="p">;</span><span class="w"> </span><span class="n">Have</span><span class="w"> </span><span class="s">read</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">6672330</span><span class="w"> </span><span class="s">pixels</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="nb">now</span><span class="w"> </span><span class="n">processing</span><span class="w"> </span><span class="n">data</span><span class="k">...</span><span class="c"> -----&gt; retained 316821 pixels</span>
+</pre></div>
+</div>
+</section>
+<section id="coordinates-calc">
+<h3><code class="docutils literal notranslate"><span class="pre">coordinates_calc</span></code><a class="headerlink" href="#coordinates-calc" title="Permalink to this headline"></a></h3>
+<p>There is a routine in Horace called <code class="docutils literal notranslate"><span class="pre">coordinates_calc</span></code>, in which the
+signal array in your data object is replaced by a value corresponding
+to a Q or energy coordinate. Here we plot L (the direction we’ve
+integrated along +/- inf here) to see what the value is explicitly as
+we go up in energy</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ccs_L</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">coordinates_calc</span><span class="p">(</span><span class="n">ccs</span><span class="p">,</span><span class="s">&#39;L&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">ccs_L</span><span class="p">)</span>
+<span class="n">keep_figure</span>
+</pre></div>
+</div>
+<p>Notice that L is coupled to energy transfer. So this means as we
+increase energy we increase L, and hence <span class="math notranslate nohighlight">\(\left|Q\right|\)</span>, which
+means the signal will be decreased due to the magnetic form factor.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Can see this alternatively by plotting |Q|</span>
+<span class="n">ccs_Q</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">coordinates_calc</span><span class="p">(</span><span class="n">ccs</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">ccs_Q</span><span class="p">)</span>
+<span class="n">keep_figure</span>
+</pre></div>
+</div>
+</section>
+<section id="hkle">
+<h3><code class="docutils literal notranslate"><span class="pre">hkle</span></code><a class="headerlink" href="#hkle" title="Permalink to this headline"></a></h3>
+<p>We can also get a list of h,k,l and e explicitly for a set of coordinates:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Here the 2nd argument is of the form [x1,y1; x2,y2; x3,y3;….]</p>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">qe1</span><span class="p">,</span><span class="n">qe2</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hkle</span><span class="p">(</span><span class="n">ccs</span><span class="p">,[</span><span class="mf">0.11</span><span class="w"> </span><span class="mi">14</span><span class="p">;</span><span class="w"> </span><span class="mf">0.11</span><span class="w"> </span><span class="mi">18</span><span class="p">;</span><span class="w"> </span><span class="mf">0.11</span><span class="w"> </span><span class="mi">22</span><span class="p">;</span><span class="w"> </span><span class="mf">0.11</span><span class="w"> </span><span class="mi">26</span><span class="p">;</span><span class="w"> </span><span class="mf">0.11</span><span class="w"> </span><span class="mi">30</span><span class="p">;</span><span class="w"> </span><span class="mf">0.11</span><span class="w"> </span><span class="mi">34</span><span class="p">]);</span>
+</pre></div>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">qe1</span>
+
+<span class="n">qe1</span><span class="w"> </span><span class="p">=</span>
+
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">1.1332</span><span class="w"> </span><span class="mf">14.0000</span>
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">1.4891</span><span class="w"> </span><span class="mf">18.0000</span>
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">1.8809</span><span class="w"> </span><span class="mf">22.0000</span>
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">2.3225</span><span class="w"> </span><span class="mf">26.0000</span>
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">2.8396</span><span class="w"> </span><span class="mf">30.0000</span>
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">3.4932</span><span class="w"> </span><span class="mf">34.0000</span>
+
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">qe2</span>
+
+<span class="n">qe2</span><span class="w"> </span><span class="p">=</span>
+
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">9.6355</span><span class="w"> </span><span class="mf">14.0000</span>
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">9.2796</span><span class="w"> </span><span class="mf">18.0000</span>
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">8.8878</span><span class="w"> </span><span class="mf">22.0000</span>
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">8.4462</span><span class="w"> </span><span class="mf">26.0000</span>
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">7.9291</span><span class="w"> </span><span class="mf">30.0000</span>
+<span class="mf">0.1100</span><span class="w"> </span><span class="mf">0.3000</span><span class="w"> </span><span class="mf">7.2755</span><span class="w"> </span><span class="mf">34.0000</span>
+</pre></div>
+</div>
+<p>This tells us the values of h,k,l and e. As we saw above, the value of
+L changes as we increase energy (<code class="docutils literal notranslate"><span class="pre">qe1</span></code>).  But what is <code class="docutils literal notranslate"><span class="pre">qe2</span></code>? This
+is the 2nd root, and corresponds to an alternative value of L that
+could also contribute to the data here.</p>
+</section>
+<section id="putting-it-all-together">
+<h3>Putting it all together<a class="headerlink" href="#putting-it-all-together" title="Permalink to this headline"></a></h3>
+<p>To understand what this means let’s plot a couple of constant energy
+slices:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ccs2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file2</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,[</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.35</span><span class="p">],</span><span class="mf">0.05</span><span class="p">,[</span><span class="mi">32</span><span class="p">,</span><span class="mi">36</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">ccs2</span><span class="p">))</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">20</span>
+<span class="n">keep_figure</span>
+
+<span class="s">ccs3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file2</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,[</span><span class="o">-</span><span class="nb">Inf</span><span class="p">,</span><span class="nb">Inf</span><span class="p">],[</span><span class="mi">32</span><span class="p">,</span><span class="mi">36</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">ccs3</span><span class="p">))</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span>
+<span class="n">lx</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.8</span>
+<span class="n">ly</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.8</span>
+</pre></div>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">Taking</span><span class="w"> </span><span class="s">cut</span><span class="w"> </span><span class="s">from</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">file</span><span class="w"> </span><span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">Science</span><span class="o">/</span><span class="n">Cs245</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">CsFeSe</span><span class="p">.</span><span class="n">sqw</span><span class="k">...</span>
+<span class="n">Step</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">1</span><span class="p">;</span><span class="w"> </span><span class="n">Have</span><span class="w"> </span><span class="s">read</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">6672330</span><span class="w"> </span><span class="s">pixels</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="nb">now</span><span class="w"> </span><span class="n">processing</span><span class="w"> </span><span class="n">data</span><span class="k">...</span><span class="c"> -----&gt; retained 73281 pixels</span>
+<span class="n">Taking</span><span class="w"> </span><span class="s">cut</span><span class="w"> </span><span class="s">from</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">file</span><span class="w"> </span><span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">Science</span><span class="o">/</span><span class="n">Cs245</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">CsFeSe</span><span class="p">.</span><span class="n">sqw</span><span class="k">...</span>
+<span class="n">Step</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">1</span><span class="p">;</span><span class="w"> </span><span class="n">Have</span><span class="w"> </span><span class="s">read</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">6672330</span><span class="w"> </span><span class="s">pixels</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="nb">now</span><span class="w"> </span><span class="n">processing</span><span class="w"> </span><span class="n">data</span><span class="k">...</span><span class="c"> -----&gt; retained 635460 pixels</span>
+</pre></div>
+</div>
+<p>In the first of these slices, <code class="docutils literal notranslate"><span class="pre">ccs2</span></code>, we’ve changed the plot axes to be H
+and L. You can see that the detectors describe a curved path in the H,L
+plane, so for a given H, if we integrate between +/- infinity then we
+might also pick up info from a much higher 2-theta.</p>
+<p>In this case you can see this starts to become a problem for this
+particular MERLIN dataset around <span class="math notranslate nohighlight">\(H &gt; 0.35\)</span>.</p>
+<p>The second slice, <code class="docutils literal notranslate"><span class="pre">ccs3</span></code>, illustrates this in practice. You can see that
+at <span class="math notranslate nohighlight">\(Q=(0.35,0.3)\)</span> there is a step increase in the signal. This is
+because we suddenly start to fold in the data from higher Q (phonon
+signal).</p>
+<p>To avoid this, we can set the limits of L in our original slice
+explicitly. Generally the workflow here is to do the integration
+between +/- infinity, and then figure out where in L you start to get
+a problem, and then restrict the range of L to avoid this:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ccs4</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file2</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">32</span><span class="p">,</span><span class="mi">36</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">ccs4</span><span class="p">))</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span>
+<span class="n">lx</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.8</span>
+<span class="n">ly</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.8</span>
+<span class="n">keep_figure</span>
+</pre></div>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">Taking</span><span class="w"> </span><span class="s">cut</span><span class="w"> </span><span class="s">from</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">file</span><span class="w"> </span><span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">Science</span><span class="o">/</span><span class="n">Cs245</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">CsFeSe</span><span class="p">.</span><span class="n">sqw</span><span class="k">...</span>
+<span class="n">Step</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">1</span><span class="p">;</span><span class="w"> </span><span class="n">Have</span><span class="w"> </span><span class="s">read</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">6672330</span><span class="w"> </span><span class="s">pixels</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="nb">now</span><span class="w"> </span><span class="n">processing</span><span class="w"> </span><span class="n">data</span><span class="k">...</span><span class="c"> -----&gt; retained 315307 pixels</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="whole-script">
+<h2>Whole script<a class="headerlink" href="#whole-script" title="Permalink to this headline"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Take a cut from an sqw file, to get a dispersion plot. Ensure we do not</span>
+<span class="c">%select the -nopix option, i.e. the object &quot;cs&quot; will be larger in memory,</span>
+
+<span class="c">%but will retain all of the information about detector pixels from</span>
+<span class="c">%individual runs (sample orientations) during the experiment.</span>
+
+<span class="n">sqw_file</span><span class="p">=</span><span class="s">&#39;/mnt/data/Science/URu2Si2/data/sqw/Ei81_20K.sqw&#39;</span><span class="p">;</span>
+
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="n">cs</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="n">proj</span><span class="p">,[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">],[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="mf">0.04</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.8</span><span class="p">,</span><span class="mi">20</span><span class="p">]);</span>
+
+<span class="c">%Plot this:</span>
+<span class="c">%we use the &quot;compact&quot; routine to ensure we get tight axes around the data, without too much white space</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">cs</span><span class="p">));</span>
+
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">100</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">%Invoke the run inspector:</span>
+<span class="n">run_inspector</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span><span class="s">&#39;ax&#39;</span><span class="p">,[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">],</span><span class="s">&#39;col&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">]);</span>
+
+<span class="c">%We can test this by masking the data just from this run in our object</span>
+<span class="c">%the 14 here corresponds to the 14th run in our complete dataset</span>
+<span class="n">cs_m</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_runs</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span><span class="mi">14</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">cs_m</span><span class="p">));</span>
+
+
+<span class="n">spe_file</span><span class="p">=</span><span class="s">&#39;/mnt/data/Science/Cs245/data/MER11499_one2one_113.spe&#39;</span><span class="p">;</span>
+<span class="n">par_file</span><span class="p">=</span><span class="s">&#39;/usr/local/mprogs/InstrumentFiles/trunk/merlin/one2one_113.par&#39;</span><span class="p">;</span>
+
+<span class="n">alatt</span><span class="p">=[</span><span class="mf">2.8</span><span class="p">,</span><span class="mf">2.8</span><span class="p">,</span><span class="mf">7.7</span><span class="p">];</span>
+<span class="n">angdeg</span><span class="p">=[</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">];</span>
+<span class="nb">psi</span><span class="p">=</span><span class="o">-</span><span class="mi">90</span><span class="p">;</span><span class="w">  </span><span class="c">%single orientation</span>
+
+<span class="n">u</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
+<span class="n">v</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span>
+
+<span class="n">sqw_file2</span><span class="p">=</span><span class="s">&#39;/mnt/data/Science/Cs245/data/CsFeSe.sqw&#39;</span><span class="p">;</span>
+<span class="n">omega</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">dpsi</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">gl</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">gs</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+
+<span class="n">gen_sqw</span><span class="p">(</span><span class="n">spe_file</span><span class="p">,</span><span class="n">par_file</span><span class="p">,</span><span class="n">sqw_file2</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">alatt</span><span class="p">,</span><span class="n">angdeg</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="nb">psi</span><span class="p">,</span><span class="n">omega</span><span class="p">,</span><span class="n">dpsi</span><span class="p">,</span><span class="n">gl</span><span class="p">,</span><span class="n">gs</span><span class="p">);</span>
+
+<span class="c">%Take a cut to show how the data look:</span>
+<span class="n">ccs</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file2</span><span class="p">,</span><span class="n">proj</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.35</span><span class="p">],[</span><span class="o">-</span><span class="nb">Inf</span><span class="p">,</span><span class="nb">Inf</span><span class="p">],</span>
+<span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.8</span><span class="p">,</span><span class="mi">40</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">ccs</span><span class="p">)</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">20</span>
+<span class="n">keep_figure</span>
+
+
+<span class="s">ccs_L</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">coordinates_calc</span><span class="p">(</span><span class="n">ccs</span><span class="p">,</span><span class="s">&#39;L&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">ccs_L</span><span class="p">)</span>
+<span class="n">keep_figure</span>
+
+<span class="s">%Can</span><span class="w"> </span><span class="s">see</span><span class="w"> </span><span class="s">this</span><span class="w"> </span><span class="s">alternatively</span><span class="w"> </span><span class="s">by</span><span class="w"> </span><span class="s">plotting</span><span class="w"> </span><span class="o">|</span><span class="n">Q</span><span class="o">|</span>
+<span class="n">ccs_Q</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">coordinates_calc</span><span class="p">(</span><span class="n">ccs</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">ccs_Q</span><span class="p">)</span>
+<span class="n">keep_figure</span>
+
+<span class="s">%</span><span class="w"> </span><span class="s">Here</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">2nd</span><span class="w"> </span><span class="s">argument</span><span class="w"> </span><span class="s">is</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">form</span><span class="w"> </span><span class="s">[x1,y1</span><span class="p">;</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="n">y2</span><span class="p">;</span><span class="w"> </span><span class="n">x3</span><span class="p">,</span><span class="n">y3</span><span class="p">;</span><span class="k">...</span><span class="c">.]</span>
+<span class="p">[</span><span class="n">qe1</span><span class="p">,</span><span class="n">qe2</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hkle</span><span class="p">(</span><span class="n">ccs</span><span class="p">,[</span><span class="mf">0.11</span><span class="w"> </span><span class="mi">14</span><span class="p">;</span><span class="w"> </span><span class="mf">0.11</span><span class="w"> </span><span class="mi">18</span><span class="p">;</span><span class="w"> </span><span class="mf">0.11</span><span class="w"> </span><span class="mi">22</span><span class="p">;</span><span class="w"> </span><span class="mf">0.11</span><span class="w"> </span><span class="mi">26</span><span class="p">;</span><span class="w"> </span><span class="mf">0.11</span><span class="w"> </span><span class="mi">30</span><span class="p">;</span><span class="w"> </span><span class="mf">0.11</span><span class="w"> </span><span class="mi">34</span><span class="p">]);</span>
+
+
+<span class="c">% Cut a couple of constant energy slices</span>
+
+<span class="n">ccs2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file2</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,[</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.35</span><span class="p">],</span><span class="mf">0.05</span><span class="p">,[</span><span class="mi">32</span><span class="p">,</span><span class="mi">36</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">ccs2</span><span class="p">))</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">20</span>
+<span class="n">keep_figure</span>
+
+<span class="s">ccs3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file2</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,[</span><span class="o">-</span><span class="nb">Inf</span><span class="p">,</span><span class="nb">Inf</span><span class="p">],[</span><span class="mi">32</span><span class="p">,</span><span class="mi">36</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">ccs3</span><span class="p">))</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span>
+<span class="n">lx</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.8</span>
+<span class="n">ly</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.8</span>
+
+<span class="n">ccs4</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file2</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">32</span><span class="p">,</span><span class="mi">36</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">ccs4</span><span class="p">))</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span>
+<span class="n">lx</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.8</span>
+<span class="n">ly</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.8</span>
+<span class="n">keep_figure</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../Example_scripts.html" class="btn btn-neutral float-left" title="Example Scripts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../Citing.html" class="btn btn-neutral float-right" title="Citing Horace" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Sep 8, 2023, 1:56:50 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/example_scripts/run_inspector.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

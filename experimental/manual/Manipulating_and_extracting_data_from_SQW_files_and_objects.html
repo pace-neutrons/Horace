@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manipulating and extracting data from SQW files and objects &mdash; Horace 4.0.0.a2d1f2c36 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Other shape functions" href="Reshaping_etc.html" />
+    <link rel="prev" title="Generating SQW files" href="Generating_SQW_files.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.0.0.a2d1f2c36
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Manipulating and extracting data from SQW files and objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cut">cut</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#data-source">Data Source</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#projection">Projection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lattice-basis-projections">Lattice basis projections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spherical-projections">Spherical Projections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cylindrical-projections">Cylindrical Projections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#binning-arguments">Binning arguments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#optional-arguments">Optional arguments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#further-examples">Further Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#section">section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#head-horace">head_horace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#head-sqw">head_sqw</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#head-dnd">head_dnd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#read-horace">read_horace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#read-sqw">read_sqw</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#read-dnd">read_dnd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#save">save</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xye">xye</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#save-xye">save_xye</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hkle">hkle</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Unsorted.html">Unsorted Manual Pages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Horace_manual.html">Horace Manual</a> &raquo;</li>
+      <li>Manipulating and extracting data from SQW files and objects</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Manipulating_and_extracting_data_from_SQW_files_and_objects.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="manipulating-and-extracting-data-from-sqw-files-and-objects">
+<h1>Manipulating and extracting data from SQW files and objects<a class="headerlink" href="#manipulating-and-extracting-data-from-sqw-files-and-objects" title="Permalink to this headline"></a></h1>
+<section id="cut">
+<h2>cut<a class="headerlink" href="#cut" title="Permalink to this headline"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">cut</span></code> takes data from an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object or saved <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or
+<code class="docutils literal notranslate"><span class="pre">dnd</span></code> file and rebins it to an object of the same or reduced size. It can
+<code class="docutils literal notranslate"><span class="pre">cut</span></code> down either ranges or dimensionality. The cut is itself an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or
+<code class="docutils literal notranslate"><span class="pre">dnd</span></code> object (see: below) which can be plotted, manipulated, etc. The
+required inputs are as follows:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">my_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="n">p1_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p2_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p3_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p4_bin</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Cutting encompasses a rebinning of the pixels into the bins specified by the cut
+parameters (described below).  These binned pixels will make up the <code class="docutils literal notranslate"><span class="pre">dnd</span></code> of
+the output object which contains information regarding the plottable data.</p>
+<section id="data-source">
+<h3>Data Source<a class="headerlink" href="#data-source" title="Permalink to this headline"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">data_source</span></code> is either a string giving the full filename (including path) of
+the input <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file or just the variable containing an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code>
+object stored in memory from which the pixels will be taken.</p>
+</section>
+<section id="projection">
+<h3>Projection<a class="headerlink" href="#projection" title="Permalink to this headline"></a></h3>
+<p>This defines the coordinate system you will use to plot the data.</p>
+<p><code class="docutils literal notranslate"><span class="pre">proj</span></code> should be an instance of a <code class="docutils literal notranslate"><span class="pre">projection</span></code> (such as <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>,
+<code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code>, etc.) containing information about the axes and the coordinate
+system you wish to use to plot the data.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Because each point in the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file is labelled with h, k, and l (the
+reciprocal lattice vectors) and energy, the underlying pixels will be
+unchanged. It is possible to redefine the coordinate system with the one of
+your choice; the projection merely describes how pixels will be accumulated
+(binned) and thus displayed.</p>
+</div>
+</section>
+<section id="lattice-basis-projections">
+<h3>Lattice basis projections<a class="headerlink" href="#lattice-basis-projections" title="Permalink to this headline"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> structure has several mandatory fields:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">proj.u</span></code></p>
+<p>3-vector of (h,k,l) specifying first viewing axis.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">proj.v</span></code></p>
+<p>3-vector of (h,k,l) in the plane of the second viewing axis.</p>
+<p>The second viewing axis is constructed to be in the plane of <code class="docutils literal notranslate"><span class="pre">proj.u</span></code> and
+<code class="docutils literal notranslate"><span class="pre">proj.v</span></code> and perpendicular to <code class="docutils literal notranslate"><span class="pre">proj.u</span></code>.  The the third viewing axes is
+defined as the cross product of the first two. The 4th axis is always energy
+and need not be specified.</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> of an <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> are distinct from the vectors <code class="docutils literal notranslate"><span class="pre">u</span></code>
+and <code class="docutils literal notranslate"><span class="pre">v</span></code> that are specified in <a class="reference internal" href="Generating_SQW_files.html#gen-sqw"><span class="std std-ref">gen_sqw</span></a>, which describe how the crystal is
+oriented with respect to the spectrometer and are determined by the physical
+orientation of your sample.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> are defined in the reciprocal lattice basis so if the crystal
+axes are not orthogonal, the here are not necessarily orthogonal in
+reciprocal space.</p>
+<p>E.g.:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">angdeg</span><span class="w"> </span><span class="s">%</span><span class="w"> </span><span class="p">=</span><span class="o">&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">60</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="mi">90</span><span class="p">]</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>such that proj.u = (1,0,0) and proj.v = (0,1,0). The reciprocal space
+projection will actually be offset according to angdeg.</p>
+</div>
+<p>There are optional fields too:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">proj.uoffset</span></code></p>
+<p>3-vector in (h,k,l) or 4-vector in (h,k,l,e) specifies an offset for all
+cuts. For example you may wish to make the origin of all your plots (2,1,0),
+in which case set <code class="docutils literal notranslate"><span class="pre">proj.uoffset</span> <span class="pre">=</span> <span class="pre">[2,1,0]</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">proj.type</span></code></p>
+<p>Three character string denoting the unit of measure along each of the three
+<strong>Q</strong>-axes, one character for each axis. If you want an axis to be displayed
+in inverse Angstroms, set the character to ‘a’. For r.l.u. set the
+corresponding character to ‘r’ (which normalises so that the maximum of
+|h|,|k| and |l| is unity) or ‘p’ (which preserves the values of <code class="docutils literal notranslate"><span class="pre">proj.u</span></code>
+and <code class="docutils literal notranslate"><span class="pre">proj.v</span></code>. For example, if we wanted the first two Q-components to be in
+r.l.u. and the third to be in inverse Angstroms we would have <code class="docutils literal notranslate"><span class="pre">proj.type</span> <span class="pre">=</span>
+<span class="pre">'rra'</span></code>.</p>
+</li>
+</ul>
+<p>You may optionally choose to use non-orthogonal axes:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;nonorthogonal&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>If you don’t specify <code class="docutils literal notranslate"><span class="pre">nonorthogonal</span></code>, or set it to <code class="docutils literal notranslate"><span class="pre">false</span></code>, you will get
+orthogonal axes defined by <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> normal to <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">u</span></code> x
+<code class="docutils literal notranslate"><span class="pre">v</span></code>. Setting <code class="docutils literal notranslate"><span class="pre">nonorthogonal</span></code> to true forces the axes to be exactly the ones
+you define, even if they are not orthogonal in the crystal lattice basis.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Plots that are produced plot them as orthogonal axes so any features may be
+skewed.</p>
+<p>However, it does make reading the location of a feature in a two-dimensional
+<strong>Q</strong>-<strong>Q</strong> plot straightforward, which is the main reason for doing this.</p>
+</div>
+</section>
+<section id="spherical-projections">
+<h3>Spherical Projections<a class="headerlink" href="#spherical-projections" title="Permalink to this headline"></a></h3>
+<p>In order to construct a spherical projection, i.e. a projection in
+<span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span>, <span class="math notranslate nohighlight">\(\theta\)</span> (azimuth), <span class="math notranslate nohighlight">\(\phi\)</span> (elevation), <span class="math notranslate nohighlight">\(E\)</span>, we define the
+projection in a similar way to other projections, but instead use <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code>:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sp_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>Where <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0]</span></code> is the offset of the projection with respect to <span class="math notranslate nohighlight">\(h,k,l,E\)</span></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A spherical projection does not have any scaling aspect to the
+<span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span> in the same way a <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> can define non-unitary
+vectors as the axes.</p>
+</div>
+<p>When it comes to cutting and plotting, we can use a <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> in exactly
+the same way as we would a <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> with one key difference. The binning
+arguments of <code class="docutils literal notranslate"><span class="pre">cut</span></code> no longer refer to <span class="math notranslate nohighlight">\(h,k,l,E\)</span>, but to <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span>,
+<span class="math notranslate nohighlight">\(\theta\)</span>, <span class="math notranslate nohighlight">\(\phi\)</span>, <span class="math notranslate nohighlight">\(E\)</span>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sp_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="n">Q</span><span class="p">,</span><span class="w"> </span><span class="n">theta</span><span class="p">,</span><span class="w"> </span><span class="n">phi</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">);</span>
+</pre></div>
+</div>
+<p>The structure of the arguments to cut is still the same (see <a class="reference internal" href="#binning-arguments">Binning arguments</a> below)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default a <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> will define its principal axes for angular
+integration (<span class="math notranslate nohighlight">\(\theta\)</span>, <span class="math notranslate nohighlight">\(\phi\)</span>) as the notional goniometer axes as
+defined by <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> in <a class="reference internal" href="Generating_SQW_files.html#gen-sqw"><span class="std std-ref">gen_sqw</span></a> it is possible to change these by
+setting <code class="docutils literal notranslate"><span class="pre">ex</span></code> and <code class="docutils literal notranslate"><span class="pre">ez</span></code> which are vectors in-plane and perpendicular to the plane
+respectively.</p>
+</div>
+</section>
+<section id="cylindrical-projections">
+<h3>Cylindrical Projections<a class="headerlink" href="#cylindrical-projections" title="Permalink to this headline"></a></h3>
+<p>TBD</p>
+</section>
+<section id="binning-arguments">
+<h3>Binning arguments<a class="headerlink" href="#binning-arguments" title="Permalink to this headline"></a></h3>
+<ul id="barguments">
+<li><p><code class="docutils literal notranslate"><span class="pre">p1_bin</span></code>, <code class="docutils literal notranslate"><span class="pre">p2_bin</span></code>, <code class="docutils literal notranslate"><span class="pre">p3_bin</span></code> and <code class="docutils literal notranslate"><span class="pre">p4_bin</span></code></p>
+<p>specify the binning / integration arguments for the Q &amp; Energy axes in the
+target projection’s coordinate system. Each can independently have one of four
+different forms:</p>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The meaning of the first, second, third, etc. components changes between each
+form. Ensure that you have the correct value in each component to ensure your
+cut is what you expect.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p>
+<p>An empty binning range will use the source binning axes in that dimension.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[n]</span></code></p>
+<p>if a single (scalar) number is given then that axis will be a plot axis and the
+bin width will be the number you specify. The lower and upper limits are the
+source binning axes in that dimension.</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A value of <code class="docutils literal notranslate"><span class="pre">[0]</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">[]</span></code> and will use the source binning axes.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">[lo,hi]</span></code></p>
+<p>If you specify a vector with two components then the signal will be integrated
+over that axis between limits specified by the two components of the vector.</p>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>A two-component binning axis defines the integration region between bin
+edges. For example, <code class="docutils literal notranslate"><span class="pre">[-1</span> <span class="pre">1]</span></code> will capture pixels from <code class="docutils literal notranslate"><span class="pre">-1</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code>
+inclusive.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">[lower,step,upper]</span></code></p>
+<p>A three-component binning axis specifies an axis is a plot axis with the first
+<code class="docutils literal notranslate"><span class="pre">lower</span></code> and the last <code class="docutils literal notranslate"><span class="pre">upper</span></code> components specifying the centres of the
+first and the last bins of the data to be cut. The middle component specifies
+the bin width.</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">step</span></code> is <code class="docutils literal notranslate"><span class="pre">0</span></code>, the <code class="docutils literal notranslate"><span class="pre">step</span></code> is taken from the source binning axes.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>A three-component binning axis defines the integration region by bin centres,
+i.e. the limits of the data to be cut lie between <code class="docutils literal notranslate"><span class="pre">min</span> <span class="pre">=</span> <span class="pre">lower-step/2</span></code> and
+<code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">=</span> <span class="pre">upper+step/2</span></code>, including <code class="docutils literal notranslate"><span class="pre">min/max</span></code> values. For example, <code class="docutils literal notranslate"><span class="pre">[-1</span> <span class="pre">1</span>
+<span class="pre">1]</span></code> will capture pixels from <code class="docutils literal notranslate"><span class="pre">-1.5</span></code> to <code class="docutils literal notranslate"><span class="pre">1.5</span></code> inclusive.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">[lower,</span> <span class="pre">separation,</span> <span class="pre">upper,</span> <span class="pre">cut_width]</span></code></p>
+<p>A four-component binning axis defines <strong>multiple</strong> cuts with <strong>multiple</strong>
+integration limits in the selected direction.  These components are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">lower</span></code></p>
+<p>minimum cut bin-centre</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">separation</span></code></p>
+<p>distance between cut bin-centres</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upper</span></code></p>
+<p>approximate maximum cut bin-centre</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cut_width</span></code></p>
+<p>half-width of each cut from each bin-centre in both directions</p>
+</li>
+</ul>
+<p>The number of cuts produced will be the number of <code class="docutils literal notranslate"><span class="pre">separation</span></code>-sized steps
+between <code class="docutils literal notranslate"><span class="pre">lower</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code>.</p>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">upper</span></code> will be automatically increased such that <code class="docutils literal notranslate"><span class="pre">separation</span></code> evenly
+divides <code class="docutils literal notranslate"><span class="pre">upper</span> <span class="pre">-</span> <span class="pre">lower</span></code>.  For example, <code class="docutils literal notranslate"><span class="pre">[106,</span> <span class="pre">4,</span> <span class="pre">113,</span> <span class="pre">2]</span></code> defines the
+integration ranges for three cuts, the first cut integrates the axis over
+<code class="docutils literal notranslate"><span class="pre">105-107</span></code>, the second over <code class="docutils literal notranslate"><span class="pre">109-111</span></code> and the third <code class="docutils literal notranslate"><span class="pre">113-115</span></code>.</p>
+</div>
+</section>
+<section id="optional-arguments">
+<h3>Optional arguments<a class="headerlink" href="#optional-arguments" title="Permalink to this headline"></a></h3>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">my_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="w"> </span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="n">p1_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p2_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p3_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p4_bin</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'-nopix'</span></code></p>
+<p>means that the individual pixel information contributing to the resulting data
+is NOT retained (at present the default is to retain it, resulting in an
+output that is an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, whereas using <code class="docutils literal notranslate"><span class="pre">'-nopix'</span></code> gives a <code class="docutils literal notranslate"><span class="pre">dnd</span></code>
+output).</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
+<p>is a string specifying a full filename (including path) for the data to be
+stored, in addition to being stored in the Matlab workspace.</p>
+</li>
+</ul>
+</section>
+<section id="further-examples">
+<h3>Further Examples<a class="headerlink" href="#further-examples" title="Permalink to this headline"></a></h3>
+<p>To take a cut from an existing <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object, retaining the existing
+projection axes and binning:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,[],[</span><span class="n">lo1</span><span class="p">,</span><span class="n">hi1</span><span class="p">],[</span><span class="n">lo2</span><span class="p">,</span><span class="n">hi2</span><span class="p">],</span><span class="k">...</span><span class="c">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The number of binning arguments need only match the dimensionality of the
+object <code class="docutils literal notranslate"><span class="pre">w</span></code> (i.e. the number of plot axes), so can be fewer than 4.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You cannot change the binning in a dnd object, i.e. you can only set the
+integration ranges, and have to use <code class="docutils literal notranslate"><span class="pre">[]</span></code> for the plot axis. The only option
+you have is to change the range of the plot axis by specifying
+<code class="docutils literal notranslate"><span class="pre">[lo1,0,hi1]</span></code> instead of <code class="docutils literal notranslate"><span class="pre">[]</span></code> (the ‘0’ means ‘use existing bin size’).</p>
+</div>
+</section>
+</section>
+<section id="section">
+<h2>section<a class="headerlink" href="#section" title="Permalink to this headline"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">section</span></code> is an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> method, which works like a cut but uses the existing
+bins of an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object rather than rebinning.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">section</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">p1_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p2_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p3_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p4_bin</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Because it only extracts existing bins, this means that it doesn’t need to
+recompute any statistics related to the object itself and is therefore faster
+and more efficient. However, it has the limitation that it cannot alter the
+projection or binning widths from the original.</p>
+<p>The parameters of section are as follows:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">sqw</span></code> object(s) to be sectioned as an array (of 1 or more elements)</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pN_bin</span></code></p>
+<p>Range of bins specified as bin edges to extract from <code class="docutils literal notranslate"><span class="pre">w</span></code>.</p>
+<p>There are three valid forms for any <code class="docutils literal notranslate"><span class="pre">pN_bin</span></code>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code>, <code class="docutils literal notranslate"><span class="pre">[0]</span></code></p>
+<p>Use entire original binning axis.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[lo,</span> <span class="pre">hi]</span></code></p>
+<p>Range containing bin centres to extract from <code class="docutils literal notranslate"><span class="pre">w</span></code></p>
+</li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The number of <code class="docutils literal notranslate"><span class="pre">pN_bin</span></code> specified must match the dimensionality of the
+underlying <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These parameters are specified by inclusive edge limits. Any ranges beyond
+the the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object’s <code class="docutils literal notranslate"><span class="pre">img_range</span></code> will be reduced to only capture extant
+bins.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Selected bins will be those whose bin centres lie within the range <code class="docutils literal notranslate"><span class="pre">lo</span> <span class="pre">-</span>
+<span class="pre">hi</span></code>, this means that the actual returned <code class="docutils literal notranslate"><span class="pre">img_range</span></code> may not match <code class="docutils literal notranslate"><span class="pre">[lo</span>
+<span class="pre">hi]</span></code>. For example, a bin from <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">-</span> <span class="pre">1</span></code> (centre <code class="docutils literal notranslate"><span class="pre">0.5</span></code>) will be included by
+the following <code class="docutils literal notranslate"><span class="pre">section</span></code> despite the bin not being entirely contained within
+the range. The resulting image range will be <code class="docutils literal notranslate"><span class="pre">[0</span> <span class="pre">1]</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">section</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.4</span><span class="w"> </span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>In order to extract bins whose centres lie in the range <code class="docutils literal notranslate"><span class="pre">[-5</span> <span class="pre">5]</span></code> from a 4-D
+<code class="docutils literal notranslate"><span class="pre">sqw</span></code> object:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">section</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="w"> </span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[])</span>
+</pre></div>
+</div>
+</section>
+<section id="head-horace">
+<h2>head_horace<a class="headerlink" href="#head-horace" title="Permalink to this headline"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">head_horace</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+
+<span class="n">info</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">head_horace</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;-full&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is a function to give the header information in an SQW file or file to
+which an sqw object or dnd object has been saved, and whose full filename is
+given by the argument <code class="docutils literal notranslate"><span class="pre">filename</span></code>. If the option <code class="docutils literal notranslate"><span class="pre">'-full'</span></code> is used then a
+fuller set of header information, rather than just the principal header, is
+returned. The purpose of this function is to read the contents regardless of
+your knowledge of whether or not the file contains an sqw object or a dnd
+object.</p>
+</section>
+<section id="head-sqw">
+<h2>head_sqw<a class="headerlink" href="#head-sqw" title="Permalink to this headline"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">head_sqw</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+
+<span class="n">info</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">head_sqw</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;-full&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is a function to give the header information in an SQW file or file to
+which an sqw object has been saved, whose full filename is given by the argument
+<code class="docutils literal notranslate"><span class="pre">filename</span></code>. If the option <code class="docutils literal notranslate"><span class="pre">'-full'</span></code> is used then a fuller set of header
+information, rather than just the principal header, is returned.</p>
+</section>
+<section id="head-dnd">
+<h2>head_dnd<a class="headerlink" href="#head-dnd" title="Permalink to this headline"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">head_dnd</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This is a function to give the header information in file to which a dnd object
+has been saved, whose full filename is given by the argument <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p>
+</section>
+<section id="read-horace">
+<h2>read_horace<a class="headerlink" href="#read-horace" title="Permalink to this headline"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_horace</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This is a function to read <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> data from a file. The object type is
+determined from the contents of the file. If the file contains a full sqw
+dataset (whether created using gen_sqw or as the result of saving a cut), the
+returned variable is an sqw object; if the file contains a dnd dataset, the
+output is the corresponding d01, d1d, …or d4d object.</p>
+</section>
+<section id="read-sqw">
+<h2>read_sqw<a class="headerlink" href="#read-sqw" title="Permalink to this headline"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_sqw</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This is a function to read sqw data from a file. Note that in this context we
+mean an n-dimensional dataset, which includes pixel information, that has been
+saved to file. This could be either a full SQW file created wusing gen_sqw, or
+an sqw dataset that has been saved to file. The object <code class="docutils literal notranslate"><span class="pre">output</span></code> will be an sqw
+object.</p>
+</section>
+<section id="read-dnd">
+<h2>read_dnd<a class="headerlink" href="#read-dnd" title="Permalink to this headline"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_dnd</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Exactly the same as above, but reads dnd data saved to file. If the file
+contains full sqw dataset, then it will be read as if it contained just a dnd
+dataset.</p>
+</section>
+<section id="save">
+<h2>save<a class="headerlink" href="#save" title="Permalink to this headline"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">save</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Saves the sqw object or dnd object <code class="docutils literal notranslate"><span class="pre">object</span></code> from the Matlab workspace into the
+file specified by <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p>
+</section>
+<section id="xye">
+<h2>xye<a class="headerlink" href="#xye" title="Permalink to this headline"></a></h2>
+<p>Extract the bin centres, intensity and standard errors from an sqw or dnd
+object.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">S</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">xye</span><span class="p">(</span><span class="n">w</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The output is a structure with fields S.x (bin centres if a 1D object, or cell
+array of vectors containing the bin centres along each axis if 2D, 3D or 4D
+object), S.y (array of intensities), S.e (array of estimated error on the
+intensities).</p>
+</section>
+<section id="save-xye">
+<h2>save_xye<a class="headerlink" href="#save-xye" title="Permalink to this headline"></a></h2>
+<p>Save data in an sqw or dnd dataset to an ascii file.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;C:\\mprogs\\my_ascii_file.txt&#39;</span><span class="p">;</span>
+<span class="n">save_xye</span><span class="p">(</span><span class="n">w_in</span><span class="p">,</span><span class="n">filename</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The format of the ascii file for an n-dimensional dataset is n columns of
+co-ordinates along each of the axes, plus one column of signal and another
+column of error (standard deviation).</p>
+</section>
+<section id="hkle">
+<h2>hkle<a class="headerlink" href="#hkle" title="Permalink to this headline"></a></h2>
+<p>Obtain the reciprocal space coordinate [h,k,l,e] for points in the coordinates
+of the display axes for an sqw object <strong>from a single spe file</strong></p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">qe1</span><span class="p">,</span><span class="n">qe2</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hkle</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The inputs take the form:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code></p>
+<p>sqw object</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code></p>
+<p>Vector of coordinates in the display axes of an sqw object. The number of
+coordinates must match the dimensionality of the object. e.g. for a 2D sqw
+object, <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">[x1,x2]</span></code>, where <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code> are column vectors. More than
+one point can be provided by giving more rows e.g. <code class="docutils literal notranslate"><span class="pre">[1.2,4.3;</span> <span class="pre">1.1,5.4;</span> <span class="pre">1.32,</span>
+<span class="pre">6.7]</span></code> for 3 points from a 2D object. Generally, an (<code class="docutils literal notranslate"><span class="pre">n</span></code> x <code class="docutils literal notranslate"><span class="pre">nd</span></code>) array,
+where <code class="docutils literal notranslate"><span class="pre">n</span></code> is the number of points, and <code class="docutils literal notranslate"><span class="pre">nd</span></code> the dimensionality of the
+object.</p>
+</li>
+</ul>
+<p>The outputs take the form:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">qe1</span></code></p>
+<p>Components of momentum (in rlu) and energy for each bin in the
+dataset. Generally, will be (n x 4) array, where n is the number of points</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">qe2</span></code></p>
+<p>For the second root</p>
+</li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Generating_SQW_files.html" class="btn btn-neutral float-left" title="Generating SQW files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Reshaping_etc.html" class="btn btn-neutral float-right" title="Other shape functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Sep 15, 2023, 4:46:32 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/manual/Manipulating_and_extracting_data_from_SQW_files_and_objects.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

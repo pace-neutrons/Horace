@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Read or write to disk &mdash; Horace 3.5.1.6f10d74d6 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Remote data analysis" href="Remote_data_analysis.html" />
+    <link rel="prev" title="Official download v1" href="Official_download_v1.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Horace
+          </a>
+              <div class="version">
+                3.5.1.6f10d74d6
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_setup.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="How_to_cite_Horace.html">How to cite Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Papers_citing_Horace.html">Papers citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Known_bugs.html">Known bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Become_a_developer.html">Become a developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="For_Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developer_info.html">Developer info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#read-horace-read-sqw-read-dnd">read_horace, read_sqw, read_dnd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#save">save</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#save-xye">save_xye</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#head-horace-head-sqw-head-dnd">head_horace, head_sqw, head_dnd</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Read or write to disk</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Read_or_write_to_disk.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="read-or-write-to-disk">
+<h1>Read or write to disk<a class="headerlink" href="#read-or-write-to-disk" title="Permalink to this headline"></a></h1>
+<section id="read-horace-read-sqw-read-dnd">
+<h2>read_horace, read_sqw, read_dnd<a class="headerlink" href="#read-horace-read-sqw-read-dnd" title="Permalink to this headline"></a></h2>
+<p>There are three functions that can be used to read sqw or d1d,d2d,…d4d data from a binary file that was written using <code class="docutils literal notranslate"><span class="pre">save</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\myfile.dat&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">w_read</span><span class="p">=</span><span class="n">read_horace</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\myfile.sqw&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">w_read</span><span class="p">=</span><span class="n">read_sqw</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>In the example shown here <code class="docutils literal notranslate"><span class="pre">w_read</span></code> is an sqw object, since the data in <code class="docutils literal notranslate"><span class="pre">myfile.sqw</span></code> originated from a cut created using cut_sqw with option ‘-pix’.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\myfile.d1d&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">w_read</span><span class="p">=</span><span class="n">read_sqw</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>In the example shown here <code class="docutils literal notranslate"><span class="pre">w_read</span></code> is an d1d object, since the data in <code class="docutils literal notranslate"><span class="pre">myfile.d1d</span></code> originated from a cut created using cut_sqw with option ‘-nopix’.</p>
+</section>
+<section id="save">
+<h2>save<a class="headerlink" href="#save" title="Permalink to this headline"></a></h2>
+<p>Function that applies to all dimensionalities and types of datasets.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\myfile.dat&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="nb">save</span><span class="p">(</span><span class="n">w_in</span><span class="p">,</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This function writes the n-dimensional dataset <code class="docutils literal notranslate"><span class="pre">w_in</span></code> (sqw type or d1d etc type) to a file specified by the string <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p>
+</section>
+<section id="save-xye">
+<h2>save_xye<a class="headerlink" href="#save-xye" title="Permalink to this headline"></a></h2>
+<p>Save data in an sqw or dnd dataset to an ascii file.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\my_ascii_file.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">save_xye</span><span class="p">(</span><span class="n">w_in</span><span class="p">,</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The format of the ascii file for an n-dimensional dataset is n columns of co-ordinates along each of the axes, plus one column of signal and another column of error (variance).</p>
+</section>
+<section id="head-horace-head-sqw-head-dnd">
+<h2>head_horace, head_sqw, head_dnd<a class="headerlink" href="#head-horace-head-sqw-head-dnd" title="Permalink to this headline"></a></h2>
+<p>These functions return a Matlab structure containing with the header information in an sqw or dnd file.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\myfile.sqw&#39;</span><span class="w"></span>
+<span class="n">h</span><span class="p">=</span><span class="n">head_horace</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="w"></span>
+<span class="n">hfull</span><span class="p">=</span><span class="n">head_horace</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;-full&#39;</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The header information is read from a binary file containing an sqw object or dnd object.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\myfile.sqw&#39;</span><span class="w"></span>
+<span class="n">h</span><span class="p">=</span><span class="n">head_sqw</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="w"></span>
+<span class="n">hfull</span><span class="p">=</span><span class="n">head_sqw</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;-full&#39;</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The header information is read from a binary file containing an sqw object.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\myfile.sqw&#39;</span><span class="w"></span>
+<span class="n">h</span><span class="p">=</span><span class="n">head_dnd</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The header information is read from a binary file containing a dnd object. If the file contains an sqw object, then the header information that is returned is that if there was an implicit conversion of the sqw onject to a dnd object.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Official_download_v1.html" class="btn btn-neutral float-left" title="Official download v1" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+      });
+  </script> 
+
+</body>
+</html>

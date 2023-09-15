@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; Horace 4.0.0.a2d1f2c36 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="General disclaimer" href="General_disclaimer.html" />
+    <link rel="prev" title="Contributing to Horace" href="Contributing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Horace
+            <img src="_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.0.0.a2d1f2c36
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-sqw.&#64;SQWDnDBase"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sqw.&#64;Experiment"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pixeldata-class"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/API_Reference.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<h1><a class="toc-backref" href="#id7">API Reference</a><a class="headerlink" href="#api-reference" title="Permalink to this headline"></a></h1>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#api-reference" id="id7">API Reference</a></p>
+<ul>
+<li><p><a class="reference internal" href="#module-sqw.&#64;SQWDnDBase" id="id8"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a></p></li>
+<li><p><a class="reference internal" href="#module-sqw.&#64;Experiment" id="id9"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a></p></li>
+<li><p><a class="reference internal" href="#pixeldata-class" id="id10"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">API Index</span></a></p></li>
+</ul>
+<section id="module-sqw.&#64;SQWDnDBase">
+<span id="sqwdndbase-class"></span><h2><a class="toc-backref" href="#id8"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a><a class="headerlink" href="#module-sqw.@SQWDnDBase" title="Permalink to this headline"></a></h2>
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.acos">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">acos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.acos" title="Permalink to this definition"></a></dt>
+<dd><p>Implements acos(w1) for objects   &gt;&gt; w = acos(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.acosh">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">acosh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.acosh" title="Permalink to this definition"></a></dt>
+<dd><p>Implements acosh(w1) for objects   &gt;&gt; w = acosh(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.acot">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">acot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.acot" title="Permalink to this definition"></a></dt>
+<dd><p>Implements acot(w1) for objects   &gt;&gt; w = acot(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.acoth">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">acoth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.acoth" title="Permalink to this definition"></a></dt>
+<dd><p>Implements acoth(w1) for objects   &gt;&gt; w = acoth(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.acsc">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">acsc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.acsc" title="Permalink to this definition"></a></dt>
+<dd><p>Implements acsc(w1) for objects   &gt;&gt; w = acsc(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.acsch">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">acsch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.acsch" title="Permalink to this definition"></a></dt>
+<dd><p>Implements acsch(w1) for objects   &gt;&gt; w = acsch(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.asec">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">asec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.asec" title="Permalink to this definition"></a></dt>
+<dd><p>Implements asec(w1) for objects   &gt;&gt; w = asec(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.asech">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">asech</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.asech" title="Permalink to this definition"></a></dt>
+<dd><p>Implements asech(w1) for objects   &gt;&gt; w = asech(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.asin">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">asin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.asin" title="Permalink to this definition"></a></dt>
+<dd><p>Implements asin(w1) for objects   &gt;&gt; w = asin(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.asinh">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">asinh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.asinh" title="Permalink to this definition"></a></dt>
+<dd><p>Implements asinh(w1) for objects   &gt;&gt; w = asinh(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.atan">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">atan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.atan" title="Permalink to this definition"></a></dt>
+<dd><p>Implements atan(w1) for objects   &gt;&gt; w = atan(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.atanh">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">atanh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.atanh" title="Permalink to this definition"></a></dt>
+<dd><p>Implements atanh(w1) for objects   &gt;&gt; w = atanh(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.binary_op_manager">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">binary_op_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em>, <em class="sig-param"><span class="pre">binary_op</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.binary_op_manager" title="Permalink to this definition"></a></dt>
+<dd><p>Implements a binary operation for objects with a signal and a variance array.   &gt;&gt; w = binary_op_manager(w1, w2, binary_op) All binary operations on Matlab double arrays are permitted (+, -, <a href="#id1"><span class="problematic" id="id2">*</span></a>, /, ) and are applied element by element to the signal and variance arrays. Input: ——   w1, w2      Objects on which the binary operation is to be performed.               One of these can be a Matlab double (i.e. double precision)               array, in which case the variance array is taken to be zero.               If w1, w2 are scalar objects with the same signal array sizes:               - The operation is performed element-by-element.               If one of w1 or w2 is a double array (and the other is a               scalar object):               - If a scalar, apply to each element of the object signal.               - If it is an array of the same size as the object signal                 array, apply the operation element by element.               If one or both of w1 and w2 are arrays of objects:               - If objects have same array sizes, the binary operation is                applied object element-by-object element.               - If one of the objects is scalar (i.e. only one object),                then it is applied by the binary operation to each object                in the other array.               If one of w1, w2 is an array of objects and the other is a               double array:               - If the double is a scalar, it is applied to every object                in the array.               - If the double is an array with the same size as the object                array, then each element is applied as a scalar to the                corresponding object in the object array.               - If the double is an array with larger size than the object                array, then the array is resolved into a stack of arrays,                where the stack has the same size as the object array, and                the each array in the stack is applied to the corresponding                object in the object array. [Note that for this operation                to be valid, each object must have the same signal array                size.]   binary_op   Function handle to a binary operation. All binary operations               on Matlab double or single arrays are permitted (+, -, <a href="#id3"><span class="problematic" id="id4">*</span></a>,               /, ). Output: ——-   w           Output object or array of objects. NOTES: This is a generic method - works for any class (including sigvar) so long as the methods below are defined on that class. Requires that objects have the following methods to find the size of the public signal and variance arrays, create a sigvar object from those arrays, and set them from another sigvar object.        &gt;&gt; sz = sigvar_size(obj)    % Returns size of public signal and variance                               % arrays &gt;&gt; w = sigvar(obj)          % Create a sigvar object from the public                               % signal and variance arrays &gt;&gt; obj = sigvar_set(obj,w)  % Set signal and variance in an object from                               % those in a sigvar object</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.cos">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">cos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.cos" title="Permalink to this definition"></a></dt>
+<dd><p>Implements cos(w1) for objects   &gt;&gt; w = cos(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.cosh">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">cosh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.cosh" title="Permalink to this definition"></a></dt>
+<dd><p>Implements cosh(w1) for objects   &gt;&gt; w = cosh(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.cot">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">cot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.cot" title="Permalink to this definition"></a></dt>
+<dd><p>Implements cot(w1) for objects   &gt;&gt; w = cot(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.coth">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">coth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.coth" title="Permalink to this definition"></a></dt>
+<dd><p>Implements coth(w1) for objects   &gt;&gt; w = coth(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.csc">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">csc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.csc" title="Permalink to this definition"></a></dt>
+<dd><p>Implements csc(w1) for objects   &gt;&gt; w = csc(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.csch">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">csch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.csch" title="Permalink to this definition"></a></dt>
+<dd><p>Implements csch(w1) for objects   &gt;&gt; w = csch(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.disp2sqw_eval">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">disp2sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">dispreln</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">fwhh</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.disp2sqw_eval" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate sqw for a model scattering function   &gt;&gt; wout = disp2sqw_eval(win,dispreln,pars,fwhh,varargin) Input: ——   win         Dataset, or array of datasets, that provides the axes and points              for the calculation   dispreln    Handle to function that calculates the dispersion relation w(Q) and              spectral weight, s(Q)              Must have form:                   [w,s] = dispreln (qh,qk,ql,p)               where                   qh,qk,ql    Arrays containing the coordinates of a set of points                              in reciprocal lattice units                   p           Vector of parameters needed by dispersion function                              e.g. [A,js,gam] as intensity, exchange, lifetime                   w           Array of corresponding energies, or, if more than                              one dispersion relation, a cell array of arrays.                   s           Array of spectral weights, or, if more than                              one dispersion relation, a cell array of arrays.              More general form is:                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)                 where                   p           Typically a vector of parameters that we might want                              to fit in a least-squares algorithm                   c1,c2,…   Other constant parameters e.g. file name for look-up                              table.   pars        Arguments needed by the function. Most commonly, a vector of parameter              values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general              set of parameters is required by the function, then              package these into a cell array and pass that as pars. In the example              above then pars = {p, c1, c2, …}   fwhh       Parametrizes the resolution function. There are three              possible input values of fwhh:       double              A single FWHM value determines the FWHM of the                           Gaussian resolution function       function_handle     A function that produces the FWHM value as a                           function of energy transfer, it has to have the                           following simple header (where omega can be a row                           vector of energies:                               dE = resfun(omega)       function_handle     A function handle of a function with two input                           parameters with the following header:                               I = shapefun(Emat,omega)                           where Emat is a matrix with dimensions of [nQ nE]                           and omega is a column vector with nQ elements. The                           shapefun produces a peakshape for every Q point                           centered at the given omega and normalized to one.                           The output I has the same dimensions as the                           input Emat. Optional arguments: (varargin)   ‘-al[l]’  Requests that the calculated sqw be returned over             the whole of the domain of the input dataset. If not given, then             the function will be returned only at those points of the dataset             that contain data.             Applies only to input with no pixel information - it is ignored if             full sqw object.   ‘-av[erage]’ Requests that the calculated sqw be computed for the              average values of h,k,l of the pixels in a bin, not for each              pixel individually. Reduces cost of expensive calculations.               Applies only to the case of sqw object with pixel information - it is              ignored if dnd type object. Output: ——-   wout        Output dataset or array of datasets</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.dispersion">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">dispreln</span></em>, <em class="sig-param"><span class="pre">pars</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.dispersion" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate dispersion relation for dataset or array of datasets. New behaviour: Always returns appropriate dnd object. May be modified in a future. If the input contains array of sqw objects, the objects need to have the same number of dimensions (may be relaxed if requested)   &gt;&gt; wdisp = dispersion (win, dispreln, p)            % dispersion only   &gt;&gt; [wdisp,weight] = dispersion (win, dispreln, p)   % dispersion and spectral weight The output dataset (or array of data sets), wdisp, will retain only the Q axes, and the signal array(s) will contain the values of energy along the Q axes. If the dispersion relation returns the spectral weight, this will be placed in the error array (actually the square of the spectral weight is put in the error array). In the case when the dispersion has been calculated on a plane in momentum (i.e. wdisp is IX_datset_2d) then the plot function ps2 (for plot_surface2)   &gt;&gt; ps2(wdisp) will plot a surface with the z axis as energy and coloured according to the spectral weight. The dispersion relation is calculated at the bin centres (that is, the individual pixel information in a sqw input object is not used). If the function that calculates dispersion relations produces more than one branch, then in the case of a single input dataset the output will be an array of datasets, one for each branch. If the input is an array of datasets, then only the first dispersion branch will be returned, so there is one output dataset per input dataset. Input: ======   win         Dataset that provides the axes and points for the calculation               If one of the plot axes is energy transfer, then the output dataset              will have dimensionality one less than the input dataset   dispreln    Handle to function that calculates the dispersion relation w(Q)              Must have form:                   [w,s] = dispreln (qh,qk,ql,p)               where                   qh,qk,ql    Arrays containing the coordinates of a set of points                              in reciprocal lattice units                   p           Vector of parameters needed by dispersion function                              e.g. [A,js,gam] as intensity, exchange, lifetime                   w           Array of corresponding energies, or, if more than                              one dispersion relation, a cell array of arrays.                   s           Array of spectral weights, or, if more than                              one dispersion relation, a cell array of arrays.              More general form is:                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)                 where                   p           Typically a vector of parameters that we might want                              to fit in a least-squares algorithm                   c1,c2,…   Other constant parameters e.g. file name for look-up                              table.   p           Arguments needed by the function. Most commonly, a vector of parameter              values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general              set of parameters is required by the function, then              package these into a cell array and pass that as pars. In the example              above then pars = {p, c1, c2, …} Output: =======   wdisp       Output dataset or array of datasets of the same type as the input argument.               The output dataset (or array of data sets) will retain only the Q axes, the              the signal array(s) will contain the values of energy along the Q axes, and              the error array will contain the square of the spectral weight.               If the function that calculates dispersion relations produces more than one              branch, then in the case of a single input dataset the output will be an array              of datasets, one for each branch. If the input is an array of datasets, then only              the first dispersion branch will be returned, so there is one output dataset per              input dataset.   weight      Mirror output: the signal is the spectral weight, and the error array               contains the square of the frequency.   e.g.        If win is a 2D dataset with Q and E axes, then wdisp is a 1D dataset              with just the Q axis</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.equal_to_tol">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">equal_to_tol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.equal_to_tol" title="Permalink to this definition"></a></dt>
+<dd><p>Check if two sqw objects are equal to a given tolerance   &gt;&gt; ok = equal_to_tol (a, b)   &gt;&gt; ok = equal_to_tol (a, b, tol)   &gt;&gt; ok = equal_to_tol (…, keyword1, val1, keyword2, val2,…)   &gt;&gt; [ok, mess] = equal_to_tol (…) Class specific version of the generic equal_to_tol that by default   (1) assumes NaN are equivalent (see option ‘nan_equal’), and   (2) ignores the order of pixels within a bin as the order is irrelevant       (change the default with option ‘reorder’) In addition, it is possible to check the contents of just a random fraction of non-empty bins (see option ‘fraction’) in order to speed up the comparison of large objects. Input: ——   w1,w2   Test objects (scalar objects, or arrays of objects with same sizes)   tol     Tolerance criterion for numeric arrays (Default: [0,0] i.e. equality)           It has the form: [abstol, reltol] where               abstol     absolute tolerance (&gt;=0; if =0 equality required)               reltol     relative tolerance (&gt;=0; if =0 equality required)           If either criterion is satified then equality within tolerance           is accepted.             Examples:               [1e-4, 1e-6]    absolute 1e-4 or relative 1e-6 required               [1e-4, 0]       absolute 1e-4 required               [0, 1e-6]       relative 1e-6 required               [0, 0]          equality required               0               equivalent to [0,0]           For backwards compatibility, a scalar tolerance can be given           where the sign determines absolute or relative tolerance               +ve : absolute tolerance  abserr = abs(a-b)               -ve : relative tolerance  relerr = abs(a-b)/max(abs(a),abs(b))             Examples:               1e-4            absolute tolerance, equivalent to [1e-4, 0]               -1e-6           relative tolerance, equivalent to [0, 1e-6]           [To apply an absolute as well as a relative tolerance with a            scalar negative value, set the value of the legacy keyword           ‘min_denominator’ (see below)] Valid keywords are:  ‘nan_equal’      Treat NaNs as equal (true or false; default=true)  ‘ignore_str’     Ignore the length and content of strings or cell arrays                  of strings (true or false; default=false)  ‘reorder’        Ignore the order of pixels within each bin                  (true or false; default=true)                   Only applies if sqw-type object  ‘fraction’       Compare pixels in only a fraction of the non-empty bins                  (0&lt;= fracton &lt;= 1; default=1 i.e. test all bins)                   Only applies if sqw-type object  ‘-ignore_date’   (provided without additional values, so its presence in                    the sequence of keywords means true). If provided,                    ignore file creation date stored in main header.      The reorder and fraction options are available because the order of the   pixels within the pix array for a given bin is unimportant. Reordering   takes time, however, so the option to test on a few bins is given.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.exp">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.exp" title="Permalink to this definition"></a></dt>
+<dd><p>Implements exp(w1) for objects   &gt;&gt; w = exp(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.log">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.log" title="Permalink to this definition"></a></dt>
+<dd><p>Implements log(w1) for objects   &gt;&gt; w = log(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.log10">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">log10</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.log10" title="Permalink to this definition"></a></dt>
+<dd><p>Implements log10(w1) for objects   &gt;&gt; w = log10(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mask_points">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mask_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mask_points" title="Permalink to this definition"></a></dt>
+<dd><p>TODO: Does not look like this function should be here Determine the points to keep on the basis of ranges and mask array.   &gt;&gt; sel = mask_points (win, ‘keep’, xkeep, ‘remove’, xremove, ‘mask’, mask) or any selection (in any order) of the keyword-argument pairs e.g.   &gt;&gt; sel = mask_points (win, ‘mask’, mask, ‘remove’, xremove) Input: ——   win     Input sqw object   xkeep   Ranges of display axes to retain for fitting. A range is specified by an array           of numbers which define a hypercube.           For example in case of two dimensions:               [xlo, xhi, ylo, yhi]           or in the case of n-dimensions:               [x1_lo, x1_hi, x2_lo, x2_hi,…, xn_lo, xn_hi]              e.g. 1D: [50,70]                   2D: [1,2,130,160]           More than one range can be defined in rows,               [Range_1; Range_2; Range_3;…; Range_m]             where each of the ranges are given in the format above.   xremove Ranges of display axes to remove from fitting.   mask    Mask array of same number of elements as data array: 1 to keep, 0 to remove               Note: mask will be applied to the stored data array              according as the projection axes, not the display axes.              Thus permuting the display axes does not alter the              effect of masking the data. The mask array works              consistently with the input required by the mask method. Output: ——-   sel     Mask array of same shape as <a href="#id11"><span class="problematic" id="id12">data_</span></a>. true for bins to keep, false to discard.  Advanced use: in addition the following two arguments, if present, suppress failure or the  display of informational messges. Instead, the messages are returned to be used as desired.   ok      =true if worked, =false if error   mess    messages: if ok=true then informational or warning, if ok=false then the error message</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.minus">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">minus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.minus" title="Permalink to this definition"></a></dt>
+<dd><p>Implements w1 - w2 for objects   &gt;&gt; w = w1 - w2 Input: ——   w1, w2      Objects on which the binary operation is to be performed.               One of these can be a Matlab double (i.e. double precision)               array, in which case the variance array is taken to be zero.               If w1, w2 are scalar objects with the same signal array sizes:               - The operation is performed element-by-element.               If one of w1 or w2 is a double array (and the other is a               scalar object):               - If a scalar, apply to each element of the object signal.               - If it is an array of the same size as the object signal                 array, apply the operation element by element.               If one or both of w1 and w2 are arrays of objects:               - If objects have same array sizes, the binary operation is                applied object element-by-object element.               - If one of the objects is scalar (i.e. only one object),                then it is applied by the binary operation to each object                in the other array.               If one of w1, w2 is an array of objects and the other is a               double array:               - If the double is a scalar, it is applied to every object                in the array.               - If the double is an array with the same size as the object                array, then each element is applied as a scalar to the                corresponding object in the object array.               - If the double is an array with larger size than the object                array, then the array is resolved into a stack of arrays,                where the stack has the same size as the object array, and                the each array in the stack is applied to the corresponding                object in the object array. [Note that for this operation                to be valid, each object must have the same signal array                size.] Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mldivide">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mldivide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mldivide" title="Permalink to this definition"></a></dt>
+<dd><p>Implements w1 w2 for objects   &gt;&gt; w = w1 w2 Input: ——   w1, w2      Objects on which the binary operation is to be performed.               One of these can be a Matlab double (i.e. double precision)               array, in which case the variance array is taken to be zero.               If w1, w2 are scalar objects with the same signal array sizes:               - The operation is performed element-by-element.               If one of w1 or w2 is a double array (and the other is a               scalar object):               - If a scalar, apply to each element of the object signal.               - If it is an array of the same size as the object signal                 array, apply the operation element by element.               If one or both of w1 and w2 are arrays of objects:               - If objects have same array sizes, the binary operation is                applied object element-by-object element.               - If one of the objects is scalar (i.e. only one object),                then it is applied by the binary operation to each object                in the other array.               If one of w1, w2 is an array of objects and the other is a               double array:               - If the double is a scalar, it is applied to every object                in the array.               - If the double is an array with the same size as the object                array, then each element is applied as a scalar to the                corresponding object in the object array.               - If the double is an array with larger size than the object                array, then the array is resolved into a stack of arrays,                where the stack has the same size as the object array, and                the each array in the stack is applied to the corresponding                object in the object array. [Note that for this operation                to be valid, each object must have the same signal array                size.] Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mpower">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mpower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mpower" title="Permalink to this definition"></a></dt>
+<dd><p>Implements w1 ^ w2 for objects   &gt;&gt; w = w1 ^ w2 Input: ——   w1, w2      Objects on which the binary operation is to be performed.               One of these can be a Matlab double (i.e. double precision)               array, in which case the variance array is taken to be zero.               If w1, w2 are scalar objects with the same signal array sizes:               - The operation is performed element-by-element.               If one of w1 or w2 is a double array (and the other is a               scalar object):               - If a scalar, apply to each element of the object signal.               - If it is an array of the same size as the object signal                 array, apply the operation element by element.               If one or both of w1 and w2 are arrays of objects:               - If objects have same array sizes, the binary operation is                applied object element-by-object element.               - If one of the objects is scalar (i.e. only one object),                then it is applied by the binary operation to each object                in the other array.               If one of w1, w2 is an array of objects and the other is a               double array:               - If the double is a scalar, it is applied to every object                in the array.               - If the double is an array with the same size as the object                array, then each element is applied as a scalar to the                corresponding object in the object array.               - If the double is an array with larger size than the object                array, then the array is resolved into a stack of arrays,                where the stack has the same size as the object array, and                the each array in the stack is applied to the corresponding                object in the object array. [Note that for this operation                to be valid, each object must have the same signal array                size.] Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mrdivide">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mrdivide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mrdivide" title="Permalink to this definition"></a></dt>
+<dd><p>Implements w1 / w2 for objects   &gt;&gt; w = w1 / w2 Input: ——   w1, w2      Objects on which the binary operation is to be performed.               One of these can be a Matlab double (i.e. double precision)               array, in which case the variance array is taken to be zero.               If w1, w2 are scalar objects with the same signal array sizes:               - The operation is performed element-by-element.               If one of w1 or w2 is a double array (and the other is a               scalar object):               - If a scalar, apply to each element of the object signal.               - If it is an array of the same size as the object signal                 array, apply the operation element by element.               If one or both of w1 and w2 are arrays of objects:               - If objects have same array sizes, the binary operation is                applied object element-by-object element.               - If one of the objects is scalar (i.e. only one object),                then it is applied by the binary operation to each object                in the other array.               If one of w1, w2 is an array of objects and the other is a               double array:               - If the double is a scalar, it is applied to every object                in the array.               - If the double is an array with the same size as the object                array, then each element is applied as a scalar to the                corresponding object in the object array.               - If the double is an array with larger size than the object                array, then the array is resolved into a stack of arrays,                where the stack has the same size as the object array, and                the each array in the stack is applied to the corresponding                object in the object array. [Note that for this operation                to be valid, each object must have the same signal array                size.] Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mtimes">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mtimes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mtimes" title="Permalink to this definition"></a></dt>
+<dd><p>Implements w1 * w2 for objects   &gt;&gt; w = w1 * w2 Input: ——   w1, w2      Objects on which the binary operation is to be performed.               One of these can be a Matlab double (i.e. double precision)               array, in which case the variance array is taken to be zero.               If w1, w2 are scalar objects with the same signal array sizes:               - The operation is performed element-by-element.               If one of w1 or w2 is a double array (and the other is a               scalar object):               - If a scalar, apply to each element of the object signal.               - If it is an array of the same size as the object signal                 array, apply the operation element by element.               If one or both of w1 and w2 are arrays of objects:               - If objects have same array sizes, the binary operation is                applied object element-by-object element.               - If one of the objects is scalar (i.e. only one object),                then it is applied by the binary operation to each object                in the other array.               If one of w1, w2 is an array of objects and the other is a               double array:               - If the double is a scalar, it is applied to every object                in the array.               - If the double is an array with the same size as the object                array, then each element is applied as a scalar to the                corresponding object in the object array.               - If the double is an array with larger size than the object                array, then the array is resolved into a stack of arrays,                where the stack has the same size as the object array, and                the each array in the stack is applied to the corresponding                object in the object array. [Note that for this operation                to be valid, each object must have the same signal array                size.] Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.multifit_func">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">multifit_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.multifit_func" title="Permalink to this definition"></a></dt>
+<dd><p>Simultaneously fit function(s) to one or more sqw objects   &gt;&gt; myobj = multifit_func (w1, w2, …)      % w1, w2 objects or arrays of objects This creates a fitting object of class mfclass_Horace with the provided data, which can then be manipulated to add further data, set the fitting functions, initial parameter values etc. and fit or simulate the data. For details about how to do this  &lt;a href=”matlab:help(‘mfclass_Horace’);”&gt;Click here&lt;/a&gt; For example:   &gt;&gt; myobj = multifit_func (w1, w2, …); % set the data       :   &gt;&gt; myobj = myobj.set_fun (&#64;function_name, pars);  % set forgraound function(s)   &gt;&gt; myobj = myobj.set_bfun (&#64;function_name, pars); % set background function(s)       :   &gt;&gt; myobj = myobj.set_free (pfree);      % set which parameters are floating   &gt;&gt; myobj = myobj.set_bfree (bpfree);    % set which parameters are floating   &gt;&gt; [wfit,fitpars] = myobj.fit;          % perform fit This method fits function(s) of the plot axes for both the foreground and the background function(s). The format of the fit functions depends on the number of plot axes for each sqw object. For examples see: &lt;a href=”matlab:edit(‘example_1d_function’);”&gt;example_1d_function&lt;/a&gt; &lt;a href=”matlab:edit(‘example_2d_function’);”&gt;example_2d_function&lt;/a&gt; &lt;a href=”matlab:edit(‘example_3d_function’);”&gt;example_3d_function&lt;/a&gt; See also multifit_sqw multifit_sqw_sqw</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.multifit_sqw">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">multifit_sqw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.multifit_sqw" title="Permalink to this definition"></a></dt>
+<dd><p>Simultaneously fit function(s) of S(Q,w)to one or more sqw objects   &gt;&gt; myobj = multifit_sqw (w1, w2, …)      % w1, w2 objects or arrays of objects This creates a fitting object of class mfclass_Horace_sqw with the provided data, which can then be manipulated to add further data, set the fitting functions, initial parameter values etc. and fit or simulate the data. For details about how to do this  &lt;a href=”matlab:help(‘mfclass_Horace_sqw’);”&gt;Click here&lt;/a&gt; For example:   &gt;&gt; myobj = multifit_sqw (w1, w2, …); % set the data       :   &gt;&gt; myobj = myobj.set_fun (&#64;function_name, pars);  % set forgraound function(s)   &gt;&gt; myobj = myobj.set_bfun (&#64;function_name, pars); % set background function(s)       :   &gt;&gt; myobj = myobj.set_free (pfree);      % set which parameters are floating   &gt;&gt; myobj = myobj.set_bfree (bpfree);    % set which parameters are floating   &gt;&gt; [wfit,fitpars] = myobj.fit;          % perform fit This method fits model(s) for S(Q,w) as the foreground function(s), and function(s) of the plot axes for the background function(s) For the format of foreground fit functions: &lt;a href=”matlab:edit(‘example_sqw_spin_waves’);”&gt;Damped spin waves&lt;/a&gt; &lt;a href=”matlab:edit(‘example_sqw_flat_mode’);”&gt;Dispersionless excitations&lt;/a&gt; The format of the background fit functions depends on the number of plot axes for each sqw object. For examples see: &lt;a href=”matlab:edit(‘example_1d_function’);”&gt;example_1d_function&lt;/a&gt; &lt;a href=”matlab:edit(‘example_2d_function’);”&gt;example_2d_function&lt;/a&gt; &lt;a href=”matlab:edit(‘example_3d_function’);”&gt;example_3d_function&lt;/a&gt; See also multifit multifit_sqw_sqw——————————————————————————- &lt;#doc_def:&gt;   class_name = ‘SQWDnDBase’   method_name = ‘multifit_sqw’   mfclass_name = ‘mfclass_Horace_sqw’   function_tag = ‘of S(Q,w) ‘   multifit_doc = fullfile(fileparts(which(‘multifit’)),’_docify’)   sqw_doc = fullfile(fileparts(which(‘mfclass_Horace’)),’_docify’)   doc_multifit_header = fullfile(multifit_doc,’doc_multifit_header.m’)   doc_fit_functions = fullfile(sqw_doc,’doc_multifit_sqw_fit_functions_for_sqw.m’)——————————————————————————- &lt;#doc_beg:&gt; multifit   &lt;#file:&gt;  &lt;doc_multifit_header&gt;  &lt;class_name&gt;  &lt;method_name&gt;  &lt;mfclass_name&gt;  &lt;function_tag&gt;   &lt;#file:&gt;  &lt;doc_fit_functions&gt; See also multifit multifit_sqw_sqw &lt;#doc_end:&gt;——————————————————————————-</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.multifit_sqw_sqw">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">multifit_sqw_sqw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.multifit_sqw_sqw" title="Permalink to this definition"></a></dt>
+<dd><p>Simultaneously fit function(s) of S(Q,w)to one or more sqw objects   &gt;&gt; myobj = multifit_sqw_sqw (w1, w2, …)      % w1, w2 objects or arrays of objects This creates a fitting object of class mfclass_Horace_sqw_sqw with the provided data, which can then be manipulated to add further data, set the fitting functions, initial parameter values etc. and fit or simulate the data. For details about how to do this  &lt;a href=”matlab:help(‘mfclass_Horace_sqw_sqw’);”&gt;Click here&lt;/a&gt; For example:   &gt;&gt; myobj = multifit_sqw_sqw (w1, w2, …); % set the data       :   &gt;&gt; myobj = myobj.set_fun (&#64;function_name, pars);  % set forgraound function(s)   &gt;&gt; myobj = myobj.set_bfun (&#64;function_name, pars); % set background function(s)       :   &gt;&gt; myobj = myobj.set_free (pfree);      % set which parameters are floating   &gt;&gt; myobj = myobj.set_bfree (bpfree);    % set which parameters are floating   &gt;&gt; [wfit,fitpars] = myobj.fit;          % perform fit This method fits function(s) of S(Q,w) as both the foreground and the background function(s). For the format of the fit functions: &lt;a href=”matlab:edit(‘example_sqw_spin_waves’);”&gt;Damped spin waves&lt;/a&gt; &lt;a href=”matlab:edit(‘example_sqw_flat_mode’);”&gt;Dispersionless excitations&lt;/a&gt; See also multifit multifit_sqw——————————————————————————- &lt;#doc_def:&gt;   class_name = ‘SQWDnDBase’   method_name = ‘multifit_sqw_sqw’   mfclass_name = ‘mfclass_Horace_sqw_sqw’   function_tag = ‘of S(Q,w) ‘   multifit_doc = fullfile(fileparts(which(‘multifit’)),’_docify’)   sqw_doc = fullfile(fileparts(which(‘mfclass_Horace’)),’_docify’)   doc_multifit_header = fullfile(multifit_doc,’doc_multifit_header.m’)   doc_fit_functions = fullfile(sqw_doc,’doc_multifit_sqw_sqw_fit_functions_for_sqw.m’)——————————————————————————- &lt;#doc_beg:&gt; multifit   &lt;#file:&gt;  &lt;doc_multifit_header&gt;  &lt;class_name&gt;  &lt;method_name&gt;  &lt;mfclass_name&gt;  &lt;function_tag&gt;   &lt;#file:&gt;  &lt;doc_fit_functions&gt; See also multifit multifit_sqw &lt;#doc_end:&gt;——————————————————————————-</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.plus">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.plus" title="Permalink to this definition"></a></dt>
+<dd><p>Implements w1 + w2 for objects   &gt;&gt; w = w1 + w2 Input: ——   w1, w2      Objects on which the binary operation is to be performed.               One of these can be a Matlab double (i.e. double precision)               array, in which case the variance array is taken to be zero.               If w1, w2 are scalar objects with the same signal array sizes:               - The operation is performed element-by-element.               If one of w1 or w2 is a double array (and the other is a               scalar object):               - If a scalar, apply to each element of the object signal.               - If it is an array of the same size as the object signal                 array, apply the operation element by element.               If one or both of w1 and w2 are arrays of objects:               - If objects have same array sizes, the binary operation is                applied object element-by-object element.               - If one of the objects is scalar (i.e. only one object),                then it is applied by the binary operation to each object                in the other array.               If one of w1, w2 is an array of objects and the other is a               double array:               - If the double is a scalar, it is applied to every object                in the array.               - If the double is an array with the same size as the object                array, then each element is applied as a scalar to the                corresponding object in the object array.               - If the double is an array with larger size than the object                array, then the array is resolved into a stack of arrays,                where the stack has the same size as the object array, and                the each array in the stack is applied to the corresponding                object in the object array. [Note that for this operation                to be valid, each object must have the same signal array                size.] Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.save">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.save" title="Permalink to this definition"></a></dt>
+<dd><p>Save a sqw object or array of sqw objects to a binary sqw file with recommended version   &gt;&gt; save (w)              % prompt for file   &gt;&gt; save (w, file)        % save to file with the name provided   &gt;&gt; save (w, file,loader) % save file using specific binary data                              accessor                             (“-update” option, if provided with together                             with loader will be ignored)   &gt;&gt; save (w, file,[‘-parallel’<a href="#id5"><span class="problematic" id="id6">|</span></a>JobDispatcher])                             combine file using parallel algorithm.                             Useful and would works only if (when) pix                             value of sqw object data is set up to the                             instance of pix_combine_info class,                             containing information on the partial                             tmp files, written by filebased gen_sqw or                             cut algorithm   &gt;&gt; save (w, file,’-update’) % if the target file exist, update it to                               latest format if this is possible. If                               update is possible, pixels in file will not be                               overwritten. Input:   w       sqw object   file    [optional] File for output. if none given, then prompted for a file   Note that if w is an array of sqw objects then file must be a cell   array of filenames of the same size. Optional output: cl – running instance of parallel cluster, used to combine multiple tmp       files together if pix field of sqw object contains pix_combine_into       and -parallel option or parallel cluster itself are provided as       inpout. Empty in any other case      TODO: currently empty. May re-enable when parallel saving is      implemented properly</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sec">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sec" title="Permalink to this definition"></a></dt>
+<dd><p>Implements sec(w1) for objects   &gt;&gt; w = sec(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sech">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sech</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sech" title="Permalink to this definition"></a></dt>
+<dd><p>Implements sech(w1) for objects   &gt;&gt; w = sech(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sin">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sin" title="Permalink to this definition"></a></dt>
+<dd><p>Implements sin(w1) for objects   &gt;&gt; w = sin(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sinh">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sinh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sinh" title="Permalink to this definition"></a></dt>
+<dd><p>Implements sinh(w1) for objects   &gt;&gt; w = sinh(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqrt">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqrt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqrt" title="Permalink to this definition"></a></dt>
+<dd><p>Implements sqrt(w1) for objects   &gt;&gt; w = sqrt(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqw_eval">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqw_eval" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate sqw for a model scattering function   &gt;&gt; wout = sqw_eval(win, sqwfunc, p)   &gt;&gt; wout = sqw_eval(___, ‘-all’)   &gt;&gt; wout = sqw_eval(___, ‘all’, true)   &gt;&gt; wout = sqw_eval(___, ‘-average’)   &gt;&gt; wout = sqw_eval(___, ‘average’, true)   &gt;&gt; sqw_eval(___, ‘outfile’, outfile)   &gt;&gt; wout = sqw_eval(___, ‘outfile’, outfile)   &gt;&gt; sqw_eval(__, ‘outfile’, outfile, ‘filebacked’, true)   &gt;&gt; wout = sqw_eval(__, ‘filebacked’, true) Input: ——   win        Dataset (or array of datasets) that provides the axes and points              for the calculation   sqwfunc     Handle to function that calculates S(Q, w)               Most commonly used form is:                   weight = sqwfunc (qh, qk, ql, en, p)                where                   qh,qk,ql,en Arrays containing the coordinates of a set of points                   p           Vector of parameters needed by dispersion function                              e.g. [A, js, gam] as intensity, exchange, lifetime                   weight      Array containing calculated spectral weight               More general form is:                   weight = sqwfunc (qh, qk, ql, en, p, c1, c2, ..)                 where                   p           Typically a vector of parameters that we might want                              to fit in a least-squares algorithm                   c1, c2, …   Other constant parameters e.g. file name for look-up                              table   pars       Arguments needed by the function. Most commonly, a vector of parameter              values e.g. [A, js, gam] as intensity, exchange, lifetime. If a more general              set of parameters is required by the function, then              package these into a cell array and pass that as pars. In the example              above then pars = {p, c1, c2, …} Keyword Arguments: ——————   outfile    If present, the outputs will be written to the file of the given              name/path.              If numel(win) &gt; 1, outfile must either be omitted or be a cell              array of file paths with equal number of elements as win.   all        If true, requests that the calculated sqw be returned over              the whole of the domain of the input dataset. If false, then              the function will be returned only at those points of the dataset              that contain <a href="#id13"><span class="problematic" id="id14">data_</span></a>.               Applies only to input with no pixel information - it is ignored if              full sqw object.              [default = false]   average    If true, requests that the calculated sqw be computed for the              average values of h, k, l of the pixels in a bin, not for each              pixel individually. Reduces cost of expensive calculations.              Applies only to the case of sqw object with pixel information              - it is ignored if dnd type object.              [default = false]   filebacked  If true, the result of the function will be saved to file and               the output will be a file path. If no <cite>outfile</cite> is specified,               a unique path within <cite>tempdir()</cite> will be generated.               Default is false. Note: all optional string input parameters can be truncated up to minimal       difference between them e.g. routine would accept ‘al’ and       ‘av’, ‘ave’, ‘aver’ etc…. Output: ——-   wout        If <cite>filebacked</cite> is false, an sqw object or array of sqw objects.               If <cite>filebacked</cite> is true, a file path or cell array of file paths.               Output argument must be specified if <cite>outfile</cite> not given.===============================================================</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqw_eval_nopix">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqw_eval_nopix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">all_bins</span></em>, <em class="sig-param"><span class="pre">pars</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqw_eval_nopix" title="Permalink to this definition"></a></dt>
+<dd><p>SQW_EVAL_NOPIX Helper function for sqw eval executed on a pixel-less object (i.e. DnD or SQW with no pixels Called by <cite>sqw_eval_</cite> defined in sqw/DnDBase Input: ——   obj        Dataset (or array of datasets) that provides the axes and points              for the calculation   sqwfunc     Handle to function that calculates S(Q,w)   all_bins    Boolean flag wither to apply function to all bins or only those contaiing data   pars       Arguments needed by the function.=================================================================</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.tan">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">tan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.tan" title="Permalink to this definition"></a></dt>
+<dd><p>Implements tan(w1) for objects   &gt;&gt; w = tan(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.tanh">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">tanh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.tanh" title="Permalink to this definition"></a></dt>
+<dd><p>Implements tanh(w1) for objects   &gt;&gt; w = tanh(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.uminus">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">uminus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.uminus" title="Permalink to this definition"></a></dt>
+<dd><p>Implements uminus(w1) for objects   &gt;&gt; w = uminus(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.uplus">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">uplus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.uplus" title="Permalink to this definition"></a></dt>
+<dd><p>Implements uplus(w1) for objects   &gt;&gt; w = uplus(w1) Input: ——   w1          Input object or array of objects on which to apply the               unary operator. Output: ——-   w           Output object or array of objects.</p>
+</dd></dl>
+
+</section>
+<section id="module-sqw.&#64;Experiment">
+<span id="experiment-class"></span><h2><a class="toc-backref" href="#id9"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a><a class="headerlink" href="#module-sqw.@Experiment" title="Permalink to this headline"></a></h2>
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.change_crystal">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">change_crystal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">alignment_info</span></em>, <em class="sig-param"><span class="pre">proj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.change_crystal" title="Permalink to this definition"></a></dt>
+<dd><p>Change fields in the experiment with correction related to change crystal  lattice parameters and orientation   &gt;&gt; obj=change_crystal(obj,alignment_info) obj            – initialized instance of Experiment object alignment_info – helper class, containing the information                   about the crystal alignment, returned by refine_crystal                   routine. Type:                  &gt;&gt; help refine_crystal  for more details. proj            – the instance of the projection, which converts pixels                   from</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.get_efix">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">get_efix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.get_efix" title="Permalink to this definition"></a></dt>
+<dd><p>Return array of incident energies from all runs, contributing to experiment.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.remove_legacy_alignment">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">remove_legacy_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">deal_info</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.remove_legacy_alignment" title="Permalink to this definition"></a></dt>
+<dd><p>REMOVE_LEGACY_ALIGNMENT Change fields in the experiment with correction to remove legacy alignment applied to the crystal earlier. Inputs: obj    – legacy realigned dnd object. Algorithm throws if the object has           not been realigned using legacy algorithm. deal_info        – instance of crystal_alignment_info class, containing information          about de-alignment Outputs: obj     – Experiment object with alignment removed</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.set_instrument">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">set_instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">instr_or_fun</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.set_instrument" title="Permalink to this definition"></a></dt>
+<dd><p>add or reset instrument, related to the given experiment class</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.set_mod_pulse">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">set_mod_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">pulse_model</span></em>, <em class="sig-param"><span class="pre">pm_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.set_mod_pulse" title="Permalink to this definition"></a></dt>
+<dd><p>Set moderator pulse model on all unique instruments, contributed in the experiment Input: ——   obj         Experiment object   pulse_model Pulse shape model name e.g. ‘ikcarp’   pp          Pulse shape parameters: row vector for a single set of parameters               or a 2D array, one row per spe data set for each instrument                of the sqw object(s). Output: ——-   obj         Modified experiment</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.upgrade_legacy_alignment">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">upgrade_legacy_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">deal_info</span></em>, <em class="sig-param"><span class="pre">alatt</span></em>, <em class="sig-param"><span class="pre">angdeg</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.upgrade_legacy_alignment" title="Permalink to this definition"></a></dt>
+<dd><p>UPGRADE_LEGACY_ALIGNMENT Change fields in the experiment with correction to remove legacy alignment applied to the crystal earlier and apply modern alignment to it. Inputs: obj    – legacy realigned dnd object. Algorithm throws if the object has           not been realigned using legacy algorithm. deal_info        –  instance of crystal_alignment_info class, containing information            about dealignment of the legacy-aligned crystal Optional alatt   – lattice parameters with values for aligned lattice to be set. angdeg  – lattice angles with values for aligned lattice to be set.            If one is present, another one have to be present.            If these values are missing, assumes that the lattice have not            been changed. Outputs: wout    – dnd object according to the new alignment algorithm.</p>
+</dd></dl>
+
+</section>
+<section id="pixeldata-class">
+<h2><a class="toc-backref" href="#id10"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a><a class="headerlink" href="#pixeldata-class" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Contributing.html" class="btn btn-neutral float-left" title="Contributing to Horace" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="General_disclaimer.html" class="btn btn-neutral float-right" title="General disclaimer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Sep 15, 2023, 4:46:32 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/API_Reference.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

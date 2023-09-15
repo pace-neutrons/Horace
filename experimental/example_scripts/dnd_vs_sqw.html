@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dnd vs sqw: the difference &mdash; Horace 4.0.0.a2d1f2c36 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="GPO fitting SpinW" href="gpo_fitting_spinw.html" />
+    <link rel="prev" title="Data Corrections" href="data_corrections.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.0.0.a2d1f2c36
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Horace_diagnostics.html">Horace Diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced_plotting.html">Advanced Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="align_and_symmetrise.html">Align and Symmetrise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_usage.html">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corrections.html">Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_corrections.html">Data Corrections</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">dnd vs sqw: the difference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#general-principle">General principle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specific-case-a-resolution-modelling">Specific case A: resolution modelling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specific-case-b-spurion-identification">Specific case B: spurion identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specific-case-c-smoothing">Specific case C: smoothing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specific-case-d-symmetrisation">Specific case D: symmetrisation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#whole-script">Whole Script</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gpo_fitting_spinw.html">GPO fitting SpinW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horace_whole_course_full_script.html">Horace course</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sample_misalignment.html">Sample Misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulation_fitting.html">Simulation Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spinw_gpo_1dfit.html">Spinw GPO 1dfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spurions.html">Spurions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqwgeneration_tips.html">SQW Generation tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="symmetrisation.html">Symmetrisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Example_scripts.html">Example Scripts</a> &raquo;</li>
+      <li>dnd vs sqw: the difference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/example_scripts/dnd_vs_sqw.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dnd-vs-sqw-the-difference">
+<h1>dnd vs sqw: the difference<a class="headerlink" href="#dnd-vs-sqw-the-difference" title="Permalink to this headline"></a></h1>
+<p>Tutorial to illustrate and explain the different data types in Horace,
+and why they are important.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Take two cuts:</span>
+<span class="n">sqw_file</span><span class="p">=</span><span class="s">&#39;/mnt/data/Science/URu2Si2/data/sqw/Ei81_20K.sqw&#39;</span><span class="p">;</span>
+
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="n">csqw</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mf">0.04</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.8</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
+
+<span class="c">%identical to above, except extra argument at the end</span>
+<span class="n">cdnd</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mf">0.04</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.8</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">csqw</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">cdnd</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">Taking</span><span class="w"> </span><span class="s">cut</span><span class="w"> </span><span class="s">from</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">file</span><span class="w"> </span><span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">Science</span><span class="o">/</span><span class="n">URu2Si2</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">sqw</span><span class="o">/</span><span class="n">Ei81_20K</span><span class="p">.</span><span class="n">sqw</span><span class="k">...</span>
+<span class="n">Step</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">1</span><span class="p">;</span><span class="w"> </span><span class="n">Have</span><span class="w"> </span><span class="s">read</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">5579774</span><span class="w"> </span><span class="s">pixels</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="nb">now</span><span class="w"> </span><span class="n">processing</span><span class="w"> </span><span class="n">data</span><span class="k">...</span><span class="c"> -----&gt; retained 1121852 pixels</span>
+<span class="n">Taking</span><span class="w"> </span><span class="s">cut</span><span class="w"> </span><span class="s">from</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">file</span><span class="w"> </span><span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">Science</span><span class="o">/</span><span class="n">URu2Si2</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">sqw</span><span class="o">/</span><span class="n">Ei81_20K</span><span class="p">.</span><span class="n">sqw</span><span class="k">...</span>
+<span class="n">Step</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">1</span><span class="p">;</span><span class="w"> </span><span class="n">Have</span><span class="w"> </span><span class="s">read</span><span class="w"> </span><span class="s">data</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">5579774</span><span class="w"> </span><span class="s">pixels</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="nb">now</span><span class="w"> </span><span class="n">processing</span><span class="w"> </span><span class="n">data</span><span class="k">...</span><span class="c"> -----&gt; retained 1121852 pixels</span>
+</pre></div>
+</div>
+<p>The plots look (are!) identical. So what’s the difference? Double click on them in the Workspace part of the Matlab
+window. You can see that the <code class="docutils literal notranslate"><span class="pre">csqw</span></code> object has a lot more information associated with it.</p>
+<section id="general-principle">
+<h2>General principle<a class="headerlink" href="#general-principle" title="Permalink to this headline"></a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">dnd</span></code> if you are just looking at the data - it takes up less computer memory, which is a good thing.  If you want
+to <code class="docutils literal notranslate"><span class="pre">fit</span></code> or <code class="docutils literal notranslate"><span class="pre">simulate</span></code> the data and you are only simulating a basic function (i.e. using <code class="docutils literal notranslate"><span class="pre">func_eval</span></code>,
+<code class="docutils literal notranslate"><span class="pre">multifit_func</span></code>, etc) that does not depend on all 4 coordinates of Q and E, then use a dnd.</p>
+<p>Example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">cgaussdnd</span><span class="p">=</span><span class="n">func_eval</span><span class="p">(</span><span class="n">cdnd</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">gauss2d</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cgaussdnd</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">cgausssqw</span><span class="p">=</span><span class="n">func_eval</span><span class="p">(</span><span class="n">csqw</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">gauss2d</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cgausssqw</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The two figures are identical, because the func_eval routine only uses the plot axis coordinates as its input, not
+(H, K, L, E).</p>
+<p>If you want to <code class="docutils literal notranslate"><span class="pre">fit</span></code> or <code class="docutils literal notranslate"><span class="pre">simulate</span></code> data with an S(Q, E) model, you should use <code class="docutils literal notranslate"><span class="pre">sqw</span></code>. This is because you will
+account for the fact that you had to integrate along the non-plot axes correctly. The following example illustrates why
+this is important:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%model of ferromagnetic spin waves in the Horace demo</span>
+<span class="n">csimsqw</span><span class="p">=</span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">csqw</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">demo_FM_spinwaves_2dSlice_sqw</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">csimdnd</span><span class="p">=</span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">cdnd</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">demo_FM_spinwaves_2dSlice_sqw</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
+
+<span class="c">%Dispersion has equal steepness along all reciprocal space directions.</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">csimsqw</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">csimdnd</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>These are totally different.</p>
+<p>Why?</p>
+<p>Because the simulation of the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object includes the dispersion along the H-axis, and calculates what it is for the
+pixels actually measured. The simulation of the <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object assumes that every point has the average value of H (zero
+in this case). So the latter gives a sharp dispersion, whereas the former is very broad.</p>
+<p>So if you have data from a system where there is some variation in the signal along a non-plot axis, you
+should use <code class="docutils literal notranslate"><span class="pre">simulate</span></code> with <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects in order to capture this correctly.</p>
+</section>
+<section id="specific-case-a-resolution-modelling">
+<h2>Specific case A: resolution modelling<a class="headerlink" href="#specific-case-a-resolution-modelling" title="Permalink to this headline"></a></h2>
+<p>If you want to include resolution in your simulation or fitting, you must use Tobyfit, and you also need
+the detector pixel information that you get in an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object but not in a <code class="docutils literal notranslate"><span class="pre">dnd</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Tobyfit will give an error message if you try to use it with a <code class="docutils literal notranslate"><span class="pre">dnd</span></code>.</p>
+</div>
+</section>
+<section id="specific-case-b-spurion-identification">
+<h2>Specific case B: spurion identification<a class="headerlink" href="#specific-case-b-spurion-identification" title="Permalink to this headline"></a></h2>
+<p>See separate tutorial about how to do this. Basically, if you need to know something about data from a
+particular run, or from a particular detector, you need <code class="docutils literal notranslate"><span class="pre">sqw</span></code>.</p>
+</section>
+<section id="specific-case-c-smoothing">
+<h2>Specific case C: smoothing<a class="headerlink" href="#specific-case-c-smoothing" title="Permalink to this headline"></a></h2>
+<p>If you apply the <code class="docutils literal notranslate"><span class="pre">smooth</span></code> algorithm to your data you will get a dataset of the same type back again.  Smoothing works
+for <code class="docutils literal notranslate"><span class="pre">dnd</span></code>, but is forbidden for <code class="docutils literal notranslate"><span class="pre">sqw</span></code> data. The reason is that the smoothing operation only makes sense in the plot
+axis coordinate frame. But doing that means you lose the connection between the signal displayed in the plot and the
+detector pixel information that contributed to it.</p>
+</section>
+<section id="specific-case-d-symmetrisation">
+<h2>Specific case D: symmetrisation<a class="headerlink" href="#specific-case-d-symmetrisation" title="Permalink to this headline"></a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Currently in Horace 4.0.0, <code class="docutils literal notranslate"><span class="pre">dnd</span></code> symmetrisation is disabled. Due to extended transforms in the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p>
+</div>
+<p>Symmetrisation does different things for <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> data. The latter can be folded along an axis parallel to a
+plot axis. The former can be folded along any axis. Generally you are much safer doing symmetrisation with <code class="docutils literal notranslate"><span class="pre">sqw</span></code>
+objects.</p>
+</section>
+<section id="whole-script">
+<h2>Whole Script<a class="headerlink" href="#whole-script" title="Permalink to this headline"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Take two cuts:</span>
+<span class="n">sqw_file</span><span class="p">=</span><span class="s">&#39;/mnt/data/Science/URu2Si2/data/sqw/Ei81_20K.sqw&#39;</span><span class="p">;</span>
+
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="n">csqw</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mf">0.04</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.8</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
+
+<span class="c">%identical to above, except extra argument at the end</span>
+<span class="n">cdnd</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mf">0.04</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.8</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">csqw</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">cdnd</span><span class="p">));</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">10</span><span class="p">;</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">cgaussdnd</span><span class="p">=</span><span class="n">func_eval</span><span class="p">(</span><span class="n">cdnd</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">gauss2d</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cgaussdnd</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">cgausssqw</span><span class="p">=</span><span class="n">func_eval</span><span class="p">(</span><span class="n">csqw</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">gauss2d</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cgausssqw</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">%model of ferromagnetic spin waves in the Horace demo</span>
+<span class="n">csimsqw</span><span class="p">=</span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">csqw</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">demo_FM_spinwaves_2dSlice_sqw</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">csimdnd</span><span class="p">=</span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">cdnd</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">demo_FM_spinwaves_2dSlice_sqw</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
+
+<span class="c">%Dispersion has equal steepness along all reciprocal space directions.</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">csimsqw</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">csimdnd</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="data_corrections.html" class="btn btn-neutral float-left" title="Data Corrections" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gpo_fitting_spinw.html" class="btn btn-neutral float-right" title="GPO fitting SpinW" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Sep 15, 2023, 4:46:32 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/example_scripts/dnd_vs_sqw.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

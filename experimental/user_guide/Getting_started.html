@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting started &mdash; Horace 4.0.0.a2d1f2c36 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Horace GUI" href="Horace_GUI.html" />
+    <link rel="prev" title="User’s Guide" href="../User_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.0.0.a2d1f2c36
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../User_guide.html">User’s Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-an-sqw-file">Creating an SQW file</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#data-visualisation">Data visualisation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basic-data-manipulation">Basic data manipulation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#process">Process</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#simulations">Simulations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#gaussian-profile-peaks">Gaussian Profile Peaks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d-heisenberg-ferromagnet">3D Heisenberg Ferromagnet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bose-temperature">Bose Temperature</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fitting">Fitting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Horace_GUI.html">Horace GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Resolution_convolution.html">Resolution Convolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Interfacing_with_other_programs.html">Interfacing with other programs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../User_guide.html">User’s Guide</a> &raquo;</li>
+      <li>Getting started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user_guide/Getting_started.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h1>
+<p>In order to get going with Horace we suggest that you take a little time to
+familiarise yourself with the program. To aid this we have created the following
+step-by-step guide that takes you through the process of converting SPE files
+into a format useable by Horace, and then shows you how to do different kinds of
+plot, how to manipulate your data, and finally how to simulate and fit your
+data. To do this we will refer to the demonstration files included in</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">horace_root</span><span class="o">&gt;\</span><span class="nb">demo</span><span class="o">\</span>
+</pre></div>
+</div>
+<p>which relate to a real experiment to investigate spin excitations in Fe using
+the MAPS spectrometer at ISIS.</p>
+<p>Before starting you must first run the <code class="docutils literal notranslate"><span class="pre">setup_demo_data</span></code> function from the
+<code class="docutils literal notranslate"><span class="pre">demo</span></code> folder which will take a few minutes to generate a number of <code class="docutils literal notranslate"><span class="pre">.nxspe</span></code>
+files which will be used during the demo.</p>
+<section id="creating-an-sqw-file">
+<h2>Creating an SQW file<a class="headerlink" href="#creating-an-sqw-file" title="Permalink to this headline"></a></h2>
+<p>The first step in using Horace is to make your dataset from all of your relevant
+SPE files. How this works depends somewhat on the properties of your computer,
+specifically the amount of memory available, and is dealt with
+<a class="reference internal" href="../introduction/Download_and_setup.html#system-requirements"><span class="std std-ref">here</span></a>.</p>
+<p>On most machines (those with &lt;10GB RAM) the dataset is written to a new file
+with the extension <code class="docutils literal notranslate"><span class="pre">.sqw</span></code>, and intermediate <code class="docutils literal notranslate"><span class="pre">.tmp</span></code> files, which contain axes
+projection information, are written as Horace combines the data.</p>
+<p>Once you have created your <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file and are happy with it then you can delete
+these intermediate <code class="docutils literal notranslate"><span class="pre">.tmp</span></code> files, although it is generally a good idea to keep
+for a few days them unless disk space is a problem, in case you wish to
+re-generate your <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file.</p>
+<p>For cases where large amounts of memory are available then the creation of
+<code class="docutils literal notranslate"><span class="pre">.tmp</span></code> files can be unnecessary and the <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file can be created directly (see
+<a class="reference internal" href="Advanced_use.html#advanced-use"><span class="std std-ref">advanced use</span></a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you have an old-style data file, in addition to your data there is one
+other file that is required – the parameter (<code class="docutils literal notranslate"><span class="pre">.par</span></code>) file for the
+instrument that you used to collect the data.  This file has the extension
+<code class="docutils literal notranslate"><span class="pre">.par</span></code>, and is not the same as a <code class="docutils literal notranslate"><span class="pre">.phx</span></code> file. For more recent <code class="docutils literal notranslate"><span class="pre">.nxspe</span></code>
+files, this is included in the <code class="docutils literal notranslate"><span class="pre">.nxspe</span></code> itself.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">.par</span></code> file for the instrument you used to generate your data can be
+obtained from the instrument scientist. It is important that you have the
+correct version of this file for the configuration of the instrument as it
+was when you used it (much like for the <code class="docutils literal notranslate"><span class="pre">.phx</span></code> file).</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you try to use a <code class="docutils literal notranslate"><span class="pre">.phx</span></code> file with Horace you will just get an error
+message!</p>
+</div>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h3>
+<p>Let’s now run through a simple example. To do this we’ll need some example
+<code class="docutils literal notranslate"><span class="pre">.spe</span></code> files and a <code class="docutils literal notranslate"><span class="pre">.par</span></code> file. The script file containing all of the
+commands described below is located in:</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This example goes through using old-style <code class="docutils literal notranslate"><span class="pre">.spe</span></code> files, you may not need to
+provide a separate <code class="docutils literal notranslate"><span class="pre">.par</span></code> file for your experiment, in which case the
+<code class="docutils literal notranslate"><span class="pre">par</span></code> argument can be left as the empty string (<code class="docutils literal notranslate"><span class="pre">''</span></code>).</p>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">horace_root</span><span class="o">&gt;\</span><span class="nb">demo</span><span class="o">\</span><span class="n">demo_make_sqw_fe</span><span class="p">.</span><span class="n">m</span>
+</pre></div>
+</div>
+<p>First we need to tell Horace where the <code class="docutils literal notranslate"><span class="pre">.spe</span></code> files are, so we write:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">indir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;&lt;horace_root&gt;\demo\&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>We also need to know where the <code class="docutils literal notranslate"><span class="pre">.par</span></code> file is, and where the <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file that
+we’re making is going to go:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">par_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;&lt;horace_root&gt;\demo\demo_par.par&#39;</span><span class="p">;</span>
+<span class="n">sqw_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;&lt;horace_root&gt;\demo\demo_fe_sqw.sqw;&#39;</span>
+</pre></div>
+</div>
+<p>Next we need to specify the (fixed) incident energy that was used and the
+geometry of the spectrometer. In this case all of the data were taken using
+<span class="math notranslate nohighlight">\(E_{i} = 787 \textrm{meV}\)</span> on a direct geometry spectrometer, so we have:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">efix</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">787</span><span class="p">;</span>
+<span class="n">emode</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>If we were using an indirect geometry spectrometer then we would have written</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">emode</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>We cannot combine data from different spectrometers, so <code class="docutils literal notranslate"><span class="pre">emode</span></code> is always
+either 1 or 2.</p>
+<p>If we had used multiple incident energies then we would have made <code class="docutils literal notranslate"><span class="pre">efix</span></code> a
+vector whose length was the number of <code class="docutils literal notranslate"><span class="pre">.spe</span></code> files we wish to combine and
+whose elements were the incident energy for each <code class="docutils literal notranslate"><span class="pre">.spe</span></code> file.</p>
+<p>We now need to tell Horace the lattice parameters of the sample:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">];</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">];</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">alatt</span></code>, which can be a row vector or a column vector, gives the lattice
+parameters <span class="math notranslate nohighlight">\(a\)</span>, <span class="math notranslate nohighlight">\(b\)</span>, and <span class="math notranslate nohighlight">\(c\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angdeg</span></code>, which can also be a row vector or a column vector, gives the
+lattice angles <span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span>, and <span class="math notranslate nohighlight">\(\gamma\)</span>.</p></li>
+</ul>
+<p>Then we need to specify the orientation of the crystal with respect to the
+incident beam and the spectrometer. We do this by specifying the scattering
+plane with two orthogonal vectors:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span>
+<span class="n">v</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span>
+</pre></div>
+</div>
+<p>The vector <span class="math notranslate nohighlight">\(\vec{u}\)</span> defines the direction in the <span class="math notranslate nohighlight">\([h,k,l]\)</span> frame of
+the incident beam (so in the above example the crystal’s <span class="math notranslate nohighlight">\([1,0,0]\)</span>
+direction is parallel to the incident beam). The vector <span class="math notranslate nohighlight">\(\vec{v}\)</span> may be
+perpendicular to <span class="math notranslate nohighlight">\(\vec{u}\)</span> (although it does not have to be) and lies in
+the equatorial plane of the spectrometer (i.e. the horizontal plane on MERLIN
+and MAPS). Thus the cross product of <span class="math notranslate nohighlight">\(\vec{u}\)</span> and <span class="math notranslate nohighlight">\(\vec{v}\)</span> should
+point up/down the sample stick.</p>
+<p>If after your experiment you realise that your crystal was not aligned how you
+thought it was, all is not lost! Horace allows you to specify some virtual
+goniometer angles which tell the program how to convert the supplied (incorrect)
+co-ordinate frame <span class="math notranslate nohighlight">\(\vec{u}\)</span> and <span class="math notranslate nohighlight">\(\vec{v}\)</span> to the real one. Of course
+you should make every effort to ensure your sample was correctly aligned, in
+which case you write</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">omega</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">dpsi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">gl</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">gs</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The definitions of these angles are best described with reference to the picture
+below:</p>
+<a class="reference internal image-reference" href="../_images/Gonio_angle_definitions.jpg"><img alt="Virtual goniometer angle definitions" src="../_images/Gonio_angle_definitions.jpg" style="width: 300px;" /></a>
+<p>In this diagram the nominal vectors <span class="math notranslate nohighlight">\(\vec{u}\)</span> and <span class="math notranslate nohighlight">\(\vec{v}\)</span> are
+those supplied to Horace, whereas <span class="math notranslate nohighlight">\(\vec{u'}\)</span> and <span class="math notranslate nohighlight">\(\vec{v'}\)</span> are the
+actual vectors. <code class="docutils literal notranslate"><span class="pre">gl</span></code> and <code class="docutils literal notranslate"><span class="pre">gs</span></code> deal with misorientation about axes which lie
+in the spectrometer’s equatorial plane, whereas <code class="docutils literal notranslate"><span class="pre">dpsi</span></code> deals with
+misorientations about a vector perpendicular to this plane. <code class="docutils literal notranslate"><span class="pre">omega</span></code> is the
+angle by which the <code class="docutils literal notranslate"><span class="pre">gs</span></code> axis is rotated compared to the nominal vector
+<span class="math notranslate nohighlight">\(\vec{u}\)</span>.</p>
+<p>In principle this means that you could put a single crystal with unknown
+orientation into the spectrometer and conduct your experiment. However this is
+not a good idea, because the direction about which you rotate your crystal may
+not be optimal for you to get all of the data that you want to, since the
+detectors do not cover <span class="math notranslate nohighlight">\(4 \pi\)</span> steradians.</p>
+<p>Now we’ve told Horace about the setup of the spectrometer we can go on to
+specify how our experiment was conducted and which <code class="docutils literal notranslate"><span class="pre">.spe</span></code> files will
+contribute to our dataset.</p>
+<p>Suppose, as is the case here, we want to combine 24 <code class="docutils literal notranslate"><span class="pre">.spe</span></code> files, and that the
+angle <code class="docutils literal notranslate"><span class="pre">psi</span></code> was different for each one. <code class="docutils literal notranslate"><span class="pre">psi</span></code> is a vector, which in this case
+has 24 elements. We could write it out explicitly, however in our example we
+took data in equal steps of psi between 0 degrees and -23 degrees (1 degree
+steps), so we can use a Matlab trick:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">nfiles</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">24</span><span class="p">;</span>
+<span class="nb">psi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="p">(</span><span class="n">nfiles</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="n">nfiles</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Horace needs to know the name of all 24 <code class="docutils literal notranslate"><span class="pre">.spe</span></code> files. To do this they are
+combined into a single object – a cell array, which is a Matlab data format you
+can read about in the Matlab help. In this case each element of the cell array
+is a string which specifies the location of our <code class="docutils literal notranslate"><span class="pre">.spe</span></code> files. We could write
+this out explicitly, however in this example the <code class="docutils literal notranslate"><span class="pre">.spe</span></code> files are numbered
+sequentially, so we can take another shortcut:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">spe_file</span><span class="p">=</span><span class="nb">cell</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nfiles</span><span class="p">);</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="p">=</span><span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="nb">psi</span><span class="p">)</span>
+<span class="w">    </span><span class="n">spe_file</span><span class="p">{</span><span class="nb">i</span><span class="p">}=[</span><span class="n">indir</span><span class="p">,</span><span class="s">&#39;MAP&#39;</span><span class="p">,</span><span class="nb">num2str</span><span class="p">(</span><span class="mi">11012</span><span class="o">+</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">i</span><span class="p">)),</span><span class="s">&#39;.SPE&#39;</span><span class="p">];</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Filenames are case-insensitive on Windows, but will be case sensitive on *NIX
+machines.</p>
+</div>
+<p>The first line creates an empty cell array the right size to take our 24 file
+strings. Inside the <code class="docutils literal notranslate"><span class="pre">for</span></code> loop the <code class="docutils literal notranslate"><span class="pre">i</span></code> th element of the cell array is a string
+specifying where the <code class="docutils literal notranslate"><span class="pre">i</span></code> th <code class="docutils literal notranslate"><span class="pre">.spe</span></code> file is located. So the 5th element of the cell array
+<code class="docutils literal notranslate"><span class="pre">spe_file</span></code> is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">spe_file</span><span class="p">{</span><span class="mi">5</span><span class="p">}</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;&lt;horace_root&gt;\demo\demo_data\MAP11022.SPE&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>We are now ready to make our <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file! This is done by a single function:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">gen_sqw</span><span class="p">(</span><span class="n">spe_file</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>If everything has worked then the Matlab command window will show text like
+this, which will be updated when each successive <code class="docutils literal notranslate"><span class="pre">.spe</span></code> file is read from the
+disk.</p>
+<a class="reference internal image-reference" href="../_images/Screenshot1.png"><img alt="The command window display during gen_sqw" src="../_images/Screenshot1.png" style="width: 500px;" /></a>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The above screenshot was created when processing a larger number of files
+from the same dataset as has been used for this demo. The only practical
+difference this makes is to the size of errorbars in 1d cuts, the time taken
+to process the data, and some of the on-screen printouts.</p>
+</div>
+<p>Further through the process you should see something like this:</p>
+<a class="reference internal image-reference" href="../_images/Screenshot2.png"><img alt="The command window display during gen_sqw" src="../_images/Screenshot2.png" style="width: 500px;" /></a>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This was run on a Linux machine, hence the different style of
+directory name and appearance of the Matlab window.</p>
+</div>
+<p>Horace will now run for some time generating the <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file. This can be quite a
+long time, and depends quite a lot on how much memory your computer has and its
+processor speed.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is probably best at this stage just to leave your computer to run and go
+for a coffee!</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As a rough guide: 150 <code class="docutils literal notranslate"><span class="pre">.spe</span></code> files, each of 105MB, would be combined on a
+machine with 4GB of RAM (with its <a class="reference internal" href="../introduction/Download_and_setup.html#system-requirements"><span class="std std-ref">3GB switch enabled</span></a>) and a speed of 2.5GHz
+in about 2 hours.</p>
+</div>
+<p>For this demo the data files have purposely been made much smaller (by using
+only the low angle detector banks on MAPS, and by only including a limited
+number of energy bins in the <code class="docutils literal notranslate"><span class="pre">.spe</span></code> files). Each <code class="docutils literal notranslate"><span class="pre">.spe</span></code> file is about 18MB,
+and thus it takes about 8 minutes to process all of the data. If all is well
+messages will be frequently printed to the Matlab command window to let you know
+the status of your <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file generation.</p>
+</section>
+</section>
+<section id="data-visualisation">
+<h2>Data visualisation<a class="headerlink" href="#data-visualisation" title="Permalink to this headline"></a></h2>
+<p>Now that we’ve made our <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file the next step is to see what the data look
+like. The first thing to do is to tell the program where the <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file is
+located:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;&lt;horace_root&gt;\demo\demo_fe_sqw.sqw&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>which is of course the location of the <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file we created in the previous
+section.</p>
+<p>Now we have to define the projection axes for our data visualization. The
+projection information is contained in a data object, which in this case we are
+calling <code class="docutils literal notranslate"><span class="pre">proj_100</span></code>. These are chosen to define the normalization (so they must
+be unit vectors). There are also other pieces of information that can be
+provided about the projection, but these will be dealt with later. So we have:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj_100</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>You can choose any set of axes to make cuts and visualise your data - you are
+not limited to the projection axes of the crystal with respect to the
+spectrometer.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is one of the main advantages of using Horace to visualise your data!</p>
+</div>
+<p>Finally, we need to know if we are defining our projection axes relative to some
+offset. This vector has 3 or 4 components, since we could offset in energy as well as
+the 3 components of Q:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj_100</span><span class="p">.</span><span class="n">offset</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
+
+<span class="c">%OR</span>
+
+<span class="n">proj_100</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>We now have all the information needed to make any kind of cut we like. Let’s
+start by making a 2D slice:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w100_2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj_100</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">]);</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/Screenshot_cut1.png"><img alt="Matlab window during cutting" src="../_images/Screenshot_cut1.png" style="width: 500px;" /></a>
+<p>This slice has as its axes <span class="math notranslate nohighlight">\([0,1,0]\)</span> and energy. The first two arguments in the
+function <code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code> are where the data is on the computer, and the details of
+the projections.</p>
+<p>The next four arguments give either the integration range or the step size of
+each component of <strong>Q</strong> and energy.</p>
+<p>In this example we are integrating between <span class="math notranslate nohighlight">\(-0.2\)</span> and <span class="math notranslate nohighlight">\(0.2\)</span>
+r.l.u. in the <span class="math notranslate nohighlight">\([1,0,0]\)</span> component, and between <span class="math notranslate nohighlight">\(-0.2\)</span> and
+<span class="math notranslate nohighlight">\(0.2\)</span> in the <span class="math notranslate nohighlight">\([0,0,1]\)</span> component.</p>
+<p>The slice axes are <span class="math notranslate nohighlight">\([0,0,1]\)</span> whose step size is <span class="math notranslate nohighlight">\(0.05\)</span> r.l.u., and
+energy whose step size is the existing step size in the file.</p>
+<p>Notice that we’ve specified the energy step size differently from the
+<span class="math notranslate nohighlight">\([0,0,1]\)</span> step size. If a scalar is used then the whole range of data
+along that axis will be plotted. If a vector of the form [low,step,high] is used
+then only data within the range low -&gt; high will be plotted, with step size
+given by <code class="docutils literal notranslate"><span class="pre">step</span></code> (c.f. <a class="reference internal" href="../manual/Manipulating_and_extracting_data_from_SQW_files_and_objects.html#cut"><span class="std std-ref">cutting</span></a>).</p>
+<p>This creates a new object containing that particular slice of data. To plot it,
+we write:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">plot</span><span class="p">(</span><span class="n">w100_2</span><span class="p">);</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/Screenshot_cut2.png"><img alt="2d cut from the data" src="../_images/Screenshot_cut2.png" style="width: 301px;" /></a>
+<p>The ranges of the axes are not quite right, but we can easily change that:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">lx</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">3</span><span class="w"> </span><span class="s">ly</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">150</span><span class="w"> </span><span class="s">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">1</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/Screenshot_cut3.png"><img alt="2d cut from data, with plot axes modified" src="../_images/Screenshot_cut3.png" style="width: 301px;" /></a>
+<p>This makes the horizontal axis go from 1 to 3, the vertical axis from 0 to 150,
+and the colour scale go from 0 to 1.</p>
+<p>If we wanted to make a 1D cut through the data then the syntax is exactly the
+same. For example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w100_1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj_100</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mi">70</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w100_1</span><span class="p">);</span>
+<span class="n">lx</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">3</span><span class="w"> </span><span class="s">ly</span><span class="w"> </span><span class="s">0.2</span><span class="w"> </span><span class="s">0.8</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/Screenshot_1dcut.png"><img alt="1d cut" src="../_images/Screenshot_1dcut.png" style="width: 301px;" /></a>
+<p>would give us a cut along the <span class="math notranslate nohighlight">\([0,k,0]\)</span> axis at a constant energy of
+<span class="math notranslate nohighlight">\(65meV\)</span>.</p>
+<p>3D slices are also possible. To visualize these the “sliceomatic” program is
+used. When the plot command is executed a GUI is launched that allows you to
+plot multiple slices through the data. For example you could plot the same slice
+with x and y axes of (1,0,0) and (0,1,0) at a range of energies.</p>
+<a class="reference internal image-reference" href="../_images/Screenshot_3dslice.png"><img alt="Sliceomatic in action" src="../_images/Screenshot_3dslice.png" style="width: 501px;" /></a>
+<p>It is possible to save your cuts / slices to be viewed again later. This can be
+done very simply in two ways. If you add an extra argument to the end of
+<code class="docutils literal notranslate"><span class="pre">cut</span></code>, then the cut data are sent to a file. For our 1D cut above this
+would be:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">cut_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;&lt;horace_root&gt;\demo\plots\w100_1.sqw&#39;</span><span class="p">;</span>
+
+<span class="n">w100_1b</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj_100</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mi">70</span><span class="p">],</span><span class="w"> </span><span class="n">cut_file</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Now if we want to read this in again at some later time all we need to do is
+type:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w100_1b</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="n">cut_file</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w100_1b</span><span class="p">);</span>
+<span class="n">lx</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">3</span><span class="p">;</span><span class="w"> </span><span class="n">ly</span><span class="w"> </span><span class="s">0.2</span><span class="w"> </span><span class="s">0.8</span>
+</pre></div>
+</div>
+<p>Alternatively you can store the cut data in the Matlab workspace, simply by
+typing:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w100_1b</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj_100</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mi">70</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>Note, however, that the variable <code class="docutils literal notranslate"><span class="pre">w100_1b</span></code> will only be stored in the Matlab
+workspace, so it could easily be overwritten, or lost if you quit Matlab without
+<code class="docutils literal notranslate"><span class="pre">save</span></code> ing your workspace.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">save</span><span class="p">(</span><span class="n">w100_1b</span><span class="p">,</span><span class="w"> </span><span class="n">cut_file</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>As we stated above, the objects that you created using the basic <code class="docutils literal notranslate"><span class="pre">cut</span></code>
+commands are all <code class="docutils literal notranslate"><span class="pre">sqw</span></code> s. These are the generic objects dealt with in Horace
+and can represent data that is 0- to 4-dimensional. The <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects contain
+information about the contributing pixels to the cut, which allow for example
+resolution corrections to be applied when you analyse your data.</p>
+<p>However in some instances, you may not wish to retain this information, for
+example if you are dealing with lots of large 4-dimensional objects and are
+worried about running out of space, or if you do not intend to use the pixel
+information.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w100_2_nopixels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj_100</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>OR</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w100_1d</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w100_2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mi">70</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">w100_2</span></code> is the 2-dimensional sqw object created earlier.</p>
+<p>If you make a cut to create an object that is 2-dimensional, but with no pixel
+information, then it becomes a new type of object – in this case a <code class="docutils literal notranslate"><span class="pre">d2d</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the cut would create a 1-d object then it is known as a <code class="docutils literal notranslate"><span class="pre">d1d</span></code>, and so
+on. The collective set of objects are known as <code class="docutils literal notranslate"><span class="pre">dnd</span></code> s.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Once you have cut an object without pixels and created a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> it is not
+possible to recover the object with pixels from this. Instead the original
+data must be re-<code class="docutils literal notranslate"><span class="pre">read</span></code>/re-<code class="docutils literal notranslate"><span class="pre">cut</span></code> in order to recover the pixel data.</p>
+</div>
+<p>Most operations that apply to <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects can be applied to <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects,
+e.g. the command <code class="docutils literal notranslate"><span class="pre">plot</span></code> applies to both kinds of data. The most notable
+difference applies to using <code class="docutils literal notranslate"><span class="pre">simulate</span></code> and <code class="docutils literal notranslate"><span class="pre">fit</span></code> on data
+(c.f. <a class="reference internal" href="../manual/Multifit.html#overview"><span class="std std-ref">Multifit</span></a>).</p>
+</section>
+<section id="basic-data-manipulation">
+<h2>Basic data manipulation<a class="headerlink" href="#basic-data-manipulation" title="Permalink to this headline"></a></h2>
+<p>Horace allows you to manipulate your data in many different ways.</p>
+<p>It is important to realise that there are essentially 3 different kinds of
+function, each with a slightly different syntax:</p>
+<ol class="arabic simple">
+<li><p>A function which takes an existing data set and transforms it in some way,
+returning the transformed dataset.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>An example of this would be dividing the entire dataset by the Bose factor.</p>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>A function which takes a number of input vectors, corresponding to the axes
+of the desired output object, performing a mathematical operation on these
+ranges returning an n-dimensional output.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>An example of this would be a function called something like <code class="docutils literal notranslate"><span class="pre">gauss_2d</span></code>
+which takes two vectors that specify a grid in (<strong>Q</strong>,E)-space and some
+parameter, and returns a 2D grid with an intensity modeled by a Gaussian.</p>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>A function which operates on a model of S(<strong>Q</strong>,E), one which takes the
+values of h,k,l and E for a particular dataset and applies a transformation
+to each point.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>An example of this would be calculating a dispersion relation, for a simple
+harmonic oscillator response function.</p>
+</div>
+<p>With the above caveats in mind, let’s demonstrate two different kinds of data
+manipulation of the first type discussed above. In the first we will simulate
+the background for a 2D slice by looking at the signal at high
+<span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span> in a 1D cut and then replicating it into 2D and subtracting
+from the real data. We’ll then demonstrate correcting the data for the
+Bose-Einstein thermal population factor.</p>
+<section id="process">
+<h3>Process<a class="headerlink" href="#process" title="Permalink to this headline"></a></h3>
+<p>First create a new 2D slice and save to file:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">cut_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;&lt;horace_root&gt;\demo\w110.sqw&#39;</span><span class="p">;</span>
+
+<span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj_110</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">150</span><span class="p">],</span><span class="w"> </span><span class="n">cut_file</span><span class="p">);</span>
+
+<span class="n">w110</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="n">cut_file</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Now make a 1D cut out of this slice along the energy axis, with the integration
+range along <span class="math notranslate nohighlight">\([0, 1, 0]\)</span> of 4.8 to 5:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wbackcut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w110</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">4.8</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>Next make a new 2D slice by replicating the cut along one of the integration
+axes:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wback</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">replicate</span><span class="p">(</span><span class="n">wbackcut</span><span class="p">,</span><span class="w"> </span><span class="n">w110</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">wback</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Here we are passing <code class="docutils literal notranslate"><span class="pre">w110</span></code> as the template object to expand the
+slice we just made to the same shape.</p>
+</div>
+<a class="reference internal image-reference" href="../_images/Screenshot_background_replicated.png"><img alt="2d cut made by replicating a 1d cut" src="../_images/Screenshot_background_replicated.png" style="width: 300px;" /></a>
+<p>This is a now 2D slice that is over the same range as w110. We can now
+<a class="reference internal" href="../manual/Binary_operations.html#binary-operations"><span class="std std-ref">subtract</span></a> this from the real
+data to remove the background:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wdiff</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w110</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">wback</span><span class="p">;</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">wdiff</span><span class="p">);</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/Screenshot_background_subtracted.png"><img alt="Background-subtracted data" src="../_images/Screenshot_background_subtracted.png" style="width: 300px;" /></a>
+</section>
+</section>
+<section id="simulations">
+<h2>Simulations<a class="headerlink" href="#simulations" title="Permalink to this headline"></a></h2>
+<p>It is not only possible to plot and manipulate data, it is also possible to
+simulate an entire dataset, or parts of a dataset.</p>
+<p>We will illustrate this option using two examples, one that gives a quartet of
+Gaussian profile peaks, and another that simulates the intensity from a
+Heisenberg ferromagnet.</p>
+<section id="gaussian-profile-peaks">
+<h3>Gaussian Profile Peaks<a class="headerlink" href="#gaussian-profile-peaks" title="Permalink to this headline"></a></h3>
+<p>It is often the case that you do not have a full model of S(<strong>Q</strong>,E), but rather
+you just want to determine how a particular peak changes with, for example,
+temperature or neutron energy transfer.</p>
+<p>An example would be to monitor the positions and intensities of a quartet peaks.</p>
+<p>We can generate a slice from our demo data by typing:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w_template</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj_100</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">40</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>This should give a plot that looks like this:</p>
+<a class="reference internal image-reference" href="../_images/Screenshot_CutToSim.png"><img alt="2d data" src="../_images/Screenshot_CutToSim.png" style="width: 300px;" /></a>
+<p>We will now simulate this using the demonstration function <code class="docutils literal notranslate"><span class="pre">demo_4gauss</span></code>. This
+is a specially written function which works only for 2D datasets (slices) where
+both axes are momentum (h,k,l).</p>
+<p>Read through the code in:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">horace_root</span><span class="o">&gt;\</span><span class="nb">functions</span><span class="o">\</span><span class="n">demo_4gauss</span><span class="p">.</span><span class="n">m</span>
+</pre></div>
+</div>
+<p>to see if you can understand how the function works.</p>
+<p>It is a far from simple task to write a function that is completely general for
+any dimensionality of dataset, so you typically write functions such as this
+that work only for a particular dimensionality. It is important, therefore, for
+your own book-keeping, that you give the functions sensible names that reflect
+both what they do and what sort of dataset they apply to.</p>
+<p>Now let’s run the function, here we will use <code class="docutils literal notranslate"><span class="pre">func_eval</span></code>.</p>
+<p>The syntax for functions called by this routine is slightly different:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w_sim</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">func_eval</span><span class="p">(</span><span class="n">w_template</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">demo_4gauss</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">6</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="mf">1.25</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>The arguments in the square parentheses are the function inputs, and in this
+case they correspond respectively to:</p>
+<ul class="simple">
+<li><p>amplitude</p></li>
+<li><p>satellite position x-coordinate</p></li>
+<li><p>satellite y-coordinate</p></li>
+<li><p>central position x-coordinate</p></li>
+<li><p>central y-coordinate</p></li>
+<li><p>background</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In general the input to a function called by <code class="docutils literal notranslate"><span class="pre">func_eval</span></code> can take any form
+(e.g. a cell array, a structure array, a string, etc.), although if you wish
+to pass anything other than a vector of parameters, such as that shown above,
+then it must be packed into a cell array.</p>
+</div>
+<a class="reference internal image-reference" href="../_images/Screenshot_SimCut.png"><img alt="2d simulation" src="../_images/Screenshot_SimCut.png" style="width: 300px;" /></a>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">func_eval</span></code> works for both <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects with almost the same
+syntax.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects, pixel information is simulated according to the
+calculated intensity for the data grid, whereas for <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects this is
+not required.</p>
+</div>
+<p>It is also possible to simulate a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> from a template <code class="docutils literal notranslate"><span class="pre">sqw</span></code>
+object by using an additional keyword argument <code class="docutils literal notranslate"><span class="pre">'all'</span></code> as follows:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dnd_sim</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">func_eval</span><span class="p">(</span><span class="n">w_template</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">demo_4gauss</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">6</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="mf">1.25</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;all&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Furthermore one can use the <code class="docutils literal notranslate"><span class="pre">'all'</span></code> keyword argument with a template <code class="docutils literal notranslate"><span class="pre">dnd</span></code>
+object so that intensity is simulated over the entire data range, rather than
+just at the points where there are data in the template object.</p>
+</section>
+<section id="d-heisenberg-ferromagnet">
+<h3>3D Heisenberg Ferromagnet<a class="headerlink" href="#d-heisenberg-ferromagnet" title="Permalink to this headline"></a></h3>
+<p>In this case we will be fitting a full model of S(<strong>Q</strong>,E), using <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The difference between <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> and <code class="docutils literal notranslate"><span class="pre">func_eval</span></code> is the way in which the
+arguments are passed to the target function. <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> passes the
+positions (h,k,l,e) for each point, while <code class="docutils literal notranslate"><span class="pre">func_eval</span></code> simply passes the
+calculated intensity.</p>
+</div>
+<p>The function we will use to demonstrate here is a model appropriate for spin
+excitations of a 3D Heisenberg ferromagnet; it is called
+<code class="docutils literal notranslate"><span class="pre">FM_spinwaves_2dSlice_sqw</span></code>, and it takes as inputs the components of <strong>Q</strong>
+(h,k,l) plus energy, as well as other function parameters (exchange constant
+etc.).</p>
+<p>Please take a look at the code of the example function by typing:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">edit</span><span class="w"> </span><span class="n">FM_spinwave_2dSlice_sqw</span>
+</pre></div>
+</div>
+<p>into the Matlab terminal.</p>
+<p>You should notice that the format of the inputs for this function are thus
+different from those of <code class="docutils literal notranslate"><span class="pre">demo_4gauss</span></code> – to see the differences it is easiest
+to examine the code for the two functions side-by-side.</p>
+<p>Tun call the function we run:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w_sim</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">w_template</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">FM_spinwaves_2dSlice_sqw</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">300</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="mi">2</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>The similar syntax makes it easier to remember how to apply general functions,
+while the <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> vs. <code class="docutils literal notranslate"><span class="pre">func_eval</span></code> allows us to define specialised and
+flexible functions for computing transformations of our data.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In general it is better to use <code class="docutils literal notranslate"><span class="pre">func_eval</span></code> for simple functions such as
+Gaussians and so on, and <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> for “proper” models of the scattering.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As before, the keyword <code class="docutils literal notranslate"><span class="pre">'all'</span></code> can be added to the arguments of this
+function, however in this case it is ignored if the object <code class="docutils literal notranslate"><span class="pre">w_template</span></code> is
+an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">w_template</span></code> is a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object then, as for <code class="docutils literal notranslate"><span class="pre">func_eval</span></code>, the keyword
+<code class="docutils literal notranslate"><span class="pre">'all'</span></code> ensures that data are simulated over the entire data range.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As with <code class="docutils literal notranslate"><span class="pre">func_eval</span></code>, the parameters passed to the function can
+either take the form of a vector of numerical parameters, or a cell array
+comprising any other form of input.</p>
+</div>
+</section>
+<section id="bose-temperature">
+<h3>Bose Temperature<a class="headerlink" href="#bose-temperature" title="Permalink to this headline"></a></h3>
+<p>In this example we will look at the generalised application function <code class="docutils literal notranslate"><span class="pre">apply</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">apply</span></code> is a somewhat advanced function which requires some knowledge of the
+underlying <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object structure but allows us to apply arbitrary functions
+affecting more than just the signal to an object is a concise and flexible
+manner.</p>
+<p>For this example we will be applying a Bose population correction, first we define
+the function:</p>
+<div class="math notranslate nohighlight">
+\[s' = \left(1 - \mathrm{e}^{ \frac{\sigma{}E}{T} }\right) s\]</div>
+<p>where <span class="math notranslate nohighlight">\(s\)</span> is the signal intensity, <span class="math notranslate nohighlight">\(T\)</span> is temperature, <span class="math notranslate nohighlight">\(E\)</span> is is the energy, and <span class="math notranslate nohighlight">\(\sigma = -11.6044\)</span></p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>pix<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">bose_population</span><span class="p">(</span>pix, T<span class="p">)</span>
+<span class="w">   </span><span class="n">pix</span><span class="p">.</span><span class="n">signal</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pix</span><span class="p">.</span><span class="n">signal</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">11.6044</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="n">pix</span><span class="p">.</span><span class="n">dE</span><span class="w"> </span><span class="o">./</span><span class="w"> </span><span class="n">T</span><span class="p">))</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>Here we can see that this function takes <code class="docutils literal notranslate"><span class="pre">pix</span></code> as an argument which is the
+<code class="docutils literal notranslate"><span class="pre">PixelData</span></code> object which contains all of the pixel information that underlies
+the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. We are directly transforming the <code class="docutils literal notranslate"><span class="pre">signal</span></code> of the pixels with respect to <code class="docutils literal notranslate"><span class="pre">E</span></code> and the other input variable <code class="docutils literal notranslate"><span class="pre">T</span></code> (temperature)</p>
+<p>We can then simply apply the function to transform the underlying data of the <code class="docutils literal notranslate"><span class="pre">sqw</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w_apply</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w_template</span><span class="p">.</span><span class="n">apply</span><span class="p">(@</span><span class="n">bose_population</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">50</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>This subsequently evaluates the correction with a temperature of <code class="docutils literal notranslate"><span class="pre">50</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Because the <code class="docutils literal notranslate"><span class="pre">apply</span></code> function is a somewhat low-level function, and it can take
+multiple functions as arguments (as a cell-array of function handles) and
+thus multiple sets of arguments, arguments are <strong>always</strong> passed as
+cell-arrays or cell-arrays of cell-arrays in the case of multiple functions.</p>
+</div>
+</section>
+</section>
+<section id="fitting">
+<h2>Fitting<a class="headerlink" href="#fitting" title="Permalink to this headline"></a></h2>
+<p>You can also use Horace to fit parameters to your data. Since this a more
+complicated subject, for an introduction and overview of how to use the fitting
+functions, please read <a class="reference internal" href="../manual/Multifit.html#multifit"><span class="std std-ref">Fitting data</span></a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For comprehensive help with anything in this guide, please use the Matlab
+documentation for the various fitting functions that can be obtained by using
+the <code class="docutils literal notranslate"><span class="pre">doc</span></code> command, for example <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">d1d/multifit</span></code> (for fitting function
+like Gaussians to d1d objects) or <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit_sqw</span></code> (fitting models
+for S(<strong>Q</strong>,w) to <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects).</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../User_guide.html" class="btn btn-neutral float-left" title="User’s Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Horace_GUI.html" class="btn btn-neutral float-right" title="Horace GUI" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Sep 15, 2023, 4:46:32 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/user_guide/Getting_started.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

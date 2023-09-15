@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data diagnostics &mdash; Horace 4.0.0.a2d1f2c36 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Symmetry Operations" href="Symmetrising_etc.html" />
+    <link rel="prev" title="Correcting for sample misalignment" href="Correcting_for_sample_misalignment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.0.0.a2d1f2c36
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Data diagnostics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#run-inspector">run_inspector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#split">split</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#join">join</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Unsorted.html">Unsorted Manual Pages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Horace_manual.html">Horace Manual</a> &raquo;</li>
+      <li>Data diagnostics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Data_diagnostics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-diagnostics">
+<h1>Data diagnostics<a class="headerlink" href="#data-diagnostics" title="Permalink to this headline"></a></h1>
+<p>Horace contains various tools for diagnosing issues with the data. The foremost of these is the <a class="reference internal" href="Run_inspector.html#run-inspector"><span class="std std-ref">run_inspector</span></a> tool.</p>
+<p>If you wish to decompose an sqw object into the data from its constituent runs, the <a class="reference internal" href="#split"><span class="std std-ref">split</span></a> routine outlined below can be used. After manipulation (if necessary), such data can then be recombined using the <a class="reference internal" href="#join"><span class="std std-ref">join</span></a> routine.</p>
+<section id="run-inspector">
+<h2>run_inspector<a class="headerlink" href="#run-inspector" title="Permalink to this headline"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">run_inspector</span></code> routine may be used on 1d or 2d sqw objects to plot the data from each individual run.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">run_inspector</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+
+<span class="n">run_inspector</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="s">&#39;ax&#39;</span><span class="p">,[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">370</span><span class="p">])</span>
+
+<span class="n">run_inspector</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="s">&#39;ax&#39;</span><span class="p">,[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">370</span><span class="p">],</span><span class="s">&#39;col&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">'ax'</span></code> and <code class="docutils literal notranslate"><span class="pre">'col'</span></code> arguments allow you to specify the xy axes, and the colour scale, of the resulting plots. If these options are not set then each frame will be plotted with different (tight) axes and a different colour scale.</p>
+<p>To toggle through the frames, there are several keyboard options:</p>
+<ul class="simple">
+<li><p>Enter (Return) - play/pause video (5 frames-per-second default).</p></li>
+<li><p>Backspace - play/pause video a factor 5 slower.</p></li>
+<li><p>Right/left arrow keys - advance/go back one frame.</p></li>
+<li><p>Page down/page up - advance/go back 10 frames.</p></li>
+<li><p>Home/end - go to first/last frame of video.</p></li>
+</ul>
+<p>Let us illustrate the information that may be obtained by means of an example. First we generate a QE slice such as the one below</p>
+<a class="reference internal image-reference" href="../_images/Fe_slice.jpg"><img alt="Selected QE slice" src="../_images/Fe_slice.jpg" style="width: 500px;" /></a>
+<p>We can now use <code class="docutils literal notranslate"><span class="pre">run_inspector</span></code> to plot a series of slices that come from a single contributing dataset, shown below.</p>
+<a class="reference internal image-reference" href="../_images/Fe_slice_run_inspector_1.jpg"><img alt="Frame 1 in run inspector" src="../_images/Fe_slice_run_inspector_1.jpg" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../_images/Fe_slice_run_inspector_11.jpg"><img alt="Frame 11 in run inspector" src="../_images/Fe_slice_run_inspector_11.jpg" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../_images/Fe_slice_run_inspector_21.jpg"><img alt="Frame 21 in run inspector" src="../_images/Fe_slice_run_inspector_21.jpg" style="width: 500px;" /></a>
+</section>
+<section id="split">
+<h2>split<a class="headerlink" href="#split" title="Permalink to this headline"></a></h2>
+<p>Split an sqw object into an array of sqw objects, each containing data from a single contributing run. So if your dataset comprises information from 100 runs, the output will be a 100-by-1 array of sqw objects.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="nb">split</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="join">
+<h2>join<a class="headerlink" href="#join" title="Permalink to this headline"></a></h2>
+<p>Inverse of <code class="docutils literal notranslate"><span class="pre">split</span></code> - takes an array of sqw objects that have been created using <code class="docutils literal notranslate"><span class="pre">split</span></code> and recombines them.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="nb">join</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">wi</span><span class="p">)</span>
+
+<span class="n">wout</span><span class="p">=</span><span class="nb">join</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The inputs are:</p>
+<p><code class="docutils literal notranslate"><span class="pre">w</span></code> - an array of sqw objects, each one made from a single spe data file</p>
+<p><code class="docutils literal notranslate"><span class="pre">wi</span></code> - the initial pre-split sqw object (optional, recommended).</p>
+<p>The output is:</p>
+<p><code class="docutils literal notranslate"><span class="pre">wout</span></code> - an sqw object Mex_C++_glnxa64.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Correcting_for_sample_misalignment.html" class="btn btn-neutral float-left" title="Correcting for sample misalignment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Symmetrising_etc.html" class="btn btn-neutral float-right" title="Symmetry Operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Sep 15, 2023, 4:46:32 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/manual/Data_diagnostics.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
