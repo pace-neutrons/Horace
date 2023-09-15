@@ -18,7 +18,7 @@ classdef PixelDataMemory < PixelDataBase
     %   >> pix_data = PixelDataMemory(data)
     %   >> signal = pix_data.signal;
     %
-   %
+    %
     %  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
     %
     %   >> pix_data = PixelDataMemory(data);
@@ -56,7 +56,7 @@ classdef PixelDataMemory < PixelDataBase
     methods
         pix_out     = append(obj, pix);
         % apply function represented by handle to every pixel of the dataset
-        % and caclculate appropriate averages if requested
+        % and calculate appropriate averages if requested
         [obj, data] = apply(obj, func_handle, args, data, compute_variance);
         %
         function data =  get_raw_data(obj,varargin)
@@ -73,7 +73,6 @@ classdef PixelDataMemory < PixelDataBase
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
 
         pix     = set_raw_data(obj,pix);
-        obj     = set_raw_fields(obj, data, fields, abs_pix_indices);
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
@@ -113,7 +112,7 @@ classdef PixelDataMemory < PixelDataBase
             % recalc_pix_range is a normal Matlab value object (not a handle object),
             % returning its changes in LHS
             if nargin == 1
-                fld = 'all';                
+                fld = 'all';
             end
             if nargout == 2
                 [obj,unique_pix_id]=obj.calc_page_range(fld);
@@ -139,12 +138,10 @@ classdef PixelDataMemory < PixelDataBase
             % ------
             %   selected     indices of pixels to be tagged
             if ~exist('selected', 'var')
-                selected = 1:obj.num_pixels;
+                obj.detector_idx = -obj.detector_idx;
+            else
+                obj.detector_idx(selected) = -obj.detector_idx(selected);
             end
-
-            obj = obj.set_raw_fields(...
-                -obj.detector_idx(selected), ...
-                'detector_idx', selected);
         end
 
         function obj = untag(obj, selected)
@@ -157,12 +154,10 @@ classdef PixelDataMemory < PixelDataBase
             % ------
             %   selected     indices of pixels to be untagged
             if ~exist('selected', 'var')
-                selected = 1:obj.num_pixels;
+                obj.detector_idx = abs(obj.detector_idx);
+            else
+                obj.detector_idx(selected) = abs(obj.detector_idx(selected));
             end
-
-            obj.set_raw_fields(...
-                abs(obj.detector_idx(selected)), ...
-                'detector_idx', selected)
         end
 
     end
@@ -227,14 +222,17 @@ classdef PixelDataMemory < PixelDataBase
             % Sets up the property page_range defining the range of block
             % of pixels changed at current iteration.
 
-            obj.data_range_   = PixelDataBase.EMPTY_RANGE;
             if isempty(obj.data_)
+                unique_id = [];
                 return
             end
+            ind = obj.get_pixfld_indexes(field_name);
+            obj.data_range_(:,ind)   = PixelDataBase.EMPTY_RANGE(:,ind);
+            
             if nargout==2
-                [obj,unique_id] = calc_page_range@PixelDataBase(obj,field_name);
+                [obj,unique_id] = calc_page_range@PixelDataBase(obj,ind);
             else
-                obj = calc_page_range@PixelDataBase(obj,field_name);
+                obj = calc_page_range@PixelDataBase(obj,ind);
             end
         end
 

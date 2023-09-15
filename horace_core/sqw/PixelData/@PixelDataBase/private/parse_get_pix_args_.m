@@ -57,9 +57,7 @@ switch numel(argi)
         if islogical(pix_indices)
             if accepts_logical
                 if numel(pix_indices) ~= obj.num_pixels
-                    error('HORACE:PixelDataBase:invalid_argument',...
-                        'number of logical arguments (%d) must be equal to number of pixels (%d)',...
-                        numel(pix_indices),obj.num_pixels)
+                    pix_indices = obj.logical_to_normal_index_(pix_indices);                    
                 end
                 return;
             else

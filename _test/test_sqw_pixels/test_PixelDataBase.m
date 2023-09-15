@@ -31,22 +31,6 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
         tol = 1e-6;
     end
 
-    methods(Static, Access=private)
-
-        function [pix_data,data_range] = get_random_pix_data_(rows)
-            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, rows);
-            pix_data = PixelDataMemory(data);
-            data_range = pix_data.data_range;
-
-        end
-
-        function ref_range = get_ref_range(data)
-            ref_range = [min(data(1:4, :),[],2),...
-                max(data(1:4, :),[],2)]';
-        end
-
-    end
-
     methods
 
         function obj = test_PixelDataBase(~)
@@ -305,9 +289,15 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
         function test_PixelData_set_data_all_wrong_size(~)
             pix_data_obj = PixelDataBase.create();
+            function thrower(pix,data)
+                pix.data = data;
+            end
             data = zeros(4,1);
-            f = @()set_fields(pix_data_obj,data,'all');
-            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
+            ME = assertExceptionThrown(@()thrower(pix_data_obj,data), ...
+                'HORACE:PixelDataMemory:invalid_argument');
+            mess = 'pixel data should be numeric array of ';
+            assertTrue(strncmp(ME.message, ...
+                mess,numel(mess)))
 
         end
 
@@ -490,33 +480,19 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             end
         end
 
-        function test_set_fields_sets_all(obj)
-            data = zeros(9, 30);
-            npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
-
-            % set all u1 values in each page to 1
-            pix.set_fields(1, 'u1');
-
-            % check all u1 values are 1
-            for i = 1:pix.num_pages
-                pix.page_num = i;
-                assertEqual(pix.u1, ones(1, numel(pix.u1)));
-            end
-        end
-
         function test_set_fields_with_nonscalar_data_sets_Ndata(obj)
             data = zeros(9, 30);
             npix_in_page = 11;
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
-            pix.set_fields(ones(1,12), 'u1');
+            pix.page_num = 2;
+            pix.u1 = ones(1,11);
 
             % check u1 values are set
             pix.page_num = 1;
-            assertEqual(pix.u1, ones(1, 11));
+            assertEqual(pix.u1, zeros(1, 11));
             pix.page_num = 2;
-            assertEqual(pix.u1, [1, zeros(1, 10)]);
+            assertEqual(pix.u1, ones(1, 11));
             pix.page_num = 3;
             assertEqual(pix.u1, zeros(1, 8));
 
@@ -797,9 +773,9 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             logical_array = logical(randi([0, 1], [1, 10]));
             pix_out = pix.get_pixels(logical_array);
 
-            assertElementsAlmostEqual(pix_out.data, pix.data(:, logical_array),...
+            assertElementsAlmostEqual(pix_out.data, pix.data(:, [logical_array,false(1,20)]),...
                 'relative',obj.tol);
-            ref_range = obj.get_ref_range(in_data(:,logical_array));
+            ref_range = obj.get_ref_range(in_data(:,[logical_array,false(1,20)]));
             assertElementsAlmostEqual(pix_out.pix_range,ref_range,...
                 'relative',obj.tol);
         end
@@ -837,10 +813,10 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             indices = [9:13, 20:24];
-            sig_var = pix.sig_var(:, indices);
-            expected_sig_var = data([obj.SIGNAL_IDX, obj.VARIANCE_IDX], indices);
+            pix_data = pix.get_pixels(indices,'-raw');
+            expected_data = data(:, indices);
 
-            assertElementsAlmostEqual(sig_var, expected_sig_var,...
+            assertElementsAlmostEqual(pix_data , expected_data,...
                 'relative',obj.tol);
         end
 
@@ -855,8 +831,8 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             assertElementsAlmostEqual(sig, data(obj.SIGNAL_IDX, 1:3),...
                 'relative',obj.tol);
 
-            sig2 = pix.signal(20);
-            assertElementsAlmostEqual(sig2, data(obj.SIGNAL_IDX, 20),...
+            sig2 = pix.signal(10);
+            assertElementsAlmostEqual(sig2, data(obj.SIGNAL_IDX, 10),...
                 'relative',obj.tol);
 
             sig3 = pix.signal(1:1);
@@ -886,25 +862,24 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), true);
-			function ss=thrower(pix,lar)
-			   ss = pix.signal(lar);
-			end
+            function ss=thrower(pix,lar)
+  			   ss = pix.signal(lar);
+            end
             f = @()thrower(pix,logical_array);
 
-            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
+            assertExceptionThrown(f, 'MATLAB:badsubscript');
         end
 
-        function test_get_prop_ignores_out_of_range_logical_0_indices(obj)
+        function test_get_pix_accepts_logical_indices(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
-            logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), false);
-            sig_var = pix.sig_var(:,logical_array);
+            logical_array = logical(randi([0, 1], [1, num_pix]));
+            r_data = pix.get_pixels(logical_array,'-raw');
 
-            assertElementsAlmostEqual(var_sig, ...
-                data([obj.SIGNAL_IDX,obj.VARIANCE_IDX], logical_array),...
+            assertElementsAlmostEqual(r_data, data(:,logical_array),...
                 'relative',obj.tol);
         end
 
@@ -926,8 +901,8 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             idx_array = [10 1 10 10 10];
-			sig = pix.signal(idx_array);
-			rid = pix.run_idx(idx_array);
+            sig = pix.signal(idx_array);
+            rid = pix.run_idx(idx_array);
 
             assertElementsAlmostEqual([sig;rid], data([obj.SIGNAL_IDX, obj.RUN_IDX], idx_array),...
                 'relative',obj.tol);
@@ -951,10 +926,9 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
             rand_order = randperm(num_pix);
             shuffled_pix = data(:, rand_order);
-            sig_var = pix.sig_var(:, rand_order);
+            pix = pix.get_pixels(rand_order,'-raw_data');
 
-            assertElementsAlmostEqual(sig_var, ...
-                shuffled_pix([obj.SIGNAL_IDX, obj.VARIANCE_IDX], :),...
+            assertElementsAlmostEqual(pix,shuffled_pix,...
                 'relative',obj.tol);
         end
 
@@ -964,23 +938,25 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             npix_in_page = 11;
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
-			function ss=thrower(pix,lar)
-			   ss = pix.signal(lar);
-			end
+            function ss=thrower(pix,lar)
+  			   ss = pix.signal(lar);
+            end
 
             idx_array = 25:35;
             f = @()thrower(pix,idx_array);
-            assertExceptionThrown(f, 'PIXELDATA:get_data');
+            assertExceptionThrown(f, 'MATLAB:badsubscript');
         end
 
         function test_set_data_sets_fields_with_given_values(~)
             pix = PixelDataMemory(30);
             new_data = ones(3, 7);
-            fields = {'run_idx', 'signal', 'variance'};
+
             idxs = [4, 3, 9, 24, 29, 10, 11];
-            pix = pix.set_fields(new_data,fields, idxs);
-			idx = pix.run_idx(idxs);
-			sv  = pix.sig_var(:,idxs);
+            pix.run_idx(idxs) =  new_data(1,:);
+            pix.sig_var(:,idxs) =  new_data(2:3,:);
+
+            idx = pix.run_idx(idxs);
+            sv  = pix.sig_var(:,idxs);
 
             assertEqual([idx;sv], new_data);
 
@@ -989,10 +965,23 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             non_edited_idxs(idxs) = [];
             assertEqual(pix.data(:, non_edited_idxs), zeros(9, 23));
         end
+    end
+    % -- Helpers --
+    methods(Static, Access=private)
 
-        % -- Helpers --
+        function [pix_data,data_range] = get_random_pix_data_(rows)
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, rows);
+            pix_data = PixelDataMemory(data);
+            data_range = pix_data.data_range;
 
-        function [pix,pix_range,clob] = get_pix_with_fake_faccess(obj, data, npix)
+        end
+
+        function ref_range = get_ref_range(data)
+            ref_range = [min(data(1:4, :),[],2),...
+                max(data(1:4, :),[],2)]';
+        end
+
+        function [pix,pix_range,clob] = get_pix_with_fake_faccess(data, npix)
             clobW = set_temporary_warning('off', 'HOR_CONFIG:set_mem_chunk_size');
             clob = set_temporary_config_options(hor_config, 'mem_chunk_size', npix);
 

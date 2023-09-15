@@ -33,7 +33,7 @@ classdef (Abstract) PixelDataBase < serializable
     %                    Cartesian coordinates in projection axes, units are per Angstroms (1 x n arrays)
     %   dE             - The energy transfer value for each pixel in meV (1 x n array)
     %   coordinates    - The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
-    %   q_coordinates  - The spacial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
+    %   q_coordinates  - The spatial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
     %   run_idx        - The run index the pixel originated from (1 x n array)
     %   detector_idx   - The detector group number in the detector listing for the pixels (1 x n array)
     %   energy_idx     - The energy bin numbers (1 x n array)
@@ -364,7 +364,6 @@ classdef (Abstract) PixelDataBase < serializable
 
         data = get_raw_data(obj,varargin)
         pix = set_raw_data(obj,pix);
-        obj = set_raw_fields(obj, data, fields, abs_pix_indices);
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
@@ -806,7 +805,7 @@ classdef (Abstract) PixelDataBase < serializable
     % Helper methods.
     methods(Access=protected)
         function obj = set_alignment(obj,val,pix_average_treatment_function)
-            % set non-unary alignment martix and recalculate or invalidate
+            % set non-unary alignment matrix and recalculate or invalidate
             % pix averages.
             % Part of alignment_mart setter
             % Inputs:
@@ -814,7 +813,7 @@ classdef (Abstract) PixelDataBase < serializable
             % val    -- 3x3 alignment matrix or empty value if matrix
             %           invalidation is requested
             % pix_average_treatment_function
-            %        -- the function used for recalculion or invalidation
+            %        -- the function used for recalculation or invalidation
             %           of pixel averages
             obj = set_alignment_matr_(obj,val,pix_average_treatment_function);
         end

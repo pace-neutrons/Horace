@@ -100,7 +100,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 'append does not work on file-based pixels')
         end
         % apply function represented by handle to every pixel of the dataset
-        % and caclculate appropriate averages if requested
+        % and calculate appropriate averages if requested
         [obj, data] = apply(obj, func_handle, args, data, compute_variance);
 
         function obj = set_raw_data(obj,pix)
@@ -111,7 +111,6 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = set_raw_data_(obj,pix);
         end
 
-        obj=set_raw_fields(obj, data, fields, varargin)
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
 
         [pix_out, data] = do_unary_op(obj, unary_op, data);
