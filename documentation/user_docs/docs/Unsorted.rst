@@ -19,4 +19,5 @@ and may not be needed in the new documentation.
    manual/Script_for_making_publication_quality_figures
    manual/Script_for_making_simulations
    manual/Script_for_planning_an_experiment
+   user_guide/Example_scripts
    new_page
