@@ -155,7 +155,17 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting
     % only DND object for implementation.
+    methods(Static)
+        
+        function ww=TESTONLY_replicatearray(vv,np)
+            % exposes replicate_array for testing purposes only
+            ww = replicate_array(vv,np);
+        end
+        
+    end
+    
     methods
+        
         function [nd,sz] = dimensions(win)
             % Return size and shape of the image
             % arrays in sqw or dnd object
