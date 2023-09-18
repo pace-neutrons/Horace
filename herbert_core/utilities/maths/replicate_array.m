@@ -36,4 +36,3 @@ else
         ['The number of elements in input array ''v'' (%d) is different from \n', ...
         'the number of elements in input array ''n'' (%d)'], numel(v),numel(n));
 end
-
