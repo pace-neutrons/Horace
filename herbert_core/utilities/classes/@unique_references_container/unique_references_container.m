@@ -14,6 +14,10 @@ classdef unique_references_container < serializable
     % global_container implements this global container. The class
     % unique_objects_container is used to implement this storage.
     %
+    % The adaptation of the standard Matlab singleton pattern to the
+    % present code where several singletons, one per data type, are stored
+    % in the same class, is documented in SMG-22.
+    %
     % The global container does not persist between sessions, and containers
     % written out to file are represented by separate
     % unique_objects_containers, one for each owner of the container

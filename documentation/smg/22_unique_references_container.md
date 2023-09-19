@@ -1,4 +1,5 @@
-Singleton implementation in a unique_references_container
+SMG-22: Singleton implementation in a unique_references_container
+=================================================================
 
 The unique_references_container class in ...\herbert_core\utilities\classes\@unique_references_container\unique_references_container.m
 provides a container where
