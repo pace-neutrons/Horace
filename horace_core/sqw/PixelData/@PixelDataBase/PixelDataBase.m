@@ -677,9 +677,6 @@ classdef (Abstract) PixelDataBase < serializable
             ro = get_read_only(obj);
         end
         %
-        function range = get.raw_data_range(obj)
-            range = obj.data_range_;
-        end
     end
     %----------------------------------------------------------------------
     methods
