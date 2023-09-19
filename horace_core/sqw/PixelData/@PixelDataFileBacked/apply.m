@@ -56,6 +56,8 @@ end
 
 function [obj, data] = apply_op_dnd(obj, func_handle, args, data, compute_variance)
 
+    ll = config_store.instance().get_value('hor_config', 'log_level');
+
     obj = obj.prepare_dump();
 
     mem_chunk_size = config_store.instance().get_value('hor_config', 'mem_chunk_size');
@@ -65,6 +67,10 @@ function [obj, data] = apply_op_dnd(obj, func_handle, args, data, compute_varian
     obj.data_range_ = PixelDataBase.EMPTY_RANGE;
     for i = 1:numel(chunks)
         npix = sum(chunks{i});
+
+        if ll > 0 && mod(i, 10) == 1
+            fprintf('Processing page %d/%d', i, numel(chunks));
+        end
 
         curr_pix = obj.get_pixels(pix:pix+npix-1, '-ignore_range');
         for j = 1:numel(func_handle)
@@ -93,6 +99,8 @@ function [obj, data] = apply_op_dnd(obj, func_handle, args, data, compute_varian
 end
 
 function obj = apply_op_no_dnd(obj, func_handle, args)
+
+    ll = config_store.instance().get_value('hor_config', 'log_level');
 
     obj = obj.prepare_dump();
 

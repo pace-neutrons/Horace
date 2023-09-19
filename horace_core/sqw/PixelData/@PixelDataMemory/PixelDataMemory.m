@@ -80,7 +80,6 @@ classdef PixelDataMemory < PixelDataBase
 
         pix_out = mask(obj, mask_array, npix);
 
-        obj = apply_alignment(obj);
     end
 
     methods
