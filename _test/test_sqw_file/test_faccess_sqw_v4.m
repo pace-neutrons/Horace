@@ -149,8 +149,7 @@ classdef test_faccess_sqw_v4< TestCase
             ver_obj.experiment_info.runid_recalculated = true;
             assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date','ignore_str',true);
         end
-
-        function test_upgrdate_v2_to_v4_filebacked(obj)
+        function test_upgrdate_v2_to_v4_filebacked_upgrade_range(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
             clObF = onCleanup(@()file_delete(tf));
             copyfile(obj.old_origin,tf,'f');
@@ -165,7 +164,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             assertTrue(PixelDataBase.do_filebacked(4324));
 
-            fac = ldr.upgrade_file_format(tf);
+            fac = ldr.upgrade_file_format(tf,'-upgrade_range');
             ldr.delete();
 
             assertEqual(fac.faccess_version,4.0)
@@ -174,6 +173,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             w_new = fac.get_sqw('-ver');
             fac.delete();
+            assertTrue(w_new.pix.is_range_valid);
 
             assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date','ignore_str',true)
 
@@ -185,6 +185,58 @@ classdef test_faccess_sqw_v4< TestCase
             % Cut projection is recovered correctly
             eq_cut = w_new_new.cut(w_new_new.data.proj,[],[],[],[]);
             assertEqualToTol(eq_cut,w_new_new,1.e-7,'-ignore_date', 'ignore_str', true);
+            % do clean-up as pixels hold access to the file, which can not
+            % be deleted as memmapfile holds it
+            w_new.pix = [];
+            w_new_new.pix = [];
+            clear w_new;
+            clear w_new_new;
+        end
+
+
+        function test_upgrdate_v2_to_v4_filebacked_no_range(obj)
+            tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
+            clObF = onCleanup(@()file_delete(tf));
+            copyfile(obj.old_origin,tf,'f');
+            clobW = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+
+            % 4324 pixels, let's ensure pixels in file are treated as filebacked
+            clobConf = set_temporary_config_options(hor_config, 'mem_chunk_size', 500, 'fb_scale_factor', 3);
+
+            ldr = sqw_formats_factory.instance().get_loader(tf);
+            w_old = ldr.get_sqw('-ver');
+            %------------ Now the test setting and test
+
+
+            assertTrue(PixelDataBase.do_filebacked(4324));
+
+            fac = ldr.upgrade_file_format(tf);
+            ldr.delete();
+
+            assertEqual(fac.faccess_version,4.0)
+            assertEqual(fac.npixels,uint64(4324))
+            assertEqual(fac.num_contrib_files,186);
+
+
+            w_new = fac.get_sqw('-ver');
+            fac.delete();
+            assertFalse(w_new.pix.is_range_valid);
+
+            assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date','ignore_str',true)
+
+            fac1 = sqw_formats_factory.instance().get_loader(tf);
+            assertEqual(fac1.faccess_version,4.0)
+            w_new_new = fac1.get_sqw('-ver');
+            fac1.delete();
+            assertEqualToTol(w_new,w_new_new)
+            % Cut projection is recovered correctly
+            eq_cut = w_new_new.cut(w_new_new.data.proj,[],[],[],[]);
+            % cut, descpite not removing any pixels, recalculates range and
+            % contrubuted files, so range is defined and not all initial
+            % runts contribute
+            assertTrue(eq_cut.pix.is_range_valid);
+            assertEqual(eq_cut.main_header.nfiles,109);
+
             % do clean-up as pixels hold access to the file, which can not
             % be deleted as memmapfile holds it
             w_new.pix = [];
@@ -219,6 +271,7 @@ classdef test_faccess_sqw_v4< TestCase
             fac1.delete();
             assertEqualToTol(w_new,w_new_new)
         end
+        %
         function test_init_and_get(obj)
             to = faccess_sqw_v4();
 
@@ -302,7 +355,7 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqual(exi.instruments(1),inst1);
             assertEqual(exi.samples(1),sam1);
         end
-
+        %
         function obj = test_get_inst_or_sample(obj)
             to = faccess_sqw_v4();
             to = to.init(obj.sample_file);
@@ -314,7 +367,6 @@ classdef test_faccess_sqw_v4< TestCase
             inst1 = to.get_instrument(1);
             assertEqual(inst{1},inst1);
         end
-
         %
         function test_read_sqwV2_save_sqwV4(obj)
             samp_f = fullfile(obj.sample_dir,...
@@ -350,7 +402,6 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqual(tob.faccess_version,4);
             tob.delete();
         end
-
         %
         function test_serialize_deserialize_faccess(obj)
             fo = faccess_sqw_v4();

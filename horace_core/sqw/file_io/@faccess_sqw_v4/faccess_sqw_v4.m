@@ -190,56 +190,24 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         end
         function [obj,missinig_fields] = copy_contents(obj,other_obj,varargin)
             % Copy information, relevant to new file format from the old file format
-            [obj,missinig_fields] = copy_contents@binfile_v4_common(obj,other_obj,varargin{:});
-            if ~PixelDataBase.do_filebacked(other_obj.npixels) || ...
-                obj.faccess_version == other_obj.faccess_version
-                return;
-            end
-            % Fix and freeze the position of the pixels data block
-            pix_data_block = obj.bat_.get_data_block('bl_pix_data_wrap');
-            pix_data_block.pix_position = other_obj.pix_position;
-            % this defines the block size
-            pix_data_block.npixels      = other_obj.npixels;
-            % allocate space in new data block
-            obj.bat_ = obj.bat_.set_data_block(pix_data_block);
-            sqw_obj = other_obj.get_sqw('-norange');
-            mh = sqw_obj.main_header;
-            if ~mh.creation_date_defined
-                sqw_obj.creation_date = datetime('now');
-            end
-
-            % build data range as if it has not been stored with
-            % majority of old data files
+            % and update the information, which can be updated.
             %
-            if ~sqw_obj.pix.is_range_valid()
-                hc = hor_config;
-                log_level = hc.log_level;
-                %log_level = config_store.instance().get_value('hor_config','log_level');
-                if log_level > 0
-                    fprintf(2,['\n*** Recalculating actual data range missing in file %s:\n', ...
-                        '*** This is one-off operation occurring during upgrade from file format version %d to file format version %d\n',...
-                        '*** Do not interrupt this operation after the page count completion, as the input data file may become corrupted\n'],...
-                        obj.full_filename,other_obj.faccess_version,obj.faccess_version);
-                end
-                [pix,unique_pix_id] = sqw_obj.pix.recalc_data_range();
-                sqw_obj.pix = pix;
-                sqw_obj = update_pixels_run_id(sqw_obj,unique_pix_id);
+            % Optional:
+            % '-upgrade_range' -- upgrade pixel data range in case if
+            %                     it is not defined. May be long operation
+            %                     as scans over the whole data file.
+            [ok,mess,upgrade_range,argi] = parse_char_options(varargin,'-upgrade_range');
+            if ~ok
+                error('HORACE:faccess_sqw_v4:invalid_argument',mess);
             end
-            % this method is only on the old file interface and checks if
-            % the projection is defined for cut (image system of
-            % coordinates is different from pixel system coordinates) or 
-            % recovered for original sqw file (image coordinates system 
-            % is Crystal Cartesian). 
-            sqw_obj = other_obj.update_projection(sqw_obj);
-            % define number of contributing files, which is stored in sqw
-            % object header, but necessary for sqw_file_interface (not any
-            % more but historically to be able to recover headers)
-            obj.num_contrib_files_ = sqw_obj.main_header.nfiles;
-
-            % as pix data block position already allocated,
-            obj.bat_ = obj.bat_.init_obj_info(sqw_obj,'-insert');
-            obj.sqw_holder_ = sqw_obj;
-            missinig_fields = 'data_in_memory_write_result';
+            [obj,missinig_fields] = copy_contents@binfile_v4_common(obj,other_obj,varargin{:});
+            if ~upgrade_range
+                if  ~PixelDataBase.do_filebacked(other_obj.npixels) || ...
+                        obj.faccess_version == other_obj.faccess_version
+                    return;
+                end
+            end
+            [obj,missinig_fields] = copy_contents_(obj,other_obj,upgrade_range,argi{:});
         end
         function obj = do_class_dependent_updates(obj,~,varargin)
             % function does nothing as this is recent file format
