@@ -149,6 +149,46 @@ classdef test_faccess_sqw_v4< TestCase
             ver_obj.experiment_info.runid_recalculated = true;
             assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date','ignore_str',true);
         end
+        function test_upgrdate_v4_to_v4_calc_range(obj)
+            tf = fullfile(tmp_dir,'test_upgrade_v4tov4_range.sqw');
+            clObF = onCleanup(@()file_delete(tf));
+            copyfile(obj.old_origin,tf,'f');
+            clobW = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+
+            % 4324 pixels, let's ensure pixels in file are treated as filebacked
+            clobConf = set_temporary_config_options(hor_config, 'mem_chunk_size', 500, 'fb_scale_factor', 3);
+            assertTrue(PixelDataBase.do_filebacked(4324));            
+            %------------ Now the test setting and test
+            
+            ldr = sqw_formats_factory.instance().get_loader(tf);
+            fac = ldr.upgrade_file_format(tf);
+            ldr.delete();
+
+            assertEqual(fac.faccess_version,4.0)
+            assertEqual(fac.npixels,uint64(4324))
+            assertEqual(fac.num_contrib_files,186);
+
+            w_no_range = fac.get_sqw('-ver');
+            fac.delete();
+            assertFalse(w_no_range.pix.is_range_valid);
+
+            fac1 = sqw_formats_factory.instance().get_loader(tf);
+            assertEqual(fac1.faccess_version,4.0)
+            fac1 = fac1.upgrade_file_format(tf,'-upgrade_range');
+
+            assertEqualToTol(w_no_range,w_new_new)
+            % Cut projection is recovered correctly
+            eq_cut = w_new_new.cut(w_new_new.data.proj,[],[],[],[]);
+            assertEqualToTol(eq_cut,w_new_new,1.e-7,'-ignore_date', 'ignore_str', true);
+            % do clean-up as pixels hold access to the file, which can not
+            % be deleted as memmapfile holds it
+            w_no_range.pix = [];
+            w_new_new.pix = [];
+            clear w_no_range;
+            clear w_new_new;
+        end
+        
+        %
         function test_upgrdate_v2_to_v4_filebacked_upgrade_range(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
             clObF = onCleanup(@()file_delete(tf));
@@ -192,7 +232,6 @@ classdef test_faccess_sqw_v4< TestCase
             clear w_new;
             clear w_new_new;
         end
-
 
         function test_upgrdate_v2_to_v4_filebacked_no_range(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');

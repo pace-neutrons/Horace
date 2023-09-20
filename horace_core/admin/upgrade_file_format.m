@@ -23,13 +23,17 @@ function msln_files_list = upgrade_file_format(filenames,varargin)
 % msln_files_list -- cellarray of files, which are legacy aligned and
 %                    should be realigned first
 
+[ok,mess,upgrade_ranges,argi] = parse_char_options(varargin,'-upgrade_ranges');
+if ~ok
+    error('HORACE:admin:invalid_argument',mess)
+end
 msln_files_list = {};
 
 if istext(filenames)
     filenames = cellstr(filenames);
 end
 if nargin>1
-    [alatt,angdeg] = prepare_lattice(varargin{1},varargin{2},numel(filenames));
+    [alatt,angdeg] = prepare_lattice(argi{1},argi{2},numel(filenames));
 else
     alatt = {};
     angdeg = {};
@@ -72,7 +76,12 @@ for i=1:n_inputs
                     continue;
                 end
             end
-            ld_new = ld.upgrade_file_format();
+            if upgrade_ranges
+                ld_new = ld.upgrade_file_format('-upgrade_ranges');
+            else
+                ld_new = ld.upgrade_file_format();
+            end
+
             ld_new.delete();
         end
     else
