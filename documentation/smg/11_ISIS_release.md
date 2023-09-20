@@ -34,8 +34,8 @@ Code base for bugfix purposes is linked directly to the git repository for suppo
 
 #### Deploy Process
 
-As soon as release branch is tagged and created in the repository, manual build/release process is preformed in the private area of an ISISCOMPUTE or iDaaaS machine to obtain release artifacts for the computational service. It is also possible to pull the release artifacts from Jenkins builds, though this process needs thorough testing. 
-The extraction of the release artifacts will be automated in a future, as [iDaaaS testing pipeline](https://github.com/pace-neutrons/Horace/issues/271) is implemented. The releaser then manually checks out the release branch into `Herbert_git/Horace_git` areas above and copies the release artifacts into appropriate places of the code tree.
+As soon as release branch is tagged and created in the repository, manual build/release process is preformed in the private area of an ISISCOMPUTE or iDaaaS machine to obtain release artefacts for the computational service. It is also possible to pull the release artefacts from Jenkins builds, though this process needs thorough testing. 
+The extraction of the release artefacts will be automated in a future, as [iDaaaS testing pipeline](https://github.com/pace-neutrons/Horace/issues/271) is implemented. The releaser then manually checks out the release branch into `Herbert_git/Horace_git` areas above and copies the release artefacts into appropriate places of the code tree.
 
 #### Notes
 

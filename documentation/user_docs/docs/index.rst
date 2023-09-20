@@ -12,7 +12,7 @@ Please cite this paper if you have used Horace in your research.
 More details about citing Horace can be found :ref:`here <How_to_cite_Horace:How to cite Horace>`.
 
 If you have problem using or installing Horace, found bug or have other questions related to Horace,
-please contact `our team <mailto:HoraceHelp.stfc.ac.uk>`__,
+please contact `our team <mailto:HoraceHelp@stfc.ac.uk>`__,
 and somebody will come back and try to help you answering your question.
 
 .. toctree::
