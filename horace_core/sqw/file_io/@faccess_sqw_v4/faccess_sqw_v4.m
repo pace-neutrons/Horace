@@ -209,10 +209,14 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             end
             [obj,missinig_fields] = copy_contents_(obj,other_obj,upgrade_range,argi{:});
         end
-        function obj = do_class_dependent_updates(obj,~,varargin)
-            % function does nothing as this is recent file format
-            % should not be actually called as the call checks for recent
-            % format, but overloaded just in case.
+        function other_obj = do_class_dependent_updates(~,other_obj,upgrade_range,varargin)
+            % Function does nothing when old object and new objects are recent
+            % file version objects or stores fields which may change when
+            % upgrade_range is true
+            if ~upgrade_range
+                return;
+            end
+            other_obj = other_obj.put_all_blocks('ignore_blocks','bl_pix_data_wrap');
         end
 
         function  dt = get_data_type(~)

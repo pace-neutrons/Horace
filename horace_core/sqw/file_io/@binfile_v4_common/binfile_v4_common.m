@@ -205,12 +205,12 @@ classdef binfile_v4_common < horace_binfile_interface
                 if ~ok
                     error('HORACE:binfile_v4_common:invalid_argument',mess)
                 end
-                if ~no_initialization && (isa(argi{1},'SQWDnDBase')||is_sqw_struct(argi{1}))
+                if ~no_initialization && ~isempty(argi) && (isa(argi{1},'SQWDnDBase')||is_sqw_struct(argi{1}))
                     obj = obj.init(argi{:});
                     obj  = put_sqw_block_(obj,block_name_or_class);
                     return;
                 end
-                obj  = put_sqw_block_(obj,block_name_or_class,argi{1});
+                obj  = put_sqw_block_(obj,block_name_or_class,argi{:});
             else
                 obj  = put_sqw_block_(obj,block_name_or_class);
             end

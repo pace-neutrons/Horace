@@ -21,12 +21,12 @@ function[obj,new_pos,compress_bat] = find_block_place_(obj, ...
 %           together to save space
 
 [the_block,bl_ind] = obj.get_data_block(data_block_name_or_class);
-if block_size == the_block.size && the_block.initialized
+if block_size == the_block.size && the_block.allocated
     new_pos = the_block.position;
     compress_bat = false;
     return;
 end
-if the_block.initialized
+if the_block.allocated
     % add the space freed after removing the current block to the list of
     % the free spaces
     old_block_place = [the_block.position;the_block.size];

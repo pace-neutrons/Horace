@@ -6,6 +6,7 @@ function  [obj,missinig_fields] = copy_contents_(obj,other_obj,upgrade_range,var
 % Fix and freeze the position of the pixels data block
 pix_data_block = obj.bat_.get_data_block('bl_pix_data_wrap');
 pix_data_block.pix_position = other_obj.pix_position;
+% pix_data_block.locked = true;
 % this defines the block size
 pix_data_block.npixels      = other_obj.npixels;
 % allocate space in new data block
@@ -20,10 +21,10 @@ end
 % majority of old data files
 %
 if ~sqw_obj.pix.is_range_valid()
-    hc = hor_config;
-    log_level = hc.log_level;
     %log_level = config_store.instance().get_value('hor_config','log_level');
     if upgrade_range
+        hc = hor_config;
+        log_level = hc.log_level;
         if log_level > 0
             fprintf(2,['\n*** Recalculating actual data range missing in file %s:\n', ...
                 '*** This is one-off operation occurring during upgrade from file format version %d to file format version %d\n',...
@@ -46,7 +47,12 @@ sqw_obj = other_obj.update_projection(sqw_obj);
 % more but historically to be able to recover headers)
 obj.num_contrib_files_ = sqw_obj.main_header.nfiles;
 
+if upgrade_range
+    % clear disk location of all data blocks except the locked
+    obj.bat_ = obj.bat_.clear();
+end
 % as pix data block position already allocated,
 obj.bat_ = obj.bat_.init_obj_info(sqw_obj,'-insert');
+
 obj.sqw_holder_ = sqw_obj;
 missinig_fields = 'data_in_memory_write_result';

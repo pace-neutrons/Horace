@@ -172,20 +172,26 @@ classdef test_faccess_sqw_v4< TestCase
             fac.delete();
             assertFalse(w_no_range.pix.is_range_valid);
 
-            fac1 = sqw_formats_factory.instance().get_loader(tf);
-            assertEqual(fac1.faccess_version,4.0)
-            fac1 = fac1.upgrade_file_format(tf,'-upgrade_range');
+            facu = sqw_formats_factory.instance().get_loader(tf);
+            assertEqual(facu.faccess_version,4.0)
+            facu = facu.upgrade_file_format(tf,'-upgrade_range');
+            assertEqual(facu.faccess_version,4.0)
+            assertEqual(facu.npixels,uint64(4324))
+            assertEqual(facu.num_contrib_files,109);
 
-            assertEqualToTol(w_no_range,w_new_new)
+            
+            w_with_range = facu.get_sqw('-ver');
+            assertTrue(w_with_range.pix.is_range_valid);            
+
             % Cut projection is recovered correctly
-            eq_cut = w_new_new.cut(w_new_new.data.proj,[],[],[],[]);
-            assertEqualToTol(eq_cut,w_new_new,1.e-7,'-ignore_date', 'ignore_str', true);
+            eq_cut = w_with_range.cut(w_no_range.data.proj,[],[],[],[]);
+            assertEqualToTol(eq_cut,w_with_range,1.e-7,'-ignore_date', 'ignore_str', true);
             % do clean-up as pixels hold access to the file, which can not
             % be deleted as memmapfile holds it
             w_no_range.pix = [];
-            w_new_new.pix = [];
+            w_with_range.pix = [];
             clear w_no_range;
-            clear w_new_new;
+            clear w_with_range;
         end
         
         %
