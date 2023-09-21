@@ -311,8 +311,8 @@ for i=1:numel(ind)
             data = pix.data;
             [start_idx, end_idx] = pix.get_page_idx_(page);
 
-            data(sv_ind(1), :) = stmp(start_idx:end_idx)/mc_points;
-            data(sv_ind(2) :) = 0;
+            data(sv_ind(1),:) = stmp(start_idx:end_idx)/mc_points;
+            data(sv_ind(2),:) = 0;
 
             pix.data_range = pix.pix_minmax_ranges(data, ...
                 pix.data_range);
