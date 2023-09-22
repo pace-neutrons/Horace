@@ -72,7 +72,7 @@ The extraction of the release artefacts will be automated in future, as [iDaaaS 
 
 The releaser then manually checks out the release branch into `Horace_git` areas above and copies the release artefacts into appropriate places of the code tree.
 
-Minor changes and bugfixes do not need the rebuild of the release artefacts and performed by pulling recent merges to the release branch into `Horace_git` repository as these changes do not usually involve changes to C++ routines.
+Minor changes and bugfixes do not need the rebuild of the release artefacts and are performed by pulling recent (tested) merges to the release branch into `Horace_git` repository as these changes do not usually involve changes to C++ routines.
 
 ## Horace-4 Transitional period
 
