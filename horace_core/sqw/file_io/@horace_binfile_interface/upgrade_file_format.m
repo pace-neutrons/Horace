@@ -5,6 +5,11 @@ function new_obj = upgrade_file_format(obj,varargin)
 if ~ok
     error('HORACE:faccess_sqw_v4:invalid_argument',mess);
 end
+if upgrade_range
+    copy_arg = {'-write_mode','-upgrade_range'};
+else
+    copy_arg = {'-write_mode'};    
+end
 
 
 ff_obj = obj.format_for_object;
@@ -14,11 +19,7 @@ if ischar(obj.num_dim) % source object is not initiated. Just return
     % non-initialized target object
     return
 end
-if  upgrade_range
-    [new_obj,missing] = new_obj.copy_contents(obj,'-write_mode','-upgrade_range');
-else
-    [new_obj,missing] = new_obj.copy_contents(obj,'-write_mode');
-end
+[new_obj,missing] = new_obj.copy_contents(obj,copy_arg{:});
 if isempty(missing) % source and target are the same class. Invoke copy constructor only
     return;
 end

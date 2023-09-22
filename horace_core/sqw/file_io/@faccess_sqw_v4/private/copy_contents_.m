@@ -6,7 +6,10 @@ function  [obj,missinig_fields] = copy_contents_(obj,other_obj,upgrade_range,var
 % Fix and freeze the position of the pixels data block
 pix_data_block = obj.bat_.get_data_block('bl_pix_data_wrap');
 pix_data_block.pix_position = other_obj.pix_position;
-% pix_data_block.locked = true;
+pix_data_block.locked = true; % this can not be false, 
+%                but some issue with old classes and outdated files can
+%                make if false. Let's do it explicitly -- here we lock 
+%                pixel block
 % this defines the block size
 pix_data_block.npixels      = other_obj.npixels;
 % allocate space in new data block

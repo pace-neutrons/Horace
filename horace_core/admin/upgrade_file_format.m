@@ -15,7 +15,10 @@ function msln_files_list = upgrade_file_format(filenames,varargin)
 % angdeg    -- 3-component vector of original lattice angles, originaly
 %              present in legacy aligned file and modified later or
 %              cellarray of such vectors with vector for each file
-%
+% 
+% '-upgrade_range' 
+%           -- if the pixel data range is not defined, recalculate 
+%               and store this range with new file format
 % Result:
 % The file format of the provided files is updated to version 4
 % (currently recent)
@@ -23,16 +26,21 @@ function msln_files_list = upgrade_file_format(filenames,varargin)
 % msln_files_list -- cellarray of files, which are legacy aligned and
 %                    should be realigned first
 
-[ok,mess,upgrade_ranges,argi] = parse_char_options(varargin,'-upgrade_ranges');
+[ok,mess,upgrade_ranges,argi] = parse_char_options(varargin,'-upgrade_range');
 if ~ok
     error('HORACE:admin:invalid_argument',mess)
+end
+if upgrade_ranges
+    upgrade_arg = {'-upgrade_range'};
+else
+    upgrade_arg = {};
 end
 msln_files_list = {};
 
 if istext(filenames)
     filenames = cellstr(filenames);
 end
-if nargin>1
+if numel(argi)>0
     [alatt,angdeg] = prepare_lattice(argi{1},argi{2},numel(filenames));
 else
     alatt = {};
@@ -60,7 +68,7 @@ for i=1:n_inputs
             hav = exp.header_average;
             if isfield(hav,'u_to_rlu') % legacy aligned file
                 if ~isempty(alatt)
-                    ld = ld.upgrade_file_format();
+                    ld = ld.upgrade_file_format(upgrade_arg{:});
                     ld = upgrade_legacy_alignment(ld,alatt{i},angdeg{i});
                     ld = ld{1};
                     apply_alignment(ld);
@@ -76,11 +84,7 @@ for i=1:n_inputs
                     continue;
                 end
             end
-            if upgrade_ranges
-                ld_new = ld.upgrade_file_format('-upgrade_ranges');
-            else
-                ld_new = ld.upgrade_file_format();
-            end
+            ld_new = ld.upgrade_file_format(upgrade_arg{:});            
 
             ld_new.delete();
         end
