@@ -113,7 +113,7 @@ for i = 1:n_pages
     data = obj.data;
     curr_pix = curr_pix.set_raw_data(data);
     if ll > 0 && mod(i, 10) == 1
-        fprintf('Processing page %d/%d', i, numel(chunks));
+        fprintf('Processing page %d/%d', i, n_pages);
     end
     
     for j = 1:numel(func_handle)
