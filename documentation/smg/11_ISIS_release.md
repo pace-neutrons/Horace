@@ -1,9 +1,9 @@
 # ISIS Release Process
 
-Horace is deployed on iDAAaS system and machines dedicated for Excitations as a single git repository available 
-read-only for Excitations machine users and providing read/write access for the members of the Excitations group.
+Horace is deployed on iDAAaS system and machines dedicated for Excitations from a single Git repository available 
+read-only for Excitations machine users and with read/write access for the members of the Excitations group.
 
-As the single place where the Horace code is available to all machines, the changes to the code made by releasers are immediately available to all iDAAaS machines.
+As the single place where the Horace code located is available to all machines, the changes to the code made by releasers are immediately propagated to all iDAAaS machines and Horace users.
 
 ## Horace installation in ISIS
 
@@ -13,7 +13,7 @@ On the machines managed by the Excitations group, this is achieved by adding thi
 
 Note that recent iDAaaS virtual machines use a different approach for adding this path to the MATLAB search path.
 
-This path includes the Horace initialization script `horace_on.m` which, on execution, adds all necessary folders to MATLAB search path and initializes all other Horace variables necessary for Horace operations. (i.e. Horace configurations). This folder also contains the worker script which invokes the `horace_on` script and initializes Horace for all parallel MATLAB sessions. 
+This path defines the folder containing the Horace initialization script `horace_on.m` which, on execution, adds all folders Horace needs to MATLAB search path and initializes all other Horace variables necessary for Horace operations. (e.g. Horace configurations). This folder also contains the worker script which invokes the `horace_on` script and initializes Horace for all parallel MATLAB sessions. 
 
 Administrative script (Horace developers do not have write access to it) `/var/daaas/dynamic/matlabsetup.m` is executed on start up of MATLAB user sessions of iDAAaS machines and invokes `horace_on` for user sessions dedicated for using Horace. 
 
@@ -32,7 +32,7 @@ The following repositories are currently cloned there:
  
  -- `Horace_bugfix` -- the special repository clone, with purpose, described later.
  
- As, previous to version 4, versions of Horace needed correspondent versions of Herbert, three clones of Herbert repositories, corresponding to appropriate Horace repositories are also cloned here, namely: `Herbert_git`, `Herbert_3_6`, `Herbert_3_2`, and `Herbert_bugfix`
+ As, previous to version 4, versions of Horace needed correspondent versions of Herbert, four clones of Herbert repositories, corresponding to appropriate Horace repositories are also cloned here, namely: `Herbert_git`, `Herbert_3_6`, `Herbert_3_2`, and `Herbert_bugfix` where the last one is redundant or may be used for propagating bugfixes to previous versions of Horace
  
  
 As the physical location of Horace repositories may change and was changing in the past and to maintain compatibility with previous versions of Horace installations on Unix systems, we have agreed that the above locations are accessed by Excitation machines code users through symbolic links created in `/usr/local/mprogs` folder.
@@ -51,21 +51,32 @@ Code base for bugfix purposes is linked directly to the git repository for suppo
 `/usr/local/mprogs/Horace_bugfix` -> `/home/isis_direct_soft/Horace_bugfix`
 
 Recent Horace version does not need separate Herbert, so only second link should be used for running bugfix code.
-The code is invoked by calling `horace_on` with the path to `Horace_bugfix` folder, i.e: `horace_on("/usr/local/mprogs/Horace_bugfix")`
+The code is invoked by users by calling `horace_on` with the path to `Horace_bugfix` folder, i.e executing: 
+
+`>> horace_on("/usr/local/mprogs/Horace_bugfix")`
+
+script.
 
 
 ## Deploy Process
 
-As soon as release branch is tagged and created in the repository, manual build/release process is preformed in the private area of iDaaaS machine to obtain release artefacts for the iDAAaS computational service. It is also possible to pull the release artefacts from Jenkins builds, though this process needs thorough testing. 
+As soon as release branch is tagged and created in the repository, manual build/release process is preformed in the private area of iDaaaS machine to obtain release artefacts for the iDAAaS computational service. The artefacts mainly are the  compiled mex code routines written to improve the performance of Horace algorithms plus generated `herbert_get_build_version.m` routine providing release version to the Horace code.
+
+It is also possible to pull the release artefacts from Jenkins builds, though this process needs thorough testing. 
+
+Releaser needs special machine, configured with at least C++ compiler, MPI libraries(MPICH-3.6) and CMAKE(optionally, Horace build scripts are also available) to build release artefacts as these packages are not available on a standard Excitation machines. The process of building these artefacts in more details is described elsewhere. If releaser builds release artefacts directly on `Horace_git` code tree, CMAKE or `horace_mex`/`horace_mex_mpi` build scripts copy the artefacts into appropriate places of the release code tree. If the build is performed in privately cloned repository (recommended), the artefacts are created in this repository and should be copied to the release code tree manually. Similar copying should be done, if packed release is downloaded from GitHub release pages. 
+
+The mex-code artefacts are located in `{Horace root folder}/horace_core/DLL` folder and release version is a simple generated MATLAB function `herbert_get_build_version.m`, located in `{Horace root folder}/herbert_core/admin/` folder.
+
 The extraction of the release artefacts will be automated in future, as [iDaaaS testing pipeline](https://github.com/pace-neutrons/Horace/issues/271) is implemented.
 
 The releaser then manually checks out the release branch into `Horace_git` areas above and copies the release artefacts into appropriate places of the code tree.
 
-Minor changes and bugfixes do not need the rebuild of the release artefacts and performed by pulling recent merges to the release branch into `Horace_git` repository.
+Minor changes and bugfixes do not need the rebuild of the release artefacts and performed by pulling recent merges to the release branch into `Horace_git` repository as these changes do not usually involve changes to C++ routines.
 
 ## Horace-4 Transitional period
 
-While Horace-4 is undergoing pre-release process, it is expected to be used alongside previous version of Horace. This is why Horace master branch is currently checked out at `Horace_git` path (recent Horace is combined with Herbert) and latest (3.6.3) version of Horace/Herbert is checked out at `Horace_3_6` and `Herbert_git` paths. 
+While Horace-4 is undergoing pre-release process, it is expected to be used alongside the previous version of Horace. This is why Horace master branch is currently checked out at `Horace_git` path (recent Horace is combined with Herbert) and latest (3.6.3) version of Horace/Herbert is checked out at `Horace_3_6` and `Herbert_git` paths. 
 Two additional versions of `horace_on` script, namely `horace3_on` and `horace4_on` scripts are available in `/usr/local/mprogs/Users` folder and allow user to switch between different versions of Horace calling appropriate script. `horace_on` script called on startup of MATLAB sessions is currently the direct copy of `horace3_on` script.  It will become the copy of `horace4_on` script when Horace-4 will become the default version of Horace.
 
 
