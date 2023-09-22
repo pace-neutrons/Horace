@@ -660,7 +660,9 @@ classdef (Abstract) PixelDataBase < serializable
         end
 
         function val = get.metadata(obj)
+            ws = warning('off','HORACE:invalid_data_range');
             val = pix_metadata(obj);
+            warning(ws);
         end
 
         function obj = set.metadata(obj,val)

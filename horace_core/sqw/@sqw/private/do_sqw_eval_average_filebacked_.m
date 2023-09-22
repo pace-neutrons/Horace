@@ -18,7 +18,7 @@ pix_bin_starts = npix_cumsum - npix(:) + 1;
 
 
 pix = wout.pix;
-pix.data_range = PixelDataBase.EMPTY_RANGE;
+pix = pix.set_data_range(PixelDataBase.EMPTY_RANGE);
 for i = 1:numel(npix_chunks)
     npix_chunk = npix_chunks{i};
     pix_start_idx = pix_bin_starts(idxs(1, i));
