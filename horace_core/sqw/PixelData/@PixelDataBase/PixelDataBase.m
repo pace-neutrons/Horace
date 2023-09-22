@@ -105,8 +105,9 @@ classdef (Abstract) PixelDataBase < serializable
             'variance',...
             'sig_var',...
             'all_indexes',...
+            'all_experiment',...
             'all'}, ...
-            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,[8,9],[5,6,7],1:9});
+            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,[8,9],[5,6,7],5:9,1:9});
     end
 
     properties (Dependent)
@@ -161,7 +162,11 @@ classdef (Abstract) PixelDataBase < serializable
         coordinates;   % The coordinates of the pixels in the projection axes, i.e.: u1,
         %              % u2, u3 and dE (4 x npix array)
         sig_var        % return [2 x npix] array of signal and variance
-        all_indexes;   % return all run indexes ([3 x npix] array of indexes)
+        all_indexes;   % array all run indexes ([3 x npix] array of indexes)
+        all_experiment % [5xnpi] array of all data obtained in experiment, excluding
+        % q-dE, which are calculated from indexes and detector positions
+
+
     end
 
     methods(Static,Hidden)
@@ -579,6 +584,13 @@ classdef (Abstract) PixelDataBase < serializable
             obj=obj.set_prop('all_indexes', val);
         end
 
+        %
+        function expr = get.all_experiment(obj)
+            expr  = obj.get_prop('all_experiment');
+        end
+        function obj= set.all_experiment(obj, val)
+            obj=obj.set_prop('all_experiment', val);
+        end
         %------------------------------------------------------------------
         function is = get.is_misaligned(obj)
             is = obj.is_misaligned_;

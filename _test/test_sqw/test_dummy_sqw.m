@@ -102,7 +102,7 @@ classdef test_dummy_sqw < TestCase
         end
 
 
-        function test_gen_cube_2x2x2x2(obj)
+        function test_gen_cube_2x2x2x2(~)
             tsqw = sqw.generate_cube_sqw(2);
 
             assertTrue(isa(tsqw,'sqw'));
@@ -113,9 +113,9 @@ classdef test_dummy_sqw < TestCase
             assertEqual(unique(tval, 'rows', 'stable'), tval);
 
             % Test that all values are unique
-			idx = tsqw.pix.detector_idx;
-			sv  = tsqw.pix.sig_var;
-			tval= [idx;sv];
+            idx = tsqw.pix.detector_idx;
+            assertEqual(unique(idx), idx);
+            tval = tsqw.pix.sig_var';
             assertEqual(unique(tval, 'rows', 'stable'), tval);
 
             % One pixel per bin
@@ -123,7 +123,7 @@ classdef test_dummy_sqw < TestCase
 
         end
 
-        function test_gen_cube_3x3x3x3(obj)
+        function test_gen_cube_3x3x3x3(~)
             tsqw = sqw.generate_cube_sqw(3);
 
             assertTrue(isa(tsqw,'sqw'));
@@ -134,10 +134,9 @@ classdef test_dummy_sqw < TestCase
             assertEqual(unique(tval, 'rows', 'stable'), tval);
 
             % Test that all values are unique
-			idx = tsqw.pix.detector_idx;
-			sv  = tsqw.pix.sig_var;
-			tval= [idx;sv];
-			
+            idx = tsqw.pix.detector_idx;
+            assertEqual(unique(idx), idx);
+            tval = tsqw.pix.sig_var';
             assertEqual(unique(tval, 'rows', 'stable'), tval);
 
             % One pixel per bin
