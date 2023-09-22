@@ -181,11 +181,11 @@ for i = 1:mem_chunk_size:numel(pix_ind)
 
     s1 = pix1.get_pixels(curr_pix_ind);
     [~, ix1] = sortrows([curr_bin_ind, s1.all_indexes']);
-    s1 = s1.data(ix1);
+    s1 = s1.data(:,ix1);
 
     s2 = pix2.get_pixels(curr_pix_ind);
     [~, ix2] = sortrows([curr_bin_ind, s2.all_indexes']);
-    s2 = s2.data(ix2);
+    s2 = s2.data(:,ix2);
 
     % Now compare retained pixels
     [ok, mess] = equal_to_tol(s1, s2, argi{:});
