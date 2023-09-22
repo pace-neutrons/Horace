@@ -7,12 +7,13 @@ As the single place of the Horace code is available to all machines, the changes
 
 ## Horace installation in ISIS
 
-Common path `/usr/local/mprogs/Users` is added to the search path of all MATLAB sessions available to users. 
+Common path `/usr/local/mprogs/Users` is added to the search path of all MATLAB sessions available to users processing the results of inelastic neutron scattering experiments in ISIS.
+ 
 On the machines, managed by excitation group this is achieved by adding this path to the end of the `{MATLAB Installation Folder}/toolbox/local/pathdef.m` file, though recent iDAAaS virtual machines seems use different approach for adding this path to the MATLAB search path.
 
 This path contains Horace initialization script `horace_on.m` which, on execution, adds all necessary folders to MATLAB search path and initialize all other Horace variables necessary for Horace operations. (i.e. Horace configurations). This folder also contains the worker script, which invokes `horace_on` script and initializes Horace for all parallel MATLAB sessions. 
 
-Administrative script (Horace developers do not have write access to it) `/var/daaas/dynamic/matlabsetup.m` is executed on start up of MATLAB user sessions and invokes `horace_on` for user sessions which are dedicated for using Horace. 
+Administrative script (Horace developers do not have write access to it) `/var/daaas/dynamic/matlabsetup.m` is executed on start up of MATLAB user sessions of iDAAaS machines and invokes `horace_on` for user sessions dedicated for using Horace. 
 
 
 ## Deploy Location
@@ -47,6 +48,10 @@ Code base for bugfix purposes is linked directly to the git repository for suppo
 `/usr/local/mprogs/Herbert_bugfix` -> `/home/isis_direct_soft/Herbert_bugfix`
 `/usr/local/mprogs/Horace_bugfix` -> `/home/isis_direct_soft/Horace_bugfix`
 
+Recent Horace version does not need separate Horace, so only second link should be used for running bugfix code.
+The code is invoked by calling `horace_on` with the path to `Horace_bugfix` folder, i.e: `horace_on("/usr/local/mprogs/Horace_bugfix")`
+
+
 ## Deploy Process
 
 As soon as release branch is tagged and created in the repository, manual build/release process is preformed in the private area of iDaaaS machine to obtain release artefacts for the iDAAaS computational service. It is also possible to pull the release artefacts from Jenkins builds, though this process needs thorough testing. 
@@ -58,7 +63,7 @@ Minor changes and bugfixes do not need the rebuild of the release artefacts and 
 
 ## Horace-4 Transitional period
 
-While Horace-4 is undergoing pre-release process, it is expected to be used alongside with previous version of Horace. This is why Horace master branch is currently checked out at `Horace_git` path (combined with Herbert) and latest (3.6.3) version of Horace/Herbert is checked out at `Horace_3_6` and `Herbert_git` path-es. 
+While Horace-4 is undergoing pre-release process, it is expected to be used alongside with previous version of Horace. This is why Horace master branch is currently checked out at `Horace_git` path (recent Horace is combined with Herbert) and latest (3.6.3) version of Horace/Herbert is checked out at `Horace_3_6` and `Herbert_git` path-es. 
 Two additional versions of `horace_on` script, namely `horace3_on` and `horace4_on` scripts are available in `/usr/local/mprogs/Users` folder and allow user to switch between different versions of Horace calling appropriate script. `horace_on` script called on startup of MATLAB sessions is currently the direct copy of `horace3_on` script.  It will become the copy of `horace4_on` script when Horace-4 will become the default version of Horace.
 
 
@@ -74,12 +79,13 @@ iDaaaS support team : support@analysis.stfc.ac.uk
 
 ## SCARF
 
- This chapter is currently not verified and probably incorrect. This was working in the past and will probably organized in some similar way in a future. 
+ Horace is currently not available on SCARF and this chapter is not verified and probably incorrect. This was working in the past and will probably be organized in some similar way in a future. 
+ 
 #### Contact
 
 The deployment on scarf is currently experimental. Generally speaking, user can make local installation of Horace/Herbert as described on [Horace installation pages](http://horace.isis.rl.ac.uk/Download_and_setup) and [SCARF user pages](https://www.scarf.rl.ac.uk/)
 
 Horace parallel capabilities for SCARF are currently implemented on the basis of Matlab MPI framework only. The installation of appropriate cluster component on SCARF and SCARF cluster configuration should be agreed with Jon Roddom<JONATHAN.RODDOM@STFC.AC.UK> or other members of SCARF support team. 
 
-As soon as appropriate SCARF cluster configuration is available to user's Matlab, it must be made default in Matlab parallel computing toolbox settings. Then Maltab MPI framework (parpool framework) will submit and run parallel jobs on SCARF.
+As soon as appropriate SCARF cluster configuration is available to user's Matlab, it must be made default in Matlab parallel computing toolbox settings. Then MATLAB MPI framework (parpool framework) will submit and run parallel jobs on SCARF.
 
