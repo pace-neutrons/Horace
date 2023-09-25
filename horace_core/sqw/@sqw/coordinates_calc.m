@@ -62,7 +62,7 @@ function w = coordinates_calc_(w, name)
 %
 % Output:
 % -------
-%   xvals   numeric array of the bin-averaged cooordinates.
+%   xvals   numeric array of the bin-averaged coordinates.
 %
 %   xpix    numeric array of the pixel coordinates
 %

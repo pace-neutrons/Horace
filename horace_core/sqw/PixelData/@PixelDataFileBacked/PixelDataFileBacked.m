@@ -177,14 +177,12 @@ classdef PixelDataFileBacked < PixelDataBase
             % process possible update parameter
             obj = init_(obj,varargin{:});
         end
-
         function obj = move_to_first_page(obj)
             % Reset the object to point to the first page of pixel data in the file
             % and clear the current cache
-            %  This function does nothing if pixels are not file-backed.
-            %
             obj.page_num_ = 1;
         end
+
 
         function [obj,unique_pix_id] = recalc_data_range(obj, fld)
             % Recalculate pixels range in the situations, where the
@@ -427,7 +425,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
-    methods (Access = protected)        
+    methods (Access = protected)
         function data_range = get_data_range(obj,varargin)
             % overloadable data range getter
             if nargin == 1

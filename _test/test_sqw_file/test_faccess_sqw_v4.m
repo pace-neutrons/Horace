@@ -149,7 +149,7 @@ classdef test_faccess_sqw_v4< TestCase
             ver_obj.experiment_info.runid_recalculated = true;
             assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date','ignore_str',true);
         end
-        function test_upgrdate_v4_to_v4_calc_range(obj)
+        function test_upgrade_v4_to_v4_calc_range(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v4tov4_range.sqw');
             clObF = onCleanup(@()file_delete(tf));
             copyfile(obj.old_origin,tf,'f');
@@ -195,7 +195,7 @@ classdef test_faccess_sqw_v4< TestCase
         end
         
         %
-        function test_upgrdate_v2_to_v4_filebacked_upgrade_range(obj)
+        function test_upgrade_v2_to_v4_filebacked_upgrade_range(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
             clObF = onCleanup(@()file_delete(tf));
             copyfile(obj.old_origin,tf,'f');
@@ -239,7 +239,7 @@ classdef test_faccess_sqw_v4< TestCase
             clear w_new_new;
         end
 
-        function test_upgrdate_v2_to_v4_filebacked_no_range(obj)
+        function test_upgrade_v2_to_v4_filebacked_no_range(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
             clObF = onCleanup(@()file_delete(tf));
             copyfile(obj.old_origin,tf,'f');

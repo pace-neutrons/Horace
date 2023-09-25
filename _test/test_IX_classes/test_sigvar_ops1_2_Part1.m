@@ -24,9 +24,11 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             function thrower(val)
                 sv.sig_var = val;
             end
-
+            % sigvar is not initialized by charactests
             assertExceptionThrown(@()thrower('a'),'HERBERT:sigvar:invalid_argument');
+            % sigvar needs 2xNelemets data
             assertExceptionThrown(@()thrower(rand(3)),'HERBERT:sigvar:invalid_argument');
+            % sigvar needs 2xNelemets data
             assertExceptionThrown(@()thrower(rand(1,5)),'HERBERT:sigvar:invalid_argument');
         end
 

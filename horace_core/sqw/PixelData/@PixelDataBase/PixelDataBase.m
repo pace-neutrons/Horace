@@ -367,6 +367,10 @@ classdef (Abstract) PixelDataBase < serializable
         % --- Pixel operations ---
         pix_out = append(obj, pix);
 
+        % Reset the object to point to the first page of pixel data in the file
+        % and clear the current cache
+        obj = move_to_first_page(obj)
+
         data = get_raw_data(obj,varargin)
         pix = set_raw_data(obj,pix);
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
@@ -711,14 +715,6 @@ classdef (Abstract) PixelDataBase < serializable
                 pix_copy = PixelDataMemory(obj);
             end
         end
-
-        function obj = move_to_first_page(obj)
-            % Reset the object to point to the first page of pixel data in the file
-            % and clear the current cache
-            %  This function does nothing if pixels are not file-backed.
-            %
-        end
-
         function indices = get_pixfld_indexes(obj, varargin)
             % GET_PIXFLD_INDEXES   Check the given field names are valid pixel data fields
             % and return array indexes for this field.

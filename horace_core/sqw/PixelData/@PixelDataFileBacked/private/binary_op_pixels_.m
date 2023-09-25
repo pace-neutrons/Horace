@@ -55,7 +55,8 @@ else
         data = obj.data;
 
         this_sigvar.sig_var = obj.sig_var;
-        % this is different from above
+        % The following two rows of code distinguish this loop from the similar
+        % loop pgs 25-40. Otherwise, its identical so should be combined.
         [start_idx, end_idx] = obj.get_page_idx_(i);        
         other_sigvar.sig_var = pixel_data.sig_var(:,start_idx:end_idx);
         %

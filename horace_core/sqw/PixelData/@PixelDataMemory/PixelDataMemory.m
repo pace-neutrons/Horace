@@ -98,6 +98,14 @@ classdef PixelDataMemory < PixelDataBase
             % Main part of PixelDataMemory constructor.
             obj = init_(obj,varargin{:});
         end
+        function obj = move_to_first_page(obj)
+            % Reset the object to point to the first page of pixel data in the file
+            % and clear the current cache
+            %  This function does nothing for memory backed pixels as there
+            %  is only none page
+            %
+        end
+
 
         function [obj,unique_pix_id] = recalc_data_range(obj,fld)
             % Recalculate pixels range in the situations, where the
@@ -227,7 +235,7 @@ classdef PixelDataMemory < PixelDataBase
             end
             ind = obj.get_pixfld_indexes(field_name);
             obj.data_range_(:,ind)   = PixelDataBase.EMPTY_RANGE(:,ind);
-            
+
             if nargout==2
                 [obj,unique_id] = calc_page_range@PixelDataBase(obj,ind);
             else
