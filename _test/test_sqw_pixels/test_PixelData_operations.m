@@ -39,7 +39,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             pix = pix.do_unary_op(@cos);
             % Loop back through and validate values
 
-            file_backed_data = pix.get_fields('all', 1:50);
+            file_backed_data = pix.get_pixels(1:50,'-raw_data');
             expected_data = data;
             expected_data(obj.SIGNAL_IDX, :) = ...
                 cos(expected_data(obj.SIGNAL_IDX, :));
@@ -70,9 +70,9 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             % Make temp file
             sin_pix = pix.do_unary_op(@sin);
-            data = sin_pix.get_fields('all', 'all');
+            pg_data = sin_pix.get_pixels('-raw');
 
-            % Copy
+            % shallow? Copy
             sin_pix_cpy = PixelDataFileBacked(sin_pix);
             assertEqual(sin_pix.full_filename, sin_pix_cpy.full_filename)
 
@@ -81,7 +81,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertFalse(equal_to_tol(sin_pix.full_filename, sin_pix_cpy.full_filename))
             assertTrue(is_file(sin_pix.full_filename))
             assertTrue(is_file(sin_pix_cpy.full_filename))
-            assertEqualToTol(sin_pix_cpy.get_fields('all', 'all'), data)
+            assertEqualToTol(sin_pix_cpy.data, pg_data)
         end
 
         function test_unary_op_memory_vs_filebacked(obj)
@@ -149,7 +149,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 catch ME
                     fprintf('failure at operation N%d, functon %s\n', ...
                         i,func2str(unary_op))
-                    rethrow(ME)                    
+                    rethrow(ME)
                 end
             end
         end
@@ -233,7 +233,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             expected_data = data(:, logical(full_mask_array));
             ref_range = obj.get_ref_range(expected_data);
 
-            actual_data = pix.get_fields('all', 1:pix.num_pixels);
+            actual_data = pix.data(:,1:pix.num_pixels);
             assertElementsAlmostEqual(actual_data, expected_data,'relative',4e-8);
             assertElementsAlmostEqual(pix.data_range, ref_range,'relative',4e-8);
         end

@@ -8,7 +8,7 @@ catch ME
     if strcmp(ME.identifier,'HORACE:data_block:io_error')
         error('HORACE:data_block:io_error',...
             '%s %s data %s for the record %s.%s',...
-            ME.message,add_info,obj.base_prop_name,obj.level2_prop_name);
+            ME.message,add_info,obj.sqw_prop_name,obj.level2_prop_name);
     else
         rethrow(ME);
     end

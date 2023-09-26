@@ -52,9 +52,12 @@ else
     ne=numel(w.experiment_info.en)-1;    % number of energy bins
 end
 ndet0=numel(w.detpar.group);% number of detectors
+didx = w.pix.detector_idx;
+eidx = w.pix.energy_idx;
+sv   = w.pix.sig_var;
+tmp  = [didx;eidx;sv]';
 
-tmp=w.pix.get_fields({'detector_idx', 'energy_idx', 'signal', 'variance'})';
-tmp=sortrows(tmp,[1,2]);    % order by detector group number, then energy
+tmp=sortrows(tmp,[1,2]);   % order by detector group number, then energy
 group=unique(tmp(:,1));    % unique detector group numbers in the data in numerical increasing order
 
 % Now check that the data is complete i.e. no missing pixels

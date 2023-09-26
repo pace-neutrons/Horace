@@ -1,4 +1,4 @@
-function w = cos_single (w1)
+function w1 = cos_single (w)
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
@@ -10,12 +10,13 @@ function w = cos_single (w1)
 %   <#file:> <doc_file_header>
 % <#doc_end:>
 % -----------------------------------------------------------------------------
-
-s = cos(w1.signal_);
-if ~isempty(w1.variance_)
-    e = abs(1-s.^2).*w1.variance_;     % ensure positive
+w1=w;
+s = cos(w.signal_);
+if ~isempty(w.variance_)
+    w1.variance_ = abs(1-s.^2).*w.variance_;     % ensure positive
 else
-    e = [];
+    w1.variance_ = [];
 end
-
-w = sigvar(s,e);
+w1.signal_ = s;
+w1.msk     = []; % this is how the initial operation was performed.
+%                  Is it what was intended?

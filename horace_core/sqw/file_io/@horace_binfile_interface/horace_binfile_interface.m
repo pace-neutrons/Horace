@@ -136,6 +136,18 @@ classdef horace_binfile_interface < serializable
         [header,fid] = get_file_header(file,varargin)
         %
     end
+    methods(Static,Hidden) % defined by this class
+        function sqw_data = update_projection(sqw_data)
+            % Check if the projection attached to dnd class is related to
+            % the cut (the cut image range is in hkl) or to the initial
+            % generated sqw file (image range equal to the pixel range)
+            % and modify dnd projection accordingly
+            % 
+            % Used in upgrade_file_format, and does nothing for the same
+            % file formats
+        end
+    end
+    
     % Main class methods & constructor
     methods
         function obj = horace_binfile_interface(varargin)

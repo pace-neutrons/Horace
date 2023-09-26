@@ -42,16 +42,16 @@ classdef test_block_allocation_table < TestCase
             data_list =  {data_block('','level2_a'),data_block('','level2_b')...
                 data_block('','level2_c'),dnd_data_block(),data_block('','level2_d'),...
                 pix_data_block()};
-            bac = blockAllocationTable(0,data_list);            
+            bac = blockAllocationTable(0,data_list);
 
-            assertFalse(bac.initialized);            
-            
+            assertFalse(bac.initialized);
+
             pdb = pix_data_block();
             pdb.npixels = 100;
-            pdb.position = 500;            
+            pdb.position = 500;
             bac = bac.set_data_block(pdb);
 
-            test_class = binfile_v4_block_tester();            
+            test_class = binfile_v4_block_tester();
             bac = bac.init_obj_info(test_class,'-insertion','-test_mode');
 
             assertEqual(bac.free_spaces_and_size,uint64([439;60]));
@@ -105,7 +105,7 @@ classdef test_block_allocation_table < TestCase
             bac = bac.set_data_block(pdb);
 
             assertEqual(bac.end_of_file_pos,pdb2.position+block_size);
-            assertEqual(bac.free_spaces_and_size,[first_free,900;400-first_free-1,99]);            
+            assertEqual(bac.free_spaces_and_size,[first_free,900;400-first_free-1,99]);
         end
 
 

@@ -297,8 +297,9 @@ void pix_mem_map::_update_data_cash_(size_t bin_number, std::vector<bin_info> &n
 *
 * loads bin information for a pixel, which does not have this information loaded
 *
-*@param bin_number -- number of bin to get pixel information for
-*pix_pos_in_buffer
+*@param 
+* bin_number -- number of bin to get pixel information for
+* pix_pos_in_buffer
 * Returns:
 * pix_start_num    -- position of the bin pixels in the pixels array
 * num_pix_in_bin   -- number of pixels, stored in this bin

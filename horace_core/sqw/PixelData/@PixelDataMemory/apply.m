@@ -22,41 +22,41 @@ function [obj, data] = apply(obj, func_handle, args, data, compute_variance)
 %        DnD object whose data are to be recomputed according to the
 %        result of `func_handle(obj,...)`
 
-    if ~exist('args', 'var') || isempty(args)
-        args = {{}};
-    end
+if ~exist('args', 'var') || isempty(args)
+    args = {{}};
+end
 
-    if ~exist('compute_variance', 'var')
-        compute_variance = false;
-    end
+if ~exist('compute_variance', 'var')
+    compute_variance = false;
+end
 
-    if ~iscell(args)
-        args = {{args}};
-    end
+if ~iscell(args)
+    args = {{args}};
+end
 
-    if isa(func_handle, 'function_handle')
-        func_handle = {func_handle};
-    end
+if isa(func_handle, 'function_handle')
+    func_handle = {func_handle};
+end
 
-    if numel(args) == 1
-        args = repmat(args, numel(func_handle), 1);
-    elseif numel(args) ~= numel(func_handle)
-        error('HORACE:apply:invalid_argument', ...
-              'Number of arguments does not match number of function handles')
-    end
+if numel(args) == 1
+    args = repmat(args, numel(func_handle), 1);
+elseif numel(args) ~= numel(func_handle)
+    error('HORACE:apply:invalid_argument', ...
+        'Number of arguments does not match number of function handles')
+end
 
-    for i = 1:numel(func_handle)
-        obj = func_handle{i}(obj, args{i}{:});
-    end
+for i = 1:numel(func_handle)
+    obj = func_handle{i}(obj, args{i}{:});
+end
 
-    obj.data_range = obj.pix_minmax_ranges(obj.data, obj.data_range);
+obj.data_range = obj.pix_minmax_ranges(obj.data, obj.data_range);
 
-    if exist('data', 'var')
-        if compute_variance
-            [data.s, data.e, obj.variance] = average_bin_data(data.npix, obj.signal);
-        else
-            [data.s, data.e] = compute_bin_data(obj, data.npix);
-        end
+if exist('data', 'var')
+    if compute_variance
+        [data.s, data.e, obj.variance] = average_bin_data(data.npix, obj.signal);
+    else
+        [data.s, data.e] = compute_bin_data(obj, data.npix);
     end
+end
 
 end

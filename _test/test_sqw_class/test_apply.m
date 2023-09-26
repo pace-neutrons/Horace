@@ -112,7 +112,7 @@ classdef test_apply < TestCase
             pg_result = unary_op(sigvar(pix.signal, pix.variance));
             pix.signal = pg_result.s;
             pix.variance = pg_result.e;
-            pix = pix.reset_changed_coord_range({'signal', 'variance'});
+            pix = pix.recalc_data_range({'signal', 'variance'});
         end
     end
 end

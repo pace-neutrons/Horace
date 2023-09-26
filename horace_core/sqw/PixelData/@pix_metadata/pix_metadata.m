@@ -9,7 +9,7 @@ classdef pix_metadata < serializable
         % Actual information, describing particular pixel data
         full_filename;   % full file name of the sqw file containing the pixels
         npix;
-        pix_range; % 2x4 range of pixel coordinates, first part of data_range, left for compartibility
+        pix_range; % 2x4 range of pixel coordinates, first part of data_range, left for compatibility
         data_range; % 2x9 range of all pixel data
         is_misaligned %
         alignment_matr;
@@ -38,7 +38,7 @@ classdef pix_metadata < serializable
                     inputs = varargin{1};
                     remains = {};
                     obj.npix          = inputs.num_pixels;
-                    obj.data_range    = inputs.raw_data_range;
+                    obj.data_range    = inputs.data_range;
                     obj.full_filename = inputs.full_filename;
                     if inputs.is_misaligned
                         obj.alignment_matr = inputs.alignment_matr;

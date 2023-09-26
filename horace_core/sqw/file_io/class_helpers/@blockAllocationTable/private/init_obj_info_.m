@@ -31,7 +31,7 @@ end
 for i=1:n_b
     db = obj.blocks_list_{i};
     if insertion
-        if  db.initialized % block size and position are already calculated
+        if  db.allocated % block size and position are already calculated
             % just check them
             preallocated(i) = true;
             db_check = db.calc_obj_size(obj_to_analyze,true);

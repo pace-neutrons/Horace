@@ -29,7 +29,7 @@ npix = w.data.npix;
 pix = w.pix;
 
 % Sort (an index array to) pix into increasing run number, and increasing bin number within each run
-irun = pix.get_fields('run_idx')';
+irun = pix.run_idx';
 ibin = replicate_array (1:numel(npix),npix);
 [runbin,ix] = sortrows([irun,ibin]);  % get index of run
 irun = runbin(:,1);
