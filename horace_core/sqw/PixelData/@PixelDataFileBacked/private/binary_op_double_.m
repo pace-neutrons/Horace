@@ -22,26 +22,26 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
 
 obj = obj.prepare_dump();
 
-s_ind = obj.check_pixel_fields('signal');
-v_ind = obj.check_pixel_fields('variance');
+sv_ind = obj.get_pixfld_indexes('sig_var');
 obj.data_range = PixelDataBase.EMPTY_RANGE;
 % TODO: #975 loop have to be moved level up calculating image too in single
 % loop
 num_pages= obj.num_pages;
+pix_sigvar = sigvar();
 for i = 1:num_pages
     obj.page_num = i;
     data = obj.data;
-    pix_sigvar = sigvar(obj.signal, obj.variance);
+    pix_sigvar.sig_var = data(sv_ind,:);
 
     [start_idx, end_idx] = obj.get_page_idx_(i);
-
+    %TODO: This is probably incorrect as data are within the pages and what
+    %is indexes are global
     double_sigvar = double_array(start_idx:end_idx);     % TGP 2021-04-11: to work with new classdef sigvar
 
-    [signal, variance] = ...
-        sigvar_binary_op_(pix_sigvar, double_sigvar, binary_op, flip);
+    sig_var = ...
+        obj.sigvar_binary_op(pix_sigvar, double_sigvar, binary_op, flip);
 
-    data(s_ind, :) = signal;
-    data(v_ind, :) = variance;
+    data(sv_ind, :) = sig_var;
 
     obj.data_range = ...
         obj.pix_minmax_ranges(data, obj.data_range);
@@ -70,8 +70,7 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
 %
 
 obj = obj.prepare_dump();
-s_ind = obj.check_pixel_fields('signal');
-v_ind = obj.check_pixel_fields('variance');
+sv_ind = obj.get_pixfld_indexes('sig_var');
 obj.data_range = PixelDataBase.EMPTY_RANGE;
 %
 % TODO: #975 loop have to be moved level up calculating image in single
@@ -79,6 +78,8 @@ obj.data_range = PixelDataBase.EMPTY_RANGE;
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 num_pages= obj.num_pages;
+pix_sigvar = sigvar();
+
 for i = 1:num_pages
     obj.page_num = i;
     data = obj.data;
@@ -88,15 +89,15 @@ for i = 1:num_pages
 
     sig_chunk = repelem(double_array(idx(1):idx(2)), npix_for_page)';
 
-    pix_sigvar = sigvar(obj.signal, obj.variance);
+    pix_sigvar.sig_var  = obj.sig_var;
     %double_sigvar = sigvar(sig_chunk', []);
     double_sigvar = sig_chunk';     % TGP 2021-04-11: to work with new classdef sigvar
 
-    [signal, variance] = ...
+    sig_var = ...
         sigvar_binary_op_(pix_sigvar, double_sigvar, binary_op, flip);
 
-    data(s_ind, :) = signal;
-    data(v_ind, :) = variance;
+    data(sv_ind, :) = sig_var;
+
 
     obj = obj.format_dump_data(data);
 

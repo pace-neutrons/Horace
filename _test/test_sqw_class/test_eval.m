@@ -27,10 +27,10 @@ classdef test_eval < TestCase
             ds = func_eval(obj.sqw_obj, @test_eval.funceval_tester2D, [], '-all');
 
             sig = ds.data.s;
-            pix = ds.pix.get_fields('signal', 'all');
+            pix_s = ds.pix.signal;
 
             assertEqual(sig, 3.*ones(size(sig)));
-            assertEqual(pix, 3.*ones(size(pix)));
+            assertEqual(pix_s, 3.*ones(size(pix_s)));
 
         end
 
@@ -39,17 +39,17 @@ classdef test_eval < TestCase
             ds = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, [], '-average');
 
             sig = ds.data.s;
-            pix = ds.pix.get_fields('signal', 'all');
+            pix_s = ds.pix.signal;
 
             assertEqual(sig, 2.*ones(size(sig)));
-            assertEqual(pix, 2.*ones(size(pix)));
+            assertEqual(pix_s, 2.*ones(size(pix_s)));
         end
 
         function test_sqw_eval(obj)
 
             ds = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, []);
 
-            pix = ds.pix.get_fields('signal', 'all');
+            pix = ds.pix.signal;
             assertEqual(pix, 2.*ones(size(pix)));
         end
 

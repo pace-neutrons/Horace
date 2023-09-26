@@ -23,6 +23,10 @@ classdef data_block < serializable
         position;
         % size (in bytes) of the serialized block would occupy on hdd
         size;
+        % True if BAT operations should not move this block from its place
+        % on HDD (normally used for PixelData(Filebacked), which are big and
+        % should not be reallocated if object is modified.
+        locked
     end
     properties(Dependent,Hidden)
         % return class name -- property, used for serialization into BAT
@@ -32,12 +36,12 @@ classdef data_block < serializable
         bat_format;
         % size (in bytes) this BAT record would occupy on hdd
         bat_record_size;
-        % return array of bytes, necessary to store and/or recover initilaized
+        % return array of bytes, necessary to store and/or recover initialized
         % data block class from blockAllocationTable.
         bat_record;
-        % true if block size was initialized, i.e. its file position
-        % have been set
-        initialized
+        % true if block position was initialized, i.e. its file position
+        % have been set and size is known
+        allocated
     end
     properties(Access=protected)
         sqw_prop_name_ ='';
@@ -47,7 +51,7 @@ classdef data_block < serializable
         % The cache containing serialized object after estimating its size
         serialized_obj_cache_ = [];
         %
-        initialized_ = false;
+        locked_ = false;
     end
     %======================================================================
     methods
@@ -257,9 +261,6 @@ classdef data_block < serializable
                     disp2str(val));
             end
             obj.position_ = uint64(val);
-            if obj.position_ > 0
-                obj.initialized_ = true;
-            end
         end
         %
         function size = get.size(obj)
@@ -268,9 +269,18 @@ classdef data_block < serializable
         function obj = set.size(obj,val)
             obj = set_size(obj,val);
         end
-        function is = get.initialized(obj)
-            is = obj.initialized_;
+        function is = get.allocated(obj)
+            is = obj.position_ > 0 && obj.size > 0;
+            % note call to public size to allow overloading
         end
+        %
+        function is = get.locked(obj)
+            is = obj.locked_;
+        end
+        function obj = set.locked(obj,val)
+            obj.locked_ = logical(val);
+        end
+
     end
     methods(Access=protected)
         function move_to_position(obj,fid,pos)

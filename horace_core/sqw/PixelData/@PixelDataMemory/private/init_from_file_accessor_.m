@@ -6,7 +6,6 @@ meta  = f_accessor.get_pix_metadata();
 meta.full_filename = f_accessor.full_filename;
 obj.metadata = meta;
 obj.data_ = f_accessor.get_raw_pix();
-undef = obj.data_range == PixelDataBase.EMPTY_RANGE;
-if any(undef(:))
+if ~obj.is_range_valid()
     obj = recalc_data_range(obj);
 end

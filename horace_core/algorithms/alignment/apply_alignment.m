@@ -10,9 +10,12 @@ function [sqw_obj,al_info] = apply_alignment(filename,varargin)
 % '-keep_original' -- store result in different file. By default, original
 %                     file is aligned and overwritten
 %Returns:
+% sqw_obj -- sqw object with information, changed according to alignment.
+%            If file is big enough, sqw_obj will be filebacked.
 % al_data -- crystal_alignment_info class instance describing the alignmnet
 %            (reverse) applies to the object.
 %            empty if no alignment was identified/applied
+%
 
 [ok,mess,keep_original] = parse_char_options(varargin,{'-keep_original'});
 if ~ok

@@ -11,8 +11,8 @@ function rd=rundata_from_sqw_(sqw_obj)
 
 detpar = sqw_obj.detpar();
 %
-tmp=sqw_obj.pix.get_fields({'detector_idx', 'energy_idx', 'signal', 'variance'})';
-run_id = unique(sqw_obj.pix.run_idx);
+tmp=sqw_obj.pix.all_experiment';
+run_id = unique(tmp(:,1));
 if numel(run_id)>1
     warning('HORACE:rundata_from_sqw:invalid_argument',...
         'sqw object contains more then 1 contributing run. Extracting the first one')
@@ -23,8 +23,8 @@ if numel(run_id)>1
 else
     exp_inf = sqw_obj.experiment_info;
 end
-tmp=sortrows(tmp,[1,2]);  % order by detector group number, then energy
-group=unique(tmp(:,1));   % unique detector group numbers in the data in numerical increasing order
+tmp=sortrows(tmp,[2,3]);  % order by detector group number, then energy
+group=unique(tmp(:,2));   % unique detector group numbers in the data in numerical increasing order
 
 en     = exp_inf.expdata(1).en;
 ne=numel(en)-1;    % number of energy bins
@@ -42,8 +42,8 @@ end
 
 signal=NaN(ne,ndet0);
 err=zeros(ne,ndet0);
-signal(:,ind)=reshape(tmp(:,3),ne,numel(group));
-err(:,ind)=sqrt(reshape(tmp(:,4),ne,numel(group)));
+signal(:,ind)=reshape(tmp(:,4),ne,numel(group));
+err(:,ind)=sqrt(reshape(tmp(:,5),ne,numel(group)));
 
 
 lattice = oriented_lattice('angular_units','rad');
@@ -78,7 +78,4 @@ rd.ERR = err;
 
 rd.sample = exp_inf.samples{1};
 rd.instrument = exp_inf.instruments{1};
-
-
-
 

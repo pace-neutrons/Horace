@@ -1,5 +1,4 @@
 classdef test_IX_dataset_1d_ops1_2_Part2 < TestCaseWithSave
-    % test_testsigvar_2  Tests testsigvar objects
     %
     % These tests add IX_dataset_1d objects and sigvar objects, as a test of
     % priorities of the objects in determining the call stack.

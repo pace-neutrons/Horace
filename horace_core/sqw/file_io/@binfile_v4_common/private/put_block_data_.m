@@ -14,7 +14,7 @@ function obj = put_block_data_(obj, block_name_or_instance,varargin)
 %               classes registered with this faccessor BAT.
 % Optional:
 % sqw object or part of it (corresponding to the data_block) to write.
-% May be  information for intialization of obj if it has not been yet
+% May be  information for initialization of obj if it has not been yet
 % initialized. Exact format and possible options needs further testing
 %
 if nargin>2

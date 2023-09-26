@@ -17,6 +17,7 @@ function obj = sqw_eval_pix(obj, sqwfunc, ave_pix, pars, outfile)
 %
 %==================================================================================================
 
+%[obj, data] = obj.apply(sqwfunc, args, data, true); <- does not work
 if obj.pix.is_filebacked
     if ave_pix
         obj = do_sqw_eval_average_filebacked_(obj, sqwfunc, pars, outfile);

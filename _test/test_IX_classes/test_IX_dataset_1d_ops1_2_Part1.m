@@ -1,5 +1,4 @@
 classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
-    % test_testsigvar  Tests testsigvar objects
     %
     % These tests add IX_dataset_1d objects to themselves or floats, as a test
     % of the operation of the underlying calls to sigvar methods.

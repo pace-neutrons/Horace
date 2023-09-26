@@ -25,6 +25,10 @@ classdef sigvar < serializable
         e       % Variance array (numeric array, same size as signal array)
         msk     % Mask array (logical array, same size as signal array, 0=mask, 1=retain)
     end
+    properties(Dependent,Hidden)
+        sig_var
+    end
+
 
     methods
         %------------------------------------------------------------------
@@ -141,6 +145,21 @@ classdef sigvar < serializable
             end
         end
 
+        function obj = set.sig_var(obj,val)
+            if ~isnumeric(val) || ~(size(val,1)==2 || size(val,2)==2)
+                error('HERBERT:sigvar:invalid_argument',...
+                    'sig_var property accepts only 2xN or Nx2 numeric array. Assigning %s data with size %s', ...
+                    class(val),disp2str(size(val)))
+            end
+            if size(val,1) == 2
+                obj.signal_   = val(1,:);
+                obj.variance_ = val(2,:);
+            else
+                obj.signal_   = val(:,1)';
+                obj.variance_ = val(:,2)';
+            end
+        end
+
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function nm = get.n_elements(obj)
@@ -172,6 +191,10 @@ classdef sigvar < serializable
             else
                 val = obj.mask_;
             end
+        end
+
+        function sv = get.sig_var(obj)
+            sv = [obj.signal_(:)';obj.variance_(:)'];
         end
         %------------------------------------------------------------------
     end
@@ -258,7 +281,6 @@ classdef sigvar < serializable
             end
         end
     end
-
     methods(Static)
         function obj = loadobj(S)
             % loadobj method, calling generic method of
@@ -267,7 +289,4 @@ classdef sigvar < serializable
             obj = loadobj@serializable(S,obj);
         end
     end
-
-
-
 end

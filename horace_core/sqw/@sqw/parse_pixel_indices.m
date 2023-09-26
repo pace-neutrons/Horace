@@ -77,10 +77,10 @@ if nargin==1
                 runid_map = win(i).runid_map;
             end
 
-            run_idx= pix.get_fields('run_idx', 'all')';
+            run_idx= pix.run_idx';
             irun{i} = arrayfun(@(x)runid_map(x),run_idx);
-            idet{i} = pix.get_fields('detector_idx', 'all')';
-            ien{i}  = pix.get_fields('energy_idx', 'all')';
+            idet{i} = pix.detector_idx';
+            ien{i}  = pix.energy_idx';
         end
 
         if nw == 1
@@ -189,10 +189,10 @@ if nout>0
                 runid_map = win(i).runid_map;
             end
 
-            run_idx= pix.get_fields('run_idx', indx_tmp)';
+            run_idx= pix.run_idx(indx_tmp)';
             irun{i} = arrayfun(@(x)runid_map(x),run_idx);
-            idet{i} = pix.get_fields('detector_idx', indx_tmp)';
-            ien{i}  = pix.get_fields('energy_idx', indx_tmp)';
+            idet{i} = pix.detector_idx(indx_tmp)';
+            ien{i}  = pix.energy_idx(indx_tmp)';
         else
             irun{i} = indx_tmp(:,1);
             %? Does this index need to be transformed from run_idx to

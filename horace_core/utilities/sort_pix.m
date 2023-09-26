@@ -113,7 +113,7 @@ if use_mex
         if get(hor_config,'log_level')>=1
             message=ME.message;
             warning('HORACE:mex_code_problem', ...
-                ' C-routines returned error: %s, details: %s \n Trying Matlab', ...
+                ' C-routines returned error: %s, details: %s \n Trying MATLAB', ...
                 ME.identifier,message)
             if force_mex
                 rethrow(ME);
@@ -151,7 +151,7 @@ if ~use_mex
         for i = 1:mch_sz:numel(ind)
             end_idx = min(i+mch_sz-1, numel(ind));
             slice = ind(i:end_idx);
-            data = pix.get_fields('all', slice);
+            data = pix.data(:, slice);
             pix = pix.format_dump_data(data);
         end
 

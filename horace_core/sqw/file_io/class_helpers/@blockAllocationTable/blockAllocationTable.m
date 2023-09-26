@@ -309,6 +309,18 @@ classdef blockAllocationTable < serializable
             end
             obj = restore_bat_(obj,fid,position);
         end
+        function obj = clear(obj)
+            % nullify the position of data blocks for all blocks except 
+            % the locked blocks.
+            % 
+            % Used to reposition all movable blocks 
+            for i=1:obj.n_blocks
+                if ~obj.blocks_list_{i}.locked
+                    obj.blocks_list_{i}.position = 0;
+                end
+            end
+            obj.initialized_ = false;
+        end
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
