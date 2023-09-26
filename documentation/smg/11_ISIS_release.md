@@ -2,7 +2,7 @@
 
 Horace is deployed on iDAAaS system and machines dedicated for Excitations from a single Git repository available 
 read-only for Excitations machine users and with read/write access for the members of the Excitations group.
-
+ 
 As the single place where the Horace code located is available to all machines, the changes to the code made by releasers are immediately propagated to all iDAAaS machines and Horace users.
 
 ## Horace installation in ISIS
