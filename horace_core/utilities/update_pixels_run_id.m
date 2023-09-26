@@ -1,4 +1,4 @@
-function sqw_type_struc = update_pixels_run_id(sqw_type_struc,unique_pix_id)
+function sqw_type = update_pixels_run_id(sqw_type,unique_pix_id)
 % The routine is used in loading old binary sqw data where run-id-s stored
 % in headers may or may not be consistent with the run-id(s) stored in
 % pixels.
@@ -12,13 +12,13 @@ function sqw_type_struc = update_pixels_run_id(sqw_type_struc,unique_pix_id)
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
 if ~exist('unique_pix_id','var')
-    pix_runid = unique(sqw_type_struc.pix.run_idx);
-    pix_runid_known = sqw_type_struc.pix.num_pages == 1;
+    pix_runid = unique(sqw_type.pix.run_idx);
+    pix_runid_known = sqw_type.pix.num_pages == 1;
 else
     pix_runid = unique_pix_id;
     pix_runid_known = true;
 end
-exp_info = sqw_type_struc.experiment_info;
+exp_info = sqw_type.experiment_info;
 file_id = exp_info.runid_map.keys;
 file_id = [file_id{:}];
 if pix_runid_known  % all pixels are in memory or pix_runid are known and we
@@ -50,7 +50,7 @@ if pix_runid_known  % all pixels are in memory or pix_runid are known and we
     end
     if numel(pix_runid)< numel(file_id)
         exp_info = exp_info.get_subobj(pix_runid);
-        sqw_type_struc.main_header.nfiles = exp_info.n_runs;
+        sqw_type.main_header.nfiles = exp_info.n_runs;
     end
 
 else % not all pixels are loaded into memory or pre-calculated and run-id-s may be wrong
@@ -62,4 +62,5 @@ else % not all pixels are loaded into memory or pre-calculated and run-id-s may 
         exp_info.runid_map = id;
     end
 end
-sqw_type_struc.experiment_info = exp_info;
+sqw_type.experiment_info = exp_info;
+sqw_type.main_header.nfiles = exp_info.n_runs;

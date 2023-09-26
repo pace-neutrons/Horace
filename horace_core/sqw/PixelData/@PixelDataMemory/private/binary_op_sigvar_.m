@@ -12,8 +12,7 @@ if ~isequal(size(npix), [1, 1])
                        );
 end
 
-[obj.signal, obj.variance] = ...
-    sigvar_binary_op_(sigvar_pix, sigvar_obj, binary_op, flip);
+obj.sig_var = obj.sigvar_binary_op(sigvar_pix, sigvar_obj, binary_op, flip);
 
 end % function
 

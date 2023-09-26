@@ -31,16 +31,6 @@ classdef PixelDataFileBacked < PixelDataBase
     %   >> pix_data = PixelDataFileBacked(data)
     %   >> signal = pix_data.signal;
     %
-    %  or equivalently:
-    %
-    %   >> pix_data = PixelDataFileBacked();
-    %   >> pix_data.data = data;
-    %   >> signal = pix_data.get_fields('signal');
-    %
-    %  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
-    %
-    %   >> pix_data = PixelDataFileBacked(data);
-    %   >> signal = pix_data.get_fields({'run_idx', 'energy_idx'}, 1:10);
     %
     %  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
     %
@@ -109,6 +99,9 @@ classdef PixelDataFileBacked < PixelDataBase
             error('HORACE:PixelDataFileBacked:not_implemented',...
                 'append does not work on file-based pixels')
         end
+        % apply function represented by handle to every pixel of the dataset
+        % and calculate appropriate averages if requested
+        [obj, data] = apply(obj, func_handle, args, data, compute_variance);
 
         function obj = set_raw_data(obj,pix)
             if obj.read_only
@@ -118,14 +111,12 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = set_raw_data_(obj,pix);
         end
 
-        obj=set_raw_fields(obj, data, fields, varargin)
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
 
         [pix_out, data] = do_unary_op(obj, unary_op, data);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
 
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
-        pix_out = get_fields(obj, fields, abs_pix_indices);
         pix_out = mask(obj, mask_array, varargin);
 
     end
@@ -186,14 +177,12 @@ classdef PixelDataFileBacked < PixelDataBase
             % process possible update parameter
             obj = init_(obj,varargin{:});
         end
-
         function obj = move_to_first_page(obj)
             % Reset the object to point to the first page of pixel data in the file
             % and clear the current cache
-            %  This function does nothing if pixels are not file-backed.
-            %
             obj.page_num_ = 1;
         end
+
 
         function [obj,unique_pix_id] = recalc_data_range(obj, fld)
             % Recalculate pixels range in the situations, where the
@@ -207,7 +196,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % recalc_data_range is a normal Matlab value object (not a handle object),
             % returning its changes in LHS
 
-            if ~exist('fld', 'var')
+            if nargin == 1
                 fld = 'all';
             end
 
@@ -223,10 +212,10 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
 
                 if nargout > 1
-                    [obj,unique_id] = obj.reset_changed_coord_range(fld);
+                    [obj,unique_id] = obj.calc_page_range(fld);
                     unique_pix_id = unique([unique_pix_id,unique_id]);
                 else
-                    obj = obj.reset_changed_coord_range(fld);
+                    obj = obj.calc_page_range(fld);
                 end
             end
         end
@@ -265,26 +254,6 @@ classdef PixelDataFileBacked < PixelDataBase
             pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
         end
 
-
-        function [obj,unique_idx] = reset_changed_coord_range(obj,field_name)
-            % Recalculate and set appropriate range of pixel coordinates.
-            % The coordinates are defined by the selected field
-            %
-            % Sets up the property page_range defining the range of block
-            % of pixels changed at current iteration.
-
-            %NOTE:  This range calculations are incorrect unless
-            %       performed in a loop over all pix pages where initial
-            %       range is set to empty!
-            %
-            ind = obj.check_pixel_fields(field_name);
-
-            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:), ...
-                obj.data_range_(:,ind));
-            if nargout > 1
-                unique_idx = unique(obj.run_idx);
-            end
-        end
         % public getter for unmodified page data
         data =  get_raw_data(obj,varargin)
 
@@ -437,7 +406,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = obj.get_new_handle(ldr);
 
             start_idx = 1;
-            obj.data_range = PixelDataBase.EMPTY_RANGE;
+            obj.data_range_ = PixelDataBase.EMPTY_RANGE;
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
                 num_pages= curr_pix .num_pages;
@@ -445,8 +414,8 @@ classdef PixelDataFileBacked < PixelDataBase
                     curr_pix.page_num = i;
                     data = curr_pix.data;
                     obj = obj.format_dump_data(data);
-                    obj.data_range = ...
-                        obj.pix_minmax_ranges(data, obj.data_range);
+                    obj.data_range_ = ...
+                        obj.pix_minmax_ranges(data, obj.data_range_);
                     start_idx = start_idx + size(data,2);
                 end
             end
@@ -468,7 +437,7 @@ classdef PixelDataFileBacked < PixelDataBase
             end
 
             if any(undefined(:))
-                warning('HORACE:old_file_format',[...
+                warning('HORACE:invalid_data_range',['\n',...
                     '*** Pixels data range requested but pixels in this object\n', ...
                     '*** do not contain correct ranges\n' ...
                     '*** Either sqw object is from old format sqw file without pixel data averages.\n', ...
@@ -477,7 +446,6 @@ classdef PixelDataFileBacked < PixelDataBase
                     'recalculate these averages each time you are accessing them\n' ...
                     '*** Run upgrade_file_format(filename) from horace_core/admin folder to upgrade file format\n' ...
                     '*** or apply_alignment(filename) for realigned files\n'])
-                obj = obj.recalc_data_range();
                 if nargin == 1
                     data_range = obj.data_range_;
                 else

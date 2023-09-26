@@ -43,8 +43,8 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
     %
     double_array = repelem(double_array(:), npix(:))';
     this_sigvar = sigvar(obj.signal, obj.variance);
-    [obj.signal, obj.variance] = ...
-        sigvar_binary_op_(this_sigvar, double_array, binary_op, flip);
+    obj.sig_var = ...
+        obj.sigvar_binary_op(this_sigvar, double_array, binary_op, flip);
 end
 
 

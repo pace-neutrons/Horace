@@ -112,7 +112,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             al_range = pdf.data_range;
             [~, lw] = lastwarn; % data range have been recalculated on request with
             % warning
-            assertEqual(lw, 'HORACE:old_file_format');
+            assertEqual(lw, 'HORACE:invalid_data_range');
             assertFalse(all(initial_range(:) == al_range(:)));
             % range is still invalid as int is calculated on request
             assertFalse(pdf.is_range_valid);

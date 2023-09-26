@@ -41,19 +41,34 @@ classdef test_upgrade_file_format< TestCase
             fl = upgrade_file_format(laf);
             assertEqual(fl{1},laf);
         end
-        function test_upgrade_single_sqw_filebacked(obj)
+        function test_upgrade_single_sqw_filebacked_noupgrade_range_warning(obj)
+            [clFile,targ_f] = obj.copy_my_file(obj.ff_source_sqw);
+            clConf = set_temporary_config_options(hor_config, ...
+                'mem_chunk_size',10000,'fb_scale_factor',3); % should give 3 pages
+            clWarn = set_temporary_warning('off', 'TESTS:my_warning','HORACE:invalid_data_range');
+            warning('TESTS:my_warning','This should become the last warning as no other waning were issued on the way');
+
+            upgrade_file_format(targ_f);
+            w2  = sqw(targ_f{1});            
+
+            [~,e] = lastwarn;
+            assertEqual(e,'HORACE:invalid_data_range');
+            assertFalse(w2.pix.is_range_valid())
+        end
+
+        function test_upgrade_single_sqw_filebacked_upgrade_range_no_warning(obj)
             [clFile,targ_f] = obj.copy_my_file(obj.ff_source_sqw);
             clConf = set_temporary_config_options(hor_config, ...
                 'mem_chunk_size',10000,'fb_scale_factor',3); % should give 3 pages
             clWarn = set_temporary_warning('off', 'TESTS:my_warning');
             warning('TESTS:my_warning','This should become the last warning as no other waning were issued on the way');
 
-            upgrade_file_format(targ_f);
+            upgrade_file_format(targ_f,'-upgrade_range');
             w2  = sqw(targ_f{1});
 
             [~,e] = lastwarn;
             assertEqual(e,'TESTS:my_warning');
-            assertTrue(any(w2.pix.data_range(:) ~= PixelData.EMPTY_RANGE(:)) )
+            assertTrue(w2.pix.is_range_valid())
         end
 
 

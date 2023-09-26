@@ -5,8 +5,8 @@ validate_inputs(obj, operand, npix);
 
 obj = obj.prepare_dump();
 
-s_ind = obj.check_pixel_fields('signal');
-v_ind = obj.check_pixel_fields('variance');
+sv_ind = obj.get_pixfld_indexes('sig_var');
+
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.page_size);
 
@@ -29,11 +29,10 @@ for i = 1:num_pages
             );
     end
 
-    [signal, variance] = ...
-        sigvar_binary_op_(pix_sigvar, obj_sigvar, binary_op, flip);
+    sig_var = ...
+        obj.sigvar_binary_op(pix_sigvar, obj_sigvar, binary_op, flip);
 
-    data(s_ind, :) = signal;
-    data(v_ind, :) = variance;
+    data(sv_ind, :) = sig_var;
 
     obj = obj.format_dump_data(data);
     obj.data_range = ...

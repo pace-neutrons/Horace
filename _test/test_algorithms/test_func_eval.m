@@ -337,7 +337,7 @@ classdef test_func_eval < TestCase & common_state_holder
             % Check that data.npix is unchanged
             assertEqual(sqw_out.data.npix, sqw_in.data.npix);
 
-            sig_var = sqw_out.pix.get_fields({'signal', 'variance'});
+            sig_var = sqw_out.pix.sig_var;
             % Check that all pixel signals for each bin are equal to the value
             % of the image signal in the corresponding bin
             signal = sig_var(1, :);

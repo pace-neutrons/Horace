@@ -16,7 +16,7 @@ function  obj = set_data_block_(obj,block_instance)
 % Throws if the input block location overlaps with locations of
 % any existing blocks
 
-% find place of the block_instance in the current blocks subscrition list
+% find place of the block_instance in the current blocks subscription list
 %
 targ_name = block_instance.block_name;
 targ_start  = block_instance.position;
@@ -40,7 +40,7 @@ size           = size(~targ_found);
 %
 first_pos = start_position(initialized);
 next_pos   = first_pos + size(initialized);
-targ_end   = targ_start+targ_size;
+targ_end   = targ_start+targ_size-1;
 %
 overlap = (targ_start >= first_pos & targ_start < next_pos) | (targ_end >= first_pos & targ_end <  next_pos);
 if any(overlap)
@@ -52,7 +52,7 @@ end
 obj.blocks_list_{targ_found} = block_instance;
 obj.end_of_file_pos_ = max(obj.end_of_file_pos_,block_instance.position+block_instance.size);
 first_pos  = [0,first_pos,targ_start];
-next_pos   = [obj.blocks_start_position,next_pos,targ_end];
+next_pos   = [obj.blocks_start_position,next_pos,targ_end+1];
 [first_pos,s_ind] = sort(first_pos);
 next_pos          = next_pos(s_ind);
 %
@@ -65,5 +65,5 @@ function [is_init,is_requested,position,size]=block_info(other_block,targ_block_
 % retrieve statistical parameters of the block
 position = other_block.position;
 size     = other_block.size;
-is_init  = other_block.initialized;
+is_init  = other_block.allocated;
 is_requested = strcmp(other_block.block_name,targ_block_name);
