@@ -9,7 +9,7 @@ Details of this are given below, including contacts for improving the installati
 for use of this system. 
 
 This document is primarily concerned with the process of upgrading Horace and releasing new Horace versions on IDAaaS. However, details for how we might update SCARF 
-and how experienced users might access Horace through ISISCOMPUTE are also given for completeness.
+and how experienced users would access Horace through ISISCOMPUTE are also given for completeness.
 
 ## IDAaaS
 
@@ -23,7 +23,7 @@ IDAaaS support team : support@analysis.stfc.ac.uk
 
 #### Main Deploy Location
 
-Various versions and componentes of Horace is deployed in a number of local repositories under the path `/usr/local/mprogs`.
+Various versions and components of Horace are deployed in a number of local repositories under the path `/usr/local/mprogs`.
 
 The physical disk location of these Horace repositories is the same as for ISISCOMPUTE system; the description for that system below gives more details.
 As this may change subject to development of the underlying IDAaaS system structure, the path `usr/local/mprogs` provides symbolic links to the repositories' current locations.
@@ -34,6 +34,7 @@ which will remain constant regardless of the actuall physical location of the co
 The principal repositories are
 - Horace (underlying name: Horace_git): this is the directory corresponding to `horace_core` in a clone of the full Horace github repository.
 - Herbert (underlying name: Herbert_git): this is the directory corresponding to `herbert_core` in a clone of the full Horace github repository.
+
 
 #### Main Deploy Process
 
@@ -84,6 +85,14 @@ horace_4on("/usr/local/mprogs/Horace_bugfix")
 - Now do a git pull on ALL the repositories you have touched; Horace/Herbert to make sure your changes have updated IDAaaS; and Horace_bugfix/Herbert_bugfix
 to ensure that these bugfix areas are ready for the next fix.
 
+#### Stable and historical versions of Horace
+
+The following additional repositories in /usr/local/mprogs hold earlier or current release versions
+- Horace_3_6 (underlying name Horace_3.6): the current stable release version which is being upgraded to Horace-4
+- Horace 3_2 (underlying name Horace; note this is not the same as the symbolically-linked name Horace): preceding historically stable version; not expected to be used
+- Herbert equivalents of the above with the same naming conventions
+
+
 #### General deploy comments
 
 The process is currently absolutely the same as on ISISCOMPUTE. The real ISISCOMPUTE and virtual IDAaaS machines are currently share the same OS version 
@@ -121,29 +130,23 @@ FBU IT support team: FBUitservicedesk@stfc.ac.uk
 
 #### Deploy Location
 
+The repositories with the Horace code on iDAAaS file system are currently located under:
+`/mnt/ceph/auxiliary/excitations/isis_direct_soft/` 
 , except ISISCOMPUTE file system is currently mounted on iDaaaS at `/mnt/nomachine`. This can change in a future, but by agreement with iDaaaS team, 
 the symbolic links in `/usr/local/mprogs` will always point to a physical location of appropriate Horace/Herbert repository clones. 
 
 The physical location of the code on ISISCOMPUTE file system is:
 
-- `/home/isis_direct_soft/Horace_git`
-- `/home/isis_direct_soft/Horace_bugfix`
-- `/home/isis_direct_soft/Herbert_git`
-- `/home/isis_direct_soft/Herbert_bugfix`
+- `.../isis_direct_soft/Horace_git`
+- `.../isis_direct_soft/Horace_bugfix`
+- `.../isis_direct_soft/Herbert_git`
+- `.../isis_direct_soft/Herbert_bugfix`
+relative to the ceph location given above.
+
 
 By agreement, this location is accessed by code users through symbolic links, created in `/usr/local/mprogs` folder.
 
-The release link are pointing to the user's code base, namely:
-- `/usr/local/mprogs/Herbert` -> `/home/isis_direct_soft/Herbert_git/herbert_core`
-- `/usr/local/mprogs/Horace` -> `/home/isis_direct_soft/Horace_git/horace_core`
-
-hiding technical areas from inexperienced users.
-
 To ensure compatibility and smooth user's experience, all code operations should be performed with the symbolically linked paths, which will remain constant regardless of physical location of the code.
-
-Code base for bugfix purposes is linked directly to the git repository for support team convenience, namely:
-`/usr/local/mprogs/Herbert_bugfix` -> `/home/isis_direct_soft/Herbert_bugfix`
-`/usr/local/mprogs/Horace_bugfix` -> `/home/isis_direct_soft/Horace_bugfix`
 
 #### Deploy Process
 
