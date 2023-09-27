@@ -1,6 +1,7 @@
-# ISIS Release Process
+# SMG-11: ISIS Release Process
 
-Horace is deployed separately to a number of systems across ISIS
+Horace is deployed separately to a number of systems across ISIS. These are
+
 
 ## ISIS Compute
 
