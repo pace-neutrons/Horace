@@ -19,19 +19,20 @@ registration part of the dialog on the login page. Detailed use of IDAaaS and Ma
 
 #### Contact
 
-iDaaaS support team : support@analysis.stfc.ac.uk
+IDAaaS support team : support@analysis.stfc.ac.uk
 
 #### Main Deploy Location
 
 Various versions and componentes of Horace is deployed in a number of local repositories under the path `/usr/local/mprogs`.
 
 The physical disk location of these Horace repositories is the same as for ISISCOMPUTE system; the description for that system below gives more details.
-As this may change subject to development of the underlying IDAaaS system structure, the path 'usr/local/mprogs` provides symbolic links to the repositories' current locations.
+As this may change subject to development of the underlying IDAaaS system structure, the path `usr/local/mprogs` provides symbolic links to the repositories' current locations.
 Note that the repository symbolic link names may not always match exactly the directory name of the underlying repository location.
-To ensure compatibility and smooth user's experience, all code operations should be performed with these symbolically linked paths, which will remain constant regardless of physical location of the code.
+To ensure compatibility and smooth user's experience, all code operations should be performed with these symbolically linked paths, 
+which will remain constant regardless of the actuall physical location of the code.
 
 The principal repositories are
-- Horace (underlying name: Horace_git): this is the directory corresponding to `horace_core in a clone of the full Horace github repository
+- Horace (underlying name: Horace_git): this is the directory corresponding to `horace_core` in a clone of the full Horace github repository.
 - Herbert (underlying name: Herbert_git): this is the directory corresponding to `herbert_core` in a clone of the full Horace github repository.
 
 #### Main Deploy Process
@@ -43,22 +44,59 @@ fixing or updating the master branch in any development process:
 - make the changes, and add them and commit them to your repository clone
 - push the changes, which should pass all tests and be approved by reviewers before merging into the master branch
 - if all tests pass and all reviewers agree, merge the pull request.
+
 The final additional step is to make the changes in github available on IDAaaS; so far they have only been made on github.
 - On IDAaaS, open a terminal and change directory to the Horace (Horace_git) repository named above.
 - Check the repository's status with the `git status` command, You should find that it is a git repository checked out on the `master` branch. 
 For other outputs, please consult with the Horace developers.
 - Bring the changes into the IDAaaS repository with the command `git pull`.
-- If you have also made changes in the `herbert_core` directory, repleat these steps in the Herbert (Herbert_git) repository. 
+- If you have also made changes in the `herbert_core` directory, repeat these steps in the Herbert (Herbert_git) repository. 
 Although Horace and Herbert have been merged into a single repository on github, they are stilll represented by two separate repositories on IDAaaS.
 
+#### Safe deploy process
 
-The process is currently absolutely the same as on ISISCOMPUTE. The real ISISCOMPUTE and virtual IDAaaS machines are currently share the same OS version and the same file system, so the deployment, performed on one system currently means the deployed on another and have to be done only on one system. 
+The above deployment method runs some risk of having changes made to the code base which could break on IDAaaS. In particular
+there is no test of the changes on IDAaaS itself. If the change has been made due to an error found by a user on an IDAaaS instrument, it is 
+desirable to have the user test the fix. Consequently alternative repositories are available to isolate changes until they
+are sufficiently tested and approved. These correspond to the Horace and Herbert repositories in the main deployment process above
+and are:
+- Horace_bugfix
+- Herbert_bugfix
+(these have the same underlying and public names.)
 
-The disadvantage of iDaaaS is currently the absence of the system-wide cmake installation, so a person, who wants to make a release on iDaaaS machine needs to do local cmake installation.
+The developer should decide whether to make changes on IDAaaS or on their own machine and pass the changes into the IDAaaS repositories.
+The latter case is similar to the main deployment process described above; here we will assume that the changes are being done on IDAaaS.
+- Open a terminal and go to the relevant repositories (Horace_bugfix and/or Herbert_bugfix).
+- check that the repository/ies are checked out to master. If it is otherwise checked out, someone else is doing this process;
+ensure you do not overwrite their changes.
+- Checkout a branch for your ticket and issue e.g. branchname 6666_myname_hotfix_user_issue. You should only need to create the branch in the
+first repository you modify; the other will just need a checkout.
+- make your changes.
+- Open Matlab. It should be initialised with the latest Horace-3 version (3.6.3). To change to the latest Horace-4 with your changes, input
+```
+horace_4on("/usr/local/mprogs/Horace_bugfix")
+```
+- Run such tests as you need to ensure that the user's problem is fixed. 
+- As with the main deployment process, now add, commit and push your changes to github, making a pull request.
+- Github via Jenkins should run the tests, and reviewers should approve your changes.
+- when tests pass and reviewers approve, merge your changes into master on github.
+- Now do a git pull on ALL the repositories you have touched; Horace/Herbert to make sure your changes have updated IDAaaS; and Horace_bugfix/Herbert_bugfix
+to ensure that these bugfix areas are ready for the next fix.
+
+
+
+#### General deploy comments
+
+The process is currently absolutely the same as on ISISCOMPUTE. The real ISISCOMPUTE and virtual IDAaaS machines are currently share the same OS version 
+and the same file system, so the deployment performed on one system currently means that the same changes are then deployed on the other; 
+only one system needs to be changed. 
+
+A disadvantage of iDaaaS is currently the absence of the system-wide cmake installation, so a person, who wants to make a release on iDaaaS machine needs to do local cmake installation.
 
 #### Notes
 
-Write access to code repository on iDaaaS is granted by iDaaaS team on request. Currently the list of people who have write access coincides with the members of **mslice** group on ISISCOMPUTE. This may change in a future. 
+Write access to code repository on iDaaaS is granted by the IDAaaS team on request. Currently the list of people who have write access coincides with 
+the members of **mslice** group on ISISCOMPUTE. This may change in a future. 
 
 
 
