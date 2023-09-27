@@ -3,9 +3,9 @@
 Horace is deployed separately to a number of systems across ISIS. These are:
 
 - IDAaaS: This is currently the normal access point for users of Horace in ISIS.
-- SCARF: This is an alternative HPC environment. In contrast to the deployment on IDAaaS, the current deployment is experimental, and its parallel capabilities are more limited. 
+- SCARF: This is an alternative HPC environment. In contrast to the deployment on IDAaaS, the current SCARF deployment is experimental, and its parallel capabilities are more limited. 
 Details of this are given below, including contacts for improving the installation.
-- ISISCOMPUTE. This is the base location for code deployed to IDAaaS, and can also be used directly by experienced users only. This section gives reference details
+- ISISCOMPUTE: This is the base location for code deployed to IDAaaS, and can also be used directly by experienced users only. The section on this below gives reference details
 for use of this system. 
 
 This document is primarily concerned with the process of upgrading Horace and releasing new Horace versions on IDAaaS. However, details for how we might update SCARF 
@@ -14,7 +14,7 @@ and how experienced users might access Horace through ISISCOMPUTE are also given
 ## IDAaaS
 
 IDAaaS is the cloud computing service "ISIS Data Analysis as a Service" provided by Scientific Computing for ISIS users.
-It is accessed from https://isis.analysis.stfc.ac.uk/, from where you can login to the service. It also gives instructions for new users; similar instructions are also available in the
+It is accessed from https://isis.analysis.stfc.ac.uk/, from where you can login to the service. This also gives instructions for new users; similar instructions are also available in the
 registration part of the dialog on the login page. Detailed use of IDAaaS and Matlab on IDAaaS is outside the scope of this document.
 
 #### Contact
@@ -53,19 +53,20 @@ For other outputs, please consult with the Horace developers.
 - If you have also made changes in the `herbert_core` directory, repeat these steps in the Herbert (Herbert_git) repository. 
 Although Horace and Herbert have been merged into a single repository on github, they are stilll represented by two separate repositories on IDAaaS.
 
-#### Safe deploy process
+#### Safe rapid deploy process
 
 The above deployment method runs some risk of having changes made to the code base which could break on IDAaaS. In particular
-there is no test of the changes on IDAaaS itself. If the change has been made due to an error found by a user on an IDAaaS instrument, it is 
+there is no test of the changes on IDAaaS itself. If the change has been made due to an error found by a user on an IDAaaS instrument, it is also
 desirable to have the user test the fix. Consequently alternative repositories are available to isolate changes until they
-are sufficiently tested and approved. These correspond to the Horace and Herbert repositories in the main deployment process above
-and are:
+are sufficiently tested and approved, and to enable rapid immediate testing on IDAaaS itself. These correspond to the Horace and Herbert repositories 
+in the main deployment process above, and are:
 - Horace_bugfix
 - Herbert_bugfix
 (these have the same underlying and public names.)
 
 The developer should decide whether to make changes on IDAaaS or on their own machine and pass the changes into the IDAaaS repositories.
-The latter case is similar to the main deployment process described above; here we will assume that the changes are being done on IDAaaS.
+The latter case is similar to the main deployment process described above; here we will assume that the changes are being done on IDAaaS
+for immediate consumption.
 - Open a terminal and go to the relevant repositories (Horace_bugfix and/or Herbert_bugfix).
 - check that the repository/ies are checked out to master. If it is otherwise checked out, someone else is doing this process;
 ensure you do not overwrite their changes.
@@ -76,14 +77,12 @@ first repository you modify; the other will just need a checkout.
 ```
 horace_4on("/usr/local/mprogs/Horace_bugfix")
 ```
-- Run such tests as you need to ensure that the user's problem is fixed. 
+- Run such tests as you need to ensure that the user's problem is fixed. The user can carry on working with your bugfix area until github is updated and propagated.
 - As with the main deployment process, now add, commit and push your changes to github, making a pull request.
 - Github via Jenkins should run the tests, and reviewers should approve your changes.
 - when tests pass and reviewers approve, merge your changes into master on github.
 - Now do a git pull on ALL the repositories you have touched; Horace/Herbert to make sure your changes have updated IDAaaS; and Horace_bugfix/Herbert_bugfix
 to ensure that these bugfix areas are ready for the next fix.
-
-
 
 #### General deploy comments
 
@@ -91,7 +90,7 @@ The process is currently absolutely the same as on ISISCOMPUTE. The real ISISCOM
 and the same file system, so the deployment performed on one system currently means that the same changes are then deployed on the other; 
 only one system needs to be changed. 
 
-A disadvantage of iDaaaS is currently the absence of the system-wide cmake installation, so a person, who wants to make a release on iDaaaS machine needs to do local cmake installation.
+A disadvantage of IDAaaS is currently the absence of the system-wide cmake installation, so a person, who wants to make a release on iDaaaS machine needs to do local cmake installation.
 
 #### Notes
 
@@ -99,10 +98,13 @@ Write access to code repository on iDaaaS is granted by the IDAaaS team on reque
 the members of **mslice** group on ISISCOMPUTE. This may change in a future. 
 
 
-
 ## SCARF
 
 #### Contact
+
+TBD
+
+#### State of deployment
 
 The deployment on scarf is currently experimental. Generally speaking, user can make local installation of Horace/Herbert as described on [Horace installation pages](http://horace.isis.rl.ac.uk/Download_and_setup) and [SCARF user pages](https://www.scarf.rl.ac.uk/)
 
@@ -124,21 +126,20 @@ the symbolic links in `/usr/local/mprogs` will always point to a physical locati
 
 The physical location of the code on ISISCOMPUTE file system is:
 
-`/home/isis_direct_soft/Horace_git`
-`/home/isis_direct_soft/Horace_bugfix`
-`/home/isis_direct_soft/Herbert_git`
-`/home/isis_direct_soft/Herbert_bugfix`
+- `/home/isis_direct_soft/Horace_git`
+- `/home/isis_direct_soft/Horace_bugfix`
+- `/home/isis_direct_soft/Herbert_git`
+- `/home/isis_direct_soft/Herbert_bugfix`
 
 By agreement, this location is accessed by code users through symbolic links, created in `/usr/local/mprogs` folder.
 
 The release link are pointing to the user's code base, namely:
-`/usr/local/mprogs/Herbert` -> `/home/isis_direct_soft/Herbert_git/herbert_core`
-`/usr/local/mprogs/Horace` -> `/home/isis_direct_soft/Horace_git/horace_core`
+- `/usr/local/mprogs/Herbert` -> `/home/isis_direct_soft/Herbert_git/herbert_core`
+- `/usr/local/mprogs/Horace` -> `/home/isis_direct_soft/Horace_git/horace_core`
 
 hiding technical areas from inexperienced users.
 
-To ensure compatibility and smooth user's experience, all code operations should be performed with the simulink path-es, which will remain constant regardless of physical location of the code.
-
+To ensure compatibility and smooth user's experience, all code operations should be performed with the symbolically linked paths, which will remain constant regardless of physical location of the code.
 
 Code base for bugfix purposes is linked directly to the git repository for support team convenience, namely:
 `/usr/local/mprogs/Herbert_bugfix` -> `/home/isis_direct_soft/Herbert_bugfix`
