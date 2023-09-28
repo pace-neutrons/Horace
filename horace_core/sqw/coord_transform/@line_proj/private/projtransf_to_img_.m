@@ -54,7 +54,7 @@ if isempty(obj.w) %
         w = cross(uv_ortho(:,1),uv_ortho(:,2));  % this is w orthogonal to u,v
         w = w/norm(w);                           % in Crystal Cartesian
         w = b_vec_directions\w; % this is unit-length vector w in hkl-aligned system;
-        obj.w_ = w;
+        obj.w_ = w(:)';
     else
         % w it is not used in orthogonal case, just provided for convenience.
         % Used in non-orthogonal case only. 'p' which would use w, is not
