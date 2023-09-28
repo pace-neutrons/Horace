@@ -50,7 +50,7 @@ if ~ok
     error('HORACE:PixelDataBase:invalid_argument',mess);
 end
 nargi =numel(argi);
-
+ind_in_pix = [];
 switch nargi
     case 0
         [ind_min,ind_max] = obj.get_page_idx_();
@@ -91,8 +91,6 @@ switch nargi
                     'selected pixel fields requests is compartible with raw data only')
             end
             ind_in_pix = obj.field_index(argi{2});
-        else
-            ind_in_pix = [];
         end
     otherwise
         error('HORACE:PixelDataBase:invalid_argument', ...
