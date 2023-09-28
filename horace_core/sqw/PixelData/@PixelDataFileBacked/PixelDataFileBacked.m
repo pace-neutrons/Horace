@@ -432,21 +432,21 @@ classdef PixelDataFileBacked < PixelDataBase
             %                to return, if empty, all pixels field
             % Output:
             % pix_data    -- [9,numel(row_pix_idx)] array of pixel data
-            mmf = obj.f_accessor_;            
+            mmf = obj.f_accessor_;
             if isempty(mmf)
                 pix_data = obj.EMPTY_PIXELS;
                 return
             end
 
-% Return raw pixels
-if isempty(ind_in_pix)    
-    pix_data = mmf.Data.data(:,row_pix_idx);
-else
-    pix_data = mmf.Data.data(col_pix_idx,abs_pix_indices);    
-end
+            % Return raw pixels
+            if isempty(col_pix_idx)
+                pix_data = mmf.Data.data(:,row_pix_idx);
+            else
+                pix_data = mmf.Data.data(col_pix_idx,row_pix_idx);
+            end
 
         end
-        
+
         function data_range = get_data_range(obj,varargin)
             % overloadable data range getter
             if nargin == 1

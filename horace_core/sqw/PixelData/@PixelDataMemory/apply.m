@@ -52,11 +52,11 @@ end
 obj.data_range = obj.pix_minmax_ranges(obj.data);
 
 if exist('data', 'var')
-    npix = data.npix;
-    [data.s, data.e] = compute_bin_data(obj, npix);    
     if compute_variance
-        obj.variance  = (obj.signal - replicate_array(data.s(:),npix(:))').^2; % square of deviations
-    end        
+        [data.s, data.e,obj.variance] = compute_bin_data(obj, data.npix);
+    else
+        [data.s, data.e] = compute_bin_data(obj, data.npix);
+    end
 end
 
 end

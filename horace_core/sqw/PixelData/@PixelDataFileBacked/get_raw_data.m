@@ -1,4 +1,4 @@
-function  data =  get_raw_data(obj,varargin)
+function  data =  get_raw_data(obj,page_number,varargin)
 % get unchanged pixel data for single data page
 % Inputs:
 % obj   -- Initialized instance of PixelDataFileBacked
@@ -17,8 +17,9 @@ function  data =  get_raw_data(obj,varargin)
 % Note:
 % idx defines the pixel indexes as described in PixelDataBase.FIELD_INDEX_MAP_
 %
-
-page_number = obj.page_num_;
+if nargin == 1
+    page_number = obj.page_num_;
+end
 
 if ~isempty(varargin)
     idx = obj.field_index(varargin{1});

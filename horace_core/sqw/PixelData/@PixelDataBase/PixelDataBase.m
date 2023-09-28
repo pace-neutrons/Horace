@@ -368,7 +368,7 @@ classdef (Abstract) PixelDataBase < serializable
             % Output:
             % indices   -- the indices corresponding to the fields
             %
-            
+
             if istext(fld_name)
                 idx = PixelDataBase.FIELD_INDEX_MAP_(fld_name);
             elseif isnumeric(fld_name)
@@ -432,7 +432,7 @@ classdef (Abstract) PixelDataBase < serializable
         obj = set_page_num(obj,val);
         np  = get_num_pages(obj);
 
-        % common interface to getting pixel data. Class dependent 
+        % common interface to getting pixel data. Class dependent
         % implementation
         data = get_raw_pix_data(obj,row_idx,col_idx);
     end
@@ -722,8 +722,9 @@ classdef (Abstract) PixelDataBase < serializable
     end
     %----------------------------------------------------------------------
     methods
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);        
-        
+        % return set of pixels, defined by its indexes
+        pix_out = get_pixels(obj, abs_pix_indices,varargin);
+
         function pix_copy = copy(obj)
             % Make an independent copy of this object
             %  This method simply constructs a new PixelData instance by calling
@@ -741,20 +742,29 @@ classdef (Abstract) PixelDataBase < serializable
                 pix_copy = PixelDataMemory(obj);
             end
         end
-    end
-    %======================================================================
-    % Overloadable protected getters/setters for properties
-    methods(Access=protected)
         function [mean_signal, mean_variance,std_deviation] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data
+            % defined by npix.
+            % Inputs:
+            % obj     -- initialized instance of the PixelData object
+            % npix    -- array of npix, used to arrange pixels. If pix_idx 
+            %            are missing, sum(npix(:)) == obj.num_pixels should
+            %            hold.
+            % Optional:
+            % pix_idx -- if present, defines the indexes of pixels, which
+            %            are arranged according to npix.
             %
             if nargin <3
                 pix_idx = [];
             end
             average_signal = nargout == 3;
-            [mean_signal, mean_variance,std_deviation] = compute_bin_data_(obj, npix,pix_idx,average_signal);            
+            [mean_signal, mean_variance,std_deviation] = compute_bin_data_(obj, npix,pix_idx,average_signal);
         end
-        %
+
+    end
+    %======================================================================
+    % Overloadable protected getters/setters for properties
+    methods(Access=protected)        %
         function val = check_set_prop(obj,fld,val)
             % check input parameters of set_property function
             if ~isnumeric(val)
@@ -841,12 +851,12 @@ classdef (Abstract) PixelDataBase < serializable
             [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, varargin{:});
         end
         %------------------------------------------------------------------
-        function [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
+        function [abs_pix_indices,pix_col_idx,ignore_range,raw_data,keep_precision,align] = ...
                 parse_get_pix_args(obj,accepts_logical,varargin)
             % process input of get_pix method and return input parameters
             % in the standard form.
 
-            [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
+            [abs_pix_indices,pix_col_idx,ignore_range,raw_data,keep_precision,align] = ...
                 parse_get_pix_args_(obj,accepts_logical,varargin{:});
         end
         function pix_out = pack_get_pix_result(obj,pix_data,ignore_range,raw_data,keep_precision,align)

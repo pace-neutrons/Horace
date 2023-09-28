@@ -35,9 +35,9 @@ accum_indices = repelem(1:numel(npix), npix(:))';
 % ignore trailing zeros on the npix chunk. Meaning the increment will be a
 % different length to the chunk of the image we're updating
 img_signal_sum = accumarray(accum_indices,  signal, [numel(npix), 1]);
-mean_signal    = img_signal_sum(:)/npix(:);
+mean_signal    = img_signal_sum(:)./npix(:);
 if average_signal
-    std_deviation=(sig - replicate_array(mean_signal,npix(:))).^2;    % square of deviations
+    std_deviation=(signal - replicate_array(mean_signal,npix(:))').^2;    % square of deviations
 else
     std_deviation = variance;
 end
