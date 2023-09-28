@@ -1,15 +1,12 @@
 # SMG-11: ISIS Release Process
 
-Horace is deployed separately to a number of systems across ISIS. These are:
+Horace has been deployed separately to a number of systems across ISIS. The current ones are:
 
 - IDAaaS: This is currently the normal access point for users of Horace in ISIS.
 - SCARF: This is an alternative HPC environment. In contrast to the deployment on IDAaaS, the current SCARF deployment is experimental, and its parallel capabilities are more limited. 
 Details of this are given below, including contacts for improving the installation.
-- ISISCOMPUTE: This is the base location for code deployed to IDAaaS, and can also be used directly by experienced users only. The section on this below gives reference details
-for use of this system. 
 
-This document is primarily concerned with the process of upgrading Horace and releasing new Horace versions on IDAaaS. However, details for how we might update SCARF 
-and how experienced users would access Horace through ISISCOMPUTE are also given for completeness.
+This document is primarily concerned with the process of upgrading Horace and releasing new Horace versions on IDAaaS. However, details for how we might update SCARF  are also given for completeness.
 
 ## IDAaaS
 
@@ -25,8 +22,8 @@ IDAaaS support team : support@analysis.stfc.ac.uk
 
 Various versions and components of Horace are deployed in a number of local repositories under the path `/usr/local/mprogs`.
 
-The physical disk location of these Horace repositories is the same as for ISISCOMPUTE system; the description for that system below gives more details.
-As this may change subject to development of the underlying IDAaaS system structure, the path `usr/local/mprogs` provides symbolic links to the repositories' current locations.
+The current physical disk location of these Horace repositories are given at the end of this document.
+As this may change subject to development of the underlying IDAaaS system structure, the path `/usr/local/mprogs` provides symbolic links to the repositories' current locations.
 Note that the repository symbolic link names may not always match exactly the directory name of the underlying repository location.
 To ensure compatibility and smooth user's experience, all code operations should be performed with these symbolically linked paths, 
 which will remain constant regardless of the actuall physical location of the code.
@@ -35,8 +32,15 @@ The principal repositories are
 - Horace (underlying name: Horace_git): this is the directory corresponding to `horace_core` in a clone of the full Horace github repository.
 - Herbert (underlying name: Herbert_git): this is the directory corresponding to `herbert_core` in a clone of the full Horace github repository.
 
+This path defines the folder containing the Horace initialisation script Horace_on.m, which on execution adds all the folders Horace needs to the 
+MATLAB search path, and initialises all other Horace variables needed (e.g. Horace configuations). The path also contains whe worker script which
+invokes the horace_on script and initialises Horace for all parallel MATLAB sessions.
 
-#### Main Deploy Process
+An administrative script (not write-accessible by Horace developers) `/var/daaas/dynamic/matlabsetup.m` is executed on start-up of MATLAB user sessions
+on IDAaaS machines, and invokes `horace_on` for user sessions dedicated for using Horace.
+
+
+#### Simple Deploy Process
 
 The version deployed is the one on the master branch of the github repository https://github.com/pace-neutrons/Horace, and the process of deployment for a simple fix is the same as for
 fixing or updating the master branch in any development process:
@@ -58,7 +62,7 @@ Although Horace and Herbert have been merged into a single repository on github,
 
 The above deployment method runs some risk of having changes made to the code base which could break on IDAaaS. In particular
 there is no test of the changes on IDAaaS itself. If the change has been made due to an error found by a user on an IDAaaS instrument, it is also
-desirable to have the user test the fix. Consequently alternative repositories are available to isolate changes until they
+desirable to have the user test the fix before merging. Consequently alternative repositories are available to isolate changes until they
 are sufficiently tested and approved, and to enable rapid immediate testing on IDAaaS itself. These correspond to the Horace and Herbert repositories 
 in the main deployment process above, and are:
 - Horace_bugfix
@@ -84,6 +88,9 @@ horace_4on("/usr/local/mprogs/Horace_bugfix")
 - when tests pass and reviewers approve, merge your changes into master on github.
 - Now do a git pull on ALL the repositories you have touched; Horace/Herbert to make sure your changes have updated IDAaaS; and Horace_bugfix/Herbert_bugfix
 to ensure that these bugfix areas are ready for the next fix.
+
+Note that if you are not changing versions at this point, the conventional `horace_on("/usr/local/mprogs/horace_bugfix")` may be used to activate Horace
+with your fixes on the modified branch.
 
 #### Stable and historical versions of Horace
 
@@ -121,21 +128,16 @@ Horace parallel capabilities for SCARF are currently implemented on the basis of
 
 As soon as appropriate SCARF cluster configuration is available to user's Matlab, it must be made default in Matlab parallel computing toolbox settings. Then Maltab MPI framework (parpool framework) will submit and run parallel jobs on SCARF.
 
-## ISIS Compute
+## Current disk locations for the repositories
 
-#### Contact
+#### Deploy Locations
 
-FBU IT support team: FBUitservicedesk@stfc.ac.uk 
-
-
-#### Deploy Location
-
-The repositories with the Horace code on iDAAaS file system are currently located under:
+The repositories with the Horace code on iDAAaS file system are currently located (28.9.2023) under:
 `/mnt/ceph/auxiliary/excitations/isis_direct_soft/` 
-, except ISISCOMPUTE file system is currently mounted on iDaaaS at `/mnt/nomachine`. This can change in a future, but by agreement with iDaaaS team, 
+
 the symbolic links in `/usr/local/mprogs` will always point to a physical location of appropriate Horace/Herbert repository clones. 
 
-The physical location of the code on ISISCOMPUTE file system is:
+The physical locations of the code are:
 
 - `.../isis_direct_soft/Horace_git`
 - `.../isis_direct_soft/Horace_bugfix`
@@ -143,19 +145,8 @@ The physical location of the code on ISISCOMPUTE file system is:
 - `.../isis_direct_soft/Herbert_bugfix`
 relative to the ceph location given above.
 
-
 By agreement, this location is accessed by code users through symbolic links, created in `/usr/local/mprogs` folder.
 
 To ensure compatibility and smooth user's experience, all code operations should be performed with the symbolically linked paths, which will remain constant regardless of physical location of the code.
 
-#### Deploy Process
-
-As soon as release branch is tagged and created in the repository, manual build/release process is preformed in the private area of an ISISCOMPUTE or iDaaaS machine to obtain release artefacts for the computational service. It is also possible to pull the release artefacts from Jenkins builds, though this process needs thorough testing. 
-The extraction of the release artefacts will be automated in a future, as [iDaaaS testing pipeline](https://github.com/pace-neutrons/Horace/issues/271) is implemented. The releaser then manually checks out the release branch into `Herbert_git/Horace_git` areas above and copies the release artefacts into appropriate places of the code tree.
-
-#### Notes
-
-The script which automates these operations and performs internal releases as one-click operation will be developed in the nearest future.
-
-The members of **mslice** group on ISISCOMPUTE have write access to release code areas. Alex Buts or FBU IT support team can currently add users to **mslice** group on ISISCOMPUTE. Normal users have read-only access to the code area, sufficient to use the code in their computations.
 
