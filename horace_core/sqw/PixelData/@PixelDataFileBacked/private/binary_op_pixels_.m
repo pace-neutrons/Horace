@@ -12,7 +12,7 @@ if obj.num_pixels ~= pixel_data.num_pixels
 end
 
 obj = obj.prepare_dump();
-sv_ind = obj.get_pixfld_indexes('sig_var');
+sv_ind = obj.field_index('sig_var');
 
 if pixel_data.is_filebacked
     obj.data_range = PixelDataBase.EMPTY_RANGE;

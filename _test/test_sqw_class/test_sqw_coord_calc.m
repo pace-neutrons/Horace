@@ -1,4 +1,4 @@
-classdef test_sqw_signal < TestCaseWithSave
+classdef test_sqw_coord_calc < TestCaseWithSave
 
     properties
         sqw_1d
@@ -9,9 +9,9 @@ classdef test_sqw_signal < TestCaseWithSave
 
 
     methods
-        function obj = test_sqw_signal(varargin)
+        function obj = test_sqw_coord_calc(varargin)
             this_dir = fileparts(mfilename('fullpath'));
-            argi = [varargin,{fullfile(this_dir,'test_sqw_signal.mat')}];
+            argi = [varargin,{fullfile(this_dir,'test_sqw_coord_calc.mat')}];
             obj = obj@TestCaseWithSave(argi{:});
 
             hp = horace_paths;

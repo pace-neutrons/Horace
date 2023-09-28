@@ -52,7 +52,7 @@ if ~uses_poisson_distribution
         end
     else
         range = pix_out.data_range;
-        max_sig = range(2,pix_out.get_pixfld_indexes('signal'));
+        max_sig = range(2,pix_out.field_index('signal'));
     end
     % tell the Herbert noisify that we are providing a max signal value
     % by appending it with its flag to varargin

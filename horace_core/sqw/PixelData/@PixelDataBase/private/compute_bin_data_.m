@@ -1,4 +1,4 @@
-function [mean_signal, mean_variance] = compute_bin_data(obj, npix)
+function [mean_signal, mean_variance,std_deviations] = compute_bin_data_(obj, npix,pix_idx,average_signal)
 % Compute the mean signal and variance given the number of contributing
 % pixels for each bin
 % Returns empty arrays if obj contains no pixels.
@@ -16,12 +16,15 @@ function [mean_signal, mean_variance] = compute_bin_data(obj, npix)
 % mean_variance   The average variance for each plot axis bin.
 %                 size(mean_variance) = size(npix)
 %
-use_mex = get(hor_config,'use_mex');
-log_level = get(hor_config,'log_level');
-
+%use_mex = get(hor_config,'use_mex');
+%log_level = get(hor_config,'log_level');
+%
+% Re #1295 Mex disabled -- fix and enable if necessary
+use_mex = false;
 if use_mex
     try
-        [mean_signal, mean_variance] = compute_bin_data_mex_(obj, npix);
+        [mean_signal, mean_variance,std_deviations] = ...
+            compute_bin_data_mex_(obj, npix,pix_idx,average_signal);
     catch ME
         if hor_config().force_mex_if_use_mex
             rethrow(ME);
@@ -29,14 +32,13 @@ if use_mex
         use_mex = false;
         if log_level>0
             warning('SQW:mex_code_problem', ...
-                    ['sqw:recompute_bin_data -- c-code problem: ' ...
-                        '%s\n Trying to use Matlab'], ME.message);
+                ['sqw:recompute_bin_data -- c-code problem: ' ...
+                '%s\n Trying to use Matlab'], ME.message);
         end
     end
 end
 
 if ~use_mex
-    [mean_signal, mean_variance] = compute_bin_data_matlab_(obj, npix);
-end
-
+    [mean_signal, mean_variance,std_deviations] = ...
+        compute_bin_data_matlab_(obj, npix,pix_idx,average_signal);
 end

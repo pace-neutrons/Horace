@@ -869,6 +869,20 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
             assertExceptionThrown(f, 'MATLAB:badsubscript');
         end
+        function test_get_pix_return_partial_pix(obj)
+            num_pix = 30;
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            npix_in_page = 11;
+            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+            logical_array = logical(randi([0, 1], [1, num_pix]));
+            r_data = pix.get_pixels(logical_array,'sig_var','-raw');
+
+            idx = PixelDataBase.
+            assertElementsAlmostEqual(r_data, data(:,logical_array),...
+                'relative',obj.tol);
+        end
+        
 
         function test_get_pix_accepts_logical_indices(obj)
             num_pix = 30;

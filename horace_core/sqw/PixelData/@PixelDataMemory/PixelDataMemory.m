@@ -63,18 +63,13 @@ classdef PixelDataMemory < PixelDataBase
             % main part of get.data accessor
             data = obj.data_;
             if nargin>1
-                if iscell(varargin{1}) || istext(varargin{1})
-                    fld = varargin{1};
-                    idx = obj.FIELD_INDEX_MAP_(fld);
-                    data = data(idx,:);
-                end
+                idx = obj.field_index(varargin{1});       
+                data = data(idx,:);
+       
             end
         end
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);
-
         pix     = set_raw_data(obj,pix);
 
-        [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         [pix_out, data] = do_unary_op(obj, unary_op, data);
 
@@ -221,6 +216,27 @@ classdef PixelDataMemory < PixelDataBase
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods(Access=protected)
+        function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
+            % return unmodified pixel data according to the input indexes
+            % provided
+            % Inputs:
+            % obj         -- initialized pixel data memory object
+            % row_pix_idx -- indixes of pixels to return
+            % col_pix_idx -- if not empty, the indices of the pixel field
+            %                to return, if empty, all pixels field
+            % Output:
+            % pix_data    -- [9,numel(row_pix_idx)] array of pixel data
+            if isempty(obj.data_)
+                pix_data = obj.EMPTY_PIXELS;
+                return
+            end
+            if isempty(col_pix_idx)
+                pix_data = obj.data_(:, row_pix_idx);
+            else
+                pix_data = obj.data_(ind_in_pix, row_pix_idx);
+            end
+
+        end
         function [obj,unique_id]=calc_page_range(obj,field_name)
             % Calculate and set range of pixel data, for block of pixels
             % stored in memory.
@@ -233,7 +249,7 @@ classdef PixelDataMemory < PixelDataBase
                 unique_id = [];
                 return
             end
-            ind = obj.get_pixfld_indexes(field_name);
+            ind = obj.field_index(field_name);
             obj.data_range_(:,ind)   = PixelDataBase.EMPTY_RANGE(:,ind);
 
             if nargout==2
@@ -253,7 +269,7 @@ classdef PixelDataMemory < PixelDataBase
             num_pix = size(obj.data_,2);
         end
         function ro = get_read_only(~)
-            % pixel data in memory are not read-obly
+            % pixel data in memory are not read-only
             ro = false;
         end
         %

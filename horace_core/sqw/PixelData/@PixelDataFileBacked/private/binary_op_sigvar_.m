@@ -5,7 +5,7 @@ validate_inputs(obj, operand, npix);
 
 obj = obj.prepare_dump();
 
-sv_ind = obj.get_pixfld_indexes('sig_var');
+sv_ind = obj.field_index('sig_var');
 
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.page_size);

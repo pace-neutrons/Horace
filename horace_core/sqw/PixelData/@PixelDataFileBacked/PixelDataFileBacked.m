@@ -111,14 +111,10 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = set_raw_data_(obj,pix);
         end
 
-        [mean_signal, mean_variance] = compute_bin_data(obj, npix);
-
         [pix_out, data] = do_unary_op(obj, unary_op, data);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
 
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);
         pix_out = mask(obj, mask_array, varargin);
-
     end
 
     methods
@@ -426,6 +422,31 @@ classdef PixelDataFileBacked < PixelDataBase
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
+        function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
+            % return unmodified pixel data according to the input indexes
+            % provided
+            % Inputs:
+            % obj         -- initialized pixel data memory object
+            % row_pix_idx -- indixes of pixels to return
+            % col_pix_idx -- if not empty, the indices of the pixel field
+            %                to return, if empty, all pixels field
+            % Output:
+            % pix_data    -- [9,numel(row_pix_idx)] array of pixel data
+            mmf = obj.f_accessor_;            
+            if isempty(mmf)
+                pix_data = obj.EMPTY_PIXELS;
+                return
+            end
+
+% Return raw pixels
+if isempty(ind_in_pix)    
+    pix_data = mmf.Data.data(:,row_pix_idx);
+else
+    pix_data = mmf.Data.data(col_pix_idx,abs_pix_indices);    
+end
+
+        end
+        
         function data_range = get_data_range(obj,varargin)
             % overloadable data range getter
             if nargin == 1

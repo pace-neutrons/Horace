@@ -35,7 +35,7 @@ npix = wout.data.npix;
 
 img_signal = zeros(1, numel(npix));
 
-sv_ind = wout.pix.get_pixfld_indexes('sig_var');
+sv_ind = wout.pix.field_index('sig_var');
 
 
 pix = wout.pix;

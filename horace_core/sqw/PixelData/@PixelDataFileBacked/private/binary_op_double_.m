@@ -22,7 +22,7 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
 
 obj = obj.prepare_dump();
 
-sv_ind = obj.get_pixfld_indexes('sig_var');
+sv_ind = obj.field_index('sig_var');
 obj.data_range = PixelDataBase.EMPTY_RANGE;
 % TODO: #975 loop have to be moved level up calculating image too in single
 % loop
@@ -70,7 +70,7 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
 %
 
 obj = obj.prepare_dump();
-sv_ind = obj.get_pixfld_indexes('sig_var');
+sv_ind = obj.field_index('sig_var');
 obj.data_range = PixelDataBase.EMPTY_RANGE;
 %
 % TODO: #975 loop have to be moved level up calculating image in single

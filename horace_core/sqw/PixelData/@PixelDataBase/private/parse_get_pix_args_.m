@@ -1,4 +1,4 @@
-function [pix_indices,ignore_range,raw_data,keep_precision,align] = ...
+function [pix_indices,ind_in_pix,ignore_range,raw_data,keep_precision,align] = ...
     parse_get_pix_args_(obj,accepts_logical,varargin)
 % Parce input arguments which may be provided to get_pixels function and
 % return standard form of this arguments
@@ -13,6 +13,10 @@ function [pix_indices,ignore_range,raw_data,keep_precision,align] = ...
 % pix_indexes     -- logical or numerical array of pixel indexes to return
 %                    pixels corresponding to these indexes, or keyword
 %                    'all'
+% index_set       -- string, which define set of pixel elements to return.
+%                    or cellarray of such strings. If present, do not
+%                    return complete pixels but return subset of pixels
+%                    values. Can be provided with keyword -raw_data only
 % '-ignore_range' -- if present, indicates to not calculate pixel ranges when
 %                    returning PixelData class
 % '-raw_data'     -- do not wrap pixel data into pixel class and return
@@ -45,19 +49,20 @@ function [pix_indices,ignore_range,raw_data,keep_precision,align] = ...
 if ~ok
     error('HORACE:PixelDataBase:invalid_argument',mess);
 end
+nargi =numel(argi);
 
-switch numel(argi)
+switch nargi
     case 0
         [ind_min,ind_max] = obj.get_page_idx_();
         pix_indices = ind_min:ind_max;
 
-    case 1
+    case {1,2}
         pix_indices = argi{1};
 
         if islogical(pix_indices)
             if accepts_logical
                 if numel(pix_indices) ~= obj.num_pixels
-                    pix_indices = obj.logical_to_normal_index_(pix_indices);                    
+                    pix_indices = obj.logical_to_normal_index_(pix_indices);
                 end
                 return;
             else
@@ -80,7 +85,15 @@ switch numel(argi)
             error('HORACE:PixelDataBase:invalid_argument', ...
                 'Some numerical indices exceed the total number of pixels')
         end
-
+        if nargi == 2
+            if ~raw_data
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                    'selected pixel fields requests is compartible with raw data only')
+            end
+            ind_in_pix = obj.field_index(argi{2});
+        else
+            ind_in_pix = [];
+        end
     otherwise
         error('HORACE:PixelDataBase:invalid_argument', ...
             'Too many inputs provided to parse_get_pix_args_')

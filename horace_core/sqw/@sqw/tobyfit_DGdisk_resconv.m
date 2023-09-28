@@ -310,7 +310,7 @@ for i=1:numel(ind)
     if wout.pix.is_filebacked
         wout = wout.get_new_handle();
 
-        sv_ind = wout.pix.get_pixfld_indexes('sig_val');
+        sv_ind = wout.pix.field_index('sig_var');
 
 
         pix = wout.pix;

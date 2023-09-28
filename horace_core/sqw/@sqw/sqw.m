@@ -151,6 +151,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
         %----------------------------------
+        % Replace the sqw's signal and variance data with coordinate values (see below)                
+        w = coordinates_calc(w, name)
     end
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting
