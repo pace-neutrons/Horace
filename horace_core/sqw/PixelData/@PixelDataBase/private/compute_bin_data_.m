@@ -1,4 +1,5 @@
-function [mean_signal, mean_variance,std_deviations] = compute_bin_data_(obj, npix,pix_idx,average_signal)
+function [mean_signal, mean_variance,std_deviations] = compute_bin_data_( ...
+    obj, npix,pix_idx,mean_var,average_signal)
 % Compute the mean signal and variance given the number of contributing
 % pixels for each bin
 % Returns empty arrays if obj contains no pixels.
@@ -24,7 +25,7 @@ use_mex = false;
 if use_mex
     try
         [mean_signal, mean_variance,std_deviations] = ...
-            compute_bin_data_mex_(obj, npix,pix_idx,average_signal);
+            compute_bin_data_mex_(obj, npix,pix_idx,mean_var,average_signal);
     catch ME
         if hor_config().force_mex_if_use_mex
             rethrow(ME);
@@ -40,5 +41,5 @@ end
 
 if ~use_mex
     [mean_signal, mean_variance,std_deviations] = ...
-        compute_bin_data_matlab_(obj, npix,pix_idx,average_signal);
+        compute_bin_data_matlab_(obj, npix,pix_idx,mean_var,average_signal);
 end

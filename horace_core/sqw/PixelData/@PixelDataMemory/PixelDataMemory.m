@@ -58,14 +58,15 @@ classdef PixelDataMemory < PixelDataBase
         % apply function represented by handle to every pixel of the dataset
         % and calculate appropriate averages if requested
         [obj, data] = apply(obj, func_handle, args, data, compute_variance);
+        [obj, sqw_out] = apply_c(obj, sqw_in,page_op);
         %
         function data =  get_raw_data(obj,varargin)
             % main part of get.data accessor
             data = obj.data_;
             if nargin>1
-                idx = obj.field_index(varargin{1});       
+                idx = obj.field_index(varargin{1});
                 data = data(idx,:);
-       
+
             end
         end
         pix     = set_raw_data(obj,pix);
@@ -88,20 +89,10 @@ classdef PixelDataMemory < PixelDataBase
             end
             obj = obj.init(varargin{:});
         end
-
         function obj = init(obj,varargin)
             % Main part of PixelDataMemory constructor.
             obj = init_(obj,varargin{:});
         end
-        function obj = move_to_first_page(obj)
-            % Reset the object to point to the first page of pixel data in the file
-            % and clear the current cache
-            %  This function does nothing for memory backed pixels as there
-            %  is only none page
-            %
-        end
-
-
         function [obj,unique_pix_id] = recalc_data_range(obj,fld)
             % Recalculate pixels range in the situations, where the
             % range for some reason appeared to be missing (i.e. loading pixels from
@@ -122,10 +113,30 @@ classdef PixelDataMemory < PixelDataBase
                 obj=obj.calc_page_range(fld);
             end
         end
-
+    end
+    %======================================================================
+    % File handling/migration. Does nothing on membased
+    methods
+        function obj = prepare_dump(obj)
+        end
+        function obj = get_new_handle(obj, varargin)
+        end
+        function obj = format_dump_data(obj,varargin)
+        end
+        function obj = finish_dump(obj)
+        end
+        %
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
             pix_idx_start = 1;
             pix_idx_end   = obj.num_pixels;
+        end
+
+        function obj = move_to_first_page(obj)
+            % Reset the object to point to the first page of pixel data in the file
+            % and clear the current cache
+            %  This function does nothing for memory backed pixels as there
+            %  is only none page
+            %
         end
     end
 

@@ -92,7 +92,7 @@ wout = copy(win);
 
 for i=1:numel(wout)
     if has_pixels(wout(i))   % determine if object contains pixel data
-        wout(i) = wout(i).sqw_eval_pix(sqwfunc, opts.average, pars, opts.outfile);
+        wout(i) = wout(i).sqw_eval_pix(sqwfunc, opts.average, pars, opts.outfile{i});
     else
         wout(i) = wout(i).sqw_eval_nopix(sqwfunc, opts.all, pars);
     end

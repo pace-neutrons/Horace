@@ -102,6 +102,7 @@ classdef PixelDataFileBacked < PixelDataBase
         % apply function represented by handle to every pixel of the dataset
         % and calculate appropriate averages if requested
         [obj, data] = apply(obj, func_handle, args, data, compute_variance);
+        [obj, sqw_out] = apply_c(obj, sqw_in,page_op);        
 
         function obj = set_raw_data(obj,pix)
             if obj.read_only
@@ -173,12 +174,6 @@ classdef PixelDataFileBacked < PixelDataBase
             % process possible update parameter
             obj = init_(obj,varargin{:});
         end
-        function obj = move_to_first_page(obj)
-            % Reset the object to point to the first page of pixel data in the file
-            % and clear the current cache
-            obj.page_num_ = 1;
-        end
-
 
         function [obj,unique_pix_id] = recalc_data_range(obj, fld)
             % Recalculate pixels range in the situations, where the
@@ -230,24 +225,6 @@ classdef PixelDataFileBacked < PixelDataBase
         function saveobj(~)
             error('HORACE:PixelData:runtime_error',...
                 'Can not save filebacked PixelData object');
-        end
-
-        function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, page_number)
-            if ~exist('page_number', 'var')
-                page_number = obj.page_num_;
-            end
-
-            pgs = obj.page_size;
-            pix_idx_start = (page_number -1)*pgs+1;
-
-            if obj.num_pixels > 0 && pix_idx_start > obj.num_pixels
-                error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
-                    pix_idx_start, obj.num_pixels);
-            end
-
-            % Get the index of the final pixel to read given the maximum page size
-            pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
         end
 
         % public getter for unmodified page data
@@ -357,6 +334,30 @@ classdef PixelDataFileBacked < PixelDataBase
                 format = obj.f_accessor_.Format;
             end
         end
+
+        function obj = move_to_first_page(obj)
+            % Reset the object to point to the first page of pixel data in the file
+            % and clear the current cache
+            obj.page_num_ = 1;
+        end
+
+        function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, page_number)
+            if ~exist('page_number', 'var')
+                page_number = obj.page_num_;
+            end
+
+            pgs = obj.page_size;
+            pix_idx_start = (page_number -1)*pgs+1;
+
+            if obj.num_pixels > 0 && pix_idx_start > obj.num_pixels
+                error('HORACE:PixelDataFileBacked:runtime_error', ...
+                    'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
+                    pix_idx_start, obj.num_pixels);
+            end
+
+            % Get the index of the final pixel to read given the maximum page size
+            pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
+        end
     end
     %======================================================================
     methods(Static)
@@ -405,7 +406,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.data_range_ = PixelDataBase.EMPTY_RANGE;
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
-                num_pages= curr_pix .num_pages;
+                num_pages= curr_pix.num_pages;
                 for page = 1:num_pages
                     curr_pix.page_num = i;
                     data = curr_pix.data;

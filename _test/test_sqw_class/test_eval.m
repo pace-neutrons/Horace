@@ -49,8 +49,10 @@ classdef test_eval < TestCase
 
             ds = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, []);
 
-            pix = ds.pix.signal;
-            assertEqual(pix, 2.*ones(size(pix)));
+            sig = ds.pix.signal;
+            assertEqual(sig, 2.*ones(size(sig)));
+            assertEqual(ds.data.s, 2.*ones(size(ds.data.s)));
+            assertEqual(ds.data.e, 2.*zeros(size(ds.data.s)));
         end
 
         function test_sqw_eval_average_fb(obj)

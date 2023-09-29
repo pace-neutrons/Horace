@@ -88,7 +88,8 @@ switch nargi
         if nargi == 2
             if ~raw_data
                 error('HORACE:PixelDataBase:invalid_argument', ...
-                    'selected pixel fields requests is compartible with raw data only')
+                    'get_pixel argument: %s may be compartible with raw data only', ...
+                    disp2str(argi{2}))
             end
             ind_in_pix = obj.field_index(argi{2});
         end

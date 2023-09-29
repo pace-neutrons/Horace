@@ -6,7 +6,7 @@ if average
     % Get average h, k, l, e for the bin, compute sqw for that average,
     % and fill pixels with the average signal for the bin that contains
     % them
-    qw_ave = wout.average_bin_data_(qw_pix_coords);
+    qw_ave = average_bin_data_(wout,qw_pix_coords);
     qw_ave = cellfun(@(x)(x(:)), qw_ave, 'UniformOutput', false);
     new_signal = sqwfunc(qw_ave{:}, pars{:});
     new_signal = repelem(new_signal, wout.data.npix(:));
