@@ -56,7 +56,7 @@ classdef test_eval < TestCase
         end
 
         function test_sqw_eval_average_fb(obj)
-            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 8000);
 
             ds_mb = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, [], '-average');
             ds_fb = sqw_eval(obj.sqw_obj_fb, @test_eval.sqw_eval_tester, [], '-average');
@@ -65,12 +65,12 @@ classdef test_eval < TestCase
         end
 
         function test_sqw_eval_fb(obj)
-            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 8000);
 
             ds_mb = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, []);
             ds_fb = sqw_eval(obj.sqw_obj_fb, @test_eval.sqw_eval_tester, []);
 
-            assertEqual(ds_mb, ds_fb, 'tol', 1e-6);
+            assertEqualToTol(ds_mb, ds_fb, 'tol', 1e-6,'ignore_str',true);
         end
 
 

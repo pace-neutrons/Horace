@@ -31,7 +31,7 @@ classdef PageOp_sqw_eval < PageOpBase
                 % Get average h, k, l, e for the bin, compute sqw for that average,
                 % and fill pixels with the average signal for the bin that contains
                 % them
-                qw_ave =average_bin_data(npix_block,qw_pix_coord{:});
+                qw_ave =average_bin_data(npix_block,qw_pix_coord);
                 qw_ave = cellfun(@(x)(x(:)), qw_ave, 'UniformOutput', false);
                 new_signal = obj.op_holder(qw_ave{:}, obj.op_parms{:});
                 new_signal = repelem(new_signal, npix_block);

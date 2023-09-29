@@ -102,7 +102,7 @@ classdef PixelDataFileBacked < PixelDataBase
         % apply function represented by handle to every pixel of the dataset
         % and calculate appropriate averages if requested
         [obj, data] = apply(obj, func_handle, args, data, compute_variance);
-        [obj, sqw_out] = apply_c(obj, sqw_in,page_op);        
+        [obj, sqw_out] = apply_c(obj, sqw_in,page_op);
 
         function obj = set_raw_data(obj,pix)
             if obj.read_only
@@ -452,27 +452,9 @@ classdef PixelDataFileBacked < PixelDataBase
             % overloadable data range getter
             if nargin == 1
                 data_range = obj.data_range_;
-                undefined = data_range == PixelDataBase.EMPTY_RANGE;
             else
-                data_range = obj.data_range_(:,varargin{1});
-                undefined = data_range == PixelDataBase.EMPTY_RANGE(:,varargin{1});
-            end
-
-            if any(undefined(:))
-                warning('HORACE:invalid_data_range',['\n',...
-                    '*** Pixels data range requested but pixels in this object\n', ...
-                    '*** do not contain correct ranges\n' ...
-                    '*** Either sqw object is from old format sqw file without pixel data averages.\n', ...
-                    '*** or pixel data have been realigned\n',...
-                    '*** Update file format of your sqw objects not to ' ...
-                    'recalculate these averages each time you are accessing them\n' ...
-                    '*** Run upgrade_file_format(filename) from horace_core/admin folder to upgrade file format\n' ...
-                    '*** or apply_alignment(filename) for realigned files\n'])
-                if nargin == 1
-                    data_range = obj.data_range_;
-                else
-                    data_range = obj.data_range_(:,varargin{1});
-                end
+                idx = obj.field_index(varargin{1});
+                data_range = obj.data_range_(:,idx);
             end
         end
 
