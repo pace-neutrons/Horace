@@ -52,7 +52,7 @@ classdef test_upgrade_file_format< TestCase
             w2  = sqw(targ_f{1});            
 
             [~,e] = lastwarn;
-            assertEqual(e,'HORACE:invalid_data_range');
+            assertEqual(e,'TESTS:my_warning');
             assertFalse(w2.pix.is_range_valid())
         end
 
