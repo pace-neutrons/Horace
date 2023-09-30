@@ -138,6 +138,8 @@ classdef PixelDataMemory < PixelDataBase
             %  is only none page
             %
         end
+        function obj = copy(obj)
+        end
     end
 
     methods

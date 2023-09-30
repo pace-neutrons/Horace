@@ -18,7 +18,14 @@ classdef TmpFileHandler < handle
     properties
         file_name;
     end
-
+    properties(Dependent)
+        ref_count;
+        locked;
+    end
+    properties(Access=private)
+        ref_count_ = 0;
+        locked_ = false;
+    end
     methods
         function obj = TmpFileHandler(orig_name)
             [~, name] = fileparts(orig_name);
@@ -37,11 +44,15 @@ classdef TmpFileHandler < handle
                     'Check %s and clear any .pix_<id> files'], ...
                     orig_name, tmp_dir());
             end
-
+            obj.ref_count_ = 1;
         end
 
         function delete(obj)
-           fn = obj.file_name;
+            obj.ref_count_ = obj.ref_count_ - 1;
+            if obj.locked_
+                return;
+            end
+            fn = obj.file_name;
             if ~isempty(fn) && is_file(fn)
                 ws = warning('off','MATLAB:DELETE:Permission');
                 delete(fn);
@@ -57,6 +68,18 @@ classdef TmpFileHandler < handle
 
             end
         end
-
+        %==================================================================
+        function rc = get.ref_count(obj)
+            rc = obj.ref_count_;
+        end
+        function copy(obj)
+            obj.ref_count_ = obj.ref_count_+1;
+        end
+        function is = get.locked(obj)
+            is = obj.locked_;
+        end
+        function set.locked(obj,val)
+            obj.locked_ = logical(val);
+        end
     end
 end

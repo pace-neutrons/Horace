@@ -48,7 +48,7 @@ classdef PageOpBase
             end
             obj = obj.init(varargin{:});
         end
-        function obj = init(obj,in_obj)
+        function [obj,in_obj] = init(obj,in_obj)
             if nargin == 1
                 return;
             end
@@ -69,12 +69,26 @@ classdef PageOpBase
         end
         %
         function obj = common_page_op(obj,page_data)
+            % method performed for any page operations.
+            % 
+            % Input:
+            % page_data -- array of PixelData
+            % 
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(page_data, ...
                 obj.pix_data_range_);
             obj.pix_ = obj.pix_.format_dump_data(page_data);
         end
         %
-        function [out_obj,obj] = finish_op(obj,out_obj)
+        function [out_obj,obj] = finish_op(obj,in_obj)
+            % Finalize page operations.
+            % Input:
+            % obj     -- instance of the page operations
+            % in_obj  -- sqw object-source of the operation
+            %
+            % Returns:
+            % out_obj -- sqw object created as the result of the operation
+            % obj     -- nullified PageOp object.
+            out_obj = in_obj.copy();
             pix = obj.pix_.set_data_range(obj.pix_data_range_);
             pix     = pix.finish_dump();
             out_obj.pix  = pix;

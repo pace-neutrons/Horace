@@ -72,8 +72,9 @@ classdef PixelDataFileBacked < PixelDataBase
         f_accessor_ = []; % instance of object to access pixel data from file
         page_num_   = 1;  % the index of the currently loaded page
         offset_ = 0;
-        file_handle_ = [];
-        tmp_pix_obj = [];
+        write_handle_ = []; % handle to the class, used to perform pixel copying in
+        % operations, involving all pixels
+        tmp_pix_obj_ = [];
     end
 
     properties(Dependent)
@@ -235,7 +236,7 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function has = get.has_open_file_handle(obj)
-            has = ~isempty(obj.file_handle_);
+            has = ~isempty(obj.write_handle_);
         end
     end
 
@@ -255,15 +256,15 @@ classdef PixelDataFileBacked < PixelDataBase
             % otherwise file will be cleared
 
             if exist('f_accessor', 'var') && ~isempty(f_accessor)
-                obj.file_handle_ = f_accessor;
+                obj.write_handle_ = f_accessor;
                 obj.full_filename = f_accessor.full_filename;
             else
                 if isempty(obj.full_filename)
                     obj.full_filename = 'in_mem';
                 end
-                obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
+                obj.tmp_pix_obj_ = TmpFileHandler(obj.full_filename);
 
-                obj.file_handle_ = sqw_fopen(obj.tmp_pix_obj.file_name, 'wb+');
+                obj.write_handle_ = sqw_fopen(obj.tmp_pix_obj_.file_name, 'wb+');
             end
             obj.pix_written = 0;
         end
@@ -274,10 +275,10 @@ classdef PixelDataFileBacked < PixelDataBase
                     'Cannot dump data, object does not have open filehandle')
             end
 
-            if isa(obj.file_handle_, 'sqw_file_interface')
-                obj.file_handle_.put_raw_pix(data, obj.pix_written+1);
+            if isa(obj.write_handle_, 'sqw_file_interface')
+                obj.write_handle_.put_raw_pix(data, obj.pix_written+1);
             else
-                fwrite(obj.file_handle_, single(data), 'single');
+                fwrite(obj.write_handle_, single(data), 'single');
             end
             obj.pix_written = obj.pix_written + size(data, 2);
         end
@@ -290,27 +291,27 @@ classdef PixelDataFileBacked < PixelDataBase
 
             obj.num_pixels_ = obj.pix_written;
 
-            if isa(obj.file_handle_, 'sqw_file_interface')
-                obj.full_filename = obj.file_handle_.full_filename;
-                obj.file_handle_ = obj.file_handle_.put_pix_metadata(obj);
+            if isa(obj.write_handle_, 'sqw_file_interface')
+                obj.full_filename = obj.write_handle_.full_filename;
+                obj.write_handle_ = obj.write_handle_.put_pix_metadata(obj);
                 % Force pixel update
-                obj.file_handle_ = obj.file_handle_.put_num_pixels(obj.num_pixels);
+                obj.write_handle_ = obj.write_handle_.put_num_pixels(obj.num_pixels);
 
-                obj = obj.init_from_file_accessor_(obj.file_handle_, false, true);
-                obj.file_handle_.delete();
-                obj.file_handle_ = [];
+                obj = obj.init_from_file_accessor_(obj.write_handle_, false, true);
+                obj.write_handle_.delete();
+                obj.write_handle_ = [];
 
             else
-                fclose(obj.file_handle_);
+                fclose(obj.write_handle_);
                 if obj.num_pixels_ == 0
                     obj = PixelDataMemory();
                     return;
                 end
 
-                obj.file_handle_ = [];
+                obj.write_handle_ = [];
                 obj.f_accessor_ = [];
                 obj.offset_ = 0;
-                obj.full_filename = obj.tmp_pix_obj.file_name;
+                obj.full_filename = obj.tmp_pix_obj_.file_name;
                 obj.f_accessor_ = memmapfile(obj.full_filename, ...
                     'format', obj.get_memmap_format(), ...
                     'Repeat', 1, ...
@@ -358,6 +359,15 @@ classdef PixelDataFileBacked < PixelDataBase
             % Get the index of the final pixel to read given the maximum page size
             pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
         end
+        function pix_copy = copy(obj)
+            pix_copy = obj;
+            for i=1:numel(obj)
+                if ~isempty(obj(i).tmp_pix_obj_)
+                    pix_copy(i).tmp_pix_obj_.copy();
+                end
+            end
+        end
+
     end
     %======================================================================
     methods(Static)

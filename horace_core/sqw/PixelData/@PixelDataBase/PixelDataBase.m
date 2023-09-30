@@ -388,6 +388,7 @@ classdef (Abstract) PixelDataBase < serializable
     methods(Abstract)
         % --- Pixel operations ---
         pix_out = append(obj, pix);
+        pix_copy = copy(obj)
 
 
         data = get_raw_data(obj,varargin)
@@ -735,23 +736,6 @@ classdef (Abstract) PixelDataBase < serializable
         % return set of pixels, defined by its indexes
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
 
-        function pix_copy = copy(obj)
-            % Make an independent copy of this object
-            %  This method simply constructs a new PixelData instance by calling
-            %  the constructor with the input object as an argument. Because of
-            %  this, any properties that need to be explicitly copied must be
-            %  copied within this class' 'copy-constructor'.
-            %
-            % NOTE:
-            % REDUNDANT METHOD. left from the time when PixelData were
-            % handle. TODO: reconsider usefulness and remove (could it be
-            % useful for filebacked data?)
-            if obj.is_filebacked
-                pix_copy = PixelDataFileBacked(obj);
-            else
-                pix_copy = PixelDataMemory(obj);
-            end
-        end
         function [mean_signal, mean_variance,std_deviation] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data
             % defined by npix.

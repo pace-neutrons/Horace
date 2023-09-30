@@ -154,6 +154,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Replace the sqw's signal and variance data with coordinate values (see below)
         w = coordinates_calc(w, name)
 
+        new_sqw = copy(obj, varargin)        
         [obj, ldr] = get_new_handle(obj, outfile)        
     end
     %======================================================================

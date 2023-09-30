@@ -6,7 +6,7 @@ function sqw_out = apply_c(~,sqw_in,page_op)
 % obj    --  PixelDataFilebacked object
 % sqw_in --  sqw object which contains this pixel object (if it contains
 %            other pixel object, that object will be destroyed
-%            Valid sqw  object requested, i.e. obj.data.npix define the 
+%            Valid sqw  object requested, i.e. obj.data.npix define the
 %            location of pixels in file
 %page_op --  The instance of the PageOpBase class, which perform operation
 %            over pixels and image of the SQW object
@@ -33,3 +33,7 @@ for i=1:n_chunks
     pix_idx_1 = pix_idx_2+1;
 end
 sqw_out = page_op.finish_op(sqw_in);
+if ll > 0
+    fprintf('finished processing : %d Pages\n', n_chunks);
+end
+

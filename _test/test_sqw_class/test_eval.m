@@ -71,6 +71,11 @@ classdef test_eval < TestCase
             ds_fb = sqw_eval(obj.sqw_obj_fb, @test_eval.sqw_eval_tester, []);
 
             assertEqualToTol(ds_mb, ds_fb, 'tol', 1e-6,'ignore_str',true);
+
+            fb_res_file = ds_fb.full_filename;
+            assertTrue(is_file(fb_res_file))
+            clear ds_fb;
+            assertFalse(is_file(fb_res_file))
         end
 
 
