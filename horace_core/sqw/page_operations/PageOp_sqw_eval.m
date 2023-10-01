@@ -34,7 +34,7 @@ classdef PageOp_sqw_eval < PageOpBase
                 qw_ave =average_bin_data(npix_block,qw_pix_coord);
                 qw_ave = cellfun(@(x)(x(:)), qw_ave, 'UniformOutput', false);
                 new_signal = obj.op_holder(qw_ave{:}, obj.op_parms{:});
-                new_signal = repelem(new_signal, npix_block);
+                new_signal = repelem(new_signal, npix_block(:));
             else
                 new_signal = obj.op_holder(qw_pix_coord{:}, obj.op_parms{:});
             end

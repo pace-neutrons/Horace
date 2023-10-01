@@ -13,7 +13,7 @@ function obj = sqw_eval(obj, sqwfunc, pars, varargin)
 %
 % Input:
 % ------
-%   obj        SQWDnDBase object (or array of objects) that provides used 
+%   obj        SQWDnDBase object (or array of objects) that provides used
 %              as the source frame for the calculations
 %
 %   sqwfunc     Handle to function that calculates S(Q, w)
@@ -80,7 +80,7 @@ function obj = sqw_eval(obj, sqwfunc, pars, varargin)
 %===============================================================
 
 [sqwfunc, pars, opts] = parse_eval_args(obj, sqwfunc, pars, varargin{:});
-if isempty(opts.outfile) || opts.filebacked
+if isempty(opts.outfile) || (numel(opts.outfile)==1 && isempty(opts.outfile{1})) || opts.filebacked
     % Make sure we have exactly one output argument if no outfile is specified,
     % otherwise this function would do nothing.
     % Even in filebacked mode, if no outfile is given, a random one is
