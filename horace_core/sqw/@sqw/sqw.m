@@ -41,6 +41,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     properties(Hidden,Dependent)
+        % the same as npixels, but allows to use the same interface on sqw
+        % object or pixels
+        num_pixels;
         % obsolete property, duplicating detpar. Do not use
         detpar_x;
 
@@ -402,6 +405,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function npix = get.npixels(obj)
             npix = obj.pix_.num_pixels;
         end
+        function npix = get.num_pixels(obj)
+            npix = obj.pix_.num_pixels;
+        end
+        
 
         function map = get.runid_map(obj)
             if isempty(obj.experiment_info)

@@ -1,30 +1,16 @@
-function [mean_signal, mean_variance,std_deviation] = compute_bin_data_matlab_( ...
-    obj, npix,pix_idx,calc_mean_var,calc_var_from_signal)
+function [mean_signal, mean_variance,signal_msd] = compute_bin_data_matlab_( ...
+    npix,signal,variance,calc_variance,calc_signal_msd)
 % Compute bin mean signal and variance using matlab routines
 %
 % See compute_bin_data for algorithm details
 %
-if obj.num_pixels == 0
+if numel(signal) == 0
     mean_signal  = [];
     mean_variance = [];
-    std_deviation = [];
+    signal_msd = [];
     return
 end
 
-if isempty(pix_idx)
-    signal = obj.signal;
-    if ~calc_var_from_signal && calc_mean_var
-        variance = obj.variance;
-    end
-else
-    if calc_var_from_signal
-        signal = obj.get_pixels(pix_idx,'signal','-raw_data');
-    else
-        sig_var = obj.get_pixels(pix_idx,'sig_var','-raw_data');
-        signal   = sig_var(1,:);
-        variance = sig_var(2,:);
-    end
-end
 
 npix_shape = size(npix);
 no_pix = (npix == 0);  % true where no pixels contribute to given bin
@@ -38,20 +24,20 @@ accum_indices = repelem(1:numel(npix), npix(:))';
 % different length to the chunk of the image we're updating
 img_signal_sum = accumarray(accum_indices,  signal, [numel(npix), 1]);
 mean_signal    = img_signal_sum(:)./npix(:);
-if ~calc_mean_var
+if ~calc_variance
     mean_signal(no_pix)   = 0;
-    mean_signal           = reshape(mean_signal, npix_shape);    
+    mean_signal           = reshape(mean_signal, npix_shape);
     mean_variance = [];
-    std_deviation = [];    
+    signal_msd = [];
     return;
 end
 
-if calc_var_from_signal
-    std_deviation=(signal - replicate_array(mean_signal,npix(:))').^2;    % square of deviations
+if calc_signal_msd && isempty(variance)
+    signal_msd=(signal - replicate_array(mean_signal,npix(:))').^2;    % square of deviations
 else
-    std_deviation = variance;
+    signal_msd = variance;
 end
-img_variance_sum = accumarray(accum_indices, std_deviation, [numel(npix), 1]);
+img_variance_sum = accumarray(accum_indices, signal_msd, [numel(npix), 1]);
 mean_signal      = reshape(mean_signal, npix_shape);
 img_variance_sum = reshape(img_variance_sum, npix_shape);
 mean_variance    = img_variance_sum./npix.^2;

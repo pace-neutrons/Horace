@@ -1,4 +1,4 @@
-function wout = mask_random_fraction_pixels(win,npix)
+function wout = mask_random_fraction_pixels(win,npix_frac)
 % reduce the number of pixels randomly in a sqw object
 %
 % The function uses the mask_pixels() function to keep only a fixed
@@ -24,49 +24,31 @@ function wout = mask_random_fraction_pixels(win,npix)
 % Original author: S. Toth
 % Modifications: R. A. Ewings
 
-if ~has_pixels(win)
-    error('Can mask pixels only in an sqw-type object')
-end
-
-% Initialise output argument
-wout = copy(win);
-
 
 %Check size of input array:
 sz=numel(win);
 
-if ~(numel(npix)==1 || numel(npix)==numel(win))
-    error('npix must either be scalar or an array of the same size as input sqw object');
+if ~(numel(npix_frac)==1 || numel(npix_frac)==numel(win))
+    error('HORACE:sqw:invalid_argument', ...
+        'npix must either be scalar or an array of the same size as input sqw object');
+end
+if numel(npix_frac) == 1 && numel(win)>1
+    npix_frac = ones(1,numel(win))*npix_frac;
 end
 
+npix = zeros(1,sz);
 for i=1:sz
-    if numel(npix)==1
-        %Trivial case when npix==0:
-        if npix<=0
-            error('Cannot mask every pixel, or have negative fraction of pixels retained');
-        end
-        nn=npix;
-    else
-        %Trivial case when npix==0:
-        if npix(i)==0
-            error('Cannot mask every pixel, or have negative fraction of pixels retainedl');
-        end
-        nn=npix(i);
+    if npix_frac(i) <=0
+        error('HORACE:sqw:invalid_argument', ...
+            'Cannot mask every pixel, or have negative fraction of pixels retained');
+    elseif npix_frac(i) >1
+        error('HORACE:sqw:invalid_argument', ...
+            'Can not have pixel fraction larger then 1')
     end
-
-    %Error if npix>1:
-    if nn>1
-        error('Cannot retain greater number of pixels than data contains, ensure npix_frac<=1');
+    npix(i) = round(win(i).num_pixels*npix_frac(i));
+    if npix(i)<1
+        npix(i) = 1;
     end
-
-    %Determine number of pixels to keep:
-    n=nn.*win(i).pix.num_pixels;
-    nn=round(n);%ensure integer number of pixels retained
-
-    % reuce the number of pixels using mask
-    mask0 = false([1 win(i).pix.num_pixels]);
-    mask0(randperm(win(i).pix.num_pixels, nn)) = true;
-    wout(i) = mask_pixels(win(i),mask0);
 end
 
-end
+wout = mask_random_pixels(win,npix);

@@ -70,10 +70,10 @@ classdef PageOpBase
         %
         function obj = common_page_op(obj,page_data)
             % method performed for any page operations.
-            % 
+            %
             % Input:
             % page_data -- array of PixelData
-            % 
+            %
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(page_data, ...
                 obj.pix_data_range_);
             obj.pix_ = obj.pix_.format_dump_data(page_data);
@@ -89,7 +89,11 @@ classdef PageOpBase
             % out_obj -- sqw object created as the result of the operation
             % obj     -- nullified PageOp object.
             out_obj = in_obj.copy();
-            pix = obj.pix_.set_data_range(obj.pix_data_range_);
+            pix = obj.pix_;
+            % clear alignment as it has been applied during page
+            % operation(s)
+            pix.is_misaligned = false;
+            pix     = pix.set_data_range(obj.pix_data_range_);
             pix     = pix.finish_dump();
             out_obj.pix  = pix;
             out_obj.data = obj.img_;

@@ -634,6 +634,13 @@ classdef (Abstract) PixelDataBase < serializable
         function is = get.is_misaligned(obj)
             is = obj.is_misaligned_;
         end
+        function obj = set.is_misaligned(obj,val)
+            % clear alignment
+            if ~val
+                obj.is_misaligned_ = false;
+                obj.alignment_matr_ = eye(3);
+            end
+        end
         function matr = get.alignment_matr(obj)
             matr = obj.alignment_matr_;
         end
@@ -736,7 +743,7 @@ classdef (Abstract) PixelDataBase < serializable
         % return set of pixels, defined by its indexes
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
 
-        function [mean_signal, mean_variance,std_deviation] = compute_bin_data(obj, npix,pix_idx)
+        function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data
             % defined by npix.
             % Inputs:
@@ -751,10 +758,10 @@ classdef (Abstract) PixelDataBase < serializable
             if nargin <3
                 pix_idx = [];
             end
-            average_signal = nargout == 3;
-            calc_variance  = nargout > 1;
-            [mean_signal, mean_variance,std_deviation] = ...
-                compute_bin_data_(obj, npix,pix_idx,calc_variance,average_signal);
+            calc_signal_msd = nargout == 3;
+            calc_variance   = nargout > 1;
+            [mean_signal, mean_variance,signal_msd] = ...
+                compute_bin_data_(obj, npix,pix_idx,calc_variance,calc_signal_msd);
         end
 
     end
