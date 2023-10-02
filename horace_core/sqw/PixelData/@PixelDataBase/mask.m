@@ -1,4 +1,4 @@
-function pix_out = mask(obj, keep_array, npix)
+function obj = mask(obj, keep_array, npix)
 % MASK keeps only pixels specified by the input logical array
 %
 % You must specify exactly one return argument when calling this function.
@@ -40,20 +40,20 @@ if ~exist('npix', 'var')
     npix = [];
 end
 
-[keep_array, npix] = obj.validate_input_args_for_mask(keep_array, npix);
+[keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, npix);
 
 if all(keep_array)
-    pix_out = obj;
-
+    return
 elseif ~any(keep_array)
-    pix_out = PixelDataBase.create();
-
+    obj = PixelDataBase.create();
+    return;
 elseif numel(keep_array) == obj.num_pixels % all specified
-    pix_out = obj.get_pixels(keep_array);
-
+    keep = keep_array;
 else
-    full_mask_array = repelem(keep_array, npix);
-    pix_out = obj.get_pixels(full_mask_array);
-
+    keep = repelem(keep_array, npix);
 end
+pix_op = PageOp_mask();
+[pix_op,obj] = pix_op.init(obj,keep);
+obj    = obj.apply_c(pix_op);
+
 

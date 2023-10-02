@@ -15,7 +15,7 @@ function wout = mask_pixels (obj, keep_info)
 %
 %   keep_info
 %    EITHER:           single number, which specifies the number of
-%                      pixels to retain. Random selection of 
+%                      pixels to retain. Random selection of
 %    *OR*              Array of 1 or 0 (or true or false) that indicate
 %                      which pixels to retain (true to retain, false to ignore)
 %                      Numeric or logical array of same number of pixels
@@ -46,8 +46,6 @@ if ~exist('keep_info', 'var') || isempty(keep_info)
     return
 end
 
-
-
 if isa(keep_info, 'SQWDnDBase')
     if ~has_pixels(keep_info)
         error('HORACE:sqw:invalid_argument', ...
@@ -58,16 +56,18 @@ if isa(keep_info, 'SQWDnDBase')
         error('HORACE:sqw:invalid_argument', ...
             'Number of pixels in input and mask object must be the same')
     end
-
 elseif (isnumeric(keep_info) || islogical(keep_info)) && ...
         numel(keep_info)~=numel(obj.data.s)
-
     if ~islogical(keep_info)
         if isscalar(keep_info)
             if keep_info<0
-                    error('HORACE:sqw:invalid_argument', ...
-                        'Can not mask all pixels. Num pixels to ')
-            elseif keep_info>obj.pix.num_pixels
+                error('HORACE:sqw:invalid_argument', ...
+                    'Can not mask all pixels. Num pixels to mask should be positive number. Provided: %d', ...
+                    keep_info);
+            elseif keep_info>obj.num_pixels
+                error('HORACE:sqw:invalid_argument', ...
+                    'Can not mask more pixels then available. Num pixels to mask should be smaller or equal to num_pixels (%d). Provided: %d', ...
+                    obj.num_pixels,keep_info)
             end
         else
             keep_info=logical(keep_info);
@@ -80,19 +80,4 @@ end
 
 pix_op       = PageOp_mask();
 [pix_op,obj] = pix_op.init(obj,keep_info);
-wout    = obj.apply_c(pix_op);
-
-
-% % Section the pix array, if sqw type, and update pix_range and img_range(s)
-% % (linear) bin number for each pixel
-% ibin = replicate_array(1:prod(sz), obj.data.npix);
-% npix = accumarray(ibin(keep_info), ones(1, sum(keep_info)), [prod(sz), 1]);
-%
-% wout.data.npix = reshape(npix, sz);
-%
-% wout = wout.get_new_handle();
-% wout.pix = wout.pix.mask(keep_info);
-%
-% wout = recompute_bin_data(wout);
-%
-% end
+wout         = obj.apply_c(pix_op);

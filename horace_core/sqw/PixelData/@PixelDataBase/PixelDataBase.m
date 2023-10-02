@@ -397,8 +397,6 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         [pix_out, data] = do_unary_op(obj, unary_op, data);
 
-
-        pix_out = mask(obj, mask_array, npix);
         % apply function represented by handle to every pixel of the dataset
         % and calculate appropriate averages if requested
         [pix_out, data] = apply(obj, func_handle, args, data, compute_variance);
@@ -456,7 +454,6 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     methods
-
         function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
         end
@@ -742,6 +739,8 @@ classdef (Abstract) PixelDataBase < serializable
     methods
         % return set of pixels, defined by its indexes
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
+        %
+        pix_out = mask(obj, mask_array, npix);        
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data
@@ -848,19 +847,6 @@ classdef (Abstract) PixelDataBase < serializable
             %        -- the function used for recalculation or invalidation
             %           of pixel averages
             obj = set_alignment_matr_(obj,val,pix_average_treatment_function);
-        end
-        function [keep_array, npix] = validate_input_args_for_mask(obj, keep_array, varargin)
-            % check input arguments for masking routines
-            % Inputs:
-            % obj        -- an instance of PixelDataBase object
-            % keep_array -- logical array specifying which pixels to keep
-            % Optional:
-            % npix       -- if present, array specifying number of pixels
-            %               contributing to each bin of DnD object image.
-            % If npix is absent or empty, keep_array size should be equal
-            % to number of pixels and if present, numel(keep_array(:)) ==
-            % numel(npix(:));
-            [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, varargin{:});
         end
         %------------------------------------------------------------------
         function [abs_pix_indices,pix_col_idx,ignore_range,raw_data,keep_precision,align] = ...

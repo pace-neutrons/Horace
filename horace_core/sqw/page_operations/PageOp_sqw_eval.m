@@ -8,9 +8,6 @@ classdef PageOp_sqw_eval < PageOpBase
         proj
         op_parms
         %
-        signal_idx;
-        var_idx;
-        coord_idx;
     end
 
     methods
@@ -21,10 +18,6 @@ classdef PageOp_sqw_eval < PageOpBase
             obj.op_holder = operation;
             obj.op_parms  = op_param;
             %
-            crd_idx = PixelDataBase.field_index({'coordinates','signal','variance'});
-            obj.signal_idx = crd_idx(end-1);
-            obj.var_idx    = crd_idx(end-2);
-            obj.coord_idx  = crd_idx(1:end-2);
         end
 
         function [obj,page_data] = apply_op(obj,npix_block,npix_idx,pix_idx1,pix_idx2)

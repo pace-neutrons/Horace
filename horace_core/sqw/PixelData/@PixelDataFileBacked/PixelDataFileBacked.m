@@ -72,12 +72,14 @@ classdef PixelDataFileBacked < PixelDataBase
         f_accessor_ = []; % instance of object to access pixel data from file
         page_num_   = 1;  % the index of the currently loaded page
         offset_ = 0;
-        write_handle_ = []; % handle to the class, used to perform pixel copying in
-        % operations, involving all pixels
+        write_handle_ = []; % handle to the class, used to perform pixel
+        % copying in operations, involving all pixels
         tmp_pix_obj_ = [];
     end
 
-    properties(Dependent)
+    properties(Dependent,Hidden)
+        % defines offset from the beginning of the pixels in the binary file
+        % accessed through memmapfile.
         offset;
     end
 
@@ -114,8 +116,6 @@ classdef PixelDataFileBacked < PixelDataBase
 
         [pix_out, data] = do_unary_op(obj, unary_op, data);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
-
-        pix_out = mask(obj, mask_array, varargin);
     end
 
     methods
@@ -566,7 +566,6 @@ classdef PixelDataFileBacked < PixelDataBase
             else
                 obj = loadobj@PixelDataBase(S);
             end
-
         end
     end
 

@@ -17,6 +17,10 @@ classdef PageOpBase
         % if provided, used as the name of the file for filebacked
         % operations
         outfile
+
+        signal_idx;
+        var_idx;
+        coord_idx;
     end
 
     properties(Access=protected)
@@ -30,6 +34,11 @@ classdef PageOpBase
         outfile_   = '';
         changes_pix_only_ = false;
         log_split_ratio_  = 10;
+
+        signal_idx_;
+        var_idx_;
+        coord_idx_;
+
     end
     methods(Abstract)
         % Specific apply operation method, which need overloading
@@ -52,6 +61,11 @@ classdef PageOpBase
             if nargin == 1
                 return;
             end
+            crd_idx = PixelDataBase.field_index({'coordinates','signal','variance'});
+            obj.signal_idx_ = crd_idx(end-1);
+            obj.var_idx_    = crd_idx(end-2);
+            obj.coord_idx_  = crd_idx(1:end-2);
+
             %
             in_obj = in_obj.get_new_handle(obj.outfile);
             if isa(in_obj ,'PixelDataBase')
@@ -126,6 +140,16 @@ classdef PageOpBase
                     class(val));
             end
             obj.outfile_ = val;
+        end
+        %
+        function idx = get.signal_idx(obj)
+            idx = obj.signal_idx_;
+        end
+        function idx = get.var_idx(obj)
+            idx = obj.var_idx_;
+        end
+        function idx = get.coord_idx(obj)
+            idx = obj.coord_idx_;
         end
         %
         function does = get.log_split_ratio(obj)

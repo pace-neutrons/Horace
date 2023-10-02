@@ -14,23 +14,27 @@ classdef PageOp_mask < PageOpBase
         mask_by_obj;
         mask_by_bins;
         mask_by_num;
+        %
+        signal_idx;
+        var_idx;
     end
 
     methods
         function [obj,in_obj] = init(obj,in_obj,keep_info)
             [obj,in_obj] = init@PageOpBase(obj,in_obj);
+
             if isa(keep_info,'SQWDnDBase')
-               obj.keep_info_obj= keep_info.pix;
+                obj.keep_info_obj= keep_info.pix;
             else
-                obj.keep_info_obj    = keep_info;                
-            end          
+                obj.keep_info_obj    = keep_info;
+            end
 
             obj.num_pix_original = in_obj.num_pixels;
             if ~isempty(obj.img_)
                 obj.num_bins_original = numel(obj.img_.npix);
             end
             % Mask validity and its compartibility with masked object have
-            % been verified earlier 
+            % been verified earlier
             if isa(obj.keep_info_obj,'PixelDataBase')
                 obj.mask_by_obj  = true;
                 obj.mask_by_bins = false;
@@ -68,52 +72,65 @@ classdef PageOp_mask < PageOpBase
             single_page = nargin == 2;
             if single_page
                 page_data = obj.pix_.data;
-                if obj.mask_by_num
-                    num_pix_here = obj.num_pix_original;
-                    num_keep_here = obj.keep_info_obj;
-                end                
             else
                 page_data = obj.pix_.get_pixels(pix_idx1:pix_idx2,'-raw');
-                if obj.mask_by_num
-                    num_pix_here = sum(npix_block);
-                    num_keep_here    = round(num_pix_here*(obj.keep_info_obj/obj.num_pix_original));
-                end
             end
 
             if obj.mask_by_num
-                % create pixel mast
+                % create pixel mask
+                if single_page
+                    num_pix_here  = obj.num_pix_original;
+                    num_keep_here = obj.keep_info_obj;
+                else
+                    num_pix_here  = sum(npix_block);
+                    num_keep_here = round(num_pix_here*(obj.keep_info_obj/obj.num_pix_original));
+                end
                 keep = false(1,num_pix_here);
                 keep(randperm(num_pix_here, num_keep_here)) = true;
-                % calculate change in npix
-                ind = repelem(idx,npix_block);
-                ind = ind(keep);
-                npix_block = accumarray(ind,ones(numel(npix_block),1));
-                % keep what is selected
-                page_data = page_data(:,keep);
-                pix_fld_idx = PixelDataBase.field_index({'signal','variance'});
-                % caclulate new signal and error 
-                signal = page_data(pix_fld_idx(1),:);
-                error  = page_data(pix_fld_idx(2),:);    
-                [s_ar, e_ar] = average_bin_data(npix_block, {signal,error});                
             elseif obj.mask_by_bins
-            else
+                % create pixels selection by selecting whole pixel ranges
+                % corresponding to bins
+                if signle_page
+                    keep = repelem(obj.keep_info_obj, npix_block);
+                else
+                    keep = repelem(obj.keep_info_obj(npix_idx(1):npix_idx(2)), npix_block);
+                end
+            elseif obj.mask_by_obj
+                if single_page % get  information from masking object
+                    mask_data = obj.keep_info_obj.signal;
+                else  % if masking is filebacked, its pixel size must be
+                    % equal to the object size.
+                    mask_data = obj.keep_info_obj.get_pixels(pix_idx1:pix_idx2,'signal','-raw');
+                end
+                keep = mask_data>=1;
+            else % mask by numerical or logical array of npix_size
+                if single_page
+                    keep = obj.keep_info_obj;
+                else
+                    keep = obj.keep_info_obj(pix_idx1:pix_idx2);
+                end
             end
+            % calculate change in npix
+            nbins = numel(npix_block);
+            ibin = replicate_array(1:nbins,npix_block);
+            npix_block = accumarray(ibin(keep), ones(1, sum(keep)), [nbins, 1]);
+            % keep what is selected
+            page_data = page_data(:,keep);
+            if isempty(obj.img_)
+                return;
+            end
+            % caclulate new signal and error
+            signal = page_data(obj.signal_idx,:);
+            error  = page_data(obj.var_idx,:);
+            [s_ar, e_ar] = compute_bin_data(npix_block,signal,error);
 
             if single_page
                 obj.img_.s           = s_ar;
-                obj.img_.e           = e_ar;                
+                obj.img_.e           = e_ar;
             else
                 obj.img_.s(npix_idx(1):npix_idx(2)) = s_ar;
-                obj.img_.s(npix_idx(1):npix_idx(2)) = e_ar;                
+                obj.img_.e(npix_idx(1):npix_idx(2)) = e_ar;
             end
-            page_data = page_pix.data;
-
         end
-        function [out_obj,obj] = finish_op(obj,out_obj)
-            %
-            obj.img_.e = zeros(size(obj.img_.s));
-            [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
-        end
-
     end
 end

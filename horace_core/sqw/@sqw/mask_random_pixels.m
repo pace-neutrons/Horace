@@ -55,7 +55,5 @@ end
 
 for i=1:sz
     % reduce the number of pixels using mask
-%    keep0 = false(1, obj(i).pix.num_pixels);
-%    keep0(randperm(obj(i).pix.num_pixels, npix(i))) = true;
     wout(i) = mask_pixels(obj(i),npix(i));
 end
