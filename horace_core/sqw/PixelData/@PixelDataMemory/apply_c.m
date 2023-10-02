@@ -1,4 +1,4 @@
-function sqw_out = apply_c(~,sqw_in,page_op)
+function sqw_out = apply_c(sqw_in,page_op)
 % Apply unary operation affecting pixels and image over the input sqw
 % object
 %

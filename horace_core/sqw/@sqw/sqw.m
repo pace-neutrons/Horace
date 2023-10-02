@@ -525,7 +525,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
 
         function obj = apply_c(obj, operation)
-            % apply unary operation affecting object and pixels
+            % apply unary operation affecting sqw object and pixels
             obj = obj.pix.apply_c(obj,operation);
         end
 

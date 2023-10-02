@@ -103,7 +103,6 @@ classdef PixelDataFileBacked < PixelDataBase
         % apply function represented by handle to every pixel of the dataset
         % and calculate appropriate averages if requested
         [obj, data] = apply(obj, func_handle, args, data, compute_variance);
-        [obj, sqw_out] = apply_c(obj, sqw_in,page_op);
 
         function obj = set_raw_data(obj,pix)
             if obj.read_only
@@ -371,6 +370,9 @@ classdef PixelDataFileBacked < PixelDataBase
     end
     %======================================================================
     methods(Static)
+        % apply page operation(s) to the object with File-backed pixels
+        sqw_out = apply_c(sqw_in,page_op);
+        %
         function obj = cat(varargin)
             % Concatenate the given PixelData objects' pixels. This function performs
             % a straight-forward data concatenation.
