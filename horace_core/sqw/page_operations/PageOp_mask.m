@@ -14,9 +14,6 @@ classdef PageOp_mask < PageOpBase
         mask_by_obj;
         mask_by_bins;
         mask_by_num;
-        %
-        signal_idx;
-        var_idx;
     end
 
     methods
@@ -90,8 +87,8 @@ classdef PageOp_mask < PageOpBase
             elseif obj.mask_by_bins
                 % create pixels selection by selecting whole pixel ranges
                 % corresponding to bins
-                if signle_page
-                    keep = repelem(obj.keep_info_obj, npix_block);
+                if single_page
+                    keep = repelem(obj.keep_info_obj(:), npix_block(:));
                 else
                     keep = repelem(obj.keep_info_obj(npix_idx(1):npix_idx(2)), npix_block);
                 end
@@ -125,11 +122,14 @@ classdef PageOp_mask < PageOpBase
             [s_ar, e_ar] = compute_bin_data(npix_block,signal,error);
 
             if single_page
-                obj.img_.s           = s_ar;
-                obj.img_.e           = e_ar;
+                sz = size(obj.img_.npix);
+                obj.img_.npix        = reshape(npix_block,sz);
+                obj.img_.s           = reshape(s_ar,sz);
+                obj.img_.e           = reshape(e_ar,sz);
             else
-                obj.img_.s(npix_idx(1):npix_idx(2)) = s_ar;
-                obj.img_.e(npix_idx(1):npix_idx(2)) = e_ar;
+                obj.img_.npix(npix_idx(1):npix_idx(2)) = npix_block;
+                obj.img_.s(npix_idx(1):npix_idx(2))    = s_ar;
+                obj.img_.e(npix_idx(1):npix_idx(2))    = e_ar;
             end
         end
     end

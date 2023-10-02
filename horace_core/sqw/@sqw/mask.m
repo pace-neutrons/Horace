@@ -30,7 +30,7 @@ if nargin==1 || isempty(keep_array)
 end
 
 % Section the pix array, if non empty, and update pix_range
-if has_pixels(win)
+if has_pixels(obj)
     % needs the opportunity to provide outfile if sqw object is filebacked
     pix_op = PageOp_mask();
     [pix_op,obj] = pix_op.init(obj,keep_array);
