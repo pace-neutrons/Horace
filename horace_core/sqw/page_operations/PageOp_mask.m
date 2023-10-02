@@ -126,6 +126,7 @@ classdef PageOp_mask < PageOpBase
                 obj.img_.npix        = reshape(npix_block,sz);
                 obj.img_.s           = reshape(s_ar,sz);
                 obj.img_.e           = reshape(e_ar,sz);
+                obj.pix_ = obj.pix_.set_raw_data(page_data);
             else
                 obj.img_.npix(npix_idx(1):npix_idx(2)) = npix_block;
                 obj.img_.s(npix_idx(1):npix_idx(2))    = s_ar;

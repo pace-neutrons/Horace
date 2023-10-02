@@ -5,8 +5,8 @@ function [mean_signal, mean_variance,signal_msd] = compute_bin_data_matlab_( ...
 % See compute_bin_data for algorithm details
 %
 if numel(signal) == 0
-    mean_signal  = [];
-    mean_variance = [];
+    mean_signal  = zeros(size(npix));
+    mean_variance = zeros(size(npix));
     signal_msd = [];
     return
 end

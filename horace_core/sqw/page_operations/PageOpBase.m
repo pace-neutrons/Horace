@@ -63,7 +63,7 @@ classdef PageOpBase
             end
             crd_idx = PixelDataBase.field_index({'coordinates','signal','variance'});
             obj.signal_idx_ = crd_idx(end-1);
-            obj.var_idx_    = crd_idx(end-2);
+            obj.var_idx_    = crd_idx(end);
             obj.coord_idx_  = crd_idx(1:end-2);
 
             %
