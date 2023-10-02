@@ -7,6 +7,10 @@ classdef PageOp_sqw_eval < PageOpBase
         average
         proj
         op_parms
+        %
+        signal_idx;
+        var_idx;
+        coord_idx;
     end
 
     methods
@@ -16,16 +20,21 @@ classdef PageOp_sqw_eval < PageOpBase
             obj.average   = average;
             obj.op_holder = operation;
             obj.op_parms  = op_param;
+            %
+            crd_idx = PixelDataBase.field_index({'coordinates','signal','variance'});
+            obj.signal_idx = crd_idx(end-1);
+            obj.var_idx    = crd_idx(end-2);
+            obj.coord_idx  = crd_idx(1:end-2);
         end
 
         function [obj,page_data] = apply_op(obj,npix_block,npix_idx,pix_idx1,pix_idx2)
             single_page = nargin == 2;
             if single_page
-                page_pix = obj.pix_;
+                page_data = obj.pix_.data;
             else
-                page_pix = obj.pix_.get_pixels(pix_idx1:pix_idx2,'-ignore_range');
+                page_data = obj.pix_.get_pixels(pix_idx1:pix_idx2,'-raw');
             end
-            qw = obj.proj.transform_pix_to_hkl(page_pix);
+            qw = obj.proj.transform_pix_to_hkl(page_data(obj.coord_idx,:));
             qw_pix_coord =  {qw(1,:)',qw(2,:)',qw(3,:)',qw(4,:)'};
             if obj.average
                 % Get average h, k, l, e for the bin, compute sqw for that average,
@@ -38,21 +47,19 @@ classdef PageOp_sqw_eval < PageOpBase
             else
                 new_signal = obj.op_holder(qw_pix_coord{:}, obj.op_parms{:});
             end
-            page_pix.signal   = new_signal(:)';
-            page_pix.variance = zeros(1, numel(new_signal));
+            page_data(obj.signal_idx,:)   = new_signal(:)';
+            page_data(obj.var_idx,:)      = zeros(1, numel(new_signal));
             if single_page
-                obj.img_.s           = page_pix.compute_bin_data(npix_block);
-                obj.pix_ = page_pix;                
+                obj.img_.s     = compute_bin_data(npix_block,new_signal);
+                obj.pix_       = obj.pix_.set_raw_data(page_data);
             else
                 obj.img_.s(npix_idx(1):npix_idx(2)) = ...
-                    page_pix.compute_bin_data(npix_block);
+                    compute_bin_data(npix_block,new_signal);
             end
-            page_data = page_pix.data;
-
         end
         function [out_obj,obj] = finish_op(obj,out_obj)
             %
-            obj.img_.e = zeros(size(obj.img_.s));
+            obj.img_.e    = zeros(size(obj.img_.s));
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
         end
 
