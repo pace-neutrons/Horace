@@ -58,6 +58,17 @@ switch nargi
 
     case {1,2}
         pix_indices = argi{1};
+        if numel(argi) > 1
+            if ~raw_data
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                    'get_pixel argument: %s is compartible with -raw_data switch only', ...
+                    disp2str(argi{2}))
+            end
+            ind_in_pix= obj.field_index(argi{2});
+
+        else
+            ind_in_pix= [];
+        end
 
         if islogical(pix_indices)
             if accepts_logical
@@ -78,23 +89,16 @@ switch nargi
         end
         if ~isindex(pix_indices)
             error('HORACE:PixelDataBase:invalid_argument',...
-                'pixel indices should be an array of numeric positive numbers, which define indices or vector of logical values')
+                ['pixel indices should be an array of numeric positive numbers,' ...
+                ' which define indices or vector of logical values'])
         end
 
         if any(pix_indices > obj.num_pixels)
             error('HORACE:PixelDataBase:invalid_argument', ...
                 'Some numerical indices exceed the total number of pixels')
         end
-        if nargi == 2
-            if ~raw_data
-                error('HORACE:PixelDataBase:invalid_argument', ...
-                    'get_pixel argument: %s may be compartible with raw data only', ...
-                    disp2str(argi{2}))
-            end
-            ind_in_pix = obj.field_index(argi{2});
-        end
     otherwise
         error('HORACE:PixelDataBase:invalid_argument', ...
             'Too many inputs provided to parse_get_pix_args_')
 end
-end
+

@@ -878,8 +878,8 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             logical_array = logical(randi([0, 1], [1, num_pix]));
             r_data = pix.get_pixels(logical_array,'sig_var','-raw');
 
-            idx = PixelDataBase.
-            assertElementsAlmostEqual(r_data, data(:,logical_array),...
+            idx = PixelDataBase.field_index('sig_var');
+            assertElementsAlmostEqual(r_data, data(idx,logical_array),...
                 'relative',obj.tol);
         end
         
