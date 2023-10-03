@@ -117,7 +117,6 @@ classdef PageOpBase
             pix     = pix.set_data_range(obj.pix_data_range_);
             pix     = pix.finish_dump();
 
-
             if isempty(obj.img_)
                 out_obj = pix.copy();
             else

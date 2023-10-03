@@ -16,7 +16,8 @@ function [mean_signal, mean_variance,signal_msd] = compute_bin_data( ...
 % variance  The variance array to calculate binning
 %
 % no_normalization -- if present and true, do not normalize signal and
-%            variance by npix to calculate proper averages.
+%            variance by npix to calculate proper averages. Return sums
+%            only
 %
 % Output
 % ------
