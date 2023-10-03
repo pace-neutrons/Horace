@@ -53,9 +53,11 @@ else
     calc_signal_msd = false;
 end
 if sum(npix(:)) ~= numel(signal)
-    error('HORACE:utilities:invalid_argument', ...
-        'number of elements in signal array (%s) have to be equal to the total npix (%d)', ...
-        numel(signal),sum(npix(:)));
+    if ~isscalar(signal)
+        error('HORACE:utilities:invalid_argument', ...
+            'number of elements in signal array (%s) have to be equal to the total npix (%d)', ...
+            numel(signal),sum(npix(:)));
+    end
 end
 if ~isempty(variance) && numel(signal) ~= numel(variance)
     error('HORACE:utilities:invalid_argument', ...
@@ -64,7 +66,7 @@ if ~isempty(variance) && numel(signal) ~= numel(variance)
 end
 
 
-% Re #1295 Mex disabled -- fix and enable when necessary
+% Re #1295 Mex disabled -- fix and enable when(if) necessary
 use_mex = false;
 if use_mex
     try
