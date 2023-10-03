@@ -20,3 +20,4 @@ if obj.is_misaligned_
     obj.alignment_matr_ = eye(3);
     obj.is_misaligned_  = false;
 end
+obj = obj.invalidate_range();

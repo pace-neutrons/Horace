@@ -1,14 +1,22 @@
 function [mean_signal, mean_variance,signal_msd] = compute_bin_data( ...
-    npix,signal,variance)
+    npix,signal,variance,no_normalization)
 % Compute the mean signal and variance given the number of contributing
 % pixels for each bin
 % Returns empty arrays if obj contains no pixels.
 %
 %   >> [mean_signal, mean_variance,std_deviations] = compute_bin_data(npix,signal,variance)
+%   >> [mean_signal, mean_variance,std_deviations] = compute_bin_data(npix,signal,variance,no_normalization)
 %
 % Input
 % -----
-% npix   The number of contributing pixels to each bin of the plot axes
+% npix      The number of contributing pixels to each bin of the plot axes
+% signal    The signal array, to calculate binning for
+%
+% Optional:
+% variance  The variance array to calculate binning
+%
+% no_normalization -- if present and true, do not normalize signal and
+%            variance by npix to calculate proper averages.
 %
 % Output
 % ------
@@ -27,6 +35,11 @@ function [mean_signal, mean_variance,signal_msd] = compute_bin_data( ...
 %
 if nargin<3
     variance = [];
+end
+if nargin<4
+    normalize  = true;
+else
+    normalize  = ~no_normalization;
 end
 if nargout > 1
     calc_variance= true;
@@ -71,5 +84,5 @@ end
 
 if ~use_mex
     [mean_signal, mean_variance,signal_msd] = ...
-        compute_bin_data_matlab_(npix,signal,variance,calc_variance,calc_signal_msd);
+        compute_bin_data_matlab_(npix,signal,variance,calc_variance,calc_signal_msd,normalize);
 end

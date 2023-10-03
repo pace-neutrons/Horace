@@ -261,7 +261,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             pix = PixelDataMemory(5);
             npix = [1, 2];
             f = @() pix.mask([0, 1], npix);
-            assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_mask_fail_npix_and_all_specified_memory(~)

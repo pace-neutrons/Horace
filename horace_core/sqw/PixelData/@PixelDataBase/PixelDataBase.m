@@ -740,7 +740,7 @@ classdef (Abstract) PixelDataBase < serializable
         % return set of pixels, defined by its indexes
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
         %
-        pix_out = mask(obj, mask_array, npix);        
+        pix_out = mask(obj, mask_array, npix);
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data

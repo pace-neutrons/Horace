@@ -13,8 +13,11 @@ function sqw_out = apply_c(sqw_in,page_op)
 % Output:
 % sqw_out -- sqw_in object, modified using the operation provided as input
 %
-
-npix = sqw_in.data.npix(:);
+if isa(sqw_in,'sqw')
+    npix = sqw_in.data.npix(:);
+else
+    npix = page_op.npix;
+end
 [mem_chunk_size,ll] = config_store.instance().get_value('hor_config', 'mem_chunk_size','log_level');
 [npix_chunks, npix_idx] = split_vector_max_sum(npix, mem_chunk_size);
 log_split = page_op.log_split_ratio;

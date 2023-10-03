@@ -22,6 +22,12 @@ classdef PageOpBase
         var_idx;
         coord_idx;
     end
+    properties(Dependent,Hidden)
+        % special property, containing pixels ordering when masking pixels
+        % only
+        npix
+    end
+
 
     properties(Access=protected)
         % holder for the pixel object, affected by the operation
@@ -39,6 +45,7 @@ classdef PageOpBase
         var_idx_;
         coord_idx_;
 
+        npix_ = [];
     end
     methods(Abstract)
         % Specific apply operation method, which need overloading
@@ -102,20 +109,28 @@ classdef PageOpBase
             % Returns:
             % out_obj -- sqw object created as the result of the operation
             % obj     -- nullified PageOp object.
-            out_obj = in_obj.copy();
+
             pix = obj.pix_;
             % clear alignment as it has been applied during page
             % operation(s)
             pix.is_misaligned = false;
             pix     = pix.set_data_range(obj.pix_data_range_);
             pix     = pix.finish_dump();
-            out_obj.pix  = pix;
-            out_obj.data = obj.img_;
-            if ~isempty(pix.full_filename)
-                out_obj.full_filename = pix.full_filename;
+
+
+            if isempty(obj.img_)
+                out_obj = pix.copy();
+            else
+                out_obj = in_obj.copy();
+                out_obj.pix  = pix;
+                out_obj.data = obj.img_;
+                if ~isempty(pix.full_filename)
+                    out_obj.full_filename = pix.full_filename;
+                end
             end
-            obj.pix_ = [];
-            obj.img_ = [];
+            obj.pix_  = [];
+            obj.img_  = [];
+            obj.npix_ = [];
         end
         %
     end
@@ -165,6 +180,26 @@ classdef PageOpBase
             if obj.log_split_ratio_ <1
                 obj.log_split_ratio_ = 1;
             end
+        end
+        %------------------------------------------------------------------
+        function npix = get.npix(obj)
+            if isempty(obj.npix_)
+                if isempty(obj.pix_)
+                    npix = [];
+                else
+                    npix = obj.pix_.num_pixels;
+                end
+            else
+                npix = obj.npix_;
+            end
+        end
+        function obj = set.npix(obj,val)
+            if ~isnumeric(val)
+                error('HORACE:PageOpBase:invalid_argument', ...
+                    'npix value have to be numeric. It is: %s', ...
+                    class(val));
+            end
+            obj.npix_ = val;
         end
     end
 end

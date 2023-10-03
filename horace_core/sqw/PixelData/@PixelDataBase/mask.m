@@ -31,7 +31,7 @@ function obj = mask(obj, keep_array, npix)
 % pix_out      A PixelData object containing only non-masked pixels.
 %
 if nargout ~= 1
-    error('HORACE:PixelDataMemory:invalid_argument', ...
+    error('HORACE:PixelDataBase:invalid_argument', ...
         ['Bad number of output arguments.\n''mask'' must be ' ...
         'called with exactly one output argument.']);
 end
@@ -49,11 +49,18 @@ elseif ~any(keep_array)
     return;
 elseif numel(keep_array) == obj.num_pixels % all specified
     keep = keep_array;
+elseif ~isempty(npix) && sum(npix) == obj.num_pixels
+    keep = keep_array;
 else
-    keep = repelem(keep_array, npix);
+    error('HORACE:PixelDataBase:invalid_argument', ...    
+        'keep array size must be either equal to num_pixels in PixelData (%d) or number of elements in npix array provided (%d). It is: %d', ...
+        obj.num_pixels,sum(npix(:)),numel(keep_array));
 end
 pix_op = PageOp_mask();
+if ~isempty(npix)
+    pix_op.npix = npix;
+end
 [pix_op,obj] = pix_op.init(obj,keep);
-obj    = obj.apply_c(pix_op);
+obj    = obj.apply_c(obj,pix_op);
 
 

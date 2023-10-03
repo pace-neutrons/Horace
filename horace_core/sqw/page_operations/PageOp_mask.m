@@ -45,17 +45,23 @@ classdef PageOp_mask < PageOpBase
                     obj.mask_by_obj  = false;
                     obj.mask_by_num  = false;
                     if ~isempty(obj.img_)
-                        if numel(obj.img_.npix) == numel(keep_info)
+                        npix = obj.img_.npix;
+                    elseif ~isempty(obj.npix_)
+                        npix = obj.npix_;
+                    else
+                        npix = [];
+                        obj.mask_by_bins = false;
+                    end
+                    if ~isempty(npix)
+                        if numel(npix) == numel(keep_info)
                             obj.mask_by_bins = true;
                         elseif obj.num_pix_original == numel(keep_info)
                             obj.mask_by_bins = false;
                         else
                             error('HORACE:PageOp_mask:invalid_argument', ...
                                 'Number of masking elements in array must be equal to number of pixels (%d) or number of bins (%d). It is %d',...
-                                obj.num_pix_original,numel(obj.img_.npix),numel(keep_info))
+                                obj.num_pix_original,numel(npix),numel(keep_info))
                         end
-                    else
-                        obj.mask_by_bins = false;
                     end
                 end
             else
@@ -82,15 +88,15 @@ classdef PageOp_mask < PageOpBase
                     num_pix_here  = sum(npix_block);
                     num_keep_here = round(num_pix_here*(obj.keep_info_obj/obj.num_pix_original));
                 end
-                keep = false(1,num_pix_here);
-                keep(randperm(num_pix_here, num_keep_here)) = true;
+                keep_pix = false(1,num_pix_here);
+                keep_pix(randperm(num_pix_here, num_keep_here)) = true;
             elseif obj.mask_by_bins
                 % create pixels selection by selecting whole pixel ranges
                 % corresponding to bins
                 if single_page
-                    keep = repelem(obj.keep_info_obj(:), npix_block(:));
+                    keep_pix = repelem(obj.keep_info_obj(:), npix_block(:));
                 else
-                    keep = repelem(obj.keep_info_obj(npix_idx(1):npix_idx(2)), npix_block);
+                    keep_pix = repelem(obj.keep_info_obj(npix_idx(1):npix_idx(2)), npix_block);
                 end
             elseif obj.mask_by_obj
                 if single_page % get  information from masking object
@@ -99,23 +105,28 @@ classdef PageOp_mask < PageOpBase
                     % equal to the object size.
                     mask_data = obj.keep_info_obj.get_pixels(pix_idx1:pix_idx2,'signal','-raw');
                 end
-                keep = mask_data>=1;
+                keep_pix = mask_data>=1;
             else % mask by numerical or logical array of npix_size
                 if single_page
-                    keep = obj.keep_info_obj;
+                    keep_pix = obj.keep_info_obj;
                 else
-                    keep = obj.keep_info_obj(pix_idx1:pix_idx2);
+                    keep_pix = obj.keep_info_obj(pix_idx1:pix_idx2);
                 end
+            end
+            % keep what is selected
+            page_data = page_data(:,keep_pix);
+            if isempty(obj.img_)
+                if single_page
+                    obj.pix_ = obj.pix_.set_raw_data(page_data);
+                end
+                return;
             end
             % calculate change in npix
             nbins = numel(npix_block);
-            ibin = replicate_array(1:nbins,npix_block);
-            npix_block = accumarray(ibin(keep), ones(1, sum(keep)), [nbins, 1]);
-            % keep what is selected
-            page_data = page_data(:,keep);
-            if isempty(obj.img_)
-                return;
-            end
+            %ibin = replicate_array(1:nbins,npix_block); % equilalent operations
+            ibin = repelem(1:nbins, npix_block(:))';     % What to select, what is more efficient?
+            npix_block = accumarray(ibin(keep_pix), ones(1, sum(keep_pix)), [nbins, 1]);
+
             % caclulate new signal and error
             signal = page_data(obj.signal_idx,:);
             error  = page_data(obj.var_idx,:);
