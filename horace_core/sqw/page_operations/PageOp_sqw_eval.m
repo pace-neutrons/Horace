@@ -48,11 +48,12 @@ classdef PageOp_sqw_eval < PageOpBase
         function [out_obj,obj] = finish_op(obj,out_obj)
             % Complete image modifications:
             sz = size(obj.img_.s);
-            calc_sig = obj.sig_acc_(:)./obj.npix_(:);
+            calc_s = obj.sig_acc_(:)./obj.npix_(:);
             nopix = obj.npix_ == 0;
-            calc_sig(nopix) = 0;
-            obj.img_.s    = reshape(calc_sig,sz);
+            calc_s(nopix) = 0;
+            obj.img_.s    = reshape(calc_s,sz);
             obj.img_.e    = zeros(size(obj.img_.s)); % I do not like this but this is legacy behaviour
+            % transfer modifications to the underlying object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
         end
 

@@ -13,7 +13,7 @@ classdef PageOpBase
         % while page operations occur, not every page operation should be
         % reported, as it could be too many logs. The property defines
         % how many pages should be omitted until page progress is reported
-        log_split_ratio
+        split_log_ratio
         % if provided, used as the name of the file for filebacked
         % operations
         outfile
@@ -21,8 +21,9 @@ classdef PageOpBase
         page_num
     end
     properties(Dependent,Hidden)
-        % special property, containing pixels ordering when masking pixels
-        % only
+        % npix array (the same as img_.npix), containing the pixel distribution
+        % over binning. If no binning is provided it is single number equal
+        % to number of pixels
         npix
 
         % caches for some indices, defined in PixelDataBase, and used to
@@ -43,7 +44,7 @@ classdef PageOpBase
         pix_data_range_ = PixelDataBase.EMPTY_RANGE;
         %
         outfile_   = '';
-        log_split_ratio_  = 10;
+        split_log_ratio_  = 10;
 
         % caches for some indices, defined in PixelDataBase, and used to extract
         % appropriate fieds from PixelData
@@ -75,12 +76,11 @@ classdef PageOpBase
         function obj = PageOpBase(varargin)
             % Constructor for page operations
             %
-            if nargin == 0
-                return;
-            end
             obj = obj.init(varargin{:});
         end
         function [obj,in_obj] = init(obj,in_obj)
+            % initialize page operation using parts of input sqw or
+            % PixelData object as the target for the operation.
             if nargin == 1
                 return;
             end
@@ -108,10 +108,16 @@ classdef PageOpBase
         end
         %
         function obj = common_page_op(obj)
-            % method performed for any page operations.
+            % Method contains the code which runs for any page operation,
+            % inheriting from this one. 
             %
             % Input:
-            % page_data -- array of PixelData
+            % obj   -- pageOp object, containing modified pixel_data page
+            %          to analyze.
+            %
+            % Thought: May be should be implemented as page_op, which needs
+            %          to be overloaded and invoked as part of more complex
+            %          page operation. 
             %
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
@@ -190,19 +196,16 @@ classdef PageOpBase
             idx = obj.coord_idx_;
         end
         %
-        function does = get.log_split_ratio(obj)
-            does = obj.log_split_ratio_;
+        function does = get.split_log_ratio(obj)
+            does = obj.split_log_ratio_;
         end
-        function obj = set.log_split_ratio(obj,val)
+        function obj = set.split_log_ratio(obj,val)
             if ~isnumeric(val)
                 error('HORACE:PageOpBase:invalid_argument', ...
                     'log_split_ratio can have only numeric value. Provided: %s', ...
                     class(val))
             end
-            obj.log_split_ratio_ = round(abs(val));
-            if obj.log_split_ratio_ <1
-                obj.log_split_ratio_ = 1;
-            end
+            obj.split_log_ratio_ = max(1,round(abs(val)));
         end
         %------------------------------------------------------------------
         function npix = get.npix(obj)
