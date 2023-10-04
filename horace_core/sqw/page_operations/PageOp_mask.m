@@ -30,7 +30,7 @@ classdef PageOp_mask < PageOpBase
             if isa(keep_info,'SQWDnDBase')
                 obj.keep_info_obj   = keep_info.pix;
             else
-                obj.keep_info_obj   = keep_info;
+                obj.keep_info_obj   = keep_info(:);
             end
 
             if ~isempty(obj.img_)
@@ -49,7 +49,7 @@ classdef PageOp_mask < PageOpBase
                     obj.mask_by_bins = false;
                     obj.mask_by_num  = true;
                     if obj.pix_.num_pages> 1 % each chunk should contain share of the requested number of pixels
-                        obj.keep_info_obj = obj.calcuate_pages_share( ...
+                        obj.keep_info_obj = obj.calc_page_share( ...
                             keep_info,obj.num_pix_original,obj.pix_.page_size);
                     end
                 else
@@ -87,7 +87,7 @@ classdef PageOp_mask < PageOpBase
             elseif obj.mask_by_bins
                 % create pixels selection by selecting whole pixel ranges
                 % corresponding to bins
-                keep_pix = repelem(obj.keep_info_obj(npix_idx(1):npix_idx(2)), npix_block);
+                keep_pix = repelem(obj.keep_info_obj(npix_idx(1):npix_idx(2)), npix_block(:));
             elseif obj.mask_by_obj
                 % if masking is filebacked, its pixel size must be
                 % equal to the object size, which currently always true
@@ -145,21 +145,29 @@ classdef PageOp_mask < PageOpBase
         %
     end
     methods(Static)
-        function pieces = calculate_page_share(num_pix_to_keep,tot_num_pix,page_size)
-            % Helper function for reducing number of pixels from total 
-            % 
-            % split the total number of pixels to keep into the array of numbers
-            % of pixels  to keep on a single page
-            % 
+        function pieces = calc_page_share(num_pix_to_keep,tot_num_pix,page_size)
+            % Helper function used in keeping part of pixels from total
+            % number of pixels in a dataset.
+            %
+            % Splits the total number of pixels to keep into the array of
+            % numbers of pixels  to keep on each pixel's page.
+            %
             % Inputs:
             % num_pix_to_keep -- number of pixels to keep from the whole
-            %                    number of pixels
-            % tot_num_pix     -- total number of pixels to reduxce
-            % 
+            %                    number of pixels.
+            % tot_num_pix     -- total number of pixels to reduce by
+            %                    masking
+            % page_size       -- the size of the page
+            %
+            %
             pix_share = num_pix_to_keep/tot_num_pix;
             pieces    = split_vector_fix_sum(tot_num_pix,page_size);
             num_pages = numel(pieces);
             pieces    = floor(pieces*pix_share);
+            % ensure each page contains at least one pixel.
+            nothing   = pieces == 0;
+            pieces(nothing) = pieces(nothing)+1;
+            %
             splitted = sum(pieces);
             while splitted<tot_num_pix
                 ic = num_pages;

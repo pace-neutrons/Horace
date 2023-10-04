@@ -38,7 +38,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
 
             % 2D case setup
             obj.sqw_2d = sqw(obj.sqw_2d_file_path, 'file_backed', false);
-            % are signal and error in the sample object incorrect?            
+            % are signal and error in the sample object incorrect?
             obj.sqw_2d = obj.sqw_2d.recompute_bin_data();
             %
             obj.sqw_2d_num_pixels = obj.sqw_2d.pix.num_pixels;
@@ -58,7 +58,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             obj.idxs_to_mask_3d = 1:num_bins/2;
             obj.mask_array_3d = true(size(obj.sqw_3d.data.npix));
             obj.mask_array_3d(obj.idxs_to_mask_3d) = false;
-            
+
             % are signal and error in the sample object incorrect?
             obj.sqw_3d = obj.sqw_3d.recompute_bin_data();
             %
@@ -328,6 +328,14 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             test_mask.check_filebacked_signal_averages(new_sqw);
         end
 
+        function test_split_in_pages_large_normal(~)
+
+            pieces = PageOp_mask.calc_page_share(300,1000,3);
+
+            assertEqual(numel(pieces),4)
+            assertEqual(sum(pieces),300)
+            assertTrue(all(pieces>0));
+        end
     end
 
     methods (Static)
