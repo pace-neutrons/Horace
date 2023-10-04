@@ -21,7 +21,7 @@ end
 [mem_chunk_size,ll] = config_store.instance().get_value('hor_config', 'mem_chunk_size','log_level');
 [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, mem_chunk_size);
 
-log_split = page_op.log_split_ratio;
+log_split = page_op.split_log_ratio;
 
 n_chunks = numel(npix_chunks); 
 for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix)

@@ -16,8 +16,8 @@ function [mean_signal, mean_variance,signal_msd] = compute_bin_data( ...
 % variance  The variance array to calculate binning
 %
 % no_normalization -- if present and true, do not normalize signal and
-%            variance by npix to calculate proper averages. Return sums
-%            only
+%            variance by npix to calculate proper averages. Returns bin sums
+%            only. If provided, variance have to be provided (may be empty, not to use it)
 %
 % Output
 % ------
@@ -42,22 +42,14 @@ if nargin<4
 else
     normalize  = ~no_normalization;
 end
-if nargout > 1
-    calc_variance= true;
-else
-    calc_variance= false;
-end
-if nargout > 2
-    calc_signal_msd = true;
-else
-    calc_signal_msd = false;
-end
-if sum(npix(:)) ~= numel(signal)
-    if ~isscalar(signal)
-        error('HORACE:utilities:invalid_argument', ...
-            'number of elements in signal array (%s) have to be equal to the total npix (%d)', ...
-            numel(signal),sum(npix(:)));
-    end
+%
+calc_variance   = nargout > 1;
+calc_signal_msd = nargout > 2;
+%
+if sum(npix(:)) ~= numel(signal) && ~isscalar(signal)
+    error('HORACE:utilities:invalid_argument', ...
+        'number of elements in signal array (%s) have to be equal to the total npix (%d)', ...
+        numel(signal),sum(npix(:)));
 end
 if ~isempty(variance) && numel(signal) ~= numel(variance)
     error('HORACE:utilities:invalid_argument', ...
