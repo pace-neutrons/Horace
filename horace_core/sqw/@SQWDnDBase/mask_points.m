@@ -72,7 +72,13 @@ if return_with_errors
 end
 
 % Check input parameters
-ndim=length(win.data.pax);
+if isa(win, 'sqw')
+    data = win.data;
+else
+    data = win;
+end
+
+ndim = length(data.pax);
 
 if ~isempty(options.keep)
     xkeep=options.keep;
@@ -113,7 +119,7 @@ if ~isempty(options.mask)
     mask=options.mask;
 
     try
-        validateattributes(mask, {'numeric', 'logical'}, {'numel', numel(win.data.s)}, ...
+        validateattributes(mask, {'numeric', 'logical'}, {'numel', numel(data.s)}, ...
                            'mask_points', 'mask')
     catch ME
         if return_with_errors
@@ -134,8 +140,8 @@ if ~isempty(xkeep)
     tmp=reshape(xkeep,[nk,2,ndim]);
     xkeep_lo=min(tmp,[],2);
     xkeep_hi=max(tmp,[],2);
-    xkeep_lo=reorder(xkeep_lo,win.data.dax);    % reorder into order of plot axes
-    xkeep_hi=reorder(xkeep_hi,win.data.dax);    % reorder into order of plot axes
+    xkeep_lo=reorder(xkeep_lo,data.dax);    % reorder into order of plot axes
+    xkeep_hi=reorder(xkeep_hi,data.dax);    % reorder into order of plot axes
     keep_volume=true(nk);      % true if the range is in the data volume, false otherwise
     iklo=ones(nk,4);
     ikhi=ones(nk,4);
@@ -148,8 +154,8 @@ if ~isempty(xremove)
     tmp=reshape(xremove,[nr,2,ndim]);
     xremove_lo=min(tmp,[],2);
     xremove_hi=max(tmp,[],2);
-    xremove_lo=reorder(xremove_lo,win.data.dax);    % reorder into order of plot axes
-    xremove_hi=reorder(xremove_hi,win.data.dax);    % reorder into order of plot axes
+    xremove_lo=reorder(xremove_lo,data.dax);    % reorder into order of plot axes
+    xremove_hi=reorder(xremove_hi,data.dax);    % reorder into order of plot axes
     remove_volume=true(nr);   % true if the range is in the data volume, false otherwise
     irlo=ones(nr,4);
     irhi=ones(nr,4);
@@ -161,7 +167,7 @@ end
 if nk > 0 || nr > 0
     for idim=1:ndim
         % Find bin centres (pcent=centre of p)
-        pcent=0.5*(win.data.p{idim}(1:end-1)+win.data.p{idim}(2:end));
+        pcent=0.5*(data.p{idim}(1:end-1)+data.p{idim}(2:end));
         for ik=1:nk
             % find indices of points to keep for each range along the given axis
             ind=find(pcent>=xkeep_lo(ik,1,idim) & pcent<=xkeep_hi(ik,1,idim));
@@ -187,7 +193,7 @@ end
 
 % Now remove the points
 if ~isempty(xkeep)
-    keep = false(size(win.data.s));
+    keep = false(size(data.s));
     for ik=1:nk
         if keep_volume(ik)
             keep(iklo(ik,1):ikhi(ik,1),iklo(ik,2):ikhi(ik,2),iklo(ik,3):ikhi(ik,3),iklo(ik,4):ikhi(ik,4)) = true;
@@ -195,17 +201,17 @@ if ~isempty(xkeep)
     end
     if ~any(keep)
         mess='There are no points within the range(s) specified to be retained';
-        sel = false(size(win.data.s));
+        sel = false(size(data.s));
         ok = true;
         if ~return_with_errors, disp(mess), end
         return
     end
 else
-    keep = true(size(win.data.s));
+    keep = true(size(data.s));
 end
 
 if ~isempty(xremove)
-    remove = false(size(win.data.s));
+    remove = false(size(data.s));
     for ir=1:nr
         if remove_volume(ir)
             remove(irlo(ir,1):irhi(ir,1),irlo(ir,2):irhi(ir,2),irlo(ir,3):irhi(ir,3),irlo(ir,4):irhi(ir,4)) = true;
@@ -213,26 +219,26 @@ if ~isempty(xremove)
     end
     if all(remove)
         mess='All points have been eliminated by the range(s) specified to be removed';
-        sel = false(size(win.data.s));
+        sel = false(size(data.s));
         ok = true;
         if ~return_with_errors, disp(mess), end
         return
     end
 else
-    remove = false(size(win.data.s));
+    remove = false(size(data.s));
 end
 
 if ~isempty(mask)
-    mask=logical(reshape(mask,size(win.data.s))); % initialise output selection array
+    mask=logical(reshape(mask,size(data.s))); % initialise output selection array
     if ~any(mask)
         mess='The input mask array masks all data points';
-        sel = false(size(win.data.s));
+        sel = false(size(data.s));
         ok = true;
         if ~return_with_errors, disp(mess), end
         return
     end
 else
-    mask=true(size(win.data.s));
+    mask=true(size(data.s));
 end
 
 sel = keep & ~remove & mask;
