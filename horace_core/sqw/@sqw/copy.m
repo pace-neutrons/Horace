@@ -16,6 +16,9 @@ function new_sqw = copy(obj, varargin)
 
 new_sqw = obj;
 for i = 1:numel(obj)
+    if ~isempty(obj(i).file_holder_)
+        new_sqw(i).file_holder_.copy();
+    end
     if ~exclude_pix
         new_sqw(i).pix = copy(obj(i).pix);
     else
@@ -27,10 +30,10 @@ end
 
 % -----------------------------------------------------------------------------
 function [obj, exclude_pix] = parse_args(obj, varargin)
-    parser = inputParser();
-    parser.addRequired('obj', @(x) isa(x, 'sqw'));
-    parser.addParameter('exclude_pix', false, @islogical);
-    parser.parse(obj, varargin{:});
+parser = inputParser();
+parser.addRequired('obj', @(x) isa(x, 'sqw'));
+parser.addParameter('exclude_pix', false, @islogical);
+parser.parse(obj, varargin{:});
 
-    exclude_pix = parser.Results.exclude_pix;
+exclude_pix = parser.Results.exclude_pix;
 end

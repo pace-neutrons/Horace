@@ -41,6 +41,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     properties(Hidden,Dependent)
+        % the same as npixels, but allows to use the same interface on sqw
+        % object or pixels
+        num_pixels;
         % obsolete property, duplicating detpar. Do not use
         detpar_x;
 
@@ -151,6 +154,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
         %----------------------------------
+        % Replace the sqw's signal and variance data with coordinate values (see below)
+        w = coordinates_calc(w, name)
+
+        new_sqw = copy(obj, varargin)        
+        [obj, ldr] = get_new_handle(obj, outfile)        
     end
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting
@@ -284,20 +292,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 end
             end
         end
-        
+
         function obj = check_combo_arg(obj)
             % Deals with input of old-style objects where detpar is defined
             % but the detector arrays in experiment_info are empty
             %
             % NB combined if-expression is in parentheses to help visually
             % locate it - just useful cosmetic
-            
+
             if (~isempty(obj.detpar)                             && ...
-                IX_detector_array.check_detpar_parms(obj.detpar) && ...
-                ~isempty(obj.detpar.group)                       && ...
-                obj.experiment_info.detector_arrays.n_runs == 0     ...
-               )
-            
+                    IX_detector_array.check_detpar_parms(obj.detpar) && ...
+                    ~isempty(obj.detpar.group)                       && ...
+                    obj.experiment_info.detector_arrays.n_runs == 0     ...
+                    )
+
                 n_runs = obj.experiment_info.n_runs;
                 detector = IX_detector_array(obj.detpar);
                 updated_detectors = obj.experiment_info.detector_arrays;
@@ -305,8 +313,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 updated_detectors = updated_detectors.add_copies_(detector, n_runs);
                 %end
                 obj.experiment_info.detector_arrays = updated_detectors;
-                
-            end 
+
+            end
         end
 
         %------------------------------------------------------------------
@@ -397,6 +405,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function npix = get.npixels(obj)
             npix = obj.pix_.num_pixels;
         end
+        function npix = get.num_pixels(obj)
+            npix = obj.pix_.num_pixels;
+        end
+        
 
         function map = get.runid_map(obj)
             if isempty(obj.experiment_info)
@@ -436,33 +448,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
 
     end
-
-    methods(Access=private)
-        function [obj, ldr] = get_new_handle(obj, outfile)
-            if ~obj.pix.is_filebacked
-                ldr = [];
-                return;
-            end
-
-            if ~exist('outfile', 'var') || isempty(outfile)
-                if isempty(obj.full_filename)
-                    obj.full_filename = 'in_mem';
-                end
-                obj.file_holder_ = TmpFileHandler(obj.full_filename);
-                outfile = obj.file_holder_.file_name;
-            end
-
-            % Write the given SQW object to the given file.
-            % The pixels of the SQW object will be derived from the image signal array
-            % and npix array, saving in chunks so they do not need to be held in memory.
-            ldr = sqw_formats_factory.instance().get_pref_access(obj);
-            ldr = ldr.init(obj, outfile);
-            ldr =ldr.put_sqw('-hold_pix_place');
-            obj.pix = obj.pix.get_new_handle(ldr);
-
-        end
-    end
-
     %======================================================================
     % REDUNDANT and compatibility ACCESSORS
     methods
@@ -545,6 +530,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
+
+        function obj = apply_c(obj, operation)
+            % apply unary operation affecting sqw object and pixels
+            obj = obj.pix.apply_c(obj,operation);
+        end
 
         function obj = apply(obj, func_handle, args, recompute_bins, compute_variance)
             if ~exist('args', 'var')

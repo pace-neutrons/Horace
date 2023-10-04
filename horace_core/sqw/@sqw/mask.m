@@ -1,11 +1,11 @@
-function wout = mask (win, keep_array)
+function obj = mask (obj, keep_array)
 % Remove the bins indicated by the mask array
 %
 %   >> wout = mask (win, keep_array)
 %
 % Input:
 % ------
-%   win                Input sqw object
+%   obj                Input sqw object
 %
 %   keep_array         Array of 1 or 0 (or true or false) that indicate
 %                      which points to retain (true to retain, false to ignore)
@@ -18,13 +18,10 @@ function wout = mask (win, keep_array)
 %
 % Output:
 % -------
-%   wout                Output dataset.
+%   obj                Modified sqw object.
 %
 % Original author: T.G.Perring
 %
-
-% Initialise output argument
-wout = copy(win);
 
 
 % Trivial case of empty or no mask arguments
@@ -33,11 +30,12 @@ if nargin==1 || isempty(keep_array)
 end
 
 % Section the pix array, if non empty, and update pix_range
-if has_pixels(win)
-    if wout.pix.is_filebacked
-        wout = wout.get_new_handle();
-    end
-    wout.pix = wout.pix.mask(keep_array, win.data.npix);
+if has_pixels(obj)
+    % needs the opportunity to provide outfile if sqw object is filebacked
+    pix_op = PageOp_mask();
+    [pix_op,obj] = pix_op.init(obj,keep_array);
+    obj    = obj.apply_c(pix_op);
+else
+    % mask appropriate data
+    obj.data = mask(obj.data,keep_array);
 end
-% mask appropriate data
-wout.data = mask(wout.data,keep_array);

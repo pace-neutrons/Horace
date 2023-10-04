@@ -18,14 +18,9 @@ function obj = sqw_eval_pix(obj, sqwfunc, ave_pix, pars, outfile)
 %==================================================================================================
 
 %[obj, data] = obj.apply(sqwfunc, args, data, true); <- does not work
-if obj.pix.is_filebacked
-    if ave_pix
-        obj = do_sqw_eval_average_filebacked_(obj, sqwfunc, pars, outfile);
-    else
-        obj = do_sqw_eval_filebacked_(obj, sqwfunc, pars, outfile);
-    end
-else
-    obj = do_sqw_eval_memory_(obj, sqwfunc, pars, ave_pix);
+eval_op = PageOp_sqw_eval();
+if ~isempty(outfile)
+    eval_op.outfile = outfile;
 end
-
-end % of function sqw_eval_pix_
+[eval_op,obj] = eval_op.init(obj,sqwfunc,pars,ave_pix);
+obj = obj.apply_c(eval_op);

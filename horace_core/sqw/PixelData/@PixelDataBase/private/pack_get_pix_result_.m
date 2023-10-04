@@ -27,14 +27,15 @@ if raw_data
     return;
 end
 
-pix_out = PixelDataMemory(pix_data);
-
+if ignore_range
+    pix_out = PixelDataMemory();
+    pix_out = pix_out.set_raw_data(pix_data);
+else
+    pix_out = PixelDataMemory(pix_data);    
+end
 if ~align && misaligned
     pix_out.alignment_matr  = obj.alignment_matr;
 end
 
-if ~ignore_range
-    pix_out.data_range_ = pix_out.pix_minmax_ranges(pix_out.data);
-end
 
 end

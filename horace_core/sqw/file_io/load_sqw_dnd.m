@@ -87,8 +87,7 @@ function sqw_dnd_obj = get_data_source(source, filebacked)
 
         if ldr.sqw_type
             if filebacked
-                pixel_page_size = get(hor_config, 'pixel_page_size');
-                sqw_dnd_obj = ldr.get_sqw('pixel_page_size', pixel_page_size);
+                sqw_dnd_obj = ldr.get_sqw('-file_backed','-norange');
             else
                 sqw_dnd_obj = ldr.get_sqw();
             end

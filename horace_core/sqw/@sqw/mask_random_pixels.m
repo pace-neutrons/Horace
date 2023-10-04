@@ -1,4 +1,4 @@
-function wout = mask_random_pixels(win,npix)
+function wout = mask_random_pixels(obj,npix)
 % reduce the number of pixels randomly in a sqw object
 %
 % The function uses the mask_pixels() function to keep only a fixed amount
@@ -25,20 +25,20 @@ function wout = mask_random_pixels(win,npix)
 % Original author: S. Toth
 % Modifications: R. A. Ewings
 
-if ~has_pixels(win)
+if ~has_pixels(obj)
     error('HORACE:sqw:invalid_argument', ...
         'Can not mask random pixels on sqw object not containing any pixels')
 end
 
-wout = copy(win);
-sz = numel(win);
+wout = obj;
+sz = numel(obj);
 
 npix = round(npix);
-if isscalar(npix)
+if isscalar(npix) && sz>1
     npix = repmat(npix, sz, 1);
 end
 
-if numel(npix) ~= numel(win)
+if numel(npix) ~= numel(obj)
     error('HORACE:sqw:invalid_argument', ...
         'npix must either be scalar or an array of the same size as input sqw object');
 end
@@ -47,17 +47,13 @@ if any(npix == 0)
     error('HORACE:sqw:invalid_argument', ...
         'Cannot mask every pixel');
 end
-
-if any(npix > arrayfun(@(x) x.pix.num_pixels, win))
+invalid = arrayfun(@(i)(obj(i).pix.num_pixels<npix(i)),1:sz);
+if any(invalid)
     error('HORACE:sqw:invalid_argument', ...
         'Cannot retain greater number of pixels than data contains');
 end
 
 for i=1:sz
     % reduce the number of pixels using mask
-    keep0 = false(1, win(i).pix.num_pixels);
-    keep0(randperm(win(i).pix.num_pixels, npix(i))) = true;
-    wout(i) = mask_pixels(win(i),keep0);
-end
-
+    wout(i) = mask_pixels(obj(i),npix(i));
 end

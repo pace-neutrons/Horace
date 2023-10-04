@@ -49,26 +49,35 @@ classdef test_eval < TestCase
 
             ds = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, []);
 
-            pix = ds.pix.signal;
-            assertEqual(pix, 2.*ones(size(pix)));
+            sig = ds.pix.signal;
+            assertEqual(sig, 2.*ones(size(sig)));
+            assertEqual(ds.data.s, 2.*ones(size(ds.data.s)));
+            assertEqual(ds.data.e, 2.*zeros(size(ds.data.s)));
         end
 
         function test_sqw_eval_average_fb(obj)
-            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 8000);
 
             ds_mb = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, [], '-average');
             ds_fb = sqw_eval(obj.sqw_obj_fb, @test_eval.sqw_eval_tester, [], '-average');
+            assertTrue(isa(ds_fb.pix,'PixelDataFileBacked'))
 
-            assertEqual(ds_mb, ds_fb, 'tol', 1e-6);
+            assertEqualToTol(ds_mb, ds_fb, 'tol', 1e-6,'ignore_str',true);
         end
 
         function test_sqw_eval_fb(obj)
-            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 8000);
 
             ds_mb = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, []);
             ds_fb = sqw_eval(obj.sqw_obj_fb, @test_eval.sqw_eval_tester, []);
+            assertTrue(isa(ds_fb.pix,'PixelDataFileBacked'))            
 
-            assertEqual(ds_mb, ds_fb, 'tol', 1e-6);
+            assertEqualToTol(ds_mb, ds_fb, 'tol', 1e-6,'ignore_str',true);
+
+            fb_res_file = ds_fb.full_filename;
+            assertTrue(is_file(fb_res_file))
+            clear ds_fb;
+            assertFalse(is_file(fb_res_file))
         end
 
 

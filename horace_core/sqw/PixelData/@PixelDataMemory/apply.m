@@ -49,11 +49,11 @@ for i = 1:numel(func_handle)
     obj = func_handle{i}(obj, args{i}{:});
 end
 
-obj.data_range = obj.pix_minmax_ranges(obj.data, obj.data_range);
+obj.data_range = obj.pix_minmax_ranges(obj.data);
 
 if exist('data', 'var')
     if compute_variance
-        [data.s, data.e, obj.variance] = average_bin_data(data.npix, obj.signal);
+        [data.s, data.e,obj.variance] = compute_bin_data(obj, data.npix);
     else
         [data.s, data.e] = compute_bin_data(obj, data.npix);
     end

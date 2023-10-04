@@ -72,11 +72,14 @@ classdef PixelDataFileBacked < PixelDataBase
         f_accessor_ = []; % instance of object to access pixel data from file
         page_num_   = 1;  % the index of the currently loaded page
         offset_ = 0;
-        file_handle_ = [];
-        tmp_pix_obj = [];
+        write_handle_ = []; % handle to the class, used to perform pixel
+        % copying in operations, involving all pixels
+        tmp_pix_obj_ = [];
     end
 
-    properties(Dependent)
+    properties(Dependent,Hidden)
+        % defines offset from the beginning of the pixels in the binary file
+        % accessed through memmapfile.
         offset;
     end
 
@@ -111,14 +114,8 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = set_raw_data_(obj,pix);
         end
 
-        [mean_signal, mean_variance] = compute_bin_data(obj, npix);
-
         [pix_out, data] = do_unary_op(obj, unary_op, data);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
-
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);
-        pix_out = mask(obj, mask_array, varargin);
-
     end
 
     methods
@@ -177,12 +174,6 @@ classdef PixelDataFileBacked < PixelDataBase
             % process possible update parameter
             obj = init_(obj,varargin{:});
         end
-        function obj = move_to_first_page(obj)
-            % Reset the object to point to the first page of pixel data in the file
-            % and clear the current cache
-            obj.page_num_ = 1;
-        end
-
 
         function [obj,unique_pix_id] = recalc_data_range(obj, fld)
             % Recalculate pixels range in the situations, where the
@@ -236,24 +227,6 @@ classdef PixelDataFileBacked < PixelDataBase
                 'Can not save filebacked PixelData object');
         end
 
-        function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, page_number)
-            if ~exist('page_number', 'var')
-                page_number = obj.page_num_;
-            end
-
-            pgs = obj.page_size;
-            pix_idx_start = (page_number -1)*pgs+1;
-
-            if obj.num_pixels > 0 && pix_idx_start > obj.num_pixels
-                error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
-                    pix_idx_start, obj.num_pixels);
-            end
-
-            % Get the index of the final pixel to read given the maximum page size
-            pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
-        end
-
         % public getter for unmodified page data
         data =  get_raw_data(obj,varargin)
 
@@ -262,7 +235,7 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function has = get.has_open_file_handle(obj)
-            has = ~isempty(obj.file_handle_);
+            has = ~isempty(obj.write_handle_);
         end
     end
 
@@ -282,15 +255,15 @@ classdef PixelDataFileBacked < PixelDataBase
             % otherwise file will be cleared
 
             if exist('f_accessor', 'var') && ~isempty(f_accessor)
-                obj.file_handle_ = f_accessor;
+                obj.write_handle_ = f_accessor;
                 obj.full_filename = f_accessor.full_filename;
             else
                 if isempty(obj.full_filename)
                     obj.full_filename = 'in_mem';
                 end
-                obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
+                obj.tmp_pix_obj_ = TmpFileHandler(obj.full_filename);
 
-                obj.file_handle_ = sqw_fopen(obj.tmp_pix_obj.file_name, 'wb+');
+                obj.write_handle_ = sqw_fopen(obj.tmp_pix_obj_.file_name, 'wb+');
             end
             obj.pix_written = 0;
         end
@@ -301,10 +274,10 @@ classdef PixelDataFileBacked < PixelDataBase
                     'Cannot dump data, object does not have open filehandle')
             end
 
-            if isa(obj.file_handle_, 'sqw_file_interface')
-                obj.file_handle_.put_raw_pix(data, obj.pix_written+1);
+            if isa(obj.write_handle_, 'sqw_file_interface')
+                obj.write_handle_.put_raw_pix(data, obj.pix_written+1);
             else
-                fwrite(obj.file_handle_, single(data), 'single');
+                fwrite(obj.write_handle_, single(data), 'single');
             end
             obj.pix_written = obj.pix_written + size(data, 2);
         end
@@ -317,27 +290,27 @@ classdef PixelDataFileBacked < PixelDataBase
 
             obj.num_pixels_ = obj.pix_written;
 
-            if isa(obj.file_handle_, 'sqw_file_interface')
-                obj.full_filename = obj.file_handle_.full_filename;
-                obj.file_handle_ = obj.file_handle_.put_pix_metadata(obj);
+            if isa(obj.write_handle_, 'sqw_file_interface')
+                obj.full_filename = obj.write_handle_.full_filename;
+                obj.write_handle_ = obj.write_handle_.put_pix_metadata(obj);
                 % Force pixel update
-                obj.file_handle_ = obj.file_handle_.put_num_pixels(obj.num_pixels);
+                obj.write_handle_ = obj.write_handle_.put_num_pixels(obj.num_pixels);
 
-                obj = obj.init_from_file_accessor_(obj.file_handle_, false, true);
-                obj.file_handle_.delete();
-                obj.file_handle_ = [];
+                obj = obj.init_from_file_accessor_(obj.write_handle_, false, true);
+                obj.write_handle_.delete();
+                obj.write_handle_ = [];
 
             else
-                fclose(obj.file_handle_);
+                fclose(obj.write_handle_);
                 if obj.num_pixels_ == 0
                     obj = PixelDataMemory();
                     return;
                 end
 
-                obj.file_handle_ = [];
+                obj.write_handle_ = [];
                 obj.f_accessor_ = [];
                 obj.offset_ = 0;
-                obj.full_filename = obj.tmp_pix_obj.file_name;
+                obj.full_filename = obj.tmp_pix_obj_.file_name;
                 obj.f_accessor_ = memmapfile(obj.full_filename, ...
                     'format', obj.get_memmap_format(), ...
                     'Repeat', 1, ...
@@ -361,9 +334,45 @@ classdef PixelDataFileBacked < PixelDataBase
                 format = obj.f_accessor_.Format;
             end
         end
+
+        function obj = move_to_first_page(obj)
+            % Reset the object to point to the first page of pixel data in the file
+            % and clear the current cache
+            obj.page_num_ = 1;
+        end
+
+        function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, page_number)
+            if ~exist('page_number', 'var')
+                page_number = obj.page_num_;
+            end
+
+            pgs = obj.page_size;
+            pix_idx_start = (page_number -1)*pgs+1;
+
+            if obj.num_pixels > 0 && pix_idx_start > obj.num_pixels
+                error('HORACE:PixelDataFileBacked:runtime_error', ...
+                    'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
+                    pix_idx_start, obj.num_pixels);
+            end
+
+            % Get the index of the final pixel to read given the maximum page size
+            pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
+        end
+        function pix_copy = copy(obj)
+            pix_copy = obj;
+            for i=1:numel(obj)
+                if ~isempty(obj(i).tmp_pix_obj_)
+                    pix_copy(i).tmp_pix_obj_.copy();
+                end
+            end
+        end
+
     end
     %======================================================================
     methods(Static)
+        % apply page operation(s) to the object with File-backed pixels
+        sqw_out = apply_c(sqw_in,page_op);
+        %
         function obj = cat(varargin)
             % Concatenate the given PixelData objects' pixels. This function performs
             % a straight-forward data concatenation.
@@ -409,7 +418,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.data_range_ = PixelDataBase.EMPTY_RANGE;
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
-                num_pages= curr_pix .num_pages;
+                num_pages= curr_pix.num_pages;
                 for page = 1:num_pages
                     curr_pix.page_num = i;
                     data = curr_pix.data;
@@ -426,31 +435,38 @@ classdef PixelDataFileBacked < PixelDataBase
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
+        function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
+            % return unmodified pixel data according to the input indexes
+            % provided
+            % Inputs:
+            % obj         -- initialized pixel data memory object
+            % row_pix_idx -- indixes of pixels to return
+            % col_pix_idx -- if not empty, the indices of the pixel field
+            %                to return, if empty, all pixels field
+            % Output:
+            % pix_data    -- [9,numel(row_pix_idx)] array of pixel data
+            mmf = obj.f_accessor_;
+            if isempty(mmf)
+                pix_data = obj.EMPTY_PIXELS;
+                return
+            end
+
+            % Return raw pixels
+            if isempty(col_pix_idx)
+                pix_data = mmf.Data.data(:,row_pix_idx);
+            else
+                pix_data = mmf.Data.data(col_pix_idx,row_pix_idx);
+            end
+
+        end
+
         function data_range = get_data_range(obj,varargin)
             % overloadable data range getter
             if nargin == 1
                 data_range = obj.data_range_;
-                undefined = data_range == PixelDataBase.EMPTY_RANGE;
             else
-                data_range = obj.data_range_(:,varargin{1});
-                undefined = data_range == PixelDataBase.EMPTY_RANGE(:,varargin{1});
-            end
-
-            if any(undefined(:))
-                warning('HORACE:invalid_data_range',['\n',...
-                    '*** Pixels data range requested but pixels in this object\n', ...
-                    '*** do not contain correct ranges\n' ...
-                    '*** Either sqw object is from old format sqw file without pixel data averages.\n', ...
-                    '*** or pixel data have been realigned\n',...
-                    '*** Update file format of your sqw objects not to ' ...
-                    'recalculate these averages each time you are accessing them\n' ...
-                    '*** Run upgrade_file_format(filename) from horace_core/admin folder to upgrade file format\n' ...
-                    '*** or apply_alignment(filename) for realigned files\n'])
-                if nargin == 1
-                    data_range = obj.data_range_;
-                else
-                    data_range = obj.data_range_(:,varargin{1});
-                end
+                idx = obj.field_index(varargin{1});
+                data_range = obj.data_range_(:,idx);
             end
         end
 
@@ -550,7 +566,6 @@ classdef PixelDataFileBacked < PixelDataBase
             else
                 obj = loadobj@PixelDataBase(S);
             end
-
         end
     end
 

@@ -5,7 +5,7 @@ function obj = binary_op_scalar_(obj, scalar, binary_op, flip)
 
 obj = obj.prepare_dump();
 
-sv_ind = obj.get_pixfld_indexes('sig_var');
+sv_ind = obj.field_index('sig_var');
 obj.data_range = PixelDataBase.EMPTY_RANGE;
 %
 % TODO: #975 loop have to be moved level up calculating image in single

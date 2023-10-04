@@ -30,10 +30,14 @@ if ~outfiles_empty && (numel(win) ~= numel(opts.outfile))
         numel(opts.outfile), numel(win) ...
         );
 end
-if outfiles_empty && opts.filebacked
-    opts.outfile = gen_unique_file_paths( ...
-        numel(win), 'horace_eval', tmp_dir(), 'sqw' ...
-        );
+if outfiles_empty 
+    if opts.filebacked
+        opts.outfile = gen_unique_file_paths( ...
+            numel(win), 'horace_eval', tmp_dir(), 'sqw' ...
+            );
+    else
+        opts.outfile = cell(1,numel(win));
+    end
 end
 
 func_handle = opts.func_handle;

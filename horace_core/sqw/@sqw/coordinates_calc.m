@@ -141,7 +141,7 @@ w = w.apply(transform, {}, true, true);
 
 end
 
-function pix = reg_transform(proj, ind, pix, npix);
+function pix = reg_transform(proj, ind, pix, npix)
     uhkl = proj.transform_pix_to_img(pix);
     pix.signal = uhkl(ind, :);
 end

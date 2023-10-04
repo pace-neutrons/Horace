@@ -358,29 +358,45 @@ classdef (Abstract) PixelDataBase < serializable
             end
         end
         function idx = field_index(fld_name)
-            % function returns field indexes as function of the field name
-            idx = PixelDataBase.FIELD_INDEX_MAP_(fld_name);
+            % Return field indexes as function of the field name or
+            % cellarray of field names
+            %
+            % Input:
+            % ------
+            % fields    -- A cellstr of field names to validate.
+            %
+            % Output:
+            % indices   -- the indices corresponding to the fields
+            %
+
+            if istext(fld_name)
+                idx = PixelDataBase.FIELD_INDEX_MAP_(fld_name);
+            elseif isnumeric(fld_name)
+                idx = fld_name(:)';
+            elseif iscell(fld_name)
+                idx=cellfun(@(x)PixelDataBase.FIELD_INDEX_MAP_(x),fld_name, ...
+                    'UniformOutput',false);
+                idx = [idx{:}];
+            else
+                error('HORACE:PixelDataBase:invalid_argument',...
+                    ['Method accepts the name of the pixel field or cellarray of fields.\n' ...
+                    'Actually input class is %s'],class(fld_name));
+            end
         end
     end
     %======================================================================
     methods(Abstract)
         % --- Pixel operations ---
         pix_out = append(obj, pix);
+        pix_copy = copy(obj)
 
-        % Reset the object to point to the first page of pixel data in the file
-        % and clear the current cache
-        obj = move_to_first_page(obj)
 
         data = get_raw_data(obj,varargin)
         pix = set_raw_data(obj,pix);
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);
 
-        [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         [pix_out, data] = do_unary_op(obj, unary_op, data);
 
-
-        pix_out = mask(obj, mask_array, npix);
         % apply function represented by handle to every pixel of the dataset
         % and calculate appropriate averages if requested
         [pix_out, data] = apply(obj, func_handle, args, data, compute_variance);
@@ -389,16 +405,32 @@ classdef (Abstract) PixelDataBase < serializable
         % realign pixels using alignment matrix stored with pixels
     end
     %======================================================================
+    % File handling/migration. Does nothing on membased
+    methods(Abstract)
+        obj = prepare_dump(obj)
+        obj = get_new_handle(obj, varargin)
+        obj = format_dump_data(obj,varargin)
+        obj = finish_dump(obj)
+        % Paging
+        [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
+        % Reset the object to point to the first page of pixel data in the file
+        % and clear the current cache
+        obj = move_to_first_page(obj)
+    end
+    %======================================================================
     methods(Abstract,Access=protected)
         % Main part of get.num_pixels accessor
         num_pix = get_num_pixels(obj);
-        ro = get_read_only(obj)
+        ro      = get_read_only(obj)
         %------------------------------------------------------------------
         prp = get_prop(obj, ind);
         obj = set_prop(obj, ind, val);
 
         % main part of get.data accessor
         data  = get_data(obj);
+        % common interface to getting pixel data. Class dependent
+        % implementation
+        data = get_raw_pix_data(obj,row_idx,col_idx);
 
         % setters/getters for serializable interface properties
         obj = set_data_wrap(obj,val);
@@ -411,7 +443,8 @@ classdef (Abstract) PixelDataBase < serializable
         page_size = get_page_size(obj);
         np  = get_page_num(obj);
         obj = set_page_num(obj,val);
-        np = get_num_pages(obj);
+        np  = get_num_pages(obj);
+
     end
 
     %======================================================================
@@ -436,7 +469,6 @@ classdef (Abstract) PixelDataBase < serializable
             obj.is_misaligned_ = false;
         end
 
-        [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         function obj = invalidate_range(obj,fld)
             % set the data range to inverse values
@@ -486,7 +518,7 @@ classdef (Abstract) PixelDataBase < serializable
         end
     end
     %======================================================================
-    % GETTERS/SETTERS
+    % Property GETTERS/SETTERS
     methods
         % DATA accessors:
         function data = get.data(obj)
@@ -599,6 +631,13 @@ classdef (Abstract) PixelDataBase < serializable
         function is = get.is_misaligned(obj)
             is = obj.is_misaligned_;
         end
+        function obj = set.is_misaligned(obj,val)
+            % clear alignment
+            if ~val
+                obj.is_misaligned_ = false;
+                obj.alignment_matr_ = eye(3);
+            end
+        end
         function matr = get.alignment_matr(obj)
             matr = obj.alignment_matr_;
         end
@@ -698,72 +737,36 @@ classdef (Abstract) PixelDataBase < serializable
     end
     %----------------------------------------------------------------------
     methods
-        function pix_copy = copy(obj)
-            % Make an independent copy of this object
-            %  This method simply constructs a new PixelData instance by calling
-            %  the constructor with the input object as an argument. Because of
-            %  this, any properties that need to be explicitly copied must be
-            %  copied within this class' 'copy-constructor'.
-            %
-            % NOTE:
-            % REDUNDANT METHOD. left from the time when PixelData were
-            % handle. TODO: reconsider usefulness and remove (could it be
-            % useful for filebacked data?)
-            if obj.is_filebacked
-                pix_copy = PixelDataFileBacked(obj);
-            else
-                pix_copy = PixelDataMemory(obj);
-            end
-        end
-        function indices = get_pixfld_indexes(obj, varargin)
-            % GET_PIXFLD_INDEXES   Check the given field names are valid pixel data fields
-            % and return array indexes for this field.
-            % Raises error with ID 'HORACE:PixelDataBase:invalid_argument' if any fields not valid.
-            %
-            %
-            % Input:
-            % ------
-            % fields    -- A cellstr of field names to validate.
-            %
-            % Output:
-            % indices   -- the indices corresponding to the fields
-            %
-            % NOTE:
-            % it looks like this should be protected method.
-            if nargin == 1
-                indices = 1:PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
-                return
-            else
-                fields = varargin{1};
-            end
-            if isnumeric(fields)
-                % driven mode used in some loops. No checks are necessary
-                indices = fields;
-                return;
-            end
-            if istext(fields)
-                fields = cellstr(fields);
-            end
+        % return set of pixels, defined by its indexes
+        pix_out = get_pixels(obj, abs_pix_indices,varargin);
+        %
+        pix_out = mask(obj, mask_array, npix);
 
-            poss_fields = obj.FIELD_INDEX_MAP_;
-            bad_fields = ~cellfun(@poss_fields.isKey, fields);
-            if any(bad_fields)
-                valid_fields = poss_fields.keys();
-                error( ...
-                    'HORACE:PixelDataBase:invalid_argument', ...
-                    'Invalid pixel field(s) {''%s''}.\nValid keys are: {''%s''}', ...
-                    strjoin(fields(bad_fields), ''', '''), ...
-                    strjoin(valid_fields, ''', ''') ...
-                    );
+        function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
+            % Calculate signal/error bin averages for block of pixel data
+            % defined by npix.
+            % Inputs:
+            % obj     -- initialized instance of the PixelData object
+            % npix    -- array of npix, used to arrange pixels. If pix_idx
+            %            are missing, sum(npix(:)) == obj.num_pixels should
+            %            hold.
+            % Optional:
+            % pix_idx -- if present, defines the indexes of pixels, which
+            %            are arranged according to npix.
+            %
+            if nargin <3
+                pix_idx = [];
             end
-
-            indices = cellfun(@(field) poss_fields(field), fields, 'UniformOutput', false);
-            indices = unique([indices{:}]);
+            calc_signal_msd = nargout == 3;
+            calc_variance   = nargout > 1;
+            [mean_signal, mean_variance,signal_msd] = ...
+                compute_bin_data_(obj, npix,pix_idx,calc_variance,calc_signal_msd);
         end
+
     end
     %======================================================================
     % Overloadable protected getters/setters for properties
-    methods(Access=protected)
+    methods(Access=protected)        %
         function val = check_set_prop(obj,fld,val)
             % check input parameters of set_property function
             if ~isnumeric(val)
@@ -790,7 +793,7 @@ classdef (Abstract) PixelDataBase < serializable
             end
             obj.full_filename_ = val;
         end
-
+        %
         function obj =  set_metadata(obj,val)
             % main part of set from metadata setter
             if ~isa(val,'pix_metadata')
@@ -809,15 +812,24 @@ classdef (Abstract) PixelDataBase < serializable
                 obj = obj.check_combo_arg();
             end
         end
-
+        %
         function full_filename = get_full_filename(obj)
             full_filename = obj.full_filename_;
         end
-
+        %
         function val = get_data_wrap(obj)
             % main part of pix_data_wrap getter which allows overload for
             % different children
             val = pix_data(obj);
+        end
+        %
+        function data_range = get_data_range(obj,varargin)
+            % data range getter
+            if nargin == 1
+                data_range = obj.data_range_;
+            else
+                data_range = obj.data_range_(:,varargin{1});
+            end
         end
     end
     %======================================================================
@@ -836,28 +848,16 @@ classdef (Abstract) PixelDataBase < serializable
             %           of pixel averages
             obj = set_alignment_matr_(obj,val,pix_average_treatment_function);
         end
-        function [keep_array, npix] = validate_input_args_for_mask(obj, keep_array, varargin)
-            % check input arguments for masking routines
-            % Inputs:
-            % obj        -- an instance of PixelDataBase object
-            % keep_array -- logical array specifying which pixels to keep
-            % Optional:
-            % npix       -- if present, array specifying number of pixels
-            %               contributing to each bin of DnD object image.
-            % If npix is absent or empty, keep_array size should be equal
-            % to number of pixels and if present, numel(keep_array(:)) ==
-            % numel(npix(:));
-            [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, varargin{:});
-        end
         %------------------------------------------------------------------
-        function [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
+        function [abs_pix_indices,pix_col_idx,ignore_range,raw_data,keep_precision,align] = ...
                 parse_get_pix_args(obj,accepts_logical,varargin)
             % process input of get_pix method and return input parameters
             % in the standard form.
 
-            [abs_pix_indices,ignore_range,raw_data,keep_precision,align] = ...
+            [abs_pix_indices,pix_col_idx,ignore_range,raw_data,keep_precision,align] = ...
                 parse_get_pix_args_(obj,accepts_logical,varargin{:});
         end
+        %
         function pix_out = pack_get_pix_result(obj,pix_data,ignore_range,raw_data,keep_precision,align)
             % pack output of get_pixels method depending on various
             % get_pixels input options
@@ -872,10 +872,30 @@ classdef (Abstract) PixelDataBase < serializable
             %              -- if true, keep original pixel precision
             %                 intact. Do not make it double
             % align        -- if true and data are misaligned, apply
-            %                 alignment matrix and de-align the data
+            %                 alignment matrix and re-align the data
             %
             pix_out = pack_get_pix_result_(obj,pix_data, ...
                 ignore_range,raw_data,keep_precision,align);
+        end
+        %
+        function [obj,unique_idx] = calc_page_range(obj,field_name)
+            % Recalculate and set appropriate range of pixel coordinates.
+            % The coordinates are defined by the selected field
+            %
+            % Sets up the property page_range defining the range of block
+            % of pixels changed at current iteration.
+
+            %NOTE:  This range calculations are incorrect unless
+            %       performed in a loop over all pix pages where initial
+            %       range is set to empty!
+            %
+            ind = obj.field_index(field_name);
+
+            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:), ...
+                obj.data_range_(:,ind));
+            if nargout > 1
+                unique_idx = unique(obj.run_idx);
+            end
         end
     end
     %======================================================================
@@ -954,36 +974,6 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     methods(Access=protected)
-        function [obj,unique_idx] = calc_page_range(obj,field_name)
-            % Recalculate and set appropriate range of pixel coordinates.
-            % The coordinates are defined by the selected field
-            %
-            % Sets up the property page_range defining the range of block
-            % of pixels changed at current iteration.
-
-            %NOTE:  This range calculations are incorrect unless
-            %       performed in a loop over all pix pages where initial
-            %       range is set to empty!
-            %
-            ind = obj.get_pixfld_indexes(field_name);
-
-            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:), ...
-                obj.data_range_(:,ind));
-            if nargout > 1
-                unique_idx = unique(obj.run_idx);
-            end
-        end
-
-        function data_range = get_data_range(obj,varargin)
-            % overloadable data range getter, which recalculates data range
-            % on pixel_dile backed if this range is undefined
-            if nargin == 1
-                data_range = obj.data_range_;
-            else
-                data_range = obj.data_range_(:,varargin{1});
-            end
-        end
-
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
             % previous version of the object.

@@ -1,4 +1,4 @@
-function wout = sqw_eval(win, sqwfunc, pars, varargin)
+function obj = sqw_eval(obj, sqwfunc, pars, varargin)
 % Calculate sqw for a model scattering function
 %
 %   >> wout = sqw_eval(win, sqwfunc, p)
@@ -13,8 +13,8 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 %
 % Input:
 % ------
-%   win        Dataset (or array of datasets) that provides the axes and points
-%              for the calculation
+%   obj        SQWDnDBase object (or array of objects) that provides used
+%              as the source frame for the calculations
 %
 %   sqwfunc     Handle to function that calculates S(Q, w)
 %               Most commonly used form is:
@@ -73,14 +73,14 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 %
 % Output:
 % -------
-%   wout        If `filebacked` is false, an sqw object or array of sqw objects.
-%               If `filebacked` is true, a file path or cell array of file paths.
-%               Output argument must be specified if `outfile` not given.
+%   obj        If `filebacked` is false, an sqw object or array of sqw objects.
+%              If `filebacked` is true, a file path or cell array of file paths.
+%              Output argument must be specified if `outfile` not given.
 %
 %===============================================================
 
-[sqwfunc, pars, opts] = parse_eval_args(win, sqwfunc, pars, varargin{:});
-if isempty(opts.outfile) || opts.filebacked
+[sqwfunc, pars, opts] = parse_eval_args(obj, sqwfunc, pars, varargin{:});
+if isempty(opts.outfile) || (numel(opts.outfile)==1 && isempty(opts.outfile{1})) || opts.filebacked
     % Make sure we have exactly one output argument if no outfile is specified,
     % otherwise this function would do nothing.
     % Even in filebacked mode, if no outfile is given, a random one is
@@ -88,13 +88,11 @@ if isempty(opts.outfile) || opts.filebacked
     nargoutchk(1, 1);
 end
 
-wout = copy(win);
-
-for i=1:numel(wout)
-    if has_pixels(wout(i))   % determine if object contains pixel data
-        wout(i) = wout(i).sqw_eval_pix(sqwfunc, opts.average, pars, opts.outfile);
+for i=1:numel(obj)
+    if has_pixels(obj(i))   % determine if object contains pixel data
+        obj(i) = obj(i).sqw_eval_pix(sqwfunc, opts.average, pars, opts.outfile{i});
     else
-        wout(i) = wout(i).sqw_eval_nopix(sqwfunc, opts.all, pars);
+        obj(i) = obj(i).sqw_eval_nopix(sqwfunc, opts.all, pars);
     end
 end
 
