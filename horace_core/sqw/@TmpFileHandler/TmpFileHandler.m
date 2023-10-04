@@ -66,12 +66,6 @@ classdef TmpFileHandler < handle
             end
         end
         %==================================================================
-        function rc = get.ref_count(obj)
-            rc = obj.ref_count_;
-        end
-        function copy(obj)
-            obj.ref_count_ = obj.ref_count_+1;
-        end
         function is = get.locked(obj)
             is = obj.locked_;
         end
