@@ -107,9 +107,16 @@ classdef PixelDataFileBacked < PixelDataBase
         [obj, data] = apply(obj, func_handle, args, data, compute_variance);
 
         function obj = set_raw_data(obj,pix)
+            %SET_RAW_DATA set internal data array without comprehensive checks for
+            % data integrity and data ranges.
+            % 
+            % Performance method, which 
+            % invalidates object integrity, so further operations are necessary
+            % to keep object intact
+            %
             if obj.read_only
                 error('HORACE:PixelDataFileBacked:runtime_error',...
-                    'File %s is opened in read-only mode', obj.full_filename);
+                    'File %s is opened in read-only mode.', obj.full_filename);
             end
             obj = set_raw_data_(obj,pix);
         end

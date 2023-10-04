@@ -631,12 +631,12 @@ classdef (Abstract) PixelDataBase < serializable
         function is = get.is_misaligned(obj)
             is = obj.is_misaligned_;
         end
-        function obj = set.is_misaligned(obj,val)
-            % clear alignment
-            if ~val
-                obj.is_misaligned_ = false;
-                obj.alignment_matr_ = eye(3);
-            end
+        function obj = clear_alignment(obj)
+            % clear alignment. If alignment changes, invalidates object integrity,
+            % (data_ranges need recalculation) 
+            % so should be used as part of algorithms only.
+            obj.is_misaligned_ = false;
+            obj.alignment_matr_ = eye(3);
         end
         function matr = get.alignment_matr(obj)
             matr = obj.alignment_matr_;

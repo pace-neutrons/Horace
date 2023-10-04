@@ -22,6 +22,7 @@ else
     npix = page_op.npix;
 end
 
-[page_op,page_data] = page_op.apply_op(npix);
-page_op = page_op.common_page_op(page_data);
+page_op = page_op.apply_op(npix,[1;numel(npix)]);
+page_op = page_op.common_page_op();
+%
 obj_out = page_op.finish_op(obj_in);

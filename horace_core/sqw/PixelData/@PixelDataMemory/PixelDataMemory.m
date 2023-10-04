@@ -118,7 +118,10 @@ classdef PixelDataMemory < PixelDataBase
         end
         function obj = get_new_handle(obj, varargin)
         end
-        function obj = format_dump_data(obj,varargin)
+        function obj = format_dump_data(obj,page_data)
+            if nargin>1
+                obj = obj.set_raw_data(page_data);
+            end
         end
         function obj = finish_dump(obj)
         end

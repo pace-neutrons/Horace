@@ -17,42 +17,58 @@ classdef PageOpBase
         % if provided, used as the name of the file for filebacked
         % operations
         outfile
-
-        signal_idx;
-        var_idx;
-        coord_idx;
+        % number of page to operate over
+        page_num
     end
     properties(Dependent,Hidden)
         % special property, containing pixels ordering when masking pixels
         % only
         npix
+
+        % caches for some indices, defined in PixelDataBase, and used to
+        % extract appropriate fieds from PixelData. Often used.
+        signal_idx;
+        var_idx;
+        coord_idx;
     end
 
 
     properties(Access=protected)
-        % holder for the pixel object, affected by the operation
-        pix_;
-        % holder for the image, modified by the operation.
+        % holder for the pixel object, which is source/target for the
+        % operation
+        pix_ = PixelDataMemory();
+        % holder for the image, beeing modified by the operation(s).
         img_;
         % initial pixel range, recalculaed according to the operation
         pix_data_range_ = PixelDataBase.EMPTY_RANGE;
         %
         outfile_   = '';
-        changes_pix_only_ = false;
         log_split_ratio_  = 10;
 
+        % caches for some indices, defined in PixelDataBase, and used to extract
+        % appropriate fieds from PixelData
         signal_idx_;
         var_idx_;
         coord_idx_;
 
+        % holder for npix value, defining the ordering of the pixels
+        % according to bins
         npix_ = [];
+
+        % the data holder for a page of operation-modified pixels data
+        page_data_;
+        % accumulator for processed signal. All operations change signal
+        % some may define more accumulators
+        sig_acc_
+        % variance accumulator. Many operations recalculate variance.
+        % Do not forget to nullify it if your particular operation does it
+        var_acc_
     end
     methods(Abstract)
         % Specific apply operation method, which need overloading
         % over
-        [obj,page_data] = apply_op(obj,npix_block,npix_idx,pix_id_first,pix_id_last);
+        [obj,page_data] = apply_op(obj,npix_block,npix_idx);
         %
-        % page_data -- block of pixel data modified by the operation
     end
 
     methods
@@ -76,12 +92,14 @@ classdef PageOpBase
             %
             in_obj = in_obj.get_new_handle(obj.outfile);
             if isa(in_obj ,'PixelDataBase')
-                obj.changes_pix_only_ = true;
                 obj.pix_              = in_obj;
+                obj.img_              = [];
             elseif isa(in_obj,'sqw')
-                obj.changes_pix_only_ = false;
                 obj.img_              = in_obj.data;
                 obj.pix_              = in_obj.pix;
+                obj.npix_             = obj.img_.npix;
+                %
+                obj.sig_acc_ = zeros(numel(obj.img_.npix),1);
             else
                 error('HORACE:PageOpBase:invalid_argument', ...
                     'Init method accepts PixelData or SQW object input only. Provided %s', ...
@@ -89,19 +107,23 @@ classdef PageOpBase
             end
         end
         %
-        function obj = common_page_op(obj,page_data)
+        function obj = common_page_op(obj)
             % method performed for any page operations.
             %
             % Input:
             % page_data -- array of PixelData
             %
-            obj.pix_data_range_ = PixelData.pix_minmax_ranges(page_data, ...
+            obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
-            obj.pix_ = obj.pix_.format_dump_data(page_data);
+            obj.pix_ = obj.pix_.format_dump_data(obj.page_data_);
         end
         %
         function [out_obj,obj] = finish_op(obj,in_obj)
-            % Finalize page operations.
+            % Finalize page operations. 
+            % 
+            % Contains common code to transfer data from operation to
+            % out_obj and  Need overloading for correct image calculations
+            %
             % Input:
             % obj     -- instance of the page operations
             % in_obj  -- sqw object-source of the operation
@@ -111,9 +133,10 @@ classdef PageOpBase
             % obj     -- nullified PageOp object.
 
             pix = obj.pix_;
-            % clear alignment as it has been applied during page
-            % operation(s)
-            pix.is_misaligned = false;
+            % clear alignment (if any) as alignment has been applied during
+            % page operation(s)
+            pix = pix.clear_alignment();
+            %
             pix     = pix.set_data_range(obj.pix_data_range_);
             pix     = pix.finish_dump();
 
@@ -122,12 +145,13 @@ classdef PageOpBase
             else
                 out_obj = in_obj.copy();
                 out_obj.pix  = pix;
+                % image should be recaculated by method overload.
                 out_obj.data = obj.img_;
                 if ~isempty(pix.full_filename)
                     out_obj.full_filename = pix.full_filename;
                 end
             end
-            obj.pix_  = [];
+            obj.pix_  = PixelDataMemory();
             obj.img_  = [];
             obj.npix_ = [];
         end
@@ -137,7 +161,7 @@ classdef PageOpBase
     % properties setters/getters
     methods
         function does = get.changes_pix_only(obj)
-            does = obj.changes_pix_only_;
+            does = isempty(obj.img_);
         end
         %
         function name = get.outfile(obj)
@@ -183,11 +207,7 @@ classdef PageOpBase
         %------------------------------------------------------------------
         function npix = get.npix(obj)
             if isempty(obj.npix_)
-                if isempty(obj.pix_)
-                    npix = [];
-                else
-                    npix = obj.pix_.num_pixels;
-                end
+                npix = obj.pix_.num_pixels;
             else
                 npix = obj.npix_;
             end
@@ -199,6 +219,13 @@ classdef PageOpBase
                     class(val));
             end
             obj.npix_ = val;
+        end
+        %
+        function np = get.page_num(obj)
+            np = obj.pix_.page_num;
+        end
+        function obj = set.page_num(obj,val)
+            obj.pix_.page_num = val;
         end
     end
 end
