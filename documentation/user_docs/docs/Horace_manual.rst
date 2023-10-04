@@ -9,6 +9,7 @@ Horace Manual
    manual/Planning_a_Horace_scan
    manual/Generating_SQW_files
    manual/Manipulating_and_extracting_data_from_SQW_files_and_objects
+   manual/Reshaping_etc
    manual/Correcting_for_sample_misalignment
    manual/Data_diagnostics
    manual/Symmetrising_etc
