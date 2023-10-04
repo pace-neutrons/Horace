@@ -7,27 +7,31 @@ Symmetry Operations
 Symmetry Operators
 ==================
 
-Symmetry operators or "sym op"s define the transformation between sets of symmetry related sets. In Horace these are
-implemented as the ``Symop`` class, which is subclassed to represent the three basic forms of symmetry operations:
+Symmetry operators or "sym op"s define the transformation between sets of
+symmetry related sets. In Horace these are implemented as the ``Symop`` class,
+which is subclassed to represent the three basic forms of symmetry operations:
 
 * ``SymopReflection``
-    A reflection across a plane
+  A reflection across a plane
 * ``SymopRotation``
-    A rotation about an axis
+  A rotation about an axis
 * ``SymopGeneral``
-    A general matrix transform which may be the product of a series of reflections and rotations
+  A general matrix transform which may be the product of a
+  series of reflections and rotations
 
 .. note::
-   Symmetry operators are, by definition, non-scaling transformations and as such must have a determinant of
-   ``1`` (Rotation) or ``-1`` (Reflection).
+
+   Symmetry operators are, by definition, non-scaling transformations and as
+   such must have a determinant of ``1`` (Rotation) or ``-1`` (Reflection).
 
 
 Reflections
 -----------
 
-Reflections are implemented as the ``SymopReflection`` class and are defined in Horace by three 3-vectors; two vectors
-which define the plane of reflection, and a vector which defines a point on the plane (the offset). The constructor for
-a ``SymopReflection`` is as follows:
+Reflections are implemented as the ``SymopReflection`` class and are defined in
+Horace by three 3-vectors; two vectors which define the plane of reflection, and
+a vector which defines a point on the plane (the offset). The constructor for a
+``SymopReflection`` is as follows:
 
 .. code-block:: matlab
 
@@ -35,13 +39,16 @@ a ``SymopReflection`` is as follows:
    >> sym = SymopReflection([1 0 0], [0 1 0], [0 0 0]); % Reflection across the Z axis
 
 .. note::
-   For any ``Symop`` constructor the offset can be omitted and it will default to ``[0 0 0]``.
+
+   For any ``Symop`` constructor the offset can be omitted and it will default
+   to ``[0 0 0]``.
 
 Rotations
 ---------
 
-Rotations are implemented as the ``SymopRotation`` class and are defined by two 3-vectors and a scalar; these are the
-axis of rotation, the angle (in degrees) of rotation and a point on the axis (the offset). The constructor for a
+Rotations are implemented as the ``SymopRotation`` class and are defined by two
+3-vectors and a scalar; these are the axis of rotation, the angle (in degrees)
+of rotation and a point on the axis (the offset). The constructor for a
 ``SymopRotation`` is as follows:
 
 .. code-block:: matlab
@@ -49,10 +56,11 @@ axis of rotation, the angle (in degrees) of rotation and a point on the axis (th
    SymopRotation(axis, angle, offset)
    >> sym = SymopRotation([0 0 1], 60, [0 0 0]); % Rotation of 60 degrees about th Z axis
 
-``SymopRotation`` also provides a convenience method for generating the appropriate set of symmetry operations for
-cutting/reducing an n-Fold rotationally symmetric dataset about an axis. This takes a scalar integer and two
-3-vectors; the number of reductions (for an angle of ``360/nFold`` each time) and the axis and offset of the rotation as
-above.
+``SymopRotation`` also provides a convenience method for generating the
+appropriate set of symmetry operations for cutting/reducing an n-Fold
+rotationally symmetric dataset about an axis. This takes a scalar integer and
+two 3-vectors; the number of reductions (for an angle of ``360/nFold`` each
+time) and the axis and offset of the rotation as above.
 
 .. code-block:: matlab
 
@@ -102,8 +110,9 @@ above.
 General Transformations
 -----------------------
 
-Generalised matrix transforms are implemented as the ``SymopGeneral`` class and are defined by a 3x3 matrix and a
-3-vector. These are the transform itself and the offset. The constructor for a ``SymopGeneral`` is as follows:
+Generalised matrix transforms are implemented as the ``SymopGeneral`` class and
+are defined by a 3x3 matrix and a 3-vector. These are the transform itself and
+the offset. The constructor for a ``SymopGeneral`` is as follows:
 
 .. code-block:: matlab
 
@@ -113,11 +122,14 @@ Generalised matrix transforms are implemented as the ``SymopGeneral`` class and 
                           0 0 1], [0 0 0]); % Reflection across y=x
 
 .. warning::
-   The matrix defining a ``SymopGeneral`` must have a determinant of ``1`` or ``-1`` or else this will result
-   in an error.
 
-It should be noted that it is possible to get the general transformation from any of the other transformation types by
-applying the transform to the identity (for which ``R`` is a convenience property), though this does not consider offsets.
+   The matrix defining a ``SymopGeneral`` must have a determinant of ``1`` or
+   ``-1`` or else this will result in an error.
+
+It should be noted that it is possible to get the general transformation from
+any of the other transformation types by applying the transform to the identity
+(for which ``R`` is a convenience property), though this does not consider
+offsets.
 
 .. code-block:: matlab
 
@@ -141,9 +153,10 @@ applying the transform to the identity (for which ``R`` is a convenience propert
 Groups of symmetry operators
 ----------------------------
 
-For a more complex transformation involving a series of rotations and reflections it is possible to construct an array
-of transformations to be applied in sequence (as a series of pre-multiplications, i.e. applied in the reverse order of
-the list).
+For a more complex transformation involving a series of rotations and
+reflections it is possible to construct an array of transformations to be
+applied in sequence (as a series of pre-multiplications, i.e. applied in the
+reverse order of the list).
 
 .. code-block:: matlab
 
@@ -153,34 +166,36 @@ the list).
 Irreducible region
 ------------------
 
-.. _irreducible:
-
-``Symop`` transformations on pixels take what we call the irreducible region into account when transforming. The
-irreducible region exists to ensure that symmetry reductions reduce the data, rather than mapping the data across the symmetry
-transformation.
+``Symop`` transformations on pixels take what we call the irreducible region
+into account when transforming. The irreducible region exists to ensure that
+symmetry reductions reduce the data, rather than mapping the data across the
+symmetry transformation.
 
 .. warning::
    This is currently only defined for ``SymopReflection`` and ``SymopRotation`` (which is why ``SymopGeneral`` is not
    currently permitted for symmetric reductions).
 
-The irreducible region for ``SymopReflection`` is defined as the the positive half-volume with respect to the normal
-vector of the plane of reflection. Mathematically this is defined as:
+The irreducible region for ``SymopReflection`` is defined as the the positive
+half-volume with respect to the normal vector of the plane of
+reflection. Mathematically this is defined as:
 
 .. math::
 
    \lbrace{}\vec{q} \in{} Q ~|~
    \vec{q} \cdot{} (\vec{u}\times{}\vec{v}) > 0 \rbrace{}
 
-where :math:`Q` is the set of coordinates to be transformed and :math:`\vec{u}` and :math:`\vec{v}` are the vectors
-defining the plane of reflection.
+where :math:`Q` is the set of coordinates to be transformed and :math:`\vec{u}`
+and :math:`\vec{v}` are the vectors defining the plane of reflection.
 
-The irreducible region for ``SymopRotation`` is defined as the wedge bounded in the upper-right (positive) quadrant in
-the q-coordinate space by the planes defined by the absolute (relative to the q-coordinates) x-axis and the axis of
+The irreducible region for ``SymopRotation`` is defined as the wedge bounded in
+the upper-right (positive) quadrant in the q-coordinate space by the planes
+defined by the absolute (relative to the q-coordinates) x-axis and the axis of
 rotation; and the transformed x-axis and the axis of rotation.
 
 .. note::
 
-    In the special case of rotation about the x-axis, the y-axis is used to define the wedge instead of the x-axis.
+    In the special case of rotation about the x-axis, the y-axis is used to
+    define the wedge instead of the x-axis.
 
 Mathematically, this is defined as:
 
@@ -195,30 +210,35 @@ Mathematically, this is defined as:
    \vec{q} \cdot{} (\vec{n} \times{} \vec{u}) > 0 \wedge{} \vec{q} \cdot{} (\vec{v} \times{} \vec{n}) > 0 \rbrace{},
    \textrm{where}~~ \vec{u}, \vec{n} \textrm{ and } \vec{v} \textrm{ are not co-planar}
 
-where :math:`Q` is the set of coordinates to be transformed, :math:`\vec{n}` is the axis of rotation, :math:`\vec{u}` is the x- (or y-) axis (as above) and :math:`\vec{v}` is the transformed :math:`\vec{u}`.
+where :math:`Q` is the set of coordinates to be transformed, :math:`\vec{n}` is
+the axis of rotation, :math:`\vec{u}` is the x- (or y-) axis (as above) and
+:math:`\vec{v}` is the transformed :math:`\vec{u}`.
 
 
 .. note::
 
-   For an angle > 90 degrees or folds < 4, this will cover the positive quadrant and some of a negative domain.
+   For an angle > 90 degrees or folds < 4, this will cover the positive quadrant
+   and some of a negative domain.
 
 Symop Methods
 =============
 
-``Symop`` objects have methods to transform a variety of methods to transform objects which may be related by symmetry. These
-are:
+``Symop`` objects have methods to transform a variety of methods to transform
+objects which may be related by symmetry. These are:
 
 * ``transform_vec``
 * ``transform_pix``
 * ``transform_proj``
 
-Which transform numeric vectors, ``PixelDataBase`` objects and ``aProjection`` objects respectively.
+Which transform numeric vectors, ``PixelDataBase`` objects and ``aProjection``
+objects respectively.
 
 ``transform_vec``
 -----------------
 
-``transform_vec`` takes a 3xN list of 3-vectors to transform. This method can be applied directly from a single
-``Symop`` or from an array (but not cell array) of ``Symop`` objects (see: :ref:`manual/Symmetrising_etc:Groups of symmetry operators`).
+``transform_vec`` takes a 3xN list of 3-vectors to transform. This method can be
+applied directly from a single ``Symop`` or from an array (but not cell array)
+of ``Symop`` objects (see: `Groups of symmetry operators`_).
 
 .. code-block:: matlab
 
@@ -256,13 +276,15 @@ Which transform numeric vectors, ``PixelDataBase`` objects and ``aProjection`` o
 ``transform_pix``
 -----------------
 
-``transform_pix`` takes a ``PixelDataBase`` derived object and transforms the contained pixel q-coordinates according to
-the symmetry operations and returns a new object with the transformed pixels.
+``transform_pix`` takes a ``PixelDataBase`` derived object and transforms the
+contained pixel q-coordinates according to the symmetry operations and returns a
+new object with the transformed pixels.
 
 .. note::
 
-   ``transform_pix`` takes the ``Symop`` object's :ref:`irreducible region <irreducible>` into
-   account and does not transform the pixels which are considered to be within the irreducible region.
+   ``transform_pix`` takes the ``Symop`` object's `Irreducible region`_ into
+   account and does not transform the pixels which are considered to be within
+   the irreducible region.
 
 .. code-block:: matlab
 
@@ -303,7 +325,10 @@ the symmetry operations and returns a new object with the transformed pixels.
 ``transform_proj``
 ------------------
 
-``transform_proj`` is used to transform subclasses of the ``aProjection`` type. It is an internal function which creates a new projection with the symmetries applied and is not normally needed by users, but is recorded here for completeness.
+``transform_proj`` is used to transform subclasses of the ``aProjection``
+type. It is an internal function which creates a new projection with the
+symmetries applied and is not normally needed by users, but is recorded here for
+completeness.
 
 Commands for cuts and slices
 ============================
@@ -312,59 +337,113 @@ In Horace it is possible to symmetrise by 3 methods:
 
 * symmetrise whole |SQW| objects using ``symmetrise_sqw``
 * symmetrise and extract subsets of |SQW| objects using ``cut``
-* equivalently to ``cut`` with symmetry, it is possible to use ``symmetrise_sqw`` and then ``cut``
+* equivalently to ``cut`` with symmetry, it is possible to use
+  ``symmetrise_sqw`` and then ``cut``
 
 .. note::
 
-   While ``symmetrise_sqw`` then ``cut`` is possible, it is not recommended unless the intermediate symmetrised |SQW| is
-   required. This approach has the overhead of transforming all pixels in |SQW|, while ``cut`` has optimisations to
-   transform only those that might contribute to the result.
+   While ``symmetrise_sqw`` then ``cut`` is possible, it is not recommended
+   unless the intermediate symmetrised |SQW| is required. This approach has the
+   overhead of transforming all pixels in |SQW|, while ``cut`` has optimisations
+   to transform only those that might contribute to the result.
 
 .. warning::
-   Symmetrisation maps the pixels outside the :ref:`irreducible region <irreducible>` into their respective symmetry related sites. This means that subsequent binning/cutting of the ``sqw`` object will see these pixels as being on the symmetry related site rather than their original location.
 
-   Symmetrising an |SQW| is an irreversible operation and overwriting saved ``.sqw`` files may lead to loss of information.
+   Symmetrisation maps the pixels outside the `Irreducible region`_ into their
+   respective symmetry related sites. This means that subsequent binning/cutting
+   of the ``sqw`` object will see these pixels as being on the symmetry related
+   site rather than their original location.
+
+   Symmetrising an |SQW| is an irreversible operation and overwriting saved
+   ``.sqw`` files may lead to loss of information.
 
 Symmetrising
 ============
 
-.. _Symmetrising:
-
 ``symmetrise_sqw``
 ------------------
 
-.. _sym_sqw:
-
-It is possible to reduce an entire dataset at once by symmetry, transforming all pixels according to the symmetry
-operations and accumulating the transformed pixels into the bins appropriately. This is done through the
-``symmetrise_sqw`` function, the signature for which is below:
+It is possible to reduce an entire dataset at once by symmetry, transforming all
+pixels according to the symmetry operations and accumulating the transformed
+pixels into the bins appropriately. This is done through the ``symmetrise_sqw``
+function, the signature for which is below:
 
 .. code-block:: matlab
 
    >> w1 = sqw(data);
-   >> sym = SymopReflection([0 1 0], [0 0 1]); % Reflect about X-axis
+
+.. figure:: ../images/unsym.png
+   :align: center
+   :width: 500
+
+.. code-block:: matlab
+
+   >> sym = SymopReflection([0 0 1], [1 1 0]); % Reflect about X-axis
    >> w2 = symmetrise_sqw(w1, sym);
 
-It is also possible to reduce data through a rotationally symmetric operation, this can be done in one of 2 ways:
+.. figure:: ../images/sym1.png
+   :align: center
+   :width: 500
+
+We can also combine symmetry operations:
+
+.. code-block:: matlab
+
+   sym = SymopReflection([0 0 1], [1 1 0]);
+   sym2 = SymopReflection([0 0 1], [-1 1 0]);
+   sym_comb = [sym, sym2];
+   w2 = symmetrise_sqw(wa, sym_comb);
+
+
+.. figure:: ../images/sym2.png
+   :align: center
+   :width: 500
+
+
+It is also possible to reduce data through a rotationally symmetric operation:
 
 .. code-block:: matlab
 
    % Perform a 6-fold rotational reduction about Z
    % The resulting wedge with be a 60 degree segment
    >> w1 = sqw(data);
+
+A ``SymopRotation`` maps pixels into the `Irreducible region`_)
+
+.. figure:: ../images/Energy_Slice.png
+   :align: center
+   :width: 500
+
+.. code-block:: matlab
+
    >> sym = SymopRotation([0 0 1], 60);
    >> w2 = symmetrise_sqw(w1, sym);
-   >> sym = SymopRotation.fold(6, [0 0 1]); % Same as above
-   >> w3 = symmetrise_sqw(w1, sym);
-   >> equal_to_tol(w2, w3);
 
-     ans =
 
-       logical
+.. figure:: ../images/Energy_Slice_Sym.png
+   :align: center
+   :width: 500
 
-        1
+.. note::
 
-A ``SymopRotation`` maps pixels into the :ref:`irreducible region <irreducible>`)
+   Equally we could have folded the data through:
+
+   .. code-block:: matlab
+
+      >> sym = SymopRotation.fold(6, [0 0 1]); % Same as above
+      >> w3 = symmetrise_sqw(w1, sym);
+
+   And they would be equivalent
+
+   .. code-block:: matlab
+
+      >> equal_to_tol(w2, w3);
+
+      ans =
+
+         logical
+
+         1
 
 
 ``gen_sqw``
@@ -373,9 +452,11 @@ A ``SymopRotation`` maps pixels into the :ref:`irreducible region <irreducible>`
 .. _gen_sqw:
 
 
-If you need to symmetrise a large ``sqw`` object, it can also be done during ``sqw`` generation, i.e. during generation of
-the ``sqw`` file, rather than after the object has been created. The ``gen_sqw`` function has a special option ``transform_sqw`` which can be used with any method,
-transforming an |SQW| at generation time.
+If you need to symmetrise a large ``sqw`` object, it can also be done during
+``sqw`` generation, i.e. during generation of the ``sqw`` file, rather than
+after the object has been created. The ``gen_sqw`` function has a special option
+``transform_sqw`` which can be used with any method, transforming an |SQW| at
+generation time.
 
 For example:
 
@@ -394,12 +475,15 @@ or, more generally:
             gs, 'transform_sqw', @user_symmetrisation_routine)
 
 
-where ``spefile``, ``par_file``, etc... are the options used during initial ``sqw`` file generation (see
-:ref:`Generating SQW files <manual/Generating_SQW_files:Generating SQW files>`).  The first ``gen_sqw`` would build a
-``.sqw`` file reflected as in the example for the reflection above. In the second, more general, case the user defined
-function (in a ``.m``-file on the Matlab path) can define multiple symmetrisation operations that are applied
-sequentially to the entire data. An example is as follows, which folds a cubic system so that all eight of the
-symmetrically equivalent (1,0,0) type positions are folded on to each other:
+where ``spefile``, ``par_file``, etc... are the options used during initial
+``sqw`` file generation (see :ref:`Generating SQW files
+<manual/Generating_SQW_files:Generating SQW files>`).  The first ``gen_sqw``
+would build a ``.sqw`` file reflected as in the example for the reflection
+above. In the second, more general, case the user defined function (in a
+``.m``-file on the Matlab path) can define multiple symmetrisation operations
+that are applied sequentially to the entire data. An example is as follows,
+which folds a cubic system so that all eight of the symmetrically equivalent
+(1,0,0) type positions are folded on to each other:
 
 .. code-block:: matlab
 
@@ -418,19 +502,24 @@ symmetrically equivalent (1,0,0) type positions are folded on to each other:
 
 .. warning::
 
-   When defining the function to apply the symmetrisation (as above) one can only use symmetry operations supported by
-   ``symmetrise_sqw``. Any other transformations may modify the data ranges in unexpected ways, making the resulting
-   transformed *sqw* file into complete nonsense!
+   When defining the function to apply the symmetrisation (as above) one can
+   only use symmetry operations supported by ``symmetrise_sqw``. Any other
+   transformations may modify the data ranges in unexpected ways, making the
+   resulting transformed *sqw* file into complete nonsense!
 
 .. note::
 
-   MPI workers are normal Matlab sessions which inherit basic Matlab path and initiate Horace themselves if the Horace
-   path is not stored by the user (It's not usually recommended and may be impossible for multiuser machines). The
-   workers do not process Matlab's ``startup.m`` file. The user's symmetrisation routine has to be available on the
-   worker's Matlab path. The best way to achieve this is to put the routine into current Matlab working folder -- the
-   folder from which you run the symmetrisation. If this routine uses some additional user functions, located elsewhere
-   on a custom user path, these routines have to be intialised by the user routine. This can be achieved by the
-   following piece of code added to the beginning of your custom symmetrisation routine:
+   MPI workers are normal Matlab sessions which inherit basic Matlab path and
+   initiate Horace themselves if the Horace path is not stored by the user (It's
+   not usually recommended and may be impossible for multiuser machines). The
+   workers do not process Matlab's ``startup.m`` file. The user's symmetrisation
+   routine has to be available on the worker's Matlab path. The best way to
+   achieve this is to put the routine into current Matlab working folder -- the
+   folder from which you run the symmetrisation. If this routine uses some
+   additional user functions, located elsewhere on a custom user path, these
+   routines have to be intialised by the user routine. This can be achieved by
+   the following piece of code added to the beginning of your custom
+   symmetrisation routine:
 
 .. code-block:: matlab
 
@@ -439,7 +528,8 @@ symmetrically equivalent (1,0,0) type positions are folded on to each other:
    end
 
 
-Alternatively with an array of ``Symop`` objects this could be done in one step as:
+Alternatively with an array of ``Symop`` objects this could be done in one step
+as:
 
 .. code-block:: matlab
 
@@ -455,30 +545,83 @@ Cutting
 =======
 
 In order to do a symmetrised cut, the ordinary ``cut`` function (see
-:ref:`manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut_sqw`) is used with the appropriate symmetry
-operations additionally passed into the function as an argument after the bin axes specification (see example
-below). The ``cut`` operation will then use the symmetry operations to compute the transformations of the given
-projection, accumulate the symmetrically-related pixels into the primary binning axes (the cut region specified in the
-``cut`` operation) and transform their pixel coordinates according to the symmetry operations as though the |SQW| had
-been symmetrised.
+:ref:`manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut`)
+is used with the appropriate symmetry operations additionally passed into the
+function as an argument after the bin axes specification (see example
+below). The ``cut`` operation will then use the symmetry operations to compute
+the transformations of the given projection, accumulate the
+symmetrically-related pixels into the primary binning axes (the cut region
+specified in the ``cut`` operation) and transform their pixel coordinates
+according to the symmetry operations as though the |SQW| had been symmetrised.
 
 .. code-block:: matlab
 
    >> w1 = sqw(data);
-   >> sym = SymopReflection([0 1 0], [0 0 1]);
 
-   % Cut from 1 to 3 in X, accumulated with -1 to -3 reflected across the Y-axis
-   >> w2 = cut(w1, ortho_proj([1 0 0], [0 1 0]), [1 0.1 3], [-inf inf], [-inf inf], [-inf inf], sym);
    % Take 2D cut from w1
-   >> w3 = cut(w1, ortho_proj([1 0 0], [0 1 0]), [1 0.1 3], [1 0.1 3], [-inf inf], [-inf inf], sym)
+   >> sym = SymopReflection([0 1 0], [0 0 1]);
+   >> w3 = cut(w1, ortho_proj([1 0 0], [0 1 0]), [0.2 0.1 0.8], [32 2 70], [-inf inf], [-inf inf], sym)
 
-.. figure:: symexample.png
+.. figure:: ../images/cut_sym_orig_highlight3.png
    :align: center
    :width: 500
 
-   Diagrammatic representation of ``w3``'s cut.  The primary axes are specified between (1,1) and (3, 3). The reflection
-   about the Y-axis captures the region between (-1, 1) and (-3, 3) which are transformed by the symmetry operation into
-   the primary axes and accumulated into the cut.
+   Representation of ``w3``'s cut.  The primary axes are within the
+   rectangle specified by the two corners (0.2,32) and (0.8, 70). The reflection
+   about the Y-axis captures the data in the region between (-0.2, 32) and
+   (-0.8, 70) which are transformed by the symmetry operation into the primary
+   axes and accumulated into the cut.
+
+.. code-block:: matlab
+
+   w = sqw(...)
+
+.. figure:: ../images/unsym.png
+   :align: center
+   :width: 500
+
+.. code-block:: matlab
+
+   wout = cut(w, ...);
+
+.. figure:: ../images/cut_sym_1.png
+   :align: center
+   :width: 500
+
+.. code-block:: matlab
+
+   % 2 cuts (identity always included), 2 quadrants
+   sym = {SymopReflection([1 1 0], [0 0 1])}
+   wout = cut(w, ...);
+
+.. figure:: ../images/cut_sym_2.png
+   :align: center
+   :width: 500
+
+.. code-block:: matlab
+
+   % 3 cuts, 3 quadrants
+   sym = {SymopReflection([1 1 0], [0 0 1]), ...
+          SymopReflection([-1 1 0], [0 0 1])}
+   w_out = cut(w, ..., sym)
+
+.. figure:: ../images/cut_sym_3.png
+   :align: center
+   :width: 500
+
+.. code-block:: matlab
+
+   % Cut all 4 quadrants and combine
+   sym = {SymopReflection([1 1 0], [0 0 1]), ...
+          SymopReflection([-1 1 0], [0 0 1]), ...
+          [SymopReflection([1 1 0], [0 0 1]), ...
+           SymopReflection([-1 1 0], [0 0 1])]}
+   w_out = cut(w, ..., sym)
+
+.. figure:: ../images/cut_sym_4.png
+   :align: center
+   :width: 500
+
 
 Combining
 =========
@@ -488,32 +631,34 @@ Combining
    wout=combine_sqw(win)
 
 
-Combine two ``sqw`` objects (``w1`` and ``w2``) of the same dimensionality into a single ``sqw`` object in order to
-improve statistics.
+Combine two ``sqw`` objects (``w1`` and ``w2``) of the same dimensionality into
+a single ``sqw`` object in order to improve statistics.
 
 .. note::
 
-   The output object will have a combined value for the integration range e.g. combining two 2d slices taken at L=1 and
-   L=2 will result in an output for which the stated value of L is L=1.5.
+   The output object will have a combined value for the integration range
+   e.g. combining two 2d slices taken at L=1 and L=2 will result in an output
+   for which the stated value of L is L=1.5.
 
 .. note::
 
-   Two objects which use different projection axes can be combined. The output object will have the projection axes of
-   ``w1``.
+   Two objects which use different projection axes can be combined. The output
+   object will have the projection axes of ``w1``.
 
 Rebinning
 =========
 
-Resize the bin boundaries along one or more axes, and rebin the data accordingly. There are several possibilities for
-the input format:
+Resize the bin boundaries along one or more axes, and rebin the data
+accordingly. There are several possibilities for the input format:
 
 .. code-block:: matlab
 
    wout = rebin_sqw(win,step1,step2,...)
 
 
-Rebin the sqw object ``win`` with bins along the first axis that have width ``step1``, bins along the second axis (if
-there is one) with width ``step2``, and so on. The original limits of the axes will be retained. To leave an axis
+Rebin the sqw object ``win`` with bins along the first axis that have width
+``step1``, bins along the second axis (if there is one) with width ``step2``,
+and so on. The original limits of the axes will be retained. To leave an axis
 unaltered, the corresponding step argument can be set to 0.
 
 .. code-block:: matlab
@@ -521,27 +666,33 @@ unaltered, the corresponding step argument can be set to 0.
    wout = rebin_sqw(win,[lo1,step1,hi1],[lo2,step2,hi2],...)
 
 
-As above, but specifying new upper and lower limits along each of the axes to be rebinned.
+As above, but specifying new upper and lower limits along each of the axes to be
+rebinned.
 
 .. code-block:: matlab
 
    wout = rebin_sqw(win,w2)
 
 
-Rebin the sqw object ``win`` with the boundaries (and projection axes) of the template object ``w2``.
+Rebin the sqw object ``win`` with the boundaries (and projection axes) of the
+template object ``w2``.
 
 
 Symmetrise data, then unfold back to original range
 ===================================================
 
 .. warning::
-   For producing plots only, any analysis on these results will be invalid due to multiple counting of data.
 
-Below we show a script that uses the ``symmetrise_sqw`` and ``combine_sqw`` commands to reduce a dataset and then unfold
-it. In the example we have a constant energy slice in the (h,k)-plane which we reduce twice to obtain the positive
-quadrant. We then reflect the result in the opposite direction and combine with the positive quadrant, then reflect this
-and combine. This produces an image which covers all four quadrants of the original with the reduced dataset (thereby increasing
-the counts four-fold).
+   For producing plots only, any analysis on these results will be invalid due to
+   multiple counting of data.
+
+Below we show a script that uses the ``symmetrise_sqw`` and ``combine_sqw``
+commands to reduce a dataset and then unfold it. In the example we have a
+constant energy slice in the (h,k)-plane which we reduce twice to obtain the
+positive quadrant. We then reflect the result in the opposite direction and
+combine with the positive quadrant, then reflect this and combine. This produces
+an image which covers all four quadrants of the original with the reduced
+dataset (thereby increasing the counts four-fold).
 
 .. code-block:: matlab
 
@@ -580,13 +731,16 @@ the counts four-fold).
    Correcting for magnetic form factor
    -----------------------------------
 
-   Horace allows basic correction of scattering intensity from simple ions by adjusting it by the magnetic form factor
-   according to formulas provided in International Tables of Crystallography, Vol C. (see, for example `here
+   Horace allows basic correction of scattering intensity from simple ions by
+   adjusting it by the magnetic form factor according to formulas provided in
+   International Tables of Crystallography, Vol C. (see, for example `here
    <https://www.ill.eu/sites/ccsl/ffacts/ffachtml.html>`__)
 
-   The class ``MagneticIons`` contains the tables of fitting parameters, used to calculate changes in scattering intensity
-   due to changes in magnetic form factor and defines the method ``correct_mag_ff``, which takes an ``sqw`` object as input
-   and returns a similar object, with intensities adjusted by the magnetic form factor:
+   The class ``MagneticIons`` contains the tables of fitting parameters, used to
+   calculate changes in scattering intensity due to changes in magnetic form
+   factor and defines the method ``correct_mag_ff``, which takes an ``sqw``
+   object as input and returns a similar object, with intensities adjusted by
+   the magnetic form factor:
 
    .. code-block:: matlab
 
@@ -594,14 +748,17 @@ the counts four-fold).
       w2_fixed = mff.correct_mag_ff(w2);
 
 
-   Where 'Fe0' is the name of the ion for which the magnetic form factor is calculated.
+   Where 'Fe0' is the name of the ion for which the magnetic form factor is
+   calculated.
 
    .. warning::
       This method should be applied only once.
 
-   The auxiliary ``MagneticIons``'s method ``IonNames`` returns the cell array of ion names, which are currently tabulated in
-   Horace and for which scattering can be corrected using the expression above. Additional ``MagneticIons`` methods
-   ``calc_mag_ff`` and ``apply_mag_ff`` allow one to calculate magnetic form factor on or apply magnetic form factor to the
+   The auxiliary ``MagneticIons``'s method ``IonNames`` returns the cell array
+   of ion names, which are currently tabulated in Horace and for which
+   scattering can be corrected using the expression above. Additional
+   ``MagneticIons`` methods ``calc_mag_ff`` and ``apply_mag_ff`` allow one to
+   calculate magnetic form factor on or apply magnetic form factor to the
    dataset provided.
 
 
@@ -610,28 +767,35 @@ Commands for entire datasets
 
 .. note::
 
-   For application of symmetry operations to the entire sqw file when it is being generated, :ref:`see above <gen_sqw>`
+   For application of symmetry operations to the entire sqw file when it is
+   being generated, :ref:`see above <gen_sqw>`
 
-It is possible to make a new ``.sqw`` data file that has had a specified symmetrisation performed on it for a certain
-data range. You specify which Brillouin zone you are interested in, and then tell Horace which Brillouin zones are
-symmetrically equivalent to this one. Data are then cut from all of these zones and combined with the data from your
-original choice. The result is output to a new file. For example:
+It is possible to make a new ``.sqw`` data file that has had a specified
+symmetrisation performed on it for a certain data range. You specify which
+Brillouin zone you are interested in, and then tell Horace which Brillouin zones
+are symmetrically equivalent to this one. Data are then cut from all of these
+zones and combined with the data from your original choice. The result is output
+to a new file. For example:
 
 .. code-block:: matlab
 
    transf_list=combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile);
 
 
-where ``data_source`` is the master ``.sqw`` file, ``proj`` is the projection structure array (the same format as that
-used for ``cut_sqw``), ``pos`` is a 3-element vector [h,k,l] specifying the Brillouin zone of interest. ``qstep`` is a
-single number specifying the desired step size along h, k, and l of the 4-dimensional output object ``wout``. ``erange``
-is a 3-element vector specifying [lo,step,hi] for the energy range to be cut. Finally, ``outfile`` is the .sqw filename
-(including path and .sqw extension) where the symmetrised data will be saved. ``transf_list`` is the cell array of
-``cut_transf`` classes where each element describes a transformation, applied to a particular zone. Note that the output
-argument ``transf_list`` is optional.
+where ``data_source`` is the master ``.sqw`` file, ``proj`` is the projection
+structure array (the same format as that used for ``cut_sqw``), ``pos`` is a
+3-element vector [h,k,l] specifying the Brillouin zone of interest. ``qstep`` is
+a single number specifying the desired step size along h, k, and l of the
+4-dimensional output object ``wout``. ``erange`` is a 3-element vector
+specifying [lo,step,hi] for the energy range to be cut. Finally, ``outfile`` is
+the .sqw filename (including path and .sqw extension) where the symmetrised data
+will be saved. ``transf_list`` is the cell array of ``cut_transf`` classes where
+each element describes a transformation, applied to a particular zone. Note that
+the output argument ``transf_list`` is optional.
 
-For the basic case detailed above, data from all permutations of ``pos=[h,k,l]`` will be included in the output
-file. The ``cut_transf`` objects in the ``transf_list`` array by default are reflections described by the transformation
+For the basic case detailed above, data from all permutations of ``pos=[h,k,l]``
+will be included in the output file. The ``cut_transf`` objects in the
+``transf_list`` array by default are reflections described by the transformation
 matrix, specified by ``cut_transf.transf_matrix`` property.
 
 If you wish to be more restrictive then you can either use:
@@ -669,8 +833,9 @@ The keywords that can be used are as follows:
 .. note::
    ``-cyclic`` ignores sign changes, whereas ``-cycwithneg`` includes sign changes.
 
-If you wish to specify which zones to combine manually, this can be done by specifying the argument
-``zonelist``. This is a cell array, with each element a 3-element vector. For example you might have:
+If you wish to specify which zones to combine manually, this can be done by
+specifying the argument ``zonelist``. This is a cell array, with each element a
+3-element vector. For example you might have:
 
 .. code-block:: matlab
 
@@ -681,13 +846,16 @@ If you wish to specify which zones to combine manually, this can be done by spec
 Advanced usage
 ==============
 
-By default ``combine_equivalent_zones`` generates a set of reflections, transforming equivalent zones into the target
-one. For specified Brillouin zones the user can modify transformations to use symmetry, specific to their problem. E.g,
-one can specify shifts, which use the symmetry of the reciprocal lattice to unite various zones together. To combine
-zones, located at inequivalent ``hkl`` positions one may need to apply a correction function. The script below gives the
-example of combining all equivalent zones and correcting for the magnetic form factor. The shift transformation is
-defined by the ``symmetry_type`` keyword, and the function to apply to each zone before combining is specified by the
-``correct_fun`` keyword.
+By default ``combine_equivalent_zones`` generates a set of reflections,
+transforming equivalent zones into the target one. For specified Brillouin zones
+the user can modify transformations to use symmetry, specific to their
+problem. E.g, one can specify shifts, which use the symmetry of the reciprocal
+lattice to unite various zones together. To combine zones, located at
+inequivalent ``hkl`` positions one may need to apply a correction function. The
+script below gives the example of combining all equivalent zones and correcting
+for the magnetic form factor. The shift transformation is defined by the
+``symmetry_type`` keyword, and the function to apply to each zone before
+combining is specified by the ``correct_fun`` keyword.
 
 .. code-block:: matlab
 
@@ -716,21 +884,26 @@ defined by the ``symmetry_type`` keyword, and the function to apply to each zone
                                           'symmetry_type','shift','correct_fun',fixer);
 
 
-``symmetry_type`` currently can be ``sigma`` (for reflections) or ``shift`` (for moving different zones).
+``symmetry_type`` currently can be ``sigma`` (for reflections) or ``shift`` (for
+moving different zones).
 
-The sample script above also generates duplicated pixels, as the ``[2,0,0]`` zones are moved into ``[0,0,0]`` positions
-and the same zones at the edges of the cuts (e.g ``[1,1,0]+-1``) will be accounted for twice. The direction of the
+The sample script above also generates duplicated pixels, as the ``[2,0,0]``
+zones are moved into ``[0,0,0]`` positions and the same zones at the edges of
+the cuts (e.g ``[1,1,0]+-1``) will be accounted for twice. The direction of the
 projection should be changed to avoid this.
 
 Limitations
 ===========
 
-* At present ``symmetrise_sqw``, ``combine_sqw``, and ``rebin_sqw`` work ONLY for sqw objects, since they
-  require access to individual detector pixel information. The functions will work for any dimensionality
-  of object, however.
+* At present ``symmetrise_sqw``, ``combine_sqw``, and ``rebin_sqw`` work ONLY
+  for sqw objects, since they require access to individual detector pixel
+  information. The functions will work for any dimensionality of object,
+  however.
 
-* ``combine_equivalent_zones`` has to perform some memory and hdd-access intensive calculations, which
-  should ideally be performed on `high performance computing cluster
+* ``combine_equivalent_zones`` has to perform some memory and hdd-access
+  intensive calculations, which should ideally be performed on `high performance
+  computing cluster
   <http://www.isis.stfc.ac.uk/groups/excitations/data-analysis-computers/connecting-to-isiscomputendrlacuk-using-nomachine15120.html>`__. The
-  amount of memory used by the code is controlled by ``hor_config`` parameter ``mem_chunk_size`` and is
-  approximately 10 times larger then the amount, specified by this parameter.
+  amount of memory used by the code is controlled by ``hor_config`` parameter
+  ``mem_chunk_size`` and is approximately 10 times larger then the amount,
+  specified by this parameter.

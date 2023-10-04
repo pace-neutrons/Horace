@@ -65,9 +65,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#dnd-objects">dnd objects</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#single-dnd-object">Single dnd object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#array-of-dnd-objects">Array of dnd objects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#list-of-operations-and-their-equivalent-code">List of operations and their equivalent code</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#list-of-operations-and-their-equivalent-code">List of operations and their equivalent code</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Plotting.html">Plotting</a></li>
@@ -117,81 +117,138 @@
              
   <section id="binary-operations">
 <h1>Binary operations<a class="headerlink" href="#binary-operations" title="Permalink to this heading"></a></h1>
-<p>Binary operations between two objects can be handled in a variety of ways in Horace. You can either use the Matlab symbols +, - , *, / and \, or you can use the explicit function names <code class="docutils literal notranslate"><span class="pre">plus,</span> <span class="pre">minus,</span> <span class="pre">mtimes,</span> <span class="pre">mrdivide</span></code> and <code class="docutils literal notranslate"><span class="pre">mldivide</span></code>.</p>
-<p>There are several options for the input parameters to binary operations</p>
+<p>Binary operations between two objects can be applied in a variety of ways in
+Horace. You can either use the symbolic form (<code class="docutils literal notranslate"><span class="pre">+</span></code>, <code class="docutils literal notranslate"><span class="pre">-</span></code> , <code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">/</span></code>,
+<code class="docutils literal notranslate"><span class="pre">\</span></code>), or you can use the explicit function names (<code class="docutils literal notranslate"><span class="pre">plus,</span> <span class="pre">minus,</span> <span class="pre">mtimes,</span>
+<span class="pre">mrdivide</span></code>, <code class="docutils literal notranslate"><span class="pre">mldivide</span></code>, etc.).</p>
 <section id="sqw-objects">
 <h2>sqw objects<a class="headerlink" href="#sqw-objects" title="Permalink to this heading"></a></h2>
-<p>Let us take for our example the addition operator ‘+’, and our initial single sqw object is called <code class="docutils literal notranslate"><span class="pre">w1</span></code> and has the ‘pix’ array retained (note this is an important point - you can have an sqw object without the pix array by converting a dnd object to sqw. In that case the result is referred to as an sqw object of dnd type. In our example <code class="docutils literal notranslate"><span class="pre">w1</span></code> has a pix array, so is referred to as an sqw of sqw type).</p>
+<p>Let us take for our example the addition operator <code class="docutils literal notranslate"><span class="pre">+</span></code>. Our initial <code class="docutils literal notranslate"><span class="pre">sqw</span></code>
+object is called <code class="docutils literal notranslate"><span class="pre">w1</span></code> and has an attached <code class="docutils literal notranslate"><span class="pre">pix</span></code> array.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the case of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects, binary operations transform the <code class="docutils literal notranslate"><span class="pre">signal</span></code>
+and <code class="docutils literal notranslate"><span class="pre">variance</span></code> elements of the pixel data.</p>
+</div>
 <section id="single-sqw-object">
 <h3>Single sqw object<a class="headerlink" href="#single-sqw-object" title="Permalink to this heading"></a></h3>
-<p>You can add to w1 in the following way</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw</span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw_dnd_type</span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_dnd</span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scalar</span>
+<p>You operate on <code class="docutils literal notranslate"><span class="pre">w1</span></code> with the following types:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object with a pix array of identical size to the pix
+array of <code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>The conditions for these operations are as follows:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is an sqw of sqw type, with a pix array of identical size to the pix array of <code class="docutils literal notranslate"><span class="pre">w1</span></code>. There is only really one circumstance in which doing a binary operation of this type makes sense - when a background dataset has been created that maps exactly onto the real dataset, and needs to be subtracted.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw_dnd_type</span></code> is an sqw of dnd type (i.e. no it has pix array) whose plot axes overlap exactly with those of <code class="docutils literal notranslate"><span class="pre">w1</span></code>. An example is taking a 1d cut along the energy axis from two different regions of reciprocal space, and then adding or subtracting one from the other. In this case the output will be a sqw object of dnd type, since the pixel information has lost its connection with the signal and error that are plottable.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">w2_dnd</span></code> as above, but <code class="docutils literal notranslate"><span class="pre">w2_dnd</span></code> is a dnd object rather than an sqw of dnd type. Similarly to the above, the output is an sqw object of dnd type.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">scalar</span></code> is a single number, e.g. if you want to add 4.782 to all of the data in <code class="docutils literal notranslate"><span class="pre">w1</span></code>. The output stays as a full sqw of sqw type (with pix array).</p></li>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A common use for this is when a background dataset has been created that maps
+exactly onto the real dataset, and needs to be subtracted.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_dnd</span></code> is a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object commensurate with <code class="docutils literal notranslate"><span class="pre">w1.data</span></code></p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_dnd</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will return a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object rather than an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> as the image no
+longer corresponds to the underlying pixels.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">num</span></code> is a numeric array of the same size as the pix array of <code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">num</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scalar</span></code> is a single number to apply to all of the data in <code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scalar</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
 </ul>
 </section>
 <section id="array-of-sqw-objects">
 <h3>Array of sqw objects<a class="headerlink" href="#array-of-sqw-objects" title="Permalink to this heading"></a></h3>
-<p>You can use the same binary operation syntax as for single sqw objects, with the following conditions</p>
+<p>You can use the same binary operation syntax as for single sqw objects, with the
+following conditions</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is either an array of sqw of sqw type objects with the pix array of each element matching the pix array of each element of <code class="docutils literal notranslate"><span class="pre">w1</span></code>. Or a single sqw object if the pix array happens to be the same size for all elements of the <code class="docutils literal notranslate"><span class="pre">w1</span></code> array.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw_dnd</span></code> is as above, i.e. an array of dnd-type sqw objects whose plot axes match element by element those of the array <code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">w2_dnd</span></code> same rules as for sqw of dnd type above.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">scalar</span></code> the same scalar is subtracted from every pix array in the array of sqw objects.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is either a scalar <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object of commensurate size to all of
+the sqw objects in the array, or an array of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects with each object
+of commensurate size to its corresponding element of <code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p></li>
 </ul>
-<p>There is one additional possibility</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">numeric_array</span>
-</pre></div>
-</div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">numeric_array</span></code> is an array of scalars whose size matches the size of the sqw array. The output will continue to be an sqw of sqw type, with a pix array.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_dnd</span></code> same rules as for sqw of dnd type above.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num</span></code> is a numeric array following the size rules above.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scalar</span></code> the same scalar is subtracted from every pix array in the array of
+sqw objects.</p></li>
 </ul>
 </section>
 </section>
 <section id="dnd-objects">
 <h2>dnd objects<a class="headerlink" href="#dnd-objects" title="Permalink to this heading"></a></h2>
-<p>Note that here we will use the phrase dnd object also to mean sqw object of dnd type, since the two are very closely related.</p>
+<p>Let us again take for our example the addition operator <code class="docutils literal notranslate"><span class="pre">+</span></code>, with our initial
+<code class="docutils literal notranslate"><span class="pre">dnd</span></code> object called <code class="docutils literal notranslate"><span class="pre">w1</span></code> .</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the case of <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects, binary operations transform the <code class="docutils literal notranslate"><span class="pre">s</span></code> and
+<code class="docutils literal notranslate"><span class="pre">e</span></code> matrices</p>
+</div>
 <section id="single-dnd-object">
 <h3>Single dnd object<a class="headerlink" href="#single-dnd-object" title="Permalink to this heading"></a></h3>
-<p>The choices for a dnd object are:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw</span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw_dnd_type</span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_dnd</span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scalar</span>
+<p>You can add values to <code class="docutils literal notranslate"><span class="pre">w1</span></code> in the following ways:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object with a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> (in <code class="docutils literal notranslate"><span class="pre">data</span></code>) of identical size to
+<code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>The forms of these objects are as described for the sqw case. In all cases the output will be a dnd object. Note that the pix field of <code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is ignored for this operation.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_dnd</span></code> is a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object commensurate with <code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_dnd</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num</span></code> is a numeric array of the same size as the arrays of <code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">num</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scalar</span></code> is a single number to apply to all of the data in <code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scalar</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ul>
 </section>
 <section id="array-of-dnd-objects">
 <h3>Array of dnd objects<a class="headerlink" href="#array-of-dnd-objects" title="Permalink to this heading"></a></h3>
-<p>As with arrays of sqw objects, there is one further choice compared to a single dnd:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">numeric_array</span>
-</pre></div>
-</div>
-<p>As for sqw objects, the numeric array has to be the same size as the array of dnd objects.</p>
-</section>
+<p>Similar to arrays of sqw objects.</p>
+<p>As for sqw objects, arrays have to be the same size as the array of dnd objects
+with respectively commensurate array sizes, or a scalar object as the same size
+of each.</p>
 </section>
 <section id="list-of-operations-and-their-equivalent-code">
-<h2>List of operations and their equivalent code<a class="headerlink" href="#list-of-operations-and-their-equivalent-code" title="Permalink to this heading"></a></h2>
-<p>The arithmetic operations above correspond to equivalent Matlab functions. You should never need to use these, but for reference the corresponding functions are:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">plus</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span>
-<span class="n">w1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">minus</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span>
-<span class="n">w1</span><span class="w">  </span><span class="s">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mtimes</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span>
-<span class="n">w1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mrdivide</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span>
-<span class="n">w1</span><span class="w"> </span><span class="o">\\</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mldivide</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span>
-<span class="n">w1</span><span class="w"> </span><span class="s">^</span><span class="w"> </span><span class="s">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mpower</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span>
+<h3>List of operations and their equivalent code<a class="headerlink" href="#list-of-operations-and-their-equivalent-code" title="Permalink to this heading"></a></h3>
+<p>The arithmetic operations above correspond to equivalent Matlab functions. You
+should never need to use these, but for reference the corresponding functions
+are:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">plus</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">minus</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mtimes</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"> </span><span class="n">w1</span>
+<span class="o">/</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mrdivide</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">\</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mldivide</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span>^<span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span>
+<span class="nb">mpower</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>Important</strong> the matrix operations *, /, \\ and ^ (mtimes, mrdivide, mldivide and mpower) are performed <strong>element-by-element</strong>. So the equivalent Matlab routines would be .*, ./, .\and .^</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The matrix operations <code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">/</span></code>, <code class="docutils literal notranslate"><span class="pre">\</span></code> and <code class="docutils literal notranslate"><span class="pre">^</span></code> (<code class="docutils literal notranslate"><span class="pre">mtimes</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mrdivide</span></code>, <code class="docutils literal notranslate"><span class="pre">mldivide</span></code> and <code class="docutils literal notranslate"><span class="pre">mpower</span></code>) are performed
+element-by-element. So the equivalent Matlab routines would be <code class="docutils literal notranslate"><span class="pre">.*</span></code>,
+<code class="docutils literal notranslate"><span class="pre">./</span></code>, <code class="docutils literal notranslate"><span class="pre">.\</span></code> and <code class="docutils literal notranslate"><span class="pre">.^</span></code> respectively.</p>
+</div>
+</section>
 </section>
 </section>
 
@@ -207,7 +264,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Oct 4, 2023, 4:03:51 PM.
+      <span class="lastupdated">Last updated on Oct 4, 2023, 4:06:59 PM.
       </span></p>
   </div>
 
