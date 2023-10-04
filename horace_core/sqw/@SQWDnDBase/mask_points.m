@@ -78,7 +78,7 @@ else
     data = win;
 end
 
-ndim = length(data.pax);
+ndim = dimensions(data);
 
 if ~isempty(options.keep)
     xkeep=options.keep;
