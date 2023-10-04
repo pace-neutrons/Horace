@@ -2444,7 +2444,7 @@ implemented properly</p>
 
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.SQWDnDBase.sqw_eval">
-<span class="sig-name descname"><span class="pre">sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.SQWDnDBase.sqw_eval" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.SQWDnDBase.sqw_eval" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate sqw for a model scattering function</p>
 <blockquote>
 <div><blockquote>
@@ -2460,7 +2460,7 @@ implemented properly</p>
 </div></blockquote>
 <blockquote>
 <div><dl>
-<dt>win        Dataset (or array of datasets) that provides the axes and points</dt><dd><p>for the calculation</p>
+<dt>obj        SQWDnDBase object (or array of objects) that provides used</dt><dd><p>as the source frame for the calculations</p>
 </dd>
 <dt>sqwfunc     Handle to function that calculates S(Q, w)</dt><dd><dl>
 <dt>Most commonly used form is:</dt><dd><blockquote>
@@ -2532,7 +2532,7 @@ Default is false.</p>
 </dl>
 <blockquote>
 <div><dl class="simple">
-<dt>wout        If <cite>filebacked</cite> is false, an sqw object or array of sqw objects.</dt><dd><p>If <cite>filebacked</cite> is true, a file path or cell array of file paths.
+<dt>obj        If <cite>filebacked</cite> is false, an sqw object or array of sqw objects.</dt><dd><p>If <cite>filebacked</cite> is true, a file path or cell array of file paths.
 Output argument must be specified if <cite>outfile</cite> not given.</p>
 </dd>
 </dl>
@@ -3421,7 +3421,7 @@ size.]</p>
 
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqw_eval">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqw_eval" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqw_eval" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate sqw for a model scattering function</p>
 <blockquote>
 <div><blockquote>
@@ -3437,7 +3437,7 @@ size.]</p>
 </div></blockquote>
 <blockquote>
 <div><dl>
-<dt>win        Dataset (or array of datasets) that provides the axes and points</dt><dd><p>for the calculation</p>
+<dt>obj        SQWDnDBase object (or array of objects) that provides used</dt><dd><p>as the source frame for the calculations</p>
 </dd>
 <dt>sqwfunc     Handle to function that calculates S(Q, w)</dt><dd><dl>
 <dt>Most commonly used form is:</dt><dd><blockquote>
@@ -3509,7 +3509,7 @@ Default is false.</p>
 </dl>
 <blockquote>
 <div><dl class="simple">
-<dt>wout        If <cite>filebacked</cite> is false, an sqw object or array of sqw objects.</dt><dd><p>If <cite>filebacked</cite> is true, a file path or cell array of file paths.
+<dt>obj        If <cite>filebacked</cite> is false, an sqw object or array of sqw objects.</dt><dd><p>If <cite>filebacked</cite> is true, a file path or cell array of file paths.
 Output argument must be specified if <cite>outfile</cite> not given.</p>
 </dd>
 </dl>
@@ -4228,7 +4228,7 @@ experiment.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Oct 3, 2023, 10:34:40 AM.
+      <span class="lastupdated">Last updated on Oct 4, 2023, 10:13:45 AM.
       </span></p>
   </div>
 
