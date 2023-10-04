@@ -28,12 +28,13 @@ function wout = mask_random_fraction_pixels(win,npix_frac)
 %Check size of input array:
 sz=numel(win);
 
-if ~(numel(npix_frac)==1 || numel(npix_frac)==numel(win))
-    error('HORACE:sqw:invalid_argument', ...
-        'npix must either be scalar or an array of the same size as input sqw object');
-end
 if numel(npix_frac) == 1 && numel(win)>1
     npix_frac = ones(1,numel(win))*npix_frac;
+end
+
+if numel(npix_frac)~=numel(win)
+    error('HORACE:sqw:invalid_argument', ...
+        'npix must either be scalar or an array of the same size as input sqw object');
 end
 
 npix = zeros(1,sz);

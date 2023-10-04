@@ -13,8 +13,10 @@ function obj = sqw_eval(obj, sqwfunc, pars, varargin)
 %
 % Input:
 % ------
-%   obj        SQWDnDBase object (or array of objects) that provides used
-%              as the source frame for the calculations
+%   obj        SQWDnDBase object (or array of objects) that used
+%              as the source for the calculations, utilizing either image
+%              (data field) coordinate frame of pixels coordinates as the
+%               source of hkle coordinates for sqwfunc.
 %
 %   sqwfunc     Handle to function that calculates S(Q, w)
 %               Most commonly used form is:

@@ -405,13 +405,14 @@ classdef (Abstract) PixelDataBase < serializable
         % realign pixels using alignment matrix stored with pixels
     end
     %======================================================================
-    % File handling/migration. Does nothing on membased
+    % File handling/migration.
     methods(Abstract)
         obj = prepare_dump(obj)
         obj = get_new_handle(obj, varargin)
-        obj = format_dump_data(obj,varargin)
+        obj = format_dump_data(obj,data_page)
         obj = finish_dump(obj)
-        % Paging
+        % Paging:
+        % pixel indexes of the current page
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
         % Reset the object to point to the first page of pixel data in the file
         % and clear the current cache
@@ -823,12 +824,16 @@ classdef (Abstract) PixelDataBase < serializable
             val = pix_data(obj);
         end
         %
-        function data_range = get_data_range(obj,varargin)
+        function data_range = get_data_range(obj,field_idx)
             % data range getter
+            %
+            % if field_idx provided, return ranges for the pixel fields with
+            % indexes provided.
+            %
             if nargin == 1
                 data_range = obj.data_range_;
             else
-                data_range = obj.data_range_(:,varargin{1});
+                data_range = obj.data_range_(:,field_idx);
             end
         end
     end

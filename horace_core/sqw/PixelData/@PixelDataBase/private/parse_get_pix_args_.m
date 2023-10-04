@@ -13,10 +13,12 @@ function [pix_indices,ind_in_pix,ignore_range,raw_data,keep_precision,align] = .
 % pix_indexes     -- logical or numerical array of pixel indexes to return
 %                    pixels corresponding to these indexes, or keyword
 %                    'all'
-% index_set       -- string, which define set of pixel elements to return.
-%                    or cellarray of such strings. If present, do not
-%                    return complete pixels but return subset of pixels
-%                    values. Can be provided with keyword -raw_data only
+% index_set       -- string or cellarray of strings which defines
+%                    selection of pixel parts to return. If present, indicates
+%                    to not to return complete pixels data but return subset
+%                    of pixel fields values.
+%                    Can be provided with keyword -raw_data only.
+%
 % '-ignore_range' -- if present, indicates to not calculate pixel ranges when
 %                    returning PixelData class
 % '-raw_data'     -- do not wrap pixel data into pixel class and return
@@ -65,7 +67,6 @@ switch nargi
                     disp2str(argi{2}))
             end
             ind_in_pix= obj.field_index(argi{2});
-
         else
             ind_in_pix= [];
         end

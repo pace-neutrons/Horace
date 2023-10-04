@@ -70,11 +70,19 @@ classdef PixelDataFileBacked < PixelDataBase
     properties (Access=private)
         num_pixels_ = 0;  % number of pixels, stored in the data file
         f_accessor_ = []; % instance of object to access pixel data from file
-        page_num_   = 1;  % the index of the currently loaded page
+        page_num_   = 1;  % the index of the currently referred page
+
+        % shift (in Bytes) from the beginning of the binary file containing
+        % the pixels to the first byte
         offset_ = 0;
-        write_handle_ = []; % handle to the class, used to perform pixel
-        % copying in operations, involving all pixels
-        tmp_pix_obj_ = [];
+
+        % handle to the class used to perform pixel
+        write_handle_ = []; % copying in operations, involving all pixels
+
+        % handle-class holding tmp file, produced by filebacked
+        % operations. If all referring classes go out of scope, the file
+        % gets deleted
+        tmp_file_holder_ = [];
     end
 
     properties(Dependent,Hidden)
@@ -261,9 +269,9 @@ classdef PixelDataFileBacked < PixelDataBase
                 if isempty(obj.full_filename)
                     obj.full_filename = 'in_mem';
                 end
-                obj.tmp_pix_obj_ = TmpFileHandler(obj.full_filename);
+                obj.tmp_file_holder_ = TmpFileHandler(obj.full_filename);
 
-                obj.write_handle_ = sqw_fopen(obj.tmp_pix_obj_.file_name, 'wb+');
+                obj.write_handle_ = sqw_fopen(obj.tmp_file_holder_.file_name, 'wb+');
             end
             obj.pix_written = 0;
         end
@@ -310,7 +318,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.write_handle_ = [];
                 obj.f_accessor_ = [];
                 obj.offset_ = 0;
-                obj.full_filename = obj.tmp_pix_obj_.file_name;
+                obj.full_filename = obj.tmp_file_holder_.file_name;
                 obj.f_accessor_ = memmapfile(obj.full_filename, ...
                     'format', obj.get_memmap_format(), ...
                     'Repeat', 1, ...
@@ -360,13 +368,7 @@ classdef PixelDataFileBacked < PixelDataBase
         end
         function pix_copy = copy(obj)
             pix_copy = obj;
-            for i=1:numel(obj)
-                if ~isempty(obj(i).tmp_pix_obj_)
-                    pix_copy(i).tmp_pix_obj_.copy();
-                end
-            end
         end
-
     end
     %======================================================================
     methods(Static)
@@ -436,8 +438,10 @@ classdef PixelDataFileBacked < PixelDataBase
     % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
         function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
+            % Overloaded part of get_raw_pix operation. 
+            % 
             % return unmodified pixel data according to the input indexes
-            % provided
+            % provided.
             % Inputs:
             % obj         -- initialized pixel data memory object
             % row_pix_idx -- indixes of pixels to return

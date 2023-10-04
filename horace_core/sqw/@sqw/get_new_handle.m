@@ -1,6 +1,6 @@
 function [obj, ldr] = get_new_handle(obj, outfile)
 % Unlock write access to filebacked sqw object.
-% Does noting for memory backed object.
+% Does nothing for memory based object.
 %
 % Optional input:
 % outfile  -- target sqw file will be created with the filename provided
