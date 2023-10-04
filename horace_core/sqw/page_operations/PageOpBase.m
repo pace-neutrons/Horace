@@ -84,6 +84,9 @@ classdef PageOpBase
         function obj = PageOpBase(varargin)
             % Constructor for page operations
             %
+            if nargin == 0
+                return;
+            end
             obj = obj.init(varargin{:});
         end
         function [obj,in_obj] = init(obj,in_obj)
@@ -117,7 +120,7 @@ classdef PageOpBase
         %
         function obj = common_page_op(obj)
             % Method contains the code which runs for any page operation,
-            % inheriting from this one. 
+            % inheriting from this one.
             %
             % Input:
             % obj   -- pageOp object, containing modified pixel_data page
@@ -125,7 +128,7 @@ classdef PageOpBase
             %
             % Thought: May be should be implemented as page_op, which needs
             %          to be overloaded and invoked as part of more complex
-            %          page operation. 
+            %          page operation.
             %
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
@@ -133,8 +136,8 @@ classdef PageOpBase
         end
         %
         function [out_obj,obj] = finish_op(obj,in_obj)
-            % Finalize page operations. 
-            % 
+            % Finalize page operations.
+            %
             % Contains common code to transfer data from operation to
             % out_obj and  Need overloading for correct image calculations
             %

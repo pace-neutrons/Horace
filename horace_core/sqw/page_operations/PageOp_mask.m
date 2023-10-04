@@ -48,7 +48,8 @@ classdef PageOp_mask < PageOpBase
                     obj.mask_by_obj  = false;
                     obj.mask_by_bins = false;
                     obj.mask_by_num  = true;
-                    if obj.pix_.num_pages> 1 % each chunk should contain share of the requested number of pixels
+                    if obj.pix_.num_pages> 1 % each page should contain
+                        % share of the requested number of pixels
                         obj.keep_info_obj = obj.calc_page_share( ...
                             keep_info,obj.num_pix_original,obj.pix_.page_size);
                     end
@@ -161,20 +162,25 @@ classdef PageOp_mask < PageOpBase
             %
             %
             pix_share = num_pix_to_keep/tot_num_pix;
-            pieces    = split_vector_fix_sum(tot_num_pix,page_size);
-            num_pages = numel(pieces);
-            pieces    = floor(pieces*pix_share);
+            pages     = split_vector_fixed_sum(tot_num_pix,page_size);
+            pages     = [pages{:}];
+            num_pages = numel(pages);
+            pieces    = floor(pages*pix_share);
             % ensure each page contains at least one pixel.
             nothing   = pieces == 0;
             pieces(nothing) = pieces(nothing)+1;
             %
             splitted = sum(pieces);
-            while splitted<tot_num_pix
+            while splitted<num_pix_to_keep
                 ic = num_pages;
-                while ic>0 && splitted<tot_num_pix
+                while ic>0 && splitted<num_pix_to_keep
                     pieces(ic) = pieces(ic)+1;
+                    if pieces(ic) < pages(ic)
+                        splitted = splitted+1;
+                    else
+                        pieces(ic) = pages(ic);
+                    end
                     ic = ic-1;
-                    splitted = splitted+1;
                 end
             end
         end
