@@ -31,23 +31,24 @@ specifically the amount of memory available, and is dealt with
 
 On most machines (those with <10GB RAM) the dataset is written to a new file
 with the extension ``.sqw``, and intermediate ``.tmp`` files, which contain axes
-projection information, are written as Horace combines the data.
+projection information, are written as Horace combines the data. For cases where
+large amounts of memory are available then the creation of ``.tmp`` files can be
+unnecessary and the ``.sqw`` file can be created directly (see :ref:`advanced
+use <user_guide/Advanced_use:Advanced use>`).
 
 Once you have created your ``.sqw`` file and are happy with it then you can delete
 these intermediate ``.tmp`` files, although it is generally a good idea to keep
 for a few days them unless disk space is a problem, in case you wish to
 re-generate your ``.sqw`` file.
 
-For cases where large amounts of memory are available then the creation of
-``.tmp`` files can be unnecessary and the ``.sqw`` file can be created directly (see
-:ref:`advanced use <user_guide/Advanced_use:Advanced use>`).
 
 .. note::
 
-   If you have an old-style data file, in addition to your data there is one
-   other file that is required -- the parameter (``.par``) file for the
+   If you have an old-style data file, then in addition to your data there is
+   one other file that is required -- the parameter (``.par``) file for the
    instrument that you used to collect the data.  This file has the extension
-   ``.par``, and is not the same as a ``.phx`` file. For more recent ``.nxspe``
+   ``.par``, and is not the same as a :ref:`.phx file
+   <manual/Input_file_formats:Input file formats>`. For more recent ``.nxspe``
    files, this is included in the ``.nxspe`` itself.
 
    The ``.par`` file for the instrument you used to generate your data can be
@@ -252,7 +253,7 @@ disk.
 .. note::
 
    The above screenshot was created when processing a larger number of files
-   from the same dataset as has been used for this demo. The only practical
+   from the same dataset that was used for this demo. The only practical
    difference this makes is to the size of errorbars in 1d cuts, the time taken
    to process the data, and some of the on-screen printouts.
 
@@ -378,11 +379,20 @@ r.l.u. in the :math:`[1,0,0]` component, and between :math:`-0.2` and
 The slice axes are :math:`[0,0,1]` whose step size is :math:`0.05` r.l.u., and
 energy whose step size is the existing step size in the file.
 
-Notice that we've specified the energy step size differently from the
-:math:`[0,0,1]` step size. If a scalar is used then the whole range of data
-along that axis will be plotted. If a vector of the form [low,step,high] is used
-then only data within the range low -> high will be plotted, with step size
-given by ``step`` (c.f. :ref:`cutting <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut>`).
+.. note::
+
+   Here, we've specified the energy step size differently from the
+   :math:`[0,0,1]` step size, by providing just a scalar value, which specifies
+   the step size.
+
+   - If a scalar is used in this way then the whole range of data along that axis
+     will be plotted.
+
+   - If a vector of the form [low,step,high] is used then only data within the
+     range low -> high will be plotted, with step size given by ``step``
+
+   For more info see: :ref:`cutting
+   <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut>`.
 
 This creates a new object containing that particular slice of data. To plot it,
 we write:
@@ -508,8 +518,8 @@ information, then it becomes a new type of object -- in this case a ``d2d``.
 
 .. note::
 
-   If the cut would create a 1-d object then it is known as a ``d1d``, and so
-   on. The collective set of objects are known as ``dnd`` s.
+   If the cut would create a 1D object then it is known as a ``d1d``, and so
+   on up to 4D. This class of objects is known collectively as ``dnd`` s.
 
 .. warning::
 
@@ -557,12 +567,15 @@ function, each with a slightly different syntax:
    An example of this would be calculating a dispersion relation, for a simple
    harmonic oscillator response function.
 
-With the above caveats in mind, let's demonstrate two different kinds of data
-manipulation of the first type discussed above. In the first we will simulate
-the background for a 2D slice by looking at the signal at high
-:math:`|\textbf{Q}|` in a 1D cut and then replicating it into 2D and subtracting
-from the real data. We'll then demonstrate correcting the data for the
-Bose-Einstein thermal population factor.
+With the above options in mind, let's demonstrate two different kinds of data
+manipulation of the first type discussed above.
+
+1.  We will simulate the background for a 2D slice by looking at the signal at
+    high :math:`|\textbf{Q}|` in a 1D cut and then replicating it into 2D and
+    subtracting from the real data.
+
+2. We'll then demonstrate correcting the data for the Bose-Einstein thermal
+   population factor.
 
 Process
 -------
@@ -586,7 +599,7 @@ range along :math:`[0, 1, 0]` of 4.8 to 5:
    wbackcut = cut(w110, 1, [4.8, 5]);
 
 
-Next make a new 2D slice by replicating the cut along one of the integration
+Next make a new 2D slice by replicating the 1D cut along one of the integration
 axes:
 
 ::
@@ -597,8 +610,8 @@ axes:
 
 .. note::
 
-   Here we are passing ``w110`` as the template object to expand the
-   slice we just made to the same shape.
+   Here we are passing ``w110`` as the 2D template object to expand the slice we
+   just made to the same shape.
 
 
 .. image:: ../images/Screenshot_background_replicated.png
@@ -704,18 +717,15 @@ case they correspond respectively to:
    :width: 300px
    :alt: 2d simulation
 
-
 .. note::
 
    ``func_eval`` works for both ``sqw`` and ``dnd`` objects with almost the same
    syntax.
 
+.. warning::
 
-.. note::
-
-   For ``sqw`` objects, pixel information is simulated according to the
-   calculated intensity for the data grid, whereas for ``dnd`` objects this is
-   not required.
+   For ``sqw`` objects, the function is applied to the calculated bin averages
+   of the data. ``dnd`` objects only contain the computed bin averages.
 
 It is also possible to simulate a ``dnd`` from a template ``sqw``
 object by using an additional keyword argument ``'all'`` as follows:
@@ -739,8 +749,8 @@ In this case we will be fitting a full model of S(**Q**,E), using ``sqw_eval``.
 
    The difference between ``sqw_eval`` and ``func_eval`` is the way in which the
    arguments are passed to the target function. ``sqw_eval`` passes the
-   positions (h,k,l,e) for each point, while ``func_eval`` simply passes the
-   calculated intensity.
+   positions (h,k,l,e) for each point, while ``func_eval`` passes the computed
+   bin averages.
 
 The function we will use to demonstrate here is a model appropriate for spin
 excitations of a 3D Heisenberg ferromagnet; it is called
@@ -792,14 +802,14 @@ flexible functions for computing transformations of our data.
    comprising any other form of input.
 
 
-Bose Temperature
-----------------
+Apply
+-----
 
 In this example we will look at the generalised application function ``apply``.
 
 ``apply`` is a somewhat advanced function which requires some knowledge of the
 underlying ``sqw`` object structure but allows us to apply arbitrary functions
-affecting more than just the signal to an object is a concise and flexible
+affecting more than just the signal to an object in a concise and flexible
 manner.
 
 For this example we will be applying a Bose population correction, first we define
