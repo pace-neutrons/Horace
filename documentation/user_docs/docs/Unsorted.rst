@@ -11,7 +11,6 @@ and may not be needed in the new documentation.
    manual/Horace_command_line
    manual/Read_or_write_to_disk
    manual/Remote_data_analysis
-   manual/Reshaping_etc
    manual/Run_inspector
    manual/Script_for_correcting_sample_misalignment
    manual/Script_for_data_treatment

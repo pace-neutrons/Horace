@@ -1,9 +1,17 @@
 classdef PageOpBase
-    %PAGEOPBASE class defines generic operation, performed on chunk of pixels
+    % PAGEOPBASE class defines generic operation, performed on chunk of pixels
     % located in memory.
     %
-    % An operation normally consists of doing something with pixels and
-    % calculating appropriate avarages to image.
+    % An operation normally consists of doing something with pixels, e.g.
+    % recalculating or modifying signal/variance and
+    % calculating appropriate changes to the image.
+    %
+    % IMPORTANT:
+    % The operation can be used by the algorithms which do not change
+    % the size and shape of the image.
+    % In addition, the operation should not change pixel coordinates in a
+    % way, which would violate the relation between image and the pixels,
+    % contributing into each part of the image.
     properties(Dependent)
         % true if operation modifies PixelData only and does not affect
         % image. The majority of operations modify both pixels and image

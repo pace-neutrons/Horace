@@ -15,16 +15,18 @@ function wout = mask_pixels (obj, keep_info)
 %
 %   keep_info
 %    EITHER:           single number, which specifies the number of
-%                      pixels to retain. Random selection of
+%                      pixels to retain. Random selection of pixels
+%                      with wout.num_pixels == keep_info is retained as the
+%                      result of the operation.
 %    *OR*              Array of 1 or 0 (or true or false) that indicate
 %                      which pixels to retain (true to retain, false to ignore)
-%                      Numeric or logical array of same number of pixels
-%                      as the data.
+%                      Numeric or logical array with number of elements
+%                      equal to  number of pixels in the obj.
 %    *OR*
 %                      sqw object in which the signal in individual pixels is
 %                      interpreted as a mask array:
-%                           =1 (or true)  to retain
-%                           =0 (or false) to remove
+%                           >=1  to retain
+%                            <1  to remove
 %                      the sqw object must have the same number of pixels
 %                      as the object to be masked.
 %
@@ -51,27 +53,25 @@ if isa(keep_info, 'SQWDnDBase')
         error('HORACE:sqw:invalid_argument', ...
             'If the mask object is a Horace object if must be sqw-type i.e. contain pixel information')
     end
-
-    if ~isequal(obj.pix.num_pixels, keep_info.pix.num_pixels)
+    if obj.pix.num_pixels ~= keep_info.pix.num_pixels
         error('HORACE:sqw:invalid_argument', ...
             'Number of pixels in input and mask object must be the same')
     end
 elseif (isnumeric(keep_info) || islogical(keep_info)) && ...
         numel(keep_info)~=numel(obj.data.s)
-    if ~islogical(keep_info)
-        if isscalar(keep_info)
-            if keep_info<0
-                error('HORACE:sqw:invalid_argument', ...
-                    'Can not mask all pixels. Num pixels to mask should be positive number. Provided: %d', ...
-                    keep_info);
-            elseif keep_info>obj.num_pixels
-                error('HORACE:sqw:invalid_argument', ...
-                    'Can not mask more pixels then available. Num pixels to mask should be smaller or equal to num_pixels (%d). Provided: %d', ...
-                    obj.num_pixels,keep_info)
-            end
-        else
-            keep_info=logical(keep_info);
-        end
+    num_keep = sum(keep_info);
+    if num_keep<=0
+        error('HORACE:sqw:invalid_argument', ...
+            'Can not mask all pixels. Num pixels to keep should be positive number. Provided: %d', ...
+            num_keep);
+    elseif num_keep>obj.num_pixels
+        error('HORACE:sqw:invalid_argument', ...
+            'Can not mask more pixels then available. Num pixels to keep should be smaller or equal to num_pixels (%d). Provided: %d', ...
+            obj.num_pixels,num_keep)
+    end
+
+    if ~isscalar(keep_info) && ~islogical(keep_info)
+        keep_info=logical(keep_info);
     end
 else
     error('HORACE:sqw:invalid_argument', ...

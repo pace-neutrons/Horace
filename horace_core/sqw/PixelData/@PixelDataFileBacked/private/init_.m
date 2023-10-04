@@ -1,5 +1,5 @@
 function obj = init_(obj, varargin)
-%INIT_ Main part of the initialiation algorithm, usually performed by
+%INIT_ Main part of the initialisation algorithm, usually performed by
 % constructor, but may be applied to existing object (normally empty) fully
 % deleting its old contents and replacing it with initialization information
 %
@@ -31,7 +31,8 @@ elseif isa(init_data, 'PixelDataFileBacked')
     obj.full_filename = init_data.full_filename;
     obj.num_pixels_   = init_data.num_pixels;
     obj.data_range    = init_data.data_range;
-    obj.tmp_pix_obj_   = init_data.tmp_pix_obj_;
+    obj.tmp_file_holder_ = ...
+                      init_data.tmp_file_holder_;
     obj.f_accessor_   = memmapfile(obj.full_filename, ...
         'Format', init_data.get_memmap_format(), ...
         'Repeat', 1, ...

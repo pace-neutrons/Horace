@@ -1,5 +1,6 @@
 classdef TmpFileHandler < handle
-    % Class to handle temporary PixelDataFileBacked files
+    % Class to handle temporary PixelDataFileBacked files produced in
+    % operations
     %
     % Created by PixelData file-backed on starting modifying operation
     % (PixelDataFileBacked.get_new_handle), which stores the path tmp_file
@@ -19,11 +20,9 @@ classdef TmpFileHandler < handle
         file_name;
     end
     properties(Dependent)
-        ref_count;
         locked;
     end
     properties(Access=private)
-        ref_count_ = 0;
         locked_ = false;
     end
     methods
@@ -44,11 +43,9 @@ classdef TmpFileHandler < handle
                     'Check %s and clear any .pix_<id> files'], ...
                     orig_name, tmp_dir());
             end
-            obj.ref_count_ = 1;
         end
 
         function delete(obj)
-            obj.ref_count_ = obj.ref_count_ - 1;
             if obj.locked_
                 return;
             end
