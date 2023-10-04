@@ -34,8 +34,8 @@ classdef PageOp_mask < PageOpBase
             end
 
             if ~isempty(obj.img_)
-                obj.var_acc_ = zeros(size(obj.img_.npix));
-                obj.npix_acc = zeros(size(obj.img_.npix));
+                obj.var_acc_ = zeros(numel(obj.img_.npix),1);
+                obj.npix_acc = zeros(numel(obj.img_.npix),1);
             end
             % Mask validity and its compartibility with masked object have
             % been verified earlier
@@ -82,6 +82,7 @@ classdef PageOp_mask < PageOpBase
                 % particular page.
                 % keep on the page:
                 num_keep_here = obj.keep_info_obj(obj.page_num);
+                num_pix_here = sum(npix_block(:));
                 % genereate mask
                 keep_pix = false(1,num_pix_here);
                 keep_pix(randperm(num_pix_here, num_keep_here)) = true;
@@ -116,9 +117,12 @@ classdef PageOp_mask < PageOpBase
             signal = obj.page_data_(obj.signal_idx,:);
             error  = obj.page_data_(obj.var_idx,:);
             [s_ar, e_ar] = compute_bin_data(npix_block,signal,error,true);
-            obj.npix_acc(npix_idx(1):npix_idx(2))    = npix_block;
-            obj.sig_acc_(npix_idx(1):npix_idx(2))    = s_ar;
-            obj.var_acc_(npix_idx(1):npix_idx(2))    = e_ar;
+            obj.npix_acc(npix_idx(1):npix_idx(2))    = ...
+                obj.npix_acc(npix_idx(1):npix_idx(2)) + npix_block;
+            obj.sig_acc_(npix_idx(1):npix_idx(2))    = ...
+                obj.sig_acc_(npix_idx(1):npix_idx(2)) + s_ar;
+            obj.var_acc_(npix_idx(1):npix_idx(2))    = ...
+                obj.var_acc_(npix_idx(1):npix_idx(2)) + e_ar;
         end
         %
         function [out_obj,obj] = finish_op(obj,in_obj)
@@ -126,7 +130,7 @@ classdef PageOp_mask < PageOpBase
                 sz = size(obj.img_.s);
                 nopix = obj.npix_acc == 0;
                 calc_sig = obj.sig_acc_(:)./obj.npix_acc(:);
-                calc_var = obj.var_acc_(:)./obj.npix_acc(:);
+                calc_var = obj.var_acc_(:)./obj.npix_acc(:).^2;
 
                 calc_sig(nopix) = 0;
                 calc_var(nopix) = 0;
