@@ -70,7 +70,7 @@ classdef PixelDataFileBacked < PixelDataBase
     properties (Access=private)
         num_pixels_ = 0;  % number of pixels, stored in the data file
         f_accessor_ = []; % instance of object to access pixel data from file
-        page_num_   = 1;  % the index of the currently referred page
+        page_num_   = 1;  % the index of the currently referenced page
 
         % shift (in Bytes) from the beginning of the binary file containing
         % the pixels to the first byte
@@ -79,7 +79,7 @@ classdef PixelDataFileBacked < PixelDataBase
         % handle to the class used to perform pixel
         write_handle_ = []; % copying in operations, involving all pixels
 
-        % handle-class holding tmp file, produced by filebacked
+        % handle-class holding tmp file produced by filebacked
         % operations. If all referring classes go out of scope, the file
         % gets deleted
         tmp_file_holder_ = [];
@@ -446,8 +446,8 @@ classdef PixelDataFileBacked < PixelDataBase
     % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
         function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
-            % Overloaded part of get_raw_pix operation. 
-            % 
+            % Overloaded part of get_raw_pix operation.
+            %
             % return unmodified pixel data according to the input indexes
             % provided.
             % Inputs:

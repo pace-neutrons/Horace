@@ -157,8 +157,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Replace the sqw's signal and variance data with coordinate values (see below)
         w = coordinates_calc(w, name)
 
-        new_sqw = copy(obj, varargin)        
-        [obj, ldr] = get_new_handle(obj, outfile)        
+        new_sqw = copy(obj, varargin)
+        [obj, ldr] = get_new_handle(obj, outfile)
     end
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting
@@ -408,7 +408,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function npix = get.num_pixels(obj)
             npix = obj.pix_.num_pixels;
         end
-        
+
 
         function map = get.runid_map(obj)
             if isempty(obj.experiment_info)
@@ -535,10 +535,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % Apply unary operation affecting sqw object and pixels
             %
             % Inputs:
-            % obj       -- sqw object - source for the operation
-            % operation -- the instance of PageOpBase class, which modifies
-            %              pixels and calculates changes to image, caused
-            %              by the modifications to pixels.
+            % obj       -- sqw object - contains pixels and image to be
+            %              modified
+            % operation -- valid PageOpBase subclass containing function
+            %              which operates on PixelData, modifies pixels and
+            %              calculates changes to image, caused by the
+            %              modifications to pixels.
             obj = obj.pix.apply_c(obj,operation);
         end
 

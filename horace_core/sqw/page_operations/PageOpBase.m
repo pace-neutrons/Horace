@@ -1,22 +1,26 @@
 classdef PageOpBase
-    % PAGEOPBASE class defines generic operation, performed on chunk of pixels
-    % located in memory.
+    % PAGEOPBASE class defines interface to a generic operation, performed
+    % on chunk of pixels located in memory by apply method of sqw/PixelData
+    % objects
     %
-    % An operation normally consists of doing something with pixels, e.g.
-    % recalculating or modifying signal/variance and
-    % calculating appropriate changes to the image.
+    % Operations are functions which modify pixels directly, e.g.
+    % recalculating or modifying signal/variance.
+    % PageOpBase does the work of calculating appropriate changes
+    % to the image and providing a unified interface for
+    % memory-/file-backed data.
     %
     % IMPORTANT:
-    % The operation can be used by the algorithms which do not change
+    % The operations can only be used by the algorithms which do not change
     % the size and shape of the image.
-    % In addition, the operation should not change pixel coordinates in a
-    % way, which would violate the relation between image and the pixels,
-    % contributing into each part of the image.
+    % In addition, the operation must not change pixel coordinates in a
+    % way, which would violate the relation between image and the pixels
+    % i.e. alter which image bin a pixel would contribute 
+    % i.e. require rebinning or reordering of pixels.
     properties(Dependent)
         % true if operation modifies PixelData only and does not affect
         % image. The majority of operations modify both pixels and image
         % Pixels only change in tests and in some pix-only operations
-        % e.g. recalc_pix_range
+        % e.g. mask(Pixels)
         changes_pix_only;
         % while page operations occur, not every page operation should be
         % reported, as it could be too many logs. The property defines
@@ -162,7 +166,7 @@ classdef PageOpBase
             else
                 out_obj = in_obj.copy();
                 out_obj.pix  = pix;
-                % image should be recaculated by method overload.
+                % image should be modified by method overload.
                 out_obj.data = obj.img_;
                 if ~isempty(pix.full_filename)
                     out_obj.full_filename = pix.full_filename;

@@ -412,7 +412,7 @@ classdef (Abstract) PixelDataBase < serializable
         obj = format_dump_data(obj,data_page)
         obj = finish_dump(obj)
         % Paging:
-        % pixel indexes of the current page
+        % pixel indices of the current page
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
         % Reset the object to point to the first page of pixel data in the file
         % and clear the current cache
