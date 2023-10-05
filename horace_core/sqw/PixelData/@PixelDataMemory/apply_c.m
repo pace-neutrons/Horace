@@ -16,11 +16,8 @@ function obj_out = apply_c(obj_in,page_op)
 % Output:
 % sqw_out -- sqw_in object, modified using the operation provided as input
 %
-if isa(obj_in,'sqw')
-    npix = obj_in.data.npix;
-else
-    npix = page_op.npix;
-end
+
+npix = page_op.npix;
 
 page_op = page_op.apply_op(npix,[1;numel(npix)]);
 page_op = page_op.common_page_op();

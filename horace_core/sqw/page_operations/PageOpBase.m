@@ -7,30 +7,37 @@ classdef PageOpBase
     % recalculating or modifying signal/variance.
     % PageOpBase does the work of calculating appropriate changes
     % to the image and providing a unified interface for
-    % memory-/file-backed data.
+    % memory-/file-backed operations.
     %
     % IMPORTANT:
     % The operations can only be used by the algorithms which do not change
     % the size and shape of the image.
     % In addition, the operation must not change pixel coordinates in a
     % way, which would violate the relation between image and the pixels
-    % i.e. alter which image bin a pixel would contribute 
+    % i.e. alter which image bin a pixel would contribute
     % i.e. require rebinning or reordering of pixels.
     properties(Dependent)
+        % true if method should not create the copy of filebacked object
+        % and does not change pixels.
+        inplace
         % true if operation modifies PixelData only and does not affect
         % image. The majority of operations modify both pixels and image
         % Pixels only change in tests and in some pix-only operations
         % e.g. mask(Pixels)
         changes_pix_only;
         % while page operations occur, not every page operation should be
-        % reported, as it could be too many logs. The property defines
-        % how many pages should be omitted until page progress is reported
+        % reported, as it could print too many logs. The property defines
+        % how many page operations should be omitted until operation progress
+        % is reported
         split_log_ratio
         % if provided, used as the name of the file for filebacked
         % operations
         outfile
         % number of page to operate over
         page_num
+        % The name of the operation inclued in progress log for slow
+        % operations
+        op_name
     end
     properties(Dependent,Hidden)
         % npix array (the same as img_.npix), containing the pixel distribution
@@ -47,6 +54,9 @@ classdef PageOpBase
 
 
     properties(Access=protected)
+        % true if operation should not create the copy of a filebacked
+        % object
+        inplace_ = false;
         % holder for the pixel object, which is source/target for the
         % operation
         pix_ = PixelDataMemory();
@@ -56,6 +66,7 @@ classdef PageOpBase
         pix_data_range_ = PixelDataBase.EMPTY_RANGE;
         %
         outfile_   = '';
+        op_name_ = '';
         split_log_ratio_  = 10;
 
         % caches for some indices, defined in PixelDataBase, and used to extract
@@ -105,16 +116,18 @@ classdef PageOpBase
             obj.coord_idx_  = crd_idx(1:end-2);
 
             %
-            in_obj = in_obj.get_new_handle(obj.outfile);
+            if ~obj.inplace
+                in_obj = in_obj.get_new_handle(obj.outfile);
+            end
             if isa(in_obj ,'PixelDataBase')
-                obj.pix_              = in_obj;
-                obj.img_              = [];
+                obj.pix_             = in_obj;
+                obj.img_             = [];
             elseif isa(in_obj,'sqw')
-                obj.img_              = in_obj.data;
-                obj.pix_              = in_obj.pix;
-                obj.npix_             = obj.img_.npix;
+                obj.img_             = in_obj.data;
+                obj.pix_             = in_obj.pix;
+                obj.npix             = obj.img_.npix;
                 %
-                obj.sig_acc_ = zeros(numel(obj.img_.npix),1);
+                obj.sig_acc_ = zeros(numel(obj.npix),1);
             else
                 error('HORACE:PageOpBase:invalid_argument', ...
                     'Init method accepts PixelData or SQW object input only. Provided %s', ...
@@ -136,14 +149,16 @@ classdef PageOpBase
             %
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
-            obj.pix_ = obj.pix_.format_dump_data(obj.page_data_);
+            if ~obj.inplace_
+                obj.pix_ = obj.pix_.format_dump_data(obj.page_data_);
+            end
         end
         %
         function [out_obj,obj] = finish_op(obj,in_obj)
             % Finalize page operations.
             %
-            % Contains common code to transfer data from operation to
-            % out_obj and  Need overloading for correct image calculations
+            % Contains common code to transfer data changed by operation to
+            % out_obj.   Need overloading for correct image calculations.
             %
             % Input:
             % obj     -- instance of the page operations
@@ -154,12 +169,14 @@ classdef PageOpBase
             % obj     -- nullified PageOp object.
 
             pix = obj.pix_;
-            % clear alignment (if any) as alignment has been applied during
-            % page operation(s)
-            pix = pix.clear_alignment();
-            %
             pix     = pix.set_data_range(obj.pix_data_range_);
-            pix     = pix.finish_dump();
+
+            if ~obj.inplace_
+                % clear alignment (if any) as alignment has been applied during
+                % page operation(s)
+                pix   = pix.clear_alignment();
+                pix   = pix.finish_dump();
+            end
 
             if isempty(obj.img_)
                 out_obj = pix.copy();
@@ -211,6 +228,13 @@ classdef PageOpBase
             idx = obj.coord_idx_;
         end
         %
+        function in = get.inplace(obj)
+            in = obj.inplace_;
+        end
+        function obj = set.inplace(obj,val)
+            obj.inplace_ = logical(val);
+        end
+        %
         function does = get.split_log_ratio(obj)
             does = obj.split_log_ratio_;
         end
@@ -231,7 +255,7 @@ classdef PageOpBase
             end
         end
         function obj = set.npix(obj,val)
-            obj.npix_ = val;
+            obj.npix_ = val(:)';
         end
         %
         function np = get.page_num(obj)
@@ -239,6 +263,57 @@ classdef PageOpBase
         end
         function obj = set.page_num(obj,val)
             obj.pix_.page_num = val;
+        end
+        %
+        function name = get.op_name(obj)
+            name = obj.op_name_;
+        end
+        function obj = set.op_name(obj,name)
+            if ~istext(name)
+                error('HORACE:PageOpBase:invalid_argument', ...
+                    'Operation name should be a text string. Provided class %s', ...
+                    class(name));
+            end
+            obj.op_name_ = name;
+        end
+
+    end
+    methods(Access=protected)
+        function obj = update_image(obj,sig_acc,var_acc,npix_acc)
+            % The piece of code which often used at the end of an operation
+            % when modified data get transformed from accumulators to the final
+            % image.
+            % Inputs:
+            % sig_acc -- array accumulating changed signal during
+            %            operation(s)
+            % var_acc -- array accumulating changed variance during
+            %            operation(s)
+            % Optional:
+            % npix_acc -- array accunulating changes in npix during
+            %             operation(s)
+            % Returns:
+            % obj      -- operation object containing modified image, if
+            %             image have been indeed modified
+            if obj.changes_pix_only
+                return;
+            end
+            if nargin == 3
+                npix_acc = obj.npix;
+            end
+            [calc_sig,calc_var] = normalize_signal( ...
+                sig_acc(:),var_acc(:),npix_acc(:));
+
+            sz = size(obj.img_.s);
+            img = obj.img_;
+            img.do_check_combo_arg = false;
+            img.s    = reshape(calc_sig,sz);
+            img.e    = reshape(calc_var,sz);
+            if nargin > 3
+                img.npix = reshape(npix_acc,sz);
+            end
+            img.do_check_combo_arg = true;
+            img = img.check_combo_arg();
+            obj.img_ = img;
         end
     end
 end

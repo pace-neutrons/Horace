@@ -7,17 +7,19 @@ function sqw_out = apply_c(sqw_in,page_op)
 % sqw_in --  sqw object which contains this pixel object (if it contains
 %            other pixel object, that object will be destroyed
 %            Valid sqw  object requested, i.e. obj.data.npix define the
-%            location of pixels in file
+%            location of pixels in file and in memory.
+%
 %page_op --  The instance of the PageOpBase class, which perform operation
 %            over pixels and image of the SQW object
 % Output:
 % sqw_out -- sqw_in object, modified using the operation provided as input
 %
 npix = page_op.npix;
+op_name = page_op.op_name;
 
 [mem_chunk_size,ll] = config_store.instance().get_value('hor_config', 'mem_chunk_size','log_level');
 % if vector split function changes here, it has to change in
-% PageOp_mask.calc_page_share too (masking algorithm uses knowlege about paging to 
+% PageOp_mask.calc_page_share too (masking algorithm uses knowlege about paging to
 % look what should be masked on page).
 [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, mem_chunk_size);
 
@@ -29,13 +31,14 @@ for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix
     % located subsequently
     page_op.page_num = i;
     if ll > 0 && mod(i, log_split) == 1
-        fprintf('Processing page: %d/%d\n', i, n_chunks);
+        fprintf('*** Performing %s on page: %d/%d\n',op_name, i, n_chunks);
     end
     page_op = page_op.apply_op(npix_chunks{i},npix_idx(:,i));
     page_op = page_op.common_page_op();
 end
 sqw_out = page_op.finish_op(sqw_in);
 if ll > 0
-    fprintf('finished processing : %d Pages\n', n_chunks);
+    fprintf('*** Finished %s on object from file: %s using %d pages\n', ...
+        op_name,sqw_out.full_filename,n_chunks);
 end
 

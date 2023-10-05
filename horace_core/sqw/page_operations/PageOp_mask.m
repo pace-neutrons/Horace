@@ -24,6 +24,11 @@ classdef PageOp_mask < PageOpBase
     end
 
     methods
+        function obj = PageOp_mask(varargin)
+            obj = obj@PageOpBase(varargin{:});
+            obj.op_name = 'masking';
+        end
+
         function [obj,in_obj] = init(obj,in_obj,keep_info)
             [obj,in_obj] = init@PageOpBase(obj,in_obj);
 
@@ -104,7 +109,7 @@ classdef PageOp_mask < PageOpBase
             end
             % keep what is selected
             obj.page_data_ = obj.page_data_(:,keep_pix);
-            if isempty(obj.img_)
+            if obj.changes_pix_only
                 return;
             end
             % calculate changes in npix:
@@ -118,23 +123,15 @@ classdef PageOp_mask < PageOpBase
             % update image accumulators:
             [s_ar, e_ar] = compute_bin_data(npix_block,signal,error,true);
             obj.npix_acc(npix_idx(1):npix_idx(2))    = ...
-                obj.npix_acc(npix_idx(1):npix_idx(2)) + npix_block;
+                obj.npix_acc(npix_idx(1):npix_idx(2)) + npix_block(:);
             obj.sig_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.sig_acc_(npix_idx(1):npix_idx(2)) + s_ar;
+                obj.sig_acc_(npix_idx(1):npix_idx(2)) + s_ar(:);
             obj.var_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.var_acc_(npix_idx(1):npix_idx(2)) + e_ar;
+                obj.var_acc_(npix_idx(1):npix_idx(2)) + e_ar(:);
         end
         %
-        function [out_obj,obj] = finish_op(obj,in_obj)
-            if ~isempty(obj.img_)
-                [calc_sig,calc_var] = normalize_signal( ...
-                    obj.sig_acc_(:),obj.var_acc_,obj.npix_acc(:));
-
-                sz = size(obj.img_.s);
-                obj.img_.s    = reshape(calc_sig,sz);
-                obj.img_.e    = reshape(calc_var,sz);
-                obj.img_.npix = reshape(obj.npix_acc,sz);
-            end
+        function [out_obj,obj] = finish_op(obj,in_obj)           
+            obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc);
             [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
         end
         %------------------------------------------------------------------

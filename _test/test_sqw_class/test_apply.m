@@ -76,7 +76,7 @@ classdef test_apply < TestCase
             assertEqualToTol(sqw_ap_fb, sqw_ap_mb);
         end
 
-        function test_apply_multiple_transform(obj)
+        function test_apply_multiple_transform(~)
 
             sym = [SymopReflection([1 0 0], [0 1 0]), ...
                    SymopReflection([1 0 0], [0 0 1])];
@@ -101,10 +101,7 @@ classdef test_apply < TestCase
 
             assertEqualToTol(sqw_op, sqw_ap_mb);
             assertEqualToTol(sqw_ap_fb, sqw_ap_mb);
-
         end
-
-
     end
 
     methods(Static)

@@ -11,6 +11,10 @@ classdef PageOp_sqw_eval < PageOpBase
     end
 
     methods
+        function obj = PageOp_sqw_eval(varargin)
+            obj = obj@PageOpBase(varargin{:});
+            obj.op_name = 'sqw_eval';
+        end
         function [obj,sqw_obj] = init(obj,sqw_obj,operation,op_param,average)
             [obj,sqw_obj] = init@PageOpBase(obj,sqw_obj);
             obj.proj      = sqw_obj.data.proj;
@@ -38,7 +42,7 @@ classdef PageOp_sqw_eval < PageOpBase
                 new_signal = obj.op_holder(qw_pix_coord{:}, obj.op_parms{:});
             end
             obj.page_data_(obj.signal_idx,:)   = new_signal(:)';
-            obj.page_data_(obj.var_idx,:)      = zeros(1, numel(new_signal));
+            obj.page_data_(obj.var_idx,:)      = 0; % I do not like this but this is legacy behaviour
 
             img_signal = compute_bin_data(npix_block,new_signal,[],true);
             obj.sig_acc_(npix_idx(1):npix_idx(2)) = ...
@@ -46,13 +50,10 @@ classdef PageOp_sqw_eval < PageOpBase
         end
 
         function [out_obj,obj] = finish_op(obj,out_obj)
+            variance = zeros(numel(obj.sig_acc_),1); % I do not like this but this is legacy behaviour
             % Complete image modifications:
-            sz = size(obj.img_.s);
-            calc_s = obj.sig_acc_(:)./obj.npix_(:);
-            nopix = obj.npix_ == 0;
-            calc_s(nopix) = 0;
-            obj.img_.s    = reshape(calc_s,sz);
-            obj.img_.e    = zeros(size(obj.img_.s)); % I do not like this but this is legacy behaviour
+            obj = obj.update_image(obj.sig_acc_,variance);
+
             % transfer modifications to the underlying object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
         end

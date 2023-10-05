@@ -292,31 +292,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 end
             end
         end
-
-        function obj = check_combo_arg(obj)
-            % Deals with input of old-style objects where detpar is defined
-            % but the detector arrays in experiment_info are empty
-            %
-            % NB combined if-expression is in parentheses to help visually
-            % locate it - just useful cosmetic
-
-            if (~isempty(obj.detpar)                             && ...
-                    IX_detector_array.check_detpar_parms(obj.detpar) && ...
-                    ~isempty(obj.detpar.group)                       && ...
-                    obj.experiment_info.detector_arrays.n_runs == 0     ...
-                    )
-
-                n_runs = obj.experiment_info.n_runs;
-                detector = IX_detector_array(obj.detpar);
-                updated_detectors = obj.experiment_info.detector_arrays;
-                %for i=1:n_runs
-                updated_detectors = updated_detectors.add_copies_(detector, n_runs);
-                %end
-                obj.experiment_info.detector_arrays = updated_detectors;
-
-            end
-        end
-
         %------------------------------------------------------------------
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
@@ -446,7 +421,37 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.main_header.creation_date = val;
             obj.data.creation_date = val;
         end
+        %==================================================================
+        function obj = apply_c(obj, operation)
+            % Apply unary operation affecting sqw object and pixels
+            %
+            % Inputs:
+            % obj       -- sqw object - contains pixels and image to be
+            %              modified
+            % operation -- valid PageOpBase subclass containing function
+            %              which operates on PixelData, modifies pixels and
+            %              calculates changes to image, caused by the
+            %              modifications to pixels.
+            obj = obj.pix.apply_c(obj,operation);
+        end
 
+        function obj = apply(obj, func_handle, args, recompute_bins, compute_variance)
+            if ~exist('args', 'var')
+                args = {};
+            end
+            if ~exist('recompute_bins', 'var')
+                recompute_bins = true;
+            end
+            if ~exist('compute_variance', 'var')
+                compute_variance = false;
+            end
+
+            if recompute_bins
+                [obj.pix, obj.data] = obj.pix.apply(func_handle, args, obj.data, compute_variance);
+            else
+                obj.pix = obj.pix.apply(func_handle, args);
+            end
+        end
     end
     %======================================================================
     % REDUNDANT and compatibility ACCESSORS
@@ -487,6 +492,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             hdr = [hdr{:}];
             hdr = rmfield(hdr,{'instrument','sample'});
         end
+
     end
 
     %======================================================================
@@ -530,38 +536,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
-
-        function obj = apply_c(obj, operation)
-            % Apply unary operation affecting sqw object and pixels
-            %
-            % Inputs:
-            % obj       -- sqw object - contains pixels and image to be
-            %              modified
-            % operation -- valid PageOpBase subclass containing function
-            %              which operates on PixelData, modifies pixels and
-            %              calculates changes to image, caused by the
-            %              modifications to pixels.
-            obj = obj.pix.apply_c(obj,operation);
-        end
-
-        function obj = apply(obj, func_handle, args, recompute_bins, compute_variance)
-            if ~exist('args', 'var')
-                args = {};
-            end
-            if ~exist('recompute_bins', 'var')
-                recompute_bins = true;
-            end
-            if ~exist('compute_variance', 'var')
-                compute_variance = false;
-            end
-
-            if recompute_bins
-                [obj.pix, obj.data] = obj.pix.apply(func_handle, args, obj.data, compute_variance);
-            else
-                obj.pix = obj.pix.apply(func_handle, args);
-            end
-        end
-
     end
 
     %======================================================================
@@ -663,6 +637,29 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
             str = saveobj@serializable(obj);
         end
+
+        function obj = check_combo_arg(obj)
+            % Deals with input of old-style objects where detpar is defined
+            % but the detector arrays in experiment_info are empty
+            %
+            % NB combined if-expression is in parentheses to help visually
+            % locate it - just useful cosmetic
+
+            if (~isempty(obj.detpar)                             && ...
+                    IX_detector_array.check_detpar_parms(obj.detpar) && ...
+                    ~isempty(obj.detpar.group)                       && ...
+                    obj.experiment_info.detector_arrays.n_runs == 0     ...
+                    )
+
+                n_runs = obj.experiment_info.n_runs;
+                detector = IX_detector_array(obj.detpar);
+                updated_detectors = obj.experiment_info.detector_arrays;
+                %for i=1:n_runs
+                updated_detectors = updated_detectors.add_copies_(detector, n_runs);
+                %end
+                obj.experiment_info.detector_arrays = updated_detectors;
+            end
+        end
     end
 
     methods(Access = protected)
@@ -695,7 +692,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj = loadobj@serializable(S,obj);
         end
     end
-
+    %======================================================================
     methods(Static, Hidden)
         % Generate special sqw object with given properties. Used in tests.
         out = generate_cube_sqw(shape,varargin)
