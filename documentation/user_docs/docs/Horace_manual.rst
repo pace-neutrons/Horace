@@ -5,7 +5,6 @@ Horace Manual
    :caption: Horace Manual Chapters
    :maxdepth: 1
 
-   manual/Changing_Horace_settings
    manual/Planning_a_Horace_scan
    manual/Generating_SQW_files
    manual/Manipulating_and_extracting_data_from_SQW_files_and_objects
@@ -26,6 +25,7 @@ Horace Manual
    :caption: Horace Manual Appendix
    :maxdepth: 1
 
+   manual/Changing_Horace_settings
    manual/List_of_functions
    manual/Input_file_formats
    manual/FAQ
