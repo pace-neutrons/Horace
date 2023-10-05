@@ -28,30 +28,38 @@ def convert_legacy_multifit(string: str) -> str:
 
     # Return what was asked for
     if "=" in string:
-        ret, *_ = string.partition("=")
+        ret = string.split("=", 1)[0].strip()
     else:
         ret = "[wfit, fit_data]"
 
     args = string[string.index('(')+1:string.rindex(')')]
     strargs = re.finditer(RE_MATCH, args)
 
-    # Temporary substitution to avoid commas
+    typ = re.search("fit((?:_sqw){0,2})", string)
+
+    # Temporary substitution with format-spec to avoid commas
     strlist = []
     for i, strarg in enumerate(strargs):
-        args = args.replace(strarg.group(0), f"¬{i}", 1)
+        args = args.replace(strarg.group(0), f"{{strlist[{i}]}}", 1)
         strlist.append(strarg.group(0))
 
     # Restore args to their correct places and remove whitespace
     args = map(lambda x: x.strip(), args.split(","))
-    args = [strlist[int(arg[1:])] if arg.startswith("¬") else arg
-            for arg in args]
+    args = [arg.format(strlist=strlist) for arg in args]
 
     # Find where key points are
     fhandles_loc = [i for i, arg in enumerate(args) if arg.startswith("@")]
-    kwargs_loc = (i for i, arg in enumerate(args) if arg.startswith("'") or arg.startswith('"'))
-    kwargs_start = next(kwargs_loc)
+    kwargs_loc = [i for i, arg in enumerate(args) if arg.startswith("'") or arg.startswith('"')]
 
-    args, kwargs = args[:kwargs_start], args[kwargs_start:]
+    if not fhandles_loc:
+        raise IOError("Cannot identify fitting functions. Please explicitly note with '@func'")
+
+    if kwargs_loc:
+        kwargs_start = slice(0, kwargs_loc[0]), slice(kwargs_loc[0], len(args))
+    else:
+        kwargs_start = slice(0, len(args)), slice(0, 0)
+
+    args, kwargs = args[kwargs_start[0]], args[kwargs_start[1]]
     if len(fhandles_loc) == 2:  # Have foreground and background
         data, args = args[:fhandles_loc[0]], (args[fhandles_loc[0]:fhandles_loc[1]],
                                               args[fhandles_loc[1]:])
@@ -60,7 +68,7 @@ def convert_legacy_multifit(string: str) -> str:
 
     # Start processing
     outstr = ""
-    outstr += f"kk = multifit({', '.join(data)});\n"
+    outstr += f"kk = multifit{typ[1]}({', '.join(data)});\n"
 
     for back, params in enumerate(args):
         argmt = ARG_TYPE if not back else map(lambda x: f"b{x}", ARG_TYPE)
@@ -85,7 +93,7 @@ def convert_legacy_multifit(string: str) -> str:
             outstr += ("warning('HORACE:impossible_auto_conversion', "
                        f"'Cannot convert keyword {kw}')\n")
 
-    outstr += f"{ret} = kk.fit()\n"
+    outstr += f"{ret} = kk.fit();\n"
     return outstr
 
 
