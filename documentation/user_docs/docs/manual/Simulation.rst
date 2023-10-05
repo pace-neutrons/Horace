@@ -8,7 +8,7 @@ specific data points that you measured.
 
 .. note::
 
-   When simulating an S(Q,w) model (see sqw_eval below), bear in mind the
+   When simulating an S(**Q**,w) model (see sqw_eval below), bear in mind the
    difference between what is calculated for equivalent ``dnd`` and ``sqw``
    datasets. See :ref:`FAQ <manual/FAQ:FAQ>`.
 
@@ -35,7 +35,7 @@ n-dimensional dataset, or array of datasets. The syntax is as follows:
 
    .. code-block:: matlab
 
-      y = mfunc(x1, x2, .., xn, p)
+      y = myfunc(x1, x2, .., xn, p)
 
    e.g.
 
@@ -45,13 +45,14 @@ n-dimensional dataset, or array of datasets. The syntax is as follows:
 
    and accept equal sized arrays that contain the x1, x2, ... values.
 
-- ``p`` should be a row-vector containing the parameters needed by the function.
+- ``p`` is a row-vector containing the parameters needed by the function.
 
 - ``'all'`` is used if you wish to calculate the intensity from the function
   over the whole domain covered by the input dataset. In other words, your
   dataset may contain gaps due to the trajectory of the detectors through
-  reciprocal space, but you may wish to simulate the scattering even in the
-  gaps. This option applies in the case of dnd objects, but not sqw objects.
+  reciprocal space, but you may wish to simulate the scattering even in the gaps
+  to get a complete image. This option only applies in the case of ``dnd``, but
+  not ``sqw`` objects.
 
 sqw_eval
 ========
@@ -62,7 +63,7 @@ sqw_eval
    wout = sqw_eval(win, @my_sqw_func, p, 'all');
 
 The syntax for ``sqw_eval`` is almost identical to that of ``func_eval``. The
-only difference is the form of the function required ``my_sqw_func``,
+only difference is the form of the required function ``my_sqw_func``,
 
 .. warning::
 
@@ -73,8 +74,10 @@ only difference is the form of the function required ``my_sqw_func``,
       weight = my_sqw_func(qh, qk, ql, en, p)
 
    where ``qh, qk, ql, en`` are arrays that contain the co-ordinates in
-   :math:`h, k, l` and energy of each point in the dataset, irrespective of the
-   dimensionality of the representative ``dnd``.
+   :math:`h, k, l` and energy of each point in the dataset.
+
+   In the case of a ``dnd``, bin centres are used. Where dimensions might be
+   integrated away, the centres the range of integration are used.
 
 - ``p`` is a row-vector containing the parameters required by the
   function.
@@ -90,17 +93,17 @@ example, one had a model of the spin-wave cross-section for magnetic scattering.
 dispersion
 ==========
 
-Calculate dispersion relation for dataset or array of datasets.
+Calculate dispersion relation for a dataset or array of datasets.
 
 .. code-block:: matlab
 
    [wdisp,weight] = dispersion(win, dispreln, p)   % dispersion and spectral weight
 
-The output dataset (or array of data sets), ``wdisp``, will retain only the Q
-axes, and the signal array(s) will contain the values of energy along the Q
-axes. If the dispersion relation returns the spectral weight, this will be
-placed in the error array (actually the square of the spectral weight is put in
-the error array).
+The output dataset (or array of data sets), ``wdisp``, will retain only the
+**Q** axes, and the signal array(s) will contain the values of energy at the
+relevant **Q**-points. If the dispersion relation returns the spectral weight,
+this will be placed in the error array (actually the square of the spectral
+weight is put in the error array).
 
 .. note::
 
@@ -114,7 +117,7 @@ Inputs:
   dataset will have dimensionality one less than the input dataset.
 
 - ``dispreln`` - Handle to function that calculates the dispersion relation
-  w(Q) and spectral weight, S(Q).
+  w(**Q**) and spectral weight, S(**Q**).
 
 
 - ``p`` Arguments needed by the function that calculates the dispersion
@@ -138,8 +141,8 @@ Inputs:
    - ``qh, qk, ql`` - Arrays containing the coordinates of a set of points in
      reciprocal lattice units
 
-   - ``p`` - Vector of parameters needed by dispersion function, e.g.
-     ``[A, js, gam]`` as intensity, exchange, lifetime
+   - ``p`` - Vector or cell array of parameters needed by dispersion function,
+     e.g.  ``[A, js, gam]`` as intensity, exchange, lifetime
 
    - ``c1, c2, ...`` **[Optional]** - Other constant parameters e.g. file name
      for look-up table
@@ -155,9 +158,9 @@ Inputs:
 Outputs:
 
 - ``wdisp`` Output dataset or array of datasets. Output is always a ``dnd``. The
-  output dataset (or array of data sets) will retain only the Q axes, the the
-  signal array(s) will contain the values of energy along the Q axes, and the
-  error array will contain the square of the spectral weight.
+  output dataset (or array of data sets) will retain only the **Q** axes, the
+  the signal array(s) will contain the values of energy at the **Q** points, and
+  the error array will contain the square of the spectral weight.
 
 .. warning::
 
@@ -173,8 +176,8 @@ Outputs:
 
 .. note::
 
-   If ``win`` is a 2D dataset with Q and E axes, then ``wdisp`` is a 1D
-   dataset with just the Q axis
+   If ``win`` is a 2D dataset with **Q** and E axes, then ``wdisp`` is a 1D
+   dataset with just the **Q** axis
 
 
 .. note::
@@ -191,8 +194,8 @@ Outputs:
    will plot a surface with the z axis as energy, coloured according to the
    spectral weight.
 
-   If you wish to overplot a dispersion relation on top of, for example, a Q-E
-   slice from your data, then you would use:
+   If you wish to overplot a dispersion relation on top of, for example, a
+   **Q**-E slice from your data, then you would use:
 
    .. code-block:: matlab
 
@@ -203,7 +206,7 @@ Outputs:
 
    .. warning::
 
-      In the above there must not be a ``keep_figure`` command between plotting the Q-E
+      In the above there must not be a ``keep_figure`` command between plotting the **Q**-E
       slice and plotting the dispersion, since the ``ploc`` command works on the
       current figure.
 
@@ -222,7 +225,7 @@ inputs :math:`h, k, l` and some model parameters.
 - ``win`` - the input dataset (``sqw`` or ``dnd``) or array of datasets
 
 - ``dispreln`` - Handle to function that calculates the dispersion relation
-  w(Q) and spectral weight, S(Q).
+  w(**Q**) and spectral weight, S(**Q**).
 
 - ``p`` - Vector of parameters needed by dispersion function, e.g.
   ``[A, js, gam]`` as intensity, exchange, lifetime
@@ -282,7 +285,7 @@ The inputs are as follows:
       1, 0,0];
 
 - ``dispreln`` - Handle to function that calculates the dispersion relation
-  w(Q) and spectral weight, S(Q).
+  w(**Q**) and spectral weight, S(**Q**).
 
 .. warning::
 
@@ -296,7 +299,7 @@ The keyword options are:
 - ``'weight'`` **[Optional]** - Only plot the spectral weights. The default is
   to plot and/or return dispersion, and weight if available
 
-- ``'labels'`` **[Optional]** - Tick labels to place at the positions of the Q
+- ``'labels'`` **[Optional]** - Tick labels to place at the positions of the **Q**
   points in argument rlp. e.g. ``{'G', 'X', 'M', 'R'}``. By default the labels
   are character representations of rlp, e.g. ``{0, 0, 0; 0.5, 0, 0; 0.5, 0.5, 0;
   0.5, 0.5, 0.5}`` becomes ``{'0, 0, 0', '0.5, 0, 0', '0.5, 0.5, 0', '0.5, 0.5,
@@ -319,9 +322,10 @@ The outputs are as follows
 disp2sqw_plot
 =============
 
-Generate an Q-E intensity plot for a dispersion relation along a path in
-reciprocal space. The function is very closely related to `dispersion_plot <dispersion_plot_>`_,
-and most of the input arguments and options are the same for the two functions.
+Generate an **Q**-E intensity plot for a dispersion relation along a path in
+reciprocal space. The function is very closely related to `dispersion_plot
+<dispersion_plot_>`_, and most of the input arguments and options are the same
+for the two functions.
 
 .. code-block:: matlab
 
@@ -344,7 +348,7 @@ The inputs are as follows:
       1, 0,0];
 
 - ``dispreln`` - Handle to function that calculates the dispersion relation
-  w(Q) and spectral weight, S(Q).
+  w(**Q**) and spectral weight, S(**Q**).
 
 .. warning::
 
@@ -358,24 +362,26 @@ The inputs are as follows:
 
 The keyword options (which can be abbreviated to single letter) are:
 
-- ``'labels'`` **[Optional]** - Tick labels to place at the positions of the Q points in argument
-  rlp. e.g. ``{'G', 'X', 'M', 'R'}``. By default the labels are character
-  representations of rlp, e.g. ``{0, 0, 0; 0.5, 0, 0; 0.5, 0.5, 0; 0.5, 0.5, 0.5}`` becomes
-  ``{'0, 0, 0', '0.5, 0, 0', '0.5, 0.5, 0', '0.5, 0.5, 0.5'}``
+- ``'labels'`` **[Optional]** - Tick labels to place at the positions of the
+  **Q** points in argument rlp. e.g. ``{'G', 'X', 'M', 'R'}``. By default the
+  labels are character representations of rlp, e.g. ``{0, 0, 0; 0.5, 0, 0; 0.5,
+  0.5, 0; 0.5, 0.5, 0.5}`` becomes ``{'0, 0, 0', '0.5, 0, 0', '0.5, 0.5, 0',
+  '0.5, 0.5, 0.5'}``
 
-- ``'ndiv', N`` **[Optional]** - Number of points into which to divide the interval between two
-  r.l.p. (default=100)
+- ``'ndiv', N`` **[Optional]** - Number of points into which to divide the
+  interval between two r.l.p. (default=100)
 
-- ``'noplot'`` **[Optional]** - Do not plot, just return the output IX_dataset_1d (see below)
+- ``'noplot'`` **[Optional]** - Do not plot, just return the output
+  ``IX_dataset_1d`` (see below)
 
 
 The output is as follows:
 
-- ``weight`` **[Optional]** - ``IX_dataset_2d`` containing the spectral weights. The x-axis is the
-  distance in Ang^-1 along the path described.
+- ``weight`` **[Optional]** - ``IX_dataset_2d`` containing the spectral
+  weights. The x-axis is the distance in Ang^-1 along the path described.
 
-The image intensity, as a function of **Q** along the r.l.p path along the x-axis
-and the energy transfer along y-axis is determined by the equation:
+The image intensity, as a function of **Q** along the r.l.p path along the
+x-axis and the energy transfer along y-axis is determined by the equation:
 
 .. math::
 
@@ -387,7 +393,8 @@ and the energy transfer along y-axis is determined by the equation:
       weight(energy) = sfact.*exp(-(w(Q, p)-energy).^2/(2*sig.^2))./(sig*sqrt(2*pi));
 
 
-where :math:`w` is the dispersion relation function ``dispreln``, :math:`\{p\}` are the parameters given in ``p``, :math:`E` is the energy and
+where :math:`w` is the dispersion relation function ``dispreln``, :math:`\{p\}`
+are the parameters given in ``p``, :math:`E` is the energy and
 
 .. math::
 
