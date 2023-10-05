@@ -109,13 +109,13 @@ classdef PageOp_mask < PageOpBase
             end
             % calculate changes in npix:
             nbins = numel(npix_block);
-            %ibin = replicate_array(1:nbins,npix_block); % equilalent operations
-            ibin = repelem(1:nbins, npix_block(:))';     % What to select, what is more efficient?
+            ibin  = repelem(1:nbins, npix_block(:))';
             npix_block = accumarray(ibin(keep_pix), ones(1, sum(keep_pix)), [nbins, 1]);
 
-            % caclulate new signal and error
+            % retrieve masked signal and error
             signal = obj.page_data_(obj.signal_idx,:);
             error  = obj.page_data_(obj.var_idx,:);
+            % update image accumulators:
             [s_ar, e_ar] = compute_bin_data(npix_block,signal,error,true);
             obj.npix_acc(npix_idx(1):npix_idx(2))    = ...
                 obj.npix_acc(npix_idx(1):npix_idx(2)) + npix_block;
@@ -128,9 +128,9 @@ classdef PageOp_mask < PageOpBase
         function [out_obj,obj] = finish_op(obj,in_obj)
             if ~isempty(obj.img_)
                 [calc_sig,calc_var] = normalize_signal( ...
-                    obj.sig_acc_(:),obj.obj.var_acc_,obj.npix_acc(:));
+                    obj.sig_acc_(:),obj.var_acc_,obj.npix_acc(:));
 
-                sz = size(obj.img_.s);                
+                sz = size(obj.img_.s);
                 obj.img_.s    = reshape(calc_sig,sz);
                 obj.img_.e    = reshape(calc_var,sz);
                 obj.img_.npix = reshape(obj.npix_acc,sz);
@@ -163,6 +163,8 @@ classdef PageOp_mask < PageOpBase
             %
             %
             pix_share = num_pix_to_keep/tot_num_pix;
+            % if the vector split function changes in PixelDataFileBacked.apply() 
+            % it has to be  changed here
             pages     = split_vector_fixed_sum(tot_num_pix,page_size);
             pages     = [pages{:}];
             num_pages = numel(pages);
@@ -172,18 +174,18 @@ classdef PageOp_mask < PageOpBase
             pieces(nothing) = pieces(nothing)+1;
             %
             splitted = sum(pieces);
-            while splitted<num_pix_to_keep
-                ic = num_pages;
-                while ic>0 && splitted<num_pix_to_keep
-                    pieces(ic) = pieces(ic)+1;
-                    if pieces(ic) < pages(ic)
-                        splitted = splitted+1;
-                    else
-                        pieces(ic) = pages(ic);
-                    end
-                    ic = ic-1;
+
+            ic = num_pages;
+            while ic>0 && splitted<num_pix_to_keep
+                pieces(ic) = pieces(ic)+1;
+                if pieces(ic) < pages(ic)
+                    splitted = splitted+1;
+                else
+                    pieces(ic) = pages(ic);
                 end
+                ic = ic-1;
             end
+
         end
     end
 end

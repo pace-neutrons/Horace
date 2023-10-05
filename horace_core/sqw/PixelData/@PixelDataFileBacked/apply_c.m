@@ -19,11 +19,14 @@ else
     npix = page_op.npix;
 end
 [mem_chunk_size,ll] = config_store.instance().get_value('hor_config', 'mem_chunk_size','log_level');
+% if vector split function changes here, it has to change in
+% PageOp_mask.calc_page_share too (masking algorithm uses knowlege about paging to 
+% look what should be masked on page).
 [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, mem_chunk_size);
 
 log_split = page_op.split_log_ratio;
 
-n_chunks = numel(npix_chunks); 
+n_chunks = numel(npix_chunks);
 for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix)
     % and each chunc after this split refers to mem_chunk_size pixels
     % located subsequently
