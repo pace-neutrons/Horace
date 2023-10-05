@@ -57,7 +57,6 @@ switch nargi
     case 0
         [ind_min,ind_max] = obj.get_page_idx_();
         pix_indices = ind_min:ind_max;
-
     case {1,2}
         pix_indices = argi{1};
         if numel(argi) > 1
