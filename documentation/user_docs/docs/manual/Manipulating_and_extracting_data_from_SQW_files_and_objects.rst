@@ -9,17 +9,22 @@ cut
 ===
 
 ``cut`` takes data from an ``sqw`` object, ``dnd`` object or saved ``sqw`` or
-``dnd`` file and rebins it to an object of the same or reduced size. It can
-``cut`` down either ranges or dimensionality. The cut is itself an ``sqw`` or
-``dnd`` object (see: below) which can be plotted, manipulated, etc. The
-required inputs are as follows:
+``dnd`` file and rebins it to an object of the same or reduced size. It can cut
+down either ranges or dimensionality. The resulting cut object is itself an
+``sqw`` or ``dnd`` object which can be plotted, manipulated,
+etc. like any other ``sqw`` or ``dnd`` object. The required inputs are as follows:
+
+.. note::
+
+   For the differences between ``dnd`` and ``sqw`` objects see: :ref:`here
+   <manual/FAQ:The difference between sqw and dnd objects>`
 
 .. code-block:: matlab
 
    my_cut = cut(data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
 
 
-Cutting encompasses a rebinning of the pixels into the bins specified by the cut
+Cutting consists of a rebinning of the pixels into the bins specified by the cut
 parameters (described below).  These binned pixels will make up the ``dnd`` of
 the output object which contains information regarding the plottable data.
 
@@ -31,10 +36,17 @@ Data Source
 the input ``.sqw`` file or just the variable containing an ``sqw`` or ``dnd``
 object stored in memory from which the pixels will be taken.
 
+.. warning::
+
+   By convention both ``sqw`` and ``dnd`` objects use the ``.sqw`` suffix when
+   stored to disc. It is advisable to name the file appropriately to distinguish
+   the types stored inside, e.g. ``MnO2_sqw.sqw``, ``MnO2_d2d.sqw``.
+
 Projection
 ----------
 
-This defines the coordinate system you will use to plot the data.
+This defines the coordinate and thus binning system you will use to plot the
+data.
 
 ``proj`` should be an instance of a ``projection`` (such as ``line_proj``,
 ``sphere_proj``, etc.) containing information about the axes and the coordinate
@@ -51,6 +63,10 @@ system you wish to use to plot the data.
 
 Lattice basis projections
 -------------------------
+
+The most common type of projection for single-crystal experiments will be the
+``line_proj`` which defines a (usually orthogonal, but not necessarily) system
+of linear coordinates from a set of basis vectors.
 
 The ``line_proj`` structure has several mandatory fields:
 
@@ -69,7 +85,7 @@ The ``line_proj`` structure has several mandatory fields:
 
 .. note::
 
-   The ``u`` and ``v`` of an ``line_proj`` are distinct from the vectors ``u``
+   The ``u`` and ``v`` of a ``line_proj`` are distinct from the vectors ``u``
    and ``v`` that are specified in :ref:`gen_sqw
    <manual/Generating_SQW_files:gen_sqw>`, which describe how the crystal is
    oriented with respect to the spectrometer and are determined by the physical
@@ -78,7 +94,7 @@ The ``line_proj`` structure has several mandatory fields:
 .. note::
 
    ``u`` and ``v`` are defined in the reciprocal lattice basis so if the crystal
-   axes are not orthogonal, the here are not necessarily orthogonal in
+   axes are not orthogonal, they are not necessarily orthogonal in
    reciprocal space.
 
    E.g.:
@@ -88,8 +104,8 @@ The ``line_proj`` structure has several mandatory fields:
       angdeg % => [60 60 90]
       proj = line_proj([1 0 0], [0 1 0]);
 
-   such that proj.u = (1,0,0) and proj.v = (0,1,0). The reciprocal space
-   projection will actually be offset according to angdeg.
+   such that ``proj.u`` = :math:`(1,0,0)` and ``proj.v`` = :math:`(0,1,0)`. The
+   reciprocal space projection will actually be skewed according to ``angdeg``.
 
 
 There are optional fields too:
@@ -102,14 +118,20 @@ There are optional fields too:
 
 * ``proj.type``
 
-  Three character string denoting the unit of measure along each of the three
-  **Q**-axes, one character for each axis. If you want an axis to be displayed
-  in inverse Angstroms, set the character to 'a'. For r.l.u. set the
-  corresponding character to 'r' (which normalises so that the maximum of
-  \|h|,|k\| and \|l\| is unity) or 'p' (which preserves the values of ``proj.u``
-  and ``proj.v``. For example, if we wanted the first two Q-components to be in
-  r.l.u. and the third to be in inverse Angstroms we would have ``proj.type =
-  'rra'``.
+  Three character string denoting the unit along each of the three
+  **Q**-axes, one character for each axis.
+
+  There are 3 possible options for each element of ``type``:
+
+  1. ``'a'`` -- Inverse angstroms
+
+  2. ``'r'`` -- Reciprocal lattice units (r.l.u.) which normalises so that the
+     maximum of :math:`|h|`, :math:`|k|` and :math:`|l|` is unity
+
+  3. ``'p'`` -- Preserve the values of ``proj.u`` and ``proj.v``
+
+  For example, if we wanted the first two **Q**-components to be in r.l.u. and
+  the third to be in inverse Angstroms we would have ``proj.type = 'rra'``.
 
 You may optionally choose to use non-orthogonal axes:
 
@@ -124,11 +146,12 @@ you define, even if they are not orthogonal in the crystal lattice basis.
 
 .. warning::
 
-   Plots that are produced plot them as orthogonal axes so any features may be
-   skewed.
+   Any plots produced using a non-orthogonal basis will plot them as though the
+   basis vectors are orthogonal, so features may be skewed.
 
-   However, it does make reading the location of a feature in a two-dimensional
-   **Q**-**Q** plot straightforward, which is the main reason for doing this.
+   The benefit to this is that it makes reading the location of a feature in a
+   two-dimensional **Q**-**Q** plot straightforward. This is the main reason for
+   treating non-orthogonal bases this way.
 
 Spherical Projections
 ---------------------
@@ -165,9 +188,9 @@ The structure of the arguments to cut is still the same (see `Binning arguments`
    By default a ``sphere_proj`` will define its principal axes for angular
    integration (:math:`\theta`, :math:`\phi`) as the notional goniometer axes as
    defined by ``u`` and ``v`` in :ref:`gen_sqw
-   <manual/Generating_SQW_files:gen_sqw>` it is possible to change these by
-   setting ``ex`` and ``ez`` which are vectors in-plane and perpendicular to the plane
-   respectively.
+   <manual/Generating_SQW_files:gen_sqw>`. It is possible to change these by
+   setting ``ex`` and ``ez`` which are vectors lying in-plane and perpendicular
+   to the plane respectively.
 
 Cylindrical Projections
 -----------------------
@@ -361,7 +384,7 @@ The parameters of section are as follows:
 
 .. warning::
 
-   Selected bins will be those whose bin centres lie within the range ``lo -
+   The bins selected will be those whose bin centres lie within the range ``lo -
    hi``, this means that the actual returned ``img_range`` may not match ``[lo
    hi]``. For example, a bin from ``0 - 1`` (centre ``0.5``) will be included by
    the following ``section`` despite the bin not being entirely contained within
@@ -382,101 +405,87 @@ In order to extract bins whose centres lie in the range ``[-5 5]`` from a 4-D
 head_horace
 ===========
 
+Gets the principal header information in a ``.sqw`` file at the location given
+in ``filename``.
+
+If the option ``'-full'`` is used, then the full set of header information,
+rather than just the principal header, is returned.
+
 .. code-block:: matlab
 
-   info = head_horace(filename);
-
-   info = head_horace(filename,'-full')
+   info = head_horace(filename[,'-full'])
 
 
-This is a function to give the header information in an SQW file or file to
-which an sqw object or dnd object has been saved, and whose full filename is
-given by the argument ``filename``. If the option ``'-full'`` is used then a
-fuller set of header information, rather than just the principal header, is
-returned. The purpose of this function is to read the contents regardless of
-your knowledge of whether or not the file contains an sqw object or a dnd
-object.
-
+The main use of this function is to determine whether or not the file contains
+an ``sqw`` or a ``dnd`` object.
 
 head_sqw
 ========
 
+Gets the principal header information in a ``.sqw`` file which contains an
+``sqw`` object at the location given in ``filename``.
+
+If the option ``'-full'`` is used, then the full set of header information,
+rather than just the principal header, is returned.
+
 .. code-block:: matlab
 
-   info = head_sqw(filename);
-
-   info = head_sqw(filename,'-full')
-
-
-This is a function to give the header information in an SQW file or file to
-which an sqw object has been saved, whose full filename is given by the argument
-``filename``. If the option ``'-full'`` is used then a fuller set of header
-information, rather than just the principal header, is returned.
-
+   info = head_sqw(filename[,'-full'])
 
 head_dnd
 ========
+
+Gets the header information in a ``.sqw`` file which contains a ``dnd`` object
+at the location given in ``filename``.
 
 .. code-block:: matlab
 
    info = head_dnd(filename);
 
-
-This is a function to give the header information in file to which a dnd object
-has been saved, whose full filename is given by the argument ``filename``.
-
 read_horace
 ===========
+
+Reads ``sqw`` or ``dnd`` data from a file. The object type is determined from
+the contents of the file.
 
 .. code-block:: matlab
 
    output = read_horace(filename);
 
-
-This is a function to read ``sqw`` or ``dnd`` data from a file. The object type is
-determined from the contents of the file. If the file contains a full sqw
-dataset (whether created using gen_sqw or as the result of saving a cut), the
-returned variable is an sqw object; if the file contains a dnd dataset, the
-output is the corresponding d01, d1d, ...or d4d object.
+The returned variable is an ``sqw`` or ``dnd`` object.
 
 read_sqw
 ========
+
+Reads ``sqw`` data from a file.
 
 .. code-block:: matlab
 
    output = read_sqw(filename);
 
-This is a function to read sqw data from a file. Note that in this context we
-mean an n-dimensional dataset, which includes pixel information, that has been
-saved to file. This could be either a full SQW file created wusing gen_sqw, or
-an sqw dataset that has been saved to file. The object ``output`` will be an sqw
-object.
-
+The returned variable is an ``sqw`` object.
 
 read_dnd
 ========
+
+As `read_sqw`_, but reads ``dnd`` data saved to file. If the file contains a
+full sqw dataset, then only the binned data will be read.
 
 .. code-block:: matlab
 
    output = read_dnd(filename);
 
-
-Exactly the same as above, but reads dnd data saved to file. If the file
-contains full sqw dataset, then it will be read as if it contained just a dnd
-dataset.
-
+The returned variable is an ``dnd`` object.
 
 save
 ====
 
+Saves the ``sqw`` or ``dnd`` object from the Matlab workspace to the file
+specified by ``filename``.
+
 .. code-block:: matlab
 
-   save(object,filename)
-
-
-Saves the sqw object or dnd object ``object`` from the Matlab workspace into the
-file specified by ``filename``.
-
+   save(object, filename)
 
 xye
 ===
@@ -486,66 +495,74 @@ object.
 
 .. code-block:: matlab
 
-   S = xye(w);
+   S = xye(object);
 
 
-The output is a structure with fields S.x (bin centres if a 1D object, or cell
-array of vectors containing the bin centres along each axis if 2D, 3D or 4D
-object), S.y (array of intensities), S.e (array of estimated error on the
-intensities).
+The output is a structure with fields:
+
+- ``S.x`` - vector of bin centres if a 1D object, or cell array of vectors
+  containing the bin centres along each axis if 2D, 3D or 4D object
+
+- ``S.y`` - array of intensities
+
+- ``S.e`` - array of estimated error on the intensities
 
 
 save_xye
 ========
 
-Save data in an sqw or dnd dataset to an ascii file.
+Save an ``sqw`` or ``dnd`` object to an ascii format file at the location
+``filename``.
 
 .. code-block:: matlab
 
-   filename = 'C:\\mprogs\\my_ascii_file.txt';
-   save_xye(w_in,filename);
-
+   save_xye(object, filename);
 
 The format of the ascii file for an n-dimensional dataset is n columns of
 co-ordinates along each of the axes, plus one column of signal and another
 column of error (standard deviation).
 
 
-hkle
-====
 
-Obtain the reciprocal space coordinate [h,k,l,e] for points in the coordinates
-of the display axes for an sqw object **from a single spe file**
+..
+    hkle
+    ====
 
-.. code-block:: matlab
+    Obtain the reciprocal space coordinate :math:`[h,k,l,e]` for points in the
+    coordinates of the display axes for an ``sqw`` object
 
-    [qe1,qe2] = hkle(w,x)
+    .. warning::
 
+       This extracts data only from an ``sqw`` derived from a single ``.spe`` file
 
-The inputs take the form:
+    .. code-block:: matlab
 
-* ``w``
-
-  sqw object
-
-* ``x``
-
-  Vector of coordinates in the display axes of an sqw object. The number of
-  coordinates must match the dimensionality of the object. e.g. for a 2D sqw
-  object, ``x = [x1,x2]``, where ``x1``, ``x2`` are column vectors. More than
-  one point can be provided by giving more rows e.g. ``[1.2,4.3; 1.1,5.4; 1.32,
-  6.7]`` for 3 points from a 2D object. Generally, an (``n`` x ``nd``) array,
-  where ``n`` is the number of points, and ``nd`` the dimensionality of the
-  object.
-
-The outputs take the form:
+        [qe1, qe2] = hkle(object, x)
 
 
-* ``qe1``
+    The inputs take the form:
 
-  Components of momentum (in rlu) and energy for each bin in the
-  dataset. Generally, will be (n x 4) array, where n is the number of points
+    * ``w``
 
-* ``qe2``
+      sqw object
 
-  For the second root
+    * ``x``
+
+      Vector of coordinates in the display axes of an sqw object. The number of
+      coordinates must match the dimensionality of the object. e.g. for a 2D sqw
+      object, ``x = [x1,x2]``, where ``x1``, ``x2`` are column vectors. More than
+      one point can be provided by giving more rows e.g. ``[1.2,4.3; 1.1,5.4; 1.32,
+      6.7]`` for 3 points from a 2D object. Generally, an (``n`` x ``nd``) array,
+      where ``n`` is the number of points, and ``nd`` the dimensionality of the
+      object.
+
+    The outputs take the form:
+
+    * ``qe1``
+
+      Components of momentum (in rlu) and energy for each bin in the
+      dataset. Generally, will be (n x 4) array, where n is the number of points
+
+    * ``qe2``
+
+      For the second root
