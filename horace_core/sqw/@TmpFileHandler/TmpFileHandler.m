@@ -1,15 +1,15 @@
 classdef TmpFileHandler < handle
     % Class to handle temporary PixelDataFileBacked files produced in
-    % operations
+    % operations.
+    %
+    % Upon deletion of the parent PixelDataFileBacked this object will be cleared
+    % resulting in the deletion of the temporary files if they have not
+    % been saved in different place or lock have been set to true.
     %
     % Created by PixelData file-backed on starting modifying operation
     % (PixelDataFileBacked.get_new_handle), which stores the path tmp_file
     % (to be referenced by the PixelDataFileBacked object when the operation is
     % complete)
-    %
-    % Upon deletion of the parent PixelDataFileBacked this object will be cleared
-    % resulting in the deletion of the temporary files if they have not
-    % been saved.
     %
     % File path is structured so as to reflect the file origin but be unlikely to
     % conflict with other temporary files from the same origin and also to avoid

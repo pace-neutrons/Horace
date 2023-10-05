@@ -20,8 +20,8 @@ function wout = mask_pixels (obj, keep_info)
 %                      result of the operation.
 %    *OR*              Array of 1 or 0 (or true or false) that indicate
 %                      which pixels to retain (true to retain, false to ignore)
-%                      Numeric or logical array with number of elements
-%                      equal to  number of pixels in the obj.
+%                      Numeric or logical array with the same number of
+%                      elements as there are pixels in the obj.
 %    *OR*
 %                      sqw object in which the signal in individual pixels is
 %                      interpreted as a mask array:
@@ -66,7 +66,7 @@ elseif (isnumeric(keep_info) || islogical(keep_info)) && ...
             num_keep);
     elseif num_keep>obj.num_pixels
         error('HORACE:sqw:invalid_argument', ...
-            'Can not mask more pixels then available. Num pixels to keep should be smaller or equal to num_pixels (%d). Provided: %d', ...
+            'Can not keep more pixels then available. Num pixels to keep should be smaller or equal to num_pixels (%d). Provided: %d', ...
             obj.num_pixels,num_keep)
     end
 
