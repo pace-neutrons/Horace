@@ -28,7 +28,7 @@ end
 
 if ~obj.is_range_valid()
     ll = config_store.instance().get_value('hor_config','log_level');
-    if ll<1
+    if ll<2
         return;
     end
     fprintf(2,[ '\n', ...

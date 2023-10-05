@@ -13,11 +13,8 @@ function sqw_out = apply_c(sqw_in,page_op)
 % Output:
 % sqw_out -- sqw_in object, modified using the operation provided as input
 %
-if isa(sqw_in,'sqw')
-    npix = sqw_in.data.npix(:);
-else
-    npix = page_op.npix;
-end
+npix = page_op.npix;
+
 [mem_chunk_size,ll] = config_store.instance().get_value('hor_config', 'mem_chunk_size','log_level');
 % if vector split function changes here, it has to change in
 % PageOp_mask.calc_page_share too (masking algorithm uses knowlege about paging to 

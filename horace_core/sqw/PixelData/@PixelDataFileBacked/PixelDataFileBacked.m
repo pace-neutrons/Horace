@@ -375,6 +375,7 @@ classdef PixelDataFileBacked < PixelDataBase
         end
         function pix_copy = copy(obj)
             pix_copy = obj;
+            pix_copy.page_num = 1;
         end
     end
     %======================================================================
