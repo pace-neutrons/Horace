@@ -121,7 +121,7 @@ classdef PageOpBase
             pix = obj.pix_;
             % clear alignment as it has been applied during page
             % operation(s)
-            pix.is_misaligned = false;
+            pix     = pix.clear_alignment();
             pix     = pix.set_data_range(obj.pix_data_range_);
             pix     = pix.finish_dump();
 
