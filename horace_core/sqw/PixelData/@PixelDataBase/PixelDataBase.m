@@ -379,8 +379,8 @@ classdef (Abstract) PixelDataBase < serializable
                 idx = [idx{:}];
             else
                 error('HORACE:PixelDataBase:invalid_argument',...
-                    ['Method accepts the name of the pixel field or cellarray of fields.\n' ...
-                    'Actually input class is %s'],class(fld_name));
+                    ['Method accepts the name of the pixel field, array of field indices or cellarray of fields.\n' ...
+                    'Actually input class is: %s'],class(fld_name));
             end
         end
     end
@@ -633,7 +633,9 @@ classdef (Abstract) PixelDataBase < serializable
             is = obj.is_misaligned_;
         end
         function obj = clear_alignment(obj)
-            % clear alignment. If alignment changes, invalidates object integrity,
+            % Clears alignment. 
+            % 
+            % If alignment changes, invalidates object integrity,
             % (data_ranges need recalculation) 
             % so should be used as part of algorithms only.
             obj.is_misaligned_ = false;

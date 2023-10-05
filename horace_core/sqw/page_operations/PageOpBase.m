@@ -227,11 +227,6 @@ classdef PageOpBase
             end
         end
         function obj = set.npix(obj,val)
-            if ~isnumeric(val)
-                error('HORACE:PageOpBase:invalid_argument', ...
-                    'npix value have to be numeric. It is: %s', ...
-                    class(val));
-            end
             obj.npix_ = val;
         end
         %
