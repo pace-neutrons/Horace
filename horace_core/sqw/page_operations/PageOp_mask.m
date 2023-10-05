@@ -127,13 +127,10 @@ classdef PageOp_mask < PageOpBase
         %
         function [out_obj,obj] = finish_op(obj,in_obj)
             if ~isempty(obj.img_)
-                sz = size(obj.img_.s);
-                nopix = obj.npix_acc == 0;
-                calc_sig = obj.sig_acc_(:)./obj.npix_acc(:);
-                calc_var = obj.var_acc_(:)./obj.npix_acc(:).^2;
+                [calc_sig,calc_var] = normalize_signal( ...
+                    obj.sig_acc_(:),obj.obj.var_acc_,obj.npix_acc(:));
 
-                calc_sig(nopix) = 0;
-                calc_var(nopix) = 0;
+                sz = size(obj.img_.s);                
                 obj.img_.s    = reshape(calc_sig,sz);
                 obj.img_.e    = reshape(calc_var,sz);
                 obj.img_.npix = reshape(obj.npix_acc,sz);
