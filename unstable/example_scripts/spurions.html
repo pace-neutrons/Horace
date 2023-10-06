@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spurions &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SQW Generation tips" href="sqwgeneration_tips.html" />
+    <link rel="prev" title="Spinw GPO 1dfit" href="spinw_gpo_1dfit.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="advanced_plotting.html">Advanced Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="align_and_symmetrise.html">Align and Symmetrise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_usage.html">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corrections.html">Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_corrections.html">Data Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gpo_fitting_spinw.html">GPO fitting SpinW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horace_whole_course_full_script.html">Horace course</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sample_misalignment.html">Sample Misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulation_fitting.html">Simulation Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spinw_gpo_1dfit.html">Spinw GPO 1dfit</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Spurions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqwgeneration_tips.html">SQW Generation tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="symmetrisation.html">Symmetrisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Example_scripts.html">Example Scripts</a></li>
+      <li class="breadcrumb-item active">Spurions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/example_scripts/spurions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spurions">
+<h1>Spurions<a class="headerlink" href="#spurions" title="Permalink to this heading"></a></h1>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%% Before running this script, set the data path here</span>
+
+<span class="k">global</span><span class="w"> </span><span class="n">edatc_folder</span><span class="w"> </span><span class="n">output_data_folder</span>
+
+<span class="c">% To run this script you need some files from the EDATC</span>
+<span class="c">% Please download a zip of the repository here:</span>
+<span class="c">% https://github.com/pace-neutrons/edatc/archive/refs/heads/main.zip</span>
+<span class="c">% And put the location you unzipped it below:</span>
+<span class="n">edatc_folder</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/mnt/ceph/auxiliary/pace/edatc&#39;</span><span class="p">;</span>
+<span class="c">% Note that you should also download the Zenodo archive here:</span>
+<span class="c">% https://zenodo.org/record/5020485</span>
+<span class="c">% And unzip the contents of that file into the crystal_datafiles folder</span>
+
+<span class="c">% Put the folder where you want generated files from this script to go:</span>
+<span class="n">output_data_folder</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/tmp/aaa_my_work&#39;</span><span class="p">;</span>
+
+<span class="c">% Creates output folder if it doesn&#39;t exist</span>
+<span class="k">if</span><span class="w"> </span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="n">output_data_folder</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;dir&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">mkdir</span><span class="p">(</span><span class="n">output_data_folder</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                            Spurious data</span>
+<span class="c">% =========================================================================</span>
+<span class="n">w_sp1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">([</span><span class="n">edatc_folder</span><span class="w"> </span><span class="s">&#39;/crystal_datafiles/spurious1.sqw&#39;</span><span class="p">]);</span>
+<span class="n">par_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">edatc_folder</span><span class="w"> </span><span class="s">&#39;/crystal_datafiles/4to1_102.par&#39;</span><span class="p">];</span>
+
+<span class="n">cut1_sp1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w_sp1</span><span class="p">,</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut1_sp1</span><span class="p">)</span>
+
+<span class="c">% You should see an intense streak at the Bragg position.</span>
+<span class="c">% Lets look at a reciprocal space map of it</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">w_sp1</span><span class="p">,</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span><span class="p">]));</span>
+<span class="n">lz</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2000</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">w_sp1</span><span class="p">,</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[</span><span class="mi">8</span><span class="w"> </span><span class="mi">12</span><span class="p">]));</span>
+<span class="n">lz</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2000</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">% You should see that there are 3 streaks all in the same direction,</span>
+<span class="c">% all coming out of a Bragg peak.</span>
+<span class="n">run_inspector</span><span class="p">(</span><span class="n">cut1_sp1</span><span class="p">)</span>
+<span class="c">% Move through the runs – you should see around run 22 that there is a very</span>
+<span class="c">% intense diagonal streak which is present in several runs.</span>
+
+<span class="c">% The excitations are too intense and are not symmetric about the Bragg peak</span>
+<span class="c">% so they are not real dispersion, but because they are associated with the</span>
+<span class="c">% sample Bragg peak, it suggests they _are_ scattering from the sample.</span>
+<span class="c">% In fact they are a detector artefact. This happens because the crystal</span>
+<span class="c">% is aligned such that equivalent off-plane Bragg peaks hit a single detector</span>
+<span class="c">% tube at the same time causing the electronics to misrecord neutron events,</span>
+<span class="c">% because the peaks are so intense.</span>
+
+<span class="c">%% The second dataset</span>
+<span class="n">w_sp2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_sqw</span><span class="p">([</span><span class="n">edatc_folder</span><span class="w"> </span><span class="s">&#39;/crystal_datafiles/spurious2.sqw&#39;</span><span class="p">])</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w_sp2</span><span class="p">)</span>
+
+<span class="c">% You should see that there are Bragg peaks but they don’t seem to have the</span>
+<span class="c">% 6-fold symmetry you would expect from the (111) plane of a cubic crystal.</span>
+<span class="n">run_inspector</span><span class="p">(</span><span class="n">w_sp2</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;col&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">])</span>
+
+<span class="c">% Move through the run_inspector. You should see that the sqw file was formed</span>
+<span class="c">% of a set of 46 scans from 0 to 90 deg in 2 deg steps, and then another</span>
+<span class="c">% 45 scans from 1 to 89 deg in 2 deg steps.</span>
+<span class="c">% Comparing runs 22-27 and 69-74 (you can use run_inspector twice to get 2 plots)</span>
+<span class="c">% you should see the scattering is similar but doesn&#39;t match up</span>
+<span class="c">% (e.g. run 22 looks like run 70 but are 5 degrees apart).</span>
+<span class="c">% This is because during the rotation from 90 deg to 1 deg for the second set</span>
+<span class="c">% of scans, the sample assembly became stuck and the motor lost its position</span>
+<span class="c">% So the second set was not actually measuring from 1 to 89 deg.</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                            Masking data</span>
+<span class="c">% =========================================================================</span>
+<span class="c">% Mask parts of a dataset out, e.g. if there is a region with a spurion that</span>
+<span class="c">% you wish to remove before proceeding to fitting the data</span>
+<span class="n">sqw_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/iron.sqw&#39;</span><span class="p">];</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span>
+<span class="n">my_slice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">280</span><span class="p">]);</span>
+
+<span class="n">mask_arr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">ones</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">my_slice</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">npix</span><span class="p">));</span><span class="w"> </span><span class="c">% keeps everything</span>
+
+<span class="n">my_slice_masked1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="n">mask_arr</span><span class="p">);</span><span class="w"> </span><span class="c">% should do nothing</span>
+
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_masked1</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">mask_arr2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_arr</span><span class="p">;</span>
+<span class="n">mask_arr2</span><span class="p">(</span><span class="mi">61</span><span class="p">:</span><span class="mi">121</span><span class="p">,</span><span class="w"> </span><span class="p">:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">my_slice_masked2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="n">mask_arr2</span><span class="p">);</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_masked2</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">% Mask out specific points, if the mask you need for the above is more</span>
+<span class="c">% complex:</span>
+<span class="n">sel1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w">   </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">120</span><span class="p">]);</span><span class="w"> </span><span class="c">% specify limits to keep</span>
+<span class="n">my_slice_masked3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="n">sel1</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_masked3</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+
+<span class="n">sel2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;remove&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">120</span><span class="p">]);</span><span class="w"> </span><span class="c">% specify limits to remove</span>
+<span class="n">my_slice_masked4</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="n">sel2</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_masked4</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+
+<span class="c">%% Masking spurious data</span>
+<span class="n">cut_sp1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w_sp1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.6</span><span class="w"> </span><span class="o">-</span><span class="mf">0.5</span><span class="p">],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[])</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut_sp1</span><span class="p">);</span>
+<span class="n">keep_figure</span>
+
+<span class="s">%</span><span class="w"> </span><span class="s">Determine</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">mask</span><span class="w"> </span><span class="s">–</span><span class="w"> </span><span class="s">best</span><span class="w"> </span><span class="s">way</span><span class="w"> </span><span class="s">is</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">plot</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">actual</span><span class="w"> </span><span class="s">picture</span><span class="w"> </span><span class="s">with</span><span class="w"> </span><span class="s">pcolor</span>
+<span class="c">%figure; pcolor(w_sp1.data.s); caxis([0,1000])</span>
+<span class="c">% Then determine the coordinates from this (remember that pcolor transposes the matrix)</span>
+
+<span class="n">mask_arr_sp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">ones</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">cut_sp1</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">npix</span><span class="p">));</span>
+<span class="n">mask_arr_sp</span><span class="p">(</span><span class="mi">40</span><span class="p">:</span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="mi">57</span><span class="p">:</span><span class="mi">59</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="n">wmasked</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">cut_sp1</span><span class="p">,</span><span class="w"> </span><span class="n">mask_arr_sp</span><span class="p">)</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">wmasked</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spinw_gpo_1dfit.html" class="btn btn-neutral float-left" title="Spinw GPO 1dfit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sqwgeneration_tips.html" class="btn btn-neutral float-right" title="SQW Generation tips" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Oct 6, 2023, 2:54:49 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/example_scripts/spurions.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GPO fitting SpinW &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Horace course" href="horace_whole_course_full_script.html" />
+    <link rel="prev" title="Data Corrections" href="data_corrections.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="advanced_plotting.html">Advanced Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="align_and_symmetrise.html">Align and Symmetrise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_usage.html">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corrections.html">Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_corrections.html">Data Corrections</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">GPO fitting SpinW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horace_whole_course_full_script.html">Horace course</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sample_misalignment.html">Sample Misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulation_fitting.html">Simulation Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spinw_gpo_1dfit.html">Spinw GPO 1dfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spurions.html">Spurions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqwgeneration_tips.html">SQW Generation tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="symmetrisation.html">Symmetrisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Example_scripts.html">Example Scripts</a></li>
+      <li class="breadcrumb-item active">GPO fitting SpinW</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/example_scripts/gpo_fitting_spinw.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gpo-fitting-spinw">
+<h1>GPO fitting SpinW<a class="headerlink" href="#gpo-fitting-spinw" title="Permalink to this heading"></a></h1>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Example script to fit Gd2Pt2O7 SpinW model to two 1d cuts through the</span>
+<span class="c">% data.</span>
+<span class="c">%</span>
+<span class="c">% ============</span>
+<span class="c">% Russell Ewings - 20/5/2020</span>
+<span class="c">% Ross Stewart - 13/07/2022</span>
+<span class="c">%</span>
+
+<span class="c">%% Fitting with Spinw -  2 simultaneous 1d cuts</span>
+
+<span class="n">sqw_gpo</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;gpo_1p6.sqw&#39;</span><span class="p">;</span><span class="w">  </span><span class="c">% 1.6 meV LET data - powder averaged</span>
+<span class="n">Ei</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">1.6</span><span class="p">;</span><span class="w">                 </span><span class="c">% incident energy</span>
+<span class="n">dE</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">0.03</span><span class="p">;</span><span class="w">                </span><span class="c">% energy resolution (average) from PyChop</span>
+<span class="n">dQ</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">0.01</span><span class="p">;</span><span class="w">                </span><span class="c">% Q-resolution estimate</span>
+<span class="n">s</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">rng</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w">               </span><span class="c">% random number seed, so that you get the same result each time</span>
+
+<span class="c">% Fitting parameters - Model is 3 Js on the pyrochlore lattice + dipolar +</span>
+<span class="c">% anisotropy (fixed)</span>
+<span class="n">scalefac</span><span class="p">=</span><span class="mf">0.064</span><span class="p">;</span><span class="w">            </span><span class="c">% intensity scale factor</span>
+<span class="n">J</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">4.92</span><span class="p">,</span><span class="w"> </span><span class="mf">0.11</span><span class="p">,</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">];</span><span class="w">  </span><span class="c">% exchange guess values</span>
+<span class="n">D</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="mf">3.52</span><span class="p">;</span><span class="w">                </span><span class="c">% single ion anisotropy</span>
+<span class="n">muR</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">1.4</span><span class="p">;</span><span class="w">                 </span><span class="c">% sample self attenuation</span>
+<span class="n">bg</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="mf">0.14</span><span class="p">;</span><span class="w">                </span><span class="c">% background</span>
+
+<span class="c">%Take first 1d cut along the energy axis</span>
+<span class="n">Qrange1</span><span class="p">=[</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.3</span><span class="p">];</span><span class="w">        </span><span class="c">%note down the Q range for integration, as we need to pass this to the simulating / fitting function</span>
+<span class="n">gpo_cut_Q1</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_gpo</span><span class="p">,</span><span class="n">Qrange1</span><span class="p">,[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.005</span><span class="p">,</span><span class="mf">0.63</span><span class="p">],</span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+<span class="c">%check for NaNs in cut</span>
+<span class="n">ok</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">~</span><span class="nb">isnan</span><span class="p">(</span><span class="n">gpo_cut_Q1</span><span class="p">.</span><span class="n">s</span><span class="p">);</span>
+<span class="c">%create IX dataset (is this really necessary)</span>
+<span class="n">gpo_IX1d_Q1</span><span class="p">=</span><span class="n">IX_dataset_1d</span><span class="p">(</span><span class="n">gpo_cut_Q1</span><span class="p">.</span><span class="n">p</span><span class="p">{</span><span class="mi">1</span><span class="p">}(</span><span class="n">ok</span><span class="p">),</span><span class="n">gpo_cut_Q1</span><span class="p">.</span><span class="n">s</span><span class="p">(</span><span class="n">ok</span><span class="p">),</span><span class="nb">sqrt</span><span class="p">(</span><span class="n">gpo_cut_Q1</span><span class="p">.</span><span class="n">e</span><span class="p">(</span><span class="n">ok</span><span class="p">)));</span>
+
+<span class="c">%Take a second 1d cut along the energy axis</span>
+<span class="n">Qrange2</span><span class="p">=[</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.5</span><span class="p">];</span><span class="w">        </span><span class="c">%note down the Q range for integration, as we need to pass this to the simulating / fitting function</span>
+<span class="n">gpo_cut_Q2</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_gpo</span><span class="p">,</span><span class="n">Qrange2</span><span class="p">,[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.005</span><span class="p">,</span><span class="mf">0.63</span><span class="p">],</span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+<span class="c">%check for NaNs in cut</span>
+<span class="n">ok</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">~</span><span class="nb">isnan</span><span class="p">(</span><span class="n">gpo_cut_Q2</span><span class="p">.</span><span class="n">s</span><span class="p">);</span>
+<span class="c">%create IX dataset (is this really necessary)</span>
+<span class="n">gpo_IX1d_Q2</span><span class="p">=</span><span class="n">IX_dataset_1d</span><span class="p">(</span><span class="n">gpo_cut_Q2</span><span class="p">.</span><span class="n">p</span><span class="p">{</span><span class="mi">1</span><span class="p">}(</span><span class="n">ok</span><span class="p">),</span><span class="n">gpo_cut_Q2</span><span class="p">.</span><span class="n">s</span><span class="p">(</span><span class="n">ok</span><span class="p">),</span><span class="nb">sqrt</span><span class="p">(</span><span class="n">gpo_cut_Q2</span><span class="p">.</span><span class="n">e</span><span class="p">(</span><span class="n">ok</span><span class="p">)));</span>
+
+<span class="c">% run multifit on both datasets</span>
+<span class="n">gpo_fit</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="p">([</span><span class="n">gpo_IX1d_Q1</span><span class="p">,</span><span class="n">gpo_IX1d_Q2</span><span class="p">]);</span>
+<span class="n">gpo_fit</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gpo_fit</span><span class="p">.</span><span class="n">set_mask</span><span class="p">(</span><span class="s">&#39;remove&#39;</span><span class="p">,[</span><span class="mf">0.43</span><span class="p">,</span><span class="mf">0.5</span><span class="p">]);</span>
+<span class="n">gpo_fit</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gpo_fit</span><span class="p">.</span><span class="n">set_local_foreground</span><span class="p">;</span>
+<span class="n">gpo_fit</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gpo_fit</span><span class="p">.</span><span class="n">set_fun</span><span class="p">(@</span><span class="n">spinw_gpo_1dfit</span><span class="p">);</span>
+<span class="n">gpo_fit</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gpo_fit</span><span class="p">.</span><span class="n">set_pin</span><span class="p">({{[</span><span class="n">scalefac</span><span class="p">,</span><span class="n">J</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">muR</span><span class="p">,</span><span class="n">bg</span><span class="p">],</span><span class="n">Qrange1</span><span class="p">,</span><span class="n">Ei</span><span class="p">,</span><span class="n">dE</span><span class="p">,</span><span class="n">dQ</span><span class="p">,</span><span class="n">s</span><span class="p">},</span><span class="k">...</span>
+<span class="w">                           </span><span class="p">{[</span><span class="n">scalefac</span><span class="p">,</span><span class="n">J</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">muR</span><span class="p">,</span><span class="n">bg</span><span class="p">],</span><span class="n">Qrange2</span><span class="p">,</span><span class="n">Ei</span><span class="p">,</span><span class="n">dE</span><span class="p">,</span><span class="n">dQ</span><span class="p">,</span><span class="n">s</span><span class="p">}});</span>
+<span class="n">gpo_fit</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gpo_fit</span><span class="p">.</span><span class="n">set_free</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">gpo_fit</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gpo_fit</span><span class="p">.</span><span class="n">set_bind</span><span class="p">({{</span><span class="mi">2</span><span class="p">,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]},{</span><span class="mi">3</span><span class="p">,[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">]},{</span><span class="mi">4</span><span class="p">,[</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">]},{</span><span class="mi">7</span><span class="p">,[</span><span class="mi">7</span><span class="p">,</span><span class="mi">1</span><span class="p">]}});</span>
+<span class="n">gpo_fit</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gpo_fit</span><span class="p">.</span><span class="n">set_options</span><span class="p">(</span><span class="s">&#39;list&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="n">fitdata</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gpo_fit</span><span class="p">.</span><span class="n">fit</span><span class="p">();</span>
+
+<span class="c">% Plot data with fit over the top (&quot;ploc&quot; means plot line over current in</span>
+<span class="c">% Horace)</span>
+<span class="n">acolor</span><span class="w"> </span><span class="s">black</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">gpo_cut_Q1</span><span class="p">)</span>
+<span class="n">acolor</span><span class="w"> </span><span class="s">red</span>
+<span class="n">ploc</span><span class="p">(</span><span class="n">wfit</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">keep_figure</span>
+<span class="s">acolor</span><span class="w"> </span><span class="s">black</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">gpo_cut_Q2</span><span class="p">)</span>
+<span class="n">acolor</span><span class="w"> </span><span class="s">red</span>
+<span class="n">ploc</span><span class="p">(</span><span class="n">wfit</span><span class="p">(</span><span class="mi">2</span><span class="p">));</span>
+<span class="n">keep_figure</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="data_corrections.html" class="btn btn-neutral float-left" title="Data Corrections" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="horace_whole_course_full_script.html" class="btn btn-neutral float-right" title="Horace course" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Oct 6, 2023, 2:54:49 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/example_scripts/gpo_fitting_spinw.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

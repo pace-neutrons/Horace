@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Horace course &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Sample Misalignment" href="sample_misalignment.html" />
+    <link rel="prev" title="GPO fitting SpinW" href="gpo_fitting_spinw.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="advanced_plotting.html">Advanced Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="align_and_symmetrise.html">Align and Symmetrise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_usage.html">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corrections.html">Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_corrections.html">Data Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gpo_fitting_spinw.html">GPO fitting SpinW</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Horace course</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sample_misalignment.html">Sample Misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulation_fitting.html">Simulation Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spinw_gpo_1dfit.html">Spinw GPO 1dfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spurions.html">Spurions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqwgeneration_tips.html">SQW Generation tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="symmetrisation.html">Symmetrisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Example_scripts.html">Example Scripts</a></li>
+      <li class="breadcrumb-item active">Horace course</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/example_scripts/horace_whole_course_full_script.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="horace-course">
+<h1>Horace course<a class="headerlink" href="#horace-course" title="Permalink to this heading"></a></h1>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%% Before running this script, set the data path here</span>
+
+<span class="k">global</span><span class="w"> </span><span class="n">edatc_folder</span><span class="w"> </span><span class="n">output_data_folder</span>
+
+<span class="c">% To run this script you need some files from the EDATC</span>
+<span class="c">% Please download a zip of the repository here:</span>
+<span class="c">% https://github.com/pace-neutrons/edatc/archive/refs/heads/main.zip</span>
+<span class="c">% And put the location you unzipped it below:</span>
+<span class="n">edatc_folder</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/mnt/ceph/auxiliary/pace/edatc&#39;</span><span class="p">;</span>
+<span class="c">% Note that you should also download the Zenodo archive here:</span>
+<span class="c">% https://zenodo.org/record/5020485</span>
+<span class="c">% And unzip the contents of that file into the crystal_datafiles folder</span>
+
+<span class="c">% Put the folder where you want generated files from this script to go:</span>
+<span class="n">output_data_folder</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/tmp/aaa_my_work&#39;</span><span class="p">;</span>
+
+<span class="c">%% ==================</span>
+<span class="n">edatc_folder</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/home/mdl27/src/edatc&#39;</span><span class="p">;</span>
+<span class="n">output_data_folder</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/tmp/aaa_my_work&#39;</span><span class="p">;</span>
+
+<span class="c">% Creates output folder if it doesn&#39;t exist</span>
+<span class="k">if</span><span class="w"> </span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="n">output_data_folder</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;dir&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">mkdir</span><span class="p">(</span><span class="n">output_data_folder</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%              Make a fake data set to explore more thoroughly</span>
+<span class="c">% =========================================================================</span>
+
+<span class="c">% Name and folder for output &quot;fake&quot; generated file</span>
+<span class="n">sqw_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/my_fake_file.sqw&#39;</span><span class="p">];</span>
+
+<span class="c">% Instrument parameter file (may be in another location to this)</span>
+<span class="n">par_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">edatc_folder</span><span class="w"> </span><span class="s">&#39;/crystal_datafiles/4to1_102.par&#39;</span><span class="p">];</span>
+
+<span class="c">% u and v vectors to define the crystal orientation</span>
+<span class="c">% (u||ki, uv plane is horizontal but v does not need to be perp to u.</span>
+<span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span>
+<span class="n">v</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span>
+
+<span class="c">% Range of rotation (psi) angles to cover in simulated dataset.</span>
+<span class="c">% (psi=0 when u||ki)</span>
+<span class="nb">psi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">:</span><span class="mi">90</span><span class="p">];</span>
+
+<span class="c">% Incident energy in meV</span>
+<span class="n">efix</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">401</span><span class="p">;</span>
+<span class="n">emode</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">   </span><span class="c">% This is for direct geometry (set to 2 for indirect)</span>
+
+<span class="c">% Range of energy transfer (in meV) for the dataset to cover</span>
+<span class="n">en</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">:</span><span class="mi">360</span><span class="p">];</span>
+
+<span class="c">% Sample lattice parameters (in Angstrom) and angles (in degrees)</span>
+<span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">];</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">];</span>
+
+<span class="c">% Sample misalignment angles (&quot;gonios&quot;). [More details in session 4].</span>
+<span class="n">omega</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">dpsi</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">gl</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">gs</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+
+<span class="c">% This runs the command to generate the &quot;fake&quot; dataset.</span>
+<span class="n">dummy_sqw</span><span class="p">(</span><span class="n">en</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span>
+<span class="w">                     </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">);</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">% Once generated, you can use standard Horace plotting tools to explore</span>
+<span class="c">% this fake dataset, where the colour scale corresponds to the value of psi</span>
+<span class="c">% that contributed data to a given region of reciprocal space</span>
+
+<span class="c">% First define a view projection (these u and v do not need to be the same</span>
+<span class="c">% as the sample u and v above. They just define the first, second and third</span>
+<span class="c">% axes for making a cut (third axis w is implicit being perpendicular to the</span>
+<span class="c">% plane defined by u and v).</span>
+<span class="c">% Type: &gt;&gt; doc line_proj   for more details.</span>
+<span class="c">% Note that the default for offset is [0,0,0,0] so it doesn&#39;t need to be set</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;offset&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span>
+
+<span class="c">% Now make a cut of the fake dataset.</span>
+<span class="c">% The four vectors indicate either the range and step (three-vector) or</span>
+<span class="c">% the integration range (2-vector), with units defined by the proj.type</span>
+<span class="c">% The following makes a 3D volume cut with axes u, v and energy</span>
+<span class="c">% (first, second and fourth vectors are 3-vectors),</span>
+<span class="c">% integrating over w between -0.1 and 0.1.</span>
+<span class="c">% &#39;-nopix&#39; indicates to discard the pixel information and create</span>
+<span class="c">% a dnd (d3d) object.</span>
+<span class="n">my_vol</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="k">...</span>
+<span class="w">                 </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">360</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+
+<span class="c">% Plot the 3D cut - click on the graph to plot 2D projections of the volume</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_vol</span><span class="p">)</span>
+
+<span class="c">% The following makes a 2D cut with axes u and energy (first and fourth</span>
+<span class="c">% vectors are 3-vectors), integrating over v and w between -0.1 and 0.1</span>
+<span class="n">my_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">400</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+
+<span class="c">% Now plot the 2D cut.</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_cut</span><span class="p">);</span>
+
+<span class="c">% We set the offset to be centred on (200), (020) and (002) in turn</span>
+<span class="c">% Plotting the dispersion along the [h00] direction (note different u and v)</span>
+<span class="c">% Using keep_figure to keep the figures on screen.</span>
+<span class="c">% Afterwards, you can check which figure gives the largest coverage.</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;offset&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">360</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">));</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;offset&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">360</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">));</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;offset&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">360</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">));</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">% As an alternative, we could manually change the integration range in the relevant</span>
+<span class="c">% axes instead, but using uoffset is easier:</span>
+<span class="c">% proj = line_proj([1,0,0], [0,1,0], &#39;type&#39;, &#39;rrr&#39;);</span>
+<span class="c">% w200 = cut_sqw(sqw_file, proj, [-1,0.05,1]+2, [-0.1,0.1], [-0.1,0.1], [0,4,360], &#39;-nopix&#39;)</span>
+<span class="c">% w020 = cut_sqw(sqw_file, proj, [-1,0.05,1], [-0.1,0.1]+2, [-0.1,0.1], [0,4,360], &#39;-nopix&#39;)</span>
+<span class="c">% w002 = cut_sqw(sqw_file, proj, [-1,0.05,1], [-0.1,0.1], [-0.1,0.1]+2, [0,4,360], &#39;-nopix&#39;)</span>
+
+<span class="c">% Use a different projection to make a 2D slice along [hhh] centred at (200)</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;offset&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">360</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">));</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                        Generating an sqw file</span>
+<span class="c">% =========================================================================</span>
+<span class="nb">clear</span><span class="w"> </span><span class="n">variables</span>
+<span class="nb">close</span><span class="w"> </span><span class="nb">all</span>
+
+<span class="k">global</span><span class="w"> </span><span class="n">edatc_folder</span><span class="w"> </span><span class="n">output_data_folder</span>
+
+<span class="c">% Directory where data (spe or nxspe) files are:</span>
+<span class="n">data_path</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">edatc_folder</span><span class="w"> </span><span class="s">&#39;/crystal_datafiles&#39;</span><span class="p">];</span>
+
+<span class="c">% Name of output sqw file (for the 4D combined dataset)</span>
+<span class="n">sqw_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/iron.sqw&#39;</span><span class="p">];</span>
+
+<span class="c">% Instrument parameter file name (only needed for spe files - nxspe files</span>
+<span class="c">% have the par file embedded in them).</span>
+<span class="c">%par_file = [data_path, &#39;4to1_102.par&#39;];</span>
+<span class="n">par_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="p">;</span>
+
+<span class="c">% u and v vectors to define the crystal orientation</span>
+<span class="c">% (u||ki when psi=0; uv plane is horizontal but v does not need to be perp to u).</span>
+<span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span>
+<span class="n">v</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span>
+
+<span class="c">% Range of rotation (psi) angles of the data files.</span>
+<span class="c">% (psi=0 when u||ki)</span>
+<span class="nb">psi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">:</span><span class="mi">90</span><span class="p">];</span>
+
+<span class="c">% Data file run number corresponding to the psi angles declared above</span>
+<span class="c">% (must be the same size and order as psi)</span>
+<span class="n">runno</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">15052</span><span class="p">:</span><span class="mi">15097</span><span class="p">];</span>
+
+<span class="c">% Incident energy in meV</span>
+<span class="n">efix</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">401</span><span class="p">;</span>
+<span class="n">emode</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">   </span><span class="c">% This is for direct geometry (set to 2 for indirect)</span>
+
+<span class="c">% Sample lattice parameters (in Angstrom) and angles (in degrees)</span>
+<span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">];</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">];</span>
+
+<span class="c">% Sample misalignment angles (&quot;gonios&quot;). [More details in session 4].</span>
+<span class="n">omega</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">dpsi</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">gl</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">gs</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+
+<span class="c">% Construct the data file names from the run numbers (the data file names</span>
+<span class="c">% are actually what is required by the gen_sqw function below, but we</span>
+<span class="c">% use the numbers as a convenience. This assumes that the data file names</span>
+<span class="c">% follow the standard convention of IIInnnnnn_eiEEE.nxspe, where III is</span>
+<span class="c">% the instrument abbreviation (MAP, MER or LET), nnnnnn is the run number</span>
+<span class="c">% and EEE is the incident energy.</span>
+<span class="n">spefile</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">cellfun</span><span class="p">(@(</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s">&#39;map&#39;</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="s">&#39;_ei400.nxspe&#39;</span><span class="p">]),</span><span class="w"> </span><span class="k">...</span>
+<span class="w">                                </span><span class="nb">num2cell</span><span class="p">(</span><span class="n">runno</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;UniformOutput&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="c">% A loop also works:</span>
+<span class="c">%for i=1:numel(psi)</span>
+<span class="c">%    spefile{i} = [data_path, &#39;map&#39;, num2str(runno(i)), &#39;_ei400&#39;, &#39;.nxspe&#39;];</span>
+<span class="c">%end</span>
+
+<span class="c">% Now run the function to generate the sqw file.</span>
+<span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span>
+<span class="w">    </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">);</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                Accumulating data to an existing sqw file</span>
+<span class="c">% =========================================================================</span>
+<span class="c">%</span>
+<span class="c">% The above gen_sqw file generates an sqw file from the list of input</span>
+<span class="c">% spe or nxspe files in one go, and deletes all temporary files after it</span>
+<span class="c">% finishes. If you are in the middle of a rotation scan, you can use</span>
+<span class="c">% accumulate_sqw which does not delete the temporary files and so can</span>
+<span class="c">% append newly processed spe/nxspe files to an existing sqw file.</span>
+<span class="c">% This may save some time in processing, but is not now generally</span>
+<span class="c">% recommended since the implementation of parallelisation in gen_sqw has</span>
+<span class="c">% made gen_sqw much faster.</span>
+<span class="c">%</span>
+<span class="c">% This is because accumulate_sqw needs to know _all_ the psi values</span>
+<span class="c">% (including those not yet measured) in order to construct  coarse data</span>
+<span class="c">% grid that enables Horace to make fast cuts. If you then include</span>
+<span class="c">% measurements at psi values not in the original list, then it is possible</span>
+<span class="c">% that some data will lie outside this grid and it will be &#39;lost&#39; to the</span>
+<span class="c">% sqw file. If the additional runs are ones that interleave between the</span>
+<span class="c">% original files, this will not be a problem, but if the additional runs</span>
+<span class="c">% extend the original angular range, then you must use the &#39;clean&#39; option</span>
+<span class="c">% which is equivalent to gen_sqw.</span>
+<span class="c">%</span>
+<span class="c">% The syntax for accumulate_sqw is very similar to gen_sqw:</span>
+<span class="c">%</span>
+<span class="c">% accumulate_sqw(spefile, par_file, sqw_file, efix, emode, alatt, angdeg,...</span>
+<span class="c">%                u, v, psi, omega, dpsi, gl, gs)</span>
+<span class="c">%</span>
+<span class="c">% Or:</span>
+<span class="c">% accumulate_sqw(spefile, par_file, sqw_file, efix, emode, alatt, angdeg,...</span>
+<span class="c">%                u, v, psi, omega, dpsi, gl, gs, &#39;clean&#39;)</span>
+<span class="c">%</span>
+<span class="c">% This is a way of appending newly processed spe files to an existing</span>
+<span class="c">% dataset. The key point is that the psi and spe_file arrays contain a list</span>
+<span class="c">% of PLANNED files and run-numbers - only those that actually exist will be</span>
+<span class="c">% included in the file.</span>
+<span class="c">%</span>
+<span class="c">% You can run this periodically, for example overnight.</span>
+
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                         Making cuts and slices</span>
+<span class="c">% =========================================================================</span>
+
+<span class="c">% Before making a cut, we have to define viewing (projection) axes, and</span>
+<span class="c">% these u and v do not need to be the same as the sample orientation which</span>
+<span class="c">% is defined by u and v above (where u||ki at psi=0).</span>
+<span class="c">% These u and v just define the Q axes for cut_sqw. Generally you only need</span>
+<span class="c">% to define the first two axes, u and v. The third axis w is implicitly</span>
+<span class="c">% constructed as being perpendicular to the plane defined by u and v.</span>
+<span class="c">% The units of the Q axes are specified by the &#39;type&#39;, which can be &#39;r&#39;</span>
+<span class="c">% for r.l.u. or &#39;a&#39; for absolute units (A^-1).</span>
+<span class="c">% E.g. &#39;rar&#39; means u and w are in r.l.u, v in A^-1.</span>
+<span class="c">% The offset gives a offset for the zero of that axis, with the fourth</span>
+<span class="c">% coordinate being the energy transfer in meV.</span>
+<span class="c">% Type: &gt;&gt; doc line_proj   for more details.</span>
+<span class="c">% Note that the default for offset is [0,0,0,0] so it doesn&#39;t need to be set</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;offset&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span>
+
+<span class="c">% The syntax for cut_sqw is:</span>
+<span class="c">%</span>
+<span class="c">% cut = cut_sqw(sqw_file, proj, u_axis_limits, v_axis_limits, w_axis_limits, ...</span>
+<span class="c">%               en_axis_limits, keywords)</span>
+<span class="c">%</span>
+<span class="c">% The *_axis_limits are either:</span>
+<span class="c">%   1. a single number, [0.05], which means that this axis will be plotted</span>
+<span class="c">%      with the number being the bin size and limits being the limits of</span>
+<span class="c">%      the data.</span>
+<span class="c">%   2. two numbers, [-1, 1], which means that this axis will be integrated</span>
+<span class="c">%      over between the specified limits.</span>
+<span class="c">%   3. three numbers, [-1, 0.05, 1], which means that this axis will be</span>
+<span class="c">%      plotted between the first value to the last value with the bin size</span>
+<span class="c">%      specified by the middle value.</span>
+
+<span class="c">% In the following we make 3d volume plots along u, v and energy and</span>
+<span class="c">% integrating over the w direction. The &#39;-nopix&#39; at the end means that</span>
+<span class="c">% cut_sqw will discard all pixel information - that is it will only retain</span>
+<span class="c">% the counts and errors for each bin rather than keep the counts of each</span>
+<span class="c">% neutron event which is enclosed by each bin. This saves a lot of memory</span>
+<span class="c">% and is good enough for plotting but would not be good enough for fitting,</span>
+<span class="c">% or for re-cutting as shown below.</span>
+<span class="n">my_vol</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">360</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_vol</span><span class="p">);</span>
+
+<span class="c">% Now we make 2D slices integrating over both v and w in Q.</span>
+<span class="n">my_slice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">280</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice</span><span class="p">);</span>
+
+<span class="c">% Now we make a 1D cut along u, timing how long it takes.</span>
+<span class="nb">tic</span>
+<span class="n">my_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">130</span><span class="p">,</span><span class="mi">150</span><span class="p">]);</span>
+<span class="n">toc</span>
+<span class="s">plot(my_cut)</span><span class="p">;</span>
+
+<span class="c">% In addition to cutting from an sqw file, you can also cut from a previous</span>
+<span class="c">% cut. Note that if the previous cut had used &#39;-nopix&#39;, the cut bins must</span>
+<span class="c">% be aligned with the old cut. Thus if you want to re-cut a cut, do not</span>
+<span class="c">% use &#39;-nopix&#39;.</span>
+<span class="nb">tic</span>
+<span class="n">my_cut2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[</span><span class="mi">130</span><span class="p">,</span><span class="mi">150</span><span class="p">]);</span>
+<span class="c">% The [] above is to keep 1st axes as it is, [130,150] is integration range</span>
+<span class="c">% for 2nd axis note because the object we are cutting from is 2d, we only</span>
+<span class="c">% need 2 binning arguments, rather than the 4 that are needed when taking a</span>
+<span class="c">% cut form the 4-dimensional dataset in the file</span>
+<span class="nb">toc</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_cut2</span><span class="p">);</span>
+<span class="c">% This plot is identical to my_cut, but was much faster to create.</span>
+<span class="c">% Imagine if you were running a script to take many cuts from the data - it</span>
+<span class="c">% is probably quicker to take them from existing data objects, where</span>
+<span class="c">% possible!</span>
+
+<span class="c">% For use with later example scripts, save a cut and slice</span>
+<span class="nb">save</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/iron_slice.sqw&#39;</span><span class="p">])</span>
+<span class="nb">save</span><span class="p">(</span><span class="n">my_cut</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/iron_cut.sqw&#39;</span><span class="p">])</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                     Basic customisation of plots</span>
+<span class="c">% =========================================================================</span>
+
+<span class="c">% Make axes tight:</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">my_slice</span><span class="p">));</span>
+
+<span class="c">% Smoothing:</span>
+<span class="c">%plot(smooth(my_slice)); % this gives an error - think about why!</span>
+
+<span class="c">%</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">my_slice</span><span class="p">)));</span>
+<span class="c">% d2d command (for 2d objects) converts from sqw type data, with detector pixel retained</span>
+<span class="c">% to d2d / dnd object that is smaller in memory and without detector pixel info</span>
+
+<span class="c">% Smoothing options:</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">my_slice</span><span class="p">),[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="s">&#39;gaussian&#39;</span><span class="p">));</span>
+
+<span class="c">% Set colour scale and other axes scales in script:</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.5</span>
+<span class="n">ly</span><span class="w"> </span><span class="s">50</span><span class="w"> </span><span class="s">250</span>
+<span class="n">lx</span><span class="w"> </span><span class="o">-</span><span class="mf">1.5</span><span class="w"> </span><span class="mf">1.5</span>
+
+<span class="c">% Reset a limit</span>
+<span class="n">lx</span>
+
+<span class="s">%</span><span class="w"> </span><span class="s">Retain</span><span class="w"> </span><span class="s">a</span><span class="w"> </span><span class="s">figure,</span><span class="w"> </span><span class="s">so</span><span class="w"> </span><span class="s">it</span><span class="w"> </span><span class="s">is</span><span class="w"> </span><span class="s">not</span><span class="w"> </span><span class="s">replaced</span><span class="w"> </span><span class="s">next</span><span class="w"> </span><span class="s">time</span><span class="w"> </span><span class="s">you</span><span class="w"> </span><span class="s">make</span><span class="w"> </span><span class="s">a</span><span class="w"> </span><span class="s">plot</span><span class="w"> </span><span class="s">(of</span><span class="w"> </span><span class="s">the</span>
+<span class="c">% same dimensionality)</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice</span><span class="p">);</span>
+
+<span class="c">% Cursor to find a particular data point value</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_cut2</span><span class="p">);</span>
+<span class="n">xycursor</span>
+
+<span class="s">%%</span><span class="w"> </span><span class="p">=</span><span class="o">======================================================================</span><span class="p">=</span>
+<span class="c">%                Plotting data with non-orthogonal axes</span>
+<span class="c">% =========================================================================</span>
+
+<span class="c">% To demonstrate plotting a non-orthogonal axes system we will use data</span>
+<span class="c">% from a crystal with hexagonal symmetry</span>
+
+<span class="n">sqw_nonorth</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">data_path</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;/upd3_elastic.sqw&#39;</span><span class="p">];</span>
+<span class="n">proj_nonorth</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">proj_nonorth</span><span class="p">.</span><span class="n">nonorthogonal</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"> </span><span class="c">% &lt;--- Default sets to false</span>
+
+<span class="c">% If proj.nonorthogonal is false, u, v and w will be reconstructed to be</span>
+<span class="c">% orthogonal. The plots will have correct aspect ratio but it will be</span>
+<span class="c">% harder to tell the right reciprocal lattice coordinates by eye.</span>
+<span class="n">ws_orth</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_nonorth</span><span class="p">,</span><span class="w"> </span><span class="n">proj_nonorth</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">ws_orth</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">% Now set the projection axes to non-orthogonal</span>
+<span class="n">proj_nonorth</span><span class="p">.</span><span class="n">nonorthogonal</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="n">ws_nonorth</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_nonorth</span><span class="p">,</span><span class="w"> </span><span class="n">proj_nonorth</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">ws_nonorth</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                    Correcting for sample misalignment</span>
+<span class="c">% =========================================================================</span>
+<span class="nb">clear</span><span class="w"> </span><span class="n">variables</span>
+<span class="k">global</span><span class="w"> </span><span class="n">edatc_folder</span><span class="w"> </span><span class="n">output_data_folder</span>
+
+<span class="c">% ========================================================================</span>
+<span class="c">% Name of output sqw file (for the 4D combined dataset)</span>
+<span class="n">sqw_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/iron.sqw&#39;</span><span class="p">];</span>
+
+<span class="c">% Make a series of hk-slices at different l, in order to work out what Bragg</span>
+<span class="c">% positions we have. Step sizes and energy integration should be customised for your data</span>
+<span class="c">% Step sizes should be as small as possible, and energy integration tight.</span>
+
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="n">alignment_slice1</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+<span class="n">alignment_slice2</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.95</span><span class="p">,</span><span class="w"> </span><span class="mf">1.05</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+<span class="n">alignment_slice3</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+
+<span class="c">% Look at the 3 orthogonal slices to figure out what bragg peaks are visible</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">alignment_slice1</span><span class="p">));</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">alignment_slice2</span><span class="p">));</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">alignment_slice3</span><span class="p">));</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">% Our notional Bragg peaks - a list of accessible Bragg peaks (in data they</span>
+<span class="c">% may be off from these notional positions)</span>
+<span class="n">bragg_peaks</span><span class="p">=[</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span>
+
+<span class="c">% Get the actual Bragg peak positions with the current crystal alignment</span>
+<span class="c">% This routine takes radial and transverse cuts around the Bragg peaks listed</span>
+<span class="c">% above. See the help for further information about how the routine works -</span>
+<span class="c">% you will in general have to adjust some of the inputs here, especially the</span>
+<span class="c">% energy window</span>
+<span class="p">[</span><span class="n">rlu0</span><span class="p">,</span><span class="w"> </span><span class="nb">width</span><span class="p">,</span><span class="w"> </span><span class="n">wcut</span><span class="p">,</span><span class="w"> </span><span class="n">wpeak</span><span class="p">]=</span><span class="n">bragg_positions</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">bragg_peaks</span><span class="p">,</span><span class="w"> </span><span class="mf">1.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.06</span><span class="p">,</span><span class="w"> </span><span class="mf">0.4</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="w">                                     </span><span class="mf">1.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.06</span><span class="p">,</span><span class="w"> </span><span class="mf">0.4</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;gauss&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;bin_ab&#39;</span><span class="p">);</span>
+
+<span class="c">% Check how well the function did (note the command line prompts to allow you</span>
+<span class="c">% to scan through the cuts made above)</span>
+<span class="n">bragg_positions_view</span><span class="p">(</span><span class="n">wcut</span><span class="p">,</span><span class="w"> </span><span class="n">wpeak</span><span class="p">)</span>
+
+<span class="c">% Determine corrections to lattice and orientation (in this example we choose</span>
+<span class="c">% to keep the lattice angles fixed, but allow the lattice parameters to be</span>
+<span class="c">% refined, keeping a cubic structure by keeping ratios of lattice pars to be same):</span>
+<span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">];</span><span class="w">   </span><span class="c">% original lattice parameters</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">];</span>
+<span class="p">[</span><span class="n">rlu_corr</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="n">rotangle</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">refine_crystal</span><span class="p">(</span><span class="n">rlu0</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="w">    </span><span class="n">bragg_peaks</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;fix_angdeg&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;fix_alatt_ratio&#39;</span><span class="p">);</span>
+
+
+<span class="c">% Apply changes to sqw file. For the purposes of this examples sheet you might</span>
+<span class="c">% want to copy the file in case you have made a mistake. In practice, you shouldn&#39;t</span>
+<span class="c">% make a copy as the sqw file could many hundreds of gigabytes and could take</span>
+<span class="c">% along time to copy.</span>
+<span class="n">sqw_file_new</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/iron_aligned.sqw&#39;</span><span class="p">];</span>
+<span class="nb">copyfile</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file_new</span><span class="p">)</span>
+<span class="n">change_crystal_horace</span><span class="p">(</span><span class="n">sqw_file_new</span><span class="p">,</span><span class="w"> </span><span class="n">rlu_corr</span><span class="p">);</span>
+
+<span class="c">% Check the outcome: Get Bragg peak positions and look at output: should be much better</span>
+<span class="p">[</span><span class="n">rlu0</span><span class="p">,</span><span class="w"> </span><span class="nb">width</span><span class="p">,</span><span class="w"> </span><span class="n">wcut</span><span class="p">,</span><span class="w"> </span><span class="n">wpeak</span><span class="p">]=</span><span class="n">bragg_positions</span><span class="p">(</span><span class="n">sqw_file_new</span><span class="p">,</span><span class="w"> </span><span class="n">bragg_peaks</span><span class="p">,</span><span class="w"> </span><span class="mf">1.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.06</span><span class="p">,</span><span class="w"> </span><span class="mf">0.4</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="w">                                     </span><span class="mf">1.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.06</span><span class="p">,</span><span class="w"> </span><span class="mf">0.4</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;gauss&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;bin_ab&#39;</span><span class="p">);</span>
+<span class="n">bragg_positions_view</span><span class="p">(</span><span class="n">wcut</span><span class="p">,</span><span class="w"> </span><span class="n">wpeak</span><span class="p">)</span>
+
+<span class="c">%=========</span>
+<span class="c">% Generally you only want to figure out the misorientation once, then apply</span>
+<span class="c">% some correction to subsequent data. You can do this by finding the values</span>
+<span class="c">% of the notional goniometers gl, gs, dpsi that are used in gen_sqw:</span>
+
+<span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
+<span class="n">v</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
+<span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">2.87</span><span class="p">,</span><span class="mf">2.87</span><span class="p">,</span><span class="mf">2.87</span><span class="p">];</span><span class="w">   </span><span class="c">% original lattice parameters</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">];</span>
+<span class="n">omega</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">dpsi</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">gl</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">gs</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+
+<span class="p">[</span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">crystal_pars_correct</span><span class="k">...</span>
+<span class="w">    </span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="w"> </span><span class="n">rlu_corr</span><span class="p">);</span>
+<span class="c">% u and v are the notional scattering plane, alatt0, angdeg0, etc are the</span>
+<span class="c">% original values for those parameters you used in gen_sqw, rlu_corr is the</span>
+<span class="c">% misalignment correction matrix determined above. The routine outputs the</span>
+<span class="c">% corrected lattic parameters (if these were refined) and the values of</span>
+<span class="c">% dpsi, gl and gs to use in future regenerations of the sqw file.</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%             Advanced plotting and publication quality figures</span>
+<span class="c">% =========================================================================</span>
+<span class="nb">clear</span><span class="w"> </span><span class="n">variables</span>
+<span class="k">global</span><span class="w"> </span><span class="n">edatc_folder</span><span class="w"> </span><span class="n">output_data_folder</span>
+
+<span class="c">% ========================================================================</span>
+<span class="c">%                          Two dimensional plot</span>
+<span class="c">% =========================================================================</span>
+<span class="n">sqw_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/iron.sqw&#39;</span><span class="p">];</span>
+
+<span class="n">rlp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
+<span class="n">wspag</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">spaghetti_plot</span><span class="p">(</span><span class="n">rlp</span><span class="p">,</span><span class="n">sqw_file</span><span class="p">,</span><span class="s">&#39;qbin&#39;</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="s">&#39;qwidth&#39;</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="s">&#39;ebin&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">250</span><span class="p">]);</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">3</span>
+
+
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                          Two dimensional plot</span>
+<span class="c">% =========================================================================</span>
+
+<span class="c">% Recreate the Q-E slice from earlier, this time without saving the pixel</span>
+<span class="c">% information</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="n">my_slice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">280</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+
+<span class="c">% Plot the 2d slice first:</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">my_slice</span><span class="p">)));</span>
+
+<span class="c">% Set limits</span>
+<span class="n">lx</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span>
+<span class="n">ly</span><span class="w"> </span><span class="s">40</span><span class="w"> </span><span class="s">250</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.5</span>
+
+<span class="c">% Make a nicer title</span>
+<span class="nb">title</span><span class="p">(</span><span class="s">&#39;My QE slice&#39;</span><span class="p">);</span>
+
+<span class="c">% Label the axes with something nicer</span>
+<span class="nb">xlabel</span><span class="p">(</span><span class="s">&#39;(1+h,-1+h,0) (r.l.u.)&#39;</span><span class="p">);</span>
+<span class="nb">ylabel</span><span class="p">(</span><span class="s">&#39;Energy (meV)&#39;</span><span class="p">);</span>
+
+<span class="c">% Get rid of the colour slider</span>
+<span class="n">colorslider</span><span class="p">(</span><span class="s">&#39;delete&#39;</span><span class="p">);</span>
+<span class="n">colorbar</span>
+
+<span class="s">%</span><span class="w"> </span><span class="s">If</span><span class="w"> </span><span class="s">we</span><span class="w"> </span><span class="s">want</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">set</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">font</span><span class="w"> </span><span class="s">sizes</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">be</span><span class="w"> </span><span class="s">bigger,</span><span class="w"> </span><span class="s">then</span><span class="w"> </span><span class="s">we</span><span class="w"> </span><span class="s">have</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">re-do</span><span class="w"> </span><span class="s">the</span>
+<span class="c">% above:</span>
+<span class="nb">title</span><span class="p">(</span><span class="s">&#39;My QE slice&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FontSize&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<span class="nb">xlabel</span><span class="p">(</span><span class="s">&#39;(1+h,-1+h,0) (r.l.u.)&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FontSize&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<span class="nb">ylabel</span><span class="p">(</span><span class="s">&#39;Energy (meV)&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FontSize&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+
+<span class="c">% To set the font size of the ticks, we need to access the figure&#39;s axes.</span>
+<span class="n">my_handles</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">get</span><span class="p">(</span><span class="nb">gca</span><span class="p">)</span>
+<span class="c">% there are many things you can adjust! To set the font size, or any of the</span>
+<span class="c">% other properties, do the following:</span>
+<span class="nb">set</span><span class="p">(</span><span class="nb">gca</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FontSize&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+
+<span class="c">% Suppose we want to change what tick marks are used on the x-axis</span>
+<span class="nb">set</span><span class="p">(</span><span class="nb">gca</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;XTick&#39;</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="mf">0.5</span><span class="p">:</span><span class="mi">2</span><span class="p">);</span>
+<span class="nb">set</span><span class="p">(</span><span class="nb">gca</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;XTickLabel&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">arrayfun</span><span class="p">(@</span><span class="nb">num2str</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="mf">0.5</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;UniformOutput&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">));</span>
+
+<span class="c">%Put some text on the figure:</span>
+<span class="nb">text</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mi">220</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Ei = 400 meV&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FontSize&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+
+<span class="c">% Some fancier text to label the colour bar:</span>
+<span class="n">tt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">text</span><span class="p">(</span><span class="mf">3.2</span><span class="p">,</span><span class="w"> </span><span class="mi">240</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Intensity (mb sr^{-1} meV^{-1} f.u.^{-1})&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FontSize&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<span class="nb">set</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Rotation&#39;</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+
+<span class="c">%Save as jpg and eps</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">&#39;-djpeg&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/figure.jpg&#39;</span><span class="p">]);</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">&#39;-depsc&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/figure.eps&#39;</span><span class="p">]);</span>
+
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                          One dimensional plots</span>
+<span class="c">% =========================================================================</span>
+
+<span class="c">% Make an array of 1d cuts:</span>
+<span class="n">energy_range</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">80</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mi">160</span><span class="p">];</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">energy_range</span><span class="p">)</span>
+<span class="w">    </span><span class="n">my_cuts</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="k">...</span>
+<span class="w">        </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="o">+</span><span class="n">energy_range</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="k">end</span>
+
+<span class="c">% plot them individually, to see what they look like first</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">energy_range</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">plot</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="w">    </span><span class="n">keep_figure</span><span class="p">;</span>
+<span class="k">end</span>
+
+<span class="c">% We want to plot them all on the same axes, with different colours and</span>
+<span class="c">% markers.</span>
+<span class="n">my_col</span><span class="p">={</span><span class="s">&#39;black&#39;</span><span class="p">,</span><span class="s">&#39;red&#39;</span><span class="p">,</span><span class="s">&#39;blue&#39;</span><span class="p">,</span><span class="s">&#39;green&#39;</span><span class="p">,</span><span class="s">&#39;yellow&#39;</span><span class="p">};</span>
+<span class="n">my_mark</span><span class="p">={</span><span class="s">&#39;+&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;o&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;*&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;.&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;s&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;d&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;^&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;v&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;&gt;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;&lt;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;p&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;h&#39;</span><span class="p">};</span>
+<span class="c">% note the above are all the possible choices!</span>
+
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">)</span>
+<span class="w">    </span><span class="n">acolor</span><span class="p">(</span><span class="n">my_col</span><span class="p">{</span><span class="nb">i</span><span class="p">})</span>
+<span class="w">    </span><span class="n">amark</span><span class="p">(</span><span class="n">my_mark</span><span class="p">{</span><span class="nb">i</span><span class="p">});</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nb">i</span><span class="o">==</span><span class="mi">1</span>
+<span class="w">        </span><span class="nb">plot</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="c">% The pp command overplots (markers and errorbars) on existing 1d axes</span>
+<span class="w">        </span><span class="n">pp</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c">% This is a bit messy. Let&#39;s add a constant offset between each cut, and make</span>
+<span class="c">% the markers bigger</span>
+<span class="n">my_offset</span><span class="p">=[</span><span class="mi">0</span><span class="p">:</span><span class="mf">0.3</span><span class="p">:</span><span class="mf">1.2</span><span class="p">];</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">)</span>
+<span class="w">    </span><span class="n">acolor</span><span class="p">(</span><span class="n">my_col</span><span class="p">{</span><span class="nb">i</span><span class="p">})</span>
+<span class="w">    </span><span class="n">amark</span><span class="p">(</span><span class="n">my_mark</span><span class="p">{</span><span class="nb">i</span><span class="p">},</span><span class="mi">6</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nb">i</span><span class="o">==</span><span class="mi">1</span>
+<span class="w">        </span><span class="nb">plot</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">my_offset</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="n">pp</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">my_offset</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c">% But we could have done this much more cleanly using the vectorised capabilities</span>
+<span class="c">% of Horace functions</span>
+<span class="n">acolor</span><span class="p">({</span><span class="s">&#39;black&#39;</span><span class="p">,</span><span class="s">&#39;red&#39;</span><span class="p">,</span><span class="s">&#39;blue&#39;</span><span class="p">,</span><span class="s">&#39;green&#39;</span><span class="p">,</span><span class="s">&#39;yellow&#39;</span><span class="p">})</span>
+<span class="n">amark</span><span class="p">({</span><span class="s">&#39;+&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;o&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;*&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;.&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;s&#39;</span><span class="p">},</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">my_cut_offset</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_cuts</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mf">0.3</span><span class="p">:</span><span class="mf">1.2</span><span class="p">];</span>
+<span class="n">dp</span><span class="p">(</span><span class="n">my_cut_offset</span><span class="p">)</span>
+
+
+<span class="c">% Now need to extend axes to see everything:</span>
+<span class="n">lx</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span>
+<span class="n">ly</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">1.8</span>
+
+<span class="c">% Use the same settings as before to get nice font sizes</span>
+<span class="nb">title</span><span class="p">(</span><span class="s">&#39;Q cuts&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FontSize&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<span class="nb">xlabel</span><span class="p">(</span><span class="s">&#39;(1+h,-1+h,0) (r.l.u.)&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FontSize&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<span class="nb">ylabel</span><span class="p">(</span><span class="s">&#39;Intensity (mb sr^{-1} meV ^{-1} f.u.^{-1})&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FontSize&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<span class="nb">set</span><span class="p">(</span><span class="nb">gca</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FontSize&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<span class="nb">set</span><span class="p">(</span><span class="nb">gca</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;XTick&#39;</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="mf">0.5</span><span class="p">:</span><span class="mi">2</span><span class="p">);</span>
+<span class="nb">set</span><span class="p">(</span><span class="nb">gca</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;XTickLabel&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">arrayfun</span><span class="p">(@</span><span class="nb">num2str</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="mf">0.5</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;UniformOutput&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">));</span>
+
+<span class="c">% Insert a figure legend</span>
+<span class="nb">legend</span><span class="p">(</span><span class="s">&#39;80 meV&#39;</span><span class="p">,</span><span class="s">&#39;100 meV&#39;</span><span class="p">,</span><span class="s">&#39;120 meV&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;140 meV&#39;</span><span class="p">,</span><span class="s">&#39;160 meV&#39;</span><span class="p">);</span>
+
+<span class="c">% But this is wrong!!! This is a peculiarity of Horace, in that it plots the</span>
+<span class="c">% markers then the errorbars, and Matlab doesn&#39;t keep track of this. Luckily</span>
+<span class="c">% there is a workaround, by getting a &quot;handle&quot; to each plot and then</span>
+<span class="c">% attaching the legend to that.</span>
+
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">)</span>
+<span class="w">    </span><span class="n">acolor</span><span class="p">(</span><span class="n">my_col</span><span class="p">{</span><span class="nb">i</span><span class="p">})</span>
+<span class="w">    </span><span class="n">amark</span><span class="p">(</span><span class="n">my_mark</span><span class="p">{</span><span class="nb">i</span><span class="p">},</span><span class="mi">8</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nb">i</span><span class="o">==</span><span class="mi">1</span>
+<span class="w">        </span><span class="p">[</span><span class="n">fig_handle</span><span class="p">,</span><span class="w"> </span><span class="n">axes_handle</span><span class="p">,</span><span class="w"> </span><span class="n">plot_handle</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">plot</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">my_offset</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="p">[</span><span class="n">fig_handle</span><span class="p">,</span><span class="w"> </span><span class="n">axes_handle</span><span class="p">,</span><span class="w"> </span><span class="n">plot_handle</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pp</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">my_offset</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">end</span>
+<span class="n">lx</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span>
+<span class="n">ly</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">1.8</span>
+
+<span class="c">%legend(plot_handle([10,8,6,4,2]), ...</span>
+<span class="c">%       {&#39;80 meV&#39;,&#39;100 meV&#39;,&#39;120 meV&#39;, &#39;140 meV&#39;,&#39;160 meV&#39;}, ...</span>
+<span class="c">%       &#39;Location&#39;,&#39;NorthWest&#39;);</span>
+
+<span class="c">% You can also manually edit the plot, using the arrow tool to highlight</span>
+<span class="c">% part of the plot you want to change. e.g. you can remove the box around</span>
+<span class="c">% the legend by setting its colour to be white</span>
+
+<span class="c">% Reset the plot color to black</span>
+<span class="n">acolor</span><span class="w"> </span><span class="s">k</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                         Background Subtraction</span>
+<span class="c">% =========================================================================</span>
+<span class="c">% Recreate the Q-E slice from earlier</span>
+<span class="n">sqw_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/iron.sqw&#39;</span><span class="p">];</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">my_slice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="w">               </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">360</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice</span><span class="p">)</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+<span class="n">lz</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c">% Make a 1D cut from the slice at high Q</span>
+<span class="n">my_bg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">1.9</span><span class="p">,</span><span class="mf">2.1</span><span class="p">],</span><span class="w"> </span><span class="p">[]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_bg</span><span class="p">);</span>
+
+<span class="c">% Now tile it (note the conversion to dnd)</span>
+<span class="n">my_bg_rep</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">replicate</span><span class="p">(</span><span class="n">d1d</span><span class="p">(</span><span class="n">my_bg</span><span class="p">),</span><span class="w"> </span><span class="n">d2d</span><span class="p">(</span><span class="n">my_slice</span><span class="p">));</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_bg_rep</span><span class="p">)</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">2</span>
+
+<span class="n">my_slice_subtracted</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">d2d</span><span class="p">(</span><span class="n">my_slice</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">my_bg_rep</span><span class="p">;</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_subtracted</span><span class="p">);</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">2</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                            Symmetrisation</span>
+<span class="c">% =========================================================================</span>
+<span class="n">my_slice2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">120</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice2</span><span class="p">);</span>
+
+<span class="c">% Fold along vertical:</span>
+<span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">my_sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">my_slice2</span><span class="p">,</span><span class="w"> </span><span class="n">sym</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_sym</span><span class="p">);</span>
+
+<span class="c">% Two folds along diagonals</span>
+<span class="n">sym2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="k">...</span>
+<span class="w">        </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])];</span>
+<span class="n">my_sym2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">my_slice2</span><span class="p">,</span><span class="w"> </span><span class="n">sym2</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_sym2</span><span class="p">);</span>
+
+<span class="c">% Some origami!</span>
+<span class="n">my_slice3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">120</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice3</span><span class="p">)</span>
+
+<span class="n">symop1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">sym1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">my_slice3</span><span class="p">,</span><span class="w"> </span><span class="n">symop1</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">sym1</span><span class="p">);</span>
+
+<span class="n">symop2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="k">...</span>
+<span class="w">          </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])];</span>
+<span class="n">sym2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">sym1</span><span class="p">,</span><span class="w"> </span><span class="n">symop2</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">sym2</span><span class="p">)</span>
+
+<span class="c">% Squeeze out all the dead volume</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">sym2</span><span class="p">))</span>
+
+<span class="c">% You can also perform whole-dataset symmetrisation with gen_sqw()</span>
+<span class="c">% when the sqw file is created. (Whole dataset symmetrisation is not</span>
+<span class="c">% supported after the sqw if create at the moment).</span>
+<span class="c">% First you need to define a symmetrisation function such as:</span>
+<span class="c">%</span>
+<span class="c">%function wout = my_sym(win)</span>
+<span class="c">%    % Fold above the line [1,0,0] in the H-K plane</span>
+<span class="c">%    wout = symmetrise_sqw(win, [1,0,0], [0,1,0], [0,0,0]);</span>
+<span class="c">%end</span>
+<span class="c">%</span>
+<span class="c">% In a separate mfile. Then you can call gen_sqw with the &quot;transform_sqw&quot;</span>
+<span class="c">% argument, e.g.:</span>
+<span class="c">%</span>
+<span class="c">%gen_sqw(spefile, par_file, sym_sqw_file, efix, emode, alatt, angdeg,...</span>
+<span class="c">%        u, v, psi, omega, dpsi, gl, gs,&#39;transform_sqw&#39;, @my_sym)</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                            Spurious data</span>
+<span class="c">% =========================================================================</span>
+<span class="n">w_sp1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">([</span><span class="n">edatc_folder</span><span class="w"> </span><span class="s">&#39;/crystal_datafiles/spurious1.sqw&#39;</span><span class="p">]);</span>
+<span class="n">par_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">edatc_folder</span><span class="w"> </span><span class="s">&#39;/crystal_datafiles/4to1_102.par&#39;</span><span class="p">];</span>
+
+<span class="n">cut1_sp1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w_sp1</span><span class="p">,</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut1_sp1</span><span class="p">)</span>
+<span class="c">% You should see an intense streak at the Bragg position.</span>
+<span class="c">% Lets look at a reciprocal space map of it</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">w_sp1</span><span class="p">,</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span><span class="p">]));</span><span class="w"> </span><span class="n">lz</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2000</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">w_sp1</span><span class="p">,</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[</span><span class="mi">8</span><span class="w"> </span><span class="mi">12</span><span class="p">]));</span><span class="w"> </span><span class="n">lz</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2000</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+<span class="c">% You should see that there are 3 streaks all in the same direction,</span>
+<span class="c">% all coming out of a Bragg peak.</span>
+<span class="n">run_inspector</span><span class="p">(</span><span class="n">cut1_sp1</span><span class="p">)</span>
+<span class="c">% Move through the runs – you should see around run 22 that there is a very</span>
+<span class="c">% intense diagonal streak which is present in several runs.</span>
+
+<span class="c">% The excitations are too intense and are not symmetric about the Bragg peak</span>
+<span class="c">% so they are not real dispersion, but because they are associated with the</span>
+<span class="c">% sample Bragg peak, it suggests they _are_ scattering from the sample.</span>
+<span class="c">% In fact they are a detector artefact. This happens because the crystal</span>
+<span class="c">% is aligned such that equivalent off-plane Bragg peaks hit a single detector</span>
+<span class="c">% tube at the same time causing the electronics to misrecord neutron events,</span>
+<span class="c">% because the peaks are so intense.</span>
+
+<span class="c">%% The second dataset</span>
+<span class="n">w_sp2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_sqw</span><span class="p">([</span><span class="n">edatc_folder</span><span class="w"> </span><span class="s">&#39;/crystal_datafiles/spurious2.sqw&#39;</span><span class="p">])</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w_sp2</span><span class="p">)</span>
+<span class="c">% You should see that there are Bragg peaks but they don’t seem to have the</span>
+<span class="c">% 6-fold symmetry you would expect from the (111) plane of a cubic crystal.</span>
+<span class="n">run_inspector</span><span class="p">(</span><span class="n">w_sp2</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;col&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">])</span>
+<span class="c">% Move through the run_inspector. You should see that the sqw file was formed</span>
+<span class="c">% of a set of 46 scans from 0 to 90 deg in 2 deg steps, and then another</span>
+<span class="c">% 45 scans from 1 to 89 deg in 2 deg steps.</span>
+<span class="c">% Comparing runs 22-27 and 69-74 (you can use run_inspector twice to get 2 plots)</span>
+<span class="c">% you should see the scattering is similar but doesn&#39;t match up</span>
+<span class="c">% (e.g. run 22 looks like run 70 but are 5 degrees apart).</span>
+<span class="c">% This is because during the rotation from 90 deg to 1 deg for the second set</span>
+<span class="c">% of scans, the sample assembly became stuck and the motor lost its position</span>
+<span class="c">% So the second set was not actually measuring from 1 to 89 deg.</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                            Masking data</span>
+<span class="c">% =========================================================================</span>
+<span class="c">% Mask parts of a dataset out, e.g. if there is a region with a spurion that</span>
+<span class="c">% you wish to remove before proceeding to fitting the data</span>
+<span class="n">sqw_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/iron.sqw&#39;</span><span class="p">];</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="n">my_slice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">280</span><span class="p">]);</span>
+<span class="n">mask_arr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">ones</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">my_slice</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">npix</span><span class="p">));</span><span class="w"> </span><span class="c">% keeps everything</span>
+<span class="n">mask_arr2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_arr</span><span class="p">;</span>
+<span class="n">mask_arr2</span><span class="p">(</span><span class="mi">61</span><span class="p">:</span><span class="mi">121</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="n">my_slice_masked1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="n">mask_arr</span><span class="p">);</span><span class="w"> </span><span class="c">% should do nothing</span>
+<span class="n">my_slice_masked2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="n">mask_arr2</span><span class="p">);</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_masked1</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_masked2</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">% Mask out specific points, if the mask you need for the above is more</span>
+<span class="c">% complex:</span>
+<span class="n">sel1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w">   </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">120</span><span class="p">]);</span><span class="w"> </span><span class="c">% specify limits to keep</span>
+
+<span class="n">sel2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;remove&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">120</span><span class="p">]);</span><span class="w"> </span><span class="c">% specify limits to remove</span>
+
+<span class="n">my_slice_masked3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="n">sel1</span><span class="p">);</span>
+<span class="n">my_slice_masked4</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="n">sel2</span><span class="p">);</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_masked3</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_masked4</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">%% Masking spurious data</span>
+<span class="n">cut_sp1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w_sp1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.6</span><span class="w"> </span><span class="o">-</span><span class="mf">0.5</span><span class="p">],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[])</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">cut_sp1</span><span class="p">);</span><span class="w"> </span><span class="n">keep_figure</span>
+<span class="s">%</span><span class="w"> </span><span class="s">Determine</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">mask</span><span class="w"> </span><span class="s">–</span><span class="w"> </span><span class="s">best</span><span class="w"> </span><span class="s">way</span><span class="w"> </span><span class="s">is</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">plot</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">actual</span><span class="w"> </span><span class="s">picture</span><span class="w"> </span><span class="s">with</span><span class="w"> </span><span class="s">pcolor</span>
+<span class="c">%figure; pcolor(w_sp1.data.s); caxis([0,1000])</span>
+<span class="c">% Then determine the coordinates from this (remember that pcolor transposes the matrix)</span>
+<span class="n">mask_arr_sp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">ones</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">cut_sp1</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">npix</span><span class="p">));</span>
+<span class="n">mask_arr_sp</span><span class="p">(</span><span class="mi">40</span><span class="p">:</span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="mi">57</span><span class="p">:</span><span class="mi">59</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">wmasked</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">cut_sp1</span><span class="p">,</span><span class="w"> </span><span class="n">mask_arr_sp</span><span class="p">)</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">wmasked</span><span class="p">);</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                            Rescaling data</span>
+<span class="c">% =========================================================================</span>
+
+<span class="c">% Bose correction function.</span>
+<span class="c">% NB it does not do much at high energies, or course!</span>
+
+<span class="n">my_slice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">280</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice</span><span class="p">);</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">2</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">my_slice_bose</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">bose</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="mi">300</span><span class="p">);</span><span class="w"> </span><span class="c">% pretend the data was taken at 300K...</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_bose</span><span class="p">);</span><span class="w"> </span><span class="c">% you can still see what this does</span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">2</span>
+
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                            Miscellaneous</span>
+<span class="c">% =========================================================================</span>
+
+<span class="c">% Note the following doesn&#39;t work on IDAaaS at the moment as the signal() function was wrongly removed!)</span>
+<span class="cm">%{</span>
+<span class="cm">% If you want to see how a certain parameter varies across a dataset:</span>
+<span class="cm">w_sig = signal(my_slice, &#39;Q&#39;); % mod Q in this case</span>
+<span class="cm">plot(w_sig)</span>
+
+<span class="cm">% You can use this now to apply a scale factor to the data. Suppose you wish</span>
+<span class="cm">% to multiply signal by energy:</span>
+<span class="cm">w_sig = signal(my_slice, &#39;E&#39;);</span>
+<span class="cm">my_slice2 = my_slice * w_sig;</span>
+<span class="cm">plot(my_slice2)</span>
+<span class="cm">lz 0 100</span>
+<span class="cm">%}</span>
+
+<span class="c">% Take a section out of a dataset:</span>
+<span class="n">w_sec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">section</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">2.5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">250</span><span class="p">]);</span><span class="w"> </span><span class="c">% just 0 to 2.5 in Q, 100 to 250 in energy</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w_sec</span><span class="p">);</span>
+
+
+<span class="c">% Split a dataset up into its contributing runs</span>
+<span class="n">w_split</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">split</span><span class="p">(</span><span class="n">my_slice</span><span class="p">);</span>
+<span class="c">% w_split is an array of objects (recall indexing of arrays in Matlab)</span>
+<span class="c">% each element of the array corresponds to the data from a single</span>
+<span class="c">% contributing spe file</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w_split</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w_split</span><span class="p">(</span><span class="mi">10</span><span class="p">));</span><span class="w"> </span><span class="c">% etc.</span>
+<span class="c">% Allows you to determine if a spurious or strange signal is coming from a</span>
+<span class="c">% single run, or if it is from a collection of runs.</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                         Simulation and Fitting</span>
+<span class="c">% =========================================================================</span>
+
+<span class="nb">clear</span><span class="w"> </span><span class="n">variables</span>
+<span class="k">global</span><span class="w"> </span><span class="n">edatc_folder</span><span class="w"> </span><span class="n">output_data_folder</span>
+<span class="k">if</span><span class="w"> </span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="s">&#39;sr122_xsec&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;file&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">addpath</span><span class="p">([</span><span class="n">edatc_folder</span><span class="w"> </span><span class="s">&#39;/matlab_scripts&#39;</span><span class="p">]);</span>
+<span class="k">end</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                Simulating a pre-prepared S(Q,w) function</span>
+<span class="c">% =========================================================================</span>
+
+<span class="c">% Create cuts and slices for use later</span>
+<span class="n">sqw_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/iron.sqw&#39;</span><span class="p">];</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="c">% Make our usual 2d slice</span>
+<span class="n">my_slice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">280</span><span class="p">]);</span>
+
+<span class="c">% Make the array of 1d cuts previous made in the advance plotting session</span>
+<span class="n">energy_range</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">80</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mi">160</span><span class="p">];</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">energy_range</span><span class="p">)</span>
+<span class="w">    </span><span class="n">my_cuts</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="k">...</span>
+<span class="w">        </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="o">+</span><span class="n">energy_range</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="k">end</span>
+
+<span class="c">% Simulate on sqw objects</span>
+<span class="n">parameter_vector</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">35</span><span class="p">,</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">0.1</span><span class="p">];</span>
+<span class="n">sim_slice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sr122_xsec</span><span class="p">,</span><span class="w"> </span><span class="n">parameter_vector</span><span class="p">);</span>
+<span class="n">sim_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sr122_xsec</span><span class="p">,</span><span class="w"> </span><span class="n">parameter_vector</span><span class="p">);</span>
+
+<span class="c">% Repeat on dnd objects</span>
+<span class="n">sim_slice_dnd</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">my_slice</span><span class="p">),</span><span class="w"> </span><span class="p">@</span><span class="n">sr122_xsec</span><span class="p">,</span><span class="w"> </span><span class="n">parameter_vector</span><span class="p">);</span>
+<span class="n">sim_cut_dnd</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">d1d</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">),</span><span class="w"> </span><span class="p">@</span><span class="n">sr122_xsec</span><span class="p">,</span><span class="w"> </span><span class="n">parameter_vector</span><span class="p">);</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">sim_slice</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">sim_slice_dnd</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">acolor</span><span class="w"> </span><span class="s">blue</span>
+<span class="n">dl</span><span class="p">(</span><span class="n">sim_cut</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">acolor</span><span class="w"> </span><span class="s">red</span>
+<span class="n">pl</span><span class="p">(</span><span class="n">sim_cut_dnd</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">% Note the differences between simulations of notionally the same data.</span>
+<span class="c">% This is because dnd just takes the centre point of the integration range,</span>
+<span class="c">% whereas sqw takes all of the contributing detector pixels. This is</span>
+<span class="c">% imperative if the dispersion varies significantly in a direction</span>
+<span class="c">% perpendicular to your cut/slice, as it introduces broadening that the dnd</span>
+<span class="c">% simulation fails to capture.</span>
+
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                  Simulate a peak function with a cut</span>
+<span class="c">% =========================================================================</span>
+<span class="n">pars_in</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">0.4</span><span class="p">,</span><span class="o">-</span><span class="mf">0.7</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.6</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.4</span><span class="p">,</span><span class="mf">1.3</span><span class="p">,</span><span class="mf">0.1</span><span class="p">];</span>
+<span class="n">peak_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">func_eval</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="p">@</span><span class="n">mgauss</span><span class="p">,</span><span class="w"> </span><span class="n">pars_in</span><span class="p">);</span>
+
+<span class="n">acolor</span><span class="w"> </span><span class="s">black</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">acolor</span><span class="w"> </span><span class="s">b</span>
+<span class="n">pl</span><span class="p">(</span><span class="n">peak_cut</span><span class="p">);</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                         Make dispersion plots</span>
+<span class="c">% =========================================================================</span>
+
+<span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">];</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">];</span>
+
+<span class="n">lattice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">];</span>
+<span class="c">% Reciprocal lattice points to draw dispersion between:</span>
+<span class="n">rlp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span>
+<span class="c">% Input parameters</span>
+<span class="n">pars</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">];</span>
+<span class="c">% Energy grid</span>
+<span class="n">ecent</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">200</span><span class="p">];</span>
+<span class="c">% Energy broadening term</span>
+<span class="n">fwhh</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="n">disp2sqw_plot</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span><span class="w"> </span><span class="n">rlp</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sr122_disp</span><span class="p">,</span><span class="w"> </span><span class="n">pars</span><span class="p">,</span><span class="w"> </span><span class="n">ecent</span><span class="p">,</span><span class="w"> </span><span class="n">fwhh</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gpo_fitting_spinw.html" class="btn btn-neutral float-left" title="GPO fitting SpinW" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sample_misalignment.html" class="btn btn-neutral float-right" title="Sample Misalignment" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Oct 6, 2023, 2:54:49 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/example_scripts/horace_whole_course_full_script.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

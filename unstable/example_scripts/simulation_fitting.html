@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulation Fitting &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Spinw GPO 1dfit" href="spinw_gpo_1dfit.html" />
+    <link rel="prev" title="Sample Misalignment" href="sample_misalignment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="advanced_plotting.html">Advanced Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="align_and_symmetrise.html">Align and Symmetrise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_usage.html">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corrections.html">Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_corrections.html">Data Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gpo_fitting_spinw.html">GPO fitting SpinW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horace_whole_course_full_script.html">Horace course</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sample_misalignment.html">Sample Misalignment</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Simulation Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spinw_gpo_1dfit.html">Spinw GPO 1dfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spurions.html">Spurions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqwgeneration_tips.html">SQW Generation tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="symmetrisation.html">Symmetrisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Example_scripts.html">Example Scripts</a></li>
+      <li class="breadcrumb-item active">Simulation Fitting</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/example_scripts/simulation_fitting.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="simulation-fitting">
+<h1>Simulation Fitting<a class="headerlink" href="#simulation-fitting" title="Permalink to this heading"></a></h1>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%% Before running this script, set the data path here</span>
+
+<span class="k">global</span><span class="w"> </span><span class="n">edatc_folder</span><span class="w"> </span><span class="n">output_data_folder</span>
+
+<span class="c">% To run this script you need some files from the EDATC</span>
+<span class="c">% Please download a zip of the repository here:</span>
+<span class="c">% https://github.com/pace-neutrons/edatc/archive/refs/heads/main.zip</span>
+<span class="c">% And put the location you unzipped it below:</span>
+<span class="n">edatc_folder</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/mnt/ceph/auxiliary/pace/edatc&#39;</span><span class="p">;</span>
+<span class="c">% Note that you should also download the Zenodo archive here:</span>
+<span class="c">% https://zenodo.org/record/5020485</span>
+<span class="c">% And unzip the contents of that file into the crystal_datafiles folder</span>
+
+<span class="c">% Put the folder where you want generated files from this script to go:</span>
+<span class="n">output_data_folder</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/tmp/aaa_my_work&#39;</span><span class="p">;</span>
+
+<span class="c">% Creates output folder if it doesn&#39;t exist</span>
+<span class="k">if</span><span class="w"> </span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="n">output_data_folder</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;dir&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">mkdir</span><span class="p">(</span><span class="n">output_data_folder</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                         Simulation and Fitting</span>
+<span class="c">% =========================================================================</span>
+
+<span class="nb">clear</span><span class="w"> </span><span class="n">variables</span>
+<span class="k">global</span><span class="w"> </span><span class="n">edatc_folder</span><span class="w"> </span><span class="n">output_data_folder</span>
+<span class="k">if</span><span class="w"> </span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="s">&#39;sr122_xsec&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;file&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">addpath</span><span class="p">([</span><span class="n">edatc_folder</span><span class="w"> </span><span class="s">&#39;/matlab_scripts&#39;</span><span class="p">]);</span>
+<span class="k">end</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                Simulating a pre-prepared S(Q,w) function</span>
+<span class="c">% =========================================================================</span>
+
+<span class="c">% Create cuts and slices for use later</span>
+<span class="n">sqw_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">output_data_folder</span><span class="w"> </span><span class="s">&#39;/iron.sqw&#39;</span><span class="p">];</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="c">% Make our usual 2d slice</span>
+<span class="n">my_slice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">280</span><span class="p">]);</span>
+
+<span class="c">% Make the array of 1d cuts previous made in the advance plotting session</span>
+<span class="n">energy_range</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">80</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mi">160</span><span class="p">];</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">energy_range</span><span class="p">)</span>
+<span class="w">    </span><span class="n">my_cuts</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut_sqw</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="k">...</span>
+<span class="w">        </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="o">+</span><span class="n">energy_range</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="k">end</span>
+
+<span class="c">% Simulate on sqw objects</span>
+<span class="n">parameter_vector</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">];</span>
+
+<span class="n">sim_slice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sr122_xsec</span><span class="p">,</span><span class="w"> </span><span class="n">parameter_vector</span><span class="p">);</span>
+<span class="n">sim_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sr122_xsec</span><span class="p">,</span><span class="w"> </span><span class="n">parameter_vector</span><span class="p">);</span>
+
+<span class="c">% Repeat on dnd objects</span>
+<span class="n">sim_slice_dnd</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">my_slice</span><span class="p">),</span><span class="w"> </span><span class="p">@</span><span class="n">sr122_xsec</span><span class="p">,</span><span class="w"> </span><span class="n">parameter_vector</span><span class="p">);</span>
+<span class="n">sim_cut_dnd</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">d1d</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">),</span><span class="w"> </span><span class="p">@</span><span class="n">sr122_xsec</span><span class="p">,</span><span class="w"> </span><span class="n">parameter_vector</span><span class="p">);</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">sim_slice</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">sim_slice_dnd</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="n">acolor</span><span class="w"> </span><span class="s">blue</span>
+<span class="n">dl</span><span class="p">(</span><span class="n">sim_cut</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">acolor</span><span class="w"> </span><span class="s">red</span>
+<span class="n">pl</span><span class="p">(</span><span class="n">sim_cut_dnd</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">% Note the differences between simulations of notionally the same data.</span>
+<span class="c">% This is because dnd just takes the centre point of the integration range,</span>
+<span class="c">% whereas sqw takes all of the contributing detector pixels. This is</span>
+<span class="c">% imperative if the dispersion varies significantly in a direction</span>
+<span class="c">% perpendicular to your cut/slice, as it introduces broadening that the dnd</span>
+<span class="c">% simulation fails to capture.</span>
+
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                  Simulate a peak function with a cut</span>
+<span class="c">% =========================================================================</span>
+<span class="n">pars_in</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">0.4</span><span class="p">,</span><span class="o">-</span><span class="mf">0.7</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.6</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.4</span><span class="p">,</span><span class="mf">1.3</span><span class="p">,</span><span class="mf">0.1</span><span class="p">];</span>
+<span class="n">peak_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">func_eval</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="p">@</span><span class="n">mgauss</span><span class="p">,</span><span class="w"> </span><span class="n">pars_in</span><span class="p">);</span>
+
+<span class="n">acolor</span><span class="w"> </span><span class="s">black</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_cuts</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">acolor</span><span class="w"> </span><span class="s">b</span>
+<span class="n">pl</span><span class="p">(</span><span class="n">peak_cut</span><span class="p">);</span>
+
+<span class="c">%% ========================================================================</span>
+<span class="c">%                         Make dispersion plots</span>
+<span class="c">% =========================================================================</span>
+
+<span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">,</span><span class="w"> </span><span class="mf">2.87</span><span class="p">];</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">];</span>
+
+<span class="n">lattice</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">];</span>
+<span class="c">% Reciprocal lattice points to draw dispersion between:</span>
+<span class="n">rlp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span>
+<span class="c">% Input parameters</span>
+<span class="n">pars</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">];</span>
+<span class="c">% Energy grid</span>
+<span class="n">ecent</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">200</span><span class="p">];</span>
+<span class="c">% Energy broadening term</span>
+<span class="n">fwhh</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="n">disp2sqw_plot</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span><span class="w"> </span><span class="n">rlp</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sr122_disp</span><span class="p">,</span><span class="w"> </span><span class="n">pars</span><span class="p">,</span><span class="w"> </span><span class="n">ecent</span><span class="p">,</span><span class="w"> </span><span class="n">fwhh</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sample_misalignment.html" class="btn btn-neutral float-left" title="Sample Misalignment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="spinw_gpo_1dfit.html" class="btn btn-neutral float-right" title="Spinw GPO 1dfit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Oct 6, 2023, 2:54:49 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/example_scripts/simulation_fitting.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

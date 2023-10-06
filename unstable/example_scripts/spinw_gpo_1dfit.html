@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spinw GPO 1dfit &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Spurions" href="spurions.html" />
+    <link rel="prev" title="Simulation Fitting" href="simulation_fitting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="advanced_plotting.html">Advanced Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="align_and_symmetrise.html">Align and Symmetrise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_usage.html">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corrections.html">Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_corrections.html">Data Corrections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gpo_fitting_spinw.html">GPO fitting SpinW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horace_whole_course_full_script.html">Horace course</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sample_misalignment.html">Sample Misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulation_fitting.html">Simulation Fitting</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Spinw GPO 1dfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spurions.html">Spurions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqwgeneration_tips.html">SQW Generation tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="symmetrisation.html">Symmetrisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Example_scripts.html">Example Scripts</a></li>
+      <li class="breadcrumb-item active">Spinw GPO 1dfit</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/example_scripts/spinw_gpo_1dfit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spinw-gpo-1dfit">
+<h1>Spinw GPO 1dfit<a class="headerlink" href="#spinw-gpo-1dfit" title="Permalink to this heading"></a></h1>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% SpinW model of Heisenberg + dipolar + aniso on pyrochlore lattice</span>
+<span class="c">% Includes, J1, J2, and both types of J3 interation (J3a along J1)</span>
+<span class="c">% Model is powder averaged and integrated over a given Qrange.</span>
+<span class="c">% Then - a flat background is added and a attenuation coefficient applied.</span>
+<span class="c">%</span>
+<span class="c">% ============</span>
+<span class="c">%</span>
+<span class="c">% Ross Stewart - 13/07/2022</span>
+<span class="c">%</span>
+<span class="c">%%</span>
+<span class="k">function</span><span class="w"> </span>yout<span class="p">=</span><span class="nf">spinw_gpo_1dfit</span><span class="p">(</span>E,pars,Qrange,Ei,dE,dQ,s<span class="p">)</span>
+
+<span class="n">boltzmann</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">0.08617</span><span class="p">;</span>
+<span class="n">spin</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">7</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+<span class="n">scalefac</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pars</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">J1</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">pars</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">boltzmann</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">spin</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">spin</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">J2</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">pars</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">boltzmann</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">spin</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">spin</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">J3a</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pars</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">boltzmann</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">spin</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">spin</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">J3b</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pars</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">boltzmann</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">spin</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">spin</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">D</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">pars</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">boltzmann</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">spin</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">spin</span><span class="p">;</span>
+<span class="n">muR</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pars</span><span class="p">(</span><span class="mi">7</span><span class="p">);</span>
+<span class="n">bg</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">pars</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span>
+<span class="n">rlimit</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span><span class="w">    </span><span class="c">% range in Å over which dipolar interactions are calculated</span>
+<span class="n">powder_Q_points</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">200</span><span class="p">;</span><span class="w">  </span><span class="c">% number of Q points for powder average</span>
+
+<span class="n">QQ</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">linspace</span><span class="p">(</span><span class="n">Qrange</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">Qrange</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="mi">10</span><span class="p">);</span>
+
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">&#39;\n Heisenberg interactions:&#39;</span><span class="p">)</span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">&#39;\n J1  = %0.5f meV (%0.5f K); J1*S(S+1)  = %0.5f K&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">J1</span><span class="p">,</span><span class="w"> </span><span class="n">J1</span><span class="o">/</span><span class="n">boltzmann</span><span class="p">,</span><span class="w"> </span><span class="n">J1</span><span class="o">*</span><span class="n">spin</span><span class="o">*</span><span class="p">(</span><span class="n">spin</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">boltzmann</span><span class="p">)</span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">&#39;\n J2  = %0.5f meV (%0.5f K); J2*S(S+1)  = %0.5f K&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">J2</span><span class="p">,</span><span class="w"> </span><span class="n">J2</span><span class="o">/</span><span class="n">boltzmann</span><span class="p">,</span><span class="w"> </span><span class="n">J2</span><span class="o">*</span><span class="n">spin</span><span class="o">*</span><span class="p">(</span><span class="n">spin</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">boltzmann</span><span class="p">)</span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">&#39;\n J3a = %0.5f meV (%0.5f K); J3b*S(S+1) = %0.5f K&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">J3a</span><span class="p">,</span><span class="w"> </span><span class="n">J3a</span><span class="o">/</span><span class="n">boltzmann</span><span class="p">,</span><span class="w"> </span><span class="n">J3a</span><span class="o">*</span><span class="n">spin</span><span class="o">*</span><span class="p">(</span><span class="n">spin</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">boltzmann</span><span class="p">)</span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">&#39;\n J3b = %0.5f meV (%0.5f K); J3b*S(S+1) = %0.5f K \n&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">J3b</span><span class="p">,</span><span class="w"> </span><span class="n">J3b</span><span class="o">/</span><span class="n">boltzmann</span><span class="p">,</span><span class="w"> </span><span class="n">J3b</span><span class="o">*</span><span class="n">spin</span><span class="o">*</span><span class="p">(</span><span class="n">spin</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">boltzmann</span><span class="p">)</span>
+
+<span class="c">% Setup SpinW model</span>
+<span class="n">gpo</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">spinw</span><span class="p">;</span>
+<span class="n">symStr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">&#39;-z,y+3/4,x+3/4; z+3/4,-y,x+3/4; z+3/4,y+3/4,-x; &#39;&#39;y+3/4,x+3/4,-z; x+3/4,-z,y+3/4; -z,x+3/4,y+3/4&#39;</span><span class="p">];</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">genlattice</span><span class="p">(</span><span class="s">&#39;lat_const&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">10.225</span><span class="w"> </span><span class="mf">10.225</span><span class="w"> </span><span class="mf">10.225</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;angled&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="w"> </span><span class="mi">90</span><span class="w"> </span><span class="mi">90</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;spgr&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">symStr</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;label&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;F d -3 m Z&#39;</span><span class="p">);</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">addatom</span><span class="p">(</span><span class="s">&#39;r&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;S&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">spin</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;label&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Gd3+&#39;</span><span class="p">)</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">gencoupling</span><span class="p">(</span><span class="s">&#39;maxDistance&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rlimit</span><span class="p">)</span>
+<span class="n">spins</span><span class="p">=</span><span class="n">bf1</span><span class="p">;</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">genmagstr</span><span class="p">(</span><span class="s">&#39;k&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;S&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">spins</span><span class="p">);</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">addmatrix</span><span class="p">(</span><span class="s">&#39;label&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;J1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;value&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">J1</span><span class="p">);</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">addmatrix</span><span class="p">(</span><span class="s">&#39;label&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;J2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;value&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">J2</span><span class="p">);</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">addmatrix</span><span class="p">(</span><span class="s">&#39;label&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;J3a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;value&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">J3a</span><span class="p">);</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">addmatrix</span><span class="p">(</span><span class="s">&#39;label&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;J3b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;value&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">J3b</span><span class="p">);</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">addcoupling</span><span class="p">(</span><span class="s">&#39;mat&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;J1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;bond&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">addcoupling</span><span class="p">(</span><span class="s">&#39;mat&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;J2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;bond&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">addcoupling</span><span class="p">(</span><span class="s">&#39;mat&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;J3a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;bond&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">addcoupling</span><span class="p">(</span><span class="s">&#39;mat&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;J3b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;bond&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">addmatrix</span><span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="o">*</span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">1</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="n">1</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">1]/sqrt(3),</span><span class="w"> </span><span class="s">&#39;label&#39;,</span><span class="w"> </span><span class="s">&#39;D1&#39;)</span><span class="p">;</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">addaniso</span><span class="p">(</span><span class="s">&#39;D1&#39;</span><span class="p">);</span>
+<span class="n">gpo</span><span class="p">.</span><span class="n">coupling</span><span class="p">.</span><span class="n">rdip</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">rlimit</span><span class="p">;</span>
+
+<span class="c">% Powder average spin waves:</span>
+<span class="c">% note that you can change the number of random Q points</span>
+<span class="c">% A smaller number gives a noisier output, but faster evaluation.</span>
+<span class="n">gpopowspec</span><span class="p">=</span><span class="n">gpo</span><span class="p">.</span><span class="n">powspec_ran</span><span class="p">(</span><span class="n">QQ</span><span class="o">&#39;</span><span class="p">,</span><span class="s">&#39;Evect&#39;</span><span class="p">,</span><span class="nb">unique</span><span class="p">(</span><span class="n">E</span><span class="p">),</span><span class="s">&#39;binType&#39;</span><span class="p">,</span><span class="s">&#39;cbin&#39;</span><span class="p">,</span><span class="s">&#39;nRand&#39;</span><span class="p">,</span><span class="k">...</span>
+<span class="w">    </span><span class="n">powder_Q_points</span><span class="p">,</span><span class="s">&#39;hermit&#39;</span><span class="p">,</span><span class="nb">true</span><span class="p">,</span><span class="s">&#39;formfact&#39;</span><span class="p">,</span><span class="nb">true</span><span class="p">,</span><span class="s">&#39;s_rng&#39;</span><span class="p">,</span><span class="n">s</span><span class="p">);</span>
+
+<span class="c">%Give a file containing Nx2 matrix giving Etrans and dE. From Pychop for Ei=11meV 240/120Hz</span>
+<span class="n">gpopowspec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sw_instrument</span><span class="p">(</span><span class="n">gpopowspec</span><span class="p">,</span><span class="s">&#39;dE&#39;</span><span class="p">,</span><span class="n">dE</span><span class="p">,</span><span class="s">&#39;Ei&#39;</span><span class="p">,</span><span class="n">Ei</span><span class="p">,</span><span class="s">&#39;dQ&#39;</span><span class="p">,</span><span class="n">dQ</span><span class="p">);</span>
+<span class="n">yout</span><span class="p">=</span><span class="nb">abs</span><span class="p">(</span><span class="n">scalefac</span><span class="p">)</span><span class="o">.*</span><span class="n">gpopowspec</span><span class="p">.</span><span class="n">swConv</span><span class="o">&#39;</span><span class="p">;</span>
+
+<span class="c">% do the integration over Q to create the calculated cut</span>
+<span class="n">yout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">yout</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">yout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">yout</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bg</span><span class="p">;</span>
+
+<span class="c">% multiply by attenuation coefficient</span>
+<span class="n">energy</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Ei</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">E</span><span class="p">;</span>
+<span class="n">wavelength</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="mf">81.81</span><span class="w"> </span><span class="o">./</span><span class="w"> </span><span class="n">energy</span><span class="p">);</span>
+<span class="n">T</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">exp</span><span class="p">(</span><span class="o">-</span><span class="n">muR</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">wavelength</span><span class="o">/</span><span class="mf">1.8</span><span class="p">);</span>
+<span class="n">yout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">yout</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="n">T</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="n">T</span><span class="p">);</span>
+
+<span class="c">%Can be odd cases when small number of additional points come from sim</span>
+<span class="c">%as NaN. In this case replace them with bg:</span>
+<span class="n">f</span><span class="p">=</span><span class="nb">isnan</span><span class="p">(</span><span class="n">yout</span><span class="p">);</span>
+<span class="n">yout</span><span class="p">(</span><span class="n">f</span><span class="p">)=</span><span class="n">bg</span><span class="p">;</span>
+
+<span class="k">end</span>
+
+<span class="k">function</span><span class="w"> </span>spins<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">bf1</span><span class="p">()</span>
+<span class="w">    </span><span class="k">global</span><span class="w"> </span><span class="n">spinstr</span>
+<span class="w">    </span><span class="n">spinstr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;palmer_chalker basis 1&#39;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">S1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">      </span><span class="c">% (1/2 1/2 1/2) GD_1</span>
+<span class="w">    </span><span class="n">S2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">     </span><span class="c">% (1/2 1/4 1/4) GD_4</span>
+<span class="w">    </span><span class="n">S3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">       </span><span class="c">% (3/4 0   1/4) GD_3</span>
+<span class="w">    </span><span class="n">S4</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">      </span><span class="c">% (3/4 3/4 1/2) GD_2</span>
+<span class="w">    </span><span class="n">S5</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">       </span><span class="c">% (1/4 1/2 1/4) GD_3</span>
+<span class="w">    </span><span class="n">S6</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">     </span><span class="c">% (0   3/4 1/4) GD_4</span>
+<span class="w">    </span><span class="n">S7</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">      </span><span class="c">% (0   0   1/2) GD_1</span>
+<span class="w">    </span><span class="n">S8</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">      </span><span class="c">% (1/4 1/4 1/2) GD_2</span>
+<span class="w">    </span><span class="n">S9</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">      </span><span class="c">% (0   1/2 0  ) GD_1</span>
+<span class="w">    </span><span class="n">S10</span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">     </span><span class="c">% (0   1/4 3/4) GD_4</span>
+<span class="w">    </span><span class="n">S11</span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">       </span><span class="c">% (1/4 0   3/4) GD_3</span>
+<span class="w">    </span><span class="n">S12</span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">      </span><span class="c">% (1/4 3/4 0  ) GD_2</span>
+<span class="w">    </span><span class="n">S13</span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">       </span><span class="c">% (3/4 1/2 3/4) GD_3</span>
+<span class="w">    </span><span class="n">S14</span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">     </span><span class="c">% (1/2 3/4 3/4) GD_4</span>
+<span class="w">    </span><span class="n">S15</span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">      </span><span class="c">% (1/2 0   0  ) GD_1</span>
+<span class="w">    </span><span class="n">S16</span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w">      </span><span class="c">% (3/4 1/4 0  ) GD_2</span>
+
+<span class="w">    </span><span class="n">spins</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">cat</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">S1</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S2</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S3</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S4</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S5</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S6</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S7</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S8</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S9</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S10</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S11</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S12</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S13</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S14</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S15</span><span class="o">&#39;</span><span class="p">,</span><span class="n">S16</span><span class="o">&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">spins</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">permute</span><span class="p">(</span><span class="n">spins</span><span class="p">,[</span><span class="mi">1</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="mi">2</span><span class="p">]);</span>
+
+<span class="k">end</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="simulation_fitting.html" class="btn btn-neutral float-left" title="Simulation Fitting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="spurions.html" class="btn btn-neutral float-right" title="Spurions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">Last updated on Oct 6, 2023, 2:54:49 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/example_scripts/spinw_gpo_1dfit.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
