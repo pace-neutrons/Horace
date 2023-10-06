@@ -3,6 +3,7 @@ classdef test_apply_and_recompute_bin_data < TestCase
     % how apply operation works on different type of objects
 
     properties
+        test_sqw
     end
 
     methods
@@ -13,29 +14,83 @@ classdef test_apply_and_recompute_bin_data < TestCase
                 name = 'test_apply_and_recompute_bin_data';
             end
             obj = obj@TestCase(name);
+            obj.test_sqw = sqw.generate_cube_sqw(10,@(h,k,l,e,varargin)(2));
 
         end
+        function test_recompute_bin_data_on_file_with_name(obj)
 
-        function test_recompute_bin_data_in_memory(~)
-            % use generate_cube_sqw
-            test_sqw = sqw();
-            pix=PixelDataBase.create(ones(9,40000));
-            xs = 0.1:1:10;
-            xp = 0.1:0.5:10;
-            [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
-            pix.coordinates = [ux(:)';uy(:)';uz(:)';et(:)'];
-            npix = 4*ones(10,10,10,10);
-            ab = line_axes('nbins_all_dims',[10,10,10,10],'img_range',[0,0,0,0;2,2,2,2]);
-            test_sqw.data = DnDBase.dnd(ab,line_proj('alatt',3,'angdeg',90));
-            test_sqw.data.npix = npix;
-            test_sqw.pix  = pix;
+            tsqw = obj.test_sqw;
+            npix = tsqw.data.npix;            
+            tsqw.pix = tsqw.pix.invalidate_range();
+            tsqw.pix.signal = 4;
+            test_file = fullfile(tmp_dir,'recompute_with_pages.sqw');
+            clFile = onCleanup(@()delete(test_file));
+            save(tsqw,test_file);
+            clear tsqw;
+            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',1000);
 
-            new_sqw = recompute_bin_data(test_sqw);
+
+            tsqw = sqw(test_file,'file_backed',true);
+            assertTrue(isa(tsqw.pix,'PixelDataFileBacked'));
+
+            new_sqw = recompute_bin_data(tsqw);
             s = new_sqw.data.s;
             e = new_sqw.data.e;
-            assertElementsAlmostEqual(4*s,npix);
-            assertElementsAlmostEqual((4*4)*e,npix);
+            assertElementsAlmostEqual(s,4*npix);
+            assertElementsAlmostEqual(e,npix);
+            assertTrue(tsqw.pix.is_range_valid())
 
+% For tomorrow.
+%             assertEqual(tsqw.full_filename,test_file);
+%             assertEqual(new_sqw.full_filename,test_file);
+%             clear new_sqw;
+%             clear tsqw;
+% 
+%             assertTrue(isfile(test_file));
+% 
+%             tsqw = sqw(test_file);
+%             assertTrue(tsqw.pix.is_range_valid());
+        end
+
+        function test_recompute_bin_data_on_file(obj)
+
+            tsqw = obj.test_sqw;
+            npix = tsqw.data.npix;
+            tsqw.pix.signal = 4;
+
+            pix = PixelDataFileBacked(tsqw.pix.data);
+            tsqw.pix = pix.invalidate_range();
+
+            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',1000);
+
+            new_sqw = recompute_bin_data(tsqw);
+            s = new_sqw.data.s;
+            e = new_sqw.data.e;
+            assertElementsAlmostEqual(s,4*npix);
+            assertElementsAlmostEqual(e,npix);
+            assertTrue(new_sqw.pix.is_range_valid())
+        end
+
+
+        function test_recompute_bin_data_in_memory(obj)
+
+            tsqw = obj.test_sqw;
+            npix = tsqw.data.npix;
+            s = tsqw.data.s;
+            e = tsqw.data.e;
+            assertElementsAlmostEqual(s,2*npix);
+            assertElementsAlmostEqual(e,npix);
+
+            tsqw.pix.signal = 4;
+            tsqw.pix = tsqw.pix.invalidate_range();
+            assertFalse(tsqw.pix.is_range_valid())
+
+            new_sqw = recompute_bin_data(tsqw);
+            s = new_sqw.data.s;
+            e = new_sqw.data.e;
+            assertElementsAlmostEqual(s,4*npix);
+            assertElementsAlmostEqual(e,npix);
+            assertTrue(new_sqw.pix.is_range_valid())
         end
 
     end

@@ -32,7 +32,7 @@ if nargin > 1
     pix_op.outfile = out_file;
 end
 if ~obj.pix.is_misaligned
-
+    pix_op.inplace = true;
 end
 [pix_op,obj] = pix_op.init(obj);
 obj    = obj.apply_c(pix_op);
