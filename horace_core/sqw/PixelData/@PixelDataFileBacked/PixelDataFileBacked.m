@@ -76,8 +76,9 @@ classdef PixelDataFileBacked < PixelDataBase
         % the pixels to the first byte
         offset_ = 0;
 
-        % handle to the class used to perform pixel
-        write_handle_ = []; % copying in operations, involving all pixels
+        % handle to the class used to perform pixel writing
+        write_handle_ = []; %  in operations, involving move pixels
+        % from source file to the file, which is the target of operation.
 
         % handle-class holding tmp file produced by filebacked
         % operations. If all referring classes go out of scope, the file

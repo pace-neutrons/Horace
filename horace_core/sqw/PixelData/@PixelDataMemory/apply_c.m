@@ -1,6 +1,6 @@
 function obj_out = apply_c(obj_in,page_op)
-% Apply unary operation affecting pixels and image over the input sqw
-% object
+% Apply operation which changes pixels and image of an input sqw
+% object in a way, not violating relation between pixel ordering and npix.
 %
 %
 % Inputs:

@@ -1,7 +1,7 @@
 classdef PageOpBase
     % PAGEOPBASE class defines interface to a generic operation, performed
     % on chunk of pixels located in memory by apply method of sqw/PixelData
-    % objects
+    % objects.
     %
     % Operations are functions which modify pixels directly, e.g.
     % recalculating or modifying signal/variance.
@@ -10,12 +10,12 @@ classdef PageOpBase
     % memory-/file-backed data.
     %
     % IMPORTANT:
-    % The operations can only be used by the algorithms which do not change
+    % The operations can only be used by algorithms which do not change
     % the size and shape of the image.
     % In addition, the operation must not change pixel coordinates in a
-    % way, which would violate the relation between image and the pixels
+    % way which would violate the relation between image and the pixels
     % i.e. alter which image bin a pixel would contribute 
-    % i.e. require rebinning or reordering of pixels.
+    % i.e. require rebinning or reordering of pixels behind bins boundaries.
     properties(Dependent)
         % true if operation modifies PixelData only and does not affect
         % image. The majority of operations modify both pixels and image
