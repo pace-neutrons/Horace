@@ -1,5 +1,6 @@
 classdef test_apply_and_recompute_bin_data < TestCase
-    % Series of tests to check work of mex files against Matlab files
+    % Series of tests to validate operations using recompute_bin_data and
+    % how apply operation works on different type of objects
 
     properties
     end
