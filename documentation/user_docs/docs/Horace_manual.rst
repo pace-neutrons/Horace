@@ -5,22 +5,28 @@ Horace Manual
    :caption: Horace Manual Chapters
    :maxdepth: 1
 
-   manual/Changing_Horace_settings
    manual/Planning_a_Horace_scan
    manual/Generating_SQW_files
+
+   manual/Data_diagnostics
+   manual/Correcting_for_sample_misalignment
+
    manual/Manipulating_and_extracting_data_from_SQW_files_and_objects
    manual/Reshaping_etc
-   manual/Correcting_for_sample_misalignment
-   manual/Data_diagnostics
    manual/Symmetrising_etc
+
    manual/Unary_operations
    manual/Binary_operations
+
    manual/Plotting
+
    manual/Simulation
    manual/Multifit
    manual/Advanced_Multifit
    manual/Tobyfit
    manual/Parallel
+
+   manual/Changing_Horace_settings
 
 .. toctree::
    :caption: Horace Manual Appendix
