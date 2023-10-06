@@ -118,7 +118,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         [wout,mask_array] = mask(win, mask_array);
 
-        wout = mask_pixels(win, mask_array);
+        wout = mask_pixels(win, mask_array,varargin);
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
 
