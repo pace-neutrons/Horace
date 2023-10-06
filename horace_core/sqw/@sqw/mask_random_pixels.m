@@ -43,7 +43,7 @@ if numel(npix) ~= numel(obj)
         'npix must either be scalar or an array of the same size as input sqw object');
 end
 
-if any(npix == 0)
+if any(npix <= 0)
     error('HORACE:sqw:invalid_argument', ...
         'Cannot mask every pixel');
 end

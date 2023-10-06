@@ -1,6 +1,6 @@
 function sqw_out = apply_c(sqw_in,page_op)
-% Apply unary operation affecting pixels and image over the input sqw
-% object
+% Apply operation which changes pixels and image of an input sqw
+% object in a way, not violating relation between pixel ordering and npix.
 %
 % Inputs:
 % obj    --  PixelDataFilebacked object
@@ -18,10 +18,8 @@ npix = page_op.npix;
 op_name = page_op.op_name;
 
 [mem_chunk_size,ll] = config_store.instance().get_value('hor_config', 'mem_chunk_size','log_level');
-% if vector split function changes here, it has to change in
-% PageOp_mask.calc_page_share too (masking algorithm uses knowlege about paging to
-% look what should be masked on page).
-[npix_chunks, npix_idx] = split_vector_fixed_sum(npix, mem_chunk_size);
+% divide all data into pages to process
+[npix_chunks, npix_idx] = page_op.split_into_pages(npix, mem_chunk_size);
 
 log_split = page_op.split_log_ratio;
 

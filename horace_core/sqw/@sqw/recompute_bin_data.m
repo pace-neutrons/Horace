@@ -27,8 +27,11 @@ end
 
 
 % needs the opportunity to provide outfile if sqw object is filebacked
-pix_op = PageOp_nochange();
-if obj.pix.is_misaligned
+pix_op = PageOp_recompute_bins();
+if nargin > 1
+    pix_op.outfile = out_file;
+end
+if ~obj.pix.is_misaligned
 
 end
 [pix_op,obj] = pix_op.init(obj);

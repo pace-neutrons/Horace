@@ -31,10 +31,7 @@ end
 
 % Section the pix array, if non empty, and update pix_range
 if has_pixels(obj)
-    % needs the opportunity to provide outfile if sqw object is filebacked
-    pix_op = PageOp_mask();
-    [pix_op,obj] = pix_op.init(obj,keep_array);
-    obj    = obj.apply_c(pix_op);
+    obj = obj.mask_pixels(obj,keep_array,true);
 else
     % mask appropriate data
     obj.data = mask(obj.data,keep_array);

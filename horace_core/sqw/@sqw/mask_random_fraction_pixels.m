@@ -29,7 +29,7 @@ function wout = mask_random_fraction_pixels(win,npix_frac)
 sz=numel(win);
 
 if numel(npix_frac) == 1 && numel(win)>1
-    npix_frac = ones(1,numel(win))*npix_frac;
+    npix_frac = repmat(npix_frac,sz,1);
 end
 
 if numel(npix_frac)~=numel(win)

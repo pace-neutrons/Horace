@@ -13,7 +13,7 @@ classdef PageOp_sqw_eval < PageOpBase
     methods
         function obj = PageOp_sqw_eval(varargin)
             obj = obj@PageOpBase(varargin{:});
-            obj.op_name = 'sqw_eval';
+            obj.op_name_ = 'sqw_eval';
         end
         function [obj,sqw_obj] = init(obj,sqw_obj,operation,op_param,average)
             [obj,sqw_obj] = init@PageOpBase(obj,sqw_obj);

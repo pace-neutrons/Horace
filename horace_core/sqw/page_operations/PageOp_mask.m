@@ -26,7 +26,7 @@ classdef PageOp_mask < PageOpBase
     methods
         function obj = PageOp_mask(varargin)
             obj = obj@PageOpBase(varargin{:});
-            obj.op_name = 'masking';
+            obj.op_name_ = 'masking';
         end
 
         function [obj,in_obj] = init(obj,in_obj,keep_info)
@@ -130,7 +130,7 @@ classdef PageOp_mask < PageOpBase
                 obj.var_acc_(npix_idx(1):npix_idx(2)) + e_ar(:);
         end
         %
-        function [out_obj,obj] = finish_op(obj,in_obj)           
+        function [out_obj,obj] = finish_op(obj,in_obj)
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc);
             [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
         end
@@ -142,9 +142,7 @@ classdef PageOp_mask < PageOpBase
             nb = numel(obj.npix);
         end
         %
-    end
-    methods(Static)
-        function pieces = calc_page_share(num_pix_to_keep,tot_num_pix,page_size)
+        function pieces = calc_page_share(obj,num_pix_to_keep,tot_num_pix,page_size)
             % Helper function used in keeping part of pixels from total
             % number of pixels in a dataset.
             %
@@ -160,9 +158,10 @@ classdef PageOp_mask < PageOpBase
             %
             %
             pix_share = num_pix_to_keep/tot_num_pix;
-            % if the vector split function changes in PixelDataFileBacked.apply() 
-            % it has to be  changed here
-            pages     = split_vector_fixed_sum(tot_num_pix,page_size);
+
+            % identify the sizes of each page the data were split
+            pages     = obj.split_into_pages(tot_num_pix,page_size);
+            %
             pages     = [pages{:}];
             num_pages = numel(pages);
             pieces    = floor(pages*pix_share);
@@ -184,5 +183,6 @@ classdef PageOp_mask < PageOpBase
             end
 
         end
+
     end
 end

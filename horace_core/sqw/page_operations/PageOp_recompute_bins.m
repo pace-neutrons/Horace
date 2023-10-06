@@ -1,12 +1,12 @@
-classdef PageOp_nochange < PageOpBase
+classdef PageOp_recompute_bins < PageOpBase
     % Single pixels page operation which does not change the pixels values
     %
     % Used by recompute_bin_data method or recalc_data_range method
     %
     methods
-        function obj = PageOp_nochange(varargin)
+        function obj = PageOp_recompute_bins(varargin)
             obj = obj@PageOpBase(varargin{:});
-            obj.op_name = 'recompute_bin_data_and_ranges';
+            obj.op_name_ = 'recompute_bin_data_and_ranges';                        
         end
         
         function [obj,in_obj] = init(obj,in_obj)

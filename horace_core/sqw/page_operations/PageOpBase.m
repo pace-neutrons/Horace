@@ -1,7 +1,7 @@
 classdef PageOpBase
     % PAGEOPBASE class defines interface to a generic operation, performed
     % on chunk of pixels located in memory by apply method of sqw/PixelData
-    % objects
+    % objects.
     %
     % Operations are functions which modify pixels directly, e.g.
     % recalculating or modifying signal/variance.
@@ -10,12 +10,12 @@ classdef PageOpBase
     % memory-/file-backed operations.
     %
     % IMPORTANT:
-    % The operations can only be used by the algorithms which do not change
+    % The operations can only be used by algorithms which do not change
     % the size and shape of the image.
     % In addition, the operation must not change pixel coordinates in a
-    % way, which would violate the relation between image and the pixels
+    % way which would violate the relation between image and the pixels
     % i.e. alter which image bin a pixel would contribute
-    % i.e. require rebinning or reordering of pixels.
+    % i.e. require rebinning or reordering of pixels behind bins boundaries.
     properties(Dependent)
         % true if method should not create the copy of filebacked object
         % and does not change pixels.
@@ -41,8 +41,8 @@ classdef PageOpBase
     end
     properties(Dependent,Hidden)
         % npix array (the same as img_.npix), containing the pixel distribution
-        % over binning. If no binning is provided it is single number equal
-        % to number of pixels
+        % over binning. If no binning is provided it is a single number equal
+        % to number of pixels (all pixels in one bin)
         npix
 
         % caches for some indices, defined in PixelDataBase, and used to
@@ -94,6 +94,23 @@ classdef PageOpBase
         [obj,page_data] = apply_op(obj,npix_block,npix_idx);
         %
     end
+    methods(Static)
+        function [npix_chunks, npix_idx] = split_into_pages(npix,chunk_size)
+            % Method used to split input npix array into pages
+            % Inputs:
+            % npix  -- image npix array, which defines the number of pixels
+            %           contributing into each image bin and the pixels
+            %           ordering in the linear array
+            % chunk_size
+            %       -- sized of chunks to split pixels
+            % Returns:
+            % npix_chunks -- cellarray, containing the npix parts
+            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
+            %                the npix array. 
+            % See split procedure for more details 
+            [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);           
+        end
+    end
 
     methods
         function obj = PageOpBase(varargin)
@@ -104,6 +121,7 @@ classdef PageOpBase
             end
             obj = obj.init(varargin{:});
         end
+        %
         function [obj,in_obj] = init(obj,in_obj)
             % initialize page operation using parts of input sqw or
             % PixelData object as the target for the operation.
@@ -268,21 +286,12 @@ classdef PageOpBase
         function name = get.op_name(obj)
             name = obj.op_name_;
         end
-        function obj = set.op_name(obj,name)
-            if ~istext(name)
-                error('HORACE:PageOpBase:invalid_argument', ...
-                    'Operation name should be a text string. Provided class %s', ...
-                    class(name));
-            end
-            obj.op_name_ = name;
-        end
-
     end
     methods(Access=protected)
         function obj = update_image(obj,sig_acc,var_acc,npix_acc)
-            % The piece of code which often used at the end of an operation
-            % when modified data get transformed from accumulators to the final
-            % image.
+            % The piece of code which often but not always used at the end
+            % of an operation when modified data get transformed from
+            % accumulators to the final image.
             % Inputs:
             % sig_acc -- array accumulating changed signal during
             %            operation(s)
