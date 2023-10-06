@@ -1,14 +1,15 @@
 classdef TmpFileHandler < handle
-    % Class to handle temporary PixelDataFileBacked files
+    % Class to handle temporary PixelDataFileBacked files produced in
+    % operations.
+    %
+    % Upon deletion of the parent PixelDataFileBacked this object will be cleared
+    % resulting in the deletion of the temporary files if they have not
+    % been saved in different place or lock have been set to true.
     %
     % Created by PixelData file-backed on starting modifying operation
     % (PixelDataFileBacked.get_new_handle), which stores the path tmp_file
     % (to be referenced by the PixelDataFileBacked object when the operation is
     % complete)
-    %
-    % Upon deletion of the parent PixelDataFileBacked this object will be cleared
-    % resulting in the deletion of the temporary files if they have not
-    % been saved.
     %
     % File path is structured so as to reflect the file origin but be unlikely to
     % conflict with other temporary files from the same origin and also to avoid
@@ -19,11 +20,9 @@ classdef TmpFileHandler < handle
         file_name;
     end
     properties(Dependent)
-        ref_count;
         locked;
     end
     properties(Access=private)
-        ref_count_ = 0;
         locked_ = false;
     end
     methods
@@ -44,11 +43,9 @@ classdef TmpFileHandler < handle
                     'Check %s and clear any .pix_<id> files'], ...
                     orig_name, tmp_dir());
             end
-            obj.ref_count_ = 1;
         end
 
         function delete(obj)
-            obj.ref_count_ = obj.ref_count_ - 1;
             if obj.locked_
                 return;
             end
@@ -69,12 +66,6 @@ classdef TmpFileHandler < handle
             end
         end
         %==================================================================
-        function rc = get.ref_count(obj)
-            rc = obj.ref_count_;
-        end
-        function copy(obj)
-            obj.ref_count_ = obj.ref_count_+1;
-        end
         function is = get.locked(obj)
             is = obj.locked_;
         end

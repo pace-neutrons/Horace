@@ -43,11 +43,11 @@ if numel(npix) ~= numel(obj)
         'npix must either be scalar or an array of the same size as input sqw object');
 end
 
-if any(npix == 0)
+if any(npix <= 0)
     error('HORACE:sqw:invalid_argument', ...
         'Cannot mask every pixel');
 end
-invalid = arrayfun(@(i)(obj(i).pix.num_pixels<npix(i)),1:sz);
+invalid = arrayfun(@(i)(obj(i).num_pixels<npix(i)),1:sz);
 if any(invalid)
     error('HORACE:sqw:invalid_argument', ...
         'Cannot retain greater number of pixels than data contains');

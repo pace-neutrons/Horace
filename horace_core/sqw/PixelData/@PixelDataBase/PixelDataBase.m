@@ -379,8 +379,8 @@ classdef (Abstract) PixelDataBase < serializable
                 idx = [idx{:}];
             else
                 error('HORACE:PixelDataBase:invalid_argument',...
-                    ['Method accepts the name of the pixel field or cellarray of fields.\n' ...
-                    'Actually input class is %s'],class(fld_name));
+                    ['Method accepts the name of the pixel field, array of field indices or cellarray of fields.\n' ...
+                    'Actually input class is: %s'],class(fld_name));
             end
         end
     end
@@ -405,13 +405,14 @@ classdef (Abstract) PixelDataBase < serializable
         % realign pixels using alignment matrix stored with pixels
     end
     %======================================================================
-    % File handling/migration. Does nothing on membased
+    % File handling/migration.
     methods(Abstract)
         obj = prepare_dump(obj)
         obj = get_new_handle(obj, varargin)
-        obj = format_dump_data(obj,varargin)
+        obj = format_dump_data(obj,data_page)
         obj = finish_dump(obj)
-        % Paging
+        % Paging:
+        % pixel indices of the current page
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
         % Reset the object to point to the first page of pixel data in the file
         % and clear the current cache
@@ -631,12 +632,14 @@ classdef (Abstract) PixelDataBase < serializable
         function is = get.is_misaligned(obj)
             is = obj.is_misaligned_;
         end
-        function obj = set.is_misaligned(obj,val)
-            % clear alignment
-            if ~val
-                obj.is_misaligned_ = false;
-                obj.alignment_matr_ = eye(3);
-            end
+        function obj = clear_alignment(obj)
+            % Clears alignment. 
+            % 
+            % If alignment changes, invalidates object integrity,
+            % (data_ranges need recalculation) 
+            % so should be used as part of algorithms only.
+            obj.is_misaligned_ = false;
+            obj.alignment_matr_ = eye(3);
         end
         function matr = get.alignment_matr(obj)
             matr = obj.alignment_matr_;
@@ -823,12 +826,16 @@ classdef (Abstract) PixelDataBase < serializable
             val = pix_data(obj);
         end
         %
-        function data_range = get_data_range(obj,varargin)
+        function data_range = get_data_range(obj,field_idx)
             % data range getter
+            %
+            % if field_idx provided, return ranges for the pixel fields with
+            % indexes provided.
+            %
             if nargin == 1
                 data_range = obj.data_range_;
             else
-                data_range = obj.data_range_(:,varargin{1});
+                data_range = obj.data_range_(:,field_idx);
             end
         end
     end

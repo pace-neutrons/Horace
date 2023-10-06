@@ -18,6 +18,8 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         mask_array_3d;
         masked_3d;
         masked_3d_paged;
+        % sample for masking which will be used for testing masking errors
+        dummy_sample
         % function handle to compare different array ranges
         fh_range_check;
         %
@@ -38,7 +40,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
 
             % 2D case setup
             obj.sqw_2d = sqw(obj.sqw_2d_file_path, 'file_backed', false);
-            % are signal and error in the sample object incorrect?            
+            % are signal and error in the sample object incorrect?
             obj.sqw_2d = obj.sqw_2d.recompute_bin_data();
             %
             obj.sqw_2d_num_pixels = obj.sqw_2d.pix.num_pixels;
@@ -58,7 +60,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             obj.idxs_to_mask_3d = 1:num_bins/2;
             obj.mask_array_3d = true(size(obj.sqw_3d.data.npix));
             obj.mask_array_3d(obj.idxs_to_mask_3d) = false;
-            
+
             % are signal and error in the sample object incorrect?
             obj.sqw_3d = obj.sqw_3d.recompute_bin_data();
             %
@@ -67,6 +69,9 @@ classdef test_mask < TestCase & common_pix_class_state_holder
                 obj.get_paged_sqw(obj.sqw_3d_file_path, obj.mask_array_3d);
 
             obj.fh_range_check = @(data, limit) all(data<limit, 'all');
+
+            obj.dummy_sample = ...
+                [sqw.generate_cube_sqw(4),sqw.generate_cube_sqw(5)];
 
         end
 
@@ -125,8 +130,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             assertElementsAlmostEqual(original_pix_range(1,3:end), new_pix_range(1,3:end), ...
                 'absolute', 0.001);
         end
-
-
 
         function test_mask_sets_npix_in_masked_bins_to_zero_3d(obj)
             assertEqual(sum(obj.masked_3d.data.npix(~obj.mask_array_3d)), 0);
@@ -327,7 +330,46 @@ classdef test_mask < TestCase & common_pix_class_state_holder
 
             test_mask.check_filebacked_signal_averages(new_sqw);
         end
+        %==================================================================
+        function test_mask_random_frac_pix_fails_on_nobj(obj)
+            keep = [1,1,1];
+            assertExceptionThrown(@()mask_random_fraction_pixels(obj.dummy_sample,keep), ...
+                'HORACE:sqw:invalid_argument');
+        end
 
+        function test_mask_random_frac_pix_fails_on_large(obj)
+            keep = [0.5,1.1];
+            assertExceptionThrown(@()mask_random_fraction_pixels(obj.dummy_sample,keep), ...
+                'HORACE:sqw:invalid_argument');
+        end
+
+        function test_mask_random_frac_pix_fails_on_zero(obj)
+
+            keep = [0.5,-1];
+            assertExceptionThrown(@()mask_random_fraction_pixels(obj.dummy_sample,keep), ...
+                'HORACE:sqw:invalid_argument');
+        end
+        %
+        function test_mask_random_pix_fails_on_nobj(obj)
+            keep = [100,100,10];
+            assertExceptionThrown(@()mask_random_pixels(obj.dummy_sample,keep), ...
+                'HORACE:sqw:invalid_argument');
+        end
+
+        function test_mask_random_pix_fails_on_large(obj)
+
+            keep = [100,5^4+1];
+            assertExceptionThrown(@()mask_random_pixels(obj.dummy_sample,keep), ...
+                'HORACE:sqw:invalid_argument');
+        end
+
+        function test_mask_random_pix_fails_on_zero(obj)
+
+            keep = [100,0];
+            assertExceptionThrown(@()mask_random_pixels(obj.dummy_sample,keep), ...
+                'HORACE:sqw:invalid_argument');
+        end
+        %
     end
 
     methods (Static)

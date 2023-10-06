@@ -16,9 +16,6 @@ function new_sqw = copy(obj, varargin)
 
 new_sqw = obj;
 for i = 1:numel(obj)
-    if ~isempty(obj(i).file_holder_)
-        new_sqw(i).file_holder_.copy();
-    end
     if ~exclude_pix
         new_sqw(i).pix = copy(obj(i).pix);
     else

@@ -230,8 +230,10 @@ classdef PixelDataMemory < PixelDataBase
     % implementation of PixelDataBase abstract protected interface
     methods(Access=protected)
         function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
+            % Overloaded part of get_raw_pix operation.
+            %
             % return unmodified pixel data according to the input indexes
-            % provided
+            % provided.
             % Inputs:
             % obj         -- initialized pixel data memory object
             % row_pix_idx -- indixes of pixels to return

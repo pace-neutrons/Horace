@@ -13,8 +13,11 @@ function obj = sqw_eval(obj, sqwfunc, pars, varargin)
 %
 % Input:
 % ------
-%   obj        SQWDnDBase object (or array of objects) that provides used
-%              as the source frame for the calculations
+%   obj        SQWDnDBase object (or array of objects) used
+%              as the source of hkle coordinates for sqwfunc:
+%            - for dnd this is the image axis bin centre coordinates
+%            - for sqw this is the pixel coordinates or their cell
+%              average.
 %
 %   sqwfunc     Handle to function that calculates S(Q, w)
 %               Most commonly used form is:
