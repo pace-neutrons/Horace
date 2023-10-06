@@ -31,7 +31,7 @@ end
 
 % Section the pix array, if non empty, and update pix_range
 if has_pixels(obj)
-    obj = obj.mask_pixels(obj,keep_array,true);
+    obj = obj.mask_pixels(keep_array,true);
 else
     % mask appropriate data
     obj.data = mask(obj.data,keep_array);
