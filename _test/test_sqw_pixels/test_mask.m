@@ -369,7 +369,8 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
         %==================================================================
         function test_split_in_pages_small_fraction(~)
-            pieces = PageOp_mask.calc_page_share(300,901,300);
+            page_op = PageOp_mask();
+            pieces = page_op.calc_page_share(300,901,300);
 
             assertEqual(numel(pieces),4)
             assertEqual(sum(pieces),300)
@@ -377,7 +378,8 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_split_in_pages_large_fraction(~)
-            pieces = PageOp_mask.calc_page_share(300,890,300);
+            page_op = PageOp_mask();
+            pieces = page_op.calc_page_share(300,890,300);
 
             assertEqual(numel(pieces),3)
             assertEqual(sum(pieces),300)
@@ -385,7 +387,8 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_split_in_pages_large_normal(~)
-            pieces = PageOp_mask.calc_page_share(300,1000,300);
+            page_op = PageOp_mask();
+            pieces = page_op.calc_page_share(300,1000,300);
 
             assertEqual(numel(pieces),4)
             assertEqual(sum(pieces),300)

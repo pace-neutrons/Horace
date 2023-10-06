@@ -25,7 +25,7 @@ log_split = page_op.split_log_ratio;
 
 n_chunks = numel(npix_chunks);
 for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix)
-    % and each chunc after this split refers to mem_chunk_size pixels
+    % and each chunk after this split refers to mem_chunk_size pixels
     % located subsequently
     page_op.page_num = i;
     if ll > 0 && mod(i, log_split) == 1
@@ -36,7 +36,7 @@ for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix
 end
 sqw_out = page_op.finish_op(sqw_in);
 if ll > 0
-    fprintf('*** Finished %s on object from file: %s using %d pages\n', ...
-        op_name,sqw_out.full_filename,n_chunks);
+    fprintf('*** Finished %s on object backed by file: %s using %d pages\n', ...
+        op_name,sqw_out.data.filename,n_chunks);
 end
 

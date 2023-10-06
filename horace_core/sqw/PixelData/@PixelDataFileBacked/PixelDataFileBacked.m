@@ -81,7 +81,7 @@ classdef PixelDataFileBacked < PixelDataBase
         % from source file to the file, which is the target of operation.
 
         % handle-class holding tmp file produced by filebacked
-        % operations. If all referring classes go out of scope, the file
+        % operations. If all referring classes go out of scope the file
         % gets deleted
         tmp_file_holder_ = [];
     end
@@ -118,10 +118,11 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = set_raw_data(obj,pix)
             %SET_RAW_DATA set internal data array without comprehensive checks for
             % data integrity and data ranges.
-            % 
-            % Performance method, which 
-            % invalidates object integrity, so further operations are necessary
-            % to keep object intact
+            %
+            % Performance method, which invalidates object integrity,
+            % so further operations are necessary to keep object intact.
+            % Invalidates data ranges which need recalculation/settings
+            % separately
             %
             if obj.read_only
                 error('HORACE:PixelDataFileBacked:runtime_error',...
@@ -453,9 +454,9 @@ classdef PixelDataFileBacked < PixelDataBase
             % provided.
             % Inputs:
             % obj         -- initialized pixel data memory object
-            % row_pix_idx -- indixes of pixels to return
+            % row_pix_idx -- indices of pixels to return
             % col_pix_idx -- if not empty, the indices of the pixel field
-            %                to return, if empty, all pixels field
+            %                to return, if empty, all pixels fields
             % Output:
             % pix_data    -- [9,numel(row_pix_idx)] array of pixel data
             mmf = obj.f_accessor_;
