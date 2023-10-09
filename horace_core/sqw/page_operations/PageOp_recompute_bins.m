@@ -6,9 +6,9 @@ classdef PageOp_recompute_bins < PageOpBase
     methods
         function obj = PageOp_recompute_bins(varargin)
             obj = obj@PageOpBase(varargin{:});
-            obj.op_name_ = 'recompute_bin_data_and_ranges';                        
+            obj.op_name_ = 'recompute_bin_data_and_ranges';
         end
-        
+
         function [obj,in_obj] = init(obj,in_obj)
             [obj,in_obj] = init@PageOpBase(obj,in_obj);
             if ~obj.changes_pix_only
@@ -16,7 +16,6 @@ classdef PageOp_recompute_bins < PageOpBase
             end
         end
         function obj = apply_op(obj,npix_block,npix_idx)
-
             if isempty(obj.img_)
                 return;
             end
