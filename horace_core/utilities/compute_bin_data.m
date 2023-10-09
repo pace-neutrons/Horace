@@ -9,29 +9,31 @@ function [mean_signal, mean_variance,signal_msd] = compute_bin_data( ...
 %
 % Input
 % -----
-% npix      The number of contributing pixels to each bin of the plot axes
-% signal    The signal array, to calculate binning for
+% npix         -- The number of contributing pixels to each bin of the plot axes
+% signal       -- The signal array, to calculate binning for
 %
 % Optional:
-% variance  The variance array to calculate binning
+% variance     -- The variance array to calculate binning
 %
-% no_normalization -- if present and true, do not normalize signal and
-%            variance by npix to calculate proper averages. Returns bin sums
-%            only. If provided, variance have to be provided (may be empty, not to use it)
+% no_normalization 
+%              -- if present and true, do not normalize signal and
+%                 variance by npix to calculate proper averages. Returns bin sums
+%                 only. If provided, variance have to be provided
+%                 (may be empty which indicate that it will not be used)
 %
 % Output
 % ------
-% mean_signal     The average signal for each bin.
-%                 size(mean_signal) = size(npix)
+% mean_signal  --  The average signal for each bin.
+%                  size(mean_signal) = size(npix)
 % Optional:
 %
-% mean_variance   The average variance for each bin.
-%                 size(mean_variance) = size(npix)
+% mean_variance--  The average variance for each bin.
+%                  size(mean_variance) = size(npix)
 %
-% signal_msd      If mean_variance is calculated from signal,
-%                 signal_std contans the mean square deviation of each
-%                 element of signal arry in a bin from its mean value in
-%                 this bin. If variance is present, it returned in signal_std
+% signal_msd   --  If mean_variance is calculated from signal,
+%                  signal_std contains the mean square deviation of each
+%                  element of signal array in a bin from its mean value in
+%                  this bin. If variance is present, it returned in signal_std.
 %
 %
 if nargin<3

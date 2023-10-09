@@ -189,20 +189,12 @@ classdef (Abstract) PixelDataBase < serializable
 
     methods (Static)
         function isfb = do_filebacked(num_pixels, scale_fac)
-            % function defines the rule to make pixels filebased or memory
-            % based
-            if ~(isnumeric(num_pixels)&&isscalar(num_pixels)&&num_pixels>=0)
-                error('HORACE:PixelDataBase:invalid_argument', ...
-                    'Input number of pixels should have single non-negative value. It is %s', ...
-                    disp2str(num_pixels))
+            % function defines default rule to make pixels filebased or memory
+            % based.
+            if nargin<2
+                scale_fac = [];
             end
-            if ~exist('scale_fac', 'var')
-                scale_fac = config_store.instance().get_value('hor_config','fb_scale_factor');
-            end
-
-            mem_chunk_size = config_store.instance().get_value('hor_config','mem_chunk_size');
-            % 3 should go to configuration too
-            isfb = num_pixels > scale_fac*mem_chunk_size;
+            isfb = do_filebacked_(num_pixels, scale_fac);
         end
 
         function obj = create(varargin)
@@ -249,86 +241,7 @@ classdef (Abstract) PixelDataBase < serializable
             %                   be selected during file-format upgrade, as
             %                   the range calculations are performed in
             %                   create procedure.
-
-            if nargin == 0
-                obj = PixelDataMemory();
-                return
-            end
-
-            [ok,mess,file_backed_requested,file_backed,upgrade,writable,norange,...
-                argi] = parse_char_options(varargin, ...
-                {'-filebacked','-file_backed','-upgrade','-writable','-norange'});
-            if ~ok
-                error('HORACE:PixelDataBase:invalid_argument',mess);
-            end
-
-            file_backed_requested = file_backed_requested || file_backed;
-            upgrade = upgrade || writable;
-
-            if numel(argi) > 1 % build from metadata/data properties
-                is_md = cellfun(@(x)isa(x,'pix_data'),argi);
-                if any(is_md)
-                    pxd = argi{is_md};
-                    if ischar(pxd.data) || file_backed_requested
-                        obj = PixelDataFileBacked(argi{:}, upgrade,norange);
-                    else
-                        obj = PixelDataMemory(argi{:}, upgrade);
-                    end
-                else
-                    error('HORACE:PixelDataBase:invalid_argument', ...
-                        'Some input parameters (%s)  of the PixelDataBase.create operation are not recognized', ...
-                        disp2str(argi));
-                end
-                return;
-            else
-                init = argi{1};
-            end
-
-            if isstruct(init)
-                % In memory construction
-                obj = PixelDataBase.loadobj(init);
-
-            elseif isa(init, 'PixelDataMemory')
-                % In memory construction
-                if file_backed_requested
-                    obj = PixelDataFileBacked(init, upgrade,norange);
-                else
-                    obj = PixelDataMemory(init);
-                end
-
-            elseif isa(init, 'PixelDataFileBacked')
-                % if the file exists we can create a file-backed instance
-                if file_backed_requested
-                    obj = PixelDataFileBacked(init, upgrade,norange);
-                else
-                    obj = PixelDataMemory(init);
-                end
-
-            elseif numel(init) == 1 && isnumeric(init) && floor(init) == init
-                % input is an integer
-                obj = PixelDataMemory(init);
-
-            elseif isnumeric(init)
-                % Input is data array
-                obj = PixelDataMemory(init);
-
-            elseif istext(init) || isa(init, 'sqw_file_interface')
-                % File-backed or loader construction
-                if istext(init)
-                    % input is a file path
-                    init = sqw_formats_factory.instance().get_loader(init);
-                end
-
-                if PixelDataBase.do_filebacked(init.npixels) || file_backed_requested
-                    obj = PixelDataFileBacked(init, upgrade,norange);
-                else
-                    obj = PixelDataMemory(init);
-                end
-            else
-                error('HORACE:PixelDataBase:invalid_argument', ...
-                    'Cannot create a PixelData object from class (%s)', ...
-                    class(init))
-            end
+            obj = create_(varargin{:});
         end
 
         function obj = cat(varargin)
@@ -421,7 +334,8 @@ classdef (Abstract) PixelDataBase < serializable
         obj = prepare_dump(obj)
         obj = get_new_handle(obj, varargin)
         obj = format_dump_data(obj,data_page)
-        obj = finish_dump(obj)
+        obj = finish_dump(obj,varargin)
+        [wh,fh] = get_write_info(obj)
         % Paging:
         % pixel indices of the current page
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)

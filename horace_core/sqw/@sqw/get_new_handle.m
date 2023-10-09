@@ -17,6 +17,18 @@ if ~exist('outfile', 'var') || isempty(outfile)
     end
     obj.file_holder_ = TmpFileHandler(obj.full_filename);
     outfile = obj.file_holder_.file_name;
+else
+    fp = fileparts(outfile);
+    if isempty(fp)
+        outfile = fullfile(pwd,outfile);
+    end
+    % if we want to write to the same file, need to modify file handler to
+    % work with tmp file anyway
+    if strcmp(obj.full_filename,outfile)
+        obj.file_holder_ = TmpFileHandler(outfile);
+        obj.file_holder_.move_to_file = outfile;
+        outfile = obj.file_holder_.file_name;
+    end
 end
 
 % Write the given SQW object to the given file.

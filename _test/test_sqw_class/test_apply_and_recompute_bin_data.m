@@ -17,14 +17,14 @@ classdef test_apply_and_recompute_bin_data < TestCase
             obj.test_sqw = sqw.generate_cube_sqw(10,@(h,k,l,e,varargin)(2));
 
         end
-        function test_recompute_bin_data_on_file_with_name(obj)
+        function test_recompute_bin_data_on_file_with_same_name(obj)
 
             tsqw = obj.test_sqw;
-            npix = tsqw.data.npix;            
+            npix = tsqw.data.npix;
             tsqw.pix = tsqw.pix.invalidate_range();
             tsqw.pix.signal = 4;
-            test_file = fullfile(tmp_dir,'recompute_with_pages.sqw');
-            clFile = onCleanup(@()delete(test_file));
+            test_file = fullfile(tmp_dir,'recompute_with_pages_same.sqw');
+            clFile = onCleanup(@()del_memmapfile_files(test_file));
             save(tsqw,test_file);
             clear tsqw;
             clConf = set_temporary_config_options(hor_config,'mem_chunk_size',1000);
@@ -32,25 +32,72 @@ classdef test_apply_and_recompute_bin_data < TestCase
 
             tsqw = sqw(test_file,'file_backed',true);
             assertTrue(isa(tsqw.pix,'PixelDataFileBacked'));
+            assertFalse(tsqw.pix.is_range_valid())
 
-            new_sqw = recompute_bin_data(tsqw);
+            new_sqw = recompute_bin_data(tsqw,test_file);
             s = new_sqw.data.s;
             e = new_sqw.data.e;
             assertElementsAlmostEqual(s,4*npix);
             assertElementsAlmostEqual(e,npix);
-            assertTrue(tsqw.pix.is_range_valid())
+            assertTrue(new_sqw.pix.is_range_valid())
 
-% For tomorrow.
-%             assertEqual(tsqw.full_filename,test_file);
-%             assertEqual(new_sqw.full_filename,test_file);
-%             clear new_sqw;
-%             clear tsqw;
-% 
-%             assertTrue(isfile(test_file));
-% 
-%             tsqw = sqw(test_file);
-%             assertTrue(tsqw.pix.is_range_valid());
+
+            assertEqual(new_sqw.full_filename,test_file);
+            clear new_sqw;
+            clear tsqw;
+
+            assertTrue(is_file(test_file));
+
+            tsqw = sqw(test_file);
+            s = tsqw.data.s;
+            e = tsqw.data.e;
+            assertElementsAlmostEqual(s,4*npix);
+            assertElementsAlmostEqual(e,npix);
+
+            assertTrue(tsqw.pix.is_range_valid());
         end
+        function test_recompute_bin_data_on_file_with_other_name(obj)
+
+            tsqw = obj.test_sqw;
+            npix = tsqw.data.npix;
+            tsqw.pix = tsqw.pix.invalidate_range();
+            tsqw.pix.signal = 4;
+            test_source_file = fullfile(tmp_dir,'recompute_with_pages.sqw');
+            test_targ_file = fullfile(tmp_dir,'recompute_with_pages_targ.sqw');            
+            clFile1 = onCleanup(@()delete(test_source_file));
+            clFile2 = onCleanup(@()delete(test_targ_file));            
+            save(tsqw,test_source_file);
+            clear tsqw;
+            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',1000);
+
+
+            tsqw = sqw(test_source_file,'file_backed',true);
+            assertTrue(isa(tsqw.pix,'PixelDataFileBacked'));
+            assertFalse(tsqw.pix.is_range_valid())
+
+            new_sqw = recompute_bin_data(tsqw,test_targ_file);
+            s = new_sqw.data.s;
+            e = new_sqw.data.e;
+            assertElementsAlmostEqual(s,4*npix);
+            assertElementsAlmostEqual(e,npix);
+            assertTrue(new_sqw.pix.is_range_valid())
+
+
+            assertEqual(new_sqw.full_filename,test_targ_file);
+            clear new_sqw;
+            clear tsqw;
+
+            assertTrue(isfile(test_targ_file));
+
+            tsqw = sqw(test_targ_file);
+            s = tsqw.data.s;
+            e = tsqw.data.e;
+            assertElementsAlmostEqual(s,4*npix,'relative',4*eps('single'));
+            assertElementsAlmostEqual(e,npix,'relative',4*eps('single'));
+
+            assertTrue(tsqw.pix.is_range_valid());
+        end
+        
 
         function test_recompute_bin_data_on_file(obj)
 

@@ -25,7 +25,7 @@ obj.metadata = meta;
 
 ver = faccessor.faccess_version;
 if ver< 4.0
-    obj.old_file_format_ = true;    
+    obj.old_file_format_ = true;
 end
 
 if norange
@@ -45,6 +45,4 @@ if ~obj.is_range_valid()
         '*** To upgrade this file run:\n' ...
         '*** >> upgrade_file_format(''%s'',"-upgrade_range")\n'], ...
         obj.full_filename);
-end
-
 end

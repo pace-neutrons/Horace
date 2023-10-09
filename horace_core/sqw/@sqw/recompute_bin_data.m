@@ -27,13 +27,15 @@ end
 
 % needs the opportunity to provide outfile if sqw object is filebacked
 pix_op = PageOp_recompute_bins();
-
-
-[pix_op,obj] = pix_op.init(obj);
-if ~obj.pix.is_misaligned
-    pix_op.inplace = true;
-end
+% file have to be set first to account for case infile = outfile
 if nargin > 1
     pix_op.outfile = out_file;
 end
+
+[pix_op,obj] = pix_op.init(obj);
+% Re #1319 -- to be implemented
+% if ~obj.pix.is_misaligned
+%     pix_op.inplace = true;
+% end
+
 obj    = obj.apply_c(pix_op);

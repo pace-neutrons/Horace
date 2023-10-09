@@ -14,7 +14,7 @@ classdef PageOpBase
     % the size and shape of the image.
     % In addition, the operation must not change pixel coordinates in a
     % way which would violate the relation between image and the pixels
-    % i.e. alter which image bin a pixel would contribute
+    % i.e. alter which image bin a pixel would contribute.
     % i.e. require rebinning or reordering of pixels behind bins boundaries.
     properties(Dependent)
         % true if method should not create the copy of filebacked object
@@ -39,7 +39,7 @@ classdef PageOpBase
 
         % number of page to operate over
         page_num
-        % The name of the operation inclued in progress log for slow
+        % The name of the operation included in the progress log for slow
         % operations
         op_name
     end
@@ -50,11 +50,13 @@ classdef PageOpBase
         npix
 
         % caches for some indices, defined in PixelDataBase, and used to
-        % extract appropriate fieds from PixelData. Often used.
+        % extract appropriate fields from PixelData. Often used.
         signal_idx;
         var_idx;
         run_idx;
         coord_idx;
+        % Exposes is_range_valid method of the pix_ field
+        is_range_valid
     end
 
 
@@ -65,17 +67,17 @@ classdef PageOpBase
         % holder for the pixel object, which is source/target for the
         % operation
         pix_ = PixelDataMemory();
-        % holder for the image, beeing modified by the operation(s).
+        % holder for the image, being modified by the operation(s).
         img_;
-        % initial pixel range, recalculaed according to the operation
+        % initial pixel range, recalculated according to the operation
         pix_data_range_ = PixelDataBase.EMPTY_RANGE;
         %
         outfile_   = '';
         op_name_ = '';
-        split_log_ratio_  = 10;
+        split_log_ratio_ = [];
 
-        % caches for some indices, defined in PixelDataBase, and used to extract
-        % appropriate fieds from PixelData
+        % caches for some indices, defined in PixelDataBase, and used to
+        % extract appropriate fields from PixelData
         signal_idx_;
         var_idx_;
         run_idx_;
@@ -125,15 +127,17 @@ classdef PageOpBase
             end
             crd_idx = PixelDataBase.field_index({ ...
                 'coordinates','run_idx','signal','variance'});
-            obj.run_idx_    = crd_idx(end-2);
-            obj.signal_idx_ = crd_idx(end-1);
             obj.var_idx_    = crd_idx(end);
-            obj.coord_idx_  = crd_idx(1:end-2);
+            obj.signal_idx_ = crd_idx(end-1);
+            obj.run_idx_    = crd_idx(end-2);
+
+            obj.coord_idx_  = crd_idx(1:end-3);
 
             %
             if ~obj.inplace
                 in_obj = in_obj.get_new_handle(obj.outfile);
             end
+
             if isa(in_obj ,'PixelDataBase')
                 obj.pix_             = in_obj;
                 obj.img_             = [];
@@ -157,9 +161,9 @@ classdef PageOpBase
             %
             % Input:
             % obj   -- pageOp object, containing modified pixel_data page
-            %          to analyze.
+            %          to analyse.
             %
-            % Thought: May be should be implemented as page_op, which needs
+            % Thought: May be should be implemented as apply_op, which needs
             %          to be overloaded and invoked as part of more complex
             %          page operation.
             %
@@ -202,10 +206,10 @@ classdef PageOpBase
                 % clear alignment (if any) as alignment has been applied during
                 % page operation(s)
                 pix   = pix.clear_alignment();
-                pix   = pix.finish_dump();
             end
 
-            if isempty(obj.img_)
+            if obj.changes_pix_only
+                pix = pix.finish_dump();
                 out_obj = pix.copy();
             else
                 out_obj = in_obj.copy();
@@ -216,9 +220,7 @@ classdef PageOpBase
                 out_obj.pix  = pix;
                 % image should be modified by method overload.
                 out_obj.data = obj.img_;
-                if ~isempty(pix.full_filename)
-                    out_obj.full_filename = pix.full_filename;
-                end
+                out_obj = out_obj.finish_dump(obj);
             end
             obj.pix_  = PixelDataMemory();
             obj.img_  = [];
@@ -283,7 +285,12 @@ classdef PageOpBase
         end
         %
         function does = get.split_log_ratio(obj)
-            does = obj.split_log_ratio_;
+            if isempty(obj.split_log_ratio_)
+                does = config_store.instance().get_value( ...
+                    'hor_config', 'fb_scale_factor');
+            else
+                does = obj.split_log_ratio_;
+            end
         end
         function obj = set.split_log_ratio(obj,val)
             if ~isnumeric(val)
@@ -320,6 +327,10 @@ classdef PageOpBase
         function name = get.op_name(obj)
             name = obj.op_name_;
         end
+        %
+        function is  = get.is_range_valid(obj)
+            is = obj.pix_.is_range_valid();
+        end
     end
     methods(Access=protected)
         function obj = update_image(obj,sig_acc,var_acc,npix_acc)
@@ -332,7 +343,7 @@ classdef PageOpBase
             % var_acc -- array accumulating changed variance during
             %            operation(s)
             % Optional:
-            % npix_acc -- array accunulating changes in npix during
+            % npix_acc -- array accumulating changes in npix during
             %             operation(s)
             % Returns:
             % obj      -- operation object containing modified image, if

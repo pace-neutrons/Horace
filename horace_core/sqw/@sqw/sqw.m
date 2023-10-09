@@ -135,7 +135,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         wout=rebin_sqw(win,varargin);
         wout=symmetrise_sqw(win,v1,v2,v3);
-        wout=recompute_bin_data(sqw_obj);
+        wout=recompute_bin_data(sqw_obj,out_file_name);
 
         % return the header, common for all runs (average?)
         [header_ave, ebins_all_same]=header_average(header);
@@ -159,6 +159,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         new_sqw = copy(obj, varargin)
         [obj, ldr] = get_new_handle(obj, outfile)
+        obj = finish_dump(obj,varargin);
     end
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting

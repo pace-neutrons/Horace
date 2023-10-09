@@ -57,7 +57,12 @@ elseif istext(init_data)
     ldr.delete();
 elseif isa(init_data, 'sqw_file_interface')
     obj = init_from_file_accessor_(obj,init_data,update,norange);
-
+elseif isa(init_data,'memmapfile')
+    obj.f_accessor_    = init_data;
+    % should this all be rewired through?
+    obj.full_filename_ = init_data.Filename;
+    obj.num_pixels_    = obj.f_accessor_.Format{2}(2);
+    obj.offset_        = init_data.Offset;
 elseif isnumeric(init_data)
     % this is usually option for testing filebacked operations
     if isscalar(init_data)
