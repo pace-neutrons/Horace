@@ -7,6 +7,7 @@ if ~faccessor.sqw_type
 end
 
 obj.offset_   = faccessor.pix_position;
+
 obj.page_num_ = 1;
 obj.num_pixels_ = double(faccessor.npixels);
 tail = faccessor.eof_position-faccessor.pixel_data_end;
@@ -21,6 +22,11 @@ obj.f_accessor_ = memmapfile(faccessor.full_filename, ...
 meta = faccessor.get_pix_metadata();
 % Metadata filename may differ from current filename; update filename here
 obj.metadata = meta;
+
+ver = faccessor.faccess_version;
+if ver< 4.0
+    obj.old_file_format_ = true;    
+end
 
 if norange
     return;

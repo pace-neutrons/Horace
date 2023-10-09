@@ -18,7 +18,7 @@ classdef PageOpBase
     % i.e. require rebinning or reordering of pixels behind bins boundaries.
     properties(Dependent)
         % true if method should not create the copy of filebacked object
-        % and does not change pixels.        
+        % and does not change pixels.
         % TODO: Disabled, See Re #1319 to enable
         inplace
         % true if operation modifies PixelData only and does not affect
@@ -53,6 +53,7 @@ classdef PageOpBase
         % extract appropriate fieds from PixelData. Often used.
         signal_idx;
         var_idx;
+        run_idx;
         coord_idx;
     end
 
@@ -77,8 +78,15 @@ classdef PageOpBase
         % appropriate fieds from PixelData
         signal_idx_;
         var_idx_;
+        run_idx_;
         coord_idx_;
 
+
+        % true, if data are loaded from old file format and need unique
+        % pixel id recalculation during page operations.
+        old_file_format_ = false;
+        % result of unique pixel id recalculations
+        unique_run_id_   = [];
         % holder for npix value, defining the ordering of the pixels
         % according to bins
         npix_ = [];
@@ -115,7 +123,9 @@ classdef PageOpBase
             if nargin == 1
                 return;
             end
-            crd_idx = PixelDataBase.field_index({'coordinates','signal','variance'});
+            crd_idx = PixelDataBase.field_index({ ...
+                'coordinates','run_idx','signal','variance'});
+            obj.run_idx_    = crd_idx(end-2);
             obj.signal_idx_ = crd_idx(end-1);
             obj.var_idx_    = crd_idx(end);
             obj.coord_idx_  = crd_idx(1:end-2);
@@ -138,6 +148,7 @@ classdef PageOpBase
                     'Init method accepts PixelData or SQW object input only. Provided %s', ...
                     class(in_obj))
             end
+            obj.old_file_format_ = obj.pix_.old_file_format;
         end
         %
         function obj = common_page_op(obj)
@@ -154,6 +165,10 @@ classdef PageOpBase
             %
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
+            if obj.old_file_format_
+                obj.unique_run_id_ = unique([obj.unique_run_id_, ...
+                    obj.page_data_(obj.run_idx_,:)]);
+            end
             if ~obj.inplace_
                 obj.pix_ = obj.pix_.format_dump_data(obj.page_data_);
             end
@@ -194,6 +209,10 @@ classdef PageOpBase
                 out_obj = pix.copy();
             else
                 out_obj = in_obj.copy();
+                if obj.old_file_format_
+                    out_obj.experiment_info = ...
+                        out_obj.experiment_info.get_subobj(obj.unique_run_id_);
+                end
                 out_obj.pix  = pix;
                 % image should be modified by method overload.
                 out_obj.data = obj.img_;
@@ -221,7 +240,7 @@ classdef PageOpBase
             % See split procedure for more details
             [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
         end
-        
+
     end
     %======================================================================
     % properties setters/getters

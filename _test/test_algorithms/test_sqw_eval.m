@@ -210,11 +210,6 @@ classdef test_sqw_eval < TestCase & common_state_holder
                 );
             assertTrue(isa(ref_out_sqw.pix,'PixelDataMemory'));
 
-            % when memory backed file was loaded, it picked up only the
-            % experiments, which contribute into pixels. This is impossible
-            % for filebacked data, so it picked up only the 
-            fb_out_sqw.main_header.nfiles = ref_out_sqw.main_header.nfiles;
-            fb_out_sqw.experiment_info = ref_out_sqw.experiment_info;
             assertEqualToTol( ...
                 fb_out_sqw, ref_out_sqw, ...
                 'tol', obj.FLOAT_TOL, ...

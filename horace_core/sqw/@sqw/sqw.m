@@ -350,6 +350,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     'main_header property accepts only inputs with main_header_cl instance class or structure, convertible into this class. You provided %s', ...
                     class(val));
             end
+            if ~isempty(obj.experiment_info_) && obj.experiment_info_.n_runs>0 && ...
+                    obj.experiment_info_.n_runs ~= obj.main_header_.nfiles
+                warning('HORACE:inconsitent_sqw', ...
+                    'number of rund defined in experiment_info (%d) is not equal to number of contributing files, defined in main sqw header (%d)', ...
+                    obj.experiment_info_.n_runs,obj.main_header_.nfiles);
+            end
         end
 
         function val = get.experiment_info(obj)
@@ -366,6 +372,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     'Experiment info can be only instance of Experiment class, actually it is %s',...
                     class(val));
             end
+            obj.main_header_.nfiles = obj.experiment_info_.n_runs;
         end
 
         function  save_xye(obj,varargin)
@@ -586,20 +593,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
     %----------------------------------------------------------------------
     methods(Access=private)
-        function obj = init_from_loader_struct_(obj, data_struct)
-            % initialize object contents using structure, obtained from
-            % file loader
-            obj.main_header = data_struct.main_header;
-            if isfield(data_struct,'header') % support for old data
-                obj.experiment_info = data_struct.header;
-            else
-                obj.experiment_info = data_struct.experiment_info;
-            end
-            obj.detpar = data_struct.detpar;
-            obj.data = data_struct.data;
-            obj.pix = data_struct.pix;
-        end
-
         function  [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,varargin)
             % Helper function for various set component for Tobyfit methods
             % Given array of values to set on array of objects, identify how these

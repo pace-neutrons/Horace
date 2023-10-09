@@ -53,6 +53,8 @@ classdef (Abstract) PixelDataBase < serializable
         full_filename_ = '';
         is_misaligned_ = false;
         alignment_matr_ = eye(3);
+        old_file_format_ = false;
+        unique_run_id_ = [];
     end
 
     properties(Dependent,Hidden)
@@ -77,6 +79,15 @@ classdef (Abstract) PixelDataBase < serializable
         % coordinate system or page of raw data (not multiplied by alignment
         % matrix) if pixels are misaligned.
         raw_data;
+
+        % Property informing that data are obtained from old file format,
+        % missing some substantial information. File operations may
+        % process these files differently, recalculating some additional
+        % parameters during operation
+        old_file_format;
+        % list of unique pixel ID-s present in pixels. Used to help loading
+        % old data
+        unique_run_id;
     end
 
     properties (Constant,Hidden)
@@ -633,10 +644,10 @@ classdef (Abstract) PixelDataBase < serializable
             is = obj.is_misaligned_;
         end
         function obj = clear_alignment(obj)
-            % Clears alignment. 
-            % 
+            % Clears alignment.
+            %
             % If alignment changes, invalidates object integrity,
-            % (data_ranges need recalculation) 
+            % (data_ranges need recalculation)
             % so should be used as part of algorithms only.
             obj.is_misaligned_ = false;
             obj.alignment_matr_ = eye(3);
@@ -737,6 +748,18 @@ classdef (Abstract) PixelDataBase < serializable
             ro = get_read_only(obj);
         end
         %
+        function is = get.old_file_format(obj)
+            is = obj.old_file_format_;
+        end
+        function obj = set.old_file_format(obj,val)
+            obj.old_file_format_ = logical(val);
+        end
+        %
+        function ids = get.unique_run_id(obj)
+            % property helps in loading pixels from old file format
+            %
+            ids = obj.unique_run_id_;
+        end
     end
     %----------------------------------------------------------------------
     methods
@@ -1017,7 +1040,6 @@ classdef (Abstract) PixelDataBase < serializable
             else
                 obj = obj.from_bare_struct(inputs);
             end
-
         end
     end
 end
