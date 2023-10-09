@@ -19,6 +19,7 @@ function obj_out = apply_c(obj_in,page_op)
 
 npix = page_op.npix;
 
+page_op = page_op.get_page_data(npix);
 page_op = page_op.apply_op(npix,[1;numel(npix)]);
 page_op = page_op.common_page_op();
 %

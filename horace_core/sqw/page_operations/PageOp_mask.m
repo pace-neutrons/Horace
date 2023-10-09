@@ -79,7 +79,6 @@ classdef PageOp_mask < PageOpBase
         end
 
         function obj = apply_op(obj,npix_block,npix_idx)
-            obj.page_data_ = obj.pix_.data;
 
             % create pixel mask
             if obj.mask_by_num

@@ -16,7 +16,7 @@ classdef PageOp_recompute_bins < PageOpBase
             end
         end
         function obj = apply_op(obj,npix_block,npix_idx)
-            obj.page_data_ = obj.pix_.data;
+
             if isempty(obj.img_)
                 return;
             end

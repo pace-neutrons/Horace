@@ -18,7 +18,8 @@ classdef PageOpBase
     % i.e. require rebinning or reordering of pixels behind bins boundaries.
     properties(Dependent)
         % true if method should not create the copy of filebacked object
-        % and does not change pixels.
+        % and does not change pixels.        
+        % TODO: Disabled, See Re #1319 to enable
         inplace
         % true if operation modifies PixelData only and does not affect
         % image. The majority of operations modify both pixels and image
@@ -33,6 +34,9 @@ classdef PageOpBase
         % if provided, used as the name of the file for filebacked
         % operations
         outfile
+        % property used in logs and returning the file name of the source data
+        source_filename
+
         % number of page to operate over
         page_num
         % The name of the operation inclued in progress log for slow
@@ -94,24 +98,7 @@ classdef PageOpBase
         [obj,page_data] = apply_op(obj,npix_block,npix_idx);
         %
     end
-    methods(Static)
-        function [npix_chunks, npix_idx] = split_into_pages(npix,chunk_size)
-            % Method used to split input npix array into pages
-            % Inputs:
-            % npix  -- image npix array, which defines the number of pixels
-            %           contributing into each image bin and the pixels
-            %           ordering in the linear array
-            % chunk_size
-            %       -- sized of chunks to split pixels
-            % Returns:
-            % npix_chunks -- cellarray, containing the npix parts
-            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
-            %                the npix array. 
-            % See split procedure for more details 
-            [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);           
-        end
-    end
-
+    %======================================================================
     methods
         function obj = PageOpBase(varargin)
             % Constructor for page operations
@@ -171,6 +158,13 @@ classdef PageOpBase
                 obj.pix_ = obj.pix_.format_dump_data(obj.page_data_);
             end
         end
+        function obj = get_page_data(obj,varargin)
+            % return block of data used in page operation
+            %
+            % This is most common form of the operation. Some operations
+            % will request overloading
+            obj.page_data_ = obj.pix_.data;
+        end
         %
         function [out_obj,obj] = finish_op(obj,in_obj)
             % Finalize page operations.
@@ -212,6 +206,22 @@ classdef PageOpBase
             obj.npix_ = [];
         end
         %
+        function [npix_chunks, npix_idx] = split_into_pages(~,npix,chunk_size)
+            % Method used to split input npix array into pages
+            % Inputs:
+            % npix  -- image npix array, which defines the number of pixels
+            %           contributing into each image bin and the pixels
+            %           ordering in the linear array
+            % chunk_size
+            %       -- sized of chunks to split pixels
+            % Returns:
+            % npix_chunks -- cellarray, containing the npix parts
+            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
+            %                the npix array.
+            % See split procedure for more details
+            [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
+        end
+        
     end
     %======================================================================
     % properties setters/getters
@@ -281,6 +291,11 @@ classdef PageOpBase
         end
         function obj = set.page_num(obj,val)
             obj.pix_.page_num = val;
+        end
+        %------------------------------------------------------------------
+        function fn = get.source_filename(obj)
+            [~,fn,fe] = fileparts(obj.pix_.full_filename);
+            fn = [fn,fe];
         end
         %
         function name = get.op_name(obj)

@@ -4,10 +4,13 @@ classdef PageOp_sqw_eval < PageOpBase
     properties
         % empty operation
         op_holder = @(h,k,l,e){};
-        average
+        average = false;
         proj
         op_parms
         %
+    end
+    properties(Access = private)
+        pix_idx_start_ = 1;
     end
 
     methods
@@ -23,10 +26,42 @@ classdef PageOp_sqw_eval < PageOpBase
             obj.op_parms  = op_param;
             %
         end
+        function [npix_chunks, npix_idx] = split_into_pages(obj,npix,chunk_size)
+            % Method used to split input npix array into pages
+            %
+            % Overload specific for sqw_eval
+            % Inputs:
+            % npix  -- image npix array, which defines the number of pixels
+            %           contributing into each image bin and the pixels
+            %           ordering in the linear array
+            % chunk_size
+            %       -- sized of chunks to split pixels
+            % Returns:
+            % npix_chunks -- cellarray, containing the npix parts
+            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
+            %                the npix array.
+            % See split procedure for more details
+            if obj.average
+                [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
+            else
+                [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
+            end
+        end
+
+
+        function obj = get_page_data(obj,npix_block)
+            % return block of data used in page operation
+            %
+            % Overload specific for sqw_eval. Its average operation needs
+            % knolege of all pixel coordinates in a cell.
+
+            npix = sum(npix_block(:));
+            pix_idx_end = obj.pix_idx_start_+npix-1;
+            obj.page_data_ = obj.pix_.get_pixels(pix_idx_start:pix_idx_end,'-raw');
+            obj.pix_idx_start_ = pix_idx_end+1;
+        end
 
         function obj = apply_op(obj,npix_block,npix_idx)
-            obj.page_data_ = obj.pix_.data;
-
             qw = obj.proj.transform_pix_to_hkl(obj.page_data_(obj.coord_idx,:));
             qw_pix_coord =  {qw(1,:)',qw(2,:)',qw(3,:)',qw(4,:)'};
             if obj.average

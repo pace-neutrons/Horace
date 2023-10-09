@@ -31,12 +31,13 @@ for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix
     if ll > 0 && mod(i, log_split) == 1
         fprintf('*** Performing %s on page: %d/%d\n',op_name, i, n_chunks);
     end
+    page_op = page_op.get_page_data(npix_chunks{i});
     page_op = page_op.apply_op(npix_chunks{i},npix_idx(:,i));
     page_op = page_op.common_page_op();
 end
 sqw_out = page_op.finish_op(sqw_in);
 if ll > 0
     fprintf('*** Finished %s on object backed by file: %s using %d pages\n', ...
-        op_name,sqw_out.data.filename,n_chunks);
+        op_name,page_op.source_filename,n_chunks);
 end
 
