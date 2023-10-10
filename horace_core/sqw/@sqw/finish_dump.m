@@ -52,14 +52,14 @@ if change_target_fn
     ok = movefile(source_filename,targ_filename,'f');
     if ~ok
         del_memmapfile_files(targ_filename)
-    end
-    ok =movefile(source_filename,targ_filename,'f');
-    if ~ok
-        warning('HORACE:file_access', ...
-            ['Can not move temporary file: %s into the file requested: %s\n' ...
-            'sqw object remains build over temporary file'], ...
-            tmp_fl_holder.file_name,targ_filename);
-        targ_filename = tmp_fl_holder.file_name;
+        ok =movefile(source_filename,targ_filename,'f');
+        if ~ok
+            warning('HORACE:file_access', ...
+                ['Can not move temporary file: %s into the file requested: %s\n' ...
+                'sqw object remains build over temporary file'], ...
+                tmp_fl_holder.file_name,targ_filename);
+            targ_filename = tmp_fl_holder.file_name;
+        end
     end
 end
 
