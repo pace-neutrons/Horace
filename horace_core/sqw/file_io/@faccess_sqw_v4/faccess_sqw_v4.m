@@ -147,6 +147,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         [samp,obj]  = get_sample(obj,varargin)
         [inst,obj]  = get_instrument(obj,varargin)
         %==================================================================
+        obj = update_sqw(obj,mod_sqw,varargin);
         % common write interface for v4
         obj = put_main_header(obj,varargin);
         obj = put_headers(obj,varargin);
