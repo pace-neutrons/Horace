@@ -70,7 +70,7 @@ classdef test_eval < TestCase
 
             ds_mb = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, []);
             ds_fb = sqw_eval(obj.sqw_obj_fb, @test_eval.sqw_eval_tester, []);
-            assertTrue(isa(ds_fb.pix,'PixelDataFileBacked'))            
+            assertTrue(isa(ds_fb.pix,'PixelDataFileBacked'))
 
             assertEqualToTol(ds_mb, ds_fb, 'tol', 1e-6,'ignore_str',true);
 
