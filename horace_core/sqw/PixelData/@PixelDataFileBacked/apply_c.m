@@ -45,11 +45,10 @@ end
 for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix)
     % and each chunk after this split refers to mem_chunk_size pixels
     % located subsequently
-    page_op.page_num = i;
     if ll > 0 && mod(i, log_split) == 1
-        fprintf('*** Performing %s on page: %d/%d\n',op_name, i, n_chunks);
+        fprintf('*** Performing %s on pix chunk: %d/%d\n',op_name, i, n_chunks);
     end
-    page_op = page_op.get_page_data(npix_chunks{i});
+    page_op = page_op.get_page_data(i,npix_chunks);
     page_op = page_op.apply_op(npix_chunks{i},npix_idx(:,i));
     page_op = page_op.common_page_op();
 end

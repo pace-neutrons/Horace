@@ -186,7 +186,7 @@ classdef PixelDataFileBacked < PixelDataBase
             %                  provided number of empty pixels
             % 8: memmapfile
             %             -- instance of memmapfile, initialized to access
-            %                pixel data 
+            %                pixel data
             % 9: 3xNpix array
             %             -- initialize filebacked class from array of
             %                data provided as input
@@ -270,6 +270,9 @@ classdef PixelDataFileBacked < PixelDataBase
         function [wh,fh,obj] = get_write_info(obj,release)
             % Return information containing the write handle and
             % tmp file holder, used in IO operation
+            %
+            % If release option is specified, clear this information
+            % from the class
             if nargin == 1
                 release = false;
             end
@@ -277,7 +280,8 @@ classdef PixelDataFileBacked < PixelDataBase
             fh = obj.tmp_file_holder_;
             if release
                 obj.write_handle_    = [];
-                obj.tmp_file_holder_ = [];                
+                obj.tmp_file_holder_ = [];
+                obj.num_pixels_      = obj.pix_written;
             end
         end
 
@@ -320,8 +324,9 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = finish_dump_(obj);
         end
 
-        function format = get_memmap_format(obj, tail)
-            if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile')
+        function format = get_memmap_format(obj, tail,new)
+            if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile') || ...
+                    (nargin==3 && new)
                 if nargin == 1
                     tail = 0;
                 end

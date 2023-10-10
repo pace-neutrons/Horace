@@ -177,11 +177,12 @@ classdef PageOpBase
                 obj.pix_ = obj.pix_.format_dump_data(obj.page_data_);
             end
         end
-        function obj = get_page_data(obj,varargin)
+        function obj = get_page_data(obj,idx,varargin)
             % return block of data used in page operation
             %
             % This is most common form of the operation. Some operations
             % will request overloading
+            obj.pix_.page_num = idx;
             obj.page_data_ = obj.pix_.data;
         end
         %

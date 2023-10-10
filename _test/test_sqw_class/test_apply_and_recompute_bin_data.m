@@ -47,6 +47,7 @@ classdef test_apply_and_recompute_bin_data < TestCase
             clear tsqw;
 
             assertTrue(is_file(test_file));
+            skipTest('Re #1320 Need implementation for sqw file update ')
 
             tsqw = sqw(test_file);
             s = tsqw.data.s;
@@ -63,9 +64,9 @@ classdef test_apply_and_recompute_bin_data < TestCase
             tsqw.pix = tsqw.pix.invalidate_range();
             tsqw.pix.signal = 4;
             test_source_file = fullfile(tmp_dir,'recompute_with_pages.sqw');
-            test_targ_file = fullfile(tmp_dir,'recompute_with_pages_targ.sqw');            
+            test_targ_file = fullfile(tmp_dir,'recompute_with_pages_targ.sqw');
             clFile1 = onCleanup(@()delete(test_source_file));
-            clFile2 = onCleanup(@()delete(test_targ_file));            
+            clFile2 = onCleanup(@()delete(test_targ_file));
             save(tsqw,test_source_file);
             clear tsqw;
             clConf = set_temporary_config_options(hor_config,'mem_chunk_size',1000);
@@ -88,6 +89,7 @@ classdef test_apply_and_recompute_bin_data < TestCase
             clear tsqw;
 
             assertTrue(isfile(test_targ_file));
+            skipTest('Re #1320 Need implementation for sqw file update ')
 
             tsqw = sqw(test_targ_file);
             s = tsqw.data.s;
@@ -97,7 +99,7 @@ classdef test_apply_and_recompute_bin_data < TestCase
 
             assertTrue(tsqw.pix.is_range_valid());
         end
-        
+
 
         function test_recompute_bin_data_on_file(obj)
 

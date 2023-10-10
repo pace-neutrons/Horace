@@ -24,6 +24,7 @@ classdef PageOp_sqw_eval < PageOpBase
             obj.average   = average;
             obj.op_holder = operation;
             obj.op_parms  = op_param;
+            obj.pix_idx_start_ = 1;
             %
         end
         function [npix_chunks, npix_idx] = split_into_pages(obj,npix,chunk_size)
@@ -49,12 +50,12 @@ classdef PageOp_sqw_eval < PageOpBase
         end
 
 
-        function obj = get_page_data(obj,npix_block)
+        function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation
             %
             % Overload specific for sqw_eval. Its average operation needs
             % knolege of all pixel coordinates in a cell.
-
+            npix_block = npix_blocks{idx};
             npix = sum(npix_block(:));
             pix_idx_end = obj.pix_idx_start_+npix-1;
             obj.page_data_ = obj.pix_.get_pixels(obj.pix_idx_start_:pix_idx_end,'-raw');
@@ -91,6 +92,7 @@ classdef PageOp_sqw_eval < PageOpBase
 
             % transfer modifications to the underlying object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
+            obj.pix_idx_start_ = 1;
         end
 
     end

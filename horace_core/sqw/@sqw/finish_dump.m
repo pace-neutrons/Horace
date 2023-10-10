@@ -16,8 +16,9 @@ if ~isa(wh,'sqw_file_interface')
 end
 pix = obj.pix;
 
-wh = wh.put_sqw(obj,'-hold_pix_place');
-%obj.full_filename = wh.full_filename;
+% Re #1320 Need propert implementation of sqw update in file
+%wh = wh.put_sqw(obj,'-hold_pix_place');
+
 wh = wh.put_pix_metadata(pix);
 % Force pixel update. TODO: Is this necessary?
 wh = wh.put_num_pixels(pix.num_pixels);
@@ -50,8 +51,9 @@ if ~isempty(tmp_fl_holder) && ~isempty(tmp_fl_holder.move_to_file)
     end
 end
 
+
 f_accessor = memmapfile(targ_filename, ...
-    'Format', pix.get_memmap_format(tail), ...
+    'Format', pix.get_memmap_format(tail,true), ...
     'Repeat', 1, ...
     'Writable', true, ...
     'Offset', offset);
