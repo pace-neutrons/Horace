@@ -338,22 +338,6 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             assertEqual(hdr.samples{end}, sam1);
         end
 
-        %% shifts
-        function test_shift_energy_bins(obj)
-            skipTest("Incorrect test data for shift");
-            params = {'scale', 14};
-            sqw_4d_obj = sqw(obj.test_sqw_1d_fullpath);
-            wout = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.disp_rln, params);
-        end
-
-        function test_shift_pixels(obj)
-            skipTest("Incorrect test data for shift");
-            params = {}; % no parameters required by test shift_rln function
-            sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
-            wout = shift_pixels(sqw_4d_obj, @test_migrated_apis.shift_rln, params);
-
-            assertEqual(sqw_4d_obj.npixels, wout.npixels);
-        end
 
         %% values
         function test_value(obj)
@@ -397,11 +381,6 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             % simple function to testing; uses the first keyword argument
             scale = varargin{2};
             val = qh .* qk .* ql .* scale;
-        end
-
-        function val = shift_rln(qh, qk, qw, ~)
-            % discard any function parameters that are passed by shift_pixels call
-            val = qw .* qk .* qh;
         end
     end
 end
