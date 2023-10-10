@@ -57,6 +57,10 @@ classdef PageOpBase
         coord_idx;
         % Exposes is_range_valid method of the pix_ field
         is_range_valid
+        % if true, page operations should validate run_id and
+        % avoid retaining runs, which do not contribute into pixels, which
+        % was ocasionally happened with old file formats
+        old_file_format
     end
 
 
@@ -331,6 +335,10 @@ classdef PageOpBase
         %
         function is  = get.is_range_valid(obj)
             is = obj.pix_.is_range_valid();
+        end
+        %
+        function is = get.old_file_format(obj)
+            is = obj.old_file_format_;
         end
     end
     methods(Access=protected)

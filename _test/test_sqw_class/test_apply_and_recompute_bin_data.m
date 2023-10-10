@@ -47,7 +47,6 @@ classdef test_apply_and_recompute_bin_data < TestCase
             clear tsqw;
 
             assertTrue(is_file(test_file));
-            skipTest('Re #1320 Need implementation for sqw file update ')
 
             tsqw = sqw(test_file);
             s = tsqw.data.s;
@@ -89,7 +88,6 @@ classdef test_apply_and_recompute_bin_data < TestCase
             clear tsqw;
 
             assertTrue(isfile(test_targ_file));
-            skipTest('Re #1320 Need implementation for sqw file update ')
 
             tsqw = sqw(test_targ_file);
             s = tsqw.data.s;
