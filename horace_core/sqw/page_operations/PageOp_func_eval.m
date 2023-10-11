@@ -1,11 +1,6 @@
 classdef PageOp_func_eval < PageOpBase
     % Single pixel page operation used by sqw_eval function
     %
-    properties
-        % empty operation
-        op_holder = @(h,k,l,e){};
-        %
-    end
     properties(Access = private)
         pix_idx_start_ = 1;
     end
@@ -20,7 +15,7 @@ classdef PageOp_func_eval < PageOpBase
             obj.pix_idx_start_ = 1;
             %
         end
-        
+
         function [npix_chunks, npix_idx] = split_into_pages(~,npix,chunk_size)
             % Method used to split input npix array into pages
             %
@@ -36,7 +31,7 @@ classdef PageOp_func_eval < PageOpBase
             % npix_idx    -- [2,n_chunks] array of indices of the chunks in
             %                the npix array.
             % See split procedure for more details
-            [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);            
+            [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
         end
 
 
@@ -55,7 +50,7 @@ classdef PageOp_func_eval < PageOpBase
         function obj = apply_op(obj,~,npix_idx)
             s = repelem(obj.img_.s(npix_idx(1):npix_idx(2)), obj.npix(npix_idx(1):npix_idx(2)));
             obj.page_data_(obj.signal_idx,:)   = s(:)';
-            obj.page_data_(obj.var_idx,:)      = 0;            
+            obj.page_data_(obj.var_idx,:)      = 0;
         end
 
         function [out_obj,obj] = finish_op(obj,out_obj)

@@ -23,7 +23,7 @@ if ~isempty(obj.file_closer_)
 end
 
 obj.file_id_     = sqw_fopen(obj.full_filename, permission);
-obj.file_closer_ = onCleanup(@()fclose(obj));
+obj.file_closer_ = fcloser(obj.file_id_);
 
 
 function permission = get_fopen_permission_(permission)
