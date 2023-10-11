@@ -82,7 +82,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
         % handle-class holding tmp file produced by filebacked
         % operations. If all referring classes go out of scope the file
-        % gets deleted
+        % gets deleted.
         tmp_file_holder_ = [];
     end
 

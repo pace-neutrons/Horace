@@ -78,6 +78,7 @@ end
 
 function obj=fclose_file(obj)
 if obj.file_id_>0
+% Re #1322 refactoring is due
     obj.file_closer_.delete();
     obj.file_closer_ = []; 
     obj = obj.fclose();
