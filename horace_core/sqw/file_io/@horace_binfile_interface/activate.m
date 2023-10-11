@@ -19,6 +19,7 @@ end
 permission = get_fopen_permission_(read_or_write);
 
 if ~isempty(obj.file_closer_)
+    obj.file_closer_.delete();
     obj.file_closer_ = [];
 end
 

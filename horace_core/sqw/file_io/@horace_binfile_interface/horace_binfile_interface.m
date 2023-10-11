@@ -123,7 +123,7 @@ classdef horace_binfile_interface < serializable
         % binary sqw/dnd file to identify this file for clients
         app_header_form_ = struct('appname','horace','version',double(1),...
             'sqw_type',uint32(1),'num_dim',uint32(1));
-        % the size of the horace version definition tape, the tape occupies
+        % the size of the Horace version definition tape, the tape occupies
         % on the disk.
         max_header_size_ = 4+6+8+4+4;
     end

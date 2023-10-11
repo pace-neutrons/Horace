@@ -1,7 +1,7 @@
 function  [obj,missing_fields] = copy_contents_(obj,other_obj,keep_internals)
 % Copy constructor with possibility to set up the data positions directly.
 %
-% Due to constrains of Matlab Object Model (or some misunderstanding),
+% Due to constrains of MATLAB Object Model (or some misunderstanding),
 % exactly the same routine  has to be present in binfile_v2_common\private
 % folder.
 %
@@ -64,5 +64,3 @@ obj.file_id_ = sqw_fopen(file,mode);
 if ~isempty(obj.file_closer_)
 	obj.file_closer_ = fcloser(obj.file_id_);
 end
-
-
