@@ -1,7 +1,8 @@
 classdef fcloser < handle
-    % class-helper to close opened file on request
+    % class-helper to close opened file on request by calling delete
+    % operation explicityl or automatically, when the object goes out of
+    % scope.
     %
-
     properties
         file_handle
     end
