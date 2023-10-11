@@ -1,7 +1,8 @@
 function del_memmapfile_files(filelist)
 % Delete files which are unlocked but were accessed using memmapfile
-% 
-% Is this Matlab bug?
+%
+% Is this Matlab bug? Yes, proven that it exist on Windows, at least with
+% Matlab 2022b
 % Input:
 % filelist -- name of file or cellarray of filenames to delete
 %
