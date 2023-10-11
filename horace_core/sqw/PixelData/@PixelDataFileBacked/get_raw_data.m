@@ -24,16 +24,12 @@ end
 if ~isempty(varargin)
     idx = obj.field_index(varargin{1});
 else
-    idx = [];
+    idx = obj.FIELD_INDEX_MAP_('all');
 end
 
 if isempty(obj.f_accessor_)
     data = obj.EMPTY_PIXELS;
 else
     [pix_idx_start, pix_idx_end] = obj.get_page_idx_(page_number);
-    if isempty(idx)
-        data = double(obj.f_accessor_.Data.data(:, pix_idx_start:pix_idx_end));
-    else
-        data = double(obj.f_accessor_.Data.data(idx, pix_idx_start:pix_idx_end));
-    end
+     data = double(obj.f_accessor_.Data.data(idx, pix_idx_start:pix_idx_end));    
 end

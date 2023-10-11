@@ -344,7 +344,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_random_frac_pix_fails_on_zero(obj)
-
             keep = [0.5,-1];
             assertExceptionThrown(@()mask_random_fraction_pixels(obj.dummy_sample,keep), ...
                 'HORACE:sqw:invalid_argument');
@@ -357,7 +356,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_random_pix_fails_on_large(obj)
-
             keep = [100,5^4+1];
             assertExceptionThrown(@()mask_random_pixels(obj.dummy_sample,keep), ...
                 'HORACE:sqw:invalid_argument');
@@ -369,7 +367,33 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             assertExceptionThrown(@()mask_random_pixels(obj.dummy_sample,keep), ...
                 'HORACE:sqw:invalid_argument');
         end
-        %
+        %==================================================================
+        function test_split_in_pages_small_fraction(~)
+            page_op = PageOp_mask();
+            pieces = page_op.calc_page_share(300,901,300);
+
+            assertEqual(numel(pieces),4)
+            assertEqual(sum(pieces),300)
+            assertTrue(all(pieces>0));
+        end
+
+        function test_split_in_pages_large_fraction(~)
+            page_op = PageOp_mask();
+            pieces = page_op.calc_page_share(300,890,300);
+
+            assertEqual(numel(pieces),3)
+            assertEqual(sum(pieces),300)
+            assertTrue(all(pieces>0));
+        end
+
+        function test_split_in_pages_large_normal(~)
+            page_op = PageOp_mask();
+            pieces = page_op.calc_page_share(300,1000,300);
+
+            assertEqual(numel(pieces),4)
+            assertEqual(sum(pieces),300)
+            assertTrue(all(pieces>0));
+        end
     end
 
     methods (Static)
@@ -388,8 +412,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
 
             assertEqualToTol(serror, ...
                 sum(sqw_to_check.data.e(:).*sqw_to_check.data.npix(:).^2),'reltol',1.e-7);
-
-
         end
 
         % -- Helpers --
@@ -403,6 +425,5 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             test_mask.check_filebacked_signal_averages(paged_sqw);
 
         end
-
     end
 end

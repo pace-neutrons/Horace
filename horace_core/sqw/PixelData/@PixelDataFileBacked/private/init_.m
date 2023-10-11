@@ -32,17 +32,18 @@ elseif isa(init_data, 'PixelDataFileBacked')
     obj.num_pixels_   = init_data.num_pixels;
     obj.data_range    = init_data.data_range;
     obj.tmp_file_holder_ = ...
-                      init_data.tmp_file_holder_;
+        init_data.tmp_file_holder_;
     obj.f_accessor_   = memmapfile(obj.full_filename, ...
         'Format', init_data.get_memmap_format(), ...
         'Repeat', 1, ...
         'Writable', update, ...
         'Offset'  , obj.offset_ );
 elseif isa(init_data, 'PixelDataMemory')
+
+    obj.metadata = init_data.metadata;
     if isempty(obj.full_filename_)
         obj.full_filename = 'from_mem';
     end
-
     obj = set_raw_data_(obj,init_data.data);
 
 elseif istext(init_data)
@@ -56,7 +57,12 @@ elseif istext(init_data)
     ldr.delete();
 elseif isa(init_data, 'sqw_file_interface')
     obj = init_from_file_accessor_(obj,init_data,update,norange);
-
+elseif isa(init_data,'memmapfile')
+    obj.f_accessor_    = init_data;
+    % should this all be rewired through?
+    obj.full_filename_ = init_data.Filename;
+    obj.num_pixels_    = obj.f_accessor_.Format{2}(2);
+    obj.offset_        = init_data.Offset;
 elseif isnumeric(init_data)
     % this is usually option for testing filebacked operations
     if isscalar(init_data)
@@ -66,8 +72,9 @@ elseif isnumeric(init_data)
     if isempty(obj.full_filename_)
         obj.full_filename = 'from_mem';
     end
-
     obj = set_raw_data_(obj,init_data);
+    range = obj.pix_minmax_ranges(init_data);
+    obj = obj.set_data_range(range);
 else
     error('HORACE:PixelDataFileBacked:invalid_argument', ...
         'Cannot construct PixelDataFileBacked from class (%s)', class(init_data))

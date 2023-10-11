@@ -1,10 +1,10 @@
 classdef TmpFileHandler < handle
     % Class to handle temporary PixelDataFileBacked files produced in
-    % operations.
+    % filebacked operations.
     %
     % Upon deletion of the parent PixelDataFileBacked this object will be cleared
     % resulting in the deletion of the temporary files if they have not
-    % been saved in different place or lock have been set to true.
+    % been saved in different place or lock has been set to true.
     %
     % Created by PixelData file-backed on starting modifying operation
     % (PixelDataFileBacked.get_new_handle), which stores the path tmp_file
@@ -20,10 +20,10 @@ classdef TmpFileHandler < handle
         file_name;
     end
     properties(Dependent)
-        locked;
+        move_to_file;
     end
     properties(Access=private)
-        locked_ = false;
+        move_to_file_ = '';
     end
     methods
         function obj = TmpFileHandler(orig_name)
@@ -46,9 +46,6 @@ classdef TmpFileHandler < handle
         end
 
         function delete(obj)
-            if obj.locked_
-                return;
-            end
             fn = obj.file_name;
             if ~isempty(fn) && is_file(fn)
                 ws = warning('off','MATLAB:DELETE:Permission');
@@ -62,15 +59,18 @@ classdef TmpFileHandler < handle
                     end
                 end
                 warning(ws);
-
             end
         end
         %==================================================================
-        function is = get.locked(obj)
-            is = obj.locked_;
+        function is = get.move_to_file(obj)
+            is = obj.move_to_file_;
         end
-        function set.locked(obj,val)
-            obj.locked_ = logical(val);
+        function set.move_to_file(obj,val)
+            if ~istext(val)
+                error('HORACE:TmpFileHandler:invelid_argument', ...
+                    'The name of the target file have to be a valid text string')
+            end
+            obj.move_to_file_= val;
         end
     end
 end

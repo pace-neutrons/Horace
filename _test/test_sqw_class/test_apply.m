@@ -55,31 +55,31 @@ classdef test_apply < TestCase
             assertEqualToTol(sqw_un, sqw_ap, 'tol', [1e-6, 1e-6])
         end
 
-        function test_apply_transform(obj)
+        function test_apply_transform(~)
             pths = horace_paths();
             pth = fullfile(pths.test_common, 'sqw_2d_1.sqw');
             sqw_mb = sqw(pth);
 
             clwarn = set_temporary_warning('off', 'HOR_CONFIG:set_fb_scale_factor');
             clob = set_temporary_config_options(hor_config, ...
-                                                'mem_chunk_size', 10000, ...
-                                                'fb_scale_factor', 1);
+                'mem_chunk_size', 10000, ...
+                'fb_scale_factor', 1);
             sqw_fb = sqw(pth);
 
             sym = SymopReflection([1 0 0], [0 1 0]);
             sqw_ap_fb = sqw_fb.apply(@sym.transform_pix, {}, false);
             sqw_ap_mb = sqw_mb.apply(@sym.transform_pix, {}, false);
 
-            sqw_ap_fb.main_header = sqw_ap_mb.main_header;
             sqw_ap_fb.experiment_info = sqw_ap_mb.experiment_info;
+            sqw_ap_fb.main_header = sqw_ap_mb.main_header;
 
             assertEqualToTol(sqw_ap_fb, sqw_ap_mb);
         end
 
-        function test_apply_multiple_transform(obj)
+        function test_apply_multiple_transform(~)
 
             sym = [SymopReflection([1 0 0], [0 1 0]), ...
-                   SymopReflection([1 0 0], [0 0 1])];
+                SymopReflection([1 0 0], [0 0 1])];
             func = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
 
             % Apply MB
@@ -101,10 +101,7 @@ classdef test_apply < TestCase
 
             assertEqualToTol(sqw_op, sqw_ap_mb);
             assertEqualToTol(sqw_ap_fb, sqw_ap_mb);
-
         end
-
-
     end
 
     methods(Static)

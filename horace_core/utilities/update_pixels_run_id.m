@@ -50,7 +50,6 @@ if pix_runid_known  % all pixels are in memory or pix_runid are known and we
     end
     if numel(pix_runid)< numel(file_id)
         exp_info = exp_info.get_subobj(pix_runid);
-        sqw_type.main_header.nfiles = exp_info.n_runs;
     end
 
 else % not all pixels are loaded into memory or pre-calculated and run-id-s may be wrong

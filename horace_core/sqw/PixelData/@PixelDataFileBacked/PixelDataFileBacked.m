@@ -81,7 +81,7 @@ classdef PixelDataFileBacked < PixelDataBase
         % from source file to the file, which is the target of operation.
 
         % handle-class holding tmp file produced by filebacked
-        % operations. If all referring classes go out of scope, the file
+        % operations. If all referring classes go out of scope the file
         % gets deleted
         tmp_file_holder_ = [];
     end
@@ -116,9 +116,17 @@ classdef PixelDataFileBacked < PixelDataBase
         [obj, data] = apply(obj, func_handle, args, data, compute_variance);
 
         function obj = set_raw_data(obj,pix)
+            %SET_RAW_DATA set internal data array without comprehensive checks for
+            % data integrity and data ranges.
+            %
+            % Performance method, which invalidates object integrity,
+            % so further operations are necessary to keep object intact.
+            % Invalidates data ranges which need recalculation/settings
+            % separately
+            %
             if obj.read_only
                 error('HORACE:PixelDataFileBacked:runtime_error',...
-                    'File %s is opened in read-only mode', obj.full_filename);
+                    'File %s is opened in read-only mode.', obj.full_filename);
             end
             obj = set_raw_data_(obj,pix);
         end
@@ -176,11 +184,13 @@ classdef PixelDataFileBacked < PixelDataBase
             %                 file loader
             % 7: number   -- initialized single-paged data class with the
             %                  provided number of empty pixels
-            % 8: 3xNpix array
+            % 8: memmapfile
+            %             -- instance of memmapfile, initialized to access
+            %                pixel data
+            % 9: 3xNpix array
             %             -- initialize filebacked class from array of
             %                data provided as input
 
-            % process possible update parameter
             obj = init_(obj,varargin{:});
         end
 
@@ -257,6 +267,23 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj = obj.get_new_handle();
             end
         end
+        function [wh,fh,obj] = get_write_info(obj,release)
+            % Return information containing the write handle and
+            % tmp file holder, used in IO operation
+            %
+            % If release option is specified, clear this information
+            % from the class
+            if nargin == 1
+                release = false;
+            end
+            wh = obj.write_handle_;
+            fh = obj.tmp_file_holder_;
+            if release
+                obj.write_handle_    = [];
+                obj.tmp_file_holder_ = [];
+                obj.num_pixels_      = obj.pix_written;
+            end
+        end
 
         function obj = get_new_handle(obj, f_accessor)
             % Always create a new PixTmpFile object
@@ -291,45 +318,15 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.pix_written = obj.pix_written + size(data, 2);
         end
 
-        function obj = finish_dump(obj)
-            if ~obj.has_open_file_handle
-                error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'Cannot finish dump writing, object does not have open filehandle')
-            end
-
-            obj.num_pixels_ = obj.pix_written;
-
-            if isa(obj.write_handle_, 'sqw_file_interface')
-                obj.full_filename = obj.write_handle_.full_filename;
-                obj.write_handle_ = obj.write_handle_.put_pix_metadata(obj);
-                % Force pixel update
-                obj.write_handle_ = obj.write_handle_.put_num_pixels(obj.num_pixels);
-
-                obj = obj.init_from_file_accessor_(obj.write_handle_, false, true);
-                obj.write_handle_.delete();
-                obj.write_handle_ = [];
-
-            else
-                fclose(obj.write_handle_);
-                if obj.num_pixels_ == 0
-                    obj = PixelDataMemory();
-                    return;
-                end
-
-                obj.write_handle_ = [];
-                obj.f_accessor_ = [];
-                obj.offset_ = 0;
-                obj.full_filename = obj.tmp_file_holder_.file_name;
-                obj.f_accessor_ = memmapfile(obj.full_filename, ...
-                    'format', obj.get_memmap_format(), ...
-                    'Repeat', 1, ...
-                    'Writable', true, ...
-                    'offset', obj.offset_);
-            end
+        function obj = finish_dump(obj,varargin)
+            % complete pixel write operation, close writing to the target
+            %  file and open pixel dataset for access operations.
+            obj = finish_dump_(obj);
         end
 
-        function format = get_memmap_format(obj, tail)
-            if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile')
+        function format = get_memmap_format(obj, tail,new)
+            if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile') || ...
+                    (nargin==3 && new)
                 if nargin == 1
                     tail = 0;
                 end
@@ -369,6 +366,7 @@ classdef PixelDataFileBacked < PixelDataBase
         end
         function pix_copy = copy(obj)
             pix_copy = obj;
+            pix_copy.page_num = 1;
         end
     end
     %======================================================================
@@ -445,9 +443,9 @@ classdef PixelDataFileBacked < PixelDataBase
             % provided.
             % Inputs:
             % obj         -- initialized pixel data memory object
-            % row_pix_idx -- indixes of pixels to return
+            % row_pix_idx -- indices of pixels to return
             % col_pix_idx -- if not empty, the indices of the pixel field
-            %                to return, if empty, all pixels field
+            %                to return, if empty, all pixels fields
             % Output:
             % pix_data    -- [9,numel(row_pix_idx)] array of pixel data
             mmf = obj.f_accessor_;

@@ -1,5 +1,5 @@
 function obj = set_raw_data(obj,pix)
-%SET_RAW_DATA sets internal data array without comprehensive checks for 
+%SET_RAW_DATA sets internal data array without comprehensive checks for
 % data integrity
 %
 if isempty(pix)
@@ -15,9 +15,5 @@ if ~isnumeric(pix) || size(pix,1) ~= obj.DEFAULT_NUM_PIX_FIELDS
 end
 obj.data_ = pix;
 %
-% setting data remove misalignment 
-if obj.is_misaligned_
-    obj.alignment_matr_ = eye(3);
-    obj.is_misaligned_  = false;
-end
-obj = obj.invalidate_range();
+% setting data removes misalignment
+obj = obj.clear_alignment();

@@ -20,11 +20,10 @@ classdef test_join < TestCase
             assertEqualToTol(sqw_obj, reformed_obj)
         end
 
-        function test_split_cube_2_run(obj)
+        function test_split_cube_2_run(~)
             sqw_obj = sqw.generate_cube_sqw(10);
 
             sqw_obj.pix.run_idx(8:end) = 2;
-            sqw_obj.main_header.nfiles = 2;
 
             sqw_obj.experiment_info.expdata(2) = struct( ...
                 "filename", 'fake', ...
@@ -40,6 +39,8 @@ classdef test_join < TestCase
                 "gs", 1, ...
                 "en", 10, ...
                 "run_id", 1);
+            sqw_obj.main_header.nfiles = 2;
+            
             sqw_obj.experiment_info.runid_map(2) = 2;
 
             split_obj = sqw_obj.split();

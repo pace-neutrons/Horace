@@ -60,11 +60,11 @@ classdef PixelDataMemory < PixelDataBase
         [obj, data] = apply(obj, func_handle, args, data, compute_variance);
 
         %
-        function data =  get_raw_data(obj,varargin)
+        function data =  get_raw_data(obj,field_id)
             % main part of get.data accessor
             data = obj.data_;
             if nargin>1
-                idx = obj.field_index(varargin{1});
+                idx = obj.field_index(field_id);
                 data = data(idx,:);
 
             end
@@ -115,13 +115,31 @@ classdef PixelDataMemory < PixelDataBase
     % File handling/migration. Does nothing on membased
     methods
         function obj = prepare_dump(obj)
+            % does nothing on Mem-based
         end
         function obj = get_new_handle(obj, varargin)
+            % does nothing on Mem-based
         end
-        function obj = format_dump_data(obj,varargin)
+        function obj = format_dump_data(obj,page_data)
+            % sets the internal pixel data to new values.
+            %
+            % Invalidates object coherency. (data_ranges are not recalculated
+            % here). Use with caution.
+            if nargin>1
+                obj = obj.set_raw_data(page_data);
+            end
         end
-        function obj = finish_dump(obj)
+        function obj = finish_dump(obj,varargin)
+            % does nothing
         end
+        function [wh,fh,obj] = get_write_info(obj,varargin)
+            % Return information containing the write handle and
+            % tmp file holder, used in IO operation
+            wh = [];
+            fh = [];
+        end
+
+
         %
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
             pix_idx_start = 1;

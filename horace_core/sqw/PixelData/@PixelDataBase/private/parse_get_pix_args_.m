@@ -4,7 +4,7 @@ function [pix_indices,ind_in_pix,ignore_range,raw_data,keep_precision,align] = .
 % return standard form of this arguments
 % Inputs:
 % obj             -- initialized instance of PixelData class
-% accept_logical  -- true or false depending on the get_pixels version
+% accepts_logical -- true or false depending on the get_pixels version
 %                    which may or may not accept logical arguments
 %                    depending on the PixelDataBase class subclass, calling
 %                    get_pixels
@@ -64,7 +64,7 @@ switch nargi
         pix_indices = ind_min:ind_max;
     case {1,2}
         pix_indices = argi{1};
-        if numel(argi) > 1
+        if nargi > 1
             if ~raw_data
                 error('HORACE:PixelDataBase:invalid_argument', ...
                     'get_pixel argument: %s is compatible with -raw_data switch only', ...
