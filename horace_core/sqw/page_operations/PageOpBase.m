@@ -156,6 +156,7 @@ classdef PageOpBase
                     'Init method accepts PixelData or SQW object input only. Provided %s', ...
                     class(in_obj))
             end
+            obj.pix_.keep_precision = true;
             obj.old_file_format_ = obj.pix_.old_file_format;
         end
         %
@@ -206,6 +207,7 @@ classdef PageOpBase
 
             pix = obj.pix_;
             pix     = pix.set_data_range(obj.pix_data_range_);
+            pix.keep_precision = false;
 
             if ~obj.inplace_
                 % clear alignment (if any) as alignment has been applied during

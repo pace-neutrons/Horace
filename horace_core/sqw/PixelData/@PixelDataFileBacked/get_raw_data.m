@@ -31,5 +31,9 @@ if isempty(obj.f_accessor_)
     data = obj.EMPTY_PIXELS;
 else
     [pix_idx_start, pix_idx_end] = obj.get_page_idx_(page_number);
-     data = double(obj.f_accessor_.Data.data(idx, pix_idx_start:pix_idx_end));    
+    if obj.keep_precision_
+        data = obj.f_accessor_.Data.data(idx, pix_idx_start:pix_idx_end);
+    else
+        data = double(obj.f_accessor_.Data.data(idx, pix_idx_start:pix_idx_end));
+    end
 end

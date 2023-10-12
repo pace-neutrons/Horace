@@ -43,7 +43,8 @@ classdef PageOp_func_eval < PageOpBase
             npix_block = npix_blocks{idx};
             npix = sum(npix_block(:));
             pix_idx_end = obj.pix_idx_start_+npix-1;
-            obj.page_data_ = obj.pix_.get_pixels(obj.pix_idx_start_:pix_idx_end,'-raw');
+            obj.page_data_ = obj.pix_.get_pixels( ...
+                obj.pix_idx_start_:pix_idx_end,'-raw','-keep_pr');
             obj.pix_idx_start_ = pix_idx_end+1;
         end
 

@@ -55,6 +55,9 @@ classdef (Abstract) PixelDataBase < serializable
         alignment_matr_ = eye(3);
         old_file_format_ = false;
         unique_run_id_ = [];
+        % If true, do not convert data loaded from disk into double at
+        % loading
+        keep_precision_  = false;
     end
 
     properties(Dependent,Hidden)
@@ -177,7 +180,9 @@ classdef (Abstract) PixelDataBase < serializable
         all_experiment % [5xnpi] array of all data obtained in experiment, excluding
         % q-dE, which are calculated from indexes and detector positions
 
-
+        % if false, converts all pixel data loaded from disk into double
+        % precision
+        keep_precision
     end
 
     methods(Static,Hidden)
@@ -673,13 +678,24 @@ classdef (Abstract) PixelDataBase < serializable
             %
             ids = obj.unique_run_id_;
         end
+        %
+        function do = get.keep_precision(obj)
+            do = obj.keep_precision_;
+        end
+        function obj = set.keep_precision(obj,val)
+            obj.keep_precision_ = logical(val);
+        end
+
     end
     %----------------------------------------------------------------------
     methods
         % return set of pixels, defined by its indexes
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
-        %
+        %==================================================================
+        % Methods historically on pixels too, but useful mainly on sqw
+        % object
         pix_out = mask(obj, mask_array, npix);
+        pix_out = do_unary_op(obj, unary_op)        
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data

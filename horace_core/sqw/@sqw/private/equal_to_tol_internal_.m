@@ -31,8 +31,9 @@ end
 % below. Pass class fields to the generic equal_to_tol.
 class_fields = properties(w1);
 % keep only the fields, which are compared in the main loop. Pixels will be
-% compared separately.
-keep = ~ismember(class_fields,'pix');
+% compared separately, and is_filebacked option does not count as
+% filebacked and memory backed objects should be equal
+keep = ~ismember(class_fields,{'pix','is_filebacked'});
 class_fields = class_fields(keep);
 for idx = 1:numel(class_fields)
     field_name = class_fields{idx};
