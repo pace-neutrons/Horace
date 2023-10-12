@@ -442,7 +442,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %==================================================================
         function obj = apply_c(obj, operation)
-            % Apply unary operation affecting sqw object and pixels
+            % Apply special PageOp operation affecting sqw object and pixels
+            % 
+            % See what PageOp is from PageOpBase class description and its
+            % children
             %
             % Inputs:
             % obj       -- sqw object - contains pixels and image to be
