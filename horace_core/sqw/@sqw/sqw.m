@@ -437,7 +437,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             if obj.has_pixels
                 is = obj.pix.is_filebacked;
             else
-                is = true;
+                is = false;
             end
         end
         %==================================================================
