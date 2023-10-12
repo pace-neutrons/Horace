@@ -540,7 +540,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     end
 
     methods(Access = protected)
-        wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object

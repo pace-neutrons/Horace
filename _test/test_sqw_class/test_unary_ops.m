@@ -6,7 +6,7 @@ methods
         obj = obj@TestCase('test_unary_ops');
     end
 
-    function test_all_functions_are_defined(obj)
+    function test_all_functions_are_defined(~)
         % the unary operation and the range the data it acts on should take
         unary_ops = {
             @acos, [0, 1], ...
@@ -112,7 +112,7 @@ methods
         assertEqualToTol(result.data.e, expected_var);
     end
 
-    function test_unary_op_updates_pixel_signal_and_variance(obj)
+    function test_unary_op_updates_pixel_signal_and_variance(~)
         num_pix = 23; % create small, single bin dataset for test
         data = get_random_data_in_range( ...
             PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
@@ -133,6 +133,9 @@ methods
 
         assertEqualToTol(result.pix.signal, expected_signal);
         assertEqualToTol(result.pix.variance, expected_var);
+
+        assertEqual(result.data.s,sum(expected_signal)/num_pix)        
+        assertEqual(result.data.e,sum(expected_var)/num_pix.^2)                
     end
 
 end

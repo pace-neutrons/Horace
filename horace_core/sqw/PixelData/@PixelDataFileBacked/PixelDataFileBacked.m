@@ -131,7 +131,6 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = set_raw_data_(obj,pix);
         end
 
-        [pix_out, data] = do_unary_op(obj, unary_op, data);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
     end
 

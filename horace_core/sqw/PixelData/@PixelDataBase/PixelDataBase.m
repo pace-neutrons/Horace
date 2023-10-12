@@ -319,7 +319,6 @@ classdef (Abstract) PixelDataBase < serializable
         pix = set_raw_data(obj,pix);
 
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
-        [pix_out, data] = do_unary_op(obj, unary_op, data);
 
         % apply function represented by handle to every pixel of the dataset
         % and calculate appropriate averages if requested
