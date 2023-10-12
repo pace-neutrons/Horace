@@ -1,7 +1,4 @@
 classdef test_fcloser < TestCase
-    properties
-        sqw_obj_for_tests;
-    end
 
     methods
         function obj = test_fcloser(varargin)
