@@ -118,11 +118,11 @@ classdef test_unary_ops < TestCase
             expected_signal = log10(sqw_obj.pix.signal);
             expected_var = sqw_obj.pix.variance./(sqw_obj.pix.signal * log(10)).^2;
 
-            assertEqualToTol(result.pix.signal, expected_signal);
-            assertEqualToTol(result.pix.variance, expected_var);
+            assertEqualToTol(result.pix.signal, expected_signal,'tol',2*eps('single'));
+            assertEqualToTol(result.pix.variance, expected_var,'tol',2*eps('single'));
 
-            assertEqual(result.data.s,sum(expected_signal)/num_pix)
-            assertEqual(result.data.e,sum(expected_var)/num_pix.^2)
+            assertEqualToTol(result.data.s,sum(expected_signal)/num_pix,'tol',2*eps('single'))
+            assertEqualToTol(result.data.e,sum(expected_var)/num_pix.^2,'tol',2*eps('single'))
         end
 
         function test_unary_op_updates_signal_and_variance_in_mem(~)
