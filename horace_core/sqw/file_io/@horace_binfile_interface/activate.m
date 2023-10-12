@@ -20,7 +20,6 @@ permission = get_fopen_permission_(read_or_write);
 
 if ~isempty(obj.file_closer_)
     obj.file_closer_.delete();
-    obj.file_closer_ = [];
 end
 
 obj.file_id_     = sqw_fopen(obj.full_filename, permission);

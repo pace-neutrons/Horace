@@ -20,7 +20,6 @@ end
 [~,acc] = fopen(obj.file_id_);
 if ~ismember(acc,{'wb+','rb+'})
     new_obj.file_closer_.delete();  % as file is closed on output of reopen to write
-    new_obj.file_closer_ = [];  % as file is closed on output of reopen to write
     new_obj = new_obj.set_file_to_update();
 end
 %

@@ -79,5 +79,4 @@ end
 function obj=fclose_file(obj)
 if obj.file_id_>0
     obj.file_closer_.delete();
-    obj.file_closer_ = []; 
 end

@@ -6,5 +6,4 @@ function obj = deactivate(obj)
 % not be transferred between workers but everything else can
 if ~isempty(obj.file_closer_)
     obj.file_closer_.delete();
-    obj.file_closer_ = [];
 end

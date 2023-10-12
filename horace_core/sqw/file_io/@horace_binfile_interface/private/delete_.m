@@ -5,7 +5,6 @@ function obj = delete_(obj)
 
 if ~isempty(obj.file_closer_)
     obj.file_closer_.delete();
-    obj.file_closer_ = [];
 end
 obj.sqw_holder_ = [];
 obj.num_dim_ = 'undefined';
