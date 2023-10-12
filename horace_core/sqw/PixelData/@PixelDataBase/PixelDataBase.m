@@ -692,10 +692,12 @@ classdef (Abstract) PixelDataBase < serializable
         % return set of pixels, defined by its indexes
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
         %==================================================================
-        % Methods historically on pixels too, but useful mainly on sqw
-        % object
+        % These methods are historically present on pixels and were modifying
+        % sqw object image indirectly. Now they are reimplemented on sqw
+        % object using apply, and left here for historical reasons and for
+        % the case, when one may want to use them on pixels only.
         pix_out = mask(obj, mask_array, npix);
-        pix_out = do_unary_op(obj, unary_op)        
+        pix_out = do_unary_op(obj, unary_op)
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data

@@ -83,7 +83,7 @@ classdef (Abstract) SQWDnDBase < serializable
         [wout,al_info] = upgrade_legacy_alignment(obj,varargin)
         %------------------------------------------------------------------
     end
-    properties(Constant)
+    properties(Constant,Hidden)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
         % exceeds real pix_range (or input pix_range) by this value.
         border_size = -4*eps

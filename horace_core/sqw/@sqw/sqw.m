@@ -443,7 +443,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %==================================================================
         function obj = apply_c(obj, operation)
             % Apply special PageOp operation affecting sqw object and pixels
-            % 
+            %
             % See what PageOp is from PageOpBase class description and its
             % children
             %
@@ -454,7 +454,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %              which operates on PixelData, modifies pixels and
             %              calculates changes to image, caused by the
             %              modifications to pixels.
-            obj = obj.pix.apply_c(obj,operation);
+            for i=1:numel(obj)
+                obj(i) = obj(i).pix.apply_c(obj(i),operation);
+            end
         end
 
         function obj = apply(obj, func_handle, args, recompute_bins, compute_variance)
