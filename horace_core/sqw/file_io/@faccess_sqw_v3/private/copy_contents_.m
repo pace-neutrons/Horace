@@ -25,8 +25,6 @@ obj.contains_runid_in_header_ = other_obj.contains_runid_in_header_;
 if other_obj.file_id_>0
     [file,acc] = fopen(other_obj.file_id_);
     if ismember(acc,{'rb+','wb+'}) % transfer write access to the new object
-        %other_obj = other_obj.fclose();
-        %other_obj = open_obj_file(other_obj,file,'rb');
         obj = open_obj_file(obj,file,'rb+');
     else
         obj = open_obj_file(obj,file,'rb');
