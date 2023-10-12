@@ -40,6 +40,6 @@ if ~(isempty(facc_mode) && isempty(obj.full_filename))
     %
     obj.file_id_ = sqw_fopen(obj.full_filename,facc_mode);
     if isempty(obj.file_closer_)
-        obj.file_closer_ = onCleanup(@()fclose(obj));
+        obj.file_closer_ = fcloser(obj.file_id_);
     end
 end

@@ -19,7 +19,9 @@ if isempty(missing) % source and target are the same class. Invoke copy construc
 end
 [~,acc] = fopen(obj.file_id_);
 if ~ismember(acc,{'wb+','rb+'})
-    clear new_obj.file_closer_;  % as file is closed on output of reopen to write
+% Re #1322 refactoring is due
+    new_obj.file_closer_.delete();  % as file is closed on output of reopen to write
+    new_obj.file_closer_ = [];  % as file is closed on output of reopen to write
     new_obj = new_obj.fclose();  % in case the previous does not work, and if it does, makes no harm
     new_obj = new_obj.set_file_to_update();
 end

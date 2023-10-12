@@ -117,6 +117,6 @@ if obj.file_id_ <=0
         'Can not open file %s to write data',obj.full_filename)
 end
 if isempty(obj.file_closer_)
-    obj.file_closer_ = onCleanup(@()fclose(obj));
+    obj.file_closer_ = fcloser(obj.file_id_);
 end
 %-------------------------------------------------------------------------

@@ -12,7 +12,7 @@ end
 obj.file_id_ = objinit.file_id;
 obj.num_dim_ = objinit.num_dim;
 if isempty(obj.file_closer_)
-    obj.file_closer_ = onCleanup(@()fclose(obj));
+    obj.file_closer_ = fcloser(obj.file_id_);
 end
 
 

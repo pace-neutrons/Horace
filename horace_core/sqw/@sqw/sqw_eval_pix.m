@@ -2,7 +2,9 @@ function obj = sqw_eval_pix(obj, sqwfunc, ave_pix, pars, outfile)
 %==================================================================================================
 % SQW_EVAL_PIX
 %
-% Helper function for sqw eval executed on a fill sqw object.
+% Helper function for sqw eval executed on a full sqw object containing
+% pixels
+%
 % Called by `sqw_eval` defined in sqw/DnDBase
 %
 % Input:

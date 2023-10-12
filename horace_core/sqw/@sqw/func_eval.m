@@ -89,9 +89,9 @@ if numel(win) > 1
     input_dims = arrayfun(@(x) dimensions(x), win);
     if any(input_dims(1) ~= input_dims)
         error('HORACE:sqw:invalid_argument', ...
-              ['Input sqw objects must have equal image dimensions.\n' ...
-               'Found dimensions [%s].'], ...
-              mat2str(input_dims));
+            ['Input sqw objects must have equal image dimensions.\n' ...
+            'Found dimensions [%s].'], ...
+            mat2str(input_dims));
     end
 end
 
@@ -113,6 +113,7 @@ end
 
 % Evaluate function for each element of the array of sqw objects
 
+page_op = PageOp_func_eval();
 for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
     sqw_type=has_pixels(win(i));   % determine if sqw or dnd type
     if sqw_type
@@ -122,20 +123,14 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     wout_i = win(i);
     wout_i.data = func_eval(win(i).data, func_handle, pars, opts);
 
+
     % If sqw object, fill every pixel with the value of its corresponding bin
     if sqw_type
-        out_file = opts.outfile{i};
-        if ~wout_i.pix.is_filebacked
-            s = repelem(wout_i.data.s(:), wout_i.data.npix(:));
-            wout_i.pix.signal = s;
-            wout_i.pix.variance = zeros(size(s));
-            if ~isempty(out_file)
-                wout_i = write_sqw_with_in_mem_pix(wout_i, out_file);
-            end
-
-        else
-            wout_i = write_sqw_with_out_of_mem_pix(wout_i, out_file);
+        if ~isempty(opts.outfile{i})
+            page_op.outfile = opts.outfile{i};
         end
+        [page_op,wout_i] = page_op.init(wout_i);
+        wout_i = wout_i.apply_c(page_op);
     end
 
     if opts.all
@@ -155,64 +150,4 @@ else
         wout = [wout{:}];
         wout = reshape(wout,size(win));
     end
-end
-
-end
-
-function sqw_obj = write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
-% Write the given SQW object to the given file.
-% The pixels of the SQW object will be derived from the image signal array
-% and npix array, saving in chunks so they do not need to be held in memory.
-%
-
-[sqw_obj, ldr] = sqw_obj.get_new_handle(outfile);
-img_signal = sqw_obj.data.s;
-
-data_range = PixelDataBase.EMPTY_RANGE;
-pix_out = PixelDataMemory();
-
-[npix_chunks, idxs] = split_vector_fixed_sum(sqw_obj.data.npix(:), pix_out.default_page_size);
-
-npg = sqw_obj.pix.num_pages;
-pix = sqw_obj.pix;
-pix_idx = 1;
-for i=1:npg
-    pix.page_num = i;
-    pix_out.data = pix.data;
-    npix_chunk = npix_chunks{i};
-    idx = idxs(:, i);
-
-    pix_out.signal = repelem(img_signal(idx(1):idx(2)), npix_chunk);
-    pix_out.variance = 0;
-    data = pix_out.data;
-    data_range = pix_out.pix_minmax_ranges(data, ...
-                                           data_range);
-
-    sqw_obj.pix = sqw_obj.pix.format_dump_data(data);
-    pix_idx = pix_idx+pix_out.num_pixels;
-end
-sqw_obj.pix.data_range = data_range;
-sqw_obj.pix = sqw_obj.pix.finish_dump();
-ldr.delete();
-
-end
-
-
-function sqw_obj = write_sqw_with_in_mem_pix(sqw_obj, outfile)
-% Write the given SQW object to the given file.
-% The pixels of the SQW object will be derived from the image signal array
-% and npix array, saving in chunks so they do not need to be held in memory.
-
-pix = sqw_obj.pix;
-
-sqw_obj.pix = PixelDataFileBacked();
-[sqw_obj, ldr] = sqw_obj.get_new_handle(outfile);
-
-sqw_obj.pix = sqw_obj.pix.format_dump_data(pix.data);
-sqw_obj.pix = sqw_obj.pix.finish_dump();
-
-sqw_obj.pix.data_range = pix.data_range;
-
-ldr.delete();
-
 end
