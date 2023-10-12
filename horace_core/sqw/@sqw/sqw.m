@@ -38,6 +38,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % The date of the sqw object file creation. As the date is defined both
         % in sqw and dnd object parts, this property synchronize both
         creation_date;
+        % return state of the object, if it is fully in memory or
+        % filebacked
+        is_filebacked;
     end
 
     properties(Hidden,Dependent)
@@ -193,7 +196,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %------------------------------------------------------------------
         % sigvar block
-        wout              = sigvar(w); % Create sigvar object from sqw or dnd object
+        wout              = sigvar(w); % Create sigvar object from sqw object
         [s,var,mask_null] = sigvar_get (w);
         sz                = sigvar_size(w);
         %------------------------------------------------------------------
@@ -428,6 +431,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function obj = set.creation_date(obj,val)
             obj.main_header.creation_date = val;
             obj.data.creation_date = val;
+        end
+        %
+        function is = get.is_filebacked(obj)
+            if obj.has_pixels
+                is = obj.pix.is_filebacked;
+            else
+                is = true;
+            end
         end
         %==================================================================
         function obj = apply_c(obj, operation)

@@ -67,6 +67,6 @@ for i=1:numel(w1)
         w(i)            = w(i).apply_c(page_op);
     else
         result = unary_op(sigvar(w1(i)));
-        w(i) = sigvar_set(w(i),result);
+        w(i)   = sigvar_set(w(i),result);
     end
 end

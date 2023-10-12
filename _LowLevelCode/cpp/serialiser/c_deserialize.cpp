@@ -92,7 +92,6 @@ mxArray* deserialize(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
             vDims.resize(nDims);
             cast_dims.resize(nDims);
         }
-
         deser(data, memPtr, cast_dims, nDims * types_size[UINT32]);
 
         switch (nDims) {
@@ -310,15 +309,20 @@ mxArray* deserialize(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
     case STRUCT:
     {
         uint32_t nFields;
-        deser(data, memPtr, &nFields, types_size[UINT32]);
-
-        std::vector<uint32_t> fNameLens(nFields);
-        deser(data, memPtr, fNameLens, nFields * types_size[UINT32]);
+        std::vector<uint32_t> fNameLens(0);
+        if ((nDims == 2) && (memPtr >= size)) {
+            nFields = 0;
+        }
+        else {
+            deser(data, memPtr, &nFields, types_size[UINT32]);
+            fNameLens.resize(nFields);
+            deser(data, memPtr, fNameLens, nFields* types_size[UINT32]);
+        }
 
         std::vector<std::vector<char>> fNames(nFields);
         std::vector<char*> mxData(nFields);
         for (uint32_t field = 0; field < nFields; field++) {
-            fNames[field] = std::vector<char>(fNameLens[field] + 1);
+            fNames[field] = std::vector<char>(fNameLens[field] + uint32_t(1));
             mxData[field] = fNames[field].data();
             fNames[field][fNameLens[field]] = 0;
             deser(data, memPtr, fNames[field], fNameLens[field] * types_size[CHAR]);

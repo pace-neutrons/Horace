@@ -576,5 +576,35 @@ classdef test_cpp_deserialize < TestCase
 
         end
 
+        function test_ser_empty_det(obj)
+            if ~obj.use_mex
+                skipTest('MEX not enabled');
+            end
+            ss = sqw();
+            ser =  hlp_serialize(ss.detpar);
+            test_data_rec = c_deserialize(ser);
+            assertEqual(ss.detpar, test_data_rec)
+        end
+
+        function test_ser_empty_empty_struct(obj)
+            if ~obj.use_mex
+                skipTest('MEX not enabled');
+            end
+            test_data = struct([]);
+            ser =  hlp_serialize(test_data);
+            test_data_rec = c_deserialize(ser);
+            assertEqual(test_data, test_data_rec)
+        end
+
+        function test_ser_empty_struct(obj)
+            if ~obj.use_mex
+                skipTest('MEX not enabled');
+            end
+            test_data = struct();
+            ser =  hlp_serialize(test_data);
+            test_data_rec = c_deserialize(ser);
+            assertEqual(test_data, test_data_rec)
+        end
+
     end
 end
