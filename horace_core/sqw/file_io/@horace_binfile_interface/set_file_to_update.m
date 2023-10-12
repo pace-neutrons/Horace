@@ -93,7 +93,6 @@ end
 if file_exist
     obj.data_in_file_ = true;
     if ischar(obj.num_dim) % existing reader is not defined. Lets return loader,
-		obj.file_closer_.delete()
         obj.file_closer_ = [];
         clear obj;
         obj = old_ldr.reopen_to_write(); %already selected as best for this file by loaders factory
