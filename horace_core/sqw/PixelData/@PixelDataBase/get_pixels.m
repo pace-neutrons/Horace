@@ -46,4 +46,5 @@ function pix_out = get_pixels(obj, varargin)
 
 pix_data  = obj.get_raw_pix_data(pix_indices,col_pix_idx);
 
+keep_precision = keep_precision || obj.keep_precision_;
 pix_out = obj.pack_get_pix_result(pix_data,ignore_range,raw_data,keep_precision,align);

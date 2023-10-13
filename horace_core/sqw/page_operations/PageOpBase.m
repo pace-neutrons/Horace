@@ -207,6 +207,8 @@ classdef PageOpBase
 
             pix = obj.pix_;
             pix     = pix.set_data_range(obj.pix_data_range_);
+            % as we normally read data and immediately dump them back, what 
+            % is the point of converting them to double and back?
             pix.keep_precision = false;
 
             if ~obj.inplace_

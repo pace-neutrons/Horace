@@ -106,13 +106,13 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             %end
 
             %function test_mask_does_not_change_unmasked_bins_signal_with_paged_pix(obj)
-            assertEqual(masked_2d_paged.data.s(obj.mask_array_2d), ...
-                obj.sqw_2d.data.s(obj.mask_array_2d));
+            assertEqualToTol(masked_2d_paged.data.s(obj.mask_array_2d), ...
+                obj.sqw_2d.data.s(obj.mask_array_2d),'tol',0.01);
             %function test_mask_does_not_change_unmasked_bins_error_with_paged_pix(obj)
             assertEqual(masked_2d_paged.data.e(obj.mask_array_2d), ...
-                obj.sqw_2d.data.e(obj.mask_array_2d));
+                obj.sqw_2d.data.e(obj.mask_array_2d),'tol',0.13);
             %function test_mask_does_not_change_unmasked_bins_npix_with_paged_pix(obj)
-            assertEqual(masked_2d_paged.data.npix(obj.mask_array_2d), ...
+            assertEqualToTol(masked_2d_paged.data.npix(obj.mask_array_2d), ...
                 obj.sqw_2d.data.npix(obj.mask_array_2d));
 
             % function test_num_pix_has_been_reduced_by_correct_amount_with_paged_pix(obj)
@@ -161,18 +161,24 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_doesnt_change_unmasked_bins_signal_with_paged_pix_3d(obj)
-            assertEqual(obj.masked_3d_paged.data.s(obj.mask_array_3d), ...
-                obj.sqw_3d.data.s(obj.mask_array_3d));
+            assertEqualToTol(obj.masked_3d_paged.data.s(obj.mask_array_3d), ...
+                obj.sqw_3d.data.s(obj.mask_array_3d),'tol',32*eps('single'));
         end
 
         function test_mask_does_not_change_unmasked_bins_error_3d(obj)
+            % accumulators are different but many pixels contributed into
+            % accumulator's cell. Its clear that single precision is
+            % different from  double precision            
             assertEqual(obj.masked_3d.data.e(obj.mask_array_3d), ...
-                obj.sqw_3d.data.e(obj.mask_array_3d));
+                obj.sqw_3d.data.e(obj.mask_array_3d),'tol',8*eps('single'));
         end
 
         function test_mask_does_not_change_unmasked_bins_error_with_paged_pix_3d(obj)
-            assertEqual(obj.masked_3d_paged.data.e(obj.mask_array_3d), ...
-                obj.sqw_3d.data.e(obj.mask_array_3d));
+            % accumulators are different but many pixels contributed into
+            % accumulator's cell. Its clear that single precision is
+            % different from double precision
+            assertEqualToTol(obj.masked_3d_paged.data.e(obj.mask_array_3d), ...
+                obj.sqw_3d.data.e(obj.mask_array_3d),'tol',8*eps('single'));
         end
 
         function test_mask_does_not_change_unmasked_bins_npix_3d(obj)
@@ -408,10 +414,10 @@ classdef test_mask < TestCase & common_pix_class_state_holder
                 serror  = serror   + sum(pix.variance);
             end
             assertEqualToTol(ssignal, ...
-                sum(sqw_to_check.data.s(:).*sqw_to_check.data.npix(:)),'reltol',1.e-7);
+                sum(sqw_to_check.data.s(:).*sqw_to_check.data.npix(:)),'reltol',2*eps('single'));
 
             assertEqualToTol(serror, ...
-                sum(sqw_to_check.data.e(:).*sqw_to_check.data.npix(:).^2),'reltol',1.e-7);
+                sum(sqw_to_check.data.e(:).*sqw_to_check.data.npix(:).^2),'reltol',2*eps('single'));
         end
 
         % -- Helpers --

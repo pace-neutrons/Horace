@@ -4,7 +4,7 @@ classdef fcloser < handle
     % scope.
     %
     properties
-        file_handle
+        io_handle
     end
 
     methods
@@ -14,7 +14,7 @@ classdef fcloser < handle
             %
             % when file goes out of scope, handle will get deleted
             if nargin==0
-                obj.file_handle = [];
+                obj.io_handle = [];
                 return;
             end
 
@@ -25,21 +25,25 @@ classdef fcloser < handle
                     ' file-handle: %d is not resonsible for any open file'], ...
                     fh)
             end
-            obj.file_handle = fh;
+            obj.io_handle = fh;
         end
+        function fclose(obj)
+            fn = fopen(obj.io_handle);
+            if ~isempty(fn)
+                fclose(obj.io_handle);
+            end
+            obj.io_handle = [];
+        end
+
         function is = isempty(obj)
-            is = ~isvalid(obj) || isempty(obj.file_handle);
+            is = ~isvalid(obj) || isempty(obj.io_handle);
         end
 
         function delete(obj)
-            if isempty(obj.file_handle)
+            if isempty(obj.io_handle)
                 return;
             end
-            fn = fopen(obj.file_handle);
-            if ~isempty(fn)
-                fclose(obj.file_handle);
-            end
-            obj.file_handle = [];
+            obj.fclose();
         end
     end
 end
