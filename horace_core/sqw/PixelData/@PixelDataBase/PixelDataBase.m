@@ -78,9 +78,10 @@ classdef (Abstract) PixelDataBase < serializable
         % in filebacked operations
         default_page_size;
 
-        % The property returns page of data if PixelData are in Crystal Cartesian
-        % coordinate system or page of raw data (not multiplied by alignment
-        % matrix) if pixels are misaligned.
+        % The property returns page of data equivalent to data if PixelData
+        % are in Crystal Cartesian coordinate system or page of
+        % raw data (not multiplied by alignment matrix) if pixels
+        % are misaligned.
         raw_data;
 
         % Property informing that data are obtained from old file format,
@@ -91,6 +92,9 @@ classdef (Abstract) PixelDataBase < serializable
         % list of unique pixel ID-s present in pixels. Used to help loading
         % old data
         unique_run_id;
+        % Access to the holder of the class, which deletes temporary files
+        % when filebacked object goes out of scope
+        tmp_file_holder
     end
 
     properties (Constant,Hidden)
@@ -202,7 +206,7 @@ classdef (Abstract) PixelDataBase < serializable
             isfb = do_filebacked_(num_pixels, scale_fac);
         end
         function [filename,move_to_orig] = build_op_filename(original_fn,target_fn)
-            % build temporary filename -- target of an operation. 
+            % build temporary filename -- target of an operation.
             %
             % When operation performed on filebacked object, its temporary
             % results are stored in a temporary file. This name is build
@@ -211,7 +215,7 @@ classdef (Abstract) PixelDataBase < serializable
             % original_fn -- name of the orignal file-source of the
             %                operation
             % target_fn   -- optional name of the file to save data
-            % 
+            %
             % Returns:
             % filename     -- target filename for operation.
             % move_to_orig -- true, if original filename was equal to
@@ -367,12 +371,16 @@ classdef (Abstract) PixelDataBase < serializable
     % File handling/migration.
     methods(Abstract)
         obj = prepare_dump(obj)
-        obj = get_write_handle(obj, varargin)        
-        obj = dump_data(obj,data_page)        
+        obj = get_write_handle(obj, varargin)
+        obj = dump_data(obj,data_page)
 
         obj = get_new_handle(obj, varargin)
         %
         obj = finish_dump(obj,varargin)
+        %
+        % Dealing with tmp files removal
+        fh = get_tmp_file_holder(obj);
+        obj =set_tmp_file_holder(obj,val);        
         % Paging:
         % pixel indices of the current page
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
@@ -402,12 +410,11 @@ classdef (Abstract) PixelDataBase < serializable
         % part of alignment_mart setter
         obj = set_alignment_matrix(obj,val);
         %------------------------------------------------------------------
-        % paging
+        % paging/IO operations
         page_size = get_page_size(obj);
         np  = get_page_num(obj);
         obj = set_page_num(obj,val);
         np  = get_num_pages(obj);
-
     end
 
     %======================================================================
@@ -717,6 +724,13 @@ classdef (Abstract) PixelDataBase < serializable
         end
         function obj = set.keep_precision(obj,val)
             obj.keep_precision_ = logical(val);
+        end
+        %
+        function fh = get.tmp_file_holder(obj)
+            fh = get_tmp_file_holder(obj);
+        end
+        function obj = set.tmp_file_holder(obj,val)
+            obj = set_tmp_file_holder(obj,val);
         end
 
     end

@@ -111,7 +111,8 @@ classdef PixelDataMemory < PixelDataBase
         end
     end
     %======================================================================
-    % File handling/migration. Does nothing on membased
+    % File handling/migration. Does nothing on membased except dump_data
+    % which recets raw data with input.
     methods
         function obj = prepare_dump(obj)
             % does nothing on Mem-based
@@ -122,7 +123,7 @@ classdef PixelDataMemory < PixelDataBase
         function [] = get_write_handle(~, varargin)
             % does nothing on Mem-based
         end
-        
+
         function obj = dump_data(obj,page_data,varargin)
             % sets the internal pixel data to new values.
             %
@@ -130,10 +131,15 @@ classdef PixelDataMemory < PixelDataBase
             % here). Use with caution.
             if nargin>1
                 obj = obj.set_raw_data(page_data);
-            end            
+            end
         end
         function obj = finish_dump(obj,varargin)
             % does nothing
+        end
+        function fh = get_tmp_file_holder(~)
+            fh = [];
+        end
+        function obj =set_tmp_file_holder(obj,varargin)
         end
         %
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)

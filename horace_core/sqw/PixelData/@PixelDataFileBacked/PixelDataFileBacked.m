@@ -291,6 +291,18 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = dump_data(obj,data,wh)
             wh.save_data(data);
         end
+        function fh = get_tmp_file_holder(obj)
+            fh = obj.tmp_file_holder_;
+        end
+        function obj =set_tmp_file_holder(obj,val)
+            if ~isa(val,'TmpFileHandler')
+                error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                    'tmp_file_holder property accepts only TmpFileHandler. Provided: %s', ...
+                    class(val))
+            end
+            obj.tmp_file_holder_ = val;
+        end
+
 
         function obj = format_dump_data(obj, data)
             if ~obj.has_open_file_handle
@@ -422,10 +434,10 @@ classdef PixelDataFileBacked < PixelDataBase
             if isempty(obj.tmp_file_holder_)
                 full_filename = obj.full_filename_;
             else
-                full_filename = obj.tmp_file_holder_.file_name;                
+                full_filename = obj.tmp_file_holder_.file_name;
             end
         end
-        
+
         function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
             % Overloaded part of get_raw_pix operation.
             %

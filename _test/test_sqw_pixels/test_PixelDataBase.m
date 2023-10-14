@@ -1008,7 +1008,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             assertFalse(to_move)
             [op_fp,op_fn,op_fext] = fileparts(op_name);
 
-            assertEqual(op_fn,'some_sqw');
+            assertEqual(op_fn,'other_sqw');
             assertTrue(isempty(op_fp));
             assertTrue(strcmp(op_fext,'.sqw'));
         end
