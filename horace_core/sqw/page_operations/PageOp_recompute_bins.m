@@ -9,8 +9,8 @@ classdef PageOp_recompute_bins < PageOpBase
             obj.op_name_ = 'recompute_bin_data_and_ranges';
         end
 
-        function [obj,in_obj] = init(obj,in_obj)
-            [obj,in_obj] = init@PageOpBase(obj,in_obj);
+        function obj = init(obj,in_obj)
+            obj = init@PageOpBase(obj,in_obj);
             if ~obj.changes_pix_only
                 obj.var_acc_ = zeros(numel(obj.npix),1);
             end

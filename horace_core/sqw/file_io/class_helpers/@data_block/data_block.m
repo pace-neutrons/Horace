@@ -6,6 +6,9 @@ classdef data_block < serializable
     % binary file (stored in BAT) and the ways of extracting these data
     % from sqw/dnd object of interest or place this information into
     % sqw/dnd object
+    %
+    % The information, contained in particular data_block occupies
+    % constant size within the block allocation table
 
     properties(Dependent)
         % unique name of the data_block, identifying this block in BAT.
@@ -25,7 +28,7 @@ classdef data_block < serializable
         size;
         % True if BAT operations should not move this block from its place
         % on HDD (normally used for PixelData(Filebacked), which are big and
-        % should not be reallocated if object is modified.
+        % should not be moved into new place if object is modified.
         locked
     end
     properties(Dependent,Hidden)

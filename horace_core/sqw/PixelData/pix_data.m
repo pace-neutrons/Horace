@@ -35,8 +35,8 @@ classdef pix_data < serializable
                 if isa(varargin{1},'PixelDataMemory')
                     obj.data = inputs.data;
                 elseif isa(varargin{1},'PixelDataFileBacked')
-                    obj.npix = inputs.num_pixels;
-                    obj.data = inputs.full_filename;
+                    obj.npix   = inputs.num_pixels;
+                    obj.data   = inputs.full_filename;
                     obj.offset = inputs.offset;
                 elseif isa(varargin{1},'pix_combine_info')
                     obj.npix = inputs.num_pixels;
@@ -54,7 +54,6 @@ classdef pix_data < serializable
                     ' Class constructor has been invoked with non-recognized parameters: %s',...
                     disp2str(remains));
             end
-
         end
 
         function rd = get.n_rows(obj)

@@ -10,7 +10,7 @@ classdef pix_write_handle < handle
         write_file_name
         % auxiliary property, with keeps information about intentions
         % of PageOp. It is here to simplify PageOp interface.
-        move_to_original        
+        move_to_original
     end
     properties(Dependent)
         npix_written;
@@ -58,27 +58,40 @@ classdef pix_write_handle < handle
                 start_pos = obj.npix_written_+1;
             end
             if obj.handle_is_class_
-                obj.write_handle_.put_raw_pix(data,start_pos);
+                obj.write_handle_ = obj.write_handle_.put_raw_pix(data,start_pos);
             else
                 fwrite(obj.write_handle_, single(data), 'single');
             end
             obj.npix_written_ = obj.npix_written_ + size(data, 2);
-
         end
-        function init_info = release_pixinit_info(obj,pix_obj)
+        function finish_pix_dump(obj,pix_obj)
+            if obj.handle_is_class_
+                num_pixels = obj.npix_written;
+                wh = obj.write_handle_;
+                pix_meta = pix_obj.metadata;
+                pix_meta.npix = num_pixels;
+                wh = wh.put_pix_metadata(pix_meta);
+                % Force pixel update. This is necessary -- modifies
+                % and writes pix_data_blockk information independently on
+                % pix_metadata and modifies npix in wh too.
+                obj.write_handle_ = wh.put_num_pixels(num_pixels);
+            end
+        end
+        %
+        function init_info = release_pixinit_info(obj,keep_opened)
             % Return information, necessary for initialize access to
             % written data using  PixelDataFileBacked
-            num_pixels = double(obj.npix_written_);
+            if nargin < 2
+                keep_opened = false;
+            end
             if obj.handle_is_class_
                 init_info = obj.write_handle_;
-                init_info = init_info.put_pix_metadata(obj,pix_obj);
-                % Force pixel update. TODO: Is this necessary?
-                init_info = init_info.put_num_pixels(num_pixels);
                 % set eof_pos cache as closed faccessor does not have eof
                 % position.
-                eof_pos   = init_info.eof_pos;
-                init_info.eof_pos = eof_pos;
+                eof_pos   = init_info.eof_position;
+                init_info.eof_position = eof_pos;
             else
+                num_pixels = double(obj.npix_written_);
                 offset   = 0;
                 tail     = 0;
                 init_info = memmapfile(obj.write_file_name, ...
@@ -87,7 +100,9 @@ classdef pix_write_handle < handle
                     'Writable', true, ...
                     'Offset', offset);
             end
-            obj = obj.close_handles();
+            if ~keep_opened
+                obj = obj.close_handles();
+            end
             % file is released for external access. Do not delete it on
             % deleteon of this class.
             obj.delete_target_file_ = false;

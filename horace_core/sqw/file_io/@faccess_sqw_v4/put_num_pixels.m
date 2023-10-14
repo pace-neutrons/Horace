@@ -15,5 +15,5 @@ pdb.npixels = num_pixels;
 pdb.put_data_header(obj.file_id_);
 
 obj.bat_.blocks_list{end} = pdb;
-
+obj.bat_.put_bat(obj.file_id_);
 end

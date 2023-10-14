@@ -7,3 +7,4 @@ function obj = deactivate(obj)
 if ~isempty(obj.file_closer_)
     obj.file_closer_.delete();
 end
+obj.file_id_ = -1;

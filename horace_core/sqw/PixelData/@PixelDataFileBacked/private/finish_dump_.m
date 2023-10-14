@@ -5,7 +5,7 @@ function obj = finish_dump_(obj,page_op)
 %
 if nargin>1 % new interface
     wh = page_op.write_handle;
-    init_info = wh.release_pixinit_info(obj);
+    init_info = wh.release_pixinit_info();
     if wh.is_tmp_file
         obj.tmp_file_holder_ = TmpFileHandler(wh.write_file_name,true);
     end
@@ -13,8 +13,8 @@ if nargin>1 % new interface
     return
 end
 
-% Re #1302 To DELETE Old interface. Letf to maintain the tests which are not yet
-% transformed as part of #1302.
+% Re #1302 TODO: DELETE Old interface. Letf to maintain the tests which
+% are not yet transformed as part of #1302.
 if ~obj.has_open_file_handle
     error('HORACE:PixelDataFileBacked:runtime_error', ...
         'Cannot finish dump writing, object does not have open filehandle')

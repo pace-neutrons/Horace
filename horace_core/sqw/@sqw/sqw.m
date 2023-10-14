@@ -73,9 +73,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         pix_ = PixelDataBase.create();
     end
 
-    properties(Hidden)
-    end
-
     properties(Access=protected)
         main_header_ = main_header_cl();
         experiment_info_ = Experiment();

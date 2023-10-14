@@ -7,4 +7,5 @@ if ~isempty(obj.file_closer_)
     obj.file_closer_.delete();
 end
 obj.sqw_holder_ = [];
+obj.file_id_ = -1;
 obj.num_dim_ = 'undefined';

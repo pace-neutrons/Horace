@@ -103,7 +103,7 @@ classdef sqw_file_interface
         end
         %
         function pos = get.eof_position(obj)
-            if isempty(obj.file_id) || obj.file_id <1
+            if isempty(obj.file_closer) || obj.file_id <1
                 pos = obj.eof_pos_cache_;
             else
                 fseek(obj.file_id,0,'eof');
