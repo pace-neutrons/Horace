@@ -120,8 +120,9 @@ classdef PixelDataMemory < PixelDataBase
         function obj = get_new_handle(obj, varargin)
             % does nothing on Mem-based
         end
-        function [] = get_write_handle(~, varargin)
+        function wh = get_write_handle(~, varargin)
             % does nothing on Mem-based
+            wh = [];
         end
 
         function obj = dump_data(obj,page_data,varargin)

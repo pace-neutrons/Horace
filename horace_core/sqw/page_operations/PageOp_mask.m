@@ -29,8 +29,8 @@ classdef PageOp_mask < PageOpBase
             obj.op_name_ = 'masking';
         end
 
-        function [obj,in_obj] = init(obj,in_obj,keep_info)
-            [obj,in_obj] = init@PageOpBase(obj,in_obj);
+        function obj = init(obj,in_obj,keep_info)
+            obj = init@PageOpBase(obj,in_obj);
 
             if isa(keep_info,'SQWDnDBase')
                 obj.keep_info_obj   = keep_info.pix;

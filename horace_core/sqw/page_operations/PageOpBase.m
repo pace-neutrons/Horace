@@ -184,7 +184,7 @@ classdef PageOpBase
                     obj.page_data_(obj.run_idx_,:)]);
             end
             if ~obj.inplace_
-                obj.write_handle_ = obj.pix.dump_data(obj.page_data_,obj.write_handle_);
+                obj.pix_ = obj.pix_.dump_data(obj.page_data_,obj.write_handle_);
             end
         end
         function obj = get_page_data(obj,idx,varargin)

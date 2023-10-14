@@ -10,9 +10,10 @@ classdef pix_write_handle < handle
         write_file_name
         % auxiliary property, with keeps information about intentions
         % of PageOp. It is here to simplify PageOp interface.
-        move_to_original
+        move_to_original        
     end
     properties(Dependent)
+        npix_written;
         % true, if file has extension tmp
         is_tmp_file
         %
@@ -52,7 +53,7 @@ classdef pix_write_handle < handle
             obj.npix_written_ = 0;
         end
 
-        function obj = save_data(obj,data,start_pos)
+        function save_data(obj,data,start_pos)
             if nargin <3
                 start_pos = obj.npix_written_+1;
             end
@@ -103,6 +104,9 @@ classdef pix_write_handle < handle
         function is = get.is_tmp_file(obj)
             [~,~,fe] = fileparts(obj.write_file_name);
             is = strncmp(fe,'.tmp',4);
+        end
+        function np = get.npix_written(obj)
+            np = obj.npix_written_;
         end
     end
     methods(Access=private)

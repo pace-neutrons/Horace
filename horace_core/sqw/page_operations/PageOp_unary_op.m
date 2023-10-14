@@ -14,8 +14,8 @@ classdef PageOp_unary_op < PageOpBase
 
         end
 
-        function [obj,in_obj] = init(obj,in_obj,operation)
-            [obj,in_obj] = init@PageOpBase(obj,in_obj);
+        function obj = init(obj,in_obj,operation)
+            obj = init@PageOpBase(obj,in_obj);
             obj.op_handle = operation;
             obj.op_name_ = sprintf('unary op: %s',func2str(operation));
             if ~obj.changes_pix_only
