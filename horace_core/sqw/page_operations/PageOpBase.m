@@ -61,6 +61,8 @@ classdef PageOpBase
         % avoid retaining runs, which do not contribute into pixels, which
         % was ocasionally happened with old file formats
         old_file_format
+        %
+        write_handle
     end
 
 
@@ -87,6 +89,9 @@ classdef PageOpBase
         run_idx_;
         coord_idx_;
 
+        % property holding the class used for writing modified data
+        % into target location
+        write_handle_ = [];
 
         % true, if data are loaded from old file format and need unique
         % pixel id recalculation during page operations.
@@ -123,7 +128,7 @@ classdef PageOpBase
             obj = obj.init(varargin{:});
         end
         %
-        function [obj,in_obj] = init(obj,in_obj)
+        function obj = init(obj,in_obj)
             % initialize page operation using parts of input sqw or
             % PixelData object as the target for the operation.
             if nargin == 1
@@ -139,7 +144,7 @@ classdef PageOpBase
 
             %
             if ~obj.inplace
-                in_obj = in_obj.get_new_handle(obj.outfile);
+                obj.write_handle_ = in_obj.get_write_handle(obj.outfile);
             end
 
             if isa(in_obj ,'PixelDataBase')
@@ -179,7 +184,7 @@ classdef PageOpBase
                     obj.page_data_(obj.run_idx_,:)]);
             end
             if ~obj.inplace_
-                obj.pix_ = obj.pix_.format_dump_data(obj.page_data_);
+                obj.write_handle_ = obj.pix.dump_data(obj.page_data_,obj.write_handle_);
             end
         end
         function obj = get_page_data(obj,idx,varargin)
@@ -207,7 +212,7 @@ classdef PageOpBase
 
             pix = obj.pix_;
             pix     = pix.set_data_range(obj.pix_data_range_);
-            % as we normally read data and immediately dump them back, what 
+            % as we normally read data and immediately dump them back, what
             % is the point of converting them to double and back?
             pix.keep_precision = false;
 
@@ -218,7 +223,7 @@ classdef PageOpBase
             end
 
             if obj.changes_pix_only
-                pix = pix.finish_dump();
+                pix = pix.finish_dump(obj);
                 out_obj = pix.copy();
             else
                 out_obj = in_obj.copy();
@@ -234,6 +239,7 @@ classdef PageOpBase
             obj.pix_  = PixelDataMemory();
             obj.img_  = [];
             obj.npix_ = [];
+            obj.write_handle_ = [];
         end
         %
         function [npix_chunks, npix_idx] = split_into_pages(~,npix,chunk_size)
@@ -344,7 +350,11 @@ classdef PageOpBase
         function is = get.old_file_format(obj)
             is = obj.old_file_format_;
         end
+        function wh = get.write_handle(obj)
+            wh = obj.write_handle_;
+        end
     end
+    %
     methods(Access=protected)
         function obj = update_image(obj,sig_acc,var_acc,npix_acc)
             % The piece of code which often but not always used at the end

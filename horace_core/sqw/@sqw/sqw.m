@@ -57,6 +57,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         % the name of the file, used to store sqw first time
         full_filename;
+        % Holder for the class, which would delete temporary file - source
+        % of file-backed sqw object on object deletion. Always empty
+        % for memory-based sqw objects or objects, build from permanent sqw
+        % files.
+        tmp_file_holder;
     end
 
     properties(Access=protected)
@@ -69,9 +74,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     properties(Hidden)
-        % Holder for temporary file to clear
-        % it on object deletion
-        file_holder_;
     end
 
     properties(Access=protected)
@@ -162,6 +164,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         new_sqw = copy(obj, varargin)
         [obj, ldr] = get_new_handle(obj, outfile)
+        wh   = get_write_handle(obj, outfile)
         obj = finish_dump(obj,varargin);
     end
     %======================================================================
@@ -409,7 +412,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %
         function fn = get.full_filename(obj)
-            fn = fullfile(obj.main_header.filepath,obj.main_header.filename);
+            if obj.has_pixels
+                fn = obj.pix.full_filename;
+            else
+                fn = fullfile(obj.main_header.filepath,obj.main_header.filename);
+            end
         end
         function obj = set.full_filename(obj,val)
             if ~(isstring(val)||ischar(val))
@@ -440,6 +447,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 is = false;
             end
         end
+        function holder = get.tmp_file_holder(obj)
+            if isempty(obj.pix) || ~obj.pix.is_filebacked
+                holder = [];
+                return;
+            end
+            holder = obj.pix.tmp_file_holder;
+        end
+        function obj = set.tmp_file_holder(obj,val)
+            if isempty(obj.pix) || ~obj.pix.is_filebacked
+                return;
+            end
+            obj.pix.tmp_file_holder = val;
+        end
+
         %==================================================================
         function obj = apply_c(obj, operation)
             % Apply special PageOp operation affecting sqw object and pixels

@@ -38,6 +38,7 @@ classdef sqw_file_interface
         % file. Not necessary for modern file formats but was used in old
         % file formats to recover headers
         num_contrib_files_= 'undefined'
+        eof_pos_cache_ = [];
     end
     %
     properties(Dependent)
@@ -103,12 +104,16 @@ classdef sqw_file_interface
         %
         function pos = get.eof_position(obj)
             if isempty(obj.file_id) || obj.file_id <1
-                pos = [];
+                pos = obj.eof_pos_cache_;
             else
                 fseek(obj.file_id,0,'eof');
                 pos  = ftell(obj.file_id);
             end
         end
+        function obj = set.eof_position(obj,val)
+            obj.eof_pos_cache_ = val;
+        end
+        %
         function pos = get.pixel_data_end(obj)
             if ischar(obj.pix_position) ||isempty(obj.pix_position) || ...
                     ischar(obj.npixels)||isempty(obj.npixels)

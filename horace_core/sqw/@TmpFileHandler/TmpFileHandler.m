@@ -6,11 +6,6 @@ classdef TmpFileHandler < handle
     % resulting in the deletion of the temporary files if they have not
     % been saved in different place or lock has been set to true.
     %
-    % Created by PixelData file-backed on starting modifying operation
-    % (PixelDataFileBacked.get_new_handle), which stores the path tmp_file
-    % (to be referenced by the PixelDataFileBacked object when the operation is
-    % complete)
-    %
     % File path is structured so as to reflect the file origin but be unlikely to
     % conflict with other temporary files from the same origin and also to avoid
     % name explosions should temporaries of temporaries be created.
@@ -19,58 +14,31 @@ classdef TmpFileHandler < handle
     properties
         file_name;
     end
-    properties(Dependent)
-        move_to_file;
-    end
-    properties(Access=private)
-        move_to_file_ = '';
-    end
     methods
-        function obj = TmpFileHandler(orig_name)
-            [~, name] = fileparts(orig_name);
-
-            for i = 1:5
-                obj.file_name = fullfile(tmp_dir(), ...
-                    [name, '.tmp_', str_random()]);
-                if ~is_file(obj.file_name)
-                    break
-                end
+        function obj = TmpFileHandler(source_name,use_name_provided)
+            % Constructor for temporary file handler.
+            % Inputs:
+            % source_name - the base for the name to build temporary
+            %               file name. The actual name would have random
+            %               extension in the form source_name.tmp_xxxxx
+            %               where xxxxx represent 12 random lower case
+            %               characters.
+            % Optional:
+            % use_name_provided
+            %             - if present and true, do not generate the
+            %               temporary name but build Handler for the name,
+            %               provided as input.
+            if nargin<2
+                use_name_provided = false;
             end
-            % Unlikely to happen, but best to check fail to generate
-            if i == 5 && is_file(obj.file_name)
-                error('HORACE:TmpFileHandler:runtime_error', ...
-                    ['Can not generate available tmp file name for %s. \n\n', ...
-                    'Check %s and clear any .pix_<id> files'], ...
-                    orig_name, tmp_dir());
+            if use_name_provided
+                obj.file_name = source_name;
+            else
+                obj.file_name = build_tmp_file_name(source_name);
             end
         end
-
         function delete(obj)
-            fn = obj.file_name;
-            if ~isempty(fn) && is_file(fn)
-                ws = warning('off','MATLAB:DELETE:Permission');
-                delete(fn);
-                if isfile(fn) % deleteon for files accessed trough matlab
-                    % memmapfile. Windows bug?
-                    if ispc()
-                        system(sprintf('del %s',fn));
-                    else
-                        system(sprintf('rm %s',fn));
-                    end
-                end
-                warning(ws);
-            end
-        end
-        %==================================================================
-        function is = get.move_to_file(obj)
-            is = obj.move_to_file_;
-        end
-        function set.move_to_file(obj,val)
-            if ~istext(val)
-                error('HORACE:TmpFileHandler:invelid_argument', ...
-                    'The name of the target file have to be a valid text string')
-            end
-            obj.move_to_file_= val;
+            del_memmapfile_files(obj.file_name);
         end
     end
 end

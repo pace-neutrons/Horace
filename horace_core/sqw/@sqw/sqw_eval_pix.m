@@ -24,6 +24,6 @@ eval_op = PageOp_sqw_eval();
 if ~isempty(outfile)
     eval_op.outfile = outfile;
 end
-[eval_op,obj] = eval_op.init(obj,sqwfunc,pars,ave_pix);
+eval_op = eval_op.init(obj,sqwfunc,pars,ave_pix);
 
 obj = obj.apply_c(eval_op);

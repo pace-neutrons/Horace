@@ -233,7 +233,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = delete(obj)
             % method tries to clear up the class instance to allow
             % class file being deleted when this class goes out of scope.
-            % Depending on Matlab version, it may not work.
+            % Depending on MATLAB version, it may not work.
             mmf = obj.f_accessor_;
             clear mmf;
             obj.f_accessor_ = [];
@@ -266,24 +266,6 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj = obj.get_new_handle();
             end
         end
-        function [wh,fh,obj] = get_write_info(obj,release)
-            % Return information containing the write handle and
-            % tmp file holder, used in IO operation
-            %
-            % If release option is specified, clear this information
-            % from the class
-            if nargin == 1
-                release = false;
-            end
-            wh = obj.write_handle_;
-            fh = obj.tmp_file_holder_;
-            if release
-                obj.write_handle_    = [];
-                obj.tmp_file_holder_ = [];
-                obj.num_pixels_      = obj.pix_written;
-            end
-        end
-
         function obj = get_new_handle(obj, f_accessor)
             % Always create a new PixTmpFile object
             % If others point to it, file will be kept
@@ -302,13 +284,19 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             obj.pix_written = 0;
         end
+        function wh = get_write_handle(obj,varargin)
+            targ_fn = PixelDataBase.build_op_filename(obj.full_filename,varargin{:});
+            wh = pix_write_handle(targ_fn);
+        end
+        function obj = dump_data(obj,data,wh)
+            wh.save_data(data);
+        end
 
         function obj = format_dump_data(obj, data)
             if ~obj.has_open_file_handle
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                     'Cannot dump data, object does not have open filehandle')
             end
-
             if isa(obj.write_handle_, 'sqw_file_interface')
                 obj.write_handle_.put_raw_pix(data, obj.pix_written+1);
             else
@@ -320,7 +308,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = finish_dump(obj,varargin)
             % complete pixel write operation, close writing to the target
             %  file and open pixel dataset for access operations.
-            obj = finish_dump_(obj);
+            obj = finish_dump_(obj,varargin{:});
         end
 
         function format = get_memmap_format(obj, tail,new)
@@ -329,12 +317,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 if nargin == 1
                     tail = 0;
                 end
-                data_size = double([PixelDataBase.DEFAULT_NUM_PIX_FIELDS, obj.num_pixels_]);
-                if tail>0
-                    format = {'single',data_size,'data';'uint8',double(tail),'tail'};
-                else
-                    format = {'single',data_size,'data'};
-                end
+                format = PixelDataBase.get_memmap_format(obj.num_pixels_,tail);
             else
                 format = obj.f_accessor_.Format;
             end
@@ -435,6 +418,14 @@ classdef PixelDataFileBacked < PixelDataBase
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
+        function full_filename = get_full_filename(obj)
+            if isempty(obj.tmp_file_holder_)
+                full_filename = obj.full_filename_;
+            else
+                full_filename = obj.tmp_file_holder_.file_name;                
+            end
+        end
+        
         function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
             % Overloaded part of get_raw_pix operation.
             %

@@ -119,26 +119,22 @@ classdef PixelDataMemory < PixelDataBase
         function obj = get_new_handle(obj, varargin)
             % does nothing on Mem-based
         end
-        function obj = format_dump_data(obj,page_data)
+        function [] = get_write_handle(~, varargin)
+            % does nothing on Mem-based
+        end
+        
+        function obj = dump_data(obj,page_data,varargin)
             % sets the internal pixel data to new values.
             %
             % Invalidates object coherency. (data_ranges are not recalculated
             % here). Use with caution.
             if nargin>1
                 obj = obj.set_raw_data(page_data);
-            end
+            end            
         end
         function obj = finish_dump(obj,varargin)
             % does nothing
         end
-        function [wh,fh,obj] = get_write_info(obj,varargin)
-            % Return information containing the write handle and
-            % tmp file holder, used in IO operation
-            wh = [];
-            fh = [];
-        end
-
-
         %
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
             pix_idx_start = 1;

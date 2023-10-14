@@ -8,5 +8,8 @@ function obj = do_unary_op(obj, unary_op)
 %
 
 pix_op = PageOp_unary_op();
-[pix_op,obj] = pix_op.init(obj,unary_op);
+% if ~isempty(obj.full_filename)
+%     pix_op.outfile = obj.full_filename;
+% end
+pix_op = pix_op.init(obj,unary_op);
 obj    = obj.apply_c(obj,pix_op);

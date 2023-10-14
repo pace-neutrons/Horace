@@ -101,9 +101,9 @@ else
         'Mask must provide a numeric or logical array with same number of elements as the data or an SQW with the same projection and axes')
 end
 
-pix_op       = PageOp_mask();
-[pix_op,obj] = pix_op.init(obj,keep_info);
+page_op   = PageOp_mask();
+page_op   = page_op.init(obj,keep_info);
 if mask_by_bins
-    pix_op.mask_by_bins = true;
+    page_op.mask_by_bins = true;
 end
-wout         = obj.apply_c(pix_op);
+wout         = obj.apply_c(page_op);

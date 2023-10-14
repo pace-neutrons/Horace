@@ -201,6 +201,25 @@ classdef (Abstract) PixelDataBase < serializable
             end
             isfb = do_filebacked_(num_pixels, scale_fac);
         end
+        function [filename,move_to_orig] = build_op_filename(original_fn,target_fn)
+            % build temporary filename -- target of an operation. 
+            %
+            % When operation performed on filebacked object, its temporary
+            % results are stored in a temporary file. This name is build
+            % according to the rules defined here
+            % Inputs:
+            % original_fn -- name of the orignal file-source of the
+            %                operation
+            % target_fn   -- optional name of the file to save data
+            % 
+            % Returns:
+            % filename     -- target filename for operation.
+            % move_to_orig -- true, if original filename was equal to
+            %                 target filename and we need to move resulting
+            %                 file to the initial location as the result of
+            %                 operation. False otherwise.
+            [filename,move_to_orig] = build_op_filename_(original_fn,target_fn);
+        end
 
         function obj = create(varargin)
             % Factory to construct a PixelData object from the given data. Default
@@ -312,6 +331,18 @@ classdef (Abstract) PixelDataBase < serializable
                     'Actually input class is: %s'],class(fld_name));
             end
         end
+        function format = get_memmap_format(num_pixels, tail)
+            if nargin == 1
+                tail = 0;
+            end
+            data_size = double([PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pixels]);
+            if tail>0
+                format = {'single',data_size,'data';'uint8',double(tail),'tail'};
+            else
+                format = {'single',data_size,'data'};
+            end
+        end
+
     end
     %======================================================================
     methods(Abstract)
@@ -336,10 +367,12 @@ classdef (Abstract) PixelDataBase < serializable
     % File handling/migration.
     methods(Abstract)
         obj = prepare_dump(obj)
+        obj = get_write_handle(obj, varargin)        
+        obj = dump_data(obj,data_page)        
+
         obj = get_new_handle(obj, varargin)
-        obj = format_dump_data(obj,data_page)
+        %
         obj = finish_dump(obj,varargin)
-        [wh,fh] = get_write_info(obj)
         % Paging:
         % pixel indices of the current page
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
@@ -382,7 +415,7 @@ classdef (Abstract) PixelDataBase < serializable
     methods(Access=private)
         obj = realign_(obj);
     end
-
+    %
     methods
         function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));

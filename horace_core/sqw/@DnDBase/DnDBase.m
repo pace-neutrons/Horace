@@ -455,28 +455,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         end
         %
-        function fn = get.full_filename(obj)
-            fn = obj.axes_.full_filename;
-        end
-        function obj = set.full_filename(obj,val)
-            obj.axes_.full_filename = val;
-        end
-
-        %
-        function val = get.filename(obj)
-            val = obj.axes_.filename;
-        end
-        function obj = set.filename(obj, filename)
-            obj.axes_.filename = filename;
-        end
-        %
-        function val = get.filepath(obj)
-            val = obj.axes_.filepath;
-        end
-        function obj = set.filepath(obj, filepath)
-            obj.axes_.filepath = filepath;
-        end
-        %
         function val = get.title(obj)
             val = obj.axes_.title;
         end
@@ -504,6 +482,29 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % build the axes block which specified by projection and target cut
         % parameters
         [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, input_pbin,varagin);
+        %================================================================
+        % Filename, Filepath
+        function fn = get.full_filename(obj)
+            fn = obj.axes_.full_filename;
+        end
+        function obj = set.full_filename(obj,val)
+            obj.axes_.full_filename = val;
+        end
+
+        %
+        function val = get.filename(obj)
+            val = obj.axes_.filename;
+        end
+        function obj = set.filename(obj, filename)
+            obj.axes_.filename = filename;
+        end
+        %
+        function val = get.filepath(obj)
+            val = obj.axes_.filepath;
+        end
+        function obj = set.filepath(obj, filepath)
+            obj.axes_.filepath = filepath;
+        end
     end
     %======================================================================
     % binfile IO interface
