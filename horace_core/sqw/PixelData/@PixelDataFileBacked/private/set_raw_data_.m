@@ -20,7 +20,7 @@ else
     obj = obj.init(init_info);
     % delete results as pixels go out of scope
     if write_h.is_tmp_file
-        obj.tmp_file_holder_ = TmpFileHandler(write_h.write_file_name,true);
+        obj = obj.set_as_tmp_obj(write_h.write_file_name);
     end
     % call delete explicitly not to wait until it is deleted by memory manager
     write_h.delete();

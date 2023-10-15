@@ -7,7 +7,7 @@ if nargin>1 % new interface
     wh = page_op.write_handle;
     init_info = wh.release_pixinit_info();
     if wh.is_tmp_file
-        obj = set_as_tmp_obj(wh.write_file_name);
+        obj = obj.set_as_tmp_obj(wh.write_file_name);
     end
     obj = obj.init(init_info);
     return
@@ -20,7 +20,7 @@ if ~obj.has_open_file_handle
         'Cannot finish dump writing, object does not have open filehandle')
 end
 
-obj.num_pixels_ = obj.write_handle_;
+obj.num_pixels_ = obj.pix_written;
 
 if isa(obj.write_handle_, 'sqw_file_interface')
     obj.full_filename = obj.write_handle_.full_filename;
@@ -50,4 +50,5 @@ else
         'Repeat', 1, ...
         'Writable', true, ...
         'offset', obj.offset_);
+    obj.page_num_ = 1;
 end
