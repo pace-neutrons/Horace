@@ -20,6 +20,9 @@ function file_name = build_tmp_file_name(base_name,filepath)
 if nargin == 1
     filepath = config_store.instance().get_value( ...
         'parallel_config','working_directory');
+    if isempty(filepath)
+        filepath = tmp_dir();
+    end
 end
 
 for i = 1:5
