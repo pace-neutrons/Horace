@@ -1024,6 +1024,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
             hc = hor_config;
             dir = hc.working_directory;
+            dir = regexprep(dir,[filesep,'\$'],'');            
             assertEqual(op_fn,'some_sqw');
             assertEqual(op_fp,dir);
             assertTrue(strncmp(op_fext,'.tmp_',5));
@@ -1036,6 +1037,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
             hc = hor_config;
             dir = hc.working_directory;
+            dir = regexprep(dir,[filesep,'\$'],'');
             assertEqual(op_fn,'in_mem');
             assertEqual(op_fp,dir);
             assertTrue(strncmp(op_fext,'.tmp_',5));
