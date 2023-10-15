@@ -18,8 +18,8 @@ classdef PageOp_sqw_eval < PageOpBase
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'sqw_eval';
         end
-        function [obj,sqw_obj] = init(obj,sqw_obj,operation,op_param,average)
-            [obj,sqw_obj] = init@PageOpBase(obj,sqw_obj);
+        function obj = init(obj,sqw_obj,operation,op_param,average)
+            obj           = init@PageOpBase(obj,sqw_obj);
             obj.proj      = sqw_obj.data.proj;
             obj.average   = average;
             obj.op_holder = operation;

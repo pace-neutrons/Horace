@@ -80,6 +80,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Has to be present on sqw level, as pix level can not delete file
         % due to object destruction rules.
         tmp_file_holder_;
+        % Re #1302 delete old interface
+        file_holder_
     end
 
     methods(Static)
@@ -412,10 +414,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %
         function fn = get.full_filename(obj)
-            if obj.has_pixels
-                fn = obj.pix.full_filename;
+            if isempty(obj.tmp_file_holder_)
+                fn = obj.main_header.full_filename;                
             else
-                fn = fullfile(obj.main_header.filepath,obj.main_header.filename);
+                fn = obj.tmp_file_holder_.file_name;
             end
         end
         function obj = set.full_filename(obj,val)

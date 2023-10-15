@@ -63,8 +63,8 @@ w = w1;
 page_op   = PageOp_unary_op();
 for i=1:numel(w1)
     if has_pixels(w1(i))
-        [page_op, w(i)] = page_op.init(w(i),unary_op);
-        w(i)            = w(i).apply_c(page_op);
+        page_op = page_op.init(w(i),unary_op);
+        w(i)    = w(i).apply_c(page_op);
     else
         result = unary_op(sigvar(w1(i)));
         w(i)   = sigvar_set(w(i),result);

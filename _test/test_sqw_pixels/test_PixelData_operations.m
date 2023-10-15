@@ -141,7 +141,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
                 pix = pix.do_unary_op(unary_op);
 
-                pix_in_mem = PixelDataMemory(data);
+                pix_in_mem = PixelDataMemory(single(data));
                 pix_in_mem = pix_in_mem.do_unary_op(unary_op);
 
                 try

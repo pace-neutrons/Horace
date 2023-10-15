@@ -10,8 +10,8 @@ classdef PageOp_func_eval < PageOpBase
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'func_eval';
         end
-        function [obj,sqw_obj] = init(obj,sqw_obj)
-            [obj,sqw_obj] = init@PageOpBase(obj,sqw_obj);
+        function obj = init(obj,sqw_obj)
+            obj  = init@PageOpBase(obj,sqw_obj);
             obj.pix_idx_start_ = 1;
             %
         end

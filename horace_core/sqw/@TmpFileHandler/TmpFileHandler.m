@@ -37,6 +37,12 @@ classdef TmpFileHandler < handle
                 obj.file_name = build_tmp_file_name(source_name);
             end
         end
+        function is = isempty(obj)
+            % for checking this class holder property for it beeing 
+            % empty (not assigned anything) or invalid (delete method
+            % called directrly)
+            is = ~isvalid(obj);
+        end
         function delete(obj)
             del_memmapfile_files(obj.file_name);
         end

@@ -15,7 +15,7 @@ end
 if ~isempty(page_op.outfile)
     % the operations were performed into specific file and we want to
     % modify resutling object to contain the name of this file.
-    obj.full_file_name = page_op.outfile;
+    obj.full_filename = page_op.outfile;
 end
 
 pix = obj.pix;
