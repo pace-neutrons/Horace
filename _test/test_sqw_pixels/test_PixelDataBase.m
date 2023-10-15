@@ -863,7 +863,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), true);
             function ss=thrower(pix,lar)
-   			   ss = pix.signal(lar);
+    			   ss = pix.signal(lar);
             end
             f = @()thrower(pix,logical_array);
 
@@ -953,7 +953,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             function ss=thrower(pix,lar)
-   			   ss = pix.signal(lar);
+    			   ss = pix.signal(lar);
             end
 
             idx_array = 25:35;
@@ -979,7 +979,10 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             non_edited_idxs(idxs) = [];
             assertEqual(pix.data(:, non_edited_idxs), zeros(9, 23));
         end
-        %==================================================================
+    end
+    %=======================================================================
+    % Build operation file name
+    methods
         function test_op_filename_cur_source_cur_targ_with_path(~)
             [op_name,to_move] = PixelDataBase.build_op_filename( ...
                 fullfile('some_path','some_sqw.sqw'),fullfile('some_path','some_sqw.sqw'));
@@ -990,7 +993,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             assertEqual(op_fp,'some_path');
             assertTrue(strncmp(op_fext,'.tmp_',5));
         end
-        
+
         function test_op_filename_cur_source_cur_targ(~)
             [op_name,to_move] = PixelDataBase.build_op_filename( ...
                 'some_sqw.sqw','some_sqw.sqw');
@@ -1012,25 +1015,29 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             assertTrue(isempty(op_fp));
             assertTrue(strcmp(op_fext,'.sqw'));
         end
-                
+
         function test_op_filename_undef_source_empty(~)
             [op_name,to_move] = PixelDataBase.build_op_filename( ...
                 'some_sqw.sqw','');
             assertFalse(to_move)
             [op_fp,op_fn,op_fext] = fileparts(op_name);
 
+            hc = hor_config;
+            dir = hc.working_directory;
             assertEqual(op_fn,'some_sqw');
-            assertEqual([op_fp,filesep],tmp_dir());
+            assertEqual(op_fp,dir);
             assertTrue(strncmp(op_fext,'.tmp_',5));
         end
-        
+
         function test_op_filename_empty_empty(~)
             [op_name,to_move] = PixelDataBase.build_op_filename('','');
             assertFalse(to_move)
             [op_fp,op_fn,op_fext] = fileparts(op_name);
 
+            hc = hor_config;
+            dir = hc.working_directory;
             assertEqual(op_fn,'in_mem');
-            assertEqual([op_fp,filesep],tmp_dir());
+            assertEqual(op_fp,dir);
             assertTrue(strncmp(op_fext,'.tmp_',5));
         end
     end

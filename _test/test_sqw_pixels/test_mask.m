@@ -44,9 +44,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             obj.sqw_2d = obj.sqw_2d.recompute_bin_data();
             %
             obj.sqw_2d_num_pixels = obj.sqw_2d.pix.num_pixels;
-            pix = obj.sqw_2d.pix;
-            pix = pix.recalc_data_range();
-            obj.sqw_2d.pix = pix;
 
             obj.idxs_to_mask = [2, 46, 91, 93, 94, 107, 123, 166];
             obj.mask_array_2d = true(size(obj.sqw_2d.data.npix));

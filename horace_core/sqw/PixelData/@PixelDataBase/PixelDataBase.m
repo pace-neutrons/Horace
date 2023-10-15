@@ -92,9 +92,6 @@ classdef (Abstract) PixelDataBase < serializable
         % list of unique pixel ID-s present in pixels. Used to help loading
         % old data
         unique_run_id;
-        % Access to the holder of the class, which deletes temporary files
-        % when filebacked object goes out of scope
-        tmp_file_holder
     end
 
     properties (Constant,Hidden)
@@ -378,9 +375,8 @@ classdef (Abstract) PixelDataBase < serializable
         %
         obj = finish_dump(obj,varargin)
         %
-        % Dealing with tmp files removal
-        fh = get_tmp_file_holder(obj);
-        obj =set_tmp_file_holder(obj,val);        
+        % Sets file, associated with object to be removed when obj gets out of scope
+        obj =set_as_tmp_obj(obj,filename);
         % Paging:
         % pixel indices of the current page
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
@@ -726,13 +722,6 @@ classdef (Abstract) PixelDataBase < serializable
             obj.keep_precision_ = logical(val);
         end
         %
-        function fh = get.tmp_file_holder(obj)
-            fh = get_tmp_file_holder(obj);
-        end
-        function obj = set.tmp_file_holder(obj,val)
-            obj = set_tmp_file_holder(obj,val);
-        end
-
     end
     %----------------------------------------------------------------------
     methods

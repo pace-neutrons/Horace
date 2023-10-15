@@ -51,12 +51,12 @@ if wh.move_to_original
     sqw_ldr.full_filename = targ_filename;
     sqw_ldr = sqw_ldr.activate();
 else
-    % Set tmp file handler to result of operation
     if wh.is_tmp_file
         % this will also set obj.full_filename to be wh.write_file_name
         % until TmpFileHandler is there and will leave the parts of the
         % original (permanent) file name and path within the sqw object
-        obj.tmp_file_holder = TmpFileHandler(wh.write_file_name,true);
+        % hidden from access from sqw object
+        obj = obj.set_as_tmp_obj(wh.write_file_name);
     end
     % otherwise, write have occured into the target file and filename
     % have been already modified and stored in target file

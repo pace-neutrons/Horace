@@ -137,10 +137,7 @@ classdef PixelDataMemory < PixelDataBase
         function obj = finish_dump(obj,varargin)
             % does nothing
         end
-        function fh = get_tmp_file_holder(~)
-            fh = [];
-        end
-        function obj =set_tmp_file_holder(obj,varargin)
+        function obj =set_as_tmp_obj(obj,varargin)
         end
         %
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)

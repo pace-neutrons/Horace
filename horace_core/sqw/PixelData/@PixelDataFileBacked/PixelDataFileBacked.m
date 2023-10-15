@@ -294,15 +294,9 @@ classdef PixelDataFileBacked < PixelDataBase
         function fh = get_tmp_file_holder(obj)
             fh = obj.tmp_file_holder_;
         end
-        function obj =set_tmp_file_holder(obj,val)
-            if ~isa(val,'TmpFileHandler')
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'tmp_file_holder property accepts only TmpFileHandler. Provided: %s', ...
-                    class(val))
-            end
-            obj.tmp_file_holder_ = val;
+        function obj =set_as_tmp_obj(obj,filename)
+            obj.tmp_file_holder_ = TmpFileHandler(filename,true);
         end
-
 
         function obj = format_dump_data(obj, data)
             if ~obj.has_open_file_handle

@@ -8,7 +8,8 @@ function file_name = build_tmp_file_name(base_name,filepath)
 %
 % Optional:
 % filepath   -- if present, build temporary filepath in the folder,
-%               specified in this variable
+%               specified in this variable. If not, the temporary file path
+%               is located in hor_config.working_directory.
 %
 % Returns:
 % file_name  -- the temporary filename in the form:
@@ -17,7 +18,8 @@ function file_name = build_tmp_file_name(base_name,filepath)
 %
 [~, name] = fileparts(base_name);
 if nargin == 1
-    filepath = tmp_dir();
+    filepath = config_store.instance().get_value( ...
+        'parallel_config','working_directory');
 end
 
 for i = 1:5

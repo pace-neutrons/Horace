@@ -7,7 +7,7 @@ if nargin>1 % new interface
     wh = page_op.write_handle;
     init_info = wh.release_pixinit_info();
     if wh.is_tmp_file
-        obj.tmp_file_holder_ = TmpFileHandler(wh.write_file_name,true);
+        obj = set_as_tmp_obj(wh.write_file_name);
     end
     obj = obj.init(init_info);
     return

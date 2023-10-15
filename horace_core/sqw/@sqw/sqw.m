@@ -57,14 +57,16 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         % the name of the file, used to store sqw first time
         full_filename;
-        % Holder for the class, which would delete temporary file - source
-        % of file-backed sqw object on object deletion. Always empty
-        % for memory-based sqw objects or objects, build from permanent sqw
-        % files.
-        tmp_file_holder;
     end
 
     properties(Access=protected)
+        % The class which briefe description of a whole sqw file.
+        main_header_ = main_header_cl();
+
+        experiment_info_ = Experiment();
+        % detectors array
+        detpar_  = struct([]);
+
         % holder for image data, e.g. appropriate dnd object
         data_;
 
@@ -72,11 +74,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Object containing data for each pixe
         pix_ = PixelDataBase.create();
     end
-
-    properties(Access=protected)
-        main_header_ = main_header_cl();
-        experiment_info_ = Experiment();
-        detpar_  = struct([]);
+    properties(Access=private)
+        % holder for the class, which deletes temporary file when holding
+        % object goes out of scope.
+        % Has to be present on sqw level, as pix level can not delete file
+        % due to object destruction rules.
+        tmp_file_holder_;
     end
 
     methods(Static)
@@ -444,18 +447,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 is = false;
             end
         end
-        function holder = get.tmp_file_holder(obj)
-            if isempty(obj.pix) || ~obj.pix.is_filebacked
-                holder = [];
-                return;
-            end
-            holder = obj.pix.tmp_file_holder;
-        end
-        function obj = set.tmp_file_holder(obj,val)
-            if isempty(obj.pix) || ~obj.pix.is_filebacked
-                return;
-            end
-            obj.pix.tmp_file_holder = val;
+        function obj = set_as_tmp_obj(obj,filename)
+            % method sets filebacked sqw object to be temporary object i.e.
+            % the underlying file, provided as input is getting deleted
+            % when object goes out of scope
+            obj.tmp_file_holder_ = TmpFileHandler(filename,true);
         end
 
         %==================================================================
