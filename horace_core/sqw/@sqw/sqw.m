@@ -55,8 +55,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % from Experiment class. Conversion to old header is not performed
         header;
 
-        % the name of the file, used to store sqw first time
+        % the name of the file, used to keep original sqw object or file
+        % name of the file, backing filebacked object
         full_filename;
+        % True if sqw object is temporary object, deleted on going out of
+        % scope.
+        is_tmp_obj
     end
 
     properties(Access=protected)
@@ -80,7 +84,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Has to be present on sqw level, as pix level can not delete file
         % due to object destruction rules.
         tmp_file_holder_;
-        % Re #1302 delete old interface
+        % Re #1302 TODO: delete old interface
         file_holder_
     end
 
@@ -110,7 +114,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %======================================================================
     % Various sqw methods
     methods
-        has = has_pixels(w);          % returns true if a sqw object has pixels
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
         % sigvar block
         %------------------------------------------------------------------
@@ -129,6 +132,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
 
+        obj     = apply_alignment(obj,filename);
 
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
@@ -301,12 +305,15 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 end
             end
         end
+    end
+    %======================================================================
+    % Setters/getters for properties
+    methods
         %------------------------------------------------------------------
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
         end
-
         function obj = set.data(obj, d)
             if isa(d,'DnDBase')
                 obj.data_ = d;
@@ -318,11 +325,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     class(d))
             end
         end
-
+        %
         function pix = get.pix(obj)
             pix  = obj.pix_;
         end
-
         function obj = set.pix(obj,val)
             if isa(val, 'PixelDataBase') || isa(val,'pix_combine_info')
                 obj.pix_ = val;
@@ -333,44 +339,25 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 obj.pix_ = PixelDataBase.create(val);
             end
         end
-
+        %
         function val = get.detpar(obj)
             val = obj.detpar_;
         end
-
         function obj = set.detpar(obj,val)
             %TODO: implement checks for validity
             obj.detpar_ = val;
         end
-
+        %
         function val = get.main_header(obj)
             val = obj.main_header_;
         end
-
         function obj = set.main_header(obj,val)
-            if isempty(val)
-                obj.main_header_  = main_header_cl();
-            elseif isa(val,'main_header_cl')
-                obj.main_header_ = val;
-            elseif isstruct(val)
-                obj.main_header_ = main_header_cl(val);
-            else
-                error('HORACE:sqw:invalid_argument',...
-                    'main_header property accepts only inputs with main_header_cl instance class or structure, convertible into this class. You provided %s', ...
-                    class(val));
-            end
-            if ~isempty(obj.experiment_info_) && obj.experiment_info_.n_runs>0 && ...
-                    obj.experiment_info_.n_runs ~= obj.main_header_.nfiles
-                warning('HORACE:inconsitent_sqw', ...
-                    'number of rund defined in experiment_info (%d) is not equal to number of contributing files, defined in main sqw header (%d)', ...
-                    obj.experiment_info_.n_runs,obj.main_header_.nfiles);
-            end
+            obj = set_main_header_(obj,val);
         end
-
+        %
         function val = get.experiment_info(obj)
             val = obj.experiment_info_;
         end
-
         function obj = set.experiment_info(obj,val)
             if isempty(val)
                 obj.experiment_info_ = Experiment();
@@ -383,55 +370,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
             obj.main_header_.nfiles = obj.experiment_info_.n_runs;
         end
-
-        function  save_xye(obj,varargin)
-            save_xye(obj.data,varargin{:});
-        end
-
-        function  s=xye(w, varargin)
-            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
-            s = w.data.xye(varargin{:});
-        end
-
+        %
         function npix = get.npixels(obj)
             npix = obj.pix_.num_pixels;
         end
         function npix = get.num_pixels(obj)
             npix = obj.pix_.num_pixels;
         end
-
-
+        %
         function map = get.runid_map(obj)
             if isempty(obj.experiment_info)
                 map = [];
             else
                 map = obj.experiment_info.runid_map;
             end
-        end
-
-        function is = dnd_type(obj)
-            is = obj.pix_.num_pixels == 0;
-        end
-        %
-        function fn = get.full_filename(obj)
-            if isempty(obj.tmp_file_holder_)
-                fn = obj.main_header.full_filename;                
-            else
-                fn = obj.tmp_file_holder_.file_name;
-            end
-        end
-        function obj = set.full_filename(obj,val)
-            if ~(isstring(val)||ischar(val))
-                error('HORACE:sqw:invalid_argument', ...
-                    ' Full filename can be only string, describing input file together with the path to this file. It is: %s', ...
-                    disp2str(val));
-            end
-            [fp,fn,fex]= fileparts(val);
-            obj.main_header.filename = [fn,fex];
-            obj.main_header.filepath = fp;
-            obj.data.filename = [fn,fex];
-            obj.data.filepath = fp;
-            obj.pix.full_filename = val;
         end
         %
         function cd = get.creation_date(obj)
@@ -449,6 +401,83 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 is = false;
             end
         end
+        %------------------------------------------------------------------
+        % hiddent properties
+        function fn = get.full_filename(obj)
+            if isempty(obj.tmp_file_holder_)
+                fn = obj.main_header.full_filename;
+            else
+                fn = obj.tmp_file_holder_.file_name;
+            end
+        end
+        function obj = set.full_filename(obj,val)
+            if ~(isstring(val)||ischar(val))
+                error('HORACE:sqw:invalid_argument', ...
+                    ' Full filename can be only string, describing input file together with the path to this file. It is: %s', ...
+                    disp2str(val));
+            end
+            obj.main_header.full_filename = val;
+            obj.data.full_filename = val;
+            obj.pix.full_filename = val;
+        end
+        %
+        function is = get.is_tmp_obj(obj)
+            is = ~isempty(obj.obj.tmp_file_holder_);
+        end
+    end
+    %======================================================================
+    % REDUNDANT and compatibility ACCESSORS
+    methods
+        function obj = change_header(obj,hdr)
+            if obj.experiment_info.n_runs ~= hdr.n_runs
+                error('HORACE:sqw:invalid_argument', ...
+                    'Existing experiment info describes %d runs and new experiment info describes %d runs. N-runs have to be the same', ...
+                    obj.experiment_info.n_runs,hdr.n_runs)
+            end
+            obj.experiment_info = hdr;
+        end
+
+        function obj = change_detpar(obj,dtp)
+            obj.detpar_x = dtp;
+        end
+
+        function val = get.detpar_x(obj)
+            % obsolete interface
+            val = obj.detpar_;
+        end
+
+        function obj = set.detpar_x(obj,val)
+            % obsolete interface
+            obj.detpar_ = val;
+        end
+
+        function hdr = get.header(obj)
+            % return old (legacy) header(s) providing short experiment info
+            %
+            if isempty(obj.experiment_info_)
+                hdr = IX_experiment().to_bare_struct();
+                hdr.alatt = [];
+                hdr.angdeg = [];
+                return;
+            end
+            hdr = obj.experiment_info_.convert_to_old_headers();
+            hdr = [hdr{:}];
+            hdr = rmfield(hdr,{'instrument','sample'});
+        end
+    end
+    %======================================================================
+    methods
+        function is = dnd_type(obj)
+            is = obj.pix_.num_pixels == 0;
+        end
+        function  save_xye(obj,varargin)
+            save_xye(obj.data,varargin{:});
+        end
+        function  s=xye(w, varargin)
+            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
+            s = w.data.xye(varargin{:});
+        end
+        %
         function obj = set_as_tmp_obj(obj,filename)
             % method sets filebacked sqw object to be temporary object i.e.
             % the underlying file, provided as input is getting deleted
@@ -493,48 +522,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
         end
     end
-    %======================================================================
-    % REDUNDANT and compatibility ACCESSORS
-    methods
-        function obj = change_header(obj,hdr)
-            if obj.experiment_info.n_runs ~= hdr.n_runs
-                error('HORACE:sqw:invalid_argument', ...
-                    'Existing experiment info describes %d runs and new experiment info describes %d runs. N-runs have to be the same', ...
-                    obj.experiment_info.n_runs,hdr.n_runs)
-            end
-            obj.experiment_info = hdr;
-        end
-
-        function obj = change_detpar(obj,dtp)
-            obj.detpar_x = dtp;
-        end
-
-        function val = get.detpar_x(obj)
-            % obsolete interface
-            val = obj.detpar_;
-        end
-
-        function obj = set.detpar_x(obj,val)
-            % obsolete interface
-            obj.detpar_ = val;
-        end
-
-        function hdr = get.header(obj)
-            % return old (legacy) header(s) providing short experiment info
-            %
-            if isempty(obj.experiment_info_)
-                hdr = IX_experiment().to_bare_struct();
-                hdr.alatt = [];
-                hdr.angdeg = [];
-                return;
-            end
-            hdr = obj.experiment_info_.convert_to_old_headers();
-            hdr = [hdr{:}];
-            hdr = rmfield(hdr,{'instrument','sample'});
-        end
-
-    end
-
     %======================================================================
     % TOBYFIT INTERFACE
     methods
@@ -581,6 +568,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %======================================================================
     methods(Access = protected)
         wout = binary_op_manager_single(w1, w2, binary_op);
+        % Re #962 TODO: probably delete it
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         % binning of an sqw or dnd object
 

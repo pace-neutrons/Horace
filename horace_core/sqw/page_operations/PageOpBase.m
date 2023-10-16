@@ -184,7 +184,7 @@ classdef PageOpBase
                     obj.page_data_(obj.run_idx_,:)]);
             end
             if ~obj.inplace_
-                obj.pix_ = obj.pix_.dump_data(obj.page_data_,obj.write_handle_);
+                obj.pix_ = obj.pix_.store_page_data(obj.page_data_,obj.write_handle_);
             end
         end
         function obj = get_page_data(obj,idx,varargin)
@@ -263,8 +263,8 @@ classdef PageOpBase
     % properties setters/getters
     methods
         function does = get.changes_pix_only(obj)
-            does = isempty(obj.img_);
-        end
+            does = get_changes_pix_only(obj);
+        end       
         %
         function name = get.outfile(obj)
             name = obj.outfile_;
@@ -342,6 +342,14 @@ classdef PageOpBase
         function name = get.op_name(obj)
             name = obj.op_name_;
         end
+        function obj = set.op_name(obj,val)
+            if ~istext(val)
+                error('HORACE:PageOpBase:invalid_argument', ...
+                    'op_name can be a text string only. Provided %s', ...
+                    class(val));
+            end
+            obj.op_name_ = val;
+        end
         %
         function is  = get.is_range_valid(obj)
             is = obj.pix_.is_range_valid();
@@ -356,6 +364,10 @@ classdef PageOpBase
     end
     %
     methods(Access=protected)
+        function  does = get_changes_pix_only(obj)
+            does = isempty(obj.img_);
+        end
+
         function obj = update_image(obj,sig_acc,var_acc,npix_acc)
             % The piece of code which often but not always used at the end
             % of an operation when modified data get transformed from

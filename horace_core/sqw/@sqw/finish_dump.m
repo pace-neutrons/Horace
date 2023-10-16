@@ -24,12 +24,15 @@ wh.finish_pix_dump(pix);
 % following pixel IO operations, do not close sqw_ldr handles
 sqw_ldr = wh.release_pixinit_info(true);
 
-% Store modifications to image. Better implementation after Re #1319
-sqw_ldr  = sqw_ldr.put_main_header(obj.main_header);
-if page_op.old_file_format
-    sqw_ldr   = sqw_ldr.put_headers(obj.experiment_info);
+if ~obj.changes_pix_only
+    % Store modifications to image. Better implementation after Re #1319
+    sqw_ldr  = sqw_ldr.put_main_header(obj.main_header);
+    if page_op.old_file_format
+        sqw_ldr   = sqw_ldr.put_headers(obj.experiment_info);
+    end
+    sqw_ldr  = sqw_ldr.put_dnd_data(obj.data);
 end
-sqw_ldr  = sqw_ldr.put_dnd_data(obj.data);
+
 if wh.move_to_original
     % this will close opened wh, and allow file moving
     sqw_ldr = sqw_ldr.deactivate();

@@ -114,6 +114,17 @@ classdef PixelDataMemory < PixelDataBase
     % File handling/migration. Does nothing on membased except dump_data
     % which recets raw data with input.
     methods
+        function obj = deactivate(obj)
+            % close all open file handles to allow file movements to new
+            % file/new location.
+            % Does nothing on memory based
+        end
+        function obj = activate(obj,varargin)
+            % open file access for file, previously closed by deactivate
+            % operation, possibly using new file name
+            % Does nothing on memory based
+        end
+
         function obj = prepare_dump(obj)
             % does nothing on Mem-based
         end
@@ -125,7 +136,7 @@ classdef PixelDataMemory < PixelDataBase
             wh = [];
         end
 
-        function obj = dump_data(obj,page_data,varargin)
+        function obj = store_page_data(obj,page_data,varargin)
             % sets the internal pixel data to new values.
             %
             % Invalidates object coherency. (data_ranges are not recalculated

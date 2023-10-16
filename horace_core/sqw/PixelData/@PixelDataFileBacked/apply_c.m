@@ -46,6 +46,7 @@ for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix
     % and each chunk after this split refers to mem_chunk_size pixels
     % located subsequently
     if ll > 0 && mod(i, log_split) == 1
+        t0 = tic;
         fprintf('*** Performing %s on pix chunk: %d/%d\n',op_name, i, n_chunks);
     end
     page_op = page_op.get_page_data(i,npix_chunks);
@@ -55,8 +56,9 @@ end
 sqw_out = page_op.finish_op(sqw_in);
 %
 if ll > 0
-    fprintf('*** Finished %s on object backed by file: %s using %d pages\n', ...
-        op_name,sqw_out.full_filename,n_chunks);
+    te = toc(t0);
+    fprintf('*** Finished %s on object backed by file: %s in %d sec Processing %d pages\n', ...
+        op_name,sqw_out.full_filename,te,n_chunks);
 end
 if issue_range_warning
     [~,fn,fe] = fileparts(original_file);

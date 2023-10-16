@@ -58,7 +58,7 @@ classdef pix_write_handle < handle
                 start_pos = obj.npix_written_+1;
             end
             if obj.handle_is_class_
-                obj.write_handle_ = obj.write_handle_.put_raw_pix(data,start_pos);
+                obj.write_handle_ = obj.write_handle_.put_raw_pix(data,start_pos);get_tmp_file_holder
             else
                 fwrite(obj.write_handle_, single(data), 'single');
             end

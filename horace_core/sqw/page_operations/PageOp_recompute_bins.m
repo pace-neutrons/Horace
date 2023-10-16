@@ -1,8 +1,15 @@
 classdef PageOp_recompute_bins < PageOpBase
     % Single pixels page operation which does not change the pixels values
+    % unless pixels are misaligned. If they are misaligned, resulting
+    % pixels get realigned as the result of operation.
     %
-    % Used by recompute_bin_data method or recalc_data_range method
+    % Used by recompute_bin_data method, apply_alignment or recalc_data_range
+    % methods
     %
+    properties(Hidden)
+        % sets for true when class is invoked for alignment operation
+        changes_pix_only_ = false;
+    end
     methods
         function obj = PageOp_recompute_bins(varargin)
             obj = obj@PageOpBase(varargin{:});
@@ -16,7 +23,7 @@ classdef PageOp_recompute_bins < PageOpBase
             end
         end
         function obj = apply_op(obj,npix_block,npix_idx)
-            if isempty(obj.img_)
+            if isempty(obj.changes_pix_only)
                 return;
             end
             % retrieve signal and error
@@ -36,5 +43,11 @@ classdef PageOp_recompute_bins < PageOpBase
 
             [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
         end
+    end
+    methods(Access=protected)
+        function  does = get_changes_pix_only(obj)
+            does = obj.changes_pix_only_||isempty(obj.img_);
+        end
+
     end
 end

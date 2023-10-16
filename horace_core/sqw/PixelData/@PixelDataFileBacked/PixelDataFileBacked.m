@@ -73,9 +73,11 @@ classdef PixelDataFileBacked < PixelDataBase
         page_num_   = 1;  % the index of the currently referenced page
 
         % shift (in Bytes) from the beginning of the binary file containing
-        % the pixels to the first byte
+        % the pixels to the first byte of pixels to access. Aslo used
+        % by split into parallel chunks
         offset_ = 0;
 
+        % Re #1302 TODO: delete old interface
         % handle to the class used to perform pixel writing
         write_handle_ = []; %  in operations, involving move pixels
         % from source file to the file, which is the target of operation.
@@ -97,6 +99,7 @@ classdef PixelDataFileBacked < PixelDataBase
     end
 
     properties (Hidden, Access=private)
+        % Re #1302 TODO: delete old interface
         pix_written = 0;
     end
 
@@ -260,6 +263,20 @@ classdef PixelDataFileBacked < PixelDataBase
     %======================================================================
     % File handling/migration
     methods
+        function obj = deactivate(obj)
+            % close all open file handles to allow file movements to new
+            % file/new location.
+            obj = deactivate_(obj);
+        end
+        function obj = activate(obj,filename)
+            % open file access for file, previously closed by deactivate
+            % operation, possibly using new file name
+            if nargin == 1 || isempty(filename)
+                filename = obj.full_filename;
+            end
+            obj = activate_(obj,filename);
+        end
+
         function obj = prepare_dump(obj)
             % Get new handle iff not already opened by sqw
             if ~obj.has_open_file_handle
@@ -288,7 +305,7 @@ classdef PixelDataFileBacked < PixelDataBase
             targ_fn = PixelDataBase.build_op_filename(obj.full_filename,varargin{:});
             wh = pix_write_handle(targ_fn);
         end
-        function obj = dump_data(obj,data,wh)
+        function obj = store_page_data(obj,data,wh)
             wh.save_data(data);
         end
         function fh = get_tmp_file_holder(obj)

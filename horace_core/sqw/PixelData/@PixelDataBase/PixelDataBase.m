@@ -367,6 +367,13 @@ classdef (Abstract) PixelDataBase < serializable
     %======================================================================
     % File handling/migration.
     methods(Abstract)
+        % close all open file handles to allow file movements to new
+        % file/new location.
+        obj = deactivate(obj)
+        % open file access for file, previously closed by deactivate
+        % operation, possibly using new file name
+        obj = activate(obj,filename);
+
         obj = prepare_dump(obj)
         obj = get_write_handle(obj, varargin)
         obj = dump_data(obj,data_page)
@@ -429,11 +436,6 @@ classdef (Abstract) PixelDataBase < serializable
 
         [pix_out, data] = noisify(obj, varargin);
 
-        function obj = apply_alignment(obj)
-            obj = obj.apply(@realign_);
-            obj.alignment_matr_ = eye(3);
-            obj.is_misaligned_ = false;
-        end
 
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         function obj = invalidate_range(obj,fld)
@@ -734,6 +736,7 @@ classdef (Abstract) PixelDataBase < serializable
         % the case, when one may want to use them on pixels only.
         pix_out = mask(obj, mask_array, npix);
         pix_out = do_unary_op(obj, unary_op)
+        obj     = apply_alignment(obj,filename);
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data
