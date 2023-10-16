@@ -57,7 +57,7 @@ al_info = crystal_alignment_info(alatt,angdeg,rotvec);
 pix_op = PageOp_recompute_bins();
 %
 pix_op.outfile = outfile;
-pix_op.changes_pix_only_ = true;
+pix_op.changes_pix_only = true;
 
 pix_op = pix_op.init(obj);
 obj    = obj.apply_c(obj,pix_op);

@@ -17,6 +17,7 @@ end
 
 pix_op = PageOp_recompute_bins();
 pix_op.outfile = outfile;
+pix_op.op_name = 'apply_alignment';
 
 pix_op = pix_op.init(obj);
 obj    = obj.apply_c(obj,pix_op);

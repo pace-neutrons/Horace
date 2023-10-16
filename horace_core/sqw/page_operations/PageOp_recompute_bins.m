@@ -7,7 +7,11 @@ classdef PageOp_recompute_bins < PageOpBase
     % methods
     %
     properties(Hidden)
-        % sets for true when class is invoked for alignment operation
+        % sets change_pix_only for true when class is invoked for
+        % alignment operation
+        img_range
+    end
+    properties(Access=private)
         changes_pix_only_ = false;
     end
     methods
@@ -23,7 +27,7 @@ classdef PageOp_recompute_bins < PageOpBase
             end
         end
         function obj = apply_op(obj,npix_block,npix_idx)
-            if isempty(obj.changes_pix_only)
+            if obj.changes_pix_only
                 return;
             end
             % retrieve signal and error
@@ -48,6 +52,18 @@ classdef PageOp_recompute_bins < PageOpBase
         function  does = get_changes_pix_only(obj)
             does = obj.changes_pix_only_||isempty(obj.img_);
         end
+        function obj = set_changes_pix_only(obj,val)
+            % main setter for changes_pix_only_
+            obj.changes_pix_only_ = logical(val);
+        end
 
+        function do = get_do_missing_range_warning(~)
+            % these operations intended for computing missing range
+            % so no point of warning that range is missing
+            %
+            % TODO: warning may be issued if the data are stored not in the
+            % original file
+            do  = false;
+        end
     end
 end

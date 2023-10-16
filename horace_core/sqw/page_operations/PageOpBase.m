@@ -63,6 +63,10 @@ classdef PageOpBase
         old_file_format
         %
         write_handle
+        % An algorithm applied to a sqw object with missing data range
+        % should issue warning that range is recalculated unless the
+        % algorithm is the algorithm, which recalculates missing range
+        do_missing_range_warning;
     end
 
 
@@ -265,6 +269,9 @@ classdef PageOpBase
         function does = get.changes_pix_only(obj)
             does = get_changes_pix_only(obj);
         end       
+        function obj = set.changes_pix_only(obj,val)
+            obj = set_changes_pix_only(obj,val);
+        end
         %
         function name = get.outfile(obj)
             name = obj.outfile_;
@@ -361,11 +368,23 @@ classdef PageOpBase
         function wh = get.write_handle(obj)
             wh = obj.write_handle_;
         end
+        % 
+        function do = get.do_missing_range_warning(obj)
+            do = get_do_missing_range_warning(obj);
+        end
     end
     %
     methods(Access=protected)
         function  does = get_changes_pix_only(obj)
             does = isempty(obj.img_);
+        end
+        function obj = set_changes_pix_only(obj,varargin)
+            % generally, ignored and based on image. 
+            % left for possibility to overload in children
+        end
+
+        function do = get_do_missing_range_warning(~)
+            do  = true;
         end
 
         function obj = update_image(obj,sig_acc,var_acc,npix_acc)
