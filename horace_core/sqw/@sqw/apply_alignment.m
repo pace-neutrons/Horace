@@ -1,4 +1,4 @@
-function obj = apply_alignment(obj, outfile)
+function [obj,al_info] = apply_alignment(obj, outfile)
 % If pixels are misaligned apply pixel alignment to all pixels and store
 % result in modified file, if such file is provided.
 %
@@ -7,6 +7,9 @@ function obj = apply_alignment(obj, outfile)
 % outfile   File to save the result of operation. If missed or empty, the
 %           result will be stored in tmp file derived from the original
 %           file
+% Output:
+% obj      -- object containing realigned pixels
+% al_info  -- if object was misaligned, return its alignment info
 %
 if nargin<2
     outfile = '';
@@ -41,8 +44,15 @@ if ~obj.is_misaligned
             obj = obj.activate(outfile);
         end
     end
+    al_info = [];
     return;
 end
+rotmat  = obj.pix.alignment_matr;
+rotvec  = rotmat_to_rotvec2(rotmat');
+alatt   = obj.data.proj.alatt;
+angdeg  = obj.data.proj.angdeg;
+al_info = crystal_alignment_info(alatt,angdeg,rotvec);
+
 
 pix_op = PageOp_recompute_bins();
 %

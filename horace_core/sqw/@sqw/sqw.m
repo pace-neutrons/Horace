@@ -132,7 +132,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
 
-        obj     = apply_alignment(obj,filename);
+        [obj,al_info] = apply_alignment(obj,filename);
 
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
@@ -481,8 +481,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function obj = set_as_tmp_obj(obj,filename)
             % method sets filebacked sqw object to be temporary object i.e.
             % the underlying file, provided as input is getting deleted
-            % when object goes out of scope
-            obj.tmp_file_holder_ = TmpFileHandler(filename,true);
+            % when object goes out of scope.
+            %
+            % WARNING: if an sqw object build from existign sqw file is set
+            %          to be the tmp object, the file will be automatically
+            %          deleted when object goes out of scope.
+            % USE WITH CAUTION!!!
+            if nargin == 1
+                filename = obj.full_filename;
+            end
+            if obj.is_filebacked
+                obj.tmp_file_holder_ = TmpFileHandler(filename,true);
+            end
         end
 
         %==================================================================
