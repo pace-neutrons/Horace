@@ -77,6 +77,46 @@ classdef (Abstract) IX_det_abstractType < serializable
         % Array of random points
         X = rand (obj, varargin)
     end
+
+    methods (Static)
+        function varargout = tobyfit_defaults(val,parms)
+        % TOBYFIT_DEFAULTS store and make available defaults for detector types
+        % e.g. He3Tube, Tobyfit_Classic, slab... so that they can be used to
+        % initialise detectors, until this information is available in nxspe input
+        %
+        % Inputs
+        % ======
+        % EITHER
+        % (no arguments) - the call is used to return the detector type and parms from perisistent
+        %                  storage
+        % OR
+        % val       - type (output of class(detector_object) e.g. He3Tube etc.....
+        % parms     - a struct containing data which can be used to initialise
+        %             an object of type val, e.g. for He3Tube, wall thickness and pressure
+        %             In this example case, parms will be a struct with those values
+        %
+        % OUTPUTS
+        % =======
+        % Optional (none, one or two):
+        % varargout{1} - the detector type string, if requested
+        % varargout{2} - a struct with the detector type parameters
+        
+        
+            persistent type parameters;
+            if nargin>0
+                type = val;
+                if nargin>1 && isstruct(parms)
+                    parameters = parms;
+                end
+            end
+            if nargout>0
+                varargout{1} =type;
+            end
+            if nargout>1
+                varargout{2} = parameters;
+            end
+        end
+    end
     
     %======================================================================
     % SERIALIZABLE INTERFACE

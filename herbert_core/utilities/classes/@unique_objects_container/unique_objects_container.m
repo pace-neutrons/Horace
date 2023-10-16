@@ -525,7 +525,7 @@ classdef unique_objects_container < serializable
         end
         function n = runs_sz(self)
             %RUNS_SZ converts n_runs to the form of output from size
-            % to put unique_objectss_container on the same footing as
+            % to put unique_objects_container on the same footing as
             % array/cell in object_lookup
             
             n = size(self.idx_);
