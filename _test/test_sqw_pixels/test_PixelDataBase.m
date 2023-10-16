@@ -863,7 +863,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), true);
             function ss=thrower(pix,lar)
-    			   ss = pix.signal(lar);
+                ss = pix.signal(lar);
             end
             f = @()thrower(pix,logical_array);
 
@@ -953,7 +953,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             function ss=thrower(pix,lar)
-    			   ss = pix.signal(lar);
+                ss = pix.signal(lar);
             end
 
             idx_array = 25:35;
@@ -1024,8 +1024,10 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
             hc = hor_config;
             dir = hc.working_directory;
-            dir = regexprep(dir,[filesep,'\$'],'');            
             assertEqual(op_fn,'some_sqw');
+
+            dir = regexprep(dir,[filesep,'\$'],'');
+            op_fp= regexprep(op_fp,[filesep,'\$'],'');
             assertEqual(op_fp,dir);
             assertTrue(strncmp(op_fext,'.tmp_',5));
         end
@@ -1037,8 +1039,10 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
             hc = hor_config;
             dir = hc.working_directory;
-            dir = regexprep(dir,[filesep,'\$'],'');
             assertEqual(op_fn,'in_mem');
+
+            dir = regexprep(dir,[filesep,'\$'],'');
+            op_fp= regexprep(op_fp,[filesep,'\$'],'');
             assertEqual(op_fp,dir);
             assertTrue(strncmp(op_fext,'.tmp_',5));
         end
