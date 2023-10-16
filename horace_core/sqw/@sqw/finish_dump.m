@@ -24,7 +24,7 @@ wh.finish_pix_dump(pix);
 % following pixel IO operations, do not close sqw_ldr handles
 sqw_ldr = wh.release_pixinit_info(true);
 
-if ~obj.changes_pix_only
+if ~page_op.changes_pix_only
     % Store modifications to image. Better implementation after Re #1319
     sqw_ldr  = sqw_ldr.put_main_header(obj.main_header);
     if page_op.old_file_format
@@ -60,6 +60,9 @@ else
         % original (permanent) file name and path within the sqw object
         % hidden from access from sqw object
         obj = obj.set_as_tmp_obj(wh.write_file_name);
+    else
+        obj.tmp_file_holder_ = [];
+        obj.full_filename = sqw_ldr.full_filename;
     end
     % otherwise, write have occured into the target file and filename
     % have been already modified and stored in target file

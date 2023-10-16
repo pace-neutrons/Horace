@@ -165,6 +165,8 @@ classdef PageOpBase
                     'Init method accepts PixelData or SQW object input only. Provided %s', ...
                     class(in_obj))
             end
+            % as we normally read data and immediately dump them back, what
+            % is the point of converting them to double and back?            
             obj.pix_.keep_precision = true;
             obj.old_file_format_ = obj.pix_.old_file_format;
         end
@@ -216,8 +218,8 @@ classdef PageOpBase
 
             pix = obj.pix_;
             pix     = pix.set_data_range(obj.pix_data_range_);
-            % as we normally read data and immediately dump them back, what
-            % is the point of converting them to double and back?
+            % revert usual order of pixel operations (data converted to
+            % double)
             pix.keep_precision = false;
 
             if ~obj.inplace_
@@ -226,7 +228,8 @@ classdef PageOpBase
                 pix   = pix.clear_alignment();
             end
 
-            if obj.changes_pix_only
+            if isempty(obj.img_) % changes_pix_only -- would not work here 
+                % as some operations work on sqw but modify pixel only
                 pix = pix.finish_dump(obj);
                 out_obj = pix.copy();
             else

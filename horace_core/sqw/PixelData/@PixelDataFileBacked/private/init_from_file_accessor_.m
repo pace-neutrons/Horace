@@ -22,6 +22,9 @@ obj.f_accessor_ = memmapfile(faccessor.full_filename, ...
 meta = faccessor.get_pix_metadata();
 % Metadata filename may differ from current filename; update filename here
 obj.metadata = meta;
+% Let's force PixelFildBacked always have filenane of the file, it was
+% loaded from
+obj.full_filename = faccessor.full_filename;
 
 ver = faccessor.faccess_version;
 if ver< 4.0

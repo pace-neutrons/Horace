@@ -49,16 +49,17 @@ end
 %==========================================================================
 % Run paging
 for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix)
+    page_op = page_op.get_page_data(i,npix_chunks);
+    page_op = page_op.apply_op(npix_chunks{i},npix_idx(:,i));
+    page_op = page_op.common_page_op();
     % and each chunk after this split refers to mem_chunk_size pixels
     % located subsequently
     if ll > 0 && mod(i, log_split) == 1
         tc = toc(t0);
-        fprintf('*** Completed %dof#%d chunks in %d sec performing %s\n', ...
+        fprintf('*** Finished %dof#%d chunks in %d sec performing %s\n', ...
             i,n_chunks,tc,op_name);
     end
-    page_op = page_op.get_page_data(i,npix_chunks);
-    page_op = page_op.apply_op(npix_chunks{i},npix_idx(:,i));
-    page_op = page_op.common_page_op();
+
 end
 sqw_out = page_op.finish_op(sqw_in);
 %
@@ -66,7 +67,7 @@ if ll > 0
     te = toc(t0);
     fprintf(['*** Completed %s using %d pages in %d sec.\n' ...
         '*** Resulting object is backed by file: %s\n'], ...
-        op_name,te,n_chunks,sqw_out.full_filename);
+        op_name,n_chunks,te,sqw_out.full_filename);
 end
 if issue_range_warning
     [~,fn,fe] = fileparts(original_file);

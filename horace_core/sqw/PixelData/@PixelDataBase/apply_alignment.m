@@ -1,4 +1,4 @@
-function obj = apply_alignment(obj, outfile)
+function targ_obj = apply_alignment(obj, outfile)
 % If pixels are misaligned apply pixel alignment to all pixels and store
 % result in modified file, if such file is provided.
 %
@@ -10,8 +10,8 @@ function obj = apply_alignment(obj, outfile)
 if nargin<2
     outfile = '';
 end
-
-if ~obj.is_misaligned
+targ_obj = copy(obj);
+if ~targ_obj.is_misaligned
     return;
 end
 
@@ -19,5 +19,5 @@ pix_op = PageOp_recompute_bins();
 pix_op.outfile = outfile;
 pix_op.op_name = 'apply_alignment';
 
-pix_op = pix_op.init(obj);
-obj    = obj.apply_c(obj,pix_op);
+pix_op   = pix_op.init(targ_obj);
+targ_obj = targ_obj.apply_c(pix_op);

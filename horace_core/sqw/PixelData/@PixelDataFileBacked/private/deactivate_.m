@@ -6,7 +6,7 @@ if isempty(obj.f_accessor_)
 end
 if isa(obj.f_accessor_,'memmapfile')
     mmf_struct = struct('memmapfile_struct',true);
-    mmf_struct.Filename = obj.f_accessor_.Filename;
+    mmf_struct.full_filename = obj.f_accessor_.Filename;
     mmf_struct.Format =   obj.f_accessor_.Format;
     mmf_struct.Writable = obj.f_accessor_.Writable;
     mmf_struct.Offset   = obj.f_accessor_.Offset;

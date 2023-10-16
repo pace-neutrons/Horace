@@ -39,5 +39,13 @@ if ~pmd.is_misaligned % nothing to do
 end
 
 sqw_obj = sqw(ld);
-[sqw_obj,al_info] = sqw_obj.apply_alignment(keep_original);
+if keep_original
+    % for filebacked, will create temporary object
+    argi = {};
+else
+    % will replace original
+    argi = {ld.full_filename};    
+end
+[sqw_obj,al_info] = sqw_obj.apply_alignment(argi{:});
+
 

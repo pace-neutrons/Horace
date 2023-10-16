@@ -172,6 +172,26 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [obj, ldr] = get_new_handle(obj, outfile)
         wh   = get_write_handle(obj, outfile)
         obj = finish_dump(obj,varargin);
+        function obj = deactivate(obj)
+            % Close all open handles of the class keeping information about
+            % file in memory and alowing external operations with backing files
+            obj.pix = obj.pix.deactivate();
+            if ~isempty(obj.tmp_file_holder_)
+                obj.tmp_file_holder_.is_locked = true;
+            end
+            obj.tmp_file_holder_ = [];
+        end
+        function obj = activate(obj,new_file)
+            % Restore access to a file, previously closed by deactivate
+            % operation, possibly using new file name
+            [obj.pix,is_tmp_file_set] = obj.pix.activate(new_file,true);
+            if is_tmp_file_set
+                obj = obj.set_as_tmp_obj(new_file);
+            else
+                obj.full_filename = obj.pix.full_filename;
+            end
+        end
+
     end
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting
@@ -422,7 +442,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %
         function is = get.is_tmp_obj(obj)
-            is = ~isempty(obj.obj.tmp_file_holder_);
+            is = ~isempty(obj.tmp_file_holder_);
         end
     end
     %======================================================================
@@ -487,12 +507,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %          to be the tmp object, the file will be automatically
             %          deleted when object goes out of scope.
             % USE WITH CAUTION!!!
+            if ~obj.is_filebacked
+                return;
+            end
             if nargin == 1
-                filename = obj.full_filename;
+                filename = obj.pix.full_filename;
             end
-            if obj.is_filebacked
-                obj = set_as_tmp_obj_(obj,filename);
-            end
+            obj = set_as_tmp_obj_(obj,filename);
+
         end
 
         %==================================================================

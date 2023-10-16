@@ -374,7 +374,7 @@ classdef (Abstract) PixelDataBase < serializable
         obj = deactivate(obj)
         % open file access for file, previously closed by deactivate
         % operation, possibly using new file name
-        obj = activate(obj,filename);
+        [obj,varargout] = activate(obj,filename,varargin);
 
         obj = prepare_dump(obj)
         obj = get_write_handle(obj, varargin)

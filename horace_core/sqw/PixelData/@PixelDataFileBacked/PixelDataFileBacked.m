@@ -269,13 +269,17 @@ classdef PixelDataFileBacked < PixelDataBase
             % file/new location.
             obj = deactivate_(obj);
         end
-        function obj = activate(obj,filename)
+        function [obj,is_tmp] = activate(obj,filename,varargin)
             % open file access for file, previously closed by deactivate
             % operation, possibly using new file name
+            %
+            % Optional:
+            % no_tmp_file  -- if present and true, do not set file with
+            %                 extension .tmp_ as temporary file
             if nargin == 1 || isempty(filename)
-                filename = obj.full_filename;
+                filename = obj.f_accessor_.full_filename;
             end
-            obj = activate_(obj,filename);
+            [obj,is_tmp] = activate_(obj,filename,varargin{:});
         end
 
         function wh = get_write_handle(obj,varargin)

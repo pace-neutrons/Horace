@@ -119,10 +119,13 @@ classdef PixelDataMemory < PixelDataBase
             % file/new location.
             % Does nothing on memory based
         end
-        function obj = activate(obj,varargin)
+        function [obj,varargout] = activate(obj,varargin)
             % open file access for file, previously closed by deactivate
             % operation, possibly using new file name
             % Does nothing on memory based
+            if nargout>1
+                varargout{1} = false;
+            end
         end
 
         function obj = prepare_dump(obj)

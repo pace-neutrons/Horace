@@ -60,7 +60,7 @@ elseif isa(init_data, 'sqw_file_interface')
 elseif isa(init_data,'memmapfile')
     obj.f_accessor_    = init_data;
     % should this all be rewired thoroughly?
-    obj.full_filename_ = init_data.Filename;
+    obj.full_filename  = init_data.Filename;
     obj.num_pixels_    = obj.f_accessor_.Format{2}(2);
     obj.offset_        = init_data.Offset;
 elseif isnumeric(init_data)
