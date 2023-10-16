@@ -1016,7 +1016,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             assertTrue(strcmp(op_fext,'.sqw'));
         end
 
-        function test_op_filename_undef_source_empty(~)
+        function test_op_filename_undef_source_empty(obj)
             [op_name,to_move] = PixelDataBase.build_op_filename( ...
                 'some_sqw.sqw','');
             assertFalse(to_move)
@@ -1026,13 +1026,12 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             dir = hc.working_directory;
             assertEqual(op_fn,'some_sqw');
 
-            dir = regexprep(dir,[filesep,'\$'],'');
-            op_fp= regexprep(op_fp,[filesep,'\$'],'');
+            [op_fp,dir] = obj.unify_directories(op_fp,dir);
             assertEqual(op_fp,dir);
             assertTrue(strncmp(op_fext,'.tmp_',5));
         end
 
-        function test_op_filename_empty_empty(~)
+        function test_op_filename_empty_empty(obj)
             [op_name,to_move] = PixelDataBase.build_op_filename('','');
             assertFalse(to_move)
             [op_fp,op_fn,op_fext] = fileparts(op_name);
@@ -1040,15 +1039,25 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             hc = hor_config;
             dir = hc.working_directory;
             assertEqual(op_fn,'in_mem');
-
-            dir = regexprep(dir,[filesep,'\$'],'');
-            op_fp= regexprep(op_fp,[filesep,'\$'],'');
+            [op_fp,dir] = obj.unify_directories(op_fp,dir);
             assertEqual(op_fp,dir);
             assertTrue(strncmp(op_fext,'.tmp_',5));
         end
     end
     % -- Helpers --
     methods(Static, Access=private)
+        function [dir1,dir2] = unify_directories(dir1,dir2)
+            % helper function which would make the folders look similar
+            % regardless of the presence of filesep symbol at the end
+            if ispc
+                eolr_sym = '\$';
+            else
+                eolr_sym = '$';
+            end
+            dir1 = regexprep(dir1,[filesep,eolr_sym],'');
+            dir2 = regexprep(dir2,[filesep,eolr_sym],'');
+
+        end
 
         function [pix_data,data_range] = get_random_pix_data_(rows)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, rows);
