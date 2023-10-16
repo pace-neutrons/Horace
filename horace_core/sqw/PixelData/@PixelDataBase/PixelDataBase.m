@@ -92,6 +92,8 @@ classdef (Abstract) PixelDataBase < serializable
         % list of unique pixel ID-s present in pixels. Used to help loading
         % old data
         unique_run_id;
+        % True if the object is filebacked and build over temporary file
+        is_tmp_obj;
     end
 
     properties (Constant,Hidden)
@@ -376,7 +378,7 @@ classdef (Abstract) PixelDataBase < serializable
 
         obj = prepare_dump(obj)
         obj = get_write_handle(obj, varargin)
-        obj = dump_data(obj,data_page)
+        obj = store_page_data(obj,data_page)
 
         obj = get_new_handle(obj, varargin)
         %
@@ -418,6 +420,8 @@ classdef (Abstract) PixelDataBase < serializable
         np  = get_page_num(obj);
         obj = set_page_num(obj,val);
         np  = get_num_pages(obj);
+
+        is = get_is_tmp_obj(obj);
     end
 
     %======================================================================
@@ -724,6 +728,9 @@ classdef (Abstract) PixelDataBase < serializable
             obj.keep_precision_ = logical(val);
         end
         %
+        function is = get.is_tmp_obj(obj)
+            is = get_is_tmp_obj(obj);
+        end
     end
     %----------------------------------------------------------------------
     methods

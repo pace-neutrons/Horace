@@ -87,6 +87,11 @@ classdef PixelDataFileBacked < PixelDataBase
         % gets deleted.
         tmp_file_holder_ = [];
     end
+    properties (Hidden, Access=private)
+        % Re #1302 TODO: delete old interface
+        pix_written = 0;
+    end
+
 
     properties(Dependent,Hidden)
         % defines offset from the beginning of the pixels in the binary file
@@ -98,10 +103,6 @@ classdef PixelDataFileBacked < PixelDataBase
         has_open_file_handle;
     end
 
-    properties (Hidden, Access=private)
-        % Re #1302 TODO: delete old interface
-        pix_written = 0;
-    end
 
     properties (Constant)
         is_filebacked = true;
@@ -277,6 +278,20 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = activate_(obj,filename);
         end
 
+        function wh = get_write_handle(obj,varargin)
+            targ_fn = PixelDataBase.build_op_filename(obj.full_filename,varargin{:});
+            wh = pix_write_handle(targ_fn);
+        end
+        %
+        function obj = store_page_data(obj,data,wh)
+            wh.save_data(data);
+        end
+        function obj =set_as_tmp_obj(obj,filename)
+            % mark object's file for deleteon when this class goes out of
+            % scope
+            obj = set_as_tmp_obj_(obj,filename);
+        end
+        %
         function obj = prepare_dump(obj)
             % Get new handle iff not already opened by sqw
             if ~obj.has_open_file_handle
@@ -301,20 +316,6 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             obj.pix_written = 0;
         end
-        function wh = get_write_handle(obj,varargin)
-            targ_fn = PixelDataBase.build_op_filename(obj.full_filename,varargin{:});
-            wh = pix_write_handle(targ_fn);
-        end
-        function obj = store_page_data(obj,data,wh)
-            wh.save_data(data);
-        end
-        function fh = get_tmp_file_holder(obj)
-            fh = obj.tmp_file_holder_;
-        end
-        function obj =set_as_tmp_obj(obj,filename)
-            obj.tmp_file_holder_ = TmpFileHandler(filename,true);
-        end
-
         function obj = format_dump_data(obj, data)
             if ~obj.has_open_file_handle
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
@@ -441,6 +442,10 @@ classdef PixelDataFileBacked < PixelDataBase
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
+        function is = get_is_tmp_obj(obj)
+            is = ~isempty(obj.tmp_file_holder_);
+        end
+
         function full_filename = get_full_filename(obj)
             if isempty(obj.tmp_file_holder_)
                 full_filename = obj.full_filename_;

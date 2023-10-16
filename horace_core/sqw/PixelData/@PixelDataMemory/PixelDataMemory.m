@@ -358,6 +358,9 @@ classdef PixelDataMemory < PixelDataBase
             obj.data_ = val.data;
         end
         %------------------------------------------------------------------
+        function is = get_is_tmp_obj(~)
+            is = false;
+        end
     end
     %----------------------------------------------------------------------
     % PAGING

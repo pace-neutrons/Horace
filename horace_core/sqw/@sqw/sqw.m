@@ -491,7 +491,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 filename = obj.full_filename;
             end
             if obj.is_filebacked
-                obj.tmp_file_holder_ = TmpFileHandler(filename,true);
+                obj = set_as_tmp_obj_(obj,filename);
             end
         end
 

@@ -2,7 +2,7 @@ classdef pix_write_handle < handle
     %PIX_WRITE_HANDLE wraps different kinds of write access handles for
     % writing pixels, provides common interface for writing pixels.
     %
-    % In addition, it closes accessor handle on class deleteon, and may
+    % In addition, it closes accessor handle on class deletion, and may
     % delete target file if the class goes out of scope due to errors.
     %
     properties
@@ -58,7 +58,7 @@ classdef pix_write_handle < handle
                 start_pos = obj.npix_written_+1;
             end
             if obj.handle_is_class_
-                obj.write_handle_ = obj.write_handle_.put_raw_pix(data,start_pos);get_tmp_file_holder
+                obj.write_handle_ = obj.write_handle_.put_raw_pix(data,start_pos);
             else
                 fwrite(obj.write_handle_, single(data), 'single');
             end

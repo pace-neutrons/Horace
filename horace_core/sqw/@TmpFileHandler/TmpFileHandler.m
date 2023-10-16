@@ -11,8 +11,15 @@ classdef TmpFileHandler < handle
     % name explosions should temporaries of temporaries be created.
     %
     % Temporary filepath will be located in the Horace tmp_dir
+
     properties
         file_name;
+    end
+    properties(Dependent)
+        is_locked
+    end
+    properties(Access = private)
+        is_locked_ = false;
     end
     methods
         function obj = TmpFileHandler(source_name,use_name_provided)
@@ -38,12 +45,22 @@ classdef TmpFileHandler < handle
             end
         end
         function is = isempty(obj)
-            % for checking this class holder property for it beeing 
+            % for checking this class holder property for it beeing
             % empty (not assigned anything) or invalid (delete method
             % called directrly)
             is = ~isvalid(obj);
         end
+        function is = get.is_locked(obj)
+            is = obj.is_locked_;
+        end
+        function set.is_locked(obj,val)
+            obj.is_locked_ = logical(val);
+        end
+
         function delete(obj)
+            if obj.is_locked_
+                return;
+            end
             del_memmapfile_files(obj.file_name);
         end
     end
