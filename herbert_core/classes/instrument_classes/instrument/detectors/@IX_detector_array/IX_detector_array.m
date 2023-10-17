@@ -176,8 +176,14 @@ classdef IX_detector_array < serializable
                                 S.group, S.x2, S.phi, S.azim, ...
                                 IX_det_TobyfitClassic (S.width, S.height));
                         elseif isempty(dtype)
+                            %{
+                            % omitting this warning for the moment as it
+                            % causes problems with
+                            % test_admin/upgrade_file_formats, but it may be
+                            % useful to reinstate it at some stage
                             warning("HORACE:IX_detector_array:empty detector type", ...
                                     "probably on load from detpar");
+                            %}
                             obj.det_bank_ = IX_detector_bank ( ...
                                 S.group, S.x2, S.phi, S.azim, ...
                                 IX_det_TobyfitClassic (S.width, S.height));
