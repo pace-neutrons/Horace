@@ -55,6 +55,9 @@ classdef (Abstract) PixelDataBase < serializable
         alignment_matr_ = eye(3);
         old_file_format_ = false;
         unique_run_id_ = [];
+        % If true, do not convert data loaded from disk into double at
+        % loading
+        keep_precision_  = false;
     end
 
     properties(Dependent,Hidden)
@@ -75,9 +78,10 @@ classdef (Abstract) PixelDataBase < serializable
         % in filebacked operations
         default_page_size;
 
-        % The property returns page of data if PixelData are in Crystal Cartesian
-        % coordinate system or page of raw data (not multiplied by alignment
-        % matrix) if pixels are misaligned.
+        % The property returns page of data equivalent to data if PixelData
+        % are in Crystal Cartesian coordinate system or page of
+        % raw data (not multiplied by alignment matrix) if pixels
+        % are misaligned.
         raw_data;
 
         % Property informing that data are obtained from old file format,
@@ -177,7 +181,9 @@ classdef (Abstract) PixelDataBase < serializable
         all_experiment % [5xnpi] array of all data obtained in experiment, excluding
         % q-dE, which are calculated from indexes and detector positions
 
-
+        % if false, converts all pixel data loaded from disk into double
+        % precision
+        keep_precision
     end
 
     methods(Static,Hidden)
@@ -195,6 +201,25 @@ classdef (Abstract) PixelDataBase < serializable
                 scale_fac = [];
             end
             isfb = do_filebacked_(num_pixels, scale_fac);
+        end
+        function [filename,move_to_orig] = build_op_filename(original_fn,target_fn)
+            % build temporary filename -- target of an operation.
+            %
+            % When operation performed on filebacked object, its temporary
+            % results are stored in a temporary file. This name is build
+            % according to the rules defined here
+            % Inputs:
+            % original_fn -- name of the orignal file-source of the
+            %                operation
+            % target_fn   -- optional name of the file to save data
+            %
+            % Returns:
+            % filename     -- target filename for operation.
+            % move_to_orig -- true, if original filename was equal to
+            %                 target filename and we need to move resulting
+            %                 file to the initial location as the result of
+            %                 operation. False otherwise.
+            [filename,move_to_orig] = build_op_filename_(original_fn,target_fn);
         end
 
         function obj = create(varargin)
@@ -307,6 +332,18 @@ classdef (Abstract) PixelDataBase < serializable
                     'Actually input class is: %s'],class(fld_name));
             end
         end
+        function format = get_memmap_format(num_pixels, tail)
+            if nargin == 1
+                tail = 0;
+            end
+            data_size = double([PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pixels]);
+            if tail>0
+                format = {'single',data_size,'data';'uint8',double(tail),'tail'};
+            else
+                format = {'single',data_size,'data'};
+            end
+        end
+
     end
     %======================================================================
     methods(Abstract)
@@ -319,7 +356,6 @@ classdef (Abstract) PixelDataBase < serializable
         pix = set_raw_data(obj,pix);
 
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
-        [pix_out, data] = do_unary_op(obj, unary_op, data);
 
         % apply function represented by handle to every pixel of the dataset
         % and calculate appropriate averages if requested
@@ -332,10 +368,15 @@ classdef (Abstract) PixelDataBase < serializable
     % File handling/migration.
     methods(Abstract)
         obj = prepare_dump(obj)
+        obj = get_write_handle(obj, varargin)
+        obj = dump_data(obj,data_page)
+
         obj = get_new_handle(obj, varargin)
-        obj = format_dump_data(obj,data_page)
+        %
         obj = finish_dump(obj,varargin)
-        [wh,fh] = get_write_info(obj)
+        %
+        % Sets file, associated with object to be removed when obj gets out of scope
+        obj =set_as_tmp_obj(obj,filename);
         % Paging:
         % pixel indices of the current page
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
@@ -365,12 +406,11 @@ classdef (Abstract) PixelDataBase < serializable
         % part of alignment_mart setter
         obj = set_alignment_matrix(obj,val);
         %------------------------------------------------------------------
-        % paging
+        % paging/IO operations
         page_size = get_page_size(obj);
         np  = get_page_num(obj);
         obj = set_page_num(obj,val);
         np  = get_num_pages(obj);
-
     end
 
     %======================================================================
@@ -378,7 +418,7 @@ classdef (Abstract) PixelDataBase < serializable
     methods(Access=private)
         obj = realign_(obj);
     end
-
+    %
     methods
         function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
@@ -674,13 +714,26 @@ classdef (Abstract) PixelDataBase < serializable
             %
             ids = obj.unique_run_id_;
         end
+        %
+        function do = get.keep_precision(obj)
+            do = obj.keep_precision_;
+        end
+        function obj = set.keep_precision(obj,val)
+            obj.keep_precision_ = logical(val);
+        end
+        %
     end
     %----------------------------------------------------------------------
     methods
         % return set of pixels, defined by its indexes
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
-        %
+        %==================================================================
+        % These methods are historically present on pixels and were modifying
+        % sqw object image indirectly. Now they are reimplemented on sqw
+        % object using apply, and left here for historical reasons and for
+        % the case, when one may want to use them on pixels only.
         pix_out = mask(obj, mask_array, npix);
+        pix_out = do_unary_op(obj, unary_op)
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data

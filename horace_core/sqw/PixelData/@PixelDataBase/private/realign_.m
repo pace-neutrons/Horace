@@ -1,4 +1,4 @@
-function obj = realign(obj)
+function obj = realign_(obj)
 %REALIGN align pixels according to the alignment matrix attached to
 % pixels and clear alignment information
 

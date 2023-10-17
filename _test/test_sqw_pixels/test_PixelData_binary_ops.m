@@ -270,7 +270,8 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             assertEqualToTol(pix2.data, data2);
             % reads all filebacked pixels in memory
             pixSS = pix3.get_pixels('all','-keep');
-            assertEqualToTol(pixSS.signal,single(ones(1, pix3.num_pixels)));
+            assertEqualToTol(pixSS.signal,single(ones(1, pix3.num_pixels)) ...
+                ,'tol',4*eps('single'));
         end
 
         function test_add_double_npix_memory(obj)

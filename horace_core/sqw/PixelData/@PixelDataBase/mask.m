@@ -60,7 +60,7 @@ pix_op = PageOp_mask();
 if ~isempty(npix)
     pix_op.npix = npix;
 end
-[pix_op,obj] = pix_op.init(obj,keep);
+pix_op = pix_op.init(obj,keep);
 obj    = obj.apply_c(obj,pix_op);
 
 

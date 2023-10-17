@@ -10,8 +10,8 @@ classdef PageOp_func_eval < PageOpBase
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'func_eval';
         end
-        function [obj,sqw_obj] = init(obj,sqw_obj)
-            [obj,sqw_obj] = init@PageOpBase(obj,sqw_obj);
+        function obj = init(obj,sqw_obj)
+            obj  = init@PageOpBase(obj,sqw_obj);
             obj.pix_idx_start_ = 1;
             %
         end
@@ -43,7 +43,8 @@ classdef PageOp_func_eval < PageOpBase
             npix_block = npix_blocks{idx};
             npix = sum(npix_block(:));
             pix_idx_end = obj.pix_idx_start_+npix-1;
-            obj.page_data_ = obj.pix_.get_pixels(obj.pix_idx_start_:pix_idx_end,'-raw');
+            obj.page_data_ = obj.pix_.get_pixels( ...
+                obj.pix_idx_start_:pix_idx_end,'-raw');
             obj.pix_idx_start_ = pix_idx_end+1;
         end
 

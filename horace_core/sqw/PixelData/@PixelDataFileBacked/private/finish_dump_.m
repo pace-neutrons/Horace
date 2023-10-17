@@ -1,7 +1,20 @@
-function obj = finish_dump_(obj)
-% complete pixel write operation, close writing to the target file and 
+function obj = finish_dump_(obj,page_op)
+% complete pixel write operation, close writing to the target file and
 % open pixel dataset for read operations.
 %
+%
+if nargin>1 % new interface
+    wh = page_op.write_handle;
+    init_info = wh.release_pixinit_info();
+    if wh.is_tmp_file
+        obj = obj.set_as_tmp_obj(wh.write_file_name);
+    end
+    obj = obj.init(init_info);
+    return
+end
+
+% Re #1302 TODO: DELETE Old interface. Letf to maintain the tests which
+% are not yet transformed as part of #1302.
 if ~obj.has_open_file_handle
     error('HORACE:PixelDataFileBacked:runtime_error', ...
         'Cannot finish dump writing, object does not have open filehandle')
@@ -37,4 +50,5 @@ else
         'Repeat', 1, ...
         'Writable', true, ...
         'offset', obj.offset_);
+    obj.page_num_ = 1;
 end

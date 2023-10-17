@@ -91,6 +91,8 @@ classdef horace_binfile_interface < serializable
         io_mode % is opened in. Empty if the file is not opened
         % access to the file_id of the f-accessor
         file_id
+        % property, which gives read-only access to file-closer
+        file_closer;
     end
 
     properties(Access=protected)
@@ -142,12 +144,12 @@ classdef horace_binfile_interface < serializable
             % the cut (the cut image range is in hkl) or to the initial
             % generated sqw file (image range equal to the pixel range)
             % and modify dnd projection accordingly
-            % 
+            %
             % Used in upgrade_file_format, and does nothing for the same
             % file formats
         end
     end
-    
+
     % Main class methods & constructor
     methods
         function obj = horace_binfile_interface(varargin)
@@ -203,8 +205,7 @@ classdef horace_binfile_interface < serializable
         is = is_activated(obj, read_or_write);
         %----------------
         function obj = delete(obj)
-            % close associated file (if open) and remove all information
-            % about internal file structure from memory.
+            % close associated file
             obj = delete_(obj);
         end
         function obj = init_input_stream(obj,objinit)
@@ -348,6 +349,9 @@ classdef horace_binfile_interface < serializable
         end
         function id = get.file_id(obj)
             id = obj.file_id_;
+        end
+        function fc = get.file_closer(obj)
+            fc = obj.file_closer_;
         end
         %
         function obj = fclose(obj)

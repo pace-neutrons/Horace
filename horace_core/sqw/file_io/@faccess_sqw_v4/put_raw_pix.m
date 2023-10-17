@@ -20,6 +20,9 @@ function  obj= put_raw_pix(obj,pix_data,pix_idx,varargin)
 if nargin <3
     pix_idx = 1;
 end
+if size(pix_data,2) == 0
+    return;
+end
 
 if ~obj.is_activated('write')
     obj = obj.activate('write');

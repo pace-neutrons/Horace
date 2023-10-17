@@ -38,6 +38,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % The date of the sqw object file creation. As the date is defined both
         % in sqw and dnd object parts, this property synchronize both
         creation_date;
+        % return state of the object, if it is fully in memory or
+        % filebacked
+        is_filebacked;
     end
 
     properties(Hidden,Dependent)
@@ -57,6 +60,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     properties(Access=protected)
+        % The class which briefe description of a whole sqw file.
+        main_header_ = main_header_cl();
+
+        experiment_info_ = Experiment();
+        % detectors array
+        detpar_  = struct([]);
+
         % holder for image data, e.g. appropriate dnd object
         data_;
 
@@ -64,17 +74,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Object containing data for each pixe
         pix_ = PixelDataBase.create();
     end
-
-    properties(Hidden)
-        % Holder for temporary file to clear
-        % it on object deletion
-        file_holder_;
-    end
-
-    properties(Access=protected)
-        main_header_ = main_header_cl();
-        experiment_info_ = Experiment();
-        detpar_  = struct([]);
+    properties(Access=private)
+        % holder for the class, which deletes temporary file when holding
+        % object goes out of scope.
+        % Has to be present on sqw level, as pix level can not delete file
+        % due to object destruction rules.
+        tmp_file_holder_;
+        % Re #1302 delete old interface
+        file_holder_
     end
 
     methods(Static)
@@ -159,6 +166,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         new_sqw = copy(obj, varargin)
         [obj, ldr] = get_new_handle(obj, outfile)
+        wh   = get_write_handle(obj, outfile)
         obj = finish_dump(obj,varargin);
     end
     %======================================================================
@@ -193,7 +201,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %------------------------------------------------------------------
         % sigvar block
-        wout              = sigvar(w); % Create sigvar object from sqw or dnd object
+        wout              = sigvar(w); % Create sigvar object from sqw object
         [s,var,mask_null] = sigvar_get (w);
         sz                = sigvar_size(w);
         %------------------------------------------------------------------
@@ -406,7 +414,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %
         function fn = get.full_filename(obj)
-            fn = fullfile(obj.main_header.filepath,obj.main_header.filename);
+            if isempty(obj.tmp_file_holder_)
+                fn = obj.main_header.full_filename;                
+            else
+                fn = obj.tmp_file_holder_.file_name;
+            end
         end
         function obj = set.full_filename(obj,val)
             if ~(isstring(val)||ischar(val))
@@ -429,9 +441,27 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.main_header.creation_date = val;
             obj.data.creation_date = val;
         end
+        %
+        function is = get.is_filebacked(obj)
+            if obj.has_pixels
+                is = obj.pix.is_filebacked;
+            else
+                is = false;
+            end
+        end
+        function obj = set_as_tmp_obj(obj,filename)
+            % method sets filebacked sqw object to be temporary object i.e.
+            % the underlying file, provided as input is getting deleted
+            % when object goes out of scope
+            obj.tmp_file_holder_ = TmpFileHandler(filename,true);
+        end
+
         %==================================================================
         function obj = apply_c(obj, operation)
-            % Apply unary operation affecting sqw object and pixels
+            % Apply special PageOp operation affecting sqw object and pixels
+            %
+            % See what PageOp is from PageOpBase class description and its
+            % children
             %
             % Inputs:
             % obj       -- sqw object - contains pixels and image to be
@@ -440,7 +470,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %              which operates on PixelData, modifies pixels and
             %              calculates changes to image, caused by the
             %              modifications to pixels.
-            obj = obj.pix.apply_c(obj,operation);
+            for i=1:numel(obj)
+                obj(i) = obj(i).pix.apply_c(obj(i),operation);
+            end
         end
 
         function obj = apply(obj, func_handle, args, recompute_bins, compute_variance)
@@ -548,7 +580,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
     %======================================================================
     methods(Access = protected)
-        wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         % binning of an sqw or dnd object

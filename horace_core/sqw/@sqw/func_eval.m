@@ -129,7 +129,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
         if ~isempty(opts.outfile{i})
             page_op.outfile = opts.outfile{i};
         end
-        [page_op,wout_i] = page_op.init(wout_i);
+        page_op = page_op.init(wout_i);
         wout_i = wout_i.apply_c(page_op);
     end
 

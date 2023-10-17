@@ -83,7 +83,7 @@ classdef (Abstract) SQWDnDBase < serializable
         [wout,al_info] = upgrade_legacy_alignment(obj,varargin)
         %------------------------------------------------------------------
     end
-    properties(Constant)
+    properties(Constant,Hidden)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
         % exceeds real pix_range (or input pix_range) by this value.
         border_size = -4*eps
@@ -109,7 +109,6 @@ classdef (Abstract) SQWDnDBase < serializable
     end
 
     methods (Abstract, Access = protected)
-        wout = unary_op_manager(w, operation_handle);
         wout = binary_op_manager_single(w1,w2,binary_op);
         wout = sqw_eval_pix(wout, sqwfunc, ave_pix, pars, outfile, i);
         %
@@ -143,6 +142,8 @@ classdef (Abstract) SQWDnDBase < serializable
     end
 
     methods (Access = protected)
+        wout = unary_op_manager(w, operation_handle);
+        %
         function [func_handle, pars, opts] = parse_funceval_args(win, func_handle, pars, varargin)
             % Process arguments of func_eval function
             [func_handle, pars, opts] = parse_funceval_args_(win, func_handle, pars, varargin{:});

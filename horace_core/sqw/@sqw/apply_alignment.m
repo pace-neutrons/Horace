@@ -27,7 +27,7 @@ al_info = crystal_alignment_info(alatt,angdeg,rotvec);
 
 % this modifies this proj transformation not to use double transformation
 % when calculating pix_to_img transformation with aligned pixels as argument.
-% All other thransfornations are not affected
+% All other transformations are not affected
 obj.data.proj.proj_aligned = false;
 
 if obj.pix.is_filebacked
