@@ -126,6 +126,14 @@ classdef PageOpBase
         function obj = PageOpBase(varargin)
             % Constructor for page operations
             %
+            crd_idx = PixelDataBase.field_index({ ...
+                'coordinates','run_idx','signal','variance'});
+            obj.var_idx_    = crd_idx(end);
+            obj.signal_idx_ = crd_idx(end-1);
+            obj.run_idx_    = crd_idx(end-2);
+
+            obj.coord_idx_  = crd_idx(1:end-3);
+            
             if nargin == 0
                 return;
             end
@@ -138,13 +146,7 @@ classdef PageOpBase
             if nargin == 1
                 return;
             end
-            crd_idx = PixelDataBase.field_index({ ...
-                'coordinates','run_idx','signal','variance'});
-            obj.var_idx_    = crd_idx(end);
-            obj.signal_idx_ = crd_idx(end-1);
-            obj.run_idx_    = crd_idx(end-2);
-
-            obj.coord_idx_  = crd_idx(1:end-3);
+            obj.pix_data_range_ = PixelDataBase.EMPTY_RANGE;            
 
             %
             if ~obj.inplace
@@ -216,8 +218,8 @@ classdef PageOpBase
             % out_obj -- sqw object created as the result of the operation
             % obj     -- nullified PageOp object.
 
-            pix = obj.pix_;
-            pix     = pix.set_data_range(obj.pix_data_range_);
+            pix   = obj.pix_;
+            pix   = pix.set_data_range(obj.pix_data_range_);
             % revert usual order of pixel operations (data converted to
             % double)
             pix.keep_precision = false;

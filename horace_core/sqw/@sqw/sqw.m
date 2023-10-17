@@ -177,7 +177,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % file in memory and alowing external operations with backing files
             obj.pix = obj.pix.deactivate();
             if ~isempty(obj.tmp_file_holder_)
-                obj.tmp_file_holder_.is_locked = true;
+                obj.tmp_file_holder_.lock();
             end
             obj.tmp_file_holder_ = [];
         end

@@ -68,13 +68,15 @@ classdef pix_write_handle < handle
             if obj.handle_is_class_
                 num_pixels = obj.npix_written;
                 wh = obj.write_handle_;
-                pix_meta = pix_obj.metadata;
-                pix_meta.npix = num_pixels;
-                wh = wh.put_pix_metadata(pix_meta);
                 % Force pixel update. This is necessary -- modifies
                 % and writes pix_data_blockk information independently on
-                % pix_metadata and modifies npix in wh too.
-                obj.write_handle_ = wh.put_num_pixels(num_pixels);
+                % pix_metadata and modifies npix in wh too. If number of pixel 
+                % have changed (masking) would reduce the size of the file
+                wh = wh.put_num_pixels(num_pixels);
+                pix_meta = pix_obj.metadata;
+                pix_meta.full_filename = wh.full_filename;
+                pix_meta.npix = num_pixels;
+                obj.write_handle_ = wh.put_pix_metadata(pix_meta);
             end
         end
         %

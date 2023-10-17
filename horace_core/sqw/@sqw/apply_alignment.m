@@ -29,18 +29,15 @@ if ~targ_obj.pix.is_misaligned
             % are sharing the same handle and deactivation locks filehandle
             targ_obj = targ_obj.deactivate();
             if targ_obj.is_tmp_obj
-                movefile(targ_obj.full_filename,outfile,'f');
+                % filebacked pixels always have correct filename
+                movefile(targ_obj.pix.full_filename,outfile,'f');
             else
                 if ll>0
                     tb = tic;
-                    fprintf('*** Copying aligned file %s to new file %s\n', ...
+                    fprintf('*** Copying aligned file: %s to new file: %s\n', ...
                         targ_obj.full_filename,outfile);
                 end
-                copyfile(targ_obj.full_filename,outfile);
-                if obj.is_tmp_obj
-                    % unlock existing lock on source object
-                    obj.set_as_tmp_obj();
-                end
+                copyfile(targ_obj.pix.full_filename,outfile);       
                 if ll>0
                     te  = toc(tb);
                     fprintf('*** Copying completed in %d sec\n', ...
@@ -49,6 +46,8 @@ if ~targ_obj.pix.is_misaligned
 
             end
             targ_obj = targ_obj.activate(outfile);
+            % its probably not a tmp file if name provided
+            targ_obj.tmp_file_holder_ = [];
         end
     end
     al_info = [];

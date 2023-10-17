@@ -15,11 +15,9 @@ classdef TmpFileHandler < handle
     properties
         file_name;
     end
-    properties(Dependent)
-        is_locked
-    end
     properties(Access = private)
         is_locked_ = false;
+        copy_count_ = 1;
     end
     methods
         function obj = TmpFileHandler(source_name,use_name_provided)
@@ -50,11 +48,17 @@ classdef TmpFileHandler < handle
             % called directrly)
             is = ~isvalid(obj);
         end
-        function is = get.is_locked(obj)
-            is = obj.is_locked_;
+        function obj=copy(obj)
+            obj.copy_count_ = obj.copy_count_+1;
         end
-        function set.is_locked(obj,val)
-            obj.is_locked_ = logical(val);
+        function lock(obj)
+            obj.copy_count_ = obj.copy_count_-1;
+            if obj.copy_count_ < 1
+                obj.is_locked_ = true;
+            end
+        end
+        function unlock(obj)
+            obj.is_locked_ = false;
         end
 
         function delete(obj)

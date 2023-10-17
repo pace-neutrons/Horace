@@ -118,7 +118,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(alatt_c, obj.alatt, 'absolute', 0.01)
             assertElementsAlmostEqual(angdeg_c, obj.angdeg, 'absolute', 0.01)
 
-            tmp_file_2 = TmpFileHandler('test_change_crystal_coarse_sima_realigned.sqw');
+            %tmp_file_2 = TmpFileHandler('test_change_crystal_coarse_sima_realigned.sqw');
 
             realigned_sqw_file = tmp_file_1.file_name;
 
@@ -156,13 +156,13 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             % apply new crystal alignment
             change_crystal(tf_ref_corr, corrections);
-
             copyfile(tf_ref_corr, tf_ref_al, 'f');
+
             [wout_aligned, corr_rev] = apply_alignment(tf_ref_al);
+            assertEqual(wout_aligned.full_filename,tf_ref_al);
 
             % ensure we indeed do filebacked algorithm
             assertTrue(wout_aligned.is_filebacked);
-            assertEqual(wout_aligned.full_filename, tf_ref_al);
 
             corr_rev.rotvec = -corr_rev.rotvec;
             assertEqualToTol(corrections, corr_rev, 'tol', 1.e-9)
@@ -176,6 +176,8 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 [cr(1, 2), 0.05, cr(2, 2)], ...
                 cr(:, 3)', cr(:, 4)'};
 
+            % test the cut from crystal with alignment and cut with aligned
+            % crystal, alignment applied are the same
             cut_cor= cut(tf_ref_corr, proj, cut_range{:});
             cut_al = cut(tf_ref_al, proj, cut_range{:});
 
@@ -202,6 +204,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % apply new crystal alignment
             change_crystal(tf_ref_corr, corrections);
             [wout_aligned, corr_rev] = apply_alignment(tf_ref_corr, '-keep');
+            assertFalse(strcmp(wout_aligned.full_filename,tf_ref_corr));
 
             % ensure we do filebacked algorithm
             assertTrue(wout_aligned.pix.is_filebacked);
@@ -279,12 +282,12 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertFalse(strcmp(test_fb_al.full_filename,test_file));
 
             clear test_fb;
-            % old file deleted.        
+            % old file deleted.
             assertFalse(is_file(test_file));
             obj_file = test_fb_al.full_filename;
             assertTrue(is_file(obj_file));
 
-            % new file deleted too.            
+            % new file deleted too.
             clear test_fb_al;
             assertFalse(is_file(test_file));
         end

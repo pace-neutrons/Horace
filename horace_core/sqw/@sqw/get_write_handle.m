@@ -17,7 +17,7 @@ if nargin == 1
 end
 
 [op_outfile,move_to_original] = PixelDataBase.build_op_filename( ...
-    obj.full_filename,outfile);
+    obj.pix.full_filename,outfile);
 
 % Write the given SQW object to the given file.
 % The pixels of the SQW object will be derived from the image signal array
