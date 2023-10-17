@@ -13,7 +13,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             obj.stored_config = hc.get_data_to_store();
         end
 
-        function test_apply_alignment_filebacked(~)
+        function test_finalize_alignment_filebacked(~)
             clW = set_temporary_warning('off', 'HOR_CONFIG:set_mem_chunk_size');
             clCf = set_temporary_config_options(hor_config, 'mem_chunk_size', 10);
             pix_data = rand(9, 30);
@@ -33,13 +33,13 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             ref_range = [min(ref_data, [], 2), max(ref_data, [], 2)]';
 
-            pdm = pdm.apply_alignment();
+            pdm = pdm.finalize_alignment();
 
             assertFalse(pdm.is_misaligned);
             assertEqualToTol(pdm, ref_pix, 'tol', 1e-6);
         end
 
-        function test_apply_alignment_membacked(~)
+        function test_finalize_alignment_membacked(~)
             pix_data = rand(9, 10);
 
             pdm = PixelDataMemory(pix_data);
@@ -55,7 +55,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             ref_range = [min(ref_data, [], 2), max(ref_data, [], 2)]';
 
-            pdm = pdm.apply_alignment();
+            pdm = pdm.finalize_alignment();
 
             assertFalse(pdm.is_misaligned);
             assertElementsAlmostEqual(pdm.data, ref_data);

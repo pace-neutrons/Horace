@@ -1,4 +1,4 @@
-function [targ_obj,al_info] = apply_alignment(obj, outfile)
+function [targ_obj,al_info] = finalize_alignment(obj, outfile)
 % If pixels are misaligned apply pixel alignment to all pixels and store
 % result in modified file, if such file is provided.
 %
@@ -26,7 +26,7 @@ if ~targ_obj.pix.is_misaligned
         if ~strcmp(outfile,targ_obj.full_filename)
             ll = config_store.instance().get_value('hor_config','log_level');
             % this will lock source object too, as source and target
-            % are sharing the same handle and deactivation locks filehandle
+            % are sharing the same handle and deactivation locks file-handle
             targ_obj = targ_obj.deactivate();
             if targ_obj.is_tmp_obj
                 % filebacked pixels always have correct filename
@@ -64,7 +64,7 @@ pix_op = PageOp_recompute_bins();
 %
 pix_op.outfile = outfile;
 pix_op.changes_pix_only = true;
-pix_op.op_name = 'apply_alignment';
+pix_op.op_name = 'finalize_alignment';
 
 pix_op = pix_op.init(targ_obj);
 targ_obj    = targ_obj.apply_c(pix_op);

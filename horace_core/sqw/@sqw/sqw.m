@@ -132,7 +132,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
 
-        [obj,al_info] = apply_alignment(obj,filename);
+        [obj,al_info] = finalize_alignment(obj,filename);
 
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);

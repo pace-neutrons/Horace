@@ -1,4 +1,4 @@
-function [sqw_obj,al_info] = apply_alignment(filename,varargin)
+function [sqw_obj,al_info] = finalize_alignment(filename,varargin)
 %APPLY_ALIGNMEMT Utility takes aligned file and apply alignment information
 %stored in it to pixels and image so the object becomes realigned as from
 % the beginning and the aligment information is not necessary any more.
@@ -12,7 +12,7 @@ function [sqw_obj,al_info] = apply_alignment(filename,varargin)
 %Returns:
 % sqw_obj -- sqw object with information, changed according to alignment.
 %            If file is big enough, sqw_obj will be filebacked.
-% al_data -- crystal_alignment_info class instance describing the alignmnet
+% al_data -- crystal_alignment_info class instance describing the alignment
 %            (reverse) applies to the object.
 %            empty if no alignment was identified/applied
 %
@@ -46,6 +46,6 @@ else
     % will replace original
     argi = {ld.full_filename};    
 end
-[sqw_obj,al_info] = sqw_obj.apply_alignment(argi{:});
+[sqw_obj,al_info] = sqw_obj.finalize_alignment(argi{:});
 
 

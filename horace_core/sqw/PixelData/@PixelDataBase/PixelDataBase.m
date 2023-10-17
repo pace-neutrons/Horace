@@ -743,7 +743,7 @@ classdef (Abstract) PixelDataBase < serializable
         % the case, when one may want to use them on pixels only.
         pix_out = mask(obj, mask_array, npix);
         pix_out = do_unary_op(obj, unary_op)
-        obj     = apply_alignment(obj,filename);
+        obj     = finalize_alignment(obj,filename);
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data
