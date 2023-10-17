@@ -12,7 +12,7 @@ if isa(obj.f_accessor_,'memmapfile')
     mmf_struct.Offset   = obj.f_accessor_.Offset;
     obj.f_accessor_ = mmf_struct;
     if ~isempty(obj.tmp_file_holder_)
-        obj.tmp_file_holder_.is_locked = true;
+        obj.tmp_file_holder_.lock;
     end
     obj.tmp_file_holder_ = [];
 end

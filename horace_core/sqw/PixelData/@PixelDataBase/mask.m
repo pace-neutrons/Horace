@@ -1,4 +1,4 @@
-function obj = mask(obj, keep_array, npix)
+function out_obj = mask(obj, keep_array, npix)
 % MASK keeps only pixels specified by the input logical array
 %
 % You must specify exactly one return argument when calling this function.
@@ -45,14 +45,14 @@ end
 if all(keep_array)
     return
 elseif ~any(keep_array)
-    obj = PixelDataBase.create();
+    out_obj  = PixelDataBase.create();
     return;
 elseif numel(keep_array) == obj.num_pixels % all specified
     keep = keep_array;
 elseif ~isempty(npix) && sum(npix) == obj.num_pixels
     keep = keep_array;
 else
-    error('HORACE:PixelDataBase:invalid_argument', ...    
+    error('HORACE:PixelDataBase:invalid_argument', ...
         'keep array size must be either equal to num_pixels in PixelData (%d) or number of elements in npix array provided (%d). It is: %d', ...
         obj.num_pixels,sum(npix(:)),numel(keep_array));
 end
@@ -60,7 +60,8 @@ pix_op = PageOp_mask();
 if ~isempty(npix)
     pix_op.npix = npix;
 end
-pix_op = pix_op.init(obj,keep);
-obj    = obj.apply_c(obj,pix_op);
+out_obj   = obj.copy();
+pix_op    = pix_op.init(out_obj ,keep);
+out_obj   = out_obj.apply_c(out_obj ,pix_op);
 
 

@@ -166,7 +166,8 @@ classdef PixelDataMemory < PixelDataBase
             %  is only none page
             %
         end
-        function obj = copy(obj)
+        function obj_out = copy(obj)
+            obj_out = obj;
         end
     end
 
