@@ -740,7 +740,7 @@ classdef (Abstract) PixelDataBase < serializable
         % These methods are historically present on pixels and were modifying
         % sqw object image indirectly. Now they are reimplemented on sqw
         % object using apply, and left here for historical reasons and for
-        % the case, when one may want to use them on pixels only.
+        % the case, when one may want to use them on pixels only (testing?).
         pix_out = mask(obj, mask_array, npix);
         pix_out = do_unary_op(obj, unary_op)
         obj     = finalize_alignment(obj,filename);

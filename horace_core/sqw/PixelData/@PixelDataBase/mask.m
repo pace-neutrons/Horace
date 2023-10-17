@@ -43,6 +43,7 @@ end
 [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, npix);
 
 if all(keep_array)
+    out_obj = obj;
     return
 elseif ~any(keep_array)
     out_obj  = PixelDataBase.create();
