@@ -3,9 +3,8 @@ classdef PageOp_recompute_bins < PageOpBase
     % unless pixels are misaligned. If they are misaligned, resulting
     % pixels get realigned as the result of operation.
     %
-    % Used by recompute_bin_data method, finalize_alignment or recalc_data_range
-    % methods
-    %
+    % Used by recompute_bin_data, finalize_alignment and recalc_data_range
+    % algorithms.
     properties(Hidden)
         % sets change_pix_only for true when class is invoked for
         % alignment operation

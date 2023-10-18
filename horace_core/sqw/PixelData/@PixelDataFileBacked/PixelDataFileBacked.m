@@ -1,30 +1,32 @@
 classdef PixelDataFileBacked < PixelDataBase
-    % PixelDataFileBacked Provides an interface for access to file-backed pixel data
+    % PixelDataFileBacked Provides an interface for access to file-backed pixel data.
+	% Each pixel is representation of neutron event, i.e. neutron or group of neutron
+	% recorded in inelastic neutron experiment
     %
-    %   This class provides getters and setters for each data column in an SQW
-    %   pixel array. You can access the data using the attributes listed below,
-    %   using the get_data() method (to retrieve column data) or using the
-    %   get_pixels() method (retrieve row data).
+    % This class provides getters and setters for each data column in an SQW
+    % pixel array. You can access the data using the attributes listed below,
+    % using the get_data() method (to retrieve column data) or using the
+    % get_pixels() method (retrieve row data).
     %
-    %   Construct this class with an 9 x N array, a file path to an SQW object or
-    %   an instance of sqw_binfile_common.
+    % Construct this class with an 9 x N array, a file path to an SQW object or
+    % an instance of sqw_binfile_common.
     %
-    %   >> pix_data = PixelDataFileBacked(data);
-    %   >> pix_data = PixelDataFileBacked('/path/to/sqw.sqw');
-    %   >> pix_data = PixelDataFileBacked(faccess_obj);
+    % >> pix_data = PixelDataFileBacked(data);
+    % >> pix_data = PixelDataFileBacked('/path/to/sqw.sqw');
+    % >> pix_data = PixelDataFileBacked(faccess_obj);
     %
-    %   No pixel data will be loaded from the file on construction.
-    %   Data will be loaded when a getter is called e.g. pix_data.signal. Data will
-    %   be loaded in pages such that the data held in memory will not exceed `mem_chunk_size`
+    % No pixel data will be loaded from the file on construction.
+    % Data will be loaded when a getter is called e.g. pix_data.signal. Data will
+    % be loaded in pages such that the data held in memory will not exceed `mem_chunk_size`
     %
-    %   The file-backed operations work by loading "pages" of data into memory as
-    %   required. If editing pixels, to avoid losing changes, if a page has been
-    %   edited and the next page is then loaded, the "dirty" page will be written
-    %   to a tmp file. This class's getters will then retrieve data from the tmp
-    %   file if that data is requested from the "dirty" page. Note that "dirty"
-    %   pages are written to tmp files as floats, but stored in memory as double.
-    %   This means data is truncated when moving pages, hence pixel data should not
-    %   be relied upon being accurate to double precision.
+    % The file-backed operations work by loading "pages" of data into memory as
+    % required. If editing pixels, to avoid losing changes, if a page has been
+    % edited and the next page is then loaded, the "dirty" page will be written
+    % to a tmp file. This class's getters will then retrieve data from the tmp
+    % file if that data is requested from the "dirty" page. Note that "dirty"
+    % pages are written to tmp files as floats, but stored in memory as double.
+    % This means data is truncated when moving pages, hence pixel data should not
+    % be relied upon being accurate to double precision.
     %
     % Usage:
     %
@@ -49,10 +51,10 @@ classdef PixelDataFileBacked < PixelDataBase
     %
     % Properties:
     %   u1, u2, u3     - The 1st, 2nd and 3rd dimensions of the Crystal
-    %                    Cartesian coordinates in projection axes, units are per Angstrom (1 x n arrays)
-    %   dE             - The energy transfer value for each pixel in meV (1 x n array)
-    %   coordinates    - The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
-    %   q_coordinates  - The spacial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
+    %                    Cartesian coordinates of neutron events described by pixels. Units are per Angstrom (1 x n arrays)
+    %   dE             - The energy transfer value for each event in meV (1 x n array)
+    %   coordinates    - Four coordinates of the pixel data [u1, u2, u3, dE] (4 x n array)
+    %   q_coordinates  - Three Q-space coordinates of the pixel data [u1, u2, u3] (3 x n array)
     %   run_idx        - The run index the pixel originated from (1 x n array)
     %   detector_idx   - The detector group number in the detector listing for the pixels (1 x n array)
     %   energy_idx     - The energy bin numbers (1 x n array)
@@ -74,7 +76,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
         % shift (in Bytes) from the beginning of the binary file containing
         % the pixels to the first byte of pixels to access. Aslo used
-        % by split into parallel chunks
+        % by `distribute` to send file portions to workers
         offset_ = 0;
 
         % Re #1302 TODO: delete old interface
@@ -171,9 +173,9 @@ classdef PixelDataFileBacked < PixelDataBase
             % 2: struct   -- the structure obtained from serializable
             %                to_struct method, saveobj method or previous
             %                versions of these methods.
-            % 3: pixel_data_wrap -- class-wrapper around pixel data informaion,
+            % 3: pixel_data_wrap -- class-wrapper around pixel data information,
             %                       obtained from obj.data_wrap property
-            %    pixel_metadata  -- class-wrapper aroung pixel metadata
+            %    pixel_metadata  -- class-wrapper around pixel metadata
             %                       information obtained from obj.metadata
             %                       property
             % 4: other_PixelDataFileBacked
@@ -206,7 +208,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % returns obj for compatibility with recalc_pix_range method of
             % combine_pixel_info class, which may be used instead of PixelData
             % for the same purpose.
-            % recalc_data_range is a normal Matlab value object (not a handle object),
+            % recalc_data_range is a normal MATLAB value object (not a handle object),
             % returning its changes in LHS
 
             if nargin == 1
@@ -291,7 +293,7 @@ classdef PixelDataFileBacked < PixelDataBase
             wh.save_data(data);
         end
         function obj =set_as_tmp_obj(obj,filename)
-            % mark object's file for deleteon when this class goes out of
+            % mark object's file for deletion when this class goes out of
             % scope
             obj = set_as_tmp_obj_(obj,filename);
         end

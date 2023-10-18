@@ -4,7 +4,7 @@ function [targ_obj,al_info] = finalize_alignment(obj, outfile)
 %
 % Optional Input:
 % -----
-% outfile   File to save the result of operation. If missed or empty, the
+% outfile   File to save the result of operation. If missing or empty, the
 %           result will be stored in tmp file derived from the original
 %           file
 % Output:

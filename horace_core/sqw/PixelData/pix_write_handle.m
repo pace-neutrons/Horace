@@ -1,6 +1,6 @@
 classdef pix_write_handle < handle
     %PIX_WRITE_HANDLE wraps different kinds of write access handles for
-    % writing pixels, provides common interface for writing pixels.
+    % writing pixels and provides common interface for writing pixels.
     %
     % In addition, it closes accessor handle on class deletion, and may
     % delete target file if the class goes out of scope due to errors.
@@ -69,10 +69,13 @@ classdef pix_write_handle < handle
                 num_pixels = obj.npix_written;
                 wh = obj.write_handle_;
                 % Force pixel update. This is necessary -- modifies
-                % and writes pix_data_blockk information independently on
-                % pix_metadata and modifies npix in wh too. If number of pixel 
-                % have changed (masking) would reduce the size of the file
+                % and writes pix_data_block information independently on
+                % pix_metadata and modifies npix in wh too. If number of
+                % pixels has changed (e.g. masking) this will reduce the
+                % recorded in bat size of the file, so that following write
+                % block operations may reuse the released space.
                 wh = wh.put_num_pixels(num_pixels);
+                %
                 pix_meta = pix_obj.metadata;
                 pix_meta.full_filename = wh.full_filename;
                 pix_meta.npix = num_pixels;

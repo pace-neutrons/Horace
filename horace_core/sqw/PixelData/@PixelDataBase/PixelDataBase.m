@@ -62,7 +62,7 @@ classdef (Abstract) PixelDataBase < serializable
 
     properties(Dependent,Hidden)
         % TWO PROPERTIES USED IN SERIALIATION:
-        % Their appearence this way is caused by need to access to pixel
+        % Their appearance this way is caused by need to access to pixel
         % data array from third party applications
         %
         % The property contains the pixel data layout in
@@ -74,7 +74,7 @@ classdef (Abstract) PixelDataBase < serializable
         % possible location of this array is disk.
         data_wrap;
         %------------------------------------------------------------------
-        % size of the pixel chunk to loat in memory for further processing
+        % size of the pixel chunk to load in memory for further processing
         % in filebacked operations
         default_page_size;
 
@@ -92,7 +92,7 @@ classdef (Abstract) PixelDataBase < serializable
         % list of unique pixel ID-s present in pixels. Used to help loading
         % old data
         unique_run_id;
-        % True if the object is filebacked and build over temporary file
+        % True if the object is filebacked and build on temporary file
         is_tmp_obj;
     end
 
@@ -205,13 +205,15 @@ classdef (Abstract) PixelDataBase < serializable
             isfb = do_filebacked_(num_pixels, scale_fac);
         end
         function [filename,move_to_orig] = build_op_filename(original_fn,target_fn)
-            % build temporary filename -- target of an operation.
+            % Build filename - target of an operation.
             %
-            % When operation performed on filebacked object, its temporary
-            % results are stored in a temporary file. This name is build
-            % according to the rules defined here
+            % When an operation performed on filebacked object, its temporary
+            % results are stored in a temporary file. The name of this file
+            % is build according to the rules defined here. See PageOpBase
+            % for more information about operations.
+
             % Inputs:
-            % original_fn -- name of the orignal file-source of the
+            % original_fn -- name of the original file-source of the
             %                operation
             % target_fn   -- optional name of the file to save data
             %
@@ -372,7 +374,7 @@ classdef (Abstract) PixelDataBase < serializable
         % close all open file handles to allow file movements to new
         % file/new location.
         obj = deactivate(obj)
-        % open file access for file, previously closed by deactivate
+        % reopen file previously closed by deactivate
         % operation, possibly using new file name
         [obj,varargout] = activate(obj,filename,varargin);
 
@@ -411,7 +413,7 @@ classdef (Abstract) PixelDataBase < serializable
         % setters/getters for serializable interface properties
         obj = set_data_wrap(obj,val);
         %------------------------------------------------------------------
-        % set non-unary alignment martix and recalculate or invalidate pix averages
+        % set non-unary alignment matrix and recalculate or invalidate pix averages
         % part of alignment_mart setter
         obj = set_alignment_matrix(obj,val);
         %------------------------------------------------------------------
@@ -739,7 +741,7 @@ classdef (Abstract) PixelDataBase < serializable
         %==================================================================
         % These methods are historically present on pixels and were modifying
         % sqw object image indirectly. Now they are reimplemented on sqw
-        % object using apply, and left here for historical reasons and for
+        % object using apply_op, and left here for historical reasons and for
         % the case, when one may want to use them on pixels only (testing?).
         pix_out = mask(obj, mask_array, npix);
         pix_out = do_unary_op(obj, unary_op)
