@@ -54,12 +54,12 @@ classdef PageOp_coord_calc < PageOpBase
             switch type
                 case {'h','k','l'}
                     get_ind = mod(lind-1, 4)+1;
-                    uhkl = this_proj.transform_pix_to_hkl(obj.pagepix.q_coordinates);
+                    uhkl = this_proj.transform_pix_to_hkl(obj.pixpage.q_coordinates);
                     signal = uhkl(get_ind , :);
                 case 'E'
                     signal = obj.pixpage.dE+obj.proj.offset(4);
                 case 'Q'
-                    qq = obj.pagepix.q_coordinates;
+                    qq = obj.pixpage.q_coordinates;
                     signal =vecnorm(qq, 2, 1);
 
                 case {'d1', 'd2', 'd3', 'd4'}
@@ -69,7 +69,7 @@ classdef PageOp_coord_calc < PageOpBase
                     get_ind = mod(lind-1, 4)+1;
                     get_ind = pax(dax(get_ind));
 
-                    uhkl = this_proj.transform_pix_to_img(obj.pagepix.q_coordinates);
+                    uhkl = this_proj.transform_pix_to_img(obj.pixpage.q_coordinates);
                     signal = uhkl(get_ind , :);
             end
             obj.page_data(obj.signal_idx_,:)  = signal;

@@ -36,7 +36,7 @@ elseif isempty(name) || ~is_string(name)
         'Second argument of this function should be char string selected from input list. Its type is %s',...
         class(name));
 end
-wout = copy(obj);
+wout    = copy(obj);
 page_op = PageOp_coord_calc;
 
 ind = find(ismember(page_op.xname,name));
