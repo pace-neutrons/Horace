@@ -65,7 +65,8 @@ classdef PageOpBase
         write_handle
         % An algorithm applied to a sqw object with missing data range
         % should issue warning that range is recalculated unless the
-        % algorithm is the algorithm, which recalculates missing range
+        % algorithm is the algorithm, which recalculates missing range.
+        % No range warning should be generated for pixels only too.
         do_missing_range_warning;
     end
 
@@ -133,7 +134,7 @@ classdef PageOpBase
             obj.run_idx_    = crd_idx(end-2);
 
             obj.coord_idx_  = crd_idx(1:end-3);
-            
+
             if nargin == 0
                 return;
             end
@@ -146,7 +147,7 @@ classdef PageOpBase
             if nargin == 1
                 return;
             end
-            obj.pix_data_range_ = PixelDataBase.EMPTY_RANGE;            
+            obj.pix_data_range_ = PixelDataBase.EMPTY_RANGE;
 
             %
             if ~obj.inplace
@@ -168,7 +169,7 @@ classdef PageOpBase
                     class(in_obj))
             end
             % as we normally read data and immediately dump them back, what
-            % is the point of converting them to double and back?            
+            % is the point of converting them to double and back?
             obj.pix_.keep_precision = true;
             obj.old_file_format_ = obj.pix_.old_file_format;
         end
@@ -230,7 +231,7 @@ classdef PageOpBase
                 pix   = pix.clear_alignment();
             end
 
-            if isempty(obj.img_) % changes_pix_only -- would not work here 
+            if isempty(obj.img_) % changes_pix_only -- would not work here
                 % as some operations work on sqw but modify pixel only
                 pix = pix.finish_dump(obj);
                 out_obj = pix.copy();
@@ -273,7 +274,7 @@ classdef PageOpBase
     methods
         function does = get.changes_pix_only(obj)
             does = get_changes_pix_only(obj);
-        end       
+        end
         function obj = set.changes_pix_only(obj,val)
             obj = set_changes_pix_only(obj,val);
         end
@@ -373,7 +374,7 @@ classdef PageOpBase
         function wh = get.write_handle(obj)
             wh = obj.write_handle_;
         end
-        % 
+        %
         function do = get.do_missing_range_warning(obj)
             do = get_do_missing_range_warning(obj);
         end
@@ -384,12 +385,12 @@ classdef PageOpBase
             does = isempty(obj.img_);
         end
         function obj = set_changes_pix_only(obj,varargin)
-            % generally, ignored and based on image. 
+            % generally, ignored and based on image.
             % left for possibility to overload in children
         end
 
         function do = get_do_missing_range_warning(~)
-            do  = true;
+            do  = ~isempty(obj.img_);
         end
 
         function obj = update_image(obj,sig_acc,var_acc,npix_acc)
