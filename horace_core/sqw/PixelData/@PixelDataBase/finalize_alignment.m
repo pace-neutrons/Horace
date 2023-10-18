@@ -20,4 +20,4 @@ pix_op.outfile = outfile;
 pix_op.op_name = 'finalize_alignment';
 
 pix_op   = pix_op.init(targ_obj);
-targ_obj = targ_obj.apply_c(targ_obj,pix_op);
+targ_obj = targ_obj.apply_op(targ_obj,pix_op);

@@ -43,7 +43,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         is_filebacked;
     end
 
-    properties(Hidden,Dependent)
+    properties(Dependent,Hidden=true)
+        NUM_DIMS;        
         % the same as npixels, but allows to use the same interface on sqw
         % object or pixels
         num_pixels;
@@ -200,7 +201,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function [nd,sz] = dimensions(win)
             % Return size and shape of the image
             % arrays in sqw or dnd object
-            [nd,sz] = win(1).data.dimensions();
+            if nargout == 1
+            else
+                [nd,sz] = win(1).data.dimensions();
+            end
         end
         %
         function [val, n] = data_bin_limits (obj)
@@ -329,6 +333,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %======================================================================
     % Setters/getters for properties
     methods
+        function nd = get.NUM_DIMS(obj)
+            if isempty(obj.data_)
+                nd = [];
+            else
+                nd = obj.data_.NUM_DIMS;
+            end
+        end
         %------------------------------------------------------------------
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
@@ -503,9 +514,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % the underlying file, provided as input is getting deleted
             % when object goes out of scope.
             %
-            % WARNING: if an sqw object build from existign sqw file is set
+            % WARNING: if an sqw object build from existing sqw file is set
             %          to be the tmp object, the file will be automatically
-            %          deleted when object goes out of scope.
+            %          deleted when the object goes out of scope.
             % USE WITH CAUTION!!!
             if ~obj.is_filebacked
                 return;
@@ -518,7 +529,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
 
         %==================================================================
-        function obj = apply_c(obj, operation)
+        function obj = apply_op(obj, operation)
             % Apply special PageOp operation affecting sqw object and pixels
             %
             % See what PageOp is from PageOpBase class description and its
@@ -532,7 +543,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %              calculates changes to image, caused by the
             %              modifications to pixels.
             for i=1:numel(obj)
-                obj(i) = obj(i).pix.apply_c(obj(i),operation);
+                obj(i) = obj(i).pix.apply_op(obj(i),operation);
             end
         end
 

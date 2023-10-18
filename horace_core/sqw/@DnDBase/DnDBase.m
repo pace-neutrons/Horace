@@ -1,9 +1,7 @@
 classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
-    properties(Abstract,Dependent,Hidden=true)
-        NUM_DIMS
-    end
+
     % The dependent props here have been created solely to retain the (old) DnD object API during the refactor.
     % These will be updated/removed at a later phase of the refactor when the class API is modified.
     properties(Dependent)

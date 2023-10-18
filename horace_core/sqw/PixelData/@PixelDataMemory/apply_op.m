@@ -1,4 +1,4 @@
-function obj_out = apply_c(obj_in,page_op)
+function obj_out = apply_op(obj_in,page_op)
 % Apply operation which changes pixels and image of an input sqw
 % object in a way, not violating relation between pixel ordering and npix.
 %
@@ -10,7 +10,7 @@ function obj_out = apply_c(obj_in,page_op)
 %            Valid sqw  object requested, i.e. obj.data.npix define the
 %            location of pixels in memory
 %  Or
-%            PixelData object to oprate on
+%            PixelData object to operate on
 %page_op --  The instance of the PageOpBase class, which perform operation
 %            over pixels and image of the SQW object
 % Output:

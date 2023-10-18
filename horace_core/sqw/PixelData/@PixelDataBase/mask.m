@@ -63,6 +63,6 @@ if ~isempty(npix)
 end
 out_obj   = obj.copy();
 pix_op    = pix_op.init(out_obj ,keep);
-out_obj   = out_obj.apply_c(out_obj ,pix_op);
+out_obj   = out_obj.apply_op(out_obj ,pix_op);
 
 

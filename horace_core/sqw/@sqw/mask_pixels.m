@@ -106,4 +106,4 @@ page_op   = page_op.init(obj,keep_info);
 if mask_by_bins
     page_op.mask_by_bins = true;
 end
-wout         = obj.apply_c(page_op);
+wout         = obj.apply_op(page_op);
