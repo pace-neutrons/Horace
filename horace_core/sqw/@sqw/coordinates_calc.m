@@ -45,24 +45,20 @@ if isempty(ind)
         'Input parameter must be one or group of parameters from list %s\n. It is: %s',...
         disp2str(page_op.xname),disp2str(name))
 end
-invalid_dim = arrayfun(@(w)(ind<=4 && ind>dimensions(x)),wout);
+% Check consistency of coordinate name(s) with dimensions of sqw object
+% Each set of 4 indexes defines: (d1, d2, d3, d4) + 4 (h, k, l, e) + Q
+invalid_dim = arrayfun(@(w)(ind<=4 && ind>x.NUM_DIMS),wout);
 if any(invalid_dim)
     all_nums = 1:numel(wout);
     invalid_nums = all_nums(invalid_dim);
-    invalid_dims = dimensions(wout(invalid_dim));
+    dims         = arrayfun(@(w)(x.NUM_DIMS),wout);
+    invalid_dims = dims(invalid_dim);
     error('HORACE:sqw:invalid_argument', ...
-         'Coordinate name %s for object(s) N:%s request axes numbers higher then the dimensionality of sqw object(s): %s',...
-          page_op.xname{ind},i, dimensions(wout(i)));    
+        'Coordinate name %s for object(s) N:%s request axes numbers higher then the dimensionality of sqw object(s): %s',...
+        page_op.xname{ind},disp2str(invalid_nums), disp2str(invalid_dims));
 end
 
 for i=1:numel(wout)
-
-    % Check consistency of coordinate name(s) with dimensions of sqw object
-    if ind <= 4 && ind > dimensions(wout(i)) % Each set of 4 (d1, d2, d3, d4) + 4 (h, k, l, e) + Q
-
-    end
     page_op = page_op.init(wout(i),ind);
     wout(i) = wout(i).apply_op(page_op);
-end
-
 end
