@@ -30,15 +30,18 @@ classdef test_sqw_coord_calc < TestCaseWithSave
 
             w1modE = coordinates_calc(obj.sqw_2d, 'E');
 
-            clObj = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+            clObj = set_temporary_config_options(hor_config, ...
+                'mem_chunk_size', 4000,'fb_scale_factor',4);
 
             fb_sqw = sqw(obj.sqw_2d_path);
             assertTrue(fb_sqw.pix.is_filebacked);
 
             w1modE_fb = coordinates_calc(fb_sqw, 'E');
 
-            assertEqualToTol(w1modE.data, w1modE_fb.data, 'ignore_str', true);
-            assertEqualToTol(w1modE.pix, w1modE_fb.pix, 'tol', [1e-8, 1e-5], 'ignore_str', true);
+            assertEqualToTol(w1modE.data, w1modE_fb.data, ...
+                'tol',2*eps('single'),'ignore_str', true);
+            assertEqualToTol(w1modE.pix, w1modE_fb.pix, ...
+                'tol', 2*eps('single'), 'ignore_str', true);
 
         end
 

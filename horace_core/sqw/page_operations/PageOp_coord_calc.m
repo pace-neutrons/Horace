@@ -15,6 +15,10 @@ classdef PageOp_coord_calc < PageOpBase
         % PixelDataMemory class, holding current page of data
         pixpage;
     end
+    properties(Access = private)
+        pix_idx_start_ = 1;
+    end
+    
     properties(Constant)
         xname={'d1';'d2';'d3';'d4'; ...
             'h';'k';'l';'E'; ...
@@ -34,16 +38,42 @@ classdef PageOp_coord_calc < PageOpBase
             end
             obj.ind = ind;
             obj.op_type = obj.xname{ind};
-            obj.op_name_ = sprintf('set signal to %s',obj.op_type);
+            obj.op_name_ = sprintf('"set signal to %s"',obj.op_type);
+            obj.proj = obj.img_.proj;
             obj.pixpage = PixelDataMemory();
+
+            obj.var_acc_ = zeros(numel(obj.npix),1);
+                    obj.pix_idx_start_ = 1;
         end
-        function obj = get_page_data(obj,idx,varargin)
+        function [npix_chunks, npix_idx] = split_into_pages(~,npix,chunk_size)
+            % Method used to split input npix array into pages
+            %
+            % Overload specific for coord_calc
+            % Inputs:
+            % npix  -- image npix array, which defines the number of pixels
+            %           contributing into each image bin and the pixels
+            %           ordering in the linear array
+            % chunk_size
+            %       -- sized of chunks to split pixels
+            % Returns:
+            % npix_chunks -- cellarray, containing the npix parts
+            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
+            %                the npix array.
+            % See split procedure for more details
+             [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
+        end
+
+        
+        function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation
             %
-            % This is most common form of the operation. Some operations
-            % will request overloading
-            obj.pix_.page_num = idx;
-            obj.page_data_ = obj.pix_.data;
+            npix_block = npix_blocks{idx};
+            npix = sum(npix_block(:));
+            pix_idx_end = obj.pix_idx_start_+npix-1;
+            obj.page_data_ = obj.pix_.get_pixels( ...
+                obj.pix_idx_start_:pix_idx_end,'-raw');
+            obj.pix_idx_start_ = pix_idx_end+1;
+            %
             obj.pixpage = obj.pixpage.set_raw_data(obj.page_data_);
         end
 
@@ -72,13 +102,13 @@ classdef PageOp_coord_calc < PageOpBase
                     uhkl = this_proj.transform_pix_to_img(obj.pixpage.q_coordinates);
                     signal = uhkl(get_ind , :);
             end
-            obj.page_data(obj.signal_idx_,:)  = signal;
+            obj.page_data_(obj.signal_idx_,:)  = signal;
             if obj.changes_pix_only
                 return;
             end
             % update image accumulators:
             [s_ar,v_ar,s_msd] = compute_bin_data(npix_block,signal,[],true);
-            obj.page_data(obj.var_idx_,:)  = s_msd;
+            obj.page_data_(obj.var_idx_,:)  = s_msd;
 
 
             obj.sig_acc_(npix_idx(1):npix_idx(2))    = ...

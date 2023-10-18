@@ -47,11 +47,11 @@ if isempty(ind)
 end
 % Check consistency of coordinate name(s) with dimensions of sqw object
 % Each set of 4 indexes defines: (d1, d2, d3, d4) + 4 (h, k, l, e) + Q
-invalid_dim = arrayfun(@(w)(ind<=4 && ind>x.NUM_DIMS),wout);
+invalid_dim = arrayfun(@(w)(ind<=4 && ind>w.NUM_DIMS),wout);
 if any(invalid_dim)
     all_nums = 1:numel(wout);
     invalid_nums = all_nums(invalid_dim);
-    dims         = arrayfun(@(w)(x.NUM_DIMS),wout);
+    dims         = arrayfun(@(w)(w.NUM_DIMS),wout);
     invalid_dims = dims(invalid_dim);
     error('HORACE:sqw:invalid_argument', ...
         'Coordinate name %s for object(s) N:%s request axes numbers higher then the dimensionality of sqw object(s): %s',...

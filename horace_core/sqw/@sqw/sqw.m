@@ -44,7 +44,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     properties(Dependent,Hidden=true)
-        NUM_DIMS;        
+        NUM_DIMS;
         % the same as npixels, but allows to use the same interface on sqw
         % object or pixels
         num_pixels;
@@ -201,10 +201,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function [nd,sz] = dimensions(win)
             % Return size and shape of the image
             % arrays in sqw or dnd object
-            if nargout == 1
-            else
-                [nd,sz] = win(1).data.dimensions();
-            end
+            [nd,sz] = win(1).data.dimensions();
+
         end
         %
         function [val, n] = data_bin_limits (obj)
@@ -542,9 +540,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %              which operates on PixelData, modifies pixels and
             %              calculates changes to image, caused by the
             %              modifications to pixels.
-            for i=1:numel(obj)
-                obj(i) = obj(i).pix.apply_op(obj(i),operation);
-            end
+            obj = obj.pix.apply_op(obj,operation);
+
         end
 
         function obj = apply(obj, func_handle, args, recompute_bins, compute_variance)
