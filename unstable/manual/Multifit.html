@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Advanced Multifit" href="Advanced_Multifit.html" />
+    <link rel="next" title="Tobyfit" href="Tobyfit.html" />
     <link rel="prev" title="Simulation" href="Simulation.html" /> 
 </head>
 
@@ -76,9 +76,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#multifit-sqw-sqw">multifit_sqw_sqw</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#parallel-fitting">Parallel fitting</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Parallel.html">Running Horace in Parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
@@ -459,6 +459,39 @@ coordinates, or they are function of wavevector in reciprocal lattice units and 
 </ul>
 </section>
 </section>
+<section id="parallel-fitting">
+<h2>Parallel fitting<a class="headerlink" href="#parallel-fitting" title="Permalink to this heading"></a></h2>
+<p>It is possible to use <code class="docutils literal notranslate"><span class="pre">multifit</span></code> and its derivatives (<code class="docutils literal notranslate"><span class="pre">tobyfit</span></code>,
+<code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">multifit_sqw_sqw</span></code>) in parallel (see
+<a class="reference internal" href="Parallel.html#running-horace-in-parallel"><span class="std std-ref">Running Horace in Parallel</span></a> for more info) by either
+enabling HPC options through</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hpc</span><span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>or by setting <code class="docutils literal notranslate"><span class="pre">parallel_multifit</span></code> directly in the <code class="docutils literal notranslate"><span class="pre">hpc_config</span></code> (see
+<a class="reference internal" href="Changing_Horace_settings.html#hpc-config"><span class="std std-ref">Changing Horace settings</span></a>)</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hpc_config</span><span class="p">;</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hc</span><span class="p">.</span><span class="n">parallel_multifit</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Parallel <code class="docutils literal notranslate"><span class="pre">multifit</span></code> decomposes the objects passed in into slices which are
+distributed between the processors. E.g. if we are fitting three <code class="docutils literal notranslate"><span class="pre">IX_dataset</span></code>
+objects with 100 points between two processors, each processor will receive 50
+points from each <code class="docutils literal notranslate"><span class="pre">IX_dataset</span></code>.</p>
+<p>This decomposition is performed differently for each of the three classes of
+fittable objects for each they are divided into <code class="docutils literal notranslate"><span class="pre">N_items/N_procs</span></code>:</p>
+<ul class="simple">
+<li><p>For <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects, the items are pixels</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects, the items are whole bins.</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">IX_dataset</span></code> objects, the items are points.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the fitting is run with the <code class="docutils literal notranslate"><span class="pre">-ave</span></code> option on an <code class="docutils literal notranslate"><span class="pre">sqw</span></code>, then the
+decomposition will not split bins, but will distribute whole bins, which may
+lead to load imbalance.</p>
+</div>
+</section>
 </section>
 
 
@@ -466,14 +499,14 @@ coordinates, or they are function of wavevector in reciprocal lattice units and 
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="Simulation.html" class="btn btn-neutral float-left" title="Simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="Advanced_Multifit.html" class="btn btn-neutral float-right" title="Advanced Multifit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Tobyfit.html" class="btn btn-neutral float-right" title="Tobyfit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Oct 18, 2023, 2:29:09 PM.
+      <span class="lastupdated">Last updated on Oct 18, 2023, 7:01:10 PM.
       </span></p>
   </div>
 

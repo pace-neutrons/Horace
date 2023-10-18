@@ -18,7 +18,6 @@ Horace Manual
    manual/Plotting
    manual/Simulation
    manual/Multifit
-   manual/Advanced_Multifit
    manual/Tobyfit
    manual/Parallel
 
