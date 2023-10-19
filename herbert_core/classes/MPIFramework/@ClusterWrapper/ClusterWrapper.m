@@ -222,6 +222,13 @@ classdef ClusterWrapper
                 obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR') = obj.matlab_starter_;
             end
 
+            % Split path into cell of paths
+            curr_path = split(path, pathsep);
+            % Filter array for added paths
+            curr_path = curr_path(~startsWith(curr_path, matlabroot));
+            % Join back together
+            curr_path = strjoin(curr_path, pathsep);
+
             % additional Matlab m-files search path to be available to
             % workers
             existing_addpath = getenv('MATLABPATH');
@@ -237,6 +244,9 @@ classdef ClusterWrapper
                         [possible_addpath,pathsep,existing_addpath];
                 end
             end
+
+            % Always add curr path
+            obj.common_env_var_('MATLABPATH') = [curr_path, pathsep, obj.common_env_var_('MATLABPATH')];
 
             if obj.DEBUG_REMOTE
                 obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'true';
