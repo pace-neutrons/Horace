@@ -63,6 +63,10 @@ classdef PageOpBase
         old_file_format
         %
         write_handle
+        % An algorithm applied to a sqw object with missing data range
+        % should issue warning that range is recalculated unless the
+        % algorithm is the algorithm, which recalculates missing range
+        do_missing_range_warning;
     end
 
 
@@ -122,6 +126,14 @@ classdef PageOpBase
         function obj = PageOpBase(varargin)
             % Constructor for page operations
             %
+            crd_idx = PixelDataBase.field_index({ ...
+                'coordinates','run_idx','signal','variance'});
+            obj.var_idx_    = crd_idx(end);
+            obj.signal_idx_ = crd_idx(end-1);
+            obj.run_idx_    = crd_idx(end-2);
+
+            obj.coord_idx_  = crd_idx(1:end-3);
+
             if nargin == 0
                 return;
             end
@@ -134,13 +146,7 @@ classdef PageOpBase
             if nargin == 1
                 return;
             end
-            crd_idx = PixelDataBase.field_index({ ...
-                'coordinates','run_idx','signal','variance'});
-            obj.var_idx_    = crd_idx(end);
-            obj.signal_idx_ = crd_idx(end-1);
-            obj.run_idx_    = crd_idx(end-2);
-
-            obj.coord_idx_  = crd_idx(1:end-3);
+            obj.pix_data_range_ = PixelDataBase.EMPTY_RANGE;
 
             %
             if ~obj.inplace
@@ -161,6 +167,9 @@ classdef PageOpBase
                     'Init method accepts PixelData or SQW object input only. Provided %s', ...
                     class(in_obj))
             end
+            % as we normally read data and immediately dump them back, what
+            % is the point of converting them to double and back?
+            % Keep precision.
             obj.pix_.keep_precision = true;
             obj.old_file_format_ = obj.pix_.old_file_format;
         end
@@ -184,7 +193,7 @@ classdef PageOpBase
                     obj.page_data_(obj.run_idx_,:)]);
             end
             if ~obj.inplace_
-                obj.pix_ = obj.pix_.dump_data(obj.page_data_,obj.write_handle_);
+                obj.pix_ = obj.pix_.store_page_data(obj.page_data_,obj.write_handle_);
             end
         end
         function obj = get_page_data(obj,idx,varargin)
@@ -210,10 +219,10 @@ classdef PageOpBase
             % out_obj -- sqw object created as the result of the operation
             % obj     -- nullified PageOp object.
 
-            pix = obj.pix_;
-            pix     = pix.set_data_range(obj.pix_data_range_);
-            % as we normally read data and immediately dump them back, what
-            % is the point of converting them to double and back?
+            pix   = obj.pix_;
+            pix   = pix.set_data_range(obj.pix_data_range_);
+            % revert to usual way of performing pixel operations
+            % (data converted to double when accessed)
             pix.keep_precision = false;
 
             if ~obj.inplace_
@@ -222,7 +231,8 @@ classdef PageOpBase
                 pix   = pix.clear_alignment();
             end
 
-            if obj.changes_pix_only
+            if isempty(obj.img_) % changes_pix_only -- would not work here
+                % as some operations work on sqw but only modify pixels.
                 pix = pix.finish_dump(obj);
                 out_obj = pix.copy();
             else
@@ -263,7 +273,10 @@ classdef PageOpBase
     % properties setters/getters
     methods
         function does = get.changes_pix_only(obj)
-            does = isempty(obj.img_);
+            does = get_changes_pix_only(obj);
+        end
+        function obj = set.changes_pix_only(obj,val)
+            obj = set_changes_pix_only(obj,val);
         end
         %
         function name = get.outfile(obj)
@@ -342,6 +355,14 @@ classdef PageOpBase
         function name = get.op_name(obj)
             name = obj.op_name_;
         end
+        function obj = set.op_name(obj,val)
+            if ~istext(val)
+                error('HORACE:PageOpBase:invalid_argument', ...
+                    'op_name can be a text string only. Provided %s', ...
+                    class(val));
+            end
+            obj.op_name_ = val;
+        end
         %
         function is  = get.is_range_valid(obj)
             is = obj.pix_.is_range_valid();
@@ -353,9 +374,25 @@ classdef PageOpBase
         function wh = get.write_handle(obj)
             wh = obj.write_handle_;
         end
+        %
+        function do = get.do_missing_range_warning(obj)
+            do = get_do_missing_range_warning(obj);
+        end
     end
     %
     methods(Access=protected)
+        function  does = get_changes_pix_only(obj)
+            does = isempty(obj.img_);
+        end
+        function obj = set_changes_pix_only(obj,varargin)
+            % generally, ignored and based on image.
+            % left for possibility to overload in children
+        end
+
+        function do = get_do_missing_range_warning(~)
+            do  = true;
+        end
+
         function obj = update_image(obj,sig_acc,var_acc,npix_acc)
             % The piece of code which often but not always used at the end
             % of an operation when modified data get transformed from

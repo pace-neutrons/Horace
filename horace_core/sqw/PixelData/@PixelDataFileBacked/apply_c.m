@@ -28,35 +28,46 @@ log_split = page_op.split_log_ratio;
 n_chunks = numel(npix_chunks);
 
 % check if warning about data range is necessary.
-is_range_valid = page_op.is_range_valid;
-if ~is_range_valid
-    if isempty(page_op.outfile) && n_chunks>fbs && ll>0
-        original_file = sqw_in.full_filename;
-        issue_range_warning = true;
+issue_range_warning = page_op.do_missing_range_warning;
+if issue_range_warning
+    is_range_valid = page_op.is_range_valid;
+    if ~is_range_valid
+        if isempty(page_op.outfile) && n_chunks>fbs && ll>0
+            original_file = sqw_in.full_filename;
+            issue_range_warning = true;
+        else
+            issue_range_warning = false;
+        end
     else
         issue_range_warning = false;
     end
-else
-    issue_range_warning = false;
 end
-
+%
+if ll>0
+    t0 = tic;
+end
 %==========================================================================
 % Run paging
 for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix)
-    % and each chunk after this split refers to mem_chunk_size pixels
-    % located subsequently
-    if ll > 0 && mod(i, log_split) == 1
-        fprintf('*** Performing %s on pix chunk: %d/%d\n',op_name, i, n_chunks);
-    end
     page_op = page_op.get_page_data(i,npix_chunks);
     page_op = page_op.apply_op(npix_chunks{i},npix_idx(:,i));
     page_op = page_op.common_page_op();
+    % and each chunk after this split refers to mem_chunk_size pixels
+    % located subsequently
+    if ll > 0 && mod(i, log_split) == 1
+        tc = toc(t0);
+        fprintf('*** Finished %dof#%d chunks in %d sec performing %s\n', ...
+            i,n_chunks,tc,op_name);
+    end
+
 end
 sqw_out = page_op.finish_op(sqw_in);
 %
 if ll > 0
-    fprintf('*** Finished %s on object backed by file: %s using %d pages\n', ...
-        op_name,sqw_out.full_filename,n_chunks);
+    te = toc(t0);
+    fprintf(['*** Completed %s using %d pages in %d sec.\n' ...
+        '*** Resulting object is backed by file: %s\n'], ...
+        op_name,n_chunks,te,sqw_out.full_filename);
 end
 if issue_range_warning
     [~,fn,fe] = fileparts(original_file);

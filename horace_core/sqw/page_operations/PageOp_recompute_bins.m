@@ -1,8 +1,18 @@
 classdef PageOp_recompute_bins < PageOpBase
     % Single pixels page operation which does not change the pixels values
+    % unless pixels are misaligned. If they are misaligned, resulting
+    % pixels get realigned as the result of operation.
     %
-    % Used by recompute_bin_data method or recalc_data_range method
-    %
+    % Used by recompute_bin_data, finalize_alignment and recalc_data_range
+    % algorithms.
+    properties(Hidden)
+        % sets change_pix_only for true when class is invoked for
+        % alignment operation
+        img_range
+    end
+    properties(Access=private)
+        changes_pix_only_ = false;
+    end
     methods
         function obj = PageOp_recompute_bins(varargin)
             obj = obj@PageOpBase(varargin{:});
@@ -16,7 +26,7 @@ classdef PageOp_recompute_bins < PageOpBase
             end
         end
         function obj = apply_op(obj,npix_block,npix_idx)
-            if isempty(obj.img_)
+            if obj.changes_pix_only
                 return;
             end
             % retrieve signal and error
@@ -35,6 +45,24 @@ classdef PageOp_recompute_bins < PageOpBase
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
 
             [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
+        end
+    end
+    methods(Access=protected)
+        function  does = get_changes_pix_only(obj)
+            does = obj.changes_pix_only_||isempty(obj.img_);
+        end
+        function obj = set_changes_pix_only(obj,val)
+            % main setter for changes_pix_only_
+            obj.changes_pix_only_ = logical(val);
+        end
+
+        function do = get_do_missing_range_warning(~)
+            % these operations intended for computing missing range
+            % so no point of warning that range is missing
+            %
+            % TODO: warning may be issued if the data are stored not in the
+            % original file
+            do  = false;
         end
     end
 end

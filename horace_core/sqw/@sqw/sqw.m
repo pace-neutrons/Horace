@@ -55,12 +55,16 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % from Experiment class. Conversion to old header is not performed
         header;
 
-        % the name of the file, used to store sqw first time
+        % the name of the file, used to keep original sqw object or file
+        % or the name of the file, backing a filebacked object
         full_filename;
+        % True if sqw object is temporary object, deleted on going out of
+        % scope.
+        is_tmp_obj
     end
 
     properties(Access=protected)
-        % The class which briefe description of a whole sqw file.
+        % The class providing brief description of a whole sqw file.
         main_header_ = main_header_cl();
 
         experiment_info_ = Experiment();
@@ -71,7 +75,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         data_;
 
         % holder for pix data
-        % Object containing data for each pixe
+        % Object containing data for each pixel recorded in experiment.
         pix_ = PixelDataBase.create();
     end
     properties(Access=private)
@@ -80,7 +84,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Has to be present on sqw level, as pix level can not delete file
         % due to object destruction rules.
         tmp_file_holder_;
-        % Re #1302 delete old interface
+        % Re #1302 TODO: delete old interface
         file_holder_
     end
 
@@ -110,7 +114,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %======================================================================
     % Various sqw methods
     methods
-        has = has_pixels(w);          % returns true if a sqw object has pixels
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
         % sigvar block
         %------------------------------------------------------------------
@@ -129,6 +132,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
 
+        [obj,al_info] = finalize_alignment(obj,filename);
 
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
@@ -168,6 +172,15 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [obj, ldr] = get_new_handle(obj, outfile)
         wh   = get_write_handle(obj, outfile)
         obj = finish_dump(obj,varargin);
+        %
+        function  save_xye(obj,varargin)
+            save_xye(obj.data,varargin{:});
+        end
+        function  s=xye(w, varargin)
+            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
+            s = w.data.xye(varargin{:});
+        end
+
     end
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting
@@ -259,7 +272,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
     end
     %======================================================================
-    % ACCESSORS TO OBJECT PROPERTIES and construction
+    % Construction and change of state
     methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
@@ -301,12 +314,63 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 end
             end
         end
+        %
+        function obj = set_as_tmp_obj(obj,filename)
+            % method sets filebacked sqw object to be temporary object i.e.
+            % the underlying file, provided as input is getting deleted
+            % when object goes out of scope.
+            %
+            % WARNING: if an sqw object built from an existing sqw file is set
+            %          to be a tmp object, the original file will be automatically
+            %          deleted when this object goes out of scope.
+            % USE WITH CAUTION!!!
+            if ~obj.is_filebacked
+                return;
+            end
+            if nargin == 1
+                filename = obj.pix.full_filename;
+            end
+            obj = set_as_tmp_obj_(obj,filename);
+        end        
+        %
+        function obj = deactivate(obj)
+            % Close all open handles of the class keeping information about
+            % file in memory and allowing external operations with backing files
+            % It also may be used to transfer opened files to parallel
+            % workers.
+            %
+            % Clears tmp obj status, if it was present
+            obj.pix = obj.pix.deactivate();
+            if ~isempty(obj.tmp_file_holder_)
+                obj.tmp_file_holder_.lock();
+            end
+            obj.tmp_file_holder_ = [];
+        end
+        %
+        function obj = activate(obj,new_file)
+            % Restore access to a file, previously closed by deactivate
+            % operation, possibly using new file name.
+            % 
+            % Restores tmp obj status for tmp files.
+            if nargin == 1 || isempty(new_file)
+                new_file = obj.pix.full_filename;
+            end
+            [obj.pix,is_tmp_file_set] = obj.pix.activate(new_file,true);
+            if is_tmp_file_set
+                obj = obj.set_as_tmp_obj(new_file);
+            else
+                obj.full_filename = obj.pix.full_filename;
+            end
+        end        
+    end
+    %======================================================================
+    % ACCESSORS TO OBJECT PROPERTIES
+    methods
         %------------------------------------------------------------------
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
         end
-
         function obj = set.data(obj, d)
             if isa(d,'DnDBase')
                 obj.data_ = d;
@@ -318,11 +382,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     class(d))
             end
         end
-
+        %
         function pix = get.pix(obj)
             pix  = obj.pix_;
         end
-
         function obj = set.pix(obj,val)
             if isa(val, 'PixelDataBase') || isa(val,'pix_combine_info')
                 obj.pix_ = val;
@@ -333,44 +396,25 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 obj.pix_ = PixelDataBase.create(val);
             end
         end
-
+        %
         function val = get.detpar(obj)
             val = obj.detpar_;
         end
-
         function obj = set.detpar(obj,val)
             %TODO: implement checks for validity
             obj.detpar_ = val;
         end
-
+        %
         function val = get.main_header(obj)
             val = obj.main_header_;
         end
-
         function obj = set.main_header(obj,val)
-            if isempty(val)
-                obj.main_header_  = main_header_cl();
-            elseif isa(val,'main_header_cl')
-                obj.main_header_ = val;
-            elseif isstruct(val)
-                obj.main_header_ = main_header_cl(val);
-            else
-                error('HORACE:sqw:invalid_argument',...
-                    'main_header property accepts only inputs with main_header_cl instance class or structure, convertible into this class. You provided %s', ...
-                    class(val));
-            end
-            if ~isempty(obj.experiment_info_) && obj.experiment_info_.n_runs>0 && ...
-                    obj.experiment_info_.n_runs ~= obj.main_header_.nfiles
-                warning('HORACE:inconsitent_sqw', ...
-                    'number of rund defined in experiment_info (%d) is not equal to number of contributing files, defined in main sqw header (%d)', ...
-                    obj.experiment_info_.n_runs,obj.main_header_.nfiles);
-            end
+            obj = set_main_header_(obj,val);
         end
-
+        %
         function val = get.experiment_info(obj)
             val = obj.experiment_info_;
         end
-
         function obj = set.experiment_info(obj,val)
             if isempty(val)
                 obj.experiment_info_ = Experiment();
@@ -383,55 +427,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
             obj.main_header_.nfiles = obj.experiment_info_.n_runs;
         end
-
-        function  save_xye(obj,varargin)
-            save_xye(obj.data,varargin{:});
-        end
-
-        function  s=xye(w, varargin)
-            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
-            s = w.data.xye(varargin{:});
-        end
-
+        %
         function npix = get.npixels(obj)
             npix = obj.pix_.num_pixels;
         end
         function npix = get.num_pixels(obj)
             npix = obj.pix_.num_pixels;
         end
-
-
+        %
         function map = get.runid_map(obj)
             if isempty(obj.experiment_info)
                 map = [];
             else
                 map = obj.experiment_info.runid_map;
             end
-        end
-
-        function is = dnd_type(obj)
-            is = obj.pix_.num_pixels == 0;
-        end
-        %
-        function fn = get.full_filename(obj)
-            if isempty(obj.tmp_file_holder_)
-                fn = obj.main_header.full_filename;                
-            else
-                fn = obj.tmp_file_holder_.file_name;
-            end
-        end
-        function obj = set.full_filename(obj,val)
-            if ~(isstring(val)||ischar(val))
-                error('HORACE:sqw:invalid_argument', ...
-                    ' Full filename can be only string, describing input file together with the path to this file. It is: %s', ...
-                    disp2str(val));
-            end
-            [fp,fn,fex]= fileparts(val);
-            obj.main_header.filename = [fn,fex];
-            obj.main_header.filepath = fp;
-            obj.data.filename = [fn,fex];
-            obj.data.filepath = fp;
-            obj.pix.full_filename = val;
         end
         %
         function cd = get.creation_date(obj)
@@ -443,54 +452,30 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %
         function is = get.is_filebacked(obj)
-            if obj.has_pixels
-                is = obj.pix.is_filebacked;
+            is = obj.has_pixels && obj.pix.is_filebacked;
+        end
+        %------------------------------------------------------------------
+        % hidden properties
+        function fn = get.full_filename(obj)
+            if isempty(obj.tmp_file_holder_)
+                fn = obj.main_header.full_filename;
             else
-                is = false;
+                fn = obj.tmp_file_holder_.file_name;
             end
         end
-        function obj = set_as_tmp_obj(obj,filename)
-            % method sets filebacked sqw object to be temporary object i.e.
-            % the underlying file, provided as input is getting deleted
-            % when object goes out of scope
-            obj.tmp_file_holder_ = TmpFileHandler(filename,true);
+        function obj = set.full_filename(obj,val)
+            if ~(isstring(val)||ischar(val))
+                error('HORACE:sqw:invalid_argument', ...
+                    ' Full filename can be only string, describing input file together with the path to this file. It is: %s', ...
+                    disp2str(val));
+            end
+            obj.main_header.full_filename = val;
+            obj.data.full_filename = val;
+            obj.pix.full_filename = val;
         end
-
-        %==================================================================
-        function obj = apply_c(obj, operation)
-            % Apply special PageOp operation affecting sqw object and pixels
-            %
-            % See what PageOp is from PageOpBase class description and its
-            % children
-            %
-            % Inputs:
-            % obj       -- sqw object - contains pixels and image to be
-            %              modified
-            % operation -- valid PageOpBase subclass containing function
-            %              which operates on PixelData, modifies pixels and
-            %              calculates changes to image, caused by the
-            %              modifications to pixels.
-            for i=1:numel(obj)
-                obj(i) = obj(i).pix.apply_c(obj(i),operation);
-            end
-        end
-
-        function obj = apply(obj, func_handle, args, recompute_bins, compute_variance)
-            if ~exist('args', 'var')
-                args = {};
-            end
-            if ~exist('recompute_bins', 'var')
-                recompute_bins = true;
-            end
-            if ~exist('compute_variance', 'var')
-                compute_variance = false;
-            end
-
-            if recompute_bins
-                [obj.pix, obj.data] = obj.pix.apply(func_handle, args, obj.data, compute_variance);
-            else
-                obj.pix = obj.pix.apply(func_handle, args);
-            end
+        %
+        function is = get.is_tmp_obj(obj)
+            is = ~isempty(obj.tmp_file_holder_);
         end
     end
     %======================================================================
@@ -532,9 +517,50 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             hdr = [hdr{:}];
             hdr = rmfield(hdr,{'instrument','sample'});
         end
-
     end
+    %======================================================================
+    methods
+        function is = dnd_type(obj)
+            is = obj.pix_.num_pixels == 0;
+        end
+        %
+        %==================================================================
+        function obj = apply_c(obj, operation)
+            % Apply special PageOp operation affecting sqw object and pixels
+            %
+            % See what PageOp is from PageOpBase class description and its
+            % children
+            %
+            % Inputs:
+            % obj       -- sqw object - contains pixels and image to be
+            %              modified
+            % operation -- valid PageOpBase subclass containing function
+            %              which operates on PixelData, modifies pixels and
+            %              calculates changes to image, caused by the
+            %              modifications to pixels.
+            for i=1:numel(obj)
+                obj(i) = obj(i).pix.apply_c(obj(i),operation);
+            end
+        end
 
+        function obj = apply(obj, func_handle, args, recompute_bins, compute_variance)
+            if ~exist('args', 'var')
+                args = {};
+            end
+            if ~exist('recompute_bins', 'var')
+                recompute_bins = true;
+            end
+            if ~exist('compute_variance', 'var')
+                compute_variance = false;
+            end
+
+            if recompute_bins
+                [obj.pix, obj.data] = obj.pix.apply(func_handle, args, obj.data, compute_variance);
+            else
+                obj.pix = obj.pix.apply(func_handle, args);
+            end
+        end
+    end
     %======================================================================
     % TOBYFIT INTERFACE
     methods
@@ -581,6 +607,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %======================================================================
     methods(Access = protected)
         wout = binary_op_manager_single(w1, w2, binary_op);
+        % Re #962 TODO: probably delete it
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         % binning of an sqw or dnd object
 
@@ -702,7 +729,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % By default, this function interfaces the default from_bare_struct
             % method, but when the old structure substantially differs from
             % the modern structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+            % to allow loadobj to recover new structure from an old structure.
             %
             obj = set_from_old_struct_(obj,S);
         end

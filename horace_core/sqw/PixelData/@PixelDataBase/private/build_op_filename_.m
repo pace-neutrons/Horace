@@ -1,13 +1,16 @@
 function [filename,move_to_orig] = build_op_filename_(original_fn,target_fn)
-%BUILD_OP_FILENAME builds filename - target of an operation.
+%BUILD_OP_FILENAME_ builds filename - target of an operation.
 %
-% When operation performed on filebacked object, its temporary
-% results are stored in a temporary file. This name is build
-% according to the rules defined here
+% When an operation performed on filebacked object, its temporary
+% results are stored in a temporary file. The name of this file is build
+% according to the rules defined here.  See PageOpBase
+% for more information about operations.
+%
 % Inputs:
 % original_fn -- name of the orignal file-source of the
 %                operation
-% target_fn   -- optional name of the file to save data
+% target_fn   -- optional full (with path) name of the file to save data in
+%                if path is missing, working directory assumed.
 %
 % Returns:
 % filename     -- target filename for operation.

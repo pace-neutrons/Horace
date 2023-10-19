@@ -34,7 +34,7 @@ classdef sqw_file_interface
     % put_samples       -  store sample's information
     %
     properties(Access=protected)
-        % holdef for the number of contributing files contributed into sqw
+        % holder for the number of contributing files contributed into sqw
         % file. Not necessary for modern file formats but was used in old
         % file formats to recover headers
         num_contrib_files_= 'undefined'
@@ -88,7 +88,7 @@ classdef sqw_file_interface
             end
             if ~(isnumeric(val)&&isscalar(val)&&val > 0)
                 error('HORACE:sqw_file_inteface:invalid_argument', ...
-                    'number of contriburing files have to be a single positive number. It is: %s',...
+                    'number of contributing files have to be a single positive number. It is: %s',...
                     disp2str(val))
             end
             obj.num_contrib_files_ = round(val);
@@ -124,12 +124,12 @@ classdef sqw_file_interface
         end
         %-------------------------
         function obj = delete(obj)
-            % destructor, which is not fully functioning
-            % operation for normal(non-handle) Matlab classes.
-            % Usually needs the class on lhs of delete expression or
-            % understanding when this can be omitted
-            %
-            obj.num_contrib_files_ = 'undefined';
+           % Close files and invalidate object to prevent further use.
+		   %
+ 		   % Not true destructor as is not automatically called on 
+		   % object destruction.
+           %
+           obj.num_contrib_files_ = 'undefined';
         end
         %
     end
@@ -213,7 +213,7 @@ classdef sqw_file_interface
                 data_val  = {};
             end
             sqw_val = {obj.num_contrib_files,obj.npixels,...
-                   obj.get_data_range(),obj.creation_date};
+                obj.get_data_range(),obj.creation_date};
             all_val = [dnd_val(1:end-1);sqw_val(:);data_val(:)];
             head_struc = cell2struct(all_val,fields_req);
 

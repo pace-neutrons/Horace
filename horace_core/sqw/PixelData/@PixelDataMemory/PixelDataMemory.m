@@ -114,6 +114,20 @@ classdef PixelDataMemory < PixelDataBase
     % File handling/migration. Does nothing on membased except dump_data
     % which recets raw data with input.
     methods
+        function obj = deactivate(obj)
+            % close all open file handles to allow file movements to new
+            % file/new location.
+            % Does nothing on memory based
+        end
+        function [obj,varargout] = activate(obj,varargin)
+            % open file access for file, previously closed by deactivate
+            % operation, possibly using new file name
+            % Does nothing on memory based
+            if nargout>1
+                varargout{1} = false;
+            end
+        end
+
         function obj = prepare_dump(obj)
             % does nothing on Mem-based
         end
@@ -125,7 +139,7 @@ classdef PixelDataMemory < PixelDataBase
             wh = [];
         end
 
-        function obj = dump_data(obj,page_data,varargin)
+        function obj = store_page_data(obj,page_data,varargin)
             % sets the internal pixel data to new values.
             %
             % Invalidates object coherency. (data_ranges are not recalculated
@@ -152,7 +166,8 @@ classdef PixelDataMemory < PixelDataBase
             %  is only none page
             %
         end
-        function obj = copy(obj)
+        function obj_out = copy(obj)
+            obj_out = obj;
         end
     end
 
@@ -188,12 +203,11 @@ classdef PixelDataMemory < PixelDataBase
                 obj.detector_idx(selected) = abs(obj.detector_idx(selected));
             end
         end
-
     end
 
     methods(Static)
         % apply page operation(s) to the object with memory-backed pixels
-        sqw_out = apply_c(sqw_in,page_op);
+        obj_out = apply_c(obj_in,page_op);
 
         function obj = cat(varargin)
             % Concatenate the given PixelData objects' pixels. This function performs
@@ -347,6 +361,9 @@ classdef PixelDataMemory < PixelDataBase
             obj.data_ = val.data;
         end
         %------------------------------------------------------------------
+        function is = get_is_tmp_obj(~)
+            is = false;
+        end
     end
     %----------------------------------------------------------------------
     % PAGING
