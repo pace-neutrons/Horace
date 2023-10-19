@@ -118,8 +118,6 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(alatt_c, obj.alatt, 'absolute', 0.01)
             assertElementsAlmostEqual(angdeg_c, obj.angdeg, 'absolute', 0.01)
 
-            %tmp_file_2 = TmpFileHandler('test_change_crystal_coarse_sima_realigned.sqw');
-
             realigned_sqw_file = tmp_file_1.file_name;
 
             % Generate re-aligned crystal

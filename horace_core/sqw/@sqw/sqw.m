@@ -57,7 +57,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         header;
 
         % the name of the file, used to keep original sqw object or file
-        % name of the file, backing filebacked object
+        % or the name of the file, backing a filebacked object
         full_filename;
         % True if sqw object is temporary object, deleted on going out of
         % scope.
@@ -65,7 +65,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     properties(Access=protected)
-        % The class which briefe description of a whole sqw file.
+        % The class providing brief description of a whole sqw file.
         main_header_ = main_header_cl();
 
         experiment_info_ = Experiment();
@@ -76,7 +76,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         data_;
 
         % holder for pix data
-        % Object containing data for each pixe
+        % Object containing data for each pixel recorded in experiment.
         pix_ = PixelDataBase.create();
     end
     properties(Access=private)
@@ -173,24 +173,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [obj, ldr] = get_new_handle(obj, outfile)
         wh   = get_write_handle(obj, outfile)
         obj = finish_dump(obj,varargin);
-        function obj = deactivate(obj)
-            % Close all open handles of the class keeping information about
-            % file in memory and alowing external operations with backing files
-            obj.pix = obj.pix.deactivate();
-            if ~isempty(obj.tmp_file_holder_)
-                obj.tmp_file_holder_.lock();
+        %
+        function  save_xye(obj,varargin)
+            save_xye(obj.data,varargin{:});
             end
-            obj.tmp_file_holder_ = [];
-        end
-        function obj = activate(obj,new_file)
-            % Restore access to a file, previously closed by deactivate
-            % operation, possibly using new file name
-            [obj.pix,is_tmp_file_set] = obj.pix.activate(new_file,true);
-            if is_tmp_file_set
-                obj = obj.set_as_tmp_obj(new_file);
-            else
-                obj.full_filename = obj.pix.full_filename;
-            end
+        function  s=xye(w, varargin)
+            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
+            s = w.data.xye(varargin{:});
         end
 
     end
@@ -285,7 +274,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
     end
     %======================================================================
-    % ACCESSORS TO OBJECT PROPERTIES and construction
+    % Construction and change of state
     methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
@@ -327,9 +316,58 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 end
             end
         end
+        %
+        function obj = set_as_tmp_obj(obj,filename)
+            % method sets filebacked sqw object to be temporary object i.e.
+            % the underlying file, provided as input is getting deleted
+            % when object goes out of scope.
+            %
+            % WARNING: if an sqw object built from an existing sqw file is set
+            %          to be a tmp object, the original file will be automatically
+            %          deleted when this object goes out of scope.
+            % USE WITH CAUTION!!!
+            if ~obj.is_filebacked
+                return;
+    end
+            if nargin == 1
+                filename = obj.pix.full_filename;
+            end
+            obj = set_as_tmp_obj_(obj,filename);
+        end        
+
+        %
+        function obj = deactivate(obj)
+            % Close all open handles of the class keeping information about
+            % file in memory and allowing external operations with backing files
+            % It also may be used to transfer opened files to parallel
+            % workers.
+            %
+            % Clears tmp obj status, if it was present
+            obj.pix = obj.pix.deactivate();
+            if ~isempty(obj.tmp_file_holder_)
+                obj.tmp_file_holder_.lock();
+            end
+            obj.tmp_file_holder_ = [];
+        end
+        %
+        function obj = activate(obj,new_file)
+            % Restore access to a file, previously closed by deactivate
+            % operation, possibly using new file name.
+            % 
+            % Restores tmp obj status for tmp files.
+            if nargin == 1 || isempty(new_file)
+                new_file = obj.pix.full_filename;
+            end
+            [obj.pix,is_tmp_file_set] = obj.pix.activate(new_file,true);
+            if is_tmp_file_set
+                obj = obj.set_as_tmp_obj(new_file);
+            else
+                obj.full_filename = obj.pix.full_filename;
+            end
+        end        
     end
     %======================================================================
-    % Setters/getters for properties
+    % ACCESSORS TO OBJECT PROPERTIES
     methods
         function nd = get.NUM_DIMS(obj)
             if isempty(obj.data_)
@@ -424,14 +462,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %
         function is = get.is_filebacked(obj)
-            if obj.has_pixels
-                is = obj.pix.is_filebacked;
-            else
-                is = false;
+            is = obj.has_pixels && obj.pix.is_filebacked;
             end
-        end
         %------------------------------------------------------------------
-        % hiddent properties
+        % hidden properties
         function fn = get.full_filename(obj)
             if isempty(obj.tmp_file_holder_)
                 fn = obj.main_header.full_filename;
@@ -499,33 +533,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function is = dnd_type(obj)
             is = obj.pix_.num_pixels == 0;
         end
-        function  save_xye(obj,varargin)
-            save_xye(obj.data,varargin{:});
-        end
-        function  s=xye(w, varargin)
-            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
-            s = w.data.xye(varargin{:});
-        end
         %
-        function obj = set_as_tmp_obj(obj,filename)
-            % method sets filebacked sqw object to be temporary object i.e.
-            % the underlying file, provided as input is getting deleted
-            % when object goes out of scope.
-            %
-            % WARNING: if an sqw object build from existing sqw file is set
-            %          to be the tmp object, the file will be automatically
-            %          deleted when the object goes out of scope.
-            % USE WITH CAUTION!!!
-            if ~obj.is_filebacked
-                return;
-            end
-            if nargin == 1
-                filename = obj.pix.full_filename;
-            end
-            obj = set_as_tmp_obj_(obj,filename);
-
-        end
-
         %==================================================================
         function obj = apply_op(obj, operation)
             % Apply special PageOp operation affecting sqw object and pixels
@@ -730,7 +738,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % By default, this function interfaces the default from_bare_struct
             % method, but when the old structure substantially differs from
             % the modern structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+            % to allow loadobj to recover new structure from an old structure.
             %
             obj = set_from_old_struct_(obj,S);
         end

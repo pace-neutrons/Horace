@@ -65,7 +65,7 @@ classdef PageOpBase
         write_handle
         % An algorithm applied to a sqw object with missing data range
         % should issue warning that range is recalculated unless the
-        % algorithm is the algorithm, which recalculates missing range.
+        % algorithm is the one which actually recalculates missing range.
         % No range warning should be generated for pixels only too.
         do_missing_range_warning;
     end
@@ -170,6 +170,7 @@ classdef PageOpBase
             end
             % as we normally read data and immediately dump them back, what
             % is the point of converting them to double and back?
+            % Keep precision.
             obj.pix_.keep_precision = true;
             obj.old_file_format_ = obj.pix_.old_file_format;
         end
@@ -221,8 +222,8 @@ classdef PageOpBase
 
             pix   = obj.pix_;
             pix   = pix.set_data_range(obj.pix_data_range_);
-            % revert usual order of pixel operations (data converted to
-            % double)
+            % revert to usual way of performing pixel operations
+            % (data converted to double when accessed)
             pix.keep_precision = false;
 
             if ~obj.inplace_
@@ -232,7 +233,7 @@ classdef PageOpBase
             end
 
             if isempty(obj.img_) % changes_pix_only -- would not work here
-                % as some operations work on sqw but modify pixel only
+                % as some operations work on sqw but only modify pixels.
                 pix = pix.finish_dump(obj);
                 out_obj = pix.copy();
             else

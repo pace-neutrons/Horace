@@ -47,5 +47,7 @@ else
     argi = {ld.full_filename};    
 end
 [sqw_obj,al_info] = sqw_obj.finalize_alignment(argi{:});
+% TODO: Re #1320 -- add save(obj, file, '-no_update') if called without
+% output arguments
 
 
