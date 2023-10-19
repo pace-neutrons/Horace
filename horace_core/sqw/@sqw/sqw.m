@@ -173,26 +173,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wh   = get_write_handle(obj, outfile)
         obj = finish_dump(obj,varargin);
         %
-        function obj = deactivate(obj)
-            % Close all open handles of the class keeping information about
-            % file in memory and allowing external operations with backing files
-            % It also may be used to transfer opened files to parallel
-            % workers.
-            obj.pix = obj.pix.deactivate();
-            if ~isempty(obj.tmp_file_holder_)
-                obj.tmp_file_holder_.lock();
-            end
-            obj.tmp_file_holder_ = [];
+        function  save_xye(obj,varargin)
+            save_xye(obj.data,varargin{:});
         end
-        function obj = activate(obj,new_file)
-            % Restore access to a file, previously closed by deactivate
-            % operation, possibly using new file name
-            [obj.pix,is_tmp_file_set] = obj.pix.activate(new_file,true);
-            if is_tmp_file_set
-                obj = obj.set_as_tmp_obj(new_file);
-            else
-                obj.full_filename = obj.pix.full_filename;
-            end
+        function  s=xye(w, varargin)
+            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
+            s = w.data.xye(varargin{:});
         end
 
     end
@@ -286,7 +272,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
     end
     %======================================================================
-    % ACCESSORS TO OBJECT PROPERTIES and construction
+    % Construction and change of state
     methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
@@ -328,9 +314,57 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 end
             end
         end
+        %
+        function obj = set_as_tmp_obj(obj,filename)
+            % method sets filebacked sqw object to be temporary object i.e.
+            % the underlying file, provided as input is getting deleted
+            % when object goes out of scope.
+            %
+            % WARNING: if an sqw object built from an existing sqw file is set
+            %          to be a tmp object, the original file will be automatically
+            %          deleted when this object goes out of scope.
+            % USE WITH CAUTION!!!
+            if ~obj.is_filebacked
+                return;
+            end
+            if nargin == 1
+                filename = obj.pix.full_filename;
+            end
+            obj = set_as_tmp_obj_(obj,filename);
+        end        
+        %
+        function obj = deactivate(obj)
+            % Close all open handles of the class keeping information about
+            % file in memory and allowing external operations with backing files
+            % It also may be used to transfer opened files to parallel
+            % workers.
+            %
+            % Clears tmp obj status, if it was present
+            obj.pix = obj.pix.deactivate();
+            if ~isempty(obj.tmp_file_holder_)
+                obj.tmp_file_holder_.lock();
+            end
+            obj.tmp_file_holder_ = [];
+        end
+        %
+        function obj = activate(obj,new_file)
+            % Restore access to a file, previously closed by deactivate
+            % operation, possibly using new file name.
+            % 
+            % Restores tmp obj status for tmp files.
+            if nargin == 1 || isempty(new_file)
+                new_file = obj.pix.full_filename;
+            end
+            [obj.pix,is_tmp_file_set] = obj.pix.activate(new_file,true);
+            if is_tmp_file_set
+                obj = obj.set_as_tmp_obj(new_file);
+            else
+                obj.full_filename = obj.pix.full_filename;
+            end
+        end        
     end
     %======================================================================
-    % Setters/getters for properties
+    % ACCESSORS TO OBJECT PROPERTIES
     methods
         %------------------------------------------------------------------
         % Public getters/setters expose all wrapped data attributes
@@ -418,7 +452,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %
         function is = get.is_filebacked(obj)
-            is = obj.has_pixels && obj.pix.is_filebacked;            
+            is = obj.has_pixels && obj.pix.is_filebacked;
         end
         %------------------------------------------------------------------
         % hidden properties
@@ -489,33 +523,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function is = dnd_type(obj)
             is = obj.pix_.num_pixels == 0;
         end
-        function  save_xye(obj,varargin)
-            save_xye(obj.data,varargin{:});
-        end
-        function  s=xye(w, varargin)
-            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
-            s = w.data.xye(varargin{:});
-        end
         %
-        function obj = set_as_tmp_obj(obj,filename)
-            % method sets filebacked sqw object to be temporary object i.e.
-            % the underlying file, provided as input is getting deleted
-            % when object goes out of scope.
-            %
-            % WARNING: if an sqw object built from an existing sqw file is set
-            %          to be a tmp object, the original file will be automatically
-            %          deleted when this object goes out of scope.
-            % USE WITH CAUTION!!!
-            if ~obj.is_filebacked
-                return;
-            end
-            if nargin == 1
-                filename = obj.pix.full_filename;
-            end
-            obj = set_as_tmp_obj_(obj,filename);
-
-        end
-
         %==================================================================
         function obj = apply_c(obj, operation)
             % Apply special PageOp operation affecting sqw object and pixels

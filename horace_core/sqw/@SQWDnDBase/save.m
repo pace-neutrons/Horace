@@ -138,6 +138,10 @@ else
     if isempty(ldw)
         ldw = sqw_formats_factory.instance().get_pref_access(w);
     end
+    % pixels should always have actual filename
+    if w.has_pixels
+        w.pix.full_filename = file_internal;
+    end
     ldw = ldw.init(w,file_internal);
 end
 
