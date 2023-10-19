@@ -464,3 +464,43 @@ where
 - ``p`` Vector of parameters needed by the model e.g. [A, js, gam] as intensity, exchange, lifetime
 - ``c1``, ``c2``, ..., ``cn`` Other constant parameters e.g. file name for look-up table weight Array containing calculated spectral weight
 - ``weight`` Array containing calculated spectral weight
+
+
+Parallel fitting
+================
+
+It is possible to use ``multifit`` and its derivatives (``tobyfit``,
+``multifit_sqw``, ``multifit_sqw_sqw``) in parallel (see
+:ref:`manual/Parallel:Running Horace in Parallel` for more info) by either
+enabling HPC options through
+
+.. code-block:: matlab
+
+   >> hpc('on');
+
+or by setting ``parallel_multifit`` directly in the ``hpc_config`` (see
+:ref:`Changing Horace settings <manual/Changing_Horace_settings:HPC Config>`)
+
+.. code-block:: matlab
+
+   >> hc = hpc_config;
+   >> hc.parallel_multifit = true;
+
+Parallel ``multifit`` decomposes the objects passed in into slices which are
+distributed between the processors. E.g. if we are fitting three ``IX_dataset``
+objects with 100 points between two processors, each processor will receive 50
+points from each ``IX_dataset``.
+
+This decomposition is performed differently for each of the three classes of
+fittable objects for each they are divided into ``N_items/N_procs``:
+
+- For ``sqw`` objects, the items are pixels
+- For ``dnd`` objects, the items are whole bins.
+- For ``IX_dataset`` objects, the items are points.
+
+
+.. note::
+
+   If the fitting is run with the ``-ave`` option on an ``sqw``, then the
+   decomposition will not split bins, but will distribute whole bins, which may
+   lead to load imbalance.

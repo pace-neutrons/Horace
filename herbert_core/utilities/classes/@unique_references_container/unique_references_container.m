@@ -342,6 +342,14 @@ classdef unique_references_container < serializable
     methods % overloaded indexers, subsets, find functions
         
         function field_vals = get_unique_field(self, field)
+        %GET_UNIQUE_FIELD each of the unique objects referred to by self
+        % should have a property named 'field'. The code below takes each of the
+        % referred objects in turn, extracts the object referred to by
+        % 'field' and stores it in the unique_OBJECTS_container field_vals
+        % created here. field_vals will then contain unique copies of all
+        % the values of 'field' within the objects referred to in self, indexed
+        % in the same way as the original referred objects.
+
             s1 = self.get(1);
             v = s1.(field);
             field_vals = unique_objects_container(class(v));

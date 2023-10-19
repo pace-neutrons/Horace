@@ -42,7 +42,7 @@ if ~use_unique_objects
 
     inst=repmat({instruments{1}},[nrun,1]);
     for i=2:nrun
-        inst{i}=instruments{i};;
+        inst{i}=instruments{i};
     end
 
     mod_shape_mono=repmat(IX_mod_shape_mono,[nrun,1]);
