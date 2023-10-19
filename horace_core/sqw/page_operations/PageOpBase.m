@@ -390,7 +390,7 @@ classdef PageOpBase
             % left for possibility to overload in children
         end
 
-        function do = get_do_missing_range_warning(~)
+        function do = get_do_missing_range_warning(obj)
             do  = ~isempty(obj.img_);
         end
 

@@ -30,14 +30,15 @@ classdef test_sqw_activate_deactivate< TestCase
             new_file = fullfile(tmp_dir(),'test_deact_copied_tmp_deleted.tmp_xxxx');
             copyfile(obj.sqw_file,new_file,'f');
 
+
             sq_obj = sqw(new_file,'file_backed',true);
-            sq_obj = sq_obj.set_as_tmp_obj();            
+            sq_obj = sq_obj.set_as_tmp_obj();
             sq2_obj= copy(sq_obj);
             sq_obj = sq_obj.deactivate();
             assertTrue(is_file(new_file ))
             clear sq_obj;
-            assertTrue(is_file(new_file ))            
-            clear sq2_obj;            
+            assertTrue(is_file(new_file ))
+            clear sq2_obj;
 
             assertFalse(is_file(new_file ))
         end
@@ -46,16 +47,16 @@ classdef test_sqw_activate_deactivate< TestCase
             copyfile(obj.sqw_file,new_file,'f');
 
             sq_obj = sqw(new_file,'file_backed',true);
-            sq_obj = sq_obj.set_as_tmp_obj();            
+            sq_obj = sq_obj.set_as_tmp_obj();
             sq2_obj= copy(sq_obj);
             assertTrue(is_file(new_file ))
             clear sq_obj;
-            assertTrue(is_file(new_file ))            
-            clear sq2_obj;            
+            assertTrue(is_file(new_file ))
+            clear sq2_obj;
 
             assertFalse(is_file(new_file ))
         end
-                
+
         function test_deactivated_activated_tmp_file_deleted(obj)
             new_file = fullfile(tmp_dir(),'test_deact_act_tmp_deleted.tmp_xxxx');
             copyfile(obj.sqw_file,new_file,'f');
