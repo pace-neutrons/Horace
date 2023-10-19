@@ -82,7 +82,16 @@ classdef (Abstract) IX_det_abstractType < serializable
         function varargout = tobyfit_defaults(val,parms)
         % TOBYFIT_DEFAULTS store and make available defaults for detector types
         % e.g. He3Tube, Tobyfit_Classic, slab... so that they can be used to
-        % initialise detectors, until this information is available in nxspe input
+        % initialise detectors, until this information is available in
+        % nxspe input.
+        %
+        % NOTE - this is an interim solution to make data available for
+        % IX_det_abstractType subclasses until such time as the actual data
+        % is available in nxspe. Its structure, particularly the use of
+        % persistent, assumes that many detectors of the same type will be
+        % deployed in a given Horace session, so that the persistent
+        % variables store the set-once use-many-times values. Innsue #1338
+        % tracks the need to update this.
         %
         % Inputs
         % ======

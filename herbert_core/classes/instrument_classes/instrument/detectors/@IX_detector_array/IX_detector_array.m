@@ -165,6 +165,10 @@ classdef IX_detector_array < serializable
                         
                         % get the default types and parameters for a detector - these should have been
                         % set by the user before use here. 
+                        % NOTE - this is an interim solution to obtain
+                        % detector parameter values until they are
+                        % available in nxspe. #1338 tracks the need to
+                        % update this.
                         [dtype,dparms] = IX_det_abstractType.tobyfit_defaults();
                         if strcmp(dtype,'IX_det_He3tube')
                             obj.det_bank_ = IX_detector_bank ( ...
