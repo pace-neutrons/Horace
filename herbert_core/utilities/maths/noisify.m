@@ -1,4 +1,4 @@
-function [yout,eout] = noisify(y,e,varargin)
+function [yout,eout,outpar] = noisify(y,e,varargin)
 % Adds noise to y values and associated error bars. The arrays y, e must
 % have same size. y is the signal and e is its variance.
 %
@@ -35,14 +35,24 @@ function [yout,eout] = noisify(y,e,varargin)
 %   regardless of whether e is present, so the first overload output is
 %   probably incomplete.
 
-    % deal with optional arguments
     fac = 0.1;
-    is_poisson = false;
-    ymax_calculated = false;
-    randfunc = @randn;
-    if nargin>=2 % avoids the case where the only paramemter is y; for >=2 e will not be optional
-        [fac, is_poisson, ymax, randfunc] = parse_args(y, e, fac, varargin{:});
-        ymax_calculated = true;
+    % deal with optional arguments
+    if nargin == 2
+        is_poisson = false;
+        ymax_calculated = false;
+        randfunc = @randn;
+        outpar = struct('driven_mode','', ...
+            'is_poisson',is_poisson ,'ymax_calculated',ymax_calculated , ...
+            'randfunc',randfunc);        
+    else  % avoids the case where the only paramemter is y; for >=2 e will not be optional        
+        if nargin == 3 && isstruct(varargin{1}) && isfield(varargin{1},'driven_mode')
+            % Driven mode, function is called multiple times within the noisify loop 
+            in_dat = varargin{1};
+            fac = 
+        else
+            [fac, is_poisson, ymax, randfunc] = parse_args(y, e, fac, varargin{:});
+            ymax_calculated = true;
+        end
     end
 
     % Use Poisson distribution and ignore other arguments

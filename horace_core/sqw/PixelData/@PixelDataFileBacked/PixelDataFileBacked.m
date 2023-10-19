@@ -75,7 +75,7 @@ classdef PixelDataFileBacked < PixelDataBase
         page_num_   = 1;  % the index of the currently referenced page
 
         % shift (in Bytes) from the beginning of the binary file containing
-        % the pixels to the first byte of pixels to access. Aslo used
+        % the pixels to the first byte of pixels to access. Also used
         % by `distribute` to send file portions to workers
         offset_ = 0;
 

@@ -440,8 +440,6 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
 
-        [pix_out, data] = noisify(obj, varargin);
-
 
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         function obj = invalidate_range(obj,fld)
@@ -746,6 +744,7 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = mask(obj, mask_array, npix);
         pix_out = do_unary_op(obj, unary_op)
         obj     = finalize_alignment(obj,filename);
+        [pix_out, data] = noisify(obj, varargin);        
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data
