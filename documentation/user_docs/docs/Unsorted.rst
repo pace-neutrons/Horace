@@ -6,6 +6,7 @@ and may not be needed in the new documentation.
 
 .. toctree::
 
+   manual/Advanced_Multifit
    manual/Changing_object_type
    manual/Developer_information
    manual/Horace_command_line
@@ -20,5 +21,4 @@ and may not be needed in the new documentation.
    manual/Script_for_making_publication_quality_figures
    manual/Script_for_making_simulations
    manual/Script_for_planning_an_experiment
-   manual/s_new
    new_page

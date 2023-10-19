@@ -259,14 +259,53 @@ for iw=1:nw
         sample_coords_to_spec_to_rlu(wtmp.experiment_info);
     
     % Get detector information
-    % Because detpar only contains minimal information, hardwire in the detector type here
+    % Because detpar only contains minimal information, either hardwire in 
+    % the detector type here or use the info now available in the detector
+    % arrays
     detpar = wtmp.detpar();   % just get a pointer
-    if use_tubes
-        detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
-            IX_det_He3tube (detpar.width, detpar.height, 6.35e-4, 10));   % 10atms, wall thickness=0.635mm
+    det = wtmp.experiment_info.detector_arrays;
+    if isempty(det) || det.n_runs == 0
+        % no detector info was available when the sqw was populated, so
+        % continue with the old detector initialisation from detpar
+        if use_tubes
+            detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
+                IX_det_He3tube (detpar.width, detpar.height, 6.35e-4, 10));   % 10atms, wall thickness=0.635mm
+        else
+            detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
+                IX_det_TobyfitClassic (detpar.width, detpar.height));
+        end
     else
-        detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
-            IX_det_TobyfitClassic (detpar.width, detpar.height));
+        % make a new detector object based on value of use_tubes and insert
+        % it into the detector_array info extracted from the sqw
+        if det.n_unique_objects>1
+            error('HORACE:tobyfit_DGfermi_resconv_init:incorrect_size', ...
+                  ['all sqw runs must have identical detectors with this ', ...
+                   'implementation']);
+        else
+            det = det{1}; % first run detector array element is the same for all runs
+                          % so equivalent to the content in detpar
+            bank = det.det_bank; % get out its detector bank 
+            % create a new detector object for this based on the detector
+            % bank info stored in the sqw object
+            current_detobj = bank.det;
+            width = current_detobj.dia;
+            height = current_detobj.height;
+            if use_tubes
+                % wall thickness 6.35e-4 and pressure 10 remain hardwired
+                detobj = IX_det_He3tube(width, height, 6.35e-4, 10);
+            else
+                detobj = IX_det_TobyfitClassic(width, height);
+            end
+            % restore detector object to the bank
+            bank.det  = detobj;
+            % and restore the bank to the detector array
+            det.det_bank = bank;
+            % and store the array in the initializer for the detector
+            % object lookup below.
+            % NOTE that the detectors in experiment_info have not
+            % themselves been updated.
+            detectors{iw} = det;
+        end
     end
     x2{iw} = detectors{iw}.x2;
     d_mat{iw} = detectors{iw}.dmat;
