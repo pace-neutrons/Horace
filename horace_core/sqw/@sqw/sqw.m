@@ -176,7 +176,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %
         function  save_xye(obj,varargin)
             save_xye(obj.data,varargin{:});
-            end
+        end
         function  s=xye(w, varargin)
             % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
             s = w.data.xye(varargin{:});
@@ -328,12 +328,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % USE WITH CAUTION!!!
             if ~obj.is_filebacked
                 return;
-    end
+            end
             if nargin == 1
                 filename = obj.pix.full_filename;
             end
             obj = set_as_tmp_obj_(obj,filename);
-        end        
+        end
 
         %
         function obj = deactivate(obj)
@@ -353,7 +353,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function obj = activate(obj,new_file)
             % Restore access to a file, previously closed by deactivate
             % operation, possibly using new file name.
-            % 
+            %
             % Restores tmp obj status for tmp files.
             if nargin == 1 || isempty(new_file)
                 new_file = obj.pix.full_filename;
@@ -364,7 +364,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             else
                 obj.full_filename = obj.pix.full_filename;
             end
-        end        
+        end
     end
     %======================================================================
     % ACCESSORS TO OBJECT PROPERTIES
@@ -463,7 +463,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %
         function is = get.is_filebacked(obj)
             is = obj.has_pixels && obj.pix.is_filebacked;
-            end
+        end
         %------------------------------------------------------------------
         % hidden properties
         function fn = get.full_filename(obj)

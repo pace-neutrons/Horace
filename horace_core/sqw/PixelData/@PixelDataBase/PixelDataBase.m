@@ -273,29 +273,6 @@ classdef (Abstract) PixelDataBase < serializable
             obj = create_(varargin{:});
         end
 
-        function obj = cat(varargin)
-            % Concatenate the given PixelData objects' pixels. This function performs
-            % a straight-forward data concatenation.
-            %
-            %   >> joined_pix = PixelDataBase.cat(pix_data1, pix_data2);
-            %
-            % Input:
-            % ------
-            %   varargin    A cell array of PixelData objects
-            %
-            % Output:
-            % -------
-            %   obj         A PixelData object containing all the pixels in the inputted
-            %               PixelData objects
-
-            % Take the dataclass of the first object.
-            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
-                obj = varargin{1};
-                return;
-            end
-
-            obj = varargin{1}.cat(varargin{:});
-        end
 
         function npix = bytes2pix(bytes)
             npix = bytes / sqw_binfile_common.FILE_PIX_SIZE;
@@ -357,7 +334,7 @@ classdef (Abstract) PixelDataBase < serializable
 
 
         data = get_raw_data(obj,varargin)
-        pix = set_raw_data(obj,pix);
+        pix  = set_raw_data(obj,pix);
 
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
 
@@ -439,8 +416,6 @@ classdef (Abstract) PixelDataBase < serializable
 
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
-
-        [pix_out, data] = noisify(obj, varargin);
 
 
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
@@ -746,6 +721,7 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = mask(obj, mask_array, npix);
         pix_out = do_unary_op(obj, unary_op)
         obj     = finalize_alignment(obj,filename);
+        pix_out = noisify(obj, varargin);
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data
@@ -767,7 +743,33 @@ classdef (Abstract) PixelDataBase < serializable
             [mean_signal, mean_variance,signal_msd] = ...
                 compute_bin_data_(obj, npix,pix_idx,calc_variance,calc_signal_msd);
         end
+        function out_obj = cat(obj,varargin)
+            % Concatenate the given PixelData objects' pixels. This function performs
+            % a straight-forward data concatenation.
+            %
+            %   >> joined_pix = pix_data1.cat(pix_data1, pix_data2);
+            %
+            % Input:
+            % ------
+            %   varargin    A cell array of PixelData objects
+            %
+            % Output:
+            % -------
+            %   obj         A PixelData object containing all the pixels in the inputted
+            %               PixelData objects
+            %               The type of the object (filebacked or
+            %               memorybacked) will be defined by the type of
+            %               the first object to cat.
 
+            % Take the dataclass of the first object.
+            if isempty(varargin)
+                out_obj = obj;
+                return;
+            end
+            out_obj = copy(obj);
+
+            out_obj= out_obj.cat(varargin{:});
+        end
     end
     %======================================================================
     % Overloadable protected getters/setters for properties

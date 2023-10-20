@@ -203,13 +203,7 @@ classdef PixelDataMemory < PixelDataBase
                 obj.detector_idx(selected) = abs(obj.detector_idx(selected));
             end
         end
-    end
-
-    methods(Static)
-        % apply page operation(s) to the object with memory-backed pixels
-        obj_out = apply_op(obj_in,page_op);
-
-        function obj = cat(varargin)
+        function obj = cat(obj,varargin)
             % Concatenate the given PixelData objects' pixels. This function performs
             % a straight-forward data concatenation.
             %
@@ -256,6 +250,12 @@ classdef PixelDataMemory < PixelDataBase
                 end
             end
         end
+        
+    end
+
+    methods(Static)
+        % apply page operation(s) to the object with memory-backed pixels
+        obj_out = apply_op(obj_in,page_op);
     end
     %======================================================================
     % implementation of PixelDataBase abstract protected interface

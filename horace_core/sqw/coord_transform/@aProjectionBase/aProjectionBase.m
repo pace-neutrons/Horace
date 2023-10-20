@@ -102,7 +102,7 @@ classdef aProjectionBase < serializable
         % The property specifies if the projection is aligned. Depending on
         % the value of this property, pix to img transformation calculated
         % differently
-        proj_aligned        
+        proj_aligned
     end
 
     properties(Constant, Hidden)
@@ -392,7 +392,6 @@ classdef aProjectionBase < serializable
         function obj = set.proj_aligned(obj,val)
             obj = obj.set_proj_aligned(val);
         end
-        
     end
 
     %======================================================================

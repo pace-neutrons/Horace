@@ -2,8 +2,8 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
 
     properties
 
-        test_sqw_file_path = '../test_sqw_file/deterministic_sqw_fake_data_for_testing.sqw';
-        test_sqw_file_full_path = '';
+        sqw_file_path = 'deterministic_sqw_fake_data_for_testing.sqw';
+        sqw_file_full_path = '';
     end
 
     methods
@@ -12,24 +12,23 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
             obj = obj@TestCase('test_noisify');
 
             % Process the file path
-            test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
-            obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
-
+            hp = horace_paths;
+            obj.sqw_file_full_path = fullfile(hp.test_common,obj.sqw_file_path );
         end
 
         function test_noisify_returns_equivalent_sqw_for_paged_pixel_data(obj)
             clob = set_temporary_config_options(hor_config, ...
-                                                'use_mex', 1, ...
-                                                'mem_chunk_size', floor(100337/5), ... % 5 or 6 pages
-                                                'fb_scale_factor', 3 ...
-                                                );
+                'use_mex', 1, ...
+                'mem_chunk_size', floor(100337/5), ... % 5 or 6 pages
+                'fb_scale_factor', 3 ...
+                );
 
             % we set up the test "random number generator" which is actually
             % a deterministic set of numbers 1:999 repeated. Use factor to make
             % them in range 0:1
             noise_factor = 1/999;
 
-            sqw_obj1 = sqw(obj.test_sqw_file_full_path,'file_backed',true);
+            sqw_obj1 = sqw(obj.sqw_file_full_path,'file_backed',true);
 
             % ensure we're actually paging pixel data
             pix = sqw_obj1.pix;
@@ -51,7 +50,7 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
 
             % step 2 load sqw object to memory
             % We make another sqw object from the same file
-            sqw_obj2 = read_sqw(obj.test_sqw_file_full_path);
+            sqw_obj2 = read_sqw(obj.sqw_file_full_path);
             % and we noisify it
             % - reset pseudorandom number distribution. If this reverted to
             %   standard MATLAB rng, with myrng=any rnd using rng e.g. randn,
@@ -59,20 +58,10 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
             %   rng(0);
             a.reset();
             noisy_obj2 = noisify(sqw_obj2,noise_factor,'random_number_function',myrng);
-            sqw_obj1.main_header.nfiles = sqw_obj2.main_header.nfiles;
-            sqw_obj1.main_header.creation_date = sqw_obj2.main_header.creation_date;
-            sqw_obj1.experiment_info = sqw_obj2.experiment_info;
-
-            noisy_obj1.main_header.nfiles = noisy_obj2.main_header.nfiles;
-            noisy_obj1.main_header.creation_date = noisy_obj2.main_header.creation_date;
-            noisy_obj1.experiment_info = noisy_obj2.experiment_info;
-            % as the page test whether the 2 paged versions are equal
-            [ok,mess] = equal_to_tol(sqw_obj1, sqw_obj2, ...
-                'abstol',5.e-4,'-ignore_date');
-            assertTrue( ok,['objects not equal. Reason: ',mess]);
-            [ok,mess] = equal_to_tol(noisy_obj1, noisy_obj2, ...
-                'abstol',5.e-4,'-ignore_date');
-            assertTrue( ok,['noisy not equal. Reason: ',mess]);
+            assertEqualToTol(sqw_obj1,sqw_obj2, ...
+                'tol',[5.e-4,5.e-4],'ignore_str',true,'-ignore_date')
+            assertEqualToTol(noisy_obj1,noisy_obj2, ...
+                'tol',[5.e-4,5.e-4],'ignore_str',true,'-ignore_date')
 
             % test noisify updates data
             assertFalse(equal_to_tol(sqw_obj1, noisy_obj1, 5e-4));
@@ -84,13 +73,16 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
         end
 
         function test_noisify_adds_gaussian_noise_to_data_with_given_stddev(obj)
-            if ~license('test', 'statistics_toolbox') || ~is_file('fitdist')
+            try % standard licence check fails for this toolbox
+                fitdist(ones(10,1),'binomial');
+            catch
                 skipTest('Statistics toolbox not available')
             end
+
             [~, old_rng_state] = seed_rng(0);
             cleanup = onCleanup(@() rng(old_rng_state));
 
-            sqw_obj = sqw(obj.test_sqw_file_full_path);
+            sqw_obj = sqw(obj.sqw_file_full_path);
             % ensure we're not paging pixel data
             pix = sqw_obj.pix;
             assertEqual(pix.page_size, pix.num_pixels);
@@ -116,7 +108,61 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
             assertTrue((sigma_interval(1) <= expected_stddev) ...
                 && (sigma_interval(2) >= expected_stddev));
         end
+    end
+    %======================================================================
+    methods
+        function test_npoisify_parser_maxval_frac(~)
+            [~,~,outpar] = noisify([],[],0.01,'maximum_value',1);
+
+            assertTrue(isfield(outpar,'driven_mode'));
+            assertEqual(outpar.fac,0.01);
+            assertFalse(outpar.is_poisson);
+            assertEqual(outpar.ymax,1);
+            % this not used but still contains defaults
+            assertEqual(func2str(outpar.randfunc),'randn');
+        end
+
+        function test_npoisify_parser_maxval(~)
+            [~,~,outpar] = noisify([],[],'maximum_value',1);
+
+            assertTrue(isfield(outpar,'driven_mode'));
+            assertEqual(outpar.fac,0.1);
+            assertFalse(outpar.is_poisson);
+            assertEqual(outpar.ymax,1);
+            % this not used but still contains defaults
+            assertEqual(func2str(outpar.randfunc),'randn');
+        end
+
+        function test_npoisify_parser_poisson(~)
+            [~,~,outpar] = noisify([],[],'poisson');
+
+            assertTrue(isfield(outpar,'driven_mode'));
+            assertEqual(outpar.fac,0.1);
+            assertTrue(outpar.is_poisson);
+            assertEqual(outpar.ymax, -inf);
+            % this not used but still contains defaults
+            assertEqual(func2str(outpar.randfunc),'randn');
+        end
+
+        function test_npoisify_parser_ymax(~)
+            [~,~,outpar] = noisify([],[],0.01);
+
+            assertTrue(isfield(outpar,'driven_mode'));
+            assertEqual(outpar.fac,0.01);
+            assertFalse(outpar.is_poisson);
+            assertTrue(isempty(outpar.ymax));
+            assertEqual(func2str(outpar.randfunc),'randn');
+        end
+
+        function test_npoisify_parser_default(~)
+            [~,~,outpar] = noisify([],[]);
+
+            assertTrue(isfield(outpar,'driven_mode'));
+            assertEqual(outpar.fac,0.1);
+            assertFalse(outpar.is_poisson);
+            assertTrue(isempty(outpar.ymax));
+            assertEqual(func2str(outpar.randfunc),'randn');
+        end
 
     end
-
 end
