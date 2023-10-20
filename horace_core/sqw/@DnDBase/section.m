@@ -41,15 +41,16 @@ end
 % Dimension of input data structures
 ndim=dimensions(win(1));
 if ndim==0  % no sectioning possible
-    error('HORACE:sqw:invalid_argument', 'Cannot section a zero dimensional object')
+    error('HORACE:DnDBase:invalid_argument', ...
+        'Cannot section a zero dimensional object')
 end
 
 if numel(win) > 1 && any(arrayfun(@dimensions, win(2:end)) ~= ndim)
-    error('HORACE:sqw:invalid_argument', 'All objects must have same dimensionality for sectioning to work')
+    error('HORACE:DnDBase:invalid_argument', 'All objects must have same dimensionality for sectioning to work')
 end
 
 if length(varargin) ~= ndim
-    error('HORACE:sqw:invalid_argument', 'Check number of arguments')
+    error('HORACE:DnDBase:invalid_argument', 'Need  number of arguments')
 end
 
 % Initialise output argument
