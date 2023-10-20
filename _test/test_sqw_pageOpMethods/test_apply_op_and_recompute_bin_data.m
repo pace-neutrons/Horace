@@ -1,4 +1,4 @@
-classdef test_apply_and_recompute_bin_data < TestCase
+classdef test_apply_op_and_recompute_bin_data < TestCase
     % Series of tests to validate operations using recompute_bin_data and
     % how apply operation works on different type of objects
 
@@ -7,11 +7,11 @@ classdef test_apply_and_recompute_bin_data < TestCase
     end
 
     methods
-        function obj=test_apply_and_recompute_bin_data(varargin)
+        function obj=test_apply_op_and_recompute_bin_data(varargin)
             if nargin>0
                 name=varargin{1};
             else
-                name = 'test_apply_and_recompute_bin_data';
+                name = 'test_apply_op_and_recompute_bin_data';
             end
             obj = obj@TestCase(name);
             obj.test_sqw = sqw.generate_cube_sqw(10,@(h,k,l,e,varargin)(2));

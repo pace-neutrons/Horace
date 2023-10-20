@@ -124,12 +124,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         w = sigvar_set(win, sigvar_obj);
 
         %Evaluate a function at the plotting bin centres of sqw object
-        wout = func_eval (win, func_handle, pars, varargin)        
+        wout = func_eval (win, func_handle, pars, varargin)
     end
     %======================================================================
     % Various sqw methods
     methods
-        write_sqw(obj,sqw_file);      % write sqw object in an sqw file
         % sigvar block
         wout = cut(obj, varargin); % take cut from the sqw object.
         function wout = cut_sqw(obj,varargin)
@@ -159,13 +158,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         wout = replicate (win,wref);
 
-        % Calculate hkl,en of datest pixels 
+        % Calculate hkl,en of datest pixels
         qw=calculate_qw_pixels(win);
         % Calculate Q^2,en of datest pixels
-        qsqr_w = calculate_qsqr_w_pixels (win)                
-        % Calculate hkl,en of datest pixels using detectors and experiment 
+        qsqr_w = calculate_qsqr_w_pixels (win)
+        % Calculate hkl,en of datest pixels using detectors and experiment
         % info
-        qw=calculate_qw_pixels2(win)        
+        qw=calculate_qw_pixels2(win)
         %----------------------------------
         new_sqw = copy(obj, varargin)
         [obj, ldr] = get_new_handle(obj, outfile)
@@ -176,13 +175,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     % METHODS, Available on SQW but redirecting actions to DnD and requesting
     % only DND object for implementation.
     methods
-        % Squeezes the data range in the dnd image of an sqw object to        
-        wout = compact(win)        
+        % Squeezes the data range in the dnd image of an sqw object to
+        wout = compact(win)
 
         function wout = cut_dnd(obj,varargin)
             % legacy entrance to cut for dnd objects
             wout = cut(obj.data,varargin{:});
-        end 
+        end
 
         function [nd,sz] = dimensions(win)
             % Return size and shape of the image
@@ -190,7 +189,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             [nd,sz] = win(1).data.dimensions();
         end
         % Get limits of the data in an n-dimensional dataset
-        [val, n] = data_bin_limits (obj)        
+        [val, n] = data_bin_limits (obj)
 
         % smooth sqw object or array of sqw
         % objects containing no pixels
@@ -235,8 +234,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function [q,en]=calculate_q_bins(win)
             [q,en] = win.data.calculate_q_bins();
         end
-        % Calculate |Q|^2 for the centres of the bins of an n-dimensional sqw dataset        
-        [qsqr,en] = calculate_qsqr_bins (win);        
+        % Calculate |Q|^2 for the centres of the bins of an n-dimensional sqw dataset
+        [qsqr,en] = calculate_qsqr_bins (win);
         qsqr_w = calculate_qsqr_w_bins (win,varargin)
         %
         function  save_xye(obj,varargin)
@@ -266,11 +265,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % WARNING: if an sqw object built from an existing sqw file is set
         %          to be a tmp object, the original file will be automatically
         %          deleted when this object goes out of scope.
-        % USE WITH CAUTION!!!       
-        obj = set_as_tmp_obj(obj,filename)        
+        % USE WITH CAUTION!!!
+        obj = set_as_tmp_obj(obj,filename)
         %
-        obj = deactivate(obj)        
-        obj = activate(obj,new_file)        
+        obj = deactivate(obj)
+        obj = activate(obj,new_file)
         %
     end
     %======================================================================
@@ -382,11 +381,16 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %
         function is = get.is_tmp_obj(obj)
             is = ~isempty(obj.tmp_file_holder_);
-        end        
+        end
     end
     %======================================================================
     % REDUNDANT and compatibility ACCESSORS
     methods
+        % write sqw object in an sqw file. See save(sqw,...) on SQWDnDBase
+        write_sqw(obj,sqw_file,vararin);
+        % see apply_op
+        obj = apply(obj, func_handle, args, recompute_bins, compute_variance);
+        %
         function hdr = get.header(obj)
             % return old (legacy) header(s) providing short experiment info
             hdr = get_header_(obj);
@@ -413,24 +417,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %              calculates changes to image, caused by the
             %              modifications to pixels.
             obj = obj.pix.apply_op(obj,operation);
-        end
-
-        function obj = apply(obj, func_handle, args, recompute_bins, compute_variance)
-            if ~exist('args', 'var')
-                args = {};
-            end
-            if ~exist('recompute_bins', 'var')
-                recompute_bins = true;
-            end
-            if ~exist('compute_variance', 'var')
-                compute_variance = false;
-            end
-
-            if recompute_bins
-                [obj.pix, obj.data] = obj.pix.apply(func_handle, args, obj.data, compute_variance);
-            else
-                obj.pix = obj.pix.apply(func_handle, args);
-            end
         end
     end
     %======================================================================
