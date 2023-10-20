@@ -27,7 +27,7 @@ classdef test_sqw_copy < TestCase
             sqw_copy.main_header.title = 'test_copy';
             dtp = sqw_copy.detpar();
             dtp.azim(1:10) = 0;
-            sqw_copy = sqw_copy.change_detpar(dtp);
+            sqw_copy.detpar = dtp;
             sqw_copy.pix.signal = 1;
             sqw_copy.data.s(1) = 100;
 

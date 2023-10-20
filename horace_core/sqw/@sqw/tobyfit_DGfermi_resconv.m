@@ -211,7 +211,7 @@ for i=1:numel(ind)
 
     % Catch case of refining crystal orientation
     if refine_crystal
-        % Strip out crystal refinement parameters and reorientate datasets
+        % Strip out crystal refinement parameters and reorient datasets
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
 
         % Update s_mat and spec_to_rlu because crystal orientation will have changed

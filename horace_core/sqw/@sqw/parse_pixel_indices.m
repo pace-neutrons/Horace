@@ -1,5 +1,5 @@
 function [irun, idet, ien] = parse_pixel_indices (win,indx,iw)
-% Return the indices to pixels
+% Return the run/energy/detector indices to pixels
 %
 % Check validity (sizes and extent of arrays, format of input arguments etc)
 %   >> parse_pixel_indices (win,indx)

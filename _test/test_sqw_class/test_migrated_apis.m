@@ -246,7 +246,7 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             for idx=1:20
                 hdr.instruments{idx} = expected_inst;
             end
-            s = s.change_header(hdr);
+            s.experiment_info = hdr;
 
 
             [inst,all_inst] = get_inst_class(s);

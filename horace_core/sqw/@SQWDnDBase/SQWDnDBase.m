@@ -119,7 +119,7 @@ classdef (Abstract) SQWDnDBase < serializable
         %                              % binning of an sqw or dnd object
     end
 
-    methods  % Public
+    methods  % Public       
         [sel,ok,mess] = mask_points(win, varargin);
 
         cl = save(w, varargin);
