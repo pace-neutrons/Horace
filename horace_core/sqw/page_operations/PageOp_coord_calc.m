@@ -7,7 +7,7 @@ classdef PageOp_coord_calc < PageOpBase
         % name of the coordinate to transformation from the list
         % below
         op_type;
-        % auxiliary index identifing number of the operation in the list of
+        % auxiliary index identifying number of the operation in the list of
         % operations
         ind;
         % the projection, which transforms from pixels to image

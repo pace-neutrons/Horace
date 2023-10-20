@@ -100,7 +100,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     methods
         % combine together various sqw objects, containing the same size images
         wout = combine_sqw(w1,varargin);
-        wout = join(w,wi)
+        wout = join(w,wi);
+        wout = split(w);
 
         [wout,mask_array] = mask(win, mask_array);
 
@@ -111,7 +112,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % calculate pixel data range and recalculate image not modifying
         % pixel data
         wout=recompute_bin_data(sqw_obj,out_file_name);
-        % apply alignment
+        % apply alignment to pixels
         [obj,al_info] = finalize_alignment(obj,filename);
 
         % take part of the
