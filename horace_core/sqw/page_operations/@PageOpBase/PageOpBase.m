@@ -123,6 +123,7 @@ classdef PageOpBase
         %
     end
     %======================================================================
+    % Main operation methods
     methods
         function obj = PageOpBase(varargin)
             % Constructor for page operations
@@ -147,32 +148,7 @@ classdef PageOpBase
             if nargin == 1
                 return;
             end
-            obj.pix_data_range_ = PixelDataBase.EMPTY_RANGE;
-
-            %
-            if ~obj.inplace
-                obj.write_handle_ = in_obj.get_write_handle(obj.outfile);
-            end
-
-            if isa(in_obj ,'PixelDataBase')
-                obj.pix_             = in_obj;
-                obj.img_             = [];
-            elseif isa(in_obj,'sqw')
-                obj.img_             = in_obj.data;
-                obj.pix_             = in_obj.pix;
-                obj.npix             = obj.img_.npix;
-                %
-                obj.sig_acc_ = zeros(numel(obj.npix),1);
-            else
-                error('HORACE:PageOpBase:invalid_argument', ...
-                    'Init method accepts PixelData or SQW object input only. Provided %s', ...
-                    class(in_obj))
-            end
-            % as we normally read data and immediately dump them back, what
-            % is the point of converting them to double and back?
-            % Keep precision.
-            obj.pix_.keep_precision = true;
-            obj.old_file_format_ = obj.pix_.old_file_format;
+            obj = init_(obj,in_obj);
         end
         %
         function obj = common_page_op(obj)
@@ -210,7 +186,8 @@ classdef PageOpBase
             % Finalize page operations.
             %
             % Contains common code to transfer data changed by operation to
-            % out_obj.   Need overloading for correct image calculations.
+            % out_obj.   Need overloading for correct image calculations
+            % and specifics of particular operation
             %
             % Input:
             % obj     -- instance of the page operations
@@ -219,38 +196,7 @@ classdef PageOpBase
             % Returns:
             % out_obj -- sqw object created as the result of the operation
             % obj     -- nullified PageOp object.
-
-            pix   = obj.pix_;
-            pix   = pix.set_data_range(obj.pix_data_range_);
-            % revert to usual way of performing pixel operations
-            % (data converted to double when accessed)
-            pix.keep_precision = false;
-
-            if ~obj.inplace_
-                % clear alignment (if any) as alignment has been applied during
-                % page operation(s)
-                pix   = pix.clear_alignment();
-            end
-
-            if isempty(obj.img_) % changes_pix_only -- would not work here
-                % as some operations work on sqw but only modify pixels.
-                pix = pix.finish_dump(obj);
-                out_obj = pix.copy();
-            else
-                out_obj = in_obj.copy();
-                if obj.old_file_format_
-                    out_obj.experiment_info = ...
-                        out_obj.experiment_info.get_subobj(obj.unique_run_id_);
-                end
-                out_obj.pix  = pix;
-                % image should be modified by method overload.
-                out_obj.data = obj.img_;
-                out_obj = out_obj.finish_dump(obj);
-            end
-            obj.pix_  = PixelDataMemory();
-            obj.img_  = [];
-            obj.npix_ = [];
-            obj.write_handle_ = [];
+            [out_obj,obj] = finish_op_(obj,in_obj);
         end
         %
         function [npix_chunks, npix_idx] = split_into_pages(~,npix,chunk_size)
@@ -380,7 +326,29 @@ classdef PageOpBase
             do = get_do_missing_range_warning(obj);
         end
     end
-    %
+    %======================================================================
+    methods(Static)
+        function print_range_warning(op_name,infile_name,is_old_file_format)
+            % print the warning informing user that the source file
+            % contains invalid data range and file format should be
+            % upgraded.
+            % Input:
+            % op_name     -- the name of operation which performs calculations
+            % infile_name -- the name of the file-source of filebacked sqw
+            %                object, which does not contain correct data
+            %                range 
+            % is_old_file_format
+            %             -- true or false specifying the reason why the
+            %                file does not have correct range and message, 
+            %                suggesting best way to upgrade. 
+            %        true -- the file does not have correct range due to
+            %                old file format
+            %        false-- the file does not contain correct data range
+            %                because it has been realigned
+            print_range_warning_(op_name,infile_name,is_old_file_format);
+        end
+    end
+    %======================================================================
     methods(Access=protected)
         function  does = get_changes_pix_only(obj)
             does = isempty(obj.img_);
@@ -397,7 +365,9 @@ classdef PageOpBase
         function obj = update_image(obj,sig_acc,var_acc,npix_acc)
             % The piece of code which often but not always used at the end
             % of an operation when modified data get transformed from
-            % accumulators to the final image.
+            % accumulators to the final image finalizing the image
+            % processing.
+            %
             % Inputs:
             % sig_acc -- array accumulating changed signal during
             %            operation(s)
@@ -409,26 +379,7 @@ classdef PageOpBase
             % Returns:
             % obj      -- operation object containing modified image, if
             %             image have been indeed modified
-            if obj.changes_pix_only
-                return;
-            end
-            if nargin == 3
-                npix_acc = obj.npix;
-            end
-            [calc_sig,calc_var] = normalize_signal( ...
-                sig_acc(:),var_acc(:),npix_acc(:));
-
-            sz = size(obj.img_.s);
-            img = obj.img_;
-            img.do_check_combo_arg = false;
-            img.s    = reshape(calc_sig,sz);
-            img.e    = reshape(calc_var,sz);
-            if nargin > 3
-                img.npix = reshape(npix_acc,sz);
-            end
-            img.do_check_combo_arg = true;
-            img = img.check_combo_arg();
-            obj.img_ = img;
+            obj = update_image_(obj,sig_acc,var_acc,npix_acc);
         end
     end
 end

@@ -51,7 +51,14 @@ if nargin == 2
             'randfunc',randfunc);
     end
 else
-    if nargin == 3 && isstruct(varargin{1}) && isfield(varargin{1},'driven_mode')
+    if nargin == 3 && isstruct(varargin{1}) 
+        if ~isfield(varargin{1},'driven_mode')
+            error('HERBERT:utilies:invalid_argument', ...
+                ['A structure is provided as input of noisify routine but' ...
+                ' the structure does not contain correct initialization information\n' ...
+                ' It contains %s'], ...
+                disp2str(varargin{1}))
+        end
         % Driven mode, function is called multiple times within the noisify loop
         in_dat = varargin{1};
         fac = in_dat.fac;

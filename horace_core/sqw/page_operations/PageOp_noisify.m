@@ -2,6 +2,7 @@ classdef PageOp_noisify < PageOpBase
     % Single pixel page operation used by noisify function
     %
     properties
+        % processed input parameters of the noisify routine
         noisify_par
         %
     end
