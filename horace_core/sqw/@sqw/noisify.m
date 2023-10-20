@@ -39,7 +39,7 @@ for i=1:numel(w)
                 % before applying noisify to the individual pages.
                 is_old_file = wout(i).pix.old_file_format;
                 page_op.print_range_warning('finalize_alignment',wout(i).full_filename,is_old_file);
-                wout(i) = wout(i).finalize_alignment();
+                wout(i) = wout(i).recompute_bin_data();
             end
             range = wout(i).pix.data_range;
             max_sig = range(2,PixelDataBase.field_index('signal'));

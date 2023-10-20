@@ -17,7 +17,7 @@ function [yout,eout,outpar] = noisify(y,e,varargin)
 %           Add noise with Poisson distribution, where the mean value at
 %           a point is the value y.
 %
-%   >> [yout, eout] = noisify(y,e,[factor,]'maximum_value',maxval)
+%   >> [yout, eout] = noisify(y,e,[factor],'maximum_value',maxval)
 %           Add noise with Gaussian distribution, calculating the standard
 %           deviation by an externally provided maximum y value.
 %           The max value is preceded by a keyword string 'maximum_value'.
@@ -39,48 +39,10 @@ function [yout,eout,outpar] = noisify(y,e,varargin)
 %   regardless of whether e is present, so the first overload output is
 %   probably incomplete.
 
-fac = 0.1;
-% deal with optional arguments
-if nargin == 2
-    is_poisson = false;
-    ymax_calculated = false;
-    randfunc = @randn;
-    if nargout > 2
-        outpar = struct('driven_mode','', ...
-            'fac',fac,'is_poisson',is_poisson ,'ymax',[], ...
-            'randfunc',randfunc);
-    end
-else
-    if nargin == 3 && isstruct(varargin{1}) 
-        if ~isfield(varargin{1},'driven_mode')
-            error('HERBERT:utilies:invalid_argument', ...
-                ['A structure is provided as input of noisify routine but' ...
-                ' the structure does not contain correct initialization information\n' ...
-                ' It contains %s'], ...
-                disp2str(varargin{1}))
-        end
-        % Driven mode, function is called multiple times within the noisify loop
-        in_dat = varargin{1};
-        fac = in_dat.fac;
-        is_poisson = in_dat.is_poisson;
-        ymax = in_dat.ymax;
-        randfunc = in_dat.randfunc;
-        %
-        ymax_calculated = ~isempty(ymax);
-        outpar = in_dat;
-    else  % avoids the case where the only paramemter is y; for >=2 e will not be optional
-        [fac, is_poisson, ymax, randfunc] = parse_args(y, e, fac, varargin{:});
-        ymax_calculated = true;
-        if nargout>2
-            outpar = struct('driven_mode','', ...
-                'fac',fac,'is_poisson',is_poisson ,'ymax',ymax, ...
-                'randfunc',randfunc);
-        end
-        if isempty(y) && isempty(e) % called to generate outpar for further usage
-            yout = []; eout = [];
-            return
-        end
-    end
+[fac, is_poisson, ymax, randfunc,outpar] = parse_args(nargin,nargout,y, e, varargin{:});
+if isempty(y)
+    yout = [];eout = [];
+    return;
 end
 
 % Use Poisson distribution and ignore other arguments
@@ -91,9 +53,6 @@ if is_poisson
     end
     eout=abs(y);  % the input y is the mean and variance of the Poisson distribution
 else
-    if ~ymax_calculated
-        ymax = max(abs(y(:)));
-    end
     % make noise dy and add to y for output; make error bar for noise.
     % randfunc generates the random numbers producing the noise;
     % its standard and default implementation is randn - gaussian of std.dev=1
@@ -116,12 +75,33 @@ if exist('e', 'var') && ~isempty(e)
 end
 end
 
-function [fac, is_poisson, ymax, randfun] = parse_args(y, e, fac, varargin)
+function [fac, is_poisson, ymax, randfun,out_par] = parse_args(n_argin,n_arout,y, e, varargin)
+if n_argin == 3 && isstruct(varargin{1}) % driven mode, everythig was parsed and
+    % collected in input structure
+    if ~isfield(varargin{1},'driven_mode')
+        error('HERBERT:utilies:invalid_argument', ...
+            ['A structure is provided as input of noisify routine but' ...
+            ' the structure does not contain correct initialization information\n' ...
+            ' It contains %s'], ...
+            disp2str(varargin{1}))
+    end
+    % Driven mode, function is called multiple times within the noisify loop
+    in_dat = varargin{1};
+    fac = in_dat.fac;
+    is_poisson = in_dat.is_poisson;
+    ymax = in_dat.ymax;
+    randfun = in_dat.randfunc;
+    %
+    out_par = in_dat;
+    return
+end
+
+fac = 0.1;
 USE_LOCAL_MAX = -inf;
 p = inputParser;
 addRequired(p, 'y', @isnumeric);   % y compulsory
 addRequired(p, 'e', @isnumeric);   % e compulsory if any of remaining optional/parameter arguments present
-numeric_or_poisson = @(x) isnumeric(x) || strcmpi(x,'poisson');
+numeric_or_poisson = @(x) isnumeric(x) || (istext(x) && strcmpi(x,'poisson'));
 addOptional(p, 'dist_or_factor', fac, numeric_or_poisson);  % fac (numeric) or distribution ('poisson') optional, default to fac=0.1
 addParameter(p,'maximum_value', USE_LOCAL_MAX, @isnumeric);  % ymax, as parameter 'maximum_value'. Default to internally set negative value.
 check_function_handle = @(x) isa(x,'function_handle');
@@ -135,7 +115,8 @@ if isnumeric(p.Results.dist_or_factor)
 elseif strcmpi(p.Results.dist_or_factor, 'poisson')
     is_poisson = true;
 else
-    error('HERBERT:noisify', '3rd argument cannot be interpreted as a Gaussian factor or legal probability distribution')
+    error('HERBERT:noisify', ...
+        '3rd argument cannot be interpreted as a Gaussian factor or legal probability distribution')
 end
 
 randfun = p.Results.random_number_function;
@@ -143,6 +124,18 @@ randfun = p.Results.random_number_function;
 % pick up signal max value as either default or input
 ymax = p.Results.maximum_value;
 if ~is_poisson && ymax == USE_LOCAL_MAX
-    ymax = max(abs(y(:)));
+    if isempty(y)
+        ymax = [];        
+    else
+        ymax = max(abs(y(:)));
+    end
+end
+
+if n_arout > 2
+    out_par = struct('driven_mode',true, ...
+        'fac',fac,'is_poisson',is_poisson ,'ymax',ymax, ...
+        'randfunc',randfun);
+else
+    out_par = [];
 end
 end

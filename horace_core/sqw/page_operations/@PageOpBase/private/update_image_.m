@@ -16,9 +16,6 @@ function obj = update_image_(obj,sig_acc,var_acc,npix_acc)
 if obj.changes_pix_only
     return;
 end
-if nargin == 3
-    npix_acc = obj.npix;
-end
 [calc_sig,calc_var] = normalize_signal( ...
     sig_acc(:),var_acc(:),npix_acc(:));
 

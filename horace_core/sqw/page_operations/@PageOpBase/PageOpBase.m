@@ -336,11 +336,11 @@ classdef PageOpBase
             % op_name     -- the name of operation which performs calculations
             % infile_name -- the name of the file-source of filebacked sqw
             %                object, which does not contain correct data
-            %                range 
+            %                range
             % is_old_file_format
             %             -- true or false specifying the reason why the
-            %                file does not have correct range and message, 
-            %                suggesting best way to upgrade. 
+            %                file does not have correct range and message,
+            %                suggesting best way to upgrade.
             %        true -- the file does not have correct range due to
             %                old file format
             %        false-- the file does not contain correct data range
@@ -379,6 +379,9 @@ classdef PageOpBase
             % Returns:
             % obj      -- operation object containing modified image, if
             %             image have been indeed modified
+            if nargin == 3
+                npix_acc = obj.npix;
+            end
             obj = update_image_(obj,sig_acc,var_acc,npix_acc);
         end
     end
