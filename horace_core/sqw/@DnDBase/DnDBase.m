@@ -153,6 +153,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %------------------------------------------------------------------
+        wout = replicate (win, wref);
+        
         function obj=signal(~,varargin)
             error('HORACE:DnDBase:runtime_error',...
                 'Call to signal function is possible for sqw objects only')
