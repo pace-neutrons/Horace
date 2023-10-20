@@ -72,11 +72,9 @@ classdef test_noisify < TestCase
 
         function test_noisify_adds_gaussian_noise_to_data_with_given_stddev(obj)
             try % standard licence check fails for this toolbox
-                fitdist();
-            catch ME
-                if strcmp(ME.identifier,'MATLAB:ErrorRecovery:UnlicensedFunction')
-                    skipTest('Statistics toolbox not available')
-                end
+                fitdist(ones(10,1),'binomial');
+            catch
+                skipTest('Statistics toolbox not available')
             end
 
             [~, old_rng_state] = seed_rng(0);
