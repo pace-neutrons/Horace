@@ -3,7 +3,7 @@ function w = unary_op_manager (w1, unary_op)
 %
 %   >> w = unary_op_manager(w1, unary_op)
 %
-% Most unary operations on Matlab double arrays are permitted (e.g. acos,
+% Most unary operations on MATLAB double arrays are permitted (e.g. acos,
 % sqrt, log10...) and are applied element by element to the signal and
 % variance arrays.
 %
@@ -64,7 +64,7 @@ page_op   = PageOp_unary_op();
 for i=1:numel(w1)
     if has_pixels(w1(i))
         page_op = page_op.init(w(i),unary_op);
-        w(i)    = w(i).apply_c(page_op);
+        w(i)    = w(i).apply_op(page_op);
     else
         result = unary_op(sigvar(w1(i)));
         w(i)   = sigvar_set(w(i),result);

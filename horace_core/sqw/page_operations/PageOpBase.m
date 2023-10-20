@@ -65,7 +65,8 @@ classdef PageOpBase
         write_handle
         % An algorithm applied to a sqw object with missing data range
         % should issue warning that range is recalculated unless the
-        % algorithm is the algorithm, which recalculates missing range
+        % algorithm is the one which actually recalculates missing range.
+        % No range warning should be generated for pixels only too.
         do_missing_range_warning;
     end
 
@@ -389,8 +390,8 @@ classdef PageOpBase
             % left for possibility to overload in children
         end
 
-        function do = get_do_missing_range_warning(~)
-            do  = true;
+        function do = get_do_missing_range_warning(obj)
+            do  = ~isempty(obj.img_);
         end
 
         function obj = update_image(obj,sig_acc,var_acc,npix_acc)

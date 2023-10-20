@@ -3,6 +3,9 @@ classdef (Abstract) SQWDnDBase < serializable
     %
     %   Abstract class defining common API and attributes of the SQW and
     %   DnD objects
+    properties(Abstract,Dependent,Hidden=true)
+        NUM_DIMS
+    end    
     methods (Abstract)
         %------------------------------------------------------------------
         % various useful operations and methods. Both internal and

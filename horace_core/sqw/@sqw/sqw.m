@@ -43,7 +43,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         is_filebacked;
     end
 
-    properties(Hidden,Dependent)
+    properties(Dependent,Hidden=true)
+        NUM_DIMS;
         % the same as npixels, but allows to use the same interface on sqw
         % object or pixels
         num_pixels;
@@ -175,7 +176,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %
         function  save_xye(obj,varargin)
             save_xye(obj.data,varargin{:});
-        end
+            end
         function  s=xye(w, varargin)
             % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
             s = w.data.xye(varargin{:});
@@ -190,6 +191,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % Return size and shape of the image
             % arrays in sqw or dnd object
             [nd,sz] = win(1).data.dimensions();
+
         end
         %
         function [val, n] = data_bin_limits (obj)
@@ -326,12 +328,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % USE WITH CAUTION!!!
             if ~obj.is_filebacked
                 return;
-            end
+    end
             if nargin == 1
                 filename = obj.pix.full_filename;
             end
             obj = set_as_tmp_obj_(obj,filename);
         end        
+
         %
         function obj = deactivate(obj)
             % Close all open handles of the class keeping information about
@@ -366,6 +369,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %======================================================================
     % ACCESSORS TO OBJECT PROPERTIES
     methods
+        function nd = get.NUM_DIMS(obj)
+            if isempty(obj.data_)
+                nd = [];
+            else
+                nd = obj.data_.NUM_DIMS;
+            end
+        end
         %------------------------------------------------------------------
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
@@ -453,7 +463,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %
         function is = get.is_filebacked(obj)
             is = obj.has_pixels && obj.pix.is_filebacked;
-        end
+            end
         %------------------------------------------------------------------
         % hidden properties
         function fn = get.full_filename(obj)
@@ -525,7 +535,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %
         %==================================================================
-        function obj = apply_c(obj, operation)
+        function obj = apply_op(obj, operation)
             % Apply special PageOp operation affecting sqw object and pixels
             %
             % See what PageOp is from PageOpBase class description and its
@@ -538,9 +548,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %              which operates on PixelData, modifies pixels and
             %              calculates changes to image, caused by the
             %              modifications to pixels.
-            for i=1:numel(obj)
-                obj(i) = obj(i).pix.apply_c(obj(i),operation);
-            end
+            obj = obj.pix.apply_op(obj,operation);
+
         end
 
         function obj = apply(obj, func_handle, args, recompute_bins, compute_variance)

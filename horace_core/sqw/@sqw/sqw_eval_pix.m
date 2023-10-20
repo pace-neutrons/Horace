@@ -15,7 +15,7 @@ function obj = sqw_eval_pix(obj, sqwfunc, ave_pix, pars, outfile)
 %   sqwfunc    Handle to function that calculates S(Q,w)
 %   ave_pix    Boolean flag wither to apply function to averaged bin data
 %   pars       Arguments needed by the function.
-%   outfile    The file used for outputing filebacked result
+%   outfile    The file used for outputting filebacked result
 %
 %==================================================================================================
 
@@ -26,4 +26,4 @@ if ~isempty(outfile)
 end
 eval_op = eval_op.init(obj,sqwfunc,pars,ave_pix);
 
-obj = obj.apply_c(eval_op);
+obj = obj.apply_op(eval_op);
