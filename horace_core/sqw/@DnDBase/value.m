@@ -21,7 +21,8 @@ function [value, sigma] = value(w, x)
 %   sigma   Standard deviation (column vector)
 
 if numel(w)~=1
-    error('Function only works on a single sqw object')
+    error('HORACE:DnDBase:invalid_argument', ...
+        'Function only works on a single dnd object')
 end
 
 % Get dimensionality of points array
@@ -29,8 +30,8 @@ nd = dimensions(w);
 
 % Catch case of zero dimensional object with no x argument
 if nd==0 && nargin==0
-    value = w.data.s;
-    sigma = sqrt(w.data.e);
+    value = w.s;
+    sigma = sqrt(w.e);
     return
 end
 
@@ -39,7 +40,9 @@ if nd==1 && isvector(x)    % we'll accept a row vector of values for 1D case onl
     x=x(:); % guarantee is a column
 end
 if ~isnumeric(x)||numel(size(x))~=2||size(x,2)~=nd
-    error('Check size of coordinate array')
+    error('HORACE:DnDBase:invalid_argument', ...
+        'Size of coordinate array (%d) differs from the dimensions of the object (%d)', ...
+        size(x,2),nd)
 else
     np=size(x,1);
     if np<1
@@ -49,8 +52,8 @@ else
     end
 end
 
-p = w.data.p;
-dax = w.data.dax;   % display axes permutation
+p   = w.p;
+dax = w.dax;   % display axes permutation
 
 value = NaN(np, 1);
 sigma = NaN(np, 1);
@@ -64,7 +67,7 @@ end
 for i = 1:nd
     ind{i} = ind{i}(ok);
 end
-ix = sub2ind(size(w.data.s), ind{:});
+ix = sub2ind(size(w.s), ind{:});
 
-value(ok) = w.data.s(ix);
-sigma(ok) = sqrt(w.data.e(ix));
+value(ok) = w.s(ix);
+sigma(ok) = sqrt(w.e(ix));

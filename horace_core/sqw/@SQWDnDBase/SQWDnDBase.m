@@ -12,8 +12,6 @@ classdef (Abstract) SQWDnDBase < serializable
         % producing useful result
         pixels = has_pixels(win);     % Check if sqw or dnd object has pixels.
         %                             % DnD object always returns false.
-        save_xye(obj,varargin);       % save xye data into file
-        s=xye(w, null_value);         % return a structure, containing xye data
         %
         wout = smooth(win, varargin); % Run smooth operation over DnD
         %                             % objects or sqw objects without pixels
@@ -85,6 +83,10 @@ classdef (Abstract) SQWDnDBase < serializable
         % remove legacy alignment and put modern alignment instead
         [wout,al_info] = upgrade_legacy_alignment(obj,varargin)
         %------------------------------------------------------------------
+        save_xye(obj,varargin);       % save xye data into file
+        s=xye(w, null_value);         % return a structure, containing xye data
+        %
+        [value, sigma] = value(w, x);
     end
     properties(Constant,Hidden)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw

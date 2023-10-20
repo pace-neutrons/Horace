@@ -44,12 +44,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     properties(Dependent,Hidden=true)
+        %exposes number of dimensions in the underlying image
         NUM_DIMS;
         % the same as npixels, but allows to use the same interface on sqw
         % object or pixels
         num_pixels;
-        % obsolete property, duplicating detpar. Do not use
-        detpar_x;
 
         % compatibility field, providing old interface for new
         % experiment_info class. Returns array of IX_experiment
@@ -79,6 +78,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Object containing data for each pixel recorded in experiment.
         pix_ = PixelDataBase.create();
     end
+    %
     properties(Access=private)
         % holder for the class, which deletes temporary file when holding
         % object goes out of scope.
@@ -95,8 +95,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
     %======================================================================
     % PageOp methods -- methods, which use PageOp for implementation, so
-    % affect all pixels and recalculate image according to its algorithms
+    % affect all pixels and recalculate image according to changes in pixels
+    % (or vise versa)
     methods
+        % combine together various sqw objects, containing the same size images
+        wout = combine_sqw(w1,varargin);
+        wout = join(w,wi)
+
         [wout,mask_array] = mask(win, mask_array);
 
         wout = mask_pixels(win, mask_array,varargin);
@@ -109,8 +114,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % apply alignment
         [obj,al_info] = finalize_alignment(obj,filename);
 
-        % combine together various sqw objects, containing the same size images
-        wout=combine_sqw(w1,varargin);
         % take part of the
         wout = section (win,varargin);
         % add various noise to signal
@@ -118,7 +121,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         % Replace the sqw's signal and variance data with requested
         % coordinate values
-        w = coordinates_calc(w, name)
+        w    = coordinates_calc(w, name);
+        % Make a higher dimensional dataset from a lower dimensional dataset
+        wout = replicate (win,wref);
 
         % set sqw object signal and variance from
         w = sigvar_set(win, sigvar_obj);
@@ -127,9 +132,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = func_eval (win, func_handle, pars, varargin)
     end
     %======================================================================
-    % Various sqw methods
+    % Various sqw methods -- difficult to classify
     methods
-        % sigvar block
         wout = cut(obj, varargin); % take cut from the sqw object.
         function wout = cut_sqw(obj,varargin)
             % legacy entrance to cut for sqw object
@@ -139,24 +143,26 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             wout=rebin_sqw(win,varargin{:});
         end
         wout=rebin_sqw(win,varargin);
-
+        % focusing projections?
+        wout = shift_energy_bins (win, dispreln, pars);
+        wout = shift_pixels (win, dispreln, pars, opt);
+        %
+        wout=symmetrise_sqw(win,v1,v2,v3);
 
         varargout = multifit (varargin);
         %------------------------------------------------------------------
         [ok,mess,varargout] = parse_pixel_indices (win,indx,iw);
 
-        wout=symmetrise_sqw(win,v1,v2,v3);
 
         % return the header, common for all runs (average?)
         [header_ave, ebins_all_same]=header_average(header);
-        [alatt,angdeg,ok,mess] = lattice_parameters(win);
+        [alatt,angdeg,ok,mess]      = lattice_parameters(win);
 
         varargout = head(obj,vararin);
 
         [ok,mess,nd_ref,matching]=dimensions_match(w,nd_ref)
         d=spe(w);
 
-        wout = replicate (win,wref);
 
         % Calculate hkl,en of datest pixels
         qw=calculate_qw_pixels(win);
@@ -165,11 +171,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Calculate hkl,en of datest pixels using detectors and experiment
         % info
         qw=calculate_qw_pixels2(win)
-        %----------------------------------
-        new_sqw = copy(obj, varargin)
-        [obj, ldr] = get_new_handle(obj, outfile)
-        wh   = get_write_handle(obj, outfile)
-        obj = finish_dump(obj,varargin);
     end
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting
@@ -236,16 +237,19 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         % Calculate |Q|^2 for the centres of the bins of an n-dimensional sqw dataset
         [qsqr,en] = calculate_qsqr_bins (win);
-        qsqr_w = calculate_qsqr_w_bins (win,varargin)
+        qsqr_w    = calculate_qsqr_w_bins (win,varargin)
         %
         function  save_xye(obj,varargin)
-            save_xye(obj.data,varargin{:});
+            obj.data.save_xye(varargin{:});
         end
         function  s=xye(w, varargin)
             % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
             s = w.data.xye(varargin{:});
         end
-
+        % signal and error for the bin containing a point x on the image
+        function [value, sigma] = value(w, x)
+            [value, sigma] = w.data.value(x);
+        end
     end
     %======================================================================
     % Construction and change of state
@@ -275,42 +279,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %======================================================================
     % ACCESSORS TO OBJECT PROPERTIES
     methods
-        function nd = get.NUM_DIMS(obj)
-            if isempty(obj.data_)
-                nd = [];
-            else
-                nd = obj.data_.NUM_DIMS;
-            end
-        end
         %------------------------------------------------------------------
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
         end
         function obj = set.data(obj, d)
-            if isa(d,'DnDBase')
-                obj.data_ = d;
-            elseif isempty(d)
-                obj.data_ = d0d();
-            else
-                error('HORACE:sqw:invalid_argument',...
-                    'Only instance of dnd class or empty value may be used as data value. Trying to set up: %s',...
-                    class(d))
-            end
+            obj = set_data_(obj,d);
         end
         %
         function pix = get.pix(obj)
             pix  = obj.pix_;
         end
         function obj = set.pix(obj,val)
-            if isa(val, 'PixelDataBase') || isa(val,'pix_combine_info')
-                obj.pix_ = val;
-            elseif isempty(val)
-                %  necessary for clearing up the memmapfile, (if any)
-                obj.pix_ = PixelDataMemory();
-            else
-                obj.pix_ = PixelDataBase.create(val);
-            end
+            obj= set_pix_(obj,val);
         end
         %
         function val = get.detpar(obj)
@@ -332,31 +314,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             val = obj.experiment_info_;
         end
         function obj = set.experiment_info(obj,val)
-            if isempty(val)
-                obj.experiment_info_ = Experiment();
-            elseif isa(val,'Experiment')
-                obj.experiment_info_ = val;
-            else
-                error('HORACE:sqw:invalid_argument',...
-                    'Experiment info can be only instance of Experiment class, actually it is %s',...
-                    class(val));
-            end
-            obj.main_header_.nfiles = obj.experiment_info_.n_runs;
-        end
-        %
-        function npix = get.npixels(obj)
-            npix = obj.pix_.num_pixels;
-        end
-        function npix = get.num_pixels(obj)
-            npix = obj.pix_.num_pixels;
-        end
-        %
-        function map = get.runid_map(obj)
-            if isempty(obj.experiment_info_)
-                map = [];
-            else
-                map = obj.experiment_info_.runid_map;
-            end
+            obj = set_experiment_info_(obj,val);
         end
         %
         function cd = get.creation_date(obj)
@@ -367,12 +325,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.data.creation_date = val;
         end
         %
-        function is = get.is_filebacked(obj)
-            is = obj.has_pixels && obj.pix.is_filebacked;
-        end
         %------------------------------------------------------------------
-        % hidden properties
+        % Read_only accessors and hidden properties
+        function nd = get.NUM_DIMS(obj)
+            if isempty(obj.data_)
+                nd = [];
+            else
+                nd = obj.data_.NUM_DIMS;
+            end
+        end
+        %
         function fn = get.full_filename(obj)
+            % hiddent
             fn = get_full_filename_(obj);
         end
         function obj = set.full_filename(obj,val)
@@ -382,27 +346,47 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function is = get.is_tmp_obj(obj)
             is = ~isempty(obj.tmp_file_holder_);
         end
+        function is = dnd_type(obj)
+            is = obj.pix_.num_pixels == 0;
+        end
+        %
+        function is = get.is_filebacked(obj)
+            is = obj.has_pixels && obj.pix.is_filebacked;
+        end
+        %
+        function map = get.runid_map(obj)
+            map = get_runid_map_(obj);
+        end
+        %
+        function npix = get.npixels(obj)
+            npix = obj.pix_.num_pixels;
+        end
+        function npix = get.num_pixels(obj)
+            npix = obj.pix_.num_pixels;
+        end
     end
     %======================================================================
-    % REDUNDANT and compatibility ACCESSORS
+    % REDUNDANT and compatibility methods
     methods
-        % write sqw object in an sqw file. See save(sqw,...) on SQWDnDBase
+        % write sqw object in an sqw file. Superseeded by save(sqw,...) on SQWDnDBase
         write_sqw(obj,sqw_file,vararin);
-        % see apply_op
+        % special case of apply_op
         obj = apply(obj, func_handle, args, recompute_bins, compute_variance);
-        %
+        % old implementation of experiment_info
         function hdr = get.header(obj)
             % return old (legacy) header(s) providing short experiment info
             hdr = get_header_(obj);
         end
     end
     %======================================================================
+    % apply_op and support for it
     methods
-        function is = dnd_type(obj)
-            is = obj.pix_.num_pixels == 0;
-        end
+        %----------------------------------
+        new_sqw = copy(obj, varargin)
+        [obj, ldr] = get_new_handle(obj, outfile)
+        wh  = get_write_handle(obj, outfile)
+        obj = finish_dump(obj,varargin);
         %
-        %==================================================================
         function obj = apply_op(obj, operation)
             % Apply special PageOp operation affecting sqw object and pixels
             %
@@ -495,9 +479,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %----------------------------------------------------------------------
     methods(Static, Access=private)
         % Signatures of private class functions declared in files
-        sqw_struct = make_sqw(ndims);
+        sqw_struct    = make_sqw(ndims);
         detpar_struct = make_sqw_detpar();
-        header = make_sqw_header();
+        header        = make_sqw_header();
 
         function ld_str = get_loader_struct_(ldr, file_backed)
             % load sqw structure, using file loader

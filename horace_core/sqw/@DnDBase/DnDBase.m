@@ -150,11 +150,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %------------------------------------------------------------------
         sob = sigvar(w);
         [s,var,mask_null] = sigvar_get (w);
-        w = sigvar_set(win, sigvar_obj);
+        w  = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %------------------------------------------------------------------
         wout = replicate (win, wref);
-        
+
         function obj=signal(~,varargin)
             error('HORACE:DnDBase:runtime_error',...
                 'Call to signal function is possible for sqw objects only')
@@ -190,6 +190,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %
         save_xye(obj,varargin)  % save data in xye format
         s=xye(w, null_value);   % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
+        [value, sigma] = value(w, x); 
         % smooth dnd object or array of dnd objects
         wout = smooth(win, varargin)
         %------------------------------------------------------------------
