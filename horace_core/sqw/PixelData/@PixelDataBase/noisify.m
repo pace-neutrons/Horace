@@ -1,4 +1,4 @@
-function [pix_out, data] = noisify(obj, varargin)
+function pix_out = noisify(obj, varargin)
 %=========================================================================
 % This is a method of the PixelData class.
 % It is called from the noisify(sqw_object,[options]) function to allow
@@ -31,8 +31,16 @@ function [pix_out, data] = noisify(obj, varargin)
 % Output specification determines object copying behaviour.
 % Only perform the operation on a copy if a return argument exists,
 % otherwise perform the operation on obj itself.
+pix_out = copy(obj);
 
-pix_out = obj;
+pix_op = PageOp_mask();
+if ~isempty(npix)
+    pix_op.npix = npix;
+end
+pix_op    = pix_op.init(out_obj ,keep);
+out_obj   = out_obj.apply_op(out_obj ,pix_op);
+
+
 
 uses_poisson_distribution = (   ...
     nargin==3 ...                            % only 3 args for Poisson
