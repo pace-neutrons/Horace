@@ -34,7 +34,6 @@ classdef PageOp_noisify < PageOpBase
                 obj.var_acc_(npix_idx(1):npix_idx(2))+img_var(:);
 
         end
-
         function [out_obj,obj] = finish_op(obj,out_obj)
             % Complete image modifications:
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
@@ -42,6 +41,31 @@ classdef PageOp_noisify < PageOpBase
             % transfer modifications to the underlying object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
         end
+        %
+        function print_range_warning(obj,infile_name,is_old_file_format)
+            % print missing range message specific for noisify function.
+            %
+            [~,fn,fe] = fileparts(infile_name);
+            if is_old_file_format
+                upgrade_message = obj.gen_old_file_message(infile_name);
+            else
+                upgrade_message = obj.gen_misaligned_file_message(infile_name);
+            end
+            fprintf(2,[ '\n', ...
+                '*** Source SQW file %s does not contain correct pixel data ranges.\n', ...
+                '*** noisify uses these ranges so precalculates them using recompute_bin_data algorithm.\n', ...
+                '*** Upgrade your original sqw object to contain these averages\n', ...
+                '    and not to recalculate them each time the averages are requested\n', ...
+                '%s' ], ...
+                [fn,fe],upgrade_message);
 
+        end
+    end
+    methods(Access=protected)
+        function do = get_do_missing_range_warning(~)
+            % noisify should not produce range warning, as its range is
+            % calculated by other algorithm.
+            do  = false;
+        end
     end
 end

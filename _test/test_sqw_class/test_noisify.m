@@ -2,8 +2,8 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
 
     properties
 
-        test_sqw_file_path = '../test_sqw_file/deterministic_sqw_fake_data_for_testing.sqw';
-        test_sqw_file_full_path = '';
+        sqw_file_path = 'deterministic_sqw_fake_data_for_testing.sqw';
+        sqw_file_full_path = '';
     end
 
     methods
@@ -12,9 +12,8 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
             obj = obj@TestCase('test_noisify');
 
             % Process the file path
-            test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
-            obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
-
+            hp = horace_paths;
+            obj.sqw_file_full_path = fullfile(hp.test_common,obj.sqw_file_path );
         end
 
         function test_noisify_returns_equivalent_sqw_for_paged_pixel_data(obj)
@@ -29,7 +28,7 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
             % them in range 0:1
             noise_factor = 1/999;
 
-            sqw_obj1 = sqw(obj.test_sqw_file_full_path,'file_backed',true);
+            sqw_obj1 = sqw(obj.sqw_file_full_path,'file_backed',true);
 
             % ensure we're actually paging pixel data
             pix = sqw_obj1.pix;
@@ -51,7 +50,7 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
 
             % step 2 load sqw object to memory
             % We make another sqw object from the same file
-            sqw_obj2 = read_sqw(obj.test_sqw_file_full_path);
+            sqw_obj2 = read_sqw(obj.sqw_file_full_path);
             % and we noisify it
             % - reset pseudorandom number distribution. If this reverted to
             %   standard MATLAB rng, with myrng=any rnd using rng e.g. randn,
@@ -74,8 +73,8 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
         end
 
         function test_noisify_adds_gaussian_noise_to_data_with_given_stddev(obj)
-            try
-                fitdist()
+            try % standard licence check fails for this toolbox
+                fitdist();
             catch ME
                 if strcmp(ME.identifier,'MATLAB:ErrorRecovery:UnlicensedFunction')
                     skipTest('Statistics toolbox not available')
@@ -85,7 +84,7 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
             [~, old_rng_state] = seed_rng(0);
             cleanup = onCleanup(@() rng(old_rng_state));
 
-            sqw_obj = sqw(obj.test_sqw_file_full_path);
+            sqw_obj = sqw(obj.sqw_file_full_path);
             % ensure we're not paging pixel data
             pix = sqw_obj.pix;
             assertEqual(pix.page_size, pix.num_pixels);

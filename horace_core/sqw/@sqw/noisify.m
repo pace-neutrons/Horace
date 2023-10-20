@@ -38,7 +38,7 @@ for i=1:numel(w)
                 % As we are paging, we need to get the overall max signal out of pix_out
                 % before applying noisify to the individual pages.
                 is_old_file = wout(i).pix.old_file_format;
-                page_op.print_range_warning('finalize_alignment',wout(i).full_filename,is_old_file);
+                page_op.print_range_warning(wout(i).full_filename,is_old_file);
                 wout(i) = wout(i).recompute_bin_data();
             end
             range = wout(i).pix.data_range;

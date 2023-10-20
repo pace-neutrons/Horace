@@ -214,6 +214,26 @@ classdef PageOpBase
             % See split procedure for more details
             [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
         end
+        function print_range_warning(obj,infile_name,is_old_file_format)
+            % print the warning informing user that the source file
+            % contains invalid data range and file format should be
+            % upgraded.
+            % Input:
+            % op_name     -- the name of operation which performs calculations
+            % infile_name -- the name of the file-source of filebacked sqw
+            %                object, which does not contain correct data
+            %                range
+            % is_old_file_format
+            %             -- true or false specifying the reason why the
+            %                file does not have correct range and message,
+            %                suggesting best way to upgrade.
+            %        true -- the file does not have correct range due to
+            %                old file format
+            %        false-- the file does not contain correct data range
+            %                because it has been realigned
+            print_range_warning_(obj,infile_name,is_old_file_format);
+        end
+
 
     end
     %======================================================================
@@ -327,28 +347,6 @@ classdef PageOpBase
         end
     end
     %======================================================================
-    methods(Static)
-        function print_range_warning(op_name,infile_name,is_old_file_format)
-            % print the warning informing user that the source file
-            % contains invalid data range and file format should be
-            % upgraded.
-            % Input:
-            % op_name     -- the name of operation which performs calculations
-            % infile_name -- the name of the file-source of filebacked sqw
-            %                object, which does not contain correct data
-            %                range
-            % is_old_file_format
-            %             -- true or false specifying the reason why the
-            %                file does not have correct range and message,
-            %                suggesting best way to upgrade.
-            %        true -- the file does not have correct range due to
-            %                old file format
-            %        false-- the file does not contain correct data range
-            %                because it has been realigned
-            print_range_warning_(op_name,infile_name,is_old_file_format);
-        end
-    end
-    %======================================================================
     methods(Access=protected)
         function  does = get_changes_pix_only(obj)
             does = isempty(obj.img_);
@@ -384,5 +382,21 @@ classdef PageOpBase
             end
             obj = update_image_(obj,sig_acc,var_acc,npix_acc);
         end
+        %
+        function mess = gen_old_file_message(~,infile_name)
+            % message on how to upgrade old format file
+            mess= sprintf([...
+                '*** To upgrade original file run:\n' ...
+                '*** >> upgrade_file_format(''%s'',"-upgrade_range")\n'],...
+                infile_name);
+        end
+        function mess = gen_misaligned_file_message(~,infile_name)
+            % message on how to upgrade old format file
+            mess = sprintf([...
+                '*** To upgrade original file run:\n' ...
+                '*** >> fb_out = finalize_alignment(''%s'')\n'],...
+                infile_name);
+        end
+
     end
 end
