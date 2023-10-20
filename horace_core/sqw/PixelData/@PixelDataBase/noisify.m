@@ -43,10 +43,9 @@ if ~pix_op.noisify_par.is_poisson
         % As we are paging, we need to get the overall max signal out of pix_out
         % before applying noisify to the individual pages.
         pix_out = pix_out.finalize_alignment();
-    else
-        range = pix_out.data_range;
-        max_sig = range(2,pix_out.field_index('signal'));
     end
+    range = pix_out.data_range;
+    max_sig = range(2,pix_out.field_index('signal'));
     pix_op.noisify_par.ymax = max_sig;
 end
 pix_out   = pix_out.apply_op(pix_op);
