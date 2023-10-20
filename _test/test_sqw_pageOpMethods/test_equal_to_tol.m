@@ -1,5 +1,4 @@
-classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
-
+classdef test_equal_to_tol < TestCase 
     properties
         clOb;
 

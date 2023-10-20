@@ -1,7 +1,5 @@
-classdef test_noisify < TestCase & common_sqw_class_state_holder
-
+classdef test_noisify < TestCase
     properties
-
         sqw_file_path = 'deterministic_sqw_fake_data_for_testing.sqw';
         sqw_file_full_path = '';
     end

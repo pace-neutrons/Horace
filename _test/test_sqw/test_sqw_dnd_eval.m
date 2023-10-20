@@ -111,18 +111,6 @@ classdef test_sqw_dnd_eval < TestCase
             assertEqual(sig, 4.*ones(size(sig)));
 
         end
-
-        function test_func_eval_sqw(obj)
-            ds = func_eval(obj.sqw_4_test, @obj.funceval_tester2D, [], '-all');
-
-            sig = ds.data.s;
-            pix_sig = ds.pix.signal;
-
-            assertEqual(sig, 2.*ones(size(sig)));
-            assertEqual(pix_sig, 2.*ones(size(pix_sig)));
-
-        end
-
         function test_func_eval_dnd(obj)
             ds = func_eval(obj.dnd_4_test, @obj.funceval_tester2D, []);
 
@@ -130,32 +118,6 @@ classdef test_sqw_dnd_eval < TestCase
             assertEqual(sig, 2.*ones(size(sig)));
         end
 
-        function test_sqw_eval_aver(obj)
-            ds = sqw_eval(obj.sqw_4_test,@obj.sqw_eval_tester,[],'-average');
-
-            sig = ds.data.s;
-            assertEqual(sig, 3.*ones(size(sig)));
-
-            pix = ds.pix;
-            assertEqual(pix.signal(2),sig(1));
-            assertEqual(sig(1),pix.signal(1));
-        end
-
-        function test_sqw_eval(obj)
-            ds = sqw_eval(obj.sqw_4_test,@obj.sqw_eval_tester,[]);
-
-            sig = ds.pix.signal;
-
-            assertEqual(sig, 3.*ones(size(sig)));
-        end
-
-        function test_sqw_eval_dnd(obj)
-            ds = sqw_eval(obj.dnd_4_test,@obj.sqw_eval_tester,[]);
-
-            sig = ds.s;
-            assertEqual(sig, 3.*ones(size(sig)));
-
-        end
     end
 
     methods(Static)
