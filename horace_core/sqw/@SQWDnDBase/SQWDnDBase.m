@@ -1,4 +1,4 @@
-classdef (Abstract) SQWDnDBase < serializable
+classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     %SQWDnDBase Abstract SQW/DnD object base class
     %
     %   Abstract class defining common API and attributes of the SQW and

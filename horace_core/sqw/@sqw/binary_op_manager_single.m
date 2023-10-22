@@ -34,7 +34,7 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
     elseif isa(w1, 'sqw') &&  isa(w2, 'sqw')
         % Both inputs are SQW objects with NO pixels
         error('SQW:binary_op_manager_single', ...
-              ['Cannot perform binary operation between two SQW objects containing no PixelData']);
+              'Cannot perform binary operation between two SQW objects containing no PixelData');
     end
 
 elseif isa(w2, 'double')

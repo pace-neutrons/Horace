@@ -1,4 +1,4 @@
-classdef IX_dataset < data_plot_interface
+classdef IX_dataset < data_op_interface & data_plot_interface
     % Abstract parent class for IX_datasets_Nd;
     properties(Dependent)
         %title:  dataset title (will be plotted on a grapth)
@@ -10,8 +10,8 @@ classdef IX_dataset < data_plot_interface
         % s_axis -- IX_axis class containing signal axis caption
         s_axis
     end
-    
-    
+
+
     properties(Access=protected)
         title_={};
         % emtpy signal
@@ -42,7 +42,7 @@ classdef IX_dataset < data_plot_interface
         function [x_out, ok, mess] = bin_boundaries_from_descriptor(xbounds, x_in)
             [x_out, ok, mess] = bin_boundaries_from_descriptor_(xbounds, x_in);
         end
-        
+
     end
     %======================================================================
     methods
@@ -76,11 +76,11 @@ classdef IX_dataset < data_plot_interface
         [wout,ok,mess] = rebin_IX_dataset (win, integrate_data,...
             point_integration_default, iax, descriptor_opt, varargin)
         %
-        
+
         % Save object or array of objects of class type to binary file.
         % Inverse of read.
         save(w,file)
-        
+
         %
         % get sigvar object from the dataset
         wout = sigvar (w)
@@ -116,7 +116,7 @@ classdef IX_dataset < data_plot_interface
             % along all axis
             dis= obj.xyz_distribution_;
         end
-        
+
         %
         function ok = get_isvalid(obj)
             % returns the state of the internal valid_ property
@@ -124,7 +124,7 @@ classdef IX_dataset < data_plot_interface
         end
         % Set signal, error and selected axes in a single instance of an IX_dataset object
         wout=set_simple_xsigerr(win,iax,x,signal,err,xdistr)
-        
+
         %===================================================================
         % Properties:
         %===================================================================
@@ -207,6 +207,9 @@ classdef IX_dataset < data_plot_interface
         % Rebin an IX_dataset object or array of IX_dataset objects along
         % along the axes, defined by direction
         wout = rebin_xyz(win, array_is_descriptor,dir,varargin)
+
+        w = unary_op_manager (w1, unary_op)
+        w = binary_op_manager(w1, w2, binary_op)
     end
     %======================================================================
     methods(Static,Access=protected)
@@ -228,7 +231,7 @@ classdef IX_dataset < data_plot_interface
         status=ishistogram(w,n)
         % Get information for one or more axes and if it has histogram data
         % for each axis
-        [ax,hist]=axis(w,n)        
+        [ax,hist]=axis(w,n)
     end
     %======================================================================
     methods(Abstract,Static)
@@ -246,7 +249,7 @@ classdef IX_dataset < data_plot_interface
         % verify and set signal or error arrays
         obj = check_and_set_sig_err(obj,field_name,value);
     end
-    
+
     %======================================================================
     methods(Abstract,Static,Access=protected)
         % Rebins histogram data along specific axis.
