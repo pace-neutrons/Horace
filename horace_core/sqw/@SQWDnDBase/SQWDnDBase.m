@@ -44,7 +44,7 @@ classdef (Abstract) SQWDnDBase < serializable
         sz                = sigvar_size(w);
         %------------------------------------------------------------------
         % titles used when plotting an sqw object
-        title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
+        [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
             data_plot_titles(obj)
         %------------------------------------------------------------------
         % construct dataset from appropriately sized dnd part of an object
@@ -61,9 +61,6 @@ classdef (Abstract) SQWDnDBase < serializable
         % Calculate qh,qk,ql,en for the centres of the bins.
         qw=calculate_qw_bins(win,varargin)
         [q,en]=calculate_q_bins(win)
-        % Calculate |Q|^2 for the centres of the bins of an n-dimensional sqw dataset
-        [qsqr,en] = calculate_qsqr_bins (win);
-        qsqr_w    = calculate_qsqr_w_bins (win,varargin)
         %
         save_xye(obj,varargin)
         s=xye(w, varargin)
@@ -124,6 +121,9 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = disp2sqw_eval(win, dispreln, pars, fwhh, opt);
         wout = disp2sqw(win, dispreln, pars, fwhh,varargin); % build dispersion relation
         %                             % on image of sqw or dnd object
+        % Calculate |Q|^2 for the centres of the bins of an n-dimensional sqw dataset
+        [qsqr,en] = calculate_qsqr_bins (win);        
+        qsqr_w    = calculate_qsqr_w_bins (win,varargin)        
         %------------------------------------------------------------------
         wout = sqw_eval(win, sqwfunc, pars, varargin);
         %------------------------------------------------------------------

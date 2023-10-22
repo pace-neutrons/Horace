@@ -15,14 +15,15 @@ function [qsqr,en] = calculate_qsqr_bins (win)
 %           then returns the centre of the energy integration range
 
 if numel(win)~=1
-    error('Only a single sqw object is valid - cannot take an array of sqw objects')
+    error('HORACE:SQWDnDBase:invalid_argument', ...
+        'Only a single sqw object is valid - cannot take an array of sqw objects')
 end
 
 % Get b-matrix, B, that gives crystal Cartesian coords Vcryst(i) = B(i,j) Vrlu(j)
 B = bmatrix(win.data.alatt, win.data.angdeg);
 
 % Get the bin centres in hkl
-[qhkl,en] = calculate_q_bins (win);
+[qhkl,en] = win.calculate_q_bins();
 
 % Convert to crystal Cartesian coordinates and sum the squares
 qcryst = [qhkl{1}, qhkl{2}, qhkl{3}] * B';

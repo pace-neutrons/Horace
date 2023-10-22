@@ -231,9 +231,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function [q,en]=calculate_q_bins(win)
             [q,en] = win.data.calculate_q_bins();
         end
-        % Calculate |Q|^2 for the centres of the bins of an n-dimensional sqw dataset
-        [qsqr,en] = calculate_qsqr_bins (win);
-        qsqr_w    = calculate_qsqr_w_bins (win,varargin)
         %
         function  save_xye(obj,varargin)
             obj.data.save_xye(varargin{:});
