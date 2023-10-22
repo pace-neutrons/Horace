@@ -5,7 +5,7 @@ classdef (Abstract) SQWDnDBase < serializable
     %   DnD objects
     properties(Abstract,Dependent,Hidden=true)
         NUM_DIMS
-    end    
+    end
     methods (Abstract)
         %------------------------------------------------------------------
         % various useful operations and methods. Both internal and
@@ -13,80 +13,66 @@ classdef (Abstract) SQWDnDBase < serializable
         pixels = has_pixels(win);     % Check if sqw or dnd object has pixels.
         %                             % DnD object always returns false.
         %
-        wout = smooth(win, varargin); % Run smooth operation over DnD
-        %                             % objects or sqw objects without pixels
         [wout,mask_array] = mask(win, mask_array); % mask image data and
         %                             % corresponding pixels if available
         %------------------------------------------------------------------
-        % sigvar block
+
         w                 = sigvar_set(win, sigvar_obj);
-        [s,var,mask_null] = sigvar_get (w); %
         %------------------------------------------------------------------
         wout = signal(w,name); % Set the intensity of an sqw object to the
         % values for the named argument
         wout = cut(obj, varargin);    % take cut from a sqw or sqw/dnd object
-        wout = cut_dnd(obj,varargin); % legacy entrance for cut for dnd objects
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
         %
         wout = func_eval(win, func_handle, pars, varargin);
-
     end
     %======================================================================
     % METHODS, Available on SQW but requesting only DND object for
     % implementation
     methods(Abstract)
-        [nd,sz] = dimensions(win);    % Return size and shape of the image
-        %                             % arrays in sqw or dnd object
-        [val, n] = data_bin_limits (din) % Get limits of the data in an n-dimensional
-        %                             % dataset, that is, find the
-        %                             % coordinates along each of the axes
-        %                             % of the smallest cuboid that contains
-        %                             % bins with non-zero values of contributing pixels.
-        wout = compact(win)           % Compress DnD to remove empty bins on border
-        wout = section(win, varargin) % Cut a subsection of the bins without rebinning
+        wout = compact(win)
+        wout = cut_dnd(obj,varargin); % legacy entrance for cut for dnd objects
+
+        [nd,sz] = dimensions(win)
+        % Get limits of the data in an n-dimensional dataset
+        [val, n] = data_bin_limits (obj)
+        %
         %------------------------------------------------------------------
-        % sigvar block
-        wout              = sigvar(w); % Create sigvar object from sqw or dnd object
+        % sigvar interface
+        wout              = sigvar(w); % Create sigvar object from sqw object
+        [s,var,mask_null] = sigvar_get (w);
         sz                = sigvar_size(w);
         %------------------------------------------------------------------
         % titles used when plotting an sqw object
-        [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=data_plot_titles(obj)
-        % if the object changes aspect ratio during plotting
-        status = adjust_aspect(w);
+        title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
+            data_plot_titles(obj)
         %------------------------------------------------------------------
         % construct dataset from appropriately sized dnd part of an object
         wout = IX_dataset_1d(w);
         wout = IX_dataset_2d(w);
         wout = IX_dataset_3d(w);
-
-        % calculate the range of the image to be produded by target
-        % projection from the current image
-        range = targ_range(obj,targ_proj)
-
-        % build the axes block which specified by projection and target cut
-        % parameters
-        [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, input_pbin,varagin);
-        %
-        qw=calculate_qw_bins(win,varargin) % Calculate qh,qk,ql,en for the
-        %                             % centres of the bins of an n-dimensional
-        %                             % sqw or dnd dataset.
-        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
-        %                             % of the bins of an n-dimensional sqw
-        %                             % or dnd dataset
+        % the maximal range of the image may be produced by target projection applied to the current image.
+        range = targ_range(obj,targ_proj,varargin)
+        % if the plotting operation should adjust aspect ratio when plotting sqw objects
+        status = adjust_aspect(obj)
+        % build target axes for cut
+        [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin, sym)
         %------------------------------------------------------------------
-        % Change the crystal lattice and orientation of an sqw object or
-        % array of objects
-        varargout = change_crystal (varargin);
-        % modify crystal lattice and orientation matrix to remove legacy
-        % alignment.
-        [wout,al_info] = remove_legacy_alignment(obj,varargin)
-        % remove legacy alignment and put modern alignment instead
-        [wout,al_info] = upgrade_legacy_alignment(obj,varargin)
-        %------------------------------------------------------------------
-        save_xye(obj,varargin);       % save xye data into file
-        s=xye(w, null_value);         % return a structure, containing xye data
+        % Calculate qh,qk,ql,en for the centres of the bins.
+        qw=calculate_qw_bins(win,varargin)
+        [q,en]=calculate_q_bins(win)
+        % Calculate |Q|^2 for the centres of the bins of an n-dimensional sqw dataset
+        [qsqr,en] = calculate_qsqr_bins (win);
+        qsqr_w    = calculate_qsqr_w_bins (win,varargin)
         %
-        [value, sigma] = value(w, x);
+        save_xye(obj,varargin)
+        s=xye(w, varargin)
+        %------------------------------------------------------------------
+        % May be reasonably extended to sqw->pixels:
+        % signal and error for the bin containing a point x on the image
+        [value, sigma] = value(w, x)
+        wout = smooth(win, varargin); % Run smooth operation over DnD
+        %                             % objects or sqw objects without pixels
     end
     properties(Constant,Hidden)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -121,7 +107,7 @@ classdef (Abstract) SQWDnDBase < serializable
         %                              % binning of an sqw or dnd object
     end
 
-    methods  % Public       
+    methods  % Public
         [sel,ok,mess] = mask_points(win, varargin);
 
         cl = save(w, varargin);

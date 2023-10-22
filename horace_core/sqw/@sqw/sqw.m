@@ -192,11 +192,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         % Get limits of the data in an n-dimensional dataset
         [val, n] = data_bin_limits (obj)
-
-        % smooth sqw object or array of sqw
-        % objects containing no pixels
-        wout = smooth(win, varargin)
-        %
         %------------------------------------------------------------------
         % sigvar interface
         wout              = sigvar(w); % Create sigvar object from sqw object
@@ -247,6 +242,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
             s = w.data.xye(varargin{:});
         end
+        %------------------------------------------------------------------
+        % May be reasonably extended to sqw->pixels:
+        wout = smooth(win, varargin); % Run smooth operation over DnD
+        %                             % objects or sqw objects without pixels
         % signal and error for the bin containing a point x on the image
         function [value, sigma] = value(w, x)
             [value, sigma] = w.data.value(x);
