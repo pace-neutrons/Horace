@@ -1,4 +1,5 @@
-classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
+classdef (Abstract)  DnDBase < ...
+        SQWDnDBase & dnd_plot_interface & data_op_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
 
@@ -190,7 +191,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %
         save_xye(obj,varargin)  % save data in xye format
         s=xye(w, null_value);   % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
-        [value, sigma] = value(w, x); 
+        [value, sigma] = value(w, x);
         % smooth dnd object or array of dnd objects
         wout = smooth(win, varargin)
         %------------------------------------------------------------------

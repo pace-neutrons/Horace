@@ -134,12 +134,13 @@ classdef (Abstract) SQWDnDBase < serializable
 
     methods (Access = protected)
         wout = unary_op_manager(w, operation_handle);
+        wout = binary_op_manager(w1, w2, binary_op_bandle);        
         %
         function [func_handle, pars, opts] = parse_funceval_args(win, func_handle, pars, varargin)
             % Process arguments of func_eval function
             [func_handle, pars, opts] = parse_funceval_args_(win, func_handle, pars, varargin{:});
         end
-        wout = binary_op_manager(w1, w2, binary_op);
+
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate function
