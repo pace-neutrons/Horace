@@ -156,26 +156,52 @@
              
   <section id="plotting">
 <h1>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading"></a></h1>
-<p>An exhaustive list of commands to do with plotting your data - one of the primary functions of Horace!</p>
+<p>An exhaustive list of commands to do with plotting your data - one of the
+primary functions of Horace!</p>
 <section id="plot">
 <h2>plot<a class="headerlink" href="#plot" title="Permalink to this heading"></a></h2>
-<p>Plot a dnd or sqw object. This does not work for 0-dimensional objects (single points), or 4-dimensional objects (we couldn’t think of a way of displaying 4 dimensions plus intensity!). For 1-dimensional objects a series of markers with errorbars are connected by a line. For 2-dimensional objects a 2D colourmap is displayed. For a 3-dimensional object the <em>sliceomatic</em> program is used, where a series of 2D slices within a box are plotted.</p>
+<p>Plot a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> or <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. In general the axes are the dimensions of the
+<code class="docutils literal notranslate"><span class="pre">dnd</span></code> or <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects themselves according to the cut and the
+signal/intensity.</p>
+<ul class="simple">
+<li><p>For 1-dimensional objects a series of markers with errorbars are connected by
+a line.</p></li>
+<li><p>For 2-dimensional objects a 2D colourmap is displayed.</p></li>
+<li><p>For a 3-dimensional object the <code class="docutils literal notranslate"><span class="pre">sliceomatic</span></code> program is used, where a series
+of 2D slices within a box are plotted.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This does not work for 0-dimensional objects (single points), or
+4-dimensional objects (we couldn’t think of a way of displaying 4 dimensions
+plus intensity!).</p>
+</div>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">plot</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">plot</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The second line of code (with outputs) gives outputs that are Matlab handles to the figure window, the axes, and the plot respectively. These are useful if, for example, you wish to resize the axes, change the font size of labels, etc.</p>
+<p>The second line of code (with outputs) returns Matlab handles to the figure
+window, the axes, and the plot respectively. These are useful if, for example,
+you wish to resize the axes, change the font size of labels, etc.</p>
 </section>
 <section id="smooth">
 <h2>smooth<a class="headerlink" href="#smooth" title="Permalink to this heading"></a></h2>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wsmooth</span><span class="p">=</span><span class="n">smooth</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wsmooth</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">smooth</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
 
-<span class="n">wsmooth</span><span class="p">=</span><span class="n">smooth</span><span class="p">(</span><span class="n">w</span><span class="p">,[</span><span class="n">wid_x</span><span class="p">,</span><span class="n">wid_y</span><span class="p">,..],</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">wsmooth</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">smooth</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">wid_x</span><span class="p">,</span><span class="w"> </span><span class="n">wid_y</span><span class="p">,</span><span class="w"> </span><span class="p">..],</span><span class="w"> </span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">smooth</span></code> allows you to smooth the data for plotting. Can optionally specify the width and smoothing function (‘hat’ or ‘gaussian’). The default is ‘hat’, and 3 bins either side in all directions.</p>
-<p><strong>IMPORTANT NOTE</strong> You can only apply smoothing to dnd objects, <strong>not</strong> to sqw objects, since with the latter you would be destroying the very pixel information that the object is designed to hold. To convert an sqw object (<code class="docutils literal notranslate"><span class="pre">win</span></code>) to a dnd, simply type <code class="docutils literal notranslate"><span class="pre">wout=d1d(win)</span></code>, if <code class="docutils literal notranslate"><span class="pre">win</span></code> is 1-dimensional, <code class="docutils literal notranslate"><span class="pre">wout=d2d(win)</span></code> if it is 2-dimensional, and so on.</p>
+<p><code class="docutils literal notranslate"><span class="pre">smooth</span></code> allows you to smooth the data for plotting. You can optionally
+specify the width and smoothing function (<code class="docutils literal notranslate"><span class="pre">'hat'</span></code> or <code class="docutils literal notranslate"><span class="pre">'gaussian'</span></code>). The
+defaults are <code class="docutils literal notranslate"><span class="pre">'hat'</span></code>, and 3 bins either side in all directions.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can only apply smoothing to <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects, not to <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects,
+since with the latter you would have to destroy the pixel information that
+the object is designed to hold. To convert an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object (<code class="docutils literal notranslate"><span class="pre">win</span></code>) to a
+<code class="docutils literal notranslate"><span class="pre">dnd</span></code>, simply type <code class="docutils literal notranslate"><span class="pre">wout</span> <span class="pre">=</span> <span class="pre">dnd(win)</span></code>.</p>
+</div>
 <section id="altering-plot-characteristics-and-other-useful-commands">
 <h3>Altering plot characteristics and other useful commands<a class="headerlink" href="#altering-plot-characteristics-and-other-useful-commands" title="Permalink to this heading"></a></h3>
 </section>
@@ -197,7 +223,8 @@
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">aline</span><span class="w"> </span><span class="o">--</span>
 </pre></div>
 </div>
-<p>to make a dashed line. You can also change the line thickness with something like</p>
+<p>to make a dashed line. You can also change the line thickness with something
+like</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">aline</span><span class="w"> </span><span class="s">2</span>
 </pre></div>
 </div>
@@ -209,7 +236,8 @@
 </section>
 <section id="marker-style">
 <h2>Marker style<a class="headerlink" href="#marker-style" title="Permalink to this heading"></a></h2>
-<p>You can change the style of marker in a 1-dimensional plot in a similar way to the above, e.g.</p>
+<p>You can change the style of marker in a 1-dimensional plot in a similar way to
+the above, e.g.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">amark</span><span class="w"> </span><span class="s">o</span><span class="w"> </span><span class="s">%gives</span><span class="w"> </span><span class="s">a</span><span class="w"> </span><span class="s">circular</span><span class="w"> </span><span class="s">marker</span>
 <span class="n">amark</span><span class="w"> </span><span class="s">6</span><span class="w"> </span><span class="s">%sets</span><span class="w"> </span><span class="s">marker</span><span class="w"> </span><span class="s">size</span><span class="w"> </span><span class="s">to</span><span class="w"> </span><span class="s">6</span>
 <span class="n">amark</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="s">&#39;o&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">%sets a circular marker with size 6</span>
@@ -225,8 +253,11 @@
 <span class="n">lz</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span>
 </pre></div>
 </div>
-<p>which sets the x-axis limits to be 0 to 3, the y-axis limits to be -6 to 1, and the z-axis limits to be -2 to 2. Note the <code class="docutils literal notranslate"><span class="pre">lz</span></code> is used to change the color scale on a colormap plot.</p>
-<p>To set the range to cover the full data range, just issue the commands without a range:</p>
+<p>which sets the x-axis limits to be 0 to 3, the y-axis limits to be -6 to 1, and
+the z-axis limits to be -2 to 2. Note the <code class="docutils literal notranslate"><span class="pre">lz</span></code> is used to change the color
+scale on a colormap plot.</p>
+<p>To set the range to cover the full data range, just issue the commands without a
+range:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">lx</span>
 <span class="s">ly</span>
 <span class="n">lz</span>
@@ -248,33 +279,45 @@ logy
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">xycursor</span>
 </pre></div>
 </div>
-<p>You then left click the mouse on a position in a figure, and the x and y values are printed in the Matlab window. You can do this multiple times. To turn off the cursor, hit the carriage return key.</p>
-<p>Alternatively, to use a cursor to select x and y values and print them in the Matlab command window or save to arrays, type</p>
+<p>You then left click the mouse on a position in a figure, and the x and y values
+are printed in the Matlab window. You can do this multiple times. To turn off
+the cursor, hit the carriage return key.</p>
+<p>Alternatively, to use a cursor to click to select x and y values and print them
+in the Matlab command window or save them to arrays, type</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">xyselect</span>
 
-<span class="s">[x,y]=xyselect</span>
+<span class="s">[x,</span><span class="w"> </span><span class="s">y]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">xyselect</span>
 </pre></div>
 </div>
 </section>
 <section id="keeping-plots">
 <h2>Keeping plots<a class="headerlink" href="#keeping-plots" title="Permalink to this heading"></a></h2>
-<p>To store a figure in your current session (i.e. so that the next plot you make opens in a new window, with the current plot preserved), type</p>
+<p>To store a figure in your current session (i.e. so that the next plot you make
+opens in a new window, with the current plot preserved), type</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">keep_figure</span>
 </pre></div>
 </div>
-<p>If you have multiple figures open and you wish to alter one of them (e.g. by appending a line or more data to it)that has been kept using the above command, click on it and then type</p>
+<p>If you have multiple figures open and you wish to alter one of them (e.g. by
+appending a line or more data to it) that has been kept using the above command,
+click on it and then type</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">make_current</span>
 </pre></div>
 </div>
-<p>Note that both of these options are also available in drop-down menus in the figures windows themselves.</p>
+<p>Note that both of these options are also available in drop-down menus in the
+figures windows themselves.</p>
 <section id="one-dimensional-plots">
 <h3>One dimensional plots<a class="headerlink" href="#one-dimensional-plots" title="Permalink to this heading"></a></h3>
-<p>In the following the object being plotted can be a single sqw or dnd object, or an array of objects.</p>
+<p>In the following the object being plotted can be a single sqw or dnd object, or
+an array of objects.</p>
 </section>
 </section>
 <section id="dd-draw-data">
 <h2>dd (draw data)<a class="headerlink" href="#dd-draw-data" title="Permalink to this heading"></a></h2>
-<p>Plotting command for 1-dimensional objects only, plotting markers, errorbars, and connecting lines. Any existing 1-dimensional figure window is cleared before plotting i.e. existing data is not overplotted. If you use this command and the current figure window does not correspond to a 1-dimensional object, then a new figure window will be created.</p>
+<p>Plotting command for 1-dimensional objects only, plotting markers, errorbars,
+and connecting lines. Any existing 1-dimensional figure window is cleared before
+plotting i.e. existing data is not overplotted. If you use this command and the
+current figure window does not correspond to a 1-dimensional object, then a new
+figure window will be created.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dd</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w">  </span><span class="n">dd</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -283,7 +326,8 @@ logy
 </section>
 <section id="dl-draw-line">
 <h2>dl (draw line)<a class="headerlink" href="#dl-draw-line" title="Permalink to this heading"></a></h2>
-<p>Plot line between points for a 1-dimensional object. No markers or errorbars displayed.</p>
+<p>Plot line between points for a 1-dimensional object. No markers or errorbars
+displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dl</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">dl</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -292,7 +336,8 @@ logy
 </section>
 <section id="dm-draw-markers">
 <h2>dm (draw markers)<a class="headerlink" href="#dm-draw-markers" title="Permalink to this heading"></a></h2>
-<p>Plot markers at points for a 1-dimensional object. No line or errorbars displayed.</p>
+<p>Plot markers at points for a 1-dimensional object. No line or errorbars
+displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dm</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">dm</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -301,7 +346,8 @@ logy
 </section>
 <section id="dp-draw-points">
 <h2>dp (draw points)<a class="headerlink" href="#dp-draw-points" title="Permalink to this heading"></a></h2>
-<p>Plot markers and errorbars for a 1-dimensional object. No lines linking points are displayed.</p>
+<p>Plot markers and errorbars for a 1-dimensional object. No lines linking points
+are displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dp</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">dp</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -310,7 +356,8 @@ logy
 </section>
 <section id="de-draw-errors">
 <h2>de (draw errors)<a class="headerlink" href="#de-draw-errors" title="Permalink to this heading"></a></h2>
-<p>Plot errorbars at points for a 1-dimensional object. No linking lines or markers are displayed.</p>
+<p>Plot errorbars at points for a 1-dimensional object. No linking lines or markers
+are displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">de</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">de</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -328,7 +375,15 @@ logy
 </section>
 <section id="pd-plot-data">
 <h2>pd (plot data)<a class="headerlink" href="#pd-plot-data" title="Permalink to this heading"></a></h2>
-<p>Overplotting command for 1-dimensional objects only, plotting markers, errorbars, and connecting lines. If the current window is a 1-dimensional figure window the existing plot is overplotted. If there is no current figure window then it plot a new one. If you use this command and the current figure window does not correspond to a 1-dimensional object, then a new figure window will also be created.</p>
+<p>Overplotting command for 1-dimensional objects only, plotting markers,
+errorbars, and connecting lines.</p>
+<ul class="simple">
+<li><p>If the current window is a 1-dimensional figure
+window the existing plot is overplotted.</p></li>
+<li><p>If there is no current figure window then it plots a new one.</p></li>
+<li><p>If you use this command and the current figure window does not correspond to a
+1-dimensional object, then a new figure window will also be created.</p></li>
+</ul>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w">  </span><span class="n">pd</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -337,7 +392,8 @@ logy
 </section>
 <section id="pl-plot-line">
 <h2>pl (plot line)<a class="headerlink" href="#pl-plot-line" title="Permalink to this heading"></a></h2>
-<p>Overplot line between points for a 1-dimensional object. No markers or errorbars displayed.</p>
+<p>Overplot line between points for a 1-dimensional object. No markers or errorbars
+displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pl</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pl</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -346,7 +402,8 @@ logy
 </section>
 <section id="pm-plot-markers">
 <h2>pm (plot markers)<a class="headerlink" href="#pm-plot-markers" title="Permalink to this heading"></a></h2>
-<p>Overplot markers at points for a 1-dimensional object. No line or errorbars displayed.</p>
+<p>Overplot markers at points for a 1-dimensional object. No line or errorbars
+displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pm</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pm</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -355,7 +412,8 @@ logy
 </section>
 <section id="pp-plot-points">
 <h2>pp (plot points)<a class="headerlink" href="#pp-plot-points" title="Permalink to this heading"></a></h2>
-<p>Overplot markers and errorbars for a 1-dimensional object. No lines linking points are displayed.</p>
+<p>Overplot markers and errorbars for a 1-dimensional object. No lines linking
+points are displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pp</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -364,7 +422,8 @@ logy
 </section>
 <section id="pe-plot-errors">
 <h2>pe (plot errors)<a class="headerlink" href="#pe-plot-errors" title="Permalink to this heading"></a></h2>
-<p>Overplot errorbars at points for a 1-dimensional object. No linking lines or markers are displayed.</p>
+<p>Overplot errorbars at points for a 1-dimensional object. No linking lines or
+markers are displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pe</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pe</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -382,7 +441,9 @@ logy
 </section>
 <section id="ploc-plot-line-over-current">
 <h2>ploc (plot line over current)<a class="headerlink" href="#ploc-plot-line-over-current" title="Permalink to this heading"></a></h2>
-<p>Overplot a line in the current figure, regardless of type (i.e. can plot a 1d curve on top of a 2d dataset, such as when plotting a dispersion relation over a 2d Q-E slice).</p>
+<p>Overplot a line in the current figure, regardless of type (i.e. can plot a 1d
+curve on top of a 2d dataset, such as when plotting a dispersion relation over a
+2d <strong>Q</strong>-E slice).</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ploc</span><span class="p">(</span><span class="n">w_1d</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -428,7 +489,9 @@ logy
 </section>
 <section id="da-draw-area">
 <h2>da (draw area)<a class="headerlink" href="#da-draw-area" title="Permalink to this heading"></a></h2>
-<p>Area plot for a two-dimensional object, with colour-scale signifying intensity. It is this that is called when <code class="docutils literal notranslate"><span class="pre">plot</span></code> is used for a 2-dimensional object.</p>
+<p>Area plot for a two-dimensional object, with colour-scale signifying
+intensity. It is this that is called when <code class="docutils literal notranslate"><span class="pre">plot</span></code> is used for a 2-dimensional
+object.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">da</span><span class="p">(</span><span class="n">w_2d</span><span class="p">);</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">da</span><span class="p">(</span><span class="n">w_2d</span><span class="p">)</span>
@@ -437,7 +500,8 @@ logy
 </section>
 <section id="ds-draw-surface">
 <h2>ds (draw surface)<a class="headerlink" href="#ds-draw-surface" title="Permalink to this heading"></a></h2>
-<p>Surface plot for a two-dimensional object, with colour scale and contour signifying intensity.</p>
+<p>Surface plot for a two-dimensional object, with colour scale and contour
+signifying intensity.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="p">(</span><span class="n">w_2d</span><span class="p">);</span>
 
 <span class="p">[</span><span class="n">figureHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">axesHandle_</span><span class="p">,</span><span class="w"> </span><span class="n">plotHandle_</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">ds</span><span class="p">(</span><span class="n">w_2d</span><span class="p">)</span>
@@ -446,14 +510,20 @@ logy
 </section>
 <section id="ds2-draw-surface-from-2-sources">
 <h2>ds2 (draw surface from 2 sources)<a class="headerlink" href="#ds2-draw-surface-from-2-sources" title="Permalink to this heading"></a></h2>
-<p>This routine is especially useful for making surface plots of dispersion relations, when used in conjunction with dispersion&lt;/code</p>
-<p>Make a surface plot of a 2D sqw or d2d object, with the signal array setting the contours and the error array (or another data source) providing the intensity.</p>
+<p>This routine is especially useful for making surface plots of dispersion
+relations when used in conjunction with dispersion.</p>
+<p>Make a surface plot of a 2D <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">d2d</span></code> object, with the signal array
+defining the contours and the error array (or another data source) providing the
+intensity.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ds2</span><span class="p">(</span><span class="n">w_2d</span><span class="p">)</span><span class="w">       </span><span class="c">% Use error bars to set colour scale</span>
 
 <span class="n">ds2</span><span class="p">(</span><span class="n">w_2d</span><span class="p">,</span><span class="n">wc_2d</span><span class="p">)</span><span class="w"> </span><span class="c">% Signal in wc sets colour scale (sqw or d2d object with same array size as w, or a numeric array)</span>
 </pre></div>
 </div>
-<p>Differs from <code class="docutils literal notranslate"><span class="pre">ds&gt;</span></code> in that the signal sets the z axis, and the colouring is set by the error bars, or another object. This enables a function of three variables to be plotted (e.g. dispersion relation where the ‘signal’ array hold the energy and the error array hold the spectral weight).</p>
+<p>This differs from <code class="docutils literal notranslate"><span class="pre">ds</span></code> in that the signal sets the z-axis, and the colouring
+is set by the error bars, or another object. This enables a function of three
+variables to be plotted (e.g. dispersion relation where the ‘signal’ array holds
+the energy and the error array holds the spectral weight).</p>
 <p>One can optionally return figure, axes and plot handles:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">fig_handle</span><span class="p">,</span><span class="w"> </span><span class="n">axes_handle</span><span class="p">,</span><span class="w"> </span><span class="n">plot_handle</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">ds2</span><span class="p">(</span><span class="n">w_2d</span><span class="p">,</span><span class="k">...</span><span class="c">)</span>
 </pre></div>
@@ -483,7 +553,8 @@ logy
 </section>
 <section id="ps2-plot-surface-from-2-objects">
 <h2>ps2 (plot surface from 2 objects)<a class="headerlink" href="#ps2-plot-surface-from-2-objects" title="Permalink to this heading"></a></h2>
-<p>Overplot a surface plot of a two-dimensional object with the colour scale set by the error bars or a second object)</p>
+<p>Overplot a surface plot of a two-dimensional object with the colour scale set by
+the error bars or a second object)</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ps2</span><span class="p">(</span><span class="n">w_2d</span><span class="p">)</span>
 
 <span class="n">ps2</span><span class="p">(</span><span class="n">w_2d</span><span class="p">,</span><span class="w"> </span><span class="n">wc_2d</span><span class="p">)</span>
@@ -496,7 +567,7 @@ logy
 </section>
 <section id="spaghetti-plot">
 <h2>spaghetti_plot<a class="headerlink" href="#spaghetti-plot" title="Permalink to this heading"></a></h2>
-<p>Plots data in sqw-file or sqw-object along HKL directions.</p>
+<p>Plots data in <code class="docutils literal notranslate"><span class="pre">sqw</span></code> HKL directions.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wsp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">spaghetti_plot</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="mf">0.5</span><span class="p">;</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="n">sqw_file</span><span class="p">,</span><span class="s">&#39;labels&#39;</span><span class="p">,{</span><span class="s">&#39;\\Gamma&#39;</span><span class="p">,</span><span class="s">&#39;R&#39;</span><span class="p">,</span><span class="s">&#39;M&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
@@ -506,14 +577,17 @@ logy
 </section>
 <section id="sliceomatic">
 <h2>sliceomatic<a class="headerlink" href="#sliceomatic" title="Permalink to this heading"></a></h2>
-<p>Sliceomatic plot of multiple area plots, for a 3-dimensional object. This function is called by the <code class="docutils literal notranslate"><span class="pre">plot</span></code> routine.</p>
+<p>Sliceomatic plot of multiple area plots, for a 3-dimensional object. This
+function is called by the <code class="docutils literal notranslate"><span class="pre">plot</span></code> routine.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sliceomatic</span><span class="p">(</span><span class="n">w_3d</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
 <section id="sliceomatic-overview">
 <h2>sliceomatic_overview<a class="headerlink" href="#sliceomatic-overview" title="Permalink to this heading"></a></h2>
-<p>As <code class="docutils literal notranslate"><span class="pre">sliceomatic</span></code>, but the default view is from above. In effect this means you see a 2d slice which can be animated/changed by the third slider bar. Useful for e.g. following a spin wave dispersion ring/cone as a function of energy.</p>
+<p>As <code class="docutils literal notranslate"><span class="pre">sliceomatic</span></code>, but the default view is from above. In effect this means you
+see a 2d slice which can be animated/changed by the third slider bar. Useful for
+e.g. following a spin wave dispersion ring/cone as a function of energy.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sliceomatic_overview</span><span class="p">(</span><span class="n">w_3d</span><span class="p">);</span><span class="w">               </span><span class="c">% views down the third projection axis by default</span>
 
 <span class="n">sliceomatic_overview</span><span class="p">(</span><span class="n">w_3d</span><span class="p">,</span><span class="w"> </span><span class="n">axis_number</span><span class="p">);</span><span class="w">  </span><span class="c">% view down the given axis number (axis_number = 1,2 or 3)</span>
@@ -521,7 +595,9 @@ logy
 </div>
 <section id="miscellaneous-functions">
 <h3>Miscellaneous functions<a class="headerlink" href="#miscellaneous-functions" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">meta(fig)</span></code> allows you to copy the figure into a metafile. On Windows, this function puts the file in the clipboard so that it can be pasted directly into Word, Powerpoint etc.</p>
+<p><code class="docutils literal notranslate"><span class="pre">meta(fig)</span></code> allows you to copy the figure into a metafile. On Windows, this
+function puts the file in the clipboard so that it can be pasted directly into
+Word, Powerpoint etc.</p>
 </section>
 </section>
 </section>
@@ -538,7 +614,7 @@ logy
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Oct 23, 2023, 10:08:49 AM.
+      <span class="lastupdated">Last updated on Oct 23, 2023, 10:41:10 AM.
       </span></p>
   </div>
 
