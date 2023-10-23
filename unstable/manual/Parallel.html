@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="List of functions" href="List_of_functions.html" />
+    <link rel="next" title="Changing Horace settings" href="Changing_Horace_settings.html" />
     <link rel="prev" title="Tobyfit" href="Tobyfit.html" /> 
 </head>
 
@@ -47,13 +47,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">Other shape functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">Symmetry Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
@@ -62,12 +61,18 @@
 <li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Running Horace in Parallel</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#controlling-mpi">Controlling MPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#controlling-mpi">Controlling MPI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#enabling-locally">Enabling Locally</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enabling-globally">Enabling Globally</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#mpi-schemes">MPI Schemes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#managing-parallel-jobs">Managing parallel jobs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#slurm-jobs">Slurm Jobs</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
@@ -112,11 +117,50 @@
 <h1>Running Horace in Parallel<a class="headerlink" href="#running-horace-in-parallel" title="Permalink to this heading"></a></h1>
 <section id="controlling-mpi">
 <h2>Controlling MPI<a class="headerlink" href="#controlling-mpi" title="Permalink to this heading"></a></h2>
-<p>Certain operations in Horace are parallelised with an MPI algorithm. These can be enabled in one go using:</p>
+<p>Certain operations in Horace have parallelised variants which can be used to
+speed up large operations.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Be aware that for small jobs or some combinations of parameters, parallel
+calculation may, in fact, be slower than serial execution due to startup
+times and message sending. In future we hope to bring these times down and
+efficiencies up.</p>
+</div>
+<section id="enabling-locally">
+<h3>Enabling Locally<a class="headerlink" href="#enabling-locally" title="Permalink to this heading"></a></h3>
+<p>To run a particular function in parallel there is a function called
+<code class="docutils literal notranslate"><span class="pre">parallel_call</span></code> in Horace which runs a single task in parallel. Currently,
+<code class="docutils literal notranslate"><span class="pre">parallel_call</span></code> is available for:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fit</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cut</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">func_eval</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code></p></li>
+</ul>
+<p>The syntax for using <code class="docutils literal notranslate"><span class="pre">parallel_call</span></code> is as follows:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">parallel_call</span><span class="p">(@</span><span class="k">function</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">argument</span><span class="p">,</span><span class="w"> </span><span class="nb">arguments</span><span class="p">})</span>
+
+<span class="c">% Equivalent to</span>
+
+<span class="n">result</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span><span class="w"> </span><span class="nb">arguments</span><span class="p">)</span>
+
+<span class="c">% E.g.</span>
+
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">w_out</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">parallel_call</span><span class="p">(@</span><span class="n">cut</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">w_in</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mf">0.2</span><span class="w"> </span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="w"> </span><span class="mi">20</span><span class="p">]});</span>
+</pre></div>
+</div>
+<p>In order to use <code class="docutils literal notranslate"><span class="pre">parallel_call</span></code> you must ensure MPI has been <a class="reference internal" href="#mpi-schemes">configured
+correctly</a>.</p>
+</section>
+<section id="enabling-globally">
+<h3>Enabling Globally<a class="headerlink" href="#enabling-globally" title="Permalink to this heading"></a></h3>
+<p>Parallel operations can be enabled globally using:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">hpc</span><span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Alternatively different parallel components can be enabled/disabled separately through <code class="docutils literal notranslate"><span class="pre">hpc_config</span></code></p>
+<p>Alternatively different parallel components can be enabled/disabled separately
+through <code class="docutils literal notranslate"><span class="pre">hpc_config</span></code> (see: <a class="reference internal" href="Changing_Horace_settings.html#changing-horace-settings"><span class="std std-ref">changing Horace settings</span></a>)</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">hpc_config</span><span class="w"> </span><span class="s">with</span><span class="w"> </span><span class="s">properties:</span>
 
 <span class="w">    </span><span class="n">build_sqw_in_parallel</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
@@ -137,11 +181,13 @@
 </div>
 <p>In particular, the parallel enabling options are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">parallel_multifit</span></code> : Enable parallel fitting for <code class="docutils literal notranslate"><span class="pre">multifit</span></code> and <code class="docutils literal notranslate"><span class="pre">tobyfit</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">build_sqw_in_parallel</span></code> : Enable building sqw objects in parallel, i.e. <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">combine_sqw</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parallel_multifit</span></code> : Enable parallel fitting for <code class="docutils literal notranslate"><span class="pre">multifit</span></code> and
+<code class="docutils literal notranslate"><span class="pre">tobyfit</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">build_sqw_in_parallel</span></code> : Enable building sqw objects in parallel,
+i.e. <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">combine_sqw</span></code></p></li>
 </ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">parallel_config</span></code> contains most of the information to manage parallelism, though some is stored in <code class="docutils literal notranslate"><span class="pre">hpc_config</span></code>
-(described above):</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">parallel_config</span></code> contains most of the information to manage parallelism,
+though some is stored in <code class="docutils literal notranslate"><span class="pre">hpc_config</span></code> (described above):</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">parallel_config</span><span class="w"> </span><span class="s">with</span><span class="w"> </span><span class="s">properties:</span>
 
 <span class="w">                   </span><span class="n">worker</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;worker_v4&#39;</span>
@@ -162,37 +208,42 @@
 </pre></div>
 </div>
 </section>
+</section>
 <section id="mpi-schemes">
-<h2>MPI Schemes<a class="headerlink" href="#mpi-schemes" title="Permalink to this heading"></a></h2>
-<p>Horace can be run in parallel with a number of different schemes, all controlled through the <code class="docutils literal notranslate"><span class="pre">parallel_config</span></code>.</p>
+<span id="id1"></span><h2>MPI Schemes<a class="headerlink" href="#mpi-schemes" title="Permalink to this heading"></a></h2>
+<p>Horace can be run in parallel with a number of different schemes, all controlled
+through the <code class="docutils literal notranslate"><span class="pre">parallel_config</span></code>.</p>
 <p>The five currently implemented parallel schemes are:</p>
-<p>1. <code class="docutils literal notranslate"><span class="pre">herbert</span></code> (Poor-man’s MPI) - Data messages are sent through files written to the hard drive and read by each
-process. This is the slowest MPI scheme, but also the one with the fewest requirements.</p>
-<p>2. <code class="docutils literal notranslate"><span class="pre">parpool</span></code> (Matlab Parallel Toolbox MPI) - Parpool uses Matlab’s parallel toolbox parallelism to send messages and
-therefore requires the parallel toolbox to be used.</p>
-<p>3. <code class="docutils literal notranslate"><span class="pre">mpiexec_mpi</span></code> (C++ MPI) - Data messages are sent using C++ wrapping OpenMPI. This requires the MEX files to be
-built in order to be used.</p>
-<p>4. <code class="docutils literal notranslate"><span class="pre">slurm_mpi</span></code> (Slurm MPI) - Data messages are sent using C++ wrapping OpenMPI, but are submitted to a running Slurm
-instance by Horace upon starting the job. This requires the MEX files to be built in order to be used.</p>
-<p>5. <code class="docutils literal notranslate"><span class="pre">dummy</span></code> (Dummy MPI) - Dummy MPI is not MPI, but simply a dummy system for debugging and testing MPI algorithms on
-one process in serial.</p>
+<p>1. <code class="docutils literal notranslate"><span class="pre">herbert</span></code> (Poor-man’s MPI) - Data messages are sent through files written
+to the hard drive and read by each process. This is the slowest MPI scheme, but
+also the one with the fewest requirements.</p>
+<p>2. <code class="docutils literal notranslate"><span class="pre">parpool</span></code> (Matlab Parallel Toolbox MPI) - Parpool uses Matlab’s parallel
+toolbox parallelism to send messages and therefore requires the parallel toolbox
+to be used.</p>
+<p>3. <code class="docutils literal notranslate"><span class="pre">mpiexec_mpi</span></code> (C++ MPI) - Data messages are sent using C++ wrapping
+OpenMPI. This requires the MEX files to be built in order to be used.</p>
+<p>4. <code class="docutils literal notranslate"><span class="pre">slurm_mpi</span></code> (Slurm MPI) - Data messages are sent using C++ wrapping
+OpenMPI, but are submitted to a running Slurm instance by Horace upon starting
+the job. This requires the MEX files to be built in order to be used.</p>
+<p>5. <code class="docutils literal notranslate"><span class="pre">dummy</span></code> (Dummy MPI) - Dummy MPI is not MPI, but simply a dummy system for
+debugging and testing MPI algorithms on one process in serial.</p>
 </section>
 <section id="managing-parallel-jobs">
 <h2>Managing parallel jobs<a class="headerlink" href="#managing-parallel-jobs" title="Permalink to this heading"></a></h2>
-<p>Running jobs in parallel is as simple as selecting the appropriate MPI scheme, setting an appropriate
-<code class="docutils literal notranslate"><span class="pre">parallel_workers_number</span></code> and enabling the appropriate flags through the <code class="docutils literal notranslate"><span class="pre">hpc_config</span></code> and <code class="docutils literal notranslate"><span class="pre">parallel_config</span></code>.</p>
-<p><strong>N.B.</strong> Be aware that for small jobs or some combinations of parameters, parallel calculation may, in fact, be slower
-than serial execution due to startup times and message sending. In future we hope to bring these times down and
-efficiencies up.</p>
+<p>Running jobs in parallel is as simple as selecting the appropriate MPI scheme,
+setting an appropriate <code class="docutils literal notranslate"><span class="pre">parallel_workers_number</span></code> and enabling the appropriate
+flags through the <code class="docutils literal notranslate"><span class="pre">hpc_config</span></code> and <code class="docutils literal notranslate"><span class="pre">parallel_config</span></code>.</p>
 </section>
 <section id="slurm-jobs">
 <h2>Slurm Jobs<a class="headerlink" href="#slurm-jobs" title="Permalink to this heading"></a></h2>
-<p>When running on Slurm-managed clusters, it is possible to automatically submit jobs to the Slurm queue to be run in
-parallel across the cluster. This will attempt to request the number of nodes required to run the selected number of
-parallel workers and associated threads, however, if you are using a cluster which requires non-standard options such as
-billing accounts and or non-default queues specifying, it is possible to issue extra commands through the
-<code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code> variable accessible via the <code class="docutils literal notranslate"><span class="pre">parallel_config</span></code> object. This is a <code class="docutils literal notranslate"><span class="pre">containers.Map</span></code> object, and will
-only store the latest set commands.</p>
+<p>When running on Slurm-managed clusters, it is possible to automatically submit
+jobs to the Slurm queue to be run in parallel across the cluster. This will
+attempt to request the number of nodes required to run the selected number of
+parallel workers and associated threads, however, if you are using a cluster
+which requires non-standard options such as billing accounts and or non-default
+queues specifying, it is possible to issue extra commands through the
+<code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code> variable accessible via the <code class="docutils literal notranslate"><span class="pre">parallel_config</span></code> object. This
+is a <code class="docutils literal notranslate"><span class="pre">containers.Map</span></code> object, and will only store the latest set commands.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">new_commands</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">containers.Map</span><span class="p">({</span><span class="s">&#39;-A&#39;</span><span class="w"> </span><span class="s">&#39;-p&#39;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;account&#39;</span><span class="w"> </span><span class="s">&#39;partition&#39;</span><span class="p">});</span>
 <span class="n">pc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">parallel_config</span><span class="p">();</span>
 <span class="n">pc</span><span class="p">.</span><span class="n">slurm_commands</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[];</span><span class="w">                                       </span><span class="c">% Delete existing Slurm commands</span>
@@ -204,21 +255,31 @@ only store the latest set commands.</p>
 <span class="n">pc</span><span class="p">.</span><span class="n">update_slurm_commands</span><span class="p">(</span><span class="n">new_commands</span><span class="p">)</span><span class="w">                        </span><span class="c">% Using update_slurm_commands omitting append</span>
 </pre></div>
 </div>
-<p><strong>N.B.</strong> Setting <code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code> by any of the above methods will remove all existing <code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code> and set the new ones.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code> by any of the above methods will remove all
+existing <code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code> and set the new ones.</p>
+</div>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pc</span><span class="p">.</span><span class="n">slurm_commands</span><span class="p">(</span><span class="s">&#39;-A&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;account&#39;</span><span class="p">;</span><span class="w"> </span><span class="n">pc</span><span class="p">.</span><span class="n">slurm_commands</span><span class="p">(</span><span class="s">&#39;-p&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;partition&#39;</span><span class="w">            </span><span class="c">% Set through Map interface</span>
 <span class="n">pc</span><span class="p">.</span><span class="n">update_slurm_commands</span><span class="p">(</span><span class="s">&#39;-A account -p=partition&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w">                            </span><span class="c">% Set through update_slurm_commands</span>
 <span class="n">pc</span><span class="p">.</span><span class="n">update_slurm_commands</span><span class="p">(</span><span class="nb">containers.Map</span><span class="p">({</span><span class="s">&#39;-A&#39;</span><span class="w"> </span><span class="s">&#39;-p&#39;</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;account&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;partition&#39;</span><span class="p">}),</span><span class="w"> </span><span class="nb">true</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>N.B.</strong> Setting <code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code> by any of the above methods will simply overwrite any existing <code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code>.</p>
-<p>It is possible to set the <code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code> variable by loading the appropriate commands from a file if that is what
-your cluster team provides. This is done by using the following command:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code> by any of the above methods will simply overwrite
+any existing <code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code>.</p>
+</div>
+<p>It is possible to set the <code class="docutils literal notranslate"><span class="pre">slurm_commands</span></code> variable by loading the appropriate
+commands from a file if that is what your cluster team provides. This is done by
+using the following command:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">parallel_config</span><span class="p">();</span>
 <span class="n">pc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pc</span><span class="p">.</span><span class="n">load_slurm_commands_from_file</span><span class="p">(</span><span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="o">&lt;</span><span class="nb">append</span><span class="o">&gt;</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Where <code class="docutils literal notranslate"><span class="pre">filename</span></code> is the path of the file to load the commands from, and <code class="docutils literal notranslate"><span class="pre">append</span></code> specifies whether the commands are
-meant to be added to the existing commands or replace them entirely.</p>
+<p>Where <code class="docutils literal notranslate"><span class="pre">filename</span></code> is the path of the file to load the commands from, and
+<code class="docutils literal notranslate"><span class="pre">append</span></code> specifies whether the commands are meant to be added to the existing
+commands or replace them entirely.</p>
 </section>
 </section>
 
@@ -227,14 +288,14 @@ meant to be added to the existing commands or replace them entirely.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="Tobyfit.html" class="btn btn-neutral float-left" title="Tobyfit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="List_of_functions.html" class="btn btn-neutral float-right" title="List of functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Changing_Horace_settings.html" class="btn btn-neutral float-right" title="Changing Horace settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Oct 23, 2023, 12:46:28 PM.
+      <span class="lastupdated">Last updated on Oct 23, 2023, 12:48:27 PM.
       </span></p>
   </div>
 
