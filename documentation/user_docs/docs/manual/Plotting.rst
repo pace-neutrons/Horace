@@ -2,12 +2,29 @@
 Plotting
 ########
 
-An exhaustive list of commands to do with plotting your data - one of the primary functions of Horace!
+An exhaustive list of commands to do with plotting your data - one of the
+primary functions of Horace!
 
 plot
 ====
 
-Plot a dnd or sqw object. This does not work for 0-dimensional objects (single points), or 4-dimensional objects (we couldn't think of a way of displaying 4 dimensions plus intensity!). For 1-dimensional objects a series of markers with errorbars are connected by a line. For 2-dimensional objects a 2D colourmap is displayed. For a 3-dimensional object the *sliceomatic* program is used, where a series of 2D slices within a box are plotted.
+Plot a ``dnd`` or ``sqw`` object. In general the axes are the dimensions of the
+``dnd`` or ``sqw`` objects themselves according to the cut and the
+signal/intensity.
+
+- For 1-dimensional objects a series of markers with errorbars are connected by
+  a line.
+
+- For 2-dimensional objects a 2D colourmap is displayed.
+
+- For a 3-dimensional object the ``sliceomatic`` program is used, where a series
+  of 2D slices within a box are plotted.
+
+.. warning::
+
+   This does not work for 0-dimensional objects (single points), or
+   4-dimensional objects (we couldn't think of a way of displaying 4 dimensions
+   plus intensity!).
 
 ::
 
@@ -15,22 +32,30 @@ Plot a dnd or sqw object. This does not work for 0-dimensional objects (single p
 
    [figureHandle_, axesHandle_, plotHandle_] = plot(w)
 
-
-The second line of code (with outputs) gives outputs that are Matlab handles to the figure window, the axes, and the plot respectively. These are useful if, for example, you wish to resize the axes, change the font size of labels, etc.
+The second line of code (with outputs) returns Matlab handles to the figure
+window, the axes, and the plot respectively. These are useful if, for example,
+you wish to resize the axes, change the font size of labels, etc.
 
 smooth
 ======
 
 ::
 
-   wsmooth=smooth(w)
+   wsmooth = smooth(w)
 
-   wsmooth=smooth(w,[wid_x,wid_y,..],shape)
+   wsmooth = smooth(w, [wid_x, wid_y, ..], shape)
 
 
-``smooth`` allows you to smooth the data for plotting. Can optionally specify the width and smoothing function ('hat' or 'gaussian'). The default is 'hat', and 3 bins either side in all directions.
+``smooth`` allows you to smooth the data for plotting. You can optionally
+specify the width and smoothing function (``'hat'`` or ``'gaussian'``). The
+defaults are ``'hat'``, and 3 bins either side in all directions.
 
-**IMPORTANT NOTE** You can only apply smoothing to dnd objects, **not** to sqw objects, since with the latter you would be destroying the very pixel information that the object is designed to hold. To convert an sqw object (``win``) to a dnd, simply type ``wout=d1d(win)``, if ``win`` is 1-dimensional, ``wout=d2d(win)`` if it is 2-dimensional, and so on.
+.. note::
+
+   You can only apply smoothing to ``dnd`` objects, not to ``sqw`` objects,
+   since with the latter you would have to destroy the pixel information that
+   the object is designed to hold. To convert an ``sqw`` object (``win``) to a
+   ``dnd``, simply type ``wout = dnd(win)``.
 
 
 Altering plot characteristics and other useful commands
@@ -64,7 +89,8 @@ To change the line style in a 1-dimensional plot, type e.g.
    aline --
 
 
-to make a dashed line. You can also change the line thickness with something like
+to make a dashed line. You can also change the line thickness with something
+like
 
 ::
 
@@ -83,7 +109,8 @@ Type ``help aline`` in Matlab for a full list of options.
 Marker style
 ============
 
-You can change the style of marker in a 1-dimensional plot in a similar way to the above, e.g.
+You can change the style of marker in a 1-dimensional plot in a similar way to
+the above, e.g.
 
 ::
 
@@ -106,9 +133,12 @@ To change the x, y, or z limits of a plot, type e.g.
    lz -2 2
 
 
-which sets the x-axis limits to be 0 to 3, the y-axis limits to be -6 to 1, and the z-axis limits to be -2 to 2. Note the ``lz`` is used to change the color scale on a colormap plot.
+which sets the x-axis limits to be 0 to 3, the y-axis limits to be -6 to 1, and
+the z-axis limits to be -2 to 2. Note the ``lz`` is used to change the color
+scale on a colormap plot.
 
-To set the range to cover the full data range, just issue the commands without a range:
+To set the range to cover the full data range, just issue the commands without a
+range:
 
 ::
 
@@ -138,46 +168,58 @@ In order to get a cursor on your Horace plots, type
    xycursor
 
 
-You then left click the mouse on a position in a figure, and the x and y values are printed in the Matlab window. You can do this multiple times. To turn off the cursor, hit the carriage return key.
+You then left click the mouse on a position in a figure, and the x and y values
+are printed in the Matlab window. You can do this multiple times. To turn off
+the cursor, hit the carriage return key.
 
-Alternatively, to use a cursor to select x and y values and print them in the Matlab command window or save to arrays, type
+Alternatively, to use a cursor to click to select x and y values and print them
+in the Matlab command window or save them to arrays, type
 
 ::
 
    xyselect
 
-   [x,y]=xyselect
+   [x, y] = xyselect
 
 
 Keeping plots
 =============
 
-To store a figure in your current session (i.e. so that the next plot you make opens in a new window, with the current plot preserved), type
+To store a figure in your current session (i.e. so that the next plot you make
+opens in a new window, with the current plot preserved), type
 
 ::
 
    keep_figure
 
 
-If you have multiple figures open and you wish to alter one of them (e.g. by appending a line or more data to it)that has been kept using the above command, click on it and then type
+If you have multiple figures open and you wish to alter one of them (e.g. by
+appending a line or more data to it) that has been kept using the above command,
+click on it and then type
 
 ::
 
    make_current
 
 
-Note that both of these options are also available in drop-down menus in the figures windows themselves.
+Note that both of these options are also available in drop-down menus in the
+figures windows themselves.
 
 
 One dimensional plots
 ---------------------
 
-In the following the object being plotted can be a single sqw or dnd object, or an array of objects.
+In the following the object being plotted can be a single sqw or dnd object, or
+an array of objects.
 
 dd (draw data)
 ==============
 
-Plotting command for 1-dimensional objects only, plotting markers, errorbars, and connecting lines. Any existing 1-dimensional figure window is cleared before plotting i.e. existing data is not overplotted. If you use this command and the current figure window does not correspond to a 1-dimensional object, then a new figure window will be created.
+Plotting command for 1-dimensional objects only, plotting markers, errorbars,
+and connecting lines. Any existing 1-dimensional figure window is cleared before
+plotting i.e. existing data is not overplotted. If you use this command and the
+current figure window does not correspond to a 1-dimensional object, then a new
+figure window will be created.
 
 ::
 
@@ -189,7 +231,8 @@ Plotting command for 1-dimensional objects only, plotting markers, errorbars, an
 dl (draw line)
 ==============
 
-Plot line between points for a 1-dimensional object. No markers or errorbars displayed.
+Plot line between points for a 1-dimensional object. No markers or errorbars
+displayed.
 
 ::
 
@@ -201,7 +244,8 @@ Plot line between points for a 1-dimensional object. No markers or errorbars dis
 dm (draw markers)
 =================
 
-Plot markers at points for a 1-dimensional object. No line or errorbars displayed.
+Plot markers at points for a 1-dimensional object. No line or errorbars
+displayed.
 
 ::
 
@@ -213,7 +257,8 @@ Plot markers at points for a 1-dimensional object. No line or errorbars displaye
 dp (draw points)
 ================
 
-Plot markers and errorbars for a 1-dimensional object. No lines linking points are displayed.
+Plot markers and errorbars for a 1-dimensional object. No lines linking points
+are displayed.
 
 ::
 
@@ -225,7 +270,8 @@ Plot markers and errorbars for a 1-dimensional object. No lines linking points a
 de (draw errors)
 ================
 
-Plot errorbars at points for a 1-dimensional object. No linking lines or markers are displayed.
+Plot errorbars at points for a 1-dimensional object. No linking lines or markers
+are displayed.
 
 ::
 
@@ -248,7 +294,16 @@ Plot histogram of a 1-dimensional object.
 pd (plot data)
 ==============
 
-Overplotting command for 1-dimensional objects only, plotting markers, errorbars, and connecting lines. If the current window is a 1-dimensional figure window the existing plot is overplotted. If there is no current figure window then it plot a new one. If you use this command and the current figure window does not correspond to a 1-dimensional object, then a new figure window will also be created.
+Overplotting command for 1-dimensional objects only, plotting markers,
+errorbars, and connecting lines.
+
+- If the current window is a 1-dimensional figure
+  window the existing plot is overplotted.
+
+- If there is no current figure window then it plots a new one.
+
+- If you use this command and the current figure window does not correspond to a
+  1-dimensional object, then a new figure window will also be created.
 
 ::
 
@@ -260,7 +315,8 @@ Overplotting command for 1-dimensional objects only, plotting markers, errorbars
 pl (plot line)
 ==============
 
-Overplot line between points for a 1-dimensional object. No markers or errorbars displayed.
+Overplot line between points for a 1-dimensional object. No markers or errorbars
+displayed.
 
 ::
 
@@ -272,7 +328,8 @@ Overplot line between points for a 1-dimensional object. No markers or errorbars
 pm (plot markers)
 =================
 
-Overplot markers at points for a 1-dimensional object. No line or errorbars displayed.
+Overplot markers at points for a 1-dimensional object. No line or errorbars
+displayed.
 
 ::
 
@@ -284,7 +341,8 @@ Overplot markers at points for a 1-dimensional object. No line or errorbars disp
 pp (plot points)
 ================
 
-Overplot markers and errorbars for a 1-dimensional object. No lines linking points are displayed.
+Overplot markers and errorbars for a 1-dimensional object. No lines linking
+points are displayed.
 
 ::
 
@@ -296,7 +354,8 @@ Overplot markers and errorbars for a 1-dimensional object. No lines linking poin
 pe (plot errors)
 ================
 
-Overplot errorbars at points for a 1-dimensional object. No linking lines or markers are displayed.
+Overplot errorbars at points for a 1-dimensional object. No linking lines or
+markers are displayed.
 
 ::
 
@@ -320,7 +379,9 @@ Overplot histogram of a 1-dimensional object.
 ploc (plot line over current)
 =============================
 
-Overplot a line in the current figure, regardless of type (i.e. can plot a 1d curve on top of a 2d dataset, such as when plotting a dispersion relation over a 2d Q-E slice).
+Overplot a line in the current figure, regardless of type (i.e. can plot a 1d
+curve on top of a 2d dataset, such as when plotting a dispersion relation over a
+2d **Q**-E slice).
 
 ::
 
@@ -384,7 +445,9 @@ Two dimensional plots
 da (draw area)
 ==============
 
-Area plot for a two-dimensional object, with colour-scale signifying intensity. It is this that is called when ``plot`` is used for a 2-dimensional object.
+Area plot for a two-dimensional object, with colour-scale signifying
+intensity. It is this that is called when ``plot`` is used for a 2-dimensional
+object.
 
 ::
 
@@ -396,7 +459,8 @@ Area plot for a two-dimensional object, with colour-scale signifying intensity. 
 ds (draw surface)
 =================
 
-Surface plot for a two-dimensional object, with colour scale and contour signifying intensity.
+Surface plot for a two-dimensional object, with colour scale and contour
+signifying intensity.
 
 ::
 
@@ -408,9 +472,12 @@ Surface plot for a two-dimensional object, with colour scale and contour signify
 ds2 (draw surface from 2 sources)
 =================================
 
-This routine is especially useful for making surface plots of dispersion relations, when used in conjunction with dispersion</code
+This routine is especially useful for making surface plots of dispersion
+relations when used in conjunction with dispersion.
 
-Make a surface plot of a 2D sqw or d2d object, with the signal array setting the contours and the error array (or another data source) providing the intensity.
+Make a surface plot of a 2D ``sqw`` or ``d2d`` object, with the signal array
+defining the contours and the error array (or another data source) providing the
+intensity.
 
 ::
 
@@ -419,7 +486,10 @@ Make a surface plot of a 2D sqw or d2d object, with the signal array setting the
    ds2(w_2d,wc_2d) % Signal in wc sets colour scale (sqw or d2d object with same array size as w, or a numeric array)
 
 
-Differs from ``ds>`` in that the signal sets the z axis, and the colouring is set by the error bars, or another object. This enables a function of three variables to be plotted (e.g. dispersion relation where the 'signal' array hold the energy and the error array hold the spectral weight).
+This differs from ``ds`` in that the signal sets the z-axis, and the colouring
+is set by the error bars, or another object. This enables a function of three
+variables to be plotted (e.g. dispersion relation where the 'signal' array holds
+the energy and the error array holds the spectral weight).
 
 One can optionally return figure, axes and plot handles:
 
@@ -465,7 +535,8 @@ Optionally return figure, axes and plot handles:
 ps2 (plot surface from 2 objects)
 =================================
 
-Overplot a surface plot of a two-dimensional object with the colour scale set by the error bars or a second object)
+Overplot a surface plot of a two-dimensional object with the colour scale set by
+the error bars or a second object)
 
 ::
 
@@ -484,7 +555,7 @@ Optionally return figure, axes and plot handles:
 spaghetti_plot
 ==============
 
-Plots data in sqw-file or sqw-object along HKL directions.
+Plots data in ``sqw`` HKL directions.
 
 ::
 
@@ -497,7 +568,8 @@ Three dimensional plots
 sliceomatic
 ===========
 
-Sliceomatic plot of multiple area plots, for a 3-dimensional object. This function is called by the ``plot`` routine.
+Sliceomatic plot of multiple area plots, for a 3-dimensional object. This
+function is called by the ``plot`` routine.
 
 ::
 
@@ -507,7 +579,9 @@ Sliceomatic plot of multiple area plots, for a 3-dimensional object. This functi
 sliceomatic_overview
 ====================
 
-As ``sliceomatic``, but the default view is from above. In effect this means you see a 2d slice which can be animated/changed by the third slider bar. Useful for e.g. following a spin wave dispersion ring/cone as a function of energy.
+As ``sliceomatic``, but the default view is from above. In effect this means you
+see a 2d slice which can be animated/changed by the third slider bar. Useful for
+e.g. following a spin wave dispersion ring/cone as a function of energy.
 
 ::
 
@@ -519,4 +593,6 @@ As ``sliceomatic``, but the default view is from above. In effect this means you
 Miscellaneous functions
 -----------------------
 
-``meta(fig)`` allows you to copy the figure into a metafile. On Windows, this function puts the file in the clipboard so that it can be pasted directly into Word, Powerpoint etc.
+``meta(fig)`` allows you to copy the figure into a metafile. On Windows, this
+function puts the file in the clipboard so that it can be pasted directly into
+Word, Powerpoint etc.
