@@ -1,4 +1,4 @@
-function [wout, new_axis_block] = section (win,varargin)
+function [wout, irange] = section (win,varargin)
 % Takes a section out of an sqw object
 %
 % If an array of DnDs is provided, this will return a cell array

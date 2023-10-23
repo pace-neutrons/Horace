@@ -1,4 +1,4 @@
-function [wout,new_axes] = section (win,varargin)
+function [wout,irange] = section (win,varargin)
 % Takes a section out of an sqw object
 %
 % This is essentially a cut from the DnD without recomputing bins
@@ -33,7 +33,6 @@ function [wout,new_axes] = section (win,varargin)
 % Original author: T.G.Perring
 %
 
-new_axes = [];
 % Initialise output argument
 wout = copy(win);
 if isempty(varargin)
@@ -60,11 +59,11 @@ end
 
 page_op = PageOp_section();
 for n = 1:numel(win)
-    img = section(wout(n).data, varargin{:});
+    [img,irange] = section(wout(n).data, varargin{:});
 
     % Section the pix array, if sqw type, and update img_range
     if has_pixels(win(n))
-        page_op = page_op.init(win(n),img);
+        page_op = page_op.init(wout(n),img,irange);
         wout(n) = wout(n).apply_op(page_op);
     end
 end

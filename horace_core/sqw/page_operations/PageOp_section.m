@@ -2,9 +2,12 @@ classdef PageOp_section < PageOpBase
     % Single pixel page operation used by section algorithm
     %
     properties
-        new_img  % new image was precacluated before
+        % initial positions of pixels to transfer to the section
         block_starts_
+        % size of the  blocks to transfer to the section
         block_sizes_
+        % cellarray of block_start,block_size arrays, divided into pages by
+        % page size.
         block_chunks_;
     end
     methods
@@ -12,20 +15,15 @@ classdef PageOp_section < PageOpBase
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'section';
         end
-        function obj = init(obj,sqw_obj,new_img)
+        function obj = init(obj,sqw_obj,new_img,ind_ranges)
             obj           = init@PageOpBase(obj,sqw_obj);
             %
-            obj.new_img  = new_img;
-            new_axis     = new_img.axes;
-            % Identify what parts of old image contributed into new image
-            proj = sqw_obj.data.proj;            
-            [obj.block_starts_,obj.block_sizes_] = proj.get_nrange(...
-                obj.img_.npix, ...
-                obj.img_.axes, ...
-                new_axis,proj);
-            obj.block_chunks_ = {obj.block_starts_;obj.block_sizes_};
+            [obj.block_starts_,obj.block_sizes_]  = ...
+                obj.find_section(obj.img_.npix,ind_ranges);
+
+            obj.block_chunks_ = {{obj.block_starts_;obj.block_sizes_}};
             % assign new image as final image
-            obj.img_ = new_img;            
+            obj.img_ = new_img;
 
         end
         function obj = get_page_data(obj,idx,varargin)
@@ -33,13 +31,9 @@ classdef PageOp_section < PageOpBase
             %
             % Overload specific for section. It takes various pieces of
             % pixel data.
-            bl_start   = obj.block_chunks_{idx};
-            if iscell(bl_start)
-                bl_size    = bl_start{2};
-                bl_start   = bl_start{1};
-            else
-                bl_size    = obj.block_chunks_{2};
-            end
+            bl_chunk   = obj.block_chunks_{idx};
+            bl_start   = bl_chunk{1};
+            bl_size    = bl_chunk{2};
             ind = get_ind_from_ranges(bl_start, bl_size);
             obj.page_data_ = obj.pix_.get_pixels(ind ,'-raw');
         end
@@ -67,6 +61,37 @@ classdef PageOp_section < PageOpBase
         function [out_obj,obj] = finish_op(obj,out_obj)
             % transfer modifications to the target object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
+        end
+    end
+    methods(Static)
+        function [block_starts,block_sizes] = find_section(npix,ind_range)
+            % using npix which defines number of pixels in an image cell
+            % and ind_range array, which specify what n-d indexes of the image
+            % we want to keep, identify the ranges of pixels to keep.
+            %
+            block_sizes = npix;
+            block_ends  = cumsum(block_sizes(:));
+            pix_start   = reshape([0;block_ends(1:end-1)],size(block_sizes));
+            block_ends  = reshape(block_ends,size(block_sizes));
+            i = 1:size(ind_range,2);
+            sel_ranges = arrayfun(@(ii)ind_range(1,ii):ind_range(2,ii),i,'UniformOutput',false);
+            sel_blocks = block_sizes(sel_ranges{:});
+            sel_pos    = pix_start(sel_ranges{:});
+            sel_ends   = block_ends(sel_ranges{:});
+            non_empty  = sel_blocks(:)>0;
+
+            block_starts = sel_pos(non_empty);
+            block_ends   = sel_ends(non_empty);
+            % compress adjusent elements
+            edges = diff(block_starts)>1;
+            start = [true;edges(:)];
+            endi  = [edges(:);true];            
+            block_starts = block_starts(start);
+            block_ends   = block_ends(endi);      
+            %
+            block_sizes  = block_ends-block_starts;
+            % Matlab starts counting from 1
+            block_starts = block_starts+1;            
         end
     end
 end
