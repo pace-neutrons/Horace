@@ -27,6 +27,21 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         wout = func_eval(win, func_handle, pars, varargin);
     end
     %======================================================================
+    % PageOp methods -- methods, which use PageOp for implementation, so
+    % affect all pixels and recalculate image according to changes in pixels
+    % (or vise versa)
+    methods(Abstract)
+        % take part of the object limited by fraction of the image grit
+        wout = section (win,varargin);
+        % add various noise to signal
+        wout = noisify(w,varargin);
+        % Replace the sqw's signal and variance data with requested
+        % coordinate values
+        w    = coordinates_calc(w, name);
+        % Make a higher dimensional dataset from a lower dimensional dataset
+        wout = replicate (win,wref);
+    end
+    %======================================================================
     % METHODS, Available on SQW but requesting only DND object for
     % implementation
     methods(Abstract)
@@ -122,8 +137,8 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         wout = disp2sqw(win, dispreln, pars, fwhh,varargin); % build dispersion relation
         %                             % on image of sqw or dnd object
         % Calculate |Q|^2 for the centres of the bins of an n-dimensional sqw dataset
-        [qsqr,en] = calculate_qsqr_bins (win);        
-        qsqr_w    = calculate_qsqr_w_bins (win,varargin)        
+        [qsqr,en] = calculate_qsqr_bins (win);
+        qsqr_w    = calculate_qsqr_w_bins (win,varargin)
         %------------------------------------------------------------------
         wout = sqw_eval(win, sqwfunc, pars, varargin);
         %------------------------------------------------------------------
@@ -134,7 +149,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
 
     methods (Access = protected)
         wout = unary_op_manager(w, operation_handle);
-        wout = binary_op_manager(w1, w2, binary_op_bandle);        
+        wout = binary_op_manager(w1, w2, binary_op_bandle);
         %
         function [func_handle, pars, opts] = parse_funceval_args(win, func_handle, pars, varargin)
             % Process arguments of func_eval function

@@ -121,7 +121,6 @@ function wout = rebin_sqw(win, varargin)
 
     wout = cut(win, bins{1:ndims});
 
-
 end
 
 function bin = check_bin(bin)

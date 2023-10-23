@@ -236,6 +236,8 @@ classdef (Abstract)  DnDBase < ...
         % calculate the range of the image to be produced by target
         % projection from the current object
         range = targ_range(obj,targ_proj,varargin)
+        % take part of the object limited by fraction of the image grit
+        wout = section (win,varargin);        
     end
     %======================================================================
     % Redundant and convenience Accessors

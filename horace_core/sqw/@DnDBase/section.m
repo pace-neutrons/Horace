@@ -1,4 +1,4 @@
-function [wout, new_axis_block] = section (win,varargin)
+function [wout, sec_ranges] = section (win,varargin)
 % Takes a section out of an sqw object
 %
 % If an array of DnDs is provided, this will return a cell array
@@ -22,7 +22,9 @@ function [wout, new_axis_block] = section (win,varargin)
 %
 % Output:
 % -------
-%   wout                Output dataset.
+%   wout            Output dataset.
+%  sec_ranges       2xndims array of nbin ranges ([min_rangel;max_range],
+%                   included in section
 %
 %
 % Example: to alter the limits of the first and third axes of a 3D dnd object:
@@ -55,7 +57,7 @@ end
 
 % Initialise output argument
 wout = cell(numel(win), 1);
-
+sec_ranges= cell(numel(win),1);
 tol=4*eps('single');    % acceptable tolerance: bin centres deemed contained in new boundaries
 
 for n=1:numel(win)
@@ -66,6 +68,7 @@ for n=1:numel(win)
     % The input sectioning arguments refer to the *display* axes; these must be converted to the relevant plot axes in the algorithm
     irange = zeros(2,ndim);
     array_section = cell(1,ndim);
+
 
     % extract bin boundaries
     p=win(n).p;
@@ -85,7 +88,7 @@ for n=1:numel(win)
         curr_range = varargin{i};
         pax = win(n).dax(i);
 
-        if isempty(curr_range) || isequal(curr_range, [0])
+        if isempty(curr_range) || isequal(curr_range, 0)
 
             irange(1,pax) = 1;
             irange(2,pax) = sz(pax);
@@ -120,7 +123,6 @@ for n=1:numel(win)
 
             nbins_all_dims(p_ind(pax)) = irange(2,pax) - irange(1,pax)+1;
 
-            %wout(n).p{pax} = p{pax}(lis(1):lis(end)+1);
             array_section{pax}=irange(1,pax):irange(2,pax);
 
         else
@@ -128,7 +130,7 @@ for n=1:numel(win)
                    'Limits for axis %d must be [], [0] or [min max]', i)
         end
     end
-
+    sec_ranges{i} = irange;
     new_axis_block = line_axes('nbins_all_dims',nbins_all_dims,...
                                 'img_range',cut_range, ... % binning img_range temporarily
                                 'single_bin_defines_iax', win(n).axes.single_bin_defines_iax, ...
