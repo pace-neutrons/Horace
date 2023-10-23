@@ -5,7 +5,7 @@ Input file formats
 .. |SQW| replace:: :math:`S(\mathbf{Q}, \omega{})`
 
 To generate the ``.sqw`` file from which Horace reads |SQW|, neutron scattering
-data for each individual run and needs to be provided in one of two formats:
+data for each individual run needs to be provided in one of two formats:
 
 - the legacy ASCII format ``.spe`` file, together with an ASCII detector
   parameter file (the ``.par`` file)
@@ -35,7 +35,7 @@ saved in.
 ===============
 
 The recommended input data file for Horace is the ``.nxspe`` file, which holds both
-the :math:`S(w)` data and errors for each detector, detector position and size
+the |SQW| data and errors for each detector, detector position and size
 information, together with the crystal orientation angle :math:`\psi` and the
 incident neutron energy :math:`E_i`.
 
@@ -231,8 +231,9 @@ signal for each detecetor in turn.
 
    - each number must occupy a field of precisely 10 spaces.
 
-   - No white space is necessary. (This is a frequent source of problem when
-     writing the files.)
+   - There is not necessarily any whitespace between any two numbers
+     and they can run up against one another. (This is a frequent
+     source of problem when parsing/writing the files.)
 
    **N.B.** This corresponds roughly with the format specifiers:
 
