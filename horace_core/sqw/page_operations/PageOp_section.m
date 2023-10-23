@@ -3,12 +3,17 @@ classdef PageOp_section < PageOpBase
     %
     properties
         % initial positions of pixels to transfer to the section
-        block_starts_
+        block_starts_;
         % size of the  blocks to transfer to the section
-        block_sizes_
+        block_sizes_;
         % cellarray of block_start,block_size arrays, divided into pages by
         % page size.
         block_chunks_;
+
+        unique_runid_holder;
+        % if some run_id do not contribute to pixels any more,
+        % they also should not contribute to experiment
+        check_runid;
     end
     methods
         function obj = PageOp_section(varargin)
@@ -24,6 +29,8 @@ classdef PageOp_section < PageOpBase
             obj.block_chunks_ = {{obj.block_starts_;obj.block_sizes_}};
             % assign new image as final image
             obj.img_ = new_img;
+            obj.unique_runid_holder = [];
+            obj.check_runid = true;
 
         end
         function obj = get_page_data(obj,idx,varargin)
@@ -55,12 +62,29 @@ classdef PageOp_section < PageOpBase
         end
 
         function obj = apply_op(obj,varargin)
-            % it acually does notning here. selected pixels blocks are
-            %  transferred to target without modifications
+            % Notning happens here. Selected pixels blocks are
+            % transferred to target without modifications
         end
         function [out_obj,obj] = finish_op(obj,out_obj)
+            if numel(obj.unique_run_id_) == out_obj.experiment_info.n_runs
+                obj.check_runid = false; % this will not write experiment info again
+            else
+                % it always have to be less or equal, but some tests do not
+                % have consistent Experiment
+                if numel(obj.unique_run_id_) < out_obj.experiment_info.n_runs
+                    out_obj.experiment_info = ...
+                        out_obj.experiment_info.get_subobj(obj.unique_run_id_);
+                end
+            end
             % transfer modifications to the target object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
+        end
+    end
+    methods(Access=protected)
+        function is = get_exp_modified(obj)
+            % getter for exp_modified property, which saves modified
+            % Experiment
+            is = obj.old_file_format_||obj.check_runid;
         end
     end
     methods(Static)
@@ -85,13 +109,13 @@ classdef PageOp_section < PageOpBase
             % compress adjusent elements
             edges = diff(block_starts)>1;
             start = [true;edges(:)];
-            endi  = [edges(:);true];            
+            endi  = [edges(:);true];
             block_starts = block_starts(start);
-            block_ends   = block_ends(endi);      
+            block_ends   = block_ends(endi);
             %
             block_sizes  = block_ends-block_starts;
             % Matlab starts counting from 1
-            block_starts = block_starts+1;            
+            block_starts = block_starts+1;
         end
     end
 end

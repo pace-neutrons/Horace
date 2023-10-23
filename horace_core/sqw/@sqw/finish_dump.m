@@ -27,7 +27,7 @@ sqw_ldr = wh.release_pixinit_info(true);
 if ~page_op.changes_pix_only
     % Store modifications to image. Better implementation after Re #1319
     sqw_ldr  = sqw_ldr.put_main_header(obj.main_header);
-    if page_op.old_file_format
+    if page_op.exp_modified
         sqw_ldr   = sqw_ldr.put_headers(obj.experiment_info);
     end
     sqw_ldr  = sqw_ldr.put_dnd_data(obj.data);

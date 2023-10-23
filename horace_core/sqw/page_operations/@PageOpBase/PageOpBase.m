@@ -61,6 +61,10 @@ classdef PageOpBase
         % avoid retaining runs, which do not contribute into pixels, which
         % was ocasionally happened with old file formats
         old_file_format
+        % If algorithm modifies Experiment and new experiment should be
+        % stored. Transient property. Something more generic should be
+        % implemented with Re #1320
+        exp_modified
         %
         write_handle
         % An algorithm applied to a sqw object with missing data range
@@ -165,7 +169,7 @@ classdef PageOpBase
             %
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
-            if obj.old_file_format_
+            if obj.exp_modified
                 obj.unique_run_id_ = unique([obj.unique_run_id_, ...
                     obj.page_data_(obj.run_idx_,:)]);
             end
@@ -295,6 +299,9 @@ classdef PageOpBase
             end
             obj.split_log_ratio_ = max(1,round(abs(val)));
         end
+        function do = get.exp_modified(obj)
+            do = get_exp_modified(obj);
+        end
         %------------------------------------------------------------------
         function npix = get.npix(obj)
             if isempty(obj.npix_)
@@ -348,6 +355,9 @@ classdef PageOpBase
     end
     %======================================================================
     methods(Access=protected)
+        function is = get_exp_modified(obj)
+            is = obj.old_file_format_;
+        end
         function  does = get_changes_pix_only(obj)
             does = isempty(obj.img_);
         end

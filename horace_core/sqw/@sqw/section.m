@@ -65,5 +65,7 @@ for n = 1:numel(win)
     if has_pixels(win(n))
         page_op = page_op.init(wout(n),img,irange);
         wout(n) = wout(n).apply_op(page_op);
+    else
+        wout(n).data = img;
     end
 end
