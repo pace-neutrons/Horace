@@ -46,6 +46,7 @@ set(TEST_DIRECTORIES_HORACE
     "test_main_header"
     "test_sqw"
     "test_sqw_class"
+    "test_sqw_pageOpMethods"	
     "test_sqw_file"
     "test_sqw_pixels"
     "test_sym_op"

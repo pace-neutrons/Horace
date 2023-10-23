@@ -55,4 +55,4 @@ else
         end
     end
 end
-wout = wout.change_header(tmp);
+wout.experiment_info = tmp;

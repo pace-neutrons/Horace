@@ -60,10 +60,10 @@ function [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,
 %   xtal        Crystal refinement constants. Structure with fields:
 %                   urot        x-axis for rotation (r.l.u.)
 %                   vrot        Defines y-axis for rotation (r.l.u.): y-axis in plane
-%                              of urot and vrot, perpendicualr to urot with positive
+%                              of urot and vrot, perpendicular to urot with positive
 %                              component along vrot
 %                   ub0         ub matrix for lattice parameters in the input sqw objects
-%               Empty if the crystal oreintation is not going to be refined
+%               Empty if the crystal orientation is not going to be refined
 %
 %   modshape    Moderator refinement constants. Structure with fields:
 %                   pulse_model Pulse shape model for the moderator pulse shape whose
@@ -101,7 +101,7 @@ function [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,
 
 % Check consistency of caller information, stored internal state, and lookup tables
 % ---------------------------------------------------------------------------------
-ind=caller.ind;                 % indicies into lookup tables
+ind=caller.ind;                 % indices into lookup tables
 if numel(ind) ~= numel(win)
     error('Inconsistency between number of input datasets and number passed from control routine')
 elseif numel(ind) ~= numel(state_in)
@@ -211,7 +211,7 @@ for i=1:numel(ind)
 
     % Catch case of refining crystal orientation
     if refine_crystal
-        % Strip out crystal refinement parameters and reorientate datasets
+        % Strip out crystal refinement parameters and reorient datasets
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
 
         % Update s_mat and spec_to_rlu because crystal orientation will have changed

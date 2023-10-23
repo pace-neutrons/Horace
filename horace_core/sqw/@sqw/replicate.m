@@ -1,5 +1,5 @@
 function wout = replicate (win,wref)
-% Make a higher dimensional dataset from a two dimensional dataset by
+% Make a higher dimensional dataset from a lower dimensional dataset by
 % replicating the data along the extra dimensions of a reference dataset.
 %
 %   >> wout = replicate (win, wref)

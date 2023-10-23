@@ -170,7 +170,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             %sqw_ob.header(1).instrument = inst1;
             hdr = sqw_ob.experiment_info;
             hdr.samples{1} = sam1;
-            sqw_ob = sqw_ob.change_header(hdr);
+            sqw_ob.experiment_info = hdr;
 
             tob = faccess_sqw_v3_3();
             tob = tob.init(sqw_ob);
@@ -212,7 +212,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             inst1=create_test_instrument(95,250,'s');
             hdr = sqw_ob.experiment_info;
             hdr.instruments{1} = inst1;
-            sqw_ob = sqw_ob.change_header(hdr);
+            sqw_ob.experiment_info = hdr;
 
             tf = fullfile(tmp_dir,'test_save_load_sqwV3_3.sqw');
             clob = onCleanup(@()delete(tf));

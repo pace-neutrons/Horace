@@ -95,7 +95,7 @@ if ~isa(w1,'double') && ~isa(w2,'double')
             wout = w2;
         end
         result = binary_op(sigvar(w1), sigvar(w2));
-        wout = sigvar_set(wout, result);
+        wout   = sigvar_set(wout, result);
         %----------------------------------------------------------------------
     else
         error([upper(thisClassname),':binary_op_manager_single'], ...
@@ -109,7 +109,7 @@ elseif isa(w2, 'double')
         % The following block may be class specific
         wout = w1;
         result = binary_op(sigvar(w1), w2);
-        wout = sigvar_set(wout,result);
+        wout   = sigvar_set(wout,result);
         %----------------------------------------------------------------------
     else
         error([upper(thisClassname),':binary_op_manager_single'], ...
@@ -130,6 +130,5 @@ elseif isa(w1, 'double')
         error([upper(thisClassname),':binary_op_manager_single'], ...
             ['Check that the numeric variable is scalar or array ' ...
             'with same size as object signal.']);
-end
-
+    end
 end
