@@ -117,7 +117,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < ...
         [obj,al_info] = finalize_alignment(obj,filename);
 
         % take part of the object limited by fraction of the image grit
-        wout = section (win,varargin);
+        [wout,varargout] = section (win,varargin);
         % add various noise to signal
         wout = noisify(w,varargin);
 

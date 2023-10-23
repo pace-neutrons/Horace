@@ -21,7 +21,7 @@ op_name = page_op.op_name;
     'hor_config', 'mem_chunk_size','log_level','fb_scale_factor');
 
 % divide all data into pages to process
-[npix_chunks, npix_idx] = page_op.split_into_pages(npix, mem_chunk_size);
+[npix_chunks, npix_idx,page_op] = page_op.split_into_pages(npix, mem_chunk_size);
 
 log_split = page_op.split_log_ratio;
 

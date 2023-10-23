@@ -47,7 +47,6 @@ for i=1:numel(w)
         end
         wout(i) = wout(i).apply_op(page_op);
     else
-        % Noisify the dnd data directly with the Herbert noisify.
-        [wout(i).data.s,wout(i).data.e]=noisify(w(i).data.s,w(i).data.e,varargin{:});
+        wout(i).data=w(i).data.noisify(varargin{:});
     end
 end

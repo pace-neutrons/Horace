@@ -1,4 +1,4 @@
-function wout = section (win,varargin)
+function [wout,new_axes] = section (win,varargin)
 % Takes a section out of an sqw object
 %
 % This is essentially a cut from the DnD without recomputing bins
@@ -33,36 +33,38 @@ function wout = section (win,varargin)
 % Original author: T.G.Perring
 %
 
-% Trivial case of no section arguments
+new_axes = [];
+% Initialise output argument
+wout = copy(win);
 if isempty(varargin)
-    wout = copy(win);
+    % Trivial case of no section arguments
     return
 end
 
 % Dimension of input data structures
 ndim=dimensions(win(1));
 if ndim==0  % no sectioning possible
-    error('HORACE:sqw:invalid_argument', 'Cannot section a zero dimensional object')
+    error('HORACE:sqw:invalid_argument', ...
+        'Cannot section a zero dimensional object')
 end
 
 if numel(win) > 1 && any(arrayfun(@dimensions, win(2:end)) ~= ndim)
-    error('HORACE:sqw:invalid_argument', 'All objects must have same dimensionality for sectioning to work')
+    error('HORACE:sqw:invalid_argument', ...
+        'All objects must have same dimensionality for sectioning to work')
 end
 
 if length(varargin) ~= ndim
-    error('HORACE:sqw:invalid_argument', 'Check number of arguments')
+    error('HORACE:sqw:invalid_argument',...
+        'Check number of arguments')
 end
-
-% Initialise output argument
-wout = copy(win);
 
 page_op = PageOp_section();
 for n = 1:numel(win)
-    [wout(n).data, sec_ranges] = section(wout(n).data, varargin{:});
+    img = section(wout(n).data, varargin{:});
 
     % Section the pix array, if sqw type, and update img_range
     if has_pixels(win(n))
-        page_op = page_op.init(wout(n),sec_ranges{n});
+        page_op = page_op.init(win(n),img);
         wout(n) = wout(n).apply_op(page_op);
     end
 end

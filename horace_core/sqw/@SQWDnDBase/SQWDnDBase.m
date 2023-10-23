@@ -35,9 +35,6 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         wout = section (win,varargin);
         % add various noise to signal
         wout = noisify(w,varargin);
-        % Replace the sqw's signal and variance data with requested
-        % coordinate values
-        w    = coordinates_calc(w, name);
         % Make a higher dimensional dataset from a lower dimensional dataset
         wout = replicate (win,wref);
     end

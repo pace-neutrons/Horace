@@ -199,7 +199,7 @@ classdef PageOpBase
             [out_obj,obj] = finish_op_(obj,in_obj);
         end
         %
-        function [npix_chunks, npix_idx] = split_into_pages(~,npix,chunk_size)
+        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
             % Method used to split input npix array into pages
             % Inputs:
             % npix  -- image npix array, which defines the number of pixels
