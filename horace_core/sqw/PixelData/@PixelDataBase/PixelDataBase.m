@@ -338,9 +338,6 @@ classdef (Abstract) PixelDataBase < serializable
 
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
 
-        % apply function represented by handle to every pixel of the dataset
-        % and calculate appropriate averages if requested
-        [pix_out, data] = apply(obj, func_handle, args, data, compute_variance);
 
         obj = recalc_data_range(obj,varargin);
         % realign pixels using alignment matrix stored with pixels
@@ -722,6 +719,8 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = do_unary_op(obj, unary_op)
         obj     = finalize_alignment(obj,filename);
         pix_out = noisify(obj, varargin);
+        pix_out = apply(obj, func_handle, args, data, compute_variance);
+        
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data

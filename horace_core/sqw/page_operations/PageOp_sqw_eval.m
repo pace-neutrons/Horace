@@ -20,13 +20,17 @@ classdef PageOp_sqw_eval < PageOpBase
         end
         function obj = init(obj,sqw_obj,operation,op_param,average)
             obj           = init@PageOpBase(obj,sqw_obj);
-            obj.proj      = sqw_obj.data.proj;
             obj.average   = average;
             obj.op_holder = operation;
             obj.op_parms  = op_param;
             obj.pix_idx_start_ = 1;
             %
+            if isa(sqw_obj,'sqw') % this is impossible for sqw_eval but may
+                % be necessary for children (generic apply)
+                obj.proj      = sqw_obj.data.proj;
+            end
         end
+
         function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
             % Method used to split input npix array into pages
             %
@@ -48,7 +52,6 @@ classdef PageOp_sqw_eval < PageOpBase
                 [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
             end
         end
-
 
         function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation
@@ -80,7 +83,7 @@ classdef PageOp_sqw_eval < PageOpBase
             end
             obj.page_data_(obj.signal_idx,:)   = new_signal(:)';
             obj.page_data_(obj.var_idx,:)      = 0; % I do not like this but this is legacy behaviour
-
+            %
             img_signal = compute_bin_data(npix_block,new_signal,[],true);
             obj.sig_acc_(npix_idx(1):npix_idx(2)) = ...
                 obj.sig_acc_(npix_idx(1):npix_idx(2))+img_signal(:);
