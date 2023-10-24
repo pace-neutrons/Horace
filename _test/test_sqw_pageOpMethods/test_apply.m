@@ -60,18 +60,22 @@ classdef test_apply < TestCase
             pth = fullfile(pths.test_common, 'sqw_2d_1.sqw');
             sqw_mb = sqw(pth);
 
+            assertEqual(sqw_mb.experiment_info.n_runs,24)
             clwarn = set_temporary_warning('off', 'HOR_CONFIG:set_fb_scale_factor');
             clob = set_temporary_config_options(hor_config, ...
                 'mem_chunk_size', 10000, ...
                 'fb_scale_factor', 1);
             sqw_fb = sqw(pth);
+            % old file format, not all runs contribute into pixels
+            assertEqual(sqw_fb.experiment_info.n_runs,85)
 
             sym = SymopReflection([1 0 0], [0 1 0]);
             sqw_ap_fb = sqw_fb.apply(@sym.transform_pix, {}, false);
-            sqw_ap_mb = sqw_mb.apply(@sym.transform_pix, {}, false);
+            % operation on old file format have dropped non-contributed
+            % runs
+            assertEqual(sqw_ap_fb.experiment_info.n_runs,24)
 
-            sqw_ap_fb.experiment_info = sqw_ap_mb.experiment_info;
-            sqw_ap_fb.main_header = sqw_ap_mb.main_header;
+            sqw_ap_mb = sqw_mb.apply(@sym.transform_pix, {}, false);
 
             assertEqualToTol(sqw_ap_fb, sqw_ap_mb);
         end
@@ -95,9 +99,6 @@ classdef test_apply < TestCase
             sqw_op = sqw_mb;
             sqw_op.pix = sym(1).transform_pix(sqw_op.pix);
             sqw_op.pix = sym(2).transform_pix(sqw_op.pix);
-
-            sqw_ap_fb.main_header = sqw_ap_mb.main_header;
-            sqw_ap_fb.experiment_info = sqw_ap_mb.experiment_info;
 
             assertEqualToTol(sqw_op, sqw_ap_mb);
             assertEqualToTol(sqw_ap_fb, sqw_ap_mb);
