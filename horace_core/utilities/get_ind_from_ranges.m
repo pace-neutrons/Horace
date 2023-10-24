@@ -1,6 +1,6 @@
 function out = get_ind_from_ranges(range_starts, block_sizes)
 % Get an array of indexes fom the arrays, defining the initial indexes
-% and the size of the continuous blocks of intexes
+% and the size of the continuous blocks of indexes
 % e.g.
 %   >> range_starts = [1, 15, 12]
 %   >> block_sizes = [4, 3, 3]

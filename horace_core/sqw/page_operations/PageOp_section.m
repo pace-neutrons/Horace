@@ -106,7 +106,7 @@ classdef PageOp_section < PageOpBase
 
             block_starts = sel_pos(non_empty);
             block_ends   = sel_ends(non_empty);
-            % compress adjusent elements
+            % compress adjacent elements
             edges = diff(block_starts)>1;
             start = [true;edges(:)];
             endi  = [edges(:);true];
