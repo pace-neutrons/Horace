@@ -273,7 +273,6 @@ classdef (Abstract) PixelDataBase < serializable
             obj = create_(varargin{:});
         end
 
-
         function npix = bytes2pix(bytes)
             npix = bytes / sqw_binfile_common.FILE_PIX_SIZE;
         end
@@ -326,6 +325,8 @@ classdef (Abstract) PixelDataBase < serializable
         end
 
     end
+    %======================================================================
+    %  ABSTRACT INTERFACE
     %======================================================================
     methods(Abstract)
         % --- Pixel operations ---
@@ -399,13 +400,12 @@ classdef (Abstract) PixelDataBase < serializable
 
         is = get_is_tmp_obj(obj);
     end
-
+    %======================================================================
+    methods(Abstract,Static)
+        obj_out = apply_op(obj_in,page_op);
+    end
     %======================================================================
     % the same interface on FB and MB files
-    methods(Access=private)
-        obj = realign_(obj);
-    end
-    %
     methods
         function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
@@ -414,8 +414,8 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
 
-
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
+
         function obj = invalidate_range(obj,fld)
             % set the data range to inverse values
             % to allow
@@ -720,7 +720,7 @@ classdef (Abstract) PixelDataBase < serializable
         obj     = finalize_alignment(obj,filename);
         pix_out = noisify(obj, varargin);
         pix_out = apply(obj, func_handle, args, data, compute_variance);
-        
+
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data
