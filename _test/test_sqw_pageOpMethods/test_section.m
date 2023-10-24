@@ -14,6 +14,32 @@ classdef test_section < TestCase
             assertEqualToTol(test_sec, test_cut);
             assertTrue(obj.is_bins_subset_of(test_sec.data.axes.p, w.data.axes.p));
         end
+        function test_experiment_reduced_on_file(~)
+            hp = horace_paths;
+            tf = fullfile(hp.test_common,'sqw_2d_2.sqw');
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 2000);
+
+            w2 = sqw(tf,'file_backed',true);
+            assertTrue(w2.is_filebacked);
+            %old file format. Some runs do not contribute into cut
+            assertEqual(w2.experiment_info.n_runs,186)
+            ws  = w2.section([0,0.6],[160,180]);
+            assertEqual(ws.experiment_info.n_runs,36)
+            wsc = ws.recompute_bin_data();
+            assertEqualToTol(wsc,ws,'tol',2*eps('single'))
+        end
+
+        function test_experiment_reduced_in_mem(~)
+            hp = horace_paths;
+            tf = fullfile(hp.test_common,'sqw_2d_2.sqw');
+            w2 = read_sqw(tf);
+            assertFalse(w2.is_filebacked);
+            assertEqual(w2.experiment_info.n_runs,68)
+            ws  = w2.section([0,0.6],[160,180]);
+            assertEqual(ws.experiment_info.n_runs,36)
+            wsc = ws.recompute_bin_data();
+            assertEqualToTol(wsc,ws,'tol',2*eps('single'))
+        end
 
         function obj = test_section_sqw_fb(obj)
             w = sqw.generate_cube_sqw(10);
