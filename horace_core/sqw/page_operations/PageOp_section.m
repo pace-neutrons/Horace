@@ -62,7 +62,7 @@ classdef PageOp_section < PageOpBase
         end
 
         function obj = apply_op(obj,varargin)
-            % Notning happens here. Selected pixels blocks are
+            % Nothing happens here. Selected pixels blocks are
             % transferred to target without modifications
         end
         function [out_obj,obj] = finish_op(obj,out_obj)
