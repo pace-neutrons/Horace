@@ -4,10 +4,9 @@ classdef PageOp_mask < PageOpBase
     % methos
     %
     properties
-        % the object containing information on what
+        % the object containing information on what to keep
         keep_info_obj;
         %
-
         % property, which is true if keep_info provided defiles to bins
         % or false, if it defines pixels to keep
         mask_by_obj;
@@ -15,6 +14,9 @@ classdef PageOp_mask < PageOpBase
         mask_by_num;
         % accumulator for reduced number of pixels
         npix_acc;
+        % as this method modifies pixels, it may remove some run_id-s
+        % we need to check unique runid (see parent for exp_modified property)
+        check_runid
     end
     properties(Dependent)
         % number of pixels in the masked dataset
@@ -41,6 +43,12 @@ classdef PageOp_mask < PageOpBase
             if ~isempty(obj.img_)
                 obj.var_acc_ = zeros(numel(obj.img_.npix),1);
                 obj.npix_acc = zeros(numel(obj.img_.npix),1);
+                obj.check_runid = true;
+            else
+                % we may want to check for unique run_id to remove
+                % unnecessary experiments, but if it is only pixels -- no
+                % point.
+                obj.check_runid = false;
             end
             % Mask validity and its compartibility with masked object have
             % been verified earlier
@@ -129,9 +137,24 @@ classdef PageOp_mask < PageOpBase
                 obj.var_acc_(npix_idx(1):npix_idx(2)) + e_ar(:);
         end
         %
-        function [out_obj,obj] = finish_op(obj,in_obj)
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc);
-            [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
+        function [out_obj,obj] = finish_op(obj,out_obj)
+            if ~obj.changes_pix_only
+                obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc);
+                %
+                if numel(obj.unique_run_id_) == out_obj.experiment_info.n_runs
+                    obj.check_runid = false; % this will not write experiment info
+                    % again as it has not changed
+                else
+                    % it always have to be less or equal, but some tests do not
+                    % have consistent Experiment
+                    if numel(obj.unique_run_id_) < out_obj.experiment_info.n_runs
+                        out_obj.experiment_info = ...
+                            out_obj.experiment_info.get_subobj(obj.unique_run_id_);
+                    end
+                end
+            end
+            [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
+
         end
         %------------------------------------------------------------------
         function np = get.num_pix_original(obj)
@@ -180,8 +203,14 @@ classdef PageOp_mask < PageOpBase
                 end
                 ic = ic-1;
             end
-
         end
-
     end
+    methods(Access=protected)
+        function is = get_exp_modified(obj)
+            % getter for exp_modified property, which saves modified
+            % Experiment if set to true
+            is = obj.old_file_format_||obj.check_runid;
+        end
+    end
+
 end

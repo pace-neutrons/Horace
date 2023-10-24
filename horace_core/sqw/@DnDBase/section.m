@@ -1,4 +1,4 @@
-function [wout, new_axis_block] = section (win,varargin)
+function [wout, irange] = section (win,varargin)
 % Takes a section out of an sqw object
 %
 % If an array of DnDs is provided, this will return a cell array
@@ -85,7 +85,7 @@ for n=1:numel(win)
         curr_range = varargin{i};
         pax = win(n).dax(i);
 
-        if isempty(curr_range) || isequal(curr_range, [0])
+        if isempty(curr_range) || isequal(curr_range, 0)
 
             irange(1,pax) = 1;
             irange(2,pax) = sz(pax);

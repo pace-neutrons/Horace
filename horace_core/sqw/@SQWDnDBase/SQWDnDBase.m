@@ -6,6 +6,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     properties(Abstract,Dependent,Hidden=true)
         NUM_DIMS
     end
+    %======================================================================
     methods (Abstract)
         %------------------------------------------------------------------
         % various useful operations and methods. Both internal and
@@ -13,18 +14,48 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         pixels = has_pixels(win);     % Check if sqw or dnd object has pixels.
         %                             % DnD object always returns false.
         %
-        [wout,mask_array] = mask(win, mask_array); % mask image data and
-        %                             % corresponding pixels if available
         %------------------------------------------------------------------
-
-        w                 = sigvar_set(win, sigvar_obj);
-        %------------------------------------------------------------------
-        wout = signal(w,name); % Set the intensity of an sqw object to the
         % values for the named argument
         wout = cut(obj, varargin);    % take cut from a sqw or sqw/dnd object
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
-        %
+        % rebin an object to the other object with the dimensionality
+        % smaller then the dimensionality of the current object
+        obj = rebin(obj,varargin);
+    end
+    %======================================================================
+    % PageOp methods -- methods, which are implemented through PageOp
+    % i.e. affect all pixels and recalculate image according to changes
+    %  in pixels or vise versa.
+    methods(Abstract)
         wout = func_eval(win, func_handle, pars, varargin);
+        %
+        [wout,mask_array] = mask(win, mask_array); % mask image data and
+        %                             % corresponding pixels if available
+        % add random noise with various distribution to signal
+        wout = noisify(w,varargin);
+
+        wout = signal(w,name); % Set the intensity of an sqw object to the
+        %
+        w    = sigvar_set(win, sigvar_obj);
+        % take part of the object limited full bins containing fraction of
+        % the image grid
+        [wout,irange] = section (win,varargin);
+        % Make a higher dimensional dataset from a lower dimensional dataset
+        wout = replicate (win,wref);
+    end
+    %----------------------------------------------------------------------
+    % PageOp methods implemented on this level
+    methods
+        wout = sqw_eval(win, sqwfunc, pars, varargin);
+    end
+    %----------------------------------------------------------------------
+    % PageOp abstract protected methods
+    methods (Abstract, Access = protected)
+        wout = binary_op_manager_single(w1,w2,binary_op);
+        wout = sqw_eval_pix(wout, sqwfunc, ave_pix, pars, outfile, i);
+        % REDUNDANT METHOD to remove
+        [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
+        %                              % binning of an sqw or dnd object
     end
     %======================================================================
     % METHODS, Available on SQW but requesting only DND object for
@@ -34,6 +65,9 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         wout = cut_dnd(obj,varargin); % legacy entrance for cut for dnd objects
 
         [nd,sz] = dimensions(win)
+        [wout_disp, wout_weight] = dispersion(win, dispreln, pars) % Calculate
+        %               dispersion relation for dataset or array of datasets.
+
         % Get limits of the data in an n-dimensional dataset
         [val, n] = data_bin_limits (obj)
         %
@@ -96,37 +130,17 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         %
     end
 
-    methods (Abstract, Access = protected)
-        wout = binary_op_manager_single(w1,w2,binary_op);
-        wout = sqw_eval_pix(wout, sqwfunc, ave_pix, pars, outfile, i);
-        %
-        [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
-        %                              % binning of an sqw or dnd object
-    end
-
     methods  % Public
-        [sel,ok,mess] = mask_points(win, varargin);
-
+        [sel,ok,mess] = mask_points(win, varargin);       
         cl = save(w, varargin);
-
-        [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
-
-        % rebin an object to the other object with the dimensionality
-        % smaller then the dimensionality of the current object
-        obj = rebin(obj,varargin);
-        %------------------------------------------------------------------
-        [wout_disp, wout_weight] = dispersion(win, dispreln, pars) % Calculate
-        %                             % dispersion relation for dataset or
-        %                             % array of datasets.
+        %                             %
         wout = disp2sqw_eval(win, dispreln, pars, fwhh, opt);
         wout = disp2sqw(win, dispreln, pars, fwhh,varargin); % build dispersion relation
         %                             % on image of sqw or dnd object
         % Calculate |Q|^2 for the centres of the bins of an n-dimensional sqw dataset
-        [qsqr,en] = calculate_qsqr_bins (win);        
-        qsqr_w    = calculate_qsqr_w_bins (win,varargin)        
-        %------------------------------------------------------------------
-        wout = sqw_eval(win, sqwfunc, pars, varargin);
-        %------------------------------------------------------------------
+        [qsqr,en] = calculate_qsqr_bins (win);
+        qsqr_w    = calculate_qsqr_w_bins (win,varargin)
+
         varargout = multifit_func (varargin);
         varargout = multifit_sqw (varargin);
         varargout = multifit_sqw_sqw (varargin);
@@ -134,7 +148,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
 
     methods (Access = protected)
         wout = unary_op_manager(w, operation_handle);
-        wout = binary_op_manager(w1, w2, binary_op_bandle);        
+        wout = binary_op_manager(w1, w2, binary_op_bandle);
         %
         function [func_handle, pars, opts] = parse_funceval_args(win, func_handle, pars, varargin)
             % Process arguments of func_eval function

@@ -116,8 +116,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < ...
         % apply alignment to pixels
         [obj,al_info] = finalize_alignment(obj,filename);
 
-        % take part of the
-        wout = section (win,varargin);
+        % take part of the object limited by full bins (irange) containing
+        % fraction of the image grid
+        [wout,irange] = section (win,varargin);
         % add various noise to signal
         wout = noisify(w,varargin);
 
@@ -193,6 +194,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < ...
         end
         % Get limits of the data in an n-dimensional dataset
         [val, n] = data_bin_limits (obj)
+
+        [wout_disp, wout_weight] = dispersion(win, dispreln, pars);
         %------------------------------------------------------------------
         % sigvar interface
         wout              = sigvar(w); % Create sigvar object from sqw object

@@ -61,6 +61,10 @@ classdef PageOpBase
         % avoid retaining runs, which do not contribute into pixels, which
         % was ocasionally happened with old file formats
         old_file_format
+        % If algorithm modifies Experiment and new experiment should be
+        % stored. Transient property. Something more generic should be
+        % implemented with Re #1320
+        exp_modified
         %
         write_handle
         % An algorithm applied to a sqw object with missing data range
@@ -165,7 +169,7 @@ classdef PageOpBase
             %
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
-            if obj.old_file_format_
+            if obj.exp_modified
                 obj.unique_run_id_ = unique([obj.unique_run_id_, ...
                     obj.page_data_(obj.run_idx_,:)]);
             end
@@ -199,7 +203,7 @@ classdef PageOpBase
             [out_obj,obj] = finish_op_(obj,in_obj);
         end
         %
-        function [npix_chunks, npix_idx] = split_into_pages(~,npix,chunk_size)
+        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
             % Method used to split input npix array into pages
             % Inputs:
             % npix  -- image npix array, which defines the number of pixels
@@ -295,6 +299,9 @@ classdef PageOpBase
             end
             obj.split_log_ratio_ = max(1,round(abs(val)));
         end
+        function do = get.exp_modified(obj)
+            do = get_exp_modified(obj);
+        end
         %------------------------------------------------------------------
         function npix = get.npix(obj)
             if isempty(obj.npix_)
@@ -348,6 +355,9 @@ classdef PageOpBase
     end
     %======================================================================
     methods(Access=protected)
+        function is = get_exp_modified(obj)
+            is = obj.old_file_format_;
+        end
         function  does = get_changes_pix_only(obj)
             does = isempty(obj.img_);
         end

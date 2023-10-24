@@ -14,22 +14,55 @@ classdef test_section < TestCase
             assertEqualToTol(test_sec, test_cut);
             assertTrue(obj.is_bins_subset_of(test_sec.data.axes.p, w.data.axes.p));
         end
+        function test_experiment_reduced_on_file(~)
+            hp = horace_paths;
+            tf = fullfile(hp.test_common,'sqw_2d_2.sqw');
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 2000);
+
+            w2 = sqw(tf,'file_backed',true);
+            assertTrue(w2.is_filebacked);
+            %old file format. Some runs do not contribute into cut
+            assertEqual(w2.experiment_info.n_runs,186)
+            ws  = w2.section([0,0.6],[160,180]);
+            assertEqual(ws.experiment_info.n_runs,36)
+            wsc = ws.recompute_bin_data();
+            assertEqualToTol(wsc,ws,'tol',2*eps('single'))
+        end
+
+        function test_experiment_reduced_in_mem(~)
+            hp = horace_paths;
+            tf = fullfile(hp.test_common,'sqw_2d_2.sqw');
+            w2 = read_sqw(tf);
+            assertFalse(w2.is_filebacked);
+            assertEqual(w2.experiment_info.n_runs,68)
+            ws  = w2.section([0,0.6],[160,180]);
+            assertEqual(ws.experiment_info.n_runs,36)
+            wsc = ws.recompute_bin_data();
+            assertEqualToTol(wsc,ws,'tol',2*eps('single'))
+        end
 
         function obj = test_section_sqw_fb(obj)
             w = sqw.generate_cube_sqw(10);
             test_sec_mb = w.section([-3 3], [], [], []);
+            test_file = fullfile(tmp_dir(),'test_section_fb.sqw');
+            clFile = onCleanup(@()del_memmapfile_files(test_file));
+            save(w,test_file);
 
-            coWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');            
+            coWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
             clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 500);
-            w.pix = PixelDataFileBacked(w.pix);
+            wfb = sqw(test_file,'file_backed',true);
 
-            test_sec_fb = w.section([-3 3], [], [], []);
+            test_sec_fb = wfb.section([-3 3], [], [], []);
 
-            assertEqualToTol(test_sec_mb, test_sec_fb, 'ignore_str', true);
+            % Re #1350 saved and recovered detector arrays are different
+            test_sec_fb.experiment_info.detector_arrays= test_sec_mb.experiment_info.detector_arrays;
+            assertEqualToTol(test_sec_mb, test_sec_fb,...
+                'ignore_str', true,'-ignore_date');
+            skipTest('Re #1350 Saved and recovered dectector arrays are different. This is bug with arrays, not section')
 
         end
 
-        function obj = test_section_collapse_dim(obj)
+        function test_section_collapse_dim(obj)
             w = sqw.generate_cube_sqw(10);
             test_sec = w.section([-1 0], [], [], []);
             test_cut = w.cut(line_proj([1 0 0], [0 1 0]), [-1 0],[],[],[]);
@@ -41,7 +74,7 @@ classdef test_section < TestCase
                 w.data.axes.p));
         end
 
-        function obj = test_section_sqw_array(obj)
+        function test_section_sqw_array(obj)
             w = sqw.generate_cube_sqw(10);
             test(1) = w;
             test(2) = w;
@@ -54,28 +87,28 @@ classdef test_section < TestCase
             assertTrue(obj.is_bins_subset_of(test_sec(2).data.axes.p, w.data.axes.p))
         end
 
-        function obj = test_section_get_all_bins(obj)
+        function test_section_get_all_bins(~)
             w = sqw.generate_cube_sqw(10);
             test = w.section([-10 10], [], [], []);
 
             assertEqualToTol(test, w);
         end
 
-        function obj = test_section_preserves_original(obj)
+        function test_section_preserves_original(~)
             w = sqw.generate_cube_sqw(10);
             test = w.section([], [], [], []);
 
             assertEqualToTol(test, w, '-ignore_date');
         end
 
-        function obj = test_section_no_arg_in_unchanged(obj)
+        function test_section_no_arg_in_unchanged(~)
             w = sqw.generate_cube_sqw(10);
             test = w.section();
 
             assertEqualToTol(test, w);
         end
 
-        function obj = test_section_fails_0_dim(obj)
+        function test_section_fails_0_dim(~)
             w = sqw.generate_cube_sqw(2);
             w = w.cut(line_proj([1 0 0], [0 1 0]), [-1 1],[-1 1],[-1 1],[-1 1]);
             assertEqual(w.dimensions(), 0);
@@ -85,9 +118,9 @@ classdef test_section < TestCase
             assertEqual(ME.message, 'Cannot section a zero dimensional object');
         end
 
-        function obj = test_section_fails_diff_dim(obj)
-        % Section calls cellfun, so obj array not supported
-        % However, section not defined for type cell
+        function test_section_fails_diff_dim(~)
+            % Section calls cellfun, so obj array not supported
+            % However, section not defined for type cell
             w = sqw.generate_cube_sqw(2);
             test(1) = w.cut(line_proj([1 0 0], [0 1 0]), [],[],[-1 1],[-1 1]);
             test(2) = w.copy();
@@ -99,14 +132,37 @@ classdef test_section < TestCase
             assertEqual(ME.message, 'All objects must have same dimensionality for sectioning to work');
         end
 
-        function obj = test_section_fails_bad_narg(obj)
+        function test_section_fails_bad_narg(~)
             w = sqw.generate_cube_sqw(2);
             assertEqual(w.dimensions(), 4);
             throw = @() section(w, [], [], []);
 
             ME = assertExceptionThrown(throw, 'HORACE:sqw:invalid_argument');
             assertEqual(ME.message, 'Check number of arguments');
+        end
 
+        function test_find_section_3D(~)
+            nbins = ones(10,10,10);
+            sel = [4,4,4;8,8,8];
+            [bl_start,bl_size] = PageOp_section.find_section(nbins,sel);
+            assertEqual(bl_start(1:6),[334;344;354;364;374;434]);
+            assertEqual(bl_size,5*ones(25,1));
+        end
+
+        function test_find_section_2D(~)
+            nbins = ones(10,10);
+            sel = [4,4;8,8];
+            [bl_start,bl_size] = PageOp_section.find_section(nbins,sel);
+            assertEqual(bl_start,[34;44;54;64;74]);
+            assertEqual(bl_size,5*ones(5,1));
+        end
+
+        function test_find_section_1D(~)
+            nbins = ones(1,10);
+            sel = [4;8];
+            [bl_start,bl_size] = PageOp_section.find_section(nbins,sel);
+            assertEqual(bl_start,sel(1,1));
+            assertEqual(bl_size,5);
         end
 
     end

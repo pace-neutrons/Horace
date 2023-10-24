@@ -27,7 +27,7 @@ classdef PageOp_sqw_eval < PageOpBase
             obj.pix_idx_start_ = 1;
             %
         end
-        function [npix_chunks, npix_idx] = split_into_pages(obj,npix,chunk_size)
+        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
             % Method used to split input npix array into pages
             %
             % Overload specific for sqw_eval
