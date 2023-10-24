@@ -45,13 +45,13 @@ classdef PageOp_apply < PageOp_sqw_eval
 
         function obj = apply_op(obj,npix_block,npix_idx)
             n_func = numel(obj.op_holder);
-            page_px = obj.page_pix;
+            page_pxls = obj.page_pix;
             for i = 1:n_func
-                page_px  = obj.op_holder{i}(page_px, obj.op_parms{i}{:});
+                page_pxls  = obj.op_holder{i}(page_pxls, obj.op_parms{i}{:});
             end
-            obj.page_data_ = page_px.data;
-            new_signal     = page_px.signal;
-            new_var        = page_px.variance;
+            obj.page_data_ = page_pxls.data;
+            new_signal     = page_pxls.signal;
+            new_var        = page_pxls.variance;
             if obj.changes_pix_only
                 return;
             end

@@ -73,5 +73,5 @@ if ll > 0
 end
 if issue_range_warning
     old_file_format = ~was_misaligned;
-    page_op.print_range_warning(op_name,original_file,old_file_format );    
+    page_op.print_range_warning(original_file,old_file_format);
 end
