@@ -1,6 +1,6 @@
 classdef(Abstract) data_op_interface
     %DATA_OP_INTERFACE defines the operations, which are available on
-    % IX_data, DnD and SQW objects
+    % sigvar, IX_data, DnD and SQW objects
     %
     % The operations should be implemented using unary and binary operation
     % managers
@@ -49,7 +49,7 @@ classdef(Abstract) data_op_interface
     end
     methods(Access=protected)
         w = binary_op_manager(w1,w2,op_function_handle);
-        w = binary_op_manager_single(w1, w2, binary_op);
+        w = binary_op_manager_single(w1, w2, op_function_handle);
     end
     methods(Abstract,Access=protected)
         w = unary_op_manager (w1, op_function_handle);

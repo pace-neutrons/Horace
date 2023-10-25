@@ -1,4 +1,4 @@
-classdef PageOp_unary_op < PageOpBase
+classdef PageOp_binary_op < PageOpBase
     % Single page pixel operation used by
     % unary operation manager
     %
@@ -6,18 +6,22 @@ classdef PageOp_unary_op < PageOpBase
     properties
         % property contains handle to function, which performs operation
         op_handle;
+        % contains second 
+        other_obj;
+        % npix distribution 
+        npix2
     end
 
     methods
-        function obj = PageOp_unary_op(varargin)
+        function obj = PageOp_binary_op(varargin)
             obj = obj@PageOpBase(varargin{:});
-
         end
 
-        function obj = init(obj,in_obj,operation)
-            obj = init@PageOpBase(obj,in_obj);
+        function obj = init(obj,w1,w2,operation)
+            obj = init@PageOpBase(obj,w1);
+            obj.other_obj = w2;
             obj.op_handle = operation;
-            obj.op_name_ = sprintf('unary op: %s',func2str(operation));
+            obj.op_name_ = sprintf('binary op: %s',func2str(operation));
             if ~obj.changes_pix_only
                 obj.var_acc_ = zeros(numel(obj.npix),1);
             end
