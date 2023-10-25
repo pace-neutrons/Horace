@@ -37,8 +37,8 @@ classdef PageOp_apply < PageOp_sqw_eval
         function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation
             %
-            % Overload specific for apply. Its average operation needs
-            % knolege of all pixel coordinates in a cell.
+            % Overload specific for apply. Splits data according to
+            % npix ranges and generates PixDataMemory wrapper
             obj = get_page_data@PageOp_sqw_eval(obj,idx,npix_blocks);
             obj.page_pix = obj.page_pix.set_raw_data(obj.page_data_);
         end
@@ -53,13 +53,13 @@ classdef PageOp_apply < PageOp_sqw_eval
             if obj.changes_pix_only
                 return;
             end
-            new_signal     = page_pxls.signal;           
+            new_signal     = page_pxls.signal;
             %
             if obj.compute_variance
                 [img_signal,img_var,sig_variance] = compute_bin_data(npix_block,new_signal,[],true);
                 obj.page_data_(obj.var_idx,:)     = sig_variance;
             else
-                new_var              = page_pxls.variance;                
+                new_var              = page_pxls.variance;
                 [img_signal,img_var] = compute_bin_data(npix_block,new_signal,new_var,true);
             end
             obj.sig_acc_(npix_idx(1):npix_idx(2)) = ...
