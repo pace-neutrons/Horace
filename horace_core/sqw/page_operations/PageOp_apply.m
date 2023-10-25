@@ -25,6 +25,8 @@ classdef PageOp_apply < PageOp_sqw_eval
                 error('HORACE:PageOp_apply:invalid_argument', ...
                     'Number of arguments does not match number of function handles')
             end
+            % use PageOp_sqw_eval.average== true option to split pixels on
+            % ranges of nbins
             obj    = init@PageOp_sqw_eval(obj,in_obj,operation,op_param,true);
             %
             obj.compute_variance = compute_variance;
@@ -62,10 +64,8 @@ classdef PageOp_apply < PageOp_sqw_eval
                 new_var              = page_pxls.variance;
                 [img_signal,img_var] = compute_bin_data(npix_block,new_signal,new_var,true);
             end
-            obj.sig_acc_(npix_idx(1):npix_idx(2)) = ...
-                obj.sig_acc_(npix_idx(1):npix_idx(2))+img_signal(:);
-            obj.var_acc_(npix_idx(1):npix_idx(2)) = ...
-                obj.var_acc_(npix_idx(1):npix_idx(2))+img_var(:);
+            obj.sig_acc_(npix_idx(1):npix_idx(2)) = img_signal(:);
+            obj.var_acc_(npix_idx(1):npix_idx(2)) = img_var(:);
 
         end
 
