@@ -2,7 +2,10 @@ classdef PageOp_apply < PageOp_sqw_eval
     % Single pixel page operation used by apply function
     %
     properties
-        page_pix      = PixelDataMemory();
+        % PixelDataMemory class, holding current page of data in addition
+        % to page_data_ to provide easier access to the PixelData
+        % properties and maintain generic apply function interface
+        pix_page      = PixelDataMemory();
         %
         compute_variance = false;
         change_pix_only_ = false;
@@ -42,26 +45,26 @@ classdef PageOp_apply < PageOp_sqw_eval
             % Overload specific for apply. Splits data according to
             % npix ranges and generates PixDataMemory wrapper
             obj = get_page_data@PageOp_sqw_eval(obj,idx,npix_blocks);
-            obj.page_pix = obj.page_pix.set_raw_data(obj.page_data_);
+            obj.pix_page = obj.pix_page.set_raw_data(obj.page_data_);
         end
 
         function obj = apply_op(obj,npix_block,npix_idx)
             n_func = numel(obj.op_holder);
-            page_pxls = obj.page_pix;
+            pixpage = obj.pix_page;
             for i = 1:n_func
-                page_pxls  = obj.op_holder{i}(page_pxls, obj.op_parms{i}{:});
+                pixpage  = obj.op_holder{i}(pixpage, obj.op_parms{i}{:});
             end
-            obj.page_data_ = page_pxls.data;
+            obj.page_data_ = pixpage.data;
             if obj.changes_pix_only
                 return;
             end
-            new_signal     = page_pxls.signal;
+            new_signal     = pixpage.signal;
             %
             if obj.compute_variance
                 [img_signal,img_var,sig_variance] = compute_bin_data(npix_block,new_signal,[],true);
                 obj.page_data_(obj.var_idx,:)     = sig_variance;
             else
-                new_var              = page_pxls.variance;
+                new_var              = pixpage.variance;
                 [img_signal,img_var] = compute_bin_data(npix_block,new_signal,new_var,true);
             end
             obj.sig_acc_(npix_idx(1):npix_idx(2)) = img_signal(:);
