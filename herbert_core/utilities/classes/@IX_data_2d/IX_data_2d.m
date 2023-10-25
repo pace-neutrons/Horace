@@ -71,12 +71,12 @@ classdef IX_data_2d < IX_dataset
             % efficiently (re)initialize object using constructor's code
             obj = build_IXdataset_2d_(obj,varargin{:});
         end
-        
+
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         % Get information for one or more axes and if is histogram data for each axis
         [ax,hist]=axis(w,n)
-        
+
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         function xx = get.x(obj)
@@ -91,6 +91,9 @@ classdef IX_data_2d < IX_dataset
         %
         function obj = set.x(obj,val)
             obj = set_xyz_data(obj,1,val);
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
+            end
         end
         function obj = set.x_axis(obj,val)
             obj.xyz_axis_(1) = obj.check_and_build_axis(val);
@@ -114,6 +117,10 @@ classdef IX_data_2d < IX_dataset
         %
         function obj = set.y(obj,val)
             obj = set_xyz_data(obj,2,val);
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
+            end
+
         end
         function obj = set.y_distribution(obj,val)
             % TODO: should setting it to true/false involve chaning y from
@@ -127,11 +134,6 @@ classdef IX_data_2d < IX_dataset
     %
     %======================================================================
     methods(Access=protected)
-        function  [ok,mess] = check_joint_fields(obj)
-            % implement class specific check for connected fiedls
-            % consistency
-            [ok,mess] = check_joint_fields_(obj);
-        end
         function obj = check_and_set_sig_err(obj,field_name,value)
             % verify and set up signal or error arrays. Throw if
             % input can not be converted to correct array data.
@@ -144,8 +146,25 @@ classdef IX_data_2d < IX_dataset
         [wout_s, wout_e] = rebin_hist(iax, x, s, e, xout)
         %Integrates point data along along specific axis.
         [wout_s,wout_e] = integrate_points(iax, x, s, e, xout)
-        
+
     end
-    
+    %======================================================================
+    methods
+        function obj = check_combo_arg (obj)
+            % Check validity of interdependent properties
+            [ok,mess] = check_joint_fields_(obj);
+            if ~ok
+                error('HERBERT:IX_data_2d:invalid_argument',mess)
+            end
+        end
+    end
+    methods(Static)
+        function obj = loadobj(S)
+            % function to support loading of outdated versions of the class
+            % from mat files on hdd
+            obj = IX_data_2d();
+            obj = loadobj@serializable(S,obj);
+        end
+    end
     
 end

@@ -6,21 +6,11 @@ nob = numel(obj);
 if  nob > 1
     sz = size(obj);
     obj = reshape(obj,nob,1);
-    xyz = cell(nob,1);    
+    xyz = cell(nob,1);
     for i=1:nob
-        if obj(i).valid_
-            xyz{i} = obj(i).xyz_{nax};            
-        else
-            xyz{i} = obj(i).error_mess_;                        
-        end
+        xyz{i} = obj(i).xyz_{nax};
     end
-    xyz = reshape(xyz,sz);    
+    xyz = reshape(xyz,sz);
 else
-    if obj.valid_
-        xyz = obj.xyz_{nax};
-    else
-        xyz = obj.error_mess_;
-    end
+    xyz = obj.xyz_{nax};
 end
-
-

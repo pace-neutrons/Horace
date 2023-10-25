@@ -26,7 +26,7 @@ classdef IX_data_1d < IX_dataset
     %                   (or char/cellstr    Can also just give caption; multiline input in the form of a
     %                                      cell array or a character array)
     % 	x_distribution      logical         Distribution data flag (true is a distribution; false otherwise)
-    
+
     % Default class - empty point dataset
     %
     %
@@ -68,7 +68,7 @@ classdef IX_data_1d < IX_dataset
         function xx = get.x(obj)
             xx = obj.get_xyz_data(1);
         end
-        
+
         function ax = get.x_axis(obj)
             ax = obj.xyz_axis_(1);
         end
@@ -78,6 +78,9 @@ classdef IX_data_1d < IX_dataset
         %
         function obj = set.x(obj,val)
             obj = set_xyz_data(obj,1,val);
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
+            end
         end
         function obj = set.x_axis(obj,val)
             obj.xyz_axis_(1) = obj.check_and_build_axis(val);
@@ -106,12 +109,12 @@ classdef IX_data_1d < IX_dataset
             % frac  -- fraction of the points to be plotted out of all
             % n_points -- number of points containing information (not NaN-s)
             %
-            
+
             nd = ndims(obj);
             if nd>2
                 error('HERBERT:IX_data_1d:calc_continuous_fraction', ...
-                      ['array of IX_data_1d has more than 2 dimensions, ' ...
-                      'and cannot be used with calc_continuous_fraction']);
+                    ['array of IX_data_1d has more than 2 dimensions, ' ...
+                    'and cannot be used with calc_continuous_fraction']);
             end
             [fr,np] = arrayfun(@calc_cont_frac_, obj);
             [frac, ind] = min(fr);
@@ -120,11 +123,6 @@ classdef IX_data_1d < IX_dataset
     end
     %======================================================================
     methods(Access=protected)
-        function  [ok,mess] = check_joint_fields(obj)
-            % implement class specific check for connected fiedls
-            % consistency
-            [ok,mess] = check_joint_fields_(obj);
-        end
         function obj = check_and_set_sig_err(obj,field_name,value)
             % verify and set up signal or error arrays. Throw if
             % input can not be converted to correct array data.
@@ -138,6 +136,24 @@ classdef IX_data_1d < IX_dataset
         %Integrates point data along along specific axis.
         [wout_s,wout_e] = integrate_points(iax, x, s, e, xout)
     end
-    
+    %======================================================================
+    methods
+        function obj = check_combo_arg (obj)
+            % Check validity of interdependent properties
+            [ok,mess] = check_joint_fields_(obj);
+            if ~ok
+                error('HERBERT:IX_data_1d:invalid_argument',mess)
+            end
+        end
+    end
+    methods(Static)
+        function obj = loadobj(S)
+            % function to support loading of outdated versions of the class
+            % from mat files on hdd
+            obj = IX_data_1d();
+            obj = loadobj@serializable(S,obj);
+        end
+    end
+
 end
 

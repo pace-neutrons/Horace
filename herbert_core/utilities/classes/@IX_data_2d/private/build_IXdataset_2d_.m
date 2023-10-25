@@ -31,7 +31,7 @@ function obj=build_IXdataset_2d_(obj,varargin)
 
 
 
-
+obj.do_check_combo_ags_ = false;
 % Various input options
 if nargin==2 && isa(varargin{1},'IX_dataset_2d')  % if already IX_dataset_2d object, return
     obj=varargin{1};
@@ -39,11 +39,14 @@ if nargin==2 && isa(varargin{1},'IX_dataset_2d')  % if already IX_dataset_2d obj
 end
 if nargin == 2 && isa(varargin{1},'IX_dataset_1d')
     obj = build_from_IX_dataset_1d_(obj,varargin{:});
+    obj.do_check_combo_ags_ = true;
+    obj = check_combo_arg (obj);
+
     return;
 end
 
 if nargin==2 && isstruct(varargin{1})   % structure input
-    obj = obj.init_from_structure(varargin{1});
+    obj = obj.loadobj(varargin{1});
     return;
 end
 %     [ok,mess,w]=checkfields(varargin{1});   % Make checkfields the ultimate arbiter of the validity of a structure
@@ -54,7 +57,7 @@ if nargin>=3 && nargin<=5
     obj.xyz_distribution_(1)= true;
     obj.xyz_{2}        =  obj.check_xyz(varargin{2});
     obj.xyz_distribution_(2)= true;
-    
+
     if nargin>=4
         obj = check_and_set_sig_err_(obj,'signal',varargin{3});
     else
@@ -70,14 +73,14 @@ elseif nargin ==7
     obj.xyz_{2}        =  obj.check_xyz(varargin{2});
     obj = check_and_set_sig_err_(obj,'signal',varargin{3});
     obj = check_and_set_sig_err_(obj,'error',varargin{4});
-    
+
     obj.xyz_distribution_(1)= logical(varargin{5});
     obj.xyz_distribution_(2)= logical(varargin{6});
-    
+
 elseif nargin==9 || (nargin==11 && isnumeric(varargin{1}))
     obj.xyz_{1}        = obj.check_xyz(varargin{1});
     obj.xyz_{2}        = obj.check_xyz(varargin{2});
-    
+
     obj.title=varargin{5};
     obj = check_and_set_sig_err_(obj,'signal',varargin{3});
     obj = check_and_set_sig_err_(obj,'error',varargin{4});
@@ -94,16 +97,16 @@ elseif nargin==9 || (nargin==11 && isnumeric(varargin{1}))
     else
         obj.xyz_distribution_(2)=true;
     end
-    
+
 elseif nargin==11
     obj.title=varargin{1};
     obj = check_and_set_sig_err(obj,'signal',varargin{2});
     obj = check_and_set_sig_err(obj,'error',varargin{3});
-    
+
     obj.s_axis=varargin{4};
     obj.xyz_{1}  = obj.check_xyz(varargin{5});
     obj.xyz_{2}  = obj.check_xyz(varargin{8});
-    
+
     obj.x_axis=varargin{6};
     obj.x_distribution=varargin{7};
     obj.y_axis=varargin{9};
@@ -113,11 +116,5 @@ else
         'Invalid number or type of arguments')
 end
 
-[ok,mess]=check_joint_fields_(obj);
-if ok
-    obj.valid_  = true;
-else
-    error('IX_dataset_2d:invalid_argument',mess);
-end
-
-
+obj.do_check_combo_ags_ = true;
+obj = check_combo_arg (obj);

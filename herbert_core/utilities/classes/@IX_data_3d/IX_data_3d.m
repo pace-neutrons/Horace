@@ -4,7 +4,7 @@ classdef IX_data_3d < IX_dataset
     %   >> w = IX_data_3d (x,y,z)
     %   >> w = IX_data_3d (x,y,z,signal)
     %   >> w = IX_data_3d (x,y,z,signal,error)
-    %   >> w = IX_data_2d (x,y,z,signal,error, x_distribution,y_distribution,z_distribution)    
+    %   >> w = IX_data_2d (x,y,z,signal,error, x_distribution,y_distribution,z_distribution)
     %   >> w = IX_data_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis)
     %   >> w = IX_data_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis,x_distribution,y_distribution,z_distribution)
     %   >> w = IX_data_3d (title, signal, error, s_axis, x, x_axis, x_distribution,...
@@ -74,7 +74,7 @@ classdef IX_data_3d < IX_dataset
             obj.xyz_ = cell(3,1);
             obj.xyz_axis_ = repmat(IX_axis(),3,1);
             obj.xyz_distribution_ = true(3,1);
-            
+
             if nargin==0
                 obj.signal_ = zeros(0,0,0);
                 obj.error_ = zeros(0,0,0);
@@ -89,12 +89,12 @@ classdef IX_data_3d < IX_dataset
             % efficiently (re)initialize object using constructor's code
             obj = build_IXdataset_3d_(obj,varargin{:});
         end
-        
+
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         % Get information for one or more axes and if is histogram data for each axis
         [ax,hist]=axis(w,n)
-        
+
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         function xx = get.x(obj)
@@ -109,6 +109,9 @@ classdef IX_data_3d < IX_dataset
         %
         function obj = set.x(obj,val)
             obj = set_xyz_data(obj,1,val);
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
+            end
         end
         function obj = set.x_axis(obj,val)
             obj.xyz_axis_(1) = obj.check_and_build_axis(val);
@@ -132,6 +135,9 @@ classdef IX_data_3d < IX_dataset
         %
         function obj = set.y(obj,val)
             obj = set_xyz_data(obj,2,val);
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
+            end
         end
         function obj = set.y_distribution(obj,val)
             % TODO: should setting it to true/false involve chaning y from
@@ -155,6 +161,9 @@ classdef IX_data_3d < IX_dataset
         %
         function obj = set.z(obj,val)
             obj = set_xyz_data(obj,3,val);
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
+            end
         end
         function obj = set.z_distribution(obj,val)
             % TODO: should setting it to true/false involve chaning y from
@@ -167,11 +176,6 @@ classdef IX_data_3d < IX_dataset
     end
     %======================================================================
     methods(Access=protected)
-        function  [ok,mess] = check_joint_fields(obj)
-            % implement class specific check for connected fiedls
-            % consistency
-            [ok,mess] = check_joint_fields_(obj);
-        end
         function obj = check_and_set_sig_err(obj,field_name,value)
             % verify and set up signal or error arrays. Throw if
             % input can not be converted to correct array data.
@@ -180,11 +184,28 @@ classdef IX_data_3d < IX_dataset
     end
     %======================================================================
     methods(Static,Access = protected)
-        
+
         % Rebins histogram data along specific axis.
         [wout_s, wout_e] = rebin_hist(iax,x, s, e, xout)
         %Integrates point data along along specific axis.
         [wout_s,wout_e] = integrate_points(iax, x, s, e, xout)
     end
-    
+    %======================================================================
+    methods
+        function obj = check_combo_arg (obj)
+            % Check validity of interdependent properties
+            [ok,mess] = check_joint_fields_(obj);
+            if ~ok
+                error('HERBERT:IX_data_3d:invalid_argument',mess)
+            end
+        end
+    end
+    methods(Static)
+        function obj = loadobj(S)
+            % function to support loading of outdated versions of the class
+            % from mat files on hdd
+            obj = IX_data_3d();
+            obj = loadobj@serializable(S,obj);
+        end
+    end
 end

@@ -1,4 +1,4 @@
-classdef IX_dataset_3d < IX_data_3d
+classdef IX_dataset_3d < IX_data_3d & data_plot_interface
     % Class adds operations with graphics to main operations with 3-d data
     %
     % See IX_data_3d for main properties and constructors, used to operate
@@ -38,18 +38,17 @@ classdef IX_dataset_3d < IX_data_3d
     %   z_distribution      logical         -|
 
     methods(Static)
-        function obj = loadobj(data)
+        function obj = loadobj(S)
             % function to support loading of previous versions of the class
             % from mat files on hdd
-            if isa(data,'IX_dataset_3d')
-                obj = data;
+            if isa(S,'IX_dataset_3d')
+                obj = S;
             else
                 obj = IX_dataset_3d();
-                obj = obj.init_from_structure(data);
+                obj = loadobj@serializable(S,obj);
             end
         end
     end
-
 
     methods
         %------------------------------------------------------------------

@@ -1,4 +1,4 @@
-classdef IX_dataset < data_op_interface & data_plot_interface
+classdef IX_dataset < serializable & data_op_interface
     % Abstract parent class for IX_datasets_Nd;
     properties(Dependent)
         %title:  dataset title (will be plotted on a grapth)
@@ -28,11 +28,27 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         % generig n-D distribution sign
         xyz_distribution_;
         %
-        % empty object is valid
-        valid_ = true;
-        % error message to report
-        error_mess_ = '';
     end
+    %======================================================================
+    methods(Abstract,Static)
+        % get number of class dimensions
+        nd  = ndim()
+    end
+    %======================================================================
+    methods(Abstract,Access=protected)
+        % Generic checks:
+        % verify and set signal or error arrays
+        obj = check_and_set_sig_err(obj,field_name,value);
+    end
+
+    %======================================================================
+    methods(Abstract,Static,Access=protected)
+        % Rebins histogram data along specific axis.
+        [wout_s, wout_e] = rebin_hist(iax, wout_x);
+        %Integrates point data along along specific axis.
+        [wout_s,wout_e] = integrate_points(iax, xbounds_true);
+    end
+    
     %======================================================================
     methods(Static)
         % Read object or array of objects of an IX_dataset type from
@@ -46,26 +62,6 @@ classdef IX_dataset < data_op_interface & data_plot_interface
     end
     %======================================================================
     methods
-        %------------------------------------------------------------------
-        % Methors, which use unary/binary operation manager are stored
-        % in the class folder only. Their signatures are not presented
-        % here.
-        %------------------------------------------------------------------
-        % Signatures for common methods, which do not use unary/binary
-        % operation manager:
-        %------------------------------------------------------------------
-        % return class structure
-        public_struct = struct(this)
-        % set up object values using object structure. (usually as above)
-        obj = init_from_structure(obj,struct)
-        %
-        % method checks if common fiedls are consistent between each
-        % other. Call this method from a program after changing
-        % x,signal, error using set operations. Throws 'invalid_argument'
-        % if class is incorrent and and the method is called with one
-        % output argument. Returns error message, if class is incorrect and
-        % method called with two output arguments.
-        [obj,mess] = isvalid(obj)
         % Take absolute value of an IX_dataset_nd object or array of IX_dataset_nd objects
         wout = abs(w)
         %------------------------------------------------------------------
@@ -117,11 +113,6 @@ classdef IX_dataset < data_op_interface & data_plot_interface
             dis= obj.xyz_distribution_;
         end
 
-        %
-        function ok = get_isvalid(obj)
-            % returns the state of the internal valid_ property
-            ok = obj.valid_;
-        end
         % Set signal, error and selected axes in a single instance of an IX_dataset object
         wout=set_simple_xsigerr(win,iax,x,signal,err,xdistr)
 
@@ -133,19 +124,11 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         end
         %
         function sig = get.signal(obj)
-            if obj.valid_
-                sig = obj.signal_;
-            else
-                sig = obj.error_mess_;
-            end
+            sig = obj.signal_;            
         end
         %
         function err = get.error(obj)
-            if obj.valid_
-                err = obj.error_;
-            else
-                err = obj.error_mess_;
-            end
+            err = obj.error_;            
         end
         %------------------------------------------------------------------
         %
@@ -168,26 +151,16 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         %
         function obj = set.signal(obj,val)
             obj = check_and_set_sig_err(obj,'signal',val);
-            [ok,mess] = check_joint_fields(obj);
-            if ok
-                obj.valid_ = true;
-                obj.error_mess_ = '';
-            else
-                obj.valid_ = false;
-                obj.error_mess_ = mess;
-            end
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
+            end                        
         end
         %
         function obj = set.error(obj,val)
             obj = check_and_set_sig_err(obj,'error',val);
-            [ok,mess] = check_joint_fields(obj);
-            if ok
-                obj.valid_ = true;
-                obj.error_mess_ = '';
-            else
-                obj.valid_ = false;
-                obj.error_mess_ = mess;
-            end
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
+            end            
         end
         %
     end
@@ -234,28 +207,22 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         [ax,hist]=axis(w,n)
     end
     %======================================================================
-    methods(Abstract,Static)
-        % used to reload old style objects from mat files on hdd
-        obj = loadobj(data)
-        % get number of class dimensions
-        nd  = ndim()
+    % SERIALIZABLE INTERFACE
+    properties(Constant, Access=private)
+        % list of filenames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        fields_to_save_ = {'title','signal','error','s_axis'}
     end
-    %======================================================================
-    methods(Abstract,Access=protected)
-        % Generic checks:
-        % Check if various interdependent fields of a class are consistent
-        % between each other.
-        [ok,mess] = check_joint_fields(obj);
-        % verify and set signal or error arrays
-        obj = check_and_set_sig_err(obj,field_name,value);
-    end
+    methods
+        function  ver  = classVersion(~)
+            % serializable fields version
+            ver = 2;
+        end
 
-    %======================================================================
-    methods(Abstract,Static,Access=protected)
-        % Rebins histogram data along specific axis.
-        [wout_s, wout_e] = rebin_hist(iax, wout_x);
-        %Integrates point data along along specific axis.
-        [wout_s,wout_e] = integrate_points(iax, xbounds_true);
+        function flds = saveableFields(~)
+            flds = PixelDataBase.fields_to_save_;
+        end
     end
+    
 end
 
