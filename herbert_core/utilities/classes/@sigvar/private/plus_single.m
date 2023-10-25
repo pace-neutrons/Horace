@@ -1,4 +1,4 @@
-function w = plus_single (w1, w2)
+function w = plus_single(w1, w2)
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')

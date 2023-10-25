@@ -1,4 +1,4 @@
-classdef sigvar < serializable
+classdef sigvar < data_op_interface & serializable
     % Signal array and associated variances (standard errors squared)
 
     properties (Access=private)
@@ -199,6 +199,11 @@ classdef sigvar < serializable
         %------------------------------------------------------------------
     end
 
+    methods(Access=protected)
+        w = unary_op_manager (w1, op_function_handle);
+        w = binary_op_manager_single(w1, w2, binary_op);        
+    end
+    
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods
@@ -234,7 +239,8 @@ classdef sigvar < serializable
                     end
                 end
             end
-        end
+        end 
+        %
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
             % and nxsqw data format. Each new version would presumably read

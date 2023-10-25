@@ -1,4 +1,73 @@
-function w = binary_op_manager (w1, w2, binary_op)
+function w = binary_op_manager(w1, w2, binary_op)
+% Implements a binary operation for objects with a signal and a variance array.
+%
+%   >> w = binary_op_manager(w1, w2, binary_op)
+%
+% All binary operations on Matlab double arrays are permitted
+% (+, -, *, /, \) and are applied element by element to the signal and
+% variance arrays.
+%
+% Input:
+% ------
+%   w1, w2      Objects on which the binary operation is to be performed.
+%               One of these can be a Matlab double (i.e. double precision)
+%               array, in which case the variance array is taken to be zero.
+%
+%               If w1, w2 are scalar objects with the same signal array sizes:
+%               - The operation is performed element-by-element.
+%
+%               If one of w1 or w2 is a double array (and the other is a
+%               scalar object):
+%               - If a scalar, apply to each element of the object signal.
+%               - If it is an array of the same size as the object signal
+%                 array, apply the operation element by element.
+%
+%               If one or both of w1 and w2 are arrays of objects:
+%               - If objects have same array sizes, the binary operation is
+%                applied object element-by-object element.
+%               - If one of the objects is scalar (i.e. only one object),
+%                then it is applied by the binary operation to each object
+%                in the other array.
+%
+%               If one of w1, w2 is an array of objects and the other is a
+%               double array:
+%               - If the double is a scalar, it is applied to every object
+%                in the array.
+%               - If the double is an array with the same size as the object
+%                array, then each element is applied as a scalar to the
+%                corresponding object in the object array.
+%               - If the double is an array with larger size than the object
+%                array, then the array is resolved into a stack of arrays,
+%                where the stack has the same size as the object array, and
+%                the each array in the stack is applied to the corresponding
+%                object in the object array. [Note that for this operation
+%                to be valid, each object must have the same signal array
+%                size.]
+%
+%   binary_op   Function handle to a binary operation. All binary operations
+%               on Matlab double or single arrays are permitted (+, -, *,
+%               /, \).
+%
+% Output:
+% -------
+%   w           Output object or array of objects.
+%
+%
+% NOTES:
+% This is a generic method - works for any class (including sigvar)
+% so long as the methods below are defined on that class.
+%
+% Requires that objects have the following methods to find the size of the
+% public signal and variance arrays, create a sigvar object from those
+% arrays, and set them from another sigvar object.
+%
+%	>> sz  = sigvar_size(obj)   % Returns size of public signal and variance
+%                               % arrays
+%	>> w   = sigvar(obj)        % Create a sigvar object from the public
+%                               % signal and variance arrays
+%	>> obj = sigvar_set(obj,w)  % Set signal and variance in an object from
+%                               % those in a sigvar object
+
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
@@ -32,8 +101,6 @@ function w = binary_op_manager (w1, w2, binary_op)
 %
 % Think of a numeric array as a stack of objects, each one a smaller array
 
-thisClassname = mfilename('class');
-
 if isobject(w1)
     % w1 is not an intrinsic matlab class
     outputClassname = class(w1);
@@ -46,9 +113,9 @@ elseif isa(w1, 'double')
         size_stack1 = size(w2);
         [size_root1, ok] = size_array_split (size(w1), size(w2));
         if ~ok
-            mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
-                'with stack size matching the object array size.'];
-            error([upper(thisClassname),':binary_op_manager'], mess);
+            error('HERBERT:data_op_interface:binary_op_manager', ...
+                ['Unable to resolve the numeric array into a stack of arrays, ',...
+                'with stack size matching the object array size.']);
         end
     else
         size_stack1 = [1,1];    % want the scalar to apply to each object in w2
@@ -57,7 +124,7 @@ elseif isa(w1, 'double')
 else
     % Error state: w1 is a matlab intrinsic class but not a double
     % (e.g.  logical, character, cell array)
-    error([upper(thisClassname),':binary_op_manager'], ...
+    error('HERBERT:data_op_interface:binary_op_manager', ...
         ['Invalid first argument to binary operation - ' ...
         'it must be an object, or a Matlab double.'])
 end
@@ -77,9 +144,9 @@ elseif isa(w2, 'double')
         size_stack2 = size(w1);
         [size_root2, ok] = size_array_split (size(w2), size(w1));
         if ~ok
-            mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
-                'with stack size matching the object array size.'];
-            error([upper(thisClassname),':binary_op_manager'], mess);
+            error('HERBERT:data_op_interface:binary_op_manager', ...
+                ['Unable to resolve the numeric array into a stack of arrays, ',...
+                'with stack size matching the object array size.']);
         end
     else
         size_stack2 = [1,1];    % want the scalar to apply to each object in w1
@@ -89,7 +156,7 @@ elseif isa(w2, 'double')
 else
     % Error state: w2 is a matlab intrinsic class but not a double
     % (e.g.  logical, character, cell array)
-    error([upper(thisClassname),':binary_op_manager'], ...
+    error('HERBERT:data_op_interface:binary_op_manager', ...
         ['Invalid second argument to binary operation - ' ...
         'it must be an object, or a Matlab double.'])
 end
@@ -149,7 +216,7 @@ elseif (nobj1 > 1 && nobj2 == 1)
     end
 
 else
-    error([upper(thisClassname),':binary_op_manager'], ...
+    error('HERBERT:data_op_interface:binary_op_manager', ...
         ['Array lengths are incompatible.\n'...
         'Both arrays must have an equal number of elements or the ' ...
         'number of elements in one of the arrays must be 1.\n' ...

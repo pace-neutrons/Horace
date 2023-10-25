@@ -85,7 +85,7 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_wscal_1by2__wscal_2by1_FAIL (self)
+        function test_wscal_1by2__wscal_2by1_FAIL (~)
             % Add scalar objects that have different size signal arrays
             % *** Should throw an error
             w_1by2 = sigvar([31,5],[2,3]);
@@ -229,10 +229,10 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             w2 = [k21, k22];
 
             testfun = @()plus(w1, w2);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:binary_op_manager');
 
             testfun = @()plus(w2, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:binary_op_manager');
         end
 
         %--------------------------------------------------------------------------
@@ -295,7 +295,7 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_w1by3_mixed__flt_3by1_FAIL (self)
+        function test_w1by3_mixed__flt_3by1_FAIL (~)
             % Vector object, vector float same number but different size as object array
             % *** Should fail as float vector has wrong shape
             k11 = sigvar([31,5],[2,3]);
@@ -306,10 +306,10 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             flt = [4,5,6]';
 
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:binary_op_manager');
 
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:binary_op_manager');
         end
 
         %--------------------------------------------------------------------------

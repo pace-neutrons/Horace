@@ -148,7 +148,6 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
 
     methods (Access = protected)
         wout = unary_op_manager(w, operation_handle);
-        wout = binary_op_manager(w1, w2, binary_op_bandle);
         %
         function [func_handle, pars, opts] = parse_funceval_args(win, func_handle, pars, varargin)
             % Process arguments of func_eval function
