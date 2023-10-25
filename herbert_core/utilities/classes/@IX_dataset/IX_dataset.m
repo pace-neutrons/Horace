@@ -209,7 +209,6 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         wout = rebin_xyz(win, array_is_descriptor,dir,varargin)
 
         w = unary_op_manager (w1, unary_op)
-        w = binary_op_manager(w1, w2, binary_op)
     end
     %======================================================================
     methods(Static,Access=protected)

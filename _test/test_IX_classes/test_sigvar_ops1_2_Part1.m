@@ -92,10 +92,12 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             w_2by1 = sigvar([14;16],4);
 
             testfun = @()plus(w_1by2,w_2by1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:binary_op_manager_single');
 
             testfun = @()plus(w_2by1,w_1by2);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:binary_op_manager_single');
         end
 
         %--------------------------------------------------------------------------
@@ -141,17 +143,19 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_wscal_1by2__flt_2by1_FAIL (self)
+        function test_wscal_1by2__flt_2by1_FAIL (~)
             % Add scalar object to float array with different shape to signal array
             % *** Should throw an error
             w = sigvar([31,5],[2,3]);
             f = [14;16];
 
             testfun = @()plus(w,f);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:binary_op_manager_single');
 
             testfun = @()plus(f,w);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:binary_op_manager_single');
         end
 
         %--------------------------------------------------------------------------
@@ -163,10 +167,12 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             f = [14,19; 16,2];
 
             testfun = @()plus(w, f);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:binary_op_manager_single');
 
             testfun = @()plus(f, w);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:binary_op_manager_single');
         end
 
         %--------------------------------------------------------------------------
@@ -344,10 +350,12 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             flt = [4,5,6; 11,13,15];
 
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:binary_op_manager_single');
 
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:binary_op_manager_single');
         end
 
         %--------------------------------------------------------------------------
@@ -362,10 +370,12 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             flt = [4,5,6; 11,13,15];
 
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:binary_op_manager_single');
 
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:binary_op_manager_single');
         end
         %--------------------------------------------------------------------------
     end
