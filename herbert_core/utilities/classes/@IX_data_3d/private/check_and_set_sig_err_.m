@@ -18,8 +18,8 @@ if ~isa(val,'double')
     end
 end
 
-% make column vector
-obj.([field_name,'_']) = val(:);
+% keep input dimensionality of the object
+obj.([field_name,'_']) = val;
 
 %TODO: Disabled to accomodate some oddity with 2D rebinning
 % if ~isempty(obj.x_)

@@ -31,7 +31,7 @@ function obj=build_IXdataset_2d_(obj,varargin)
 
 
 
-obj.do_check_combo_ags_ = false;
+obj.do_check_combo_arg_ = false;
 % Various input options
 if nargin==2 && isa(varargin{1},'IX_dataset_2d')  % if already IX_dataset_2d object, return
     obj=varargin{1};
@@ -39,7 +39,7 @@ if nargin==2 && isa(varargin{1},'IX_dataset_2d')  % if already IX_dataset_2d obj
 end
 if nargin == 2 && isa(varargin{1},'IX_dataset_1d')
     obj = build_from_IX_dataset_1d_(obj,varargin{:});
-    obj.do_check_combo_ags_ = true;
+    obj.do_check_combo_arg_ = true;
     obj = check_combo_arg (obj);
 
     return;
@@ -116,5 +116,5 @@ else
         'Invalid number or type of arguments')
 end
 
-obj.do_check_combo_ags_ = true;
+obj.do_check_combo_arg_ = true;
 obj = check_combo_arg (obj);

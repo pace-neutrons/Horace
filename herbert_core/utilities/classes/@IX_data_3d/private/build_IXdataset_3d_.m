@@ -40,7 +40,7 @@ if nargin==2 && isa(varargin{1},'IX_dataset_3d')  % if already IX_dataset_3d obj
     obj=varargin{1};
     return
 end
-obj.do_check_combo_ags_ = false;
+obj.do_check_combo_arg_ = false;
 if  isstruct(varargin{1})   % structure input
     obj = obj.loadobj(in);
 elseif nargin>=4 && nargin<=6
@@ -110,5 +110,5 @@ else
     error('HERBERT:IX_data_3d:invalid_argument',...
         'Incorrect number and type of arguments')
 end
-obj.do_check_combo_ags_ = true;
+obj.do_check_combo_arg_ = true;
 obj = check_combo_arg (obj);

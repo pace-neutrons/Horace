@@ -11,10 +11,6 @@ function [frac,n_points] = calc_cont_frac_(obj)
 % frac  -- fraction of the points to be plotted out of all valid points (not-NaN)
 % n_points -- number of points containing information (not NaN-s)
 
-if ~obj.valid_
-    error('HERBERT:IX_data:invalid_argument',...
-        ['Attempt to calculate statistics from invalid object: ',obj.error_mess_])
-end
 sig = obj.signal_;
 isn = isnan(sig);
 if ~any(isn) % no nans
