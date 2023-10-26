@@ -22,51 +22,47 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
     elseif isa(w1, 'sqw') && has_pixels(w1)
         % w1 is sqw-type (with pixels), but w2 could be anything that is not
         % a double e.g. sqw object with no pixels, a d2d object, or sigvar object etc.
-        [wout,page_op] = init_binary_op_sqw_and_non_double(w1, w2, binary_op);
+        [wout,page_op] = init_binary_op_sqw_img(w1, w2, binary_op);
     elseif isa(w2, 'sqw') && has_pixels(w2)
         % w2 is sqw-type (with pixels), but w2 could be anything that is not
         % a double e.g. sqw object with no pixels, a d2d object, or sigvar object etc.
-        wout = do_binary_op_sqw_and_non_double(w2, w1, binary_op, true);
-
+        [wout,page_op]  = init_binary_op_sqw_img(w2, w1, binary_op, true);
     elseif isa(w1, 'sqw') &&  isa(w2, 'sqw')
         % Both inputs are SQW objects with NO pixels
-        error('SQW:binary_op_manager_single', ...
-              'Cannot perform binary operation between two SQW objects containing no PixelData');
+        wout = copy(w1);
+        wout.data = binary_op_manager(w1.data,w2.data,binary_op);
+        return
     end
-
 elseif isa(w2, 'double')
-
     if has_pixels(w1)
         % first input is an sqw object and second input is a double
-        wout = do_binary_op_sqw_double(w1, w2, binary_op);
-
+        [wout,page_op] = init_binary_op_sqw_double(w2, w1, binary_op, true);
     else
         % w2 is an sqw object that contains no pixel data and w1 is a double
         if isscalar(w2) || isequal(size(w1.s), size(w2))
-            wout = w1;
+            wout = copy(w1);
             result = binary_op(sigvar(w1), sigvar(w2, []));
-            wout = sigvar_set(wout, result);
+            wout   = sigvar_set(wout, result);
+            return;
         else
-            error('SQW:binary_op_manager_single', ...
+            error('HORACE:SQW:binary_op_manager_single', ...
                   ['Check that the numeric variable is scalar or array ' ...
                    'with same size as object signal']);
         end
     end
-
 elseif isa(w1, 'double')
-
     if has_pixels(w2)
         % w1 input is a double and w2 is an sqw object
-        wout = do_binary_op_sqw_double(w2, w1, binary_op, true);
-
+        [wout,page_op] = init_binary_op_sqw_double(w2, w1, binary_op, true);
     else
         % w1 is a double and w2 is an sqw object that contains no pixel data
         if isscalar(w1) || isequal(size(w2.s), size(w1))
-            wout = w2;
+            wout   = w2;
             result = binary_op(sigvar(w1, []), sigvar(w2));
-            wout = sigvar_set(wout, result);
+            wout   = sigvar_set(wout, result);
+            return;
         else
-            error('SQW:binary_op_manager_single', ...
+            error('HORACE:SQW:binary_op_manager_single', ...
                   ['Check that the numeric variable is scalar or array '
                    'with same size as object signal']);
         end
@@ -85,7 +81,7 @@ function allowed = is_allowed_type(obj)
 end
 
 
-function wout = do_binary_op_sqw_double(w1, w2, binary_op, flip)
+function [wout,page_op] = init_binary_op_sqw_double(w1, w2, binary_op, flip)
     % Perform a binary operation between an SQW object and a double scalar or
     % array, returning the resulting SQW object
     %
@@ -115,9 +111,7 @@ function wout = do_binary_op_sqw_double(w1, w2, binary_op, flip)
         % 
         % wout = recompute_bin_data(wout);
         page_op = PageOp_binary_sqw_double();
-        page_op = page_op.init(wout,w1,binary_op,flip);
-        wout    = wout.apply_op(page_op);
-        
+        page_op = page_op.init(wout,w2,binary_op,flip);        
     else
         error('HORACE:SQW:binary_op_manager_single', ...
               ['Check that the numeric variable is scalar or array with ' ...
@@ -166,7 +160,7 @@ function [wout,page_op] = init_binary_op_sqw_sqw(w1, w2, binary_op, flip)
     end
 end
 
-function [wout,page_op] = init_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
+function [wout,page_op] = init_binary_op_sqw_img(w1, w2, binary_op, flip)
     % Perform a binary operation between an SQW object and another object that
     % is not a double.
     %
@@ -187,7 +181,6 @@ function [wout,page_op] = init_binary_op_sqw_and_non_double(w1, w2, binary_op, f
         wout = w1;
         flip = exist('flip', 'var') && flip;
 
-
         if isa(w2, 'SQWDnDBase')
             % Need to remove bins with npix=0 in the object for the
             % binary operation
@@ -201,6 +194,7 @@ function [wout,page_op] = init_binary_op_sqw_and_non_double(w1, w2, binary_op, f
             end
             %wout = mask(wout, keep);
         else % sigvar
+            keep    = [];
             operand = w2;
         end
         page_op = PageOp_binary_sqw_img();
