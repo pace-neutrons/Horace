@@ -31,7 +31,7 @@ if isempty(obj.img_) % changes_pix_only -- would not work here
     out_obj = pix.copy();
 else
     out_obj = in_obj.copy();
-    if obj.old_file_format_
+    if obj.exp_modified
         out_obj.experiment_info = ...
             out_obj.experiment_info.get_subobj(obj.unique_run_id_);
     end

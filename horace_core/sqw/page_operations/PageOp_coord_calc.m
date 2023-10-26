@@ -12,8 +12,10 @@ classdef PageOp_coord_calc < PageOpBase
         ind;
         % the projection, which transforms from pixels to image
         proj;
-        % PixelDataMemory class, holding current page of data
-        pixpage;
+        % PixelDataMemory class, holding current page of data in addition
+        % to page_data_ to provide easier access to the PixelData
+        % properties
+        pix_page;
     end
     properties(Access = private)
         pix_idx_start_ = 1;
@@ -40,7 +42,7 @@ classdef PageOp_coord_calc < PageOpBase
             obj.op_type = obj.xname{ind};
             obj.op_name_ = sprintf('"set signal to %s"',obj.op_type);
             obj.proj = obj.img_.proj;
-            obj.pixpage = PixelDataMemory();
+            obj.pix_page = PixelDataMemory();
 
             obj.var_acc_ = zeros(numel(obj.npix),1);
                     obj.pix_idx_start_ = 1;
@@ -74,7 +76,7 @@ classdef PageOp_coord_calc < PageOpBase
                 obj.pix_idx_start_:pix_idx_end,'-raw');
             obj.pix_idx_start_ = pix_idx_end+1;
             %
-            obj.pixpage = obj.pixpage.set_raw_data(obj.page_data_);
+            obj.pix_page = obj.pix_page.set_raw_data(obj.page_data_);
         end
 
         function obj = apply_op(obj,npix_block,npix_idx)
@@ -84,12 +86,12 @@ classdef PageOp_coord_calc < PageOpBase
             switch type
                 case {'h','k','l'}
                     get_ind = mod(lind-1, 4)+1;
-                    uhkl = this_proj.transform_pix_to_hkl(obj.pixpage.q_coordinates);
+                    uhkl = this_proj.transform_pix_to_hkl(obj.pix_page.q_coordinates);
                     signal = uhkl(get_ind , :);
                 case 'E'
-                    signal = obj.pixpage.dE+obj.proj.offset(4);
+                    signal = obj.pix_page.dE+obj.proj.offset(4);
                 case 'Q'
-                    qq = obj.pixpage.q_coordinates;
+                    qq = obj.pix_page.q_coordinates;
                     signal =vecnorm(qq, 2, 1);
 
                 case {'d1', 'd2', 'd3', 'd4'}
@@ -99,7 +101,7 @@ classdef PageOp_coord_calc < PageOpBase
                     get_ind = mod(lind-1, 4)+1;
                     get_ind = pax(dax(get_ind));
 
-                    uhkl = this_proj.transform_pix_to_img(obj.pixpage.q_coordinates);
+                    uhkl = this_proj.transform_pix_to_img(obj.pix_page.q_coordinates);
                     signal = uhkl(get_ind , :);
             end
             obj.page_data_(obj.signal_idx_,:)  = signal;

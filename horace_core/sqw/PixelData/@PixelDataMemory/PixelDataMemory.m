@@ -55,10 +55,6 @@ classdef PixelDataMemory < PixelDataBase
     % Implementing abstract PixelDataBase interface
     methods
         pix_out     = append(obj, pix);
-        % apply function represented by handle to every pixel of the dataset
-        % and calculate appropriate averages if requested
-        [obj, data] = apply(obj, func_handle, args, data, compute_variance);
-
         %
         function data =  get_raw_data(obj,field_id)
             % main part of get.data accessor
