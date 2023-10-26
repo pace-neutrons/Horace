@@ -88,12 +88,14 @@ elseif nargin==9 || (nargin==11 && isnumeric(varargin{1}))
     obj.s_axis=varargin{8};
     if numel(varargin)>8
         obj.x_distribution=varargin{9};
+        %obj.xyz_distribution_(1)=logical(varargin{9});
     else
         obj.xyz_distribution_(1)=true;
     end
     obj.y_axis=varargin{7};
     if numel(varargin)>9
         obj.y_distribution=varargin{10};
+        %obj.xyz_distribution_(2) = logical(varargin{10});
     else
         obj.xyz_distribution_(2)=true;
     end
@@ -111,6 +113,7 @@ elseif nargin==11
     obj.x_distribution=varargin{7};
     obj.y_axis=varargin{9};
     obj.y_distribution=varargin{10};
+    %obj.xyz_distribution_ = logical([varargin{7},varargin{10}]);
 else
     error('IX_dataset_2d:invalid_argument',...
         'Invalid number or type of arguments')

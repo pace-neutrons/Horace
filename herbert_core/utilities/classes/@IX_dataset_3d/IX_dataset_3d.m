@@ -39,14 +39,10 @@ classdef IX_dataset_3d < IX_data_3d & data_plot_interface
 
     methods(Static)
         function obj = loadobj(S)
-            % function to support loading of previous versions of the class
-            % from mat files on hdd
-            if isa(S,'IX_dataset_3d')
-                obj = S;
-            else
-                obj = IX_dataset_3d();
-                obj = loadobj@serializable(S,obj);
-            end
+            % function to support loading of modern and outdated versions
+            % of the class from mat files on hdd
+            obj = IX_dataset_3d();
+            obj = loadobj@serializable(S,obj);
         end
     end
 

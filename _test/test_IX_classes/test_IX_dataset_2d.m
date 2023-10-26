@@ -68,10 +68,10 @@ classdef test_IX_dataset_2d <  TestCase
                 'HERBERT:IX_data_2d:invalid_argument');
             assertEqual(ME.message,'size(signal,1)=0, numel(x)=10; size(signal,1) must be equal to numel(x) or numel(x)+1');
 
-            id.signal = ones(10,20);
+            id.signal = ones(20,10);
             ME= assertExceptionThrown(@()check_combo_arg(id), ...
                 'HERBERT:IX_data_2d:invalid_argument');
-            assertEqual(ME.message,'size(signal)=[10,20], size(error)=[0,1]; size(signal)~=size(error)');
+            assertEqual(ME.message,'size(signal)=[20,10], size(error)=[0,1]; size(signal)~=size(error)');
 
             id.error = ones(20,10);
             ME= assertExceptionThrown(@()check_combo_arg(id), ...
@@ -83,7 +83,6 @@ classdef test_IX_dataset_2d <  TestCase
             id.do_check_combo_arg = true;
 
             val = id.signal;
-            assertFalse(ischar(val));
             assertEqual(val,ones(10,20));
             assertEqual(id.error,ones(10,20));
         end
@@ -156,6 +155,7 @@ classdef test_IX_dataset_2d <  TestCase
             assertEqual(ds.x_axis.caption,{'x-axis name'});
             assertEqual(ds.y_axis.caption,{'y-axis name'});
             assertEqual(ds.s_axis.caption,{'signal'});
+
             assertEqual(ds.x_distribution,false);
             assertEqual(ds.y_distribution,false);
         end

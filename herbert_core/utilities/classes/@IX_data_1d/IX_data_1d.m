@@ -74,6 +74,7 @@ classdef IX_data_1d < IX_dataset
         end
         function dist = get.x_distribution(obj)
             dist = obj.xyz_distribution_(1);
+            %dist = numel(obj.signal_) == numel(obj.xyz_{1});
         end
         %
         function obj = set.x(obj,val)
@@ -145,6 +146,11 @@ classdef IX_data_1d < IX_dataset
                 error('HERBERT:IX_data_1d:invalid_argument',mess)
             end
         end
+        function flds = saveableFields(obj)
+            base = saveableFields@IX_dataset(obj);
+            flds = [base(:);'x';'x_distribution';'x_axis'];
+        end
+
     end
     methods(Static)
         function obj = loadobj(S)

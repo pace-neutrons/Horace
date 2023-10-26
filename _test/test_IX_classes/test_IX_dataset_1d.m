@@ -188,7 +188,10 @@ classdef test_IX_dataset_1d <  TestCase
             assertEqual(ds.title,{'my object'});
             assertEqual(ds.x_axis.caption,{'x-axis name'});
             assertEqual(ds.s_axis.caption,{'y-axis name'});
+
             assertEqual(ds.x_distribution,false);
+
+
         end
         %
         function test_constructor_xse_title_axis_distr_random_order(~)
@@ -202,6 +205,7 @@ classdef test_IX_dataset_1d <  TestCase
             assertEqual(ds.title,{'my object'});
             assertEqual(ds.x_axis.caption,{'x-axis name'});
             assertEqual(ds.s_axis.caption,{'y-axis name'});
+
             assertEqual(ds.x_distribution,false);
         end
 

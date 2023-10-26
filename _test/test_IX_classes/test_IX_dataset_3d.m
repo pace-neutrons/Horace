@@ -182,6 +182,7 @@ classdef test_IX_dataset_3d <  TestCase
             assertEqual(ds.x_distribution,false);
             assertEqual(ds.y_distribution,false);
             assertEqual(ds.z_distribution,false);
+
         end
 
         function test_methods(~)

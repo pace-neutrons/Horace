@@ -86,6 +86,7 @@ classdef IX_data_2d < IX_dataset
             ax = obj.xyz_axis_(1);
         end
         function dist = get.x_distribution(obj)
+            %dist = size(obj.signal_,1) == numel(obj.xyz_{1});
             dist = obj.xyz_distribution_(1);
         end
         %
@@ -109,6 +110,7 @@ classdef IX_data_2d < IX_dataset
         end
         %
         function dist = get.y_distribution(obj)
+            %dist = size(obj.signal_,2) == numel(obj.xyz_{2});
             dist = obj.xyz_distribution_(2);
         end
         function ax = get.y_axis(obj)
@@ -152,11 +154,16 @@ classdef IX_data_2d < IX_dataset
     methods
         function obj = check_combo_arg (obj)
             % Check validity of interdependent properties
-            [ok,mess] = check_joint_fields_(obj);
+            [obj,ok,mess] = check_joint_fields_(obj);
             if ~ok
                 error('HERBERT:IX_data_2d:invalid_argument',mess)
             end
         end
+        function flds = saveableFields(obj)
+            base = saveableFields@IX_dataset(obj);
+            flds = [base(:);'x';'x_axis';'x_distribution';'y';'y_axis';'y_distribution'];
+        end
+
     end
     methods(Static)
         function obj = loadobj(S)
@@ -166,5 +173,4 @@ classdef IX_data_2d < IX_dataset
             obj = loadobj@serializable(S,obj);
         end
     end
-    
 end

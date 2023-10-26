@@ -48,7 +48,7 @@ classdef IX_dataset < serializable & data_op_interface
         %Integrates point data along along specific axis.
         [wout_s,wout_e] = integrate_points(iax, xbounds_true);
     end
-    
+
     %======================================================================
     methods(Static)
         % Read object or array of objects of an IX_dataset type from
@@ -124,11 +124,11 @@ classdef IX_dataset < serializable & data_op_interface
         end
         %
         function sig = get.signal(obj)
-            sig = obj.signal_;            
+            sig = obj.signal_;
         end
         %
         function err = get.error(obj)
-            err = obj.error_;            
+            err = obj.error_;
         end
         %------------------------------------------------------------------
         %
@@ -153,14 +153,14 @@ classdef IX_dataset < serializable & data_op_interface
             obj = check_and_set_sig_err(obj,'signal',val);
             if obj.do_check_combo_arg
                 obj = check_combo_arg (obj);
-            end                        
+            end
         end
         %
         function obj = set.error(obj,val)
             obj = check_and_set_sig_err(obj,'error',val);
             if obj.do_check_combo_arg
                 obj = check_combo_arg (obj);
-            end            
+            end
         end
         %
     end
@@ -220,9 +220,9 @@ classdef IX_dataset < serializable & data_op_interface
         end
 
         function flds = saveableFields(~)
-            flds = PixelDataBase.fields_to_save_;
+            flds = IX_dataset.fields_to_save_;
         end
     end
-    
+
 end
 

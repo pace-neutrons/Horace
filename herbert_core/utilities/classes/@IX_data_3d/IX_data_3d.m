@@ -77,7 +77,7 @@ classdef IX_data_3d < IX_dataset
 
             if nargin==0
                 obj.signal_ = zeros(0,0,0);
-                obj.error_ = zeros(0,0,0);
+                obj.error_  = zeros(0,0,0);
                 obj.xyz_{1} = zeros(1,0);
                 obj.xyz_{2} = zeros(1,0);
                 obj.xyz_{3} = zeros(1,0);
@@ -104,6 +104,7 @@ classdef IX_data_3d < IX_dataset
             ax = obj.xyz_axis_(1);
         end
         function dist = get.x_distribution(obj)
+            %dist = size(obj.signal_,1) == numel(obj.xyz_{1});
             dist = obj.xyz_distribution_(1);
         end
         %
@@ -127,6 +128,7 @@ classdef IX_data_3d < IX_dataset
         end
         %
         function dist = get.y_distribution(obj)
+            %dist = size(obj.signal_,2) == numel(obj.xyz_{2});
             dist = obj.xyz_distribution_(2);
         end
         function ax = get.y_axis(obj)
@@ -153,6 +155,7 @@ classdef IX_data_3d < IX_dataset
         end
         %
         function dist = get.z_distribution(obj)
+            %dist = size(obj.signal_,3) == numel(obj.xyz_{3});
             dist = obj.xyz_distribution_(3);
         end
         function ax = get.z_axis(obj)
@@ -199,6 +202,13 @@ classdef IX_data_3d < IX_dataset
                 error('HERBERT:IX_data_3d:invalid_argument',mess)
             end
         end
+        function flds = saveableFields(obj)
+            base = saveableFields@IX_dataset(obj);
+            flds = [base(:);'x';'x_axis';'x_distribution';...
+                'y';'y_axis';'y_distribution';...
+                'z';'z_axis';'z_distribution'];
+        end
+
     end
     methods(Static)
         function obj = loadobj(S)

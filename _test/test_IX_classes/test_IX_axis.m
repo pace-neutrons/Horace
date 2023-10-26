@@ -27,7 +27,7 @@ classdef test_IX_axis <  TestCase
             assertEqual(ia.code,'blabla');
 
             ia.ticks =[];
-            assertEqual(ia.ticks,'');
+            assertEqual(ia.ticks,struct('positions',[],'labels',{{}}));
 
             %
             op = struct('type','.','subs','ticks');
@@ -103,7 +103,7 @@ classdef test_IX_axis <  TestCase
 
 
 
-            ias = struct(ia);
+            ias = ia.to_struct();
             ia = IX_axis(ias);
             assertEqual(ia.caption,{'my axis name'});
             assertEqual(ia.units,'meV');
