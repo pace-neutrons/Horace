@@ -38,41 +38,44 @@ else
 end
 
 if isscalar(operand) && isa(operand, 'double')
-    pix_out = binary_op_scalar_(pix_out, operand, binary_op, flip);
+    %pix_out = binary_op_scalar_(pix_out, operand, binary_op, flip);
+    page_op = PageOp_binary_sqw_double();
+    page_op = page_op.init(pix_out,operand,binary_op,flip);
 elseif isa(operand, 'double')
-    pix_out = binary_op_double_(pix_out, operand, binary_op, flip, npix);
+    %pix_out = binary_op_double_(pix_out, operand, binary_op, flip, npix);
+    page_op = PageOp_binary_sqw_double();
+    page_op = page_op.init(pix_out,operand,binary_op,flip);
 elseif isa(operand, 'PixelDataBase')
     %pix_out = binary_op_pixels_(pix_out, operand, binary_op, flip);
-    pix_out = obj.copy();
-    
     page_op = PageOp_binary_sqw_sqw();
     page_op = page_op.init(pix_out,operand,binary_op);
-    pix_out = pix_out.apply_op(pix_out,page_op);
-    
 elseif ~isempty(regexp(class(operand), '^d[0-4]d$', 'ONCE')) || isa(operand, 'sigvar')
-    pix_out = binary_op_sigvar_(pix_out, operand, binary_op, flip, npix);
+    %pix_out = binary_op_sigvar_(pix_out, operand, binary_op, flip, npix);
+    page_op = PageOp_binary_sqw_img();
+    page_op = page_op.init(pix_out,operand,binary_op,[],flip,npix);
 end
+pix_out = pix_out.apply_op(pix_out,page_op);
 
 end  % function
 
 % -----------------------------------------------------------------------------
 function [flip, npix] = parse_args(varargin)
-    parser = inputParser();
-    addRequired(parser, 'obj', @(x) isa(x, 'PixelDataBase'));
-    addRequired(parser, 'operand', @(x) valid_operand(x));
-    addRequired(parser, 'binary_op', @(x) isa(x, 'function_handle'));
-    addParameter(parser, 'flip', false, @(x) isa(x, 'logical'));
-    addParameter(parser, 'npix', [], @isnumeric);
-    parse(parser, varargin{:});
+parser = inputParser();
+addRequired(parser, 'obj', @(x) isa(x, 'PixelDataBase'));
+addRequired(parser, 'operand', @(x) valid_operand(x));
+addRequired(parser, 'binary_op', @(x) isa(x, 'function_handle'));
+addParameter(parser, 'flip', false, @(x) isa(x, 'logical'));
+addParameter(parser, 'npix', [], @isnumeric);
+parse(parser, varargin{:});
 
-    flip = parser.Results.flip;
-    npix = parser.Results.npix;
+flip = parser.Results.flip;
+npix = parser.Results.npix;
 end
 
 
 function is = valid_operand(operand)
-    is = isa(operand, 'PixelDataBase') || ...
-         isnumeric(operand) || ...
-         ~isempty(regexp(class(operand), '^d[0-4]d$', 'ONCE')) || ...
-         isa(operand, 'sigvar');
+is = isa(operand, 'PixelDataBase') || ...
+    isnumeric(operand) || ...
+    ~isempty(regexp(class(operand), '^d[0-4]d$', 'ONCE')) || ...
+    isa(operand, 'sigvar');
 end

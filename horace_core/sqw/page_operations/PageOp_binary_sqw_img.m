@@ -1,56 +1,60 @@
-classdef PageOp_binary_sqw_sqw < PageOpBase
+classdef PageOp_binary_sqw_img < PageOpBase
     % Single page pixel operation used by
-    % binary operation manager and applied to two sqw objects with identical
-    % pixels distribution over bins
+    % binary operation manager and applied to two sqw objects and
+    % number or array of numbers with size 1, numel(npix) or
+    % PixelData.n_pixels
     %
-    % TODO: its not too difficult to expand this onto two sqw objects with
-    %       different pix distributions and different number of pixels
-    %       using the approach, applied for operations with sqw-dnd objects
-    %       Left for future discussion: Re #1358.
     %
     properties
         % property contains handle to function, which performs operation
         op_handle;
-        % contains pixels from second object participating in operation
-        pix2_;
+        operand;
+        keep_array;
+        flip;
     end
     properties(Access = private)
         pix_idx_start_ = 1;
-        % location of fields, containing all indices defining neutron event
-        all_idx_
         % indices of signal and variance fields in pixels
         sigvar_idx_
         % Preallocate two operands, participating in operation
         sigvar1 = sigvar();
         sigvar2 = sigvar();
+
+        npix_idx_;
     end
 
 
 
     methods
-        function obj = PageOp_binary_sqw_sqw(varargin)
+        function obj = PageOp_binary_sqw_img(varargin)
             obj = obj@PageOpBase(varargin{:});
-            obj.all_idx_ = PixelDataBase.field_index('all_indexes');
-            obj.sigvar_idx_ = PixelDataBase.field_index('sig_var');            
+            obj.sigvar_idx_ = PixelDataBase.field_index('sig_var');
         end
 
-        function obj = init(obj,w1,w2,operation)
+        function obj = init(obj,w1,operand,operation,keep_array,flip,npix)
             obj = init@PageOpBase(obj,w1);
-            if isa(w2,'sqw')
-                name2_obj = 'sqw';
-                obj.pix2_ = w2.pix;
-            else
-                name2_obj = 'pix';
-                obj.pix2_ = w2;
+
+            obj.op_handle = operation;
+            obj.operand   = operand;
+            obj.keep_array= keep_array;
+            obj.flip      = flip;
+            if nargin>5
+                obj.npix = npix(:);
+            end
+            if isempty(keep_array)
+                obj.keep_array = logical(obj.npix);
             end
             if isempty(obj.img_)
                 name1_obj = 'pix';
             else
-                name1_obj = 'sqw';                
+                name1_obj = 'sqw';
             end
-            obj.op_handle = operation;
-            obj.op_name_ = sprintf('binary op: %s between %s and %s objects', ...
+            name2_obj = class(operand);
+            obj.op_name_ = ...
+                sprintf('binary op: %s between %s and %s', ...
                 func2str(operation),name1_obj,name2_obj);
+            obj.sigvar2.s   = operand.s(:);
+            obj.sigvar2.e   = operand.e(:);
             if ~obj.changes_pix_only
                 obj.var_acc_ = zeros(numel(obj.npix),1);
             end
@@ -60,7 +64,7 @@ classdef PageOp_binary_sqw_sqw < PageOpBase
             % Method used to split input npix array into pages dividing at
             % the bin edges
             %
-            % Overload specific for sqw_sqw binary operation
+            % Overload specific for sqw_img binary operation
             % Inputs:
             % npix  -- image npix array, which defines the number of pixels
             %          contributing into each image bin and the pixels
@@ -73,6 +77,7 @@ classdef PageOp_binary_sqw_sqw < PageOpBase
             %                the npix array.
             % See split procedure for more details
             [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
+            obj.npix_idx_ = npix_idx;
         end
 
         function obj = get_page_data(obj,idx,npix_blocks)
@@ -83,35 +88,31 @@ classdef PageOp_binary_sqw_sqw < PageOpBase
             npix = sum(npix_block(:));
             pix_idx_end = obj.pix_idx_start_+npix-1;
 
-            obj.page_data_ = obj.pix_.get_pixels( ...
-                obj.pix_idx_start_:pix_idx_end,'-raw');
-            page_data2    = obj.pix2_.get_pixels( ...
-                obj.pix_idx_start_:pix_idx_end,'-raw');
-            % sort pixels as they usually randomly distributed
-            % within the bins. These are the pixel indexes
-            chunk_idx = repelem(1:npix,npix_block);
-            % sort first pages by rows and then by all 3 pix_idx, defining
-            % neutron event
-            [~,idx1]  = sortrows([chunk_idx,obj.page_data_(obj.all_idx_)]);
-            [~,idx2]  = sortrows([chunk_idx,    page_data2(obj.all_idx_)]);
-            obj.page_data_ = obj.page_data_(:,idx1);
-            page_data2     =     page_data2(:,idx2);
-            % Here we may introduce check, to ensure pixels are indeed
-            % equal for this operation to be correct.
-            % == check here
-            % Or we may trust the user.
+            pix_idx = obj.pix_idx_start_:pix_idx_end;
+            obj.page_data_ = obj.pix_.get_pixels(pix_idx,'-raw');
 
-            % prepare operands for binary operation
-            obj.sigvar1.sig_var = obj.page_data_(obj.sigvar_idx_,:);
-            obj.sigvar2.sig_var =     page_data2(obj.sigvar_idx_,:);
-
-            obj.pix_idx_start_ = pix_idx_end+1;
+            obj.pix_idx_start_ = pix_idx_end+1;            
         end
 
-
         function obj = apply_op(obj,npix_block,npix_idx)
+            % prepare operands for binary operation
+
+            % keep pixels which corresponds to non-empty bins of the second
+            % operand
+            keep_bins = obj.keep_array(npix_idx(1):npix_idx(2));
+            keep_pix  = repelem(keep_bins,npix_block);
+            page_data =  obj.page_data_(:,keep_pix);
+            obj.sigvar1.sig_var    = page_data(obj.sigvar_idx_,:);
+
+            signal = repelem(obj.operand(imm(1):imm(2)),npix_block);
+            obj.sigvar2.s   =   signal;
+
             % Do operation
-            res = obj.op_handle(obj.sigvar1,obj.sigvar2);
+            if obj.flip
+                res = obj.op_handle(obj.sigvar2,obj.sigvar1);
+            else
+                res = obj.op_handle(obj.sigvar1,obj.sigvar2);
+            end
             obj.page_data_(obj.sigvar_idx_,:) = res.sig_var;
             if obj.changes_pix_only
                 return;
