@@ -1,4 +1,4 @@
-classdef IX_dataset < serializable & data_op_interface
+classdef IX_dataset < data_op_interface & serializable 
     % Abstract parent class for IX_datasets_Nd;
     properties(Dependent)
         %title:  dataset title (will be plotted on a grapth)

@@ -59,13 +59,15 @@ classdef PageOpBase
         is_range_valid
         % if true, page operations should validate run_id and
         % avoid retaining runs, which do not contribute into pixels, which
-        % was ocasionally happened with old file formats
+        % was ocasionally happened with old file formats or may occur for
+        % algorithms, which reduce number of pixels (mask, section)
         old_file_format
-        % If algorithm modifies Experiment and new experiment should be
+        % true if algorithm modifies Experiment and new experiment should be
         % stored. Transient property. Something more generic should be
         % implemented with Re #1320
         exp_modified
-        %
+        
+        % variable containing class, responsible for write operations.
         write_handle
         % An algorithm applied to a sqw object with missing data range
         % should issue warning that range is recalculated unless the

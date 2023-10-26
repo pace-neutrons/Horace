@@ -42,7 +42,13 @@ if isscalar(operand) && isa(operand, 'double')
 elseif isa(operand, 'double')
     pix_out = binary_op_double_(pix_out, operand, binary_op, flip, npix);
 elseif isa(operand, 'PixelDataBase')
-    pix_out = binary_op_pixels_(pix_out, operand, binary_op, flip);
+    %pix_out = binary_op_pixels_(pix_out, operand, binary_op, flip);
+    pix_out = obj.copy();
+    
+    page_op = PageOp_binary_sqw_sqw();
+    page_op = page_op.init(pix_out,operand,binary_op);
+    pix_out = pix_out.apply_op(pix_out,page_op);
+    
 elseif ~isempty(regexp(class(operand), '^d[0-4]d$', 'ONCE')) || isa(operand, 'sigvar')
     pix_out = binary_op_sigvar_(pix_out, operand, binary_op, flip, npix);
 end

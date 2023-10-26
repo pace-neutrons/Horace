@@ -337,9 +337,6 @@ classdef (Abstract) PixelDataBase < serializable
         data = get_raw_data(obj,varargin)
         pix  = set_raw_data(obj,pix);
 
-        pix_out = do_binary_op(obj, operand, binary_op, varargin);
-
-
         obj = recalc_data_range(obj,varargin);
         % realign pixels using alignment matrix stored with pixels
     end
@@ -716,10 +713,13 @@ classdef (Abstract) PixelDataBase < serializable
         % object using apply_op, and left here for historical reasons and for
         % the case, when one may want to use them on pixels only (testing?).
         pix_out = mask(obj, mask_array, npix);
-        pix_out = do_unary_op(obj, unary_op)
         obj     = finalize_alignment(obj,filename);
         pix_out = noisify(obj, varargin);
         pix_out = apply(obj, func_handle, args, data, compute_variance);
+
+        pix_out = do_unary_op(obj, unary_op)
+        pix_out = do_binary_op(obj, operand, binary_op, varargin);
+
 
 
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
