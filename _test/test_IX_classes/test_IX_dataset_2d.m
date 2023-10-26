@@ -31,12 +31,13 @@ classdef test_IX_dataset_2d <  TestCase
 
         end
 
-
-        function test_properties(obj)
+        function test_prop_title(~)
             id = IX_dataset_2d();
             id.title = 'my title';
             assertEqual(id.title,{'my title'});
-
+        end
+        function test_prop_x_axis(~)
+            id = IX_dataset_2d();
             id.x_axis = 'Coord';
             ax = id.x_axis;
             assertTrue(isa(ax,'IX_axis'));
@@ -44,10 +45,11 @@ classdef test_IX_dataset_2d <  TestCase
             ax.units = 'A^-1';
             id.s_axis = ax;
 
-
             ay = id.s_axis;
             assertTrue(isa(ay,'IX_axis'));
-
+        end
+        function test_prop_y_axis(~)
+            id = IX_dataset_2d();
             id.y_axis = 'dist';
             ay = id.y_axis;
             assertTrue(isa(ay,'IX_axis'));
@@ -56,69 +58,64 @@ classdef test_IX_dataset_2d <  TestCase
             id.y_axis = ay;
             assertTrue(isa(id.y_axis,'IX_axis'));
             assertEqual(id.y_axis.caption,{'dist'});
+        end
 
+        function test_combo_properties_set(~)
+            id = IX_dataset_2d();
+            id.do_check_combo_arg = false;
             id.x = 1:10;
-            assertFalse(id.get_isvalid())
-            val = id.x;
-            assertTrue(ischar(val));
-            assertEqual('size(signal,1)=0, numel(x)=10; size(signal,1) must be equal to numel(x) or numel(x)+1',val);
+            ME= assertExceptionThrown(@()check_combo_arg(id), ...
+                'HERBERT:IX_data_2d:invalid_argument');
+            assertEqual(ME.message,'size(signal,1)=0, numel(x)=10; size(signal,1) must be equal to numel(x) or numel(x)+1');
 
-
-
-            id.signal = ones(10,20);
-            val = id.signal;
-            assertTrue(ischar(val));
-            assertEqual('size(signal)=[10,20], size(error)=[0,1]; size(signal)~=size(error)',val);
-            assertFalse(id.get_isvalid())
-
+            id.signal = ones(20,10);
+            ME= assertExceptionThrown(@()check_combo_arg(id), ...
+                'HERBERT:IX_data_2d:invalid_argument');
+            assertEqual(ME.message,'size(signal)=[20,10], size(error)=[0,1]; size(signal)~=size(error)');
 
             id.error = ones(20,10);
-            assertFalse(id.get_isvalid())
-            val = id.x;
-            assertTrue(ischar(val));
-            assertEqual('size(signal,2)=20, numel(y)=0; size(signal,2)  must be equal to numel(y) or numel(y)+1',val);
-
+            ME= assertExceptionThrown(@()check_combo_arg(id), ...
+                'HERBERT:IX_data_2d:invalid_argument');
+            assertEqual(ME.message,'size(signal,2)=20, numel(y)=0; size(signal,2)  must be equal to numel(y) or numel(y)+1');
 
             id.y = 1:20;
-            assertTrue(id.get_isvalid())
-
+            id = check_combo_arg(id);
+            id.do_check_combo_arg = true;
 
             val = id.signal;
-            assertFalse(ischar(val));
             assertEqual(val,ones(10,20));
             assertEqual(id.error,ones(10,20));
         end
 
-        function test_constructor(obj)
+        function test_constructor_xy(~)
             % >> w = IX_dataset_2d (x,y)
             ds = IX_dataset_2d(1:10,1:20);
-            assertTrue(ds.get_isvalid());
             assertEqual(ds.x,1:10);
             assertEqual(ds.y,1:20);
             assertEqual(ds.signal,zeros(10,20));
             assertEqual(ds.error,zeros(10,20));
-
+        end
+        function test_constructor_xys(~)
             %   >> w = IX_dataset_2d (x,y,signal)
             ds = IX_dataset_2d(1:10,1:20,ones(9,19));
-            assertTrue(ds.get_isvalid());
             assertEqual(ds.x,1:10);
             assertEqual(ds.y,1:20);
             assertEqual(ds.signal,ones(9,19));
             assertEqual(ds.error,zeros(9,19));
-
+        end
+        function test_constructor_xyse(~)
             %   >> w = IX_dataset_2d (x,y,signal,error)
             ds = IX_dataset_2d(1:10,1:20,ones(10,20),ones(10,20));
-            assertTrue(ds.get_isvalid());
             assertEqual(ds.x,1:10);
             assertEqual(ds.y,1:20);
             assertEqual(ds.signal,ones(10,20));
             assertEqual(ds.error,ones(10,20));
 
-
+        end
+        function test_constructor_xyse_title_axis(~)
             %   >> w = IX_dataset_2d (x,y,signal,error,title,x_axis,y_axis,s_axis)
             ds = IX_dataset_2d(1:20,1:10,ones(20,10),ones(20,10),...
                 'my object','x-axis name','y-axis name','signal');
-            assertTrue(ds.get_isvalid());
             assertEqual(ds.x,1:20);
             assertEqual(ds.y,1:10);
             assertEqual(ds.signal,ones(20,10));
@@ -127,11 +124,12 @@ classdef test_IX_dataset_2d <  TestCase
             assertEqual(ds.x_axis.caption,{'x-axis name'});
             assertEqual(ds.y_axis.caption,{'y-axis name'});
             assertEqual(ds.s_axis.caption,{'signal'});
+        end
 
+        function test_constructor_xyse_title_axis_no_distr(~)
             %   >> w = IX_dataset_2d (x,y,signal,error,title,x_axis,y_axis,s_axis,x_distribution,y_distribution)
             ds = IX_dataset_2d(1:20,1:10,ones(20,10),ones(20,10),...
                 'my object','x-axis name','y-axis name','signal',false,false);
-            assertTrue(ds.get_isvalid());
             assertEqual(ds.x,1:20);
             assertEqual(ds.y,1:10);
             assertEqual(ds.signal,ones(20,10));
@@ -142,13 +140,13 @@ classdef test_IX_dataset_2d <  TestCase
             assertEqual(ds.s_axis.caption,{'signal'});
             assertEqual(ds.x_distribution,false);
             assertEqual(ds.y_distribution,false);
-
+        end
+        function test_constructor_xyse_title_axis_names(~)
             %   >> w = IX_dataset_2d (title, signal, error, s_axis, x, x_axis, x_distribution, y, y_axis, y_distribution)
 
             ds = IX_dataset_2d('my object',ones(15,10),ones(15,10),...
                 'signal',1:15,'x-axis name',false,...
                 1:10,'y-axis name',false);
-            assertTrue(ds.get_isvalid());
             assertEqual(ds.x,1:15);
             assertEqual(ds.y,1:10);
             assertEqual(ds.signal,ones(15,10));
@@ -157,11 +155,12 @@ classdef test_IX_dataset_2d <  TestCase
             assertEqual(ds.x_axis.caption,{'x-axis name'});
             assertEqual(ds.y_axis.caption,{'y-axis name'});
             assertEqual(ds.s_axis.caption,{'signal'});
+
             assertEqual(ds.x_distribution,false);
             assertEqual(ds.y_distribution,false);
         end
 
-        function test_methods(obj)
+        function test_methods(~)
             ds = IX_dataset_2d(1:10,1:15,ones(10,15),ones(10,15),...
                 'my object','x-axis name','y-axis name','signal');
             [ax,hist] = ds.axis(2);
@@ -194,7 +193,7 @@ classdef test_IX_dataset_2d <  TestCase
             %           assertEqual(dsa,idr);
 
         end
-        function test_op_managers(obj)
+        function test_op_managers(~)
             %   >> w = IX_dataset_2d (x,y,signal,error,title,x_axis,y_axis,s_axis)
 
             ds = IX_dataset_2d(1:10,1:20,ones(10,20),ones(10,20),...
@@ -218,11 +217,7 @@ classdef test_IX_dataset_2d <  TestCase
             dss  = 1+ dss;
             assertEqual(dss.signal,3*ones(10,20));
             assertElementsAlmostEqual(dss.error,sqrt(3*ones(10,20)));
-
-
         end
-
-
     end
 
 end

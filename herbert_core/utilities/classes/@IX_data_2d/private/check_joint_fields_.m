@@ -1,4 +1,4 @@
-function [ok,message] = check_joint_fields_(w)
+function [w,ok,message] = check_joint_fields_(w)
 % Check validity of interconnected fields of the object
 %
 %   >> [ok, message,wout] = check_common_fields_(w)
@@ -21,6 +21,15 @@ if ~all(size(w.signal_)==size(w.error_))
         size(w.signal_),size(w.error_));
     return
 end
+% transpose signal/error to ensure first dimension corresponds to x-axis if input
+% array has it equal in second dimension
+nx = numel(w.xyz_{1});
+if       (nx==size(w.signal_,2)||nx==size(w.signal_,2)+1) && ...
+        ~(nx==size(w.signal_,1)||nx==size(w.signal_,1)+1)
+    w.signal_ = w.signal_';
+    w.error_  = w.error_';
+end
+
 %
 if ~(numel(w.xyz_{1})==size(w.signal_,1)||numel(w.xyz_{1})==size(w.signal_,1)+1)
     ok=false;
