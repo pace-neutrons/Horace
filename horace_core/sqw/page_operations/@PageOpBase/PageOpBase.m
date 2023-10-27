@@ -1,13 +1,14 @@
 classdef PageOpBase
     % PAGEOPBASE class defines interface to a generic operation, performed
-    % on chunk of pixels located in memory by apply method of sqw/PixelData
+    % on chunk of pixels located in memory by apply_op method of sqw/PixelData
     % objects.
     %
     % Operations are functions which modify pixels directly, e.g.
     % recalculating or modifying signal/variance.
-    % PageOpBase does the work of calculating appropriate changes
-    % to the image and providing a unified interface for
-    % memory-/file-backed operations.
+    % PageOpBase does the work of loading block of pixels in memory,
+    % calculating appropriate changes to the image and storing the result
+    % within correct parts of the target object. It also provides a unified
+    % interface for performing memory-/file-backed page operations.
     %
     % IMPORTANT:
     % The operations can only be used by algorithms which do not change
@@ -37,13 +38,14 @@ classdef PageOpBase
         % property used in logs and returning the file name of the source data
         source_filename
 
-        % number of page to operate over
-        page_num
         % The name of the operation included in the progress log for slow
         % operations
         op_name
     end
     properties(Dependent,Hidden)
+        % number of page to operate over
+        page_num
+
         % npix array (the same as img_.npix), containing the pixel distribution
         % over binning. If no binning is provided it is a single number equal
         % to number of pixels (all pixels in one bin)
@@ -66,7 +68,7 @@ classdef PageOpBase
         % stored. Transient property. Something more generic should be
         % implemented with Re #1320
         exp_modified
-        
+
         % variable containing class, responsible for write operations.
         write_handle
         % An algorithm applied to a sqw object with missing data range
@@ -75,7 +77,6 @@ classdef PageOpBase
         % No range warning should be generated for pixels only too.
         do_missing_range_warning;
     end
-
 
     properties(Access=protected)
         % true if operation should not create the copy of a filebacked
@@ -239,8 +240,6 @@ classdef PageOpBase
             %                because it has been realigned
             print_range_warning_(obj,infile_name,is_old_file_format);
         end
-
-
     end
     %======================================================================
     % properties setters/getters
@@ -403,7 +402,7 @@ classdef PageOpBase
                 infile_name);
         end
         function mess = gen_misaligned_file_message(~,infile_name)
-            % message on how to upgrade old format file
+            % message on how to upgrade quick-realigned file
             mess = sprintf([...
                 '*** To upgrade original file run:\n' ...
                 '*** >> fb_out = finalize_alignment(''%s'')\n'],...
