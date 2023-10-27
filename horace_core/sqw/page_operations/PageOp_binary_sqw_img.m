@@ -19,7 +19,6 @@ classdef PageOp_binary_sqw_img < PageOpBase
         sigvar_idx_
         % Preallocate two operands, participating in operation
         sigvar1 = sigvar();
-        sigvar2 = sigvar();
     end
 
 
@@ -37,9 +36,9 @@ classdef PageOp_binary_sqw_img < PageOpBase
             obj.operand   = operand;
             obj.keep_array= keep_array;
             obj.flip      = flip;
-            %  This is for operations with pixels only, when you may want
-            %  it. Normally, it
             if nargin>5
+                %  This is for operations with pixels only, when you may want
+                %  it. Normally, it cones from w1
                 obj.npix = npix(:);
             end
             if isempty(keep_array)
@@ -52,7 +51,12 @@ classdef PageOp_binary_sqw_img < PageOpBase
             else
                 name1_obj = 'sqw';
             end
-            name2_obj = class(operand);
+            if flip
+                name2_obj = name1_obj;
+                name1_obj = class(operand);
+            else
+                name2_obj = class(operand);
+            end
             obj.op_name_ = ...
                 sprintf('binary op: %s between %s and %s', ...
                 func2str(operation),name1_obj,name2_obj);
@@ -101,21 +105,28 @@ classdef PageOp_binary_sqw_img < PageOpBase
 
             % keep pixels which corresponds to non-empty bins of the second
             % operand
-            keep_bins = obj.keep_array(npix_idx(1):npix_idx(2));
-            keep_pix  = repelem(keep_bins,npix_block);
+            img_block_idx = npix_idx(1):npix_idx(2);
+            keep_page_bins = obj.keep_array(img_block_idx );
+            npix_block(~keep_page_bins) = 0;
+            
+            keep_pix  = repelem(keep_page_bins,npix_block);
             page_data =  obj.page_data_(:,keep_pix);
+            % remove first operand pixels which have zeros in second operand image
             obj.sigvar1.sig_var    = page_data(obj.sigvar_idx_,:);
 
-            signal = repelem(obj.operand(imm(1):imm(2)),npix_block);
-            obj.sigvar2.s   =   signal;
+            fp_sig   = repelem(obj.operand.s(img_block_idx),npix_block);
+            fp_var   = repelem(obj.operand.e(img_block_idx),npix_block);
+            fake_pix = sigvar(fp_sig,fp_var);
 
             % Do operation
             if obj.flip
-                res = obj.op_handle(obj.sigvar2,obj.sigvar1);
+                res = obj.op_handle(fake_pix ,obj.sigvar1);
             else
-                res = obj.op_handle(obj.sigvar1,obj.sigvar2);
+                res = obj.op_handle(obj.sigvar1,fake_pix);
             end
-            obj.page_data_(obj.sigvar_idx_,:) = res.sig_var;
+            page_data(obj.sigvar_idx_,:)     = res.sig_var;
+            % masked pixels have been dropped. Propagate this.
+            obj.page_data_                   = page_data;
             if obj.changes_pix_only
                 return;
             end
@@ -127,7 +138,11 @@ classdef PageOp_binary_sqw_img < PageOpBase
         end
         %
         function [out_obj,obj] = finish_op(obj,in_obj)
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
+            % reduce total number of pixels in final image to account for
+            % pixels in masked bins
+            obj.npix_(~obj.keep_array) = 0;
+            %
+            obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_);
             [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
         end
     end

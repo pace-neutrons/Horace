@@ -31,12 +31,11 @@ classdef PageOp_binary_sqw_sqw < PageOpBase
         function obj = PageOp_binary_sqw_sqw(varargin)
             obj = obj@PageOpBase(varargin{:});
             obj.all_idx_ = PixelDataBase.field_index('all_indexes');
-            obj.sigvar_idx_ = PixelDataBase.field_index('sig_var');            
+            obj.sigvar_idx_ = PixelDataBase.field_index('sig_var');
         end
 
-        function obj = init(obj,w1,w2,operation,flip)
+        function obj = init(obj,w1,w2,operation)
             obj = init@PageOpBase(obj,w1);
-            obj.flip = flip;
             if isa(w2,'sqw')
                 name2_obj = 'sqw';
                 obj.pix2_ = w2.pix;
@@ -47,7 +46,7 @@ classdef PageOp_binary_sqw_sqw < PageOpBase
             if isempty(obj.img_)
                 name1_obj = 'pix';
             else
-                name1_obj = 'sqw';                
+                name1_obj = 'sqw';
             end
             obj.op_handle = operation;
             obj.op_name_ = sprintf('binary op: %s between %s and %s objects', ...
@@ -97,10 +96,12 @@ classdef PageOp_binary_sqw_sqw < PageOpBase
             [~,idx2]  = sortrows([chunk_idx,    page_data2(obj.all_idx_)]);
             obj.page_data_ = obj.page_data_(:,idx1);
             page_data2     =     page_data2(:,idx2);
-            % Here we may introduce check, to ensure pixels are indeed
-            % equal for this operation to be correct.
+            % Here we may introduce check to ensure pixels coordinates are
+            % indeed equal for this operation to be correct.
             % == check here
-            % Or we may trust the user.
+            % Or we may trust the user. The chance of them finding two
+            % objects with the same pixel-bin distribution and different
+            % pix coordinates are slim.
 
             % prepare operands for binary operation
             obj.sigvar1.sig_var = obj.page_data_(obj.sigvar_idx_,:);

@@ -134,7 +134,7 @@ if n1 == n2 && all(sz1 == sz2)
     end
     wout = w1.copy();
     page_op = PageOp_binary_sqw_sqw();
-    page_op = page_op.init(wout,w2,binary_op,flip);
+    page_op = page_op.init(wout,w2,binary_op);
 else
     error('HORACE:SQW:binary_op_manager_single', ...
         ['sqw type objects must have commensurate array dimensions ' ...

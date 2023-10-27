@@ -913,16 +913,6 @@ classdef (Abstract) PixelDataBase < serializable
         end
     end
     %======================================================================
-    % Static Helper methods.
-    methods(Static,Access = protected)
-        function sig_var = sigvar_binary_op(sigvar1, sigvar2, binary_op, flip)
-            %perform the given binary operation on two sigvar objects or
-            % between a sigvar object and a double scalar or array
-            sig_var = sigvar_binary_op_(sigvar1, sigvar2, binary_op, flip);
-        end
-    end
-
-    %======================================================================
     % SERIALIZABLE INTERFACE
     properties(Constant, Access=private)
         % list of filenames to save on hdd to be able to recover

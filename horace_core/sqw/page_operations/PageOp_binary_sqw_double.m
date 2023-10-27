@@ -24,8 +24,6 @@ classdef PageOp_binary_sqw_double < PageOpBase
         scalar_input_ = true;
     end
 
-
-
     methods
         function obj = PageOp_binary_sqw_double(varargin)
             obj = obj@PageOpBase(varargin{:});
@@ -39,21 +37,27 @@ classdef PageOp_binary_sqw_double < PageOpBase
             obj.flip      = flip;
 
             if isempty(obj.img_)
-                name1_obj = 'pix';
+                name1_obj = 'pix'; % this is for pix-pix operations
             else
                 name1_obj = 'sqw';
             end
             obj.sigvar2.e   =   [];
             if numel(operand) == 1
-                obj.op_name_ = ...
-                    sprintf('binary op: %s between %s and scalar', ...
-                    func2str(operation),name1_obj);
+                if flip
+                    name2_obj = name1_obj;
+                    name1_obj = 'scalar';
+                else
+                    name2_obj = 'scalar';
+                end
                 obj.scalar_input_ = true;
                 obj.sigvar2.s     = operand;
             elseif numel(operand) == numel(obj.npix)
-                obj.op_name_ =...
-                    sprintf('binary op: %s between %s and image-size vector', ...
-                    func2str(operation),name1_obj);
+                if flip
+                    name2_obj = name1_obj;
+                    name1_obj = 'image-size vector';
+                else
+                    name2_obj = 'image-size vector';
+                end
                 obj.scalar_input_ = false;
             else
                 error('HORACE:PageOp_binary_sqw_double:invalid_argument', ...
@@ -61,6 +65,10 @@ classdef PageOp_binary_sqw_double < PageOpBase
                     ' of the second operand '], ...
                     numel(obj.npix),obj.pix_.num_pixels,numel(numel(operand)))
             end
+            obj.op_name_ = ...
+                sprintf('binary op: %s between %s and %s', ...
+                func2str(operation),name1_obj,name2_obj);
+
             if ~obj.changes_pix_only
                 obj.var_acc_ = zeros(numel(obj.npix),1);
             end
