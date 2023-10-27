@@ -3,9 +3,10 @@ function obj=check_and_set_title_(obj,val)
 %
 % Throws IX_dataset_1d:invalid_argument if the titile is invalid
 %
-
-if ischar(val)||iscellstr(val)
-    if ischar(val)
+if isempty(val)
+   obj.title_ = {};
+elseif istext(val)||iscellstr(val)
+    if istext(val)
         obj.title_=cellstr(val);
     else
         obj.title_ = val(:);
