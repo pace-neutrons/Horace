@@ -55,9 +55,9 @@ elseif isa(w2, 'double')
     if isscalar(w2) || isequal(sigvar_size(w1), size(w2))
         %----------------------------------------------------------------------
         % The following block may be class specific
-        wout = w1;
+        wout   = w1;
         result = binary_op(sigvar(w1), sigvar(w2));
-        wout = sigvar_set(wout, result);
+        wout   = sigvar_set(wout, result);
         %----------------------------------------------------------------------
     else
         error('HERBERT:data_op_interface:binary_op_manager_single', ...

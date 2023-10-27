@@ -11,8 +11,8 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 
 if ~is_allowed_type(w1) || ~is_allowed_type(w2)
     error('SQW:binary_op_manager_single', ...
-          ['Cannot perform binary operation between types ' ...
-           '''%s'' and ''%s''.'], class(w1), class(w2));
+        ['Cannot perform binary operation between types ' ...
+        '''%s'' and ''%s''.'], class(w1), class(w2));
 end
 
 if ~isa(w1, 'double') && ~isa(w2, 'double')
@@ -22,21 +22,22 @@ if ~isa(w1, 'double') && ~isa(w2, 'double')
     elseif isa(w1, 'sqw') && has_pixels(w1)
         % w1 is sqw-type (with pixels), but w2 could be anything that is not
         % a double e.g. sqw object with no pixels, a d2d object, or sigvar object etc.
-        [wout,page_op] = init_binary_op_sqw_img(w1, w2, binary_op);
+        [wout,page_op] = init_binary_op_sqw_img(w1, w2, binary_op,false);
     elseif isa(w2, 'sqw') && has_pixels(w2)
         % w2 is sqw-type (with pixels), but w2 could be anything that is not
         % a double e.g. sqw object with no pixels, a d2d object, or sigvar object etc.
-        [wout,page_op]  = init_binary_op_sqw_img(w2, w1, binary_op, true);
+        [wout,page_op]  = init_binary_op_sqw_img(w2, w1, binary_op,true);
     elseif isa(w1, 'sqw') &&  isa(w2, 'sqw')
-        % Both inputs are SQW objects with NO pixels
+        % Both inputs are SQW objects with NO pixels. Non sqw objects will
+        % never come here as processed by its own method
         wout = copy(w1);
-        wout.data = binary_op_manager(w1.data,w2.data,binary_op);
+        wout.data = binary_op(w1.data,w2.data);
         return
     end
 elseif isa(w2, 'double')
     if has_pixels(w1)
         % first input is an sqw object and second input is a double
-        [wout,page_op] = init_binary_op_sqw_double(w2, w1, binary_op, true);
+        [wout,page_op] = init_binary_op_sqw_double(w2, w1, binary_op,false);
     else
         % w2 is an sqw object that contains no pixel data and w1 is a double
         if isscalar(w2) || isequal(size(w1.s), size(w2))
@@ -46,14 +47,14 @@ elseif isa(w2, 'double')
             return;
         else
             error('HORACE:SQW:binary_op_manager_single', ...
-                  ['Check that the numeric variable is scalar or array ' ...
-                   'with same size as object signal']);
+                ['Check that the numeric variable is scalar or array ' ...
+                'with same size as object signal']);
         end
     end
 elseif isa(w1, 'double')
     if has_pixels(w2)
         % w1 input is a double and w2 is an sqw object
-        [wout,page_op] = init_binary_op_sqw_double(w2, w1, binary_op, true);
+        [wout,page_op] = init_binary_op_sqw_double(w2, w1, binary_op,flip);
     else
         % w1 is a double and w2 is an sqw object that contains no pixel data
         if isscalar(w1) || isequal(size(w2.s), size(w1))
@@ -63,8 +64,8 @@ elseif isa(w1, 'double')
             return;
         else
             error('HORACE:SQW:binary_op_manager_single', ...
-                  ['Check that the numeric variable is scalar or array '
-                   'with same size as object signal']);
+                ['Check that the numeric variable is scalar or array '
+                'with same size as object signal']);
         end
     end
 end
@@ -76,170 +77,148 @@ end
 % Helpers
 % =============================================================================
 function allowed = is_allowed_type(obj)
-    allowed_types = {'double', 'SQWDnDBase', 'sigvar'};
-    allowed = any(cellfun(@(t) isa(obj, t), allowed_types));
+allowed_types = {'double', 'SQWDnDBase', 'sigvar'};
+allowed = any(cellfun(@(t) isa(obj, t), allowed_types));
 end
 
 
-function [wout,page_op] = init_binary_op_sqw_double(w1, w2, binary_op, flip)
-    % Perform a binary operation between an SQW object and a double scalar or
-    % array, returning the resulting SQW object
-    %
-    % Input
-    % -----
-    % w1    An SQW object
-    % w2    A double scalar or array of doubles
-    % binary_op Function handle of binary operation to execute
-    % flip  Flip the order of the operands: (default = false)
-    %       if flip = false calculate (w1 .op. w2) e.g. sqw - double
-    %       if flip = true, calculate (w2 .op. w1) e.g. double - sqw
-    %
-    % Return
-    % ------
-    % wout  An SQW object
-    if isscalar(w2) || isequal(size(w1.data.npix), size(w2))
-        flip = exist('flip', 'var') && flip;
-        wout = copy(w1);
-        % wout = wout.get_new_handle();
-        % if ~isscalar(w2)
-        %     wout.pix = wout.pix.do_binary_op(...
-        %         w2, binary_op, 'flip', flip, 'npix', w1.data.npix);
-        % else
-        %     wout.pix = wout.pix.do_binary_op(...
-        %         w2, binary_op, 'flip', flip);
-        % end
-        % 
-        % wout = recompute_bin_data(wout);
-        page_op = PageOp_binary_sqw_double();
-        page_op = page_op.init(wout,w2,binary_op,flip);        
-    else
-        error('HORACE:SQW:binary_op_manager_single', ...
-              ['Check that the numeric variable is scalar or array with ' ...
-               'same size as object signal']);
-    end
+function [wout,page_op] = init_binary_op_sqw_double(w1, w2, binary_op,flip)
+% Perform a binary operation between an SQW object and a double scalar or
+% array, returning the resulting SQW object
+%
+% Input
+% -----
+% w1    An SQW object
+% w2    A double scalar or array of doubles
+% binary_op Function handle of binary operation to execute
+% flip  Flip the order of the operands: (default = false)
+%       if flip = false calculate (w1 .op. w2) e.g. sqw - double
+%       if flip = true, calculate (w2 .op. w1) e.g. double - sqw
+%
+% Return
+% ------
+% wout  An SQW object
+if isscalar(w2) || isequal(size(w1.data.npix), size(w2))
+    wout = copy(w1);
+    page_op = PageOp_binary_sqw_double();
+    page_op = page_op.init(wout,w2,binary_op,flip);
+else
+    error('HORACE:SQW:binary_op_manager_single', ...
+        ['Check that the numeric variable is scalar or array with ' ...
+        'same size as object signal']);
+end
 end
 
-function [wout,page_op] = init_binary_op_sqw_sqw(w1, w2, binary_op, flip)
-    % Prepare a binary operation between two SQW objects, returning the
-    % resulting SQW object
-    %
-    % Input
-    % -----
-    % w1    An SQW object
-    % w2    An SQW object
-    % binary_op Function handle of binary operation to execute
-    % flip  Flip the order of the operands: (default = false)
-    %       if flip = false calculate (w1 .op. w2)
-    %       if flip = true, calculate (w2 .op. w1)
-    %
-    % Return
-    % ------
-    % wout  An SQW object
-    flip = exist('flip', 'var') && flip;
+function [wout,page_op] = init_binary_op_sqw_sqw(w1, w2, binary_op)
+% Prepare a binary operation between two SQW objects, returning the
+% resulting SQW object
+%
+% Input
+% -----
+% w1    An SQW object
+% w2    An SQW object
+% binary_op Function handle of binary operation to execute
+% flip  Flip the order of the operands: (default = false)
+%       if flip = false calculate (w1 .op. w2)
+%       if flip = true, calculate (w2 .op. w1)
+%
+% Return
+% ------
+% wout  An SQW object
 
-    [n1, sz1] = dimensions(w1);
-    [n2, sz2] = dimensions(w2);
-    if n1 == n2 && all(sz1 == sz2)
-        if any(w1.data.npix(:) ~= w2.data.npix(:))
-            throw_npix_mismatch_error(w1, w2);
-        end
-        if flip
-            wout = w2.copy();                                    
-            operand = w1;
-        else
-            wout = w1.copy();                        
-            operand = w2;
-        end
-    
-        page_op = PageOp_binary_sqw_sqw();
-        page_op = page_op.init(wout,operand,binary_op);
-    else
-        error('HORACE:SQW:binary_op_manager_single', ...
-              ['sqw type objects must have commensurate array dimensions ' ...
-               'for binary operations']);
+[n1, sz1] = dimensions(w1);
+[n2, sz2] = dimensions(w2);
+if n1 == n2 && all(sz1 == sz2)
+    if any(w1.data.npix(:) ~= w2.data.npix(:))
+        throw_npix_mismatch_error(w1, w2);
     end
+    wout = w1.copy();
+    page_op = PageOp_binary_sqw_sqw();
+    page_op = page_op.init(wout,w2,binary_op,flip);
+else
+    error('HORACE:SQW:binary_op_manager_single', ...
+        ['sqw type objects must have commensurate array dimensions ' ...
+        'for binary operations']);
+end
 end
 
 function [wout,page_op] = init_binary_op_sqw_img(w1, w2, binary_op, flip)
-    % Perform a binary operation between an SQW object and another object that
-    % is not a double.
-    %
-    % Input
-    % -----
-    % w1    An SQW object
-    % w2    An instance of DnD or sigvar or no-pixel SQW object
-    % binary_op Function handle of binary operation to execute
-    % flip  Flip the order of the operands: (default = false)
-    %       if flip = false calculate (w1 .op. w2) e.g. sqw - non-sqw
-    %       if flip = true, calculate (w2 .op. w1) e.g. non-sqw - sqw
-    %
-    % Return
-    % ------
-    % wout  An SQW object
-    w2_size = sigvar_size(w2);
-    if isequal([1, 1], w2_size) || isequal(size(w1.data.npix), w2_size)
-        wout = w1;
-        flip = exist('flip', 'var') && flip;
-
-        if isa(w2, 'SQWDnDBase')
-            % Need to remove bins with npix=0 in the object for the
-            % binary operation
-            if isa(w2, 'DnDBase')
-                keep = logical(w2.npix);
-                % cast the DnD object to a sigvar for processing
-                operand = w2.sigvar();
-            elseif isa(w2, 'sqw') && ~has_pixels(w2) % pixel-less SQW
-                keep = logical(w2.data.npix);
-                operand = w2;
-            end
-            %wout = mask(wout, keep);
-        else % sigvar
-            keep    = [];
+% Perform a binary operation between an SQW object and another object that
+% is not a double.
+%
+% Input
+% -----
+% w1    An SQW object
+% w2    An instance of DnD or sigvar or no-pixel SQW object
+% binary_op Function handle of binary operation to execute
+% flip  Flip the order of the operands.
+%       if flip = false calculate (w1 .op. w2) e.g. sqw - non-sqw
+%       if flip = true, calculate (w2 .op. w1) e.g. non-sqw - sqw
+%
+% Return
+% ------
+% wout  An SQW object
+w2_size = sigvar_size(w2);
+if isequal([1, 1], w2_size) || isequal(size(w1.data.npix), w2_size)
+    wout = w1;
+    if isa(w2, 'SQWDnDBase')
+        % Need to remove bins with npix=0 in the object for the
+        % binary operation
+        if isa(w2, 'DnDBase')
+            keep = logical(w2.npix);
+            % cast the DnD object to a sigvar for processing
+        elseif isa(w2, 'sqw') && ~has_pixels(w2) % pixel-less SQW
+            keep = logical(w2.data.npix);
             operand = w2;
         end
-        page_op = PageOp_binary_sqw_img();
-        page_op = page_op.init(wout,operand,binary_op,keep,flip);        
-
-        % wout = wout.get_new_handle();
-        % wout.pix = wout.pix.do_binary_op( ...
-        %     operand, binary_op, 'flip', flip, 'npix', wout.data.npix);
-        % wout = recompute_bin_data(wout);
-    else
-        error('HORACE:SQW:binary_op_manager_single', ...
-                ['Check that the numeric variable is scalar or array ' ...
-                'with same size as object signal']);
+        %wout = mask(wout, keep);
+    else % sigvar
+        keep    = [];
+        operand = w2;
     end
+    page_op = PageOp_binary_sqw_img();
+    page_op = page_op.init(wout,operand,binary_op,keep,flip);
+
+    % wout = wout.get_new_handle();
+    % wout.pix = wout.pix.do_binary_op( ...
+    %     operand, binary_op, 'flip', flip, 'npix', wout.data.npix);
+    % wout = recompute_bin_data(wout);
+else
+    error('HORACE:SQW:binary_op_manager_single', ...
+        ['Check that the numeric variable is scalar or array ' ...
+        'with same size as object signal']);
+end
 end
 
 function throw_npix_mismatch_error(w1, w2)
-    % Throw an error caused by by an npix data mismatch between the two input
-    % sqw objects. npix for both sqw objects must be equal
-    npix1 = sum(w1.data.npix(:));
-    npix2 = sum(w2.data.npix(:));
-    nelmts = numel(w2.data.npix);
-    idiff = find(w1.data.npix(:) ~= w2.data.npix(:));
-    ndiff = numel(idiff);
+% Throw an error caused by by an npix data mismatch between the two input
+% sqw objects. npix for both sqw objects must be equal
+npix1 = sum(w1.data.npix(:));
+npix2 = sum(w2.data.npix(:));
+nelmts = numel(w2.data.npix);
+idiff = find(w1.data.npix(:) ~= w2.data.npix(:));
+ndiff = numel(idiff);
 
-    % number of elements to be printed if the data are different
-    ndiff_to_print = 3;
-    disp('ERROR in binary operations:')
-    disp(['  sqw type objects have ', num2str(nelmts), ...
-          ' bins and ', num2str(ndiff), ...
-          ' of them have a different number of pixels'])
-    for i = 1:min(ndiff, ndiff_to_print)
-        disp(['  Element of npix with index ', num2str(idiff(i)), ...
-              ' for left operand equals: ', ...
-              num2str(w1.data.npix(idiff(i))), ...
-              ' and for right operand: ', ...
-              num2str(w2.data.npix(idiff(i)))]);
-    end
+% number of elements to be printed if the data are different
+ndiff_to_print = 3;
+disp('ERROR in binary operations:')
+disp(['  sqw type objects have ', num2str(nelmts), ...
+    ' bins and ', num2str(ndiff), ...
+    ' of them have a different number of pixels'])
+for i = 1:min(ndiff, ndiff_to_print)
+    disp(['  Element of npix with index ', num2str(idiff(i)), ...
+        ' for left operand equals: ', ...
+        num2str(w1.data.npix(idiff(i))), ...
+        ' and for right operand: ', ...
+        num2str(w2.data.npix(idiff(i)))]);
+end
 
-    if ndiff > ndiff_to_print
-        disp(['  ...and ', num2str(ndiff - ndiff_to_print), ' others']);
-    end
+if ndiff > ndiff_to_print
+    disp(['  ...and ', num2str(ndiff - ndiff_to_print), ' others']);
+end
 
-    disp(['  Total number of pixels in left operand is ', ...
-          num2str(npix1), ' and in right operand is ', num2str(npix2)])
-    error('SQW:binary_op_manager_single', ...
-          'The two SQW objects have different npix arrays.')
+disp(['  Total number of pixels in left operand is ', ...
+    num2str(npix1), ' and in right operand is ', num2str(npix2)])
+error('SQW:binary_op_manager_single', ...
+    'The two SQW objects have different npix arrays.')
 end

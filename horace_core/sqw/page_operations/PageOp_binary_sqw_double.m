@@ -9,7 +9,9 @@ classdef PageOp_binary_sqw_double < PageOpBase
         % property contains handle to function, which performs operation
         op_handle;
         operand;
-        flip;
+        flip   % if true, actual operation is between w2 and w1 instead of
+        % input order, because the result has the size and shape of
+        % the larger object, but actual request was
     end
     properties(Access = private)
         pix_idx_start_ = 1;
@@ -19,9 +21,7 @@ classdef PageOp_binary_sqw_double < PageOpBase
         sigvar1 = sigvar();
         sigvar2 = sigvar();
 
-        img_based_input_ = false;
-        pix_based_input_ = false;
-        npix_idx_;
+        scalar_input_ = true;
     end
 
 
@@ -31,7 +31,6 @@ classdef PageOp_binary_sqw_double < PageOpBase
             obj = obj@PageOpBase(varargin{:});
             obj.sigvar_idx_ = PixelDataBase.field_index('sig_var');
         end
-
         function obj = init(obj,w1,operand,operation,flip)
             obj = init@PageOpBase(obj,w1);
 
@@ -44,30 +43,21 @@ classdef PageOp_binary_sqw_double < PageOpBase
             else
                 name1_obj = 'sqw';
             end
-
+            obj.sigvar2.e   =   [];
             if numel(operand) == 1
                 obj.op_name_ = ...
                     sprintf('binary op: %s between %s and scalar', ...
                     func2str(operation),name1_obj);
-                obj.img_based_input_ = false;
-                obj.pix_based_input_ = false;
-                obj.sigvar2.s   = operand;
+                obj.scalar_input_ = true;
+                obj.sigvar2.s     = operand;
             elseif numel(operand) == numel(obj.npix)
                 obj.op_name_ =...
                     sprintf('binary op: %s between %s and image-size vector', ...
                     func2str(operation),name1_obj);
-                obj.img_based_input_ = true;
-                obj.pix_based_input_ = false;
-            elseif numel(operand) == obj.pix_.num_pixels
-                obj.op_name_ = ...
-                    sprintf('binary op: %s between %s and pixel-size vector', ...
-                    func2str(operation),name1_obj);
-                obj.img_based_input_ = false;
-                obj.pix_based_input_ = true;
+                obj.scalar_input_ = false;
             else
                 error('HORACE:PageOp_binary_sqw_double:invalid_argument', ...
-                    ['Number of image pixels (%d) and total number of pixels' ...
-                    ' (%d) are inconsistent with number of elements (%d)' ...
+                    ['Number of image pixels (%d) is inconsistent with number of elements (%d)' ...
                     ' of the second operand '], ...
                     numel(obj.npix),obj.pix_.num_pixels,numel(numel(operand)))
             end
@@ -92,11 +82,10 @@ classdef PageOp_binary_sqw_double < PageOpBase
             % npix_idx    -- [2,n_chunks] array of indices of the chunks in
             %                the npix array.
             % See split procedure for more details
-            if obj.img_based_input_
-                [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
-                obj.npix_idx_ = npix_idx;
-            else
+            if obj.scalar_input_
                 [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
+            else
+                [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
             end
         end
 
@@ -111,21 +100,20 @@ classdef PageOp_binary_sqw_double < PageOpBase
             pix_idx = obj.pix_idx_start_:pix_idx_end;
             obj.page_data_ = obj.pix_.get_pixels(pix_idx,'-raw');
 
-            % prepare operands for binary operation
-            obj.sigvar1.sig_var    = obj.page_data_(obj.sigvar_idx_,:);
-            if obj.img_based_input_
-                imm = obj.npix_idx_(idx);
-                signal = repelem(obj.operand(imm(1):imm(2)),npix_block);
-                obj.sigvar2.s   =   signal;
-            elseif obj.pix_based_input_
-                obj.sigvar2.s   =   obj.operand(pix_idx);
-            end
             obj.pix_idx_start_ = pix_idx_end+1;
         end
 
-
         function obj = apply_op(obj,npix_block,npix_idx)
-            % Do operation
+            % perform binary operation between input object and double
+            % operand
+
+            % Prepare operands:
+            % prepare operands for binary operation
+            obj.sigvar1.sig_var    = obj.page_data_(obj.sigvar_idx_,:);
+            if ~obj.scalar_input_
+                obj.sigvar2.s   =   repelem(obj.operand(npix_idx(1):npix_idx(2)),npix_block);
+            end
+            % Do operation:
             if obj.flip
                 res = obj.op_handle(obj.sigvar2,obj.sigvar1);
             else
@@ -137,14 +125,14 @@ classdef PageOp_binary_sqw_double < PageOpBase
             end
             % update image accumulators:
             [s_ar, e_ar] = compute_bin_data(npix_block,res.s,res.e,true);
-            if obj.img_based_input_
-                obj.sig_acc_(npix_idx(1):npix_idx(2))    = s_ar(:);
-                obj.var_acc_(npix_idx(1):npix_idx(2))    = e_ar(:);
-            else
+            if obj.scalar_input_
                 obj.sig_acc_(npix_idx(1):npix_idx(2))    = ...
                     obj.sig_acc_(npix_idx(1):npix_idx(2)) + s_ar(:);
                 obj.var_acc_(npix_idx(1):npix_idx(2))    = ...
                     obj.var_acc_(npix_idx(1):npix_idx(2)) + e_ar(:);
+            else
+                obj.sig_acc_(npix_idx(1):npix_idx(2))    = s_ar(:);
+                obj.var_acc_(npix_idx(1):npix_idx(2))    = e_ar(:);
             end
         end
         %

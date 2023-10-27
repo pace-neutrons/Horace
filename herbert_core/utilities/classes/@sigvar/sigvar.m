@@ -202,7 +202,7 @@ classdef sigvar < data_op_interface & serializable
     methods(Access=protected)
         w = unary_op_manager (w1, op_function_handle);
     end
-    
+
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods
@@ -238,7 +238,7 @@ classdef sigvar < data_op_interface & serializable
                     end
                 end
             end
-        end 
+        end
         %
         function ver  = classVersion(~)
             % define version of the class to store in mat-files

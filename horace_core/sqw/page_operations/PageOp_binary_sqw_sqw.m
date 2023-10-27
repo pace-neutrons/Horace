@@ -34,8 +34,9 @@ classdef PageOp_binary_sqw_sqw < PageOpBase
             obj.sigvar_idx_ = PixelDataBase.field_index('sig_var');            
         end
 
-        function obj = init(obj,w1,w2,operation)
+        function obj = init(obj,w1,w2,operation,flip)
             obj = init@PageOpBase(obj,w1);
+            obj.flip = flip;
             if isa(w2,'sqw')
                 name2_obj = 'sqw';
                 obj.pix2_ = w2.pix;

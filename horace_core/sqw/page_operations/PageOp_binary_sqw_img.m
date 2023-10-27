@@ -9,8 +9,9 @@ classdef PageOp_binary_sqw_img < PageOpBase
         % property contains handle to function, which performs operation
         op_handle;
         operand;
-        keep_array;
         flip;
+        %
+        keep_array;
     end
     properties(Access = private)
         pix_idx_start_ = 1;
@@ -19,8 +20,6 @@ classdef PageOp_binary_sqw_img < PageOpBase
         % Preallocate two operands, participating in operation
         sigvar1 = sigvar();
         sigvar2 = sigvar();
-
-        npix_idx_;
     end
 
 
@@ -38,11 +37,15 @@ classdef PageOp_binary_sqw_img < PageOpBase
             obj.operand   = operand;
             obj.keep_array= keep_array;
             obj.flip      = flip;
+            %  This is for operations with pixels only, when you may want
+            %  it. Normally, it
             if nargin>5
                 obj.npix = npix(:);
             end
             if isempty(keep_array)
                 obj.keep_array = logical(obj.npix);
+            else
+                obj.keep_array = keep_array;
             end
             if isempty(obj.img_)
                 name1_obj = 'pix';
@@ -77,7 +80,6 @@ classdef PageOp_binary_sqw_img < PageOpBase
             %                the npix array.
             % See split procedure for more details
             [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
-            obj.npix_idx_ = npix_idx;
         end
 
         function obj = get_page_data(obj,idx,npix_blocks)
@@ -88,14 +90,14 @@ classdef PageOp_binary_sqw_img < PageOpBase
             npix = sum(npix_block(:));
             pix_idx_end = obj.pix_idx_start_+npix-1;
 
-            pix_idx = obj.pix_idx_start_:pix_idx_end;
-            obj.page_data_ = obj.pix_.get_pixels(pix_idx,'-raw');
+            obj.page_data_ = obj.pix_.get_pixels(obj.pix_idx_start_:pix_idx_end,'-raw');
 
-            obj.pix_idx_start_ = pix_idx_end+1;            
+            obj.pix_idx_start_ = pix_idx_end+1;
         end
 
         function obj = apply_op(obj,npix_block,npix_idx)
-            % prepare operands for binary operation
+            % perform binary operation between input object and image-like
+            % operand
 
             % keep pixels which corresponds to non-empty bins of the second
             % operand
