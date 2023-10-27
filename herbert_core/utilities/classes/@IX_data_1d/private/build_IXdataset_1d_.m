@@ -26,7 +26,7 @@ function obj = build_IXdataset_1d_(obj,varargin)
 % 	x_distribution      logical         Distribution data flag (true is a distribution; false otherwise)
 
 
-obj.do_check_combo_arg_ = true;
+obj.do_check_combo_arg_ = false;
 % Various input options
 if nargin==2
 
