@@ -16,7 +16,8 @@ function varargout = spaghetti_plot(varargin)
 %   >> wdisp = spaghetti_plot(...)                   % outputs the cuts as a d2d array
 %   >> wdisp = spaghetti_plot(...,'noplot')          % outputs arrays without plotting
 %
-%   >> [wdisp,cuts] = spaghetti_plot(...)            % generates a set of 1D cuts
+%   >> [wdisp,cuts] = spaghetti_plot(...)             % generates a set of 1D cuts
+%   >> [wdisp, cuts] = spaghetti_plot(...,'withpix')  % return cuts as sqw rather than d1ds
 %
 % Input:
 % ------
@@ -88,11 +89,14 @@ function varargout = spaghetti_plot(varargin)
 %                   cause big difference in the sub-plot resolution. The
 %                   changes in the plot width should cause changes in qbin too.
 %
+%   'withpix'      If cuts are returned this will return full sqw objects with
+%                   pixel information rather than d1d image objects.
+%
 % Output:
 % -------
 %   wdisp       Array of d2d objects containing the cuts, one per q-segment.
 %
-%   cuts        Array of d1d objects of energy cuts along the hkl-lines
+%   cuts        Array of d1d|sqw objects of energy cuts along the hkl-lines
 %
 % The function determines the q-directions for cuts of the sqw object as follows:
 %   u is the direction between the desired q-points specified in rlp
@@ -118,8 +122,9 @@ arglist = struct('qbin', 0.05, ...
                  'smooth_shape', 'hat',...
                  'logscale', false, ...
                  'clim', [NaN NaN], ...
-                 'cuts_plot_size', []);
-flags = {'noplot', 'logscale'};
+                 'cuts_plot_size', [], ...
+                 'withpix', false);
+flags = {'noplot', 'logscale', 'withpix'};
 
 % Parse the arguments:
 % --------------------
@@ -201,29 +206,38 @@ if nseg > 1
     u1rlp = rlp(1, :) - rlp(2, :);
     u2rlp = rlp(2, :) - rlp(3, :);
 
-    u1crt = sqw_proj.transform_pix_to_img(u1rlp);
-    u2crt = sqw_proj.transform_pix_to_img(u2rlp);
+    u1crt = sqw_proj.transform_hkl_to_img(u1rlp')';
+    u2crt = sqw_proj.transform_hkl_to_img(u2rlp')';
+    normal_vector = cross(u1crt, u2crt);
 
-    plane_normal = cross(u1crt, u2crt);
-    normal_vector = plane_normal;
+    % Check if rlp's are collinear.
+    for j = 3:nseg
+        if abs(sum(normal_vector)) >= min(opt.qbin) / 100
+            break
+        end
+        u2rlp = rlp(j,:)-rlp(j+1,:);
+        u2crt = sqw_proj.transform_hkl_to_img(u2rlp')';
+        normal_vector = cross(u1crt, u2crt);
+    end
+    plane_normal = normal_vector;
 
-    for i = 3:nseg
-        if abs(sum(normal_vector)) < min(opt.qbin)/100 || ...       % Check if rlp's are not collinear,
-                abs(sum(cross(normal_vector, plane_normal))) > 1e-5 % and are coplanar.
+    for i = j:nseg
+        u2rlp = rlp(i, :) - rlp(i+1, :);
+        u2crt = sqw_proj.transform_hkl_to_img(u2rlp')';
+        normal_vector = cross(u1crt, u2crt);
+
+        if abs(sum(cross(normal_vector, plane_normal))) > 1e-5 % and are coplanar.
             plane_normal = [];
             break
         end
 
-        u2rlp = rlp(i, :) - rlp(i+1, :);
-        u2crt = sqw_proj.transform_pix_to_img(u2rlp);
-        normal_vector = cross(u1crt, u2crt);
     end
 end
 
 
 if ~isempty(plane_normal)
     fprintf('spaghetti_plot: rlp found to lie in the plane perpendicular to (%g %g %g)\n', ...
-            sqw_proj.transform_img_to_pix(plane_normal));
+            sqw_proj.transform_img_to_hkl(plane_normal'));
 end
 
 
@@ -232,54 +246,47 @@ end
 xrlp = 0;
 wdisp = repmat(d2d, 1, nseg);
 
-bz_norm = sqw_proj.transform_pix_to_img([0;0;1]);
+bz_norm = sqw_proj.transform_hkl_to_pix([0;0;1]);
 bz_norm = bz_norm ./ norm(bz_norm);
 
-bx_norm = sqw_proj.transform_pix_to_img([1;0;0]);
+bx_norm = sqw_proj.transform_hkl_to_pix([1;0;0]);
 bx_norm = bx_norm ./ norm(bx_norm);
 
-prev = rlp(1, :);
-
 for i = 1:nseg
-    % Choose u1 along the user desired q-direction
-    q_dir = rlp(i+1, :) - rlp(i, :);
+    q_dir_rlu = rlp(i+1, :) - rlp(i, :);
 
-    u1crt = sqw_proj.transform_pix_to_img(q_dir);
-    u1crt = u1crt ./ norm(u1crt);
+    q_dir_abs = sqw_proj.transform_hkl_to_pix(q_dir_rlu')';
+    q_dir_abs = q_dir_abs ./ norm(q_dir_abs);
 
-    % Choose u2 to be either perpendicular to the plane of all the rlp (determined previously)
-    %   or the plane defined by u1 and c* or, if u1||c*, the plane defined by u1 and a*.
+    q_start_abs = sqw_proj.transform_hkl_to_pix(rlp(i, :)')';
+    q_end_abs = sqw_proj.transform_hkl_to_pix(rlp(i+1, :)')';
+
+
     if isempty(plane_normal)
-        u2crt = cross(u1crt, bz_norm);
-        if sum(abs(u2crt)) < min(opt.qbin) / 100
-            u2crt = cross(u1crt, bx_norm);
+        dqv_abs = cross(q_dir_abs, bz_norm);
+        if sum(abs(dqv_abs)) < min(opt.qbin) / 100
+            dqv_abs = cross(q_dir_abs, bx_norm);
         end
     else
-        u2crt = ortho_vec(u1crt);
+        dqv_abs = ortho_vec(q_dir_abs);
     end
 
-    u2crt = u2crt ./ norm(u2crt);
+    dqv_abs = dqv_abs ./ norm(dqv_abs);
+    dqw_abs = cross(q_dir_abs, dqv_abs);
+    q_dir_frac = sqw_proj.transform_pix_to_hkl(q_dir_abs')';
+    dqv_frac = sqw_proj.transform_pix_to_hkl(dqv_abs')';
+    dqw_frac = sqw_proj.transform_pix_to_hkl(dqw_abs')';
 
-    % Sets the correct normalisation for u1, u2, u3 (u3 perp to u1 x u2)
-    q_dir = sqw_proj.transform_img_to_pix(u1crt);
-    u2rlp = sqw_proj.transform_img_to_pix(u2crt);
+    ulen = 1./vecnorm(inv(ubmatrix(q_dir_frac, dqv_frac , sqw_proj.bmatrix)));
 
-    u3crt = cross(u1crt, u2crt);
-    u3rlp = sqw_proj.transform_img_to_pix(u3crt);
+    q_dir_rs = q_dir_frac .* ulen(1);
+    dqv_rs = dqv_frac .* ulen(2);
+    dqw_rs = dqw_frac .* ulen(2);
 
-    umat = [u1crt'; ...
-            cross(u1crt, u2crt)'; ...
-            cross(u3crt, u1crt)'];
-
-    ulen = 1 ./ vecnorm(inv(umat));
-
-%     ulen = 1 ./ vecnorm(inv(ubmatrix(q_dir, u2rlp, b)));
-
-    q_dir = q_dir .* ulen(1);
-    u2rlp = u2rlp .* ulen(2);
-    u3rlp = u3rlp .* ulen(3);
-
-    proj = line_proj(q_dir, u2rlp);
+    proj = line_proj(q_dir_rs, ...
+                     dqv_rs, ...
+                     dqw_rs, ...
+                     'type', 'rrr');
 
     % determines the bin size in the desired q-direction in r.l.u.
     u1bin = qbin / ulen(1);
@@ -288,43 +295,51 @@ for i = 1:nseg
     u2bin = qwidth(1) / ulen(2);
     u3bin = qwidth(2) / ulen(3);
 
-    u20 = dot(sqw_proj.transform_pix_to_img(rlp(i, :))', u2crt) / ulen(2);
-    u30 = dot(sqw_proj.transform_pix_to_img(rlp(i, :))', u3crt) / ulen(3);
-
-    u1 = [dot(sqw_proj.transform_pix_to_img(rlp(i, :))', u1crt) / ulen(1), ...
+    u20 = dot(q_start_abs, dqv_abs./norm(dqv_abs))/ulen(2);
+    u30 = dot(q_start_abs, dqw_abs./norm(dqw_abs))/ulen(3);
+    u1 = [dot(q_start_abs, q_dir_abs)/ulen(1), ...
           u1bin, ...
-          dot(sqw_proj.transform_pix_to_img(rlp(i+1, :))', u1crt) / ulen(1)];
+          dot(q_end_abs, q_dir_abs)/ulen(1)];
 
-    % Radu Coldea on 19/12/2018: adjust qbin size to have an exact integer number of bins between the start and end points
-    u1(2) = (u1(3)-u1(1)) / floor((u1(3)-u1(1)) / u1(2));
-
-    u2 = [u20-u2bin, u20+u2bin];
-    u3 = [u30-u3bin, u30+u3bin];
+    % Radu Coldea on 19/12/2018: adjust qbin size to have an exact
+    % integer number of bins between the start and end points
+    u1(2)=(u1(3)-u1(1))/floor((u1(3)-u1(1))/u1(2));
+    u2 = [u20-u2bin,u20+u2bin];
+    u3 = [u30-u3bin,u30+u3bin];
 
     % Make cut, and save to array of d2d
     if nargout>1
         wdisp(i) = cut(sqw_in, proj, u1, u2, u3, ebin); % Keep pixels for 1D cuts
         u1v = u1(1):u1(2):u1(3);
-        for j=1:numel(u1v)-1
-            if wdisp(i).data.pix.num_pixels > 0
-                varargout{2}{i}(j) = d1d(cut(wdisp(i), u1v(j:j+1), []));
-            else
-                varargout{2}{i}(j) = d1d();
+
+        if wdisp(i).data.pix.num_pixels > 0
+            for j=1:numel(u1v)-1
+                varargout{2}{i}(j) = cut(wdisp(i), u1v(j:j+1), []);
             end
+
+            if ~opt.withpix
+                varargout{2}{i} = cellfun(@d1d, varargout{2}{i});
+            end
+
+        else
+            varargout{2}{i} = repmat(d1d(), 1, numel(u1v)-1);
         end
+
         wdisp(i) = d2d(wdisp(i));
     else
+
         wdisp(i) = cut(sqw_in, proj, u1, u2, u3, ebin, '-nopix');
     end
 
     if present.labels
         titlestr = sprintf('Segment from "%s" (%f %f %f) to "%s" (%f %f %f)', ...
-            opt.labels{i}, rlp(i, :), opt.labels{i+1}, rlp(i+1, :));
+                           opt.labels{i}, rlp(i, :), opt.labels{i+1}, rlp(i+1, :));
     else
-        titlestr = sprintf('Segment from (%f %f %f) to (%f %f %f)', rlp(i, :), rlp(i+1, :));
+        titlestr = sprintf('Segment from (%f %f %f) to (%f %f %f)', ...
+                           rlp(i, :), rlp(i+1, :));
     end
 
-    if i>1
+    if i > 1
         wdisp(i).title = titlestr;
     else
         binstr = sprintf(['q bin size approximately %f ', char(197), '^{-1}'], opt.qbin);
@@ -336,6 +351,8 @@ for i = 1:nseg
                 '^{-1} in qv and %f ', char(197), '^{-1} in qw\n%s\n%s'], opt.qwidth, binstr, titlestr);
         end
     end
+
+
 end
 
 if nargout > 0
@@ -354,7 +371,7 @@ end
 function plot_dispersion(wdisp_in,opt)
 % Plots the dispersion in the structure wdisp
 
-scale_x_axis = ~isempty(opt.cuts_plot_size)
+scale_x_axis = ~isempty(opt.cuts_plot_size);
 
 qinc = 0;
 title1 = wdisp_in(1).title;
@@ -367,7 +384,7 @@ if ~isempty(lnbrk)
     wdisp_in(1).title = title1(lnbrk+1:end);
 end
 
-is_ix_dataset = isa(wdisp_in, 'IX_dataset_2d')
+is_ix_dataset = isa(wdisp_in, 'IX_dataset_2d');
 
 if is_ix_dataset
     wdisp = wdisp_in;
@@ -377,7 +394,7 @@ end
 
 for i=1:length(wdisp_in)
 
-    if ~is_ix_dataset % smooth does not work.
+    if ~is_ix_dataset % smooth does not work for IX_datasets.
         % Internally use IX_dataset_2d to manipulate the x-axis (flip and adjust bin boundaries)
         if opt.smooth > 0
             wdisp(i) = IX_dataset_2d(smooth(wdisp_in(i), opt.smooth, opt.smooth_shape));

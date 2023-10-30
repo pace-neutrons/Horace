@@ -392,6 +392,7 @@ classdef aProjectionBase < serializable
         function obj = set.proj_aligned(obj,val)
             obj = obj.set_proj_aligned(val);
         end
+
     end
 
     %======================================================================
@@ -618,6 +619,46 @@ classdef aProjectionBase < serializable
             if nargout == 1
                 pix_hkl = [pix_hkl;en];
             end
+        end
+
+        function pix_img = transform_hkl_to_pix(obj,pix_hkl,varargin)
+            % Converts from hkl coordinate system
+            % to pixel coordinate system (Crystal Cartesian)
+            %
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in.
+            %
+            % pix_hkl  -- 4xNpix or 3xNpix array of pixel coordinates in
+            %             hkl (physical) coordinate system (4-th
+            %             coordinate, if requested, is the energy transfer)
+            %
+            % Output:
+            % pix_img   -- 4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the coordinate system defined by
+            %              this projection
+            pix_img = obj.bmatrix() * pix_hkl;
+        end
+
+        function pix_img = transform_hkl_to_img(obj,pix_hkl,varargin)
+            % Converts from hkl coordinate system
+            % to image coordinate system
+            %
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in.
+            %
+            % pix_hkl  -- 4xNpix or 3xNpix array of pixel coordinates in
+            %             hkl (physical) coordinate system (4-th
+            %             coordinate, if requested, is the energy transfer)
+            %
+            % Output:
+            % pix_img   -- 4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the coordinate system defined by
+            %              this projection
+            pix_img = obj.transform_pix_to_img(obj.bmatrix() * pix_hkl);
         end
 
         function pix_hkl = tansform_img_to_hkl(obj,img_coord,varargin)
