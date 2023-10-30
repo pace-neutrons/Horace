@@ -494,35 +494,37 @@ wdisp(1).title = title1(1:lnbrk);
 plot(wdisp);
 hold on;
 
-xrlp = zeros(length(wdisp)+1,1);
+xrlp = zeros(length(wdisp) + 1, 1);
 
 for i=1:length(wdisp)
     xrlp(i+1) = wdisp(i).x(end);
-    plot([1 1]*xrlp(i+1),get(gca,'YLim'),'-k');
+    plot([1 1] * xrlp(i+1), get(gca,'YLim'), '-k');
 end
+
 hold off;
 
 if ~isempty(opt.labels)
-    if iscellstr(opt.labels) && numel(opt.labels)==length(wdisp)+1
-        labels = opt.labels;
-    else
-        warning(['Not using user-supplied labels. They are either not a cell array of' ...
-            'strings or not enough for all segments']);
+    if ~iscellstr(opt.labels) || numel(opt.labels) ~= length(wdisp)+1
+        error('HORACE:spaghetti_plot:invalid_argument', ...
+              ['Not using user-supplied labels. They are either not a cell array of' ...
+               'strings or not enough for all segments']);
     end
+
+    labels = opt.labels;
 end
 
-plot_labels(labels,xrlp);
+plot_labels(labels, xrlp);
 
-if sum(isnan(opt.clim))~=2
+if sum(isnan(opt.clim)) ~= 2
     if opt.logscale
         clim = log10(opt.clim);
     else
         clim = opt.clim;
     end
     caxis(clim);
-    chld = get(gcf,'Children');
-    set(findobj(chld,'tag','color_slider_min_value'),'String',num2str(opt.clim(1)));
-    set(findobj(chld,'tag','color_slider_max_value'),'String',num2str(opt.clim(2)));
+    chld = get(gcf, 'Children');
+    set(findobj(chld, 'tag', 'color_slider_min_value'), 'String', num2str(opt.clim(1)));
+    set(findobj(chld, 'tag', 'color_slider_max_value'), 'String', num2str(opt.clim(2)));
 end
 
 if opt.logscale
@@ -530,45 +532,54 @@ if opt.logscale
     if sum(isnan(opt.clim))~=2
         clim = opt.clim;
     else
-        clim = 10.^get(gca,'CLim');
-        chld = get(gcf,'Children');
-        set(findobj(chld,'tag','color_slider_min_value'),'String',num2str(clim(1)));
-        set(findobj(chld,'tag','color_slider_max_value'),'String',num2str(clim(2)));
+        clim = 10.^get(gca, 'CLim');
+        chld = get(gcf, 'Children');
+        set(findobj(chld, 'tag', 'color_slider_min_value'), 'String', num2str(clim(1)));
+        set(findobj(chld, 'tag', 'color_slider_max_value'), 'String', num2str(clim(2)));
     end
 
     hc=colorbar;
 
-    set(hc,'TicksMode','manual');
+    set(hc, 'TicksMode', 'manual');
+
+    step = 9;
+
     majorticks = ceil(log10(clim(1))):floor(log10(clim(2)));
-    ntick=(numel(majorticks)-1)*9;
+
     unitbefore = 10^majorticks(1) / 10;
-    tickstart = ceil(clim(1)*unitbefore) / unitbefore;
-    ticksbefore = tickstart:unitbefore:unitbefore*9;
     unitafter = 10^majorticks(end);
+
+    tickstart = ceil(clim(1)*unitbefore) / unitbefore;
     tickend = floor(clim(2)*unitafter) / unitafter;
+
+    ticksbefore = tickstart:unitbefore:unitbefore*9;
     ticksafter = unitafter:unitafter:tickend;
+
+    ntick = (numel(majorticks) - 1) * step;
     ntick = ntick + numel(ticksbefore) + numel(ticksafter);
-    minorticks = zeros(1,ntick);
+
     ticklabels = cell(1,ntick);
     offset = numel(ticksbefore);
+
+    minorticks = zeros(1,ntick);
     minorticks(1:offset) = ticksbefore;
+
+    tick_index = offset + 1;
 
     for i=0:numel(majorticks)-2
         unit = 10^majorticks(i+1);
-        minorticks(i*9+1+offset:(i+1)*9+offset) = [unit:unit:9*unit];
-        ticklabels{i*9+1+offset} = num2str(unit);
+        tick_index = tick_index + step;
+        minorticks(tick_index:tick_index + step) = [unit:unit:step*unit];
+        ticklabels{tick_index} = num2str(unit);
     end
 
-    if numel(majorticks)<2
-        i = offset+1;
-    else
-        i = (i+1)*9+1+offset;
-    end
+    tick_index = tick_index + step
 
-    minorticks(i:end) = ticksafter;
-    ticklabels{i} = num2str(10^majorticks(end));
-    set(hc,'Ticks',log10(minorticks));
-    set(hc,'TickLabels',ticklabels);
+    minorticks(tick_index:end) = ticksafter;
+    ticklabels{tick_index} = num2str(10^majorticks(end));
+
+    set(hc, 'Ticks', log10(minorticks));
+    set(hc, 'TickLabels', ticklabels);
 end
 
 end
@@ -576,12 +587,12 @@ end
 function plot_labels(labels,xvals)
 % Labels for plots.
 %
-%   >> plot_labels(labels,ndiv)
+%   >> plot_labels(labels, ndiv)
 %
 %   labels      cell array of labels
 %   xvals       positions for the labels
 
-set(gca,'XTick',xvals);
-set(gca,'XTickLabel',labels);
+set(gca, 'XTick', xvals);
+set(gca, 'XTickLabel', labels);
 
 end
