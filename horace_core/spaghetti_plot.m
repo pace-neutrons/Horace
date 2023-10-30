@@ -277,7 +277,7 @@ for i = 1:nseg
     dqv_frac = sqw_proj.transform_pix_to_hkl(dqv_abs')';
     dqw_frac = sqw_proj.transform_pix_to_hkl(dqw_abs')';
 
-    ulen = 1./vecnorm(inv(ubmatrix(q_dir_frac, dqv_frac , sqw_proj.bmatrix)));
+    ulen = 1 ./ vecnorm(inv(ubmatrix(q_dir_frac, dqv_frac, sqw_proj.bmatrix)));
 
     q_dir_rs = q_dir_frac .* ulen(1);
     dqv_rs = dqv_frac .* ulen(2);
@@ -295,17 +295,17 @@ for i = 1:nseg
     u2bin = qwidth(1) / ulen(2);
     u3bin = qwidth(2) / ulen(3);
 
-    u20 = dot(q_start_abs, dqv_abs./norm(dqv_abs))/ulen(2);
-    u30 = dot(q_start_abs, dqw_abs./norm(dqw_abs))/ulen(3);
-    u1 = [dot(q_start_abs, q_dir_abs)/ulen(1), ...
+    u20 = dot(q_start_abs, dqv_abs) / ulen(2);
+    u30 = dot(q_start_abs, dqw_abs) / ulen(3);
+    u1 = [dot(q_start_abs, q_dir_abs) / ulen(1), ...
           u1bin, ...
-          dot(q_end_abs, q_dir_abs)/ulen(1)];
+          dot(q_end_abs, q_dir_abs) / ulen(1)];
 
     % Radu Coldea on 19/12/2018: adjust qbin size to have an exact
     % integer number of bins between the start and end points
-    u1(2)=(u1(3)-u1(1))/floor((u1(3)-u1(1))/u1(2));
-    u2 = [u20-u2bin,u20+u2bin];
-    u3 = [u30-u3bin,u30+u3bin];
+    u1(2) = (u1(3) - u1(1)) / floor((u1(3) - u1(1)) / u1(2));
+    u2 = [u20 - u2bin, u20 + u2bin];
+    u3 = [u30 - u3bin, u30 + u3bin];
 
     % Make cut, and save to array of d2d
     if nargout>1
@@ -375,10 +375,13 @@ scale_x_axis = ~isempty(opt.cuts_plot_size);
 
 qinc = 0;
 title1 = wdisp_in(1).title;
+
 if iscell(title1)
     title1 = title1{1};
 end
+
 lnbrk = strfind(title1, newline);
+
 if ~isempty(lnbrk)
     lnbrk = lnbrk(end);
     wdisp_in(1).title = title1(lnbrk+1:end);
@@ -386,22 +389,16 @@ end
 
 is_ix_dataset = isa(wdisp_in, 'IX_dataset_2d');
 
+% Internally use IX_dataset_2d to manipulate the x-axis (flip and adjust bin boundaries)
 if is_ix_dataset
     wdisp = wdisp_in;
+elseif opt.smooth > 0  % smooth does not work for IX_datasets.
+    wdisp = arrayfun(@(x) IX_dataset_2d(smooth(x, opt.smooth, opt.smooth_shape)), wdisp_in);
 else
-    wdisp = repmat(IX_dataset_2d, 1, length(wdisp_in));
+    wdisp = arrayfun(@IX_dataset_2d, wdisp_in);
 end
 
 for i=1:length(wdisp_in)
-
-    if ~is_ix_dataset % smooth does not work for IX_datasets.
-        % Internally use IX_dataset_2d to manipulate the x-axis (flip and adjust bin boundaries)
-        if opt.smooth > 0
-            wdisp(i) = IX_dataset_2d(smooth(wdisp_in(i), opt.smooth, opt.smooth_shape));
-        else
-            wdisp(i) = IX_dataset_2d(wdisp_in(i));
-        end
-    end
 
     if numel(wdisp(i).x) == size(wdisp(i).signal, 1)+1
         % For plotting, change bin edges to bin centres
@@ -449,11 +446,11 @@ for i=1:length(wdisp_in)
         bra = strfind(title, '(');
         ket = strfind(title, ')');
         hkls = [sscanf(title(bra(1):ket(1)), '(%f %f %f)');
-            sscanf(title(bra(2):ket(2)), '(%f %f %f)')];
+                sscanf(title(bra(2):ket(2)), '(%f %f %f)')];
         quotes = strfind(title, '"');
 
-        if i>1 && abs(sum(hkls(1:3)-hkl0(1:3)))>0.01
-            %warning('(hkl) points for segments %d and %d do not match', i-1, i);
+        % hkl points for segments previous and current do not match'
+        if i > 1 && ~equal_to_tol(hkls(1:3), hkl0(4:6), 'tol', 1e-2)
             if isempty(quotes)
                 labels{i} = sprintf('[%s]/[%s]', str_compress(num2str(hkl0(4:6)')), str_compress(num2str(hkls(1:3)')));
             else
