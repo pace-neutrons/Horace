@@ -36,13 +36,16 @@ classdef PageOp_binary_sqw_img < PageOpBase
             obj.operand   = operand;
             obj.keep_array= keep_array;
             obj.flip      = flip;
-            if nargin>5
+            if nargin>5 && ~isempty(npix)
                 %  This is for operations with pixels only, when you may want
-                %  it. Normally, it cones from w1
+                %  it. Normally, npix comes from w1
                 obj.npix = npix(:);
+                npix_provided = true;
+            else
+                npix_provided = false;                
             end
             if isempty(keep_array)
-                obj.keep_array = logical(obj.npix);
+                obj.keep_array = logical(obj.npix(:));
             else
                 obj.keep_array = keep_array;
             end
@@ -60,10 +63,27 @@ classdef PageOp_binary_sqw_img < PageOpBase
             obj.op_name_ = ...
                 sprintf('binary op: %s between %s and %s', ...
                 func2str(operation),name1_obj,name2_obj);
-            obj.sigvar2.s   = operand.s(:);
-            obj.sigvar2.e   = operand.e(:);
             if ~obj.changes_pix_only
                 obj.var_acc_ = zeros(numel(obj.npix),1);
+            end
+
+            is_dnd_base = isprop(obj.operand,'npix');
+            if numel(obj.npix)== 1 && is_dnd_base && ~npix_provided 
+                % pix <-> DnDBase operation. Needs to be done in npix steps
+                obj.npix = obj.operand.npix(:);
+            end
+
+            % Are operation members consistent?
+            nobj1_elements = obj.pix_.num_pixels;
+            if is_dnd_base
+                nobj2_elements = sum(obj.operand.npix(:));
+            else
+                nobj2_elements = sum(obj.npix(:));
+            end
+            if nobj1_elements ~= nobj2_elements
+                error('HORACE:PageOp_binary_sqw_img:invalid_argument', ...
+                    '%s attempted between inconsistent objects. %s has %d pixels and obj %s addresses %d pixels', ...
+                    obj.op_name_,name1_obj,nobj1_elements,name2_obj,nobj2_elements);
             end
             obj.pix_idx_start_ = 1;
         end
@@ -104,11 +124,11 @@ classdef PageOp_binary_sqw_img < PageOpBase
             % operand
 
             % keep pixels which corresponds to non-empty bins of the second
-            % operand
+            % operand. This is the code from mask operation
             img_block_idx = npix_idx(1):npix_idx(2);
             keep_page_bins = obj.keep_array(img_block_idx );
             npix_block(~keep_page_bins) = 0;
-            
+
             keep_pix  = repelem(keep_page_bins,npix_block);
             page_data =  obj.page_data_(:,keep_pix);
             % remove first operand pixels which have zeros in second operand image
@@ -116,7 +136,8 @@ classdef PageOp_binary_sqw_img < PageOpBase
 
             fp_sig   = repelem(obj.operand.s(img_block_idx),npix_block);
             fp_var   = repelem(obj.operand.e(img_block_idx),npix_block);
-            fake_pix = sigvar(fp_sig,fp_var);
+            % ensure row order
+            fake_pix = sigvar(fp_sig(:)',fp_var(:)');
 
             % Do operation
             if obj.flip
@@ -139,7 +160,7 @@ classdef PageOp_binary_sqw_img < PageOpBase
         %
         function [out_obj,obj] = finish_op(obj,in_obj)
             % reduce total number of pixels in final image to account for
-            % pixels in masked bins
+            % pixels removed from masked bins
             obj.npix_(~obj.keep_array) = 0;
             %
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_);

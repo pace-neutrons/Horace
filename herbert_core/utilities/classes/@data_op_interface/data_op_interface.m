@@ -45,13 +45,10 @@ classdef(Abstract) data_op_interface
         wout = mrdivide(w1,w2)
         wout = mtimes  (w1,w2)
         wout = plus    (w1,w2)
-
     end
     methods(Access=protected)
         w = binary_op_manager(w1,w2,op_function_handle);
         w = binary_op_manager_single(w1, w2, op_function_handle);
-    end
-    methods(Abstract,Access=protected)
-        w = unary_op_manager (w1, op_function_handle);
+        w = unary_op_manager (w1, op_function_handle);        
     end
 end

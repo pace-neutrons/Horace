@@ -1,4 +1,4 @@
-classdef (Abstract) PixelDataBase < serializable
+classdef (InferiorClasses = {?DnDBase},Abstract) PixelDataBase < serializable
     % PixelDataBase provides an abstract base-class interface for pixel data objects
     %
     %   This class provides getters and setters for each data column in an SQW

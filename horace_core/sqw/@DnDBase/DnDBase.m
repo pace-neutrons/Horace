@@ -1,4 +1,4 @@
-classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
+classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
 

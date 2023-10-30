@@ -66,7 +66,6 @@ for i=1:numel(w1)
         page_op = page_op.init(w(i),unary_op);
         w(i)    = w(i).apply_op(page_op);
     else
-        result = unary_op(sigvar(w1(i)));
-        w(i)   = sigvar_set(w(i),result);
+        w(i)    = unary_op_manager@data_op_interface(w1(i));
     end
 end

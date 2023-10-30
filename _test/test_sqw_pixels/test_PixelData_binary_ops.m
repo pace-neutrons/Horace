@@ -196,7 +196,7 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
 
         function test_minus_double_eq_num_pixels_filebacked(obj)
             pix = obj.pix_with_pages;
-            operand = ones(1, pix.num_pixels);
+            operand = 1;
 
             pix_result = pix.do_binary_op(operand, @minus, 'flip', true);
             full_pix_array = concatenate_pixel_pages(pix_result);
@@ -215,20 +215,24 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             operand = ones(1, pix.num_pixels - 1);
 
             f = @() pix.do_binary_op(operand, @plus);
-            assertExceptionThrown(f, 'HORACE:PixelDataFileBacked:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_double:invalid_argument');
         end
 
         function test_add_PixelData_neq_num_pixels_memory(~)
             pix1 = PixelDataMemory(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10));
             pix2 = PixelDataMemory(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11));
             f = @() pix1.do_binary_op(pix2, @plus);
-            assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
+            assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_sqw:invalid_argument');
         end
 
         function test_minus_PixelData_memory(obj)
             data1 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
+            idx = PixelDataBase.field_index('all_indexes');
+            data1 = sortrows(data1',idx)';
+
             pix1 = PixelDataMemory(data1);
             data2 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
+            data2 = sortrows(data2',idx)';
             pix2 = PixelDataMemory(data2);
 
             pix_diff = pix1.do_binary_op(pix2, @minus);
@@ -237,14 +241,17 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             expected_diff(obj.SIGNAL_IDX, :) = pix1.signal - pix2.signal;
             expected_diff(obj.VARIANCE_IDX, :) = pix1.variance + pix2.variance;
 
-            range = [min(expected_diff,[],2),max(expected_diff,[],2)]';
             assertElementsAlmostEqual(pix_diff.data, expected_diff);
+
+            range = [min(expected_diff,[],2),max(expected_diff,[],2)]';
             assertElementsAlmostEqual(pix_diff.data_range,range)
         end
 
-        function test_minus_PixelData_filebacked_memory(obj)
+        function test_minus_PixelData_filebacked_memory_one_stroke(obj)
             pix1 = obj.pix_with_pages;
             pix2 = obj.pix_in_memory;
+            % clOb = set_temporary_config_options(hor_config, ...
+            %     'mem_chunk_size',floor(pix1.num_pixels/3));
 
             pix_diff = pix1.do_binary_op(pix2, @minus);
             full_pix_diff = concatenate_pixel_pages(pix_diff);
@@ -252,6 +259,8 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             expected_diff = obj.ref_raw_pix_data;
             expected_diff(obj.SIGNAL_IDX, :) = 0;
             expected_diff(obj.VARIANCE_IDX, :) = 2*obj.ref_raw_pix_data(obj.VARIANCE_IDX, :);
+            run_idxs = PixelDataBase.field_index('all_indexes');
+            expected_diff = sortrows(expected_diff',run_idxs)';
             assertEqual(full_pix_diff, expected_diff);
         end
 
@@ -295,21 +304,30 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             sig = [0.5, 0.6, 0.7];
 
             f = @() pix.do_binary_op(sig, @plus, 'npix', npix);
-            assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_double:invalid_argument');
         end
 
         function test_add_dnd_neq_num_pixels_filebacked(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
             pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
             f = @() pix.do_binary_op(dnd_obj, @plus);
-            assertExceptionThrown(f, 'HORACE:PixelDataFileBacked:invalid_argument');
+            ME=assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_img:invalid_argument');
+            assertTrue(strncmp(ME.message,'binary op: plus',15))
         end
+        % function test_add_dnd_neq_num_pixels_filebacked_reverse(obj)
+        %     dnd_obj = read_dnd(obj.test_sqw_file_path);
+        %     pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
+        %     f = @() dnd_obj.plus(pix);
+        %     ME=assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_img:invalid_argument');
+        %     assertTrue(strncmp(ME.message,'binary op: plus',15))
+        % end
 
         function test_add_dnd_neq_num_pixels_memory(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
             pix = PixelDataMemory(zeros(9, 2));
             f = @() pix.do_binary_op(dnd_obj, @plus);
-            assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
+            ME=assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_img:invalid_argument');
+            assertTrue(strncmp(ME.message,'binary op: plus',15))
         end
 
         function test_add_1d_dnd_filebacked(obj)
@@ -334,7 +352,8 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
 
             f = @() pix.do_binary_op(svar, @plus, 'flip', false, ...
                 'npix', dnd_obj.npix);
-            assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
+            assertExceptionThrown(f, ...
+                'HORACE:PageOp_binary_sqw_img:invalid_argument');
         end
 
         function test_add_2Dsigvar_filebacked(obj)
@@ -437,7 +456,7 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             expected_variance = (s_dnd.^2).*e_pix + (s_pix.^2).*e_dnd;
             expected_pix(obj.VARIANCE_IDX, :) = expected_variance;
 
-            assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
+            assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 2*eps('single'))
         end
     end
 

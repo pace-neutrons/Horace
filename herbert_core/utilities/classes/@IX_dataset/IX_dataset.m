@@ -181,7 +181,7 @@ classdef IX_dataset < data_op_interface & serializable
         % along the axes, defined by direction
         wout = rebin_xyz(win, array_is_descriptor,dir,varargin)
         
-        w = unary_op_manager (w1, unary_op)
+        %w = unary_op_manager (w1, unary_op)
     end
     %======================================================================
     methods(Static,Access=protected)

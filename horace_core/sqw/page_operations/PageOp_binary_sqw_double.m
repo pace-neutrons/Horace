@@ -29,7 +29,7 @@ classdef PageOp_binary_sqw_double < PageOpBase
             obj = obj@PageOpBase(varargin{:});
             obj.sigvar_idx_ = PixelDataBase.field_index('sig_var');
         end
-        function obj = init(obj,w1,operand,operation,flip)
+        function obj = init(obj,w1,operand,operation,flip,npix)
             obj = init@PageOpBase(obj,w1);
 
             obj.op_handle = operation;
@@ -40,6 +40,15 @@ classdef PageOp_binary_sqw_double < PageOpBase
                 name1_obj = 'pix'; % this is for pix-pix operations
             else
                 name1_obj = 'sqw';
+            end
+            if nargin>5 && ~isempty(npix)
+                if obj.pix_.num_pixels ~= sum(npix(:))
+                    error('HORACE:PageOp_binary_sqw_double:invalid_argument', ...
+                        ['Number of pixels of the first operand (%d) inconsistent ' ...
+                        'with its distribution, provided as #5th argument npix (%d)'], ...
+                        obj.pix_.num_pixels,sum(npix(:)));
+                end
+                obj.npix = npix(:);
             end
             obj.sigvar2.e   =   [];
             if numel(operand) == 1

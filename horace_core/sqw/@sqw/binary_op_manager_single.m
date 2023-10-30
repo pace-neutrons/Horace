@@ -41,7 +41,7 @@ elseif isa(w2, 'double')
     else
         % w2 is an sqw object that contains no pixel data and w1 is a double
         if isscalar(w2) || isequal(size(w1.s), size(w2))
-            wout = copy(w1);
+            wout   = copy(w1);
             result = binary_op(sigvar(w1), sigvar(w2, []));
             wout   = sigvar_set(wout, result);
             return;

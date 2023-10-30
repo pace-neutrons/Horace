@@ -1,7 +1,7 @@
 classdef PixelDataFileBacked < PixelDataBase
     % PixelDataFileBacked Provides an interface for access to file-backed pixel data.
-	% Each pixel is representation of neutron event, i.e. neutron or group of neutron
-	% recorded in inelastic neutron experiment
+    % Each pixel is representation of neutron event, i.e. neutron or group of neutron
+    % recorded in inelastic neutron experiment
     %
     % This class provides getters and setters for each data column in an SQW
     % pixel array. You can access the data using the attributes listed below,
@@ -132,8 +132,6 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             obj = set_raw_data_(obj,pix);
         end
-
-        pix_out = do_binary_op(obj, operand, binary_op, varargin);
     end
 
     methods

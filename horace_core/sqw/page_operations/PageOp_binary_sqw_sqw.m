@@ -34,8 +34,17 @@ classdef PageOp_binary_sqw_sqw < PageOpBase
             obj.sigvar_idx_ = PixelDataBase.field_index('sig_var');
         end
 
-        function obj = init(obj,w1,w2,operation)
+        function obj = init(obj,w1,w2,operation,varargin)
+            %
             obj = init@PageOpBase(obj,w1);
+            if nargin>4 && ~isempty(varargin{1})% npix provided (usually for
+                % testing pure pix operations)
+                % user have to make all checks to ensure sum(npix(:)) ==
+                % pix.num_pixels. As this is part of algorithm, this check
+                % is expected internaly
+                obj.npix = varargin{1};
+            end
+            %
             if isa(w2,'sqw')
                 name2_obj = 'sqw';
                 obj.pix2_ = w2.pix;
@@ -51,6 +60,12 @@ classdef PageOp_binary_sqw_sqw < PageOpBase
             obj.op_handle = operation;
             obj.op_name_ = sprintf('binary op: %s between %s and %s objects', ...
                 func2str(operation),name1_obj,name2_obj);
+            if obj.pix_.num_pixels ~= obj.pix2_.num_pixels
+                error('HORACE:PageOp_binary_sqw_sqw:invalid_argument', ...
+                    'Pixels in %s are inconsistent as obj1 has %d pixels and obj2 has %d pixels', ...
+                    obj.op_name_,obj.pix_.num_pixels,obj.pix2_.num_pixels);
+            end
+
             if ~obj.changes_pix_only
                 obj.var_acc_ = zeros(numel(obj.npix),1);
             end
@@ -73,6 +88,7 @@ classdef PageOp_binary_sqw_sqw < PageOpBase
             %                the npix array.
             % See split procedure for more details
             [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
+
         end
 
         function obj = get_page_data(obj,idx,npix_blocks)
@@ -89,11 +105,11 @@ classdef PageOp_binary_sqw_sqw < PageOpBase
                 obj.pix_idx_start_:pix_idx_end,'-raw');
             % sort pixels as they usually randomly distributed
             % within the bins. These are the pixel indexes
-            chunk_idx = repelem(1:npix,npix_block);
+            chunk_idx = repelem(1:numel(npix),npix_block);
             % sort first pages by rows and then by all 3 pix_idx, defining
             % neutron event
-            [~,idx1]  = sortrows([chunk_idx,obj.page_data_(obj.all_idx_)]);
-            [~,idx2]  = sortrows([chunk_idx,    page_data2(obj.all_idx_)]);
+            [~,idx1]  = sortrows([chunk_idx;obj.page_data_(obj.all_idx_,:)]');
+            [~,idx2]  = sortrows([chunk_idx;    page_data2(obj.all_idx_,:)]');
             obj.page_data_ = obj.page_data_(:,idx1);
             page_data2     =     page_data2(:,idx2);
             % Here we may introduce check to ensure pixels coordinates are
