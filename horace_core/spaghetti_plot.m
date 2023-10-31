@@ -171,7 +171,7 @@ if present.cuts_plot_size
 end
 
 if isa(sqw_in, 'sqw')
-
+    % pass
 elseif istext(sqw_in) && is_file(sqw_in)
     sqw_in = sqw(sqw_in);
 else
@@ -308,27 +308,28 @@ for i = 1:nseg
     u3 = [u30 - u3bin, u30 + u3bin];
 
     % Make cut, and save to array of d2d
-    if nargout>1
-        wdisp(i) = cut(sqw_in, proj, u1, u2, u3, ebin); % Keep pixels for 1D cuts
+
+    wdisp(i) = cut(sqw_in, proj, u1, u2, u3, ebin);
+
+    if nargout > 1
+
         u1v = u1(1):u1(2):u1(3);
 
-        if wdisp(i).data.pix.num_pixels > 0
+        if wdisp(i).has_pixels()
             for j=1:numel(u1v)-1
                 varargout{2}{i}(j) = cut(wdisp(i), u1v(j:j+1), []);
             end
-
-            if ~opt.withpix
-                varargout{2}{i} = cellfun(@d1d, varargout{2}{i});
-            end
-
         else
-            varargout{2}{i} = repmat(d1d(), 1, numel(u1v)-1);
+            varargout{2}{i} = repmat(sqw(), 1, numel(u1v)-1);
         end
 
-        wdisp(i) = d2d(wdisp(i));
-    else
+    end
 
-        wdisp(i) = cut(sqw_in, proj, u1, u2, u3, ebin, '-nopix');
+    if ~opt.withpix
+        wdisp(i) = d2d(wdisp(i));
+        if nargout > 1
+            varargout{2}{i} = cellfun(@d1d, varargout{2}{i});
+        end
     end
 
     if present.labels
@@ -362,7 +363,7 @@ end
 % Plot dispersion
 %----------------
 if nargout<1 || (~present.noplot)
-    plot_dispersion(wdisp,opt)
+    plot_dispersion(arrayfun(@d2d, wdisp),opt)
 end
 
 end
@@ -505,9 +506,9 @@ hold off;
 
 if ~isempty(opt.labels)
     if ~iscellstr(opt.labels) || numel(opt.labels) ~= length(wdisp)+1
-        error('HORACE:spaghetti_plot:invalid_argument', ...
-              ['Not using user-supplied labels. They are either not a cell array of' ...
-               'strings or not enough for all segments']);
+        warning('HORACE:bad_labels', ...
+                ['Not using user-supplied labels. They are either not a cell array of' ...
+                 'strings or not enough for all segments']);
     end
 
     labels = opt.labels;
