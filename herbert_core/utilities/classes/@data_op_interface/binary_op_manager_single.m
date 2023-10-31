@@ -29,50 +29,17 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 % must be the superior class (assuming that a method with this name is
 % defined for both classes)
 %
-% We make a copy of whichever of w1 or w2 is the superior class, so that
-% any of the additional properties are carried through unchanged. If both
-% are instances of class classname, then w1 is assumed dominant.
-
-if ~isa(w1, 'double') && ~isa(w2, 'double')
-    % Neither of w1, w2 is a double array
-    sz = cell(2,1);
-    sz{1} = sigvar_size(w1);
-    sz{2} = sigvar_size(w2);
-    if isequal(sz{1},sz{2})
-        wout = w1;  % if w1 and w2 are both the same size, use w1
-    elseif isequal(sz{1},[1,1])
-        wout = w2; % if w2 bigger then w1, result would have size w2
-    elseif isequal(sz{2},[1,1])
-        wout = w1;
-    else
-        error('HERBERT:data_op_interface:binary_op_manager_single', ...
-            'Sizes of signal arrays in the objects are different.');
-    end
-elseif isa(w2, 'double')
-    % w1 is an instance of classname, w2 is a double
-    if isscalar(w2) || isequal(sigvar_size(w1), size(w2))
-        %----------------------------------------------------------------------
-        % The following block may be class specific
-        wout   = w1;
-        %----------------------------------------------------------------------
-    else
-        error('HERBERT:data_op_interface:binary_op_manager_single', ...
-            ['Check that the numeric variable is scalar or array ' ...
-            'with same size as object signal.']);
-    end
-
-elseif isa(w1, 'double')
-    % w2 is an instance of classname, w1 is a double
-    if isscalar(w1) || isequal(sigvar_size(w2),size(w1))
-        %----------------------------------------------------------------------
-        % The following block may be class specific
-        wout   = w2;
-        %----------------------------------------------------------------------
-    else
-        error('HERBERT:data_op_interface:binary_op_manager_single', ...
-            ['Check that the numeric variable is scalar or array ' ...
-            'with same size as object signal.']);
-    end
+sz1 = sigvar_size(w1);
+sz2 = sigvar_size(w2);
+if ~(isequal(sz1,sz2) || isequal(sz1,[1,1]) || isequal(sz2,[1,1]))
+    error('HERBERT:data_op_interface:binary_op_manager_single', ...
+        'Size of signal array for obj1(%d) differs from size of obj2(%d) and any is not unit size', ...
+        mat2str(sz1),mat2str(sz2));
+end
+if data_op_interface.is_superior(w1,w2)
+    wout = w1;
+else
+    wout = w2;    
 end
 result = sigvar(w1).binary_op_manager(sigvar(w2),binary_op);
 wout   = sigvar_set(wout, result);

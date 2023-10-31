@@ -33,26 +33,26 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 % any of the additional properties are carried through unchanged. If both
 % are instances of class classname, then w1 is assumed dominant.
 
+sz1  = sigvar_size(w1);
+sz2  = sigvar_size(w2);
 if isa(w1, 'sigvar') && isa(w2, 'sigvar')
     % Neither of w1, w2 is a double array
-    sz1  = sigvar_size(w1);
-    sz2  = sigvar_size(w2);
     if ~(isequal(sz1,sz2) || isequal(sz1,[1,1]) || isequal(sz2,[1,1]))
-        error('HERBERT:data_op_interface:binary_op_manager_single', ...
+        error('HERBERT:sigvar:binary_op_manager_single', ...
             'Sizes of signal arrays in the objects are different.');
     end
 elseif ~isa(w2, 'sigvar')
     % w1 is an instance of classname, w2 is a double
-    if ~(isscalar(w2) || isequal(sigvar_size(w1), size(w2)))
-        error('HERBERT:data_op_interface:binary_op_manager_single', ...
+    if ~(isequal(sz2,[1,1]) || isequal(sz1, sz2))
+        error('HERBERT:sigvar:binary_op_manager_single', ...
             ['Check that the numeric variable is scalar or array ' ...
             'with same size as object signal.']);
     end
     w2 = sigvar(w2);
-elseif ~isa(w1, 'sigvar') % ? Never happens
+elseif ~isa(w1, 'sigvar') % ? Never happens as this is sigvar method?
     % w2 is an instance of sigvar, w1 is a double
-    if ~(isscalar(w1) || isequal(sigvar_size(w2),size(w1)))
-        error('HERBERT:data_op_interface:binary_op_manager_single', ...
+    if ~(isequal(sz1,[1,1]) || isequal(sz1, sz2))
+        error('HERBERT:sigvar:binary_op_manager_single', ...
             ['Check that the numeric variable is scalar or array ' ...
             'with same size as object signal.']);
     end

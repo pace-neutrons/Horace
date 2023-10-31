@@ -91,7 +91,7 @@ classdef test_IX_dataset_1d_ops1_2_Part2 < TestCaseWithSave
 
             testfun = @()plus(w2,w1);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:sigvar:binary_op_manager_single');
         end
 
 
