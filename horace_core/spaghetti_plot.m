@@ -130,7 +130,7 @@ flags = {'noplot', 'logscale', 'withpix'};
 % --------------------
 [args, opt, present] = parse_arguments(varargin, arglist, flags);
 
-if numel(args) == 1 && isa(args{1}(1), 'd2d') || isa(args{1}(1), 'IX_dataset_2d')
+if numel(args) == 1 && (isa(args{1}(1), 'd2d') || isa(args{1}(1), 'IX_dataset_2d'))
     plot_dispersion(args{1}, opt);
     return
 elseif isa(args{2}(1), 'd2d')
