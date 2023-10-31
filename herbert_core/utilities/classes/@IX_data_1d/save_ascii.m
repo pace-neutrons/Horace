@@ -49,6 +49,7 @@ else
         if (fid<0)
             ok=false; mess=['Cannot open file ' file_full];
         end
+        clOb = onCleanup(@()fclose(fid));
     end
     fid_given=false;
 end
@@ -59,13 +60,13 @@ if ~ok && nargout==0, error(mess), end
 % ------------------
 for i=1:length(w)
     labels = put_struct_to_labels (struct('title',{w(i).title}));
-    x_axis= put_struct_to_labels (struct(w(i).x_axis),'except','ticks');
+    x_axis= put_struct_to_labels (w(i).x_axis.to_struct(),'except','ticks');
     for j=1:numel(x_axis)
         x_axis{j}=['x_',x_axis{j}];
     end
     labels=[labels,x_axis];
     labels = put_struct_to_labels (struct('x_distribution',w(i).x_distribution), labels);
-    s_axis= put_struct_to_labels (struct(w(i).s_axis),'except','ticks');
+    s_axis= put_struct_to_labels (w(i).s_axis.to_struct(),'except','ticks');
     for j=1:numel(s_axis)
         s_axis{j}=['signal_',s_axis{j}];
     end
@@ -83,7 +84,7 @@ end
 
 % Close file if function was given a file name, not fid:
 if ~fid_given
-    fclose(fid);
+    clear clOb;
 end
 
 % Ensure that if no arguments, do not get any output (otherwise from command line
