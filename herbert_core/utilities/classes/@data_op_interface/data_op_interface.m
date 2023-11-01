@@ -45,9 +45,9 @@ classdef(Abstract) data_op_interface
         wout = uplus (win)
         %------------------------------------------------------------------
         % binary operations
-        wout = mpower(w1,w2)        
         wout = minus   (w1,w2)
         wout = mldivide(w1,w2)
+        wout = mpower  (w1,w2)
         wout = mrdivide(w1,w2)
         wout = mtimes  (w1,w2)
         wout = plus    (w1,w2)

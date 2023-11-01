@@ -1,19 +1,22 @@
-function w = cos (w1)
+function w1 = cos(w)
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
+%   doc_file_header = fullfile(doc_dir,'doc_sigvar_unary_single.m')
 %
-%   doc_file_header = fullfile(doc_dir,'doc_unary_header.m')
-%   doc_file_IO = fullfile(doc_dir,'doc_unary_general_args_IO_description.m')
-%
-%   list_operator_arg = 0
 %   func_name = 'cos'
 % -----------------------------------------------------------------------------
 % <#doc_beg:> binary_and_unary_ops
 %   <#file:> <doc_file_header>
-%
-%   <#file:> <doc_file_IO> <list_operator_arg>
 % <#doc_end:>
 % -----------------------------------------------------------------------------
-
-w = unary_op_manager (w1, @cos_single);
+w1=w;
+s = cos(w.signal_);
+if ~isempty(w.variance_)
+    w1.variance_ = abs(1-s.^2).*w.variance_;     % ensure positive
+else
+    w1.variance_ = [];
+end
+w1.signal_ = s;
+w1.msk     = []; % this is how the initial operation was performed.
+%                  Is it what was intended?
