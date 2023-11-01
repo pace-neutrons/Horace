@@ -21,10 +21,13 @@ if isempty(obj.trial_cluster_config_)
     end    
 else
     try_config    = obj.trial_cluster_config_;
-    if ~ismember(try_config,cluster_configs)
-        error('HREBERT:parallel_config:invalid_argument', ...
+    is_config     = cellfun(@(x)strncmp(x,try_config,numel(try_config)),cluster_configs);
+    if ~any(is_config)
+        error('HERBERT:parallel_config:invalid_argument', ...
             'Cluster %s can not use configuration %s', ...
             full_cl_name,try_config)
+    else
+        try_config = cluster_configs{is_config};
     end
 end
 
