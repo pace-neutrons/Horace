@@ -329,7 +329,7 @@ classdef test_PixelDataBase < TestCase
 
 
         function test_cat_combines_given_PixelData_objects(obj)
-            skipTest('Re #1330 disabled unitl cat is properly refactored')
+            skipTest('Re #1330 disabled until cat is properly refactored')
             pix_data_obj1 = obj.get_random_pix_data_(10);
             pix_data_obj2 = obj.get_random_pix_data_(5);
 

@@ -36,14 +36,13 @@ if nargin==2
     end
     if isa(varargin{1},'IX_data_2d')
         obj = build_from_IX_data_2d_(obj,varargin{1});
-        obj.do_check_combo_ags_ = true;
+        obj.do_check_combo_arg_= true;
         obj = check_combo_arg (obj);
-
         return
     end
     if isa(varargin{1},'IX_data_3d')
         obj = build_from_IX_data_3d_(obj,varargin{1});
-        obj.do_check_combo_ags_ = true;
+        obj.do_check_combo_arg_ = true;
         obj = check_combo_arg (obj);
         return
     end
@@ -51,14 +50,6 @@ if nargin==2
     in = varargin{1};
     if isstruct(in)   % structure input
         obj = obj.init_from_structure(in);
-        %     elseif iscell(in) % does not work with cellarray
-        %         tob = cell(numel(in),1);
-        %         in1d = reshape(in,numel(in),1);
-        %         for i=1:numel(in)
-        %             tob{i} = IX_dataset_1d(in1d{i});
-        %         end
-        %         obj = reshape(tob,size(in));
-        %         return;
     elseif isnumeric(in)
         if size(in,1) == 3 && size(in,2) > 1
             obj.xyz_{1} = obj.check_xyz(in(1,:));
@@ -86,7 +77,6 @@ elseif nargin == 5
     obj = check_and_set_sig_err_(obj,'signal',varargin{2});
     obj = check_and_set_sig_err_(obj,'error',varargin{3});
     obj.x_distribution=varargin{4};
-    %obj.xyz_distribution_=logical(varargin{4});
 elseif nargin==7 || (nargin==8 && isnumeric(varargin{1}))
     obj.xyz_{1} = obj.check_xyz(varargin{1});
     obj = check_and_set_sig_err_(obj,'signal',varargin{2});
@@ -97,7 +87,6 @@ elseif nargin==7 || (nargin==8 && isnumeric(varargin{1}))
     obj.x_axis=varargin{5};
     if nargin==8
         obj.x_distribution=varargin{7};
-        %obj.xyz_distribution_=logical(varargin{7});
     else
         obj.xyz_distribution_=true;
     end
@@ -111,7 +100,6 @@ elseif nargin==8
     obj = check_and_set_sig_err_(obj,'error',varargin{3});
 
     obj.x_distribution=varargin{7};
-    %obj.xyz_distribution_=logical(varargin{7});
 else
     error('HERBERT:IX_dataset_1d:invalid_argument', ...
         'Wrong number of arguments');
