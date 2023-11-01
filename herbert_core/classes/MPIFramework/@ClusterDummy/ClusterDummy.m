@@ -53,9 +53,7 @@ classdef ClusterDummy < ClusterWrapper
             if nargin < 2
                 return;
             end
-
-            obj = obj.init(n_workers,mess_exchange_framework,log_level)
-
+            obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
 
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
