@@ -1,4 +1,4 @@
-classdef PixelDataFileBacked < PixelDataBase
+classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked < PixelDataBase
     % PixelDataFileBacked Provides an interface for access to file-backed pixel data.
     % Each pixel is representation of neutron event, i.e. neutron or group of neutron
     % recorded in inelastic neutron experiment

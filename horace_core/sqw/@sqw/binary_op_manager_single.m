@@ -9,32 +9,46 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 %   (2) have dimensions method that gives the dimensionality of the double array
 %           >> nd = dimensions(obj)
 
-if ~is_allowed_type(w1) || ~is_allowed_type(w2)
-    error('HORACE:SQW:binary_op_manager_single', ...
-        ['Cannot perform binary operation between types ' ...
-        '''%s'' and ''%s''.'], class(w1), class(w2));
-end
+% also checks if operation between classes alowed
+[is_w2_superior,two_sqw] = data_op_interface.is_superior(w1,w2);
 
-if ~isa(w1, 'double') && ~isa(w2, 'double')
-    if isa(w1, 'sqw') && has_pixels(w1) && isa(w2, 'sqw') && has_pixels(w2)
+
+if two_sqw
+    if has_pixels(w1) && has_pixels(w2)
         % Both inputs SQW objects with pixels
         [wout,page_op] = init_binary_op_sqw_sqw(w1, w2, binary_op);
-    elseif isa(w1, 'sqw') && has_pixels(w1)
+    elseif has_pixels(w1)
         % w1 is sqw-type (with pixels), but w2 could be anything that is not
         % a double e.g. sqw object with no pixels, a d2d object, or sigvar object etc.
         [wout,page_op] = init_binary_op_sqw_img(w1, w2, binary_op,false);
-    elseif isa(w2, 'sqw') && has_pixels(w2)
+    elseif has_pixels(w2)
         % w2 is sqw-type (with pixels), but w2 could be anything that is not
         % a double e.g. sqw object with no pixels, a d2d object, or sigvar object etc.
         [wout,page_op]  = init_binary_op_sqw_img(w2, w1, binary_op,true);
-    elseif isa(w1, 'sqw') &&  isa(w2, 'sqw')
+    else
         % Both inputs are SQW objects with NO pixels. Non sqw objects will
         % never come here as processed by its own method
         wout = copy(w1);
         wout.data = binary_op(w1.data,w2.data);
         return
     end
-elseif isa(w2, 'double')
+elseif is_w2_superior
+    flip = true;
+    if isa(w2,'sqw')
+        if has_pixels(w2)
+            if isnumeric(w1)
+            else
+            end
+        else
+        end
+    else
+    end
+else
+    flip = false;    
+end
+
+if     
+    isa(w2, 'double')
     if has_pixels(w1)
         % first input is an sqw object and second input is a double
         [wout,page_op] = init_binary_op_sqw_double(w2, w1, binary_op,false);
@@ -72,16 +86,7 @@ end
 wout    = wout.apply_op(page_op);
 
 end
-
-% =============================================================================
-% Helpers
-% =============================================================================
-function allowed = is_allowed_type(obj)
-allowed_types = {'double', 'SQWDnDBase', 'sigvar'};
-allowed = any(cellfun(@(t) isa(obj, t), allowed_types));
-end
-
-
+%--------------------------------------------------------------------------
 function [wout,page_op] = init_binary_op_sqw_double(w1, w2, binary_op,flip)
 % Perform a binary operation between an SQW object and a double scalar or
 % array, returning the resulting SQW object

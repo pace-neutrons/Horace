@@ -1,5 +1,4 @@
-classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
-
+classdef test_PixelDataBase < TestCase
     properties
 
         SMALL_PG_SIZE = 1e5;  % 10,000 pix
@@ -433,7 +432,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
         function test_loop_to_sum_signal_data(obj)
             data = randi([0, 99], 9, 30);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             signal_sum = 0;
             for i = 1:pix.num_pages
@@ -484,7 +483,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
         function test_set_fields_with_nonscalar_data_sets_Ndata(obj)
             data = zeros(9, 30);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             pix.page_num = 2;
             pix.u1 = ones(1,11);
@@ -521,7 +520,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             data = rand(9, 13);
             npix_in_page = 3;
 
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             for i = 1:pix.num_pages
                 pix.page_num = i;
@@ -545,7 +544,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
 
             npix_in_page = 9;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             for pg_num = [2, 4, 3, 1]
                 pg_idx_start = (pg_num - 1)*npix_in_page + 1;
@@ -562,7 +561,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
 
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
             function set_page(pix,npage)
                 pix.page_num = npage;
             end
@@ -576,7 +575,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
 
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
             function set_page(pix,npage)
                 pix.page_num = npage;
             end
@@ -594,7 +593,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
 
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             function set_page(pix,npage)
                 pix.page_num = npage;
@@ -609,7 +608,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
 
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             start_idx = 9;
             end_idx = 23;
@@ -626,11 +625,11 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 10;
 
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
             pix_chunk1 = pix.get_pixels(1:3);
             ref_range = obj.get_ref_range(data(:, 1:3));
 
-            assertElementsAlmostEqual(pix_chunk1.data, data(:, 1:3),... ...
+            assertElementsAlmostEqual(pix_chunk1.data, data(:, 1:3),...
                 'relative',obj.tol);
             assertElementsAlmostEqual(pix_chunk1.pix_range,ref_range,...
                 'relative',obj.tol);
@@ -657,7 +656,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
 
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
             ref_range = obj.get_ref_range(data(:,1:num_pix));
             pix_chunk = pix.get_pixels(1:num_pix);
             assertElementsAlmostEqual(pix_chunk.pix_range,ref_range,...
@@ -671,7 +670,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ref_range, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ref_range, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             rand_order = randperm(num_pix);
             shuffled_pix = data(:, rand_order);
@@ -691,7 +690,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             idx_array = 25:35;
             f = @() pix.get_pixels(idx_array);
@@ -702,7 +701,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             idx_array = -1:20;
             f = @() pix.get_pixels(idx_array);
@@ -726,7 +725,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             logical_array = logical(randi([0, 1], [1, 10]));
             ref_range = obj.get_ref_range(data(:,logical_array));
@@ -742,7 +741,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), true);
             f = @() pix.get_pixels(logical_array);
@@ -754,7 +753,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), false);
             pix_out = pix.get_pixels(logical_array);
@@ -785,7 +784,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             idx_array = cat(2, randperm(num_pix), randperm(num_pix));
 
@@ -811,7 +810,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
         function test_get_prop_returns_data_across_pages_by_absolute_index(obj)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             indices = [9:13, 20:24];
             pix_data = pix.get_pixels(indices,'-raw');
@@ -826,7 +825,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 10;
 
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             sig = pix.signal(1:3);
             assertElementsAlmostEqual(sig, data(obj.SIGNAL_IDX, 1:3),...
@@ -845,7 +844,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             logical_array = logical(randi([0, 1], [1, 10]));
             sig_var = pix.sig_var(:,logical_array);
@@ -856,11 +855,11 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
                 'relative',obj.tol);
         end
 
-        function test_get_prop_throws_if_logical_1_index_out_of_range(obj)
+        function test_get_prop_throws_if_logical_1_index_out_of_range(~)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), true);
             function ss=thrower(pix,lar)
@@ -871,10 +870,11 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             assertExceptionThrown(f, 'MATLAB:badsubscript');
         end
         function test_get_pix_return_partial_pix(obj)
+
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             logical_array = logical(randi([0, 1], [1, num_pix]));
             r_data = pix.get_pixels(logical_array,'sig_var','-raw');
@@ -889,7 +889,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             logical_array = logical(randi([0, 1], [1, num_pix]));
             r_data = pix.get_pixels(logical_array,'-raw');
@@ -913,7 +913,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             idx_array = [10 1 10 10 10];
             sig = pix.signal(idx_array);
@@ -928,7 +928,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
 
             npix_in_page = 11;
-            [pix, pix_range, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, pix_range, clob] = get_pix_with_fake_faccess(data, npix_in_page);
             assertElementsAlmostEqual(pix.pix_range,pix_range,...
                 'relative',obj.tol);
         end
@@ -937,7 +937,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, pix_range, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, pix_range, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             rand_order = randperm(num_pix);
             shuffled_pix = data(:, rand_order);
@@ -947,11 +947,11 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
                 'relative',obj.tol);
         end
 
-        function test_get_prop_throws_if_range_out_of_bounds(obj)
+        function test_get_prop_throws_if_range_out_of_bounds(~)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             function ss=thrower(pix,lar)
                 ss = pix.signal(lar);
@@ -1071,22 +1071,12 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             ref_range = [min(data(1:4, :),[],2),...
                 max(data(1:4, :),[],2)]';
         end
-
-        function [pix,pix_range,clob] = get_pix_with_fake_faccess(data, npix)
-            clobW = set_temporary_warning('off', 'HOR_CONFIG:set_mem_chunk_size');
-            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', npix);
-
-            pix = PixelDataFileBacked(data);
-            pix_range = [min(data(1:4, :), [], 2), ...
-                max(data(1:4, :), [], 2)]';
-        end
-
         function do_pixel_data_loop_with_f(obj, func, data)
             % func should be a function handle, it is evaluated within a
             % while-advance block over some pixel data
 
             npix_in_page = 11;
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, ~, clob] = get_pix_with_fake_faccess(data, npix_in_page);
 
             func(pix, 0);
             for i = 1:pix.num_pages

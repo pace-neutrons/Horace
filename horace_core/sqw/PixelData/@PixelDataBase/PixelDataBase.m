@@ -1,4 +1,5 @@
-classdef (InferiorClasses = {?DnDBase},Abstract) PixelDataBase < serializable
+classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
+        PixelDataBase < data_op_interface & serializable
     % PixelDataBase provides an abstract base-class interface for pixel data objects
     %
     %   This class provides getters and setters for each data column in an SQW
@@ -336,7 +337,7 @@ classdef (InferiorClasses = {?DnDBase},Abstract) PixelDataBase < serializable
     %======================================================================
     methods(Abstract)
         % --- Pixel operations ---
-        pix_out = append(obj, pix);
+        pix_out  = append(obj, pix);
         pix_copy = copy(obj)
 
 
@@ -911,6 +912,10 @@ classdef (InferiorClasses = {?DnDBase},Abstract) PixelDataBase < serializable
                 unique_idx = unique(obj.run_idx);
             end
         end
+        %------------------------------------------------------------------
+        %Operations
+        w = binary_op_manager_single(w1, w2, op_function_handle);
+        w = unary_op_manager (w1, op_function_handle);
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
@@ -960,7 +965,6 @@ classdef (InferiorClasses = {?DnDBase},Abstract) PixelDataBase < serializable
             else
                 obj = PixelDataMemory();
             end
-
             obj = loadobj@serializable(S,obj);
         end
 

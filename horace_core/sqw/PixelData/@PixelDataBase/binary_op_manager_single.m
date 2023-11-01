@@ -37,9 +37,17 @@ if ~(isequal(sz1,sz2) || isequal(sz1,[1,1]) || isequal(sz2,[1,1]))
         mat2str(sz1),mat2str(sz2));
 end
 if data_op_interface.is_superior(w1,w2)
-    wout = w2;
+    wout = copy(w2);
+    operand = w1;
+    flip = true;
 else
-    wout = w1;
+    wout = copy(w1);
+    operand = w2;
+    flip = false;
 end
-result = sigvar(w1).binary_op_manager(sigvar(w2),binary_op);
-wout   = sigvar_set(wout, result);
+if isa(operand,'DnDBase')
+    npix = operand.npix;
+else
+    npix = [];
+end
+wout = wout.do_binary_op(operand,binary_op,'npix', npix, 'flip', flip);

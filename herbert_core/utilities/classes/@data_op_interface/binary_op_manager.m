@@ -107,7 +107,7 @@ if isobject(w1)
     size_stack1 = size(w1);
     size_root1 = [1,1];
 
-elseif isa(w1, 'double') || isa(w1,"numeric")
+elseif isa(w1, 'double') || isa(w1,'numeric')
     % w1 is a double array; w2 must have class 'classname'
     if ~isscalar(w1)
         size_stack1 = size(w2);

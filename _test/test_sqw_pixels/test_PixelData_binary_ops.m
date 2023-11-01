@@ -1,5 +1,4 @@
-classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
-
+classdef test_PixelData_binary_ops < TestCase
     properties
         BYTES_PER_PIX ;
         SIGNAL_IDX = 8;
@@ -71,6 +70,15 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
 
         end
 
+        function test_add_scalar_memory_with_op_man(obj)
+            pix = obj.pix_in_memory;
+
+            pix_res1 = pix + 3;
+            pix_res2 = 3 + pix;
+            assertEqual(pix_res1 , pix_res2);
+        end
+
+
         function test_add_scalar_memory(obj)
             pix = obj.pix_in_memory;
             operand = 3;
@@ -97,7 +105,15 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
                 '', obj.FLOAT_TOLERANCE ...
                 );
         end
+        function test_minus_scalar_flip_memory_with_opman(obj)
+            pix = obj.pix_in_memory;
+            operand = 3;
+            pix_result = operand - pix;
 
+            assertEqual(pix_result.signal, operand - pix.signal);
+            assertEqual(pix_result.data([1:7, 9], :), pix.data([1:7, 9], :));
+        end
+        
         function test_minus_scalar_flip_memory(obj)
             pix = obj.pix_in_memory;
             operand = 3;
@@ -117,7 +133,21 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             assertEqual(pix_result.signal, pix.signal - operand);
             assertEqual(pix_result.data([1:7, 9], :), pix.data([1:7, 9], :));
         end
+        %
+        function test_minus_scalar_filebacked_with_opman(obj)
+            pix = obj.pix_with_pages;
+            operand = 3;
 
+            pix_result = operand - pix;
+            assertTrue(pix_result.is_filebacked);
+            new_pix_data = concatenate_pixel_pages(pix_result);
+
+            assertEqual(new_pix_data(8, :), 3-obj.pix_in_memory.signal, ...
+                '', obj.FLOAT_TOLERANCE);
+            assertEqual(new_pix_data([1:7, 9], :), ...
+                obj.ref_raw_pix_data([1:7, 9], :), ...
+                '', obj.FLOAT_TOLERANCE);
+        end
         function test_minus_scalar_filebacked(obj)
             pix = obj.pix_with_pages;
             operand = 3;
@@ -131,23 +161,23 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
                 obj.ref_raw_pix_data([1:7, 9], :), ...
                 '', obj.FLOAT_TOLERANCE);
         end
-
-        function test_mtimes_scalar_memory(obj)
+        %
+        function test_mtimes_scalar_memory_with_opman(obj)
             pix = obj.pix_in_memory;
             operand = 1.5;
 
-            pix_result = pix.do_binary_op(operand, @mtimes, 'flip', true);
+            pix_result = pix*operand;
 
             assertEqual(pix_result.signal, operand*pix.signal);
             assertEqual(pix_result.variance, (operand.^2).*pix.variance);
             assertEqual(pix_result.data(1:7, :), pix.data(1:7, :));
         end
 
-        function test_mtimes_scalar_filebacked(obj)
+        function test_mtimes_scalar_filebacked_with_opman(obj)
             pix = obj.pix_with_pages;
             operand = 1.5;
 
-            pix_result = pix.do_binary_op(operand, @mtimes);
+            pix_result = operand*pix;
             new_pix_data = concatenate_pixel_pages(pix_result);
 
             assertElementsAlmostEqual(new_pix_data(obj.SIGNAL_IDX, :), ...
@@ -160,11 +190,11 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
                 '', obj.FLOAT_TOLERANCE);
         end
 
-        function test_mrdivide_scalar_flip_memory(obj)
+        function test_mrdivide_scalar_flip_memory_with_opman(obj)
             pix = obj.pix_in_memory;
             operand = 1.5;
 
-            pix_result = pix.do_binary_op(operand, @mrdivide, 'flip', true);
+            pix_result = operand./pix;
 
             assertEqual(pix_result.signal, operand./pix.signal);
             expected_var = pix.variance.*((pix_result.signal./pix.signal).^2);
@@ -194,11 +224,11 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
                 '', obj.FLOAT_TOLERANCE);
         end
 
-        function test_minus_double_eq_num_pixels_filebacked(obj)
+        function test_minus_double_eq_num_pixels_filebacked_with_opman(obj)
             pix = obj.pix_with_pages;
             operand = 1;
 
-            pix_result = pix.do_binary_op(operand, @minus, 'flip', true);
+            pix_result = operand - pix;
             full_pix_array = concatenate_pixel_pages(pix_result);
 
             expected_signal = 1 - obj.pix_in_memory.signal;
@@ -224,6 +254,28 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             f = @() pix1.do_binary_op(pix2, @plus);
             assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_sqw:invalid_argument');
         end
+
+        function test_minus_PixelData_memory_with_opman(obj)
+            data1 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
+            idx = PixelDataBase.field_index('all_indexes');
+            data1 = sortrows(data1',idx)';
+
+            pix1 = PixelDataMemory(data1);
+            data2 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
+            data2 = sortrows(data2',idx)';
+            pix2 = PixelDataMemory(data2);
+
+            pix_diff = pix1 - pix2;
+
+            expected_diff = data1;
+            expected_diff(obj.SIGNAL_IDX, :) = pix1.signal - pix2.signal;
+            expected_diff(obj.VARIANCE_IDX, :) = pix1.variance + pix2.variance;
+
+            assertElementsAlmostEqual(pix_diff.data, expected_diff);
+
+            range = [min(expected_diff,[],2),max(expected_diff,[],2)]';
+            assertElementsAlmostEqual(pix_diff.data_range,range)
+        end       
 
         function test_minus_PixelData_memory(obj)
             data1 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
@@ -263,6 +315,23 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             expected_diff = sortrows(expected_diff',run_idxs)';
             assertEqual(full_pix_diff, expected_diff);
         end
+
+        function test_c_eq_a_plus_b_with_opman(obj)
+            pix1 = obj.pix_with_pages;
+            pix2 = obj.pix_with_pages;
+            % five filebacked operations! use funceval
+            pix3 = pix1.cos()^2 + pix2.sin()^2;
+
+            assertTrue(is_file(pix1.full_filename));
+            assertTrue(is_file(pix2.full_filename));
+            assertTrue(is_file(pix3.full_filename));
+
+            % reads all filebacked pixels in memory
+            pixSS = pix3.get_pixels('all','-keep');
+            assertEqualToTol(pixSS.signal,single(ones(1, pix3.num_pixels)) ...
+                ,'tol',4*eps('single'));
+        end
+        
 
         function test_c_eq_a_plus_b(obj)
             pix1 = obj.pix_with_pages.do_unary_op(@(x) cos(x)^2);
@@ -314,13 +383,14 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             ME=assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_img:invalid_argument');
             assertTrue(strncmp(ME.message,'binary op: plus',15))
         end
-        % function test_add_dnd_neq_num_pixels_filebacked_reverse(obj)
-        %     dnd_obj = read_dnd(obj.test_sqw_file_path);
-        %     pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
-        %     f = @() dnd_obj.plus(pix);
-        %     ME=assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_img:invalid_argument');
-        %     assertTrue(strncmp(ME.message,'binary op: plus',15))
-        % end
+        function test_add_dnd_neq_num_pixels_filebacked_reverse(obj)
+        %something wrong with this,
+            dnd_obj = read_dnd(obj.test_sqw_file_path);
+            pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
+            f = @() dnd_obj.plus(pix);
+            ME=assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_img:invalid_argument');
+            assertTrue(strncmp(ME.message,'binary op: plus',15))
+        end
 
         function test_add_dnd_neq_num_pixels_memory(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
