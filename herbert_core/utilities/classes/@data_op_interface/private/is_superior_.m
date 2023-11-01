@@ -27,29 +27,36 @@ if isempty(pos1) || isempty(pos2)
         class(obj1),class(obj2));
 end
 %
-do_page_op = obj.force_flip(pos2)>0 || obj.force_flip(pos1)>0;
+do_page_op = data_op_interface.force_flip(pos2)>0 || data_op_interface.force_flip(pos1)>0;
 %
-classname1 = class(obj1);
-classname2 = class(obj2);
-if strcmp(classname1,classname2)
-    is = false;
-    if isa(obj1,'sqw') && isa(obj2,'sqw')
-        [is,page_op_kind] = is_sqw_superior(obj1,obj2);
-    end
-    return;
-end
 if pos2<pos1
     is = true;
     second_op_pos = pos1;
+    second_op_size = sigvar_size(obj1);    
 else
     is = false;
-    second_op_pos = pos2;    
+    second_op_pos = pos2;
+    second_op_size = sigvar_size(obj2);
 end
+
 if do_page_op
-    page_op_kind = data_op_interface.second_operand_type(second_op_pos);
+    if second_op_pos == data_op_interface.second_operand_type(end) % numeric operand
+        % numeric operand may describe image if its size equal the size of
+        % image of the first operand
+    else
+        page_op_kind = data_op_interface.second_operand_type(second_op_pos);
+    end
+
 else
     page_op_kind = 0;
 end
+
+if isa(obj1,'sqw') && isa(obj2,'sqw') % additional conditions on two sqw objects 
+    % related to the presence of pixels in them
+    [is,page_op_kind] = is_sqw_superior(obj1,obj2);
+end
+
+
 
 
 function [is,page_op_kind] = is_sqw_superior(obj1,obj2)

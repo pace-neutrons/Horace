@@ -8,14 +8,22 @@ classdef test_data_op_order < TestCase
             obj = obj@TestCase(name);
         end
 
-        function test_data_num_order(~)
+        function test_num_img_order(~)
+            obj1 = IX_dataset_1d();
+            obj2 = 4;
+            [is,do_page_op,page_op_order]=data_op_interface.is_superior(obj2,obj1);
+            assertTrue(is);
+            assertFalse(do_page_op);
+            assertEqual(page_op_order,0)
+        end
+
+        function test_img_num_order(~)
             obj1 = IX_dataset_1d();
             obj2 = 4;
             [is,do_page_op,page_op_order]=data_op_interface.is_superior(obj1,obj2);
             assertFalse(is);
-            assertFalse(do_page_op);            
+            assertFalse(do_page_op);
             assertEqual(page_op_order,0)
-
         end
 
     end
