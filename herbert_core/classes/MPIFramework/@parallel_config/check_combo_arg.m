@@ -12,12 +12,14 @@ end
 cluster_configs = mf.get_all_configs(full_cl_name);
 % retrieve possible configs for current cluster
 if isempty(obj.trial_cluster_config_)
-    try_config = config_store.instance().get_value(...
+    old_config = config_store.instance().get_value(...
         obj,'cluster_config');
-    if ~ismember(try_config ,cluster_configs)
+    if ~ismember(old_config ,cluster_configs)
         % update default configuration if the previous configuration
         % does not correspond to this cluster configuration
         the_config   = cluster_configs{1};
+    else
+        the_config = old_config;
     end
 else
     try_config  = obj.trial_cluster_config_;
