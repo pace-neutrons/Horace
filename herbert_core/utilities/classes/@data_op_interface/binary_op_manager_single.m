@@ -36,10 +36,14 @@ if ~(isequal(sz1,sz2) || isequal(sz1,[1,1]) || isequal(sz2,[1,1]))
         'Size of signal array for obj1(%d) differs from size of obj2(%d) and any is not unit size', ...
         mat2str(sz1),mat2str(sz2));
 end
-if data_op_interface.is_superior(w1,w2)
+[is,do_pageop,pageop_type] = data_op_interface.is_superior(w1,w2);
+if is
     wout = w2;
 else
     wout = w1;
 end
-result = sigvar(w1).binary_op_manager(sigvar(w2),binary_op);
-wout   = sigvar_set(wout, result);
+if do_pageop
+else
+    result = sigvar(w1).binary_op_manager(sigvar(w2),binary_op);
+    wout   = sigvar_set(wout, result);
+end

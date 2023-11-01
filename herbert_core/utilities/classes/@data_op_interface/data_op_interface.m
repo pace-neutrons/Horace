@@ -8,7 +8,22 @@ classdef(Abstract) data_op_interface
         % list of classes, participating in binary operations
         % if binary operation occurs between two classes in the list,
         % the operation returns the class, which is from the left
-        super_list = {'sqw','PixelDataBase','DnDBase','IX_dataset','sigvar'}
+        super_list = {'sqw','PixelDataBase','DnDBase','IX_dataset','sigvar','numeric'}
+        % if page_op selected,  three types of page_op are allowed namely
+        % 1 -> object<->scalar 2-> object<->image and 3->object<->object
+        % 0 means operations can be performed by converting to  sigvar.
+        second_operand_type = ...
+            [            3,              3,        2,            2,       2,        1]
+        % force_flip property used to establish odder of binary operations.
+        % If pair of classes above appears in an operation, and the number
+        % of force_flip for one class is higher then the number of the
+        % force_flip of another class, the class with larger number have
+        % always go first in operation. This is to support the same
+        % behaviour of binary operations when calling binary operation
+        % function, as Matlab provides using InferiorClasses metalist
+        % using operations in MATLAB row
+        force_flip = [   2,              1,        0,            0,      0 ,       0]
+        %
     end
     methods
         %------------------------------------------------------------------
@@ -54,42 +69,23 @@ classdef(Abstract) data_op_interface
         %------------------------------------------------------------------
     end
     methods(Static)
-        function [is,two_sqw] = is_superior(obj1,obj2)
-            % found if class 2 is superior over class 1 and binary operations
-            % should return class 2 as the result of operation instead of
-            % class1 as it would be normally
-            two_sqw = false;
-            if isnumeric(obj1) && ~isnumeric(obj2)
-                is = true;
-                return;
-            end
-            if isnumeric(obj2) && ~isnumeric(obj1)
-                is = false;
-                return;
-            end
-            classname1 = class(obj1);
-            classname2 = class(obj2);
-            if strcmp(classname1,classname2)
-                is = false;
-                if isa(obj1,'sqw') && isa(obj2,'sqw')
-                    two_sqw = true;
-                end
-                return;
-            end
-            is_1 = cellfun(@(x)isa(obj1,x),data_op_interface.super_list);
-            is_2 = cellfun(@(x)isa(obj2,x),data_op_interface.super_list);
-            pos1 = find(is_1);
-            pos2 = find(is_2);
-            if isempty(pos1) || isempty(pos2)
-                error('HERBERT:data_op_interface:invalid_argument', ...
-                    'Binary operations are not defined between classes %s and %s', ...
-                    classname1,classname2);
-            end
-            if pos2<pos1
-                is = true;
-            else
-                is = false;
-            end
+        function [is,do_page_op,page_op_kind] = is_superior(obj1,obj2)
+            % Helper function to establish order of operands in binary
+            % operations.
+            % is  -- true if class 2 is superior over class 1 and binary operations
+            %        should return class 2 as the result of operation instead of
+            %        class1 as it would normally occurs
+            % do_page_op
+            %     -- true if normal algorithm of performing operations
+            %        defined by sigvar.binary_op_manager is not working and
+            %        page_op-type algorithm should be used to perfrom operations.
+            % page_op_kind
+            %     -- depending on operands, three types of page op are
+            %        allowed namely object<->scalar object<->image and object<->object
+            %        0 means operations can be performed by converting to
+            %        sigvar.
+            %
+            [is,do_page_op,page_op_kind] = is_superior_(obj1,obj2);
         end
     end
     methods(Access=protected)
