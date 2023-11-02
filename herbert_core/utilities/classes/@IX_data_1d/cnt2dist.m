@@ -12,6 +12,7 @@ for iw=1:numel(win)
         dx=win(iw).x(2:end)-win(iw).x(1:end-1);
         wout(iw).signal = wout(iw).signal./dx';
         wout(iw).error = wout(iw).error./dx';
-        wout(iw).x_distribution = true; 
+        wout(iw).x_distribution = true;
+        %win(iw).x = 0.5*(win(iw).x(2:end)+win(iw).x(1:end-1));
     end
 end

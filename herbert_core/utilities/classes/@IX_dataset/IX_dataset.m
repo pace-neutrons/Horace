@@ -1,4 +1,4 @@
-classdef IX_dataset < data_op_interface & data_plot_interface
+classdef IX_dataset < serializable & data_op_interface
     % Abstract parent class for IX_datasets_Nd;
     properties(Dependent)
         %title:  dataset title (will be plotted on a grapth)
@@ -10,8 +10,8 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         % s_axis -- IX_axis class containing signal axis caption
         s_axis
     end
-
-
+    
+    
     properties(Access=protected)
         title_={};
         % emtpy signal
@@ -28,11 +28,27 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         % generig n-D distribution sign
         xyz_distribution_;
         %
-        % empty object is valid
-        valid_ = true;
-        % error message to report
-        error_mess_ = '';
     end
+    %======================================================================
+    methods(Abstract,Static)
+        % get number of class dimensions
+        nd  = ndim()
+    end
+    %======================================================================
+    methods(Abstract,Access=protected)
+        % Generic checks:
+        % verify and set signal or error arrays
+        obj = check_and_set_sig_err(obj,field_name,value);
+    end
+    
+    %======================================================================
+    methods(Abstract,Static,Access=protected)
+        % Rebins histogram data along specific axis.
+        [wout_s, wout_e] = rebin_hist(iax, wout_x);
+        %Integrates point data along along specific axis.
+        [wout_s,wout_e] = integrate_points(iax, xbounds_true);
+    end
+    
     %======================================================================
     methods(Static)
         % Read object or array of objects of an IX_dataset type from
@@ -42,30 +58,10 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         function [x_out, ok, mess] = bin_boundaries_from_descriptor(xbounds, x_in)
             [x_out, ok, mess] = bin_boundaries_from_descriptor_(xbounds, x_in);
         end
-
+        
     end
     %======================================================================
     methods
-        %------------------------------------------------------------------
-        % Methors, which use unary/binary operation manager are stored
-        % in the class folder only. Their signatures are not presented
-        % here.
-        %------------------------------------------------------------------
-        % Signatures for common methods, which do not use unary/binary
-        % operation manager:
-        %------------------------------------------------------------------
-        % return class structure
-        public_struct = struct(this)
-        % set up object values using object structure. (usually as above)
-        obj = init_from_structure(obj,struct)
-        %
-        % method checks if common fiedls are consistent between each
-        % other. Call this method from a program after changing
-        % x,signal, error using set operations. Throws 'invalid_argument'
-        % if class is incorrent and and the method is called with one
-        % output argument. Returns error message, if class is incorrect and
-        % method called with two output arguments.
-        [obj,mess] = isvalid(obj)
         % Take absolute value of an IX_dataset_nd object or array of IX_dataset_nd objects
         wout = abs(w)
         %------------------------------------------------------------------
@@ -76,11 +72,11 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         [wout,ok,mess] = rebin_IX_dataset (win, integrate_data,...
             point_integration_default, iax, descriptor_opt, varargin)
         %
-
+        
         % Save object or array of objects of class type to binary file.
         % Inverse of read.
         save(w,file)
-
+        
         %
         % get sigvar object from the dataset
         wout = sigvar (w)
@@ -116,15 +112,10 @@ classdef IX_dataset < data_op_interface & data_plot_interface
             % along all axis
             dis= obj.xyz_distribution_;
         end
-
-        %
-        function ok = get_isvalid(obj)
-            % returns the state of the internal valid_ property
-            ok = obj.valid_;
-        end
+        
         % Set signal, error and selected axes in a single instance of an IX_dataset object
         wout=set_simple_xsigerr(win,iax,x,signal,err,xdistr)
-
+        
         %===================================================================
         % Properties:
         %===================================================================
@@ -133,19 +124,11 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         end
         %
         function sig = get.signal(obj)
-            if obj.valid_
-                sig = obj.signal_;
-            else
-                sig = obj.error_mess_;
-            end
+            sig = obj.signal_;
         end
         %
         function err = get.error(obj)
-            if obj.valid_
-                err = obj.error_;
-            else
-                err = obj.error_mess_;
-            end
+            err = obj.error_;
         end
         %------------------------------------------------------------------
         %
@@ -168,25 +151,15 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         %
         function obj = set.signal(obj,val)
             obj = check_and_set_sig_err(obj,'signal',val);
-            [ok,mess] = check_joint_fields(obj);
-            if ok
-                obj.valid_ = true;
-                obj.error_mess_ = '';
-            else
-                obj.valid_ = false;
-                obj.error_mess_ = mess;
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
             end
         end
         %
         function obj = set.error(obj,val)
             obj = check_and_set_sig_err(obj,'error',val);
-            [ok,mess] = check_joint_fields(obj);
-            if ok
-                obj.valid_ = true;
-                obj.error_mess_ = '';
-            else
-                obj.valid_ = false;
-                obj.error_mess_ = mess;
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
             end
         end
         %
@@ -207,7 +180,7 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         % Rebin an IX_dataset object or array of IX_dataset objects along
         % along the axes, defined by direction
         wout = rebin_xyz(win, array_is_descriptor,dir,varargin)
-
+        
         w = unary_op_manager (w1, unary_op)
         w = binary_op_manager(w1, w2, binary_op)
     end
@@ -234,28 +207,40 @@ classdef IX_dataset < data_op_interface & data_plot_interface
         [ax,hist]=axis(w,n)
     end
     %======================================================================
-    methods(Abstract,Static)
-        % used to reload old style objects from mat files on hdd
-        obj = loadobj(data)
-        % get number of class dimensions
-        nd  = ndim()
+    % SERIALIZABLE INTERFACE
+    properties(Constant, Access=private)
+        % list of filenames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        fields_to_save_ = {'title','signal','error','s_axis'}
     end
-    %======================================================================
-    methods(Abstract,Access=protected)
-        % Generic checks:
-        % Check if various interdependent fields of a class are consistent
-        % between each other.
-        [ok,mess] = check_joint_fields(obj);
-        % verify and set signal or error arrays
-        obj = check_and_set_sig_err(obj,field_name,value);
+    methods
+        function  ver  = classVersion(~)
+            % serializable fields version
+            ver = 2;
+        end
+        
+        function flds = saveableFields(~)
+            flds = IX_dataset.fields_to_save_;
+        end
     end
-
-    %======================================================================
-    methods(Abstract,Static,Access=protected)
-        % Rebins histogram data along specific axis.
-        [wout_s, wout_e] = rebin_hist(iax, wout_x);
-        %Integrates point data along along specific axis.
-        [wout_s,wout_e] = integrate_points(iax, xbounds_true);
+    methods(Access = protected)
+        function [S_updated,obj] = convert_old_struct(obj, S, varargin)
+            fn = fieldnames(S);
+            data = struct2cell(S);
+            fnm = cellfun(@(x)regexprep(x,'_$',''),fn,'UniformOutput',false);
+            S_updated = cell2struct(data,fnm);
+            if isfield(S_updated,'xyz')
+                xyz_prop = {'x','y','z'};
+                xyz_dist = {'x_distribution','y_distribution','z_distribution'};
+                xyz_axiz   = {'x_axis','y_axis','z_axis'};
+                for i=numel(S_updated.xyz)
+                    S_updated.(xyz_prop{i}) = S_updated.xyz{i};
+                    S_updated.(xyz_dist{i}) = S_updated.xyz_distribution(i);
+                    S_updated.(xyz_axiz{i}) = S_updated.xyz_axis(i);
+                end
+            end
+        end
     end
+    
 end
 

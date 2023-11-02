@@ -1,4 +1,4 @@
-classdef IX_dataset_1d < IX_data_1d
+classdef IX_dataset_1d < IX_data_1d & data_plot_interface
     % Class adds operations with graphics to main operations with 1-d data
     %
     % See IX_data_1d for main properties and constructors, used to operate
@@ -31,19 +31,14 @@ classdef IX_dataset_1d < IX_data_1d
     %
     %
     methods(Static)
-        function obj = loadobj(data)
-            % function to support loading of outdated versions of the class
-            % from mat files on hdd
-            if isa(data,'IX_dataset_1d')
-                obj = data;
-            else
-                obj = IX_dataset_1d();
-                obj = obj.init_from_structure(data);
-            end
+        function obj = loadobj(S)
+            % function to support loading of modern and outdated versions
+            % of the class from mat files on hdd
+            obj = IX_dataset_1d();
+            obj = loadobj@serializable(S,obj);
+
         end
     end
-
-
     methods
         %------------------------------------------------------------------
         function obj= IX_dataset_1d(varargin)

@@ -73,3 +73,12 @@ if numel(sz)>3
 elseif numel(sz)<3
     sz=[sz,ones(1,3-numel(sz))];
 end
+%TODO: Disabled to accommodate some oddity with 2D rebinning
+% if ~isempty(obj.x_)
+%     if numel(obj.([field_name,'_'])) == numel(obj.x_)+1
+%         obj.x_distribution_ = false;
+%     elseif numel(obj.([field_name,'_'])) == numel(obj.x_)
+%         obj.x_distribution_ = true;
+%     end
+% end
+

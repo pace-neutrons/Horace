@@ -1,10 +1,7 @@
 function obj = check_and_set_caption_(obj,cap)
 % Method verifies axis caption and sets axis caption if the value is valid
 %
-% Throws IX_axis:invalid_argument is caption is invalid
-%
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
+% Throws HERBERT:IX_axis:invalid_argument is caption is invalid
 %
 
 if isempty(cap)
@@ -20,6 +17,8 @@ if iscellstr(cap)
     return
 end
 
-error('IX_axis:invalid_argument','Caption must be character or cell array of strings');
+error('HERBERT:IX_axis:invalid_argument', ...
+    'Caption must be character or cell array of strings. It is %s', ...
+    class(cap));
 
 

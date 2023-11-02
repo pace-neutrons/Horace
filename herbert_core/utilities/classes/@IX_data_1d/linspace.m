@@ -36,6 +36,9 @@ for i=1:numel(wout)
         xtmp=linspace(win.x(1),win.x(end),n);
         stmp=zeros(n-status(i),1);
         etmp=zeros(n-status(i),1);
+        wout(i).do_check_combo_arg = false;
         wout(i).x=xtmp; wout(i).signal=stmp; wout(i).error=etmp;
+        wout(i).do_check_combo_arg = true;
+        wout(i) = wout(i).check_combo_arg();
     end
 end

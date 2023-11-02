@@ -330,7 +330,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
 
         function test_cat_combines_given_PixelData_objects(obj)
-            skipTest('Re #1330 disabled unitl cut is properly refactored')
+            skipTest('Re #1330 disabled until cat is properly refactored')
             pix_data_obj1 = obj.get_random_pix_data_(10);
             pix_data_obj2 = obj.get_random_pix_data_(5);
 
@@ -630,7 +630,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             pix_chunk1 = pix.get_pixels(1:3);
             ref_range = obj.get_ref_range(data(:, 1:3));
 
-            assertElementsAlmostEqual(pix_chunk1.data, data(:, 1:3),... ...
+            assertElementsAlmostEqual(pix_chunk1.data, data(:, 1:3),...
                 'relative',obj.tol);
             assertElementsAlmostEqual(pix_chunk1.pix_range,ref_range,...
                 'relative',obj.tol);
