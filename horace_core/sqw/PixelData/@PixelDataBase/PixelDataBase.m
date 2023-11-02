@@ -726,7 +726,18 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
 
         pix_out = do_unary_op(obj, unary_op)
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
-
+        %
+        %------------------------------------------------------------------
+        % Helpers for page_op and data_op_interface. Work with data in
+        % memory regarless of file/memory based class
+        function sz = sigvar_size(obj)
+            sz = [1,obj.num_pixels];
+        end
+        function sg = sigvar(obj)
+            % returns only single page data
+            sg = sigvar(obj.signal,obj.variance);
+        end
+        %------------------------------------------------------------------
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data
             % defined by npix.

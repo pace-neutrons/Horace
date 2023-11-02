@@ -128,9 +128,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % Make a higher dimensional dataset from a lower dimensional dataset
         wout = replicate (win,wref);
 
-        % set sqw object signal and variance from
-        w = sigvar_set(win, sigvar_obj);
-
         %Evaluate a function at the plotting bin centres of sqw object
         wout = func_eval (win, func_handle, pars, varargin)
     end
@@ -201,6 +198,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         wout              = sigvar(w); % Create sigvar object from sqw object
         [s,var,mask_null] = sigvar_get (w);
         sz                = sigvar_size(w);
+        % set sqw object signal and variance from
+        w = sigvar_set(win, sigvar_obj);
         %------------------------------------------------------------------
         % titles used when plotting an sqw object
         function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...

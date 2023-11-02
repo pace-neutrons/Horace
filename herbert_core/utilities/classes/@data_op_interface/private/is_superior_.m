@@ -27,7 +27,7 @@ if isempty(pos1) || isempty(pos2)
         class(obj1),class(obj2));
 end
 %
-do_page_op = data_op_interface.force_flip(pos2)>0 || data_op_interface.force_flip(pos1)>0;
+do_page_op = data_op_interface.force_flip(pos1)>0 || data_op_interface.force_flip(pos2)>0;
 %
 if pos2<pos1
     is = true;
