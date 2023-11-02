@@ -18,7 +18,7 @@ function conv = mf_leg_to_new(funcline)
 
 
 
-    pth = [horace_paths.root, pathsep, 'tools'];
+    pth = fullfile(horace_paths().root, 'tools');
     if count(py.sys.path, pwd) == 0
         insert(py.sys.path, int32(0), pth);
     end
