@@ -23,6 +23,11 @@ function conv = mf_leg_to_new(funcline)
         insert(py.sys.path, int32(0), pth);
     end
 
-    conv = py.mf_leg_to_new.convert_legacy_multifit(funcline);
+    convstr = strip(char(py.mf_leg_to_new.convert_legacy_multifit(funcline)));
+    if nargout < 1
+        disp(convstr)
+    else
+        conv = convstr;
+    end
 
 end
