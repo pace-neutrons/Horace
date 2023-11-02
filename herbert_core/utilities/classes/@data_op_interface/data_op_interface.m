@@ -4,25 +4,31 @@ classdef(Abstract) data_op_interface
     %
     % The operations should be implemented using unary and binary operation
     % managers
-    properties(Constant)
-        % list of classes, participating in binary operations
-        % if binary operation occurs between two classes in the list,
-        % the operation returns the class, which is from the left
-        super_list = {'sqw','PixelDataBase','DnDBase','IX_dataset','sigvar','numeric'}
-        % if page_op selected,  three types of page_op are allowed namely
-        % 1 -> object<->scalar 2-> object<->image and 3->object<->object
-        % 0 means operations can be performed by converting to  sigvar.
-        second_operand_type = ...
-            [            3,              3,        2,            2,       2,        1]
-        % force_flip property used to establish odder of binary operations.
-        % If pair of classes above appears in an operation, and the number
-        % of force_flip for one class is higher then the number of the
-        % force_flip of another class, the class with larger number have
-        % always go first in operation. This is to support the same
-        % behaviour of binary operations when calling binary operation
-        % function, as Matlab provides using InferiorClasses metalist
-        % using operations in MATLAB row
-        force_flip = [   2,              1,        0,            0,      0 ,       0]
+    properties(Constant,Hidden)
+        % list of classes which have binary operations redefined.
+        base_classes   = {'sqw','PixelDataBase','DnDBase','IX_dataset','sigvar','numeric'};
+        % priorities of the basic classes. The actual priorities are
+        % modified by presence of pixels and image, which increases
+        % priorites
+        bc_priority =       [ 5,    4,            3         ,   2     ,      1 , 0];
+        % If binary operation occurs between two classes in the member_list,
+        % the operation returns the class whith higher priority.
+        % 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+        second_operand_calls = ...
+            [  3, 3, 2, 2, 2, 2, 2, 1, 1,  1, 1,   1,... sqw_with_pix
+            3, 2, 2, 2, 2, 2, 1, 1,  1, 1,   1,... PixelDataBase
+            0, 0, 0, 0, 0, 0, 0,  0, 0,   0,... sqw_no_pix
+            0, 0, 0, 0, 0, 0,  0, 0,   0,... DnDBase
+            0, 0, 0, 0, 0,  0, 0,   0,... IX_dataset
+            0, 0, 0, 0,  0, 0,   0,... sgv_img
+            -1,-1,-1, -1,-1,  -1,... num_img
+            0, 0,  0, 0,   0,... sqw_nopix_scalar
+            0,  0, 0,   0,... DnDBase_scal
+            0, 0,   0,... IX_dataset_scal
+            0,   0,... sigvar_scal
+            -1]    % nim_scal
+
+
         %
     end
     methods
@@ -69,6 +75,62 @@ classdef(Abstract) data_op_interface
         %------------------------------------------------------------------
     end
     methods(Static)
+        function [priority,sv_size,has_pix,has_img] = get_priority(obj)
+            % function returns a class priority which defines operations.
+            %
+            % All basic classes have basic priorities.
+            base_num = cellfun(@(x)isa(obj,x),data_op_interface.base_classes);
+            if ~any(base_num)
+                error('HORACE:data_op_interface:invalid_argument', ...
+                    'Class %s does not have Horace binary operation defined for it', ...
+                    class(obj));
+            end
+            % basic class priority
+            priority = data_op_interface.bc_priority(base_num);
+            sv_size   = sigvar_size(obj);
+            if ~isequal(sv_size,[1,1]) % then sigvar size > 1 and this is image
+                priority = priority+10;
+                has_img = true;
+            else
+                has_img = false;
+            end
+            if isa(obj,'sqw') && obj.has_pixels() || isa(obj,'PixelDataBase')
+                has_pix = true;
+                priority = priority + 100;
+                if isa(obj,'PixelDataBase')
+                    priority = priority-10;
+                    has_img = false;
+                end
+            else
+                has_pix = false;
+            end
+        end
+        function op_kind = get_operation_kind(op1_has_pix,op1_has_img,op2_has_pix,op2_has_img)
+        % What kind of operation should be applied between two operands
+        % given operand features.
+        % There are 5 types of operations:
+        % 1 -> object<->scalar 2-> object<->image and 3->object<->object
+        % 0 means operations can be performed by converting to sigvar.
+        % -1 means operation prohibited (or will not be performed)
+          if op1_has_pix 
+              if op2_has_pix
+                  op_kind = 3;
+              elseif op2_has_img
+                  op_kind = 2;                  
+              else
+                  op_kind = 1;
+              end              
+          elseif op1_has_img
+              % op2 can not have pixels,it will be first operator in this case
+              if isnumeric(obj2)
+                  op_kind = -1;
+              else
+                  op_kind = 0;
+              end
+          else
+          end
+            % 
+        end
         function [is,do_page_op,page_op_kind] = is_superior(obj1,obj2)
             % Helper function to establish order of operands in binary
             % operations.
