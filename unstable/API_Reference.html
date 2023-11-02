@@ -146,591 +146,6 @@ is energy</p>
 </section>
 </dd></dl>
 
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.save">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.save" title="Permalink to this definition"></a></dt>
-<dd><p>Save a sqw object or array of sqw objects to a binary sqw file with
-recommended version</p>
-<blockquote>
-<div><p>&gt;&gt; save (w)              % prompt for file
-&gt;&gt; save (w, file)        % save to file with the name provided
-&gt;&gt; save (w, file,loader) % save file using specific binary data</p>
-<blockquote>
-<div><blockquote>
-<div><p>accessor</p>
-</div></blockquote>
-<p>(“-update” option, if provided with together
-with loader will be ignored)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>&gt;&gt; save (w, file,[‘-parallel’<a href="#id7"><span class="problematic" id="id8">|</span></a>JobDispatcher])</dt><dd><p>combine file using parallel algorithm.
-Useful and would works only if (when) pix
-value of sqw object data is set up to the
-instance of pix_combine_info class,
-containing information on the partial
-tmp files, written by filebased gen_sqw or
-cut algorithm</p>
-</dd>
-<dt>&gt;&gt; save (w, file,’-update’) % if the target file exist, update it to</dt><dd><p>latest format if this is possible. If
-update is possible, pixels in file will not be
-overwritten.</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl>
-<dt>Input:</dt><dd><p>w       sqw object
-file    [optional] File for output. if none given, then prompted for a file</p>
-<p>Note that if w is an array of sqw objects then file must be a cell
-array of filenames of the same size.</p>
-</dd>
-</dl>
-<p>Optional output:
-cl – running instance of parallel cluster, used to combine multiple tmp</p>
-<blockquote>
-<div><blockquote>
-<div><p>files together if pix field of sqw object contains pix_combine_into
-and -parallel option or parallel cluster itself are provided as
-inpout. Empty in any other case</p>
-</div></blockquote>
-<p>TODO: currently empty. May re-enable when parallel saving is
-implemented properly</p>
-</div></blockquote>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mask_points">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mask_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mask_points" title="Permalink to this definition"></a></dt>
-<dd><p>TODO: Does not look like this function should be here</p>
-<p>Determine the points to keep on the basis of ranges and mask array.</p>
-<blockquote>
-<div><p>&gt;&gt; sel = mask_points (win, ‘keep’, xkeep, ‘remove’, xremove, ‘mask’, mask)</p>
-</div></blockquote>
-<p>or any selection (in any order) of the keyword-argument pairs e.g.</p>
-<blockquote>
-<div><p>&gt;&gt; sel = mask_points (win, ‘mask’, mask, ‘remove’, xremove)</p>
-</div></blockquote>
-<section id="id9">
-<h3>Input:<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>win     Input sqw object</p>
-<dl>
-<dt>xkeep   Ranges of display axes to retain for fitting. A range is specified by an array</dt><dd><p>of numbers which define a hypercube.
-For example in case of two dimensions:</p>
-<blockquote>
-<div><p>[xlo, xhi, ylo, yhi]</p>
-</div></blockquote>
-<dl>
-<dt>or in the case of n-dimensions:</dt><dd><blockquote>
-<div><p>[x1_lo, x1_hi, x2_lo, x2_hi,…, xn_lo, xn_hi]</p>
-</div></blockquote>
-<dl class="simple">
-<dt>e.g. 1D: [50,70]</dt><dd><p>2D: [1,2,130,160]</p>
-</dd>
-</dl>
-</dd>
-<dt>More than one range can be defined in rows,</dt><dd><blockquote>
-<div><p>[Range_1; Range_2; Range_3;…; Range_m]</p>
-</div></blockquote>
-<p>where each of the ranges are given in the format above.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p>xremove Ranges of display axes to remove from fitting.</p>
-<dl>
-<dt>mask    Mask array of same number of elements as data array: 1 to keep, 0 to remove</dt><dd><blockquote>
-<div><p>Note: mask will be applied to the stored data array</p>
-</div></blockquote>
-<p>according as the projection axes, not the display axes.
-Thus permuting the display axes does not alter the
-effect of masking the data. The mask array works
-consistently with the input required by the mask method.</p>
-</dd>
-</dl>
-</div></blockquote>
-</section>
-<section id="id10">
-<h3>Output:<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><blockquote>
-<div><p>sel     Mask array of same shape as <a href="#id63"><span class="problematic" id="id64">data_</span></a>. true for bins to keep, false to discard.</p>
-</div></blockquote>
-<p>Advanced use: in addition the following two arguments, if present, suppress failure or the
-display of informational messges. Instead, the messages are returned to be used as desired.</p>
-<blockquote>
-<div><p>ok      =true if worked, =false if error</p>
-<p>mess    messages: if ok=true then informational or warning, if ok=false then the error message</p>
-</div></blockquote>
-</div></blockquote>
-</section>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.multifit_sqw_sqw">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">multifit_sqw_sqw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.multifit_sqw_sqw" title="Permalink to this definition"></a></dt>
-<dd><p>Simultaneously fit function(s) of S(Q,w)to one or more sqw objects</p>
-<blockquote>
-<div><blockquote>
-<div><p>&gt;&gt; myobj = multifit_sqw_sqw (w1, w2, …)      % w1, w2 objects or arrays of objects</p>
-</div></blockquote>
-<p>This creates a fitting object of class mfclass_Horace_sqw_sqw with the provided data,
-which can then be manipulated to add further data, set the fitting
-functions, initial parameter values etc. and fit or simulate the data.
-For details about how to do this  &lt;a href=”matlab:help(‘mfclass_Horace_sqw_sqw’);”&gt;Click here&lt;/a&gt;</p>
-<p>For example:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>&gt;&gt; myobj = multifit_sqw_sqw (w1, w2, …); % set the data</dt><dd><p>:</p>
-</dd>
-</dl>
-<p>&gt;&gt; myobj = myobj.set_fun (&#64;function_name, pars);  % set forgraound function(s)
-&gt;&gt; myobj = myobj.set_bfun (&#64;function_name, pars); % set background function(s)</p>
-<blockquote>
-<div><p>:</p>
-</div></blockquote>
-<p>&gt;&gt; myobj = myobj.set_free (pfree);      % set which parameters are floating
-&gt;&gt; myobj = myobj.set_bfree (bpfree);    % set which parameters are floating
-&gt;&gt; [wfit,fitpars] = myobj.fit;          % perform fit</p>
-</div></blockquote>
-<p>This method fits function(s) of S(Q,w) as both the foreground and
-the background function(s). For the format of the fit functions:
-&lt;a href=”matlab:edit(‘example_sqw_spin_waves’);”&gt;Damped spin waves&lt;/a&gt;
-&lt;a href=”matlab:edit(‘example_sqw_flat_mode’);”&gt;Dispersionless excitations&lt;/a&gt;</p>
-<p>See also multifit multifit_sqw</p>
-</div></blockquote>
-<blockquote>
-<div><p>method_name = ‘multifit_sqw_sqw’
-mfclass_name = ‘mfclass_Horace_sqw_sqw’
-function_tag = ‘of S(Q,w) ‘</p>
-<p>multifit_doc = fullfile(fileparts(which(‘multifit’)),’_docify’)
-sqw_doc = fullfile(fileparts(which(‘mfclass_Horace’)),’_docify’)</p>
-<p>doc_multifit_header = fullfile(multifit_doc,’doc_multifit_header.m’)
-doc_fit_functions = fullfile(sqw_doc,’doc_multifit_sqw_sqw_fit_functions_for_sqw.m’)</p>
-</div></blockquote>
-<blockquote>
-<div><blockquote>
-<div><p>&lt;#file:&gt;  &lt;doc_fit_functions&gt;</p>
-</div></blockquote>
-<p>See also multifit multifit_sqw</p>
-<p>&lt;#doc_end:&gt;</p>
-</div></blockquote>
-</dd></dl>
-
-<hr class="docutils" />
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.unary_op_manager">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">unary_op_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">unary_op</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.unary_op_manager" title="Permalink to this definition"></a></dt>
-<dd><p>Implements a unary operation for objects with a signal and a variance array.</p>
-<blockquote>
-<div><p>&gt;&gt; w = unary_op_manager(w1, unary_op)</p>
-</div></blockquote>
-<p>Most unary operations on MATLAB double arrays are permitted (e.g. acos,
-sqrt, log10…) and are applied element by element to the signal and
-variance arrays.</p>
-<section id="id11">
-<h3>Input:<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><dl class="simple">
-<dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
-</dd>
-</dl>
-<p>unary_op    Function handle to the unary operator.</p>
-</div></blockquote>
-</section>
-<section id="id12">
-<h3>Output:<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>w           Output object or array of objects.</p>
-</div></blockquote>
-<p>NOTES:
-This is a generic template method - works for any class (including sigvar)
-but the indicated blocks may need to be edited for a particular class.</p>
-<p>Requires that objects have the following methods to find the size of the
-public signal and variance arrays, create a sigvar object from those
-arrays, and set them from another sigvar object.</p>
-<blockquote>
-<div><dl class="simple">
-<dt>&gt;&gt; sz = sigvar_size(obj)    % Returns size of public signal and variance</dt><dd><p>% arrays</p>
-</dd>
-<dt>&gt;&gt; w = sigvar(obj)          % Create a sigvar object from the public</dt><dd><p>% signal and variance arrays</p>
-</dd>
-<dt>&gt;&gt; obj = sigvar_set(obj,w)  % Set signal and variance in an object from</dt><dd><p>% those in a sigvar object</p>
-</dd>
-</dl>
-</div></blockquote>
-</section>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.equal_to_tol">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">equal_to_tol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.equal_to_tol" title="Permalink to this definition"></a></dt>
-<dd><p>Check if two sqw objects are equal to a given tolerance</p>
-<blockquote>
-<div><p>&gt;&gt; ok = equal_to_tol (a, b)
-&gt;&gt; ok = equal_to_tol (a, b, tol)
-&gt;&gt; ok = equal_to_tol (…, keyword1, val1, keyword2, val2,…)
-&gt;&gt; [ok, mess] = equal_to_tol (…)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Class specific version of the generic equal_to_tol that by default</dt><dd><ol class="arabic simple">
-<li><p>assumes NaN are equivalent (see option ‘nan_equal’), and</p></li>
-<li><p>ignores the order of pixels within a bin as the order is irrelevant
-(change the default with option ‘reorder’)</p></li>
-</ol>
-</dd>
-</dl>
-<p>In addition, it is possible to check the contents of just a random
-fraction of non-empty bins (see option ‘fraction’) in order to speed up
-the comparison of large objects.</p>
-<section id="id13">
-<h3>Input:<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>w1,w2   Test objects (scalar objects, or arrays of objects with same sizes)</p>
-<dl>
-<dt>tol     Tolerance criterion for numeric arrays (Default: [0,0] i.e. equality)</dt><dd><dl class="simple">
-<dt>It has the form: [abstol, reltol] where</dt><dd><p>abstol     absolute tolerance (&gt;=0; if =0 equality required)
-reltol     relative tolerance (&gt;=0; if =0 equality required)</p>
-</dd>
-</dl>
-<p>If either criterion is satified then equality within tolerance
-is accepted.</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Examples:</dt><dd><p>[1e-4, 1e-6]    absolute 1e-4 or relative 1e-6 required
-[1e-4, 0]       absolute 1e-4 required
-[0, 1e-6]       relative 1e-6 required
-[0, 0]          equality required
-0               equivalent to [0,0]</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>For backwards compatibility, a scalar tolerance can be given
-where the sign determines absolute or relative tolerance</p>
-<blockquote>
-<div><blockquote>
-<div><p>+ve : absolute tolerance  abserr = abs(a-b)
--ve : relative tolerance  relerr = abs(a-b)/max(abs(a),abs(b))</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Examples:</dt><dd><p>1e-4            absolute tolerance, equivalent to [1e-4, 0]
--1e-6           relative tolerance, equivalent to [0, 1e-6]</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="simple">
-<dt>[To apply an absolute as well as a relative tolerance with a</dt><dd><p>scalar negative value, set the value of the legacy keyword</p>
-</dd>
-</dl>
-<p>‘min_denominator’ (see below)]</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl>
-<dt>Valid keywords are:</dt><dd><p>‘nan_equal’      Treat NaNs as equal (true or false; default=true)</p>
-<dl>
-<dt>‘ignore_str’     Ignore the length and content of strings or cell arrays</dt><dd><p>of strings (true or false; default=false)</p>
-</dd>
-<dt>‘reorder’        Ignore the order of pixels within each bin</dt><dd><dl class="simple">
-<dt>(true or false; default=true)</dt><dd><p>Only applies if sqw-type object</p>
-</dd>
-</dl>
-</dd>
-<dt>‘fraction’       Compare pixels in only a fraction of the non-empty bins</dt><dd><dl class="simple">
-<dt>(0&lt;= fracton &lt;= 1; default=1 i.e. test all bins)</dt><dd><p>Only applies if sqw-type object</p>
-</dd>
-</dl>
-</dd>
-<dt>‘-ignore_date’   (provided without additional values, so its presence in</dt><dd><blockquote>
-<div><blockquote>
-<div><p>the sequence of keywords means true). If provided,
-ignore file creation date stored in main header.</p>
-</div></blockquote>
-<p>The reorder and fraction options are available because the order of the</p>
-</div></blockquote>
-<p>pixels within the pix array for a given bin is unimportant. Reordering
-takes time, however, so the option to test on a few bins is given.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</section>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.disp2sqw_eval">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">disp2sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">dispreln</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">fwhh</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.disp2sqw_eval" title="Permalink to this definition"></a></dt>
-<dd><p>Calculate sqw for a model scattering function</p>
-<blockquote>
-<div><p>&gt;&gt; wout = disp2sqw_eval(win,dispreln,pars,fwhh,varargin)</p>
-</div></blockquote>
-<section id="id14">
-<h3>Input:<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><dl>
-<dt>win         Dataset, or array of datasets, that provides the axes and points</dt><dd><p>for the calculation</p>
-</dd>
-<dt>dispreln    Handle to function that calculates the dispersion relation w(Q) and</dt><dd><p>spectral weight, s(Q)
-Must have form:</p>
-<blockquote>
-<div><blockquote>
-<div><p>[w,s] = dispreln (qh,qk,ql,p)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>where</dt><dd><dl class="simple">
-<dt>qh,qk,ql    Arrays containing the coordinates of a set of points</dt><dd><p>in reciprocal lattice units</p>
-</dd>
-<dt>p           Vector of parameters needed by dispersion function</dt><dd><p>e.g. [A,js,gam] as intensity, exchange, lifetime</p>
-</dd>
-<dt>w           Array of corresponding energies, or, if more than</dt><dd><p>one dispersion relation, a cell array of arrays.</p>
-</dd>
-<dt>s           Array of spectral weights, or, if more than</dt><dd><p>one dispersion relation, a cell array of arrays.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl>
-<dt>More general form is:</dt><dd><blockquote>
-<div><p>[w,s] = dispreln (qh,qk,ql,p,c1,c2,..)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>where</dt><dd><dl class="simple">
-<dt>p           Typically a vector of parameters that we might want</dt><dd><p>to fit in a least-squares algorithm</p>
-</dd>
-<dt>c1,c2,…   Other constant parameters e.g. file name for look-up</dt><dd><p>table.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-<dt>pars        Arguments needed by the function. Most commonly, a vector of parameter</dt><dd><p>values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general
-set of parameters is required by the function, then
-package these into a cell array and pass that as pars. In the example
-above then pars = {p, c1, c2, …}</p>
-</dd>
-<dt>fwhh       Parametrizes the resolution function. There are three</dt><dd><blockquote>
-<div><p>possible input values of fwhh:</p>
-</div></blockquote>
-<dl>
-<dt>double              A single FWHM value determines the FWHM of the</dt><dd><p>Gaussian resolution function</p>
-</dd>
-<dt>function_handle     A function that produces the FWHM value as a</dt><dd><p>function of energy transfer, it has to have the
-following simple header (where omega can be a row
-vector of energies:</p>
-<blockquote>
-<div><p>dE = resfun(omega)</p>
-</div></blockquote>
-</dd>
-<dt>function_handle     A function handle of a function with two input</dt><dd><dl class="simple">
-<dt>parameters with the following header:</dt><dd><p>I = shapefun(Emat,omega)</p>
-</dd>
-</dl>
-<p>where Emat is a matrix with dimensions of [nQ nE]
-and omega is a column vector with nQ elements. The
-shapefun produces a peakshape for every Q point
-centered at the given omega and normalized to one.
-The output I has the same dimensions as the
-input Emat.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
-<p>Optional arguments: (varargin)</p>
-<blockquote>
-<div><dl>
-<dt>‘-al[l]’  Requests that the calculated sqw be returned over</dt><dd><p>the whole of the domain of the input dataset. If not given, then
-the function will be returned only at those points of the dataset
-that contain data.
-Applies only to input with no pixel information - it is ignored if
-full sqw object.</p>
-</dd>
-<dt>‘-av[erage]’ Requests that the calculated sqw be computed for the</dt><dd><p>average values of h,k,l of the pixels in a bin, not for each
-pixel individually. Reduces cost of expensive calculations.</p>
-<blockquote>
-<div><p>Applies only to the case of sqw object with pixel information - it is</p>
-</div></blockquote>
-<p>ignored if dnd type object.</p>
-</dd>
-</dl>
-</div></blockquote>
-</section>
-<section id="id15">
-<h3>Output:<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>wout        Output dataset or array of datasets</p>
-</div></blockquote>
-</section>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.multifit_func">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">multifit_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.multifit_func" title="Permalink to this definition"></a></dt>
-<dd><p>Simultaneously fit function(s) to one or more sqw objects</p>
-<blockquote>
-<div><p>&gt;&gt; myobj = multifit_func (w1, w2, …)      % w1, w2 objects or arrays of objects</p>
-</div></blockquote>
-<p>This creates a fitting object of class mfclass_Horace with the provided data,
-which can then be manipulated to add further data, set the fitting
-functions, initial parameter values etc. and fit or simulate the data.
-For details about how to do this  &lt;a href=”matlab:help(‘mfclass_Horace’);”&gt;Click here&lt;/a&gt;</p>
-<p>For example:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>&gt;&gt; myobj = multifit_func (w1, w2, …); % set the data</dt><dd><p>:</p>
-</dd>
-</dl>
-<p>&gt;&gt; myobj = myobj.set_fun (&#64;function_name, pars);  % set forgraound function(s)
-&gt;&gt; myobj = myobj.set_bfun (&#64;function_name, pars); % set background function(s)</p>
-<blockquote>
-<div><p>:</p>
-</div></blockquote>
-<p>&gt;&gt; myobj = myobj.set_free (pfree);      % set which parameters are floating
-&gt;&gt; myobj = myobj.set_bfree (bpfree);    % set which parameters are floating
-&gt;&gt; [wfit,fitpars] = myobj.fit;          % perform fit</p>
-</div></blockquote>
-<p>This method fits function(s) of the plot axes for both the foreground and
-the background function(s). The format of the fit functions depends on
-the number of plot axes for each sqw object. For examples see:
-&lt;a href=”matlab:edit(‘example_1d_function’);”&gt;example_1d_function&lt;/a&gt;
-&lt;a href=”matlab:edit(‘example_2d_function’);”&gt;example_2d_function&lt;/a&gt;
-&lt;a href=”matlab:edit(‘example_3d_function’);”&gt;example_3d_function&lt;/a&gt;</p>
-<p>See also multifit_sqw multifit_sqw_sqw</p>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.calculate_qsqr_bins">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">calculate_qsqr_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.calculate_qsqr_bins" title="Permalink to this definition"></a></dt>
-<dd><p>Calculate <a href="#id16"><span class="problematic" id="id17">|</span></a>Q|^2 for the centres of the bins of an n-dimensional sqw dataset</p>
-<blockquote>
-<div><p>&gt;&gt; qsqr = calculate_qsqr_bins (win)</p>
-</div></blockquote>
-<section id="id18">
-<h3>Input:<a class="headerlink" href="#id18" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>win     Input sqw object</p>
-</div></blockquote>
-</section>
-<section id="id19">
-<h3>Output:<a class="headerlink" href="#id19" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>qsqr    <a href="#id20"><span class="problematic" id="id21">|</span></a>Q|^2 for each bin in the dataset for a single energy bin (column vector)</p>
-<dl class="simple">
-<dt>en      Column vector of energy bin centres. If energy was an integration axis,</dt><dd><p>then returns the centre of the energy integration range</p>
-</dd>
-</dl>
-</div></blockquote>
-</section>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqw_eval">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqw_eval" title="Permalink to this definition"></a></dt>
-<dd><p>Calculate sqw for a model scattering function</p>
-<blockquote>
-<div><blockquote>
-<div><p>&gt;&gt; wout = sqw_eval(win, sqwfunc, p)
-&gt;&gt; wout = sqw_eval(___, ‘-all’)
-&gt;&gt; wout = sqw_eval(___, ‘all’, true)
-&gt;&gt; wout = sqw_eval(___, ‘-average’)
-&gt;&gt; wout = sqw_eval(___, ‘average’, true)
-&gt;&gt; sqw_eval(___, ‘outfile’, outfile)
-&gt;&gt; wout = sqw_eval(___, ‘outfile’, outfile)
-&gt;&gt; sqw_eval(__, ‘outfile’, outfile, ‘filebacked’, true)
-&gt;&gt; wout = sqw_eval(__, ‘filebacked’, true)</p>
-</div></blockquote>
-<blockquote>
-<div><dl>
-<dt>obj        SQWDnDBase object (or array of objects) used</dt><dd><blockquote>
-<div><p>as the source of hkle coordinates for sqwfunc:</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>for dnd this is the image axis bin centre coordinates</p></li>
-<li><p>for sqw this is the pixel coordinates or their cell
-average.</p></li>
-</ul>
-</dd>
-<dt>sqwfunc     Handle to function that calculates S(Q, w)</dt><dd><dl>
-<dt>Most commonly used form is:</dt><dd><blockquote>
-<div><p>weight = sqwfunc (qh, qk, ql, en, p)</p>
-</div></blockquote>
-<dl>
-<dt>where</dt><dd><p>qh,qk,ql,en Arrays containing the coordinates of a set of points
-p           Vector of parameters needed by dispersion function</p>
-<blockquote>
-<div><p>e.g. [A, js, gam] as intensity, exchange, lifetime</p>
-</div></blockquote>
-<p>weight      Array containing calculated spectral weight</p>
-</dd>
-</dl>
-</dd>
-<dt>More general form is:</dt><dd><blockquote>
-<div><p>weight = sqwfunc (qh, qk, ql, en, p, c1, c2, ..)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>where</dt><dd><dl class="simple">
-<dt>p           Typically a vector of parameters that we might want</dt><dd><p>to fit in a least-squares algorithm</p>
-</dd>
-<dt>c1, c2, …   Other constant parameters e.g. file name for look-up</dt><dd><p>table</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-<dt>pars       Arguments needed by the function. Most commonly, a vector of parameter</dt><dd><p>values e.g. [A, js, gam] as intensity, exchange, lifetime. If a more general
-set of parameters is required by the function, then
-package these into a cell array and pass that as pars. In the example
-above then pars = {p, c1, c2, …}</p>
-</dd>
-</dl>
-</div></blockquote>
-<blockquote>
-<div><dl>
-<dt>outfile    If present, the outputs will be written to the file of the given</dt><dd><p>name/path.
-If numel(win) &gt; 1, outfile must either be omitted or be a cell
-array of file paths with equal number of elements as win.</p>
-</dd>
-<dt>all        If true, requests that the calculated sqw be returned over</dt><dd><p>the whole of the domain of the input dataset. If false, then
-the function will be returned only at those points of the dataset
-that contain <a href="#id65"><span class="problematic" id="id66">data_</span></a>.</p>
-<blockquote>
-<div><p>Applies only to input with no pixel information - it is ignored if</p>
-</div></blockquote>
-<p>full sqw object.
-[default = false]</p>
-</dd>
-<dt>average    If true, requests that the calculated sqw be computed for the</dt><dd><p>average values of h, k, l of the pixels in a bin, not for each
-pixel individually. Reduces cost of expensive calculations.
-Applies only to the case of sqw object with pixel information
-- it is ignored if dnd type object.
-[default = false]</p>
-</dd>
-<dt>filebacked  If true, the result of the function will be saved to file and</dt><dd><p>the output will be a file path. If no <cite>outfile</cite> is specified,
-a unique path within <cite>tempdir()</cite> will be generated.
-Default is false.</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="simple">
-<dt>Note: all optional string input parameters can be truncated up to minimal</dt><dd><p>difference between them e.g. routine would accept ‘al’ and
-‘av’, ‘ave’, ‘aver’ etc….</p>
-</dd>
-</dl>
-<blockquote>
-<div><dl class="simple">
-<dt>obj        If <cite>filebacked</cite> is false, an sqw object or array of sqw objects.</dt><dd><p>If <cite>filebacked</cite> is true, a file path or cell array of file paths.
-Output argument must be specified if <cite>outfile</cite> not given.</p>
-</dd>
-</dl>
-</div></blockquote>
-</div></blockquote>
-</dd></dl>
-
-<hr class="docutils" />
 <dl class="mat class">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.SQWDnDBase">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">SQWDnDBase</span></span><a class="headerlink" href="#sqw.@SQWDnDBase.SQWDnDBase" title="Permalink to this definition"></a></dt>
@@ -747,10 +162,10 @@ DnD objects</p>
 <div><p>&gt;&gt; w = binary_op_manager(w1, w2, binary_op)</p>
 </div></blockquote>
 <p>All binary operations on Matlab double arrays are permitted
-(+, -, <a href="#id22"><span class="problematic" id="id23">*</span></a>, /, ) and are applied element by element to the signal and
+(+, -, <a href="#id7"><span class="problematic" id="id8">*</span></a>, /, ) and are applied element by element to the signal and
 variance arrays.</p>
-<section id="id24">
-<h3>Input:<a class="headerlink" href="#id24" title="Permalink to this heading"></a></h3>
+<section id="id9">
+<h3>Input:<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl>
 <dt>w1, w2      Objects on which the binary operation is to be performed.</dt><dd><p>One of these can be a Matlab double (i.e. double precision)
@@ -801,14 +216,14 @@ to be valid, each object must have the same signal array
 size.]</p>
 </div></blockquote>
 </dd>
-<dt>binary_op   Function handle to a binary operation. All binary operations</dt><dd><p>on Matlab double or single arrays are permitted (+, -, <a href="#id25"><span class="problematic" id="id26">*</span></a>,
+<dt>binary_op   Function handle to a binary operation. All binary operations</dt><dd><p>on Matlab double or single arrays are permitted (+, -, <a href="#id10"><span class="problematic" id="id11">*</span></a>,
 /, ).</p>
 </dd>
 </dl>
 </div></blockquote>
 </section>
-<section id="id27">
-<h3>Output:<a class="headerlink" href="#id27" title="Permalink to this heading"></a></h3>
+<section id="id12">
+<h3>Output:<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>w           Output object or array of objects.</p>
 </div></blockquote>
@@ -834,20 +249,20 @@ arrays, and set them from another sigvar object.</p>
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.SQWDnDBase.calculate_qsqr_bins">
 <span class="sig-name descname"><span class="pre">calculate_qsqr_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.SQWDnDBase.calculate_qsqr_bins" title="Permalink to this definition"></a></dt>
-<dd><p>Calculate <a href="#id28"><span class="problematic" id="id29">|</span></a>Q|^2 for the centres of the bins of an n-dimensional sqw dataset</p>
+<dd><p>Calculate <a href="#id13"><span class="problematic" id="id14">|</span></a>Q|^2 for the centres of the bins of an n-dimensional sqw dataset</p>
 <blockquote>
 <div><p>&gt;&gt; qsqr = calculate_qsqr_bins (win)</p>
 </div></blockquote>
-<section id="id30">
-<h3>Input:<a class="headerlink" href="#id30" title="Permalink to this heading"></a></h3>
+<section id="id15">
+<h3>Input:<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>win     Input sqw object</p>
 </div></blockquote>
 </section>
-<section id="id31">
-<h3>Output:<a class="headerlink" href="#id31" title="Permalink to this heading"></a></h3>
+<section id="id16">
+<h3>Output:<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
 <blockquote>
-<div><p>qsqr    <a href="#id32"><span class="problematic" id="id33">|</span></a>Q|^2 for each bin in the dataset for a single energy bin (column vector)</p>
+<div><p>qsqr    <a href="#id17"><span class="problematic" id="id18">|</span></a>Q|^2 for each bin in the dataset for a single energy bin (column vector)</p>
 <dl class="simple">
 <dt>en      Column vector of energy bin centres. If energy was an integration axis,</dt><dd><p>then returns the centre of the energy integration range</p>
 </dd>
@@ -859,14 +274,14 @@ arrays, and set them from another sigvar object.</p>
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.SQWDnDBase.calculate_qsqr_w_bins">
 <span class="sig-name descname"><span class="pre">calculate_qsqr_w_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.SQWDnDBase.calculate_qsqr_w_bins" title="Permalink to this definition"></a></dt>
-<dd><p>Calculate <a href="#id34"><span class="problematic" id="id35">|</span></a>Q|^2 for the centres of the bins of an n-dimensional sqw dataset</p>
+<dd><p>Calculate <a href="#id19"><span class="problematic" id="id20">|</span></a>Q|^2 for the centres of the bins of an n-dimensional sqw dataset</p>
 <blockquote>
 <div><p>&gt;&gt; qsqr_w = calculate_qsqr_w_bins (win)
 &gt;&gt; qsqr_w = calculate_qsqr_w_bins (win,’-boundaries’)
 &gt;&gt; qsqr_w = calculate_qsqr_w_bins (win,’-edges’)</p>
 </div></blockquote>
-<section id="id36">
-<h3>Input:<a class="headerlink" href="#id36" title="Permalink to this heading"></a></h3>
+<section id="id21">
+<h3>Input:<a class="headerlink" href="#id21" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>win         Input sqw object</p>
 </div></blockquote>
@@ -877,11 +292,11 @@ arrays, and set them from another sigvar object.</p>
 <div><p>encloses the plot axes</p>
 </div></blockquote>
 </section>
-<section id="id37">
-<h3>Output:<a class="headerlink" href="#id37" title="Permalink to this heading"></a></h3>
+<section id="id22">
+<h3>Output:<a class="headerlink" href="#id22" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl>
-<dt>qsqr_w      <a href="#id38"><span class="problematic" id="id39">|</span></a>Q|^2 and energy for each bin in the dataset. Arrays are packaged</dt><dd><p>as cell arrays of column vectors: qsqr_w{1} is <a href="#id40"><span class="problematic" id="id41">|</span></a>Q|^2 and qsqr_w{2}
+<dt>qsqr_w      <a href="#id23"><span class="problematic" id="id24">|</span></a>Q|^2 and energy for each bin in the dataset. Arrays are packaged</dt><dd><p>as cell arrays of column vectors: qsqr_w{1} is <a href="#id25"><span class="problematic" id="id26">|</span></a>Q|^2 and qsqr_w{2}
 is energy</p>
 <blockquote>
 <div><p>Note that the centre of the integration range is used in</p>
@@ -905,8 +320,8 @@ is energy</p>
 <blockquote>
 <div><p>&gt;&gt; wout = disp2sqw_eval(win,dispreln,pars,fwhh,varargin)</p>
 </div></blockquote>
-<section id="id42">
-<h3>Input:<a class="headerlink" href="#id42" title="Permalink to this heading"></a></h3>
+<section id="id27">
+<h3>Input:<a class="headerlink" href="#id27" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl>
 <dt>win         Dataset, or array of datasets, that provides the axes and points</dt><dd><p>for the calculation</p>
@@ -999,8 +414,8 @@ pixel individually. Reduces cost of expensive calculations.</p>
 </dl>
 </div></blockquote>
 </section>
-<section id="id43">
-<h3>Output:<a class="headerlink" href="#id43" title="Permalink to this heading"></a></h3>
+<section id="id28">
+<h3>Output:<a class="headerlink" href="#id28" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>wout        Output dataset or array of datasets</p>
 </div></blockquote>
@@ -1028,8 +443,8 @@ pixel individually. Reduces cost of expensive calculations.</p>
 <p>In addition, it is possible to check the contents of just a random
 fraction of non-empty bins (see option ‘fraction’) in order to speed up
 the comparison of large objects.</p>
-<section id="id44">
-<h3>Input:<a class="headerlink" href="#id44" title="Permalink to this heading"></a></h3>
+<section id="id29">
+<h3>Input:<a class="headerlink" href="#id29" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>w1,w2   Test objects (scalar objects, or arrays of objects with same sizes)</p>
 <dl>
@@ -1114,8 +529,8 @@ takes time, however, so the option to test on a few bins is given.</p>
 <blockquote>
 <div><p>&gt;&gt; sel = mask_points (win, ‘mask’, mask, ‘remove’, xremove)</p>
 </div></blockquote>
-<section id="id45">
-<h3>Input:<a class="headerlink" href="#id45" title="Permalink to this heading"></a></h3>
+<section id="id30">
+<h3>Input:<a class="headerlink" href="#id30" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>win     Input sqw object</p>
 <dl>
@@ -1154,11 +569,11 @@ consistently with the input required by the mask method.</p>
 </dl>
 </div></blockquote>
 </section>
-<section id="id46">
-<h3>Output:<a class="headerlink" href="#id46" title="Permalink to this heading"></a></h3>
+<section id="id31">
+<h3>Output:<a class="headerlink" href="#id31" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><blockquote>
-<div><p>sel     Mask array of same shape as <a href="#id67"><span class="problematic" id="id68">data_</span></a>. true for bins to keep, false to discard.</p>
+<div><p>sel     Mask array of same shape as <a href="#id63"><span class="problematic" id="id64">data_</span></a>. true for bins to keep, false to discard.</p>
 </div></blockquote>
 <p>Advanced use: in addition the following two arguments, if present, suppress failure or the
 display of informational messges. Instead, the messages are returned to be used as desired.</p>
@@ -1332,7 +747,7 @@ recommended version</p>
 with loader will be ignored)</p>
 </div></blockquote>
 <dl class="simple">
-<dt>&gt;&gt; save (w, file,[‘-parallel’<a href="#id47"><span class="problematic" id="id48">|</span></a>JobDispatcher])</dt><dd><p>combine file using parallel algorithm.
+<dt>&gt;&gt; save (w, file,[‘-parallel’<a href="#id32"><span class="problematic" id="id33">|</span></a>JobDispatcher])</dt><dd><p>combine file using parallel algorithm.
 Useful and would works only if (when) pix
 value of sqw object data is set up to the
 instance of pix_combine_info class,
@@ -1437,7 +852,7 @@ array of file paths with equal number of elements as win.</p>
 </dd>
 <dt>all        If true, requests that the calculated sqw be returned over</dt><dd><p>the whole of the domain of the input dataset. If false, then
 the function will be returned only at those points of the dataset
-that contain <a href="#id69"><span class="problematic" id="id70">data_</span></a>.</p>
+that contain <a href="#id65"><span class="problematic" id="id66">data_</span></a>.</p>
 <blockquote>
 <div><p>Applies only to input with no pixel information - it is ignored if</p>
 </div></blockquote>
@@ -1502,8 +917,8 @@ pars       Arguments needed by the function.</p>
 <p>Most unary operations on MATLAB double arrays are permitted (e.g. acos,
 sqrt, log10…) and are applied element by element to the signal and
 variance arrays.</p>
-<section id="id49">
-<h3>Input:<a class="headerlink" href="#id49" title="Permalink to this heading"></a></h3>
+<section id="id34">
+<h3>Input:<a class="headerlink" href="#id34" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl class="simple">
 <dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
@@ -1512,8 +927,8 @@ variance arrays.</p>
 <p>unary_op    Function handle to the unary operator.</p>
 </div></blockquote>
 </section>
-<section id="id50">
-<h3>Output:<a class="headerlink" href="#id50" title="Permalink to this heading"></a></h3>
+<section id="id35">
+<h3>Output:<a class="headerlink" href="#id35" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>w           Output object or array of objects.</p>
 </div></blockquote>
@@ -1542,6 +957,41 @@ arrays, and set them from another sigvar object.</p>
 </dd></dl>
 
 <dl class="mat method">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.multifit_func">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">multifit_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.multifit_func" title="Permalink to this definition"></a></dt>
+<dd><p>Simultaneously fit function(s) to one or more sqw objects</p>
+<blockquote>
+<div><p>&gt;&gt; myobj = multifit_func (w1, w2, …)      % w1, w2 objects or arrays of objects</p>
+</div></blockquote>
+<p>This creates a fitting object of class mfclass_Horace with the provided data,
+which can then be manipulated to add further data, set the fitting
+functions, initial parameter values etc. and fit or simulate the data.
+For details about how to do this  &lt;a href=”matlab:help(‘mfclass_Horace’);”&gt;Click here&lt;/a&gt;</p>
+<p>For example:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>&gt;&gt; myobj = multifit_func (w1, w2, …); % set the data</dt><dd><p>:</p>
+</dd>
+</dl>
+<p>&gt;&gt; myobj = myobj.set_fun (&#64;function_name, pars);  % set forgraound function(s)
+&gt;&gt; myobj = myobj.set_bfun (&#64;function_name, pars); % set background function(s)</p>
+<blockquote>
+<div><p>:</p>
+</div></blockquote>
+<p>&gt;&gt; myobj = myobj.set_free (pfree);      % set which parameters are floating
+&gt;&gt; myobj = myobj.set_bfree (bpfree);    % set which parameters are floating
+&gt;&gt; [wfit,fitpars] = myobj.fit;          % perform fit</p>
+</div></blockquote>
+<p>This method fits function(s) of the plot axes for both the foreground and
+the background function(s). The format of the fit functions depends on
+the number of plot axes for each sqw object. For examples see:
+&lt;a href=”matlab:edit(‘example_1d_function’);”&gt;example_1d_function&lt;/a&gt;
+&lt;a href=”matlab:edit(‘example_2d_function’);”&gt;example_2d_function&lt;/a&gt;
+&lt;a href=”matlab:edit(‘example_3d_function’);”&gt;example_3d_function&lt;/a&gt;</p>
+<p>See also multifit_sqw multifit_sqw_sqw</p>
+</dd></dl>
+
+<dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqw_eval_nopix">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqw_eval_nopix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">all_bins</span></em>, <em class="sig-param"><span class="pre">pars</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqw_eval_nopix" title="Permalink to this definition"></a></dt>
 <dd><p>SQW_EVAL_NOPIX</p>
@@ -1562,6 +1012,340 @@ pars       Arguments needed by the function.</p>
 
 <hr class="docutils" />
 <dl class="mat method">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.disp2sqw_eval">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">disp2sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">dispreln</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">fwhh</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.disp2sqw_eval" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate sqw for a model scattering function</p>
+<blockquote>
+<div><p>&gt;&gt; wout = disp2sqw_eval(win,dispreln,pars,fwhh,varargin)</p>
+</div></blockquote>
+<section id="id36">
+<h3>Input:<a class="headerlink" href="#id36" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><dl>
+<dt>win         Dataset, or array of datasets, that provides the axes and points</dt><dd><p>for the calculation</p>
+</dd>
+<dt>dispreln    Handle to function that calculates the dispersion relation w(Q) and</dt><dd><p>spectral weight, s(Q)
+Must have form:</p>
+<blockquote>
+<div><blockquote>
+<div><p>[w,s] = dispreln (qh,qk,ql,p)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>where</dt><dd><dl class="simple">
+<dt>qh,qk,ql    Arrays containing the coordinates of a set of points</dt><dd><p>in reciprocal lattice units</p>
+</dd>
+<dt>p           Vector of parameters needed by dispersion function</dt><dd><p>e.g. [A,js,gam] as intensity, exchange, lifetime</p>
+</dd>
+<dt>w           Array of corresponding energies, or, if more than</dt><dd><p>one dispersion relation, a cell array of arrays.</p>
+</dd>
+<dt>s           Array of spectral weights, or, if more than</dt><dd><p>one dispersion relation, a cell array of arrays.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl>
+<dt>More general form is:</dt><dd><blockquote>
+<div><p>[w,s] = dispreln (qh,qk,ql,p,c1,c2,..)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>where</dt><dd><dl class="simple">
+<dt>p           Typically a vector of parameters that we might want</dt><dd><p>to fit in a least-squares algorithm</p>
+</dd>
+<dt>c1,c2,…   Other constant parameters e.g. file name for look-up</dt><dd><p>table.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>pars        Arguments needed by the function. Most commonly, a vector of parameter</dt><dd><p>values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general
+set of parameters is required by the function, then
+package these into a cell array and pass that as pars. In the example
+above then pars = {p, c1, c2, …}</p>
+</dd>
+<dt>fwhh       Parametrizes the resolution function. There are three</dt><dd><blockquote>
+<div><p>possible input values of fwhh:</p>
+</div></blockquote>
+<dl>
+<dt>double              A single FWHM value determines the FWHM of the</dt><dd><p>Gaussian resolution function</p>
+</dd>
+<dt>function_handle     A function that produces the FWHM value as a</dt><dd><p>function of energy transfer, it has to have the
+following simple header (where omega can be a row
+vector of energies:</p>
+<blockquote>
+<div><p>dE = resfun(omega)</p>
+</div></blockquote>
+</dd>
+<dt>function_handle     A function handle of a function with two input</dt><dd><dl class="simple">
+<dt>parameters with the following header:</dt><dd><p>I = shapefun(Emat,omega)</p>
+</dd>
+</dl>
+<p>where Emat is a matrix with dimensions of [nQ nE]
+and omega is a column vector with nQ elements. The
+shapefun produces a peakshape for every Q point
+centered at the given omega and normalized to one.
+The output I has the same dimensions as the
+input Emat.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<p>Optional arguments: (varargin)</p>
+<blockquote>
+<div><dl>
+<dt>‘-al[l]’  Requests that the calculated sqw be returned over</dt><dd><p>the whole of the domain of the input dataset. If not given, then
+the function will be returned only at those points of the dataset
+that contain data.
+Applies only to input with no pixel information - it is ignored if
+full sqw object.</p>
+</dd>
+<dt>‘-av[erage]’ Requests that the calculated sqw be computed for the</dt><dd><p>average values of h,k,l of the pixels in a bin, not for each
+pixel individually. Reduces cost of expensive calculations.</p>
+<blockquote>
+<div><p>Applies only to the case of sqw object with pixel information - it is</p>
+</div></blockquote>
+<p>ignored if dnd type object.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="id37">
+<h3>Output:<a class="headerlink" href="#id37" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>wout        Output dataset or array of datasets</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="mat method">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.save">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.save" title="Permalink to this definition"></a></dt>
+<dd><p>Save a sqw object or array of sqw objects to a binary sqw file with
+recommended version</p>
+<blockquote>
+<div><p>&gt;&gt; save (w)              % prompt for file
+&gt;&gt; save (w, file)        % save to file with the name provided
+&gt;&gt; save (w, file,loader) % save file using specific binary data</p>
+<blockquote>
+<div><blockquote>
+<div><p>accessor</p>
+</div></blockquote>
+<p>(“-update” option, if provided with together
+with loader will be ignored)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>&gt;&gt; save (w, file,[‘-parallel’<a href="#id38"><span class="problematic" id="id39">|</span></a>JobDispatcher])</dt><dd><p>combine file using parallel algorithm.
+Useful and would works only if (when) pix
+value of sqw object data is set up to the
+instance of pix_combine_info class,
+containing information on the partial
+tmp files, written by filebased gen_sqw or
+cut algorithm</p>
+</dd>
+<dt>&gt;&gt; save (w, file,’-update’) % if the target file exist, update it to</dt><dd><p>latest format if this is possible. If
+update is possible, pixels in file will not be
+overwritten.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl>
+<dt>Input:</dt><dd><p>w       sqw object
+file    [optional] File for output. if none given, then prompted for a file</p>
+<p>Note that if w is an array of sqw objects then file must be a cell
+array of filenames of the same size.</p>
+</dd>
+</dl>
+<p>Optional output:
+cl – running instance of parallel cluster, used to combine multiple tmp</p>
+<blockquote>
+<div><blockquote>
+<div><p>files together if pix field of sqw object contains pix_combine_into
+and -parallel option or parallel cluster itself are provided as
+inpout. Empty in any other case</p>
+</div></blockquote>
+<p>TODO: currently empty. May re-enable when parallel saving is
+implemented properly</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="mat method">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mask_points">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mask_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mask_points" title="Permalink to this definition"></a></dt>
+<dd><p>TODO: Does not look like this function should be here</p>
+<p>Determine the points to keep on the basis of ranges and mask array.</p>
+<blockquote>
+<div><p>&gt;&gt; sel = mask_points (win, ‘keep’, xkeep, ‘remove’, xremove, ‘mask’, mask)</p>
+</div></blockquote>
+<p>or any selection (in any order) of the keyword-argument pairs e.g.</p>
+<blockquote>
+<div><p>&gt;&gt; sel = mask_points (win, ‘mask’, mask, ‘remove’, xremove)</p>
+</div></blockquote>
+<section id="id40">
+<h3>Input:<a class="headerlink" href="#id40" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>win     Input sqw object</p>
+<dl>
+<dt>xkeep   Ranges of display axes to retain for fitting. A range is specified by an array</dt><dd><p>of numbers which define a hypercube.
+For example in case of two dimensions:</p>
+<blockquote>
+<div><p>[xlo, xhi, ylo, yhi]</p>
+</div></blockquote>
+<dl>
+<dt>or in the case of n-dimensions:</dt><dd><blockquote>
+<div><p>[x1_lo, x1_hi, x2_lo, x2_hi,…, xn_lo, xn_hi]</p>
+</div></blockquote>
+<dl class="simple">
+<dt>e.g. 1D: [50,70]</dt><dd><p>2D: [1,2,130,160]</p>
+</dd>
+</dl>
+</dd>
+<dt>More than one range can be defined in rows,</dt><dd><blockquote>
+<div><p>[Range_1; Range_2; Range_3;…; Range_m]</p>
+</div></blockquote>
+<p>where each of the ranges are given in the format above.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>xremove Ranges of display axes to remove from fitting.</p>
+<dl>
+<dt>mask    Mask array of same number of elements as data array: 1 to keep, 0 to remove</dt><dd><blockquote>
+<div><p>Note: mask will be applied to the stored data array</p>
+</div></blockquote>
+<p>according as the projection axes, not the display axes.
+Thus permuting the display axes does not alter the
+effect of masking the data. The mask array works
+consistently with the input required by the mask method.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="id41">
+<h3>Output:<a class="headerlink" href="#id41" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><blockquote>
+<div><p>sel     Mask array of same shape as <a href="#id67"><span class="problematic" id="id68">data_</span></a>. true for bins to keep, false to discard.</p>
+</div></blockquote>
+<p>Advanced use: in addition the following two arguments, if present, suppress failure or the
+display of informational messges. Instead, the messages are returned to be used as desired.</p>
+<blockquote>
+<div><p>ok      =true if worked, =false if error</p>
+<p>mess    messages: if ok=true then informational or warning, if ok=false then the error message</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="mat method">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqw_eval">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqw_eval" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate sqw for a model scattering function</p>
+<blockquote>
+<div><blockquote>
+<div><p>&gt;&gt; wout = sqw_eval(win, sqwfunc, p)
+&gt;&gt; wout = sqw_eval(___, ‘-all’)
+&gt;&gt; wout = sqw_eval(___, ‘all’, true)
+&gt;&gt; wout = sqw_eval(___, ‘-average’)
+&gt;&gt; wout = sqw_eval(___, ‘average’, true)
+&gt;&gt; sqw_eval(___, ‘outfile’, outfile)
+&gt;&gt; wout = sqw_eval(___, ‘outfile’, outfile)
+&gt;&gt; sqw_eval(__, ‘outfile’, outfile, ‘filebacked’, true)
+&gt;&gt; wout = sqw_eval(__, ‘filebacked’, true)</p>
+</div></blockquote>
+<blockquote>
+<div><dl>
+<dt>obj        SQWDnDBase object (or array of objects) used</dt><dd><blockquote>
+<div><p>as the source of hkle coordinates for sqwfunc:</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>for dnd this is the image axis bin centre coordinates</p></li>
+<li><p>for sqw this is the pixel coordinates or their cell
+average.</p></li>
+</ul>
+</dd>
+<dt>sqwfunc     Handle to function that calculates S(Q, w)</dt><dd><dl>
+<dt>Most commonly used form is:</dt><dd><blockquote>
+<div><p>weight = sqwfunc (qh, qk, ql, en, p)</p>
+</div></blockquote>
+<dl>
+<dt>where</dt><dd><p>qh,qk,ql,en Arrays containing the coordinates of a set of points
+p           Vector of parameters needed by dispersion function</p>
+<blockquote>
+<div><p>e.g. [A, js, gam] as intensity, exchange, lifetime</p>
+</div></blockquote>
+<p>weight      Array containing calculated spectral weight</p>
+</dd>
+</dl>
+</dd>
+<dt>More general form is:</dt><dd><blockquote>
+<div><p>weight = sqwfunc (qh, qk, ql, en, p, c1, c2, ..)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>where</dt><dd><dl class="simple">
+<dt>p           Typically a vector of parameters that we might want</dt><dd><p>to fit in a least-squares algorithm</p>
+</dd>
+<dt>c1, c2, …   Other constant parameters e.g. file name for look-up</dt><dd><p>table</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>pars       Arguments needed by the function. Most commonly, a vector of parameter</dt><dd><p>values e.g. [A, js, gam] as intensity, exchange, lifetime. If a more general
+set of parameters is required by the function, then
+package these into a cell array and pass that as pars. In the example
+above then pars = {p, c1, c2, …}</p>
+</dd>
+</dl>
+</div></blockquote>
+<blockquote>
+<div><dl>
+<dt>outfile    If present, the outputs will be written to the file of the given</dt><dd><p>name/path.
+If numel(win) &gt; 1, outfile must either be omitted or be a cell
+array of file paths with equal number of elements as win.</p>
+</dd>
+<dt>all        If true, requests that the calculated sqw be returned over</dt><dd><p>the whole of the domain of the input dataset. If false, then
+the function will be returned only at those points of the dataset
+that contain <a href="#id69"><span class="problematic" id="id70">data_</span></a>.</p>
+<blockquote>
+<div><p>Applies only to input with no pixel information - it is ignored if</p>
+</div></blockquote>
+<p>full sqw object.
+[default = false]</p>
+</dd>
+<dt>average    If true, requests that the calculated sqw be computed for the</dt><dd><p>average values of h, k, l of the pixels in a bin, not for each
+pixel individually. Reduces cost of expensive calculations.
+Applies only to the case of sqw object with pixel information
+- it is ignored if dnd type object.
+[default = false]</p>
+</dd>
+<dt>filebacked  If true, the result of the function will be saved to file and</dt><dd><p>the output will be a file path. If no <cite>outfile</cite> is specified,
+a unique path within <cite>tempdir()</cite> will be generated.
+Default is false.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Note: all optional string input parameters can be truncated up to minimal</dt><dd><p>difference between them e.g. routine would accept ‘al’ and
+‘av’, ‘ave’, ‘aver’ etc….</p>
+</dd>
+</dl>
+<blockquote>
+<div><dl class="simple">
+<dt>obj        If <cite>filebacked</cite> is false, an sqw object or array of sqw objects.</dt><dd><p>If <cite>filebacked</cite> is true, a file path or cell array of file paths.
+Output argument must be specified if <cite>outfile</cite> not given.</p>
+</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+<hr class="docutils" />
+<dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.binary_op_manager">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">binary_op_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em>, <em class="sig-param"><span class="pre">binary_op</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.binary_op_manager" title="Permalink to this definition"></a></dt>
 <dd><p>Implements a binary operation for objects with a signal and a variance array.</p>
@@ -1569,10 +1353,10 @@ pars       Arguments needed by the function.</p>
 <div><p>&gt;&gt; w = binary_op_manager(w1, w2, binary_op)</p>
 </div></blockquote>
 <p>All binary operations on Matlab double arrays are permitted
-(+, -, <a href="#id51"><span class="problematic" id="id52">*</span></a>, /, ) and are applied element by element to the signal and
+(+, -, <a href="#id42"><span class="problematic" id="id43">*</span></a>, /, ) and are applied element by element to the signal and
 variance arrays.</p>
-<section id="id53">
-<h3>Input:<a class="headerlink" href="#id53" title="Permalink to this heading"></a></h3>
+<section id="id44">
+<h3>Input:<a class="headerlink" href="#id44" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl>
 <dt>w1, w2      Objects on which the binary operation is to be performed.</dt><dd><p>One of these can be a Matlab double (i.e. double precision)
@@ -1623,14 +1407,14 @@ to be valid, each object must have the same signal array
 size.]</p>
 </div></blockquote>
 </dd>
-<dt>binary_op   Function handle to a binary operation. All binary operations</dt><dd><p>on Matlab double or single arrays are permitted (+, -, <a href="#id54"><span class="problematic" id="id55">*</span></a>,
+<dt>binary_op   Function handle to a binary operation. All binary operations</dt><dd><p>on Matlab double or single arrays are permitted (+, -, <a href="#id45"><span class="problematic" id="id46">*</span></a>,
 /, ).</p>
 </dd>
 </dl>
 </div></blockquote>
 </section>
-<section id="id56">
-<h3>Output:<a class="headerlink" href="#id56" title="Permalink to this heading"></a></h3>
+<section id="id47">
+<h3>Output:<a class="headerlink" href="#id47" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>w           Output object or array of objects.</p>
 </div></blockquote>
@@ -1653,6 +1437,58 @@ arrays, and set them from another sigvar object.</p>
 </section>
 </dd></dl>
 
+<dl class="mat method">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.multifit_sqw_sqw">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">multifit_sqw_sqw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.multifit_sqw_sqw" title="Permalink to this definition"></a></dt>
+<dd><p>Simultaneously fit function(s) of S(Q,w)to one or more sqw objects</p>
+<blockquote>
+<div><blockquote>
+<div><p>&gt;&gt; myobj = multifit_sqw_sqw (w1, w2, …)      % w1, w2 objects or arrays of objects</p>
+</div></blockquote>
+<p>This creates a fitting object of class mfclass_Horace_sqw_sqw with the provided data,
+which can then be manipulated to add further data, set the fitting
+functions, initial parameter values etc. and fit or simulate the data.
+For details about how to do this  &lt;a href=”matlab:help(‘mfclass_Horace_sqw_sqw’);”&gt;Click here&lt;/a&gt;</p>
+<p>For example:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>&gt;&gt; myobj = multifit_sqw_sqw (w1, w2, …); % set the data</dt><dd><p>:</p>
+</dd>
+</dl>
+<p>&gt;&gt; myobj = myobj.set_fun (&#64;function_name, pars);  % set forgraound function(s)
+&gt;&gt; myobj = myobj.set_bfun (&#64;function_name, pars); % set background function(s)</p>
+<blockquote>
+<div><p>:</p>
+</div></blockquote>
+<p>&gt;&gt; myobj = myobj.set_free (pfree);      % set which parameters are floating
+&gt;&gt; myobj = myobj.set_bfree (bpfree);    % set which parameters are floating
+&gt;&gt; [wfit,fitpars] = myobj.fit;          % perform fit</p>
+</div></blockquote>
+<p>This method fits function(s) of S(Q,w) as both the foreground and
+the background function(s). For the format of the fit functions:
+&lt;a href=”matlab:edit(‘example_sqw_spin_waves’);”&gt;Damped spin waves&lt;/a&gt;
+&lt;a href=”matlab:edit(‘example_sqw_flat_mode’);”&gt;Dispersionless excitations&lt;/a&gt;</p>
+<p>See also multifit multifit_sqw</p>
+</div></blockquote>
+<blockquote>
+<div><p>method_name = ‘multifit_sqw_sqw’
+mfclass_name = ‘mfclass_Horace_sqw_sqw’
+function_tag = ‘of S(Q,w) ‘</p>
+<p>multifit_doc = fullfile(fileparts(which(‘multifit’)),’_docify’)
+sqw_doc = fullfile(fileparts(which(‘mfclass_Horace’)),’_docify’)</p>
+<p>doc_multifit_header = fullfile(multifit_doc,’doc_multifit_header.m’)
+doc_fit_functions = fullfile(sqw_doc,’doc_multifit_sqw_sqw_fit_functions_for_sqw.m’)</p>
+</div></blockquote>
+<blockquote>
+<div><blockquote>
+<div><p>&lt;#file:&gt;  &lt;doc_fit_functions&gt;</p>
+</div></blockquote>
+<p>See also multifit multifit_sqw</p>
+<p>&lt;#doc_end:&gt;</p>
+</div></blockquote>
+</dd></dl>
+
+<hr class="docutils" />
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.multifit_sqw">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">multifit_sqw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.multifit_sqw" title="Permalink to this definition"></a></dt>
@@ -1710,16 +1546,179 @@ doc_fit_functions = fullfile(sqw_doc,’doc_multifit_sqw_fit_functions_for_sqw.m
 </div></blockquote>
 </dd></dl>
 
-</section>
 <hr class="docutils" />
+<dl class="mat method">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.unary_op_manager">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">unary_op_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">unary_op</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.unary_op_manager" title="Permalink to this definition"></a></dt>
+<dd><p>Implements a unary operation for objects with a signal and a variance array.</p>
+<blockquote>
+<div><p>&gt;&gt; w = unary_op_manager(w1, unary_op)</p>
+</div></blockquote>
+<p>Most unary operations on MATLAB double arrays are permitted (e.g. acos,
+sqrt, log10…) and are applied element by element to the signal and
+variance arrays.</p>
+<section id="id48">
+<h3>Input:<a class="headerlink" href="#id48" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><dl class="simple">
+<dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
+</dd>
+</dl>
+<p>unary_op    Function handle to the unary operator.</p>
+</div></blockquote>
+</section>
+<section id="id49">
+<h3>Output:<a class="headerlink" href="#id49" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>w           Output object or array of objects.</p>
+</div></blockquote>
+<p>NOTES:
+This is a generic template method - works for any class (including sigvar)
+but the indicated blocks may need to be edited for a particular class.</p>
+<p>Requires that objects have the following methods to find the size of the
+public signal and variance arrays, create a sigvar object from those
+arrays, and set them from another sigvar object.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>&gt;&gt; sz = sigvar_size(obj)    % Returns size of public signal and variance</dt><dd><p>% arrays</p>
+</dd>
+<dt>&gt;&gt; w = sigvar(obj)          % Create a sigvar object from the public</dt><dd><p>% signal and variance arrays</p>
+</dd>
+<dt>&gt;&gt; obj = sigvar_set(obj,w)  % Set signal and variance in an object from</dt><dd><p>% those in a sigvar object</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="mat method">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.calculate_qsqr_bins">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">calculate_qsqr_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.calculate_qsqr_bins" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate <a href="#id50"><span class="problematic" id="id51">|</span></a>Q|^2 for the centres of the bins of an n-dimensional sqw dataset</p>
+<blockquote>
+<div><p>&gt;&gt; qsqr = calculate_qsqr_bins (win)</p>
+</div></blockquote>
+<section id="id52">
+<h3>Input:<a class="headerlink" href="#id52" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>win     Input sqw object</p>
+</div></blockquote>
+</section>
+<section id="id53">
+<h3>Output:<a class="headerlink" href="#id53" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>qsqr    <a href="#id54"><span class="problematic" id="id55">|</span></a>Q|^2 for each bin in the dataset for a single energy bin (column vector)</p>
+<dl class="simple">
+<dt>en      Column vector of energy bin centres. If energy was an integration axis,</dt><dd><p>then returns the centre of the energy integration range</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="mat method">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.equal_to_tol">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">equal_to_tol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.equal_to_tol" title="Permalink to this definition"></a></dt>
+<dd><p>Check if two sqw objects are equal to a given tolerance</p>
+<blockquote>
+<div><p>&gt;&gt; ok = equal_to_tol (a, b)
+&gt;&gt; ok = equal_to_tol (a, b, tol)
+&gt;&gt; ok = equal_to_tol (…, keyword1, val1, keyword2, val2,…)
+&gt;&gt; [ok, mess] = equal_to_tol (…)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Class specific version of the generic equal_to_tol that by default</dt><dd><ol class="arabic simple">
+<li><p>assumes NaN are equivalent (see option ‘nan_equal’), and</p></li>
+<li><p>ignores the order of pixels within a bin as the order is irrelevant
+(change the default with option ‘reorder’)</p></li>
+</ol>
+</dd>
+</dl>
+<p>In addition, it is possible to check the contents of just a random
+fraction of non-empty bins (see option ‘fraction’) in order to speed up
+the comparison of large objects.</p>
+<section id="id56">
+<h3>Input:<a class="headerlink" href="#id56" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>w1,w2   Test objects (scalar objects, or arrays of objects with same sizes)</p>
+<dl>
+<dt>tol     Tolerance criterion for numeric arrays (Default: [0,0] i.e. equality)</dt><dd><dl class="simple">
+<dt>It has the form: [abstol, reltol] where</dt><dd><p>abstol     absolute tolerance (&gt;=0; if =0 equality required)
+reltol     relative tolerance (&gt;=0; if =0 equality required)</p>
+</dd>
+</dl>
+<p>If either criterion is satified then equality within tolerance
+is accepted.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Examples:</dt><dd><p>[1e-4, 1e-6]    absolute 1e-4 or relative 1e-6 required
+[1e-4, 0]       absolute 1e-4 required
+[0, 1e-6]       relative 1e-6 required
+[0, 0]          equality required
+0               equivalent to [0,0]</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>For backwards compatibility, a scalar tolerance can be given
+where the sign determines absolute or relative tolerance</p>
+<blockquote>
+<div><blockquote>
+<div><p>+ve : absolute tolerance  abserr = abs(a-b)
+-ve : relative tolerance  relerr = abs(a-b)/max(abs(a),abs(b))</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Examples:</dt><dd><p>1e-4            absolute tolerance, equivalent to [1e-4, 0]
+-1e-6           relative tolerance, equivalent to [0, 1e-6]</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>[To apply an absolute as well as a relative tolerance with a</dt><dd><p>scalar negative value, set the value of the legacy keyword</p>
+</dd>
+</dl>
+<p>‘min_denominator’ (see below)]</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl>
+<dt>Valid keywords are:</dt><dd><p>‘nan_equal’      Treat NaNs as equal (true or false; default=true)</p>
+<dl>
+<dt>‘ignore_str’     Ignore the length and content of strings or cell arrays</dt><dd><p>of strings (true or false; default=false)</p>
+</dd>
+<dt>‘reorder’        Ignore the order of pixels within each bin</dt><dd><dl class="simple">
+<dt>(true or false; default=true)</dt><dd><p>Only applies if sqw-type object</p>
+</dd>
+</dl>
+</dd>
+<dt>‘fraction’       Compare pixels in only a fraction of the non-empty bins</dt><dd><dl class="simple">
+<dt>(0&lt;= fracton &lt;= 1; default=1 i.e. test all bins)</dt><dd><p>Only applies if sqw-type object</p>
+</dd>
+</dl>
+</dd>
+<dt>‘-ignore_date’   (provided without additional values, so its presence in</dt><dd><blockquote>
+<div><blockquote>
+<div><p>the sequence of keywords means true). If provided,
+ignore file creation date stored in main header.</p>
+</div></blockquote>
+<p>The reorder and fraction options are available because the order of the</p>
+</div></blockquote>
+<p>pixels within the pix array for a given bin is unimportant. Reordering
+takes time, however, so the option to test on a few bins is given.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
 <section id="module-sqw.&#64;Experiment">
 <span id="experiment-class"></span><h2><a class="toc-backref" href="#id61" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a><a class="headerlink" href="#module-sqw.@Experiment" title="Permalink to this heading"></a></h2>
 <dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.upgrade_legacy_alignment">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">upgrade_legacy_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">deal_info</span></em>, <em class="sig-param"><span class="pre">alatt</span></em>, <em class="sig-param"><span class="pre">angdeg</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.upgrade_legacy_alignment" title="Permalink to this definition"></a></dt>
-<dd><p>UPGRADE_LEGACY_ALIGNMENT Change fields in the experiment with correction
-to remove legacy alignment applied to the crystal earlier and apply
-modern alignment to it.</p>
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.remove_legacy_alignment">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">remove_legacy_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">deal_info</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.remove_legacy_alignment" title="Permalink to this definition"></a></dt>
+<dd><p>REMOVE_LEGACY_ALIGNMENT Change fields in the experiment with correction
+to remove legacy alignment applied to the crystal earlier.</p>
 <p>Inputs:
 obj    – legacy realigned dnd object. Algorithm throws if the object has</p>
 <blockquote>
@@ -1727,21 +1726,43 @@ obj    – legacy realigned dnd object. Algorithm throws if the object has</p>
 </div></blockquote>
 <dl class="simple">
 <dt>deal_info</dt><dd><dl class="simple">
-<dt>–  instance of crystal_alignment_info class, containing information</dt><dd><p>about dealignment of the legacy-aligned crystal</p>
+<dt>– instance of crystal_alignment_info class, containing information</dt><dd><p>about de-alignment</p>
 </dd>
 </dl>
 </dd>
 </dl>
-<p>Optional
-alatt   – lattice parameters with values for aligned lattice to be set.
-angdeg  – lattice angles with values for aligned lattice to be set.</p>
-<blockquote>
-<div><p>If one is present, another one have to be present.
-If these values are missing, assumes that the lattice have not
-been changed.</p>
-</div></blockquote>
 <p>Outputs:
-wout    – dnd object according to the new alignment algorithm.</p>
+obj     – Experiment object with alignment removed</p>
+</dd></dl>
+
+<dl class="mat method">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.set_instrument">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">set_instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">instr_or_fun</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.set_instrument" title="Permalink to this definition"></a></dt>
+<dd><p>add or reset instrument, related to the given experiment class</p>
+</dd></dl>
+
+<dl class="mat method">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.set_mod_pulse">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">set_mod_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pulse_model</span></em>, <em class="sig-param"><span class="pre">pm_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.set_mod_pulse" title="Permalink to this definition"></a></dt>
+<dd><p>Set moderator pulse model on all unique instruments, contributed in the
+experiment
+Input:
+——</p>
+<blockquote>
+<div><p>obj         Experiment object
+pulse_model Pulse shape model name e.g. ‘ikcarp’
+pp          Pulse shape parameters: row vector for a single set of parameters</p>
+<blockquote>
+<div><p>or a 2D array, one row per spe data set for each instrument
+of the sqw object(s).</p>
+</div></blockquote>
+</div></blockquote>
+<section id="id57">
+<h3>Output:<a class="headerlink" href="#id57" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>obj         Modified experiment</p>
+</div></blockquote>
+</section>
 </dd></dl>
 
 <dl class="mat method">
@@ -1775,16 +1796,11 @@ routine. Type:</p>
 </dd></dl>
 
 <dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.set_instrument">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">set_instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">instr_or_fun</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.set_instrument" title="Permalink to this definition"></a></dt>
-<dd><p>add or reset instrument, related to the given experiment class</p>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.remove_legacy_alignment">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">remove_legacy_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">deal_info</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.remove_legacy_alignment" title="Permalink to this definition"></a></dt>
-<dd><p>REMOVE_LEGACY_ALIGNMENT Change fields in the experiment with correction
-to remove legacy alignment applied to the crystal earlier.</p>
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.upgrade_legacy_alignment">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">upgrade_legacy_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">deal_info</span></em>, <em class="sig-param"><span class="pre">alatt</span></em>, <em class="sig-param"><span class="pre">angdeg</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.upgrade_legacy_alignment" title="Permalink to this definition"></a></dt>
+<dd><p>UPGRADE_LEGACY_ALIGNMENT Change fields in the experiment with correction
+to remove legacy alignment applied to the crystal earlier and apply
+modern alignment to it.</p>
 <p>Inputs:
 obj    – legacy realigned dnd object. Algorithm throws if the object has</p>
 <blockquote>
@@ -1792,13 +1808,21 @@ obj    – legacy realigned dnd object. Algorithm throws if the object has</p>
 </div></blockquote>
 <dl class="simple">
 <dt>deal_info</dt><dd><dl class="simple">
-<dt>– instance of crystal_alignment_info class, containing information</dt><dd><p>about de-alignment</p>
+<dt>–  instance of crystal_alignment_info class, containing information</dt><dd><p>about dealignment of the legacy-aligned crystal</p>
 </dd>
 </dl>
 </dd>
 </dl>
+<p>Optional
+alatt   – lattice parameters with values for aligned lattice to be set.
+angdeg  – lattice angles with values for aligned lattice to be set.</p>
+<blockquote>
+<div><p>If one is present, another one have to be present.
+If these values are missing, assumes that the lattice have not
+been changed.</p>
+</div></blockquote>
 <p>Outputs:
-obj     – Experiment object with alignment removed</p>
+wout    – dnd object according to the new alignment algorithm.</p>
 </dd></dl>
 
 <dl class="mat class">
@@ -1880,8 +1904,8 @@ pp          Pulse shape parameters: row vector for a single set of parameters</p
 of the sqw object(s).</p>
 </div></blockquote>
 </div></blockquote>
-<section id="id57">
-<h3>Output:<a class="headerlink" href="#id57" title="Permalink to this heading"></a></h3>
+<section id="id58">
+<h3>Output:<a class="headerlink" href="#id58" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>obj         Modified experiment</p>
 </div></blockquote>
@@ -1923,30 +1947,6 @@ wout    – dnd object according to the new alignment algorithm.</p>
 </div>
 </dd></dl>
 
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.set_mod_pulse">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">set_mod_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pulse_model</span></em>, <em class="sig-param"><span class="pre">pm_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.set_mod_pulse" title="Permalink to this definition"></a></dt>
-<dd><p>Set moderator pulse model on all unique instruments, contributed in the
-experiment
-Input:
-——</p>
-<blockquote>
-<div><p>obj         Experiment object
-pulse_model Pulse shape model name e.g. ‘ikcarp’
-pp          Pulse shape parameters: row vector for a single set of parameters</p>
-<blockquote>
-<div><p>or a 2D array, one row per spe data set for each instrument
-of the sqw object(s).</p>
-</div></blockquote>
-</div></blockquote>
-<section id="id58">
-<h3>Output:<a class="headerlink" href="#id58" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>obj         Modified experiment</p>
-</div></blockquote>
-</section>
-</dd></dl>
-
 </section>
 <section id="pixeldata-class">
 <h2><a class="toc-backref" href="#id62" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a><a class="headerlink" href="#pixeldata-class" title="Permalink to this heading"></a></h2>
@@ -1965,7 +1965,7 @@ of the sqw object(s).</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Oct 26, 2023, 4:56:41 AM.
+      <span class="lastupdated">Last updated on Nov 2, 2023, 9:22:03 AM.
       </span></p>
   </div>
 
