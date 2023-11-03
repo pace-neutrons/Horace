@@ -86,11 +86,11 @@ classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
             
             testfun = @()plus(w1,w2);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:data_op_interface:invalid_argument');
             
             testfun = @()plus(w2,w1);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:data_op_interface:invalid_argument');
         end
         
         %--------------------------------------------------------------------------
@@ -132,11 +132,11 @@ classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
             
             testfun = @()plus(w,f);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:data_op_interface:invalid_argument');
             
             testfun = @()plus(f,w);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:data_op_interface:invalid_argument');
         end
         
         %--------------------------------------------------------------------------
@@ -149,11 +149,11 @@ classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
             
             testfun = @()plus(w, f);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:data_op_interface:invalid_argument');
             
             testfun = @()plus(f, w);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:data_op_interface:invalid_argument');
         end
         
         %--------------------------------------------------------------------------
@@ -337,11 +337,11 @@ classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
             
             testfun = @()plus(w1, flt);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:data_op_interface:invalid_argument');
             
             testfun = @()plus(flt, w1);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:data_op_interface:invalid_argument');
         end
         
         %--------------------------------------------------------------------------

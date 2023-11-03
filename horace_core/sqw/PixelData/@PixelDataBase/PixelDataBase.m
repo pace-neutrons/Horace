@@ -730,8 +730,10 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         %------------------------------------------------------------------
         % Helpers for page_op and data_op_interface. Work with data in
         % memory regarless of file/memory based class
-        function sz = sigvar_size(obj)
-            sz = [1,obj.num_pixels];
+        function sz = sigvar_size(~)
+            % sigvar_size is the size of image, so pixels only are always in
+            % d0d image (compartible with any image).
+            sz = [1,1];
         end
         function sg = sigvar(obj)
             % returns only single page data
@@ -925,7 +927,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         end
         %------------------------------------------------------------------
         %Operations
-        w = binary_op_manager_single(w1, w2, op_function_handle);
         w = unary_op_manager (w1, op_function_handle);
     end
     %======================================================================

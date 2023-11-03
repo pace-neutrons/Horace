@@ -1,13 +1,9 @@
-function [is,do_page_op,page_op_kind] = is_superior_(obj1,obj2)
+function [flip,page_op_kind] = is_superior_(obj1,obj2,op_name)
 % Helper function to establish order of operands in binary
 % operations.
-% is  -- true if class 2 is superior over class 1 and binary operations
+% flip -- true if class 2 is superior over class 1 and binary operations
 %        should return class 2 as the result of operation instead of
 %        class1 as it would normally occurs
-% do_page_op
-%     -- true if normal algorithm of performing operations
-%        defined by sigvar.binary_op_manager is not working and
-%        special page_op are used to perfrom operations.
 % page_op_kind
 %     -- depending on operands, three types of page op are
 %        allowed namely object<->scalar object<->image and object<->object
@@ -16,61 +12,27 @@ function [is,do_page_op,page_op_kind] = is_superior_(obj1,obj2)
 %
 
 % order of the object in the operation list
-place_1 = cellfun(@(x)isa(obj1,x),data_op_interface.super_list);
-place_2 = cellfun(@(x)isa(obj2,x),data_op_interface.super_list);
-pos1 = find(place_1);
-pos2 = find(place_2);
+[priority1,sv_size1,has_pix1,has_img1] = data_op_interface.get_priority(obj1);
+[priority2,sv_size2,has_pix2,has_img2] = data_op_interface.get_priority(obj2);
 
-if isempty(pos1) || isempty(pos2)
-    error('HERBERT:data_op_interface:invalid_argument', ...
-        'Binary operations are not defined between classes %s and %s', ...
-        class(obj1),class(obj2));
+if ~(isequal(sv_size1,sv_size2) || isequal(sv_size1,[1,1]) || isequal(sv_size2,[1,1]))
+    error('HORACE:data_op_interface:invalid_argument', ...
+        'Image size %s of operand 1 is inconsistent image size %s of operand 2 in operation %s', ...
+        disp2str(sv_size1),disp2str(sv_size2),op_name);
 end
-%
-do_page_op = data_op_interface.force_flip(pos1)>0 || data_op_interface.force_flip(pos2)>0;
-%
-if pos2<pos1
-    is = true;
-    second_op_pos = pos1;
-    second_op_size = sigvar_size(obj1);    
+
+if priority2 > priority1
+    flip = true;
+    op1_has_pix = has_pix2;
+    op2_has_pix = has_pix1;
+    op1_has_img = has_img2;
+    op2_has_img = has_img1;
 else
-    is = false;
-    second_op_pos = pos2;
-    second_op_size = sigvar_size(obj2);
+    flip = false;
+    op1_has_pix = has_pix1;
+    op2_has_pix = has_pix2;
+    op1_has_img = has_img1;
+    op2_has_img = has_img2;
 end
-
-if do_page_op
-    if second_op_pos == data_op_interface.second_operand_type(end) % numeric operand
-        % numeric operand may describe image if its size equal the size of
-        % image of the first operand
-    else
-        page_op_kind = data_op_interface.second_operand_type(second_op_pos);
-    end
-
-else
-    page_op_kind = 0;
-end
-
-if isa(obj1,'sqw') && isa(obj2,'sqw') % additional conditions on two sqw objects 
-    % related to the presence of pixels in them
-    [is,page_op_kind] = is_sqw_superior(obj1,obj2);
-end
-
-
-
-
-function [is,page_op_kind] = is_sqw_superior(obj1,obj2)
-% check order of operations for two sqw objects
-obj1_has_pix = obj1.has_pixels();
-obj2_has_pix = obj2.has_pixels();
-if obj1_has_pix
-    is = false;
-else
-    is = true;
-end
-if obj2_has_pix
-    page_op_kind = 3; % sqw<->sqw
-else
-    page_op_kind = 2; % sqw<->img
-end
-
+page_op_kind = data_op_interface.get_operation_kind( ...
+    op1_has_pix,op1_has_img,op2_has_pix,op2_has_img);

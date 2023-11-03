@@ -24,26 +24,39 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 % -----------------------------------------------------------------------------
 
 
-% One or both of w1, w2 is an instance of the class for which this a method
-% because otherwise this method would not have been called. Furthermore, it
-% must be the superior class (assuming that a method with this name is
-% defined for both classes)
-%
-sz1 = sigvar_size(w1);
-sz2 = sigvar_size(w2);
-if ~(isequal(sz1,sz2) || isequal(sz1,[1,1]) || isequal(sz2,[1,1]))
-    error('HERBERT:data_op_interface:binary_op_manager_single', ...
-        'Size of signal array for obj1(%d) differs from size of obj2(%d) and any is not unit size', ...
-        mat2str(sz1),mat2str(sz2));
-end
-[is,do_pageop,pageop_type] = data_op_interface.is_superior(w1,w2);
-if is
-    wout = w2;
+op_name = func2str(binary_op);
+% identify order operands superiority and the type of operation to be
+% performed over operands
+[flip,page_op_kind] = data_op_interface.get_op_kind( ...
+    w1,w2,op_name );
+if flip
+    wout    = w2;
+    operand = w1;
 else
-    wout = w1;
+    wout    = w1;
+    operand = w2;
 end
-if do_pageop
-else
-    result = sigvar(w1).binary_op_manager(sigvar(w2),binary_op);
-    wout   = sigvar_set(wout, result);
+
+
+switch(page_op_kind)
+    case(0) % operation betwen two objects convertible to sigvar
+        result = sigvar(w1).binary_op_manager(sigvar(w2),binary_op);
+        wout   = sigvar_set(wout, result);
+        return
+    case(1) % operation between object with pixels and numeric constant
+        wout = copy(wout);
+        page_op = PageOp_binary_sqw_double();
+    case(2) % operation between object with pixels and image and object
+        %     equivalent to image
+        wout = copy(wout);
+        page_op = PageOp_binary_sqw_img();
+    case(3) % operation between two objects with pixels and images
+        wout = copy(wout);
+        page_op = PageOp_binary_sqw_sqw();
+    otherwise
+        error('HORACE:data_op_interface:invalid_argument', ...
+            'unsupported type of operation %d for operation %s between objects of class %s and class %s', ...
+            page_op_kind,op_name,class(w1),class(w2));
 end
+page_op = page_op.init(wout,operand,operation,flip);
+wout    = wout.apply_op(page_op);

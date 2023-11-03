@@ -58,7 +58,7 @@ classdef test_binary_ops < TestCase
             obj.sqw_obj.pix = PixelDataBase.create();
 
             f = @()  obj.sqw_obj - obj.sqw_obj;
-            assertExceptionThrown(f, 'SQW:binary_op_manager_single');
+            assertExceptionThrown(f, 'HORACE:data_op_interface:invalid_argument');
         end
 
         function test_adding_sqw_and_dnd_objects_1st_operand_is_sqw_returns_sqw(obj)

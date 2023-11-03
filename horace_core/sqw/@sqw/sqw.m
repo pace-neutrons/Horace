@@ -451,7 +451,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
 
     %======================================================================
     methods(Access = protected)
-        wout = binary_op_manager_single(w1, w2, binary_op);
         % Re #962 TODO: probably delete it
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         % binning of an sqw or dnd object
