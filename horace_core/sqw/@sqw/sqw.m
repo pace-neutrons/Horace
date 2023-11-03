@@ -93,6 +93,22 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods(Static)
         % returns list of fields, which need to be filled by head function
         form_fields = head_form(sqw_only,keep_data_arrays)
+		%
+        function obj = apply_op(obj, operation)
+            % Apply special PageOp operation affecting sqw object and pixels
+            %
+            % See what PageOp is from PageOpBase class description and its
+            % children
+            %
+            % Inputs:
+            % obj       -- sqw object - contains pixels and image to be
+            %              modified
+            % operation -- valid PageOpBase subclass containing function
+            %              which operates on PixelData, modifies pixels and
+            %              calculates changes to image, caused by the
+            %              modifications to pixels.
+            obj = obj.pix.apply_op(obj,operation);
+        end        
     end
     %======================================================================
     % PageOp methods -- methods, which use PageOp for implementation, so
@@ -379,7 +395,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         end
     end
     %======================================================================
-    % apply_op and support for it
+    % supporting function for apply_op
     methods
         %----------------------------------
         new_sqw = copy(obj, varargin)
@@ -387,21 +403,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         wh  = get_write_handle(obj, outfile)
         obj = finish_dump(obj,varargin);
         %
-        function obj = apply_op(obj, operation)
-            % Apply special PageOp operation affecting sqw object and pixels
-            %
-            % See what PageOp is from PageOpBase class description and its
-            % children
-            %
-            % Inputs:
-            % obj       -- sqw object - contains pixels and image to be
-            %              modified
-            % operation -- valid PageOpBase subclass containing function
-            %              which operates on PixelData, modifies pixels and
-            %              calculates changes to image, caused by the
-            %              modifications to pixels.
-            obj = obj.pix.apply_op(obj,operation);
-        end
     end
     %======================================================================
     % TOBYFIT INTERFACE

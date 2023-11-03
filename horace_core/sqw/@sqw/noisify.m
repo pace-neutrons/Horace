@@ -45,7 +45,7 @@ for i=1:numel(w)
             max_sig = range(2,PixelDataBase.field_index('signal'));
             page_op.noisify_par.ymax = max_sig;
         end
-        wout(i) = wout(i).apply_op(page_op);
+        wout(i) = sqw.apply_op(wout(i),page_op);
     else
         wout(i).data=w(i).data.noisify(varargin{:});
     end

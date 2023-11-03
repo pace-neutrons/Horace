@@ -55,5 +55,5 @@ switch(page_op_kind)
             'unsupported type of operation %d for operation %s between objects of class %s and class %s', ...
             page_op_kind,op_name,class(w1),class(w2));
 end
-page_op = page_op.init(wout,operand,operation,flip);
-wout    = wout.apply_op(page_op);
+page_op = page_op.init(wout,operand,binary_op,flip);
+wout    = wout.apply_op(wout,page_op);
