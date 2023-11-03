@@ -41,27 +41,46 @@ classdef test_data_op_order < TestCase
         function test_num_img_order(~)
             obj1 = IX_dataset_1d();
             obj2 = 4;
-            [is,do_page_op,page_op_order]=data_op_interface.is_superior(obj2,obj1);
-            assertTrue(is);
-            assertFalse(do_page_op);
+            [flip,page_op_order]=data_op_interface.get_operation_order(obj2,obj1);
+            assertTrue(flip);
             assertEqual(page_op_order,0)
         end
 
         function test_img_num_order(~)
             obj1 = IX_dataset_1d();
             obj2 = 4;
-            [is,do_page_op,page_op_order]=data_op_interface.is_superior(obj1,obj2);
-            assertFalse(is);
-            assertFalse(do_page_op);
+            [flip,page_op_order]=data_op_interface.get_operation_order(obj1,obj2);
+            assertFalse(flip);
             assertEqual(page_op_order,0)
+        end
+
+        function test_op_kind_pix_img(~)
+            op_kind = data_op_interface.get_operation_kind(true,false,false,true);
+            assertEqual(op_kind,2)
+        end
+        
+        function test_op_kind_sqw_img(~)
+            op_kind = data_op_interface.get_operation_kind(true,true,false,true);
+            assertEqual(op_kind,2)
+        end
+        
+        function test_op_kind_sqw_sqw(~)
+            op_kind = data_op_interface.get_operation_kind(true,true,true,true);
+            assertEqual(op_kind,3)
+        end
+        
+        function test_op_kind_sqw_pix(~)
+            op_kind = data_op_interface.get_operation_kind(true,true,true,false);
+            assertEqual(op_kind,3)
         end
 
         function test_gen_priorities(obj)
             pri = cellfun(@(x)data_op_interface.get_priority(x),...
                 obj.known_classes);
             assertEqual(numel(pri),12);
-            % priorites are all ordered and have to be different
-            uni_pri = unique(pri);
+            % priorites are all ordered as we ordered test classes
+            % according to priorities and have to be all different
+            uni_pri = flip(unique(pri));
             assertEqual(pri,uni_pri)
         end
 

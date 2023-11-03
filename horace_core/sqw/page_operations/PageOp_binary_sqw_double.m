@@ -9,23 +9,22 @@ classdef PageOp_binary_sqw_double < PageOp_bin_Base
         function obj = PageOp_binary_sqw_double(varargin)
             obj = obj@PageOp_bin_Base(varargin{:});
         end
-        function obj = init(obj,w1,operand,operation,flip,npix,varargin)
-            [obj,name_op1] = init@PageOp_bin_Base(obj,w1,operand,operation,flip,npix,varargin{:});
-
-            obj.sigvar2.e   =   [];
-            if numel(operand) == 1
+        function obj = init(obj,w1,operand,operation,flip,varargin)
+            % here we definetely expect operand with sigvar_size == [1,1]
+            [obj,name_op1] = init@PageOp_bin_Base(obj,w1,operand,operation,flip,varargin{:});
+            obj.scalar_input_ = true;
+            if isnumeric(obj.operand)
                 name_op2 = 'scalar';
-                obj.scalar_input_ = true;
-                obj.sigvar2.s     = operand;
-            elseif numel(operand) == numel(obj.npix)
-                name_op2 = 'image-size vector';
-                obj.scalar_input_ = false;
+                obj.sigvar2.e  =   [];
+                obj.sigvar2.s  = operand;
+            elseif isa(obj.operand,'sqw') % pixelles sqw with size 1
+                name_op2 = '0-dimensional sqw';
+                obj.sigvar2 = sigvar(obj.operand.data);
             else
-                error('HORACE:PageOp_binary_sqw_double:invalid_argument', ...
-                    ['Number of image pixels (%d) is inconsistent with number of elements (%d)' ...
-                    ' of the second operand '], ...
-                    numel(obj.npix),obj.pix_.num_pixels,numel(numel(operand)))
+                name_op2 = ['scalar ',class(obj.operand)];
+                obj.sigvar2 = sigvar(obj.operand);
             end
+
             obj = obj.set_op_name(name_op1,name_op2);
         end
         function obj = apply_op(obj,npix_block,npix_idx)
@@ -35,9 +34,6 @@ classdef PageOp_binary_sqw_double < PageOp_bin_Base
             % Prepare operands:
             % prepare operands for binary operation
             obj.sigvar1.sig_var    = obj.page_data_(obj.sigvar_idx_,:);
-            if ~obj.scalar_input_
-                obj.sigvar2.s   =   repelem(obj.operand(npix_idx(1):npix_idx(2)),npix_block);
-            end
             % Do operation:
             if obj.flip
                 res = obj.op_handle(obj.sigvar2,obj.sigvar1);

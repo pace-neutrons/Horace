@@ -13,33 +13,51 @@ classdef PageOp_binary_sqw_img < PageOp_bin_Base
             obj = obj@PageOp_bin_Base(varargin{:});
         end
 
-        function obj = init(obj,w1,operand,operation,flip,npix,keep_array)
+        function obj = init(obj,w1,operand,operation,flip,npix)
+            % if here, we have verified that operands have compartible
+            % sizes
+            if nargin<6
+                npix = [];
+            end
             [obj,name1_op] = init@PageOp_bin_Base(obj,w1,operand,operation,flip,npix);
+            if isnumeric(operand)
+                name2_op = 'image-size array';
+            else
+                name2_op = class(operand);
+            end
+            obj = obj.set_op_name(name1_op,name2_op);
 
-            obj.keep_array= keep_array;
-            name2_op = class(operand);            
-            obj = obj.set_op_name(name1_op,name2_op);            
-
-            if nargin>5 && ~isempty(npix)
+            if ~isempty(npix)
                 %  This is for operations with pixels only, when you may want
                 %  it. Normally, npix comes from w1
                 obj.npix = npix(:);
                 npix_provided = true;
             else
-                npix_provided = false;                
+                npix_provided = false;
             end
-            if isempty(keep_array)
-                obj.keep_array = logical(obj.npix(:));
+            % HERE WE MAY HAVE: 1) DnDBase, 2) IX_dataset,3) sigvar, or 4) numeric
+            % array. All sizes verified to be image size.
+
+            % 1) if second operand is dnd_base operand
+            is_dnd_base = isprop(obj.operand,'npix');
+            if is_dnd_base % we need to remove first operand pixels
+                % where second operand do not have pixels
+                obj.keep_array = logical(obj.operand.npix(:));
+                if  numel(obj.npix)== 1 && ~npix_provided
+                    % pix <-> DnDBase operation. Needs to be done in npix steps
+                    obj.npix = obj.operand.npix(:);
+                end
             else
-                obj.keep_array = keep_array;
+                obj.keep_array = logical(obj.npix(:));
+            end
+            % 2) sigvar. Its mask may contain information on what pixels to
+            % retain. If mask is not defined, this info will be ignored
+            if isa(obj.operand,'sigvar') && obj.operand.is_mask_defined
+                obj.keep_array = obj.operand.mask;
             end
 
-            is_dnd_base = isprop(obj.operand,'npix');
-            if numel(obj.npix)== 1 && is_dnd_base && ~npix_provided 
-                % pix <-> DnDBase operation. Needs to be done in npix steps
-                obj.npix = obj.operand.npix(:);
-            end
-            if isa(obj.operand,'IX_dataset')
+            % 3-4) IX_dataset || Numeric
+            if isa(obj.operand,'IX_dataset') || isnumeric(obj.operand)
                 obj.operand = sigvar(obj.operand);
             end
 
@@ -55,7 +73,6 @@ classdef PageOp_binary_sqw_img < PageOp_bin_Base
                     '%s attempted between inconsistent objects. %s has %d pixels and obj %s addresses %d pixels', ...
                     obj.op_name_,name1_obj,nobj1_elements,name2_obj,nobj2_elements);
             end
-            obj.pix_idx_start_ = 1;
         end
 
         function obj = apply_op(obj,npix_block,npix_idx)

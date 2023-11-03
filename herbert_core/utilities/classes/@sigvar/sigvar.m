@@ -27,6 +27,8 @@ classdef sigvar < data_op_interface & serializable
     end
     properties(Dependent,Hidden)
         sig_var
+        % true, if mask has been set
+        is_mask_defined
     end
 
 
@@ -195,6 +197,10 @@ classdef sigvar < data_op_interface & serializable
 
         function sv = get.sig_var(obj)
             sv = [obj.signal_(:)';obj.variance_(:)'];
+        end
+
+        function is = get.is_mask_defined(obj)
+            is = ~isempty(obj.mask_);
         end
         %------------------------------------------------------------------
     end

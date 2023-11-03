@@ -33,7 +33,7 @@ classdef PageOp_bin_Base < PageOpBase
             obj.sigvar_idx_ = PixelDataBase.field_index('sig_var');
             obj.all_idx_ = PixelDataBase.field_index('all_indexes');
         end
-        function [obj,name1_obj] = init(obj,w1,operand,operation,flip,npix,varargin)
+        function [obj,name1_obj] = init(obj,w1,operand,operation,flip,npix)
             obj = init@PageOpBase(obj,w1);
             if nargin<5
                 flip = false;
