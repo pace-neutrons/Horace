@@ -27,31 +27,28 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 op_name = func2str(binary_op);
 % identify order operands superiority and the type of operation to be
 % performed over operands
-[flip,page_op_kind] = data_op_interface.get_op_kind( ...
+[flip,page_op_kind] = data_op_interface.get_operation_order( ...
     w1,w2,op_name );
 if flip
-    wout    = w2;
+    wout    = copy(w2);
     operand = w1;
 else
-    wout    = w1;
+    wout    = copy(w1);
     operand = w2;
 end
 
 
 switch(page_op_kind)
     case(0) % operation betwen two objects convertible to sigvar
-        result = sigvar(w1).binary_op_manager(sigvar(w2),binary_op);
+        result = binary_op(sigvar(w1),sigvar(w2));
         wout   = sigvar_set(wout, result);
         return
     case(1) % operation between object with pixels and numeric constant
-        wout = copy(wout);
         page_op = PageOp_binary_sqw_double();
     case(2) % operation between object with pixels and image and object
         %     equivalent to image
-        wout = copy(wout);
         page_op = PageOp_binary_sqw_img();
     case(3) % operation between two objects with pixels and images
-        wout = copy(wout);
         page_op = PageOp_binary_sqw_sqw();
     otherwise
         error('HORACE:data_op_interface:invalid_argument', ...

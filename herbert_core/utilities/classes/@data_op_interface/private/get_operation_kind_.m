@@ -32,6 +32,7 @@ elseif op1_has_img
     % image operations are perfomed though sivgar
     op_kind = 0;
 else
-    % numeric operand can not be called
-    op_kind = -1;
+    % numeric operand should not be able to come herec, so it is probably scalar objects
+    % of allowed types
+    op_kind = 0;
 end

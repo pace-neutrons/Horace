@@ -203,7 +203,11 @@ classdef sigvar < data_op_interface & serializable
             is = ~isempty(obj.mask_);
         end
         %------------------------------------------------------------------
+        function wout = copy(win)
+            wout = win;
+        end
     end
+
 
     methods(Access=protected)
         w = unary_op_manager (w1, op_function_handle);
