@@ -122,11 +122,14 @@ classdef test_config_classes < TestCase
 
         function obj = test_parallel_config_fake_worker(obj)
             clob = set_temporary_config_options(parallel_config);
+            clWn = set_temporary_warning('off','HORACE:parallel_config:invalid_argument');
             pc = parallel_config_tester;
 
             pc = pc.set_worker('non_existing_worker');
 
             pc.worker = 'non_existing_worker';
+            [~,wid] = lastwarn;
+            assertEqual(wid,'HORACE:parallel_config:invalid_argument')
             assertEqual(pc.worker,'non_existing_worker');
             assertEqual(pc.parallel_cluster,'none');
             assertEqual(pc.cluster_config,'none');

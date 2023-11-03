@@ -49,7 +49,9 @@ classdef config_base
         % the folder where the configuration data are stored (defined by
         % config store class, and provided here as an interface to it)
         config_folder;
-
+        % similarly to serializable, allows disabling the check for
+        % interdependent properties until they all have been set up.
+        do_check_combo_arg
     end
 
     properties(Access=protected)
@@ -57,6 +59,7 @@ classdef config_base
         class_name_ ;
         is_saveable_ = true;
         returns_defaults_=false;
+        do_check_combo_arg_ = true;
     end
 
     methods(Abstract)
@@ -113,9 +116,7 @@ classdef config_base
                 '\n *** The config path: %s\n *** will last until the end of session or "clear classes" command is issued', ...
                 cfg.config_folder)
         end
-
         %-----------------------------------------------------------------
-
         function is = get_saveable_default(this)
             % this method returns the default saveable state the
             % particular object
@@ -131,17 +132,23 @@ classdef config_base
         function this=set.saveable(this,val)
             config_store.instance.set_saveable(this,val);
         end
-
         %------------------------------------------------------------------
-
         function is = get.returns_defaults(this)
             is = this.returns_defaults_;
         end
 
         function this=set.returns_defaults(this,val)
             this.returns_defaults_ = val > 0;
+        end        
+        %
+        function do = get.do_check_combo_arg(obj)
+            do = obj.do_check_combo_arg_;
         end
-
+        function obj = set.do_check_combo_arg(obj,val)
+             obj.do_check_combo_arg_ = logical(val);
+        end        
+    end
+    methods
         function isit = is_default(this)
             % check if a configuration has been changed by user or
             % still has its default values
@@ -150,7 +157,6 @@ classdef config_base
         end
 
         %------------------------------------------------------------------
-
         function value =get_or_restore_field(this,field_name)
             % method to restore value from config_store if available or
             % take default value from the class defaults if not
@@ -186,7 +192,7 @@ classdef config_base
             end
         end
 
-        function class_instance = set_stored_data(class_instance,data)
+        function obj = set_stored_data(obj,data)
             % Method executes class setters for the config class_instance
             % using data structure provided as second argument
             %
@@ -197,12 +203,17 @@ classdef config_base
             % instance though such usage is not standard and should be used
             % for testing and debugging purposes only
             %
+            obj.do_check_combo_arg = false;
             fields = fieldnames(data);
             for i=1:numel(fields)
                 field_name = fields{i};
-                class_instance.(field_name) = data.(field_name);
+                obj.(field_name) = data.(field_name);
             end
-
+            obj.do_check_combo_arg = true;            
+            obj = obj.check_combo_arg();
+        end
+        function obj = check_combo_arg(obj)
+            % do validation of the interdependent properties
         end
     end
 

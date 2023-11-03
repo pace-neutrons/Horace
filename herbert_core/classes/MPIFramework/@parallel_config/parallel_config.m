@@ -271,7 +271,12 @@ classdef parallel_config<config_base
 
         % Redirect IO to host
         debug_ = false;
-
+    end
+    properties(Access = private)
+        % Property, used by setter of cluster configuration to keep cluster
+        % configuration until all properties are set and final validation
+        % may be performed. 
+        trial_cluster_config_;
     end
 
     properties(Constant)
@@ -458,15 +463,10 @@ classdef parallel_config<config_base
             % select one of the clusters which configuration is available
             % Throws HERBERT:parallel_config:invalid_argument if the cluster
             % configuration is invalid or not available on the current system.
-
-            opt = obj.known_cluster_configs;
-            if strcmpi(opt{1},'none')
-                the_config = 'none';
-            else
-                the_config = select_option_(opt,val);
+            obj.trial_cluster_config_ = val;
+            if obj.do_check_combo_arg
+                obj = obj.check_combo_arg();
             end
-
-            config_store.instance().store_config(obj,'cluster_config',the_config);
         end
 
         function obj = set.parallel_workers_number(obj,val)
@@ -663,6 +663,8 @@ classdef parallel_config<config_base
             % methods interface
             value = obj.([field_name,'_']);
         end
+        %
+        obj = check_combo_arg(obj);
     end
 
     methods(Static)
