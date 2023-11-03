@@ -194,7 +194,7 @@ classdef test_PixelData_binary_ops < TestCase
             pix = obj.pix_in_memory;
             operand = 1.5;
 
-            pix_result = operand./pix;
+            pix_result = operand/pix;
 
             assertEqual(pix_result.signal, operand./pix.signal);
             expected_var = pix.variance.*((pix_result.signal./pix.signal).^2);
@@ -245,7 +245,7 @@ classdef test_PixelData_binary_ops < TestCase
             operand = ones(1, pix.num_pixels - 1);
 
             f = @() pix.do_binary_op(operand, @plus);
-            assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_double:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_img:invalid_argument');
         end
 
         function test_add_PixelData_neq_num_pixels_memory(~)
@@ -373,7 +373,7 @@ classdef test_PixelData_binary_ops < TestCase
             sig = [0.5, 0.6, 0.7];
 
             f = @() pix.do_binary_op(sig, @plus, 'npix', npix);
-            assertExceptionThrown(f, 'HORACE:PageOp_binary_sqw_double:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PageOp_bin_Base:invalid_argument');
         end
 
         function test_add_dnd_neq_num_pixels_filebacked(obj)
@@ -423,7 +423,7 @@ classdef test_PixelData_binary_ops < TestCase
             f = @() pix.do_binary_op(svar, @plus, 'flip', false, ...
                 'npix', dnd_obj.npix);
             assertExceptionThrown(f, ...
-                'HORACE:PageOp_binary_sqw_img:invalid_argument');
+                'HORACE:PageOp_bin_Base:invalid_argument');
         end
 
         function test_add_2Dsigvar_filebacked(obj)

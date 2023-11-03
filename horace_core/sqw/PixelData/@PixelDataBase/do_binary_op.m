@@ -37,19 +37,17 @@ else
     pix_out = copy(obj);
 end
 
-keep_array = [];
-if isa(operand, 'double')
+
+if isnumeric(operand) && numel(operand)== 1
     page_op = PageOp_binary_sqw_double();
 elseif isa(operand, 'PixelDataBase')
     page_op = PageOp_binary_sqw_sqw();
-elseif isa(operand,'DnDBase') || isa(operand,'IX_dataset') || isa(operand, 'sigvar')
+elseif isa(operand,'DnDBase') || isa(operand,'IX_dataset') || ...
+        isa(operand, 'sigvar') || (isnumeric(operand) && numel(operand) > 1)
     %pix_out = binary_op_sigvar_(pix_out, operand, binary_op, flip, npix);
     page_op = PageOp_binary_sqw_img();
-    if isprop(operand,'npix')
-        keep_array = logical(operand.npix(:));
-    end
 end
-page_op = page_op.init(pix_out,operand,binary_op,flip,npix,keep_array);
+page_op = page_op.init(pix_out,operand,binary_op,flip,npix);
 pix_out = pix_out.apply_op(pix_out,page_op);
 
 end  % function

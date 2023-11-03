@@ -39,39 +39,55 @@ classdef PageOp_binary_sqw_img < PageOp_bin_Base
             % array. All sizes verified to be image size.
 
             % 1) if second operand is dnd_base operand
-            is_dnd_base = isprop(obj.operand,'npix');
+            is_dnd_base = isa(obj.operand,'DnDBase');
             if is_dnd_base % we need to remove first operand pixels
                 % where second operand do not have pixels
                 obj.keep_array = logical(obj.operand.npix(:));
                 if  numel(obj.npix)== 1 && ~npix_provided
                     % pix <-> DnDBase operation. Needs to be done in npix steps
+                    if sum(obj.operand.npix(:)) ~= obj.pix_.num_pixels
+                        name1_obj = class(w1);
+                        name2_obj = class(operand);
+                        nobj1_elements = obj.pix_.num_pixels;
+                        nobj2_elements = sum(obj.operand.npix(:));
+                        error('HORACE:PageOp_binary_sqw_img:invalid_argument', ...
+                            ['%s attempted between inconsistent objects. ' ...
+                            '%s has %d pixels and obj %s addresses %d pixels'], ...
+                            obj.op_name_,name1_obj,nobj1_elements, ...
+                            name2_obj,nobj2_elements);
+                    end
                     obj.npix = obj.operand.npix(:);
                 end
+                nobj2_elements = numel(obj.operand.npix);
             else
-                obj.keep_array = logical(obj.npix(:));
+                obj.keep_array = true(size(obj.npix));
             end
             % 2) sigvar. Its mask may contain information on what pixels to
             % retain. If mask is not defined, this info will be ignored
-            if isa(obj.operand,'sigvar') && obj.operand.is_mask_defined
-                obj.keep_array = obj.operand.mask;
+            if isa(obj.operand,'sigvar')
+                if obj.operand.is_mask_defined
+                    obj.keep_array = obj.operand.mask;
+                end
+                nobj2_elements = obj.operand.n_elements;
             end
 
             % 3-4) IX_dataset || Numeric
             if isa(obj.operand,'IX_dataset') || isnumeric(obj.operand)
                 obj.operand = sigvar(obj.operand);
+                nobj2_elements = obj.operand.n_elements;
             end
 
             % Are operation members consistent?
-            nobj1_elements = obj.pix_.num_pixels;
-            if is_dnd_base
-                nobj2_elements = sum(obj.operand.npix(:));
-            else
-                nobj2_elements = sum(obj.npix(:));
-            end
+            nobj1_elements  = numel(obj.npix);
             if nobj1_elements ~= nobj2_elements
+                name1_obj = class(w1);
+                name2_obj = class(operand);
                 error('HORACE:PageOp_binary_sqw_img:invalid_argument', ...
-                    '%s attempted between inconsistent objects. %s has %d pixels and obj %s addresses %d pixels', ...
-                    obj.op_name_,name1_obj,nobj1_elements,name2_obj,nobj2_elements);
+                    ['%s attempted between inconsistent objects.' ...
+                    ' Image of operand1: %s has %d elements' ...
+                    ' and img of op2 %s has %d elements'], ...
+                    obj.op_name_,name1_obj,nobj1_elements, ...
+                    name2_obj,nobj2_elements);
             end
         end
 
