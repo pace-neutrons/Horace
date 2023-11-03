@@ -93,11 +93,11 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
 
             testfun = @()plus(w_1by2,w_2by1);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:sigvar:invalid_argument');
 
             testfun = @()plus(w_2by1,w_1by2);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:sigvar:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -151,11 +151,11 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
 
             testfun = @()plus(w,f);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:sigvar:invalid_argument');
 
             testfun = @()plus(f,w);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:sigvar:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -168,11 +168,11 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
 
             testfun = @()plus(w, f);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:sigvar:invalid_argument');
 
             testfun = @()plus(f, w);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:sigvar:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -235,10 +235,10 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             w2 = [k21, k22];
 
             testfun = @()plus(w1, w2);
-            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:invalid_argument');
 
             testfun = @()plus(w2, w1);
-            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -312,10 +312,10 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             flt = [4,5,6]';
 
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:invalid_argument');
 
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -351,11 +351,11 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
 
             testfun = @()plus(w1, flt);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:sigvar:invalid_argument');
 
             testfun = @()plus(flt, w1);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:sigvar:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -371,11 +371,11 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
 
             testfun = @()plus(w1, flt);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:sigvar:invalid_argument');
 
             testfun = @()plus(flt, w1);
             assertExceptionThrown(testfun, ...
-                'HERBERT:data_op_interface:binary_op_manager_single');
+                'HERBERT:sigvar:invalid_argument');
         end
         %--------------------------------------------------------------------------
     end

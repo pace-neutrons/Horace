@@ -26,7 +26,7 @@ elseif op1_has_img
     % op2 can not have pixels,it will be the first operator in
     % this case
     if op2_has_pix
-        error('HORACE:data_op_interface:runtime_error', ...
+        error('HERBERT:data_op_interface:runtime_error', ...
             'Invalid order of operations identified. Obj1 does not have pixels and obj2 has them')
     end
     % image operations are perfomed though sivgar

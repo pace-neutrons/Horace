@@ -211,6 +211,7 @@ classdef sigvar < data_op_interface & serializable
 
     methods(Access=protected)
         w = unary_op_manager (w1, op_function_handle);
+        wout = binary_op_manager_single(w1, w2, binary_op);
     end
 
     %======================================================================
