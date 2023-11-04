@@ -12,7 +12,9 @@ classdef PageOp_binary_sqw_double < PageOp_bin_Base
         function obj = init(obj,w1,operand,operation,flip,varargin)
             % here we definetely expect operand with sigvar_size == [1,1]
             [obj,name_op1] = init@PageOp_bin_Base(obj,w1,operand,operation,flip,varargin{:});
+            % 
             obj.scalar_input_ = true;
+            %
             if isnumeric(obj.operand)
                 name_op2 = 'scalar';
                 obj.sigvar2.e  =   [];

@@ -14,8 +14,19 @@ classdef PageOp_binary_sqw_img < PageOp_bin_Base
         end
 
         function obj = init(obj,w1,operand,operation,flip,npix)
-            % if here, we have verified that operands have compartible
-            % sizes
+            % The operations is for operands with not-unit size images. 
+            % The PageOp would not be called for other cases.
+            %
+            % This operation works with npix array with sum(npix)==pix.num_pixels
+            % Three sources of npix are possible:
+            % 1) 1st-operand sqw -- does not need check as sqw assumed
+            %    valid
+            % 2) provided as input -- validated by parent init
+            % 3) DnD object with npix
+            % if 2nd-operand does not contain npix, it has to be defined
+            % in one of 3 ways above and its shape should coincide with
+            % shape of the 1st-operand image. Pixels only always contained
+            % in [1,1] image.
             if nargin<6
                 npix = [];
             end
@@ -28,40 +39,49 @@ classdef PageOp_binary_sqw_img < PageOp_bin_Base
             obj = obj.set_op_name(name1_op,name2_op);
 
             if ~isempty(npix)
-                %  This is for operations with pixels only, when you may want
-                %  it. Normally, npix comes from w1
-                obj.npix = npix(:);
                 npix_provided = true;
             else
                 npix_provided = false;
             end
             % HERE WE MAY HAVE: 1) DnDBase, 2) IX_dataset,3) sigvar, or 4) numeric
-            % array. All sizes verified to be image size.
+            % array. All sizes verified to be image size by binary_op_manager.
+            % so here we do crude check
 
             % 1) if second operand is dnd_base operand
             is_dnd_base = isa(obj.operand,'DnDBase');
-            if is_dnd_base % we need to remove first operand pixels
-                % where second operand do not have pixels
+            if  is_dnd_base % we need to reconcile operation 
+                %  agains first operand pixels arrangement.
+                if npix_provided
+                    error('HORACE:PageOp_binary_sqw_img:invalid_argument', ...
+                        'external npix input and second operand of DnD-type are not compartible')
+                end
+                % need to remove pixels in places where  second operand 
+                % does not have pixels (operand.npix == 0)
                 obj.keep_array = logical(obj.operand.npix(:));
-                if  numel(obj.npix)== 1 && ~npix_provided
+                if  numel(obj.npix)== 1 % 1st operand is npix only and class
+                    % npix is not defined above.
                     % pix <-> DnDBase operation. Needs to be done in npix steps
                     if sum(obj.operand.npix(:)) ~= obj.pix_.num_pixels
-                        name1_obj = class(w1);
-                        name2_obj = class(operand);
                         nobj1_elements = obj.pix_.num_pixels;
                         nobj2_elements = sum(obj.operand.npix(:));
                         error('HORACE:PageOp_binary_sqw_img:invalid_argument', ...
-                            ['%s attempted between inconsistent objects. ' ...
-                            '%s has %d pixels and obj %s addresses %d pixels'], ...
-                            obj.op_name_,name1_obj,nobj1_elements, ...
-                            name2_obj,nobj2_elements);
+                            ['%s attempted between inconsistent objects.\n' ...
+                            '%s contains %d pixels and obj %s addresses %d pixels'], ...
+                            obj.op_name_,name1_op,nobj1_elements, ...
+                            name2_op,nobj2_elements);
                     end
+                    % define npix 
                     obj.npix = obj.operand.npix(:);
+                else % shapes of images have already been validated, and 
+                     % operation have to be performed over 1st operand npix
                 end
                 nobj2_elements = numel(obj.operand.npix);
             else
                 obj.keep_array = true(size(obj.npix));
             end
+            % npix and keep_array are defined and verified here for any
+            % possible input situation. 
+            % 
             % 2) sigvar. Its mask may contain information on what pixels to
             % retain. If mask is not defined, this info will be ignored
             if isa(obj.operand,'sigvar')
@@ -77,7 +97,10 @@ classdef PageOp_binary_sqw_img < PageOp_bin_Base
                 nobj2_elements = obj.operand.n_elements;
             end
 
-            % Are operation members consistent?
+            % Are operation members consistent? This check is normally
+            % performed by binary_op_manager and here it is for cases
+            % where calls to class do not use it (tests and redundant pix 
+            % only methods)
             nobj1_elements  = numel(obj.npix);
             if nobj1_elements ~= nobj2_elements
                 name1_obj = class(w1);
