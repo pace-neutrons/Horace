@@ -64,7 +64,8 @@ classdef PageOp_binary_sqw_sqw < PageOp_bin_Base
 
         function obj = apply_op(obj,npix_block,npix_idx)
             % Do operation
-            res = obj.op_handle(obj.sigvar1,obj.sigvar2);
+            res = binary_op_manager_single( ...
+                obj.sigvar1,obj.sigvar2,obj.op_handle);
             obj.page_data_(obj.sigvar_idx_,:) = res.sig_var;
             if obj.changes_pix_only
                 return;

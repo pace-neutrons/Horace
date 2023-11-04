@@ -56,13 +56,14 @@ classdef(Abstract) data_op_interface
         wout = mtimes  (w1,w2)
         wout = plus    (w1,w2)
         %------------------------------------------------------------------
+        w = binary_op_manager_single(w1, w2, op_function_handle);
     end
     methods(Static)
         function [priority,sv_size,has_pix,has_img] = get_priority(obj)
             % function returns a class priority which defines operations
             % order.
             %
-            % Input: 
+            % Input:
             % obj   -- the object to check
             % Outuput:
             % priority  -- the number, which defines the priority of this
@@ -89,7 +90,7 @@ classdef(Abstract) data_op_interface
             % Returns:
             % number from -1 to 3, describing type of operation, performed
             % over pixesl
-            op_kind = get_operation_kind_(op1_has_pix,op1_has_img,op2_has_pix,op2_has_img);            
+            op_kind = get_operation_kind_(op1_has_pix,op1_has_img,op2_has_pix,op2_has_img);
             %
         end
         function [flip,page_op_kind] = get_operation_order(obj1,obj2,op_name)
@@ -119,7 +120,6 @@ classdef(Abstract) data_op_interface
     end
     methods(Access=protected)
         w = binary_op_manager(w1,w2,op_function_handle);
-        w = binary_op_manager_single(w1, w2, op_function_handle);
         w = unary_op_manager (w1, op_function_handle);
     end
 

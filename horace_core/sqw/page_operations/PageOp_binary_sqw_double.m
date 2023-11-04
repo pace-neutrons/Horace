@@ -12,7 +12,7 @@ classdef PageOp_binary_sqw_double < PageOp_bin_Base
         function obj = init(obj,w1,operand,operation,flip,varargin)
             % here we definetely expect operand with sigvar_size == [1,1]
             [obj,name_op1] = init@PageOp_bin_Base(obj,w1,operand,operation,flip,varargin{:});
-            % 
+            %
             obj.scalar_input_ = true;
             %
             if isnumeric(obj.operand)
@@ -38,9 +38,11 @@ classdef PageOp_binary_sqw_double < PageOp_bin_Base
             obj.sigvar1.sig_var    = obj.page_data_(obj.sigvar_idx_,:);
             % Do operation:
             if obj.flip
-                res = obj.op_handle(obj.sigvar2,obj.sigvar1);
+                res = binary_op_manager_single( ...
+                    obj.sigvar2,obj.sigvar1,obj.op_handle);
             else
-                res = obj.op_handle(obj.sigvar1,obj.sigvar2);
+                res = binary_op_manager_single( ...
+                    obj.sigvar1,obj.sigvar2,obj.op_handle);
             end
             obj.page_data_(obj.sigvar_idx_,:) = res.sig_var;
             if obj.changes_pix_only

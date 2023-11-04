@@ -206,12 +206,13 @@ classdef sigvar < data_op_interface & serializable
         function wout = copy(win)
             wout = win;
         end
+        wout = binary_op_manager_single(w1, w2, binary_op);
     end
 
 
     methods(Access=protected)
         w = unary_op_manager (w1, op_function_handle);
-        wout = binary_op_manager_single(w1, w2, binary_op);
+
     end
 
     %======================================================================

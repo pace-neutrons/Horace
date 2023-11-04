@@ -6,12 +6,13 @@ classdef PageOp_bin_Base < PageOpBase
     %
     %
     properties
-        % property contains handle to function, which performs operation
+        % property contains handle to function, which defines binary operation
         op_handle;
+        % contains second operand of the binary operation
         operand;
-        flip   % if true, actual operation is between w2 and w1 instead of
-        % input order, because the result has the size and shape of
-        % the larger object, but actual request was
+        flip   % if true, actual operation is performed between w2 and w1
+        % objects instead of w1,  w2 as defined by input order of the init
+        % function.
     end
     properties(Access = protected)
         % counter for pixels to start operation from
