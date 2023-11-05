@@ -11,7 +11,7 @@ classdef PageOp_binary_sqw_sqw < PageOp_bin_Base
     properties
         % if this property is true, we ignore pixels order within the bins
         % and assume that the order of pixels wrt operation is the same.
-        % Re #1371 -- see if this is justified. Hotfix for some current
+        % HACK: Re #1371 -- see if this is justified. Hotfix for some current
         % tests to run.
         ignore_pix_order = true;
     end
