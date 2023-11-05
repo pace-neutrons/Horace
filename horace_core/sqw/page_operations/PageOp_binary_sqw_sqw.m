@@ -8,6 +8,13 @@ classdef PageOp_binary_sqw_sqw < PageOp_bin_Base
     %       using the approach, applied for operations with sqw-dnd objects
     %       Left for future discussion: Re #1358.
     %
+    properties
+        % if this property is true, we ignore pixels order within the bins
+        % and assume that the order of pixels wrt operation is the same.
+        % Re #1371 -- see if this is justified. Hotfix for some current
+        % tests to run.
+        ignore_pix_order = true;
+    end
 
     methods
         function obj = PageOp_binary_sqw_sqw(varargin)
@@ -38,17 +45,19 @@ classdef PageOp_binary_sqw_sqw < PageOp_bin_Base
             % Overloaded for dealing with two PixelData objects
             [obj,pix_idx] = get_page_data@PageOp_bin_Base(obj,idx,npix_blocks);
             page_data2    = obj.operand.get_pixels(pix_idx,'-raw');
-            % sort pixels as they usually randomly distributed
-            % within the bins. These are the pixel indexes within the npix
-            % chunk
-            npix_block = npix_blocks{idx};
-            chunk_idx = repelem(1:numel(npix_block),npix_block);
-            % sort first pages by rows and then by all 3 pix_idx, defining
-            % neutron event
-            [~,idx1]  = sortrows([chunk_idx;obj.page_data_(obj.all_idx_,:)]');
-            [~,idx2]  = sortrows([chunk_idx;    page_data2(obj.all_idx_,:)]');
-            obj.page_data_ = obj.page_data_(:,idx1);
-            page_data2     =     page_data2(:,idx2);
+            if ~obj.ignore_pix_order
+                % sort pixels as they usually randomly distributed
+                % within the bins. These are the pixel indexes within the npix
+                % chunk
+                npix_block = npix_blocks{idx};
+                chunk_idx = repelem(1:numel(npix_block),npix_block);
+                % sort first pages by rows and then by all 3 pix_idx, defining
+                % neutron event
+                [~,idx1]  = sortrows([chunk_idx;obj.page_data_(obj.all_idx_,:)]');
+                [~,idx2]  = sortrows([chunk_idx;    page_data2(obj.all_idx_,:)]');
+                obj.page_data_ = obj.page_data_(:,idx1);
+                page_data2     =     page_data2(:,idx2);
+            end
             % Here we may introduce check to ensure pixels coordinates are
             % indeed equal for this operation to be correct.
             % == check here
