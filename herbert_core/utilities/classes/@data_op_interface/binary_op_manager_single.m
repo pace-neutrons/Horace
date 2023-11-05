@@ -40,7 +40,7 @@ end
 
 switch(page_op_kind)
     case(0) % operation betwen two objects convertible to sigvar
-        result = binary_op(sigvar(w1),sigvar(w2));
+        result = binary_op_manager_single(sigvar(w1),sigvar(w2), binary_op);
         wout   = sigvar_set(wout, result);
         return
     case(1) % operation between object with pixels and numeric constant

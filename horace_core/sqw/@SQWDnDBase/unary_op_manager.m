@@ -66,6 +66,6 @@ for i=1:numel(w1)
         page_op = page_op.init(w(i),unary_op);
         w(i)    = sqw.apply_op(w(i),page_op);
     else
-        w(i)    = unary_op_manager@data_op_interface(w1(i));
+        w(i)    = unary_op_manager@data_op_interface(w1(i),unary_op);
     end
 end

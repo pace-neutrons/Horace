@@ -38,6 +38,10 @@ classdef PageOp_binary_sqw_sqw < PageOp_bin_Base
                     'Pixels in %s are inconsistent as obj1 has %d pixels and obj2 has %d pixels', ...
                     obj.op_name_,obj.pix_.num_pixels,obj.operand.num_pixels);
             end
+
+            if numel(obj.npix) == 1 % usually pixel-only operations or d0d
+                obj.scalar_input_ = true;
+            end
         end
         function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation

@@ -40,11 +40,7 @@ classdef test_PixelData_binary_ops < TestCase
             obj.ws_cache = warning('off','HORACE:old_file_format');
 
             % Load a 1D SQW file
-            mem_chunk_size = hc.mem_chunk_size;
-            hc.mem_chunk_size = 1000;
-            sqw_test_obj = read_sqw(obj.test_sqw_file_path);
-            hc.mem_chunk_size = mem_chunk_size; % do local change, as it
-            % may affect all other test cases otherwise
+            sqw_test_obj = sqw(obj.test_sqw_file_path,'file_backed',true);
             obj.pix_with_pages = sqw_test_obj.pix;
             obj.pix_in_memory  = PixelDataMemory(sqw_test_obj.pix);
             obj.ref_raw_pix_data   = obj.pix_in_memory.data;
@@ -113,7 +109,7 @@ classdef test_PixelData_binary_ops < TestCase
             assertEqual(pix_result.signal, operand - pix.signal);
             assertEqual(pix_result.data([1:7, 9], :), pix.data([1:7, 9], :));
         end
-        
+
         function test_minus_scalar_flip_memory(obj)
             pix = obj.pix_in_memory;
             operand = 3;
@@ -275,7 +271,7 @@ classdef test_PixelData_binary_ops < TestCase
 
             range = [min(expected_diff,[],2),max(expected_diff,[],2)]';
             assertElementsAlmostEqual(pix_diff.data_range,range)
-        end       
+        end
 
         function test_minus_PixelData_memory(obj)
             data1 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
@@ -311,8 +307,10 @@ classdef test_PixelData_binary_ops < TestCase
             expected_diff = obj.ref_raw_pix_data;
             expected_diff(obj.SIGNAL_IDX, :) = 0;
             expected_diff(obj.VARIANCE_IDX, :) = 2*obj.ref_raw_pix_data(obj.VARIANCE_IDX, :);
-            run_idxs = PixelDataBase.field_index('all_indexes');
-            expected_diff = sortrows(expected_diff',run_idxs)';
+            % Re #1371 This would be necessary if
+            % PageOp_binary_sqw_sqw.ignore_pix_order = false;
+            %run_idxs = PixelDataBase.field_index('all_indexes');
+            %expected_diff = sortrows(expected_diff',run_idxs)';
             assertEqual(full_pix_diff, expected_diff);
         end
 
@@ -331,7 +329,7 @@ classdef test_PixelData_binary_ops < TestCase
             assertEqualToTol(pixSS.signal,single(ones(1, pix3.num_pixels)) ...
                 ,'tol',4*eps('single'));
         end
-        
+
 
         function test_c_eq_a_plus_b(obj)
             pix1 = obj.pix_with_pages.do_unary_op(@(x) cos(x)^2);
@@ -384,7 +382,7 @@ classdef test_PixelData_binary_ops < TestCase
             assertTrue(strncmp(ME.message,'binary op: plus',15))
         end
         function test_add_dnd_neq_num_pixels_filebacked_reverse(obj)
-        %something wrong with this,
+            %something wrong with this,
             dnd_obj = read_dnd(obj.test_sqw_file_path);
             pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
             f = @() dnd_obj.plus(pix);
@@ -491,8 +489,7 @@ classdef test_PixelData_binary_ops < TestCase
         function check_with_1d_dnd_returns_correct_pix_filebacked(obj,pix,dnd_obj)
             npix = dnd_obj.npix;
 
-            new_pix = pix.do_binary_op(dnd_obj, @plus, 'flip', false, ...
-                'npix', npix);
+            new_pix = pix.do_binary_op(dnd_obj, @plus, 'flip', false);
 
             original_pix_data = concatenate_pixel_pages(pix);
             new_pix_data = concatenate_pixel_pages(new_pix);
@@ -508,8 +505,7 @@ classdef test_PixelData_binary_ops < TestCase
 
         function check_mult_with_d2d_returns_correct_pix(obj,pix,dnd_obj)
             npix = dnd_obj.npix;
-            new_pix = pix.do_binary_op(dnd_obj, @mtimes, 'flip', false, ...
-                'npix', npix);
+            new_pix = pix.do_binary_op(dnd_obj, @mtimes, 'flip', false);
 
             original_pix_data = concatenate_pixel_pages(pix);
             new_pix_data = concatenate_pixel_pages(new_pix);
