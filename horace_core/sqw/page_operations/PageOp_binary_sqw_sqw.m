@@ -40,7 +40,7 @@ classdef PageOp_binary_sqw_sqw < PageOp_bin_Base
             if numel(obj.npix) == 1 % usually pixel-only operations or d0d
                 obj.scalar_input_ = true;
             end
-            obj.sort_pixels_in_bins = config_base.instance().get_value( ...
+            obj.sort_pixels_in_bins = config_store.instance().get_value( ...
                 'hpc_config','sort_pix_in_binary_op');
         end
         function obj = get_page_data(obj,idx,npix_blocks)

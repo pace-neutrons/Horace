@@ -161,11 +161,14 @@ classdef config_base
         end
 
         %------------------------------------------------------------------
-        function value =get_or_restore_field(obj,field_name)
+        function value =get_or_restore_field(obj,field_name,field_is_missing_warning)
             % method to restore value from config_store if available or
             % take default value from the class defaults if not
 
             % the method is used as the part of a standard derived class getter.
+            if nargin <3
+                field_is_missing_warning = true;
+            end
 
             if obj.returns_defaults
                 value = get_default_value(obj,field_name);
@@ -173,7 +176,8 @@ classdef config_base
                 % get actual configuration
                 % if class have never been stored in configuration, it
                 % will return defaults
-                value = config_store.instance.get_config_field(obj,field_name);
+                value = config_store.instance.get_config_field( ...
+                    obj,field_is_missing_warning,field_name);
             end
         end
 

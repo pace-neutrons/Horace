@@ -1,4 +1,4 @@
-function [config_data,got_from_file]=get_config_(this,class_to_restore)
+function [config_data,got_from_file]=get_config_(obj,class_to_restore)
 % method returns the essential (storable) content of the configuration
 % class requested as input
 %
@@ -31,11 +31,11 @@ else
 end
 
 % if class exist in memory, return it from memory;
-if isfield(this.config_storage_,class_name)
-    config_data = this.config_storage_.(class_name);
+if isfield(obj.config_storage_,class_name)
+    config_data = obj.config_storage_.(class_name);
     got_from_file = false;
 else
-    filename = fullfile(this.config_folder,[class_name,'.mat']);
+    filename = fullfile(obj.config_folder,[class_name,'.mat']);
     class_fields = class_to_restore.get_storage_field_names();
     [config_data,result,mess] = load_config_from_file(filename,class_fields);
     got_from_file = true;
@@ -45,7 +45,7 @@ else
         if result == 0 % outdated configuration.
             warning('HERBERT:config_store:runtime_error',...
                 'Stored configuration for class: %s is outdated\n The configuration has been reset to defaults ',class_name);
-        else
+        else % -1
             warning('HERBERT:config_store:runtime_error',...
                 ['Custom configuration for class: %s does not exist\n',...
                 ' The configuration has been set to defaults. Type:\n',...
@@ -57,34 +57,18 @@ else
         end
         got_from_file = false;
     end
-
-    % set obtained config data into storage.
-    try
-        if isempty(config_data) % get defaults
-            config_data = class_to_restore.get_defaults();
-            got_from_file = false;
-        end
-    catch ME
-        if (strcmp(ME.identifier,'MATLAB:noSuchMethodOrField'))
-            warning('CONFIG_STORE:restore_config', ...
-                ['Stored configuration for class: %s is outdated\n' ...
-                ' The configuration has been reset to defaults '], ...
-                class_name);
-            if is_file(filename)
-                delete(filename);
-            end
-            got_from_file = false;
-        else
-            rethrow(ME);
-        end
+    if isempty(config_data) % get defaults
+        config_data = class_to_restore.get_defaults();
+        got_from_file = false;
     end
-    this.config_storage_.(class_name) = config_data;
+
+
+    obj.config_storage_.(class_name) = config_data;
     % this returns current state of save-able property and if it is not
     % set, returns default state of the object.
-    if ~this.saveable_.isKey(class_name)
-        this.saveable_(class_name)=class_to_restore.get_saveable_default();
+    if ~obj.saveable_.isKey(class_name)
+        obj.saveable_(class_name)=class_to_restore.get_saveable_default();
     end
     % if the class has been loaded from file, set-up its active properties,
     % in case they perform more then
-
 end

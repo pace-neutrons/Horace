@@ -89,64 +89,59 @@ classdef config_store < handle
                 error('HERBERT:config_store:invalid_argument', ...
                     '-forcesave and -no_save keys can not be provided together');
             end
-            store_internal(this,config_class,force_save,do_not_save,other_options{:});
+            store_config_(this,config_class,force_save,do_not_save,other_options{:});
+        end
+        %------------------------------------------------------------------
+        function   varargout = get_value(obj,class_name_or_inst,varargin)
+            % Return specific config property value or list of values
+            % from a config class, with specific class name.
+            %
+            % Loads configuration from file if it is present there and have
+            % not been loaded in memory before
+            %
+            %Usage:
+            %>>val = ...
+            %      config_store.instance().get_value(class_name,property_name)
+            % or
+            %>>[val1,val2,val3] = ...
+            %       config_store.instance().get_value(class_name,...
+            %                               property_name1,property_name2,property_name3);
+            %
+            out = get_config_field_(obj,class_name_or_inst,true,varargin{:});
+            for i=1:nargout
+                varargout{i} = out{i};
+            end
         end
 
-        function  [val,varargout] = get_config_field(this,class_to_restore,varargin)
-            % return the values of the requested field(s) from the
+        function  varargout = get_config_field(this,class_to_restore, ...
+                field_is_missing_warning,varargin)
+            % Returns the values of the requested field(s) from the
             % specified configuration file
+            %
+            % Loads configuration from file if it is present there and have
+            % not been loaded in memory before
+            %
             %Usage:
-            %[field_val1,field_val2,...] =
-            %        config_store.instance().get_config_field(config_class,field1,field2,....);
+            %[val1,val2,...] =
+            %        config_store.instance().get_config_field(config_class,
+            %        field_is_missing_warning,field1,field2,....);
             % where:
             % config_class -- the configuration class or its name to get
             %                 values from.
-            % field1,field2, etc... the names of the fields of the above
-            %                       class to get their values.
+            % field_is_missing_warning
+            %              -- if true, produce warning if the field is
+            %                 absent in configuration
+            % field1,field2, etc...
+            %              -- the names of the fields of the above
+            %                 class to get their values.
             % Returns:
-            % field_val1,field_val2, etc... -- the values of the requested
-            %                                  fields
+            % val1,val2, etc...
+            %              -- the values of the requested fields
             %
-            if isa(class_to_restore,'config_base')
-                class_name = class_to_restore.class_name;
-            elseif ischar(class_to_restore)
-                class_name = class_to_restore;
-                class_to_restore = feval(class_name);
-            else
-                error('HERBERT:config_store:invalid_argument',...
-                    'Config class has to be a child of the config_base class or the name of such class');
+            out = get_config_field_(this,class_to_restore,field_is_missing_warning,varargin{:});
+            for i=1:nargout
+                varargout{i} = out{i};
             end
-
-            if isfield(this.config_storage_,class_name)
-                config_data = this.config_storage_.(class_name);
-            else
-                config_data = this.get_config(class_to_restore);
-            end
-
-            if numel(varargin) < nargout
-                error('HERBERT:config_store:runtime_error',...
-                    ' some output values are not set by this function call');
-            end
-
-            if isfield(config_data,varargin{1})
-                val=config_data.(varargin{1});
-            else
-                warning('HERBERT:config_store:restore_config',...
-                    'Class %s field %s is not stored in configuration. Returning defaults',...
-                    class_name,varargin{1});
-                val = class_to_restore.get_default_value(varargin{1});
-            end
-            for i=2:nargout
-                if isfield(config_data,varargin{i})
-                    varargout{i-1}=config_data.(varargin{i});
-                else
-                    warning('HERBERT:config_store:restore_config',...
-                        'Class %s field %s is not stored in configuration. Returning defaults',...
-                        class_name,varargin{i});
-                    varargout{i-1} = class_to_restore.get_default_value(varargin{i});
-                end
-            end
-
         end
 
         function config_cont = get_all_configs(obj)
@@ -240,29 +235,6 @@ classdef config_store < handle
             this.saveable_(class_name)=is_saveable;
         end
 
-        %------------------------------------------------------------------
-
-        function   [config_val,varargout] = get_value(obj,class_name,varargin)
-            % return specific config property value or list of values
-            % from a config class, with specific class name
-            %
-            %Usage:
-            %>>val = ...
-            %      config_store.instance().get_value(class_name,property_name)
-            % or
-            %>>[val1,val2,val3] = ...
-            %       config_store.instance().get_value(class_name,...
-            %                               property_name1,property_name2,property_name3);
-            %
-            out = get_config_val_internal(obj,class_name,varargin{:});
-            config_val = out{1};
-            nout = max(nargout,1) - 1;
-            for i=1:nout
-                varargout{i} = out{i};
-            end
-
-        end
-
         function config_data=get_config(this,class_to_restore)
             % return configuration from memory or load it from a file if such
             % configuration exist on file and not in memory
@@ -285,7 +257,7 @@ classdef config_store < handle
             %                      returns current Herbert config settings for fields
             %                      'use_mex' and 'log_level'
 
-            [config_data,read_from_file]=this.get_config_(class_to_restore);
+            [config_data,read_from_file]=get_config_(this,class_to_restore);
             % execute class setters.
 
             % Important!!!
@@ -424,9 +396,7 @@ classdef config_store < handle
             if ~ok
                 error('HERBERT:config_store:io_error',mess);
             end
-
         end
-
     end
 
     methods(Access=private)

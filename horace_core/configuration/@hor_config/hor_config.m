@@ -209,7 +209,8 @@ classdef hor_config < config_base
         end
 
         function work_dir = get.working_directory(~)
-            work_dir  = config_store.instance().get_config_field('parallel_config','working_directory');
+            work_dir  = config_store.instance().get_config_field( ...
+                'parallel_config',true,'working_directory');
             if isempty(work_dir)
                 work_dir = tmp_dir;
             end
@@ -225,7 +226,8 @@ classdef hor_config < config_base
             % Usage
             %>>is = hor_config_instance.wkdir_is_default;
             %
-            work_dir  = config_store.instance().get_config_field('parallel_config','working_directory');
+            work_dir  = config_store.instance().get_config_field( ...
+                'parallel_config',true,'working_directory');
             is = isempty(work_dir);
         end
 
@@ -262,8 +264,8 @@ classdef hor_config < config_base
         function obj = set.fb_scale_factor(obj,val)
             if val < 3
                 warning('HOR_CONFIG:set_fb_scale_factor',...
-                        [' fb_scale_factor in general should not be less than 3.\n', ...
-                         'Setting it to %d may cause performance degradation'], val);
+                    [' fb_scale_factor in general should not be less than 3.\n', ...
+                    'Setting it to %d may cause performance degradation'], val);
             end
             config_store.instance().store_config(obj,'fb_scale_factor',val);
         end
@@ -340,7 +342,7 @@ classdef hor_config < config_base
             else
                 folder =[];
             end
-       end
+        end
 
         function obj = set_unit_test_path(obj)
             % add Herbert unit test path to MATLAB search path

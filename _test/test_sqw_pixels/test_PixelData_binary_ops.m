@@ -282,8 +282,10 @@ classdef test_PixelData_binary_ops < TestCase
         function test_minus_PixelData_filebacked_memory_one_stroke(obj)
             pix1 = obj.pix_with_pages;
             pix2 = obj.pix_in_memory;
-            % clOb = set_temporary_config_options(hor_config, ...
-            %     'mem_chunk_size',floor(pix1.num_pixels/3));
+            % do not sort pixels by bins
+            clOb = set_temporary_config_options(hpc_config, ...
+            'mem_chunk_size',floor(pix1.num_pixels/3));
+            
 
             pix_diff = pix1.do_binary_op(pix2, @minus);
             full_pix_diff = concatenate_pixel_pages(pix_diff);
@@ -291,10 +293,8 @@ classdef test_PixelData_binary_ops < TestCase
             expected_diff = obj.ref_raw_pix_data;
             expected_diff(obj.SIGNAL_IDX, :) = 0;
             expected_diff(obj.VARIANCE_IDX, :) = 2*obj.ref_raw_pix_data(obj.VARIANCE_IDX, :);
-            % Re #1371 This would be necessary if
-            % PageOp_binary_sqw_sqw.ignore_pix_order = false;
-            %run_idxs = PixelDataBase.field_index('all_indexes');
-            %expected_diff = sortrows(expected_diff',run_idxs)';
+
+
             assertEqual(full_pix_diff, expected_diff);
         end
 

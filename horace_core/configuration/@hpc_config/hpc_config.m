@@ -241,7 +241,7 @@ classdef hpc_config < config_base
             rem_f = config_store.instance.get_value('parallel_config','remote_folder');
         end
 
-        function rem_f = get.sort_pix_in_binary_op(~)
+        function rem_f = get.sort_pix_in_binary_op(obj)
             rem_f = get_or_restore_field(obj,'sort_pix_in_binary_op');
         end
 

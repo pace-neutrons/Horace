@@ -259,25 +259,25 @@ classdef test_config_store < TestCase
             % testing
             config_store.instance().store_config(tsc,'a','new_val');
 
-            a_val = config_store.instance().get_config_field(tsc,'a');
+            a_val = config_store.instance().get_config_field(tsc,true,'a');
             assertEqual('new_val',a_val);
 
             config_store.instance().store_config(tsc,'b','meee');
 
-            [a_val,b_val,c_val] = config_store.instance().get_config_field(tsc,'a','b','c');
+            [a_val,b_val,c_val] = config_store.instance().get_config_field(tsc,true,'a','b','c');
             assertEqual('new_val',a_val);
             assertEqual('meee',b_val);
             assertEqual('other_property',c_val);
 
             config_store.instance().clear_config(tsc)
-            [b_val,c_val] = config_store.instance().get_config_field(tsc,'b','c','a');
+            [b_val,c_val] = config_store.instance().get_config_field(tsc,true,'b','c','a');
             assertEqual('meee',b_val);
             assertEqual('other_property',c_val);
 
             config_store.instance().clear_config(tsc)
             config_store.instance().store_config(tsc,'c',100);
 
-            c_val = config_store.instance().get_config_field(tsc,'c');
+            c_val = config_store.instance().get_config_field(tsc,true,'c');
             assertEqual(100,c_val);
             %
             config_store.instance().clear_config(tsc,'-file')
