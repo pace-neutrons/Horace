@@ -21,7 +21,7 @@ else
     error('HERBERT:config_store:invalid_argument',...
         'input for config_store should be either instance of config class or string with a config class name')
 end
-if nargin>3 % we need to set some fields before storing the configuration.
+if nargin>4 % we need to set some fields before storing the configuration.
     if isfield(this.config_storage_,class_name)
         data_to_save = this.config_storage_.(class_name);
     elseif check_isconfigured(this,config_class,false)

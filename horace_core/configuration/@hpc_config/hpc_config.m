@@ -360,7 +360,8 @@ classdef hpc_config < config_base
         end
 
         function obj = set.sort_pix_in_binary_op(obj,val)
-            config_store.instance().store_config(obj,'sort_pix_in_binary_op',val,'-no_save');
+            config_store.instance().store_config(obj, ...
+                'sort_pix_in_binary_op',logical(val),'-no_save');
         end
 
         function obj = set.build_sqw_in_parallel(obj,val)
