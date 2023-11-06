@@ -30,7 +30,7 @@ classdef some_test_class2<some_test_class
             % get/set methods interface
             fields = {'a','b','c'};
         end
-        function value = get_internal_field(this,field_name)
+        function value = get_default_value(this,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface
             value = this.(field_name);

@@ -74,18 +74,22 @@ classdef config_base
         %   fields  = {stored_poperty};
         %end
 
-        value = get_internal_field(this,field_name)
-        % method gets internal field value bypassing standard get/set
-        % methods interface
-        %
-        % For the example provided in the class description, this method
-        % has to have a form:
-        %
-        %function value = get_internal_field(this,field_name)
-        %   value = this.([field_name,'_']);
-        %end
+        value = get_default_value(obj,field_name);
+        % function value = get_default_value(obj,field_name)
+        %     % method gets default property value ignoring current value, stored
+        %     % in configuration and returned by usual get.property method
+        %     %
+        %     % Default protected field names, corresponding to property names
+        %     % normaly nave the form:
+        %     % protected_prop_name = [public_prop_name,'_']
+        %     % so default implementation of this function have the fome:
+        %     %
+        %     value = obj.([field_name,'_']);
+        % end
+
     end
     methods
+
         function obj=config_base(class_name)
             % constructor accepts input parameter which should be
             % the derived class name.
@@ -139,14 +143,14 @@ classdef config_base
 
         function this=set.returns_defaults(this,val)
             this.returns_defaults_ = val > 0;
-        end        
+        end
         %
         function do = get.do_check_combo_arg(obj)
             do = obj.do_check_combo_arg_;
         end
         function obj = set.do_check_combo_arg(obj,val)
-             obj.do_check_combo_arg_ = logical(val);
-        end        
+            obj.do_check_combo_arg_ = logical(val);
+        end
     end
     methods
         function isit = is_default(this)
@@ -157,28 +161,28 @@ classdef config_base
         end
 
         %------------------------------------------------------------------
-        function value =get_or_restore_field(this,field_name)
+        function value =get_or_restore_field(obj,field_name)
             % method to restore value from config_store if available or
             % take default value from the class defaults if not
 
             % the method is used as the part of a standard derived class getter.
 
-            if this.returns_defaults
-                value = get_internal_field(this,field_name);
+            if obj.returns_defaults
+                value = get_default_value(obj,field_name);
             else
                 % get actual configuration
                 % if class have never been stored in configuration, it
                 % will return defaults
-                value = config_store.instance.get_config_field(this,field_name);
+                value = config_store.instance.get_config_field(obj,field_name);
             end
         end
 
-        function data=get_defaults(this)
+        function data=get_defaults(obj)
             % method returns the structure with default class data,
-            fields = this.get_storage_field_names();
+            fields = obj.get_storage_field_names();
             data=struct();
             for i=1:numel(fields)
-                data.(fields{i}) = get_internal_field(this,fields{i});
+                data.(fields{i}) = get_default_value(obj,fields{i});
             end
         end
 
@@ -209,7 +213,7 @@ classdef config_base
                 field_name = fields{i};
                 obj.(field_name) = data.(field_name);
             end
-            obj.do_check_combo_arg = true;            
+            obj.do_check_combo_arg = true;
             obj = obj.check_combo_arg();
         end
         function obj = check_combo_arg(obj)
