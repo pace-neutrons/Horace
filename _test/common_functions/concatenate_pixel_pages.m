@@ -1,6 +1,6 @@
 function data = concatenate_pixel_pages(pix)
 %% CONCATENATE_PIXEL_PAGES concatenate the pages of a PixelData object into
-% a single array of data. This returns a raw Matlab array, not a PixelData
+% a single array of data. This returns a raw MATLAB array, not a PixelData
 % object
 %
 pix = pix.move_to_first_page();
@@ -17,4 +17,4 @@ for i=1:pix.num_pages
     data(:, start_idx:end_idx) = pix.data;
     iter = iter + 1;
 end
-%pix = pix.move_to_first_page();
+pix = pix.move_to_first_page();

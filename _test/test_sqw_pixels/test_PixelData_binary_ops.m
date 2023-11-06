@@ -15,8 +15,6 @@ classdef test_PixelData_binary_ops < TestCase
 
         call_count_transfer_;
 
-        ws_cache;
-        stored_config;
         mem_chunk_size
     end
 
@@ -33,11 +31,7 @@ classdef test_PixelData_binary_ops < TestCase
             obj.test_sqw_file_path    = fullfile(pths.test_common, 'sqw_1d_1.sqw');
             obj.test_sqw_2d_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
 
-            hc = hor_config;
-            obj.stored_config = hc.get_data_to_store();
-            hc.saveable = false;
             %
-            obj.ws_cache = warning('off','HORACE:old_file_format');
 
             % Load a 1D SQW file
             sqw_test_obj = sqw(obj.test_sqw_file_path,'file_backed',true);
@@ -54,16 +48,6 @@ classdef test_PixelData_binary_ops < TestCase
         function tearDown(obj)
             hc = hor_config;
             hc.mem_chunk_size = obj.mem_chunk_size;
-        end
-
-        function delete(obj)
-            hc = hor_config;
-            warning(obj.ws_cache);
-            hc.saveable = true;
-            if ~isempty(obj.stored_config)
-                set(hc, obj.stored_config);
-            end
-
         end
 
         function test_add_scalar_memory_with_op_man(obj)

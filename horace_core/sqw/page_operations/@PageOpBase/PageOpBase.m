@@ -389,7 +389,7 @@ classdef PageOpBase
             % obj      -- operation object containing modified image, if
             %             image have been indeed modified
             if nargin == 3
-                npix_acc = obj.npix;
+                npix_acc = obj.npix(:);
             end
             obj = update_image_(obj,sig_acc,var_acc,npix_acc);
         end
