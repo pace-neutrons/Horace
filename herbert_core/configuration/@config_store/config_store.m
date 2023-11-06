@@ -58,11 +58,11 @@ classdef config_store < handle
             % currently in memory are retained but will be saved to the new
             % location on request only.
             if ~ischar(config_folder_name)
-                error('HERBDERT:CONFIG_STORE:invalid_argument',...
+                error('HERBERT:config_store:invalid_argument',...
                     'config folder value has to be provided as a char string')
             end
             if strcmpi(config_folder_name,'clear')
-                error('HERBDERT:CONFIG_STORE:invalid_argument',...
+                error('HERBERT:config_store:invalid_argument',...
                     'the config folder name can not be: ''clear''')
             end
             config_store.instance(config_folder_name);
@@ -83,10 +83,10 @@ classdef config_store < handle
             options={'-forcesave','-no_save'};
             [ok,mess,force_save,do_not_save,other_options]=parse_char_options(varargin,options);
             if ~ok
-                error('HERBDERT:CONFIG_STORE:invalid_argument',mess);
+                error('HERBERT:config_store:invalid_argument',mess);
             end
             if force_save && do_not_save
-                error('HERBDERT:CONFIG_STORE:invalid_argument', ...
+                error('HERBERT:config_store:invalid_argument', ...
                     '-forcesave and -no_save keys can not be provided together');
             end
             store_internal(this,config_class,force_save,do_not_save,other_options{:});
@@ -113,7 +113,7 @@ classdef config_store < handle
                 class_name = class_to_restore;
                 class_to_restore = feval(class_name);
             else
-                error('HERBDERT:CONFIG_STORE:invalid_argument',...
+                error('HERBERT:config_store:invalid_argument',...
                     'Config class has to be a child of the config_base class or the name of such class');
             end
 
@@ -124,26 +124,26 @@ classdef config_store < handle
             end
 
             if numel(varargin) < nargout
-                error('CONFIG_STORE:runtime_error',...
+                error('HERBERT:config_store:runtime_error',...
                     ' some output values are not set by this function call');
             end
 
             if isfield(config_data,varargin{1})
                 val=config_data.(varargin{1});
             else
-                warning('CONFIG_STORE:restore_config',...
+                warning('HERBERT:config_store:restore_config',...
                     'Class %s field %s is not stored in configuration. Returning defaults',...
                     class_name,varargin{1});
-                val = class_to_restore.get_internal_field(varargin{1});
+                val = class_to_restore.get_default_value(varargin{1});
             end
             for i=2:nargout
                 if isfield(config_data,varargin{i})
                     varargout{i-1}=config_data.(varargin{i});
                 else
-                    warning('CONFIG_STORE:restore_config',...
+                    warning('HERBERT:config_store:restore_config',...
                         'Class %s field %s is not stored in configuration. Returning defaults',...
                         class_name,varargin{i});
-                    varargout{i-1} = class_to_restore.get_internal_field(varargin{i});
+                    varargout{i-1} = class_to_restore.get_default_value(varargin{i});
                 end
             end
 
@@ -242,7 +242,7 @@ classdef config_store < handle
 
         %------------------------------------------------------------------
 
-        function   [config_val,varargout] = get_value(this,class_name,value_name,varargin)
+        function   [config_val,varargout] = get_value(obj,class_name,varargin)
             % return specific config property value or list of values
             % from a config class, with specific class name
             %
@@ -254,7 +254,8 @@ classdef config_store < handle
             %       config_store.instance().get_value(class_name,...
             %                               property_name1,property_name2,property_name3);
             %
-            [config_val,out] = this.get_config_val_internal(class_name,value_name,varargin);
+            out = get_config_val_internal(obj,class_name,varargin{:});
+            config_val = out{1};
             nout = max(nargout,1) - 1;
             for i=1:nout
                 varargout{i} = out{i};
@@ -342,7 +343,7 @@ classdef config_store < handle
             options={'-files'};
             [ok,mess,clear_files]=parse_char_options(varargin,options);
             if ~ok
-                error('HORACE:config_store:invalid_argument',mess);
+                error('HERBERT:config_store:invalid_argument',mess);
             end
             if clear_files
                 this.delete_all_files();
@@ -360,7 +361,7 @@ classdef config_store < handle
             options={'-in_mem'};
             [ok,mess,check_mem_only]=parse_char_options(varargin,options);
             if ~ok
-                error('CONFIG_STORE:invalid_argument',mess);
+                error('HERBERT:config_store:invalid_argument',mess);
             end
             %
             isit = check_isconfigured(this,class_instance,check_mem_only);
@@ -421,7 +422,7 @@ classdef config_store < handle
             filename = fullfile(obj.config_folder,[class_name,'.mat']);
             [ok,mess]=save_config(filename,data_to_save);
             if ~ok
-                error('HORACE:config_store:io_error',mess);
+                error('HERBERT:config_store:io_error',mess);
             end
 
         end
