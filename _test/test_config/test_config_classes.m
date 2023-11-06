@@ -120,99 +120,53 @@ classdef test_config_classes < TestCase
             assertTrue(found_when_init_tests_on);
         end
 
-        function obj = test_parallel_config_fake_worker(obj)
-            clob = set_temporary_config_options(parallel_config);
-            clWn = set_temporary_warning('off','HORACE:parallel_config:invalid_argument');
-            pc = parallel_config_tester;
+        function test_unsaveable_sets_gets_clears(~)
+            clWarn = set_temporary_warning('off', ...
+                'HERBERT:test_warning','HERBERT:config_store:runtime_error');
+            cf = config_base_tester();
+            config_class_file = fullfile(cf.config_folder,'config_base_tester.mat');
+            config_store.instance.clear_config(config_base_tester,'-file');
+            assertFalse(is_file(config_class_file));
 
-            pc = pc.set_worker('non_existing_worker');
+            warning('HERBERT:test_warning','this is to check if no other warning was issued')
+            % As we have deleted config from memory and file.
+            % this generates the warning if defaults were used (first
+            % configuration) as the class is indeed configured for the
+            % first time, but nothing is changed in file. This is probably
+            % expected behaviour.
+            cf.unsaveable_property = 'ha_ha_ha';
+            % but nothing have been saved
+            assertFalse(is_file(config_class_file));
+            cf.my_prop = 'AAA';
 
-            pc.worker = 'non_existing_worker';
-            [~,wid] = lastwarn;
-            assertEqual(wid,'HORACE:parallel_config:invalid_argument')
-            assertEqual(pc.worker,'non_existing_worker');
-            assertEqual(pc.parallel_cluster,'none');
-            assertEqual(pc.cluster_config,'none');
+            assertEqual(cf.unsaveable_property,'ha_ha_ha');
+            assertEqual(cf.my_prop,'AAA');
+
+            config_store.instance.clear_config(config_base_tester);
+            assertTrue(is_file(config_class_file));
+
+            cf = config_base_tester();
+            assertEqual(cf.unsaveable_property,'abra_cadabra');
+            assertEqual(cf.my_prop,'AAA');
+
+            [~,lv] = lastwarn;
+            assertEqual(lv,'HERBERT:config_store:runtime_error')
         end
 
-        function obj = test_parallel_config_missing_worker(obj)
-            clob = set_temporary_config_options(parallel_config);
-            pc = parallel_config();
+        function test_unsaveable_property_works_with_no_warning(~)
+            clWarn = set_temporary_warning('off', ...
+                'HERBERT:test_warning','HERBERT:config_store:runtime_error');
+            cf = config_base_tester();
+            config_class_file = fullfile(cf.config_folder,'config_base_tester.mat');
+            if ~isfile(config_class_file)
+                cf.my_prop = 'something'; % store modified configuration
+            end
+            assertTrue(isfile(config_class_file))
+            warning('HERBERT:test_warning','this is to check if no other warning was issued')
 
-            f = @()set(pc,'worker','non_existing_worker');
-            assertExceptionThrown(f,'HORACE:parallel_config:invalid_argument');
+            assertEqual(cf.unsaveable_property,'abra_cadabra');
+            [~,lv] = lastwarn;
+            assertEqual(lv,'HERBERT:test_warning')
         end
-
-        function obj = test_parallel_config_slurm_commands_parser(obj)
-            clob = set_temporary_config_options(parallel_config);
-            pc = parallel_config();
-
-            % Sets for comparison
-            new_commands = containers.Map({'-A' '-p'}, {'account' 'partition'});
-            new_commands_app = containers.Map({'-p' '-q'}, {'new_part' 'queue'});
-            new_commands_app_check = containers.Map({'-A' '-p' '-q'}, {'account' 'new_part' 'queue'});
-
-            %% Destructive
-            % Set as map
-            pc.slurm_commands = new_commands;
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
-            % Set empty (check clearing works)
-            pc.slurm_commands = [];
-            assertTrue(isempty(pc.slurm_commands))
-
-            % Set as char
-            pc.slurm_commands = [];
-            pc.slurm_commands = '-A account -p=partition';
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
-
-            % Set as cellstr of commands
-            pc.slurm_commands = [];
-            pc.slurm_commands = {'-A' 'account' '-p' 'partition'};
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
-            % Set as cell array of pairs of commands
-            pc.slurm_commands = [];
-            pc.slurm_commands = {{'-A' 'account'} {'-p' 'partition'}};
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
-            % Using update_slurm_commands
-            pc.slurm_commands = [];
-            pc.update_slurm_commands('-A account -p=partition', false);
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
-            % Using update_slurm_commands omitting append
-            pc.slurm_commands = [];
-            pc.update_slurm_commands(new_commands);
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
-            %% Non-destructive
-            % Set through update_slurm_commands as map
-            pc.slurm_commands = new_commands;
-            pc.update_slurm_commands(new_commands_app, true);
-            assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
-
-            % Set through update_slurm_commands as char
-            pc.slurm_commands = new_commands;
-            pc.update_slurm_commands('-q queue -p=new_part', true);
-            assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
-
-            % Set through Map interface
-            pc.slurm_commands = new_commands;
-            pc.slurm_commands('-q') = 'queue';
-            pc.slurm_commands('-p') = 'new_part';
-            assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
-        end
-
     end
 end

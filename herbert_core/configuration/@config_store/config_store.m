@@ -71,7 +71,7 @@ classdef config_store < handle
     end
 
     methods
-        function store_config(this,config_class,varargin)
+        function store_config(obj,config_class,varargin)
             % store configuration in memory and on file if requested.
             %
             % config_class class which property saveable==true, are saved both
@@ -89,7 +89,7 @@ classdef config_store < handle
                 error('HERBERT:config_store:invalid_argument', ...
                     '-forcesave and -no_save keys can not be provided together');
             end
-            store_config_(this,config_class,force_save,do_not_save,other_options{:});
+            store_config_(obj,config_class,force_save,do_not_save,other_options{:});
         end
         %------------------------------------------------------------------
         function   varargout = get_value(obj,class_name_or_inst,varargin)
@@ -114,7 +114,7 @@ classdef config_store < handle
         end
 
         function  varargout = get_config_field(this,class_to_restore, ...
-                field_is_missing_warning,varargin)
+                warn_if_missing,varargin)
             % Returns the values of the requested field(s) from the
             % specified configuration file
             %
@@ -128,7 +128,7 @@ classdef config_store < handle
             % where:
             % config_class -- the configuration class or its name to get
             %                 values from.
-            % field_is_missing_warning
+            % warn_if_missing
             %              -- if true, produce warning if the field is
             %                 absent in configuration
             % field1,field2, etc...
@@ -138,7 +138,7 @@ classdef config_store < handle
             % val1,val2, etc...
             %              -- the values of the requested fields
             %
-            out = get_config_field_(this,class_to_restore,field_is_missing_warning,varargin{:});
+            out = get_config_field_(this,class_to_restore,warn_if_missing,varargin{:});
             for i=1:nargout
                 varargout{i} = out{i};
             end

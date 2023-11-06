@@ -1,28 +1,28 @@
 classdef some_test_class2<some_test_class
-    %UNTITLED2 Summary of this class goes here
-    %   Detailed explanation goes here
-    
+    %some_test_class2 used in test to validate how the configuration works
+
     properties
         c='other_property'
+
     end
-    
+
     methods
         function this=some_test_class2()
             this=this@some_test_class(mfilename('class'));
         end
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
-        %------------------------------------------------------------------        
-        function data=get_data_to_store(this)            
+        %------------------------------------------------------------------
+        function data=get_data_to_store(this)
             % method returns the structure with the data, expected to be stored
             % in configuration
             data = get_data_to_store@some_test_class(this);
-            data.c = this.c;            
+            data.c = this.c;
         end
         % method places the data, provided as second argument, into
         % internal class storage. (the operation opposite to
         % get_data_to_store operation
-        function fields = get_storage_field_names(this)
+        function fields = get_storage_field_names(~)
             % helper function returns the list of the name of the structure,
             % get_data_to_store returns
             %this = set_internal_field(this,field_name,field_value)
@@ -30,13 +30,12 @@ classdef some_test_class2<some_test_class
             % get/set methods interface
             fields = {'a','b','c'};
         end
-        function value = get_default_value(this,field_name)
+        function value = get_default_value(obj,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface
-            value = this.(field_name);
+            % talk to public interface -- test class for simplicity
+            value = obj.(field_name);
         end
-        
     end
-    
 end
 

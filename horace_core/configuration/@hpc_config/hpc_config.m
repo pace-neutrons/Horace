@@ -196,6 +196,8 @@ classdef hpc_config < config_base
                 obj.mex_combine_thread_mode_   = 0;
                 obj.mex_combine_buffer_size_ = 64*1024;
             end
+            %
+            obj.mem_only_prop_list_ = {'sort_pix_in_binary_op'};
         end
 
         %----------------------------------------------------------------
@@ -242,7 +244,7 @@ classdef hpc_config < config_base
         end
 
         function rem_f = get.sort_pix_in_binary_op(obj)
-            rem_f = get_or_restore_field(obj,'sort_pix_in_binary_op');
+            rem_f = get_or_restore_field(obj,'sort_pix_in_binary_op',false);
         end
 
         function config = get.parallel_config(~)

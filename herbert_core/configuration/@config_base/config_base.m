@@ -53,6 +53,24 @@ classdef config_base
         % interdependent properties until they all have been set up.
         do_check_combo_arg
     end
+    properties(Dependent,Hidden)
+        % defines the list of properties, which never stored on HDD and
+        % exist in memory only.
+        %
+        % To define such properties, the child class should add the name of
+        % the property to this list and define setters/getters for this
+        % property using modified get/set operator e.g.:
+        %function up = get.unsaveable_property(obj)
+        %    up = get_or_restore_field(obj,'unsaveable_property',false);
+        %end
+        %function obj = set.unsaveable_property(obj,val)
+        %    config_store.instance().store_config(obj,'unsaveable_property',val,'-no_save');
+        %end
+        mem_only_prop_list;
+        % if true, issue warning if class have never been configured and
+        % its values are choosen from defaults
+        warn_if_missing_config
+    end
 
     properties(Access=protected)
         % the name of the derived class with provides information to store
@@ -60,6 +78,12 @@ classdef config_base
         is_saveable_ = true;
         returns_defaults_=false;
         do_check_combo_arg_ = true;
+        % list of the properties, which never stored on hdd
+        mem_only_prop_list_ = {};
+        % issue warning if the configuration file is missing and this is
+        % the first time you define the configuration, which is set to
+        % defaults
+        warn_if_missing_config_ = true;
     end
 
     methods(Abstract)
@@ -89,7 +113,6 @@ classdef config_base
 
     end
     methods
-
         function obj=config_base(class_name)
             % constructor accepts input parameter which should be
             % the derived class name.
@@ -151,6 +174,18 @@ classdef config_base
         function obj = set.do_check_combo_arg(obj,val)
             obj.do_check_combo_arg_ = logical(val);
         end
+        %
+        function mopl = get.mem_only_prop_list(obj)
+            mopl = obj.mem_only_prop_list_;
+        end
+        %
+        function do = get.warn_if_missing_config(obj)
+            do = obj.warn_if_missing_config_;
+        end
+        function obj = set.warn_if_missing_config(obj,val)
+            obj.warn_if_missing_config_ = logical(val);
+        end
+
     end
     methods
         function isit = is_default(this)
@@ -161,13 +196,13 @@ classdef config_base
         end
 
         %------------------------------------------------------------------
-        function value =get_or_restore_field(obj,field_name,field_is_missing_warning)
+        function value =get_or_restore_field(obj,field_name,warn_if_missing)
             % method to restore value from config_store if available or
             % take default value from the class defaults if not
 
             % the method is used as the part of a standard derived class getter.
             if nargin <3
-                field_is_missing_warning = true;
+                warn_if_missing = obj.warn_if_missing_config;
             end
 
             if obj.returns_defaults
@@ -177,7 +212,7 @@ classdef config_base
                 % if class have never been stored in configuration, it
                 % will return defaults
                 value = config_store.instance.get_config_field( ...
-                    obj,field_is_missing_warning,field_name);
+                    obj,warn_if_missing,field_name);
             end
         end
 
@@ -224,5 +259,4 @@ classdef config_base
             % do validation of the interdependent properties
         end
     end
-
 end
