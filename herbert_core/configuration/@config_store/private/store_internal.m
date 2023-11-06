@@ -9,7 +9,7 @@ function store_internal(this,config_class,force_save,do_not_save,varargin)
 % in this case, only the fields and values specified in this list are set
 % if the class was already stored in configuration. If it was not in the
 % configuration, other values for config class are taken fron config_class
-% defaults. 
+% defaults.
 %
 
 if isa(config_class,'config_base')
@@ -19,9 +19,9 @@ elseif(is_string(config_class))
     config_class = feval(class_name);
 else
     error('HERBERT:config_store:invalid_argument',...
-        'input for config_store should be either instance of config class or string with a config class name')   
+        'input for config_store should be either instance of config class or string with a config class name')
 end
-if nargin>3 % we need to set some fields before storing the configuration. 
+if nargin>3 % we need to set some fields before storing the configuration.
     if isfield(this.config_storage_,class_name)
         data_to_save = this.config_storage_.(class_name);
     elseif check_isconfigured(this,config_class,false)
@@ -37,7 +37,14 @@ else % defaults
     data_to_save = config_class.get_data_to_store();
 end
 
-if ~do_not_save && (config_class.saveable || force_save)
+% change data in memory.
+this.config_storage_.(class_name)  = data_to_save;
+if do_not_save
+    return;
+end
+
+% store changes in file to recover it in a future operations.
+if (config_class.saveable || force_save)
     % avoid saving if stored class is equal to the class
     % already in memory (as it has been already loaded)
     if isfield(this.config_storage_,class_name) && ~force_save
@@ -49,11 +56,6 @@ if ~do_not_save && (config_class.saveable || force_save)
             return;
         end
     end
-    this = this.save_config(class_name,data_to_save);
+    this.save_config(class_name,data_to_save);
 end
-% store data in memory too.
-this.config_storage_.(class_name)  = data_to_save;
-
-
-
 
