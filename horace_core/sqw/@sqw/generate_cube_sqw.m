@@ -103,7 +103,10 @@ out.detpar = struct( ...
 
 samples = out.experiment_info.samples.add(samp);
 instruments = out.experiment_info.instruments.add(IX_null_inst());
-detector_arrays = []; %IX_detector_array();
+% initialized via default constructor rather than the above empty detpar
+% as empty IX_detector_bank only works with default constructor not with
+% empty detpar using the detpar constructor
+detector_arrays = IX_detector_array();
 expdata = IX_experiment(expdata);
 
 expinfo = Experiment(detector_arrays, instruments, samples, expdata);
