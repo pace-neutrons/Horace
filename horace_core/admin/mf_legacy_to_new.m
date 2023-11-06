@@ -1,7 +1,7 @@
-function conv = mf_leg_to_new(funcline)
+function conv = mf_legacy_to_new(funcline)
 % MATLAB wrapper for python script to modernise multifit syntax
 %
-% >> mf_leg_to_new("[wfit,fitdata]=multifit_sqw(my_new_cut,@sr122_xsec,pars,pfree,pbind,'list',1);")
+% >> mf_legacy_to_new("[wfit,fitdata]=multifit_sqw(my_new_cut,@sr122_xsec,pars,pfree,pbind,'list',1);")
 % ans =
 %
 %    kk = multifit(my_new_cut);
@@ -15,8 +15,6 @@ function conv = mf_leg_to_new(funcline)
 % Script to roughly convert from multifit_legacy to modern multifit syntax
 %
 % J. Wilkins 8-9-2023
-
-
 
     pth = fullfile(horace_paths().root, 'tools');
     if count(py.sys.path, pwd) == 0
