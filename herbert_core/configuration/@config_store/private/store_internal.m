@@ -1,4 +1,4 @@
-function store_internal(this,config_class,force_save,varargin)
+function store_internal(this,config_class,force_save,do_not_save,varargin)
 % Function stores the configutation class - child of a config_base class
 % in single memory place and
 % in a special file in the configurations location folder.
@@ -37,7 +37,7 @@ else % defaults
     data_to_save = config_class.get_data_to_store();
 end
 
-if config_class.saveable || force_save
+if ~do_not_save && (config_class.saveable || force_save)
     % avoid saving if stored class is equal to the class
     % already in memory (as it has been already loaded)
     if isfield(this.config_storage_,class_name) && ~force_save
