@@ -283,7 +283,7 @@ classdef test_PixelData_binary_ops < TestCase
             pix1 = obj.pix_with_pages;
             pix2 = obj.pix_in_memory;
             % do not sort pixels by bins
-            clOb = set_temporary_config_options(hpc_config, ...
+            clOb = set_temporary_config_options(hor_config, ...
             'mem_chunk_size',floor(pix1.num_pixels/3));
             
 
