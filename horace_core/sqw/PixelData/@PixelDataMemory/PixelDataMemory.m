@@ -196,55 +196,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
             else
                 obj.detector_idx(selected) = abs(obj.detector_idx(selected));
             end
-        end
-        function obj = cat(obj,varargin)
-            % Concatenate the given PixelData objects' pixels. This function performs
-            % a straight-forward data concatenation.
-            %
-            %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
-            %
-            % Input:
-            % ------
-            %   varargin    A cell array of PixelData objects
-            %
-            % Output:
-            % -------
-            %   obj         A PixelData object containing all the pixels in the inputted
-            %               PixelData objects
-
-            if isempty(varargin)
-                obj = PixelDataMemory();
-                return;
-            elseif numel(varargin) == 1
-                if isa(varargin{1}, 'PixelDataFileBacked')
-                    obj = PixelDataMemory(varargin{1});
-                elseif isa(varargin{1}, 'PixelDataMemory')
-                    obj = varargin{1};
-                end
-                return;
-            end
-
-            is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
-            if any(is_ldr)
-                obj = PixelDataFileBacked(varargin);
-                return
-            end
-
-            obj = PixelDataMemory();
-
-            obj.data_range_ = PixelDataBase.EMPTY_RANGE;
-            for i = 1:numel(varargin)
-                curr_pix = varargin{i};
-                for page = 1:curr_pix.num_pages
-                    curr_pix.page_num = page;
-                    data = curr_pix.data;
-                    obj.data_range = ...
-                        obj.pix_minmax_ranges(data, obj.data_range_);
-                    obj.data = [obj.data, data];
-                end
-            end
-        end
-        
+        end        
     end
 
     methods(Static)

@@ -10,7 +10,7 @@ classdef test_join < TestCase
             obj.test_dir = hc.test_common;
         end
 
-        function test_split_cube_1_run(obj)
+        function test_split_cube_1_run(~)
             sqw_obj = sqw.generate_cube_sqw(10);
 
             split_obj = split(sqw_obj);

@@ -41,15 +41,15 @@ classdef PageOpBase
         % The name of the operation included in the progress log for slow
         % operations
         op_name
-    end
-    properties(Dependent,Hidden)
-        % number of page to operate over
-        page_num
 
         % npix array (the same as img_.npix), containing the pixel distribution
         % over binning. If no binning is provided it is a single number equal
         % to number of pixels (all pixels in one bin)
         npix
+    end
+    properties(Dependent,Hidden)
+        % number of page to operate over
+        page_num
 
         % caches for some indices, defined in PixelDataBase, and used to
         % extract appropriate fields from PixelData. Often used.
@@ -82,8 +82,8 @@ classdef PageOpBase
         % true if operation should not create the copy of a filebacked
         % object
         inplace_ = false;
-        % holder for the pixel object, which is source/target for the
-        % operation
+        % holder for the pixel object which is source and sometimes target
+        % for the operation
         pix_ = PixelDataMemory();
         % holder for the image, being modified by the operation(s).
         img_;
@@ -117,10 +117,10 @@ classdef PageOpBase
         % the data holder for a page of operation-modified pixels data
         page_data_;
         % accumulator for processed signal. All operations change signal
-        % some may define more accumulators
+        % some may define and use more accumulators
         sig_acc_
         % variance accumulator. Many operations recalculate variance.
-        % Do not forget to nullify it if your particular operation does it
+        % Do not forget to nullify it if your particular operation uses it
         var_acc_
     end
     methods(Abstract)

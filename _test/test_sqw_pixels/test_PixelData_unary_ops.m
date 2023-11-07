@@ -128,7 +128,7 @@ classdef test_PixelData_unary_ops < TestCase
                 try
                     assertEqualToTol(pix, pix_in_mem, 'tol',[1e-4, 1e-4]);
                 catch ME
-                    fprintf('failure at operation N%d, functon %s\n', ...
+                    fprintf('failure at operation N%d, function %s\n', ...
                         i,func2str(unary_op))
                     rethrow(ME)
                 end
