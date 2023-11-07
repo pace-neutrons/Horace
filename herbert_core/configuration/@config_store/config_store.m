@@ -95,6 +95,9 @@ classdef config_store < handle
             % Loads configuration from file if it is present there and have
             % not been loaded in memory before
             %
+            % TODO: this function identical to get_config_field below. One should
+            % remain
+            %
             %Usage:
             %>>val = ...
             %      config_store.instance().get_value(class_name,property_name)
@@ -115,6 +118,9 @@ classdef config_store < handle
             %
             % Loads configuration from file if it is present there and have
             % not been loaded in memory before
+            %
+            % TODO: this function identical to get_value above. One should
+            % remain
             %
             %Usage:
             %[val1,val2,...] =
