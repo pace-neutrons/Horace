@@ -210,11 +210,6 @@ classdef sigvar < data_op_interface & serializable
     end
 
 
-    methods(Access=protected)
-        w = unary_op_manager (w1, op_function_handle);
-
-    end
-
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods
