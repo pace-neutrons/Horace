@@ -210,7 +210,7 @@ classdef hor_config < config_base
 
         function work_dir = get.working_directory(~)
             work_dir  = config_store.instance().get_config_field( ...
-                'parallel_config',true,'working_directory');
+                'parallel_config','working_directory');
             if isempty(work_dir)
                 work_dir = tmp_dir;
             end
@@ -227,7 +227,7 @@ classdef hor_config < config_base
             %>>is = hor_config_instance.wkdir_is_default;
             %
             work_dir  = config_store.instance().get_config_field( ...
-                'parallel_config',true,'working_directory');
+                'parallel_config','working_directory');
             is = isempty(work_dir);
         end
 

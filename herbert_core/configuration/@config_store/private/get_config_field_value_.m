@@ -1,5 +1,5 @@
 function out = get_config_field_value_(obj,class_to_restore, varargin)
-% GET_CONFIG_FIELD return the field or celarray of fields values for
+% GET_CONFIG_FIELD_VALUE_ returns the field or celarray of fields values for
 % the list of config properties, provided as input.
 %
 % If config class is not loaded in memory, it is restored from the hard

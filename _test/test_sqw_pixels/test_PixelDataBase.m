@@ -17,7 +17,7 @@ classdef test_PixelDataBase < TestCase
             'variance'};
 
         warning_cache;
-        initial_mem_chunk_size
+        working_test_file
     end
 
     properties (Constant)
@@ -35,11 +35,6 @@ classdef test_PixelDataBase < TestCase
         function obj = test_PixelDataBase(~)
             obj = obj@TestCase('test_PixelData');
             obj.warning_cache = warning('off','HORACE:old_file_format');
-            hc = hor_config;
-            if hc.saveable
-                obj.initial_mem_chunk_size = hc.mem_chunk_size;
-            end
-            hc.saveable = false;
 
             obj.raw_pix_range = obj.get_ref_range(obj.raw_pix_data);
 
@@ -65,11 +60,7 @@ classdef test_PixelDataBase < TestCase
 
         function delete(obj)
             warning(obj.warning_cache);
-            hc = hor_config;
-            if ~isempty(obj.initial_mem_chunk_size)
-                hc.mem_chunk_size = obj.initial_mem_chunk_size;
-            end
-            hc.saveable = true;
+            del_memmapfile_files(obj.tst_sqw_file_full_path);
         end
 
         % --- Tests for in-memory operations ---
