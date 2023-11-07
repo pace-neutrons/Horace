@@ -13,11 +13,11 @@ classdef some_test_class2<some_test_class
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
-        function data=get_data_to_store(this)
+        function data=get_data_to_store(obj)
             % method returns the structure with the data, expected to be stored
             % in configuration
-            data = get_data_to_store@some_test_class(this);
-            data.c = this.c;
+            data = get_data_to_store@some_test_class(obj);
+            data.c = obj.c;
         end
         % method places the data, provided as second argument, into
         % internal class storage. (the operation opposite to

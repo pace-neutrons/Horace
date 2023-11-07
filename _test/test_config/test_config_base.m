@@ -11,13 +11,13 @@ classdef test_config_base < TestCase
             obj.stored_config = config_store.instance().get_all_configs();
         end
         function tearDown(obj)
-            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
             config_store.instance().set_all_configs(obj.stored_config);
         end
 
         function test_store_restore_in_memory(~)
             config = config_base_tester();
-            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
 
             config_store.instance().clear_config(config)
@@ -91,7 +91,7 @@ classdef test_config_base < TestCase
         end
 
         function test_store_restore_in_file(~)
-            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
             config = config_base_tester();
 

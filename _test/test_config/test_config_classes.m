@@ -22,7 +22,7 @@ classdef test_config_classes < TestCase
             set(tgp_test_class1,'default');
             set(tgp_test_class2,'default');
 
-            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
             obj.s0_def = get(tgp_test_class);
             obj.s1_def = get(tgp_test_class1);
@@ -32,7 +32,7 @@ classdef test_config_classes < TestCase
 
         function obj = test_getstruct(obj)
             config_store.instance().clear_config(tgp_test_class2,'-files');
-            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
             % ----------------------------------------------------------------------------
             % Test getting values from a configuration
@@ -52,7 +52,7 @@ classdef test_config_classes < TestCase
 
         function obj = test_get_wrongCase(obj)
             % This should fail because V3 is upper case, but the field is v3
-            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
             try
                 [v1,v3] = get(tgp_test_class2,'v1','V3');
@@ -69,7 +69,7 @@ classdef test_config_classes < TestCase
             % Test getting values and saving
             % ----------------------------------------------------------------------------
             % Change the config without saving, change to default without saving - see that this is done properly
-            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
             set(tgp_test_class2,'v1',55,'-buffer');
             s2_buf = get(tgp_test_class2);
@@ -119,10 +119,25 @@ classdef test_config_classes < TestCase
             assertFalse(found_when_init_tests_off,' folder was not removed from search path properly');
             assertTrue(found_when_init_tests_on);
         end
+        function test_unsaveable_recovered_from_store(~)
+            clWarn = set_temporary_warning('off', ...
+                'HERBERT:test_warning','HERBERT:config_store:default_configuration');
+            cf = config_base_tester();
+            config_class_file = fullfile(cf.config_folder,'config_base_tester.mat');
+            config_store.instance.clear_config(config_base_tester,'-file');
+            assertFalse(is_file(config_class_file));
+            warning('HERBERT:test_warning','this is to set warning to defined state')
+
+            val = config_store.instance().get_value('config_base_tester','unsaveable_property');
+            assertEqual(val,'abra_cadabra');
+            [~,lv] = lastwarn;
+            assertEqual(lv,'HERBERT:config_store:default_configuration')
+        end
+
 
         function test_unsaveable_sets_gets_clears(~)
             clWarn = set_temporary_warning('off', ...
-                'HERBERT:test_warning','HERBERT:config_store:runtime_error');
+                'HERBERT:test_warning','HERBERT:config_store:default_configuration');
             cf = config_base_tester();
             config_class_file = fullfile(cf.config_folder,'config_base_tester.mat');
             config_store.instance.clear_config(config_base_tester,'-file');
@@ -150,12 +165,12 @@ classdef test_config_classes < TestCase
             assertEqual(cf.my_prop,'AAA');
 
             [~,lv] = lastwarn;
-            assertEqual(lv,'HERBERT:config_store:runtime_error')
+            assertEqual(lv,'HERBERT:config_store:default_configuration')
         end
 
         function test_unsaveable_property_works_with_no_warning(~)
             clWarn = set_temporary_warning('off', ...
-                'HERBERT:test_warning','HERBERT:config_store:runtime_error');
+                'HERBERT:test_warning','HERBERT:config_store:default_configuration');
             cf = config_base_tester();
             config_class_file = fullfile(cf.config_folder,'config_base_tester.mat');
             if ~isfile(config_class_file)

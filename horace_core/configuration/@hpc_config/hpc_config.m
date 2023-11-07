@@ -244,7 +244,7 @@ classdef hpc_config < config_base
         end
 
         function rem_f = get.sort_pix_in_binary_op(obj)
-            rem_f = get_or_restore_field(obj,'sort_pix_in_binary_op',false);
+            rem_f = get_or_restore_field(obj,'sort_pix_in_binary_op');
         end
 
         function config = get.parallel_config(~)
@@ -363,7 +363,7 @@ classdef hpc_config < config_base
 
         function obj = set.sort_pix_in_binary_op(obj,val)
             config_store.instance().store_config(obj, ...
-                'sort_pix_in_binary_op',logical(val),'-no_save');
+                'sort_pix_in_binary_op',logical(val));
         end
 
         function obj = set.build_sqw_in_parallel(obj,val)

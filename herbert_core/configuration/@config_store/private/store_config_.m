@@ -1,5 +1,5 @@
-function store_config_(obj,config_class,force_save,do_not_save,varargin)
-% Function stores the configutation class - child of a config_base class
+function store_config_(obj,config_class,force_save,varargin)
+% Function stores the configuration class - child of a config_base class
 % in single memory place and
 % in a special file in the configurations location folder.
 %
@@ -21,9 +21,8 @@ else
     error('HERBERT:config_store:invalid_argument',...
         'input for config_store should be either instance of config class or string with a config class name')
 end
-config_class.warn_if_missing_config = ~do_not_save;
 was_in_memory = isfield(obj.config_storage_,class_name);
-
+do_not_save   = false;
 if nargin>4 % we need to set some fields before storing the configuration.
     if was_in_memory
         data_to_save = obj.config_storage_.(class_name);
@@ -33,8 +32,15 @@ if nargin>4 % we need to set some fields before storing the configuration.
         data_to_save = config_class.get_data_to_store();
     end
     % change only the fields, specified in the varargin
-    for i=1:2:numel(varargin)
-        data_to_save.(varargin{i})=varargin{i+1};
+    narg = numel(varargin);
+    n_prop = floor(narg/2);
+    fld_names = cell(1,n_prop);
+    for i=1:n_prop
+        fld_names{i} = varargin{2*(i-1)+1};
+        data_to_save.(fld_names{i})=varargin{2*(i-1)+2};
+    end
+    if numel(fld_names) == 1 && ~isempty(config_class.mem_only_prop_list)
+        do_not_save = ismember(fld_names,config_class.mem_only_prop_list);
     end
 else % defaults
     data_to_save = config_class.get_data_to_store();
@@ -46,10 +52,10 @@ data_changed = ~was_in_memory || ...  % if true, second check is not performed
 if data_changed
     obj.config_storage_.(class_name)  = data_to_save;
 end
-config_class.warn_if_missing_config = true;
 if do_not_save
     return;
 end
+%
 if ~isempty(config_class.mem_only_prop_list)
     mem_prop = config_class.mem_only_prop_list;
     for i = 1:numel(mem_prop)

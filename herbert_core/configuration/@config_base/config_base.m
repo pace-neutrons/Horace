@@ -56,19 +56,12 @@ classdef config_base
     properties(Dependent,Hidden)
         % defines the list of properties, which never stored on HDD and
         % exist in memory only.
-        %
         % To define such properties, the child class should add the name of
-        % the property to this list and define setters/getters for this
-        % property using modified get/set operator e.g.:
-        %function up = get.unsaveable_property(obj)
-        %    up = get_or_restore_field(obj,'unsaveable_property',false);
-        %end
-        %function obj = set.unsaveable_property(obj,val)
-        %    config_store.instance().store_config(obj,'unsaveable_property',val,'-no_save');
-        %end
+        % the property to this list.
         mem_only_prop_list;
+
         % if true, issue warning if class have never been configured and
-        % its values are choosen from defaults
+        % its values are choosen from defaults.
         warn_if_missing_config
     end
 
@@ -196,14 +189,11 @@ classdef config_base
         end
 
         %------------------------------------------------------------------
-        function value =get_or_restore_field(obj,field_name,warn_if_missing)
+        function value =get_or_restore_field(obj,field_name)
             % method to restore value from config_store if available or
             % take default value from the class defaults if not
 
             % the method is used as the part of a standard derived class getter.
-            if nargin <3
-                warn_if_missing = obj.warn_if_missing_config;
-            end
 
             if obj.returns_defaults
                 value = get_default_value(obj,field_name);
@@ -212,7 +202,7 @@ classdef config_base
                 % if class have never been stored in configuration, it
                 % will return defaults
                 value = config_store.instance.get_config_field( ...
-                    obj,warn_if_missing,field_name);
+                    obj,field_name);
             end
         end
 

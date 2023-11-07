@@ -80,16 +80,12 @@ classdef config_store < handle
             % if option -forcesave (or -force is provided) file is saved
             % into disc regardless of its status in memory
 
-            options={'-forcesave','-no_save'};
-            [ok,mess,force_save,do_not_save,other_options]=parse_char_options(varargin,options);
+            options={'-forcesave'};
+            [ok,mess,force_save,argi]=parse_char_options(varargin,options);
             if ~ok
                 error('HERBERT:config_store:invalid_argument',mess);
             end
-            if force_save && do_not_save
-                error('HERBERT:config_store:invalid_argument', ...
-                    '-forcesave and -no_save keys can not be provided together');
-            end
-            store_config_(obj,config_class,force_save,do_not_save,other_options{:});
+            store_config_(obj,config_class,force_save,argi{:});
         end
         %------------------------------------------------------------------
         function   varargout = get_value(obj,class_name_or_inst,varargin)
@@ -107,14 +103,13 @@ classdef config_store < handle
             %       config_store.instance().get_value(class_name,...
             %                               property_name1,property_name2,property_name3);
             %
-            out = get_config_field_(obj,class_name_or_inst,true,varargin{:});
+            out = get_config_field_(obj,class_name_or_inst,varargin{:});
             for i=1:nargout
                 varargout{i} = out{i};
             end
         end
 
-        function  varargout = get_config_field(this,class_to_restore, ...
-                warn_if_missing,varargin)
+        function  varargout = get_config_field(this,class_to_restore, varargin)
             % Returns the values of the requested field(s) from the
             % specified configuration file
             %
@@ -128,9 +123,6 @@ classdef config_store < handle
             % where:
             % config_class -- the configuration class or its name to get
             %                 values from.
-            % warn_if_missing
-            %              -- if true, produce warning if the field is
-            %                 absent in configuration
             % field1,field2, etc...
             %              -- the names of the fields of the above
             %                 class to get their values.
@@ -138,7 +130,7 @@ classdef config_store < handle
             % val1,val2, etc...
             %              -- the values of the requested fields
             %
-            out = get_config_field_(this,class_to_restore,warn_if_missing,varargin{:});
+            out = get_config_field_(this,class_to_restore,varargin{:});
             for i=1:nargout
                 varargout{i} = out{i};
             end
@@ -387,15 +379,12 @@ classdef config_store < handle
         end
 
         function obj = save_config(obj,class_name,data_to_save)
-            % save config class intormaion the appropriate config file
+            % save config class information the appropriate config file
             if ~exist('data_to_save','var')
                 data_to_save = obj.config_storage_.(class_name);
             end
             filename = fullfile(obj.config_folder,[class_name,'.mat']);
-            [ok,mess]=save_config(filename,data_to_save);
-            if ~ok
-                error('HERBERT:config_store:io_error',mess);
-            end
+            save_config(filename,data_to_save);
         end
     end
 

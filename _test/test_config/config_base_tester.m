@@ -50,10 +50,10 @@ classdef config_base_tester <config_base
 
     methods % unsaveable property
         function up = get.unsaveable_property(obj)
-            up = get_or_restore_field(obj,'unsaveable_property',false);
+            up = get_or_restore_field(obj,'unsaveable_property');
         end
         function obj = set.unsaveable_property(obj,val)
-            config_store.instance().store_config(obj,'unsaveable_property',val,'-no_save');
+            config_store.instance().store_config(obj,'unsaveable_property',val);
         end
     end
 end

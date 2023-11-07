@@ -182,7 +182,7 @@ classdef test_config_store < TestCase
             config_store.instance().clear_config(tsc1)
             assertFalse(config_store.instance().is_configured(tsc1,'-in_mem'));
 
-            wc=warning('off','HERBERT:config_store:runtime_error');
+            wc=warning('off','HERBERT:config_store:outdated_configuration');
             tsc1a=config_store.instance().get_config(tsc1);
             warning(wc);
 
@@ -244,7 +244,7 @@ classdef test_config_store < TestCase
             assertFalse(is_file(config_file));
 
         end
-        function test_restore_some_fields(this)
+        function test_restore_some_fields(~)
             % set up
             tsc = some_test_class2();
             config_store.instance().clear_config(tsc)
@@ -259,25 +259,25 @@ classdef test_config_store < TestCase
             % testing
             config_store.instance().store_config(tsc,'a','new_val');
 
-            a_val = config_store.instance().get_config_field(tsc,true,'a');
+            a_val = config_store.instance().get_config_field(tsc,'a');
             assertEqual('new_val',a_val);
 
             config_store.instance().store_config(tsc,'b','meee');
 
-            [a_val,b_val,c_val] = config_store.instance().get_config_field(tsc,true,'a','b','c');
+            [a_val,b_val,c_val] = config_store.instance().get_config_field(tsc,'a','b','c');
             assertEqual('new_val',a_val);
             assertEqual('meee',b_val);
             assertEqual('other_property',c_val);
 
             config_store.instance().clear_config(tsc)
-            [b_val,c_val] = config_store.instance().get_config_field(tsc,true,'b','c','a');
+            [b_val,c_val] = config_store.instance().get_config_field(tsc,'b','c','a');
             assertEqual('meee',b_val);
             assertEqual('other_property',c_val);
 
             config_store.instance().clear_config(tsc)
             config_store.instance().store_config(tsc,'c',100);
 
-            c_val = config_store.instance().get_config_field(tsc,true,'c');
+            c_val = config_store.instance().get_config_field(tsc,'c');
             assertEqual(100,c_val);
             %
             config_store.instance().clear_config(tsc,'-file')
