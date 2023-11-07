@@ -103,7 +103,7 @@ classdef config_store < handle
             %       config_store.instance().get_value(class_name,...
             %                               property_name1,property_name2,property_name3);
             %
-            out = get_config_field_(obj,class_name_or_inst,varargin{:});
+            out = get_config_field_value_(obj,class_name_or_inst,varargin{:});
             for i=1:nargout
                 varargout{i} = out{i};
             end
@@ -130,7 +130,7 @@ classdef config_store < handle
             % val1,val2, etc...
             %              -- the values of the requested fields
             %
-            out = get_config_field_(this,class_to_restore,varargin{:});
+            out = get_config_field_value_(this,class_to_restore,varargin{:});
             for i=1:nargout
                 varargout{i} = out{i};
             end
