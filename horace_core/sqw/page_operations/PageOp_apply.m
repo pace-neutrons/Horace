@@ -34,7 +34,10 @@ classdef PageOp_apply < PageOp_sqw_eval
             %
             obj.compute_variance = compute_variance;
             obj.changes_pix_only = ~recompute_bins;
-            if ~obj.changes_pix_only
+            if obj.changes_pix_only
+                obj.split_at_bin_edges = false;
+            else
+                obj.split_at_bin_edges = true;
                 obj.var_acc_ = zeros(numel(obj.npix),1);
             end
         end

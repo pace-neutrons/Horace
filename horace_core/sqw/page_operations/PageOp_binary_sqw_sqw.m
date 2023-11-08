@@ -38,7 +38,9 @@ classdef PageOp_binary_sqw_sqw < PageOp_bin_Base
             end
 
             if numel(obj.npix) == 1 % usually pixel-only operations or d0d
-                obj.scalar_input_ = true;
+                obj.split_at_bin_edges = false;
+            else
+                obj.split_at_bin_edges = true;                
             end
             obj.sort_pixels_in_bins = config_store.instance().get_value( ...
                 'hpc_config','sort_pix_in_binary_op');

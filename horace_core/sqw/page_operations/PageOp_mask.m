@@ -29,6 +29,7 @@ classdef PageOp_mask < PageOpBase
         function obj = PageOp_mask(varargin)
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'masking';
+            obj.split_at_bin_edges = true;
         end
 
         function obj = init(obj,in_obj,keep_info)
@@ -128,13 +129,9 @@ classdef PageOp_mask < PageOpBase
             signal = obj.page_data_(obj.signal_idx,:);
             error  = obj.page_data_(obj.var_idx,:);
             % update image accumulators:
-            [s_ar, e_ar] = compute_bin_data(npix_block,signal,error,true);
-            obj.npix_acc(npix_idx(1):npix_idx(2))    = ...
-                obj.npix_acc(npix_idx(1):npix_idx(2)) + npix_block(:);
-            obj.sig_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.sig_acc_(npix_idx(1):npix_idx(2)) + s_ar(:);
-            obj.var_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.var_acc_(npix_idx(1):npix_idx(2)) + e_ar(:);
+            obj = obj.update_img_accumulators(npix_block,npix_idx, ...
+                signal,error);
+            obj.npix_acc(npix_idx(1):npix_idx(2))    = npix_block(:);
         end
         %
         function [out_obj,obj] = finish_op(obj,out_obj)

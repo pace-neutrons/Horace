@@ -10,6 +10,7 @@ classdef PageOp_noisify < PageOpBase
         function obj = PageOp_noisify(varargin)
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'noisify';
+            obj.split_at_bin_edges = false;
         end
         function obj = init(obj,sqw_obj,varargin)
             obj           = init@PageOpBase(obj,sqw_obj);
@@ -27,12 +28,8 @@ classdef PageOp_noisify < PageOpBase
             obj.page_data_(obj.signal_idx,:)   = signal(:)';
             obj.page_data_(obj.var_idx,:)      = var(:)';
 
-            [img_signal,img_var] = compute_bin_data(npix_block,signal,var,true);
-            obj.sig_acc_(npix_idx(1):npix_idx(2)) = ...
-                obj.sig_acc_(npix_idx(1):npix_idx(2))+img_signal(:);
-            obj.var_acc_(npix_idx(1):npix_idx(2)) = ...
-                obj.var_acc_(npix_idx(1):npix_idx(2))+img_var(:);
-
+            obj = obj.update_img_accumulators(npix_block,npix_idx, ...
+                signal,var);
         end
         function [out_obj,obj] = finish_op(obj,out_obj)
             % Complete image modifications:

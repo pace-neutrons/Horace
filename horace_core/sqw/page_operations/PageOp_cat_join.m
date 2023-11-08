@@ -1,36 +1,51 @@
 classdef PageOp_cat_join < PageOpBase
-    % Single page pixel operation used by
-    % cat/join operations.
+    % Single page pixel operation and main gateway for 
+    % cat/join/combine_sqw algorithms.
     %
     %
     properties
-        % accumulator for reduced number of pixels
-        npix_acc;
-        % as this method modifies pixels, it may remove some run_id-s
-        % we need to check unique runid (see parent for exp_modified property)
-        check_runid
+        % list of the input objects to process. The objects may be
+        % PixelData, sqw objects or list of files, containing sqw objects
+        in_objects
     end
     properties(Dependent)
-        % number of pixels in the masked dataset
-        num_pix_original;
-        % number of bins in the masked dataset
-        num_bins;
+        %==================================================================
+        % Pixels are normally distributed on file and in memory according
+        % to image bins and the distribution is described by npix array.
+        % These properties, if defined, describe the npix array location
+        % within the binary file and used for concatenating pixels
+        % located in mutiple files into single block of data using external
+        % C++ application (or MATLAB mex code)
+        npix_block_pos    % location in bytes from the beginning of binary file
     end
 
     methods
         function obj = PageOp_cat_join(varargin)
             obj = obj@PageOpBase(varargin{:});
-            obj.op_name_ = 'cat_join';
+            obj.op_name_ = 'cat|join';
         end
 
-        function obj = init(obj,varargin)
-            in_obj = obj.check_and_combine_images(varargin{:});
+        function obj = init(obj,targ_img,varargin)
+            % Initialize cat operation:
+            %
+            if isempty(targ_img)
+                in_obj = obj.check_and_combine_images(varargin{:});
+            elseif isnumeric(targ_img) % cat for pixels only, may be with
+                % npix distribution
+                obj.npix = targ_img(:);
+                [pf,mem_chunk_size] = config_store.instance().get_value( ...
+                    'hor_config','mem_chunk_size','fb_scale_factor');
+                fb_pix_limit = pf*mem_chunk_size;
+                if sum(obj.npix(:)) > fb_pix_limit
+                    in_obj = PixelDataFileBacked();
+                else
+                    in_obj = PixelDataMemory();                    
+                end
+            end
             obj = init@PageOpBase(obj,in_obj);
 
             if ~isempty(obj.img_)
                 obj.var_acc_ = zeros(numel(obj.img_.npix),1);
-                obj.npix_acc = zeros(numel(obj.img_.npix),1);
-                obj.check_runid = true;
             else
                 % if we work with pixels only, we do not need to check
                 % runid.
@@ -46,7 +61,7 @@ classdef PageOp_cat_join < PageOpBase
             obj.pix_.page_num = idx;
             obj.page_data_ = obj.pix_.data;
         end
-        
+
         function obj = apply_op(obj,npix_block,npix_idx)
 
             % keep what is selected
@@ -91,21 +106,13 @@ classdef PageOp_cat_join < PageOpBase
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
 
         end
-        %------------------------------------------------------------------
-        function np = get.num_pix_original(obj)
-            np = obj.pix_.num_pixels;
-        end
-        function nb = get.num_bins(obj)
-            nb = numel(obj.npix);
-        end
         %
     end
-    methods(Access=protected)
-        function is = get_exp_modified(obj)
-            % getter for exp_modified property, which saves modified
-            % Experiment if set to true
-            is = obj.old_file_format_||obj.check_runid;
-        end
-    end
+    methods(Static)
+            function in_obj = check_and_combine_images(varargin)
+                % run through all concatenating objects, evaluate size of
+                % add all their images together and 
+            end
 
+    end
 end

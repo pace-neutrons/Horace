@@ -33,11 +33,8 @@ classdef PageOp_recompute_bins < PageOpBase
             signal = obj.page_data_(obj.signal_idx,:);
             error  = obj.page_data_(obj.var_idx,:);
             % update image accumulators:
-            [s_ar, e_ar] = compute_bin_data(npix_block,signal,error,true);
-            obj.sig_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.sig_acc_(npix_idx(1):npix_idx(2)) + s_ar(:);
-            obj.var_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.var_acc_(npix_idx(1):npix_idx(2)) + e_ar(:);
+            obj = obj.update_img_accumulators(npix_block,npix_idx, ...
+                signal,error);            
         end
         %
         function [out_obj,obj] = finish_op(obj,in_obj)
