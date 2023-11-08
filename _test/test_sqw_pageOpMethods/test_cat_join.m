@@ -67,12 +67,13 @@ classdef test_cat_join < TestCase
             assertEqual(combined_pix.data, ...
                 horzcat(pix_data_obj1.data, pix_data_obj2.data));
         end
-		
+
 
         function delete(obj)
             warning(obj.warning_cache);
             del_memmapfile_files(obj.tst_sqw_file_full_path);
         end
+    end
 
     % -- Helpers --
     methods(Static, Access=private)

@@ -1,12 +1,21 @@
 classdef PageOp_cat_join < PageOpBase
-    % Single page pixel operation and main gateway for 
+    % Single page pixel operation and main gateway for
     % cat/join/combine_sqw algorithms.
     %
     %
     properties
         % list of the input objects to process. The objects may be
         % PixelData, sqw objects or list of files, containing sqw objects
-        in_objects
+        in_objects;
+    end
+    properties(Access = protected)
+        % cellarray of npix distributions, every input object has
+        in_npix
+        % cellarray of chunk arrays every object is split into
+        in_ob_chunks;
+        % array of initial positions of each pix block
+        pix_idx_starts_
+
     end
     properties(Dependent)
         %==================================================================
@@ -23,6 +32,7 @@ classdef PageOp_cat_join < PageOpBase
         function obj = PageOp_cat_join(varargin)
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'cat|join';
+            obj.split_at_bin_edges = true;
         end
 
         function obj = init(obj,targ_img,varargin)
@@ -39,8 +49,9 @@ classdef PageOp_cat_join < PageOpBase
                 if sum(obj.npix(:)) > fb_pix_limit
                     in_obj = PixelDataFileBacked();
                 else
-                    in_obj = PixelDataMemory();                    
+                    in_obj = PixelDataMemory();
                 end
+                obj = obj.set_pix_data_obj(varargin{:});
             end
             obj = init@PageOpBase(obj,in_obj);
 
@@ -53,14 +64,27 @@ classdef PageOp_cat_join < PageOpBase
             end
         end
 
-        function obj = get_page_data(obj,idx,varargin)
+        function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation
             %
             % This is most common form of the operation. Some operations
             % will request overloading
-            obj.pix_.page_num = idx;
-            obj.page_data_ = obj.pix_.data;
+            npix_tot = sum(npix_blocks(idx));
+            obj.page_data_ = zeros(,npix_tot);
+            if obj.split_at_bin_edges_
+                % knowlege of all pixel coordinates in a cell.
+                npix_block    = npix_blocks{idx};
+                npix_in_block = sum(npix_block(:));
+                pix_idx_end   = obj.pix_idx_starts_+npix_in_block-1;
+                obj.page_data_ = obj.pix_.get_pixels( ...
+                    obj.pix_idx_starts_:pix_idx_end,'-raw');
+                obj.pix_idx_starts_ = pix_idx_end+1;
+            else
+                obj.pix_.page_num = idx;
+                obj.page_data_ = obj.pix_.data;
+            end
         end
+
 
         function obj = apply_op(obj,npix_block,npix_idx)
 
@@ -108,11 +132,19 @@ classdef PageOp_cat_join < PageOpBase
         end
         %
     end
-    methods(Static)
-            function in_obj = check_and_combine_images(varargin)
-                % run through all concatenating objects, evaluate size of
-                % add all their images together and 
+    methods(Access=protected)
+        function obj = set_pix_data_obj(obj,varargin)
+            % process and prepare for operations input array of pixel data
+            % objects
+            n_inputs = numel(varargin);
+            obj.in_objects = cell(1,n_inputs);
+            obj.in_npix = cell(1,n_inputs);
+            obj.pix_idx_starts_ = ones(1,n_inputs);
+            for i=1:n_inputs
+                obj.in_objects{i}  = varargin{i};
+                obj.obj.in_npix{i} = varargin{i}.num_pixels;
             end
+        end
 
     end
 end
