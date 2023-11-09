@@ -33,7 +33,7 @@ classdef IX_data_3d < IX_dataset
     %   z_axis              IX_axis          |- same as above but for z-axis
     %   z_distribution      logical         -|
     properties(Dependent)
-        % x - vector of bin boundaries for histogram data or bin centres
+        % x - vector of bin boundaries for histogram data or bin centers
         % for distribution
         x
         % x_axis -- IX_axis class containing x-axis caption
@@ -41,7 +41,7 @@ classdef IX_data_3d < IX_dataset
         % x_distribution -- an identifier, stating if the x-data contain
         % points or distribution in x-direction
         x_distribution;
-        % y - vector of bin boundaries for histogram data or bin centres
+        % y - vector of bin boundaries for histogram data or bin centers
         % for distribution in y-direction
         y
         % y_axis -- IX_axis class containing y-axis caption
@@ -49,7 +49,7 @@ classdef IX_data_3d < IX_dataset
         % y_distribution -- an identifier, stating if the y-data contain
         % points or distribution in y-direction
         y_distribution;
-        % z - vector of bin boundaries for histogram data or bin centres
+        % z - vector of bin boundaries for histogram data or bin centers
         % for distribution in z-direction
         z
         % z_axis -- IX_axis class containing z-axis caption
@@ -118,8 +118,8 @@ classdef IX_data_3d < IX_dataset
             obj.xyz_axis_(1) = obj.check_and_build_axis(val);
         end
         function obj = set.x_distribution(obj,val)
-            % TODO: should setting it to true/false involve changing x from
-            % distribution to bin centres and v.v.?
+            % TODO: should setting it to true/false involve chaning x from
+            % disrtibution to bin centers and v.v.?
             obj.xyz_distribution_(1) = logical(val);
         end
         %-----------------------------------------------------------------
@@ -142,8 +142,8 @@ classdef IX_data_3d < IX_dataset
             end
         end
         function obj = set.y_distribution(obj,val)
-            % TODO: should setting it to true/false involve changing y from
-            % distribution to bin centres and v.v.? + signal changes
+            % TODO: should setting it to true/false involve chaning y from
+            % disrtibution to bin centers and v.v.? + signal changes
             obj.xyz_distribution_(2) = logical(val);
         end
         function obj = set.y_axis(obj,val)
@@ -169,8 +169,8 @@ classdef IX_data_3d < IX_dataset
             end
         end
         function obj = set.z_distribution(obj,val)
-            % TODO: should setting it to true/false involve changing y from
-            % distribution to bin centres and v.v.? + signal changes
+            % TODO: should setting it to true/false involve chaning y from
+            % disrtibution to bin centers and v.v.? + signal changes
             obj.xyz_distribution_(3) = logical(val);
         end
         function obj = set.z_axis(obj,val)

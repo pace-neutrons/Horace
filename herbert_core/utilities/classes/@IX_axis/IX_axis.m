@@ -40,7 +40,7 @@ classdef IX_axis < serializable
             % Setting custom tick positions and labels
             %   >> w = IX_axis (...,vals)           % positions
             %   >> w = IX_axis (...,vals,labels)    % positions and labels
-            %   >> w = IX_axis (...,ticks)          % structure with position and tick labels
+            %   >> w = IX_axis (...,ticks)          % strucutre with position and tick labels
             %
             if nargin > 0
                 axis = buildIX_axis_(axis,varargin{:});

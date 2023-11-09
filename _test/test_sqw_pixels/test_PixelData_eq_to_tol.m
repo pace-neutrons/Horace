@@ -46,8 +46,8 @@ classdef test_PixelData_eq_to_tol < TestCase
 
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 10;
-            pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            [pix2,~,clOb] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix1 = get_pix_with_fake_faccess(data, npix_in_page);
+            [pix2,~,clOb] = get_pix_with_fake_faccess(data, npix_in_page);
 
             assertTrue(equal_to_tol(pix1, pix2));
             assertTrue(equal_to_tol(pix2, pix1));
@@ -60,8 +60,8 @@ classdef test_PixelData_eq_to_tol < TestCase
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 10;
             tol = 0.1;
-            pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            [pix2,~,clOb] = obj.get_pix_with_fake_faccess(data - (tol - 0.01), npix_in_page);
+            pix1 = get_pix_with_fake_faccess(data, npix_in_page);
+            [pix2,~,clOb] = get_pix_with_fake_faccess(data - (tol - 0.01), npix_in_page);
 
             assertTrue(equal_to_tol(pix1, pix2, tol));
             assertTrue(equal_to_tol(pix2, pix1, tol));
@@ -76,8 +76,8 @@ classdef test_PixelData_eq_to_tol < TestCase
             data2(11) = 0.9;
             npix_in_page = 10;
 
-            pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            [pix2,~,clOb] = obj.get_pix_with_fake_faccess(data2, npix_in_page);
+            pix1 = get_pix_with_fake_faccess(data, npix_in_page);
+            [pix2,~,clOb] = get_pix_with_fake_faccess(data2, npix_in_page);
             assertFalse(equal_to_tol(pix1, pix2));
             assertFalse(equal_to_tol(pix2, pix1));
         end
@@ -91,7 +91,7 @@ classdef test_PixelData_eq_to_tol < TestCase
             npix_in_page = 6;
 
             pix1 = PixelDataBase.create(data);
-            [pix2,~,clOb] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix2,~,clOb] = get_pix_with_fake_faccess(data, npix_in_page);
             assertTrue(equal_to_tol(pix1, pix2));
             assertTrue(equal_to_tol(pix2, pix1));
         end
@@ -104,7 +104,7 @@ classdef test_PixelData_eq_to_tol < TestCase
             npix_in_page = 6;
 
             pix1 = PixelDataBase.create(data);
-            [pix2,~,clOb] = obj.get_pix_with_fake_faccess(data-1, npix_in_page);
+            [pix2,~,clOb] = get_pix_with_fake_faccess(data-1, npix_in_page);
             assertFalse(equal_to_tol(pix1, pix2));
             assertFalse(equal_to_tol(pix2, pix1));
         end
@@ -130,13 +130,6 @@ classdef test_PixelData_eq_to_tol < TestCase
     end
 
     methods (Static)
-        % -- Helpers --
-        function [pix,pix_range,clOb] = get_pix_with_fake_faccess(data, npix_in_page)
-            clOb = set_temporary_config_options(hor_config(),'mem_chunk_size',npix_in_page);
-            pix = PixelDataFileBacked(data);
-            pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
-        end
-
         function ref_range = get_ref_range(data)
             ref_range = [
                 min(data,[],2),...
