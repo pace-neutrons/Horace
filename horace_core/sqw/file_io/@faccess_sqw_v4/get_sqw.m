@@ -68,18 +68,44 @@ end
 [obj,sqw_skel] = obj.get_all_blocks(sqw_skel,'ignore_blocks',skip_blocks);
 
 if ~(opts.head || opts.his)
-    detpar = sqw_skel.detpar;
-    if ~isempty(detpar) && ~isempty(detpar.group)
-        detpar = IX_detector_array(detpar);
-    else
-        detpar = IX_detector_array();
-    end
-    %detpar = repmat(detpar,numel(sqw_skel.experiment_info.expdata),1);
+    % fill .data
     sqw_skel.data = DnDBase.dnd(sqw_skel.data.metadata,sqw_skel.data.nd_data);
-    sqw_skel.experiment_info = Experiment([],sqw_skel.experiment_info.instruments, ...
-        sqw_skel.experiment_info.samples,sqw_skel.experiment_info.expdata);
-    sqw_skel.experiment_info.detector_arrays = ...
-        sqw_skel.experiment_info.detector_arrays.add_copies_(detpar, numel(sqw_skel.experiment_info.expdata));
+    
+    % reconcile detpar and detector arrays - 
+    % the save/load cycle for v4 may have detector_arrays occupied but
+    % detpar empty.  Alternatively an older saved file may have no detector
+    % arrays but info for a single detector in detpar.
+    % sanity check detpar and detector_arrays 
+    n_runs = numel(sqw_skel.experiment_info.expdata);
+    detpar = sqw_skel.detpar;
+    if ~isempty(detpar) && ~IX_detector_array.check_detpar_parms(detpar)
+        error('faccess_sqw_v4:get_sqw:invalid_argument', ...
+              'input detpar has incorrect structure');
+    end
+    detarrays = sqw_skel.experiment_info.detector_arrays;
+    if detarrays.n_runs ~= n_runs
+        error('faccess_sqw_v4:get_sqw:invalid_argument', ...
+              'input detector arrays have incorrect size');
+    end
+    % case : no detpar, detector_arrays full
+    %      : make detpar an empty detector array
+    if isempty(detpar) && detarrays.n_runs > 0
+        detpar = detarrays{1}.det_bank(1).detpar;
+    % case : detpar is not empty but there is nothing in detector_arrays
+    %      : fill detarrays with converted detpar
+    elseif ~isempty(detpar) && detarrays.n_runs == 0    
+        if ~isempty(detpar) && ~isempty(detpar.group)
+            detarr = IX_detector_array(detpar);
+        else
+            detarr = IX_detector_array();
+        end
+        detarrays = detarrays.add_copies(detarr,n_runs);
+    end
+    sqw_skel.experiment_info = Experiment(detarrays, ...
+                                          sqw_skel.experiment_info.instruments, ...
+                                          sqw_skel.experiment_info.samples,     ...
+                                          sqw_skel.experiment_info.expdata);
+    sqw_skel.detpar = detpar;
 end
 
 

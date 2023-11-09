@@ -1,5 +1,6 @@
 function [sqw_object,varargout] = get_sqw(obj, varargin)
-% Load an sqw file from disk
+% Load an sqw file from disk - common implementation for file access
+% versions up to v3.3. A separate get_sqw version is provided for v4.
 %
 %   >> sqw_object = obj.get_sqw()
 %   >> sqw_object = obj.get_sqw('-h')

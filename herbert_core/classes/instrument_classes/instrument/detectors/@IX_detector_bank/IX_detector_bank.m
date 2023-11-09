@@ -52,6 +52,8 @@ classdef IX_detector_bank < serializable
         % ---------------------------
         % Number of detectors (get access only) (scalar)
         ndet
+        % detpar (read-only: convert to detpar struct)
+        detpar
     end
     
     methods
@@ -229,6 +231,28 @@ classdef IX_detector_bank < serializable
         
         function val = get.ndet(obj)
             val = obj.det_.ndet;
+        end
+        
+        % reconstruct a detpar struct from this bank
+        function val = get.detpar(obj)
+            val = struct();
+            val.group = obj.id_;
+            val.x2    = obj.x2_;
+            val.phi   = obj.phi_;
+            val.azim = obj.azim_;
+            if isempty(obj.det)
+                val.width = [];
+                val.height = [];
+            else
+                if isprop(obj.det,'dia')
+                    val.width = obj.det.dia;
+                else
+                    val.width = obj.det.width;
+                end
+                val.height = obj.det.height;
+            end
+            val.filename = '';
+            val.filepath = '';
         end
         
         %------------------------------------------------------------------
