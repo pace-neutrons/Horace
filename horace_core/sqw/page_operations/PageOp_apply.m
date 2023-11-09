@@ -62,7 +62,7 @@ classdef PageOp_apply < PageOp_sqw_eval
                 return;
             end
             new_signal     = pixpage.signal;
-            % Overload for 
+            % Overload for update_img_accumulators:
             if obj.compute_variance
                 [img_signal,img_var,sig_variance] = compute_bin_data(npix_block,new_signal,[],true);
                 obj.page_data_(obj.var_idx,:)     = sig_variance;
