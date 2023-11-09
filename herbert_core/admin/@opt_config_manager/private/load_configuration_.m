@@ -9,8 +9,7 @@ function obj = load_configuration_(obj,set_config,set_defaults_only,force_save)
 %
 config_file = fullfile(obj.config_info_folder,obj.config_filename);
 if ~(is_file(config_file))
-    warning('HORACE:no_default_configuration', ...
-        'No pre-defined optimal configuration file: %s have been found. Class-default configuration left unchanged',...
+    warning('No existing configuration file %s found. Current configuration left unchanged',...
         config_file)
     return;
 end

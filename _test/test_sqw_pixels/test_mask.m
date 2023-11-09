@@ -1,4 +1,4 @@
-classdef test_mask < TestCase
+classdef test_mask < TestCase & common_pix_class_state_holder
 
     properties
 
