@@ -171,6 +171,26 @@ classdef PageOpBase
             obj = init_(obj,in_obj);
             obj.pix_idx_start_ = 1;
         end
+        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
+            % Method used to split input npix array into pages
+            % Inputs:
+            % npix  -- image npix array, which defines the number of pixels
+            %           contributing into each image bin and the pixels
+            %           ordering in the linear array
+            % chunk_size
+            %       -- sized of chunks to split pixels
+            % Returns:
+            % npix_chunks -- cellarray, containing the npix parts
+            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
+            %                the npix array.
+            % See split procedure for more details
+            if obj.split_at_bin_edges_
+                [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
+            else
+                [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
+            end
+        end
+        
         function obj = common_page_op(obj)
             % Method contains the code which runs for any page operation,
             % inheriting from this one.
@@ -264,25 +284,6 @@ classdef PageOpBase
             [out_obj,obj] = finish_op_(obj,in_obj);
         end
         %
-        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
-            % Method used to split input npix array into pages
-            % Inputs:
-            % npix  -- image npix array, which defines the number of pixels
-            %           contributing into each image bin and the pixels
-            %           ordering in the linear array
-            % chunk_size
-            %       -- sized of chunks to split pixels
-            % Returns:
-            % npix_chunks -- cellarray, containing the npix parts
-            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
-            %                the npix array.
-            % See split procedure for more details
-            if obj.split_at_bin_edges_
-                [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
-            else
-                [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
-            end
-        end
         function print_range_warning(obj,infile_name,is_old_file_format)
             % print the warning informing user that the source file
             % contains invalid data range and file format should be

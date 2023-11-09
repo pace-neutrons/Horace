@@ -17,6 +17,9 @@ classdef PageOp_cat_join < PageOpBase
         pix_idx_starts_
 
     end
+    properties(Constant,Access=private)
+        cat_types = containers.Map({'pix_only'},{1});
+    end
     properties(Dependent)
         %==================================================================
         % Pixels are normally distributed on file and in memory according
@@ -39,10 +42,6 @@ classdef PageOp_cat_join < PageOpBase
             % Initialize cat operation:
             %
             if isempty(targ_img)
-                in_obj = obj.check_and_combine_images(varargin{:});
-            elseif isnumeric(targ_img) % cat for pixels only, may be with
-                % npix distribution
-                obj.npix = targ_img(:);
                 [pf,mem_chunk_size] = config_store.instance().get_value( ...
                     'hor_config','mem_chunk_size','fb_scale_factor');
                 fb_pix_limit = pf*mem_chunk_size;
@@ -50,7 +49,11 @@ classdef PageOp_cat_join < PageOpBase
                     in_obj = PixelDataFileBacked();
                 else
                     in_obj = PixelDataMemory();
-                end
+                end                
+                obj = obj.init_pix_only_data_obj(varargin{:});
+            elseif isnumeric(targ_img) % cat for pixels only, may be with
+                % npix distribution
+                obj.npix = targ_img(:);
                 obj = obj.set_pix_data_obj(varargin{:});
             end
             obj = init@PageOpBase(obj,in_obj);
@@ -63,6 +66,26 @@ classdef PageOp_cat_join < PageOpBase
                 obj.check_runid = false;
             end
         end
+        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
+            % Method used to split input npix array into pages
+            % Inputs:
+            % npix  -- image npix array, which defines the number of pixels
+            %           contributing into each image bin and the pixels
+            %           ordering in the linear array
+            % chunk_size
+            %       -- sized of chunks to split pixels
+            % Returns:
+            % npix_chunks -- cellarray, containing the npix parts
+            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
+            %                the npix array.
+            % See split procedure for more details
+            if obj.split_at_bin_edges_
+                [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
+            else
+                [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
+            end
+        end
+        
 
         function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation
@@ -133,17 +156,21 @@ classdef PageOp_cat_join < PageOpBase
         %
     end
     methods(Access=protected)
-        function obj = set_pix_data_obj(obj,varargin)
+        function obj = init_pix_only_data_obj(obj,varargin)
             % process and prepare for operations input array of pixel data
             % objects
             n_inputs = numel(varargin);
             obj.in_objects = cell(1,n_inputs);
             obj.in_npix = cell(1,n_inputs);
             obj.pix_idx_starts_ = ones(1,n_inputs);
+            npix_tot = 0;
             for i=1:n_inputs
                 obj.in_objects{i}  = varargin{i};
-                obj.obj.in_npix{i} = varargin{i}.num_pixels;
+                npix = varargin{i}.num_pixels;
+                obj.obj.in_npix{i} = npix ;
+                npix_tot = npix_tot + npix;
             end
+            obj.npix = npix_tot;
         end
 
     end
