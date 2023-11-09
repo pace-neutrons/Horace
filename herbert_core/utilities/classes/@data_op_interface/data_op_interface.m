@@ -12,7 +12,7 @@ classdef(Abstract) data_op_interface
         % priorites. If binary operation is performed between objects
         % of operands with different priorities, the result has the type of
         % the higher priority object.
-        bc_priority =       [ 5,    4,            3         ,   2     ,      1 , 0];
+        bc_priority =       [ 5,              4,        3,          2,        1, 0];
     end
     methods
         %------------------------------------------------------------------
