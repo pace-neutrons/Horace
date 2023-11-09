@@ -26,6 +26,8 @@ classdef PageOp_coord_calc < PageOpBase
     methods
         function obj = PageOp_coord_calc(varargin)
             obj = obj@PageOpBase(varargin{:});
+            %
+            obj.split_at_bin_edges = true;            
         end
 
         function obj = init(obj,in_obj,ind)
@@ -41,7 +43,6 @@ classdef PageOp_coord_calc < PageOpBase
             obj.pix_page = PixelDataMemory();
 
             obj.var_acc_ = zeros(numel(obj.npix),1);
-            obj.split_at_bin_edges = true;
         end
 
         function obj = get_page_data(obj,idx,npix_blocks)
@@ -107,11 +108,6 @@ classdef PageOp_coord_calc < PageOpBase
             % update image accumulators (overloaded here):
             obj = update_img_accumulators(obj,npix_block,npix_idx,signal);
 
-        end
-        %
-        function [out_obj,obj] = finish_op(obj,in_obj)
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-            [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
         end
     end
 end

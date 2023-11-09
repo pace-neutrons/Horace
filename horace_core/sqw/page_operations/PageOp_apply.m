@@ -62,7 +62,7 @@ classdef PageOp_apply < PageOp_sqw_eval
                 return;
             end
             new_signal     = pixpage.signal;
-            %
+            % Overload for 
             if obj.compute_variance
                 [img_signal,img_var,sig_variance] = compute_bin_data(npix_block,new_signal,[],true);
                 obj.page_data_(obj.var_idx,:)     = sig_variance;
@@ -72,16 +72,6 @@ classdef PageOp_apply < PageOp_sqw_eval
             end
             obj.sig_acc_(npix_idx(1):npix_idx(2)) = img_signal(:);
             obj.var_acc_(npix_idx(1):npix_idx(2)) = img_var(:);
-
-        end
-
-        function [out_obj,obj] = finish_op(obj,out_obj)
-            % Complete image modifications which would happen only if you
-            % were updating the accumulators
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-
-            % transfer modifications to the underlying object
-            [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
         end
     end
     methods(Access=protected)

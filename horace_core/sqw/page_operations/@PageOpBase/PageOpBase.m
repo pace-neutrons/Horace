@@ -190,7 +190,26 @@ classdef PageOpBase
                 [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
             end
         end
-        
+        %
+        function obj = get_page_data(obj,idx,npix_blocks)
+            % return block of data used in page operation
+            %
+            % This is most common form of the operation. Some operations
+            % will request overloading
+            if obj.split_at_bin_edges_
+                % knowlege of all pixel coordinates in a cell.
+                npix_block    = npix_blocks{idx};
+                npix_in_block = sum(npix_block(:));
+                pix_idx_end   = obj.pix_idx_start_+npix_in_block-1;
+                obj.page_data_ = obj.pix_.get_pixels( ...
+                    obj.pix_idx_start_:pix_idx_end,'-raw');
+                obj.pix_idx_start_ = pix_idx_end+1;
+            else
+                obj.pix_.page_num = idx;
+                obj.page_data_ = obj.pix_.data;
+            end
+        end
+        %        
         function obj = common_page_op(obj)
             % Method contains the code which runs for any page operation,
             % inheriting from this one.
@@ -211,24 +230,6 @@ classdef PageOpBase
             end
             if ~obj.inplace_
                 obj.pix_ = obj.pix_.store_page_data(obj.page_data_,obj.write_handle_);
-            end
-        end
-        function obj = get_page_data(obj,idx,npix_blocks)
-            % return block of data used in page operation
-            %
-            % This is most common form of the operation. Some operations
-            % will request overloading
-            if obj.split_at_bin_edges_
-                % knowlege of all pixel coordinates in a cell.
-                npix_block    = npix_blocks{idx};
-                npix_in_block = sum(npix_block(:));
-                pix_idx_end   = obj.pix_idx_start_+npix_in_block-1;
-                obj.page_data_ = obj.pix_.get_pixels( ...
-                    obj.pix_idx_start_:pix_idx_end,'-raw');
-                obj.pix_idx_start_ = pix_idx_end+1;
-            else
-                obj.pix_.page_num = idx;
-                obj.page_data_ = obj.pix_.data;
             end
         end
         %
@@ -281,6 +282,12 @@ classdef PageOpBase
             % Returns:
             % out_obj -- sqw object created as the result of the operation
             % obj     -- nullified PageOp object.
+
+            % Complete image modifications which would happen only if you
+            % were processing the image and using accumulators
+            obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
+
+            % transfer modifications of new image and pixels to the target object
             [out_obj,obj] = finish_op_(obj,in_obj);
         end
         %

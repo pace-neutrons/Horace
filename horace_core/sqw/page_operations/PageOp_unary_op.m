@@ -11,7 +11,6 @@ classdef PageOp_unary_op < PageOpBase
     methods
         function obj = PageOp_unary_op(varargin)
             obj = obj@PageOpBase(varargin{:});
-
         end
 
         function obj = init(obj,in_obj,operation)
@@ -42,11 +41,6 @@ classdef PageOp_unary_op < PageOpBase
             % update image accumulators:
             obj = obj.update_img_accumulators(npix_block,npix_idx, ...
                 signal,var);
-        end
-        %
-        function [out_obj,obj] = finish_op(obj,in_obj)
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-            [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
         end
     end
 end

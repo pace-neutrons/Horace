@@ -15,8 +15,6 @@ classdef PageOp_bin_Base < PageOpBase
         % function.
     end
     properties(Access = protected)
-        % counter for pixels to start operation from
-        pix_idx_start_ = 1;
         % location of fields, containing all indices defining neutron event
         all_idx_
         % indices of signal and variance fields in pixels
@@ -32,7 +30,7 @@ classdef PageOp_bin_Base < PageOpBase
             obj.sigvar_idx_ = PixelDataBase.field_index('sig_var');
             obj.all_idx_ = PixelDataBase.field_index('all_indexes');
 
-            obj.split_at_bin_edges = true;            
+            obj.split_at_bin_edges = true;
         end
         function [obj,name1_obj] = init(obj,w1,operand,operation,flip,npix)
             obj = init@PageOpBase(obj,w1);
@@ -62,26 +60,6 @@ classdef PageOp_bin_Base < PageOpBase
                 obj.var_acc_ = zeros(numel(obj.npix),1);
             end
             obj.pix_idx_start_ = 1;
-        end
-
-        function [obj,pix_idx] = get_page_data(obj,idx,npix_blocks)
-            % retrieve block of data used in page operation
-            %
-            % Overloaded for dealing with two PixelData objects
-            npix_block = npix_blocks{idx};
-            npix = sum(npix_block(:));
-            pix_idx_end = obj.pix_idx_start_+npix-1;
-
-            pix_idx = obj.pix_idx_start_:pix_idx_end;
-            obj.page_data_ = obj.pix_.get_pixels(pix_idx,'-raw');
-
-            obj.pix_idx_start_ = pix_idx_end+1;
-        end
-        %
-        %
-        function [out_obj,obj] = finish_op(obj,in_obj)
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-            [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
         end
         %
         function obj = set_op_name(obj,obj1_name,obj2_name)

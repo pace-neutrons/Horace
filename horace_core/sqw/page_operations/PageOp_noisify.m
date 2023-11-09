@@ -31,13 +31,6 @@ classdef PageOp_noisify < PageOpBase
             obj = obj.update_img_accumulators(npix_block,npix_idx, ...
                 signal,var);
         end
-        function [out_obj,obj] = finish_op(obj,out_obj)
-            % Complete image modifications:
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-
-            % transfer modifications to the underlying object
-            [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
-        end
         %
         function print_range_warning(obj,infile_name,is_old_file_format)
             % print missing range message specific for noisify function.

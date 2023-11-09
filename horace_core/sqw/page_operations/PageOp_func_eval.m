@@ -6,10 +6,10 @@ classdef PageOp_func_eval < PageOpBase
         function obj = PageOp_func_eval(varargin)
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'func_eval';
+            obj.split_at_bin_edges = true;            
         end
         function obj = init(obj,sqw_obj)
             obj  = init@PageOpBase(obj,sqw_obj);
-            obj.split_at_bin_edges = true;
             %
         end
 
@@ -21,6 +21,7 @@ classdef PageOp_func_eval < PageOpBase
 
         function [out_obj,obj] = finish_op(obj,out_obj)
             % transfer modifications to the underlying object
+            % Image updated above
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
         end
 

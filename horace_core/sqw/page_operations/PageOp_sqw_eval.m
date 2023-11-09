@@ -24,7 +24,9 @@ classdef PageOp_sqw_eval < PageOpBase
             obj.average   = average;
             obj.op_holder = operation;
             obj.op_parms  = op_param;
+            %--------------------------------------------------------------
             obj.split_at_bin_edges = obj.average;
+            %--------------------------------------------------------------            
             %
             if isa(sqw_obj,'sqw') % non-sqw impossible for sqw_eval but may
                 % be necessary for children (generic apply)
@@ -61,7 +63,6 @@ classdef PageOp_sqw_eval < PageOpBase
 
             % transfer modifications to the underlying object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
-            obj.pix_idx_start_ = 1;
         end
 
     end
