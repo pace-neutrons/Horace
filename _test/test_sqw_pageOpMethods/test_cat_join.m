@@ -68,7 +68,6 @@ classdef test_cat_join < TestCase
                 horzcat(pix_data_obj1.data, pix_data_obj2.data));
         end
 
-
         function delete(obj)
             warning(obj.warning_cache);
             del_memmapfile_files(obj.tst_sqw_file_full_path);
