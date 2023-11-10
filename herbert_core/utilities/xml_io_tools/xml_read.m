@@ -92,11 +92,7 @@ RootName        = [];
 
 %% Check Matlab Version
 v = ver('MATLAB');
-vs = regexp(v.Version, '\d\d.\d','match','once'); % new Matlab after 2023a
-if isempty(vs)
-    vs = regexp(v.Version, '\d.\d','match','once'); % Matlab before 2023a    
-end
-version = str2double(vs);
+version = str2double(regexp(v.Version, '\d.\d','match','once'));
 if (version<7.1)
   error('Your MATLAB version is too old. You need version 7.1 or newer.');
 end

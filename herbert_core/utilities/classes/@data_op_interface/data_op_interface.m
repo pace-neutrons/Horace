@@ -7,12 +7,13 @@ classdef(Abstract) data_op_interface
     properties(Constant,Access = private)
         % list of classes which have binary operations redefined.
         base_classes   = {'sqw','PixelDataBase','DnDBase','IX_dataset','sigvar','numeric'};
-        % priorities of the base_classes. The actual priorities are
-        % modified by presence of pixels and image, which increases
-        % priorites. If binary operation is performed between objects
-        % of operands with different priorities, the result has the type of
-        % the higher priority object.
-        bc_priority =       [ 5,    4,            3         ,   2     ,      1 , 0];
+        % Base priorities of the base_classes used to determine the type of
+        % result of binary operations. The actual priority is calculated
+        % from the base priority by adding points for presence of pixels
+        % (+100) and image (+10) giving final score (priority) for an object.
+        % If binary operation is performed between operands with different
+        % priorities, the result has the type of the higher priority object.
+        bc_priority =       [ 5,              4,        3,          2,        1,  0];
     end
     methods
         %------------------------------------------------------------------

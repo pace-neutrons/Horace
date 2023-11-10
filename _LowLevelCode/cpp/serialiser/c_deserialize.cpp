@@ -316,7 +316,7 @@ mxArray* deserialize(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
         else {
             deser(data, memPtr, &nFields, types_size[UINT32]);
             fNameLens.resize(nFields);
-            deser(data, memPtr, fNameLens, nFields* types_size[UINT32]);
+            deser(data, memPtr, fNameLens, nFields * types_size[UINT32]);
         }
 
         std::vector<std::vector<char>> fNames(nFields);
@@ -329,7 +329,11 @@ mxArray* deserialize(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
         }
 
         output = mxCreateStructArray(nDims, dims, nFields, (const char**)mxData.data());
-        if (nFields == 0) break;
+
+        // If no fields, no cellData bit to read.
+        if (!nFields) {
+          break;
+        }
 
         mxArray* cellData = deserialize(data, memPtr, size, 1);
 

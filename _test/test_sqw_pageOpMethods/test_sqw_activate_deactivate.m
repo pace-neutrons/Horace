@@ -1,5 +1,5 @@
 classdef test_sqw_activate_deactivate< TestCase
-    % Series of tests to check work of mex files against MATLAB files
+    % Series of tests to check work of mex files against Matlab files
 
     properties
         out_dir = tmp_dir();
