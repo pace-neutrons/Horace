@@ -53,24 +53,25 @@ classdef PageOp_cat_join < PageOpBase
             % general case, where npix describes the distribution of pixels
             % over bins, here each npix element contains number of pixels
             % in input pixel dataset and idx define how many datasets the
-            % pixels occupy.
+            % page of pixels occupy.
             %
-
-
             chunks  = npix_blocks{page_idx};
             n_chunks = numel(chunks);
             npix_idx = obj.block_chunks_(page_idx); % first and last index of the block within the npix array
             if n_chunks == 1 % one or more obj.page_data_ per PixelData object
                 pix_idx_start = obj.pix_block_start_(npix_idx(1));
-                pix_idx_end   = pix_idx_start+chunks(1)-1;
+                pix_idx_end   = pix_idx_start+chunks - 1;
                 obj.pix_block_start_(npix_idx(1)) = pix_idx_start+pix_idx_end+1;
                 obj.page_data_ = obj.in_objects{npix_idx(1)}.get_pixels( ...
                     obj.pix_idx_starts_:pix_idx_end,'-raw');                
             else % more then one PixelData object per obj.page_data_
                 obj.page_data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,obj.page_size_);                
                 pix_idx_start = obj.pix_block_start_(npix_idx(1));
+                n_accessor = npix_idx(1,page_idx):npix_idx(2,page_idx);
                 for i=1:n_chunks
-                    edn
+                    accessor = obj.in_objects{n_accessor(i)};
+                    pix_idx
+                end
             end
 
             for i=1:n_chunks

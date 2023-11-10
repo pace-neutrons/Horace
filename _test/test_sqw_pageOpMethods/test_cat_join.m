@@ -16,7 +16,6 @@ classdef test_cat_join < TestCase
             'run_idx', 'detector_idx', 'energy_idx', 'signal', ...
             'variance'};
 
-        warning_cache;
         working_test_file
     end
 
@@ -34,7 +33,6 @@ classdef test_cat_join < TestCase
 
         function obj = test_cat_join(~)
             obj = obj@TestCase('test_cat_join');
-            obj.warning_cache = warning('off','HORACE:old_file_format');
 
             obj.raw_pix_range = obj.get_ref_range(obj.raw_pix_data);
 
