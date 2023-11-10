@@ -2,7 +2,7 @@ function obj = sqw_eval_pix(obj, sqwfunc, ave_pix, pars, outfile)
 %==================================================================================================
 % SQW_EVAL_PIX
 %
-% Helper function for sqw eval executed on a full sqw object containing
+% Helper function for sqw_eval executed on a full sqw object containing
 % pixels
 %
 % Called by `sqw_eval` defined in sqw/DnDBase
@@ -26,4 +26,4 @@ if ~isempty(outfile)
 end
 eval_op = eval_op.init(obj,sqwfunc,pars,ave_pix);
 
-obj = obj.apply_op(eval_op);
+obj = sqw.apply_op(obj,eval_op);

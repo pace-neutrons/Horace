@@ -22,11 +22,11 @@ end
 sz = size(obj.img_.s);
 img = obj.img_;
 img.do_check_combo_arg = false;
+
 img.s    = reshape(calc_sig,sz);
 img.e    = reshape(calc_var,sz);
-if nargin > 3
-    img.npix = reshape(npix_acc,sz);
-end
+img.npix = reshape(npix_acc,sz);
+
 img.do_check_combo_arg = true;
 img = img.check_combo_arg();
 obj.img_ = img;

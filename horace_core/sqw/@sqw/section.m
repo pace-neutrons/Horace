@@ -64,7 +64,7 @@ for n = 1:numel(win)
     % Section the pix array, if sqw type, and update img_range
     if has_pixels(win(n))
         page_op = page_op.init(wout(n),img,irange);
-        wout(n) = wout(n).apply_op(page_op);
+        wout(n) = sqw.apply_op(wout(n),page_op);
     else
         wout(n).data = img;
     end

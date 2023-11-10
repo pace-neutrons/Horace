@@ -130,7 +130,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
             page_op.outfile = opts.outfile{i};
         end
         page_op = page_op.init(wout_i);
-        wout_i = wout_i.apply_op(page_op);
+        wout_i = sqw.apply_op(wout_i,page_op);
     end
 
     if opts.all

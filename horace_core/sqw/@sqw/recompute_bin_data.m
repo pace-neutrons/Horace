@@ -38,4 +38,4 @@ pix_op = pix_op.init(obj);
 %     pix_op.inplace = true;
 % end
 
-obj    = obj.apply_op(pix_op);
+obj    = sqw.apply_op(obj,pix_op);

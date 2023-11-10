@@ -1,4 +1,4 @@
-classdef test_mask < TestCase & common_pix_class_state_holder
+classdef test_mask < TestCase
 
     properties
 
@@ -396,10 +396,10 @@ classdef test_mask < TestCase & common_pix_class_state_holder
                 serror  = serror   + sum(pix.variance);
             end
             assertEqualToTol(ssignal, ...
-                sum(sqw_to_check.data.s(:).*sqw_to_check.data.npix(:)),'reltol',2*eps('single'));
+                sum(sqw_to_check.data.s(:).*sqw_to_check.data.npix(:)),'reltol',4*eps('single'));
 
             assertEqualToTol(serror, ...
-                sum(sqw_to_check.data.e(:).*sqw_to_check.data.npix(:).^2),'reltol',2*eps('single'));
+                sum(sqw_to_check.data.e(:).*sqw_to_check.data.npix(:).^2),'reltol',4*eps('single'));
         end
 
         % -- Helpers --

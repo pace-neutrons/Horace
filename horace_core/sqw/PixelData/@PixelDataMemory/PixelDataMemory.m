@@ -1,4 +1,4 @@
-classdef PixelDataMemory < PixelDataBase
+classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < PixelDataBase
     % PixelDataMemory Provides an interface for access to memory-backed pixel data
     %
     %   This class provides getters and setters for each data column in an SQW
@@ -66,8 +66,6 @@ classdef PixelDataMemory < PixelDataBase
             end
         end
         pix     = set_raw_data(obj,pix);
-
-        pix_out = do_binary_op(obj, operand, binary_op, varargin);
     end
 
     methods

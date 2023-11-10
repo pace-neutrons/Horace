@@ -64,9 +64,8 @@ page_op   = PageOp_unary_op();
 for i=1:numel(w1)
     if has_pixels(w1(i))
         page_op = page_op.init(w(i),unary_op);
-        w(i)    = w(i).apply_op(page_op);
+        w(i)    = sqw.apply_op(w(i),page_op);
     else
-        result = unary_op(sigvar(w1(i)));
-        w(i)   = sigvar_set(w(i),result);
+        w(i)    = unary_op_manager@data_op_interface(w1(i),unary_op);
     end
 end

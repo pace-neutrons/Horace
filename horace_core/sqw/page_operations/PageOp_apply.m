@@ -73,10 +73,9 @@ classdef PageOp_apply < PageOp_sqw_eval
         end
 
         function [out_obj,obj] = finish_op(obj,out_obj)
-            if ~obj.changes_pix_only
-                % Complete image modifications:
-                obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-            end
+            % Complete image modifications which would happen only if you
+            % were updating the accumulators
+            obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
 
             % transfer modifications to the underlying object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);

@@ -48,5 +48,5 @@ if ~pix_op.noisify_par.is_poisson
     max_sig = range(2,pix_out.field_index('signal'));
     pix_op.noisify_par.ymax = max_sig;
 end
-pix_out   = pix_out.apply_op(pix_op);
+pix_out   = pix_out.apply_op(pix_out,pix_op);
 

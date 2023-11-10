@@ -24,7 +24,7 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             function thrower(val)
                 sv.sig_var = val;
             end
-            % sigvar is not initialized by charactests
+            % sigvar is not initialized by characters
             assertExceptionThrown(@()thrower('a'),'HERBERT:sigvar:invalid_argument');
             % sigvar needs 2xNelemets data
             assertExceptionThrown(@()thrower(rand(3)),'HERBERT:sigvar:invalid_argument');
@@ -85,17 +85,19 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_wscal_1by2__wscal_2by1_FAIL (self)
+        function test_wscal_1by2__wscal_2by1_FAIL (~)
             % Add scalar objects that have different size signal arrays
             % *** Should throw an error
             w_1by2 = sigvar([31,5],[2,3]);
             w_2by1 = sigvar([14;16],4);
 
             testfun = @()plus(w_1by2,w_2by1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:sigvar:invalid_argument');
 
             testfun = @()plus(w_2by1,w_1by2);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:sigvar:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -141,17 +143,19 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_wscal_1by2__flt_2by1_FAIL (self)
+        function test_wscal_1by2__flt_2by1_FAIL (~)
             % Add scalar object to float array with different shape to signal array
             % *** Should throw an error
             w = sigvar([31,5],[2,3]);
             f = [14;16];
 
             testfun = @()plus(w,f);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:sigvar:invalid_argument');
 
             testfun = @()plus(f,w);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:sigvar:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -163,10 +167,12 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             f = [14,19; 16,2];
 
             testfun = @()plus(w, f);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:sigvar:invalid_argument');
 
             testfun = @()plus(f, w);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:sigvar:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -229,10 +235,10 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             w2 = [k21, k22];
 
             testfun = @()plus(w1, w2);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:invalid_argument');
 
             testfun = @()plus(w2, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -295,7 +301,7 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_w1by3_mixed__flt_3by1_FAIL (self)
+        function test_w1by3_mixed__flt_3by1_FAIL (~)
             % Vector object, vector float same number but different size as object array
             % *** Should fail as float vector has wrong shape
             k11 = sigvar([31,5],[2,3]);
@@ -306,10 +312,10 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             flt = [4,5,6]';
 
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:invalid_argument');
 
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -344,10 +350,12 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             flt = [4,5,6; 11,13,15];
 
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:sigvar:invalid_argument');
 
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:sigvar:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -362,10 +370,12 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             flt = [4,5,6; 11,13,15];
 
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:sigvar:invalid_argument');
 
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:sigvar:invalid_argument');
         end
         %--------------------------------------------------------------------------
     end
