@@ -85,10 +85,12 @@ classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
             w2 = self.pbig;
             
             testfun = @()plus(w1,w2);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
             
             testfun = @()plus(w2,w1);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
         end
         
         %--------------------------------------------------------------------------
@@ -129,10 +131,12 @@ classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
             f = rand(size(w.signal))';
             
             testfun = @()plus(w,f);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
             
             testfun = @()plus(f,w);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
         end
         
         %--------------------------------------------------------------------------
@@ -144,10 +148,12 @@ classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
             f = rand(numel(w.signal), numel(w.signal));
             
             testfun = @()plus(w, f);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
             
             testfun = @()plus(f, w);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
         end
         
         %--------------------------------------------------------------------------
@@ -212,10 +218,12 @@ classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
             w2 = [k21, k22];
             
             testfun = @()plus(w1, w2);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
             
             testfun = @()plus(w2, w1);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
         end
         
         %--------------------------------------------------------------------------
@@ -289,10 +297,12 @@ classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
             flt = [4,5,6]';
             
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
             
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
         end
         
         %--------------------------------------------------------------------------
@@ -326,10 +336,12 @@ classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
             flt = rand(numel(k11.signal), 3);
             
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
             
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
+            assertExceptionThrown(testfun, ...
+                'HERBERT:data_op_interface:invalid_argument');
         end
         
         %--------------------------------------------------------------------------

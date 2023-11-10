@@ -1,11 +1,12 @@
-function sqw_out = apply_op(sqw_in,page_op)
+function obj_out = apply_op(obj_in,page_op)
 % Apply operation which changes pixels and image of an input sqw
 % object in a way, not violating relation between pixel ordering and npix.
 %
 % Inputs:
 % obj    --  PixelDataFilebacked object
-% sqw_in --  sqw object which contains this pixel object (if it contains
-%            other pixel object, that object will be destroyed
+% obj_in --  sqw or this PixeldData object which contains this pixel object 
+%            (if it contains other pixel object, that object will be
+%            destroyed)
 %            Valid sqw  object requested, i.e. obj.data.npix define the
 %            location of pixels in file and in memory.
 %
@@ -34,8 +35,8 @@ if issue_range_warning
     is_range_valid = page_op.is_range_valid;
     if ~is_range_valid
         if isempty(page_op.outfile) && n_chunks>fbs && ll>0
-            original_file  = sqw_in.full_filename;
-            was_misaligned = sqw_in.pix.is_misaligned;
+            original_file  = obj_in.full_filename;
+            was_misaligned = obj_in.pix.is_misaligned;
             issue_range_warning = true;
         else
             issue_range_warning = false;
@@ -63,13 +64,13 @@ for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix
     end
 
 end
-sqw_out = page_op.finish_op(sqw_in);
+obj_out = page_op.finish_op(obj_in);
 %
 if ll > 0
     te = toc(t0);
     fprintf(['*** Completed %s using %d pages in %d sec.\n' ...
         '*** Resulting object is backed by file: %s\n'], ...
-        op_name,n_chunks,te,sqw_out.full_filename);
+        op_name,n_chunks,te,obj_out.full_filename);
 end
 if issue_range_warning
     old_file_format = ~was_misaligned;
