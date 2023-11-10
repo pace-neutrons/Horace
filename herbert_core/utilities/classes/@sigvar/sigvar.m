@@ -1,4 +1,4 @@
-classdef sigvar < serializable
+classdef sigvar < data_op_interface & serializable
     % Signal array and associated variances (standard errors squared)
 
     properties (Access=private)
@@ -27,6 +27,8 @@ classdef sigvar < serializable
     end
     properties(Dependent,Hidden)
         sig_var
+        % true, if mask has been set
+        is_mask_defined
     end
 
 
@@ -196,8 +198,17 @@ classdef sigvar < serializable
         function sv = get.sig_var(obj)
             sv = [obj.signal_(:)';obj.variance_(:)'];
         end
+
+        function is = get.is_mask_defined(obj)
+            is = ~isempty(obj.mask_);
+        end
         %------------------------------------------------------------------
+        function wout = copy(win)
+            wout = win;
+        end
+        wout = binary_op_manager_single(w1, w2, binary_op);
     end
+
 
     %======================================================================
     % SERIALIZABLE INTERFACE
@@ -235,6 +246,7 @@ classdef sigvar < serializable
                 end
             end
         end
+        %
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
             % and nxsqw data format. Each new version would presumably read
