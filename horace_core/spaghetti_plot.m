@@ -4,20 +4,22 @@ function varargout = spaghetti_plot(varargin)
 %   >> spaghetti_plot(rlp,data_source)
 %   >> spaghetti_plot(wdisp)
 %
-%   >> spaghetti_plot(...,'labels',{'G','X',...})  % customised labels
-%   >> spaghetti_plot(...,'smooth',1)              % smooth data with this width
-%   >> spaghetti_plot(...,'smooth_shape','hat')    % smooth data with this shape
-%   >> spaghetti_plot(...,'qbin',qb)               % specify q bin size in 1/Ang
-%   >> spaghetti_plot(...,'qwidth',qi)             % specify q integration width in 1/Ang
-%   >> spaghetti_plot(...,'ebin',[elo estp ehi])   % specify energy bin in meV
-%   >> spaghetti_plot(...,'logscale')              % plots intensity in log10 scale
-%   >> spaghetti_plot(...,'clim',[cmin cmax])      % sets the colorscale (needed for logscale)
+%   >> spaghetti_plot(...,'labels',{'G','X',...})            % customised labels
+%   >> spaghetti_plot(...,'smooth',1)                        % smooth data with this width
+%   >> spaghetti_plot(...,'smooth_shape','hat')              % smooth data with this shape
+%   >> spaghetti_plot(...,'qbin',qb)                         % specify q bin size in 1/Ang
+%   >> spaghetti_plot(...,'qwidth',qi)                       % specify q integration width in 1/Ang
+%   >> spaghetti_plot(...,'qwidth', [0.1; 0.3; ...])         % square q integration for each segment
+%   >> spaghetti_plot(...,'qwidth', [0.1 0.1; 0.3 0.1; ...]) % q integration for each segment
+%   >> spaghetti_plot(...,'ebin',[elo estp ehi])             % specify energy bin in meV
+%   >> spaghetti_plot(...,'logscale')                        % plots intensity in log10 scale
+%   >> spaghetti_plot(...,'clim',[cmin cmax])                % sets the colorscale (needed for logscale)
 %
-%   >> wdisp = spaghetti_plot(...)                   % outputs the cuts as a d2d array
-%   >> wdisp = spaghetti_plot(...,'noplot')          % outputs arrays without plotting
+%   >> wdisp = spaghetti_plot(...)                           % outputs the cuts as a d2d array
+%   >> wdisp = spaghetti_plot(...,'noplot')                  % outputs arrays without plotting
 %
-%   >> [wdisp,cuts] = spaghetti_plot(...)             % generates a set of 1D cuts
-%   >> [wdisp, cuts] = spaghetti_plot(...,'withpix')  % return cuts as sqw rather than d1ds
+%   >> [wdisp,cuts] = spaghetti_plot(...)                    % generates a set of 1D cuts
+%   >> [wdisp, cuts] = spaghetti_plot(...,'withpix')         % return cuts as sqw rather than d1ds
 %
 % Input:
 % ------
@@ -62,6 +64,9 @@ function varargout = spaghetti_plot(varargin)
 %                     both perpendicular directions, or a 2-vector [dqv dqw] with dqv
 %                     being the width in v, and dqw the width in w (see below)
 %                     (default = 0.1)
+%
+%                   A qwidth can be specified in either form for each segment, this
+%                   must match the number of segments (nrlp - 1)
 %
 %   'ebin'          The energy bin parameters in meV as a 3-vector [min, step, max]
 %                     (default: use energy bins in data_source)
@@ -139,7 +144,7 @@ elseif isa(args{2}(1), 'd2d')
 end
 
 if numel(args) ~= 2
-    error('SPAGHETTI_PLOT:invalid_arguments', ...
+    error('HORACE:spaghetti_plot:invalid_argument', ...
           'Invalid number of arguments')
 end
 
@@ -149,14 +154,14 @@ nseg = num_rlp - 1;
 sqw_in = args{2};
 
 if size(rlp, 2) ~= 3 || num_rlp < 2
-    error('SPAGHETTI_PLOT:invalid_arguments', ...
+    error('HORACE:spaghetti_plot:invalid_argument', ...
           'It should be at least 2 rlp arranged in array [Nx3] (N >= 2) but size of the rlp array is: [%d, %d];', ...
           size(rlp))
 end
 
 if present.cuts_plot_size
     if nseg ~= numel(opt.cuts_plot_size)
-        error('SPAGHETTI_PLOT:invalid_arguments', ...
+        error('HORACE:spaghetti_plot:invalid_argument', ...
               [' the size of the cut_plot_dist array should be one less than the number of rlp points.'...
                ' In fact the number of rlp is %d and the number of distances is %d'], ...
               num_rlp, numel(opt.cuts_plot_size));
@@ -164,7 +169,7 @@ if present.cuts_plot_size
 
     invalid = opt.cuts_plot_size <= 0;
     if any(invalid)
-        error('SPAGHETTI_PLOT:invalid_arguments', ...
+        error('HORACE:spaghetti_plot:invalid_argument', ...
               'the plot sizes should be positive numbers but some of them are: %g; %g; %g; %g; %g', ...
               opt.cuts_plot_size(invalid));
     end
@@ -175,14 +180,26 @@ if isa(sqw_in, 'sqw')
 elseif istext(sqw_in) && is_file(sqw_in)
     sqw_in = sqw(sqw_in);
 else
-    error('SPAGHETTI_PLOT:invalid_arguments', ...
+    error('HORACE:spaghetti_plot:invalid_argument', ...
           'Check argument giving data source. Must be an sqw object or sqw file')
 end
 
 qbin = opt.qbin;
 qwidth = opt.qwidth;
-if isscalar(qwidth)
-    qwidth = repmat(qwidth, 2, 1);
+
+switch size(opt.qwidth)
+  case [1, 1]                 % "Square" for all segments
+    qwidth = repmat(opt.qwidth, 2, nseg);
+  case {[1, 2], [2, 1]}       % Rectangular for all segments
+    qwidth = repmat(opt.qwidth(:)', 1, nseg);
+  case {[nseg, 1], [1, nseg]} % "Square" for each segment
+    qwidth = repmat(opt.qwidth(:), 2, 1);
+  case [2, nseg]              % Rectangular for each segments
+    qwidth = reshape(opt.qwidth, 2, nseg);
+  otherwise
+    error('HORACE:spaghetti_plot:invalid_argument', ...
+          ['qwidth size must be one of: [1, 1], [2, 1], [1, nseg], or [2, nseg].\n' ...
+           'Received: %s'], disp2str(opt.qwidth))
 end
 
 ebin = opt.ebin;
@@ -190,7 +207,7 @@ ebin = opt.ebin;
 % Make labels
 % ------------
 if present.labels && (isempty(opt.labels) || ~iscellstr(opt.labels) || numel(opt.labels) ~= num_rlp)
-    error('SPAGHETTI_PLOT:invalid_arguments', ...
+    error('HORACE:spaghetti_plot:invalid_argument', ...
         'Check number of user-supplied labels and that they form a cell array of strings');
 end
 
@@ -292,8 +309,8 @@ for i = 1:nseg
     u1bin = qbin / ulen(1);
 
     % determines the integration range over the perpendicular q-directions in r.l.u.
-    u2bin = qwidth(1) / ulen(2);
-    u3bin = qwidth(2) / ulen(3);
+    u2bin = qwidth(1, i) / ulen(2);
+    u3bin = qwidth(2, i) / ulen(3);
 
     u20 = dot(q_start_abs, dqv_abs) / ulen(2);
     u30 = dot(q_start_abs, dqw_abs) / ulen(3);
@@ -344,12 +361,12 @@ for i = 1:nseg
         wdisp(i).title = titlestr;
     else
         binstr = sprintf(['q bin size approximately %f ', char(197), '^{-1}'], opt.qbin);
-        if numel(opt.qwidth)==1
+        if numel(opt.qwidth)==1 || numel(opt.qwidth) == nseg
             wdisp(i).title=sprintf(['integrated over %f ', char(197), ...
-                '^{-1} in perpendicular q-directions\n%s\n%s'], opt.qwidth(1), binstr, titlestr);
+                '^{-1} in perpendicular q-directions\n%s\n%s'], qwidth(1, i), binstr, titlestr);
         else
             wdisp(i).title=sprintf(['integrated over %f ', char(197), ...
-                '^{-1} in qv and %f ', char(197), '^{-1} in qw\n%s\n%s'], opt.qwidth, binstr, titlestr);
+                '^{-1} in qv and %f ', char(197), '^{-1} in qw\n%s\n%s'], qwidth(:, i), binstr, titlestr);
         end
     end
 
@@ -362,7 +379,7 @@ end
 
 % Plot dispersion
 %----------------
-if nargout<1 || (~present.noplot)
+if nargout < 1
     plot_dispersion(arrayfun(@d2d, wdisp),opt)
 end
 
@@ -371,6 +388,10 @@ end
 %========================================================================================================
 function plot_dispersion(wdisp_in,opt)
 % Plots the dispersion in the structure wdisp
+
+if opt.noplot
+    return
+end
 
 scale_x_axis = ~isempty(opt.cuts_plot_size);
 
