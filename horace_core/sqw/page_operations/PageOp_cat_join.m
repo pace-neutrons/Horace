@@ -4,118 +4,85 @@ classdef PageOp_cat_join < PageOpBase
     %
     %
     properties
-        % list of the input objects to process. The objects may be
+        % cellarrsy of the input objects to process. The objects may be
         % PixelData, sqw objects or list of files, containing sqw objects
         in_objects;
+        npix_tot;   % Total number of
     end
-    properties(Access = protected)
-        % cellarray of npix distributions, every input object has
-        in_npix
-        % cellarray of chunk arrays every object is split into
-        in_ob_chunks_;
-        % array of initial positions of each pix block
-        pix_idx_starts_
-        % what cat type should be performed (Should it be just PageOp
-        % overload?)
-        cat_type_
+    properties(Access = private)
+        page_size_;
+        % the position of pixels in every pixel block
+        pix_block_start_;
+        % indixes of pages in the npix array, produced by split_into_pages
+        block_chunks_
     end
-    properties(Constant,Access=private)
-        cat_types = containers.Map({'pix_only'},{1});
-    end
-    properties(Dependent)
-        %==================================================================
-        % Pixels are normally distributed on file and in memory according
-        % to image bins and the distribution is described by npix array.
-        % These properties, if defined, describe the npix array location
-        % within the binary file and used for concatenating pixels
-        % located in mutiple files into single block of data using external
-        % C++ application (or MATLAB mex code)
-        npix_block_pos    % location in bytes from the beginning of binary file
-    end
-
     methods
         function obj = PageOp_cat_join(varargin)
             obj = obj@PageOpBase(varargin{:});
-            obj.op_name_ = 'cat|join';
-            obj.split_at_bin_edges = true;
+            obj.op_name_ = 'cat_pixels';
+            obj.split_at_bin_edges = false;
         end
 
-        function obj = init(obj,targ_img,varargin)
+        function obj = init(obj,varargin)
             % Initialize cat operation:
-            %
-            if isempty(targ_img)
-                [pf,mem_chunk_size] = config_store.instance().get_value( ...
-                    'hor_config','mem_chunk_size','fb_scale_factor');
-                fb_pix_limit = pf*mem_chunk_size;
-                if sum(obj.npix(:)) > fb_pix_limit
-                    in_obj = PixelDataFileBacked();
-                else
-                    in_obj = PixelDataMemory();
-                end
-                obj = obj.init_pix_only_data_obj(varargin{:});
-            elseif isnumeric(targ_img) % cat for pixels only, may be with
-                % npix distribution
-                obj.npix = targ_img(:);
-                obj = obj.set_pix_data_obj(varargin{:});
+
+            obj = obj.init_pix_only_data_obj(varargin{:});
+
+            [pf,mem_chunk_size] = config_store.instance().get_value( ...
+                'hor_config','mem_chunk_size','fb_scale_factor');
+            fb_pix_limit = pf*mem_chunk_size;
+            obj.page_size_ = mem_chunk_size;
+            if obj.npix_tot > fb_pix_limit
+                in_obj = PixelDataFileBacked();
+            else
+                in_obj = PixelDataMemory();
             end
             obj = init@PageOpBase(obj,in_obj);
-
-            if ~isempty(obj.img_)
-                obj.var_acc_ = zeros(numel(obj.img_.npix),1);
-            else
-                % if we work with pixels only, we do not need to check
-                % runid.
-                obj.check_runid = false;
-            end
         end
-        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,~,chunk_size)
-            % Method used to split input npix array into pages
-            % Inputs:
-            % npix  -- image npix array, which defines the number of pixels
-            %           contributing into each image bin and the pixels
-            %           ordering in the linear array
-            % chunk_size
-            %       -- sized of chunks to split pixels
-            % Returns:
-            % npix_chunks -- cellarray, containing the npix parts
-            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
-            %                the npix array.
-            % See split procedure for more details
-            switch obj.cat_types_
-                case(1)
-                    npix_idx = [];
-                    pf = config_store.instance().get_value( ...
-                        'hor_config','fb_scale_factor');
-                    big_chunk = pf*chunk_size;
-
-                    n_obj = numel(obj.in_npix);
-                    npix_chunks = cell(1,n_obj);
-                    % cellarray of chunk arrays every object is split into
-                    obj.in_ob_chunks_ = cell(1,n_obj) ;
-                    class_chunk = floor(big_chunk/n_obj);
-                    max_split = -1;
-                    for i=1:n_obj
-                        obj.in_ob_chunks_{i} = split_vector_fixed_sum(obj.in_npix{i}, class_chunk);
-                        max_split = max(max_split,numel(obj.in_ob_chunks_{i}));
-                    end
-                    for i = 1:max_split
-                        the_split_blocks = sum(cellfun(@(idx)obj.in_obj_chumks)
-
-                    end
-                otherwise
-                    error('HORACE:not_implemented','not yet implemented')
-            end
-
+        function[npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
+            % overload of split_into_pages as we also need npix_chunks to
+            % process pages in this case.
+            [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,chunk_size);
+            obj.block_chunks_ = npix_chunks;
         end
 
-
-        function obj = get_page_data(obj,idx,npix_blocks)
+        function obj = get_page_data(obj,page_idx,npix_blocks)
             % return block of data used in page operation
             %
-            % This is most common form of the operation. Some operations
-            % will request overloading
-            npix_tot = sum(npix_blocks(idx));
-            obj.page_data_ = zeros(,npix_tot);
+            % here we redefine the meaning of npix; Unlike
+            % general case, where npix describes the distribution of pixels
+            % over bins, here each npix element contains number of pixels
+            % in input pixel dataset and idx define how many datasets the
+            % pixels occupy.
+            %
+
+
+            chunks  = npix_blocks{page_idx};
+            n_chunks = numel(chunks);
+            npix_idx = obj.block_chunks_(page_idx); % first and last index of the block within the npix array
+            if n_chunks == 1 % one or more obj.page_data_ per PixelData object
+                pix_idx_start = obj.pix_block_start_(npix_idx(1));
+                pix_idx_end   = pix_idx_start+chunks(1)-1;
+                obj.pix_block_start_(npix_idx(1)) = pix_idx_start+pix_idx_end+1;
+                obj.page_data_ = obj.in_objects{npix_idx(1)}.get_pixels( ...
+                    obj.pix_idx_starts_:pix_idx_end,'-raw');                
+            else % more then one PixelData object per obj.page_data_
+                obj.page_data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,obj.page_size_);                
+                pix_idx_start = obj.pix_block_start_(npix_idx(1));
+                for i=1:n_chunks
+                    edn
+            end
+
+            for i=1:n_chunks
+                pix_idx_start = obj.pix_block_start_(block1_num);
+                pix_idx_end    = pix_idx_start+npix_block-1;
+                block_size = pix_idx_end-pix_idx_start   +1;
+                if block_size>npix_block
+                    block_size = npix_block
+                end
+
+            end
+
             if obj.split_at_bin_edges_
                 % knowlege of all pixel coordinates in a cell.
                 npix_block    = npix_blocks{idx};
@@ -191,16 +158,16 @@ classdef PageOp_cat_join < PageOpBase
             % objects.
             n_inputs = numel(varargin);
             obj.in_objects = cell(1,n_inputs);
-            obj.in_npix = cell(1,n_inputs);
+            obj.npix = zeros(1,n_inputs);
             obj.pix_idx_starts_ = ones(1,n_inputs);
-            npix_tot = 0;
+            npix_tot_ = 0;
             for i=1:n_inputs
                 obj.in_objects{i}  = varargin{i};
                 npix = varargin{i}.num_pixels;
-                obj.in_npix{i} = npix ;
-                npix_tot = npix_tot + npix;
+                obj.npix(i) = npix ;
+                npix_tot_ = npix_tot_ + npix;
             end
-            obj.npix = npix_tot;
+            obj.npix_tot = npix_tot_;
         end
 
     end

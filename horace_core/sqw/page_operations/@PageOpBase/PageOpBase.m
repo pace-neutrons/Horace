@@ -44,9 +44,9 @@ classdef PageOpBase
         % operations
         op_name
 
-        % npix array (the same as img_.npix), containing the pixel distribution
-        % over binning. If no binning is provided it is a single number equal
-        % to number of pixels (all pixels in one bin)
+        % npix array (the same as img_.npix, but 1D), containing the pixel 
+        % distribution over binning. If no binning is provided it is a 
+        % single number equal to number of pixels (all pixels in one bin)
         npix
         % Property defines necessary way to split pixels data. Many
         % algorithms reque pages to be divided on image bin boundaries,
@@ -128,7 +128,8 @@ classdef PageOpBase
         % some may define and use more accumulators
         sig_acc_
         % variance accumulator. Many operations recalculate variance.
-        % Do not forget to nullify it if your particular operation uses it
+        % Do not forget to initialize and nullify it if your particular
+        % operation uses it.
         var_acc_
         % true if data need to be split at bin edges (and bins are
         % present)
@@ -209,7 +210,7 @@ classdef PageOpBase
                 obj.page_data_ = obj.pix_.data;
             end
         end
-        %        
+        %
         function obj = common_page_op(obj)
             % Method contains the code which runs for any page operation,
             % inheriting from this one.
@@ -252,7 +253,7 @@ classdef PageOpBase
             % Some operations overload this method
             [s_ar, e_ar] = compute_bin_data(npix_block,signal,variance,true);
             if obj.split_at_bin_edges_
-                obj.sig_acc_(npix_idx(1):npix_idx(2))    = s_ar(:);
+                obj.sig_acc_(npix_idx(1):npix_idx(2))        = s_ar(:);
                 if ~isempty(variance)
                     obj.var_acc_(npix_idx(1):npix_idx(2))    = e_ar(:);
                 end
