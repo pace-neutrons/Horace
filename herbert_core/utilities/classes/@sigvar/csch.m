@@ -1,19 +1,21 @@
-function w = csch (w1)
+function w = csch(w1)
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
+%   doc_file_header = fullfile(doc_dir,'doc_sigvar_unary_single.m')
 %
-%   doc_file_header = fullfile(doc_dir,'doc_unary_header.m')
-%   doc_file_IO = fullfile(doc_dir,'doc_unary_general_args_IO_description.m')
-%
-%   list_operator_arg = 0
 %   func_name = 'csch'
 % -----------------------------------------------------------------------------
 % <#doc_beg:> binary_and_unary_ops
 %   <#file:> <doc_file_header>
-%
-%   <#file:> <doc_file_IO> <list_operator_arg>
 % <#doc_end:>
 % -----------------------------------------------------------------------------
 
-w = unary_op_manager (w1, @csch_single);
+s = csch(w1.signal_);
+if ~isempty(w1.variance_)
+    e = (s.^2+1).*(s.^2).*w1.variance_;
+else
+    e = [];
+end
+
+w = sigvar(s,e);

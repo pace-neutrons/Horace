@@ -51,7 +51,6 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     %----------------------------------------------------------------------
     % PageOp abstract protected methods
     methods (Abstract, Access = protected)
-        wout = binary_op_manager_single(w1,w2,binary_op);
         wout = sqw_eval_pix(wout, sqwfunc, ave_pix, pars, outfile, i);
         % REDUNDANT METHOD to remove
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
@@ -148,7 +147,6 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
 
     methods (Access = protected)
         wout = unary_op_manager(w, operation_handle);
-        wout = binary_op_manager(w1, w2, binary_op_bandle);
         %
         function [func_handle, pars, opts] = parse_funceval_args(win, func_handle, pars, varargin)
             % Process arguments of func_eval function

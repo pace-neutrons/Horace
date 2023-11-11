@@ -1,5 +1,4 @@
-classdef (Abstract)  DnDBase < ...
-        SQWDnDBase & dnd_plot_interface & data_op_interface
+classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
 
@@ -548,7 +547,6 @@ classdef (Abstract)  DnDBase < ...
     end
 
     methods(Access = protected)
-        wout = binary_op_manager_single(w1, w2, binary_op);
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
 
