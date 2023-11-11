@@ -1,5 +1,5 @@
 classdef test_sqw_save_xye < TestCase
-    % Series of tests to check work of mex files against Matlab files
+    % Series of tests to check work of xye operations
 
     properties
         out_dir = tmp_dir();
