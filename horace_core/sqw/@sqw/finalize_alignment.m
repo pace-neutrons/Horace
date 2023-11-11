@@ -67,4 +67,4 @@ pix_op.changes_pix_only = true;
 pix_op.op_name = 'finalize_alignment';
 
 pix_op      = pix_op.init(targ_obj);
-targ_obj    = targ_obj.apply_op(pix_op);
+targ_obj    = sqw.apply_op(targ_obj,pix_op);

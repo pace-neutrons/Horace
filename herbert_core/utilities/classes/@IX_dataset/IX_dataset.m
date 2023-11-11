@@ -1,4 +1,4 @@
-classdef IX_dataset < serializable & data_op_interface
+classdef IX_dataset < data_op_interface & serializable
     % Abstract parent class for IX_datasets_Nd;
     properties(Dependent)
         %title:  dataset title (will be plotted on a grapth)
@@ -10,8 +10,8 @@ classdef IX_dataset < serializable & data_op_interface
         % s_axis -- IX_axis class containing signal axis caption
         s_axis
     end
-    
-    
+
+
     properties(Access=protected)
         title_={};
         % emtpy signal
@@ -40,7 +40,7 @@ classdef IX_dataset < serializable & data_op_interface
         % verify and set signal or error arrays
         obj = check_and_set_sig_err(obj,field_name,value);
     end
-    
+
     %======================================================================
     methods(Abstract,Static,Access=protected)
         % Rebins histogram data along specific axis.
@@ -48,7 +48,7 @@ classdef IX_dataset < serializable & data_op_interface
         %Integrates point data along along specific axis.
         [wout_s,wout_e] = integrate_points(iax, xbounds_true);
     end
-    
+
     %======================================================================
     methods(Static)
         % Read object or array of objects of an IX_dataset type from
@@ -58,7 +58,7 @@ classdef IX_dataset < serializable & data_op_interface
         function [x_out, ok, mess] = bin_boundaries_from_descriptor(xbounds, x_in)
             [x_out, ok, mess] = bin_boundaries_from_descriptor_(xbounds, x_in);
         end
-        
+
     end
     %======================================================================
     methods
@@ -72,11 +72,11 @@ classdef IX_dataset < serializable & data_op_interface
         [wout,ok,mess] = rebin_IX_dataset (win, integrate_data,...
             point_integration_default, iax, descriptor_opt, varargin)
         %
-        
+
         % Save object or array of objects of class type to binary file.
         % Inverse of read.
         save(w,file)
-        
+
         %
         % get sigvar object from the dataset
         wout = sigvar (w)
@@ -112,10 +112,10 @@ classdef IX_dataset < serializable & data_op_interface
             % along all axis
             dis= obj.xyz_distribution_;
         end
-        
+
         % Set signal, error and selected axes in a single instance of an IX_dataset object
         wout=set_simple_xsigerr(win,iax,x,signal,err,xdistr)
-        
+
         %===================================================================
         % Properties:
         %===================================================================
@@ -163,6 +163,9 @@ classdef IX_dataset < serializable & data_op_interface
             end
         end
         %
+        function wout = copy(win)
+            wout = win;
+        end
     end
     %======================================================================
     methods(Access=protected)
@@ -180,9 +183,8 @@ classdef IX_dataset < serializable & data_op_interface
         % Rebin an IX_dataset object or array of IX_dataset objects along
         % along the axes, defined by direction
         wout = rebin_xyz(win, array_is_descriptor,dir,varargin)
-        
-        w = unary_op_manager (w1, unary_op)
-        w = binary_op_manager(w1, w2, binary_op)
+
+        %w = unary_op_manager (w1, unary_op)
     end
     %======================================================================
     methods(Static,Access=protected)
@@ -218,7 +220,7 @@ classdef IX_dataset < serializable & data_op_interface
             % serializable fields version
             ver = 2;
         end
-        
+
         function flds = saveableFields(~)
             flds = IX_dataset.fields_to_save_;
         end
@@ -241,6 +243,6 @@ classdef IX_dataset < serializable & data_op_interface
             end
         end
     end
-    
+
 end
 

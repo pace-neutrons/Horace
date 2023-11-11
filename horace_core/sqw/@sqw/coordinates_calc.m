@@ -60,5 +60,5 @@ end
 
 for i=1:numel(wout)
     page_op = page_op.init(wout(i),ind);
-    wout(i) = wout(i).apply_op(page_op);
+    wout(i) = sqw.apply_op(wout(i),page_op);
 end

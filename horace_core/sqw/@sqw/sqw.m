@@ -1,4 +1,4 @@
-classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < ...
+classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw < ...
         SQWDnDBase & sqw_plot_interface
     %SQW Create an sqw object
     %
@@ -93,6 +93,22 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < ...
     methods(Static)
         % returns list of fields, which need to be filled by head function
         form_fields = head_form(sqw_only,keep_data_arrays)
+		%
+        function obj = apply_op(obj, operation)
+            % Apply special PageOp operation affecting sqw object and pixels
+            %
+            % See what PageOp is from PageOpBase class description and its
+            % children
+            %
+            % Inputs:
+            % obj       -- sqw object - contains pixels and image to be
+            %              modified
+            % operation -- valid PageOpBase subclass containing function
+            %              which operates on PixelData, modifies pixels and
+            %              calculates changes to image, caused by the
+            %              modifications to pixels.
+            obj = obj.pix.apply_op(obj,operation);
+        end        
     end
     %======================================================================
     % PageOp methods -- methods, which use PageOp for implementation, so
@@ -127,9 +143,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < ...
         w    = coordinates_calc(w, name);
         % Make a higher dimensional dataset from a lower dimensional dataset
         wout = replicate (win,wref);
-
-        % set sqw object signal and variance from
-        w = sigvar_set(win, sigvar_obj);
 
         %Evaluate a function at the plotting bin centres of sqw object
         wout = func_eval (win, func_handle, pars, varargin)
@@ -201,6 +214,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < ...
         wout              = sigvar(w); % Create sigvar object from sqw object
         [s,var,mask_null] = sigvar_get (w);
         sz                = sigvar_size(w);
+        % set sqw object signal and variance from
+        w = sigvar_set(win, sigvar_obj);
         %------------------------------------------------------------------
         % titles used when plotting an sqw object
         function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
@@ -380,7 +395,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < ...
         end
     end
     %======================================================================
-    % apply_op and support for it
+    % supporting function for apply_op
     methods
         %----------------------------------
         new_sqw = copy(obj, varargin)
@@ -388,21 +403,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < ...
         wh  = get_write_handle(obj, outfile)
         obj = finish_dump(obj,varargin);
         %
-        function obj = apply_op(obj, operation)
-            % Apply special PageOp operation affecting sqw object and pixels
-            %
-            % See what PageOp is from PageOpBase class description and its
-            % children
-            %
-            % Inputs:
-            % obj       -- sqw object - contains pixels and image to be
-            %              modified
-            % operation -- valid PageOpBase subclass containing function
-            %              which operates on PixelData, modifies pixels and
-            %              calculates changes to image, caused by the
-            %              modifications to pixels.
-            obj = obj.pix.apply_op(obj,operation);
-        end
     end
     %======================================================================
     % TOBYFIT INTERFACE
@@ -452,7 +452,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < ...
 
     %======================================================================
     methods(Access = protected)
-        wout = binary_op_manager_single(w1, w2, binary_op);
         % Re #962 TODO: probably delete it
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         % binning of an sqw or dnd object

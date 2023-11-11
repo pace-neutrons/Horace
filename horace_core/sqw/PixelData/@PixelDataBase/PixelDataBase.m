@@ -1,4 +1,5 @@
-classdef (Abstract) PixelDataBase < serializable
+classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
+        PixelDataBase < data_op_interface & serializable
     % PixelDataBase provides an abstract base-class interface for pixel data objects
     %
     %   This class provides getters and setters for each data column in an SQW
@@ -29,6 +30,9 @@ classdef (Abstract) PixelDataBase < serializable
     %   be relied upon being accurate to double precision.
     %
     % Properties:
+    %  full_filename   - full name of the file this pixels are based on or
+    %                    were loaded from
+    %   num_pixels     - The number of pixels in the data block.
     %   u1, u2, u3     - The 1st, 2nd and 3rd dimensions of the Crystal
     %                    Cartesian coordinates in projection axes, units are per Angstroms (1 x n arrays)
     %   dE             - The energy transfer value for each pixel in meV (1 x n array)
@@ -40,13 +44,77 @@ classdef (Abstract) PixelDataBase < serializable
     %   signal         - The signal array (1 x n array).
     %   variance       - The variance on the signal array (variance i.e. error bar squared) (1 x n array)
     %
-    %   num_pixels     - The number of pixels in the data block.
-    %   pix_range      - [2x4] array of the range of pixels coordinates in Crystal Cartesian coordinate system.
+    %   data_range     - [2x9] array of the range of pixels arrays above
     %
-    %   data           - The raw pixel data - usage of this attribute is discouraged, the structure
-    %                    of the return value is not guaranteed.
+    %   data           - The whole array of  pixel data - usage of this
+    %                    attribute is discouraged, the structure of the
+    %                    return value is not guaranteed.
     %   page_size      - The number of pixels in the currently loaded page.
     %
+    %======================================================================
+    properties (Dependent)
+        full_filename; % full name of the file this pixels are based on or
+        %                were loaded from
+        num_pixels;         % The number of pixels class contains
+        %------------------------------------------------------------------
+        u1; % The 1st dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
+        u2; % The 2nd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
+        u3; % The 3rd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
+        dE; % The array of energy deltas of the pixels (1 x n array) [meV]
+
+        run_idx;     % The run index the pixel originated from (1 x n array)
+        detector_idx; % The detector group number in the detector listing
+        %             % for the pixels (1 x n array)
+        energy_idx;   % The energy bin numbers (1 x n array)
+
+        signal;   % The signal array (1 x n array)
+        variance; % The variance on the signal array
+        %  (variance i.e. error bar squared) (1 x n array)
+
+
+        pix_range; % The range of pixels coordinates in Crystal Cartesian
+        % coordinate system. [2x4] array of [min;max] values of pixels
+        % coordinates field. If data are file-based and you are setting
+        % pixels coordinates, this value may get invalid, as the range
+        % never shrinks.
+        data_range  % the range of pix data. 2x9 array of [min;max] values
+        % of pixels data field
+
+        data; % The full pixel data block. Usage of this attribute exposes
+        % current pixels layout, so when the pixels layout changes in a
+        % future, the code using this attribute will change too. So, the usage
+        % of this attribute is discouraged as the structure of the return
+        % value is not guaranteed in a future.
+
+        page_num    % current page number
+        num_pages   % number of pages in the whole data file
+        page_size;  % The number of pixels that can fit in one page of data
+        read_only   % Specify if you can modify the data of your pixels
+        %
+        is_misaligned % true if pixel data are not in Crystal Cartesian and
+        %              and true Crystal Cartesian is obtained by
+        %              multiplying data by the alignment matrix
+        alignment_matr % matrix used for multiplying misaligned pixel data
+        %               to convert their coordinates into CrystalCartesian
+        %               coordinate system. If pixels are not misaligned,
+        %               the matrix is eye(3);
+    end
+    properties(Dependent,Hidden)
+        % hidden not to pollute interface
+        q_coordinates; % The spatial dimensions of the Crystal Cartesian
+        %              % orientation (3 x npix array)
+        coordinates;   % The coordinates of the pixels in the projection axes, i.e.: u1,
+        %              % u2, u3 and dE (4 x npix array)
+        sig_var        % return [2 x npix] array of signal and variance
+        all_indexes;   % array all run indexes ([3 x npix] array of indexes)
+        all_experiment % [5xnpi] array of all data obtained in experiment, excluding
+        % q-dE, which are calculated from indexes and detector positions
+
+        % if false, converts all pixel data loaded from disk into double
+        % precision
+        keep_precision
+    end
+
     properties(Access=protected)
         PIXEL_BLOCK_COLS_ = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         data_range_ = PixelDataBase.EMPTY_RANGE; % range of all other variables (signal, error, indexes)
@@ -125,67 +193,6 @@ classdef (Abstract) PixelDataBase < serializable
             'all_experiment',...
             'all'}, ...
             {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,[8,9],[5,6,7],5:9,1:9});
-    end
-
-    properties (Dependent)
-        full_filename;
-        u1; % The 1st dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
-        u2; % The 2nd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
-        u3; % The 3rd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
-        dE; % The array of energy deltas of the pixels (1 x n array) [meV]
-
-        run_idx; % The run index the pixel originated from (1 x n array)
-        detector_idx; % The detector group number in the detector listing
-        %             % for the pixels (1 x n array)
-        energy_idx;   % The energy bin numbers (1 x n array)
-
-        signal;   % The signal array (1 x n array)
-        variance; % The variance on the signal array
-        %  (variance i.e. error bar squared) (1 x n array)
-        num_pixels;         % The number of pixels in the data block
-
-        pix_range; % The range of pixels coordinates in Crystal Cartesian
-        % coordinate system. [2x4] array of [min;max] values of pixels
-        % coordinates field. If data are file-based and you are setting
-        % pixels coordinates, this value may get invalid, as the range
-        % never shrinks.
-        data_range  % the range of pix data. 2x9 array of [min;max] values
-        % of pixels data field
-
-        data; % The full pixel data block. Usage of this attribute exposes
-        % current pixels layout, so when the pixels layout changes in a
-        % future, the code using this attribute will change too. So, the usage
-        % of this attribute is discouraged as the structure of the return
-        % value is not guaranteed in a future.
-
-        page_num    % current page number
-        num_pages   % number of pages in the whole data file
-        page_size;  % The number of pixels that can fit in one page of data
-        read_only   % Specify if you can modify the data of your pixels
-
-        %
-        is_misaligned % true if pixel data are not in Crystal Cartesian and
-        %             % and true Crystal Cartesian is obtained by
-        %             % multiplying data by the alignment matrix
-        alignment_matr % matrix used for multiplying misaligned pixel data
-        %             % to convert their coordinates into CrystalCartesian
-        %             % coordinate system. If pixels are not misaligned,
-        %             % the matrix is eye(3);
-    end
-    properties(Dependent,Hidden)
-        % hidden not to pollute interface
-        q_coordinates; % The spatial dimensions of the Crystal Cartesian
-        %              % orientation (3 x npix array)
-        coordinates;   % The coordinates of the pixels in the projection axes, i.e.: u1,
-        %              % u2, u3 and dE (4 x npix array)
-        sig_var        % return [2 x npix] array of signal and variance
-        all_indexes;   % array all run indexes ([3 x npix] array of indexes)
-        all_experiment % [5xnpi] array of all data obtained in experiment, excluding
-        % q-dE, which are calculated from indexes and detector positions
-
-        % if false, converts all pixel data loaded from disk into double
-        % precision
-        keep_precision
     end
 
     methods(Static,Hidden)
@@ -330,15 +337,12 @@ classdef (Abstract) PixelDataBase < serializable
     %======================================================================
     methods(Abstract)
         % --- Pixel operations ---
-        pix_out = append(obj, pix);
+        pix_out  = append(obj, pix);
         pix_copy = copy(obj)
 
 
         data = get_raw_data(obj,varargin)
         pix  = set_raw_data(obj,pix);
-
-        pix_out = do_binary_op(obj, operand, binary_op, varargin);
-
 
         obj = recalc_data_range(obj,varargin);
         % realign pixels using alignment matrix stored with pixels
@@ -716,12 +720,26 @@ classdef (Abstract) PixelDataBase < serializable
         % object using apply_op, and left here for historical reasons and for
         % the case, when one may want to use them on pixels only (testing?).
         pix_out = mask(obj, mask_array, npix);
-        pix_out = do_unary_op(obj, unary_op)
         obj     = finalize_alignment(obj,filename);
         pix_out = noisify(obj, varargin);
         pix_out = apply(obj, func_handle, args, data, compute_variance);
 
-
+        pix_out = do_unary_op(obj, unary_op)
+        pix_out = do_binary_op(obj, operand, binary_op, varargin);
+        %
+        %------------------------------------------------------------------
+        % Helpers for page_op and data_op_interface. Work with data in
+        % memory regarless of file/memory based class
+        function sz = sigvar_size(~)
+            % sigvar_size is the size of image, so pixels only are always in
+            % d0d image (compartible with any image).
+            sz = [1,1];
+        end
+        function sg = sigvar(obj)
+            % returns only single page data
+            sg = sigvar(obj.signal,obj.variance);
+        end
+        %------------------------------------------------------------------
         function [mean_signal, mean_variance,signal_msd] = compute_bin_data(obj, npix,pix_idx)
             % Calculate signal/error bin averages for block of pixel data
             % defined by npix.
@@ -907,17 +925,10 @@ classdef (Abstract) PixelDataBase < serializable
                 unique_idx = unique(obj.run_idx);
             end
         end
+        %------------------------------------------------------------------
+        %Operations
+        w = unary_op_manager (w1, op_function_handle);
     end
-    %======================================================================
-    % Static Helper methods.
-    methods(Static,Access = protected)
-        function sig_var = sigvar_binary_op(sigvar1, sigvar2, binary_op, flip)
-            %perform the given binary operation on two sigvar objects or
-            % between a sigvar object and a double scalar or array
-            sig_var = sigvar_binary_op_(sigvar1, sigvar2, binary_op, flip);
-        end
-    end
-
     %======================================================================
     % SERIALIZABLE INTERFACE
     properties(Constant, Access=private)
@@ -966,7 +977,6 @@ classdef (Abstract) PixelDataBase < serializable
             else
                 obj = PixelDataMemory();
             end
-
             obj = loadobj@serializable(S,obj);
         end
 
@@ -977,7 +987,6 @@ classdef (Abstract) PixelDataBase < serializable
             % serializable fields version
             ver = 2;
         end
-
         function flds = saveableFields(~)
             flds = PixelDataBase.fields_to_save_;
         end

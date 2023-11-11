@@ -3,7 +3,7 @@ function obj = apply(obj, func_handle, args, recompute_bins, compute_variance)
 % and recomputes the DnD image if requested.
 %
 % Inputs:
-% obj   --  initlized sqw object
+% obj   --  initialised sqw object
 %
 % func_handle
 %       -- Function handle or cell array of function handles to apply
@@ -35,5 +35,5 @@ end
 page_op = PageOp_apply();
 page_op = page_op.init(obj,func_handle,args,compute_variance,recompute_bins);
 
-obj = obj.apply_op(page_op);
+obj = sqw.apply_op(obj,page_op);
 
