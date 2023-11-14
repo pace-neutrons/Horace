@@ -595,6 +595,25 @@ classdef object_lookup < serializable
     
     
     %======================================================================
+    % Interface to test private functions
+    %======================================================================
+    % Private functions and methods are not accesible to testing without a
+    % public interface. Testing indirectly through public methods may be the
+    % purist's approach, but makes tracking of errors a real pain. By declaring
+    % test method interfaces as hidden, it is unlikely that anyone would stumble
+    % across them, and the names make it clear that their purpose is testing
+    % only
+    methods (Static, Hidden)
+        function [ind, ielmts, func, args, split] = test_parse_eval_method (varargin)
+            [ind, ielmts, func, args, split] = parse_eval_method (varargin{:});
+        end
+        
+        function split = test_parse_split (varargin)
+            split = parse_split (varargin{:});
+        end
+    end
+    
+    %======================================================================
     % SERIALIZABLE INTERFACE
     %======================================================================
     
