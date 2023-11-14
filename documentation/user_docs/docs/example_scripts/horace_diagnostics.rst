@@ -1,8 +1,11 @@
 Horace Diagnostics
 ##################
 
-This is a tutorial to explore some of the diagnostic features in
-Horace that allow you to understand strange features in your data.
+This is a tutorial was originally a script designed to explore some of
+the diagnostic features in Horace that allow you to understand strange
+features in your data.
+
+For the full script see `Whole script`_
 
 This will take you through all the steps from generation, spurion
 spotting, and analysis.
@@ -12,11 +15,11 @@ Generating data
 
 ::
 
-   %Take a cut from an sqw file, to get a dispersion plot. Ensure we do not
-   %select the -nopix option, i.e. the object "cs" will be larger in memory,
-
-   %but will retain all of the information about detector pixels from
-   %individual runs (sample orientations) during the experiment.
+   %Take a cut from an sqw file, to get a dispersion plot. Ensure we
+   % do not %select the -nopix option. While this means that the object
+   % "cs" will be larger in memory than with `-nopix`
+   % but will retain all of the information about detector pixels from
+   % individual runs (sample orientations) during the experiment.
 
    sqw_file='/mnt/data/Science/URu2Si2/data/sqw/Ei81_20K.sqw';
 
@@ -25,7 +28,8 @@ Generating data
    cs=cut(sqw_file,proj,[-0.05,0.05],[-4,0.04,-2],[-0.05,0.05], [0,0.8,20]);
 
    %Plot this:
-   %we use the "compact" routine to ensure we get tight axes around the data, without too much white space
+   % we use the "compact" routine to ensure we get tight axes around the data,
+   % without too much white space
    plot(compact(cs));
 
    lz 0 100;
@@ -35,6 +39,10 @@ Generating data
 
    Taking cut from data in file /mnt/data/Science/URu2Si2/data/sqw/Ei81_20K.sqw...
    Step 1 of 1; Have read data for 488866 pixels -- now processing data... -----> retained 24161 pixels
+
+.. figure:: ../images/DataDiagnostics_fig1.jpg
+   :align: center
+   :width: 500
 
 This is not very exciting, but notice there is an intense streak at
 K=-3, E=8. Is this real, or a spurion? One way to find out is to use
@@ -76,6 +84,10 @@ You should find that run 14 (psi=26) has a high point in the region
 we're worried about. But runs 89 and 90 (psi=25 and 26), 150
 (psi=26.5) and 209 (psi=25.5) do not have this feature.
 
+.. figure:: ../images/DataDiagnostics_fig2.png
+   :align: center
+   :width: 500
+
 This suggests that it is a spurion. We can test this by masking the
 data just from this run in our object:
 
@@ -92,6 +104,10 @@ data just from this run in our object:
    keep_figure
 
 and this confirms that indeed it was a spurion.
+
+.. figure:: ../images/DataDiagnostics_fig3.jpg
+   :align: center
+   :width: 500
 
 Understanding data from a single orientation
 ============================================
@@ -164,6 +180,11 @@ al) for an explanation of the science of this particular material.
    Taking cut from data in file /mnt/data/Science/Cs245/data/CsFeSe.sqw...
    Step 1 of 1; Have read data for 6672330 pixels -- now processing data... -----> retained 316821 pixels
 
+
+.. figure:: ../images/DataDiagnostics_fig4.jpg
+   :align: center
+   :width: 500
+
 ``coordinates_calc``
 --------------------
 
@@ -182,6 +203,10 @@ we go up in energy
 Notice that L is coupled to energy transfer. So this means as we
 increase energy we increase L, and hence :math:`\left|Q\right|`, which
 means the signal will be decreased due to the magnetic form factor.
+
+.. figure:: ../images/DataDiagnostics_fig5.jpg
+   :align: center
+   :width: 500
 
 ::
 
@@ -233,6 +258,10 @@ L changes as we increase energy (``qe1``).  But what is ``qe2``? This
 is the 2nd root, and corresponds to an alternative value of L that
 could also contribute to the data here.
 
+.. figure:: ../images/DataDiagnostics_fig6.jpg
+   :align: center
+   :width: 500
+
 Putting it all together
 -----------------------
 
@@ -258,6 +287,15 @@ slices:
    Step 1 of 1; Have read data for 6672330 pixels -- now processing data... -----> retained 73281 pixels
    Taking cut from data in file /mnt/data/Science/Cs245/data/CsFeSe.sqw...
    Step 1 of 1; Have read data for 6672330 pixels -- now processing data... -----> retained 635460 pixels
+
+.. figure:: ../images/DataDiagnostics_fig7.jpg
+   :align: center
+   :width: 500
+
+.. figure:: ../images/DataDiagnostics_fig8.jpg
+   :align: center
+   :width: 500
+
 
 In the first of these slices, ``ccs2``, we've changed the plot axes to be H
 and L. You can see that the detectors describe a curved path in the H,L
@@ -290,6 +328,10 @@ a problem, and then restrict the range of L to avoid this:
 
    Taking cut from data in file /mnt/data/Science/Cs245/data/CsFeSe.sqw...
    Step 1 of 1; Have read data for 6672330 pixels -- now processing data... -----> retained 315307 pixels
+
+.. figure:: ../images/DataDiagnostics_fig9.jpg
+   :align: center
+   :width: 500
 
 
 Whole script
