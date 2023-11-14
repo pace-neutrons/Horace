@@ -4,6 +4,10 @@ dnd vs sqw: the difference
 Tutorial to illustrate and explain the different data types in Horace,
 and why they are important.
 
+For more information on the differences between ``dnd`` and ``sqw``,
+:ref:`see here <manual/FAQ:The difference between sqw and dnd
+objects>`
+
 ::
 
    %Take two cuts:
@@ -31,6 +35,15 @@ and why they are important.
    Taking cut from data in file /mnt/data/Science/URu2Si2/data/sqw/Ei81_20K.sqw...
    Step 1 of 1; Have read data for 5579774 pixels -- now processing data... -----> retained 1121852 pixels
 
+.. figure:: ../images/dnd_vs_sqw_fig1.jpg
+   :align: center
+   :width: 500
+
+.. figure:: ../images/dnd_vs_sqw_fig2.jpg
+   :align: center
+   :width: 500
+
+
 The plots look (are!) identical. So what's the difference? Double click on them in the Workspace part of the Matlab
 window. You can see that the ``csqw`` object has a lot more information associated with it.
 
@@ -54,6 +67,15 @@ Example:
    keep_figure;
 
 
+.. figure:: ../images/dnd_vs_sqw_fig3.jpg
+   :align: center
+   :width: 500
+
+.. figure:: ../images/dnd_vs_sqw_fig4.jpg
+   :align: center
+   :width: 500
+
+
 The two figures are identical, because the func_eval routine only uses the plot axis coordinates as its input, not
 (H, K, L, E).
 
@@ -74,6 +96,14 @@ this is important:
 
    plot(csimdnd);
    keep_figure;
+
+.. figure:: ../images/dnd_vs_sqw_fig5.jpg
+   :align: center
+   :width: 500
+
+.. figure:: ../images/dnd_vs_sqw_fig6.jpg
+   :align: center
+   :width: 500
 
 These are totally different.
 
