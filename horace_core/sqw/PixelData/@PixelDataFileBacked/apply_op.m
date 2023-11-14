@@ -4,7 +4,7 @@ function obj_out = apply_op(obj_in,page_op)
 %
 % Inputs:
 % obj    --  PixelDataFilebacked object
-% obj_in --  sqw or this PixeldData object which contains this pixel object 
+% obj_in --  sqw or this PixeldData object which contains this pixel object
 %            (if it contains other pixel object, that object will be
 %            destroyed)
 %            Valid sqw  object requested, i.e. obj.data.npix define the
@@ -68,9 +68,12 @@ obj_out = page_op.finish_op(obj_in);
 %
 if ll > 0
     te = toc(t0);
-    fprintf(['*** Completed %s using %d pages in %d sec.\n' ...
-        '*** Resulting object is backed by file: %s\n'], ...
-        op_name,n_chunks,te,obj_out.full_filename);
+    fprintf('*** Completed %s using %d pages in %d sec.\n', ...
+        op_name,n_chunks,te);
+    if page_op.inform_about_target_file
+        fprintf('*** Resulting object is backed by file: %s\n', ...
+            obj_out.full_filename)
+    end
 end
 if issue_range_warning
     old_file_format = ~was_misaligned;

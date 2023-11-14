@@ -44,8 +44,8 @@ classdef PageOpBase
         % operations
         op_name
 
-        % npix array (the same as img_.npix, but 1D), containing the pixel 
-        % distribution over binning. If no binning is provided it is a 
+        % npix array (the same as img_.npix, but 1D), containing the pixel
+        % distribution over binning. If no binning is provided it is a
         % single number equal to number of pixels (all pixels in one bin)
         npix
         % Property defines necessary way to split pixels data. Many
@@ -84,6 +84,12 @@ classdef PageOpBase
         % algorithm is the one which actually recalculates missing range.
         % No range warning should be generated for pixels only too.
         do_missing_range_warning;
+        % expose current page of data used/processed by  the algorithm
+        % Used in tests
+        page_data
+        % if true, page_op completed on filebacked object prints the name
+        % of the file backing this object.
+        inform_about_target_file
     end
 
     properties(Access=protected)
@@ -136,6 +142,9 @@ classdef PageOpBase
         split_at_bin_edges_ = false;
         % counter of pix position when the operation is split at bin edges
         pix_idx_start_
+        % if true, page_op completed on filebacked object prints the name
+        % of the file backing this object.
+        inform_about_target_file_ = true;
     end
     methods(Abstract)
         % Specific apply operation method, which need overloading
@@ -186,9 +195,9 @@ classdef PageOpBase
             %                the npix array.
             % See split procedure for more details
             if obj.split_at_bin_edges_
-                [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
-            else
                 [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
+            else
+                [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
             end
         end
         %
@@ -410,6 +419,13 @@ classdef PageOpBase
             obj.op_name_ = val;
         end
         %
+        function do = get.inform_about_target_file(obj)
+            do = obj.inform_about_target_file_;
+        end
+        function obj = set.inform_about_target_file(obj,val)
+            obj.inform_about_target_file_ = logical(val);
+        end        
+        %
         function do = get.split_at_bin_edges(obj)
             do = obj.split_at_bin_edges_;
         end
@@ -430,6 +446,10 @@ classdef PageOpBase
         %
         function do = get.do_missing_range_warning(obj)
             do = get_do_missing_range_warning(obj);
+        end
+        %
+        function pd = get.page_data(obj)
+            pd = obj.page_data_;
         end
     end
     %======================================================================

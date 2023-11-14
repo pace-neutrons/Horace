@@ -41,7 +41,7 @@ if isempty(varargin)
 elseif iscell(varargin{1})
     if nargin > 2
         error('HORACE:combine_sqw:invalid_argument',...
-              'if second argument is a cellarray of sqw objects, combine_sqw can only accept 2 arguments');
+            'if second argument is a cellarray of sqw objects, combine_sqw can only accept 2 arguments');
     end
     inputs = [w1,varargin{1}{:}];
 else
@@ -52,9 +52,9 @@ right_type = arrayfun(@(x) isa(x, 'sqw'), inputs);
 if ~all(right_type)
     n_empty = numel(right_type)-sum(right_type);
     error('HORACE:combine_sqw:invalid_argument',...
-          ['Input objects must be sqw type with detector pixel information.' ...
-          ' Input contains %d non-sqw objects'],...
-          n_empty);
+        ['Input objects must be sqw type with detector pixel information.' ...
+        ' Input contains %d non-sqw objects'],...
+        n_empty);
 end
 
 % Ignore empty datasets
@@ -71,27 +71,30 @@ elseif isscalar(inputs)
 
 end
 
+
 % calculate real image ranges for all datasets. Transform the ranges into
 % the coordinate frame of the first dataset
 img_ranges = arrayfun(@(x) x.data.img_range,inputs,...
-                      'UniformOutput',false);
+    'UniformOutput',false);
 full_img_rng = cellfun(@(box) expand_box(box(1,:),box(2,:)),img_ranges,...
-                       'UniformOutput',false);
+    'UniformOutput',false);
 
+exper = arrayfun(@(sq)(sq.experiment_info),inputs,...
+    'UniformOutput',false);
 %
 % retrieve projections for all contributing cuts
 all_proj_block = arrayfun(@(ws) ws.data.proj,inputs,...
-                          'UniformOutput',false);
+    'UniformOutput',false);
 
 % transform the ranges into common coordinate system
 full_pix_rng = cellfun(@(proj, data) proj.transform_img_to_pix(data),...
-                       all_proj_block,full_img_rng,'UniformOutput',false);
+    all_proj_block,full_img_rng,'UniformOutput',false);
 
 
 % do transformation into the first sqw object image coordinate frame
 proj1 = all_proj_block{1};
 full_img_rng = cellfun(@(data) proj1.transform_pix_to_img(data),...
-                       full_pix_rng,'UniformOutput',false);
+    full_pix_rng,'UniformOutput',false);
 
 full_img_rng = [full_img_rng{:}];
 % get common range for combining pixels
@@ -126,18 +129,17 @@ end
 wout = copy(inputs(1));
 pix = arrayfun(@(x) x.pix, inputs, 'UniformOutput', false);
 
-% TODO: Re #1032 This is very inefficient and needs checks
-if wout.pix.is_filebacked
-    [wout, ldr] = wout.get_new_handle();
-    wout.pix = wout.pix.cat(pix{:}, ldr);
-else
-    wout.pix = wout.pix.cat(pix{:});
-end
-
 % Turn off horace_info output, but save for automatic clean-up on exit or ctrl-C
 info_level = get(hor_config,'log_level');
 cleanup_obj=onCleanup(@()set(hor_config, 'log_level', info_level));
 set(hor_config,'log_level',-1);
+
+% concatenate object pixels into single pixels blob
+wout.pix = pix{1}.cat(pix{2:end});
+
+% combine experiments from contributing files. Cut should drop duplicates
+wout.experiment_info = exper{1}.combine_experiments(exper(2:end),true,true);
+
 
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin.

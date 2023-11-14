@@ -563,7 +563,6 @@ classdef Experiment < serializable
 
             elseif isempty(val)
                 % do nothing, leave default compressed container empty
-                ;
             else
                 error('HORACE:Experiment:invalid_argument', ...
                       ['input is not empty, does not have the right number ' ...
