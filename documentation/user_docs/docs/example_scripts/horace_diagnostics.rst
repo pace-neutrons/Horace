@@ -1,11 +1,11 @@
 Horace Diagnostics
 ##################
 
-This is a tutorial was originally a script designed to explore some of
-the diagnostic features in Horace that allow you to understand strange
+This tutorial was originally a script designed to explore some of the
+diagnostic features in Horace that allow you to understand strange
 features in your data.
 
-For the full script see `Whole script`_
+`Whole script`_ available here.
 
 This will take you through all the steps from generation, spurion
 spotting, and analysis.
@@ -17,8 +17,8 @@ Generating data
 
    %Take a cut from an sqw file, to get a dispersion plot. Ensure we
    % do not %select the -nopix option. While this means that the object
-   % "cs" will be larger in memory than with `-nopix`
-   % but will retain all of the information about detector pixels from
+   % "cs" will be larger in memory than with `-nopix`.
+   % It will retain all of the information about detector pixels from
    % individual runs (sample orientations) during the experiment.
 
    sqw_file='/mnt/data/Science/URu2Si2/data/sqw/Ei81_20K.sqw';
@@ -75,7 +75,7 @@ Run inspector
 .. note::
 
    You can explore the data, toggling between runs using the arrow keys,
-   and the page-up / page-down keys to skip 10 runs ahead.
+   and using the page-up / page-down keys to skip 10 runs ahead.
 
 Notice that the value of psi and the run number from when you made the
 data file are given in the plot title.
@@ -122,7 +122,7 @@ Generating data
 ---------------
 
 Generate a suitable sqw file, from a single orientation (see Taylor et
-al) for an explanation of the science of this particular material.
+al for an explanation of the science of this particular material).
 
 .. note::
 
