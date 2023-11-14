@@ -62,8 +62,8 @@ classdef test_refine_crystal < TestCase
         end
 
         function test_fit_err_est(obj)
-        % Simple test to check whether err_est can be returned and
-        % is within acceptable range.
+        % Simple test to check whether err_est can be returned by refine_crystal and
+        % is within acceptable tolerance.
             [algn_inf, err_est] = refine_crystal( ...
                 obj.bragg_peak_expected, obj.alatt_base, obj.angdeg_base, ...
                 obj.bragg_peak_measured, [5.1, 5.2, 5.3], [92, 88, 91]);
