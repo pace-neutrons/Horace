@@ -57,18 +57,16 @@ else
         end
         got_from_file = false;
     end
-    if isempty(config_data) % get defaults
+    if isempty(config_data) % get defaults if unable to load from file
         config_data = class_to_restore.get_defaults();
         got_from_file = false;
     end
 
-
+    % set values loaded from file as memory values
     obj.config_storage_.(class_name) = config_data;
-    % this returns current state of save-able property and if it is not
-    % set, returns default state of the object.
+
+    % get default value for saveable state of the configuration
     if ~obj.saveable_.isKey(class_name)
         obj.saveable_(class_name)=class_to_restore.get_saveable_default();
     end
-    % if the class has been loaded from file, set-up its active properties,
-    % in case they perform more then
 end

@@ -99,12 +99,23 @@ classdef config_store < handle
             % remain
             %
             %Usage:
-            %>>val = ...
-            %      config_store.instance().get_value(class_name,property_name)
-            % or
-            %>>[val1,val2,val3] = ...
-            %       config_store.instance().get_value(class_name,...
-            %                               property_name1,property_name2,property_name3);
+            %[val1,val2,...] =
+            %        config_store.instance().get_config_field(config_class,
+            %        field_is_missing_warning,field1,[field2,....]);
+            % Inputs:
+            % config_class -- the configuration class or its name to get
+            %                 values from.
+            % field1       -- the name of the configuration field to return
+            %                 value for
+            % Optional:
+            % field2,...   -- the names of more fields to retrieve
+            %
+            % Returns:
+            % val1         -- the value of the configuration field with the
+            %                 name field1
+            % Optional
+            % val2,val3... -- the values of additional fields requested as
+            %                 input
             %
             out = get_config_field_value_(obj,class_name_or_inst,varargin{:});
             for i=1:nargout
@@ -125,16 +136,21 @@ classdef config_store < handle
             %Usage:
             %[val1,val2,...] =
             %        config_store.instance().get_config_field(config_class,
-            %        field_is_missing_warning,field1,field2,....);
-            % where:
+            %        field_is_missing_warning,field1,[field2,....]);
+            % Inputs:
             % config_class -- the configuration class or its name to get
             %                 values from.
-            % field1,field2, etc...
-            %              -- the names of the fields of the above
-            %                 class to get their values.
+            % field1       -- the name of the configuration field to return
+            %                 value for
+            % Optional:
+            % field2,...   -- the names of more fields to retrieve
+            %
             % Returns:
-            % val1,val2, etc...
-            %              -- the values of the requested fields
+            % val1         -- the value of the configuration field with the
+            %                 name field1
+            % Optional
+            % val2,val3... -- the values of additional fields requested as
+            %                 input
             %
             out = get_config_field_value_(this,class_to_restore,varargin{:});
             for i=1:nargout
