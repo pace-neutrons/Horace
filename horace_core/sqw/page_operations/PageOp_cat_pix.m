@@ -1,6 +1,6 @@
 classdef PageOp_cat_pix < PageOpBase
     % Single page pixel operation and main gateway for
-    % cat/join/combine_sqw algorithms.
+    % cat pixels algorithm. This version works for pixels only
     %
     %
     properties
@@ -88,25 +88,6 @@ classdef PageOp_cat_pix < PageOpBase
 
         function obj = apply_op(obj,varargin)
             % cat does not change pixels
-        end
-        %
-        function [out_obj,obj] = finish_op(obj,out_obj)
-            if ~obj.changes_pix_only
-                obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc);
-                %
-                if numel(obj.unique_run_id_) == out_obj.experiment_info.n_runs
-                    obj.check_runid = false; % this will not write experiment info
-                    % again as it has not changed
-                else
-                    % it always have to be less or equal, but some tests do not
-                    % have consistent Experiment
-                    if numel(obj.unique_run_id_) < out_obj.experiment_info.n_runs
-                        out_obj.experiment_info = ...
-                            out_obj.experiment_info.get_subobj(obj.unique_run_id_);
-                    end
-                end
-            end
-            [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
         end
         %
     end

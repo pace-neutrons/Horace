@@ -9,9 +9,6 @@ classdef PageOp_sqw_eval < PageOpBase
         op_parms
         %
     end
-    properties(Access = private)
-        pix_idx_start_ = 1;
-    end
 
     methods
         function obj = PageOp_sqw_eval(varargin)
@@ -33,6 +30,15 @@ classdef PageOp_sqw_eval < PageOpBase
                 obj.proj      = sqw_obj.data.proj;
             end
         end
+        function obj = update_img_accumulators(obj,npix_block,npix_idx, ...
+                new_signal,varargin)
+            % specific overload for sqw_eval. Variance accumulator is not
+            % initialized for it, and call to compute_bin_data accepts only
+            % one argument
+            img_signal = compute_bin_data(npix_block,new_signal,[],true);
+            obj.sig_acc_(npix_idx(1):npix_idx(2)) = ...
+                obj.sig_acc_(npix_idx(1):npix_idx(2))+img_signal(:);
+        end
 
         function obj = apply_op(obj,npix_block,npix_idx)
             qw = obj.proj.transform_pix_to_hkl(obj.page_data_(obj.coord_idx,:));
@@ -53,13 +59,11 @@ classdef PageOp_sqw_eval < PageOpBase
             obj.page_data_(obj.var_idx,:)      = 0; % I do not like this but this is legacy behaviour
             %
             obj = update_img_accumulators(obj,npix_block,npix_idx, ...
-                new_signal,[]);
+                new_signal);
         end
 
         function [out_obj,obj] = finish_op(obj,out_obj)
-            variance = zeros(numel(obj.sig_acc_),1); % I do not like this but this is legacy behaviour
-            % Complete image modifications:
-            obj = obj.update_image(obj.sig_acc_,variance);
+            obj.var_acc_ = zeros(numel(obj.sig_acc_),1); % I do not like this but this is legacy behaviour
 
             % transfer modifications to the underlying object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);

@@ -136,7 +136,9 @@ classdef PageOp_mask < PageOpBase
         %
         function [out_obj,obj] = finish_op(obj,out_obj)
             if ~obj.changes_pix_only
-                obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc);
+                % update npix with accumulator, accounting for change in
+                % npix due to masked pixels
+                obj.npix = obj.npix_acc;
                 %
                 if numel(obj.unique_run_id_) == out_obj.experiment_info.n_runs
                     obj.check_runid = false; % this will not write experiment info

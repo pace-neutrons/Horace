@@ -159,8 +159,7 @@ classdef PageOp_binary_sqw_img < PageOp_bin_Base
             % reduce total number of pixels in final image to account for
             % pixels removed from masked bins
             obj.npix_(~obj.keep_array) = 0;
-            %
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_);
+
             [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
         end
     end

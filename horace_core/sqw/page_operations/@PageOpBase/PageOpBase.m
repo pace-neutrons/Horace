@@ -259,7 +259,8 @@ classdef PageOpBase
             % Returns:
             % obj        -- page_op object containg updated accumulators.
             %
-            % Some operations overload this method
+            % Some operations overload update_img_accumulators method
+
             [s_ar, e_ar] = compute_bin_data(npix_block,signal,variance,true);
             if obj.split_at_bin_edges_
                 obj.sig_acc_(npix_idx(1):npix_idx(2))        = s_ar(:);
@@ -469,7 +470,7 @@ classdef PageOpBase
             do  = ~isempty(obj.img_);
         end
 
-        function obj = update_image(obj,sig_acc,var_acc,npix_acc)
+        function obj = update_image(obj,sig_acc,var_acc)
             % The piece of code which often but not always used at the end
             % of an operation when modified data get transformed from
             % accumulators to the final image finalizing the image
@@ -480,15 +481,11 @@ classdef PageOpBase
             %            operation(s)
             % var_acc -- array accumulating changed variance during
             %            operation(s)
-            % Optional:
-            % npix_acc -- array accumulating changes in npix during
-            %             operation(s)
-            % Returns:
+           % Returns:
             % obj      -- operation object containing modified image, if
             %             image have been indeed modified
-            if nargin == 3
-                npix_acc = obj.npix(:);
-            end
+
+            npix_acc = obj.npix(:);
             obj = update_image_(obj,sig_acc,var_acc,npix_acc);
         end
         %
