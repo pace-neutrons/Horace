@@ -50,7 +50,7 @@ classdef PageOp_binary_sqw_sqw < PageOp_bin_Base
             %
             % Overloaded for dealing with two PixelData objects
             [obj,pix_idx] = get_page_data@PageOp_bin_Base(obj,idx,npix_blocks);
-            page_data2    = obj.operand.get_pixels(pix_idx,'-raw','align');
+            page_data2    = obj.operand.get_pixels(pix_idx,'-raw','-align');
             if obj.sort_pixels_in_bins
                 % sort pixels as they usually randomly distributed
                 % within the bins. These are the pixel indexes within the npix
