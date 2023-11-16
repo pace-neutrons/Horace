@@ -58,7 +58,7 @@ classdef PageOp_section < PageOpBase
             bl_start   = bl_chunk{1};
             bl_size    = bl_chunk{2};
             ind = get_ind_from_ranges(bl_start, bl_size);
-            obj.page_data_ = obj.pix_.get_pixels(ind ,'-raw');
+            obj.page_data_ = obj.pix_.get_pixels(ind ,'-raw','-align');
         end
 
         function obj = apply_op(obj,varargin)

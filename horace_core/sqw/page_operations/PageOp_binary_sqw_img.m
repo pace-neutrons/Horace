@@ -54,7 +54,7 @@ classdef PageOp_binary_sqw_img < PageOp_bin_Base
                     error('HORACE:PageOp_binary_sqw_img:invalid_argument', ...
                         'external npix input and second operand of DnD-type are not compartible')
                 end
-                % need to remove pixels in places where  second operand
+                % need to remove pixels in bins where  second operand
                 % does not have pixels (operand.npix == 0)
                 obj.keep_array = logical(obj.operand.npix(:));
                 if  numel(obj.npix)== 1 % 1st operand is npix only and class

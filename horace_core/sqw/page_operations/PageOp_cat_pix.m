@@ -64,7 +64,7 @@ classdef PageOp_cat_pix < PageOpBase
                 pix_idx_start = obj.pix_block_start_(npix_idx(1));
                 pix_idx_end   = pix_idx_start+chunks - 1;
                 obj.page_data_ = obj.in_objects{npix_idx(1)}.get_pixels( ...
-                    pix_idx_start:pix_idx_end,'-raw');
+                    pix_idx_start:pix_idx_end,'-raw','-align');
 
                 obj.pix_block_start_(npix_idx(1)) = pix_idx_end+1;
             else % more then one PixelData object per obj.page_data_
@@ -79,7 +79,7 @@ classdef PageOp_cat_pix < PageOpBase
                     page_idx_end = page_idx_start + chunks(i)-1;
                     obj.page_data_(:,page_idx_start:page_idx_end) = ...
                         accessor.get_pixels( ...
-                        pix_idx_start:pix_idx_end,'-raw');
+                        pix_idx_start:pix_idx_end,'-raw','-align');
                     obj.pix_block_start_(n_accessor(i)) = pix_idx_end+1;
                     page_idx_start = page_idx_end+1;
                 end

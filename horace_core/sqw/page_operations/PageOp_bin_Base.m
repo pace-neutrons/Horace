@@ -72,7 +72,7 @@ classdef PageOp_bin_Base < PageOpBase
             pix_idx_end = obj.pix_idx_start_+npix-1;
 
             pix_idx = obj.pix_idx_start_:pix_idx_end;
-            obj.page_data_ = obj.pix_.get_pixels(pix_idx,'-raw');
+            obj.page_data_ = obj.pix_.get_pixels(pix_idx,'-raw','-align');
 
             obj.pix_idx_start_ = pix_idx_end+1;
         end

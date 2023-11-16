@@ -36,5 +36,3 @@ end
 if ~align && misaligned
     pix_out.alignment_matr  = obj.alignment_matr;
 end
-
-end
