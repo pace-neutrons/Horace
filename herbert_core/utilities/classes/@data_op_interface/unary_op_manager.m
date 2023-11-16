@@ -27,8 +27,8 @@ function w = unary_op_manager (w1, unary_op)
 w = w1;
 for i=1:numel(w1)
     %----------------------------------------------------------------------
-    % The following block is overloaded by children classes not easy
-    % convertable to sigvar
+    % The following block is implemented differently in the children classes
+    % not easy convertable to sigvar.
     result = unary_op(sigvar(w1(i)));
     w(i)   = sigvar_set(w(i),result);
     %----------------------------------------------------------------------
