@@ -86,6 +86,13 @@ classdef PageOp_section < PageOpBase
             % Experiment
             is = obj.old_file_format_||obj.check_runid;
         end
+        function  does = get_changes_pix_only(~)
+            % pageOp calculates pixels only using image as source. No point
+            % of calculating image from pixels again as it would be in
+            % usual PageOp
+            does = true;
+        end
+        
     end
     methods(Static)
         function [block_starts,block_sizes] = find_section(npix,ind_range)
