@@ -73,6 +73,14 @@ classdef PageOp_apply < PageOp_sqw_eval
             obj.sig_acc_(npix_idx(1):npix_idx(2)) = img_signal(:);
             obj.var_acc_(npix_idx(1):npix_idx(2)) = img_var(:);
         end
+        function [out_obj,obj] = finish_op(obj,out_obj)
+            % unlike its parent PageOp_sqw_eval, this operation calculates
+            % variance, so one needs to overload it over
+            % finish_op@PageOp_sqw_eval
+            [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
+        end
+
+
     end
     methods(Access=protected)
         function  does = get_changes_pix_only(obj)

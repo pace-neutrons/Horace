@@ -1,6 +1,6 @@
 classdef PageOp_cat_pix < PageOpBase
     % Single page pixel operation and main gateway for
-    % cat pixels algorithm. This version works for pixels only
+    % cat pixels algorithm. This version works with pixels only
     %
     %
     properties
@@ -121,6 +121,12 @@ classdef PageOp_cat_pix < PageOpBase
             % if sqw object is processed, here we want to know unique
             % run_id
             is = ~isempty(obj.img_);
+        end
+        function  does = get_changes_pix_only(~)
+            % pageOp calculates pixels only using image as source. No point
+            % of calculating image from pixels again as it would be in
+            % usual PageOp
+            does = true;
         end
     end
 end
