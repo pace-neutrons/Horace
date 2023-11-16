@@ -1,5 +1,5 @@
 function varargout = call_eval_method (obj, ind, ielmts, israndfunc, func, args, split)
-% Call evaluation method on an indexed subset of and object array
+% Call evaluation method on an indexed subset of an object array
 %
 %   >> [X1, X2,...] = call_eval_method (obj, ind, ielmts, israndfunc, func, args, split)
 %

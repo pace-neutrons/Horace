@@ -76,7 +76,8 @@ classdef boxArrayClass
         %------------------------------------------------------------------
         function [x1col, x1row, x12] = rand_elmts_position (obj, ielmts, ...
                 shift1col, shift1row, shift12)
-            % Return random points from a single box, optionally further shifted
+            % Return random points from a set of boxes within a boxArrayClass
+            % object, those boxes having been optionally further shifted.
             %
             %   >> [x1col, x1row, x12] = rand_elmts_position (obj, ielmts)
             %
@@ -159,7 +160,8 @@ classdef boxArrayClass
         %------------------------------------------------------------------
         function [r1col, r1row, r12] = range_elmts (obj, ielmts, ...
                 shift1col, shift1row, shift12)
-            % Return random points from a single box, optionally further shifted
+            % Return ranges of a set of boxes within a boxArrayClass
+            % object, those boxes having been optionally further shifted.
             %
             %   >> [r1col, r1row, r12] = range_elmts (obj, ielmts)
             %
