@@ -124,7 +124,7 @@ end
 
 if ~use_mex
     % maintain type of pix
-    pix = pix_retained{1}.cat(pix_retained{:});
+    pix = pix_retained{1}.cat(pix_retained{2:end});
     clear pix_retained;
     if isempty(pix)  % return early if no pixels
         pix = PixelDataMemory();
