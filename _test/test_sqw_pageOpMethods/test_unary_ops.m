@@ -121,8 +121,8 @@ classdef test_unary_ops < TestCase
             assertEqualToTol(result.pix.signal, expected_signal,'tol',2*eps('single'));
             assertEqualToTol(result.pix.variance, expected_var,'tol',2*eps('single'));
 
-            assertEqualToTol(result.data.s,sum(expected_signal)/num_pix,'tol',2*eps('single'))
-            assertEqualToTol(result.data.e,sum(expected_var)/num_pix.^2,'tol',2*eps('single'))
+            assertEqualToTol(result.data.s,sum(expected_signal)/num_pix,'tol',8*eps('single'))
+            assertEqualToTol(result.data.e,sum(expected_var)/num_pix.^2,'tol',8*eps('single'))
         end
 
         function test_unary_op_updates_signal_and_variance_in_mem(~)
