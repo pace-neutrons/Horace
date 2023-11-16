@@ -5,8 +5,20 @@ classdef config_base
     %
     %
     % all derived classes used with configuration have to define two
-    % abstract methods of this class (see below) and specify the setters
-    % and getters for all stored properties in the following form:
+    % abstract methods of this class:
+    % 1)
+    % helper function returns the list of the public properties,
+    % which values one needs to store.
+    %   fields = get_storage_field_names(class_instance)
+    % 2)
+    % method returns default property value idefined by condif class instance
+    % ignoring current value, stored in common configuration and returned by
+    % usual get.property method:
+    % value = get_default_value(obj,field_name)
+    %
+
+    % And specify the setters and getters for all stored properties in
+    % the following form:
     %
     % a) the property itself has to be defined as dependent e.g.:
     %
@@ -53,6 +65,17 @@ classdef config_base
         % interdependent properties until they all have been set up.
         do_check_combo_arg
     end
+    properties(Dependent,Hidden)
+        % defines the list of properties, which never stored on HDD and
+        % exist in memory only.
+        % To define such properties, the child class should add the name of
+        % the property to this list.
+        mem_only_prop_list;
+
+        % if true, issue warning if class have never been configured and
+        % its values are choosen from defaults.
+        warn_if_missing_config
+    end
 
     properties(Access=protected)
         % the name of the derived class with provides information to store
@@ -60,6 +83,12 @@ classdef config_base
         is_saveable_ = true;
         returns_defaults_=false;
         do_check_combo_arg_ = true;
+        % list of the properties, which never stored on hdd
+        mem_only_prop_list_ = {};
+        % issue warning if the configuration file is missing and this is
+        % the first time you define the configuration, which is set to
+        % defaults
+        warn_if_missing_config_ = true;
     end
 
     methods(Abstract)
@@ -74,16 +103,20 @@ classdef config_base
         %   fields  = {stored_poperty};
         %end
 
-        value = get_internal_field(this,field_name)
-        % method gets internal field value bypassing standard get/set
-        % methods interface
-        %
-        % For the example provided in the class description, this method
-        % has to have a form:
-        %
-        %function value = get_internal_field(this,field_name)
-        %   value = this.([field_name,'_']);
-        %end
+        value = get_default_value(obj,field_name);
+        % function value = get_default_value(obj,field_name)
+        %     % method returns default property value idefined by config
+        %     % class instance ignoring current value, stored in common
+        %     % configuration and returned by usual get.property method.
+        %     %
+        %     % Default protected field names, corresponding to property names
+        %     % normaly nave the form:
+        %     % protected_prop_name = [public_prop_name,'_']
+        %     % so default implementation of this function have the fome:
+        %     %
+        %     value = obj.([field_name,'_']);
+        % end
+
     end
     methods
         function obj=config_base(class_name)
@@ -139,14 +172,26 @@ classdef config_base
 
         function this=set.returns_defaults(this,val)
             this.returns_defaults_ = val > 0;
-        end        
+        end
         %
         function do = get.do_check_combo_arg(obj)
             do = obj.do_check_combo_arg_;
         end
         function obj = set.do_check_combo_arg(obj,val)
-             obj.do_check_combo_arg_ = logical(val);
-        end        
+            obj.do_check_combo_arg_ = logical(val);
+        end
+        %
+        function mopl = get.mem_only_prop_list(obj)
+            mopl = obj.mem_only_prop_list_;
+        end
+        %
+        function do = get.warn_if_missing_config(obj)
+            do = obj.warn_if_missing_config_;
+        end
+        function obj = set.warn_if_missing_config(obj,val)
+            obj.warn_if_missing_config_ = logical(val);
+        end
+
     end
     methods
         function isit = is_default(this)
@@ -157,28 +202,29 @@ classdef config_base
         end
 
         %------------------------------------------------------------------
-        function value =get_or_restore_field(this,field_name)
+        function value =get_or_restore_field(obj,field_name)
             % method to restore value from config_store if available or
             % take default value from the class defaults if not
 
             % the method is used as the part of a standard derived class getter.
 
-            if this.returns_defaults
-                value = get_internal_field(this,field_name);
+            if obj.returns_defaults
+                value = get_default_value(obj,field_name);
             else
                 % get actual configuration
                 % if class have never been stored in configuration, it
                 % will return defaults
-                value = config_store.instance.get_config_field(this,field_name);
+                value = config_store.instance.get_config_field( ...
+                    obj,field_name);
             end
         end
 
-        function data=get_defaults(this)
+        function data=get_defaults(obj)
             % method returns the structure with default class data,
-            fields = this.get_storage_field_names();
+            fields = obj.get_storage_field_names();
             data=struct();
             for i=1:numel(fields)
-                data.(fields{i}) = get_internal_field(this,fields{i});
+                data.(fields{i}) = get_default_value(obj,fields{i});
             end
         end
 
@@ -209,12 +255,11 @@ classdef config_base
                 field_name = fields{i};
                 obj.(field_name) = data.(field_name);
             end
-            obj.do_check_combo_arg = true;            
+            obj.do_check_combo_arg = true;
             obj = obj.check_combo_arg();
         end
         function obj = check_combo_arg(obj)
             % do validation of the interdependent properties
         end
     end
-
 end

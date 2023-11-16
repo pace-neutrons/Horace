@@ -146,7 +146,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
         function test_cluster_init_on_fake_jenkins(obj)
             if is_jenkins() % do not run it on real Jenkins, it may mess
-                % the whole Jenkins enviroment
+                % the whole Jenkins environment
                 return;
             end
             obj.set_up_fake_jenkins();
@@ -156,7 +156,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             % clear configuration from memory to ensure the configuration
             % will be rebuild as Jenkins configuration
             config_store.instance().clear_all();
-            clOb = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clOb = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
             obj.test_cluster_init();
 

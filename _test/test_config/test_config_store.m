@@ -182,7 +182,7 @@ classdef test_config_store < TestCase
             config_store.instance().clear_config(tsc1)
             assertFalse(config_store.instance().is_configured(tsc1,'-in_mem'));
 
-            wc=warning('off','HERBERT:config_store:runtime_error');
+            wc=warning('off','HERBERT:config_store:outdated_configuration');
             tsc1a=config_store.instance().get_config(tsc1);
             warning(wc);
 
@@ -244,7 +244,7 @@ classdef test_config_store < TestCase
             assertFalse(is_file(config_file));
 
         end
-        function test_restore_some_fields(this)
+        function test_restore_some_fields(~)
             % set up
             tsc = some_test_class2();
             config_store.instance().clear_config(tsc)
