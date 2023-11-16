@@ -311,6 +311,10 @@ mxArray* deserialize(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
         uint32_t nFields;
         std::vector<uint32_t> fNameLens(0);
         if ((nDims == 2) && (memPtr >= size)) {
+            /* IMHO, empty structure with 2 dimensions and 0 fields exist
+             in this case memPtr points exactly to the data after the field
+             derining nFields and attept to deser nFields causes crash. Removing this
+             code causes intremittent crash in deserializaion, so be careful doing this*/
             nFields = 0;
         }
         else {
