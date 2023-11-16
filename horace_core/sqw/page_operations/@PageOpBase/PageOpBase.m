@@ -456,9 +456,15 @@ classdef PageOpBase
     %======================================================================
     methods(Access=protected)
         function is = get_exp_modified(obj)
+            % is_exp_modified controls calculations of unique runid-s
+            % during page_op.
+            %
+            % old_file format usually needs recalculation.
             is = obj.old_file_format_;
         end
         function  does = get_changes_pix_only(obj)
+            % changes_pix only controls processing of image accumulators,
+            % so if there image, we assime we want to calculate it.
             does = isempty(obj.img_);
         end
         function obj = set_changes_pix_only(obj,varargin)
@@ -467,6 +473,7 @@ classdef PageOpBase
         end
 
         function do = get_do_missing_range_warning(obj)
+            % warning should be issued for 
             do  = ~isempty(obj.img_);
         end
 

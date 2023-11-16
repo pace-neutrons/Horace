@@ -91,15 +91,6 @@ classdef PageOp_cat_pix < PageOpBase
         end
         %
     end
-    methods(Static,Access=private)
-        function npix = cell_contents(cellarray,cell_idx)
-            if numel(cellarray)> cell_idx
-                npix  = 0;
-            else
-                npix = cellarray{cell_idx};
-            end
-        end
-    end
     methods(Access=protected)
         function obj = init_pix_only_data_obj(obj,varargin)
             % process and prepare for operations input array of pixel data
@@ -118,6 +109,9 @@ classdef PageOp_cat_pix < PageOpBase
             obj.npix_tot = npix_tot_;
         end
         function is = get_exp_modified(obj)
+            % is_exp_modified control calculations of unique runid-s
+            % during page_op.
+            %
             % if sqw object is processed, here we want to know unique
             % run_id
             is = ~isempty(obj.img_);
