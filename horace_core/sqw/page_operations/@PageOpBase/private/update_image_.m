@@ -13,9 +13,7 @@ function obj = update_image_(obj,sig_acc,var_acc,npix_acc)
 % Returns:
 % obj      -- operation object containing modified image, if
 %             image have been indeed modified
-if obj.changes_pix_only
-    return;
-end
+
 [calc_sig,calc_var] = normalize_signal( ...
     sig_acc(:),var_acc(:),npix_acc(:));
 

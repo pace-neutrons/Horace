@@ -61,6 +61,22 @@ classdef PageOp_bin_Base < PageOpBase
             end
             obj.pix_idx_start_ = 1;
         end
+        function [obj,pix_idx] = get_page_data(obj,idx,npix_blocks)
+            % retrieve block of data used in page operation
+            %
+            % Overloaded for dealing with two PixelData objects so returns
+            % indices of the first data object
+
+            npix_block = npix_blocks{idx};
+            npix = sum(npix_block(:));
+            pix_idx_end = obj.pix_idx_start_+npix-1;
+
+            pix_idx = obj.pix_idx_start_:pix_idx_end;
+            obj.page_data_ = obj.pix_.get_pixels(pix_idx,'-raw');
+
+            obj.pix_idx_start_ = pix_idx_end+1;
+        end
+
         %
         function obj = set_op_name(obj,obj1_name,obj2_name)
             % Define the name of the binary operation from the class of the

@@ -425,7 +425,7 @@ classdef PageOpBase
         end
         function obj = set.inform_about_target_file(obj,val)
             obj.inform_about_target_file_ = logical(val);
-        end        
+        end
         %
         function do = get.split_at_bin_edges(obj)
             do = obj.split_at_bin_edges_;
@@ -481,10 +481,12 @@ classdef PageOpBase
             %            operation(s)
             % var_acc -- array accumulating changed variance during
             %            operation(s)
-           % Returns:
+            % Returns:
             % obj      -- operation object containing modified image, if
             %             image have been indeed modified
-
+            if obj.changes_pix_only
+                return;
+            end
             npix_acc = obj.npix(:);
             obj = update_image_(obj,sig_acc,var_acc,npix_acc);
         end
