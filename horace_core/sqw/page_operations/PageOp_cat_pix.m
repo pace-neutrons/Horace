@@ -66,7 +66,7 @@ classdef PageOp_cat_pix < PageOpBase
                 obj.page_data_ = obj.in_objects{npix_idx(1)}.get_pixels( ...
                     pix_idx_start:pix_idx_end,'-raw');
 
-                obj.pix_block_start_(npix_idx(1)) = pix_idx_start+pix_idx_end;
+                obj.pix_block_start_(npix_idx(1)) = pix_idx_end+1;
             else % more then one PixelData object per obj.page_data_
                 obj.page_data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,obj.page_size_);
                 page_idx_start = 1;
