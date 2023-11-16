@@ -4,7 +4,7 @@ classdef PageOp_unary_op < PageOpBase
     %
     %
     properties
-        % property contains
+        % property contains handle to function, which performs operation
         op_handle;
     end
 

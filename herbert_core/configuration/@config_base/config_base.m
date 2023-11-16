@@ -5,8 +5,20 @@ classdef config_base
     %
     %
     % all derived classes used with configuration have to define two
-    % abstract methods of this class (see below) and specify the setters
-    % and getters for all stored properties in the following form:
+    % abstract methods of this class:
+    % 1)
+    % helper function returns the list of the public properties,
+    % which values one needs to store.
+    %   fields = get_storage_field_names(class_instance)
+    % 2)
+    % method returns default property value idefined by condif class instance
+    % ignoring current value, stored in common configuration and returned by
+    % usual get.property method:
+    % value = get_default_value(obj,field_name)
+    %
+
+    % And specify the setters and getters for all stored properties in
+    % the following form:
     %
     % a) the property itself has to be defined as dependent e.g.:
     %
@@ -93,8 +105,9 @@ classdef config_base
 
         value = get_default_value(obj,field_name);
         % function value = get_default_value(obj,field_name)
-        %     % method gets default property value ignoring current value, stored
-        %     % in configuration and returned by usual get.property method
+        %     % method returns default property value idefined by config
+        %     % class instance ignoring current value, stored in common
+        %     % configuration and returned by usual get.property method.
         %     %
         %     % Default protected field names, corresponding to property names
         %     % normaly nave the form:
