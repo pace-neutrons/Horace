@@ -112,7 +112,7 @@ classdef config_base
         %     % Default protected field names, corresponding to property names
         %     % normaly nave the form:
         %     % protected_prop_name = [public_prop_name,'_']
-        %     % so default implementation of this function have the fome:
+        %     % so default implementation of this function have the form:
         %     %
         %     value = obj.([field_name,'_']);
         % end
