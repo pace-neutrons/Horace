@@ -28,7 +28,7 @@ classdef PageOp_cat_pix < PageOpBase
 
             obj = obj.init_pix_only_data_obj(varargin{:});
 
-            [pf,mem_chunk_size] = config_store.instance().get_value( ...
+            [mem_chunk_size,pf] = config_store.instance().get_value( ...
                 'hor_config','mem_chunk_size','fb_scale_factor');
             fb_pix_limit = pf*mem_chunk_size;
             obj.page_size_ = mem_chunk_size;
