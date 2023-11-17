@@ -33,13 +33,8 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             obj.stored_config = hrc.get_data_to_store();
         end
 
-        function test_init_failed_cancelled(~)
-            fii = iMessagesFramework.build_worker_init(tmp_dir, ...
-                'test_init_failed_timeout', 'MessagesFilebased', 0, 3,'test_mode');
-
-            mf = MessagesFilebased(fii);
-            cluster = ClusterWrapperTester(3,mf);
-            clob = onCleanup(@()finalize_all(cluster));
+        function test_init_failed_cancelled(obj)
+            [cluster,mf,clob] = obj.get_cluster_wrapper_tester(3);
 
             % build message framework to respond instead of a worker
             cs = mf.get_worker_init('MessagesParpool',1,3);
@@ -53,13 +48,8 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             assertEqual(cluster.status_name,'cancelled');
         end
 
-        function test_init_failed_timeout(~)
-            fii = iMessagesFramework.build_worker_init(tmp_dir, ...
-                'test_init_failed_timeout', 'MessagesFilebased', 0, 3,'test_mode');
-
-            mf = MessagesFilebased(fii);
-            cluster = ClusterWrapperTester(3,mf);
-            clob = onCleanup(@()finalize_all(cluster));
+        function test_init_failed_timeout(obj)
+            [cluster,~,clob] = obj.get_cluster_wrapper_tester(3);
 
             cluster.cluster_startup_time =0;
 
@@ -67,17 +57,12 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             assertEqual(cluster.status_name,'failed');
         end
 
-        function test_cluster_init(~)
+        function test_cluster_init(obj)
             hrc = hor_config;
             hrc.saveable = false;
             hrc.init_tests = true;
 
-            fii = iMessagesFramework.build_worker_init(tmp_dir, ...
-                'test_cluster_init', 'MessagesFilebased', 0, 3,'test_mode');
-
-            mf = MessagesFilebased(fii);
-            cluster = ClusterWrapperTester(3,mf);
-            clob = onCleanup(@()finalize_all(cluster));
+            [cluster,mf,clob] = obj.get_cluster_wrapper_tester(3);
 
             % build message framework to respond instead of a worker
             cs = mf.get_worker_init('MessagesParpool',1,3);
@@ -165,14 +150,10 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
         end
 
-        function test_check_progress_disp_results(~)
+        function test_check_progress_disp_results(obj)
 
-            mf = MessagesFilebased('disp_prgrs');
-            % test mode -- framework with 0 workers would not start
-            % anything
-            cluster = ClusterWrapperTester(0,mf);
+            [cluster,mf,clob] =  obj.get_cluster_wrapper_tester(0,'disp_prgrs');
 
-            clob = onCleanup(@()finalize_all(cluster));
 
             cs = mf.get_worker_init('MessagesFilebases',1,10);
             css = mf.deserialize_par(cs);
@@ -334,23 +315,124 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             clob3 = onCleanup(@()finalize_all(clust));
         end
 
-        function test_set_user_env(~)
+        function test_set_user_env_if_matlabpath_set_with_more(obj)
             en = getenv('MATLABPATH');
-            clEnv = onCleanup(@()setenv('MATLABPATH',en));            
+            clEnv = onCleanup(@()setenv('MATLABPATH',en));
+            pc = parallel_config;
+            necessary_path = fileparts(which(pc.worker));
+            this_path = fileparts(mfilename('fullpath'));
+            setenv('MATLABPATH',strjoin({necessary_path,this_path},pathsep));
 
-            this_path = fileparts(mfilename('fullpath'));       
-            test_dir = fullfile(this_path,'test_set_user_env_path');
+            [test_dir,clDir,ok]  = obj.make_dir_for_path('set_user_env_test_dir_plus_plus');
+            if ~ok; return; end
+            clPath = onCleanup(@()rmpath(test_dir));
+
+
+            [cluster,~,clOb] = obj.get_cluster_wrapper_tester(3);
+            path = cluster.common_env_var('MATLABPATH');
+            pathes = split(path,pathsep);
+            assertTrue(ismember(necessary_path,pathes));
+            assertFalse(ismember(test_dir,pathes));
+            assertTrue(ismember(this_path,pathes));
+
+            addpath(test_dir);
+
+            cluster = cluster.add_user_path(pc);
+
+            path = cluster.common_env_var('MATLABPATH');
+            pathes = split(path,pathsep);
+            assertTrue(ismember(test_dir,pathes));
+            assertTrue(ismember(necessary_path,pathes));
+            assertTrue(ismember(this_path,pathes));
+            % remove path first to avoid warinings
+            clear clPath
+        end
+
+
+        function test_set_user_env_if_matlabpath_set(obj)
+            en = getenv('MATLABPATH');
+            clEnv = onCleanup(@()setenv('MATLABPATH',en));
+            pc = parallel_config;
+            necessary_path = fileparts(which(pc.worker));
+            setenv('MATLABPATH',necessary_path);
+
+            [test_dir,clDir,ok]  = obj.make_dir_for_path('set_user_env_test_dir_plus');
+            if ~ok; return; end
+            clPath = onCleanup(@()rmpath(test_dir));
+
+
+            [cluster,~,clOb] = obj.get_cluster_wrapper_tester(3);
+            path = cluster.common_env_var('MATLABPATH');
+            pathes = split(path,pathsep);
+            assertTrue(ismember(necessary_path,pathes));
+            assertFalse(ismember(test_dir,pathes));
+
+            addpath(test_dir);
+
+            cluster = cluster.add_user_path(pc);
+
+            path = cluster.common_env_var('MATLABPATH');
+            pathes = split(path,pathsep);
+            assertTrue(ismember(test_dir,pathes));
+            assertTrue(ismember(necessary_path,pathes));
+            % remove path first to avoid warinings
+            clear clPath
+        end
+
+
+        function test_set_user_env(obj)
+            en = getenv('MATLABPATH');
+            clEnv = onCleanup(@()setenv('MATLABPATH',en));
+            pc = parallel_config;
+            necessary_path = fileparts(which(pc.worker));
+
+            [test_dir,clDir,ok]  = obj.make_dir_for_path('set_user_env_test_dir');
+            if ~ok; return; end
+            clPath = onCleanup(@()rmpath(test_dir));
+
+            [cluster,~,clOb] = obj.get_cluster_wrapper_tester(3);
+            path = cluster.common_env_var('MATLABPATH');
+            pathes = split(path,pathsep);
+            assertTrue(ismember(necessary_path,pathes));
+            assertFalse(ismember(test_dir,pathes));
+
+            addpath(test_dir);
+
+            cluster = cluster.add_user_path(pc);
+
+            path = cluster.common_env_var('MATLABPATH');
+            pathes = split(path,pathsep);
+            assertTrue(ismember(test_dir,pathes));
+            assertTrue(ismember(necessary_path,pathes));
+            % remove path first to avoid warinings
+            clear clPath
+        end
+    end
+    methods(Access= protected)
+        function [test_dir,clDir,ok]  = make_dir_for_path(~,dir_name)
+            test_dir = fullfile(tmp_dir,dir_name);
             ok = mkdir(test_dir);
             if ~ok
                 skipTest('test_cluster_wrapper:test_set_user_env. Can not create test folder. Issue with access rights?')
             end
             clDir = onCleanup(@()rmdir(test_dir,'s'));
-            clPath = onCleanup(@()rmpath(test_path)); 
-            addpath(test_path);
 
-            cl = ClusterWrapperTester();
-            cl = cl.add_user_path();
+        end
+        function [cluster,mf,clob] =  get_cluster_wrapper_tester(~,n_workers,fmw_init)
+            % Inputs:
+            % n_workers -- number of test workers
+            % fmw_init  -- information on framework initialization
 
+            if nargin < 3
+                fii = iMessagesFramework.build_worker_init(tmp_dir, ...
+                    'test_init_failed_timeout', 'MessagesFilebased', 0, n_workers,'test_mode');
+            else
+                fii = fmw_init;
+            end
+
+            mf = MessagesFilebased(fii);
+            cluster = ClusterWrapperTester(n_workers,mf);
+            clob = onCleanup(@()finalize_all(cluster));
 
         end
     end
