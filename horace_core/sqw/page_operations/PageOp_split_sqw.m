@@ -1,13 +1,11 @@
-classdef PageOp_cat_pix < PageOpBase
+classdef PageOp_split_sqw < PageOpBase
     % Single page pixel operation and main gateway for
-    % cat pixels algorithm. This version works with pixels only
+    % sqw.split  algorithm.
     %
     %
     properties
-        % cellarrsy of the input objects to process. The objects may be
-        % PixelData, sqw objects or list of files, containing sqw objects
-        in_objects;
-        npix_tot;   % Total number of
+        % cellarrsy of the resulting sqw objects to be split into
+        out_sqw;
     end
     properties(Access = private)
         page_size_;
@@ -17,13 +15,13 @@ classdef PageOp_cat_pix < PageOpBase
         block_idx_
     end
     methods
-        function obj = PageOp_cat_pix(varargin)
+        function obj = PageOp_split_sqw(varargin)
             obj = obj@PageOpBase(varargin{:});
-            obj.op_name_ = 'cat_pixels';
+            obj.op_name_ = 'split_sqw';
             obj.split_at_bin_edges = false;
         end
 
-        function obj = init(obj,varargin)
+        function obj = init(obj,in_sqw,varargin)
             % Initialize cat operation on pixels:
             obj = obj.init_pix_only_data_obj(varargin{:});
 
@@ -39,12 +37,6 @@ classdef PageOp_cat_pix < PageOpBase
                 obj.inform_about_target_file = false;
             end
             obj = init@PageOpBase(obj,in_obj);
-        end
-        function[npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
-            % overload of split_into_pages as we also need npix_chunks to
-            % process pages in this case.
-            [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,chunk_size);
-            obj.block_idx_ = npix_idx;
         end
 
         function obj = get_page_data(obj,page_idx,npix_blocks)

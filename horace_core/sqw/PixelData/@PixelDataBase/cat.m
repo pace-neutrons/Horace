@@ -17,6 +17,12 @@ function pix_out = cat(varargin)
 %               the first object to cat.
 
 % Take the dataclass of the first object.
+if ~isa(varargin{1},'PixelDataBase')
+    error('HORACE:PixelDataBase:invalid_argument', ...
+        ['The cat accepts list of PixelDatBase classes only.' ...
+        ' Class of the first input is: %s'], ...
+        class(varargin{1}));
+end
 pix_out = copy(varargin{1});
 if numel(varargin) == 1
     return;

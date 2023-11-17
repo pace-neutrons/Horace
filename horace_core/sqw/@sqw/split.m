@@ -1,15 +1,24 @@
-function wout = split(w)
+function wout = split(w,varargin)
 % Split an sqw object into an array of sqw objects, each made from a single spe data set
 %
 %   >> wout = split(w)
 %
 % Input:
 % ------
-%   w       Input sqw object
+%   w        --  Input sqw object
+% Optional keys:
+%  '-files'  -- if provided, return list of sqw files instead of sqw
+%               objects. When split objects do not fit memory, they are all
+%               stored in files and split returns list of the files. 
+%               When the option is provided, 
 %
 % Output:
 % -------
 %   wout    Array of sqw objects, each one made from a single spe data file
+%           If w is filebacked object, wout are filebacked too.
+%
+%           If their images do not fit to memory, wout would be the list of
+%           filenames, containing these files.
 
 nfiles = w.main_header.nfiles;
 
@@ -26,22 +35,22 @@ runid_map = w.runid_map;
 detpar = w.detpar;
 data = w.data;
 npix = w.data.npix;
-pix = w.pix;
+%pix = w.pix;
 
 % Sort (an index array to) pix into increasing run number, and increasing bin number within each run
-irun = pix.run_idx';
-ibin = replicate_array (1:numel(npix),npix);
-[runbin,ix] = sortrows([irun,ibin]);  % get index of run
-irun = runbin(:,1);
-ibin = runbin(:,2);
+%irun = pix.run_idx';
+%ibin = replicate_array (1:numel(npix),npix);
+%[runbin,ix] = sortrows([irun,ibin]);  % get index of run
+%irun = runbin(:,1);
+%ibin = runbin(:,2);
 
 % Get first and last elements for each run
-nbeg = find(diff([0;irun]) ~= 0);       % positions of first elements for each unique run
-if ~isempty(nbeg)
-    nend = [nbeg(2:end)-1;pix.num_pixels];   % works even if nbeg is scalar (nb/ npixtot = size(pix,2))
-else
-    nend = [];
-end
+%nbeg = find(diff([0;irun]) ~= 0);       % positions of first elements for each unique run
+%if ~isempty(nbeg)
+%    nend = [nbeg(2:end)-1;pix.num_pixels];   % works even if nbeg is scalar (nb/ npixtot = size(pix,2))
+%else
+%    nend = [];
+%end
 
 if w.main_header.creation_date_defined
     run_contributes = true(nfiles,1);
@@ -58,7 +67,7 @@ ind = zeros(nfiles,1);
 ind(run_contributes) = 1:numel(nbeg); % index of contributing runs into nbeg and nend
 
 contrib_runids = unique(irun);
-n_contrib_run = numel(contrib_runids);
+n_contrib_run  = numel(contrib_runids);
 
 % Default output
 wout = repmat(sqw, [n_contrib_run, 1]);
@@ -73,25 +82,25 @@ for i = 1:n_contrib_run
 
     if run_contributes(head_ind)
         % the bins to which pixels from this run only contribute
-        curr_ind = nbeg(ind(head_ind)):nend(ind(head_ind));
-        ib = ibin(curr_ind);
+%        curr_ind = nbeg(ind(head_ind)):nend(ind(head_ind));
+%        ib = ibin(curr_ind);
 
         % positions of first pixel contributing to each unique bin
-        nb = find(diff([0;ib]) ~= 0);
+%        nb = find(diff([0;ib]) ~= 0);
 
-        npix = zeros(sz);
-        npix(ib(nb)) = diff([nb;numel(ib)+1]);
-        data.npix = npix;
+%        npix = zeros(sz);
+%        npix(ib(nb)) = diff([nb;numel(ib)+1]);
+%        data.npix = npix;
 
-        split_pix = pix.get_pixels(ix(curr_ind));
+%        split_pix = pix.get_pixels(ix(curr_ind));
 
         exp_info_4run = exp_info.get_subobj(head_ind,'-index');
 
         wout(i).experiment_info = exp_info_4run;
         wout(i).detpar = detpar;
         wout(i).data = data;
-        wout(i).pix = split_pix;
-        wout(i) = recompute_bin_data(wout(i));
+%        wout(i).pix = split_pix;
+%        wout(i) = recompute_bin_data(wout(i));
     end
 
 end
