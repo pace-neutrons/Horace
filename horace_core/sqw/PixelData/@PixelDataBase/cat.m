@@ -1,4 +1,4 @@
-function pix_out = cat(obj,varargin)
+function pix_out = cat(varargin)
 % Concatenate the given PixelData objects' pixels. This function performs
 % a straight-forward data concatenation.
 %
@@ -23,5 +23,5 @@ if isempty(varargin)
 end
 pix_out = copy(obj);
 page_op = PageOp_cat_pix();
-page_op = page_op.init(obj,varargin{:});
+page_op = page_op.init(varargin{:});
 pix_out = PixelDataFileBacked.apply_op(pix_out,page_op);

@@ -203,6 +203,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     end
 
     methods (Static)
+        out_obj = cat(varargin);
         function isfb = do_filebacked(num_pixels, scale_fac)
             % function defines default rule to make pixels filebased or memory
             % based.
@@ -727,7 +728,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         pix_out = do_unary_op(obj, unary_op)
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
 
-        out_obj = cat(obj,varargin);
         %
         %------------------------------------------------------------------
         % Helpers for page_op and data_op_interface. Work with data in

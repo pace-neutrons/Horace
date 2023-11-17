@@ -135,7 +135,7 @@ cleanup_obj=onCleanup(@()set(hor_config, 'log_level', info_level));
 set(hor_config,'log_level',-1);
 
 % concatenate object pixels into single pixels blob
-wout.pix = pix{1}.cat(pix{2:end});
+wout.pix = PixelDataBase.cat(pix{:});
 
 % combine experiments from contributing files. Cut should drop duplicates
 wout.experiment_info = exper{1}.combine_experiments(exper(2:end),true,true);
