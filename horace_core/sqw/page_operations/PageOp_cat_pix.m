@@ -68,7 +68,8 @@ classdef PageOp_cat_pix < PageOpBase
 
                 obj.pix_block_start_(npix_idx(1)) = pix_idx_end+1;
             else % more then one PixelData object per obj.page_data_
-                obj.page_data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,obj.page_size_);
+                this_chunk = sum(chunks);
+                obj.page_data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,this_chunk);
                 page_idx_start = 1;
                 n_accessor = npix_idx(1):npix_idx(2);
                 for i=1:n_chunks
