@@ -18,7 +18,7 @@ if is_jenk
 end
 
 % All other machines
-folder_name = strrep(['Horace_', herbert_version()],' ','_');
+folder_name = regexprep(['Horace_', herbert_version()],'[\s:]','');
 
 if is_idaaas()
     location = userpath();
