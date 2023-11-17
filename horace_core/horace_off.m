@@ -8,9 +8,17 @@ function horace_off
 
 % root directory is assumed to be that in which this function resides
 rootpath = fileparts(fileparts(which('horace_init')));
-on_path = fileparts(which('horace_on'));
-
+on_path  = fileparts(which('horace_on')); %
 warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
+if is_idaaas()
+    % clear idaaas control variables as they force default
+    % Horace to be initialized, and we want requested Horace to
+    % be initialized.
+    setenv('MATLAB_INIT_HORACE','');
+    setenv('MATLAB_INIT_MSLICE','');
+end
+
+clear mex;
 try
     paths = genpath(rootpath);
     % make sure we are not removing the path to horace_on
