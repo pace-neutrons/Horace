@@ -54,7 +54,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
     %======================================================================
     % Implementing abstract PixelDataBase interface
     methods
-        pix_out     = append(obj, pix);
         %
         function data =  get_raw_data(obj,field_id)
             % main part of get.data accessor
