@@ -316,6 +316,10 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
         end
 
         function test_set_user_env_if_matlabpath_set_with_more(obj)
+            clow = set_temporary_warning('off','HORACE:spuff_warning');            
+            warning('HORACE:spuff_warning', ...
+                'issue specific warning to ensure no other warning is the last one');
+
             en = getenv('MATLABPATH');
             clEnv = onCleanup(@()setenv('MATLABPATH',en));
             pc = parallel_config;
@@ -336,6 +340,14 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             assertTrue(ismember(this_path,pathes));
 
             addpath(test_dir);
+            [~,lw] = lastwarn();
+            if strcmp(lw,'MATLAB:mpath:nameNonexistentOrNotADirectory')
+                skipTest( ...
+                    sprintf(['tmp directory %s can not be added to search path' ...
+                    ' as it contains non-Matlab-path characters'],...
+                test_dir));
+            end
+            
 
             cluster = cluster.add_user_path(pc);
 
@@ -350,6 +362,10 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
 
         function test_set_user_env_if_matlabpath_set(obj)
+            clow = set_temporary_warning('off','HORACE:spuff_warning');
+            warning('HORACE:spuff_warning', ...
+                'issue specific warning to ensure no other warning is the last one');
+            
             en = getenv('MATLABPATH');
             clEnv = onCleanup(@()setenv('MATLABPATH',en));
             pc = parallel_config;
@@ -368,6 +384,13 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             assertFalse(ismember(test_dir,pathes));
 
             addpath(test_dir);
+            [~,lw] = lastwarn();
+            if strcmp(lw,'MATLAB:mpath:nameNonexistentOrNotADirectory')
+                skipTest( ...
+                    sprintf(['tmp directory %s can not be added to search path' ...
+                    ' as it contains non-Matlab-path characters'],...
+                test_dir));
+            end            
 
             cluster = cluster.add_user_path(pc);
 
@@ -381,6 +404,10 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
 
         function test_set_user_env(obj)
+            clow = set_temporary_warning('off','HORACE:spuff_warning');
+            warning('HORACE:spuff_warning', ...
+                'issue specific warning to ensure no other warning is the last one');
+            
             en = getenv('MATLABPATH');
             clEnv = onCleanup(@()setenv('MATLABPATH',en));
             pc = parallel_config;
@@ -397,6 +424,13 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             assertFalse(ismember(test_dir,pathes));
 
             addpath(test_dir);
+            [~,lw] = lastwarn();
+            if strcmp(lw,'MATLAB:mpath:nameNonexistentOrNotADirectory')
+                skipTest( ...
+                    sprintf(['tmp directory %s can not be added to search path' ...
+                    ' as it contains non-Matlab-path characters'],...
+                test_dir));
+            end
 
             cluster = cluster.add_user_path(pc);
 
