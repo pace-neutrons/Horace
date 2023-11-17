@@ -333,5 +333,25 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
                 'HERBERT:ClusterParpoolWrapper:invalid_argument');
             clob3 = onCleanup(@()finalize_all(clust));
         end
+
+        function test_set_user_env(~)
+            en = getenv('MATLABPATH');
+            clEnv = onCleanup(@()setenv('MATLABPATH',en));            
+
+            this_path = fileparts(mfilename('fullpath'));       
+            test_dir = fullfile(this_path,'test_set_user_env_path');
+            ok = mkdir(test_dir);
+            if ~ok
+                skipTest('test_cluster_wrapper:test_set_user_env. Can not create test folder. Issue with access rights?')
+            end
+            clDir = onCleanup(@()rmdir(test_dir,'s'));
+            clPath = onCleanup(@()rmpath(test_path)); 
+            addpath(test_path);
+
+            cl = ClusterWrapperTester();
+            cl = cl.add_user_path();
+
+
+        end
     end
 end

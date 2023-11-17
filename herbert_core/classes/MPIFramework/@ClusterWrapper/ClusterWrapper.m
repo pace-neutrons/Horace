@@ -222,10 +222,39 @@ classdef ClusterWrapper
                 obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR') = obj.matlab_starter_;
             end
 
+            % Modify MATLABPATH to add path to user code, which user 
+            % may want to use in parallel script
+            obj = obj.add_user_path(pc);
+
+            if obj.DEBUG_REMOTE
+                obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'true';
+            else
+                obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'false';
+            end
+
+        end
+        %
+        function obj = add_user_path(obj,pc)
+            % Method adds user script path to the pathes available to
+            % parallel workers. 
+            % It assumed that user view on the filesystem is the same as
+            % the view from the parallel nodes.
+            % 
+            % Inputs:
+            % obj  -- instance of ClusterWrapper getting initialized
+            % pc   -- instance of parallel config class. Transmitted for
+            %         efficiency. 
+            %
+            % Returns:
+            % obj  -- instance of ClusterWrapper containing modified
+            %         common_env_var_ property with the key MATLABPATH
+            %         containing user path
+            % 
             % Split path into cell of paths
             curr_path = split(path, pathsep);
             % Filter array for added paths
             curr_path = curr_path(~startsWith(curr_path, matlabroot));
+            curr_path = curr_path(~startsWith(curr_path, horace_root));
             % Join back together
             curr_path = strjoin(curr_path, pathsep);
 
@@ -247,14 +276,9 @@ classdef ClusterWrapper
 
             % Always add curr path
             obj.common_env_var_('MATLABPATH') = [curr_path, pathsep, obj.common_env_var_('MATLABPATH')];
-
-            if obj.DEBUG_REMOTE
-                obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'true';
-            else
-                obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'false';
-            end
-
+            
         end
+        
 
         function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)
             % send initialization information to each worker in the cluster
