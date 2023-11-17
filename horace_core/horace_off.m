@@ -25,4 +25,5 @@ catch
 end
 % Make sure we're not removing any global paths
 addpath(getenv('MATLABPATH'));
+clear classes
 
