@@ -106,7 +106,7 @@ classdef test_boxArrayClass < TestCase
         
         function test_output_size_columnVectorStacking (obj)
             % Test size of output arrays when stacked [10,1]
-            ielmts = [1,3,1,3,3,3,2,2,1,2]';
+            ielmts = [1;3;1;3;3;3;2;2;1;2];
             [x1col, x1row, x12] = rand_elmts_position (obj.boxArray, ielmts);
             assertEqual (size(x1col), [3,10])
             assertEqual (size(x1row), [1,3,10])
@@ -311,9 +311,9 @@ classdef test_boxArrayClass < TestCase
             % different shift vector for each point
             
             % Create arrays of shifts, stacked size [2,5]
-            shift1c = [10,12,14]' + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
-            shift1r = [110,112,114]' + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
-            shift12 = [-100,-90,-60]' + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            shift1c = [10;12;14] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            shift1r = [110;112;114] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            shift12 = [-100;-90;-60] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
             ielmts = [1,3,1,3,3;3,2,2,1,2];
             
             % Random sampling
@@ -365,9 +365,9 @@ classdef test_boxArrayClass < TestCase
             % different shift vector for each point
             
             % Create arrays of shifts, stacked size [2,5]
-            shift1c = [10,12,14]' + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
-            shift1r = [110,112,114]' + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
-            shift12 = [-100,-90,-60]' + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            shift1c = [10;12;14] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            shift1r = [110;112;114] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            shift12 = [-100;-90;-60] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
             ielmts = [1,3,1,3,3;3,2,2,1,2];
             
             % Ranges

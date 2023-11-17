@@ -240,7 +240,7 @@ classdef boxArrayClass
             r12 = NaN(3,2,2,npnt);
             for i=1:npnt
                 [r1col(:,:,i), r1row(:,:,i), r12(:,:,:,i)] = ...
-                    range (obj.box(ielmts(i)), [1,1], s1col(:,i), s1row(:,i), s12(:,i));
+                    obj.box(ielmts(i)).range ([1,1], s1col(:,i), s1row(:,i), s12(:,i));
             end
             r1col = reshape (r1col, size_array_stack ([3,2], sz));
             r1row = reshape (r1row, size_array_stack ([3,2], sz));

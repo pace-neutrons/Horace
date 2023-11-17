@@ -1,59 +1,53 @@
-classdef test_object_lookup_internals < TestCaseWithSave
+classdef test_object_lookup_internals < TestCase
     % Test of utility functions e.g. for parsing that are defined
     % in the @object_lookup folder
-    
-    properties
-        
-    end
-    
+
     methods
         %--------------------------------------------------------------------------
         function obj = test_object_lookup_internals (name)
-            obj@TestCaseWithSave(name);
-            
-            obj.save()
+            obj@TestCase(name);
         end
         
         %--------------------------------------------------------------------------
         function test_parse_split_first_element_only (~)
             % Test first element true only
-            split = object_lookup.test_parse_split (2, 'split', 1);
+            split = exposed_object_lookup.parse_split (2, 'split', 1);
             assertEqual (split, [true, false]);
         end
         
         function test_parse_split_second_element_only (~)
             % Test second element true only
-            split = object_lookup.test_parse_split (2, 'spl', 2);
+            split = exposed_object_lookup.parse_split (2, 'spl', 2);
             assertEqual (split, [false, true]);
         end
         
         function test_parse_split_all_elements (~)
             % Test all elements true
-            split = object_lookup.test_parse_split (3, 'spl');
+            split = exposed_object_lookup.parse_split (3, 'spl');
             assertEqual (split, [true, true, true]);
         end
         
         function test_parse_split_invalid_keyword (~)
             % Invalid option
-            f = @()object_lookup.test_parse_split (2, 'spla', [1]);
+            f = @()exposed_object_lookup.parse_split (2, 'spla', [1]);
             assertExceptionThrown (f, 'HERBERT:parse_split:invalid_argument');
         end
         
         function test_parse_split_out_of_range_split_request (~)
             % iargs = [1,3] refers to argument index 3 when maximum is 2
-            f = @()object_lookup.test_parse_split (2, 'split', [1,3]);
+            f = @()exposed_object_lookup.parse_split (2, 'split', [1,3]);
             assertExceptionThrown (f, 'HERBERT:parse_split:invalid_argument');
         end
         
         function test_parse_split_repeated_split_request (~)
             % iargs = [1,1] has a repeated argument
-            f = @()object_lookup.test_parse_split (2, 'split', [1,1]);
+            f = @()exposed_object_lookup.parse_split (2, 'split', [1,1]);
             assertExceptionThrown (f, 'HERBERT:parse_split:invalid_argument');
         end
         
         function test_parse_split_output_is_row (~)
             % Test output is a row vector even if iargs has a different size array
-            split = object_lookup.test_parse_split (4, 'split', [4;1;3]);
+            split = exposed_object_lookup.parse_split (4, 'split', [4;1;3]);
             assertEqual (split, [true, false, true, true]);
         end
         
@@ -62,7 +56,7 @@ classdef test_object_lookup_internals < TestCaseWithSave
             % ind and func only
             ind_in = [11,13,14];
             func_in = @sin;
-            [ind, ielmts, func, args, split] = object_lookup.test_parse_eval_method ...
+            [ind, ielmts, func, args, split] = exposed_object_lookup.parse_eval_method ...
                 (ind_in, func_in);
             assertEqual (ind, ind_in);
             assertEqual (ielmts, []);
@@ -76,7 +70,7 @@ classdef test_object_lookup_internals < TestCaseWithSave
             ind_in = [11,13,14];
             ielmts_in = [5,16,3];
             func_in = @sin;
-            [ind, ielmts, func, args, split] = object_lookup.test_parse_eval_method ...
+            [ind, ielmts, func, args, split] = exposed_object_lookup.parse_eval_method ...
                 (ind_in, ielmts_in, func_in);
             assertEqual (ind, ind_in);
             assertEqual (ielmts, ielmts_in);
@@ -90,7 +84,7 @@ classdef test_object_lookup_internals < TestCaseWithSave
             ind_in = [11,13,14];
             func_in = @sin;
             p1_in = {5,true};
-            [ind, ielmts, func, args, split] = object_lookup.test_parse_eval_method ...
+            [ind, ielmts, func, args, split] = exposed_object_lookup.parse_eval_method ...
                 (ind_in, func_in, p1_in);
             assertEqual (ind, ind_in);
             assertEqual (ielmts, []);
@@ -106,7 +100,7 @@ classdef test_object_lookup_internals < TestCaseWithSave
             func_in = @sin;
             p1_in = rand(2,3);
             p2_in = rand(2,5,3);
-            [ind, ielmts, func, args, split] = object_lookup.test_parse_eval_method ...
+            [ind, ielmts, func, args, split] = exposed_object_lookup.parse_eval_method ...
                 (ind_in, ielmts_in, 'split', func_in, p1_in, p2_in);
             assertEqual (ind, ind_in);
             assertEqual (ielmts, ielmts_in);
@@ -124,7 +118,7 @@ classdef test_object_lookup_internals < TestCaseWithSave
             p1_in = rand(2,3);
             p2_in = rand(2,5,3);
             p3_in = rand(2,5,3);
-            [ind, ielmts, func, args, split] = object_lookup.test_parse_eval_method ...
+            [ind, ielmts, func, args, split] = exposed_object_lookup.parse_eval_method ...
                 (ind_in, ielmts_in, 'split', iargs_in, func_in, p1_in, p2_in, p3_in);
             assertEqual (ind, ind_in);
             assertEqual (ielmts, ielmts_in);
@@ -141,7 +135,7 @@ classdef test_object_lookup_internals < TestCaseWithSave
             p1_in = rand(2,3);
             p2_in = rand(2,5,3);
             p3_in = rand(2,5,3);
-            [ind, ielmts, func, args, split] = object_lookup.test_parse_eval_method ...
+            [ind, ielmts, func, args, split] = exposed_object_lookup.parse_eval_method ...
                 (ind_in, 'split', iargs_in, func_in, p1_in, p2_in, p3_in);
             assertEqual (ind, ind_in);
             assertEqual (ielmts, []);
@@ -152,7 +146,7 @@ classdef test_object_lookup_internals < TestCaseWithSave
         
         function test_parse_eval_method_err_noArguments (~)
             % No input arguments
-            f = @()object_lookup.test_parse_eval_method ();
+            f = @()exposed_object_lookup.parse_eval_method ();
             assertExceptionThrown (f, 'HERBERT:parse_eval_method:invalid_argument');
         end
         
@@ -162,10 +156,10 @@ classdef test_object_lookup_internals < TestCaseWithSave
             ielmts_in = [5,16,3];
             func_in = @sin;
             % No failure:
-            object_lookup.test_parse_eval_method ...
+            exposed_object_lookup.parse_eval_method ...
                 (ind_in, ielmts_in, func_in);
             % Remove func_in: should fail
-            f = @()object_lookup.test_parse_eval_method ...
+            f = @()exposed_object_lookup.parse_eval_method ...
                 (ind_in, ielmts_in);
             assertExceptionThrown (f, 'HERBERT:parse_eval_method:invalid_argument');
         end
@@ -176,7 +170,7 @@ classdef test_object_lookup_internals < TestCaseWithSave
             ielmts_in = [5,16];
             func_in = @sin;
             % Remove func_in: should fail
-            f = @()object_lookup.test_parse_eval_method ...
+            f = @()exposed_object_lookup.parse_eval_method ...
                 (ind_in, ielmts_in, func_in);
             assertExceptionThrown (f, 'HERBERT:parse_eval_method:invalid_argument');
         end
@@ -190,7 +184,7 @@ classdef test_object_lookup_internals < TestCaseWithSave
             p1_in = rand(2,3);
             p2_in = rand(2,5,3);
             p3_in = rand(2,5,3);
-            f = @()object_lookup.test_parse_eval_method ...
+            f = @()exposed_object_lookup.parse_eval_method ...
                 (ind_in, ielmts_in, iargs_in, func_in, p1_in, p2_in, p3_in);
             assertExceptionThrown (f, 'HERBERT:parse_split:invalid_argument');
         end

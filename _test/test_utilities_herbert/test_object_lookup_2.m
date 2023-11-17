@@ -614,8 +614,9 @@ classdef test_object_lookup_2 < TestCase
         
         function test_func_eval_ind_1box_1ind_split (obj)
             % Single function evaluation
-            % Split arguments. This should be a dummy process, as only one
-            % evaluation. Checks an edge case.
+            % Split arguments. There is only one function evaluation to be performed, so the 
+            % 'split' option should have no effect. Checks an edge case of any
+            % internal workings.
             % array 2, index 5: this is box 4
             iarray = 2;
             ind = 5;
@@ -820,6 +821,33 @@ classdef test_object_lookup_2 < TestCase
             assertEqual (r12, r12_ref);
         end
                 
+        function test_func_eval_ind_multiBoxArray_arrInd_ielmts_split_ERR (obj)
+            % Test two boxArray, two boxes, multiple points, some split shifts
+            % iarray 2, index 5: this is boxArray 3
+            %    - ielmts 4 & 6 are boxes 2 & 8
+            % iarray 2, index 3: this is boxArray 4
+            %    - ielmts 1 & 2 are box 2, ielmt 4 is box 6
+            % With these values for iarray, ind and ielmts we get
+            % a horrible mix of indices across the boxArrays, which
+            % func_eval_ind has to cope with. Makes this a good test.
+            %
+            % Tests incorrect use of func_eval_ind: should cause a failure
+            % as need to use the 'split' option for both shift1c and shift12 i.e
+            % have ...'split',[1,3]
+            
+            iarray = 2;
+            ind = [5,3,3,5,3; 5,5,5,3,3];
+            ielmts = [4,4,1,6,2; 4,4,6,2,4];
+            yshift_only = false;
+            [shift1c, ~, shift12] = shifts_boxes_no_overlaps (size(ind), yshift_only);
+            shift1r = [3,0,23];
+            
+            f = @()func_eval_ind (obj.bAlook, iarray, ind, ielmts, ...
+                'split', 1, @range_elmts, shift1c, shift1r, shift12);
+            assertExceptionThrown (f, 'HERBERT:boxArrayClass:invalid_argument');
+            
+        end
+        
         function test_func_eval_ind_multiBoxArray_arrInd_ielmts_split (obj)
             % Test two boxArray, two boxes, multiple points, some split shifts
             % iarray 2, index 5: this is boxArray 3
@@ -836,12 +864,6 @@ classdef test_object_lookup_2 < TestCase
             yshift_only = false;
             [shift1c, ~, shift12] = shifts_boxes_no_overlaps (size(ind), yshift_only);
             shift1r = [3,0,23];
-            
-            % Incorrect use of func_eval_ind: should cause a failure
-            % Need to use the 'split' option for both shift1c and shift12
-            f = @()func_eval_ind (obj.bAlook, iarray, ind, ielmts, ...
-                'split', 1, @range_elmts, shift1c, shift1r, shift12);
-            assertExceptionThrown (f, 'HERBERT:boxArrayClass:invalid_argument');
             
             % Correct use of func_eval_ind
             [r1col, r1row, r12] = func_eval_ind (obj.bAlook, iarray, ind, ielmts, ...
