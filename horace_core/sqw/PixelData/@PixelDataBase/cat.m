@@ -24,4 +24,7 @@ end
 
 page_op = PageOp_cat_pix();
 page_op = page_op.init(varargin{:});
+if page_op.npix_tot == 0 % pix_out already defined and it is empty
+    return;
+end
 pix_out = PixelDataFileBacked.apply_op(pix_out,page_op);
