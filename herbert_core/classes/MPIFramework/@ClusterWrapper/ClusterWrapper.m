@@ -279,9 +279,15 @@ classdef ClusterWrapper
             % Split path into cell of paths
             curr_path = split(path, pathsep);
             % Filter array for user-added paths
-            curr_path = curr_path(~startsWith(curr_path, matlabroot));
-            curr_path = curr_path(~startsWith(curr_path, horace_root));
-            curr_path = curr_path(~startsWith(curr_path,necessary_addpath));
+            %
+            % Horace path to remove:
+            hor = fullfile(horace_root,'horace_core');
+            her = fullfile(horace_root,'herbert_core');
+            adm = fullfile(horace_root,'admin');
+            to_remove = {matlabroot,hor,her,adm,necessary_addpath};
+            for i=1:numel(to_remove)
+                curr_path = curr_path(~startsWith(curr_path,to_remove{i}));
+            end
             if isempty(existing_addpath)
                 user_path = curr_path;
             else
