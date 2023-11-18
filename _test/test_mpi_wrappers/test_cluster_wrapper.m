@@ -314,7 +314,9 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
                 'HERBERT:ClusterParpoolWrapper:invalid_argument');
             clob3 = onCleanup(@()finalize_all(clust));
         end
-
+    end
+    % keep userpath
+    methods
         function test_set_user_env_if_matlabpath_set_with_more(obj)
             en = getenv('MATLABPATH');
             clEnv = onCleanup(@()setenv('MATLABPATH',en));
@@ -337,7 +339,6 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
             addpath(test_dir);
   
-
             cluster = cluster.add_user_path(pc);
 
             path = cluster.common_env_var('MATLABPATH');
