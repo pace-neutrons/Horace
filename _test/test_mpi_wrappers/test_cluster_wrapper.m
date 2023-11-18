@@ -338,21 +338,30 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             assertTrue(ismember(this_path,pathes));
 
             addpath(test_dir);
-  
+
             cluster = cluster.add_user_path(pc);
 
             path = cluster.common_env_var('MATLABPATH');
             pathes = split(path,pathsep);
-            assertTrue(ismember(test_dir,pathes));
-            assertTrue(ismember(necessary_path,pathes));
-            assertTrue(ismember(this_path,pathes));
+            try
+                assertTrue(ismember(test_dir,pathes));
+                assertTrue(ismember(necessary_path,pathes));
+                assertTrue(ismember(this_path,pathes));
+            catch ME
+                fprintf(' test dir : %s\n',test_dir);
+                fprintf(' pathes : %s\n',disp2str(pathes));
+                fprintf(' necessary path : %s\n',necessary_path);
+                fprintf(' this_path path : %s\n',this_path);
+                rethrow(ME);
+            end
+
             % remove path first to avoid warinings
             clear clPath
         end
 
 
         function test_set_user_env_if_matlabpath_set(obj)
-              
+
             en = getenv('MATLABPATH');
             clEnv = onCleanup(@()setenv('MATLABPATH',en));
             pc = parallel_config;
@@ -376,15 +385,23 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
             path = cluster.common_env_var('MATLABPATH');
             pathes = split(path,pathsep);
-            assertTrue(ismember(test_dir,pathes));
-            assertTrue(ismember(necessary_path,pathes));
+
+            try
+                assertTrue(ismember(test_dir,pathes));
+                assertTrue(ismember(necessary_path,pathes));
+            catch ME
+                fprintf(' test dir : %s\n',test_dir);
+                fprintf(' pathes : %s\n',disp2str(pathes));
+                fprintf(' necessary path : %s\n',necessary_path);
+                rethrow(ME);
+            end
             % remove path first to avoid warinings
             clear clPath
         end
 
 
         function test_set_user_env(obj)
-            
+
             en = getenv('MATLABPATH');
             clEnv = onCleanup(@()setenv('MATLABPATH',en));
             pc = parallel_config;
@@ -406,8 +423,15 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
             path = cluster.common_env_var('MATLABPATH');
             pathes = split(path,pathsep);
-            assertTrue(ismember(test_dir,pathes));
-            assertTrue(ismember(necessary_path,pathes));
+            try
+                assertTrue(ismember(test_dir,pathes));
+                assertTrue(ismember(necessary_path,pathes));
+            catch ME
+                fprintf(' test dir : %s\n',test_dir);
+                fprintf(' pathes : %s\n',disp2str(pathes));
+                fprintf(' necessary path : %s\n',necessary_path);
+                rethrow(ME);
+            end
             % remove path first to avoid warinings
             clear clPath
         end
