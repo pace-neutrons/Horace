@@ -237,14 +237,6 @@ classdef ClusterWrapper
             else
                 obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'false';
             end
-            if is_idaaas()
-                % clear idaaas control variables as they force default
-                % Horace to be initialized, and we want current Horace to
-                % be initialized.
-                setenv('MATLAB_INIT_HORACE','');
-                setenv('MATLAB_INIT_MSLICE','');
-            end
-
         end
         %
         function obj = add_user_path(obj,pc)

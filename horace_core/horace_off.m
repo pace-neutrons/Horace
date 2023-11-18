@@ -32,3 +32,4 @@ catch ME
     error('Problems removing "%s" and sub-directories from Matlab path. Reason: %s', ...
         rootpath,ME.message)
 end
+clear classes
