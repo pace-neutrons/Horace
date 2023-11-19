@@ -466,7 +466,8 @@ classdef ClusterWrapper
                     paused  = false;
                     running = false;
                     failedC = true;
-                    messC   = FailedMessage('Job Initialization process have failed or has not been started');
+                    messC   = FailedMessage( ...
+                        'Job Initialization process have failed or has not been started');
                 end
             else
                 paused = false;
