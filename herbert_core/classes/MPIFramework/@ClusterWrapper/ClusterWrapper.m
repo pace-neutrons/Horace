@@ -294,17 +294,17 @@ classdef ClusterWrapper
                 user_path = curr_path(~startsWith(curr_path,existing_addpath));
             end
             % Build user path
-            user_path = strjoin(user_path, pathsep);
 
             if isempty(existing_addpath)
-                obj.common_env_var_('MATLABPATH') = necessary_addpath;
+                addpath = {necessary_addpath};
             else
-                obj.common_env_var_('MATLABPATH') = ...
-                    [necessary_addpath,pathsep,existing_addpath];
+                addpath = {necessary_addpath,existing_addpath};
             end
 
             % Form necessary path
-            obj.common_env_var_('MATLABPATH') = [obj.common_env_var_('MATLABPATH'),pathsep,user_path];
+            obj.common_env_var_('MATLABPATH') = ...
+                strjoin([addpath(:);user_path(:)],pathsep);
+
         end
 
         function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)
