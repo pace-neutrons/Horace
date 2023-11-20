@@ -183,10 +183,6 @@ for i=1:numel(ind)
     kf=lookup.kf{iw};
     alatt=lookup.alatt{iw};
     angdeg=lookup.angdeg{iw};
-    f_mat=lookup.f_mat{iw};
-    d_mat=lookup.d_mat{iw};
-    detdcn=lookup.detdcn{iw};
-    x2=lookup.x2{iw};
     dt=lookup.dt{iw};
     qw=lookup.qw{iw};
     dq_mat=lookup.dq_mat{iw};
@@ -217,13 +213,18 @@ for i=1:numel(ind)
         % Update s_mat and spec_to_rlu because crystal orientation will have changed
         [~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
 
+        % Get detector information for each pixel in the sqw object
+        % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
+        % and size(detdcn) = [3,npix]
+        [x2, d_mat, f_mat, detdcn] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
+        
         % Recompute Q because crystal orientation will have changed (don't need to update qw{4})
-        qw(1:3) = calculate_q (ki(irun), kf, detdcn(:,idet), spec_to_rlu(:,:,irun));
+        qw(1:3) = calculate_q (ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
 
         % Recompute (Q,w) deviations matrix for same reason
         dq_mat = dq_matrix_DGfermi (ki(irun), kf,...
-            x0(irun), xa(irun), x1(irun), x2(idet), thetam(irun), angvel(irun),...
-            s_mat(:,:,irun), f_mat(:,:,idet), d_mat(:,:,idet),...
+            x0(irun), xa(irun), x1(irun), x2, thetam(irun), angvel(irun),...
+            s_mat(:,:,irun), f_mat, d_mat,...
             spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     end
 
