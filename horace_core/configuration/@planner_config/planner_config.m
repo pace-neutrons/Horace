@@ -185,7 +185,7 @@ classdef planner_config < config_base
             fields = this.saved_properties_list_;
         end
         %
-        function value = get_internal_field(this,field_name)
+        function value = get_default_value(this,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface.
             % Relies on assumption, that each public

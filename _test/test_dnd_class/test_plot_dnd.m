@@ -147,6 +147,8 @@ classdef test_plot_dnd < TestCase
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
+            % This method may generate different types of error depending
+            % on presence of existing pictures
             for i=1:numel(other_methods)
                 assertExceptionThrown(@()thrower(d1d_obj,other_methods{i}), ...
                     errors_list{err_ind(i)}, ...

@@ -209,7 +209,8 @@ classdef hor_config < config_base
         end
 
         function work_dir = get.working_directory(~)
-            work_dir  = config_store.instance().get_config_field('parallel_config','working_directory');
+            work_dir  = config_store.instance().get_config_field( ...
+                'parallel_config','working_directory');
             if isempty(work_dir)
                 work_dir = tmp_dir;
             end
@@ -225,7 +226,8 @@ classdef hor_config < config_base
             % Usage
             %>>is = hor_config_instance.wkdir_is_default;
             %
-            work_dir  = config_store.instance().get_config_field('parallel_config','working_directory');
+            work_dir  = config_store.instance().get_config_field( ...
+                'parallel_config','working_directory');
             is = isempty(work_dir);
         end
 
@@ -262,8 +264,8 @@ classdef hor_config < config_base
         function obj = set.fb_scale_factor(obj,val)
             if val < 3
                 warning('HOR_CONFIG:set_fb_scale_factor',...
-                        [' fb_scale_factor in general should not be less than 3.\n', ...
-                         'Setting it to %d may cause performance degradation'], val);
+                    [' fb_scale_factor in general should not be less than 3.\n', ...
+                    'Setting it to %d may cause performance degradation'], val);
             end
             config_store.instance().store_config(obj,'fb_scale_factor',val);
         end
@@ -340,13 +342,13 @@ classdef hor_config < config_base
             else
                 folder =[];
             end
-       end
+        end
 
         function obj = set_unit_test_path(obj)
-            % add Herbert unit test path to Matlab search path
+            % add Herbert unit test path to MATLAB search path
             %
-            % (overwrite Matlab's version of unit tests functions which
-            % come with Matlab 2017b and have the interface different from
+            % (overwrite MATLAB's version of unit tests functions which
+            % come with MATLAB 2017b and have the interface different from
             % the classical unit tests.
             process_unit_test_path(true,'set_path');
         end
@@ -362,7 +364,7 @@ classdef hor_config < config_base
             fields = obj.saved_properties_list_;
         end
 
-        function value = get_internal_field(obj,field_name)
+        function value = get_default_value(obj,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface.
             % Relies on assumption, that each public

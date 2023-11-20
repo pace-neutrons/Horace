@@ -25,8 +25,8 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 
 
 op_name = func2str(binary_op);
-% identify order operands superiority and the type of operation to be
-% performed over operands
+% identify order of operations, operands superiority and the type of 
+% operation to be  performed over operands.
 [flip,page_op_kind] = data_op_interface.get_operation_order( ...
     w1,w2,op_name );
 if flip
