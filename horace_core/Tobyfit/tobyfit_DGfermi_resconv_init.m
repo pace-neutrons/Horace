@@ -105,9 +105,6 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %           qw          Cell array size [1,4] with components of momentum (in rlu) and energy
 %                        for each pixel [Columns of size npix]
 %
-%           dq_mat      Array of matricies, size [4,11,npix],  to convert deviations in
-%                      tm, tch etc. into deviations in Q in rlu
-%
 %       Constants:
 %           k_to_e      Constant in E(mev)=k_to_e*(k(Ang^-1))^2
 %           k_to_v      Constant in v(m/s)=k_to_v*k(Ang^-1)
@@ -194,7 +191,6 @@ angdeg=cell(nw,1);      % element size [1,3]
 detectors=cell(nw,1);   % element size [nrun,1]
 dt=cell(nw,1);          % element size [npix,1]
 qw=cell(nw,1);          % element is cell array size [1,4], each element size [npix,1]
-dq_mat=cell(nw,1);      % element size [4,11,npix]
 
 
 % Get detector information for the entire collection of sqw objects as an
@@ -241,8 +237,7 @@ for iw=1:nw
     
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
-    %  pixels have been shifted, so recalculate)
-    
+    %  pixels have been shifted, so recalculate)   
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
     
     if ne>1
@@ -266,7 +261,7 @@ for iw=1:nw
     % Get detector information for each pixel in the sqw object
     % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
     % and size(detdcn) = [3,npix]
-    [x2, d_mat, f_mat, detdcn] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
+    [x2, detdcn] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
     
     % Time width corresponding to energy bins for each pixel
     dt{iw} = deps_to_dt*(x2.*deps(irun)./kf{iw}.^3);
@@ -275,12 +270,6 @@ for iw=1:nw
     qw{iw} = cell(1,4);
     qw{iw}(1:3) = calculate_q (ki{iw}(irun), kf{iw}, detdcn, spec_to_rlu{iw}(:,:,irun));
     qw{iw}{4} = eps;
-    
-    % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
-    dq_mat{iw} = dq_matrix_DGfermi (ki{iw}(irun), kf{iw},...
-        x0{iw}(irun), xa{iw}(irun), x1{iw}(irun), x2, thetam{iw}(irun), angvel{iw}(irun),...
-        s_mat{iw}(:,:,irun), f_mat, d_mat,...
-        spec_to_rlu{iw}(:,:,irun), k_to_v, k_to_e);
     
 end
 
@@ -295,7 +284,7 @@ if keywrd.tables
     lookup.aperture_table = object_lookup(aperture);
     lookup.fermi_table = object_lookup(chopper);
     % Expand indexing of lookups for the sample to refer to n_runs copies
-    % (recall one elementof n_runs per sqw object)
+    % (recall one element of n_runs per sqw object)
     lookup.sample_table = object_lookup(sample, 'repeat', sz_cell);
     lookup.detector_table = detector_table;     % already an object_lookup
 end
@@ -313,7 +302,6 @@ lookup.alatt=alatt;
 lookup.angdeg=angdeg;
 lookup.dt=dt;
 lookup.qw=qw;
-lookup.dq_mat=dq_mat;
 lookup.k_to_v=k_to_v;
 lookup.k_to_e=k_to_e;
 
