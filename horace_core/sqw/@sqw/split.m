@@ -30,8 +30,21 @@ end
 
 % Get pointers to components of w:
 main_header = w.main_header;
-exp_info = w.experiment_info;
+exp_info  = w.experiment_info;
 runid_map = w.runid_map;
+%
+if w.main_header.creation_date_defined
+    run_contributes = true(nfiles,1);
+else
+    % with new file format all run contribute, but in case if we have old file
+    % format...
+    run_contributes = false(nfiles,1);
+    unique_id = irun(nbeg);
+    ind_contr = arrayfun(@(x)runid_map(x),unique_id);
+    run_contributes(ind_contr) = true;   % true for runs that contribute to the data
+end
+
+
 detpar = w.detpar;
 data = w.data;
 npix = w.data.npix;
@@ -52,16 +65,6 @@ npix = w.data.npix;
 %    nend = [];
 %end
 
-if w.main_header.creation_date_defined
-    run_contributes = true(nfiles,1);
-else
-    % with new file format all run contribute, but in case if we have old file
-    % format...
-    run_contributes = false(nfiles,1);
-    unique_id = irun(nbeg);
-    ind_contr = arrayfun(@(x)runid_map(x),unique_id);
-    run_contributes(ind_contr) = true;   % true for runs that contribute to the data
-end
 
 ind = zeros(nfiles,1);
 ind(run_contributes) = 1:numel(nbeg); % index of contributing runs into nbeg and nend
