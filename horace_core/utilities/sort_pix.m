@@ -123,8 +123,8 @@ if use_mex
 end
 
 if ~use_mex
-    % maintain type of pix
-    pix = pix_retained{1}.cat(pix_retained{:});
+    % combine pixels together. Type may be lost? Should not but form allows. Should we enforce it?
+    pix = PixelDataBase.cat(pix_retained{:});
     clear pix_retained;
     if isempty(pix)  % return early if no pixels
         pix = PixelDataMemory();

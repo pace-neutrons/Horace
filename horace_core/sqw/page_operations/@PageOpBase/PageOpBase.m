@@ -4,7 +4,9 @@ classdef PageOpBase
     % objects.
     %
     % Operations are functions which modify pixels directly, e.g.
-    % recalculating or modifying signal/variance.
+    % recalculating or modifying signal/variance or adding/removing pixels
+    % to existing bins.
+    %
     % PageOpBase does the work of loading block of pixels in memory,
     % calculating appropriate changes to the image and storing the result
     % within correct parts of the target object. It also provides a unified
@@ -41,15 +43,21 @@ classdef PageOpBase
         % The name of the operation included in the progress log for slow
         % operations
         op_name
+
+        % npix array (the same as img_.npix, but 1D), containing the pixel
+        % distribution over binning. If no binning is provided it is a
+        % single number equal to number of pixels (all pixels in one bin)
+        npix
+        % Property defines necessary way to split pixels data. Many
+        % algorithms reque pages to be divided on image bin boundaries,
+        % which may lead to pages not fitting to memory, but some do not
+        % need this, so you can cut into pages with equal number of pixels
+        % and handle any bin distribution.
+        split_at_bin_edges
     end
     properties(Dependent,Hidden)
         % number of page to operate over
         page_num
-
-        % npix array (the same as img_.npix), containing the pixel distribution
-        % over binning. If no binning is provided it is a single number equal
-        % to number of pixels (all pixels in one bin)
-        npix
 
         % caches for some indices, defined in PixelDataBase, and used to
         % extract appropriate fields from PixelData. Often used.
@@ -76,14 +84,20 @@ classdef PageOpBase
         % algorithm is the one which actually recalculates missing range.
         % No range warning should be generated for pixels only too.
         do_missing_range_warning;
+        % expose current page of data used/processed by  the algorithm
+        % Used in tests
+        page_data
+        % if true, page_op completed on filebacked object prints the name
+        % of the file backing this object.
+        inform_about_target_file
     end
 
     properties(Access=protected)
         % true if operation should not create the copy of a filebacked
         % object
         inplace_ = false;
-        % holder for the pixel object, which is source/target for the
-        % operation
+        % holder for the pixel object which is source and sometimes target
+        % for the operation
         pix_ = PixelDataMemory();
         % holder for the image, being modified by the operation(s).
         img_;
@@ -117,11 +131,20 @@ classdef PageOpBase
         % the data holder for a page of operation-modified pixels data
         page_data_;
         % accumulator for processed signal. All operations change signal
-        % some may define more accumulators
+        % some may define and use more accumulators
         sig_acc_
         % variance accumulator. Many operations recalculate variance.
-        % Do not forget to nullify it if your particular operation does it
+        % Do not forget to initialize and nullify it if your particular
+        % operation uses it.
         var_acc_
+        % true if data need to be split at bin edges (and bins are
+        % present)
+        split_at_bin_edges_ = false;
+        % counter of pix position when the operation is split at bin edges
+        pix_idx_start_
+        % if true, page_op completed on filebacked object prints the name
+        % of the file backing this object.
+        inform_about_target_file_ = true;
     end
     methods(Abstract)
         % Specific apply operation method, which need overloading
@@ -156,6 +179,45 @@ classdef PageOpBase
                 return;
             end
             obj = init_(obj,in_obj);
+            obj.pix_idx_start_ = 1;
+        end
+        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
+            % Method used to split input npix array into pages
+            % Inputs:
+            % npix  -- image npix array, which defines the number of pixels
+            %           contributing into each image bin and the pixels
+            %           ordering in the linear array
+            % chunk_size
+            %       -- sized of chunks to split pixels
+            % Returns:
+            % npix_chunks -- cellarray, containing the npix parts
+            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
+            %                the npix array.
+            % See split procedure for more details
+            if obj.split_at_bin_edges_
+                [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
+            else
+                [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
+            end
+        end
+        %
+        function obj = get_page_data(obj,idx,npix_blocks)
+            % return block of data used in page operation
+            %
+            % This is most common form of the operation. Some operations
+            % will request overloading
+            if obj.split_at_bin_edges_
+                % knowlege of all pixel coordinates in a cell.
+                npix_block    = npix_blocks{idx};
+                npix_in_block = sum(npix_block(:));
+                pix_idx_end   = obj.pix_idx_start_+npix_in_block-1;
+                obj.page_data_ = obj.pix_.get_pixels( ...
+                    obj.pix_idx_start_:pix_idx_end,'-raw','-align');
+                obj.pix_idx_start_ = pix_idx_end+1;
+            else
+                obj.pix_.page_num = idx;
+                obj.page_data_ = obj.pix_.data;
+            end
         end
         %
         function obj = common_page_op(obj)
@@ -180,14 +242,42 @@ classdef PageOpBase
                 obj.pix_ = obj.pix_.store_page_data(obj.page_data_,obj.write_handle_);
             end
         end
-        function obj = get_page_data(obj,idx,varargin)
-            % return block of data used in page operation
+        %
+        function obj = update_img_accumulators(obj,npix_block,npix_idx, ...
+                signal,variance)
+            % Very often changes in image are recalculated from changes in
+            % pixel data. This is generic code, that calculates changes
+            % to image from changed pixels.
+            % Inputs:
+            % obj        --
+            % npix_block -- part of npix array, which containing pixel
+            %               distribution within the selected chunk of bins
+            % npix_idx   -- indices of the selected cells of image to
+            %               modify from pixels
+            % s          -- modified pixels signal
+            % variance   -- modified pixels variance
+            % Returns:
+            % obj        -- page_op object containg updated accumulators.
             %
-            % This is most common form of the operation. Some operations
-            % will request overloading
-            obj.pix_.page_num = idx;
-            obj.page_data_ = obj.pix_.data;
+            % Some operations overload update_img_accumulators method
+
+            [s_ar, e_ar] = compute_bin_data(npix_block,signal,variance,true);
+            if obj.split_at_bin_edges_
+                obj.sig_acc_(npix_idx(1):npix_idx(2))        = s_ar(:);
+                if ~isempty(variance)
+                    obj.var_acc_(npix_idx(1):npix_idx(2))    = e_ar(:);
+                end
+            else
+                obj.sig_acc_(npix_idx(1):npix_idx(2))    = ...
+                    obj.sig_acc_(npix_idx(1):npix_idx(2)) + s_ar(:);
+                if ~isempty(variance)
+                    obj.var_acc_(npix_idx(1):npix_idx(2))    = ...
+                        obj.var_acc_(npix_idx(1):npix_idx(2)) + e_ar(:);
+                end
+            end
         end
+
+
         %
         function [out_obj,obj] = finish_op(obj,in_obj)
             % Finalize page operations.
@@ -203,24 +293,15 @@ classdef PageOpBase
             % Returns:
             % out_obj -- sqw object created as the result of the operation
             % obj     -- nullified PageOp object.
+
+            % Complete image modifications which would happen only if you
+            % were processing the image and using accumulators
+            obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
+
+            % transfer modifications of new image and pixels to the target object
             [out_obj,obj] = finish_op_(obj,in_obj);
         end
         %
-        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
-            % Method used to split input npix array into pages
-            % Inputs:
-            % npix  -- image npix array, which defines the number of pixels
-            %           contributing into each image bin and the pixels
-            %           ordering in the linear array
-            % chunk_size
-            %       -- sized of chunks to split pixels
-            % Returns:
-            % npix_chunks -- cellarray, containing the npix parts
-            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
-            %                the npix array.
-            % See split procedure for more details
-            [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
-        end
         function print_range_warning(obj,infile_name,is_old_file_format)
             % print the warning informing user that the source file
             % contains invalid data range and file format should be
@@ -339,6 +420,20 @@ classdef PageOpBase
             obj.op_name_ = val;
         end
         %
+        function do = get.inform_about_target_file(obj)
+            do = obj.inform_about_target_file_;
+        end
+        function obj = set.inform_about_target_file(obj,val)
+            obj.inform_about_target_file_ = logical(val);
+        end
+        %
+        function do = get.split_at_bin_edges(obj)
+            do = obj.split_at_bin_edges_;
+        end
+        function obj = set.split_at_bin_edges(obj,val)
+            obj.split_at_bin_edges_ = logical(val);
+        end
+        %
         function is  = get.is_range_valid(obj)
             is = obj.pix_.is_range_valid();
         end
@@ -353,13 +448,23 @@ classdef PageOpBase
         function do = get.do_missing_range_warning(obj)
             do = get_do_missing_range_warning(obj);
         end
+        %
+        function pd = get.page_data(obj)
+            pd = obj.page_data_;
+        end
     end
     %======================================================================
     methods(Access=protected)
         function is = get_exp_modified(obj)
+            % is_exp_modified controls calculations of unique runid-s
+            % during page_op.
+            %
+            % old_file format usually needs recalculation.
             is = obj.old_file_format_;
         end
         function  does = get_changes_pix_only(obj)
+            % changes_pix only controls processing of image accumulators,
+            % so if there image, we assime we want to calculate it.
             does = isempty(obj.img_);
         end
         function obj = set_changes_pix_only(obj,varargin)
@@ -368,10 +473,11 @@ classdef PageOpBase
         end
 
         function do = get_do_missing_range_warning(obj)
+            % warning should be issued for 
             do  = ~isempty(obj.img_);
         end
 
-        function obj = update_image(obj,sig_acc,var_acc,npix_acc)
+        function obj = update_image(obj,sig_acc,var_acc)
             % The piece of code which often but not always used at the end
             % of an operation when modified data get transformed from
             % accumulators to the final image finalizing the image
@@ -382,15 +488,13 @@ classdef PageOpBase
             %            operation(s)
             % var_acc -- array accumulating changed variance during
             %            operation(s)
-            % Optional:
-            % npix_acc -- array accumulating changes in npix during
-            %             operation(s)
             % Returns:
             % obj      -- operation object containing modified image, if
             %             image have been indeed modified
-            if nargin == 3
-                npix_acc = obj.npix(:);
+            if obj.changes_pix_only
+                return;
             end
+            npix_acc = obj.npix(:);
             obj = update_image_(obj,sig_acc,var_acc,npix_acc);
         end
         %

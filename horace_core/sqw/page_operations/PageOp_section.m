@@ -31,20 +31,8 @@ classdef PageOp_section < PageOpBase
             obj.img_ = new_img;
             obj.unique_runid_holder = [];
             obj.check_runid = true;
-
         end
-        function obj = get_page_data(obj,idx,varargin)
-            % return block of data used in page operation
-            %
-            % Overload specific for section. It takes various pieces of
-            % pixel data.
-            bl_chunk   = obj.block_chunks_{idx};
-            bl_start   = bl_chunk{1};
-            bl_size    = bl_chunk{2};
-            ind = get_ind_from_ranges(bl_start, bl_size);
-            obj.page_data_ = obj.pix_.get_pixels(ind ,'-raw');
-        end
-
+        %
         function [npix_chunks, npix_idx,obj] = split_into_pages(obj,~,chunk_size)
             % Method used to split input npix array into pages
             % Inputs:
@@ -59,6 +47,18 @@ classdef PageOp_section < PageOpBase
             npix_chunks = split_data_blocks(obj.block_starts_,obj.block_sizes_, chunk_size);
             npix_idx = ones(2,numel(npix_chunks));
             obj.block_chunks_ = npix_chunks;
+        end
+        %
+        function obj = get_page_data(obj,idx,varargin)
+            % return block of data used in page operation
+            %
+            % Overload specific for section. It takes various pieces of
+            % pixel data.
+            bl_chunk   = obj.block_chunks_{idx};
+            bl_start   = bl_chunk{1};
+            bl_size    = bl_chunk{2};
+            ind = get_ind_from_ranges(bl_start, bl_size);
+            obj.page_data_ = obj.pix_.get_pixels(ind ,'-raw','-align');
         end
 
         function obj = apply_op(obj,varargin)
@@ -86,6 +86,13 @@ classdef PageOp_section < PageOpBase
             % Experiment
             is = obj.old_file_format_||obj.check_runid;
         end
+        function  does = get_changes_pix_only(~)
+            % pageOp calculates pixels only using image as source. No point
+            % of calculating image from pixels again as it would be in
+            % usual PageOp
+            does = true;
+        end
+        
     end
     methods(Static)
         function [block_starts,block_sizes] = find_section(npix,ind_range)

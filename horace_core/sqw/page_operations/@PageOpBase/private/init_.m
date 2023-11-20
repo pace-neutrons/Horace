@@ -15,7 +15,8 @@ if isa(in_obj ,'PixelDataBase')
 elseif isa(in_obj,'sqw')
     obj.img_             = in_obj.data;
     obj.pix_             = in_obj.pix;
-    obj.npix             = obj.img_.npix;
+    % linear access to npix, as the controller of pixel location
+    obj.npix             = obj.img_.npix(:);
     %
     obj.sig_acc_ = zeros(numel(obj.npix),1);
 else

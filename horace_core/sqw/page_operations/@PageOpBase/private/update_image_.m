@@ -13,9 +13,7 @@ function obj = update_image_(obj,sig_acc,var_acc,npix_acc)
 % Returns:
 % obj      -- operation object containing modified image, if
 %             image have been indeed modified
-if obj.changes_pix_only
-    return;
-end
+
 [calc_sig,calc_var] = normalize_signal( ...
     sig_acc(:),var_acc(:),npix_acc(:));
 
@@ -24,8 +22,13 @@ img = obj.img_;
 img.do_check_combo_arg = false;
 
 img.s    = reshape(calc_sig,sz);
-img.e    = reshape(calc_var,sz);
 img.npix = reshape(npix_acc,sz);
+if isempty(var_acc)
+    img.e    = zeros(sz);
+else
+    img.e    = reshape(calc_var,sz);
+end
+
 
 img.do_check_combo_arg = true;
 img = img.check_combo_arg();

@@ -56,11 +56,13 @@ classdef PageOp_mask < PageOpBase
                 obj.mask_by_obj  = true;
                 obj.mask_by_bins = false;
                 obj.mask_by_num  = false;
+                obj.split_at_bin_edges = false;
             elseif isnumeric(keep_info) || islogical(keep_info)
                 if isscalar(keep_info)
                     obj.mask_by_obj  = false;
                     obj.mask_by_bins = false;
                     obj.mask_by_num  = true;
+                    obj.split_at_bin_edges = false;
                     if obj.pix_.num_pages> 1 % each page should contain
                         % share of the requested number of pixels
                         obj.keep_info_obj = obj.calc_page_share( ...
@@ -71,8 +73,10 @@ classdef PageOp_mask < PageOpBase
                     obj.mask_by_num  = false;
                     if obj.num_bins == numel(keep_info)
                         obj.mask_by_bins = true;
+                        obj.split_at_bin_edges = true;
                     elseif obj.num_pix_original == numel(keep_info)
                         obj.mask_by_bins = false;
+                        obj.split_at_bin_edges = false;
                     else
                         error('HORACE:PageOp_mask:invalid_argument', ...
                             'Number of masking elements in array must be equal to number of pixels (%d) or number of bins (%d). It is %d',...
@@ -128,18 +132,17 @@ classdef PageOp_mask < PageOpBase
             signal = obj.page_data_(obj.signal_idx,:);
             error  = obj.page_data_(obj.var_idx,:);
             % update image accumulators:
-            [s_ar, e_ar] = compute_bin_data(npix_block,signal,error,true);
+            obj = obj.update_img_accumulators(npix_block,npix_idx, ...
+                signal,error);
             obj.npix_acc(npix_idx(1):npix_idx(2))    = ...
-                obj.npix_acc(npix_idx(1):npix_idx(2)) + npix_block(:);
-            obj.sig_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.sig_acc_(npix_idx(1):npix_idx(2)) + s_ar(:);
-            obj.var_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.var_acc_(npix_idx(1):npix_idx(2)) + e_ar(:);
+                obj.npix_acc(npix_idx(1):npix_idx(2))  + npix_block(:);
         end
         %
         function [out_obj,obj] = finish_op(obj,out_obj)
+            % update npix with accumulator, accounting for change in
+            % npix due to masked pixels
+            obj.npix = obj.npix_acc;
             if ~obj.changes_pix_only
-                obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc);
                 %
                 if numel(obj.unique_run_id_) == out_obj.experiment_info.n_runs
                     obj.check_runid = false; % this will not write experiment info

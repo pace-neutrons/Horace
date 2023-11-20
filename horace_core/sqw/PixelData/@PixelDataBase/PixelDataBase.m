@@ -203,6 +203,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     end
 
     methods (Static)
+        out_obj = cat(varargin);
         function isfb = do_filebacked(num_pixels, scale_fac)
             % function defines default rule to make pixels filebased or memory
             % based.
@@ -726,6 +727,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
 
         pix_out = do_unary_op(obj, unary_op)
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
+
         %
         %------------------------------------------------------------------
         % Helpers for page_op and data_op_interface. Work with data in
@@ -759,33 +761,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             calc_variance   = nargout > 1;
             [mean_signal, mean_variance,signal_msd] = ...
                 compute_bin_data_(obj, npix,pix_idx,calc_variance,calc_signal_msd);
-        end
-        function out_obj = cat(obj,varargin)
-            % Concatenate the given PixelData objects' pixels. This function performs
-            % a straight-forward data concatenation.
-            %
-            %   >> joined_pix = pix_data1.cat(pix_data1, pix_data2);
-            %
-            % Input:
-            % ------
-            %   varargin    A cell array of PixelData objects
-            %
-            % Output:
-            % -------
-            %   obj         A PixelData object containing all the pixels in the inputted
-            %               PixelData objects
-            %               The type of the object (filebacked or
-            %               memorybacked) will be defined by the type of
-            %               the first object to cat.
-
-            % Take the dataclass of the first object.
-            if isempty(varargin)
-                out_obj = obj;
-                return;
-            end
-            out_obj = copy(obj);
-
-            out_obj= out_obj.cat(varargin{:});
         end
     end
     %======================================================================
