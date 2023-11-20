@@ -9,6 +9,24 @@ classdef test_hpc_config< TestCase
             obj = obj@TestCase(name);
         end
 
+        function test_get_free_memory_from_empty(~)
+
+            hpc = hpc_config();
+            hpc.real_memory_available = [];
+
+            mem = hpc.real_memory_available;
+            assertTrue(hpc.is_field_configured('real_memory_available'));
+
+            try
+                data = zeros(floor(mem/8),1);
+                ok = true;
+                clear data;
+            catch
+                ok = false;
+            end
+            assertTrue(ok,'Can not allocate memory reported as available')
+        end
+
         function test_get_free_memory(~)
 
             hpc = hpc_config();

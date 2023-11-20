@@ -190,32 +190,19 @@ classdef hpc_config < config_base
             'combine_sqw_using',...
             'mex_combine_thread_mode',...
             'mex_combine_buffer_size',...
-            'parallel_multifit',...
-            'real_memory_available' ...
+            'parallel_multifit'...
+
             }
         combine_sqw_options_ = {'matlab','mex_code','mpi_code'};
     end
     methods(Static)
         function free_memory = calc_free_memory()
             % function tries to estimate actual free memory available to
-            % the program
+            % Horace
             %
             % Result is expressed in bytes.
-            [~,free_memory]=sys_memory();
-            ndata = floor(free_memory/8); % memory in bytes and I will be allocating doubles
-            clOb = onCleanup(@()clear('data'));
-            function fv = heavi(np)
-                try
-                    data = zeros(np,1);
-                    fv = -1;
-                catch
-                    fv = 10;
-                end
-                clear data;
-            end
-            opt = struct('TolX',0.1);
-            ndata = fzero(@heavi,ndata,opt);
-            free_memory = floor(0.9*8*ndata);
+            %
+            free_memory = calc_free_memory_();
         end
     end
 
@@ -233,7 +220,8 @@ classdef hpc_config < config_base
                 obj.mex_combine_buffer_size_ = 64*1024;
             end
             %
-            obj.mem_only_prop_list_ = {'sort_pix_in_binary_op'};
+            obj.mem_only_prop_list_ = {'sort_pix_in_binary_op',...
+                'real_memory_available'};
         end
 
         %----------------------------------------------------------------
@@ -292,21 +280,7 @@ classdef hpc_config < config_base
         end
 
         function mem = get.real_memory_available(obj)
-            if obj.is_field_configured('real_memory_available')
-                mem = config_store.instance.get_value(obj,'real_memory_available');
-                try
-                    data = zeros(floor(mem/8),1);
-                    ok   = true;
-                catch
-                    ok = false;
-                end
-                if ok
-                    clear data;
-                    return
-                end
-            end
-            mem = hpc_config.calc_free_memory();
-            config_store.instance().store_config(obj,'real_memory_available',mem);
+            mem = get_real_memory_available_(obj);
         end
         %----------------------------------------------------------------
 
@@ -454,19 +428,7 @@ classdef hpc_config < config_base
         end
 
         function obj = set.real_memory_available(obj,val)
-            if val <=0
-                error('HORACE:hpc_config:invalid_argument', ...
-                    'Physical memory available should be value larger then 0')
-            end
-            [mchs,fbs] = config_store.instance().get_value( ...
-                'hor_config','mem_chunk_size','fb_scale_factor');
-            def_size = mchs*fbs*opt_config_manager.DEFAULT_PIX_SIZE;
-            if val<def_size
-                warning('HORACE:insufficient_physical_memory', ...
-                    'Attempt to set up physical memory estimate (%d), which is smaller then size of default memory-based sqw object (%d)', ...
-                    val,def_size)
-            end
-            config_store.instance().store_config(obj,'real_memory_available',val);
+            obj = set_real_memory_available_(obj,val,true);
         end
 
 
