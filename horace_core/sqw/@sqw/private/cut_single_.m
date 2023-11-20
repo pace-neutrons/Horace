@@ -87,7 +87,7 @@ if opt.keep_pix
     end
 else
     % Should it be sqw without pixels? We may want to
-    % do it it the result is an array of sqw cuts, some empty
+    % do it if the result is an array of sqw cuts, some empty
     wout = data_out.data;
 end
 

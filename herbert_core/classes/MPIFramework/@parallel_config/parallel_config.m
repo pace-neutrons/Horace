@@ -658,7 +658,7 @@ classdef parallel_config<config_base
             fields = obj.saved_properties_list_;
         end
 
-        function value = get_internal_field(obj,field_name)
+        function value = get_default_value(obj,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface
             value = obj.([field_name,'_']);

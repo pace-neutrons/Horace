@@ -14,14 +14,14 @@ classdef config_store < handle
         % the name of the folder where the configuration is stored;
         config_folder_name
     end
-    
+
     properties(Access=private)
         config_folder_;
         config_storage_;
         saveable_;
         config_folder_name_ = 'mprogs_config';
     end
-    
+
     methods(Static)
         function obj = instance(varargin)
             % Get instance of unique config_store implementation.
@@ -49,7 +49,7 @@ classdef config_store < handle
                 obj = unique_store_;
             end
         end
-        
+
         function set_config_folder(config_folder_name)
             % set the location for a folder with configuration to a location
             % provided as input.
@@ -58,20 +58,20 @@ classdef config_store < handle
             % currently in memory are retained but will be saved to the new
             % location on request only.
             if ~ischar(config_folder_name)
-                error('CONFIG_STORE:invalid_argument',...
+                error('HERBERT:config_store:invalid_argument',...
                     'config folder value has to be provided as a char string')
             end
             if strcmpi(config_folder_name,'clear')
-                error('CONFIG_STORE:invalid_argument',...
+                error('HERBERT:config_store:invalid_argument',...
                     'the config folder name can not be: ''clear''')
             end
             config_store.instance(config_folder_name);
         end
-        
+
     end
-    
+
     methods
-        function store_config(this,config_class,varargin)
+        function store_config(obj,config_class,varargin)
             % store configuration in memory and on file if requested.
             %
             % config_class class which property saveable==true, are saved both
@@ -79,76 +79,89 @@ classdef config_store < handle
             %
             % if option -forcesave (or -force is provided) file is saved
             % into disc regardless of its status in memory
-            
+
             options={'-forcesave'};
-            [ok,mess,force_save,other_options]=parse_char_options(varargin,options);
+            [ok,mess,force_save,argi]=parse_char_options(varargin,options);
             if ~ok
-                error('CONFIG_STORE:invalid_argument',mess);
+                error('HERBERT:config_store:invalid_argument',mess);
             end
-            store_internal(this,config_class,force_save,other_options{:});
+            store_config_(obj,config_class,force_save,argi{:});
         end
-        
-        function  [val,varargout] = get_config_field(this,class_to_restore,varargin)
-            % return the values of the requested field(s) from the
-            % specified configuration file
+        %------------------------------------------------------------------
+        function   varargout = get_value(obj,class_name_or_inst,varargin)
+            % Return specific config property value or list of values
+            % from a config class, with specific class name.
+            %
+            % Loads configuration from file if it is present there and have
+            % not been loaded in memory before
+            %
+            % TODO: this function identical to get_config_field below. One should
+            % remain
+            %
             %Usage:
-            %[field_val1,field_val2,...] =
-            %        config_store.instance().get_config_field(config_class,field1,field2,....);
-            % where:
+            %[val1,val2,...] =
+            %        config_store.instance().get_config_field(config_class,
+            %        field_is_missing_warning,field1,[field2,....]);
+            % Inputs:
             % config_class -- the configuration class or its name to get
             %                 values from.
-            % field1,field2, etc... the names of the fields of the above
-            %                       class to get their values.
-            % Returns:
-            % field_val1,field_val2, etc... -- the values of the requested
-            %                                  fields
+            % field1       -- the name of the configuration field to return
+            %                 value for
+            % Optional:
+            % field2,...   -- the names of more fields to retrieve
             %
-            if isa(class_to_restore,'config_base')
-                class_name = class_to_restore.class_name;
-            elseif ischar(class_to_restore)
-                class_name = class_to_restore;
-                class_to_restore = feval(class_name);
-            else
-                error('CONFIG_STORE:invalid_argument',...
-                    'Config class has to be a child of the config_base class or the name of such class');
+            % Returns:
+            % val1         -- the value of the configuration field with the
+            %                 name field1
+            % Optional
+            % val2,val3... -- the values of additional fields requested as
+            %                 input
+            %
+            out = get_config_field_value_(obj,class_name_or_inst,varargin{:});
+            for i=1:nargout
+                varargout{i} = out{i};
             end
-            
-            if isfield(this.config_storage_,class_name)
-                config_data = this.config_storage_.(class_name);
-            else
-                config_data = this.get_config(class_to_restore);
-            end
-            
-            if numel(varargin) < nargout
-                error('CONFIG_STORE:runtime_error',...
-                    ' some output values are not set by this function call');
-            end
-            
-            if isfield(config_data,varargin{1})
-                val=config_data.(varargin{1});
-            else
-                warning('CONFIG_STORE:restore_config',...
-                    'Class %s field %s is not stored in configuration. Returning defaults',...
-                    class_name,varargin{1});
-                val = class_to_restore.get_internal_field(varargin{1});
-            end
-            for i=2:nargout
-                if isfield(config_data,varargin{i})
-                    varargout{i-1}=config_data.(varargin{i});
-                else
-                    warning('CONFIG_STORE:restore_config',...
-                        'Class %s field %s is not stored in configuration. Returning defaults',...
-                        class_name,varargin{i});
-                    varargout{i-1} = class_to_restore.get_internal_field(varargin{i});
-                end
-            end
-            
         end
-        
+
+        function  varargout = get_config_field(this,class_to_restore, varargin)
+            % Returns the values of the requested field(s) from the
+            % specified configuration file
+            %
+            % Loads configuration from file if it is present there and have
+            % not been loaded in memory before
+            %
+            % TODO: this function identical to get_value above. One should
+            % remain
+            %
+            %Usage:
+            %[val1,val2,...] =
+            %        config_store.instance().get_config_field(config_class,
+            %        field_is_missing_warning,field1,[field2,....]);
+            % Inputs:
+            % config_class -- the configuration class or its name to get
+            %                 values from.
+            % field1       -- the name of the configuration field to return
+            %                 value for
+            % Optional:
+            % field2,...   -- the names of more fields to retrieve
+            %
+            % Returns:
+            % val1         -- the value of the configuration field with the
+            %                 name field1
+            % Optional
+            % val2,val3... -- the values of additional fields requested as
+            %                 input
+            %
+            out = get_config_field_value_(this,class_to_restore,varargin{:});
+            for i=1:nargout
+                varargout{i} = out{i};
+            end
+        end
+
         function config_cont = get_all_configs(obj)
             % return all config info, currently loaded in memory
             config_cont = obj.config_storage_;
-            
+
             fldn = fieldnames(config_cont);
             for i=1:numel(fldn)
                 cfcl = feval(fldn{i});
@@ -158,14 +171,14 @@ classdef config_store < handle
             end
             config_cont.config_folder = obj.config_folder;
         end
-        
+
         function set_all_configs(obj,config_struct)
             % set up config info, previously retrieved by get_all_configs
             % function into memory as current configuration
             %
             obj.config_folder_ = config_struct.config_folder;
             config_struct = rmfield(config_struct,'config_folder');
-            
+
             fldn = fieldnames(config_struct);
             for i=1:numel(fldn)
                 cfcl = feval(fldn{i});
@@ -183,7 +196,7 @@ classdef config_store < handle
                 end
             end
         end
-        
+
         %------------------------------------------------------------------
         % Two methods responsible for the class to be configured savable
         % savable property is not stored to HDD and is the property
@@ -211,7 +224,7 @@ classdef config_store < handle
                 this.saveable_(class_name)=is;
             end
         end
-        
+
         function set_saveable(this,class_instance,is_it)
             % set or clear the property, which defines if the changes in
             % the class configuration are stored on hdd
@@ -224,40 +237,18 @@ classdef config_store < handle
             % to set and the variable to_save is true if the class should be
             % made savable and false otherwise.
             %
-            
+
             is_saveable= is_it > 0;
-            
+
             if is_string(class_instance)
                 class_name = class_instance;
             else
                 class_name = class_instance.class_name;
             end
-            
+
             this.saveable_(class_name)=is_saveable;
         end
-        
-        %------------------------------------------------------------------
-        
-        function   [config_val,varargout] = get_value(this,class_name,value_name,varargin)
-            % return specific config property value or list of values
-            % from a config class, with specific class name
-            %
-            %Usage:
-            %>>val = ...
-            %      config_store.instance().get_value(class_name,property_name)
-            % or
-            %>>[val1,val2,val3] = ...
-            %       config_store.instance().get_value(class_name,...
-            %                               property_name1,property_name2,property_name3);
-            %
-            [config_val,out] = this.get_config_val_internal(class_name,value_name,varargin);
-            nout = max(nargout,1) - 1;
-            for i=1:nout
-                varargout{i} = out{i};
-            end
-            
-        end
-        
+
         function config_data=get_config(this,class_to_restore)
             % return configuration from memory or load it from a file if such
             % configuration exist on file and not in memory
@@ -268,7 +259,7 @@ classdef config_store < handle
             %
             % if class_to_restore has option returns_defaults==true,
             % default class configuration is returned
-            
+
             %Usage:
             %
             % obj = conifg_store.instance().restore_config(hor_config)
@@ -279,17 +270,17 @@ classdef config_store < handle
             %                     'use_mex','log_level')
             %                      returns current Herbert config settings for fields
             %                      'use_mex' and 'log_level'
-            
-            [config_data,read_from_file]=this.get_config_(class_to_restore);
+
+            [config_data,read_from_file]=get_config_(this,class_to_restore);
             % execute class setters.
-            
+
             % Important!!!
             % Despite we are not returning the resulting configuration,
             % executing this allows to set up global dependent fields (e.g.
             % set up unit test directories. But this can not set up
             % internal private dependent fields so a configuration can not
             % have such fields! (the setting got lost)
-            
+
             % set active properties only if the data were recovered from
             % file
             if read_from_file
@@ -304,7 +295,7 @@ classdef config_store < handle
                 % its previous value
             end
         end
-        
+
         function has = has_config(this,class_name)
             % method checks if the class with given name has given
             % configuration stored in file.
@@ -313,9 +304,9 @@ classdef config_store < handle
             conf_file = fullfile(this.config_folder,[class_name,'.mat']);
             has = is_file(conf_file);
         end
-        
+
         %------------------------------------------------------------------
-        
+
         function clear_config(this,class_instance,varargin)
             % clear configuration from memory
             %
@@ -329,7 +320,7 @@ classdef config_store < handle
             end
             clear_particular_config(this,class_instance,clear_file);
         end
-        
+
         function clear_all(this,varargin)
             % clear all configurations, stored in memory.
             % if option -file exist, it also deletes all files related to
@@ -338,39 +329,39 @@ classdef config_store < handle
             options={'-files'};
             [ok,mess,clear_files]=parse_char_options(varargin,options);
             if ~ok
-                error('HORACE:config_store:invalid_argument',mess);
+                error('HERBERT:config_store:invalid_argument',mess);
             end
             if clear_files
                 this.delete_all_files();
             end
             config_store.instance('clear');
         end
-        
+
         function isit=is_configured(this,class_instance,varargin)
             % method checks if the class class_instance is
             % stored within the config_store
             %
             % if option -in_mem provided, it checks only if such configuration
             % is loaded in the memory
-            
+
             options={'-in_mem'};
             [ok,mess,check_mem_only]=parse_char_options(varargin,options);
             if ~ok
-                error('CONFIG_STORE:invalid_argument',mess);
+                error('HERBERT:config_store:invalid_argument',mess);
             end
             %
             isit = check_isconfigured(this,class_instance,check_mem_only);
         end
-        
+
         %------------------------------------------------------------------
-        
+
         function path=get.config_folder(obj)
             path=obj.config_folder_;
         end
         function set.config_folder(obj,new_path)
             % simplified setter for config path. Never copies configuration
             % to new place. Assumes that its either newly configured or
-            % have some configuration there. 
+            % have some configuration there.
             % Remove all existing configurations
             % from memory to pick up defaults or load configurations from
             % new folder
@@ -380,7 +371,7 @@ classdef config_store < handle
         function fn=get.config_folder_name(obj)
             fn = obj.config_folder_name_;
         end
-        
+
         function set_config_path(obj,new_path,varargin)
             % set new config store path.
             % usage:
@@ -404,26 +395,21 @@ classdef config_store < handle
                 obj.build_and_set_config_folder_(new_path);
             end
         end
-        
+
         function storage = get.config_classes(this)
             storage = fieldnames(this.config_storage_);
         end
-        
+
         function obj = save_config(obj,class_name,data_to_save)
-            % save config class intormaion the appropriate config file
+            % save config class information the appropriate config file
             if ~exist('data_to_save','var')
                 data_to_save = obj.config_storage_.(class_name);
             end
             filename = fullfile(obj.config_folder,[class_name,'.mat']);
-            [ok,mess]=save_config(filename,data_to_save);
-            if ~ok
-                error('HORACE:config_store:io_error',mess);
-            end
-            
+            save_config(filename,data_to_save);
         end
-        
     end
-    
+
     methods(Access=private)
         % Guard the constructor against external invocation.  We only want
         % to allow a single instance of this class.  See description in
@@ -435,14 +421,14 @@ classdef config_store < handle
                 {'char', 'string'}, {'scalartext', 'nonempty'})));
             parse(p, varargin{:});
             new_path = p.Results.path;
-            
+
             % initialize configurations storage.
             newStore.config_storage_ = struct();
             newStore.saveable_ = containers.Map();
-            
+
             newStore=build_and_set_config_folder_(newStore,new_path);
         end
-        
+
         function obj=build_and_set_config_folder_(obj,new_path)
             % construct the name of the config folder and set it up
             % as config folder at the path specified.
@@ -489,7 +475,7 @@ classdef config_store < handle
                     obj.config_folder_name_ = ['mprogs_config', ver_string];
                 end
             end
-            
+
             if ~isempty(new_path)
                 [file_path,fn] = fileparts(new_path);
                 if contains(fn,'mprogs_config') % use new path config folder
@@ -499,7 +485,7 @@ classdef config_store < handle
                 else
                     use_external_path = false;
                 end
-                
+
                 cfn = obj.config_folder_name;
                 if use_external_path || strcmpi(fn,cfn)  % build config folder with the name,
                     % specified as defined on level up then

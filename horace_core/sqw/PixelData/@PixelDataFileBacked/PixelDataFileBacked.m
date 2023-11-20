@@ -383,63 +383,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
         % apply page operation(s) to the object with File-backed pixels
         obj_out = apply_op(obj_in,page_op);
         %
-        function obj = cat(varargin)
-            % Concatenate the given PixelData objects' pixels. This function performs
-            % a straight-forward data concatenation.
-            %
-            %   >> joined_pix = PixelDataBase.cat(pix_data1, pix_data2);
-            %
-            % Input:
-            % ------
-            %   varargin    A cell array of PixelData objects
-            %
-            % Output:
-            % -------
-            %   obj         A PixelData object containing all the pixels in the inputted
-            %               PixelData objects
-
-            if isempty(varargin)
-                obj = PixelDataFileBacked();
-                return;
-            elseif numel(varargin) == 1
-                if isa(varargin{1}, 'PixelDataMemory')
-                    obj = PixelDataFileBacked(varargin{1});
-                elseif isa(varargin{1}, 'PixelDataFileBacked')
-                    obj = varargin{1};
-                end
-                return;
-            end
-
-            is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
-            if any(is_ldr)
-                ldr = varargin{is_ldr};
-                varargin = varargin(~is_ldr);
-            else
-                ldr = [];
-            end
-
-            obj = PixelDataFileBacked();
-
-            obj.num_pixels_ = sum(cellfun(@(x) x.num_pixels, varargin));
-
-            obj = obj.get_new_handle(ldr);
-
-            start_idx = 1;
-            obj.data_range_ = PixelDataBase.EMPTY_RANGE;
-            for i = 1:numel(varargin)
-                curr_pix = varargin{i};
-                num_pages= curr_pix.num_pages;
-                for page = 1:num_pages
-                    curr_pix.page_num = i;
-                    data = curr_pix.data;
-                    obj = obj.format_dump_data(data);
-                    obj.data_range_ = ...
-                        obj.pix_minmax_ranges(data, obj.data_range_);
-                    start_idx = start_idx + size(data,2);
-                end
-            end
-            obj = obj.finish_dump();
-        end
     end
 
     %======================================================================

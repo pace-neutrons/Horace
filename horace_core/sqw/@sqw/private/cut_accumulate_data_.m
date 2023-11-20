@@ -128,7 +128,7 @@ if isscalar(targ_proj)
     npix_step_retained = pix_retained.num_pixels;
 else
     pix_retained = cell(numel(targ_proj), 1);
-    pix_indx = cell(numel(targ_proj), 1);
+    pix_indx     = cell(numel(targ_proj), 1);
     unique_runid = [];
     for i = 1:numel(targ_proj)
         [npix, s, e, pix_retained{i}, unique_runid_l, pix_indx{i}, selected] = ...
@@ -142,7 +142,7 @@ else
 
     end
 
-    pix_retained = pix_retained{1}.cat(pix_retained{:});
+    pix_retained = PixelDataBase.cat(pix_retained{:});
     pix_retained = sort_pix(pix_retained, pix_indx, npix);
     unique_runid = unique_runid';
 end

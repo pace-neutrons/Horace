@@ -14,7 +14,8 @@ classdef test_apply_op_and_recompute_bin_data < TestCase
                 name = 'test_apply_op_and_recompute_bin_data';
             end
             obj = obj@TestCase(name);
-            obj.test_sqw = sqw.generate_cube_sqw(10,@(h,k,l,e,varargin)(2));
+            obj.test_sqw = sqw.generate_cube_sqw(10, ...
+                @(h,k,l,e,varargin)(ones(numel(h),1)*2));
 
         end
         function test_recompute_bin_data_on_file_with_same_name(obj)

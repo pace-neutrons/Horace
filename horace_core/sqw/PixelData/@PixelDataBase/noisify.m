@@ -32,7 +32,7 @@ function pix_out = noisify(obj, varargin)
 % otherwise perform the operation on obj itself.
 pix_out = copy(obj);
 
-pix_op = PageOp_mask();
+pix_op = PageOp_noisify();
 if ~isempty(npix)
     pix_op.npix = npix;
 end
