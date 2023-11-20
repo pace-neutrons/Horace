@@ -315,7 +315,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             clob3 = onCleanup(@()finalize_all(clust));
         end
     end
-    % keep userpath
+    % keep userpath test methods.
     methods
         function test_set_user_env_if_matlabpath_set_with_more(obj)
             en = getenv('MATLABPATH');
@@ -332,11 +332,11 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
             [cluster,~,clOb] = obj.get_cluster_wrapper_tester(3);
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
+            paths = split(path,pathsep);
 
-            assertTrue(obj.path_belongs(necessary_path,pathes));
-            assertFalse(obj.path_belongs(test_dir,pathes));
-            assertTrue(obj.path_belongs(this_path,pathes));
+            assertTrue(obj.path_belongs(necessary_path,paths));
+            assertFalse(obj.path_belongs(test_dir,paths));
+            assertTrue(obj.path_belongs(this_path,paths));
 
 
             addpath(test_dir);
@@ -344,15 +344,14 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             cluster = cluster.add_user_path(pc);
 
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
-            assertTrue(obj.path_belongs(test_dir,pathes));
-            assertTrue(obj.path_belongs(necessary_path,pathes));
-            assertTrue(obj.path_belongs(this_path,pathes));
+            paths = split(path,pathsep);
+            assertTrue(obj.path_belongs(test_dir,paths));
+            assertTrue(obj.path_belongs(necessary_path,paths));
+            assertTrue(obj.path_belongs(this_path,paths));
 
             % remove path first to avoid warinings
             clear clPath
         end
-
 
         function test_set_user_env_if_matlabpath_set(obj)
 
@@ -369,23 +368,22 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
             [cluster,~,clOb] = obj.get_cluster_wrapper_tester(3);
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
-            assertFalse(obj.path_belongs(test_dir,pathes));
-            assertTrue(obj.path_belongs(necessary_path,pathes));
+            paths = split(path,pathsep);
+            assertFalse(obj.path_belongs(test_dir,paths));
+            assertTrue(obj.path_belongs(necessary_path,paths));
 
             addpath(test_dir);
 
             cluster = cluster.add_user_path(pc);
 
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
-            assertTrue(obj.path_belongs(test_dir,pathes));
-            assertTrue(obj.path_belongs(necessary_path,pathes));
+            paths = split(path,pathsep);
+            assertTrue(obj.path_belongs(test_dir,paths));
+            assertTrue(obj.path_belongs(necessary_path,paths));
 
             % remove path first to avoid warinings
             clear clPath
         end
-
 
         function test_set_user_env(obj)
 
@@ -400,19 +398,19 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
             [cluster,~,clOb] = obj.get_cluster_wrapper_tester(3);
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
-            assertTrue(obj.path_belongs(necessary_path,pathes));
-            assertFalse(obj.path_belongs(test_dir,pathes));
+            paths = split(path,pathsep);
+            assertTrue(obj.path_belongs(necessary_path,paths));
+            assertFalse(obj.path_belongs(test_dir,paths));
 
             addpath(test_dir);
 
             cluster = cluster.add_user_path(pc);
 
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
+            paths = split(path,pathsep);
 
-            assertTrue(obj.path_belongs(test_dir,pathes));
-            assertTrue(obj.path_belongs(necessary_path,pathes));
+            assertTrue(obj.path_belongs(test_dir,paths));
+            assertTrue(obj.path_belongs(necessary_path,paths));
 
             % remove path first to avoid warinings
             clear clPath

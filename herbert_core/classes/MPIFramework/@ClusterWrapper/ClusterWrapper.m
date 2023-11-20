@@ -295,14 +295,14 @@ classdef ClusterWrapper
             % Build user path
 
             if isempty(existing_addpath)
-                addpath = {necessary_addpath};
+                add2path = {necessary_addpath};
             else
-                addpath = {necessary_addpath,existing_addpath};
+                add2path = {necessary_addpath,existing_addpath};
             end
 
             % Form necessary path
             obj.common_env_var_('MATLABPATH') = ...
-                strjoin([addpath(:);user_path(:)],pathsep);
+                strjoin([add2path(:);user_path(:)],pathsep);
 
         end
 
