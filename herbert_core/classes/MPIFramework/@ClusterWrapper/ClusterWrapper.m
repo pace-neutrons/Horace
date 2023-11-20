@@ -50,8 +50,6 @@ classdef ClusterWrapper
     end
     properties(Dependent,Hidden)
         % return enviromental variables used by cluster. Normally for testing
-        % It is handle, so it can be used for seting it too.
-        % (Violates class logic so avoid this)
         common_env_var
     end
 
@@ -251,6 +249,7 @@ classdef ClusterWrapper
             % It assumed that user view on the filesystem is the same as
             % the view from parallel nodes. This probably should be
             % changed in a future.
+            % Re #1393 -- ticket to investigate this.
             %
             % Inputs:
             % obj  -- instance of ClusterWrapper getting initialized
@@ -294,17 +293,17 @@ classdef ClusterWrapper
                 user_path = curr_path(~startsWith(curr_path,existing_addpath));
             end
             % Build user path
-            user_path = strjoin(user_path, pathsep);
 
             if isempty(existing_addpath)
-                obj.common_env_var_('MATLABPATH') = necessary_addpath;
+                add2path = {necessary_addpath};
             else
-                obj.common_env_var_('MATLABPATH') = ...
-                    [necessary_addpath,pathsep,existing_addpath];
+                add2path = {necessary_addpath,existing_addpath};
             end
 
             % Form necessary path
-            obj.common_env_var_('MATLABPATH') = [obj.common_env_var_('MATLABPATH'),pathsep,user_path];
+            obj.common_env_var_('MATLABPATH') = ...
+                strjoin([add2path(:);user_path(:)],pathsep);
+
         end
 
         function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)
@@ -466,7 +465,8 @@ classdef ClusterWrapper
                     paused  = false;
                     running = false;
                     failedC = true;
-                    messC   = FailedMessage('Job Initialization process have failed or has not been started');
+                    messC   = FailedMessage( ...
+                        'Job Initialization process have failed or has not been started');
                 end
             else
                 paused = false;
@@ -686,7 +686,7 @@ classdef ClusterWrapper
             [completed,failed,mess] = check_progress_from_messages_(obj,varargin{:});
         end
         function val = get.common_env_var(obj)
-            val = obj.common_env_var_;
+            val = containers.Map(obj.common_env_var_.keys,obj.common_env_var_.values);
         end
     end
     %
