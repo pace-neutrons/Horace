@@ -49,6 +49,12 @@ classdef hpc_config < config_base
     %                            'herbert', 'parpool', 'mpiexec_mpi' or
     %                            'slurm' (if appropriate clusters are
     %                             available)
+    % real_memory_available     - return real size (in bytes) of physical
+    %                             memory, avaliable to use by algoritms.
+    %                             Tries to allocate continuous memory at
+    %                             first call and stores result for future
+    %                             usage, so first call should be tried on
+    %                             relatively clean system
     %
     % sort_pix_in_binary_op     - pixels are usually randomly distributed
     %                             within an image cell. To perform correct
@@ -133,6 +139,12 @@ classdef hpc_config < config_base
         % configuration. To change the parallel configuration, work with
         % the configuration class itself;
         parallel_config;
+
+        % return real size (in bytes) of physical  memory, avaliable to use
+        % by algoritms. Tries to allocate continuous memory at first call
+        % and stores result for future usage, so first call should be tried
+        % on clean system.
+        real_memory_available
 
         % pixels are usually randomly distributed within an image cell.
         % To perform correct binary operations between two sqw files with
@@ -254,6 +266,8 @@ classdef hpc_config < config_base
         function hpco = get.hpc_options(obj)
             hpco = obj.saved_properties_list_;
         end
+
+        
 
         %----------------------------------------------------------------
 

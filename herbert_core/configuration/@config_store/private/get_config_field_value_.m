@@ -1,4 +1,4 @@
-function out = get_config_field_value_(obj,class_to_restore, varargin)
+function out = get_config_field_value_(obj,class_or_name_to_restore, varargin)
 % GET_CONFIG_FIELD_VALUE_ returns the field or celarray of fields values for
 % the list of config properties, provided as input.
 %
@@ -16,21 +16,22 @@ function out = get_config_field_value_(obj,class_to_restore, varargin)
 %                     property names, provided as input
 
 
-if isa(class_to_restore,'config_base')
-    class_name = class_to_restore.class_name;
-elseif istext(class_to_restore)
-    class_name = class_to_restore;
-    class_to_restore = feval(class_name);
+if isa(class_or_name_to_restore,'config_base')
+    class_name = class_or_name_to_restore.class_name;
+    class_inst  = class_or_name_to_restore;
+elseif istext(class_or_name_to_restore)
+    class_name = class_or_name_to_restore;
 else
     error('HERBERT:config_store:invalid_argument',...
         'Config class %s has to be a child of the config_base class or the name of such class', ...
-        class(class_to_restore));
+        class(class_or_name_to_restore));
 end
 
 if isfield(obj.config_storage_,class_name)
     config_data = obj.config_storage_.(class_name);
 else
-    config_data = obj.get_config(class_to_restore);
+    class_inst = feval(class_name);
+    config_data = obj.get_config(class_inst);
 end
 
 if numel(varargin) < nargout
@@ -44,12 +45,11 @@ for i=1:nfields
     if isfield(config_data,varargin{i})
         out{i}=config_data.(varargin{i});
     else
-        out{i} = class_to_restore.get_default_value(varargin{i});
-        if ~ismember(varargin{i},class_to_restore.mem_only_prop_list)
+        out{i} = class_inst.get_default_value(varargin{i});
+        if ~ismember(varargin{i},class_inst.mem_only_prop_list)
             warning('HERBERT:config_store:default_field_value',...
                 'Class %s field %s is not stored in configuration. Returning defaults',...
                 class_name,varargin{i});
         end
-
     end
 end

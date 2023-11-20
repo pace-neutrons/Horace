@@ -119,6 +119,9 @@ classdef test_config_classes < TestCase
             assertFalse(found_when_init_tests_off,' folder was not removed from search path properly');
             assertTrue(found_when_init_tests_on);
         end
+    end
+    % Test unsaveable property
+    methods
         function test_unsaveable_recovered_from_store(~)
             clWarn = set_temporary_warning('off', ...
                 'HERBERT:test_warning','HERBERT:config_store:default_configuration');
