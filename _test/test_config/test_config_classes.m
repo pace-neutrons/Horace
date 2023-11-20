@@ -84,6 +84,9 @@ classdef test_config_classes < TestCase
         end
 
         function obj = test_set_withbuffer(obj)
+            clWarn = set_temporary_warning('off', ...
+                'HERBERT:config_store:default_configuration');
+
             set(tgp_test_class2,'v1',-30);
             s2_sav = get(tgp_test_class2);
 
@@ -119,6 +122,42 @@ classdef test_config_classes < TestCase
             assertFalse(found_when_init_tests_off,' folder was not removed from search path properly');
             assertTrue(found_when_init_tests_on);
         end
+
+        function test_is_configured_on_first_call(~)
+            clWarn = set_temporary_warning('off', ...
+                'HERBERT:config_store:default_configuration','HERBERT:fake_warning');
+            warning('HERBERT:fake_warning','ensure no unwanted warnings have been issued');
+
+            config_store.instance().clear_config('tgp_test_class2','-files');
+
+
+            stc = tgp_test_class2();
+            assertFalse(stc.is_field_configured('v1'))
+            assertFalse(stc.is_field_configured('v2'))
+            assertFalse(stc.is_field_configured('v3'))
+            assertFalse(stc.is_field_configured('v4'))
+
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:fake_warning')
+
+            % first call to property loads it to memory.
+            assertEqual(stc.v1,10000000)
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:config_store:default_configuration')
+
+            warning('HERBERT:fake_warning','ensure no unwanted warnings have been issued');
+            assertTrue(stc.is_field_configured('v1'))
+            assertTrue(stc.is_field_configured('v2'))
+            assertTrue(stc.is_field_configured('v3'))
+            assertTrue(stc.is_field_configured('v4'))
+
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:fake_warning')
+
+            % clean-up to erase all memory about this test
+            config_store.instance().clear_config(stc,'-files');
+        end
+
     end
     % Test unsaveable property
     methods
