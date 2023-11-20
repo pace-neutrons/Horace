@@ -190,9 +190,33 @@ classdef hpc_config < config_base
             'combine_sqw_using',...
             'mex_combine_thread_mode',...
             'mex_combine_buffer_size',...
-            'parallel_multifit'...
+            'parallel_multifit',...
+            'real_memory_available' ...
             }
         combine_sqw_options_ = {'matlab','mex_code','mpi_code'};
+    end
+    methods(Static)
+        function free_memory = calc_free_memory()
+            % function tries to estimate actual free memory available to
+            % the program
+            %
+            % Result is expressed in bytes.
+            [~,free_memory]=sys_memory();
+            ndata = floor(free_memory/8); % memory in bytes and I will be allocating doubles
+            clOb = onCleanup(@()clear('data'));
+            function fv = heavi(np)
+                try
+                    data = zeros(np,1);
+                    fv = -1;
+                catch
+                    fv = 10;
+                end
+                clear data;
+            end
+            opt = struct('TolX',0.1);
+            ndata = fzero(@heavi,ndata,opt);
+            free_memory = floor(0.9*8*ndata);
+        end
     end
 
     methods
@@ -268,12 +292,21 @@ classdef hpc_config < config_base
         end
 
         function mem = get.real_memory_available(obj)
-            if obj.is_field_configured(obj,'real_memory_available')
-                mem = get_or_restore_field(obj,'real_memory_available');
-            else
-                mem = hpc_config.calc_free_memory();
-                config_store.instance().store_config(obj,'real_memory_available',mem);
+            if obj.is_field_configured('real_memory_available')
+                mem = config_store.instance.get_value(obj,'real_memory_available');
+                try
+                    data = zeros(floor(mem/8),1);
+                    ok   = true;
+                catch
+                    ok = false;
+                end
+                if ok
+                    clear data;
+                    return
+                end
             end
+            mem = hpc_config.calc_free_memory();
+            config_store.instance().store_config(obj,'real_memory_available',mem);
         end
         %----------------------------------------------------------------
 
