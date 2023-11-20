@@ -267,8 +267,14 @@ classdef hpc_config < config_base
             hpco = obj.saved_properties_list_;
         end
 
-        
-
+        function mem = get.real_memory_available(obj)
+            if obj.is_field_configured(obj,'real_memory_available')
+                mem = get_or_restore_field(obj,'real_memory_available');
+            else
+                mem = hpc_config.calc_free_memory();
+                config_store.instance().store_config(obj,'real_memory_available',mem);
+            end
+        end
         %----------------------------------------------------------------
 
         function obj = set.combine_sqw_using(obj,val)
@@ -306,7 +312,6 @@ classdef hpc_config < config_base
         end
 
         function opt = get.combine_sqw_options(obj)
-
             opt = obj.combine_sqw_options_;
         end
 
@@ -414,6 +419,23 @@ classdef hpc_config < config_base
             pf = parallel_config();
             pf.remote_folder = val;
         end
+
+        function obj = set.real_memory_available(obj,val)
+            if val <=0
+                error('HORACE:hpc_config:invalid_argument', ...
+                    'Physical memory available should be value larger then 0')
+            end
+            [mchs,fbs] = config_store.instance().get_value( ...
+                'hor_config','mem_chunk_size','fb_scale_factor');
+            def_size = mchs*fbs*opt_config_manager.DEFAULT_PIX_SIZE;
+            if val<def_size
+                warning('HORACE:insufficient_physical_memory', ...
+                    'Attempt to set up physical memory estimate (%d), which is smaller then size of default memory-based sqw object (%d)', ...
+                    val,def_size)
+            end
+            config_store.instance().store_config(obj,'real_memory_available',val);
+        end
+
 
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
