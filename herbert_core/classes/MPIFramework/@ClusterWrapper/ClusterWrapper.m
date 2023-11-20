@@ -686,7 +686,7 @@ classdef ClusterWrapper
             [completed,failed,mess] = check_progress_from_messages_(obj,varargin{:});
         end
         function val = get.common_env_var(obj)
-            val = obj.common_env_var_;
+            val = containers.Map(obj.common_env_var_.keys,obj.common_env_var_.values);
         end
     end
     %
