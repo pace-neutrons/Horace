@@ -21,6 +21,7 @@ if isa(class_or_name_to_restore,'config_base')
     class_inst  = class_or_name_to_restore;
 elseif istext(class_or_name_to_restore)
     class_name = class_or_name_to_restore;
+    class_inst = feval(class_name);
 else
     error('HERBERT:config_store:invalid_argument',...
         'Config class %s has to be a child of the config_base class or the name of such class', ...
@@ -30,7 +31,7 @@ end
 if isfield(obj.config_storage_,class_name)
     config_data = obj.config_storage_.(class_name);
 else
-    class_inst = feval(class_name);
+
     config_data = obj.get_config(class_inst);
 end
 
@@ -39,8 +40,10 @@ if numel(varargin) < nargout
         ' some output values are not set by this function call');
 end
 
+
 nfields = numel(varargin);
 out = cell(nfields,1);
+
 for i=1:nfields
     if isfield(config_data,varargin{i})
         out{i}=config_data.(varargin{i});
