@@ -27,7 +27,7 @@ classdef PageOp_cat_pix < PageOpBase
             % Initialize cat operation on pixels:
             obj = obj.init_pix_only_data_obj(varargin{:});
 
-            [pf,mem_chunk_size] = config_store.instance().get_value( ...
+            [mem_chunk_size,pf] = config_store.instance().get_value( ...
                 'hor_config','mem_chunk_size','fb_scale_factor');
             fb_pix_limit = pf*mem_chunk_size;
             obj.page_size_ = mem_chunk_size;
@@ -67,7 +67,8 @@ classdef PageOp_cat_pix < PageOpBase
 
                 obj.pix_block_start_(npix_idx(1)) = pix_idx_end+1;
             else % more then one PixelData object per obj.page_data_
-                obj.page_data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,obj.page_size_);
+                this_chunk = sum(chunks);
+                obj.page_data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,this_chunk);
                 page_idx_start = 1;
                 n_accessor = npix_idx(1):npix_idx(2);
                 for i=1:n_chunks
