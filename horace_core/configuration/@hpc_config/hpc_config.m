@@ -49,7 +49,7 @@ classdef hpc_config < config_base
     %                            'herbert', 'parpool', 'mpiexec_mpi' or
     %                            'slurm' (if appropriate clusters are
     %                             available)
-    % real_memory_available     - return real size (in bytes) of physical
+    % phys_mem_available        - return real size (in bytes) of physical
     %                             memory, avaliable to use by algoritms.
     %                             Tries to allocate continuous memory at
     %                             first call and stores result for future
@@ -144,7 +144,7 @@ classdef hpc_config < config_base
         % by algoritms. Tries to allocate continuous memory at first call
         % and stores result for future usage, so first call should be tried
         % on clean system.
-        real_memory_available
+        phys_mem_available
 
         % pixels are usually randomly distributed within an image cell.
         % To perform correct binary operations between two sqw files with
@@ -221,7 +221,7 @@ classdef hpc_config < config_base
             end
             %
             obj.mem_only_prop_list_ = {'sort_pix_in_binary_op',...
-                'real_memory_available'};
+                'phys_mem_available'};
         end
 
         %----------------------------------------------------------------
@@ -279,8 +279,8 @@ classdef hpc_config < config_base
             hpco = obj.saved_properties_list_;
         end
 
-        function mem = get.real_memory_available(obj)
-            mem = get_real_memory_available_(obj);
+        function mem = get.phys_mem_available(obj)
+            mem = get_phys_mem_available_(obj);
         end
         %----------------------------------------------------------------
 
@@ -427,8 +427,8 @@ classdef hpc_config < config_base
             pf.remote_folder = val;
         end
 
-        function obj = set.real_memory_available(obj,val)
-            obj = set_real_memory_available_(obj,val,true);
+        function obj = set.phys_mem_available(obj,val)
+            obj = set_phys_mem_available_(obj,val,true);
         end
 
 

@@ -12,10 +12,10 @@ classdef test_hpc_config< TestCase
         function test_get_free_memory_from_empty(~)
 
             hpc = hpc_config();
-            hpc.real_memory_available = [];
+            hpc.phys_mem_available = [];
 
-            mem = hpc.real_memory_available;
-            assertTrue(hpc.is_field_configured('real_memory_available'));
+            mem = hpc.phys_mem_available;
+            assertTrue(hpc.is_field_configured('phys_mem_available'));
 
             try
                 data = zeros(floor(mem/8),1);
@@ -31,8 +31,8 @@ classdef test_hpc_config< TestCase
 
             hpc = hpc_config();
 
-            mem = hpc.real_memory_available;
-            assertTrue(hpc.is_field_configured('real_memory_available'));
+            mem = hpc.phys_mem_available;
+            assertTrue(hpc.is_field_configured('phys_mem_available'));
 
             try
                 data = zeros(floor(mem/8),1);

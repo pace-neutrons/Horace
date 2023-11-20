@@ -1,13 +1,18 @@
-function obj = set_real_memory_available_(obj,val,warn_on_settings)
-%SET_REAL_MEMORY_AVAILABLE_ stores the value of the calculated memory
+function obj = set_phys_mem_available_(obj,val,warn_on_settings)
+%SET_PHYS_MEM_AVAILABLE_ stores the value of the calculated memory
 %available in configuration for further usage
 %
 % Inputs:
 % val              -- the assumed physical memory value available for
 %                     application
 % warn_on_settings -- if true, warn user that he is setting some value
+%                     of memory which may be incorrect
+% Returns
+% obj              -- instance of hpc_config object used as gateway to
+%                     change the phys_mem_available property value in
+%                     config_store.
 %
-%
+
 if isempty(val)
     val = hpc_config.calc_free_memory();
     warn_on_settings = false;
@@ -28,8 +33,8 @@ end
 if warn_on_settings
     warning('HORACE:physical_memory_configured', ...
         ['You have specified the value for free physical memory.\n' ...
-        ' If this value is too small, the code performance may be substanially degraded\n' ...
+        ' If this value is too small, the code performance may be substantially degraded\n' ...
         ' and if it is too big, the application may fail.\n' ...
-        ' Normally you should set empty value here and allow Horace to evaluate avaliable memory by itself.'])
+        ' Normally you should set empty value here and allow Horace to evaluate available memory by itself.'])
 end
-config_store.instance().store_config(obj,'real_memory_available',val);
+config_store.instance().store_config(obj,'phys_mem_available',val);
