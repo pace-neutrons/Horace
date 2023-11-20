@@ -50,8 +50,6 @@ classdef ClusterWrapper
     end
     properties(Dependent,Hidden)
         % return enviromental variables used by cluster. Normally for testing
-        % It is handle, so it can be used for seting it too.
-        % (Violates class logic so avoid this)
         common_env_var
     end
 
@@ -251,6 +249,7 @@ classdef ClusterWrapper
             % It assumed that user view on the filesystem is the same as
             % the view from parallel nodes. This probably should be
             % changed in a future.
+            % Re #1393 -- ticket to investigate this.
             %
             % Inputs:
             % obj  -- instance of ClusterWrapper getting initialized
