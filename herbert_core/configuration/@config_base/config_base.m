@@ -200,6 +200,9 @@ classdef config_base
             cn = this.class_name;
             isit = ~config_store.instance.has_config(cn);
         end
+        function isit = is_field_configured(obj,field_name)
+            isit = config_store.instance().is_field_configured(obj,field_name);
+        end
 
         %------------------------------------------------------------------
         function value =get_or_restore_field(obj,field_name)

@@ -49,6 +49,12 @@ classdef hpc_config < config_base
     %                            'herbert', 'parpool', 'mpiexec_mpi' or
     %                            'slurm' (if appropriate clusters are
     %                             available)
+    % phys_mem_available        - return real size (in bytes) of physical
+    %                             memory, avaliable to use by algoritms.
+    %                             Tries to allocate continuous memory at
+    %                             first call and stores result for future
+    %                             usage, so first call should be tried on
+    %                             relatively clean system
     %
     % sort_pix_in_binary_op     - pixels are usually randomly distributed
     %                             within an image cell. To perform correct
@@ -134,6 +140,12 @@ classdef hpc_config < config_base
         % the configuration class itself;
         parallel_config;
 
+        % return real size (in bytes) of physical  memory, avaliable to use
+        % by algoritms. Tries to allocate continuous memory at first call
+        % and stores result for future usage, so first call should be tried
+        % on clean system.
+        phys_mem_available
+
         % pixels are usually randomly distributed within an image cell.
         % To perform correct binary operations between two sqw files with
         % pixel data, pixels within each image cell have to be sorted,
@@ -179,8 +191,19 @@ classdef hpc_config < config_base
             'mex_combine_thread_mode',...
             'mex_combine_buffer_size',...
             'parallel_multifit'...
+
             }
         combine_sqw_options_ = {'matlab','mex_code','mpi_code'};
+    end
+    methods(Static)
+        function free_memory = calc_free_memory()
+            % function tries to estimate actual free memory available to
+            % Horace
+            %
+            % Result is expressed in bytes.
+            %
+            free_memory = calc_free_memory_();
+        end
     end
 
     methods
@@ -197,7 +220,8 @@ classdef hpc_config < config_base
                 obj.mex_combine_buffer_size_ = 64*1024;
             end
             %
-            obj.mem_only_prop_list_ = {'sort_pix_in_binary_op'};
+            obj.mem_only_prop_list_ = {'sort_pix_in_binary_op',...
+                'phys_mem_available'};
         end
 
         %----------------------------------------------------------------
@@ -255,6 +279,9 @@ classdef hpc_config < config_base
             hpco = obj.saved_properties_list_;
         end
 
+        function mem = get.phys_mem_available(obj)
+            mem = get_phys_mem_available_(obj);
+        end
         %----------------------------------------------------------------
 
         function obj = set.combine_sqw_using(obj,val)
@@ -292,7 +319,6 @@ classdef hpc_config < config_base
         end
 
         function opt = get.combine_sqw_options(obj)
-
             opt = obj.combine_sqw_options_;
         end
 
@@ -401,6 +427,11 @@ classdef hpc_config < config_base
             pf.remote_folder = val;
         end
 
+        function obj = set.phys_mem_available(obj,val)
+            obj = set_phys_mem_available_(obj,val,true);
+        end
+
+
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
@@ -413,9 +444,18 @@ classdef hpc_config < config_base
         function value = get_default_value(obj,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface.
-            % Relies on assumption, that each public
-            % field has a private field with name different by underscore
-            value = obj.([field_name,'_']);
+
+            if strcmp(field_name,'phys_mem_available')
+                % This field does not have value as such and if it is
+                % not located in config_store it is recalculated and placed
+                % in store.
+                value = get_phys_mem_available_(obj);
+            else
+                % Relies on agreement that each public
+                % field has a private (default) field with name different
+                % by underscore
+                value = obj.([field_name,'_']);
+            end
         end
 
     end
