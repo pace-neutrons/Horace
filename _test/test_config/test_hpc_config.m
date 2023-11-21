@@ -1,5 +1,5 @@
 classdef test_hpc_config< TestCase
-    % Test basic functionality of configuration classes
+    % Test basic functionality of hpc_config class
     %
     methods
         function obj = test_hpc_config(name)

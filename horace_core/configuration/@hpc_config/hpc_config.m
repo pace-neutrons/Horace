@@ -444,9 +444,18 @@ classdef hpc_config < config_base
         function value = get_default_value(obj,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface.
-            % Relies on assumption, that each public
-            % field has a private field with name different by underscore
-            value = obj.([field_name,'_']);
+
+            if strcmp(field_name,'phys_mem_available')
+                % This field does not have value as such and if it is
+                % not located in config_store it is recalculated and placed
+                % in store.
+                value = get_phys_mem_available_(obj);
+            else
+                % Relies on agreement that each public
+                % field has a private (default) field with name different
+                % by underscore
+                value = obj.([field_name,'_']);
+            end
         end
 
     end
