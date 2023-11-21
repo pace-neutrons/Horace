@@ -18,7 +18,7 @@ classdef test_boxArrayClass < TestCase
         function obj = test_boxArrayClass (name)
             obj = obj@TestCase(name);
             
-            % Create boxArray with three different boxes
+            % Create boxArray with four different boxes
             position = [[11;21;31], [111;121;131], [1011;1021;1031], [700;30;100]];
             sides = [[1;2;3], [10;50;100], [110;121;3], [0.8;12;4]];
             obj.boxArray = boxArrayClass(position, sides);
@@ -106,7 +106,7 @@ classdef test_boxArrayClass < TestCase
         
         function test_output_size_columnVectorStacking (obj)
             % Test size of output arrays when stacked [10,1]
-            ielmts = [1,3,1,3,3,3,2,2,1,2]';
+            ielmts = [1;3;1;3;3;3;2;2;1;2];
             [x1col, x1row, x12] = rand_elmts_position (obj.boxArray, ielmts);
             assertEqual (size(x1col), [3,10])
             assertEqual (size(x1row), [1,3,10])
@@ -311,9 +311,9 @@ classdef test_boxArrayClass < TestCase
             % different shift vector for each point
             
             % Create arrays of shifts, stacked size [2,5]
-            shift1c = [10,12,14]' + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
-            shift1r = [110,112,114]' + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
-            shift12 = [-100,-90,-60]' + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            shift1c = [10;12;14] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            shift1r = [110;112;114] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            shift12 = [-100;-90;-60] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
             ielmts = [1,3,1,3,3;3,2,2,1,2];
             
             % Random sampling
@@ -324,6 +324,75 @@ classdef test_boxArrayClass < TestCase
             [ok, mess] = validate_points_in_boxArray (obj.boxArray, ielmts, ...
                 x1col, x1row, x12, shift1c, shift1r, shift12);
             assertTrue(ok, mess)
+        end
+        
+        
+        %--------------------------------------------------------------------------
+        % Test sizes of arrays produced by rand_elmts_position output
+        % Assumes that validate_rand_elmts_position works correctly
+        %--------------------------------------------------------------------------
+        function test_range_elmts_oneShift (obj)
+            % Test range_elmts, duplicating call to range with just
+            % one shift vector
+            shift1c = [10,12,14];
+            shift1r = [110,112,114];
+            shift12 = [-100,-90,-60];
+            ielmts = [1,3,1,3,3;3,2,2,1,2];
+            
+            % Ranges
+            [r1col, r1row, r12] = range_elmts (obj.boxArray, ielmts, ...
+                shift1c, shift1r, shift12);
+            
+            % Validate
+            r1col_ref = NaN(3,2,10);
+            r1row_ref = NaN(3,2,10);
+            r12_ref = NaN(3,2,2,10);
+            for i=1:numel(ielmts)
+                [r1col_ref(:,:,i), r1row_ref(:,:,i), r12_ref(:,:,:,i)] = range ...
+                    (obj.boxArray.box(ielmts(i)), shift1c, shift1r, shift12);
+            end
+            r1col_ref = reshape(r1col_ref, [3,2,2,5]);
+            r1row_ref = reshape(r1row_ref, [3,2,2,5]);
+            r12_ref = reshape(r12_ref, [3,2,2,2,5]);
+
+            assertEqual (r1col_ref, r1col)
+            assertEqual (r1row_ref, r1row)
+            assertEqual (r12_ref, r12)
+        end
+        
+        function test_range_elmts_multiShift (obj)
+            % Test rand_position, duplicating call to rand_pos with
+            % different shift vector for each point
+            
+            % Create arrays of shifts, stacked size [2,5]
+            shift1c = [10;12;14] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            shift1r = [110;112;114] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            shift12 = [-100;-90;-60] + reshape([(0:-1000:-4000);(-5000:-1000:-9000)], [1,2,5]);
+            ielmts = [1,3,1,3,3;3,2,2,1,2];
+            
+            % Ranges
+            [r1col, r1row, r12] = range_elmts (obj.boxArray, ielmts, ...
+                shift1c, shift1r, shift12);
+            
+            % Validate
+            r1col_ref = NaN(3,2,10);
+            r1row_ref = NaN(3,2,10);
+            r12_ref = NaN(3,2,2,10);
+            shift1c_tmp = reshape(shift1c, [3,10]);
+            shift1r_tmp = reshape(shift1r, [3,10]);
+            shift12_tmp = reshape(shift12, [3,10]);
+            for i=1:numel(ielmts)
+                [r1col_ref(:,:,i), r1row_ref(:,:,i), r12_ref(:,:,:,i)] = range ...
+                    (obj.boxArray.box(ielmts(i)), ...
+                    shift1c_tmp(:,i), shift1r_tmp(:,i), shift12_tmp(:,i));
+            end
+            r1col_ref = reshape(r1col_ref, [3,2,2,5]);
+            r1row_ref = reshape(r1row_ref, [3,2,2,5]);
+            r12_ref = reshape(r12_ref, [3,2,2,2,5]);
+
+            assertEqual (r1col_ref, r1col)
+            assertEqual (r1row_ref, r1row)
+            assertEqual (r12_ref, r12)
         end
         
         
