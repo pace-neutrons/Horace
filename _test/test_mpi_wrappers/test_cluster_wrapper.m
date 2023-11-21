@@ -314,7 +314,9 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
                 'HERBERT:ClusterParpoolWrapper:invalid_argument');
             clob3 = onCleanup(@()finalize_all(clust));
         end
-
+    end
+    % keep userpath test methods.
+    methods
         function test_set_user_env_if_matlabpath_set_with_more(obj)
             en = getenv('MATLABPATH');
             clEnv = onCleanup(@()setenv('MATLABPATH',en));
@@ -330,28 +332,29 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
             [cluster,~,clOb] = obj.get_cluster_wrapper_tester(3);
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
-            assertTrue(ismember(necessary_path,pathes));
-            assertFalse(ismember(test_dir,pathes));
-            assertTrue(ismember(this_path,pathes));
+            paths = split(path,pathsep);
+
+            assertTrue(obj.path_belongs(necessary_path,paths));
+            assertFalse(obj.path_belongs(test_dir,paths));
+            assertTrue(obj.path_belongs(this_path,paths));
+
 
             addpath(test_dir);
-  
 
             cluster = cluster.add_user_path(pc);
 
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
-            assertTrue(ismember(test_dir,pathes));
-            assertTrue(ismember(necessary_path,pathes));
-            assertTrue(ismember(this_path,pathes));
+            paths = split(path,pathsep);
+            assertTrue(obj.path_belongs(test_dir,paths));
+            assertTrue(obj.path_belongs(necessary_path,paths));
+            assertTrue(obj.path_belongs(this_path,paths));
+
             % remove path first to avoid warinings
             clear clPath
         end
 
-
         function test_set_user_env_if_matlabpath_set(obj)
-              
+
             en = getenv('MATLABPATH');
             clEnv = onCleanup(@()setenv('MATLABPATH',en));
             pc = parallel_config;
@@ -365,25 +368,25 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
             [cluster,~,clOb] = obj.get_cluster_wrapper_tester(3);
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
-            assertTrue(ismember(necessary_path,pathes));
-            assertFalse(ismember(test_dir,pathes));
+            paths = split(path,pathsep);
+            assertFalse(obj.path_belongs(test_dir,paths));
+            assertTrue(obj.path_belongs(necessary_path,paths));
 
             addpath(test_dir);
 
             cluster = cluster.add_user_path(pc);
 
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
-            assertTrue(ismember(test_dir,pathes));
-            assertTrue(ismember(necessary_path,pathes));
+            paths = split(path,pathsep);
+            assertTrue(obj.path_belongs(test_dir,paths));
+            assertTrue(obj.path_belongs(necessary_path,paths));
+
             % remove path first to avoid warinings
             clear clPath
         end
 
-
         function test_set_user_env(obj)
-            
+
             en = getenv('MATLABPATH');
             clEnv = onCleanup(@()setenv('MATLABPATH',en));
             pc = parallel_config;
@@ -395,23 +398,33 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
 
             [cluster,~,clOb] = obj.get_cluster_wrapper_tester(3);
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
-            assertTrue(ismember(necessary_path,pathes));
-            assertFalse(ismember(test_dir,pathes));
+            paths = split(path,pathsep);
+            assertTrue(obj.path_belongs(necessary_path,paths));
+            assertFalse(obj.path_belongs(test_dir,paths));
 
             addpath(test_dir);
 
             cluster = cluster.add_user_path(pc);
 
             path = cluster.common_env_var('MATLABPATH');
-            pathes = split(path,pathsep);
-            assertTrue(ismember(test_dir,pathes));
-            assertTrue(ismember(necessary_path,pathes));
+            paths = split(path,pathsep);
+
+            assertTrue(obj.path_belongs(test_dir,paths));
+            assertTrue(obj.path_belongs(necessary_path,paths));
+
             % remove path first to avoid warinings
             clear clPath
         end
     end
     methods(Access= protected)
+        function is = path_belongs(~,folder,path)
+            if ispc()
+                belongs = cellfun(@(x)strcmpi(x,folder),path);
+                is = any(belongs);
+            else
+                is = ismember(folder,path);
+            end
+        end
         function [test_dir,clDir,ok]  = make_dir_for_path(~,dir_name)
             test_dir = fullfile(tmp_dir,dir_name);
             ok = mkdir(test_dir);
