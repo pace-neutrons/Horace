@@ -113,6 +113,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         % if false, converts all pixel data loaded from disk into double
         % precision
         keep_precision
+        % Property returns size of a pixel in bytes
+        pix_byte_size
     end
 
     properties(Access=protected)
@@ -709,6 +711,16 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         %
         function is = get.is_tmp_obj(obj)
             is = get_is_tmp_obj(obj);
+        end
+        function sz = get.pix_byte_size(obj)
+            % In a future it may be overloaded to account for various types
+            % of pixel data but we can not yet give clear specification for
+            % that.
+            if obj.keep_precision
+                sz = obj.DEFAULT_NUM_PIX_FIELDS*4;
+            else
+                sz = obj.DEFAULT_NUM_PIX_FIELDS*8;
+            end
         end
     end
     %----------------------------------------------------------------------

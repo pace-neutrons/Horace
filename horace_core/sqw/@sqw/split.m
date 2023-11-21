@@ -30,9 +30,16 @@ end
 
 % Get pointers to components of w:
 main_header = w.main_header;
-exp_info  = w.experiment_info;
-runid_map = w.runid_map;
+exp_info    = w.experiment_info;
+runid_map   = w.runid_map;
+data        = w.data;
 %
+% Evaluate the size of the resulting split
+%
+split_img_size = 3*numel(data.s)*8; % size of resulting split image 
+split_pix_size = w.pix.num_pixels*PixelDataBase.
+
+
 if w.main_header.creation_date_defined
     run_contributes = true(nfiles,1);
 else
@@ -46,7 +53,7 @@ end
 
 
 detpar = w.detpar;
-data = w.data;
+
 npix = w.data.npix;
 %pix = w.pix;
 
