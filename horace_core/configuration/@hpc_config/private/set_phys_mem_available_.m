@@ -4,7 +4,9 @@ function obj = set_phys_mem_available_(obj,val,warn_on_settings)
 %
 % Inputs:
 % val              -- the assumed physical memory value available for
-%                     application
+%                     application. Expressed in bytes.
+%                     Empty value causes memory recalculation. 
+%
 % warn_on_settings -- if true, warn user that he is setting some value
 %                     of memory which may be incorrect
 % Returns

@@ -4,6 +4,8 @@ function mem = get_phys_mem_available_(obj)
 %this memory, stores it in configuration and returns it to users if this
 %memory has not been stored before.
 %
+% Memory here is measured in bytes.
+%
 
 if obj.is_field_configured('phys_mem_available')
     mem = config_store.instance.get_value(obj,'phys_mem_available');
