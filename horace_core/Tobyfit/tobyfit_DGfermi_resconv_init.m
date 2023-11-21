@@ -95,15 +95,15 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %                      components in r.l.u.:
 %                           v_rlu = spec_to_rlu * v_spec
 %                      Size is [3,3,nrun], where nrun is the number of runs
-%           alatt       Lattice parameters (Angstroms), vector size[1,3]
-%           angdeg      Lattice angles in degrees (Angstroms), vector size[1,3]
+%           alatt       Lattice parameters (Angstroms), vector size [1,3]
+%           angdeg      Lattice angles in degrees (Angstroms), vector size [1,3]
 %
 %       Cell array of widths of energy bins, one array per dataset
 %           dt          Time widths for each pixel (s), size [npix,1]
 %
 %       Cell arrays of q,w and transformation arrays, one array per dataset
 %           qw          Cell array size [1,4] with components of momentum (in rlu) and energy
-%                        for each pixel [Columns of size npix]
+%                       for each pixel [Columns of length npix]
 %
 %       Constants:
 %           k_to_e      Constant in E(mev)=k_to_e*(k(Ang^-1))^2
@@ -156,7 +156,6 @@ end
 
 % Check pixel indexing is valid
 % -----------------------------
-
 all_pixels = ~exist('indx','var');
 if ~all_pixels
     parse_pixel_indices (win,indx);
@@ -259,8 +258,7 @@ for iw=1:nw
         sample_coords_to_spec_to_rlu(wtmp.experiment_info);
     
     % Get detector information for each pixel in the sqw object
-    % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
-    % and size(detdcn) = [3,npix]
+    % size(x2) = [npix,1], size(d_mat) = [3,3,npix]
     [x2, detdcn] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
     
     % Time width corresponding to energy bins for each pixel
@@ -273,7 +271,7 @@ for iw=1:nw
     
 end
 
-% Package output as a structure, in cell array length unity if win was a cell array
+% Package output
 ok=true;
 mess='';
 lookup = struct();    % reinitialise
@@ -283,7 +281,7 @@ if keywrd.tables
     lookup.moderator_table = object_lookup(moderator);
     lookup.aperture_table = object_lookup(aperture);
     lookup.fermi_table = object_lookup(chopper);
-    % Expand indexing of lookups for the sample to refer to n_runs copies
+    % Expand indexing of object_lookup for the sample to refer to n_runs copies
     % (recall one element of n_runs per sqw object)
     lookup.sample_table = object_lookup(sample, 'repeat', sz_cell);
     lookup.detector_table = detector_table;     % already an object_lookup
@@ -306,5 +304,5 @@ lookup.k_to_v=k_to_v;
 lookup.k_to_e=k_to_e;
 
 if iscell(win)
-    lookup = {lookup};
+    lookup = {lookup};  % make it a cell array length unity if win was a cell array
 end

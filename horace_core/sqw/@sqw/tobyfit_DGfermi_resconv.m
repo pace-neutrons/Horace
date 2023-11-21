@@ -9,7 +9,8 @@ function [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,
 % ------
 %   win         sqw object or array of objects
 %
-%   caller      Structure that contains information from the caller routine. Fields
+%   caller      Structure that contains information from the caller routine.
+%               Contains fields:
 %                   reset_state     Reset internal state to stored value in
 %                                  state_in (logical scalar)
 %                   ind             Indices into lookup tables. The number of elements
@@ -48,7 +49,7 @@ function [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,
 %              package these into a cell array and pass that as pars. In the example
 %              above then pars = {p, c1, c2, ...}
 %
-%   lookup      A structure containing lookup tables and pre-calculated matricies etc.
+%   lookup      A structure containing lookup tables and pre-calculated matrices etc.
 %              For details, see the help for function tobyfit_DGfermi_resconv_init
 %
 %   mc_contributions    Structure indicating which components contribute to the resolution
@@ -192,18 +193,21 @@ for i=1:numel(ind)
     irun = win(i).pix.run_idx';   % column vector
     idet = win(i).pix.detector_idx';   % column vector
     npix = win(i).pix.num_pixels;
+    
     %HACK. TODO: do it properly (ticket #901)
+    % *** The same hack appears in tobyfit_DGdisk_resconv. Fix together.
     max_irun = max(irun);
     if max_irun>win(i).main_header.nfiles
         rmp = win(i).runid_map;
-        runid_array = rmp.keys;  runid_array = [runid_array{:}];
-        runid_val   = rmp.values;runid_val   = [runid_val{:}];
+        runid_array = rmp.keys;
+        runid_array = [runid_array{:}];
+        runid_val   = rmp.values;
+        runid_val   = [runid_val{:}];
         max_id = max(runid_array);
         min_id = min(runid_array)-1;
         lookup_ind = inf(max_id-min_id+1,1);
         lookup_ind(runid_array-min_id) = runid_val;
         irun   = lookup_ind(irun-min_id);
-        %irun = arrayfun(@(id)rmp(id),irun);
     end
 
     % Get detector information for each pixel in the sqw object
@@ -216,7 +220,8 @@ for i=1:numel(ind)
         % Strip out crystal refinement parameters and reorient datasets
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
 
-        % Update s_mat and spec_to_rlu because crystal orientation will have changed
+        % Update s_mat, spec_to_rlu, alatt and angdeg because in general the
+        % crystal orientation and lattice parameters will have changed
         [~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
 
         % Recompute Q because crystal orientation will have changed (don't need to update qw{4})
@@ -320,8 +325,7 @@ for i=1:numel(ind)
             data(sv_ind(1),:) = stmp(start_idx:end_idx)/mc_points;
             data(sv_ind(2),:) = 0;
 
-            pix.data_range = pix.pix_minmax_ranges(data, ...
-                pix.data_range);
+            pix.data_range = pix.pix_minmax_ranges(data, pix.data_range);
 
             pix = pix.format_dump_data(data);
         end
@@ -332,6 +336,7 @@ for i=1:numel(ind)
         wout(i).pix.variance = zeros(1,numel(stmp));
     end
     % TODO: #975 this have to be done during paging operations
+    % *** The same TODO appears in tobyfit_DGfermi_resconv. Fix together.
     wout(i) = recompute_bin_data(wout(i));
 end
 

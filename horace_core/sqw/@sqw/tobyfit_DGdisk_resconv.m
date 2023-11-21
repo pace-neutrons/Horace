@@ -185,21 +185,21 @@ for i=1:numel(ind)
     x1=lookup.x1{iw};
     ki=lookup.ki{iw};
     kf=lookup.kf{iw};
+    s_mat=lookup.s_mat{iw};
+    spec_to_rlu=lookup.spec_to_rlu{iw};
     alatt=lookup.alatt{iw};
     angdeg=lookup.angdeg{iw};
-    f_mat=lookup.f_mat{iw};
-    d_mat=lookup.d_mat{iw};
-    detdcn=lookup.detdcn{iw};
-    x2=lookup.x2{iw};
     dt=lookup.dt{iw};
     qw=lookup.qw{iw};
-    dq_mat=lookup.dq_mat{iw};
 
     % Run and detector for each pixel
-    run_idx = win(i).pix.run_idx';   % column vector
+    irun = win(i).pix.run_idx';   % column vector
+    idet = win(i).pix.detector_idx';   % column vector
+    npix = win(i).pix.num_pixels;
 
     %HACK. TODO: do it properly (ticket #901)
-    max_irun = max(run_idx);
+    % *** The same hack appears in tobyfit_DGfermi_resconv. Fix together.
+    max_irun = max(irun);
     if max_irun>win(i).main_header.nfiles
         rmp = win(i).runid_map;
         runid_array = rmp.keys;
@@ -210,35 +210,37 @@ for i=1:numel(ind)
         min_id = min(runid_array)-1;
         lookup_ind = inf(max_id-min_id+1,1);
         lookup_ind(runid_array-min_id) = runid_val;
-        irun   = lookup_ind(run_idx-min_id);
-        %irun = arrayfun(@(idx)runid_map(idx),run_idx);
-    else
-        irun = run_idx;
+        irun   = lookup_ind(irun-min_id);
     end
 
-
-
-    idet = win(i).pix.detector_idx';   % column vector
-    npix = win(i).pix.num_pixels;
-
-    % Catch case of refining crystal orientation or moderator parameters
+    % Get detector information for each pixel in the sqw object
+    % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
+    % and size(detdcn) = [3,npix]
+    [x2, detdcn, d_mat, f_mat] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
+    
+    % Catch case of refining crystal orientation
     if refine_crystal
         % Strip out crystal refinement parameters and reorient datasets
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
 
-        % Update s_mat and spec_to_rlu because crystal orientation will have changed
+        % Update s_mat, spec_to_rlu, alatt and angdeg because in general the
+        % crystal orientation and lattice parameters will have changed
         [~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
 
-        % Recompute Q because crystal orientation will have changed (dont need to update qw{4})
-        qw(1:3) = calculate_q (ki(irun), kf, detdcn(:,idet), spec_to_rlu(:,:,irun));
+        % Recompute Q because crystal orientation will have changed (don't need to update qw{4})
+        qw(1:3) = calculate_q (ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
 
-        % Recompute (Q,w) deviations matrix for same reason
-        dq_mat{i} = dq_matrix_DGdisk (ki(irun), kf,...
-            xa(irun), x1(irun), x2(idet),...
-            s_mat(:,:,irun), f_mat(:,:,idet), d_mat(:,:,idet),...
-            spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     end
 
+    % Compute (Q,w) deviations matrix
+    % This is done on-the-fly for each sqw object because dq_mat is so large
+    % (44 double precision numbers for each pixel)
+    dq_mat = dq_matrix_DGdisk (ki(irun), kf,...
+        xa(irun), x1(irun), x2,...
+        s_mat(:,:,irun), f_mat, d_mat,...
+        spec_to_rlu(:,:,irun), k_to_v, k_to_e);
+
+        
     % Find out if the crystal has a mosaic spread
     % -------------------------------------------
     % Get array of mosaic spreads for the runs, and determine if any of them
@@ -312,7 +314,6 @@ for i=1:numel(ind)
 
         sv_ind = wout.pix.field_index('sig_var');
 
-
         pix = wout.pix;
         pix.data_range = PixelDataBase.EMPTY_RANGE;
 
@@ -324,10 +325,8 @@ for i=1:numel(ind)
             [start_idx, end_idx] = pix.get_page_idx_(page);
 
             data(sv_ind(1), :) = stmp(start_idx:end_idx)/mc_points;
-            data(sv_ind(1), :) = 0;
-            pix.data_range = ...
-            pix.pix_minmax_ranges(data, pix.data_range);
-
+            data(sv_ind(2), :) = 0;
+            pix.data_range = pix.pix_minmax_ranges(data, pix.data_range);
 
             pix = pix.format_dump_data(data);
         end
@@ -338,5 +337,8 @@ for i=1:numel(ind)
         wout(i).pix.variance = zeros(1,numel(stmp));
     end
     % TODO: #975 this have to be done during paging operations
+    % *** The same TODO appears in tobyfit_DGfermi_resconv. Fix together.
     wout(i)=recompute_bin_data(wout(i));
+end
+
 end
