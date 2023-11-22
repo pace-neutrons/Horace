@@ -237,9 +237,9 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         range = targ_range(obj,targ_proj,varargin)
         %
         % add various noise to signal
-        wout = noisify(w,varargin);        
+        wout = noisify(w,varargin);
         % take part of the object limited by fraction of the image grit
-        [wout,out_axes] = section (win,varargin);        
+        [wout,out_axes] = section (win,varargin);
     end
     %======================================================================
     % Redundant and convenience Accessors
@@ -569,7 +569,11 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
                 error('HORACE:DnDBase:invalid_argument',...
                     'input %s must be numeric array',field)
             end
-            obj.([field,'_']) = val;
+            if numel(val) == 1
+                obj.([field,'_'])(:) = val;
+            else
+                obj.([field,'_']) = val;
+            end
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end

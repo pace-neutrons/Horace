@@ -195,7 +195,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
             else
                 obj.detector_idx(selected) = abs(obj.detector_idx(selected));
             end
-        end        
+        end
     end
 
     methods(Static)
@@ -205,6 +205,9 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods(Access=protected)
+        function   sz = get_pix_byte_size(obj)
+            sz = obj.DEFAULT_NUM_PIX_FIELDS*8;
+        end
         function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
             % Overloaded part of get_raw_pix operation.
             %

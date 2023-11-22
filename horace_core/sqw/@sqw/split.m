@@ -9,8 +9,8 @@ function wout = split(w,varargin)
 % Optional keys:
 %  '-files'  -- if provided, return list of sqw files instead of sqw
 %               objects. When split objects do not fit memory, they are all
-%               stored in files and split returns list of the files. 
-%               When the option is provided, 
+%               stored in files and split returns list of the files.
+%               When the option is provided,
 %
 % Output:
 % -------
@@ -28,90 +28,14 @@ if nfiles == 1
     return
 end
 
-% Get pointers to components of w:
-main_header = w.main_header;
-exp_info    = w.experiment_info;
-runid_map   = w.runid_map;
-data        = w.data;
 %
-% Evaluate the size of the resulting split
+% Evaluate the size of the resulting split to know what subalgorithm to use
 %
-split_img_size = 3*numel(data.s)*8; % size of resulting split image 
-split_pix_size = w.pix.num_pixels*PixelDataBase.
+%split_img_size = 3*numel(data.s)*8; % size of resulting split image
+%split_pix_size = w.pix.num_pixels*PixelDataBase.pix_byte_size;
+%
+% This is partial implementation. Works only for pix in memory
 
-
-if w.main_header.creation_date_defined
-    run_contributes = true(nfiles,1);
-else
-    % with new file format all run contribute, but in case if we have old file
-    % format...
-    run_contributes = false(nfiles,1);
-    unique_id = irun(nbeg);
-    ind_contr = arrayfun(@(x)runid_map(x),unique_id);
-    run_contributes(ind_contr) = true;   % true for runs that contribute to the data
-end
-
-
-detpar = w.detpar;
-
-npix = w.data.npix;
-%pix = w.pix;
-
-% Sort (an index array to) pix into increasing run number, and increasing bin number within each run
-%irun = pix.run_idx';
-%ibin = replicate_array (1:numel(npix),npix);
-%[runbin,ix] = sortrows([irun,ibin]);  % get index of run
-%irun = runbin(:,1);
-%ibin = runbin(:,2);
-
-% Get first and last elements for each run
-%nbeg = find(diff([0;irun]) ~= 0);       % positions of first elements for each unique run
-%if ~isempty(nbeg)
-%    nend = [nbeg(2:end)-1;pix.num_pixels];   % works even if nbeg is scalar (nb/ npixtot = size(pix,2))
-%else
-%    nend = [];
-%end
-
-
-ind = zeros(nfiles,1);
-ind(run_contributes) = 1:numel(nbeg); % index of contributing runs into nbeg and nend
-
-contrib_runids = unique(irun);
-n_contrib_run  = numel(contrib_runids);
-
-% Default output
-wout = repmat(sqw, [n_contrib_run, 1]);
-
-% Put only the relevant pixels in each of the sqw objects
-main_header.nfiles = 1;   % each output sqw object will have just one run
-sz = size(data.npix);     % size of signal error and npix arrays
-
-for i = 1:n_contrib_run
-    head_ind = runid_map(contrib_runids(i)); % index of the data header corresponding to the run_id
-    wout(i).main_header = main_header;
-
-    if run_contributes(head_ind)
-        % the bins to which pixels from this run only contribute
-%        curr_ind = nbeg(ind(head_ind)):nend(ind(head_ind));
-%        ib = ibin(curr_ind);
-
-        % positions of first pixel contributing to each unique bin
-%        nb = find(diff([0;ib]) ~= 0);
-
-%        npix = zeros(sz);
-%        npix(ib(nb)) = diff([nb;numel(ib)+1]);
-%        data.npix = npix;
-
-%        split_pix = pix.get_pixels(ix(curr_ind));
-
-        exp_info_4run = exp_info.get_subobj(head_ind,'-index');
-
-        wout(i).experiment_info = exp_info_4run;
-        wout(i).detpar = detpar;
-        wout(i).data = data;
-%        wout(i).pix = split_pix;
-%        wout(i) = recompute_bin_data(wout(i));
-    end
-
-end
-end
+page_op = PageOp_split_sqw();
+page_op = page_op.init(w);
+wout    = sqw.apply_op(w,page_op);

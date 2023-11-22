@@ -340,9 +340,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     methods(Abstract)
         % --- Pixel operations ---
-        pix_out  = append(obj, pix);
         pix_copy = copy(obj)
-
 
         data = get_raw_data(obj,varargin)
         pix  = set_raw_data(obj,pix);
@@ -379,6 +377,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     end
     %======================================================================
     methods(Abstract,Access=protected)
+        % return byte-size of single pixel
+        sz = get_pix_byte_size(obj);        
         % Main part of get.num_pixels accessor
         num_pix = get_num_pixels(obj);
         ro      = get_read_only(obj)
@@ -716,11 +716,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             % In a future it may be overloaded to account for various types
             % of pixel data but we can not yet give clear specification for
             % that.
-            if obj.keep_precision
-                sz = obj.DEFAULT_NUM_PIX_FIELDS*4;
-            else
-                sz = obj.DEFAULT_NUM_PIX_FIELDS*8;
-            end
+            sz = get_pix_byte_size(obj);
         end
     end
     %----------------------------------------------------------------------
