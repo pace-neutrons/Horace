@@ -1,4 +1,4 @@
-function [config_data,got_from_file]=get_config_(obj,class_to_restore)
+function [config_data,got_from_file]=get_config_(obj,class_to_restore,use_defaults_for_missing)
 % method returns the essential (storable) content of the configuration
 % class requested as input
 %
@@ -11,6 +11,9 @@ function [config_data,got_from_file]=get_config_(obj,class_to_restore)
 %input:
 % class_to_restore -- instance of the class to restore from HDD (memory if
 %                     already loaded) or the name of this class.
+% use_defaults_for_missing
+%                  -- if true retrieve class defaults if the filed is not
+%                     stored in configuration in memory or in file.
 %
 %Returns:
 % config_data -- the structure, containing essential part of appropriate config class
@@ -20,9 +23,11 @@ function [config_data,got_from_file]=get_config_(obj,class_to_restore)
 %                 if they have already been located in memory.
 %
 % Additionally, it class instance was not in memory, it loaded in memory
-% and stays there for further usage.
+% and keeps it there for further usage, if use_default_for_missing is true.
+%           
 %
 %
+
 if ischar(class_to_restore)
     class_name = class_to_restore;
     class_to_restore = feval(class_name);
@@ -45,7 +50,7 @@ else
         if result == 0 % outdated configuration.
             warning('HERBERT:config_store:outdated_configuration',...
                 'Stored configuration for class: %s is outdated\n The configuration has been reset to defaults ',class_name);
-        else % -1
+        elseif use_defaults_for_missing % -1
             warning('HERBERT:config_store:default_configuration',...
                 ['Custom configuration for class: %s does not exist\n',...
                 ' The configuration has been set to defaults. Type:\n',...
@@ -57,10 +62,15 @@ else
         end
         got_from_file = false;
     end
-    if isempty(config_data) % get defaults if unable to load from file
-        config_data = class_to_restore.get_defaults();
-        got_from_file = false;
+    if isempty(config_data)
+        if use_defaults_for_missing % get defaults if unable to load from file
+            config_data = class_to_restore.get_defaults();
+            got_from_file = false;
+        else
+            return;
+        end
     end
+
 
     % set values loaded from file as memory values
     obj.config_storage_.(class_name) = config_data;

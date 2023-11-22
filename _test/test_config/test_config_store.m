@@ -99,6 +99,7 @@ classdef test_config_store < TestCase
             assertFalse(config_store.instance().is_configured(tsc2));
 
         end
+
         function test_force_save(~)
             % set up
             tsc = some_test_class();
@@ -244,6 +245,44 @@ classdef test_config_store < TestCase
             assertFalse(is_file(config_file));
 
         end
+
+        function test_is_configured_on_first_call(~)
+            clWarn = set_temporary_warning('off', ...
+                'HERBERT:config_store:default_configuration','HERBERT:fake_warning');
+            warning('HERBERT:fake_warning','ensure no unwanted warnings have been issued');
+
+            config_store.instance().clear_config('tgp_test_class2','-files');
+
+            assertFalse(config_store.instance().is_field_configured('tgp_test_class2','v1'))
+            % twice to esure first call is not loaded to memory and
+            % construction is not loaded to memory.
+            stc = tgp_test_class2();
+            assertFalse(config_store.instance().is_field_configured(stc,'v1'))
+            assertFalse(config_store.instance().is_field_configured(stc,'v2'))
+            assertFalse(config_store.instance().is_field_configured(stc,'v3'))
+            assertFalse(config_store.instance().is_field_configured(stc,'v4'))
+
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:fake_warning')
+
+            % first call to property loads it to memory.
+            assertEqual(stc.v1,10000000)
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:config_store:default_configuration')
+
+            warning('HERBERT:fake_warning','ensure no unwanted warnings have been issued');
+            assertTrue(config_store.instance().is_field_configured(stc,'v1'))
+            assertTrue(config_store.instance().is_field_configured(stc,'v2'))
+            assertTrue(config_store.instance().is_field_configured(stc,'v3'))
+            assertTrue(config_store.instance().is_field_configured(stc,'v4'))
+
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:fake_warning')
+
+            % clean-up to erase all memory about this test
+            config_store.instance().clear_config(stc,'-files');
+        end
+
         function test_restore_some_fields(~)
             % set up
             tsc = some_test_class2();

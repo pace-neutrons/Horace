@@ -271,7 +271,8 @@ classdef config_store < handle
             %                      returns current Herbert config settings for fields
             %                      'use_mex' and 'log_level'
 
-            [config_data,read_from_file]=get_config_(this,class_to_restore);
+            [config_data,read_from_file]=get_config_(this,class_to_restore, ...
+                true);
             % execute class setters.
 
             % Important!!!
@@ -351,6 +352,11 @@ classdef config_store < handle
             end
             %
             isit = check_isconfigured(this,class_instance,check_mem_only);
+        end
+        function is = is_field_configured(obj,class_inst_or_name,field_name)
+            % Check if the specified field from specified configuration
+            % class has non-default value
+            is = is_field_configured_(obj,class_inst_or_name,field_name);
         end
 
         %------------------------------------------------------------------

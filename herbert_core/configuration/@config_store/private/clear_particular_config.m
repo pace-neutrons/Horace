@@ -1,12 +1,16 @@
-function  clear_particular_config(this,class_instance,clear_file)
-% internal method to remove particular configuration from memory 
+function  clear_particular_config(this,class_inst_or_name,clear_file)
+% internal method to remove particular configuration from memory
 %
 % if clear_file == true also deletes the correspondent configuration file
 %
 %
 %
+if ischar(class_inst_or_name)
+    class_name = class_inst_or_name;
+else
+    class_name = class_inst_or_name.class_name;
+end
 
-class_name =  class_instance.class_name;
 if isfield(this.config_storage_,class_name)
     this.config_storage_=rmfield(this.config_storage_,class_name);
     if this.saveable_.isKey(class_name)
@@ -19,4 +23,3 @@ if clear_file
         delete(filename)
     end
 end
-
