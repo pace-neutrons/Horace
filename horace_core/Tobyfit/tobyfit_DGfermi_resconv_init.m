@@ -95,29 +95,15 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %                      components in r.l.u.:
 %                           v_rlu = spec_to_rlu * v_spec
 %                      Size is [3,3,nrun], where nrun is the number of runs
-%           alatt       Lattice parameters (Angstroms), vector size[1,3]
-%           angdeg      Lattice angles in degrees (Angstroms), vector size[1,3]
-%
-%       Cell arrays of arrays of detector information, one array per dataset:
-%           f_mat       Array size [3,3,ndet] to take coordinates in spectrometer
-%                      frame and convert into secondary spectrometer frame.
-%
-%           d_mat       Array size [3,3,ndet] to take coordinates in detector
-%                      frame and convert into secondary spectrometer frame.
-%
-%           detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
-%
-%           x2          Sample-detector distances (m) (size [ndet,1])
+%           alatt       Lattice parameters (Angstroms), vector size [1,3]
+%           angdeg      Lattice angles in degrees (Angstroms), vector size [1,3]
 %
 %       Cell array of widths of energy bins, one array per dataset
 %           dt          Time widths for each pixel (s), size [npix,1]
 %
 %       Cell arrays of q,w and transformation arrays, one array per dataset
 %           qw          Cell array size [1,4] with components of momentum (in rlu) and energy
-%                        for each pixel [Columns of size npix]
-%
-%           dq_mat      Array of matricies, size [4,11,npix],  to convert deviations in
-%                      tm, tch etc. into deviations in Q in rlu
+%                       for each pixel [Columns of length npix]
 %
 %       Constants:
 %           k_to_e      Constant in E(mev)=k_to_e*(k(Ang^-1))^2
@@ -129,7 +115,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %              possible contributions e.g. {'chopper','moderator'}
 
 
-% Use 3He cylindrical gas tube (ture) or Tobyfit original (false)
+% Use 3He cylindrical gas tube (true) or Tobyfit original (false)
 use_tubes=false;
 
 % Catch case of inquiry about mc_contributions
@@ -170,7 +156,6 @@ end
 
 % Check pixel indexing is valid
 % -----------------------------
-
 all_pixels = ~exist('indx','var');
 if ~all_pixels
     parse_pixel_indices (win,indx);
@@ -203,16 +188,12 @@ spec_to_rlu=cell(nw,1); % element size [3,3,nrun]
 alatt=cell(nw,1);       % element size [1,3]
 angdeg=cell(nw,1);      % element size [1,3]
 detectors=cell(nw,1);   % element size [nrun,1]
-f_mat=cell(nw,1);       % element size [3,3,ndet]
-d_mat=cell(nw,1);       % element size [3,3,ndet]
-detdcn=cell(nw,1);      % element size [3,ndet]
-x2=cell(nw,1);          % element size [ndet,1]
 dt=cell(nw,1);          % element size [npix,1]
 qw=cell(nw,1);          % element is cell array size [1,4], each element size [npix,1]
-dq_mat=cell(nw,1);      % element size [4,11,npix]
 
 
-% Get quantities and derived quantities from the header
+% Get detector information for the entire collection of sqw objects as an
+% instance of the object_lookup class
 n_runs = NaN(nw,1);
 for iw=1:nw
     % Get pointer to a specific sqw pobject
@@ -225,6 +206,26 @@ for iw=1:nw
     % Get number of runs in the sqw object
     n_runs(iw) = wtmp.experiment_info.n_runs;
     
+    % Get IX_detector_array for the sqw object
+    detectors{iw} = detector_array (wtmp, use_tubes);
+end
+% Because the detector info extraction above still assumes that there is
+% only one IX_detector_array per sqw (rather than possibly a different one for
+% each run), for the moment continue to fill the object_lookup for detectors
+% with repeats by n_runs for each sqw object
+sz_cell = num2cell([n_runs, ones(nw,1)], 2);    % sz_repeat for object_lookup
+detector_table = object_lookup(detectors, 'repeat', sz_cell);
+
+
+% Get quantities and derived quantities from the header
+for iw=1:nw
+    % Get pointer to a specific sqw pobject
+    if iscell(win)
+        wtmp = win{iw};
+    else
+        wtmp = win(iw);
+    end
+    
     % Pixel indicies
     if all_pixels
         [irun,idet,ien] = parse_pixel_indices(wtmp);
@@ -235,8 +236,7 @@ for iw=1:nw
     
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
-    %  pixels have been shifted, so recalculate)
-    
+    %  pixels have been shifted, so recalculate)   
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
     
     if ne>1
@@ -257,78 +257,21 @@ for iw=1:nw
     [sample{iw},s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
         sample_coords_to_spec_to_rlu(wtmp.experiment_info);
     
-    % Get detector information
-    % Because detpar only contains minimal information, either hardwire in 
-    % the detector type here or use the info now available in the detector
-    % arrays
-    detpar = wtmp.detpar();   % just get a pointer
-    det = wtmp.experiment_info.detector_arrays;
-    if isempty(det) || det.n_runs == 0
-        % no detector info was available when the sqw was populated, so
-        % continue with the old detector initialisation from detpar
-        if use_tubes
-            detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), ...
-                detpar.phi(:), detpar.azim(:),...
-                IX_det_He3tube (detpar.width, detpar.height, 6.35e-4, 10));   % 10atms, wall thickness=0.635mm
-        else
-            detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
-                IX_det_TobyfitClassic (detpar.width, detpar.height));
-        end
-    else
-        % make a new detector object based on value of use_tubes and insert
-        % it into the detector_array info extracted from the sqw
-        if det.n_unique_objects>1
-            error('HORACE:tobyfit_DGfermi_resconv_init:incorrect_size', ...
-                  ['all sqw runs must have identical detectors with this ', ...
-                   'implementation']);
-        else
-            det = det{1}; % first run detector array element is the same for all runs
-                          % so equivalent to the content in detpar
-            bank = det.det_bank; % get out its detector bank 
-            % create a new detector object for this based on the detector
-            % bank info stored in the sqw object
-            current_detobj = bank.det;
-            width = current_detobj.dia;
-            height = current_detobj.height;
-            if use_tubes
-                % wall thickness 6.35e-4 and pressure 10 remain hardwired
-                detobj = IX_det_He3tube(width, height, 6.35e-4, 10);
-            else
-                detobj = IX_det_TobyfitClassic(width, height);
-            end
-            % restore detector object to the bank
-            bank.det  = detobj;
-            % and restore the bank to the detector array
-            det.det_bank = bank;
-            % and store the array in the initializer for the detector
-            % object lookup below.
-            % NOTE that the detectors in experiment_info have not
-            % themselves been updated.
-            detectors{iw} = det;
-        end
-    end
-    x2{iw} = detectors{iw}.x2;
-    d_mat{iw} = detectors{iw}.dmat;
-    f_mat{iw} = spec_to_secondary(detectors{iw});
-    detdcn{iw} = det_direction(detectors{iw});
+    % Get detector information for each pixel in the sqw object
+    % size(x2) = [npix,1], size(d_mat) = [3,3,npix]
+    [x2, detdcn] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
     
     % Time width corresponding to energy bins for each pixel
-    dt{iw} = deps_to_dt*(x2{iw}(idet).*deps(irun)./kf{iw}.^3);
+    dt{iw} = deps_to_dt*(x2.*deps(irun)./kf{iw}.^3);
     
     % Calculate h,k,l (symmetrised objects will not have true pixel coordinates)
     qw{iw} = cell(1,4);
-    qw{iw}(1:3) = calculate_q (ki{iw}(irun), kf{iw}, detdcn{iw}(:,idet), spec_to_rlu{iw}(:,:,irun));
+    qw{iw}(1:3) = calculate_q (ki{iw}(irun), kf{iw}, detdcn, spec_to_rlu{iw}(:,:,irun));
     qw{iw}{4} = eps;
-    
-    % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
-    dq_mat{iw} = dq_matrix_DGfermi (ki{iw}(irun), kf{iw},...
-        x0{iw}(irun), xa{iw}(irun), x1{iw}(irun), x2{iw}(idet), thetam{iw}(irun), angvel{iw}(irun),...
-        s_mat{iw}(:,:,irun), f_mat{iw}(:,:,idet), d_mat{iw}(:,:,idet),...
-        spec_to_rlu{iw}(:,:,irun), k_to_v, k_to_e);
     
 end
 
-% Package output as a structure, in cell array length unity if win was a cell array
+% Package output
 ok=true;
 mess='';
 lookup = struct();    % reinitialise
@@ -338,15 +281,10 @@ if keywrd.tables
     lookup.moderator_table = object_lookup(moderator);
     lookup.aperture_table = object_lookup(aperture);
     lookup.fermi_table = object_lookup(chopper);
-    % Expand indexing of lookups to refer to n_runs copies (recall one element
-    % of n_runs per sqw object)
-    sz_cell = num2cell([n_runs, ones(nw,1)], 2);    % sz_repeat for object_lookup
+    % Expand indexing of object_lookup for the sample to refer to n_runs copies
+    % (recall one element of n_runs per sqw object)
     lookup.sample_table = object_lookup(sample, 'repeat', sz_cell);
-    % as the detector info extraction above still assumes that there is
-    % only one detector per sqw rather than one for each runs (a fully
-    % populated but compressed array), for the moment continue to fill the
-    % object_lookup for detectors with repeats
-    lookup.detector_table = object_lookup(detectors, 'repeat', sz_cell);
+    lookup.detector_table = detector_table;     % already an object_lookup
 end
 lookup.ei=ei;
 lookup.x0=x0;
@@ -360,16 +298,11 @@ lookup.s_mat=s_mat;
 lookup.spec_to_rlu=spec_to_rlu;
 lookup.alatt=alatt;
 lookup.angdeg=angdeg;
-lookup.f_mat=f_mat;
-lookup.d_mat=d_mat;
-lookup.detdcn=detdcn;
-lookup.x2=x2;
 lookup.dt=dt;
 lookup.qw=qw;
-lookup.dq_mat=dq_mat;
 lookup.k_to_v=k_to_v;
 lookup.k_to_e=k_to_e;
 
 if iscell(win)
-    lookup = {lookup};
+    lookup = {lookup};  % make it a cell array length unity if win was a cell array
 end
