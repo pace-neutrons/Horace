@@ -197,6 +197,7 @@ for i=1:numel(ind)
     idet = win(i).pix.detector_idx';   % column vector
     npix = win(i).pix.num_pixels;
 
+    %===========================================================================
     %HACK. TODO: do it properly (ticket #901)
     % *** The same hack appears in tobyfit_DGfermi_resconv. Fix together.
     max_irun = max(irun);
@@ -212,6 +213,7 @@ for i=1:numel(ind)
         lookup_ind(runid_array-min_id) = runid_val;
         irun   = lookup_ind(irun-min_id);
     end
+    %===========================================================================
 
     % Get detector information for each pixel in the sqw object
     % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]

@@ -93,14 +93,14 @@ for iw = 1:numel(win)
     npix = npix_arr(iw);
 
     % Simple pointers to items in lookup
-    x0=lookup.x0{iw};
-    xa=lookup.xa{iw};
-    x1=lookup.x1{iw};
-    thetam=lookup.thetam{iw};
-    angvel=lookup.angvel{iw};
+    x0 = lookup.x0{iw};
+    xa = lookup.xa{iw};
+    x1 = lookup.x1{iw};
+    thetam = lookup.thetam{iw};
+    angvel = lookup.angvel{iw};
     ki = lookup.ki{iw};
     kf = lookup.kf{iw};
-    s_mat=lookup.s_mat{iw};
+    s_mat = lookup.s_mat{iw};
     spec_to_rlu = lookup.spec_to_rlu{iw};
     dt = lookup.dt{iw};
 
@@ -115,16 +115,7 @@ for iw = 1:numel(win)
     cov_aperture = aperture_table.func_eval_ind(iw, irun, @covariance);
     var_chop = (10^-6 * fermi_table.func_eval_ind(iw, irun, @pulse_width)).^2;
     cov_sample = sample_table.func_eval_ind(iw, irun, @covariance);
-    % The following calculation of cov_detector will benefit from the generalised
-    % func_eval_ind to be implemented. In the the meantime, just expose the loop
-    % that will eventually be inside func_eval_ind [TGP 19 July 2023]. The loop
-    % is very inefficient in general if the number of pixels at which to
-    % calculate is large.
-    cov_detector = NaN(3,3,npix);
-    for i=1:npix
-        cov_detector(:,:,i) = detector_table.func_eval_ind(iw, irun(i), ...
-            @covariance, idet(i), kf(i));
-    end
+    cov_detector = detector_table.func_eval_ind (iw, irun, idet, 'split', @covariance, kf);
     var_tbin = dt.^2 / 12;
 
     % Fill covariance matrix

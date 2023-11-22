@@ -235,16 +235,19 @@ for iw=1:nw
     %  pixels have been shifted, so recalculate)
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
     
-    % ***====================================================================***
-    % *** The following lines do not appear in tobyfit_DGfermi_resconv_init
+    %===========================================================================
+    %HACK. TODO: do it properly (ticket #901)
+    % *** The following lines do *NOT* appear in tobyfit_DGfermi_resconv_init
     % *** The reason is unclear as this part of the code (setting irun) should
     % *** be expected to be identical as it has no instrument-specific aspect
+    % Appears to be related to HACK inserted in tobyfit_DGdisk_resconv and
+    % tobyfit_EGfermi_resonv
     irun_max = max(irun);
     id_max = wtmp.runid_map;
     if irun_max>numel(ne)
         irun = arrayfun(@(x)id_max(x),irun);
     end
-    % ***====================================================================***
+    %===========================================================================
 
     if ne>1
         eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
