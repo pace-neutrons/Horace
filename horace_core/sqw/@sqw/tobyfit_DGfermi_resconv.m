@@ -190,8 +190,8 @@ for i=1:numel(ind)
     qw=lookup.qw{iw};
 
     % Run and detector for each pixel
-    irun = win(i).pix.run_idx';   % column vector
-    idet = win(i).pix.detector_idx';   % column vector
+    irun = win(i).pix.run_idx(:);       % column vector
+    idet = win(i).pix.detector_idx(:);  % column vector
     npix = win(i).pix.num_pixels;
     
     %===========================================================================
