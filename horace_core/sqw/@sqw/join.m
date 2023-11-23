@@ -40,16 +40,19 @@ else
     detpar0 = w(1).detpar;
 end
 
-for i = 1:nfiles
-    wi_main_header = w(i).main_header;
-    wi_main_header.nfiles = 1;
-    [ok, mess] = equal_to_tol(wi_main_header, main_header);
-    if ~ok
-        error('HORACE:join:invalid_argument', mess)
-    end
-end
-clear main_header;
-clear wi_main_header;
+% Re #1320 This is probably unnecessary. Join should work with any headers.
+% Remove when join is refactored.
+% for i = 1:nfiles
+%     wi_main_header = w(i).main_header;
+%     wi_main_header.nfiles = 1;
+%     if wi_main_header
+%     [ok, mess] = equal_to_tol(wi_main_header, main_header);
+%     if ~ok
+%         error('HORACE:join:invalid_argument', mess)
+%     end
+% end
+% clear main_header;
+% clear wi_main_header;
 
 % Start pulling in data
 experiment = cell(size(w));
