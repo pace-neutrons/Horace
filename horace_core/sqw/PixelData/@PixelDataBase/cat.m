@@ -13,13 +13,13 @@ function pix_out = cat(varargin)
 %   pix_out     A PixelData object containing all the pixels in the inputted
 %               PixelData objects
 %               The type of the object (filebacked or
-%               memorybacked) will be defined by the type of
-%               the first object to cat.
+%               memory backed) will be defined by the size of the target
+%               object. If the number of pixels in the 
 
-% Take the dataclass of the first object.
+% Take the class of the first object as the type of result.
 if ~isa(varargin{1},'PixelDataBase')
     error('HORACE:PixelDataBase:invalid_argument', ...
-        ['The cat accepts list of PixelDatBase classes only.' ...
+        ['cat requested arguments are PixelDatBase sub-classes.' ...
         ' Class of the first input is: %s'], ...
         class(varargin{1}));
 end

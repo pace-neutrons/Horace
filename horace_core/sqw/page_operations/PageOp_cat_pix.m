@@ -24,6 +24,11 @@ classdef PageOp_cat_pix < PageOpBase
         end
 
         function obj = init(obj,varargin)
+            % Initialize cat pix operations
+            % Inputs:
+            % varargin -- comma-separated list of pixel data classes to
+            %             concatenate together
+
             % Initialize cat operation on pixels:
             obj = obj.init_pix_only_data_obj(varargin{:});
 
@@ -93,8 +98,9 @@ classdef PageOp_cat_pix < PageOpBase
     end
     methods(Access=protected)
         function obj = init_pix_only_data_obj(obj,varargin)
-            % process and prepare for operations input array of pixel data
-            % objects.
+            % process and prepare for operations input cell-array of pixel
+            % data objects.
+            %
             n_inputs = numel(varargin);
             obj.in_objects = cell(1,n_inputs);
             obj.npix = zeros(1,n_inputs);
@@ -103,7 +109,7 @@ classdef PageOp_cat_pix < PageOpBase
             for i=1:n_inputs
                 if ~isa(varargin{i},'PixelDataBase')
                     error('HORACE:PixelDataBase:invalid_argument', ...
-                        ['The cat accepts list of PixelDatBase classes only.' ...
+                        ['cat requested arguments are PixelDatBase sub-classes.' ...
                         ' Class of the input N%d is: %s'], ...
                         i,class(varargin{i}));
                 end

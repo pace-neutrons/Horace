@@ -568,8 +568,10 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             if ~isnumeric(val)
                 error('HORACE:DnDBase:invalid_argument',...
                     'input %s must be numeric array',field)
-            end
+            end            
             if numel(val) == 1 && ~isempty(obj.([field,'_']))
+                % if contents is array and the input is single value,
+                % assign this value to the whole array.
                 obj.([field,'_'])(:) = val;
             else
                 obj.([field,'_']) = val;

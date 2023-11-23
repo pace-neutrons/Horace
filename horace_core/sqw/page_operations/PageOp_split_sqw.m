@@ -5,26 +5,25 @@ classdef PageOp_split_sqw < PageOpBase
     %
     properties
         % cellarray of the images for resulting sqw objects to be split into
-        out_img
+        out_img;
         % cellarray of the pixels for resulting sqw objects to be split into
         out_pix;
-        % cellarray of target sqw objects to split original
-        % Needed for correct write handle initialization
+        % cellarray to place target sqw objects to split original sqw
         out_sqw;
         % cellarray of pixel ranges for all contributing objects
         obj_pix_ranges;
-        % cell array of write handles, used to store data for target sqw
+        % cell array of write handles, used to store data in target sqw
         % files.
         write_handles;
     end
-    properties(Access = private)
+    properties(Access = protected)
         % the runid map for the initial sqw object to split
         runid_map_;
         % numbers of objects contributing to current page
         n_obj_contrib_to_page_;
-        % array containing true if run descriped in experiment contributest
+        % array containing true if run descriped in experiment contributes
         % to pixels and false if it does not
-        run_contributes_
+        run_contributes_;
     end
     methods
         function obj = PageOp_split_sqw(varargin)
@@ -34,11 +33,13 @@ classdef PageOp_split_sqw < PageOpBase
         end
 
         function obj = init(obj,in_sqw)
-            % indirect usage of inplace property. Use by-product of
-            % inplace == true option when if it is true, write handle is
-            % not generated for in_sqw as we do not need write handle for
-            % init_sqw
+            % set up inplace== true to not to generate write handle for
+            % input sqw object.
             obj.inplace = true;
+            % indirect usage of inplace property. When 
+            % inplace == true write handle is not generated for in_sqw as
+            % we do not need write handle for init_sqw
+            
             obj = init@PageOpBase(obj,in_sqw);
             % if write handle was generated for in_sqw due to errors in a
             % future, clear it up. We do not need it here
@@ -50,7 +51,7 @@ classdef PageOp_split_sqw < PageOpBase
             obj = obj.prepare_split_sqw(in_sqw);
             % initialize target pix ranges for evaluation
             n_objects = numel(obj.out_img);
-            obj.obj_pix_ranges = arrayfun(@(nobj)PixelDataBase.EMPTY_RANGE(), ...
+            obj.obj_pix_ranges = arrayfun(@(nobj)PixelDataBase.EMPTY_RANGE, ...
                 1:n_objects, 'UniformOutput',false);
         end
 
@@ -70,12 +71,12 @@ classdef PageOp_split_sqw < PageOpBase
                 splitobj_num = obj.runid_map_(this_id);
                 obj.run_contributes_(splitobj_num) = true;
                 obj.n_obj_contrib_to_page_(n_obj) = splitobj_num;
-                % extract data belonging to single sqw
+                % extract data belonging to single split sqw
                 this_img   = obj.out_img{splitobj_num};
                 this_pix   = run_id == this_id;
                 obj_pix    = obj.page_data_(:,this_pix);
 
-                % calculate object acumilators accumulators:
+                % calculate object accumulators:
                 % pixel distribution over bins:
                 obj_npix   = accumarray(ibin(this_pix), ones(1, sum(this_pix)), [nbins, 1]);
                 [s_ar, e_ar] = compute_bin_data( ...
@@ -86,7 +87,7 @@ classdef PageOp_split_sqw < PageOpBase
                     this_img.e(npix_idx(1):npix_idx(2)) + e_ar(:);
                 this_img.npix(npix_idx(1):npix_idx(2))    = ...
                     this_img.npix(npix_idx(1):npix_idx(2)) + obj_npix(:);
-                % assign modified data back operation holder
+                % assign modified data back to the holder
                 obj.out_img{splitobj_num} = this_img;
                 obj.out_pix{splitobj_num}  = ...
                     obj.out_pix{splitobj_num}.set_raw_data(obj_pix);
@@ -149,7 +150,8 @@ classdef PageOp_split_sqw < PageOpBase
                 obj.img_      = obj.out_sqw{i}.data;
                 obj.pix_      = split_pix;
                 obj.pix_data_range_ = obj.obj_pix_ranges{i};
-                % finalize result as with single object
+                % finalize result as with single object and store result
+                % in the output array of objects.
                 [out_obj(i),obj] = finish_op@PageOpBase(obj,obj.out_sqw{i});
             end
         end
