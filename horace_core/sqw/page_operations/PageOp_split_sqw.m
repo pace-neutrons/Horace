@@ -139,8 +139,21 @@ classdef PageOp_split_sqw < PageOpBase
             obj.out_img       = obj.out_img(obj.run_contributes_);
             obj.out_sqw       = obj.out_sqw(obj.run_contributes_);
             obj.obj_pix_ranges= obj.obj_pix_ranges(obj.run_contributes_);
-            % this will delete unused handles (no contribution) and
-            % correspondent files, if some were initialized before.
+
+            % explicitly delete unsued handles and non_contributing files
+            % here, as  otherwise the deleteon will be delayed to random
+            % moment in time and tests may found unnecessary files.
+            function wh_deleteon(wh)
+                if isempty(wh)
+                    return;
+                end
+                if wh.npix_written == 0
+                    wh.delete();
+                end
+            end
+            cellfun(@wh_deleteon,obj.write_handles);
+
+            % this will remove unused  (non-contributed)  handles places
             obj.write_handles = obj.write_handles(obj.run_contributes_);
             % Allocate resulting sqw array
             n_obj = numel(obj.out_img);
@@ -148,11 +161,12 @@ classdef PageOp_split_sqw < PageOpBase
             for i=1:n_obj
                 split_img =  obj.out_img{i};
                 % Set single split object as the result of page operation
-                obj.npix      = split_img.npix;
-                obj.sig_acc_  = split_img.s;
-                obj.var_acc_  = split_img.e;
-                obj.img_      = obj.out_sqw{i}.data;
-                obj.pix_      = obj.out_sqw{i}.pix;
+                obj.npix          = split_img.npix;
+                obj.sig_acc_      = split_img.s;
+                obj.var_acc_      = split_img.e;
+                obj.img_          = obj.out_sqw{i}.data;
+                obj.write_handle_ = obj.write_handles{i};
+                obj.pix_          = obj.out_sqw{i}.pix;
                 obj.pix_data_range_ = obj.obj_pix_ranges{i};
                 % finalize result as with single object and store result
                 % in the output array of objects.
@@ -200,9 +214,9 @@ classdef PageOp_split_sqw < PageOpBase
                 % implemented
                 obj_i.full_filename = split_filename;
                 if pix_filebacked
-                    obj_i.pix     = PixelDataFileBacked();
+                    obj_i.pix    = PixelDataFileBacked();
                 else
-                    obj_i.pix      = PixelDataMemory();
+                    obj_i.pix    = PixelDataMemory();
                 end
                 obj.out_sqw{i}   = obj_i;
                 obj.out_img{i}   = data;
@@ -216,7 +230,7 @@ classdef PageOp_split_sqw < PageOpBase
             % is_exp_modified controls calculations of unique runid-s
             % during page_op.
             %
-            % Here we calculate this run_id differntly, so always false
+            % Here we calculate unique run_id differntly, so always false
             is = false;
         end
 
