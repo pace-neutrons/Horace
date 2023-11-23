@@ -1,6 +1,6 @@
 classdef PageOp_cat_pix < PageOpBase
-    % Single page pixel operation and main gateway for
-    % cat pixels algorithm. This version works with pixels only
+    % Single page pixel operations specific for cat pixels algorithm. 
+    % This version works with pixels only
     %
     %
     properties

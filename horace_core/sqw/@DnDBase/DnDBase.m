@@ -570,7 +570,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
                     'input %s must be numeric array',field)
             end            
             if numel(val) == 1 && ~isempty(obj.([field,'_']))
-                % if contents is array and the input is single value,
+                % if contents is array and the input is a single value,
                 % assign this value to the whole array.
                 obj.([field,'_'])(:) = val;
             else
