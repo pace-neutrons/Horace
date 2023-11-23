@@ -93,7 +93,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods(Static)
         % returns list of fields, which need to be filled by head function
         form_fields = head_form(sqw_only,keep_data_arrays)
-		%
+        %
         function obj = apply_op(obj, operation)
             % Apply special PageOp operation affecting sqw object and pixels
             %
@@ -108,7 +108,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             %              calculates changes to image, caused by the
             %              modifications to pixels.
             obj = obj.pix.apply_op(obj,operation);
-        end        
+        end
     end
     %======================================================================
     % PageOp methods -- methods, which use PageOp for implementation, so
@@ -118,7 +118,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % combine together various sqw objects, containing the same size images
         wout = combine_sqw(w1,varargin);
         wout = join(w,wi);
-        wout = split(w);
+        wout = split(w,varargin);
 
         [wout,mask_array] = mask(win, mask_array);
 

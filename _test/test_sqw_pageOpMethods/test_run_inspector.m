@@ -21,6 +21,7 @@ classdef test_run_inspector< TestCase
             obj.this_dir = fileparts(mfilename('fullpath'));
             [fp,fn,fe] = fileparts(obj.sqw_source);
             source_data = fullfile(fileparts(obj.this_dir),fp,[fn,fe]);
+            obj.sqw_source   = source_data;
             obj.source_sqw4D = read_sqw(source_data);
             obj.source_sqw2D = cut(obj.source_sqw4D,[-0.2,0.2],[-0.2,0.2],[],[]);
             obj.source_sqw1D = cut(obj.source_sqw4D,[-0.2,0.2],[-0.2,0.2],[-0.2,0.2],[]);
@@ -91,8 +92,32 @@ classdef test_run_inspector< TestCase
             assertTrue(isempty(pr.col))
         end
 
+        function test_split_pix_filebacked(obj)
+            n_pix = obj.source_sqw4D.npixels;
+            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',n_pix/3);
+            source = sqw(obj.sqw_source,'file_backed',true);
+            assertTrue(source.is_filebacked);
+
+            w_spl = split(source,'-filebacked');
+
+            assertEqual(numel(w_spl),23);
+
+            n_split_pix = 0;
+            for i=1:numel(w_spl)
+                assertTrue(w_spl(i).is_filebacked);
+                keys = w_spl(i).runid_map.keys;
+                assertEqual(numel(keys),1);
+                id = unique(w_spl(i).pix.run_idx);
+                assertEqual(keys{1},id);
+                assertEqual(w_spl(i).experiment_info.expdata.run_id,id);
+                n_split_pix  = n_split_pix +w_spl(i).npixels;
+            end
+            assertEqual(n_pix,n_split_pix);
+        end
+
         function test_split_all_in_memory(obj)
             n_pix = obj.source_sqw4D.npixels;
+            
             w_spl = split(obj.source_sqw4D);
 
             assertEqual(numel(w_spl),23);

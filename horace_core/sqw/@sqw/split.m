@@ -10,7 +10,11 @@ function wout = split(w,varargin)
 %  '-files'  -- if provided, return list of sqw files instead of sqw
 %               objects. When split objects do not fit memory, they are all
 %               stored in files and split returns list of the files.
-%               When the option is provided,
+%               When '-files' option is provided the split returns files
+%               instead of objects in any situation.
+%  '-filebacked'
+%           -- if provided, request split object to be filebacked
+%              regardless of
 %
 % Output:
 % -------
@@ -19,6 +23,16 @@ function wout = split(w,varargin)
 %
 %           If their images do not fit to memory, wout would be the list of
 %           filenames, containing these files.
+
+if numel(w)>1
+    error('HORACE:split:not_implemented', ...
+        'split currently works with only one sqw object');
+end
+[ok,mess,return_files,split_filebacked] = parse_char_options(varargin, ...
+    {'-files','-filebacked'});
+if ~ok
+    error('HORACE:split:invalid_arguments',mess);
+end
 
 nfiles = w.main_header.nfiles;
 
@@ -31,11 +45,23 @@ end
 %
 % Evaluate the size of the resulting split to know what subalgorithm to use
 %
-%split_img_size = 3*numel(data.s)*8; % size of resulting split image
-%split_pix_size = w.pix.num_pixels*PixelDataBase.pix_byte_size;
+split_img_size = 3*numel(w.data.s)*8; % size of resulting split image
+split_pix_size = w.pix.num_pixels*w.pix.pix_byte_size;
+total_size = split_img_size + split_pix_size;
 %
-% This is partial implementation. Works only for pix in memory
+hpc = hpc_config;
+mem_available = hpc.phys_mem_available;
 
 page_op = PageOp_split_sqw();
-page_op = page_op.init(w);
+if total_size > mem_available || split_filebacked % probably for tests
+    if split_img_size<mem_available && ~return_files
+        pix_filebacked = true;
+    else
+        error('HORACE:split:not_implemented', ...
+            'split with partial images not fitting to memory is not yet implemented')
+    end
+else
+    pix_filebacked = false;
+end
+page_op = page_op.init(w,pix_filebacked);
 wout    = sqw.apply_op(w,page_op);
