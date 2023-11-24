@@ -11,13 +11,13 @@ function wout = split(w,varargin)
 %  folder_for_parts
 %            --  The string contains full path to the folder where to place
 %                sqw files representing parts of the sqw file to split.
-%                If absent the files will be placed in working directory.
-%
-%                If operation perfomed in memory only, this path is ignored.
-%                If this folder is provided, the resulting files are
-%                assumed permanent files, so are not getting deleted when
-%                their correspondent sqw objects are getting deleted from
-%                memory.
+%               - If variable absent the files will be placed in working 
+%                 directory.
+%               - If operation perfomed in memory only, this path is ignored.
+%               - If this folder is provided, the resulting files are
+%                 assumed permanent files, so are not getting deleted when
+%                 their correspondent sqw objects are getting deleted from
+%                 memory.
 % Optional keys:
 %  '-files'  -- if provided, return list of sqw files instead of sqw
 %               objects. When split objects do not fit memory, they are all
@@ -80,15 +80,15 @@ if nfiles == 1
     wout = w;
     return
 end
-
 %
 % Evaluate the size of the resulting split to know what subalgorithm to use
 %
 split_img_size = 3*numel(w.data.s)*8; % size of resulting split image
-
-% set keep_precision to false as filebacked operations here will be
-% performed without change in precision.
-w.pix.keep_precision = true;
+if w.pix.is_filebacked && (return_files||split_filebacked)
+    % set keep_precision to false as filebacked operations here will be
+    % performed without change in precision.    
+    w.pix.keep_precision = true;
+end
 split_pix_size = w.pix.num_pixels*w.pix.pix_byte_size;
 total_size = split_img_size + split_pix_size;
 %
@@ -101,12 +101,11 @@ if total_size > mem_available || split_filebacked % probably for tests
     if split_img_size<mem_available && ~return_files
         pix_filebacked = true;
     else
-        error('HORACE:split:not_implemented', ...
-            'split with partial images not fitting to memory is not yet implemented')
+        img_filebacked  = true;
     end
 else
     pix_filebacked = false;
 end
 page_op.outfile = folder_for_parts;
-page_op = page_op.init(w,pix_filebacked);
+page_op = page_op.init(w,pix_filebacked,img_filebacked);
 wout    = sqw.apply_op(w,page_op);

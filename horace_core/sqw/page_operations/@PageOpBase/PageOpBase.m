@@ -216,7 +216,7 @@ classdef PageOpBase
                 obj.pix_idx_start_ = pix_idx_end+1;
             else
                 obj.pix_.page_num = idx;
-                obj.page_data_ = obj.pix_.data;
+                obj.page_data_    = obj.pix_.data;
             end
         end
         %
@@ -284,8 +284,6 @@ classdef PageOpBase
                 end
             end
         end
-
-
         %
         function [out_obj,obj] = finish_op(obj,in_obj)
             % Finalize page operations.

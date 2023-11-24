@@ -2,6 +2,10 @@ classdef pix_write_handle < handle
     %PIX_WRITE_HANDLE wraps different kinds of write access handles for
     % writing pixels and provides common interface for writing pixels.
     %
+    % as pixels are closely related to image, the class also contains 
+    % methods to update image or part of the inage, which was modified while 
+    % modifyng pixels.
+    %
     % In addition, it closes accessor handle on class deletion, and may
     % delete target file if the class goes out of scope due to errors.
     %
@@ -23,6 +27,10 @@ classdef pix_write_handle < handle
         npix_written_ = 0;
         handle_is_class_ = false;
         write_handle_ = [];
+
+        % initial shifts of 3 components of image (s,e,npix) from their
+        % physical position on file expressed in number of 
+        img_start_post_ = 0
 
         delete_target_file_ = true;
     end

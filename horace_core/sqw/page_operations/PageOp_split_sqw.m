@@ -24,6 +24,9 @@ classdef PageOp_split_sqw < PageOpBase
         % array containing true if run descriped in experiment contributes
         % to pixels and false if it does not
         run_contributes_;
+        % true, if the images also can not fit memory and need to be made
+        % filebacked
+        img_filebacked_;
     end
     methods
         function obj = PageOp_split_sqw(varargin)
@@ -32,12 +35,15 @@ classdef PageOp_split_sqw < PageOpBase
             obj.split_at_bin_edges = false;
         end
 
-        function obj = init(obj,in_sqw,pix_filebacked)
+        function obj = init(obj,in_sqw,pix_filebacked,img_filebacked)
             % initialize split_sqw algorithm.
             % Input:
             % in_sqw         -- initial sqw object to split
             % pix_filebacked -- it true, output sqw objects have to be
             %                   filebacked objects
+            % img_filebacked -- it true, all split images do not fit memory
+            %                   and algorithm should work with image
+            %                   chunks.
 
             % set up inplace== true to not to generate write handle for
             % input sqw object.
@@ -54,11 +60,16 @@ classdef PageOp_split_sqw < PageOpBase
             % memory.
             obj.img_ = [];
             % prepare target sqw objects to split source into
-            obj = obj.prepare_split_sqw(in_sqw,pix_filebacked);
+            obj = obj.prepare_split_sqw(in_sqw,pix_filebacked,false,img_filebacked);
             % initialize target pix ranges for evaluation
             n_objects = numel(obj.out_img);
             obj.obj_pix_ranges = arrayfun(@(nobj)PixelDataBase.EMPTY_RANGE, ...
                 1:n_objects, 'UniformOutput',false);
+            obj.img_filebacked_ = img_filebacked;
+            if img_filebacked
+                % will operate with whole clusters of bins
+                obj.split_at_bin_edges = true;
+            end
         end
 
         function obj = apply_op(obj,npix_block,npix_idx)
@@ -85,14 +96,28 @@ classdef PageOp_split_sqw < PageOpBase
                 % calculate object accumulators:
                 % pixel distribution over bins:
                 obj_npix   = accumarray(ibin(this_pix), ones(1, sum(this_pix)), [nbins, 1]);
-                [s_ar, e_ar] = compute_bin_data( ...
-                    obj_npix,obj_pix(obj.signal_idx,:),obj_pix(obj.var_idx,:),true);
-                this_img.s(npix_idx(1):npix_idx(2))    = ...
-                    this_img.s(npix_idx(1):npix_idx(2)) + s_ar(:);
-                this_img.e(npix_idx(1):npix_idx(2))    = ...
-                    this_img.e(npix_idx(1):npix_idx(2)) + e_ar(:);
-                this_img.npix(npix_idx(1):npix_idx(2))    = ...
-                    this_img.npix(npix_idx(1):npix_idx(2)) + obj_npix(:);
+                if obj.img_filebacked_
+                    % calculate chunk of final image
+                    [s_ar, e_ar] = compute_bin_data( ...
+                        obj_npix,obj_pix(obj.signal_idx,:),obj_pix(obj.var_idx,:));
+
+                    this_img.s   =  s_ar(:);
+                    this_img.e   =  e_ar(:);
+                    this_img.npix= obj_npix(:);
+                else
+                    % accumulate non-normalized chunks to finalize them
+                    % later
+                    [s_ar, e_ar] = compute_bin_data( ...
+                        obj_npix,obj_pix(obj.signal_idx,:),obj_pix(obj.var_idx,:));
+
+                    this_img.s(npix_idx(1):npix_idx(2))    = ...
+                        this_img.s(npix_idx(1):npix_idx(2)) + s_ar(:);
+                    this_img.e(npix_idx(1):npix_idx(2))    = ...
+                        this_img.e(npix_idx(1):npix_idx(2)) + e_ar(:);
+                    this_img.npix(npix_idx(1):npix_idx(2))    = ...
+                        this_img.npix(npix_idx(1):npix_idx(2)) + obj_npix(:);
+
+                end
                 % assign modified data back to the holder
                 obj.out_img{splitobj_num}  = this_img;
                 obj.out_pix{splitobj_num}  = obj_pix;
@@ -123,8 +148,36 @@ classdef PageOp_split_sqw < PageOpBase
                 obj.out_sqw{splitobj_num}.pix = ...
                     obj.out_sqw{splitobj_num}.pix.store_page_data( ...
                     pix_obj_data,obj.write_handles{splitobj_num});
+                % if image is filabacked, also store recalculated piece of
+                % image
+                if obj.img_filebacked_
+                    obj.write_handles{splitobj_num}.save_img_block([], ...
+                        obj.out_img{splitobj_num});
+                end
             end
         end
+        function [out_file,obj] = finalize_fb_obj(obj,in_sqw)
+            % special overload used for filebacked operations only when
+            % source data are located in file and target data are locate in
+            % file.
+            % Input:
+            % obj      -- initialized instance of this pageOp, containing
+            %             the following fields:
+            %    obj.write_handle_ = the write_handle class used for
+            %                        writing data in target split file
+            %    obj.pix_          = Empty instance of filebacked pixels to
+            %                        be initialized
+            %    obj.pix_data_range_= obj.obj_pix_ranges{i};
+            %
+            %
+            % in_sqw   -- template for target filebacked object which would
+            %             be finalized and deleted leaving file, pointint
+            %             to it.
+            % Returns:
+            % out_file -- the name of the file, containing target sqw
+            %             object
+        end
+
         function [out_obj,obj] = finish_op(obj,varargin)
             % Finalize page operations. Specific to split_sqw as the result
             % here is very different from the majority of PageOp
@@ -147,29 +200,39 @@ classdef PageOp_split_sqw < PageOpBase
 
             % this will remove unused  (non-contributed)  handles places
             obj.write_handles = obj.write_handles(obj.run_contributes_);
-            % Allocate resulting sqw array
+            % Allocate resulting sqw array or list of sqw files
             n_obj = numel(obj.out_img);
-            out_obj = repmat(sqw,[1,n_obj]);
+            if obj.img_filebacked_
+                out_obj = cell(1,n_obj);
+            else
+                out_obj = repmat(sqw,[1,n_obj]);
+            end
             for i=1:n_obj
                 split_img =  obj.out_img{i};
                 % Set single split object as the result of page operation
-                obj.npix          = split_img.npix;
-                obj.sig_acc_      = split_img.s;
-                obj.var_acc_      = split_img.e;
-                obj.img_          = obj.out_sqw{i}.data;
+                if ~obj.img_filebacked_
+                    obj.npix          = split_img.npix;
+                    obj.sig_acc_      = split_img.s;
+                    obj.var_acc_      = split_img.e;
+                    obj.img_          = obj.out_sqw{i}.data;
+                end
                 obj.write_handle_ = obj.write_handles{i};
                 obj.pix_          = obj.out_sqw{i}.pix;
                 obj.pix_data_range_ = obj.obj_pix_ranges{i};
                 % finalize result as with single object and store result
                 % in the output array of objects.
-                [out_obj(i),obj] = finish_op@PageOpBase(obj,obj.out_sqw{i});
+                if obj.img_filebacked_
+                    [out_obj{i},obj] = obj.finalize_fb_obj(obj.out_sqw{i});
+                else
+                    [out_obj(i),obj] = finish_op@PageOpBase(obj,obj.out_sqw{i});
+                end
             end
         end
         %
     end
     % Class specific methods
     methods
-        function obj = prepare_split_sqw(obj,in_sqw,pix_filebacked)
+        function obj = prepare_split_sqw(obj,in_sqw,pix_filebacked,img_filebacked)
             % prepare list of sqw objects to split source object into.
             % Inputs:
             % in_sqw   -- initial sqw object to split into contributiong
@@ -193,10 +256,18 @@ classdef PageOp_split_sqw < PageOpBase
             obj.out_sqw = cell(1,n_runs);
 
             n_bins = numel(data.s);
-            % 1D image with 3 accumulators for calculating image
-            data = struct('s',zeros(n_bins,1),'e',zeros(n_bins,1),'npix',zeros(n_bins,1));
+
+            if img_filebacked
+                % 3 to calculate block averages
+                data = struct('s',[],'e',[],'npix',[]);
+            else
+                % 1D image with 3 accumulators for calculating image
+                data = struct('s',zeros(n_bins,1),'e',zeros(n_bins,1),'npix',zeros(n_bins,1));
+            end
             [~,file_in]   = fileparts(in_sqw.data.filename);
             for i = 1:n_runs
+                % these objects contain the same copy of image, so
+                % would not allocate additional memory for it.
                 obj_i = in_sqw;
                 obj_i.experiment_info = exp_info.get_subobj(i,'-indexes');
 
