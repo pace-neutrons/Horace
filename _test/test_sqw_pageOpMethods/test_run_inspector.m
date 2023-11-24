@@ -113,11 +113,25 @@ classdef test_run_inspector< TestCase
                 n_split_pix  = n_split_pix +w_spl(i).npixels;
             end
             assertEqual(n_pix,n_split_pix);
+
+            % check that filebacked objects are temporary objects in this
+            % case
+            files = cell(1,numel(w_spl));
+            for i=1:numel(files)
+                files{i} = w_spl(i).pix.full_filename;
+                assertTrue(is_file(files{i}));
+            end
+            clear('w_spl');
+            for i=1:numel(files)
+                assertFalse(is_file(files{i}));
+            end
+
+
         end
 
         function test_split_all_in_memory(obj)
             n_pix = obj.source_sqw4D.npixels;
-            
+
             w_spl = split(obj.source_sqw4D);
 
             assertEqual(numel(w_spl),23);

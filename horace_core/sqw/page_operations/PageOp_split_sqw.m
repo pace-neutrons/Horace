@@ -143,15 +143,7 @@ classdef PageOp_split_sqw < PageOpBase
             % explicitly delete unsued handles and non_contributing files
             % here, as  otherwise the deleteon will be delayed to random
             % moment in time and tests may found unnecessary files.
-            function wh_deleteon(wh)
-                if isempty(wh)
-                    return;
-                end
-                if wh.npix_written == 0
-                    wh.delete();
-                end
-            end
-            cellfun(@wh_deleteon,obj.write_handles);
+            cellfun(@wh_delete_,obj.write_handles);
 
             % this will remove unused  (non-contributed)  handles places
             obj.write_handles = obj.write_handles(obj.run_contributes_);
@@ -209,19 +201,24 @@ classdef PageOp_split_sqw < PageOpBase
                 obj_i.experiment_info = exp_info.get_subobj(i,'-indexes');
 
                 run_id         = obj_i.experiment_info.expdata(1).run_id;
-                split_filename = sprintf('%s_runID%d.sqw',file_in,run_id );
-                % this need to be modified when filebacked output
-                % implemented
-                obj_i.full_filename = split_filename;
+                split_filename = sprintf('%s_runID%07d.sqw',file_in,run_id );
+                if ~isempty(obj.outfile)
+                    targ_file           = fullfile(obj.outfile,split_filename);
+                    obj_i.full_filename = targ_file;
+                else
+                    targ_file           = '';
+                end
+
                 if pix_filebacked
                     obj_i.pix    = PixelDataFileBacked();
+                    obj_i.pix.full_filename = split_filename;
                 else
                     obj_i.pix    = PixelDataMemory();
                 end
                 obj.out_sqw{i}   = obj_i;
                 obj.out_img{i}   = data;
 
-                obj.write_handles{i} = obj_i.get_write_handle(split_filename);
+                obj.write_handles{i} = obj_i.get_write_handle(targ_file);
             end
         end
     end
@@ -235,4 +232,15 @@ classdef PageOp_split_sqw < PageOpBase
         end
 
     end
+end
+
+function wh_delete_(wh)
+% utility to delete temporary sqw file controlled by write handle provided
+% as input if the handle have not written itno file any pixels.
+if isempty(wh)
+    return;
+end
+if wh.npix_written == 0
+    wh.delete();
+end
 end
