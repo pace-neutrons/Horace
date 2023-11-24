@@ -144,11 +144,11 @@ classdef test_split< TestCase
             page_op = PageOp_split_sqw();
 
             page_op = page_op.prepare_split_sqw(obj.source_sqw4D,false);
-            n_runds = obj.source_sqw4D.main_header.nfiles;
+            n_runs  = obj.source_sqw4D.main_header.nfiles;
 
-            assertEqual(numel(page_op.out_img),n_runds )
-            assertEqual(numel(page_op.out_pix),n_runds )
-            assertEqual(numel(page_op.write_handles),n_runds )
+            assertEqual(numel(page_op.out_img),n_runs )
+            assertEqual(numel(page_op.out_pix),n_runs )
+            assertEqual(numel(page_op.write_handles),n_runs )
             % all memory-based objects
             is_mb  = cellfun(@isempty,page_op.write_handles);
             assertTrue(all(is_mb))
