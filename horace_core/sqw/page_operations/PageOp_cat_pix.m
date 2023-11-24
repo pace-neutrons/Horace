@@ -1,6 +1,6 @@
 classdef PageOp_cat_pix < PageOpBase
-    % Single page pixel operation and main gateway for
-    % cat pixels algorithm. This version works with pixels only
+    % Single page pixel operations specific for cat pixels algorithm. 
+    % This version works with pixels only
     %
     %
     properties
@@ -24,8 +24,12 @@ classdef PageOp_cat_pix < PageOpBase
         end
 
         function obj = init(obj,varargin)
-            % Initialize cat operation:
+            % Initialize cat pix operations
+            % Inputs:
+            % varargin -- comma-separated list of pixel data classes to
+            %             concatenate together
 
+            % Initialize cat operation on pixels:
             obj = obj.init_pix_only_data_obj(varargin{:});
 
             [mem_chunk_size,pf] = config_store.instance().get_value( ...
@@ -94,14 +98,21 @@ classdef PageOp_cat_pix < PageOpBase
     end
     methods(Access=protected)
         function obj = init_pix_only_data_obj(obj,varargin)
-            % process and prepare for operations input array of pixel data
-            % objects.
+            % process and prepare for operations input cell-array of pixel
+            % data objects.
+            %
             n_inputs = numel(varargin);
             obj.in_objects = cell(1,n_inputs);
             obj.npix = zeros(1,n_inputs);
             obj.pix_block_start_ = ones(1,n_inputs);
             npix_tot_ = 0;
             for i=1:n_inputs
+                if ~isa(varargin{i},'PixelDataBase')
+                    error('HORACE:PixelDataBase:invalid_argument', ...
+                        ['cat requested arguments are PixelDatBase sub-classes.' ...
+                        ' Class of the input N%d is: %s'], ...
+                        i,class(varargin{i}));
+                end
                 obj.in_objects{i}  = varargin{i};
                 npix = varargin{i}.num_pixels;
                 obj.npix(i) = npix ;

@@ -113,6 +113,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         % if false, converts all pixel data loaded from disk into double
         % precision
         keep_precision
+        % Property returns size of a pixel in bytes
+        pix_byte_size
     end
 
     properties(Access=protected)
@@ -338,9 +340,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     methods(Abstract)
         % --- Pixel operations ---
-        pix_out  = append(obj, pix);
         pix_copy = copy(obj)
-
 
         data = get_raw_data(obj,varargin)
         pix  = set_raw_data(obj,pix);
@@ -377,6 +377,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     end
     %======================================================================
     methods(Abstract,Access=protected)
+        % return byte-size of single pixel
+        sz = get_pix_byte_size(obj);        
         % Main part of get.num_pixels accessor
         num_pix = get_num_pixels(obj);
         ro      = get_read_only(obj)
@@ -709,6 +711,12 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         %
         function is = get.is_tmp_obj(obj)
             is = get_is_tmp_obj(obj);
+        end
+        function sz = get.pix_byte_size(obj)
+            % In a future it may be overloaded to account for various types
+            % of pixel data but we can not yet give clear specification for
+            % that.
+            sz = get_pix_byte_size(obj);
         end
     end
     %----------------------------------------------------------------------

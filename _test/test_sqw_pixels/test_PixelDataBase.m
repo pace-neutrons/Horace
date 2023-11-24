@@ -511,12 +511,6 @@ classdef test_PixelDataBase < TestCase
             end
         end
 
-        function test_error_if_append_called(~)
-            pix = PixelDataFileBacked(rand(9, 1));
-            f = @() pix.append(rand(9, 1));
-            assertExceptionThrown(f, 'HORACE:PixelDataFileBacked:not_implemented');
-        end
-
         function test_move_to_page_loads_given_page_into_memory(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);

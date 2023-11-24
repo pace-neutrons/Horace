@@ -62,7 +62,8 @@ classdef test_join < TestCase
 
             reformed_obj = join(split_obj);
 
-            % Split reindexes from 1
+            %TODO: Re #1320 -- this should not happen. Split reindexes from
+            % 1 -- split should not.
             reformed_obj.pix.run_idx = reformed_obj.pix.run_idx + min(sqw_obj.pix.run_idx) - 1;
 
             assertEqualToTol(sqw_obj, reformed_obj, [1e-6, 1e-4], 'ignore_str', true);

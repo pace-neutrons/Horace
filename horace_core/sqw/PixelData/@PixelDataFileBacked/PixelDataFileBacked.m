@@ -113,10 +113,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
     % =====================================================================
     % Overloaded operations interface
     methods
-        function obj = append(~, ~)
-            error('HORACE:PixelDataFileBacked:not_implemented',...
-                'append does not work on file-based pixels')
-        end
         function obj = set_raw_data(obj,pix)
             %SET_RAW_DATA set internal data array without comprehensive checks for
             % data integrity and data ranges.
@@ -388,6 +384,14 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
+        function   sz = get_pix_byte_size(obj)
+            if obj.keep_precision
+                sz = obj.DEFAULT_NUM_PIX_FIELDS*4;
+            else
+                sz = obj.DEFAULT_NUM_PIX_FIELDS*8;
+            end
+        end
+
         function is = get_is_tmp_obj(obj)
             is = ~isempty(obj.tmp_file_holder_);
         end

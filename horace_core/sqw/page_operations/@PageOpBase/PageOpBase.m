@@ -228,10 +228,18 @@ classdef PageOpBase
             % obj   -- pageOp object, containing modified pixel_data page
             %          to analyse.
             %
-            % Thought: May be should be implemented as apply_op, which needs
-            %          to be overloaded and invoked as part of more complex
-            %          page operation.
-            %
+            % Returns:
+            % obj   -- modified PageOp class, containing:
+            %      a)  updated pix_data_range_ field, containing pixel data
+            %          range (min/max values ) caclulated accounting for 
+            %          recent page data
+            %      b)  if exp_modified property of PageOp is true, 
+            %          modified unique_run_id_ field, updated with uniqie
+            %          run-id-s contained in current data page
+            %      c)  modified pix_ fileld modified with considering 
+            %          changes, done by apply_op method. 
+            %          Depending on pix_ location, it can be source pixel
+            %          data, moved to new 
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
             if obj.exp_modified
