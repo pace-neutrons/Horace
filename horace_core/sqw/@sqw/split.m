@@ -12,6 +12,10 @@ function wout = split(w,varargin)
 %                sqw files representing parts of the split file. If absent,
 %                the files will be placed in working directory
 %                If operation perfomed in memory only, this path is ignored.
+%                If this folder is provided, the resulting files are
+%                assumed permanent files, so are not getting deleted when
+%                their correspondent sqw objects are getting deleted from
+%                memory.
 % Optional keys:
 %  '-files'  -- if provided, return list of sqw files instead of sqw
 %               objects. When split objects do not fit memory, they are all
@@ -33,11 +37,12 @@ function wout = split(w,varargin)
 %           If their images do not fit to memory, wout would be the list of
 %           filenames, referring to sqw files with contents of the split objects.
 % NOTE:
-% if results is filebacked or list of files, the resulting files or files -bases
+% if results is filebacked or list of files, the resulting files or files-bases
 % for filebacked objects are placed in the folder_for_parts directory or in
 % working directory if folder_for_path is not provided.
 % The names of partial files are build from the name of the original sqw
 % file with added suffix containing corresponding run_id.
+%
 % For example. If you have initial sqw file Fe400mEv.sqw containing runs
 % 32400,32401 and 32402 and split it in filebacked mode, the folder
 % provided as input would contain files Fe400mEv_runID0032400.sqw,
