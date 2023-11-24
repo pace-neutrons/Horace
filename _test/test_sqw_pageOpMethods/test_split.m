@@ -53,13 +53,13 @@ classdef test_split< TestCase
             for i=1:numel(files)
                 files{i} = w_spl(i).full_filename;
 
-                assertTrue(is_file(files{i}));
+                assertTrue(isfile(files{i}));
                 [~,~,fe] = fileparts(files{i});
                 assertEqual(fe,'.sqw');
             end
             clear('w_spl');
             for i=1:numel(files)
-                assertTrue(is_file(files{i}));
+                assertTrue(isfile(files{i}));
             end
         end
 
@@ -113,11 +113,11 @@ classdef test_split< TestCase
             files = cell(1,numel(w_spl));
             for i=1:numel(files)
                 files{i} = w_spl(i).pix.full_filename;
-                assertTrue(is_file(files{i}));
+                assertTrue(isfile(files{i}));
             end
             clear('w_spl');
             for i=1:numel(files)
-                assertFalse(is_file(files{i}));
+                assertFalse(isfile(files{i}));
             end
         end
 
