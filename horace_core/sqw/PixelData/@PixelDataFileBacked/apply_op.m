@@ -78,7 +78,7 @@ if ll > 0
                 obj_out(1).pix.full_filename, ...
                 obj_out(end).pix.full_filename)
         else
-            if isa(out_obj,'sqw')
+            if isa(obj_out,'sqw')
                 out_file_name = obj_out.pix.full_filename;
             else
                 out_file_name = obj_out.full_filename;
