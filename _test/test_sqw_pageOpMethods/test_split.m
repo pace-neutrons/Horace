@@ -140,10 +140,10 @@ classdef test_split< TestCase
             assertEqual(n_pix,n_split_pix);
         end
 
-        function test_prepare_split_sqw(obj)
+        function test_prepare_split_sqw_in_mem(obj)
             page_op = PageOp_split_sqw();
 
-            page_op = page_op.prepare_split_sqw(obj.source_sqw4D);
+            page_op = page_op.prepare_split_sqw(obj.source_sqw4D,false);
             n_runds = obj.source_sqw4D.main_header.nfiles;
 
             assertEqual(numel(page_op.out_img),n_runds )

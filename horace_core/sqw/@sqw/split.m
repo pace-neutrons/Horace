@@ -1,5 +1,6 @@
 function wout = split(w,varargin)
-% Split an sqw object into an array of sqw objects, each made from a single spe data set
+% Split an sqw object into an array of sqw objects, each made from a
+% single spe or nxspe data set
 %
 %   >> wout = split(w)
 %
@@ -8,9 +9,10 @@ function wout = split(w,varargin)
 %   w        --  Input sqw object
 % Optional:
 %  folder_for_parts
-%            --  The string which full path to the folder where to place
-%                sqw files representing parts of the split file. If absent,
-%                the files will be placed in working directory
+%            --  The string contains full path to the folder where to place
+%                sqw files representing parts of the sqw file to split.
+%                If absent the files will be placed in working directory.
+%
 %                If operation perfomed in memory only, this path is ignored.
 %                If this folder is provided, the resulting files are
 %                assumed permanent files, so are not getting deleted when
@@ -25,27 +27,27 @@ function wout = split(w,varargin)
 %  '-filebacked'
 %           -- if provided, request split object to be filebacked
 %              regardless of the possibility to place them in memory.
-%              If even split object images do not fit memory, this option
+%              If split object' images do not fit memory, this option
 %              is ignored and the code behaves as if option '-files' is
 %              specified.
 %
 % Output:
 % -------
 %   wout    Array of sqw objects, each one made from a single spe data file
-%           If w is filebacked object, wout are filebacked too.
 %
-%           If their images do not fit to memory, wout would be the list of
-%           filenames, referring to sqw files with contents of the split objects.
+%           If all images from split files do not fit memory, wout would be
+%           the list of filenames, referring to sqw files with contents of
+%           the split objects.
 % NOTE:
 % if results is filebacked or list of files, the resulting files or files-bases
-% for filebacked objects are placed in the folder_for_parts directory or in
-% working directory if folder_for_path is not provided.
+% for filebacked objects are placed in the 'folder_for_parts' directory or in
+% working directory if 'folder_for_path' is not provided.
 % The names of partial files are build from the name of the original sqw
 % file with added suffix containing corresponding run_id.
 %
-% For example. If you have initial sqw file Fe400mEv.sqw containing runs
+% For example: If you have initial sqw file Fe400mEv.sqw containing runs
 % 32400,32401 and 32402 and split it in filebacked mode, the folder
-% provided as input would contain files Fe400mEv_runID0032400.sqw,
+% provided to keep result would contain files Fe400mEv_runID0032400.sqw,
 % Fe400mEv_runID0032401.sqw and Fe400mEv_runID0032402.sqw
 
 if numel(w)>1
@@ -83,11 +85,16 @@ end
 % Evaluate the size of the resulting split to know what subalgorithm to use
 %
 split_img_size = 3*numel(w.data.s)*8; % size of resulting split image
+
+% set keep_precision to false as filebacked operations here will be
+% performed without change in precision.
+w.pix.keep_precision = true;
 split_pix_size = w.pix.num_pixels*w.pix.pix_byte_size;
 total_size = split_img_size + split_pix_size;
 %
 hpc = hpc_config;
 mem_available = hpc.phys_mem_available;
+
 
 page_op = PageOp_split_sqw();
 if total_size > mem_available || split_filebacked % probably for tests

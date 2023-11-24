@@ -78,8 +78,13 @@ if ll > 0
                 obj_out(1).pix.full_filename, ...
                 obj_out(end).pix.full_filename)
         else
+            if isa(out_obj,'sqw')
+                out_file_name = obj_out.pix.full_filename;
+            else
+                out_file_name = obj_out.full_filename;
+            end
             fprintf('*** Resulting object is backed by file: %s\n', ...
-                obj_out.pix.full_filename)
+                out_file_name)
         end
     end
 end
