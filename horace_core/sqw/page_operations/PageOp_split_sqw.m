@@ -140,7 +140,7 @@ classdef PageOp_split_sqw < PageOpBase
             obj.out_sqw       = obj.out_sqw(obj.run_contributes_);
             obj.obj_pix_ranges= obj.obj_pix_ranges(obj.run_contributes_);
 
-            % explicitly delete unsued handles and non_contributing files
+            % explicitly delete unused handles and non-contributing files
             % here, as  otherwise the deleteon will be delayed to random
             % moment in time and tests may found unnecessary files.
             cellfun(@wh_delete_,obj.write_handles);
@@ -236,7 +236,7 @@ end
 
 function wh_delete_(wh)
 % utility to delete temporary sqw file controlled by write handle provided
-% as input if the handle have not written itno file any pixels.
+% as input if the handle have not been used to write any pixels to this file.
 if isempty(wh)
     return;
 end
