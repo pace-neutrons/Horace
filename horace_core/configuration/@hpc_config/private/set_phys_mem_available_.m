@@ -1,4 +1,4 @@
-function obj = set_phys_mem_available_(obj,val,warn_on_settings)
+function mem = set_phys_mem_available_(obj,mem,warn_on_settings)
 %SET_PHYS_MEM_AVAILABLE_ stores the value of the calculated memory
 %available in configuration for further usage
 %
@@ -15,23 +15,23 @@ function obj = set_phys_mem_available_(obj,val,warn_on_settings)
 %                     config_store.
 %
 
-if isempty(val)
-    val = hpc_config.calc_free_memory();
+if isempty(mem)
+    mem = hpc_config.calc_free_memory();
     warn_on_settings = false;
 end
 
-if val <=0
+if mem <=0
     error('HORACE:hpc_config:invalid_argument', ...
         'Physical memory available should be value larger then 0')
 end
 [mchs,fbs] = config_store.instance().get_value( ...
     'hor_config','mem_chunk_size','fb_scale_factor');
 def_size = mchs*fbs*opt_config_manager.DEFAULT_PIX_SIZE;
-if val<def_size
+if mem<def_size
     warning('HORACE:insufficient_physical_memory', ...
         ['Estimated physical memory (%dMB) is smaller then size of default memory-based sqw object (%dMB)\n' ...
         'The default mem-based object size defineded as production of hor_config: mem_chunk_size (%d) and fb_scale_factor (%d) converted in MB'], ...
-        floor(val/(1024*1024)),floor(def_size/(1024*1024)), ...
+        floor(mem/(1024*1024)),floor(def_size/(1024*1024)), ...
         mchs,fbs)
 end
 if warn_on_settings
@@ -41,4 +41,4 @@ if warn_on_settings
         ' If it is too big, the application may fail.\n' ...
         ' Normally you should set empty value here and allow Horace to evaluate available memory by itself.'])
 end
-config_store.instance().store_config(obj,'phys_mem_available',val);
+config_store.instance().store_config(obj,'phys_mem_available',mem);
