@@ -44,7 +44,7 @@ function wout = split(w,varargin)
 % working directory if 'folder_for_path' is not provided.
 % The names of partial files are build from the name of the original sqw
 % file with added suffix containing corresponding run_id.
-%
+% 
 % For example: If you have initial sqw file Fe400mEv.sqw containing runs
 % 32400,32401 and 32402 and split it in filebacked mode, the folder
 % provided to keep result would contain files Fe400mEv_runID0032400.sqw,
@@ -97,6 +97,7 @@ mem_available = hpc.phys_mem_available;
 
 
 page_op = PageOp_split_sqw();
+try
 if total_size > mem_available || split_filebacked % probably for tests
     if split_img_size<mem_available && ~return_files
         pix_filebacked = true;
@@ -106,6 +107,16 @@ if total_size > mem_available || split_filebacked % probably for tests
     end
 else
     pix_filebacked = false;
+end
+catch ME
+    disp('**** total_size:')    
+    disp(total_size)
+    disp('**** mem_available:')        
+    disp(total_size)    
+    disp('**** split_filebacked:')            
+    disp(split_filebacked)
+    disp(ME.getReport());
+    rethrow(ME);
 end
 page_op.outfile = folder_for_parts;
 page_op = page_op.init(w,pix_filebacked);
