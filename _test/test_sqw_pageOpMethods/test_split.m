@@ -1,11 +1,11 @@
 classdef test_split< TestCase
     %
-    % Validate sqw object replication
+    % Validate sqw object splitting
     %
 
     properties
         this_dir;
-        sqw_source = 'common_data/sqw_4d.sqw'
+        sqw_source = 'sqw_4d.sqw'
 
         source_sqw4D;
     end
@@ -16,9 +16,9 @@ classdef test_split< TestCase
                 name = 'test_split';
             end
             obj=obj@TestCase(name);
+            hpc = horace_paths;
             obj.this_dir = fileparts(mfilename('fullpath'));
-            [fp,fn,fe] = fileparts(obj.sqw_source);
-            source_data = fullfile(fileparts(obj.this_dir),fp,[fn,fe]);
+            source_data = fullfile(hpc.test_common,obj.sqw_source);
             obj.sqw_source   = source_data;
             obj.source_sqw4D = read_sqw(source_data);
 
