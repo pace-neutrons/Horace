@@ -22,4 +22,4 @@ if obj.is_field_configured('phys_mem_available')
 else
     mem  = [];
 end
-set_phys_mem_available_(obj,mem,false);
+mem = set_phys_mem_available_(obj,mem,false);

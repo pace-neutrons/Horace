@@ -24,17 +24,18 @@ wh.finish_pix_dump(pix);
 % following pixel IO operations, do not close sqw_ldr handles
 sqw_ldr = wh.release_pixinit_info(true);
 
- % Store modifications to image. Better implementation after Re #1319
+% Store modifications to image. Better implementation after Re #1319
 if page_op.exp_modified
     sqw_ldr  = sqw_ldr.put_main_header(obj.main_header);
     if page_op.exp_modified
         sqw_ldr   = sqw_ldr.put_headers(obj.experiment_info);
-    end    
+    end
 end
 if ~page_op.changes_pix_only
-   sqw_ldr  = sqw_ldr.put_dnd_data(obj.data);
+    sqw_ldr  = sqw_ldr.put_dnd_data(obj.data);
 end
 
+set_as_tmp_obj = false;
 if wh.move_to_original
     % this will close opened wh, and allow file moving
     sqw_ldr = sqw_ldr.deactivate();
@@ -61,7 +62,7 @@ else
         % until TmpFileHandler is there and will leave the parts of the
         % original (permanent) file name and path within the sqw object
         % hidden from access from sqw object
-        obj = obj.set_as_tmp_obj(wh.write_file_name);
+        set_as_tmp_obj = true;
     else
         obj.tmp_file_holder_ = [];
         obj.full_filename = sqw_ldr.full_filename;
@@ -71,3 +72,7 @@ else
 end
 %
 obj.pix = pix.init(sqw_ldr);
+if set_as_tmp_obj % needs to happens after pixels are initialized
+    %
+    obj = obj.set_as_tmp_obj(wh.write_file_name);
+end

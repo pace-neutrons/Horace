@@ -9,6 +9,16 @@ function fh = sqw_fopen(file, permissions)
 % fh          -- handle of the file open for binary access with format
 %                common to Horace sqw file
 % Throws if open operation is unsuccessful
+[fp,fn] = fileparts(file);
+if ~isfolder(fp)
+    [ok,mess] = mkdir(fp);
+    if ~ok
+        error('HERBERT:utilities:runtime_error', ...        
+               ['Folder %s to write file: %s does ' ...
+               'not exist and you can not create it because of: %s'], ...
+               fp,fn,mess);
+    end
+end
 
 fh = fopen(file,permissions,'l','Windows-1252');
 if fh<1

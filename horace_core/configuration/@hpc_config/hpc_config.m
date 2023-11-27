@@ -428,7 +428,7 @@ classdef hpc_config < config_base
         end
 
         function obj = set.phys_mem_available(obj,val)
-            obj = set_phys_mem_available_(obj,val,true);
+            set_phys_mem_available_(obj,val,true);
         end
 
 

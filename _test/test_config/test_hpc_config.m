@@ -8,6 +8,14 @@ classdef test_hpc_config< TestCase
             end
             obj = obj@TestCase(name);
         end
+        function test_get_default_memory_from_config_store(~)
+            config_store.instance().clear_config('hpc_config');
+
+            mem = config_store.instance().get_value('hpc_config','phys_mem_available');
+            assertFalse(isempty(mem));
+            assertTrue(mem>0);
+
+        end
 
         function test_get_free_memory_from_empty(~)
 
