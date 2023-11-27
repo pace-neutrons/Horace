@@ -98,7 +98,7 @@ classdef pix_write_handle < handle
 
         function save_data(obj,data,start_pos)
             % write block of pixels at the specified location within the
-            % binary sqw file. 
+            % binary sqw file.
             % Inputs:
             % Inputs:
             % obj   -- instance of pix_write_handle initialized using
@@ -174,7 +174,7 @@ classdef pix_write_handle < handle
         end
         %==================================================================
         function is = get.is_tmp_file(obj)
-            if isemtpy(obj.is_tmp_file_)
+            if isempty(obj.is_tmp_file_)
                 [~,~,fe] = fileparts(obj.write_file_name);
                 is = strncmp(fe,'.tmp',4);
             else

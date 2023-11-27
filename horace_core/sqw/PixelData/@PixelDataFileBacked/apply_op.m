@@ -71,21 +71,7 @@ if ll > 0
     fprintf('*** Completed %s using %d pages in %d sec.\n', ...
         op_name,n_chunks,te);
     if page_op.inform_about_target_file
-        if numel(obj_out) > 1
-            fprintf(['*** %d resulting objects are backed by files:\n' ...
-                '*** first: %s,\n*** last : %s\n'], ...
-                numel(obj_out), ...
-                obj_out(1).pix.full_filename, ...
-                obj_out(end).pix.full_filename)
-        else
-            if isa(obj_out,'sqw')
-                out_file_name = obj_out.pix.full_filename;
-            else
-                out_file_name = obj_out.full_filename;
-            end
-            fprintf('*** Resulting object is backed by file: %s\n', ...
-                out_file_name)
-        end
+        page_op.report_operation_completed(obj_out);
     end
 end
 if issue_range_warning

@@ -21,7 +21,7 @@ classdef PageOp_split_sqw < PageOpBase
         runid_map_;
         % numbers of objects contributing to current page
         n_obj_contrib_to_page_;
-        % array containing true if run descriped in experiment contributes
+        % array containing true if run described in experiment contributes
         % to pixels and false if it does not
         run_contributes_;
         % true, if the images also can not fit memory and need to be made
@@ -60,7 +60,7 @@ classdef PageOp_split_sqw < PageOpBase
             % memory.
             obj.img_ = [];
             % prepare target sqw objects to split source into
-            obj = obj.prepare_split_sqw(in_sqw,pix_filebacked,false,img_filebacked);
+            obj = obj.prepare_split_sqw(in_sqw,pix_filebacked,img_filebacked);
             % initialize target pix ranges for evaluation
             n_objects = numel(obj.out_img);
             obj.obj_pix_ranges = arrayfun(@(nobj)PixelDataBase.EMPTY_RANGE, ...
@@ -138,7 +138,7 @@ classdef PageOp_split_sqw < PageOpBase
 
             for i=1:n_contr
                 splitobj_num = obj.n_obj_contrib_to_page_(i);
-                % reevaluate pix ranges for every object contributing to
+                % re-evaluate pix ranges for every object contributing to
                 % page
                 pix_obj_data = obj.out_pix{splitobj_num};
                 obj.obj_pix_ranges{splitobj_num} = ...
@@ -151,7 +151,7 @@ classdef PageOp_split_sqw < PageOpBase
                 % if image is filabacked, also store recalculated piece of
                 % image
                 if obj.img_filebacked_
-                    obj.write_handles{splitobj_num}.save_img_chunk([], ...
+                    obj.write_handles{splitobj_num}.save_img_chunk(...
                         obj.out_img{splitobj_num});
                 end
             end
@@ -174,7 +174,7 @@ classdef PageOp_split_sqw < PageOpBase
             obj.obj_pix_ranges= obj.obj_pix_ranges(obj.run_contributes_);
 
             % explicitly delete unused handles and non-contributing files
-            % here, as  otherwise the deleteon will be delayed to random
+            % here, as  otherwise the deletion will be delayed to random
             % moment in time and tests may found unnecessary files.
             cellfun(@wh_delete_,obj.write_handles);
 
@@ -196,8 +196,8 @@ classdef PageOp_split_sqw < PageOpBase
                     obj.var_acc_      = split_img.e;
                     obj.img_          = obj.out_sqw{i}.data;
                 end
-                obj.write_handle_ = obj.write_handles{i};
-                obj.pix_          = obj.out_sqw{i}.pix;
+                obj.write_handle_   = obj.write_handles{i};
+                obj.pix_            = obj.out_sqw{i}.pix;
                 obj.pix_data_range_ = obj.obj_pix_ranges{i};
                 % finalize result as with single object and store result
                 % in the output array of objects.
@@ -240,20 +240,33 @@ classdef PageOp_split_sqw < PageOpBase
             out_split_sqw.data = [];% this will force dump not to write updated
             obj.img_           = [];% image as the image have been already
             % updated
-            obj.is_tmp_file  = false;
+            obj.write_handle_.is_tmp_file  = false;
             out_split_sqw    = out_split_sqw.finish_dump(obj);
             out_file = out_split_sqw.full_filename;
 
             obj.pix_  = PixelDataMemory();
             obj.npix_ = [];
             obj.write_handle_ = [];
-            obj.is_tmp_file   = [];
         end
+        function report_operation_completed(obj,out_obj)
+            % print information about result of pageOp
+            % Inputs:
+            % obj        -- initialized pageOp
+            % output_obj -- the object or array of objects produced by pageOp
+            if iscellstr(out_obj)
+                fprintf(['*** %d resulting objects are stored in files:\n' ...
+                    '*** first: %s,\n*** last : %s\n'], ...
+                    numel(out_obj), out_obj{1}, out_obj{end})
+            else
+                report_operation_completed@PageOpBase(obj,out_obj);
+            end
+        end
+
 
         function obj = prepare_split_sqw(obj,in_sqw,pix_filebacked,img_filebacked)
             % prepare list of sqw objects to split source object into.
             % Inputs:
-            % in_sqw   -- initial sqw object to split into contributiong
+            % in_sqw   -- initial sqw object to split into contributing
             %             sqw objects
             % pix_filebacked
             %          -- if true, output sqw objects have to be filebacked
@@ -282,7 +295,15 @@ classdef PageOp_split_sqw < PageOpBase
                 % 1D image with 3 accumulators for calculating image
                 data = struct('s',zeros(n_bins,1),'e',zeros(n_bins,1),'npix',zeros(n_bins,1));
             end
+
             [~,file_in]   = fileparts(in_sqw.data.filename);
+            if img_filebacked && isempty(obj.outfile)
+                obj.outfile = config_store.instance().get_value( ...
+                    'parallel_config','working_directory');
+            end
+            % for split_sqw we specify folder, not file to store.
+            out_folder = obj.outfile;
+
             for i = 1:n_runs
                 % these objects contain the same copy of image, so
                 % would not allocate additional memory for it.
@@ -291,8 +312,9 @@ classdef PageOp_split_sqw < PageOpBase
 
                 run_id         = obj_i.experiment_info.expdata(1).run_id;
                 split_filename = sprintf('%s_runID%07d.sqw',file_in,run_id );
+
                 if ~isempty(obj.outfile)
-                    targ_file           = fullfile(obj.outfile,split_filename);
+                    targ_file           = fullfile(out_folder,split_filename);
                     obj_i.full_filename = targ_file;
                 else
                     targ_file           = '';
@@ -316,7 +338,7 @@ classdef PageOp_split_sqw < PageOpBase
             % is_exp_modified controls calculations of unique runid-s
             % during page_op.
             %
-            % Here we calculate unique run_id differntly, so always false
+            % Here we calculate unique run_id differently, so always false
             is = false;
         end
 

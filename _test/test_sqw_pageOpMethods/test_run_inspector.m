@@ -5,7 +5,7 @@ classdef test_run_inspector< TestCase
 
     properties
         this_dir;
-        sqw_source = 'common_data/sqw_4d.sqw'
+        sqw_source = 'sqw_4d.sqw'
 
         source_sqw4D;
         source_sqw2D;
@@ -18,14 +18,12 @@ classdef test_run_inspector< TestCase
                 name = 'test_run_inspector';
             end
             obj=obj@TestCase(name);
+            hpc = horace_paths;
             obj.this_dir = fileparts(mfilename('fullpath'));
-            [fp,fn,fe] = fileparts(obj.sqw_source);
-            source_data = fullfile(fileparts(obj.this_dir),fp,[fn,fe]);
-            obj.sqw_source   = source_data;
-            obj.source_sqw4D = read_sqw(source_data);
+            obj.sqw_source   = fullfile(hpc.test_common,obj.sqw_source);
+            obj.source_sqw4D = read_sqw(obj.sqw_source);
             obj.source_sqw2D = cut(obj.source_sqw4D,[-0.2,0.2],[-0.2,0.2],[],[]);
             obj.source_sqw1D = cut(obj.source_sqw4D,[-0.2,0.2],[-0.2,0.2],[-0.2,0.2],[]);
-
         end
         % tests
         function test_run_inspector_2D(obj)

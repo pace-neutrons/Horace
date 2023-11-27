@@ -340,6 +340,13 @@ classdef PageOpBase
             %                because it has been realigned
             print_range_warning_(obj,infile_name,is_old_file_format);
         end
+        function report_operation_completed(obj,output_obj)
+            % print information about result of pageOp
+            % Inputs:
+            % obj        -- initialized pageOp
+            % output_obj -- the object or array of objects produced by pageOp
+            report_op_completed_(obj,output_obj);
+        end
     end
     %======================================================================
     % properties setters/getters
