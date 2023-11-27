@@ -156,27 +156,6 @@ classdef PageOp_split_sqw < PageOpBase
                 end
             end
         end
-        function [out_file,obj] = finalize_fb_obj(obj,in_sqw)
-            % special overload used for filebacked operations only when
-            % source data are located in file and target data are locate in
-            % file.
-            % Input:
-            % obj      -- initialized instance of this pageOp, containing
-            %             the following fields:
-            %    obj.write_handle_ = the write_handle class used for
-            %                        writing data in target split file
-            %    obj.pix_          = Empty instance of filebacked pixels to
-            %                        be initialized
-            %    obj.pix_data_range_= obj.obj_pix_ranges{i};
-            %
-            %
-            % in_sqw   -- template for target filebacked object which would
-            %             be finalized and deleted leaving file, pointint
-            %             to it.
-            % Returns:
-            % out_file -- the name of the file, containing target sqw
-            %             object
-        end
 
         function [out_obj,obj] = finish_op(obj,varargin)
             % Finalize page operations. Specific to split_sqw as the result
@@ -186,7 +165,8 @@ classdef PageOp_split_sqw < PageOpBase
             % obj     -- instance of the page operations
             %
             % Returns:
-            % out_obj -- array of output objects
+            % out_obj -- array of output objects or cellarray of output
+            %            files
             % obj     -- nullified PageOp object.
 
             obj.out_img       = obj.out_img(obj.run_contributes_);
@@ -232,6 +212,44 @@ classdef PageOp_split_sqw < PageOpBase
     end
     % Class specific methods
     methods
+        function [out_file,obj] = finalize_fb_obj(obj,in_sqw)
+            % special overload used for filebacked operations only when
+            % source data are located in file and target data are locate in
+            % file because array of resulting filebacked objects does not
+            % fit memory.
+            % Input:
+            % obj      -- initialized instance of this pageOp, containing
+            %             the following fields:
+            %    obj.write_handle_ = the write_handle class used for
+            %                        writing data in target split file
+            %    obj.pix_          = Empty instance of filebacked pixels to
+            %                        be initialized
+            %    obj.pix_data_range_= obj.obj_pix_ranges{i};
+            %
+            %
+            % in_sqw   -- template for target filebacked object which would
+            %             be finalized and deleted leaving file, pointint
+            %             to it.
+            % Returns:
+            % out_file -- the name of the file, containing target sqw
+            %             object
+            pix   = obj.pix_;
+            pix   = pix.set_data_range(obj.pix_data_range_);
+            out_split_sqw      = in_sqw.copy();
+            out_split_sqw.pix  = pix;
+            out_split_sqw.data = [];% this will force dump not to write updated
+            obj.img_           = [];% image as the image have been already
+            % updated
+            obj.is_tmp_file  = false;
+            out_split_sqw    = out_split_sqw.finish_dump(obj);
+            out_file = out_split_sqw.full_filename;
+
+            obj.pix_  = PixelDataMemory();
+            obj.npix_ = [];
+            obj.write_handle_ = [];
+            obj.is_tmp_file   = [];
+        end
+
         function obj = prepare_split_sqw(obj,in_sqw,pix_filebacked,img_filebacked)
             % prepare list of sqw objects to split source object into.
             % Inputs:

@@ -2,8 +2,8 @@ classdef pix_write_handle < handle
     %PIX_WRITE_HANDLE wraps different kinds of write access handles for
     % writing pixels and provides common interface for writing pixels.
     %
-    % as pixels are closely related to image, the class also contains 
-    % methods to update image or part of the inage, which was modified while 
+    % as pixels are closely related to image, the class also contains
+    % methods to update image or part of the inage, which was modified while
     % modifyng pixels.
     %
     % In addition, it closes accessor handle on class deletion, and may
@@ -18,7 +18,9 @@ classdef pix_write_handle < handle
     end
     properties(Dependent)
         npix_written;
-        % true, if file has extension tmp
+        % true, if file has extension tmp or has been set to be
+        % true or false explicitly. tmp files deleted when the object
+        % holding these files goes out of scope
         is_tmp_file
         %
         write_handle;
@@ -30,11 +32,13 @@ classdef pix_write_handle < handle
 
         % initial shift of components of image (s,e,npix) from their
         % physical position on file expressed in number of bins (image
-        % pixels) used by save_img_chunk if run in a cycle without providing 
+        % pixels) used by save_img_chunk if run in a cycle without providing
         % the position where to write modified image chunk
         img_start_post_ = 0
 
         delete_target_file_ = true;
+
+        is_tmp_file_ = [];
     end
 
     methods
@@ -72,9 +76,9 @@ classdef pix_write_handle < handle
             % img_struc
             %       -- the structure containing 3 fields of modified image
             %          (s,e, npix) to write
-            % start_pos 
+            % start_pos
             %       -- the position within existing image
-            % 
+            %
             if ~obj.handle_is_class_
                 error('HORACE:pix_write_handle:not_implemented', ...
                     ['writing image using direct IO operations is not yet implemented.' ...
@@ -146,6 +150,7 @@ classdef pix_write_handle < handle
             % deleteon of this class.
             obj.delete_target_file_ = false;
         end
+        %
         function delete(obj)
             obj = obj.close_handles();
             % in case of errors in operations, delete intermediate/incomplete
@@ -156,8 +161,15 @@ classdef pix_write_handle < handle
         end
         %==================================================================
         function is = get.is_tmp_file(obj)
-            [~,~,fe] = fileparts(obj.write_file_name);
-            is = strncmp(fe,'.tmp',4);
+            if isemtpy(obj.is_tmp_file_)
+                [~,~,fe] = fileparts(obj.write_file_name);
+                is = strncmp(fe,'.tmp',4);
+            else
+                is = obj.is_tmp_file_;
+            end
+        end
+        function set.is_tmp_file(obj,val)
+            obj.is_tmp_file_ = logical(val);
         end
         function np = get.npix_written(obj)
             np = obj.npix_written_;

@@ -196,6 +196,19 @@ classdef PageOpBase
             % See split procedure for more details
             if obj.split_at_bin_edges_
                 [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
+                chunk_sizes = cellfun(@(ch)sum(ch),npix_chunks);
+                [mchs,fb] = config_store.instance().get_value( ...
+                    'hor_config','mem_chunk_size','fb_scale_factor');
+                mb_max = mchs*fb;
+                if any(chunk_sizes>mb_max)
+                    warning('HORACE:runtime_error', ...
+                        ['*** The algorithm %s request input sqw object to be split on bin boundaries.\n' ...
+                        '*** Unfortunately input object contans bins that are so large,\n' ...
+                        '*** that even one bin may not fit to memory. ' ...
+                        '*** This algorithm will probably fail trying to process such bins.\n' ...
+                        '*** Rebin input sqw object to smaller grid to be able to use this algorithm\n'], ...
+                        obj.op_name);
+                end
             else
                 [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
             end
@@ -231,15 +244,15 @@ classdef PageOpBase
             % Returns:
             % obj   -- modified PageOp class, containing:
             %      a)  updated pix_data_range_ field, containing pixel data
-            %          range (min/max values ) caclulated accounting for 
+            %          range (min/max values ) caclulated accounting for
             %          recent page data
-            %      b)  if exp_modified property of PageOp is true, 
+            %      b)  if exp_modified property of PageOp is true,
             %          modified unique_run_id_ field, updated with uniqie
             %          run-id-s contained in current data page
-            %      c)  modified pix_ fileld modified with considering 
-            %          changes, done by apply_op method. 
+            %      c)  modified pix_ fileld modified with considering
+            %          changes, done by apply_op method.
             %          Depending on pix_ location, it can be source pixel
-            %          data, moved to new 
+            %          data, moved to new
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
             if obj.exp_modified
@@ -479,7 +492,7 @@ classdef PageOpBase
         end
 
         function do = get_do_missing_range_warning(obj)
-            % warning should be issued for 
+            % warning should be issued for
             do  = ~isempty(obj.img_);
         end
 
