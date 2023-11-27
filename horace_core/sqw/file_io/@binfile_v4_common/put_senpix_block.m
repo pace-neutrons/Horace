@@ -50,5 +50,5 @@ fwrite(obj.file_id_,double(img_block.e(:)),'double');
 obj.check_write_error(obj.file_id_,'error');
 
 obj.move_to_position(obj.file_id_,npix_pos);
-fwrite(obj.file_id_,double(img_block.npix(:)),'uint64');
+fwrite(obj.file_id_,uint64(img_block.npix(:)),'uint64');
 obj.check_write_error(obj.file_id_,'npix');

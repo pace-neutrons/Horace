@@ -39,7 +39,31 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
         %------------------------------------------------------------------
         % tests
         function test_put_senpix_block(obj)
+            source = obj.sample_file;
+            sample  = fullfile(tmp_dir,'faccess_dnd_v4_ff_write_sen.sqw');
+            copyfile(source,sample,'f');
+            clOb = onCleanup(@()delete(sample));
 
+            ldr = sqw_formats_factory.instance().get_loader(sample);
+            ldr = ldr.upgrade_file_format();
+
+            dat = ldr.get_dnd();
+            test_changes = rand([1,10]);
+
+            img_bl = struct('s',test_changes,'e',test_changes,'npix',test_changes);
+            ldr = ldr.put_senpix_block(img_bl,10);
+            ldr.delete();
+
+            ldr = sqw_formats_factory.instance().get_loader(sample);
+            mod_dat = ldr.get_dnd();
+            ldr.delete(); % clear loader to be able delete sample file on
+            % exit
+
+            dat.s(11:20)    = test_changes;
+            dat.e(11:20)    = test_changes;
+            dat.npix(11:20) = uint64(test_changes);
+
+            assertEqual(mod_dat,dat);
 
         end
         function test_set_file_to_update_fails_on_sqw(obj)
