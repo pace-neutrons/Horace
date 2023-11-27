@@ -77,7 +77,11 @@ classdef pix_write_handle < handle
             %       -- the structure containing 3 fields of modified image
             %          (s,e, npix) to write
             % start_pos
-            %       -- the position within existing image
+            %       -- the position within existing image where to start
+            %          writing the image chunk. If absent, uses internal
+            %          value of the position, which is 0 initially, but
+            %          modified by number of written bins each time the
+            %          method get called.
             %
             if ~obj.handle_is_class_
                 error('HORACE:pix_write_handle:not_implemented', ...
@@ -88,10 +92,19 @@ classdef pix_write_handle < handle
                 start_pos = obj.img_start_post_;
             end
 
+            obj.write_handle_.put_senpix_block(img_struc,start_pos);
+            obj.img_start_post_ = start_pos + numel(img_struc.npix);
         end
 
         function save_data(obj,data,start_pos)
-            % write block of pixels
+            % write block of pixels at the specified location within the
+            % binary sqw file. 
+            % Inputs:
+            % Inputs:
+            % obj   -- instance of pix_write_handle initialized using
+            %          faccessor class or Matlab fopen operation
+            % data  -- chunk of pixel data -- PixelDataBase.
+
             if nargin <3
                 start_pos = obj.npix_written_+1;
             end

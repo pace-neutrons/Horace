@@ -38,6 +38,10 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
         end
         %------------------------------------------------------------------
         % tests
+        function test_put_senpix_block(obj)
+
+
+        end
         function test_set_file_to_update_fails_on_sqw(obj)
             source = fullfile(obj.sample_dir,'w1d_sqw.sqw');
 
