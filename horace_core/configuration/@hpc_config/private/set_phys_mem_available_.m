@@ -3,16 +3,15 @@ function mem = set_phys_mem_available_(obj,mem,warn_on_settings)
 %available in configuration for further usage
 %
 % Inputs:
-% val              -- the assumed physical memory value available for
+% mem              -- the assumed physical memory value available for
 %                     application. Expressed in bytes.
 %                     Empty value causes memory recalculation. 
 %
 % warn_on_settings -- if true, warn user that he is setting some value
-%                     of memory which may be incorrect
+%                     of memory which may be incorrect.
 % Returns
-% obj              -- instance of hpc_config object used as gateway to
-%                     change the phys_mem_available property value in
-%                     config_store.
+% mem              -- value of physical memory stored in config_store.
+%                     
 %
 
 if isempty(mem)
@@ -30,7 +29,7 @@ def_size = mchs*fbs*opt_config_manager.DEFAULT_PIX_SIZE;
 if mem<def_size
     warning('HORACE:insufficient_physical_memory', ...
         ['Estimated physical memory (%dMB) is smaller then size of default memory-based sqw object (%dMB)\n' ...
-        'The default mem-based object size defineded as production of hor_config: mem_chunk_size (%d) and fb_scale_factor (%d) converted in MB'], ...
+        'The default mem-based object size defined as the product of hor_config: mem_chunk_size (%d) and fb_scale_factor (%d) converted in MB'], ...
         floor(mem/(1024*1024)),floor(def_size/(1024*1024)), ...
         mchs,fbs)
 end

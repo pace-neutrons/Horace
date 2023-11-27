@@ -13,7 +13,7 @@ function wout = split(w,varargin)
 %                sqw files representing parts of the sqw file to split.
 %                If absent the files will be placed in working directory.
 %
-%                If operation perfomed in memory only, this path is ignored.
+%                If operation performed in memory only, this path is ignored.
 %                If this folder is provided, the resulting files are
 %                assumed permanent files, so are not getting deleted when
 %                their correspondent sqw objects are getting deleted from
@@ -82,9 +82,10 @@ if nfiles == 1
 end
 
 %
-% Evaluate the size of the resulting split to know what subalgorithm to use
-%
-split_img_size = 3*numel(w.data.s)*8; % size of resulting split image
+% Evaluate the size of the resulting split to know what sub algorithm to use
+% Now and in foreseeable future, our image contains 3 double precision arrays
+% so conversion to bytes would be 3x8x(number of array elements)
+split_img_size = 3*numel(w.data.s)*8; % size of resulting split image in Bytes
 
 % set keep_precision to true as filebacked operations here will be
 % performed without change in precision.

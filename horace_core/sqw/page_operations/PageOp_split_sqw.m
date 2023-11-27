@@ -21,7 +21,7 @@ classdef PageOp_split_sqw < PageOpBase
         runid_map_;
         % numbers of objects contributing to current page
         n_obj_contrib_to_page_;
-        % array containing true if run descriped in experiment contributes
+        % array containing true if run described in experiment contributes
         % to pixels and false if it does not
         run_contributes_;
     end
@@ -113,7 +113,7 @@ classdef PageOp_split_sqw < PageOpBase
 
             for i=1:n_contr
                 splitobj_num = obj.n_obj_contrib_to_page_(i);
-                % reevaluate pix ranges for every object contributing to
+                % re-evaluate pix ranges for every object contributing to
                 % page
                 pix_obj_data = obj.out_pix{splitobj_num};
                 obj.obj_pix_ranges{splitobj_num} = ...
@@ -141,7 +141,7 @@ classdef PageOp_split_sqw < PageOpBase
             obj.obj_pix_ranges= obj.obj_pix_ranges(obj.run_contributes_);
 
             % explicitly delete unused handles and non-contributing files
-            % here, as  otherwise the deleteon will be delayed to random
+            % here, as  otherwise the deletion will be delayed to random
             % moment in time and tests may found unnecessary files.
             cellfun(@wh_delete_,obj.write_handles);
 
@@ -172,7 +172,7 @@ classdef PageOp_split_sqw < PageOpBase
         function obj = prepare_split_sqw(obj,in_sqw,pix_filebacked)
             % prepare list of sqw objects to split source object into.
             % Inputs:
-            % in_sqw   -- initial sqw object to split into contributiong
+            % in_sqw   -- initial sqw object to split into contributing
             %             sqw objects
             % pix_filebacked
             %          -- if true, output sqw objects have to be filebacked
@@ -227,7 +227,7 @@ classdef PageOp_split_sqw < PageOpBase
             % is_exp_modified controls calculations of unique runid-s
             % during page_op.
             %
-            % Here we calculate unique run_id differntly, so always false
+            % Here we calculate unique run_id differently, so always false
             is = false;
         end
 
