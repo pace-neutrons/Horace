@@ -24,6 +24,36 @@ classdef test_split< TestCase
 
         end
 
+        function test_split_all_filebacked(obj)
+            n_pix = obj.source_sqw4D.npixels;
+            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',n_pix/3);
+            source = sqw(obj.sqw_source,'file_backed',true);
+            assertTrue(source.is_filebacked);
+
+            w_splf = split(source,'-files');
+
+            assertEqual(numel(w_splf),23);
+
+
+            for i=1:numel(w_splf)
+                assertTrue(isfile(w_splf{i}));
+            end
+
+            % check that filebacked objects are temporary objects in this
+            % case
+            files = cell(1,numel(w_splf));
+            for i=1:numel(files)
+                files{i} = w_splf(i).pix.full_filename;
+                assertTrue(is_file(files{i}));
+            end
+            clear('w_splf');
+            for i=1:numel(files)
+                assertFalse(is_file(files{i}));
+            end
+        end
+
+        
+
         function test_split_pix_filebacked_permanent_res(obj)
             n_pix = obj.source_sqw4D.npixels;
 
