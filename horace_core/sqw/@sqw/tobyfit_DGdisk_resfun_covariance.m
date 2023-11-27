@@ -44,13 +44,15 @@ function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, 
 
 % Get lookup arrays
 % -----------------
-
-all_pixels = ~exist('indx','var');
-if all_pixels
-    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win);
-else
+if exist('indx','var')
+    all_pixels = false;
     [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win, indx);
+else
+    all_pixels = true;
+    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win);
 end
+if ~ok, error(mess), end
+
 
 % Get variances
 % -------------
@@ -68,6 +70,10 @@ horiz_div_table = lookup.horiz_div_table;
 vert_div_table = lookup.vert_div_table;
 sample_table = lookup.sample_table;
 detector_table = lookup.detector_table;
+
+% Constants
+k_to_v = lookup.k_to_v;
+k_to_e = lookup.k_to_e;
 
 
 % Get covariance matricies
@@ -87,24 +93,26 @@ for iw = 1:numel(win)
     npix = npix_arr(iw);
 
     % Simple pointers to items in lookup
+    xa = lookup.xa{iw};
+    x1 = lookup.x1{iw};
+    ki = lookup.ki{iw};
     kf = lookup.kf{iw};
+    s_mat = lookup.s_mat{iw};
+    spec_to_rlu = lookup.spec_to_rlu{iw};
     dt = lookup.dt{iw};
 
+    [x2, ~, d_mat, f_mat] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
+    dq_mat = dq_matrix_DGdisk (ki(irun), kf,...
+        xa(irun), x1(irun), x2,...
+        s_mat(:,:,irun), f_mat, d_mat,...
+        spec_to_rlu(:,:,irun), k_to_v, k_to_e);
+    
     % Compute variances
     cov_sh_ch = 1e-12 * mod_shape_mono_table.func_eval_ind(iw, irun, @covariance);
     var_horiz_div = (horiz_div_table.func_eval_ind(iw, irun, @profile_width)).^2;
     var_vert_div = (vert_div_table.func_eval_ind(iw, irun, @profile_width)).^2;
     cov_sample = sample_table.func_eval_ind(iw, irun, @covariance);
-    % The following calculation of cov_detector will benefit from the generalised
-    % func_eval_ind to be implemented. In the the meantime, just expose the loop
-    % that will eventually be inside func_eval_ind [TGP 19 July 2023]. The loop
-    % is very inefficient in general if the number of pixels at which to
-    % calculate is large.
-    cov_detector = NaN(3,3,npix);
-    for i=1:npix
-        cov_detector(:,:,i) = detector_table.func_eval_ind(iw, irun(i), ...
-            @covariance, idet(i), kf(i));
-    end
+    cov_detector = detector_table.func_eval_ind (iw, irun, idet, 'split', @covariance, kf);
     var_tbin = dt.^2 / 12;
 
     % Fill covariance matrix
@@ -117,17 +125,14 @@ for iw = 1:numel(win)
     cov_x(11,11,:) = var_tbin;
 
     % Compute wavevector-energy covariance matrix in different dimensions
-    dq_mat = lookup.dq_mat{iw};
-    spec_to_rlu = lookup.spec_to_rlu{iw};
-
-    cov_hkle{iw} = transform_matrix (cov_x, dq_mat);
-    %TODO: Re #1040 this code is not consistent with generic projection:
+    %TODO: Re #1040 this code is not consistent with generic projections
     if ~isa(wtmp.data.proj,'line_proj')
         error('HORACE:sqw:not_implemented', ...
-            'resolution can not currently be calculated for any projection except linear projection')
-    end    
+            'resolution cannot currently be calculated for any projection except linear projection')
+    end
+    
+    cov_hkle{iw} = transform_matrix (cov_x, dq_mat);
     cov_proj{iw} = transform_matrix (cov_hkle{iw}, inv(wtmp.data.u_to_rlu));
-
     rlu_to_spec = invert_matrix (spec_to_rlu);
     rlu_to_spec4(1:3,1:3,:) = rlu_to_spec(:,:,irun);
     rlu_to_spec4(4,4,:) = 1;
@@ -151,7 +156,7 @@ function Cout = transform_matrix (C,B)
 szC = size(C);
 szB = size(B);
 if numel(szC)==2 && numel(szB)==2
-    % Just do straightforward MATLAB matric multiplication
+    % Just do straightforward Matlab matrix multiplication
     Cout = B * C * B';
 else
     if numel(szB)==2
