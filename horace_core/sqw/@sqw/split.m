@@ -86,7 +86,7 @@ end
 %
 split_img_size = 3*numel(w.data.s)*8; % size of resulting split image
 
-% set keep_precision to false as filebacked operations here will be
+% set keep_precision to true as filebacked operations here will be
 % performed without change in precision.
 w.pix.keep_precision = true;
 split_pix_size = w.pix.num_pixels*w.pix.pix_byte_size;
