@@ -28,8 +28,10 @@ classdef pix_write_handle < handle
         handle_is_class_ = false;
         write_handle_ = [];
 
-        % initial shifts of 3 components of image (s,e,npix) from their
-        % physical position on file expressed in number of 
+        % initial shift of components of image (s,e,npix) from their
+        % physical position on file expressed in number of bins (image
+        % pixels) used by save_img_chunk if run in a cycle without providing 
+        % the position where to write modified image chunk
         img_start_post_ = 0
 
         delete_target_file_ = true;
@@ -60,8 +62,32 @@ classdef pix_write_handle < handle
 
             obj.npix_written_ = 0;
         end
+        function save_img_chunk(obj,img_struc,start_pos)
+            % store part of image changed due to modifications in pixels
+            % within specified location in the image already stored on disk.
+            %
+            % Inputs:
+            % obj   -- instance of pix_write_handle initialized using
+            %          faccessor class
+            % img_struc
+            %       -- the structure containing 3 fields of modified image
+            %          (s,e, npix) to write
+            % start_pos 
+            %       -- the position within existing image
+            % 
+            if ~obj.handle_is_class_
+                error('HORACE:pix_write_handle:not_implemented', ...
+                    ['writing image using direct IO operations is not yet implemented.' ...
+                    ' Use faccess_*** classes to modify image'])
+            end
+            if nargin < 3
+                start_pos = obj.img_start_post_;
+            end
+
+        end
 
         function save_data(obj,data,start_pos)
+            % write block of pixels
             if nargin <3
                 start_pos = obj.npix_written_+1;
             end

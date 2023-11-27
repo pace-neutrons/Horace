@@ -151,7 +151,7 @@ classdef PageOp_split_sqw < PageOpBase
                 % if image is filabacked, also store recalculated piece of
                 % image
                 if obj.img_filebacked_
-                    obj.write_handles{splitobj_num}.save_img_block([], ...
+                    obj.write_handles{splitobj_num}.save_img_chunk([], ...
                         obj.out_img{splitobj_num});
                 end
             end
