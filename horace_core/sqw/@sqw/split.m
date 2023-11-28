@@ -102,7 +102,7 @@ pix_filebacked = false;
 img_filebacked  = false;
 if total_size > mem_available || split_filebacked || return_files % two later are probably for tests
     pix_filebacked = true;
-    img_filebacked  = split_img_size*nfiles<mem_available || return_files;
+    img_filebacked  = split_img_size*nfiles>mem_available || return_files;
 end
 page_op.outfile = folder_for_parts;
 page_op = page_op.init(w,pix_filebacked,img_filebacked);
