@@ -241,10 +241,11 @@ classdef test_split< TestCase
             assertFalse(tc.results_are_tmp_files)
             hc = hor_config;
             wk_dir = hc.working_directory;
+            wk_dir = regexprep(wk_dir,'[/\\]+$','');
 
             file = tc.targ_files_list(101);
             [fp,fn,fe] = fileparts(file);
-            assertEqual(fp,wk_dir)
+            assertEqual(fp,wk_dir) %
             assertEqual(fn,'My_sqw_file_runID0000101')
             assertTrue(strcmp(fe,'.sqw'));
         end
@@ -269,10 +270,11 @@ classdef test_split< TestCase
 
             hc = hor_config;
             wk_dir = hc.working_directory;
+            wk_dir = regexprep(wk_dir,'[/\\]+$','');
             assertTrue(tc.results_are_tmp_files)
             file = tc.targ_files_list(101);
             [fp,fn,fe] = fileparts(file);
-            assertEqual(fp,wk_dir)
+            assertEqual(fp,wk_dir) %
             assertEqual(fn,'My_sqw_file_runID0000101')
             assertTrue(strncmp(fe,'.tmp_',5));
         end
@@ -283,9 +285,10 @@ classdef test_split< TestCase
 
             hc = hor_config;
             wk_dir = hc.working_directory;
+            wk_dir = regexprep(wk_dir,'[/\\]+$','');
             assertTrue(tc.results_are_tmp_files)
             file = tc.targ_files_list(101);
-            [fp,fn,fe] = fileparts(file);
+            [fp,fn,fe] = fileparts(file); %
             assertEqual(fp,wk_dir)
             assertEqual(fn,'My_sqw_file_runID0000101')
             assertTrue(strncmp(fe,'.tmp',4));
