@@ -13,13 +13,13 @@ function wout = split(w,varargin)
 %                sqw files representing parts of the sqw file to split.
 %               - If variable absent the files will be placed in working
 %                 directory.
-%               - If operation perfomed in memory only, this path is ignored.
+%               - If operation performed in memory only, this path is ignored.
 %               - If this folder is provided, the resulting files are
 %                 assumed permanent files, so are not getting deleted when
 %                 their correspondent sqw objects are getting deleted from
 %                 memory.
 % Optional keys:
-%  '-files'  -- if provided, return list of sqw files instead of sqw
+%  '-files'  -- if provided, returns list of sqw files instead of sqw
 %               objects. When split objects do not fit memory, they are all
 %               stored in files and split returns list of the files.
 %               When '-files' option is provided the split returns files

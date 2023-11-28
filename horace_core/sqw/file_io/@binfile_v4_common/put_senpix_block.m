@@ -3,14 +3,19 @@ function  obj = put_senpix_block(obj,img_block,pos)
 % replacing all or part of current image data.
 %
 % Inputs:
-% obj       -- initialized instance of faccess_v4 object.
-% img_block -- structure containing s,e,npix fields with information for
-%              full or part of sqw or dnd image to write in the file.
-%              The number of elements in these three arrays should be the
-%              same to represent valid image.
+% obj       -- initialized for write access instance of faccess_v4 object.
+% img_block -- structure containing s,e,npix fields containing arrays of
+%              new sqw or dnd image. The size of arrays should not
+%              exceed the size of existing image data.
 % pos       -- if present, initial position of img_block within the image.
 %              Counts from 0, 0 -- beginning of the image.
-%
+%              The total value of
+%              pos + numel(img_block.s) or
+%              pos + numel(img_block.e) or
+%              pos + numel(img_block.npix)
+%              must not be bigger then the numel of existing s,e,npix image
+%              arrays already written to file.
+
 
 if ~obj.bat_.initialized
     error('HORACE:binfile_v4_common:runtime_error', ...
