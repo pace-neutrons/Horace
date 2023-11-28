@@ -249,20 +249,25 @@ classdef PageOp_split_sqw < PageOpBase
             obj.npix_ = [];
             obj.write_handle_ = [];
         end
-        function report_operation_completed(obj,out_obj)
+        function report_operation_completed(~,out_obj)
             % print information about result of pageOp
             % Inputs:
             % obj        -- initialized pageOp
-            % output_obj -- the object or array of objects produced by pageOp
+            % output_obj -- the array of objects or cellarray of filenames
+            %               produced by pageOp_split_sqw
+            %
             if iscellstr(out_obj)
                 fprintf(['*** %d resulting objects are stored in files:\n' ...
                     '*** first: %s,\n*** last : %s\n'], ...
                     numel(out_obj), out_obj{1}, out_obj{end})
-            else
-                report_operation_completed@PageOpBase(obj,out_obj);
+            else % array of objects
+                fprintf(['*** %d resulting objects are backed by files:\n' ...
+                    '*** first: %s,\n*** last : %s\n'], ...
+                    numel(out_obj), ...
+                    out_obj(1).pix.full_filename, ...
+                    out_obj(end).pix.full_filename)
             end
         end
-
 
         function obj = prepare_split_sqw(obj,in_sqw,pix_filebacked,img_filebacked)
             % prepare list of sqw objects to split source object into.

@@ -344,7 +344,7 @@ classdef PageOpBase
             % print information about result of pageOp
             % Inputs:
             % obj        -- initialized pageOp
-            % output_obj -- the object or array of objects produced by pageOp
+            % output_obj -- the object produced by pageOp
             report_op_completed_(obj,output_obj);
         end
     end
