@@ -304,8 +304,8 @@ classdef PageOp_split_sqw < PageOpBase
             if ~isempty(obj.outfile)
                 obj.results_are_tmp_files_ = false;
             else % output folder is in working directory
-                obj.outfile = config_store.instance().get_value( ...
-                    'parallel_config','working_directory');
+                hc = hor_config;
+                obj.outfile = hc.working_directory;
             end
             if obj.img_filebacked_ && pix_filebacked
                 obj.results_are_tmp_files_ = false;
