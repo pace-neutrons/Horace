@@ -84,7 +84,7 @@ end
 % Evaluate the size of the resulting split to know what subalgorithm to use
 % Now and in foreseeable future, our image contains 3 double precision arrays
 % so conversion to bytes would be 3x8x(number of image array elements)
-split_img_size = 3*numel(w.data.s)*8; % size of resulting split image in Bytes
+split_img_size = 3*numel(w.data.s)*8; % size of resulting split images in Bytes
 if w.pix.is_filebacked && (return_files||split_filebacked)
     % set keep_precision to true as filebacked operations here will be
     % performed without change in precision.
@@ -98,7 +98,7 @@ hpc = hpc_config;
 mem_available = hpc.phys_mem_available;
 
 page_op = PageOp_split_sqw();
-pix_filebacked = false;
+pix_filebacked  = false;
 img_filebacked  = false;
 if total_size > mem_available || split_filebacked || return_files % two later are probably for tests
     pix_filebacked = true;

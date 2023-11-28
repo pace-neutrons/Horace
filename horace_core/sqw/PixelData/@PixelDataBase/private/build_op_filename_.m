@@ -29,15 +29,20 @@ if isempty(target_fn)
 
     filename = build_tmp_file_name(fn_base);
 else
-    [filepath,fn_base] = fileparts(target_fn);
+    [filepath,fn_base,fext] = fileparts(target_fn);
     if isempty(filepath)
         filepath = pwd;
     end
+    fext_is_tmp = strncmp(fext,'.tmp',4);
     % if we want to write to the same file, need to modify file handler to
     % work with tmp file anyway
     if strcmp(original_fn,target_fn)
         move_to_orig = true;
-        filename = build_tmp_file_name(fn_base,filepath);
+        if fext_is_tmp
+            filename = target_fn;
+        else
+            filename = build_tmp_file_name(fn_base,filepath);
+        end
     else
         move_to_orig = false;
         filename     = target_fn;

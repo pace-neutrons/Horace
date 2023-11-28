@@ -27,6 +27,11 @@ classdef PageOp_split_sqw < PageOpBase
         % true, if the images also can not fit memory and need to be made
         % filebacked
         img_filebacked_;
+        % if true, the result of filebacked operation is tmp file to be
+        % deleted when object goes out of scope
+        results_are_tmp_files_ = true;
+        % map of target file names connecting runid->filename
+        targ_files_map_
     end
     methods
         function obj = PageOp_split_sqw(varargin)
@@ -59,13 +64,13 @@ classdef PageOp_split_sqw < PageOpBase
             % we do not need image for this type of operations. Save the
             % memory.
             obj.img_ = [];
+            obj.img_filebacked_ = img_filebacked;
             % prepare target sqw objects to split source into
             obj = obj.prepare_split_sqw(in_sqw,pix_filebacked,img_filebacked);
             % initialize target pix ranges for evaluation
             n_objects = numel(obj.out_img);
             obj.obj_pix_ranges = arrayfun(@(nobj)PixelDataBase.EMPTY_RANGE, ...
                 1:n_objects, 'UniformOutput',false);
-            obj.img_filebacked_ = img_filebacked;
             if img_filebacked
                 % will operate with whole clusters of bins
                 obj.split_at_bin_edges = true;
@@ -100,7 +105,6 @@ classdef PageOp_split_sqw < PageOpBase
                     % calculate chunk of final image
                     [s_ar, e_ar] = compute_bin_data( ...
                         obj_npix,obj_pix(obj.signal_idx,:),obj_pix(obj.var_idx,:));
-
                     this_img.s   =  s_ar(:);
                     this_img.e   =  e_ar(:);
                     this_img.npix= obj_npix(:);
@@ -205,19 +209,52 @@ classdef PageOp_split_sqw < PageOpBase
                 if obj.img_filebacked_
                     [out_obj{i},obj] = obj.finalize_fb_obj(obj.out_sqw{i});
                 else
+                    run_id = obj.out_sqw{i}.experiment_info.expdata(1).run_id;
+                    obj.outfile = obj.targ_files_map_(uint64(run_id));
                     [out_obj(i),obj] = finish_op@PageOpBase(obj,obj.out_sqw{i});
                 end
             end
         end
         %
+        function report_on_target_files(~,out_obj)
+            % Overload prints information about result of pageOp for
+            % specific case of PageOp_split_sqw operation, because only
+            % this operation returns array of objects or cellarray of
+            % strings
+            %
+            % Inputs:
+            % obj        -- initialized pageOp
+            % output_obj -- the array of objects or cellarray of filenames
+            %               produced by pageOp_split_sqw
+            %
+            if iscellstr(out_obj)
+                fprintf(['*** All %d resulting objects are stored in files:\n' ...
+                    '*** first: %s,\n*** last : %s\n'], ...
+                    numel(out_obj), out_obj{1}, out_obj{end})
+            else % array of objects
+                fprintf(['*** All %d resulting objects are backed by files:\n' ...
+                    '*** first: %s,\n*** last : %s\n'], ...
+                    numel(out_obj), ...
+                    out_obj(1).pix.full_filename, ...
+                    out_obj(end).pix.full_filename)
+            end
+        end
     end
-    % Class specific methods
-    methods
+    %======================================================================
+    methods(Access =protected)
+        function is = get_exp_modified(~)
+            % is_exp_modified controls calculations of unique runid-s
+            % during page_op.
+            %
+            % Here we calculate unique run_id differently, so always false
+            is = false;
+        end
+
         function [out_file,obj] = finalize_fb_obj(obj,in_sqw)
             % special overload used for filebacked operations only when
-            % source data are located in file and target data are locate in
-            % file because array of resulting filebacked objects does not
-            % fit memory.
+            % source data are located in file and target data are located in
+            % file because even the array of resulting filebacked objects
+            % does not fit memory.
             % Input:
             % obj      -- initialized instance of this pageOp, containing
             %             the following fields:
@@ -249,26 +286,44 @@ classdef PageOp_split_sqw < PageOpBase
             obj.npix_ = [];
             obj.write_handle_ = [];
         end
-        function report_operation_completed(~,out_obj)
-            % print information about result of pageOp
-            % Inputs:
-            % obj        -- initialized pageOp
-            % output_obj -- the array of objects or cellarray of filenames
-            %               produced by pageOp_split_sqw
+
+        function obj  = gen_target_filenames(obj,file_in,pix_filebacked)
+            % generate target filenames with different extensions
+            % as function of split_sqw input options, namely,
+            % if pixels/image is filebacked, are the files
+            % tmp files and is output folder provided.
             %
-            if iscellstr(out_obj)
-                fprintf(['*** %d resulting objects are stored in files:\n' ...
-                    '*** first: %s,\n*** last : %s\n'], ...
-                    numel(out_obj), out_obj{1}, out_obj{end})
-            else % array of objects
-                fprintf(['*** %d resulting objects are backed by files:\n' ...
-                    '*** first: %s,\n*** last : %s\n'], ...
-                    numel(out_obj), ...
-                    out_obj(1).pix.full_filename, ...
-                    out_obj(end).pix.full_filename)
+            % Depending on the input, the file will be the file,
+            % contstructed from provided filename file_in, suffix
+            % _runID000xxxx where xxxx are the numbers from the run and
+            % and extension ".tmp_yyyyyy"  where yyyy are rundom characters
+            % for filebacked objects or ".sqw" extension if the target file
+            % is the final result sqw file.
+            %
+            obj.results_are_tmp_files_ = true;
+            if ~isempty(obj.outfile)
+                obj.results_are_tmp_files_ = false;
+            else % output folder is in working directory
+                obj.outfile = config_store.instance().get_value( ...
+                    'parallel_config','working_directory');
+            end
+            if obj.img_filebacked_ && pix_filebacked
+                obj.results_are_tmp_files_ = false;
+            end
+            run_ids = obj.runid_map_.keys();
+            obj.targ_files_map_ = containers.Map( ...
+                'KeyType', 'uint64', 'ValueType', 'char');
+            for i = 1:numel(run_ids)
+                filebase = sprintf('%s_runID%07d',file_in,run_ids{i});
+                if obj.results_are_tmp_files_
+                    split_filename = build_tmp_file_name(filebase,obj.outfile);
+                else
+                    split_filename = fullfile(obj.outfile,[filebase,'.sqw']);
+                end
+                obj.targ_files_map_(uint64(run_ids{i})) = split_filename;
             end
         end
-
+        %
         function obj = prepare_split_sqw(obj,in_sqw,pix_filebacked,img_filebacked)
             % prepare list of sqw objects to split source object into.
             % Inputs:
@@ -295,7 +350,7 @@ classdef PageOp_split_sqw < PageOpBase
             n_bins = numel(data.s);
 
             if img_filebacked
-                % 3 to calculate block averages
+                % three empty fields to calculate block averages
                 data = struct('s',[],'e',[],'npix',[]);
             else
                 % 1D image with 3 accumulators for calculating image
@@ -303,32 +358,20 @@ classdef PageOp_split_sqw < PageOpBase
             end
 
             [~,file_in]   = fileparts(in_sqw.data.filename);
-            if img_filebacked && isempty(obj.outfile)
-                obj.outfile = config_store.instance().get_value( ...
-                    'parallel_config','working_directory');
-            end
-            % for split_sqw we specify folder, not file to store.
-            out_folder = obj.outfile;
+            obj  = obj.gen_target_filenames(file_in,pix_filebacked);
 
             for i = 1:n_runs
-                % these objects contain the same copy of image, so
-                % would not allocate additional memory for it.
+                % these objects contain the same copy of image, so copying
+                % it will not allocate additional memory for it.
                 obj_i = in_sqw;
                 obj_i.experiment_info = exp_info.get_subobj(i,'-indexes');
 
                 run_id         = obj_i.experiment_info.expdata(1).run_id;
-                split_filename = sprintf('%s_runID%07d.sqw',file_in,run_id );
-
-                if ~isempty(obj.outfile)
-                    targ_file           = fullfile(out_folder,split_filename);
-                    obj_i.full_filename = targ_file;
-                else
-                    targ_file           = '';
-                end
+                targ_file      = obj.targ_files_map_(uint64(run_id));
 
                 if pix_filebacked
                     obj_i.pix    = PixelDataFileBacked();
-                    obj_i.pix.full_filename = split_filename;
+                    obj_i.pix.full_filename = targ_file;
                 else
                     obj_i.pix    = PixelDataMemory();
                 end
@@ -336,18 +379,11 @@ classdef PageOp_split_sqw < PageOpBase
                 obj.out_img{i}   = data;
 
                 obj.write_handles{i} = obj_i.get_write_handle(targ_file);
+                if ~isempty(obj.write_handles{i})
+                    obj.write_handles{i}.is_tmp_file = obj.results_are_tmp_files_;
+                end
             end
         end
-    end
-    methods(Access =protected)
-        function is = get_exp_modified(~)
-            % is_exp_modified controls calculations of unique runid-s
-            % during page_op.
-            %
-            % Here we calculate unique run_id differently, so always false
-            is = false;
-        end
-
     end
 end
 
