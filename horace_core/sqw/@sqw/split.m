@@ -11,9 +11,9 @@ function wout = split(w,varargin)
 %  folder_for_parts
 %            --  The string contains full path to the folder where to place
 %                sqw files representing parts of the sqw file to split.
-%               - If variable absent the files will be placed in working
+%               - If the variable is absent the files will be placed in working
 %                 directory.
-%               - If operation performed in memory only, this path is ignored.
+%               - If operation is performed in memory only, this path is ignored.
 %               - If this folder is provided, the resulting files are
 %                 assumed permanent files, so are not getting deleted when
 %                 their correspondent sqw objects are getting deleted from
