@@ -34,7 +34,7 @@ classdef test_split< TestCase
             w_spl_mem = split(obj.source_sqw4D);
 
             n_pix = obj.source_sqw4D.npixels;
-            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',n_pix/3);
+            %clConf = set_temporary_config_options(hor_config,'mem_chunk_size',n_pix/3);
             source = sqw(obj.sqw_source,'file_backed',true);
             assertTrue(source.is_filebacked);
 

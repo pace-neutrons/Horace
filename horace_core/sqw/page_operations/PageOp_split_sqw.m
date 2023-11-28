@@ -108,7 +108,8 @@ classdef PageOp_split_sqw < PageOpBase
                     % accumulate non-normalized chunks to finalize them
                     % later
                     [s_ar, e_ar] = compute_bin_data( ...
-                        obj_npix,obj_pix(obj.signal_idx,:),obj_pix(obj.var_idx,:));
+                        obj_npix,obj_pix(obj.signal_idx,:), ...
+                        obj_pix(obj.var_idx,:),true);
 
                     this_img.s(npix_idx(1):npix_idx(2))    = ...
                         this_img.s(npix_idx(1):npix_idx(2)) + s_ar(:);
