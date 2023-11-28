@@ -1,11 +1,13 @@
 function  obj = put_senpix_block(obj,img_block,pos)
-%PUT_SENPIX_BLOCK stores part of image data within the boundaries of
-% current image
+%PUT_SENPIX_BLOCK stores whole input image data or part of image data
+% replacing all or part of current image data.
 %
 % Inputs:
 % obj       -- initialized instance of faccess_v4 object.
 % img_block -- structure containing s,e,npix fields with information for
 %              full or part of sqw or dnd image to write in the file.
+%              The number of elements in these three arrays should be the
+%              same to represent valid image.
 % pos       -- if present, initial position of img_block within the image.
 %              Counts from 0, 0 -- beginning of the image.
 %

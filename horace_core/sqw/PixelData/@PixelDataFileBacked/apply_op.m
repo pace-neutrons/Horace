@@ -71,7 +71,7 @@ if ll > 0
     fprintf('*** Completed %s using %d pages in %d sec.\n', ...
         op_name,n_chunks,te);
     if page_op.inform_about_target_file
-        page_op.report_operation_completed(obj_out);
+        page_op.report_on_target_files(obj_out);
     end
 end
 if issue_range_warning

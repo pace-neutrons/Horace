@@ -340,12 +340,12 @@ classdef PageOpBase
             %                because it has been realigned
             print_range_warning_(obj,infile_name,is_old_file_format);
         end
-        function report_operation_completed(obj,output_obj)
+        function report_on_target_files(obj,output_obj)
             % print information about result of pageOp
             % Inputs:
             % obj        -- initialized pageOp
             % output_obj -- the object produced by pageOp
-            report_op_completed_(obj,output_obj);
+            report_on_target_files_(obj,output_obj);
         end
     end
     %======================================================================
@@ -499,7 +499,10 @@ classdef PageOpBase
         end
 
         function do = get_do_missing_range_warning(obj)
-            % warning should be issued for
+            % Overloadable core of get.do_missing_range_warning method.
+            %
+            % usually range warning should not be issued for
+            % operations with pixels only.
             do  = ~isempty(obj.img_);
         end
 
