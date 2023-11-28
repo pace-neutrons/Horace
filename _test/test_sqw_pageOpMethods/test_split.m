@@ -265,7 +265,7 @@ classdef test_split< TestCase
 
         function test_target_filenames_pix_filebacked_are_tmp(~)
             tc = PageOp_split_sqw_tester();
-            tc = tc.gen_target_filenames('My_sqw_file',true);
+            tc = tc.gen_target_filenames_public('My_sqw_file',true);
 
             hc = hor_config;
             wk_dir = hc.working_directory;
