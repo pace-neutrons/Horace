@@ -4,17 +4,20 @@ function  obj = put_senpix_block(obj,img_block,pos)
 %
 % Inputs:
 % obj       -- initialized for write access instance of faccess_v4 object.
-% img_block -- structure containing s,e,npix fields containing arrays of
-%              new sqw or dnd image. The size of arrays should not
+% img_block -- structure containing s,e,npix fields with arrays of
+%              new sqw or dnd image contents. The size of arrays should not
 %              exceed the size of existing image data.
 % pos       -- if present, initial position of img_block within the image.
-%              Counts from 0, 0 -- beginning of the image.
+%              Counts from 0, 0 -- points to start of the image.
 %              The total value of
 %              pos + numel(img_block.s) or
 %              pos + numel(img_block.e) or
 %              pos + numel(img_block.npix)
 %              must not be bigger then the numel of existing s,e,npix image
-%              arrays already written to file.
+%              arrays already written to file correspondingly.
+%
+% Existing image data written on disk consists of fields describing image size and shape and 
+% three arrays of data written one after another. The arrays contain 
 
 
 if ~obj.bat_.initialized
@@ -28,7 +31,7 @@ if obj.file_id_ == -1
 end
 if ~(isstruct(img_block)&& isfield(img_block,'s')&&isfield(img_block,'e')&&isfield(img_block,'npix'))
     error('HORACE:binfile_v4_common:invalid_argument', ...
-        'Attempt to store img_block with does not contan necessary information')
+        'Attempt to store img_block with does not contain necessary information')
 end
 n_elem = numel(img_block.npix);
 if ~((numel(img_block.s)==numel(img_block.e))&&numel(img_block.e) ==n_elem)
@@ -39,9 +42,9 @@ end
 img_acc_block = obj.bat_.get_data_block('bl_data_nd_data');
 if pos + n_elem > img_acc_block.data_size
     error('HORACE:binfile_v4_common:invalid_argument', ...
-        ['New image block will be written in pos %d and contans %d elements.\n' ...
-        'Total space allocated for image contans %d elements.\n' ...
-        'Attempted to write new image block beyond exisiting image boundaries'], ...
+        ['New image block will be written in pos %d and contains %d elements.\n' ...
+        'Total space allocated for image contains %d elements.\n' ...
+        'Attempted to write new image block beyond existing image boundaries'], ...
         pos,n_elem,img_acc_block.data_size);
 end
 s_pos    = img_acc_block.sig_position  + pos*8;
