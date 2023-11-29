@@ -1,6 +1,6 @@
 function  obj = put_senpix_block(obj,img_block,pos)
-%PUT_SENPIX_BLOCK stores whole input image data or part of image data
-% replacing all or part of the current image data written to file earlier.
+%PUT_SENPIX_BLOCK writes new image data replacing all or part of 
+% the current image data written to file earlier.
 %
 % Inputs:
 % obj       -- initialized for write access instance of faccess_v4 object.
