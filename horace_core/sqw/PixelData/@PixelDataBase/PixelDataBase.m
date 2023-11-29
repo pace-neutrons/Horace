@@ -585,8 +585,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             is = obj.is_misaligned_;
         end
         function obj = clear_alignment(obj)
-            % Clears alignment.
-            %
+            % Clears alignment. 
+            % 
             % If alignment changes, invalidates object integrity,
             % (data_ranges need recalculation)
             % so should be used as part of algorithms only.
