@@ -1,24 +1,26 @@
 function  obj = put_senpix_block(obj,img_block,pos)
 %PUT_SENPIX_BLOCK stores whole input image data or part of image data
-% replacing all or part of current image data.
+% replacing all or part of the current image data written to file earlier.
 %
 % Inputs:
 % obj       -- initialized for write access instance of faccess_v4 object.
 % img_block -- structure containing s,e,npix fields with arrays of
 %              new sqw or dnd image contents. The size of arrays should not
 %              exceed the size of existing image data.
-% pos       -- if present, initial position of img_block within the image.
+% pos       -- Initial position of img_block within the image.
 %              Counts from 0, 0 -- points to start of the image.
 %              The total value of
 %              pos + numel(img_block.s) or
 %              pos + numel(img_block.e) or
 %              pos + numel(img_block.npix)
 %              must not be bigger then the numel of existing s,e,npix image
-%              arrays already written to file correspondingly.
+%              arrays already stored in file.
 %
-% Existing image data written on disk consists of fields describing image size and shape and 
-% three arrays of data written one after another. The arrays contain information stored in s,e 
-% and npix fields of dnd object. The method allows to overwrite parts or all this information.
+% Existing image data written on disk consists of fields describing image
+% size and shape and three arrays of data written one after another.
+% The arrays contain information present in s,e and npix fields of dnd object.
+% The method allows to overwrite parts or all information stored in data
+% arrays s,e and npix.
 
 
 if ~obj.bat_.initialized
