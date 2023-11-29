@@ -17,7 +17,8 @@ function  obj = put_senpix_block(obj,img_block,pos)
 %              arrays already written to file correspondingly.
 %
 % Existing image data written on disk consists of fields describing image size and shape and 
-% three arrays of data written one after another. The arrays contain 
+% three arrays of data written one after another. The arrays contain information stored in s,e 
+% and npix fields of dnd object. The method allows to overwrite parts or all this information.
 
 
 if ~obj.bat_.initialized
