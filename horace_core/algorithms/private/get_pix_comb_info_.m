@@ -48,10 +48,10 @@ end
 
 % Check input files exist
 nfiles=length(infiles);
-if ~all(cellfun(@is_file, infiles))
-    exst = cellfun(@is_file, infiles);
+if ~all(cellfun(@isfile, infiles))
+    exst = cellfun(@isfile, infiles);
     error('HORACE:write_nsqw_to_sqw:invalid_argument',...
-        'Can not find files: %s ',infiles{exst})
+        'Can not find files: %s ',infiles{~exst})
 end
 
 % *** Check output file can be opened
@@ -110,9 +110,6 @@ end
 %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
 %   - emode, lattice parameters, u, v, sample must be the same for all spe data input
 [exper_combined,nspe] = Experiment.combine_experiments(experiments_from_files,allow_equal_headers,keep_runid);
-
-
-
 
 
 %  Build combined header
