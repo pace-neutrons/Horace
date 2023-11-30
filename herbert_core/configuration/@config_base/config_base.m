@@ -231,13 +231,22 @@ classdef config_base
             end
         end
 
-        function data=get_data_to_store(this)
+        function data=get_data_to_store(obj)
             % method returns the structure with the data, expected to be stored
             % in configuration
-            fields = this.get_storage_field_names();
+            fields = obj.get_storage_field_names();
             data=struct();
             for i=1:numel(fields)
-                data.(fields{i}) = this.(fields{i});
+                data.(fields{i}) = obj.(fields{i});
+            end
+        end
+        function data = get_all_configured(obj)
+            % return all configurable fields stored in memory
+            fields1 = obj.get_storage_field_names();
+            fields2 = obj.mem_only_prop_list;
+            flds = [fields1(:);fields2(:)];
+            for i=1:numel(flds)
+                data.(flds{i}) = obj.(flds{i});
             end
         end
 
