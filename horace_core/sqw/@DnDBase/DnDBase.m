@@ -240,6 +240,15 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         wout = noisify(w,varargin);
         % take part of the object limited by fraction of the image grit
         [wout,out_axes] = section (win,varargin);
+        function sz = img_size_bytes(obj)
+            % return size of data image expressed in bytes.
+            %
+            % Now and in foreseeable future, our image contains 3 double
+            % precision arrays so conversion to bytes would be 
+            % 3x8x(number of image array elements)
+            sz = 3*numel(obj.s_)*8; % size of resulting split images in Bytes
+        end
+
     end
     %======================================================================
     % Redundant and convenience Accessors
@@ -568,7 +577,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             if ~isnumeric(val)
                 error('HORACE:DnDBase:invalid_argument',...
                     'input %s must be numeric array',field)
-            end            
+            end
             if numel(val) == 1 && ~isempty(obj.([field,'_']))
                 % if contents is array and the input is a single value,
                 % assign this value to the whole array.

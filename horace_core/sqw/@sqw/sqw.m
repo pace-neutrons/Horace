@@ -266,6 +266,10 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         function [value, sigma] = value(w, x)
             [value, sigma] = w.data.value(x);
         end
+        function sz = img_size_bytes(obj)
+            % return size of data image expressed in bytes
+            sz = obj.data.img_size_bytes();
+        end
     end
     %======================================================================
     % Construction and change of state
