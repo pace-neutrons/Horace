@@ -326,9 +326,5 @@ classdef test_split< TestCase
             assertEqual(fn,'My_sqw_file_runID0000101')
             assertTrue(strncmp(fe,'.tmp',4));
         end
-
-        function test_split_in_more_parts()
-
-        end
     end
 end

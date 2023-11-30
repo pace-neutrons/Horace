@@ -396,8 +396,6 @@ classdef PageOp_split_sqw < PageOpBase
             obj.out_pix = cell(1,n_runs);
             obj.out_sqw = cell(1,n_runs);
 
-
-
             if img_filebacked
                 % three empty fields to calculate block averages
                 data = struct('s',[],'e',[],'npix',[]);
