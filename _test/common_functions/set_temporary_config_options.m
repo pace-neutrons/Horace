@@ -10,7 +10,7 @@ if nargout ~= 1
     error('TEST:set_temporary_config_option', 'Function requires 1 output argument.');
 end
 
-original_config = config_instance.get_data_to_store();
+original_config = config_instance.get_all_configured();
 cleanup_handle = onCleanup(@() restore(config_instance,original_config));
 config_instance.saveable = false;
 

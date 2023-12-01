@@ -426,7 +426,7 @@ classdef horace_binfile_interface < serializable
             %
             move_to_position_(fid,pos);
         end
-        function check_write_error(fid)
+        function check_write_error(fid,add_info)
             % check if write operation have completed successfully.
             %
             % Inputs:
@@ -435,9 +435,12 @@ classdef horace_binfile_interface < serializable
             %
             % If add_info is not empty, it added to the error message and
             % used for clarification of the error location.
-            check_io_error_(fid,'writing');
+            if nargin<2
+                add_info = '';
+            end
+            check_io_error_(fid,'writing',add_info);
         end
-        function check_read_error(fid)
+        function check_read_error(fid,add_info)
             % check if read operation have completed successfully.
             %
             % Inputs:
@@ -447,7 +450,10 @@ classdef horace_binfile_interface < serializable
             %
             % If add_info is not empty, it added to the error message and
             % used for clarification of the error location.
-            check_io_error_(fid,'reading');
+            if nargin<2
+                add_info = '';
+            end
+            check_io_error_(fid,'reading',add_info);
         end
     end
     %======================================================================

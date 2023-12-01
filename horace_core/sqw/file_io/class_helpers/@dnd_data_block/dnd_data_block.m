@@ -14,6 +14,8 @@ classdef dnd_data_block < data_block
         err_position;   % error array position
         npix_position;  % npix array position
         %
+        data_size       % the size (number of elements) of single
+        %               % image aray, described by dnd_data_block
         dnd_info_defined; % if the data block have its dnd information
     end
     properties(Access=protected)
@@ -40,6 +42,9 @@ classdef dnd_data_block < data_block
         end
         function pos = get.npix_position(obj)
             pos = obj.sig_position+2*8*prod(obj.data_size_);
+        end
+        function sz  = get.data_size(obj)
+            sz = prod(obj.data_size_);
         end
         %
         function [obj,sqw_obj_to_set] = get_sqw_block(obj,fid,sqw_obj_to_set)
@@ -75,7 +80,7 @@ classdef dnd_data_block < data_block
             obj.check_read_error(fid,'header');
             obj.dimensions_ = double(n_dims);
         end
-        
+
     end
     methods(Access=protected)
         %-----------------------------------------------------------------
