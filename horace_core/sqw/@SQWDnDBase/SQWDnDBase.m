@@ -103,6 +103,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         [value, sigma] = value(w, x)
         wout = smooth(win, varargin); % Run smooth operation over DnD
         %                             % objects or sqw objects without pixels
+        sz = img_size_bytes(obj);     % return size of data image used to evaluate necessary memory
     end
     properties(Constant,Hidden)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw

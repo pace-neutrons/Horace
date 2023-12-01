@@ -51,7 +51,7 @@ if wh.move_to_original
                 'sqw object remains build over temporary file'], ...
                 source_filename,targ_filename);
             targ_filename = source_filename;
-            obj.full_file_name = targ_filename;
+            obj.full_filename = targ_filename;
         end
     end
     sqw_ldr.full_filename = targ_filename;
