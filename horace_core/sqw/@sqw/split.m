@@ -74,22 +74,20 @@ else
 end
 
 nfiles = w.main_header.nfiles;
-
 % Catch case of single contributing spe dataset
 if nfiles == 1
     wout = w;
     return
 end
-%
+
 % Evaluate the size of the resulting split to know what subalgorithm to use
-% Now and in foreseeable future, our image contains 3 double precision arrays
-% so conversion to bytes would be 3x8x(number of image array elements)
-split_img_size = 3*numel(w.data.s)*8; % size of resulting split images in Bytes
 if w.pix.is_filebacked && (return_files||split_filebacked)
     % set keep_precision to true as filebacked operations here will be
     % performed without change in precision.
     w.pix.keep_precision = true;
 end
+%
+split_img_size = w.img_size_bytes; % size of resulting split images in Bytes
 split_pix_size = w.pix.num_pixels*w.pix.pix_byte_size;
 % the split result has nfiles of images and all pixels
 total_size     = split_img_size*nfiles + split_pix_size;

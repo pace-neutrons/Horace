@@ -31,7 +31,10 @@ classdef PageOp_split_sqw < PageOpBase
         % deleted when object goes out of scope
         results_are_tmp_files_ = true;
         % map of target file names connecting runid->filename
-        targ_files_map_
+        targ_files_map_;
+        % size of the image to split to evaluate size of the contributing
+        % images
+        img_size_;
     end
     methods
         function obj = PageOp_split_sqw(varargin)
@@ -75,6 +78,51 @@ classdef PageOp_split_sqw < PageOpBase
                 % will operate with whole clusters of bins
                 obj.split_at_bin_edges = true;
             end
+        end
+        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
+            % Overload for standard split to ensure parts of split images
+            % do not exceed available memory.
+            %
+            % Inputs:
+            % npix  -- image npix array, which defines the number of pixels
+            %           contributing into each image bin and the pixels
+            %           ordering in the linear array
+            % chunk_size
+            %       -- sized of chunks to split pixels.
+            % Returns:
+            % npix_chunks -- cellarray, containing the npix parts
+            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
+            %                the npix array.
+            [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,chunk_size);
+            if ~obj.img_filebacked_
+                return;
+            end
+            % Ensure sum of all partial images do not exceed available memory
+            % during the split.
+
+            % The size of a split chunk is equal to size of 3 double arrays
+            % for each chunks multiplied by the number of chunks
+            n_chunks = numel(obj.out_sqw);
+            n_elements_in_chunks = cellfun(@(x)(numel(x)),npix_chunks);
+            % One multiple image element occupies 3*8*n_chunks bytes
+            % and all image chunks occupy the following memory:
+            chunk_byte_sizes = (3*8*n_chunks)*n_elements_in_chunks;
+            mem_avail = config_store.instance().get_value('hpc_config','phys_mem_available');
+            if all(chunk_byte_sizes<mem_avail)
+                return;
+            end
+            % split chunks additionaly to ensure sum of them do not contain
+            % more bins that would fit to memory.
+            n_elements_fit_memory = floor(mem_avail/(3*8*n_chunks));
+            if n_elements_fit_memory <1
+                n_elements_fit_memory = 1; % will be very very very slow.
+                warning('HORACE:slow_operation', ...
+                    [' split_sqw algorithm suggests starts page operation operating single image bin at a time.\n' ...
+                    ' This will be extreamly slow operation.\n' ...
+                    ' Validate your settings'])
+            end
+            [npix_chunks, npix_idx] = split_vector_max_sum_or_numel( ...
+                npix, chunk_size,n_elements_fit_memory);
         end
 
         function obj = apply_op(obj,npix_block,npix_idx)
@@ -337,17 +385,16 @@ classdef PageOp_split_sqw < PageOpBase
             %            cellarray for parts of initial sqw object to split
             %
             obj.runid_map_ = in_sqw.runid_map;
+            obj.img_size_  = in_sqw.img_size_bytes;
             %
             main_header = in_sqw.main_header;
             exp_info    = in_sqw.experiment_info;
-            data        = in_sqw.data;
+            n_bins      = numel(in_sqw.data.s);
             n_runs      = main_header.nfiles;
             obj.run_contributes_ = false(1,n_runs);
             obj.out_img = cell(1,n_runs);
             obj.out_pix = cell(1,n_runs);
             obj.out_sqw = cell(1,n_runs);
-
-            n_bins = numel(data.s);
 
             if img_filebacked
                 % three empty fields to calculate block averages
@@ -359,12 +406,21 @@ classdef PageOp_split_sqw < PageOpBase
 
             [~,file_in]   = fileparts(in_sqw.data.filename);
             obj  = obj.gen_target_filenames(file_in,pix_filebacked);
-
+            img  = in_sqw.data;
+            % nullify image, as handle writes image on creation and chunks
+            % will be added to this image in case of all filebacked targets
+            % if some chunks would not contribute to some area, 0-s should
+            % be there.
+            img.s = 0;
+            img.e = 0;
+            img.npix = 0;
+            in_sqw.data = img;
             for i = 1:n_runs
                 % these objects contain the same copy of image, so copying
                 % it will not allocate additional memory for it.
                 obj_i = in_sqw;
                 obj_i.experiment_info = exp_info.get_subobj(i,'-indexes');
+
 
                 run_id         = obj_i.experiment_info.expdata(1).run_id;
                 targ_file      = obj.targ_files_map_(uint64(run_id));
