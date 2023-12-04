@@ -27,10 +27,10 @@ for i=1:nfiles
     exp_info{i}    = ldrs{i}.get_exp_info('-all');
     datahdr{i}     = ldrs{i}.get_dnd_metadata();
     det_tmp        = ldrs{i}.get_detpar();
-    if (~isempty(det_tmp)                                && ...
-        IX_detector_array.check_detpar_parms(det_tmp) && ...            
-        exp_info{i}.detector_arrays.n_runs == 0            )        
-    
+    if (~isempty(det_tmp)                                 && ...
+            IX_detector_array.check_detpar_parms(det_tmp) && ...
+            exp_info{i}.detector_arrays.n_runs == 0            )
+
         detector = IX_detector_array(det_tmp);
         exp_info{i}.detector_arrays = exp_info{i}.detector_arrays.add(detector);
     end

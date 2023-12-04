@@ -1,4 +1,4 @@
-function  [sqw_sum_struc,img_range,data_range,job_disp]=get_pix_comb_info_(infiles, ...
+function  [sqw_sum_struc,data_range,job_disp]=get_pix_comb_info_(infiles, ...
     data_range,job_disp, ...
     allow_equal_headers,keep_runid)
 % The part of write_nsqw_to_sqw algorithm, responsible for preparing write
@@ -61,38 +61,16 @@ if hor_log_level>-1
 end
 
 %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs]
-[~,experiments_from_files,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+[~,experiments_from_files,img_hdrs,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
     accumulate_headers_job.read_input_headers(infiles);
 undef = data_range == PixelDataBase.EMPTY_RANGE;
 if any(undef(:))
     data_range = pix_combine_info.recalc_data_range_from_loaders(ldrs,keep_runid);
 end
 
-% check the consistency of image headers as this is the grid where pixels
-% are binned on and they have to be binned on the same grid
-% We must have same data information for transforming pixels coordinates to image coordinates
-img_range = check_img_consistency_(datahdr,ldrs);
-
-% Check consistency:
-% At present, we insist that the contributing spe data are distinct in that:
-%   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
-%   - emode, lattice parameters, u, v, sample must be the same for all spe data input
-[exper_combined,nspe] = Experiment.combine_experiments(experiments_from_files,allow_equal_headers,keep_runid);
-
-
-%  Build combined header
-nfiles_tot=sum(nspe);
-mhc = main_header_cl('nfiles',nfiles_tot);
-
-ab = datahdr{1}.axes;
-proj = datahdr{1}.proj;
-
-% combine all images stored in all input files or data sources together.
-dnd_data = build_combined_img_(ab,proj,ldrs,job_disp,hor_log_level);
-
-dnd_data.filename=mhc.filename;
-dnd_data.filepath=mhc.filepath;
-dnd_data.title   =mhc.title;
+[dnd_data,exper_combined,mhc] = combine_exper_and_img_( ...
+    experiments_from_files,img_hdrs,ldrs,allow_equal_headers,keep_runid, ...
+    job_disp,hor_log_level);
 
 
 % Prepare writing to output file

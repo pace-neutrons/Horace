@@ -50,14 +50,14 @@ function [img_db_range,pix_data_range]=write_nsqw_to_sqw (infiles, outfile,varar
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
 %
 
-accepted_options = {'-allow_equal_headers','-keep_runid',...
+accepted_options = {...
     '-parallel'};
 
 if nargin<2
     error('HORACE:write_nsqw_to_sqw:invalid_argument',...
         'function should have at least 2 input arguments')
 end
-[ok,mess,allow_equal_headers,keep_runid,combine_in_parallel,argi]...
+[ok,mess,combine_in_parallel,argi]...
     = parse_char_options(varargin,accepted_options);
 if ~ok
     error('HORACE:write_nsqw_to_sqw:invalid_argument',mess);
@@ -110,19 +110,17 @@ end
 % construct target sqw object containing everything except pixel data.
 % Instead of PixelData, it will contain information about how to combine
 % PixelData
-[sqw_struc_sum,img_db_range,pix_data_range,job_disp_4head]=get_pix_comb_info_(infiles,pix_data_range,job_disp_4head, ...
-    allow_equal_headers,keep_runid);
-if ~isempty(job_disp_4head)
-    job_disp = job_disp_4head;
-end
+[sqw_mem_part,job_disp] = collect_sqw_metadata(infiles,pix_data_range,job_disp_4head,argi);
+%[sqw_struc_sum,img_db_range,pix_data_range,job_disp_4head]=get_pix_comb_info_(infiles,pix_data_range,job_disp_4head, ...
+%    allow_equal_headers,keep_runid);
 %
 %
 %
-sqw_struc_sum.main_header.full_filename = outfile;
-sqw_struc_sum.pix.full_filename = outfile;
+sqw_mem_part.fill_filename = outfile;
+
 %
-ds = sqw(sqw_struc_sum);
-wrtr = sqw_formats_factory.instance().get_pref_access(ds);
+
+wrtr = sqw_formats_factory.instance().get_pref_access(sqw_mem_part);
 %
 hor_log_level = get(hor_config,'log_level');
 if hor_log_level>-1
