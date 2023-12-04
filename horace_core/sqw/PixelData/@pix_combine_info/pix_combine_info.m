@@ -65,7 +65,6 @@ classdef pix_combine_info < serializable
         % the property here to support PixelData interface. Never false, as
         % this kind of data should be never (knowingly) misaligned
         is_misaligned
-        % equal to data_range of PixelDataBase but duplicated to maintain
     end
     %
     properties(Access=public)
@@ -430,7 +429,7 @@ classdef pix_combine_info < serializable
         end
         %
         function is = get.is_filebacked(~)
-            is = false;
+            is = true;
         end
         function is = get.is_misaligned(~)
             is = false;

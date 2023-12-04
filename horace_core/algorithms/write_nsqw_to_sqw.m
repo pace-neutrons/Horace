@@ -1,4 +1,4 @@
-function [img_db_range,data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
+function [img_db_range,pix_data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
@@ -62,7 +62,7 @@ end
 if ~ok
     error('HORACE:write_nsqw_to_sqw:invalid_argument',mess);
 end
-[data_range,job_disp,jd_initialized]= parse_additional_input4_join_sqw_(argi);
+[pix_data_range,job_disp,jd_initialized]= parse_additional_input4_join_sqw_(argi);
 
 persistent old_matlab;
 if isempty(old_matlab)
@@ -110,7 +110,7 @@ end
 % construct target sqw object containing everything except pixel data.
 % Instead of PixelData, it will contain information about how to combine
 % PixelData
-[sqw_struc_sum,img_db_range,data_range,job_disp_4head]=get_pix_comb_info_(infiles,data_range,job_disp_4head, ...
+[sqw_struc_sum,img_db_range,pix_data_range,job_disp_4head]=get_pix_comb_info_(infiles,pix_data_range,job_disp_4head, ...
     allow_equal_headers,keep_runid);
 if ~isempty(job_disp_4head)
     job_disp = job_disp_4head;

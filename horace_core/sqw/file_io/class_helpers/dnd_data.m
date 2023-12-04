@@ -17,6 +17,11 @@ classdef dnd_data < serializable
         err;        % error array  (e in dnd object
         npix;       % npix array   (npix in dnd object)
     end
+    properties(Dependent,Hidden)
+        % another interface to dnd data compartible with DnDBase interface
+        s
+        e
+    end
 
     methods
         function obj = dnd_data(varargin)
@@ -27,9 +32,9 @@ classdef dnd_data < serializable
             dnd_obj = varargin{1};
             if isa(dnd_obj,'DnDBase')
                 obj.do_check_combo_arg = false;
-                obj.sig = dnd_obj.s;
-                obj.err = dnd_obj.e;
-                obj.npix= dnd_obj.npix;
+                obj.sig_ = dnd_obj.s;
+                obj.err_ = dnd_obj.e;
+                obj.npix_= dnd_obj.npix;
                 obj.do_check_combo_arg = true;
                 obj = obj.check_combo_arg();
             else
@@ -57,11 +62,20 @@ classdef dnd_data < serializable
         function val = get.sig(obj)
             val = obj.sig_;
         end
+        function val = get.s(obj)
+            val = obj.sig_;
+        end
         function obj = set.sig(obj, s)
+            obj = set_senpix(obj,s,'sig');
+        end
+        function obj = set.s(obj,s)
             obj = set_senpix(obj,s,'sig');
         end
         %
         function val = get.err(obj)
+            val = obj.err_;
+        end
+        function val = get.e(obj)
             val = obj.err_;
         end
         function obj = set.err(obj, e)
