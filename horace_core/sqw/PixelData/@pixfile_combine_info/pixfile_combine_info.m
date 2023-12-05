@@ -24,7 +24,6 @@ classdef pixfile_combine_info < MultipixBase
     end
     %
     properties(Access = protected)
-
         pos_npixstart_ = [];
         pos_pixstart_  = [];
 
@@ -37,6 +36,7 @@ classdef pixfile_combine_info < MultipixBase
             %
             % Inputs:
             % infiles -- cellarray of full names of the files to combine
+            % Optional:
             % nbins   -- number of bins (number of elements in npix array)
             %            in the tmp files and target sqw file (should be
             %            the same for all components so one number)
@@ -68,7 +68,7 @@ classdef pixfile_combine_info < MultipixBase
             %         -   array of unique numbers, providing run_id for each
             %             contributing run(file)
             % OPTIONAL:
-            % filenums  -- array, defining the numbers for each
+            % filenum   -- array, defining the numbers for each
             %              contributing file. If not present, the contributing
             %              files are numbered by integers running from 1 to
             %              n-files
@@ -80,7 +80,7 @@ classdef pixfile_combine_info < MultipixBase
         end
         function obj = init(obj,varargin)
             [obj,remains] = init@MultipixBase(obj,varargin{:});
-            flds = {'pos_npixstart','pos_pixstart','run_label','filenums'};
+            flds = {'pos_npixstart','pos_pixstart','run_label','filenum'};
             [obj, remains] = set_positional_and_key_val_arguments (obj, ...
                 flds, false, remains{:});
             if ~isempty(remains)
@@ -204,7 +204,7 @@ classdef pixfile_combine_info < MultipixBase
         function  flds = saveableFields(obj)
             fld1 = saveableFields@MultipixBase(obj);
             flds = {'pos_npixstart','pos_pixstart',...
-                'run_label','filenums','npix_cumsum'};
+                'run_label','filenum','npix_cumsum'};
             flds = [fld1(:);flds(:)];
         end
 

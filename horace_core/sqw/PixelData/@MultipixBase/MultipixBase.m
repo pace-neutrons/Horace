@@ -66,7 +66,6 @@ classdef MultipixBase < serializable
         % array of numbers of pixels stored in each contributing file or
         % objects
         npix_each_file_ = []
-
         %
         nbins_ = 0;
 
@@ -86,6 +85,7 @@ classdef MultipixBase < serializable
             %
             % Inputs:
             % infiles -- cellarray of full names of the files or objects to combine
+            % Optional:
             % nbins   -- number of bins (number of elements in npix array)
             %            in the tmp files and target sqw file (should be
             %            the same for all components so one number)
@@ -118,7 +118,7 @@ classdef MultipixBase < serializable
         %------------------------------------------------------------------
         function nf   = get.nfiles(obj)
             % number of contributing files
-            nf = numel(obj.infiles);
+            nf = numel(obj.infiles_);
         end
         function infls = get.infiles(obj)
             infls = obj.infiles_;
@@ -231,6 +231,13 @@ classdef MultipixBase < serializable
             else
                 fn = obj.filenum_;
             end
+        end
+        function obj = set.filenum(obj,val)
+            if ~isnumeric(val)
+                error('HORACE:MultipixBase:invalid_argument', ...
+                    'filenum property should be numeric array with number of elements equal to number of files')
+            end
+            obj.filenum_ = val(:)';
         end
         function rl= get.run_label(obj)
             rl = obj.run_label_;
