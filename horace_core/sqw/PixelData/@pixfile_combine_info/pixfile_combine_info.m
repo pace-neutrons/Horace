@@ -204,7 +204,7 @@ classdef pixfile_combine_info < MultipixBase
         function  flds = saveableFields(obj)
             fld1 = saveableFields@MultipixBase(obj);
             flds = {'pos_npixstart','pos_pixstart',...
-                'run_label','filenum','npix_cumsum'};
+                'filenum','npix_cumsum'};
             flds = [fld1(:);flds(:)];
         end
 

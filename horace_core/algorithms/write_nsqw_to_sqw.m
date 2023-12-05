@@ -116,7 +116,7 @@ end
 %
 %
 %
-sqw_mem_part.fill_filename = outfile;
+sqw_mem_part.full_filename = outfile;
 
 %
 
@@ -130,9 +130,8 @@ end
 % initialize sqw writer algorithm with sqw file to write, containing a normal sqw
 % object with pix field containing information about the way to assemble the
 % pixels
-ds.creation_date  = datetime('now');
-ds.full_filename = outfile;
-wrtr = wrtr.init(ds,outfile);
+sqw_mem_part.creation_date  = datetime('now');
+wrtr = wrtr.init(sqw_mem_part,outfile);
 if combine_in_parallel
     wrtr = wrtr.put_sqw(job_disp,'-verbatim');
 else
