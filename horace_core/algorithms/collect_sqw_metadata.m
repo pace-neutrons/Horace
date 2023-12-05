@@ -92,9 +92,11 @@ else
 end
 % % instead of the real pixels to place in target sqw file, place in pix field the
 % % information about the way to get the contributing pixels
-pix = pixobj_combine_info(infiles,numel(dnd_data.npix),npixtot,run_label);
-pix.data_range = data_range;
+pix = pixobj_combine_info(pix,numel(dnd_data.npix));
+pix.run_label = run_label;
+pix.data_range = pix_data_range;
 
+det = inputs{1}.detpar; % To modify according to new interface
 sqw_sum_struc= struct('main_header',mhc,'experiment_info',exper_combined,'detpar',det);
 sqw_sum_struc.data = dnd_data;
 sqw_sum_struc.pix = pix;
