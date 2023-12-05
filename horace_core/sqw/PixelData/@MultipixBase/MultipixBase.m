@@ -5,7 +5,7 @@ classdef MultipixBase < serializable
     properties(Dependent)
         nfiles;       % number of files or objects contributing into final
         %               result
-        infiles;      % cellarray of filenames to combine.
+        infiles;      % cellarray of filenames or objects to combine.
         %
         num_pixels;   % total number of pixels to combine in all
         %                contributing pixels datasets or files
@@ -20,6 +20,29 @@ classdef MultipixBase < serializable
         pix_range    % Global range of all pixels, intended for combining
         data_range   % Global range of all pixel data, i.e. coordinates, signal error and other pixel parameters
 
+        %   run_label   Indicates how to re-label the run index (pix(5,...)
+        %          'fileno'      relabel run index as the index of the file
+        %                        in the list infiles
+        %          'nochange'    use the run index as in the input file
+        %                        numeric array  offset run numbers for ith
+        %                        file by ith element of the array
+        %          This option exists to deal with three limiting cases:
+        %      (1) The run index is already written to the files correctly indexed into the header
+        %          e.g. as when temporary files have been written during cut_sqw
+        %      (2) There is one file per run, and the run index in the header block is the file
+        %          index e.g. as in the creating of the master sqw file
+        %      (3) The files correspond to several runs in general, which need to
+        %          be offset to give the run indices into the collective list of run parameters
+        run_label;
+
+        % numbers of files used as run_label for pixels if relabel_with_fnum
+        % and change_fileno are set to true
+        filenum
+        %
+        % true if pixel id from each contributing file should be replaced by contributing file number
+        relabel_with_fnum;
+        % true if pixel id for each pixel from contributing files should be changed.
+        change_fileno
     end
     properties(Dependent,Hidden)
         % The property, which describes the pixel data layout on disk or in
@@ -50,6 +73,10 @@ classdef MultipixBase < serializable
         % Global range of all pixels, intended for combining
         data_range_ = PixelDataBase.EMPTY_RANGE;
         full_filename_;
+        %
+        run_label_ = 'nochange';
+        %
+        filenum_ = [];
     end
     methods
         %
@@ -58,58 +85,35 @@ classdef MultipixBase < serializable
             % for combining pixels obtained from separate sqw(tmp) files.
             %
             % Inputs:
-            % infiles -- cellarray of full names of the files to combine
+            % infiles -- cellarray of full names of the files or objects to combine
             % nbins   -- number of bins (number of elements in npix array)
             %            in the tmp files and target sqw file (should be
             %            the same for all components so one number)
-            %pos_npixstart
-            %         -- array containing the locations of the npix
-            %            array in binary sqw files on hdd. Size equal to
-            %             number of contributing files.
-            %pos_pixstart
-            %         -- array containing the locations of the pix
-            %            array in binary sqw files on hdd. Size equal to
-            %            number of contributing files.
-            %npix_each_file
+            % npix_each_file
             %         -- array containing number of pixels in each
             %            contributing sqw(tmp) file.
-            %run_label
-            %     either:
-            %          - the string containing information on the
-            %            treatment of the run_ids, identifying each
-            %            pixel of the PixelData. It may be equal
-            %      or:
-            %          - 'nochange' the string stating that the pixel id-s
-            %             should be kept as provided within contributing
-            %             files
-            %      or:
-            %         -  'fileno' the string stating that the pixels id-s
-            %             should be modified and be equal
-            %               to the numbers of contributing files
-            %      or:
-            %         -   array of unique numbers, providing run_id for each
-            %             contributing run(file)
-            % OPTIONAL:
-            % filenums  -- array, defining the numbers for each
-            %              contributing file. If not present, the contributing
-            %              files are numbered by integers running from 1 to
-            %              n-files
             if nargin == 0
                 return
             end
-            flds = obj.saveableFields();
-            [obj, remains] = set_positional_and_key_val_arguments (obj, ...
-                flds(1:end-1), false, varargin{:});
-            if ~isempty(remains)
-                if numel(remains)==1
-                    obj.filenum_ = remains{1};
-                else
-                    error('HORACE:pix_combine_info:invalid_argument',[ ...
-                        'pix_combine_info accepts up to 7 input arguments.\n' ...
-                        'got: %d arguments. Last have not been recognized: %s\n'], ...
-                        numel(varargin),disp2str(remains))
-                end
+            obj = obj.init(varargin{:});
+        end
+        function [obj,remains] = init(obj,varargin)
+            if nargin == 1
+                return;
             end
+            flds = {'infiles','nbins','npix_each_file'};
+            nfld = numel(flds);
+            if nargin> nfld
+                remains = varargin(nfld+1:end);
+            else
+                remains = {};
+            end
+            obj.do_check_combo_arg_= false;
+            n_inp = min(nfld,numel(varargin));
+            for i=1:n_inp
+                obj.(flds{i})  = varargin{i};
+            end
+            obj.do_check_combo_arg_= true;
         end
         %------------------------------------------------------------------
         function nf   = get.nfiles(obj)
@@ -120,18 +124,7 @@ classdef MultipixBase < serializable
             infls = obj.infiles_;
         end
         function obj = set.infiles(obj,val)
-            if ~iscellstr(val)
-                if istext(val)
-                    val = cellstr(val);
-                else
-                    error('HORACE:pix_combine_info:invalid_argument',...
-                        'infiles input should be cellarray of filenames to combine');
-                end
-            end
-            obj.infiles_ = val(:);
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
+            obj = set_infiles(obj,val);
         end
         %
         %------------------------------------------------------------------
@@ -143,31 +136,21 @@ classdef MultipixBase < serializable
             npix_tot = obj.npix_each_file_;
         end
         function obj= set.npix_each_file(obj,val)
-            if ~isnumeric(val)
-                error('HORACE:pix_combine_info:invalid_argument',...
-                    'npix_each_file has to be numeric array containing information about number of pixels in each contributing file')
-            end
-            obj.npix_each_file_ = val(:)';
-            if numel(val) == 1 % the number of pixels per each file is the same
-                obj.npix_each_file_  = ones(1,obj.nfiles)*val;
-            end
-            obj.num_pixels_ = uint64(sum(obj.npix_each_file_));
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-
+            % accepts the numeric array which defines number of pixels
+            % in each file or signle value if total number of pixels
+            % in each file is the same
+            obj = set_npix_each_file_(obj,val);
         end
         %------------------------------------------------------------------
         function nb = get.nbins(obj)
             nb = obj.nbins_;
         end
         function obj = set.nbins(obj,val)
-            if ~isnumeric(val) || val < 1
-                error('HORACE:pix_combine_info:invalid_argument', ...
-                    'number of bins for pix_combine info should be positive number. It is: %s',...
-                    evalc('disp(val)'));
-            end
-            obj.nbins_ = val;
+            % set number of bins property
+            % val -- single positive value, describing number of bins in
+            %        the images to be combined. Single value as have to be
+            %        same for all images
+            obj = set_nbins_(obj,val);
         end
         %
         function range = get.pix_range(obj)
@@ -201,15 +184,6 @@ classdef MultipixBase < serializable
         function dw = get.data_wrap(obj)
             dw = pix_data(obj);
         end
-
-        %
-        %
-        function obj = recalc_data_range(obj)
-            % recalculate common range for all pixels analysing pix ranges
-            % from all contributing files
-            %
-            obj = recalc_pix_range_(obj);
-        end
         %
         function fn = get.full_filename(obj)
             fn = obj.full_filename_;
@@ -229,6 +203,42 @@ classdef MultipixBase < serializable
         function is = get.is_misaligned(~)
             is = false;
         end
+
+        %
+        function is = get.relabel_with_fnum(obj)
+            % true if pixel id from each contributing file
+            % should be replaced by contributing file number
+            if ischar(obj.run_label)
+                if strcmpi(obj.run_label,'fileno')
+                    is  = true;
+                else
+                    is = false;
+                end
+            else
+                is = false;
+            end
+        end
+        %
+        function is = get.change_fileno(obj)
+            % true if pixel id for each pixel from contributing
+            % files should be changed.
+            is = get_change_fileno_(obj);
+        end
+        %
+        function fn = get.filenum(obj)
+            if isempty(obj.filenum_)
+                fn = 1:obj.nfiles;
+            else
+                fn = obj.filenum_;
+            end
+        end
+        function rl= get.run_label(obj)
+            rl = obj.run_label_;
+        end
+        function obj = set.run_label(obj,val)
+            obj = set_runlabel_(obj,val);
+        end
+
     end
     %----------------------------------------------------------------------
     methods(Static)
@@ -252,14 +262,20 @@ classdef MultipixBase < serializable
             end
         end
     end
+    methods(Abstract)
+        obj = recalc_data_range(obj)
+    end
     %----------------------------------------------------------------------
+    methods(Abstract,Access=protected)
+        obj = set_infiles(obj,val);
+    end
     % SERIALIZABLE INTERFACE
     methods
         function ver  = classVersion(~)
             ver = 1;
         end
         function  flds = saveableFields(~)
-            flds = {'infiles','nbins','npix_each_file'};
+            flds = {'infiles','nbins','npix_each_file','run_label'};
         end
         %
     end

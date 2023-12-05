@@ -84,7 +84,7 @@ end
 %
 % instead of the real pixels to place in target sqw file, place in pix field the
 % information about the way to get the contributing pixels
-pix = pixfile_combine_info(infiles,numel(dnd_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
+pix = pixfile_combine_info(infiles,numel(dnd_data.npix),npixtot,pos_npixstart,pos_pixstart,run_label);
 pix.data_range = data_range;
 
 sqw_sum_struc= struct('main_header',mhc,'experiment_info',exper_combined,'detpar',det);
