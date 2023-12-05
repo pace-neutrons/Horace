@@ -103,7 +103,7 @@ classdef test_join < TestCase
 
             assertEqualToTol(sqw_t.data,obj.sample_obj.data, ...
                 'ignore_str',true,'tol',[1.e-7,1.e-7])
-            assertTrue(isa(sqw_t.pix,'pix_combine_info'))
+            assertTrue(isa(sqw_t.pix,'pixobj_combine_info'))
         end
 
 
@@ -113,7 +113,7 @@ classdef test_join < TestCase
 
             assertEqualToTol(sqw_t.data,obj.sample_obj.data, ...
                 'ignore_str',true,'tol',[1.e-7,1.e-7])
-            assertTrue(isa(sqw_t.pix,'pix_combine_info'))
+            assertTrue(isa(sqw_t.pix,'pixfile_combine_info'))
         end
 
 

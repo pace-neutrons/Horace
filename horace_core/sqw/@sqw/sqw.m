@@ -32,8 +32,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         data;
 
         % access to pixel information, if any such information is
-        % stored within an object. May also contain pix_combine_info or
-        % filebased pixels.
+        % stored within an object. May also contain MultipxBase class
+        % or filebacked pixels.
         pix;
 
         % The date of the sqw object file creation. As the date is defined both

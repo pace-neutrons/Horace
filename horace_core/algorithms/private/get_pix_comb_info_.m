@@ -7,7 +7,7 @@ function  [sqw_sum_struc,data_range,job_disp]=get_pix_comb_info_(infiles, ...
 % It analyses all contributed headers, runs combine headers job and build
 % main sqw file structure, including everything but writing pixels
 % themselves.
-% Assigns to sqw object structure pix field pix_combine_infor class,
+% Assigns to sqw object structure pix field pixfile_combine_info class,
 % containing information about source pixels locations and target pixel
 % location to write
 %
@@ -32,7 +32,7 @@ function  [sqw_sum_struc,data_range,job_disp]=get_pix_comb_info_(infiles, ...
 % returns:
 % sqw_sum_struc
 %          -- the structure of sqw object with all sqw fields filled in
-%             except pix containing pix_combine_info class
+%             except pix containing pixfile_combine_info class
 
 hor_log_level = get(hor_config,'log_level');
 
@@ -65,7 +65,7 @@ end
     accumulate_headers_job.read_input_headers(infiles);
 undef = data_range == PixelDataBase.EMPTY_RANGE;
 if any(undef(:))
-    data_range = pix_combine_info.recalc_data_range_from_loaders(ldrs,keep_runid);
+    data_range = pixfile_combine_info.recalc_data_range_from_loaders(ldrs,keep_runid);
 end
 
 [dnd_data,exper_combined,mhc] = combine_exper_and_img_( ...
@@ -84,7 +84,7 @@ end
 %
 % instead of the real pixels to place in target sqw file, place in pix field the
 % information about the way to get the contributing pixels
-pix = pix_combine_info(infiles,numel(dnd_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
+pix = pixfile_combine_info(infiles,numel(dnd_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
 pix.data_range = data_range;
 
 sqw_sum_struc= struct('main_header',mhc,'experiment_info',exper_combined,'detpar',det);

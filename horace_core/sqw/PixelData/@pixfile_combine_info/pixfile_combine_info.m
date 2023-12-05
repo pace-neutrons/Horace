@@ -1,23 +1,11 @@
-classdef pix_combine_info < serializable
+classdef pixfile_combine_info < MultipixBase
     % Helper class used to carry out and provide information
     % necessary for pixel combining using write_nsqw_to_sqw algorithm,
     % or similar algorithm, deployed when running cut_sqw in file->file
     % mode
     %
     properties(Dependent)
-        nfiles;       % number of files, contributing into final result
-        infiles;      % cellarray of filenames to combine.
         %
-        num_pixels;    % total number of pixels to combine
-        npix_each_file; % array defining numbers of pixels stored in each
-        %                contributing file
-        %
-        % number of bins (number of elements in npix array) in the
-        % contributing sqw(tmp) files. Should be the same for all
-        % files to be able to combine them together
-        nbins;
-
-
         % array of starting positions of the npix information in each
         % contributing file
         pos_npixstart;
@@ -41,10 +29,6 @@ classdef pix_combine_info < serializable
         %          be offset to give the run indices into the collective list of run parameters
         run_label;
 
-
-        pix_range    % Global range of all pixels, intended for combining
-        data_range   % Global range of all pixel data, i.e. coordinates, signal error and other pixel parameters
-
         % numbers of files used as run_label for pixels if relabel_with_fnum
         % and change_fileno are set to true
         filenum
@@ -53,18 +37,6 @@ classdef pix_combine_info < serializable
         relabel_with_fnum;
         % true if pixel id for each pixel from contributing files should be changed.
         change_fileno
-    end
-    properties(Dependent,Hidden)
-        % The property, which describes the pixel data layout on disk or in
-        % memory and all additional properties describing pix array
-        metadata;
-        data_wrap;
-        % PixelDataBase interface
-        full_filename
-        is_filebacked
-        % the property here to support PixelData interface. Never false, as
-        % this kind of data should be never (knowingly) misaligned
-        is_misaligned
     end
     %
     properties(Access=public)
@@ -76,28 +48,18 @@ classdef pix_combine_info < serializable
     end
     %
     properties(Access = protected)
-        num_pixels_ = 0
-        %
-        infiles_ = {}  % cellarray of filenames to combine
+
         pos_npixstart_ = [];
         pos_pixstart_  = [];
-        % array of numbers of pixels stored in each contributing file
-        npix_each_file_ = []
 
         %
         run_label_ = 'nochange';
         %
-        nbins_ = 0;
-        %
         filenum_ = [];
-        % Global range of all pixels, intended for combining
-        data_range_ = PixelDataBase.EMPTY_RANGE;
-        full_filename_;
-
     end
     methods
         %
-        function obj = pix_combine_info(varargin)
+        function obj = pixfile_combine_info(varargin)
             % Build instance of the class, which provides the information
             % for combining pixels obtained from separate sqw(tmp) files.
             %
@@ -148,70 +110,12 @@ classdef pix_combine_info < serializable
                 if numel(remains)==1
                     obj.filenum_ = remains{1};
                 else
-                    error('HORACE:pix_combine_info:invalid_argument',[ ...
-                        'pix_combine_info accepts up to 7 input arguments.\n' ...
+                    error('HORACE:pixfile_combine_info:invalid_argument',[ ...
+                        'pixfile_combine_info accepts up to 7 input arguments.\n' ...
                         'got: %d arguments. Last have not been recognized: %s\n'], ...
                         numel(varargin),disp2str(remains))
                 end
             end
-        end
-        %------------------------------------------------------------------
-        function nf   = get.nfiles(obj)
-            % number of contributing files
-            nf = numel(obj.infiles);
-        end
-        function infls = get.infiles(obj)
-            infls = obj.infiles_;
-        end
-        function obj = set.infiles(obj,val)
-            if ~iscellstr(val)
-                if istext(val)
-                    val = cellstr(val);
-                else
-                    error('HORACE:pix_combine_info:invalid_argument',...
-                        'infiles input should be cellarray of filenames to combine');
-                end
-            end
-            obj.infiles_ = val(:);
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-        end
-        %
-        %------------------------------------------------------------------
-        function npix = get.num_pixels(obj)
-            % total number of pixels in all contributing files
-            npix = obj.num_pixels_;
-        end
-        function npix_tot = get.npix_each_file(obj)
-            npix_tot = obj.npix_each_file_;
-        end
-        function obj= set.npix_each_file(obj,val)
-            if ~isnumeric(val)
-                error('HORACE:pix_combine_info:invalid_argument',...
-                    'npix_each_file has to be numeric array containing information about number of pixels in each contributing file')
-            end
-            obj.npix_each_file_ = val(:)';
-            if numel(val) == 1 % the number of pixels per each file is the same
-                obj.npix_each_file_  = ones(1,obj.nfiles)*val;
-            end
-            obj.num_pixels_ = uint64(sum(obj.npix_each_file_));
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-
-        end
-        %------------------------------------------------------------------
-        function nb = get.nbins(obj)
-            nb = obj.nbins_;
-        end
-        function obj = set.nbins(obj,val)
-            if ~isnumeric(val) || val < 1
-                error('HORACE:pix_combine_info:invalid_argument', ...
-                    'number of bins for pix_combine info should be positive number. It is: %s',...
-                    evalc('disp(val)'));
-            end
-            obj.nbins_ = val;
         end
         %------------------------------------------------------------------
         function pos = get.pos_npixstart(obj)
@@ -219,7 +123,7 @@ classdef pix_combine_info < serializable
         end
         function obj = set.pos_npixstart(obj,val)
             if ~isnumeric(val)
-                error('HORACE:pix_combine_info:invalid_argument',...
+                error('HORACE:pixfile_combine_info:invalid_argument',...
                     'pos_npixstart has to be numeric array containing information about npix location on hdd')
             end
             obj.pos_npixstart_ = val(:)';
@@ -237,7 +141,7 @@ classdef pix_combine_info < serializable
         end
         function obj = set.pos_pixstart(obj,val)
             if ~isnumeric(val)
-                error('HORACE:pix_combine_info:invalid_argument',...
+                error('HORACE:pixfile_combine_info:invalid_argument',...
                     'pos_pixstart has to be numeric array containing information about pix location on hdd')
             end
             obj.pos_pixstart_ = val(:)';
@@ -250,38 +154,13 @@ classdef pix_combine_info < serializable
             end
         end
         %
-        function range = get.pix_range(obj)
-            range = obj.data_range_(:,1:4);
-        end
-        function obj = set.pix_range(obj,val)
-            if ~(isnumeric(val) && isequal(size(val),[2,4]) )
-                error('HORACE:pix_combine_info:invalid_argument',...
-                    'pix_range size has to be a numeric array of 2x4 elements. It is:\n %s', ...
-                    disp2str(val));
-            end
-            obj.data_range_(:,1:4) = val;
-
-        end
-        %
-        function range = get.data_range(obj)
-            range = obj.data_range_;
-        end
-        function obj = set.data_range(obj,val)
-            if ~(isnumeric(val) && isequal(size(val),[2,9]) )
-                error('HORACE:pix_combine_info:invalid_argument',...
-                    'data_range size has to be numeric array of 2x9 elements. It is: %s', ...
-                    disp2str(val));
-            end
-            obj.data_range_ = val;
-        end
-        %
         function rl= get.run_label(obj)
             rl = obj.run_label_;
         end
         function obj = set.run_label(obj,val)
             if ischar(val)
                 if ~(strcmpi(val,'nochange') || strcmpi(val,'fileno'))
-                    error('HORACE:pix_combine_info:invalid_argument',...
+                    error('HORACE:pixfile_combine_info:invalid_argument',...
                         'Invalid string value "%s" for run_label. Can be only "nochange" or "fileno"',...
                         val)
                 end
@@ -289,7 +168,7 @@ classdef pix_combine_info < serializable
             elseif (isnumeric(val) && numel(val)==obj.nfiles)
                 obj.run_label_ = val(:)';
             else
-                error('HORACE:pix_combine_info:invalid_argument',...
+                error('HORACE:pixfile_combine_info:invalid_argument',...
                     ['Invalid value for run_label. Array of run_id-s should be either specific string' ...
                     'or array of unique numbers, providing run_id for each contributing file'])
             end
@@ -332,7 +211,7 @@ classdef pix_combine_info < serializable
             end
         end
         function parts_carr= split_into_parts(obj,n_workers)
-            % function divided pix_combine_info into the specified number
+            % function divided pixfile_combine_info into the specified number
             % of (almost) equal parts to send it for processing
             % on parallel system
             n_tasks = obj.nfiles;
@@ -366,16 +245,9 @@ classdef pix_combine_info < serializable
                 pnpixtot       = obj.npix_each_file(split_ind(1,i):split_ind(2,i));
                 pfilenums    = filenums(split_ind(1,i):split_ind(2,i));
                 %
-                parts_carr{i} = pix_combine_info(part_files,pnbins,ppos_npixstart,ppos_pixstart,pnpixtot,prun_label,pfilenums);
+                parts_carr{i} = pixfile_combine_info(part_files,pnbins,ppos_npixstart,ppos_pixstart,pnpixtot,prun_label,pfilenums);
             end
         end
-        function md = get.metadata(obj)
-            md = pix_metadata(obj);
-        end
-        function dw = get.data_wrap(obj)
-            dw = pix_data(obj);
-        end
-
         %
         %
         function obj = recalc_data_range(obj)
@@ -416,24 +288,6 @@ classdef pix_combine_info < serializable
             obj.do_check_combo_arg = true;
             obj = obj.check_combo_arg();
         end
-        function fn = get.full_filename(obj)
-            fn = obj.full_filename_;
-        end
-        function obj = set.full_filename(obj,val)
-            if ~(ischar(val)||isstring(val))
-                error('HORACE:pix_combine_info:invalid_argument', ...
-                    'fill_filename should be a string, describing full name of the file on disk. It is %s', ...
-                    disp2str(val));
-            end
-            obj.full_filename_ = val;
-        end
-        %
-        function is = get.is_filebacked(~)
-            is = true;
-        end
-        function is = get.is_misaligned(~)
-            is = false;
-        end
     end
     %----------------------------------------------------------------------
     methods(Static)
@@ -463,9 +317,11 @@ classdef pix_combine_info < serializable
         function ver  = classVersion(~)
             ver = 1;
         end
-        function  flds = saveableFields(~)
-            flds = {'infiles','nbins','pos_npixstart','pos_pixstart',...
-                'npix_each_file','run_label','npix_cumsum'};
+        function  flds = saveableFields(obj)
+            fld1 = saveableFields@MultipixBase(obj);
+            flds = {'pos_npixstart','pos_pixstart',...
+                'run_label','npix_cumsum'};
+            flds = [fld1(:);flds(:)];
         end
 
         %
@@ -480,17 +336,17 @@ classdef pix_combine_info < serializable
                 obj.npix_each_file_ = zeros(1,nfls);
             end
             if numel(obj.infiles_) ~= numel(obj.pos_npixstart_)
-                error('HORACE:pix_combine_info:invalid_argument',...
+                error('HORACE:pixfile_combine_info:invalid_argument',...
                     'number of npixstart positions: %d not equal to the number of files to combine: %d',...
                     numel(obj.pos_npixstart_),numel(obj.infiles_));
             end
             if numel(obj.infiles_) ~= numel(obj.pos_pixstart_)
-                error('HORACE:pix_combine_info:invalid_argument',...
+                error('HORACE:pixfile_combine_info:invalid_argument',...
                     'number of pixstart positions: %d not equal to the number of files to combine: %d',...
                     numel(obj.pos_pixstart_),numel(obj.infiles_));
             end
             if numel(obj.infiles_) ~= numel(obj.npix_each_file_)
-                error('HORACE:pix_combine_info:invalid_argument',...
+                error('HORACE:pixfile_combine_info:invalid_argument',...
                     'numel of npix for each file : %d not equal to the number of files to combine: %d',...
                     numel(obj.npix_each_file_),numel(obj.infiles_));
             end

@@ -12,7 +12,7 @@ function cl=save(w, varargin)
 %                             combine file using parallel algorithm.
 %                             Useful and would works only if (when) pix
 %                             value of sqw object data is set up to the
-%                             instance of pix_combine_info class,
+%                             instance of MultipixBase class,
 %                             containing information on the partial
 %                             tmp files, written by filebased gen_sqw or
 %                             cut algorithm

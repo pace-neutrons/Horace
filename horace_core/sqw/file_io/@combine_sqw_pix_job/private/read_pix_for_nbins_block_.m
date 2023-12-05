@@ -13,11 +13,11 @@ is_deployed = mpis.is_deployed;
 
 % pos_pixstart -- binary positions of the start of the pixels
 pix_comb_info = obj.pix_combine_info_;
-% relabel_with_fnum -- boolean specifies if pixel info should
+% relabel_with_fnum -- Boolean specifies if pixel info should
 %                 be relabelled by runlabel or filenum depending
 %                 on this switch.
 relabel_with_fnum= pix_comb_info.relabel_with_fnum;
-% change_fileno-- boolean specifies if pixel info should be
+% change_fileno-- Boolean specifies if pixel info should be
 %                 relabelled according to runlabel or filenum
 change_fileno    = pix_comb_info.change_fileno;
 % run_label    -- array of numbers to distinguish one input

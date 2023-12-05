@@ -221,15 +221,15 @@ classdef cut_data_from_file_job < JobExecutor
         end
 
         function pix_comb_info = accumulate_pix_to_file(varargin)
-            % Accumulate pixel data into temporary files and return a pix_combine_info
+            % Accumulate pixel data into temporary files and return a pixfile_combine_info
             % object that manages the files
             %
-            % The pix_combine_info object, when saved, will re-combine the temporary
+            % The pixfile_combine_info object, when saved, will re-combine the temporary
             % files into a single sqw object.
             %
             % Inputs:
             % -------
-            % pix_comb_info    A pix_combine_info object
+            % pix_comb_info    A pixfile_combine_info object
             % finish_accum     Boolean flag, set to true to finish accumulation
             % v                PixelData object containing pixel chunk
             % ix_add           The indices of retained pixels in the order they

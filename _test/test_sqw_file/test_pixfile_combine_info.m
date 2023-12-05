@@ -1,5 +1,5 @@
-classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
-    % Test checks some components of pix_combine_info
+classdef test_pixfile_combine_info < TestCase
+    % Test checks some components of pixfile_combine_info
     %
     %---------------------------------------------------------------------
     properties
@@ -11,9 +11,9 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
     end
 
     methods
-        function obj=test_pix_combine_info(test_class_name)
+        function obj=test_pixfile_combine_info(test_class_name)
             if ~exist('test_class_name','var')
-                test_class_name = 'test_pix_combine_info';
+                test_class_name = 'test_pixfile_combine_info';
             end
             obj = obj@TestCase(test_class_name);
             data_path= fullfile(fileparts(mfilename('fullpath')),'TestData');
@@ -43,6 +43,8 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
                                                  'build_sqw_in_parallel', false, ...
                                                  'combine_sqw_using', 'matlab' ...
                                                  );
+            clWarn = set_temporary_warning('off', ...
+                'HORACE:physical_memory_configured','LOAD_NXSPE:old_version');
 
             [temp_files,~,obj.ref_data_range]=gen_sqw(source_test_file,'',targ_file,...
                 787.,1,[2.87,2.87,2.87],[90,90,90],...
@@ -53,7 +55,7 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
         end
         %
         function test_pix_range(obj)
-            tester = pix_combine_info(obj.test_souce_files);
+            tester = pixfile_combine_info(obj.test_souce_files);
 
             assertEqual(tester.data_range,PixelDataBase.EMPTY_RANGE);
 
@@ -63,8 +65,6 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
             is_undef = tester.data_range == PixelDataBase.EMPTY_RANGE;
             assertFalse(any(is_undef(:)));
         end
-        %
-
         %
     end
 end

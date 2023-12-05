@@ -13,7 +13,7 @@ function    obj = put_sqw(obj,varargin)
 %                             method to the file provided as second parameter.
 %
 % Options:
-% '-update'        -- write to existing sqw file. Currently deprecated and does nothimg.
+% '-update'        -- write to existing sqw file. Currently deprecated and does nothing.
 %
 %                    TODO: Check if existing file contains sqw object,
 %                    as currently such file is silently overwritten.
@@ -75,7 +75,7 @@ if ~obj.sqw_holder.main_header.creation_date_defined ||...
     obj.sqw_holder = sqw_obj;
 end
 
-if ~(isa(obj.sqw_holder.pix,'pix_combine_info') || ...
+if ~(isa(obj.sqw_holder.pix,'MultipixBase') || ...
         obj.sqw_holder.pix.is_filebacked || ...
         nopix)
     obj = obj.put_all_blocks();

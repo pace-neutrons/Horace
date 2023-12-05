@@ -1,11 +1,11 @@
 function [sqw_out,job_disp] = collect_sqw_metadata(inputs,varargin)
-%COLLECT_SQW_METADATA collects metadata from varaious sqw objects provided
-% as input with the puprose of constructing single sqw object from these
+%COLLECT_SQW_METADATA collects metadata from various sqw objects provided
+% as input with the purpose of constructing single sqw object from these
 % input sqw objects.
 %
 % The input sqw objects must have common image grid i.e. image ranges and
 % number of image bins in every directions have to be the same for all
-% conributing input objects
+% contributing input objects
 %
 % Inputs:
 % inputs  -- cellarray of files containing sqw objects or cellarray or array
@@ -18,8 +18,10 @@ function [sqw_out,job_disp] = collect_sqw_metadata(inputs,varargin)
 %         --
 %
 % Returns:
-% sqw_out -- sqw object combined from input sqw objects and containing all
-%            sqw object information except combined pixels.
+% sqw_out -- pixel-less sqw object combined from input sqw objects and
+%            containing all sqw object information except combined pixels.
+%            Pixels are represented not by a PixelData class but by a
+%            class, which provides information about how to combine pixels.
 %
 % Throws HORACE:collect_sqw_metadata:invalid_argument if input objects
 %           contain different grid or have equal data headers
@@ -90,8 +92,8 @@ else
 end
 % % instead of the real pixels to place in target sqw file, place in pix field the
 % % information about the way to get the contributing pixels
-% pix = pix_combine_info(infiles,numel(dnd_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
-% pix.data_range = data_range;
+pix = pixobj_combine_info(infiles,numel(dnd_data.npix),npixtot,run_label);
+pix.data_range = data_range;
 
 sqw_sum_struc= struct('main_header',mhc,'experiment_info',exper_combined,'detpar',det);
 sqw_sum_struc.data = dnd_data;

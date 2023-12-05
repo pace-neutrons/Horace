@@ -19,8 +19,8 @@ classdef dnd_data < serializable
     end
     properties(Dependent,Hidden)
         % another interface to dnd data compartible with DnDBase interface
-        s
-        e
+        s % signal array
+        e % error array
     end
 
     methods
