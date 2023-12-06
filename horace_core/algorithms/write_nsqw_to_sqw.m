@@ -50,34 +50,21 @@ function [img_db_range,pix_data_range]=write_nsqw_to_sqw (infiles, outfile,varar
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
 %
 
-accepted_options = {...
-    '-parallel'};
-
 if nargin<2
     error('HORACE:write_nsqw_to_sqw:invalid_argument',...
         'function should have at least 2 input arguments')
 end
+accepted_options = {'-parallel'};
 [ok,mess,combine_in_parallel,argi]...
     = parse_char_options(varargin,accepted_options);
 if ~ok
     error('HORACE:write_nsqw_to_sqw:invalid_argument',mess);
 end
-[pix_data_range,job_disp,jd_initialized]= parse_additional_input4_join_sqw_(argi);
+[pix_data_range,job_disp,jd_initialized,argi]= parse_additional_input4_join_sqw_(argi{:});
 
 persistent old_matlab;
 if isempty(old_matlab)
     old_matlab = verLessThan('matlab', '8.1');
-end
-
-combine_mode = config_store.instance().get_value('hpc_config','combine_sqw_using');
-if isempty(job_disp)
-    if strcmp(combine_mode,'mpi_code') || combine_in_parallel
-        combine_in_parallel = true;
-    else
-        combine_in_parallel = false;
-    end
-else
-    combine_in_parallel = true;
 end
 
 % check if writing to output file is possible so that all further
@@ -91,7 +78,18 @@ if sqw_exist          % init may want to upgrade the file and this
     delete(outfile);  %  is not the option we want to do here
 end
 
-
+%==========================================================================
+% Parallel options.
+combine_mode = config_store.instance().get_value('hpc_config','combine_sqw_using');
+if isempty(job_disp)
+    if strcmp(combine_mode,'mpi_code') || combine_in_parallel
+        combine_in_parallel = true;
+    else
+        combine_in_parallel = false;
+    end
+else
+    combine_in_parallel = true;
+end
 if combine_in_parallel && isempty(job_disp) % define name of new parallel job and initiate it.
     [~,fn] = fileparts(outfile);
     if numel(fn) > 8
@@ -101,23 +99,20 @@ if combine_in_parallel && isempty(job_disp) % define name of new parallel job an
     %
     job_disp = JobDispatcher(job_name);
 end
-
-
 if ~jd_initialized
     job_disp_4head = []; % do not initialize job dispatcher to process headers.
     %  overhead is high and the job is small
 else
     job_disp_4head =job_disp;
 end
+%==========================================================================
+%
 % construct target sqw object containing everything except pixel data.
 % Instead of PixelData, it will contain information about how to combine
 % PixelData
 [sqw_mem_part,job_disp] = collect_sqw_metadata(infiles,pix_data_range,job_disp_4head,argi{:});
-%
 sqw_mem_part.full_filename = outfile;
-
 %
-
 wrtr = sqw_formats_factory.instance().get_pref_access(sqw_mem_part);
 %
 hor_log_level = get(hor_config,'log_level');

@@ -150,7 +150,7 @@ classdef pixfile_combine_info < MultipixBase
                 pnpixtot       = obj.npix_each_file(split_ind(1,i):split_ind(2,i));
                 pfilenums    = filenums(split_ind(1,i):split_ind(2,i));
                 %
-                parts_carr{i} = pixfile_combine_info(part_files,pnbins,ppos_npixstart,ppos_pixstart,pnpixtot,prun_label,pfilenums);
+                parts_carr{i} = pixfile_combine_info(part_files,pnbins,pnpixtot,ppos_npixstart,ppos_pixstart,prun_label,pfilenums);
             end
         end
         %
