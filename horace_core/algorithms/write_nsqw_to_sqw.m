@@ -112,6 +112,9 @@ end
 % PixelData
 [sqw_mem_part,job_disp] = collect_sqw_metadata(infiles,pix_data_range,job_disp_4head,argi{:});
 sqw_mem_part.full_filename = outfile;
+% Set up output averages
+img_db_range   = sqw_mem_part.data.img_range;
+pix_data_range = sqw_mem_part.pix.data_range;
 %
 wrtr = sqw_formats_factory.instance().get_pref_access(sqw_mem_part);
 %
