@@ -1,10 +1,10 @@
 function obj = set_pos_npix_start_(obj,val)
-%SET_POS_NPIX_START_ Accepts positive array of positions of pix distributon
-% in each file or single value if the position of all pixels in
-% all files is the same
-if ~isnumeric(val)
+%SET_POS_NPIX_START_ Accepts non-negative array of positions of npix 
+% distributions in each file or single value if the positions of all npix
+% in all files are the same
+if ~isnumeric(val) || any(val<0)
     error('HORACE:pixfile_combine_info:invalid_argument',...
-        'pos_npixstart has to be numeric array containing information about npix location on hdd')
+        'pos_npixstart has to be non-negative numeric array containing information about npix location on hdd')
 end
 obj.pos_npixstart_ = val(:)';
 if numel(val) == 1 % each contributing file has npix array

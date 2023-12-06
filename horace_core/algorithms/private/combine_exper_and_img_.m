@@ -31,9 +31,11 @@ function [dnd_data,exper_combined,mhc] = combine_exper_and_img_( ...
 img_range = check_img_consistency_(img_metadata,inputs);
 
 % Check consistency:
-% At present, we insist that the contributing spe data are distinct in that:
-%   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
-%   - emode, lattice parameters, u, v, sample must be the same for all spe data input
+% At present, we insist that the contributing spe data for:
+%   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two
+%     spe data inputs
+%   - emode, lattice parameters, u, v, sample must be the same for all spe
+%     data inputs.
 [exper_combined,nspe] = Experiment.combine_experiments(experiments,allow_equal_headers,keep_runid);
 
 

@@ -4,13 +4,14 @@ function img_range = check_img_consistency_(img_metadata,sources)
 % the same grid
 %
 % We must also have same information for transforming pixels coordinates
-% to image coordinates
+% to image coordinates.
 %
 % Inputs:
 % img_metadata  -- cellarray of DnD image metadata classes each class
 %                  containing information about image metadata
 % sources       -- cellarray of data sources of the image metadata,
 %                  containing information about sources of the metadata
+%                  Used for errors reporting only.
 %
 n_inputs = numel(img_metadata);
 img_range=img_metadata{1}.img_range;

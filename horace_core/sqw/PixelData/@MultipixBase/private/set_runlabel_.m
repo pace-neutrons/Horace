@@ -3,7 +3,7 @@ function obj = set_runlabel_(obj,val)
 
 
 if ischar(val)
-    if ~(strcmpi(val,'nochange') || strcmpi(val,'fileno'))
+    if ~any(strcmpi(val, {'nochange', 'fileno'}))
         error('HORACE:pixfile_combine_info:invalid_argument',...
             'Invalid string value "%s" for run_label. Can be only "nochange" or "fileno"',...
             val)

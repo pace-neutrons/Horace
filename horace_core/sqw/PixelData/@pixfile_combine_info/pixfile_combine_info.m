@@ -115,7 +115,7 @@ classdef pixfile_combine_info < MultipixBase
             obj = set_pos_pixstart_(obj,val);
         end
         %
-        function parts_carr= split_into_parts(obj,n_workers)
+        function parts_holder= split_into_parts(obj,n_workers)
             % function divided pixfile_combine_info into the specified number
             % of (almost) equal parts to send it for processing
             % on parallel system
@@ -123,7 +123,7 @@ classdef pixfile_combine_info < MultipixBase
             if n_workers> n_tasks
                 n_workers = n_tasks;
             end
-            % calculate the indexes of an array to divide job array among
+            % calculate the indices of an array to divide job array among
             % all workers
             split_ind= calc_job_indexes_(n_tasks,n_workers);
             files   = obj.infiles;
@@ -135,7 +135,7 @@ classdef pixfile_combine_info < MultipixBase
                 end
             end
 
-            parts_carr = cell(1,n_workers);
+            parts_holder = cell(1,n_workers);
             pnbins = obj.nbins;
             filenums = 1:n_tasks;
             for i=1:n_workers
@@ -147,10 +147,10 @@ classdef pixfile_combine_info < MultipixBase
                 else
                     prun_label     = obj.run_label(split_ind(1,i):split_ind(2,i));
                 end
-                pnpixtot       = obj.npix_each_file(split_ind(1,i):split_ind(2,i));
-                pfilenums    = filenums(split_ind(1,i):split_ind(2,i));
+                pnpixtot   = obj.npix_each_file(split_ind(1,i):split_ind(2,i));
+                pfilenums  = filenums(split_ind(1,i):split_ind(2,i));
                 %
-                parts_carr{i} = pixfile_combine_info(part_files,pnbins,pnpixtot,ppos_npixstart,ppos_pixstart,prun_label,pfilenums);
+                parts_holder{i} = pixfile_combine_info(part_files,pnbins,pnpixtot,ppos_npixstart,ppos_pixstart,prun_label,pfilenums);
             end
         end
         %
@@ -163,8 +163,9 @@ classdef pixfile_combine_info < MultipixBase
         end
         %
         function obj=trim_nfiles(obj,nfiles_to_leave)
-            % Constrain the number of files and the file information,
-            % contained in class by the number of files (nfiles_to_leave) provided.
+            % Truncate the number of files and the file information,
+            % contained in class by the number of files (nfiles_to_leave)
+            % provided.
             %
             % Checks if pixel info in all remaining files remains consistent;
             %
@@ -180,7 +181,7 @@ classdef pixfile_combine_info < MultipixBase
     %----------------------------------------------------------------------
     methods(Access=protected)
         function obj = set_infiles(obj,val)
-            % Main property which sets list of input files
+            % Main method which sets list of input files
             if ~iscellstr(val)
                 if istext(val)
                     val = cellstr(val);

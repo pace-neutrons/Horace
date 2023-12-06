@@ -12,11 +12,13 @@ function [sqw_out,job_disp] = collect_sqw_metadata(inputs,varargin)
 %            of filebacked or memorybased sqw objects to combine.
 % Optional:
 % '-allow_equal_headers'
-%         -- if two objects of files from the list of input files contain
-%            the same information
+%         -- if two objects or files from the list of input files contain
+%            the same information, allow this. Would throw invalid_arguments
+%            otherwise.
 % '-keep_runid'
-%         -- if provided, keep existing run_id(s) according to numbers, 
-%            stored in headers. If not, recaluclate runID as sum of file inputs.
+%         -- if provided, keep existing run_id(s) according to numbers,
+%            stored in headers. If not, recaluclate runID according to number
+%            of input files.
 %
 % Returns:
 % sqw_out -- pixel-less sqw object combined from input sqw objects and
@@ -34,8 +36,7 @@ end
 
 [pix_data_range,job_disp]= parse_additional_input4_join_sqw_(argi);
 if iscell(inputs)
-    istxt = cellfun(@istext,inputs);
-    if all(istxt)
+    if all(cellfun(@istext,inputs))
         [sqw_sum_struc,pix_data_range,job_disp]=get_pix_comb_info_(inputs, ...
             pix_data_range,job_disp, ...
             allow_equal_headers,keep_runid);
@@ -46,11 +47,11 @@ if iscell(inputs)
             allow_equal_headers,true);
 
     else
-        is_sqw = cellfun(@(x)isa(x,'sqw'),inputs);
-        non_sqw = inputs(~is_sqw);
+        is_known = cellfun(@(x)(isa(x,'sqw')||@(x)istext(x)),inputs);
+        non_sqw = inputs(~is_known);
         error('HORACE:algorithms:invalid_argument', ...
             ['This routine accepts only list of sqw files or sqw objects.\n' ...
-            ' First non-sqw object class is %s'],class(non_sqw{1}));
+            ' First unknown object''s class is: %s'],class(non_sqw{1}));
     end
 else
     is_sqw = arrayfun(@(x)isa(x,'sqw'),inputs);

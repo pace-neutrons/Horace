@@ -52,8 +52,9 @@ classdef MultipixBase < serializable
         % PixelDataBase interface
         full_filename
         is_filebacked
-        % the property here to support PixelData interface. Never false, as
-        % this kind of data should be never (knowingly) misaligned
+        % the property here to support PixelData interface. Always false, as
+        % this kind of data are never misaligned and if components are
+        % misaligned, they will be aligned by join/combine operation.
         is_misaligned
     end
     %
@@ -189,7 +190,7 @@ classdef MultipixBase < serializable
             fn = obj.full_filename_;
         end
         function obj = set.full_filename(obj,val)
-            if ~(ischar(val)||isstring(val))
+            if ~istext(val)
                 error('HORACE:MultipixBase:invalid_argument', ...
                     'fill_filename should be a string, describing full name of the file on disk. It is %s', ...
                     disp2str(val));
@@ -203,12 +204,11 @@ classdef MultipixBase < serializable
         function is = get.is_misaligned(~)
             is = false;
         end
-
         %
         function is = get.relabel_with_fnum(obj)
             % true if pixel id from each contributing file
             % should be replaced by contributing file number
-            if ischar(obj.run_label)
+            if istext(obj.run_label)
                 if strcmpi(obj.run_label,'fileno')
                     is  = true;
                 else

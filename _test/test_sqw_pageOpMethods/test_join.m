@@ -1,7 +1,7 @@
 classdef test_join < TestCase
     properties
         test_dir;
-        wk_dir;
+        work_dir;
         sample_obj;
         sqw_to_join;
         files_to_join;
@@ -16,15 +16,15 @@ classdef test_join < TestCase
             obj.sqw_to_join = obj.sample_obj.split();
             n_parts = numel(obj.sqw_to_join);
             obj.files_to_join = cell(n_parts,1);
-            obj.wk_dir   = fullfile(tmp_dir,'test_join_data');
-            if ~isfolder(obj.wk_dir)
-                mkdir(obj.wk_dir);
+            obj.work_dir   = fullfile(tmp_dir,'test_join_data');
+            if ~isfolder(obj.work_dir)
+                mkdir(obj.work_dir);
             end
             for i = 1:n_parts
                 id = obj.sqw_to_join(i).runid_map.keys;
                 [~,fn] = fileparts(obj.sqw_to_join(i).main_header.filename);
                 fn = sprintf('%s_runID%d',fn,id{1});
-                fn = fullfile(obj.wk_dir,fn);
+                fn = fullfile(obj.work_dir,fn);
                 obj.files_to_join{i} = fn;
                 if isfile(fn)
                     continue;
@@ -34,8 +34,8 @@ classdef test_join < TestCase
             end
         end
         function delete(obj)
-            if ~isempty(obj.wk_dir) && isfolder(obj.wk_dir)
-                rmdir(obj.wk_dir,'s');
+            if ~isempty(obj.work_dir) && isfolder(obj.work_dir)
+                rmdir(obj.work_dir,'s');
             end
         end
 
@@ -92,7 +92,7 @@ classdef test_join < TestCase
             reformed_obj = join(split_obj);
 
             %TODO: Re #1320 -- this should not happen. Split reindexes from
-            % 1 -- split should not touch indexes.
+            % 1   -- split should not change indices.
             reformed_obj.pix.run_idx = reformed_obj.pix.run_idx + min(sqw_obj.pix.run_idx) - 1;
 
             assertEqualToTol(sqw_obj, reformed_obj, [1e-6, 1e-4], 'ignore_str', true);

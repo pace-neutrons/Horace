@@ -6,6 +6,6 @@ function obj = set_nbins_(obj,val)
 if ~isnumeric(val) || val < 1
     error('HORACE:pix_combine_info:invalid_argument', ...
         'number of bins for pix_combine info should be positive number. It is: %s',...
-        evalc('disp(val)'));
+        dis2str(val));
 end
 obj.nbins_ = val;

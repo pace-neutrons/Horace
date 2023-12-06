@@ -1,7 +1,7 @@
 function obj = set_infiles_(obj,val)
-% main setter which sets multiple pix files
+% main setter which sets multiple pix datasets
 % Inputs:
-% val --cellarray of PixelDatBase classes
+% val --cellarray of PixelDataBase classes
 %
 %
 if ~iscell(val)
@@ -22,9 +22,5 @@ obj.infiles_        = val;
 npf = cellfun(@(x)(x.num_pixels),val);
 obj.npix_each_file_ = npf(:)';
 obj.num_pixels_     = sum(obj.npix_each_file_);
-ranges = cellfun(@(x)(x.data_range),val,'UniformOutput',false);
-range = ranges{1};
-for i=2:obj.nfiles
-    range = minmax_ranges(range,ranges{i});
-end
-obj.data_range_ = range;
+%
+obj = recalc_data_range_(obj);
