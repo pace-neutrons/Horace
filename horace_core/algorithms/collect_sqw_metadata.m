@@ -34,7 +34,7 @@ if ~ok
     error('HORACE:algorithms:invalid_argument',mess);
 end
 
-[pix_data_range,job_disp]= parse_additional_input4_join_sqw_(argi);
+[pix_data_range,job_disp]= parse_additional_input4_join_sqw_(argi{:});
 if iscell(inputs)
     if all(cellfun(@istext,inputs))
         [sqw_sum_struc,pix_data_range,job_disp]=get_pix_comb_info_(inputs, ...
