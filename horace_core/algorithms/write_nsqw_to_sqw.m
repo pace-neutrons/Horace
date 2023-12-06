@@ -80,16 +80,6 @@ else
     combine_in_parallel = true;
 end
 
-if combine_in_parallel && isempty(job_disp) % define name of new parallel job and initiate it.
-    [~,fn] = fileparts(outfile);
-    if numel(fn) > 8
-        fn = fn(1:8);
-    end
-    job_name = ['job_nsqw2sqw_',fn];
-    %
-    job_disp = JobDispatcher(job_name);
-end
-
 % check if writing to output file is possible so that all further
 % operations make sense.
 [ok,sqw_exist,outfile,err_mess] = check_file_writable(outfile);
@@ -101,6 +91,18 @@ if sqw_exist          % init may want to upgrade the file and this
     delete(outfile);  %  is not the option we want to do here
 end
 
+
+if combine_in_parallel && isempty(job_disp) % define name of new parallel job and initiate it.
+    [~,fn] = fileparts(outfile);
+    if numel(fn) > 8
+        fn = fn(1:8);
+    end
+    job_name = ['job_nsqw2sqw_',fn];
+    %
+    job_disp = JobDispatcher(job_name);
+end
+
+
 if ~jd_initialized
     job_disp_4head = []; % do not initialize job dispatcher to process headers.
     %  overhead is high and the job is small
@@ -110,11 +112,7 @@ end
 % construct target sqw object containing everything except pixel data.
 % Instead of PixelData, it will contain information about how to combine
 % PixelData
-[sqw_mem_part,job_disp] = collect_sqw_metadata(infiles,pix_data_range,job_disp_4head,argi);
-%[sqw_struc_sum,img_db_range,pix_data_range,job_disp_4head]=get_pix_comb_info_(infiles,pix_data_range,job_disp_4head, ...
-%    allow_equal_headers,keep_runid);
-%
-%
+[sqw_mem_part,job_disp] = collect_sqw_metadata(infiles,pix_data_range,job_disp_4head,argi{:});
 %
 sqw_mem_part.full_filename = outfile;
 
@@ -132,7 +130,7 @@ end
 % pixels
 sqw_mem_part.creation_date  = datetime('now');
 wrtr = wrtr.init(sqw_mem_part,outfile);
-if combine_in_parallel
+if combine_in_parallel && jd_initialized
     wrtr = wrtr.put_sqw(job_disp,'-verbatim');
 else
     wrtr = wrtr.put_sqw('-verbatim');

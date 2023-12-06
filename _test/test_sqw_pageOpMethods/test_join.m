@@ -97,6 +97,7 @@ classdef test_join < TestCase
 
             assertEqualToTol(sqw_obj, reformed_obj, [1e-6, 1e-4], 'ignore_str', true);
         end
+
         function test_collect_metadata_works_on_membased(obj)
             sqw_t = collect_sqw_metadata(obj.sqw_to_join);
             assertEqual(sqw_t.main_header.nfiles,24)
@@ -106,7 +107,6 @@ classdef test_join < TestCase
             assertTrue(isa(sqw_t.pix,'pixobj_combine_info'))
         end
 
-
         function test_collect_metadata_works_on_files(obj)
             sqw_t = collect_sqw_metadata(obj.files_to_join);
             assertEqual(sqw_t.main_header.nfiles,24)
@@ -115,7 +115,5 @@ classdef test_join < TestCase
                 'ignore_str',true,'tol',[1.e-7,1.e-7])
             assertTrue(isa(sqw_t.pix,'pixfile_combine_info'))
         end
-
-
     end
 end
