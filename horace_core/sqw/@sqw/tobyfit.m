@@ -61,6 +61,13 @@ if isempty(sqws)
     error('HORACE:tobyfit:invalid_argument', 'There must be at least one leading sqw object in the input argument list to Tobyfit')
 end
 
+if any(arrayfun(@(x) x.pix.is_filebacked, [sqws{:}]))
+    error(['HORACE:tobyfit:invalid_argument', 'Tobyfit does not currently support file-backed sqw objects\n' ...
+          ' In order to attempt to run please convert all sqws to memory-backed:\n' ...
+           '  >> my_sqw.pix = PixelDataMemory(my_sqw.pix);'])
+end
+
+
 [inst, all_inst] = get_inst_class(sqws{:});
 
 if isempty(inst)

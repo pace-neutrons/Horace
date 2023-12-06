@@ -310,35 +310,10 @@ for i=1:numel(ind)
             stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         end
     end
-    % See Re #1348 This does not make sence and should be implemented
-    % differently
-    % if wout.pix.is_filebacked
-    %     wout = wout.get_new_handle();
-    %
-    %     sv_ind = wout.pix.field_index('sig_var');
-    %
-    %     pix = wout.pix;
-    %     pix.data_range = PixelDataBase.EMPTY_RANGE;
-    %
-    %     npg = wout.pix.num_pages;
-    %     for page = 1:npg
-    %         pix.page_num = page;
-    %
-    %         data = pix.data;
-    %         [start_idx, end_idx] = pix.get_page_idx_(page);
-    %
-    %         data(sv_ind(1), :) = stmp(start_idx:end_idx)/mc_points;
-    %         data(sv_ind(2), :) = 0;
-    %         pix.data_range = pix.pix_minmax_ranges(data, pix.data_range);
-    %
-    %         pix = pix.format_dump_data(data);
-    %     end
-    %     wout.pix = pix.finish_dump();
-    %
-    % else
+
     wout(i).pix.signal = stmp(:)'/mc_points;
     wout(i).pix.variance = zeros(1,numel(stmp));
-    % end
+
     % TODO: #975 this have to be done during paging operations
     % *** The same TODO appears in tobyfit_DGfermi_resconv. Fix together.
     wout(i)=recompute_bin_data(wout(i));
