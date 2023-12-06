@@ -4,7 +4,7 @@ function obj = set_pos_pixstart_(obj,val)
 % Accepts positive array of positions of pixels in each file or single
 % value if the positions of all pixels in all files are the same.
 
-if ~isnumeric(val) || any(val < 1)
+if ~isnumeric(val) || any(val < 0)
     error('HORACE:pixfile_combine_info:invalid_argument',...
         'pos_pixstart has to be numeric array containing information about pix location in file')
 end
