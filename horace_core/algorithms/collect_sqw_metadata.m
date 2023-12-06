@@ -15,7 +15,8 @@ function [sqw_out,job_disp] = collect_sqw_metadata(inputs,varargin)
 %         -- if two objects of files from the list of input files contain
 %            the same information
 % '-keep_runid'
-%         --
+%         -- if provided, keep existing run_id(s) according to numbers, 
+%            stored in headers. If not, recaluclate runID as sum of file inputs.
 %
 % Returns:
 % sqw_out -- pixel-less sqw object combined from input sqw objects and
