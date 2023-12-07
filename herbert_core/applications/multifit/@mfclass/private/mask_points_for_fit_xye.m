@@ -1,4 +1,4 @@
-function [msk, mess] = mask_points_for_fit_xye (x, y, e, mask)
+function [msk, mess] = mask_points_for_fit_xye (x, y, e, keep)
 % Create mask array that removes points that would cause a least-squares fit to fail.
 %
 %    >> sel = mask_points_for_fit_xye (x, y, e)
@@ -25,7 +25,7 @@ function [msk, mess] = mask_points_for_fit_xye (x, y, e, mask)
 %           If give variances, this has the same effect (except that the function cannot check
 %           negative error bars; it does check negative variances of course)
 %
-%   mask    [Optional] array of ones and zeros, with the same number of elements as the data
+%   keep    [Optional] array of ones and zeros, with the same number of elements as the data
 %           array, that indicates which of the data points are to be retained for
 %           fitting (true to retain, false to ignore)
 %
@@ -38,11 +38,10 @@ function [msk, mess] = mask_points_for_fit_xye (x, y, e, mask)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Check mask array
-if ~any(mask(:))
+if ~any(keep(:))
     mess = 'The input mask array masks all data points';
     msk = false(size(y));
     return
@@ -57,12 +56,12 @@ if ~isempty(x)
     for i = 1:numel(x)
         ok_xvals = isfinite(x{i}) & ok_xvals;
     end
-    if ~any(ok_xvals(mask))
+    if ~any(ok_xvals(keep))
         mess = 'All points have at least one undefined (infinite or NaN) coordinate value';
         msk = false(size(y));
         return
-    elseif ~all(ok_xvals(mask))
-        npts = numel(ok_xvals(mask)) - nnz(ok_xvals(mask));
+    elseif ~all(ok_xvals(keep))
+        npts = numel(ok_xvals(keep)) - nnz(ok_xvals(keep));
         fracpts = npts./numel(x{i});
         imess = imess+1;
         mess{imess} = [num2str(npts),' points with at least one undefined (infinite or NaN) coordinate ',...
@@ -73,12 +72,12 @@ end
 
 % Remove data points with non-finite y values
 ok_yvals = isfinite(y);
-if ~any(ok_yvals(mask))
+if ~any(ok_yvals(keep))
     mess = 'All points have undefined (infinite or NaN) data values';
     msk = false(size(y));
     return
-elseif ~all(ok_yvals(mask))
-    npts=numel(ok_yvals(mask)) - nnz(ok_yvals(mask));
+elseif ~all(ok_yvals(keep))
+    npts=numel(ok_yvals(keep)) - nnz(ok_yvals(keep));
     fracpts=npts./numel(y);
     imess=imess+1;
     mess{imess} = [num2str(npts),' points with undefined (infinite or NaN) data values ',...
@@ -88,12 +87,12 @@ end
 
 % Remove data points with zero or negative error bars
 ok_ebars = isfinite(e) & e>0;
-if ~any(ok_ebars(mask))
+if ~any(ok_ebars(keep))
     mess = 'All points have zero, negative or undefined (infinite or NaN) error bars';
     msk = false(size(y));
     return
-elseif ~all(ok_ebars(mask))
-    npts=numel(ok_ebars(mask)) - nnz(ok_ebars(mask));
+elseif ~all(ok_ebars(keep))
+    npts=numel(ok_ebars(keep)) - nnz(ok_ebars(keep));
     fracpts=npts./numel(y);
     imess = imess+1;
     mess{imess} = [num2str(npts),' points with zero, negative or undefined (infinite or NaN) error bars ',...
@@ -103,13 +102,13 @@ end
 
 % Combine all the masking criteria
 ok_data = ok_xvals & ok_yvals & ok_ebars;
-if ~any(ok_data(mask))
+if ~any(ok_data(keep))
     mess = 'All points have either non-finite coordinate or data values, or non-finite, zero or negative error bars';
     msk = false(size(y));
     return
 end
 
 % Get final list of points to fit
-msk = ok_data & mask;
+msk = ok_data & keep;
 
 end
