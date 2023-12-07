@@ -5,15 +5,12 @@ classdef pixobj_combine_info < MultipixBase
     % or memory->file or filebacked_pixels->file modes
     %
     properties(Dependent)
-        % list of pixel data objects to combine together
-        pixobj_list
         % list of distributions of the pixels within the bins
         npix_list
     end
     %
     %
     properties(Access = protected)
-        pixobj_list_ = {}
         npix_list_ = {};
     end
     methods
@@ -70,6 +67,41 @@ classdef pixobj_combine_info < MultipixBase
             end
         end
         %------------------------------------------------------------------
+        function obj = init_pix_access(obj)
+            % initialize access to contributing pixels.
+
+            % as we normally read data and immediately dump them back, what
+            % is the point of converting them to double and back to sinlge?
+            % Keep precision.
+            for i=1:numel(obj.infiles_)
+                obj.infiles_{i}.keep_precision = true;
+            end
+        end
+
+        function [data,npix_chunk] = get_dataset_page(obj, ...
+                n_dataset,pix_pos,npix_idx)
+            % Return pixel data and pixel bin sub-distribution for the
+            % particular dataset ouf of multiple pixel datasets, stored
+            % within the class.
+            % Inputs:
+            % n_dataset -- number of dataset to get data from
+            % pix_pos   -- the position where pixel data are located.
+            %              Should be externaly synchronized with npix.
+            %              Can be calculated here, but ignored for saving
+            %              time and memory.
+            % npix_idx  -- two-element array containing first and last
+            %              indices of bins containing
+            %              distribution of pixels over bins.
+            %
+            npix    = obj.npix_list_{n_dataset};
+            npix_chunk = npix(npix_idx(1):npix_idx(2));
+            npix_in_block = sum(npix_chunk);
+            pix_idx_end   = pix_pos+npix_in_block-1;
+            pix     = obj.infiles_{n_dataset};
+            data    = pix.get_pixels( ...
+                pix_pos:pix_idx_end,'-raw','-align');
+        end
+        %------------------------------------------------------------------
         %
         function obj = recalc_data_range(obj)
             % recalculate common range for all pixels analysing pix ranges
@@ -94,7 +126,6 @@ classdef pixobj_combine_info < MultipixBase
             error('HORACE:pixobj_combine_info:runtime_error', ...
                 'npix_each_file is calculated from list of input files and can not be set on this object')
         end
-
         function obj = set_infiles(obj,val)
             obj = set_infiles_(obj,val);
         end

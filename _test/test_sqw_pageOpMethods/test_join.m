@@ -81,11 +81,9 @@ classdef test_join < TestCase
             assertEqualToTol(sqw_obj, reformed_obj)
         end
 
-        function test_split_and_join_returns_same_object_including_pixels(obj)
+        function test_split_and_join_returns_same_obj_including_pix_in_mem(obj)
 
-            fpath = fullfile(obj.test_dir, 'sqw_2d_1.sqw');
-            sqw_obj = sqw(fpath);
-            split_obj = split(sqw_obj);
+            split_obj = obj.sqw_to_join;
 
             assertTrue(all(arrayfun(@(x) x.main_header.nfiles == 1, split_obj)));
 

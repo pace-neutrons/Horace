@@ -25,7 +25,7 @@ else
         class(in_obj))
 end
 % as we normally read data and immediately dump them back, what
-% is the point of converting them to double and back?
+% is the point of converting them to double and back to sinlge?
 % Keep precision.
 obj.pix_.keep_precision = true;
 obj.old_file_format_ = obj.pix_.old_file_format;

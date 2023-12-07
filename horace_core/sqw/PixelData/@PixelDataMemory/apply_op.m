@@ -18,9 +18,11 @@ function obj_out = apply_op(obj_in,page_op)
 %
 
 npix = page_op.npix;
+mem_chunk_size = sum(npix);
+[npix_chunks, npix_idx,page_op] = page_op.split_into_pages(npix, mem_chunk_size);
 
-page_op = page_op.get_page_data(1,{npix});
-page_op = page_op.apply_op(npix,[1;numel(npix)]);
+page_op = page_op.get_page_data(1,npix_chunks);
+page_op = page_op.apply_op(npix,npix_idx);
 page_op = page_op.common_page_op();
 %
 obj_out = page_op.finish_op(obj_in);

@@ -45,17 +45,25 @@ classdef MultipixBase < serializable
         change_fileno
     end
     properties(Dependent,Hidden)
+        %------------------------------------------------------------------
+        % The properties to support PixelDataBase interface:
+        %
         % The property, which describes the pixel data layout on disk or in
         % memory and all additional properties describing pix array
         metadata;
+        % returns data_wrap as for PixelDataFilebacked class, but the data
+        % are insufficient to recover the class
         data_wrap;
-        % PixelDataBase interface
+        % Unlike PixelDataBase contains name of target file to save
+        % all combined data together
         full_filename
+        % always true, as the data are filebacked
         is_filebacked
-        % the property here to support PixelData interface. Always false, as
-        % this kind of data are never misaligned and if components are
-        % misaligned, they will be aligned by join/combine operation.
+        % Always false, as this kind of data are never misaligned and
+        % if components are misaligned, they will be aligned while retrieved
+        % from components during join/combine operation.
         is_misaligned
+        %------------------------------------------------------------------
     end
     %
     %
@@ -115,6 +123,12 @@ classdef MultipixBase < serializable
                 obj.(flds{i})  = varargin{i};
             end
             obj.do_check_combo_arg_= true;
+        end
+        %------------------------------------------------------------------
+        function obj = init_pix_access(obj)
+            % initialize access to contributing pixels.
+            % Important for pixfile_combine. Does nothing for
+            % pixobj_combine
         end
         %------------------------------------------------------------------
         function nf   = get.nfiles(obj)

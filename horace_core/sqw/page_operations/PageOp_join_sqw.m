@@ -1,162 +1,118 @@
 classdef PageOp_join_sqw < PageOpBase
-    % Single page pixel operation and main gateway for
-    % sqw.split  algorithm.
-    %
+    % Single page pixel operation and main driver for
+    % sqw.join and write_nsqw_to_sqw  algorithms.
     %
     properties
-        % Multipix info class containing information about 
-        pix_combine_info 
+        % property which contains MultipixBase class, describing
+        % pixels in multiple datasets to be combined
+        pix_combine_info;
     end
+    %
     properties(Access = protected)
+        % holder for array of split block indices (npix_idx), produced by
+        % split_into_pages routine
+        block_idx_;
+        % the array of positions each combined page occupies in target
+        % dataset. Not very useful in serial mode but may be necessary in
+        % parallel mode if parallel_write is available.
+        page_start_pos_;
+        % array of current positions of all contributing pixel datasets
+        current_page_pix_pos_;
     end
     methods
         function obj = PageOp_join_sqw(varargin)
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'join_sqw';
-            obj.split_at_bin_edges = false;
+            obj.split_at_bin_edges = true;
         end
 
-        function obj = init(obj,in_sqw)
-            % initialize split_sqw algorithm.
+        function [obj,in_sqw] = init(obj,in_sqw)
+            % initialize join_sqw algorithm.
             % Input:
-            % in_sqw         -- initial sqw object to split
-
+            % in_sqw         -- special sqw object to join, prepared by
+            %                   collect_sqw_metadata algorithm.
+            if ~isa(in_sqw.pix,'MultipixBase')
+                error('HORACE:PageOp_join_sqw:invalid_argument', ...
+                    'Input sqw object does not contain information on how to combine input data')
+            end
+            % Transfer input MultipxBase object as source of data in the
+            % operation
+            obj.pix_combine_info = in_sqw.pix;
+            in_sqw.pix = PixelDataMemory();
+            %
             obj = init@PageOpBase(obj,in_sqw);
-
-            %obj.img_filebacked_ = img_filebacked;
-            % prepare target sqw objects to split source into
+            % clear signal accumulator to save memory; it will not be used
+            % here.
+            obj.sig_acc_  = [];
+            % initialize input datasets for read access
+            obj.pix_combine_info  = obj.pix_combine_info.init_pix_access();
+            obj.current_page_pix_pos_ = ones(1,obj.pix_combine_info.nfiles);
         end
         function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
-            % Overload for standard split to ensure parts of split images
-            % do not exceed available memory.
-            %
+            % Overload of split method allowing to define large target chink
+            % and store npix_idx for internal usage
             % Inputs:
             % npix  -- image npix array, which defines the number of pixels
             %           contributing into each image bin and the pixels
             %           ordering in the linear array
             % chunk_size
-            %       -- sized of chunks to split pixels.
+            %       -- sized of chunks to split pixels
             % Returns:
             % npix_chunks -- cellarray, containing the npix parts
             % npix_idx    -- [2,n_chunks] array of indices of the chunks in
             %                the npix array.
-            [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,chunk_size);
-            % if ~obj.img_filebacked_
-            %     return;
-            % end
-            % % Ensure sum of all partial images do not exceed available memory
-            % % during the split.
-            % 
-            % % The size of a split chunk is equal to size of 3 double arrays
-            % % for each chunks multiplied by the number of chunks
-            % n_chunks = numel(obj.out_sqw);
-            % n_elements_in_chunks = cellfun(@(x)(numel(x)),npix_chunks);
-            % % One multiple image element occupies 3*8*n_chunks bytes
-            % % and all image chunks occupy the following memory:
-            % chunk_byte_sizes = (3*8*n_chunks)*n_elements_in_chunks;
-            % mem_avail = config_store.instance().get_value('hpc_config','phys_mem_available');
-            % if all(chunk_byte_sizes<mem_avail)
-            %     return;
-            % end
-            % % split chunks additionaly to ensure sum of them do not contain
-            % % more bins that would fit to memory.
-            % n_elements_fit_memory = floor(mem_avail/(3*8*n_chunks));
-            % if n_elements_fit_memory <1
-            %     n_elements_fit_memory = 1; % will be very very very slow.
-            %     warning('HORACE:slow_operation', ...
-            %         [' split_sqw algorithm suggests starts page operation operating single image bin at a time.\n' ...
-            %         ' This will be extreamly slow operation.\n' ...
-            %         ' Validate your settings'])
-            % end
-            % [npix_chunks, npix_idx] = split_vector_max_sum_or_numel( ...
-            %     npix, chunk_size,n_elements_fit_memory);
+            % See split procedure for more details
+            fb = config_store.instance().get_value( ...
+                'hor_config','fb_scale_factor');
+            % do large chunk to decrease number of sub-calls to each data
+            % pixels
+            large_chunk = chunk_size*fb;
+            [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,large_chunk);
+            obj.block_idx_ = npix_idx;
+            page_sizes = cellfun(@(x)sum(x(:)),npix_chunks);
+            page_pos = cumsum(page_sizes);
+            obj.page_start_pos_ = [1,page_pos(1:end-1)];
         end
 
-        function obj = apply_op(obj,npix_block,npix_idx)
-            run_id = obj.page_data_(obj.run_idx_,:);
-            % run id contributed into this page
-            unique_id = unique(run_id);
-            obj.n_obj_contrib_to_page_ = zeros(numel(unique_id),1);
-
-            % pixel over bin distribution
-            nbins   = numel(npix_block);
-            ibin  = repelem(1:nbins, npix_block(:))';
-            % sort pixels over objects
-            for n_obj = 1:numel(unique_id) %
-                this_id    = unique_id(n_obj);
-                % number of current object in Experiment.IX_dataset array.
-                splitobj_num = obj.runid_map_(this_id);
-                obj.run_contributes_(splitobj_num) = true;
-                obj.n_obj_contrib_to_page_(n_obj) = splitobj_num;
-                % extract data belonging to single split sqw
-                this_img   = obj.out_img{splitobj_num};
-                this_pix   = run_id == this_id;
-                obj_pix    = obj.page_data_(:,this_pix);
-
-                % calculate object accumulators:
-                % pixel distribution over bins:
-                obj_npix   = accumarray(ibin(this_pix), ones(1, sum(this_pix)), [nbins, 1]);
-                if obj.img_filebacked_
-                    % calculate chunk of final image
-                    [s_ar, e_ar] = compute_bin_data( ...
-                        obj_npix,obj_pix(obj.signal_idx,:),obj_pix(obj.var_idx,:));
-                    this_img.s   =  s_ar(:);
-                    this_img.e   =  e_ar(:);
-                    this_img.npix= obj_npix(:);
-                else
-                    % accumulate non-normalized chunks to finalize them
-                    % later
-                    [s_ar, e_ar] = compute_bin_data( ...
-                        obj_npix,obj_pix(obj.signal_idx,:), ...
-                        obj_pix(obj.var_idx,:),true);
-
-                    this_img.s(npix_idx(1):npix_idx(2))    = ...
-                        this_img.s(npix_idx(1):npix_idx(2)) + s_ar(:);
-                    this_img.e(npix_idx(1):npix_idx(2))    = ...
-                        this_img.e(npix_idx(1):npix_idx(2)) + e_ar(:);
-                    this_img.npix(npix_idx(1):npix_idx(2))    = ...
-                        this_img.npix(npix_idx(1):npix_idx(2)) + obj_npix(:);
-
-                end
-                % assign modified data back to the holder
-                obj.out_img{splitobj_num}  = this_img;
-                obj.out_pix{splitobj_num}  = obj_pix;
-            end
-        end
-
-        function obj = common_page_op(obj)
-            % Method contains split_sqw-specific code which runs for any
-            % page operation.
+        function obj = get_page_data(obj,idx,npix_blocks)
+            % join-specific access to block of page data
             %
-            % Input:
-            % obj   -- pageOp object, containing pixel_data page
-            %          to split into sub-pages.
+            % reads data from mutiple sources and combines them together
+            % into single page of data.
             %
+            bin_start = cumsum(npix_blocks{idx});
+            page_size = bin_start(end);
+            % the positions of empty bins to place pixels
+            bin_start = [0,bin_start(1:end-1)];
+            page_data = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,page_size);
+            multi_data   = obj.pix_combine_info;
+            n_datasets = multi_data.nfiles;
+            for i=1:n_datasets
+                % get particular dataset's page data
+                [contr_page_data,page_bin_distr] = multi_data.get_dataset_page( ...
+                    i,obj.current_page_pix_pos_(i),obj.block_idx_(:,idx));
+                % advance initial page position for the particular dataset
+                n_page_pix = size(contr_page_data,2);
+                obj.current_page_pix_pos_(i) = ...
+                    obj.current_page_pix_pos_(i)+n_page_pix;
 
-            % number of objects which contain pixels
-            n_contr = numel(obj.n_obj_contrib_to_page_);
+                % find indexes of i-th dataset's page pixels in the target's
+                % dataset page
+                targ_bin_pos   = repelem(bin_start,page_bin_distr);
+                targ_bin_idx   = targ_bin_pos+(1:n_page_pix);
 
-            for i=1:n_contr
-                splitobj_num = obj.n_obj_contrib_to_page_(i);
-                % re-evaluate pix ranges for every object contributing to
-                % page
-                pix_obj_data = obj.out_pix{splitobj_num};
-                obj.obj_pix_ranges{splitobj_num} = ...
-                    PixelData.pix_minmax_ranges(pix_obj_data, ...
-                    obj.obj_pix_ranges{splitobj_num});
-                % store split result into places, specific for each split object
-                obj.out_sqw{splitobj_num}.pix = ...
-                    obj.out_sqw{splitobj_num}.pix.store_page_data( ...
-                    pix_obj_data,obj.write_handles{splitobj_num});
-                % if image is filabacked, also store recalculated piece of
-                % image
-                if obj.img_filebacked_
-                    obj.write_handles{splitobj_num}.save_img_chunk(...
-                        obj.out_img{splitobj_num});
-                end
+                % place page pixel data into appropriate places of combined
+                % dataset
+                page_data(:,targ_bin_idx) = contr_page_data;
+                % advance empty bin positions to point to free bin spaces
+                bin_start = bin_start+page_bin_distr(:)';
             end
+            obj.page_data_ = page_data;
         end
 
+        function obj = apply_op(obj,varargin)
+            %does nothing data redistribution have occured at get_page_data
+        end
         %
     end
     %======================================================================
@@ -167,6 +123,10 @@ classdef PageOp_join_sqw < PageOpBase
             %
             % Here we calculate unique run_id differently, so always false
             is = false;
+        end
+        function  does = get_changes_pix_only(~)
+            % this operation changes pixels only regardless of image
+            does = true;
         end
 
         %
