@@ -99,43 +99,117 @@ if any(spe_filled) && ~(numel(unique(spe_file_out(spe_filled)))==numel(spe_file_
 end
 
 
-% Check parameter file
+% Check parameter files
 % --------------------
-if ~isempty(par_file)
-    if is_string(par_file) && ~isempty(strtrim(par_file))
-        par_file_out=strtrim(par_file);
-        det_par_file = true;
-    elseif isstruct(par_file)
-        det_par_file = false;
+
+% Ensure par_file is a cell array with the same number of elements as the
+% number of spe files. A single input .par file name is expanded to as many
+% duplicates as required; an empty file name is expanded to duplicates of
+% the empty string
+n_par_files = numel(spe_file_out); % get nr par files from nr spe files
+if isempty(par_file)
+    % det_par_file indicates if the relevant element represents a filename
+    % here it is false as the contents are empty
+    % the single value is converted to a cell of empty chars, one per spe
+    det_par_file = false(n_par_files,1);
+    par_file_out = repmat({''},n_par_files,1);
+elseif istext(par_file) 
+    % a single text string has been provided
+    % det_par_file indicates that all the pare_file_outs will be filenames
+    % the single string is converted to a cell of repeated values
+    det_par_file = true(n_par_files,1);
+    par_file_out = repmat({strtrim(par_file)},n_par_files,1);
+elseif isstruct(par_file) && numel(par_file) == 1
+    % a single struct has been provided
+    % det_par_file is false for all spes as a filename has not been
+    % provided. The struct is repeated one for each spe
+    det_par_file = false(n_par_files,1);
+    % the efficiency of this presumes that copy on write will mean that
+    % only one copy of the struct will actually be in memory
+    par_file_out = repmat({ par_file },n_par_files,1);
+elseif iscell(par_file) 
+    if numel(par_file) == 1 
+        if istext(par_file{1})
+            % cell array with single text element has been provided
+            % par file out is filled with this single element
+            par_file_out = repmat({par_file{1}},n_par_files,1);
+            det_par_file = true(n_par_files,1);
+        elseif isstruct(par_file{1})
+            % cell array with single struct element has been provided
+            % par file out is filled with this single element
+            det_par_file = true(n_par_files,1);
+            % the efficiency of this presumes that copy on write will mean that
+            % only one copy of the struct will actually be in memory
+            par_file_out = repmat({strtrim(par_file{1})},n_par_files,1);
+        else
+            error('HORACE:gen_sqw_check_files:invalid_argument', ...
+                  'wrong type of contents of cell of one par file');
+        end
+    elseif numel(par_file) == n_par_files
+        if cellfun(@(x)istext(x),par_file)
+            % cell array with text element == nr spe files has been provided
+            % use it as is trimmed
+            par_file_out = cellfun(@strtrim,par_file,'UniformOutput',false);            
+            det_par_file = true(n_par_files,1);
+        elseif cellfun(@(x)isstruct(x),par_file)
+            % cell array with N struct elements has been provided
+            % par file out is filled with these elements
+            det_par_file = true(n_par_files,1);
+            % all elements copied
+            % this may not be memory efficient 
+            par_file_out = par_file;
+        else
+            error('HORACE:gen_sqw_check_files:invalid_argument', ...
+                  'wrong type of contents of cell of N par files');
+        end
     else
-        error('HORACE:algorithms:invalid_argument',...
-            'If given, par filename  must be a non-empty string');
-    end
-    if det_par_file
-        % Check par file exists
-        [~,~,ext]=fileparts(par_file_out);
-        if any(strcmpi(ext,[ext_horace,'.spe']))
-            error('HORACE:algorithms:invalid_argument',...
-                ['Detector parameter files must not have the reserved extension: "%s". ',...
-                '''. Check the file is .par type and rename.'],ext);
-        end
-        if ~exist(par_file_out,'file')
-            error('HORACE:algorithms:invalid_argument',...
-                'Detector parameter file "%s" not found',par_file_out);
-        end
-    else
-        pf = {'filename','filepath','group','x2','phi','azim','width','height'};
-        if ~all(isfield(par_file,pf))
-            error('HORACE:algorithms:invalid_argument',...
-                'Detector parameter information provided as input structure must be in Horace par_file format');
-        end
-        par_file_out = par_file.filename;
+        error('HORACE:gen_sqw_check_files:invalid_argument', ...
+                  'cell array of par files must be all filenames or all structs');
     end
 else
-    det_par_file = false;
-    par_file_out='';
+    % other possible inputs are errors
+    error('HORACE:algorithms:invalid_argument', ...
+          'not acceptable input format for par files');
 end
 
+% define the fields for a .par struct
+pf = {'filename','filepath','group','x2','phi','azim','width','height'};
+
+for ii=1:n_par_files
+    pfile = par_file_out{ii};
+    if ~isempty(pfile)
+    % parameter file item has been given        
+        % if the .par file name has been input, check for existence
+        if det_par_file(ii)
+            % Check par file has legal extension and exists
+            [~,~,ext]=fileparts(par_file_out{ii});
+            if any(strcmpi(ext,[ext_horace,'.spe']))
+                error('HORACE:algorithms:invalid_argument',...
+                    ['Detector parameter files must not have the reserved extension: "%s". ',...
+                    '''. Check the file is .par type and rename.'],ext);
+            end
+            if ~exist(par_file_out{ii},'file')
+                error('HORACE:algorithms:invalid_argument',...
+                    'Detector parameter file "%s" not found',par_file_out{ii});
+            end
+        % if a struct has been input, extract the filename after checking
+        % the correct fields are present
+        else
+            if ~all(isfield(par_file{ii},pf))
+                error('HORACE:algorithms:invalid_argument',...
+                    'Detector parameter information provided as input structure must be in Horace par_file format');
+            end
+            par_file_out{ii} = par_file{ii}.filename;
+            if ~exist(par_file_out{ii},'file')
+                error('HORACE:algorithms:invalid_argument',...
+                    'Detector parameter file "%s" from struct not found',par_file_out{ii});
+            end
+        end
+    % no parameter file name has been given
+    else
+        par_file_out{ii} = '';
+    end
+end
 
 % Check sqw file
 % ---------------
@@ -162,19 +236,18 @@ if any(strcmpi(sqw_file_out,spe_file_out)) && ~isempty(sqw_file_out)
         'Output sqw file name %s matches one of the input spe file names',sqw_file_out);
 end
 
-if ~isempty(par_file_out)
-    if any(strcmpi(par_file_out,spe_file_out))
-        error('HORACE:algorithms:invalid_argument',...
-            'Detector parameter file name %s matches one of the input spe file names',par_file_out);
-    elseif strcmpi(par_file_out,sqw_file_out)
-        error('HORACE:algorithms:invalid_argument',...
-            'Detector parameter file name %s and output sqw file name match',par_file_out);
+
+for ii=1:numel(par_file_out)
+    if ~isempty(par_file_out{ii})
+        for jj=1:numel(spe_file_out)
+            if any(strcmpi(par_file_out{ii},spe_file_out{jj}))
+                error('HORACE:algorithms:invalid_argument',...
+                    'Detector parameter file name %s matches one of the input spe file names',par_file_out);
+            end
+        end
+        if strcmpi(par_file_out{ii},sqw_file_out)
+            error('HORACE:algorithms:invalid_argument',...
+                'Detector parameter file name %s and output sqw file name match',par_file_out);
+        end
     end
-end
-
-
-% Fill error flags
-% ----------------
-if ~det_par_file
-    par_file_out = par_file;
 end

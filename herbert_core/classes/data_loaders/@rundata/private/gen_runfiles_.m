@@ -72,37 +72,53 @@ elseif ~(iscellstr(spe_files)||isstring(spe_files))
             'spe file input must be a single file name or cell array of file names')
     end
 end
+n_spe_files = numel(spe_files);
 
 % Check if second parameter is a par file or list of par files and
 % remove par_files variable from the list of input parameters;
 if nargin>1
-    parfile_is_det = false; % not a detpar structure
+    parfile_is_det = false(n_spe_files,1); % not a detpar structure
     if ischar(params{1}) && size(params{1},1)==1    % single par file provided as input
-        par_files = params(1);    % cell array with one character array
+        par_files = repmat({params(1)},n_spe_files,1);    % cell array with one character array
     elseif iscellstr(params{1})   % list of par files provided
-        par_files = params{1};
+        if numel(params{1})==1
+            par_files = repmat({params{1}{1}},n_spe_files,1);
+        elseif numel(params{1})==n_spe_files
+            par_files = params{1};
+        else
+            error('HERBERT:gen_runfiles:invalid_argument', ...
+                  'number of par_files is not 1 or the number of spe_files');
+        end
     elseif isempty(params{1})     % empty par file definition provided
         par_files = {};
     else
-        [is,par_files] = isdetpar(params{1}); % will throw if array in wrong format
-        if is % detector's structure or det array is provided
-            parfile_is_det = true;
-            par_files = {par_files};
+        par_files = params{1};
+        if ~iscell(par_files)
+            par_files = { par_files };
+        end
+        for ii=1:numel(par_files)
+            [is,pfiles] = isdetpar(par_files{ii}); % will throw if array in wrong format
+            if is % detector's structure or det array is provided
+                parfile_is_det(ii) = true;
+                par_files{ii} = pfiles;
+            end
         end
     end
     params = params(2:end);
 else
     par_files = {};
 end
+
 % Check number of par files is one, no, or matches the number of spe files
 if ~(numel(par_files)==1 || numel(par_files)==numel(spe_files) || numel(par_files) == 0)
     error('HERBERT:rundata:invalid_argument',...
         'par files list should be empty, have one par file or number of par files should be equal to the number of spe files');
 end
+
 % Check if all requested par files exist:
-if ~parfile_is_det
-    for i=1:numel(par_files)
-        file=check_file_exist(par_files{i},{'.par','.nxspe'});
+for ii=1:numel(par_files)
+    if ~parfile_is_det(ii)
+        file=check_file_exist(par_files{ii},{'.par','.nxspe'});
         if isempty(file)
             error('HERBERT:rundata:invalid_argument',...
                 ' par file %s specified but can not be found',file);
@@ -246,7 +262,7 @@ elseif numel(par_files)==1
 else   % multiple par and spe files;
     for i=1:n_files
         [runfiles{i},file_exist(i)]= init_runfile_with_par(runfiles{i},...
-            spe_files{i},par_files{i},'',dfnd_params(i),allow_missing,parfile_is_det);
+            spe_files{i},par_files{i},'',dfnd_params(i),allow_missing,parfile_is_det(i));
         if file_exist(i) && ~runfiles{i}.isvalid
             runfiles{i} = runfiles{i}.check_combo_arg();
             if ~ok
@@ -331,17 +347,41 @@ if ~isempty(par_data)
 end
 
 function [is,input]=isdetpar(input)
+%ISDETPAR for a scalar argument input
+% check if it is a struct. If so and the struct is a detpar, 
+% return true for output argument is, else false.
+% If it is not a struct,do the same for a numeric vector which may
+% represent a detpar.
+%
+% Input
+% -----
+% input - scalar which may or may not
+%         be a detpar or a numeric detpar vector
+% 
+% Output
+% ------
+% is    - logical scalar which is true or false according as its
+%         corresponding input represents a detpar
+% input - the input argument "input"; if it was a numeric vector version of a detpar, it
+%         is converted to a detpar struct
+%------------------------------------------------------------------------
+
+% case : input is not a struct
 if ~isstruct(input)
+    % check if it is a numeric vector convertible to a struct
     if isnumeric(input) && isvector(input(:,1)) && isvector(input(:,2))
         % will throw if conversion is impossible
+        % otherwise convert to detpar struct
         input = get_hor_format(input,'mem_par_file');
         is = true;
         return
     else
         is = false;
+        % input is unaltered; should not be processed if "is" is false
     end
     return
 end
+% case : input is a struct, check if fieldnames correspond to a detpar
 detpar_fields = {'group','x2','phi','azim','width','height'};
 fields = fieldnames(input);
 if all(ismember(detpar_fields,fields))
@@ -349,6 +389,32 @@ if all(ismember(detpar_fields,fields))
 else
     is = false;
 end
+%{
+% this was going to process an array  of input but now prefer to process a
+% scalar input
+if ~iscell(input)
+    input = {input};
+end
+is = false(numel(input),1);
+for ii=1:numel(input)
+    inp = input{ii};
+    if ~isstruct(inp)
+        if isnumeric(inp) && isvector(inp(:,1)) && isvector(inp(:,2))
+            % will throw if conversion is impossible
+            inp = get_hor_format(inp,'mem_par_file');
+            input{ii} = inp;
+            is{ii} = true;
+            continue;
+        end
+        return
+    end
+    detpar_fields = {'group','x2','phi','azim','width','height'};
+    fields = fieldnames(inp);
+    if all(ismember(detpar_fields,fields))
+        is{ii} = true;
+    end
+end
+%}
 
 function res = spread_scalar(val,n_files,name)
 if numel(val)==n_files
