@@ -1,6 +1,7 @@
 function obj=trim_nfiles_(obj,nfiles_to_leave)
-% Constrain the number of files and the file information,
-% contained in class by the number of files (nfiles_to_leave) provided.
+% Truncate the number of files and the file information,
+% contained in class by the number of files (nfiles_to_leave)
+% provided.
 %
 % Checks if pixel info in all remaining files remains consistent;
 %
