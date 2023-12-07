@@ -90,7 +90,8 @@ classdef test_tobyfit_let_cuts < TestCaseWithSave
             % Local foreground; constrain amplitude as global but allow
             % width to vary locally.
 
-            skipTest("Disabled until #760 implementation of filebacked Tobyfit")
+            skipTest(['Preliminary test ready for #760 implementation of filebacked Tobyfit, ', ...
+                      'parallel to test_multifit_horace_1:test_fit_one_dataset_fb, but as yet untested'])
 
             amp=6000;    fwhh=0.2;
 

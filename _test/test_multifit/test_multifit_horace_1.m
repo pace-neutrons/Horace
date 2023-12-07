@@ -66,12 +66,14 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
         end
 
-        function this = test_fit_one_dataset_fb(this)
+        function obj = test_fit_one_dataset_fb(obj)
             % Example of fitting one sqw object
 
-            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', 100);
-            w1data_fb = this.w1data;
-            w1data_fb.pix = PixelDataFileBacked(this.w1data.pix);
+            clWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', ...
+                obj.w1data.pix.num_pixels/4);
+            w1data_fb = obj.w1data;
+            w1data_fb.pix = PixelDataFileBacked(obj.w1data.pix);
 
             mss = multifit_sqw_sqw([w1data_fb]);
             mss = mss.set_fun(@sqw_bcc_hfm,  [5,5,0,10,0]);  % set foreground function(s)
@@ -88,9 +90,9 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             [wfit_1, fitpar_1] = mss.fit();
             % Test against saved or store to save later; ignore string
             % changes - these are filepaths
-            ref_fitpar = getReferenceDataset(this, 'test_fit_one_dataset', 'fitpar_1');
-            ref_wfit = getReferenceDataset(this, 'test_fit_one_dataset', 'wfit_1')
-            ref_wsim = getReferenceDataset(this, 'test_fit_one_dataset', 'wsim_1')
+            ref_fitpar = getReferenceDataset(obj, 'test_fit_one_dataset', 'fitpar_1');
+            ref_wfit = getReferenceDataset(obj, 'test_fit_one_dataset', 'wfit_1');
+            ref_wsim = getReferenceDataset(obj, 'test_fit_one_dataset', 'wsim_1');
 
             assertEqualToTol(wsim_1, ref_wsim, 'tol', tol, 'ignore_str', 1, '-ignore_date')
             assertTrue(is_same_fit(fitpar_1, ref_fitpar, [1 0 0]))

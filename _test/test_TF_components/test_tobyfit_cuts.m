@@ -113,7 +113,8 @@ classdef test_tobyfit_cuts < TestCaseWithSave
         function obj = test_fit_fe_single_good_par_fb(obj)
             % Single cut, starting parameters close to a good fit but file-backed
 
-            skipTest("Disabled until #760 implementation of filebacked Tobyfit")
+            skipTest(['Preliminary test ready for #760 implementation of filebacked Tobyfit, ', ...
+                      'parallel to test_multifit_horace_1:test_fit_one_dataset_fb, but as yet untested'])
 
             amp=50;  sj=40;   fwhh=50;   const=0.1;  grad=0;
 
