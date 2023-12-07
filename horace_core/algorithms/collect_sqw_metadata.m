@@ -69,12 +69,15 @@ else
 
 end
 sqw_out = sqw(sqw_sum_struc);
+end
 
 function  sqw_sum_struc=get_pix_comb_info_from_sqw(inputs, ...
     pix_data_range, ...
     allow_equal_headers,keep_runid)
+% Construct information about pixel distribution from cellarray of sqw objects in
+% memory
 
-[img_hdrs,experiments_from_sqw,pix] = cellfun(@extract_sqw_parts,inputs,'UniformOutput',false);
+[img_hdrs,experiments_from_sqw,pix,npix] = cellfun(@extract_sqw_parts,inputs,'UniformOutput',false);
 
 ll = config_store.instance().get_value('hor_config','log_level');
 
@@ -94,7 +97,7 @@ else
 end
 % % instead of the real pixels to place in target sqw file, place in pix field the
 % % information about the way to get the contributing pixels
-pix = pixobj_combine_info(pix,numel(dnd_data.npix));
+pix = pixobj_combine_info(pix,npix);
 pix.run_label = run_label;
 pix.data_range = pix_data_range;
 
@@ -102,8 +105,11 @@ det = inputs{1}.detpar; % To modify according to new interface
 sqw_sum_struc= struct('main_header',mhc,'experiment_info',exper_combined,'detpar',det);
 sqw_sum_struc.data = dnd_data;
 sqw_sum_struc.pix = pix;
+end
 
-function [img_meta,experiments,pix] = extract_sqw_parts(the_sqw)
+function [img_meta,experiments,pix,npix] = extract_sqw_parts(the_sqw)
 img_meta = the_sqw.get_dnd_metadata();
 experiments = the_sqw.experiment_info;
 pix = the_sqw.pix;
+npix = the_sqw.data.npix(:);
+end

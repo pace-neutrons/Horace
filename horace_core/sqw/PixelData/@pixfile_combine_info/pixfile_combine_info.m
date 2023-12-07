@@ -180,6 +180,12 @@ classdef pixfile_combine_info < MultipixBase
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function obj = set_npix_each_file(obj,val)
+            % accepts the numeric array which defines number of pixels
+            % in each file or signle value if total number of pixels
+            % in each file is the same
+            obj = set_npix_each_file_(obj,val);
+        end
         function obj = set_infiles(obj,val)
             % Main method which sets list of input files
             if ~iscellstr(val)

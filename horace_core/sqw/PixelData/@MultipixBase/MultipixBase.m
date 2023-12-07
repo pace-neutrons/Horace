@@ -8,7 +8,7 @@ classdef MultipixBase < serializable
         infiles;      % cellarray of filenames or objects to combine.
         %
         num_pixels;   % total number of pixels to combine in all
-        %                contributing pixels datasets or files
+        %               contributing pixels datasets or files
         npix_each_file; % array defining numbers of pixels stored in each
         %                contributing file or datasets
         %
@@ -137,10 +137,10 @@ classdef MultipixBase < serializable
             npix_tot = obj.npix_each_file_;
         end
         function obj= set.npix_each_file(obj,val)
-            % accepts the numeric array which defines number of pixels
-            % in each file or signle value if total number of pixels
-            % in each file is the same
-            obj = set_npix_each_file_(obj,val);
+            % If defined, accepts the numeric array which defines number
+            % of pixels in each file or signle value if total number of
+            % pixels in each file is the same
+            obj = set_npix_each_file(obj,val);
         end
         %------------------------------------------------------------------
         function nb = get.nbins(obj)
@@ -275,6 +275,7 @@ classdef MultipixBase < serializable
     %----------------------------------------------------------------------
     methods(Abstract,Access=protected)
         obj = set_infiles(obj,val);
+        obj = set_npix_each_file(obj,val);
     end
     % SERIALIZABLE INTERFACE
     methods
