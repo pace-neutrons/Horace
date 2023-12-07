@@ -23,4 +23,4 @@ npf = cellfun(@(x)(x.num_pixels),val);
 obj.npix_each_file_ = npf(:)';
 obj.num_pixels_     = sum(obj.npix_each_file_);
 %
-obj = recalc_data_range_(obj);
+obj = recalc_data_range(obj);

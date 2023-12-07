@@ -42,6 +42,7 @@ if initflag
     detpar0 = wi.detpar;
 else
     wout = collect_sqw_metadata(w);
+    detpar0 = wout.detpar;
 end
 
 % Re #1320 This is probably unnecessary. Join should work with any headers.
