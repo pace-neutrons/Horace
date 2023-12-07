@@ -83,38 +83,37 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             % `id` is defined as 2 identical reflections because
             % `SymopIdentity`s are filtered from ops.
 
-            %
-
             op = SymopReflection([1 0 0], [0 1 0], [0 0 0]);
             id = [op, op]; % Reflect reflect back
 
 
             obj.data2.pix = PixelDataMemory(obj.data2.pix);
-            % TODO: #1387 this cut contains no pixels. 
-            % The test is not testing what is expected
-            w1sym = cut(obj.data2, obj.proj2, obj.ubin2, ...
+
+            % Range of data2's first axis which contains pixels
+            ubin = [-0.5 0.05 0];
+            w1sym = cut(obj.data2, obj.proj2, ubin, ...
                 obj.vbin2, obj.wbin2, obj.ebin2);
 
-            w2sym = cut(obj.data2, obj.proj2, obj.ubin2, ...
+            w2sym = cut(obj.data2, obj.proj2, ubin, ...
                 obj.vbin2, obj.wbin2, obj.ebin2, ...
                 {SymopIdentity(), id});
 
-            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1);
-            skipTest('Re #1378 The test verifies 0-pixels cut, so is not testing what is expected')
+            assertEqualToTol(w1sym.data, w2sym.data, 'ignore_str', 1);
         end
 
         function test_cut_sym_reflect_half_to_whole_cut(obj)
-            op = SymopReflection([0 0 1], [0 1 0], [0 0 0]);
+            op = SymopReflection([-1 1 0], [0 0 1], [0 0 0]);
 
-            wtmp = symmetrise_sqw(obj.data2, op);
+            ubin_half = [-0.25 0.05 0];
+
+            wtmp = symmetrise_sqw(obj.data, op);
             wtmp.pix = PixelDataMemory(wtmp.pix);
-            ubin_half = [-0.5 0.05 0];
 
-            w1sym = cut(wtmp, obj.proj2, ubin_half, ...
-                obj.vbin2, obj.wbin2, obj.ebin2);
+            w1sym = cut(wtmp, obj.proj, ubin_half, ...
+                obj.width, obj.width, obj.ebins);
 
-            w2sym = cut(obj.data2, obj.proj2, ubin_half, ...
-                obj.vbin2, obj.wbin2, obj.ebin2, ...
+            w2sym = cut(obj.data, obj.proj, ubin_half, ...
+                obj.width, obj.width, obj.ebins, ...
                 {SymopIdentity(), op});
 
             assertEqualToTol(w1sym.data, w2sym.data, 'ignore_str', 1);
