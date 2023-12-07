@@ -1,4 +1,4 @@
-function [wmask,msk_out] = mask_data_for_fit (w,msk_in)
+function [wmask,keep_out] = mask_data_for_fit (w,msk_in)
 % Mask data
 %
 %   >> [msk_out,ok,mess] = mask_data_for_fit (w,msk_in,xkeep,xremove,msk)
@@ -16,9 +16,9 @@ function [wmask,msk_out] = mask_data_for_fit (w,msk_in)
 %   wmask       Cell array (row) of masked datasets.
 %               If there was an error, wmask is an empty cell array size (1,0)
 %
-%   msk_out     Cell array (row) of mask arrays, one per data set.
+%   keep_out    Cell array (row) of mask arrays, one per data set.
 %               Same size as input data.
-%               If there was an error, msk_out is an empty cell array size (1,0)
+%               If there was an error, keep_out is an empty cell array size (1,0)
 %
 % Objects need a method sigvar_getx or mask_points. See elsewhere for required syntax.
 
@@ -29,14 +29,14 @@ function [wmask,msk_out] = mask_data_for_fit (w,msk_in)
 
     sz = size(w);
     wmask = w;
-    msk_out = cell(size(w));
+    keep_out = cell(size(w));
     for i = 1:numel(w)
         % Accumulate bad points (y = NaN, zero error bars etc.) to the mask array
         if isstruct(w{i})    % xye triple
-            [msk_out{i}, mess_tmp] = mask_points_for_fit_xye(w{i}.x,w{i}.y,w{i}.e,msk_in{i});
+            [keep_out{i}, mess_tmp] = mask_points_for_fit_xye(w{i}.x,w{i}.y,w{i}.e,msk_in{i});
         else % a different data object
             [ytmp,vtmp,msk_null] = sigvar_get(w{i});
-            [msk_out{i}, mess_tmp] = mask_points_for_fit_xye({},ytmp,vtmp,(msk_in{i}&msk_null));
+            [keep_out{i}, mess_tmp] = mask_points_for_fit_xye({},ytmp,vtmp,(msk_in{i}&msk_null));
         end
         if ~isempty(mess_tmp)
             mess = [data_id_mess(sz,i),mess_tmp];
@@ -47,13 +47,13 @@ function [wmask,msk_out] = mask_data_for_fit (w,msk_in)
         end
 
         % Mask data - only if there is some to be masked (don't want to change array sizes otherwise)
-        if ~all(msk_out{i}(:))
+        if ~all(keep_out{i}(:))
             if isstruct(w{i})    % xye triple
-                wmask{i}.x = cellfun(@(x)x(msk_out{i}),w{i}.x,'UniformOutput',false);
-                wmask{i}.y = w{i}.y(msk_out{i});
-                wmask{i}.e = w{i}.e(msk_out{i});
+                wmask{i}.x = cellfun(@(x)x(keep_out{i}),w{i}.x,'UniformOutput',false);
+                wmask{i}.y = w{i}.y(keep_out{i});
+                wmask{i}.e = w{i}.e(keep_out{i});
             else % a different data object
-                wmask{i} = mask(w{i},msk_out{i});
+                wmask{i} = mask(w{i},keep_out{i});
             end
         end
     end
