@@ -76,7 +76,7 @@ classdef test_join < TestCase
 
             assertEqual(numel(split_obj), 2)
 
-            reformed_obj = join(sqw_obj);
+            reformed_obj = join(split_obj,sqw_obj);
 
             assertEqualToTol(sqw_obj, reformed_obj)
         end
@@ -89,11 +89,7 @@ classdef test_join < TestCase
 
             reformed_obj = join(split_obj);
 
-            %TODO: Re #1320 -- this should not happen. Split reindexes from
-            % 1   -- split should not change indices.
-            reformed_obj.pix.run_idx = reformed_obj.pix.run_idx + min(sqw_obj.pix.run_idx) - 1;
-
-            assertEqualToTol(sqw_obj, reformed_obj, [1e-6, 1e-4], 'ignore_str', true);
+            assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
         end
 
         function test_collect_metadata_works_on_membased(obj)

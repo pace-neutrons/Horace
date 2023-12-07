@@ -83,7 +83,7 @@ classdef PageOp_join_sqw < PageOpBase
             bin_start = cumsum(npix_blocks{idx});
             page_size = bin_start(end);
             % the positions of empty bins to place pixels
-            bin_start = [0,bin_start(1:end-1)];
+            bin_start = [0,bin_start(1:end-1)] + 1;
             page_data = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,page_size);
             multi_data   = obj.pix_combine_info;
             n_datasets = multi_data.nfiles;
@@ -98,8 +98,10 @@ classdef PageOp_join_sqw < PageOpBase
 
                 % find indexes of i-th dataset's page pixels in the target's
                 % dataset page
-                targ_bin_pos   = repelem(bin_start,page_bin_distr);
-                targ_bin_idx   = targ_bin_pos+(1:n_page_pix);
+                targ_bin_idx = fill_idx(bin_start,page_bin_distr);
+                % targ_bin_pos   = repelem(bin_start,page_bin_distr);
+                % cell_idx = arrayfun(@fill_fun,page_bin_distr,'UniformOutput',false);
+                % targ_bin_idx   = targ_bin_pos+[cell_idx{:}]';
 
                 % place page pixel data into appropriate places of combined
                 % dataset
@@ -124,11 +126,34 @@ classdef PageOp_join_sqw < PageOpBase
             % Here we calculate unique run_id differently, so always false
             is = false;
         end
-        function  does = get_changes_pix_only(~)
+        function  is = get_changes_pix_only(~)
             % this operation changes pixels only regardless of image
-            does = true;
+            is = true;
         end
 
         %
     end
+end
+function idx = fill_idx(bin_start,page_bin_distr)
+% find indices of sub-page within lage page with the same binning
+%
+% Generates sequence of kind:
+% bin_start
+%  1,    10,  20, 30
+% page_bin_distr:
+%  3,    2,   0,    5    -- sum(page_bin_distr) == 10;
+% idx:
+% 1,2,3, 10,11, 30,31,32,33,34 -- numel(idx) == 10
+%
+% should be better way of generating such sequence
+
+idx = zeros(sum(page_bin_distr),1);
+ic = 0;
+for i=1:numel(bin_start)
+    if page_bin_distr(i) == 0
+        continue;
+    end
+    idx((1:page_bin_distr(i))+ic) = bin_start(i):bin_start(i)+page_bin_distr(i)-1;
+    ic = ic+page_bin_distr(i);
+end
 end

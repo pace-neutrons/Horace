@@ -40,9 +40,9 @@ initflag = exist('wi', 'var') && ~isempty(wi) && isa(wi, 'sqw') ...
 if initflag
     wout = sqw(wi);
     if iscell(w)
-        [pix_list,npix_list] = cellfun(@extract_info,in_sqw,'UniformOutput',false);
+        [pix_list,npix_list] = cellfun(@extract_info,w,'UniformOutput',false);
     else
-        [pix_list,npix_list] = arrayfun(@extract_info,in_sqw,'UniformOutput',false);
+        [pix_list,npix_list] = arrayfun(@extract_info,w,'UniformOutput',false);
     end
     wout.pix = pixobj_combine_info(pix_list,npix_list);
 else
