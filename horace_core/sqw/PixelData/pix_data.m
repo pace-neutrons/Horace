@@ -38,7 +38,7 @@ classdef pix_data < serializable
                     obj.npix   = inputs.num_pixels;
                     obj.data   = inputs.full_filename;
                     obj.offset = inputs.offset;
-                elseif isa(varargin{1},'pix_combine_info')
+                elseif isa(varargin{1},'MultipixBase')
                     obj.npix = inputs.num_pixels;
                     obj.data = inputs.full_filename;
                 else

@@ -104,6 +104,10 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         wout = smooth(win, varargin); % Run smooth operation over DnD
         %                             % objects or sqw objects without pixels
         sz = img_size_bytes(obj);     % return size of data image used to evaluate necessary memory
+        data = get_se_npix(obj,varargin);  % return image arrays
+        npix = get_npix_block(obj,block_start,block_size) % return specified chunk of npix array,
+        %  which describes pixel destribution over bins
+        md = get_dnd_metadata(obj) % return metadata describing image
     end
     properties(Constant,Hidden)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -131,7 +135,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     end
 
     methods  % Public
-        [sel,ok,mess] = mask_points(win, varargin);       
+        [sel,ok,mess] = mask_points(win, varargin);
         cl = save(w, varargin);
         %                             %
         wout = disp2sqw_eval(win, dispreln, pars, fwhh, opt);

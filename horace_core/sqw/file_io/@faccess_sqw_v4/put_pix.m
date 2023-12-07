@@ -80,7 +80,7 @@ else
 end
 
 
-if ~(isa(input_obj,'pix_combine_info') || (~isnumeric(input_obj) && input_obj.is_filebacked))
+if ~(isa(input_obj,'MultipixBase') || (~isnumeric(input_obj) && input_obj.is_filebacked))
     obj = obj.put_sqw_block('bl_pix_metadata',input_obj);
     obj = obj.put_sqw_block('bl_pix_data_wrap',input_obj);
     return;
@@ -137,7 +137,7 @@ if num_pixels == 0
     return % nothing to do.
 end
 
-if isa(input_obj,'pix_combine_info') % pix field contains info to read &
+if isa(input_obj,'pixfile_combine_info') % pix field contains info to read &
     %combine pixels from sequence of files. There is special sub-algorithm
     %to do that.
     obj = obj.put_sqw_data_pix_from_file(input_obj, jobDispatcher);

@@ -32,7 +32,7 @@ outfile_specified = isfield(opt, 'outfile') && ~isempty(opt.outfile);
     w, targ_proj, targ_axes, opt.keep_pix, log_level, return_cut);
 
 
-if isa(pix_out, 'pix_combine_info')
+if isa(pix_out, 'pixfile_combine_info')
     % Make sure we clean up temp files.
     cleanup = onCleanup(@() clean_up_tmp_files(pix_out));
 
@@ -127,7 +127,7 @@ end
 end
 
 function clean_up_tmp_files(pix_comb_info)
-% Manually clean-up temporary files created by a pix_combine_info object
+% Manually clean-up temporary files created by a pixfile_combine_info object
     for nfile = 1:numel(pix_comb_info.infiles)
         delete(pix_comb_info.infiles{nfile});
     end

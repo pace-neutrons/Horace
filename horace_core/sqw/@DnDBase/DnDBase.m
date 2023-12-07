@@ -244,10 +244,35 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             % return size of data image expressed in bytes.
             %
             % Now and in foreseeable future, our image contains 3 double
-            % precision arrays so conversion to bytes would be 
+            % precision arrays so conversion to bytes would be
             % 3x8x(number of image array elements)
             sz = 3*numel(obj.s_)*8; % size of resulting split images in Bytes
         end
+        function dat = get_se_npix(obj,varargin)
+            % return image arrays using interface, common to data reader
+            % Input:
+            % obj  -- initialized DnDBase object
+            % Returns:
+            % dat  -- dnd_data object containing information about image
+            dat = obj.nd_data();
+        end
+        function npix = get_npix_block(obj,block_start,block_size)
+            % return specified chunk of npix array which describes pixel
+            % destribution over block bins.
+            % Inputs:
+            % obj         -- initalized DnDBase object.
+            % block_start -- initial location of the block within the npix
+            %                array. To be compartible with file interface, the
+            %                position starts from 0, unlike Matlab arrays,
+            %                which start from 1.
+            % block_size  -- number of npix elements to return.
+            % Returns:
+            % npix        -- block_size-size chunk of npix array, describing
+            %                 distribution of pixels over bins.
+            %
+            npix = obj.npix_((1+block_start):(block_start+block_size));
+        end
+
 
     end
     %======================================================================
@@ -525,6 +550,10 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
     % binfile IO interface
     methods
         function md = get.metadata(obj)
+            md = get_dnd_metadata(obj);
+        end
+        function md = get_dnd_metadata(obj)
+            % return metadata describing image.
             md = dnd_metadata(obj);
         end
         function obj = set.metadata(obj,val)

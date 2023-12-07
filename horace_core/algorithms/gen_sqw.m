@@ -753,7 +753,7 @@ if gen_tmp_files_only
         data_ranges = data_ranges(f_valid_exist);
         data_range = data_ranges{1};
         for i=2:numel(pix_ranges)
-            data_range = mimnax_ranges(data_range,data_ranges{i});
+            data_range = minmax_ranges(data_range,data_ranges{i});
         end
         if isempty(run_files)
             grid_size = grid_size_in;

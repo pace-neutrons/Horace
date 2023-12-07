@@ -13,7 +13,7 @@ function [s, e, npix, pix_out, unique_runid] = ...
 %            used in 'hor_config', see `help hor_config/log_level`.
 % return_cut If true, the cut is intended to be returned as an object and
 %            pixels must be returned in memory. If false, we allow pixels to be
-%            held in temporary files managed by a pix_combine_info object.
+%            held in temporary files managed by a pixfile_combine_info object.
 %
 % Output:
 % -------
@@ -340,7 +340,7 @@ for iter = 1:num_chunks
             fprintf(' ----->  %s  %d pixels\n', pixel_contrib_name, npix_step_retained);
         end
 
-        % Generate tmp files and get a pix_combine_info object to manage
+        % Generate tmp files and get a pixfile_combine_info object to manage
         % the files - this object then recombines the files once it is
         % passed to 'put_sqw'.
         pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file(pix_comb_info, false, ...
@@ -350,15 +350,15 @@ for iter = 1:num_chunks
 end  % loop over pixel blocks
 
 % store partial pixel_blocks remaining memory to tmp files
-% return pix_out which here is the pix_combine_info.
+% return pix_out which here is the pixfile_combine_info.
 pix_out = cut_data_from_file_job.accumulate_pix_to_file(pix_comb_info, true);
 end
 
 function pci = init_pix_combine_info(nfiles, nbins)
-% Create a pix_combine_info object to manage temporary files of pixels
+% Create a pixfile_combine_info object to manage temporary files of pixels
 wk_dir = get(parallel_config, 'working_directory');
 tmp_file_names = gen_unique_file_paths(nfiles, 'horace_cut', wk_dir);
-pci = pix_combine_info(tmp_file_names, nbins);
+pci = pixfile_combine_info(tmp_file_names, nbins);
 
 end
 

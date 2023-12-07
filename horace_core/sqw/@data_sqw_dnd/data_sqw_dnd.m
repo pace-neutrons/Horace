@@ -108,7 +108,7 @@ classdef data_sqw_dnd < DnDBase
             pix = obj.pix_;
         end
         function obj = set.pix(obj,val)
-            if isa(val, 'PixelDataBase') || isa(val,'pix_combine_info')
+            if isa(val, 'PixelDataBase') || isa(val,'MultipixBase')
                 obj.pix_ = val;
             else
                 obj.pix_ = PixelDataBase.create(val);

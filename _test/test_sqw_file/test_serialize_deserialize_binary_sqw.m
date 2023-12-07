@@ -559,10 +559,10 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             infiles = {'a','bbb','sss','dd'};
             nfiles = numel(infiles);
             run_label = 0:nfiles-1;
-            pix_comb = pix_combine_info(infiles,1000,2000,3000,1000,run_label);
+            pix_comb = pixfile_combine_info(infiles,1000,2000,3000,1000,run_label);
 
             struc = pix_comb.saveobj();
-            pix_res = pix_combine_info.loadobj(struc);
+            pix_res = pixfile_combine_info.loadobj(struc);
 
             assertEqual(pix_comb,pix_res);
         end

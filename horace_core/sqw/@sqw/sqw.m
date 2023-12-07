@@ -32,8 +32,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         data;
 
         % access to pixel information, if any such information is
-        % stored within an object. May also contain pix_combine_info or
-        % filebased pixels.
+        % stored within an object. May also contain MultipxBase class
+        % or filebacked pixels.
         pix;
 
         % The date of the sqw object file creation. As the date is defined both
@@ -269,6 +269,19 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         function sz = img_size_bytes(obj)
             % return size of data image expressed in bytes
             sz = obj.data.img_size_bytes();
+        end
+        function struc = get_se_npix(obj,varargin)
+            % return image arrays
+            struc = obj.data.get_se_npix(varargin{:});
+        end
+        function npix = get_npix_block(obj,block_start,block_size)
+            % return specified chunk of npix array which describes pixel
+            % destribution over block bins.
+            npix = obj.data.get_npix_block(block_start,block_size);
+        end
+        function md = get_dnd_metadata(obj)
+            % return metadata describing image
+            md = obj.data.get_dnd_metadata();
         end
     end
     %======================================================================

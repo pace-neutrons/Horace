@@ -166,7 +166,7 @@ try
         if keep_pix && del_npix_retain > 0
             if hor_log_level>=1, bigtic(3), end
             if pix_tmpfile_ok
-                % pix now not an array but pix_combine_info class
+                % pix now not an array but pixfile_combine_info class
                 pix = accumulate_pix_to_file_(pix,false,pix_data,ok,ix_add,npix,pmax,del_npix_retain);
             else
                 n_blocks=n_blocks+1;
@@ -205,7 +205,7 @@ if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
     if hor_log_level>=1, bigtic(3), end
 
     clear pix_data ok ix_add; % clear big arrays
-    if pix_tmpfile_ok % this time pix is pix_combine_info class. del_npix_retain not used
+    if pix_tmpfile_ok % this time pix is pixfile_combine_info class. del_npix_retain not used
         pix_data = PixelDataBase.create(); ok=[]; ix_add=[];
         pix = accumulate_pix_to_file_(pix,true,pix_data,ok,ix_add,npix,pmax,0);
     else
@@ -329,5 +329,5 @@ wk_dir = config_store.instance().get_value('parallel_config','working_directory'
 
 tmpfiles = cell(1,nfiles);
 tmpfiles = cellfun(@(x)fullfile(wk_dir,['horace_subcut_',rand_digit_string(16),'.tmp']),tmpfiles,'UniformOutput',false);
-pci = pix_combine_info(tmpfiles,nbins);
+pci = pixfile_combine_info(tmpfiles,nbins);
 end

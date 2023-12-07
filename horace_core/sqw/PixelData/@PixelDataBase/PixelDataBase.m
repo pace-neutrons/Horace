@@ -308,14 +308,14 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             % indices   -- the indices corresponding to the fields
             %
 
-            if istext(fld_name)
-                idx = PixelDataBase.FIELD_INDEX_MAP_(fld_name);
-            elseif isnumeric(fld_name)
-                idx = fld_name(:)';
-            elseif iscell(fld_name)
+            if iscell(fld_name)
                 idx=cellfun(@(x)PixelDataBase.FIELD_INDEX_MAP_(x),fld_name, ...
                     'UniformOutput',false);
                 idx = [idx{:}];
+            elseif isnumeric(fld_name)
+                idx = fld_name(:)';
+            elseif istext(fld_name)
+                idx = PixelDataBase.FIELD_INDEX_MAP_(fld_name);                
             else
                 error('HORACE:PixelDataBase:invalid_argument',...
                     ['Method accepts the name of the pixel field, array of field indices or cellarray of fields.\n' ...
@@ -585,8 +585,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             is = obj.is_misaligned_;
         end
         function obj = clear_alignment(obj)
-            % Clears alignment.
-            %
+            % Clears alignment. 
+            % 
             % If alignment changes, invalidates object integrity,
             % (data_ranges need recalculation)
             % so should be used as part of algorithms only.

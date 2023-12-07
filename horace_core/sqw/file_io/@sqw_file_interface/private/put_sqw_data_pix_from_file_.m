@@ -8,7 +8,7 @@ function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher)
 % where
 %   obj is initialized sqw_binfile_common object
 %
-%   pix_comb_info   is the pix_combine_info class with fields:
+%   pix_comb_info   is the MultipixBase class with fields:
 %
 %   infiles         Cell array of file names, or array of file identifiers of open files, from
 %                   which to accumulate the pixel information

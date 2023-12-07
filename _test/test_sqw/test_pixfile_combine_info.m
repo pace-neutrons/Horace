@@ -1,4 +1,4 @@
-classdef test_pix_combine_info < TestCase
+classdef test_pixfile_combine_info < TestCase
     % Series of tests to check work of mex files against Matlab files
 
     properties
@@ -6,9 +6,9 @@ classdef test_pix_combine_info < TestCase
     end
 
     methods
-        function obj=test_pix_combine_info(varargin)
+        function obj=test_pixfile_combine_info(varargin)
             if nargin<1
-                name = 'test_pix_combine_info';
+                name = 'test_pixfile_combine_info';
             else
                 name = varargin{1};
             end
@@ -22,8 +22,8 @@ classdef test_pix_combine_info < TestCase
             pos_npixstart = zeros(3,1);
             pos_pixstart = ones(3,1)*nbins;
             npix_each_file = ones(3,1)*1000; % 3 files, 1000 pix each
-            pc = pix_combine_info(files,nbins,pos_npixstart, ...
-                pos_pixstart,npix_each_file);
+            pc = pixfile_combine_info(files,nbins,npix_each_file,pos_npixstart, ...
+                pos_pixstart);
             pc_str = pc.saveobj();
 
             pcr = serializable.loadobj(pc_str);
@@ -38,20 +38,20 @@ classdef test_pix_combine_info < TestCase
             pos_pixstart = ones(3,1)*nbins;
             npix_each_file = ones(3,1)*1000; % 3 files, 1000 pix each
 
-            assertExceptionThrown(@()pix_combine_info(files,nbins,pos_npixstart, ...
-                pos_pixstart,npix_each_file),...
-                'HORACE:pix_combine_info:invalid_argument');
+            assertExceptionThrown(@()pixfile_combine_info(files,nbins,npix_each_file,pos_npixstart, ...
+                pos_pixstart),...
+                'HORACE:pixfile_combine_info:invalid_argument');
             pos_npixstart = zeros(3,1);
             pos_pixstart = ones(2,1)*nbins;
-            assertExceptionThrown(@()pix_combine_info(files,nbins,pos_npixstart, ...
-                pos_pixstart,npix_each_file),...
-                'HORACE:pix_combine_info:invalid_argument');
+            assertExceptionThrown(@()pixfile_combine_info(files,nbins,npix_each_file,pos_npixstart, ...
+                pos_pixstart),...
+                'HORACE:pixfile_combine_info:invalid_argument');
             pos_pixstart = ones(3,1)*nbins;
             npix_each_file = ones(2,1)*1000; % 3 files, 1000 pix each
 
-            assertExceptionThrown(@()pix_combine_info(files,nbins,pos_npixstart, ...
-                pos_pixstart,npix_each_file),...
-                'HORACE:pix_combine_info:invalid_argument');
+            assertExceptionThrown(@()pixfile_combine_info(files,nbins,npix_each_file,pos_npixstart, ...
+                pos_pixstart),...
+                'HORACE:pixfile_combine_info:invalid_argument');
 
         end
 
@@ -61,8 +61,8 @@ classdef test_pix_combine_info < TestCase
             pos_npixstart = zeros(3,1);
             pos_pixstart = ones(3,1)*nbins;
             npix_each_file = ones(3,1)*1000; % 3 files, 1000 pix each
-            pc = pix_combine_info(files,nbins,pos_npixstart, ...
-                pos_pixstart,npix_each_file);
+            pc = pixfile_combine_info(files,nbins,npix_each_file,pos_npixstart, ...
+                pos_pixstart);
             assertEqual(pc.nfiles,3);
             assertEqual(pc.num_pixels,uint64(3*1000));
             assertEqual(pc.nbins,10000);
@@ -80,7 +80,7 @@ classdef test_pix_combine_info < TestCase
         end
 
         function test_only_fnames_constructor(~)
-            pc = pix_combine_info({'file_a','file_b','file_c'});
+            pc = pixfile_combine_info({'file_a','file_b','file_c'});
             assertEqual(pc.nfiles,3);
             assertEqual(pc.num_pixels,0);
             assertEqual(pc.nbins,0);
@@ -98,7 +98,7 @@ classdef test_pix_combine_info < TestCase
         end
 
         function test_empty_constructor(~)
-            pc = pix_combine_info();
+            pc = pixfile_combine_info();
             assertEqual(pc.nfiles,0);
             assertEqual(pc.num_pixels,0);
             assertEqual(pc.nbins,0);

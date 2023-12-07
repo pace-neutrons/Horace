@@ -1,4 +1,4 @@
-function wout = join(w,wi)
+function wout = join(w,wi,varargin)
 % Join an array of sqw objects into an single sqw object
 % This is intended only as the reverse of split
 %
@@ -8,7 +8,15 @@ function wout = join(w,wi)
 % Input:
 % ------
 %   w       array of sqw objects, each one made from a single spe data file
+% Optional:
 %   wi      initial pre-split sqw object (optional, recommended).
+% modifiers:
+% '-allow_equal_headers'
+%         -- if two objects of files from the list of input files contain
+%            the same information
+% '-keep_runid'
+%         -- if provided, keep existing run_id(s) stored in headers
+
 %
 % Output:
 % -------
@@ -18,7 +26,6 @@ function wout = join(w,wi)
 % 2015-01-20
 
 nfiles = length(w);
-
 % Catch case of single contributing spe dataset
 if nfiles == 1
     wout = w;
@@ -34,10 +41,8 @@ if initflag
     main_header = wi.main_header;
     detpar0 = wi.detpar;
 else
-    wout = sqw();
-    main_header = w(1).main_header;
-    main_header.nfiles = 1;
-    detpar0 = w(1).detpar;
+    wout = collect_sqw_metadata(w);
+    detpar0 = wout.detpar;
 end
 
 % Re #1320 This is probably unnecessary. Join should work with any headers.

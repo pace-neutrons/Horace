@@ -250,7 +250,7 @@ classdef combine_sqw_pix_job < JobExecutor
             write_npix_to_pix_blocks_(obj,fout,pix_out_position,pix_comb_info);
         end
 
-        function npix_section = read_npix_block(obj,ibin_start,nbin_buf_size)
+        function npix_section = get_npix_block(obj,ibin_start,nbin_buf_size)
             % Inputs:
             % ibin_start -- first bin to process
             % nbin_buf_size -- number of bins to read and process
