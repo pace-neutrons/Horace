@@ -33,7 +33,7 @@ function wout = join(w,varargin)
 % Original author: G.S.Tucker
 % 2015-01-20
 
-nfiles = length(w);
+nfiles = numel(w);
 % Catch case of single contributing spe dataset
 if nfiles == 1
     wout = w;
@@ -65,7 +65,7 @@ if initflag
         w = num2cell(w);
     end
     % check if input data and the input sqw can indeed be combined together.
-    check_img_consistency([{wout};w(:)]);
+    check_img_consistency([{wout};w(:)],true);
 
     % build info for sqw combining
     [pix_list,npix_list] = cellfun(@extract_info, w,'UniformOutput',false);
@@ -83,6 +83,8 @@ else
         argi = [argi(:),'-keep_runid'];
     end
     wout = collect_sqw_metadata(w,argi{:});
+    [fp,fn] = fileparts(w(1).full_filename);
+    wout.full_filename = fullfile(fp,['combined_',fn,'.sqw']);
 end
 
 page_op         = PageOp_join_sqw;

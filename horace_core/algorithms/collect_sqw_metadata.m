@@ -1,4 +1,4 @@
-function [sqw_out,job_disp] = collect_sqw_metadata(inputs,varargin)
+function [sqw_out,pix_data_range,job_disp] = collect_sqw_metadata(inputs,varargin)
 %COLLECT_SQW_METADATA collects metadata from various sqw objects provided
 % as input with the purpose of constructing single sqw object from these
 % input sqw objects.
@@ -42,7 +42,7 @@ if iscell(inputs)
             allow_equal_headers,keep_runid);
 
     elseif all(cellfun(@(x)isa(x,'sqw'),inputs))
-        sqw_sum_struc=get_pix_comb_info_from_sqw(inputs, ...
+        [sqw_sum_struc,pix_data_range]=get_pix_comb_info_from_sqw(inputs, ...
             pix_data_range, ...
             allow_equal_headers,keep_runid);
 
@@ -63,17 +63,15 @@ else
 
     end
     inputs = num2cell(inputs);
-    sqw_sum_struc=get_pix_comb_info_from_sqw(inputs, ...
-        pix_data_range, ...
-        allow_equal_headers,keep_runid);
+    [sqw_sum_struc,pix_data_range] =get_pix_comb_info_from_sqw(inputs, ...
+        pix_data_range,allow_equal_headers,keep_runid);
 
 end
 sqw_out = sqw(sqw_sum_struc);
 end
 
-function  sqw_sum_struc=get_pix_comb_info_from_sqw(inputs, ...
-    pix_data_range, ...
-    allow_equal_headers,keep_runid)
+function  [sqw_sum_struc,pix_data_range] = get_pix_comb_info_from_sqw(inputs, ...
+    pix_data_range, allow_equal_headers,keep_runid)
 % Construct information about pixel distribution from cellarray of sqw objects in
 % memory
 
@@ -99,7 +97,10 @@ end
 % % information about the way to get the contributing pixels
 pix = pixobj_combine_info(pix,npix);
 pix.run_label = run_label;
-pix.data_range = pix_data_range;
+if ~any(pix_data_range(:) == PixelDataBase.EMPTY_RANGE(:))
+    pix.data_range = pix_data_range;
+end
+pix_data_range = pix.data_range;
 
 det = inputs{1}.detpar; % To modify according to new interface
 sqw_sum_struc= struct('main_header',mhc,'experiment_info',exper_combined,'detpar',det);

@@ -79,13 +79,14 @@ classdef pixobj_combine_info < MultipixBase
         end
 
         function [data,npix_chunk] = get_dataset_page(obj, ...
-                n_dataset,pix_pos,npix_idx)
+                n_dataset,pix_pos_start,npix_idx)
             % Return pixel data and pixel bin sub-distribution for the
             % particular dataset ouf of multiple pixel datasets, stored
             % within the class.
             % Inputs:
             % n_dataset -- number of dataset to get data from
-            % pix_pos   -- the position where pixel data are located.
+            % pix_pos_start
+            %           -- the position where pixel data are located.
             %              Should be externaly synchronized with npix.
             %              Can be calculated here, but ignored for saving
             %              time and memory.
@@ -93,13 +94,13 @@ classdef pixobj_combine_info < MultipixBase
             %              indices of bins containing
             %              distribution of pixels over bins.
             %
-            npix    = obj.npix_list_{n_dataset};
-            npix_chunk = npix(npix_idx(1):npix_idx(2));
+            npix          = obj.npix_list_{n_dataset};
+            npix_chunk    = npix(npix_idx(1):npix_idx(2));
             npix_in_block = sum(npix_chunk);
-            pix_idx_end   = pix_pos+npix_in_block-1;
-            pix     = obj.infiles_{n_dataset};
-            data    = pix.get_pixels( ...
-                pix_pos:pix_idx_end,'-raw','-align');
+            pix_pos_end   = pix_pos_start+npix_in_block-1;
+            pix           = obj.infiles_{n_dataset};
+            data          = pix.get_pixels( ...
+                pix_pos_start:pix_pos_end,'-raw','-align');
         end
         %------------------------------------------------------------------
         %

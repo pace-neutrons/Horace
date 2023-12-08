@@ -19,8 +19,9 @@ classdef PageOp_join_sqw < PageOpBase
         % dataset. Not very useful in serial mode but may be necessary in
         % parallel mode if parallel_write is available.
         page_start_pos_;
-        % array of current positions of all contributing pixel datasets
-        current_page_pix_pos_;
+        % array of values how many pixels already retrieved from each
+        % contributing dataset.
+        npix_page_read_;
     end
     methods
         function obj = PageOp_join_sqw(varargin)
@@ -37,11 +38,21 @@ classdef PageOp_join_sqw < PageOpBase
             if ~isa(in_sqw.pix,'MultipixBase')
                 error('HORACE:PageOp_join_sqw:invalid_argument', ...
                     'Input sqw object does not contain information on how to combine input data')
-            end            
-            % Transfer input MultipxBase object as source of data in the
+            end
+            % Set input MultipxBase object as source of data in the
             % operation
             obj.pix_combine_info = in_sqw.pix;
-            in_sqw.pix = PixelDataMemory();
+            % and set target sqw object with target pixels as the target.
+            [mcs,fb] = config_store.instance().get_value('hor_config','mem_chunk_size','fb_scale_factor');
+            % select if we want/need filebacked or memory based result
+            if obj.pix_combine_info.num_pixels > mcs*fb || ~isempty(obj.outfile)
+                pix = PixelDataFileBacked();
+            else
+                pix = PixelDataMemory();
+            end
+            % set pixel data range to avoid warning about old file format
+            % which does not have one.
+            in_sqw.pix = pix.set_data_range(obj.pix_combine_info.data_range);
             %
             obj = init@PageOpBase(obj,in_sqw);
             obj.new_runid = new_runid;
@@ -50,7 +61,7 @@ classdef PageOp_join_sqw < PageOpBase
             obj.sig_acc_  = [];
             % initialize input datasets for read access
             obj.pix_combine_info  = obj.pix_combine_info.init_pix_access();
-            obj.current_page_pix_pos_ = ones(1,obj.pix_combine_info.nfiles);
+            obj.npix_page_read_ = zeros(1,obj.pix_combine_info.nfiles);
         end
         function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
             % Overload of split method allowing to define large target chink
@@ -94,11 +105,11 @@ classdef PageOp_join_sqw < PageOpBase
             for i=1:n_datasets
                 % get particular dataset's page data
                 [contr_page_data,page_bin_distr] = multi_data.get_dataset_page( ...
-                    i,obj.current_page_pix_pos_(i),obj.block_idx_(:,idx));
+                    i,obj.npix_page_read_(i)+1,obj.block_idx_(:,idx));
                 % advance initial page position for the particular dataset
                 n_page_pix = size(contr_page_data,2);
-                obj.current_page_pix_pos_(i) = ...
-                    obj.current_page_pix_pos_(i)+n_page_pix;
+                obj.npix_page_read_(i) = ...
+                    obj.npix_page_read_(i)+n_page_pix;
                 %
                 if ~isempty(obj.new_runid)
                     contr_page_data(obj.run_idx_,:) = obj.new_runid(i);
@@ -107,8 +118,9 @@ classdef PageOp_join_sqw < PageOpBase
                 % find indexes of i-th dataset's page pixels in the target's
                 % dataset page
                 targ_bin_idx = fill_idx(bin_start,page_bin_distr);
+                % TODO: Is this quicker?
                 % targ_bin_pos   = repelem(bin_start,page_bin_distr);
-                % cell_idx = arrayfun(@fill_fun,page_bin_distr,'UniformOutput',false);
+                % cell_ind = accumarray(targ_bin_pos,1:n_page_pix,[],@(x){x});
                 % targ_bin_idx   = targ_bin_pos+[cell_idx{:}]';
 
                 % place page pixel data into appropriate places of combined
