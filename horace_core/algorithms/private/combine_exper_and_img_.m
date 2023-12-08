@@ -28,7 +28,8 @@ function [dnd_data,exper_combined,mhc] = combine_exper_and_img_( ...
 % check the consistency of image headers as this is the grid where pixels
 % are binned on and they have to be binned on the same grid
 % We must have same data information for transforming pixels coordinates to image coordinates
-img_range = check_img_consistency_(img_metadata,inputs);
+filenames = cellfun(@(x)x.full_filename,inputs,'UniformOutput',false);
+img_range = check_img_consistency_(img_metadata,filenames);
 
 % Check consistency:
 % At present, we insist that the contributing spe data for:

@@ -44,7 +44,7 @@ if iscell(inputs)
     elseif all(cellfun(@(x)isa(x,'sqw'),inputs))
         sqw_sum_struc=get_pix_comb_info_from_sqw(inputs, ...
             pix_data_range, ...
-            allow_equal_headers,true);
+            allow_equal_headers,keep_runid);
 
     else
         is_known = cellfun(@(x)(isa(x,'sqw')||@(x)istext(x)),inputs);
@@ -65,7 +65,7 @@ else
     inputs = num2cell(inputs);
     sqw_sum_struc=get_pix_comb_info_from_sqw(inputs, ...
         pix_data_range, ...
-        allow_equal_headers,true);
+        allow_equal_headers,keep_runid);
 
 end
 sqw_out = sqw(sqw_sum_struc);

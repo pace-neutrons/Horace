@@ -81,7 +81,52 @@ classdef test_join < TestCase
             assertEqualToTol(sqw_obj, reformed_obj)
         end
 
-        function test_split_and_join_returns_same_obj_including_pix_in_mem(obj)
+        function test_join_changes_runid_on_requests_in_mem_no_sample(obj)
+
+            split_obj = obj.sqw_to_join;
+
+            assertTrue(all(arrayfun(@(x) x.main_header.nfiles == 1, split_obj)));
+
+            reformed_obj = join(split_obj,'-recalc_runid');
+
+            runid = reformed_obj.runid_map.keys();
+            assertEqual([runid{:}],1:reformed_obj.main_header.nfiles);
+
+            sobj = obj.sample_obj;
+            pix_data = sobj.pix.data;
+            idx = PixelData.field_index('run_idx');
+            pix_data(idx,:) = pix_data(idx,:) - 18;
+            sobj.pix.data = pix_data;
+            sobj.experiment_info.runid_map  = 1:numel(split_obj);
+
+
+            assertEqualToTol(sobj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
+        end
+
+        function test_join_changes_runid_on_requests_in_mem_with_sample(obj)
+
+            split_obj = obj.sqw_to_join;
+
+            assertTrue(all(arrayfun(@(x) x.main_header.nfiles == 1, split_obj)));
+
+            reformed_obj = join(split_obj,obj.sample_obj,'-recalc_runid');
+
+            runid = reformed_obj.runid_map.keys();
+            assertEqual([runid{:}],1:reformed_obj.main_header.nfiles);
+
+            sobj = obj.sample_obj;
+            pix_data = sobj.pix.data;
+            idx = PixelData.field_index('run_idx');
+            pix_data(idx,:) = pix_data(idx,:) - 18;
+            sobj.pix.data = pix_data;
+            sobj.experiment_info.runid_map  = 1:numel(split_obj);
+
+
+            assertEqualToTol(sobj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
+        end
+
+
+        function test_split_and_join_returns_same_obj_in_mem(obj)
 
             split_obj = obj.sqw_to_join;
 

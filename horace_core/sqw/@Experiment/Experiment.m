@@ -259,6 +259,13 @@ classdef Experiment < serializable
         function obj = set.runid_recalculated(obj,val)
             % Do not normally use, except for tests. This is internal
             % property, which inform about the behaviour of runid map
+            % Inputs:
+            % val  -- either containers.Map which define correspondence
+            %         between run_id and header index or array of unique 
+            %         numbers which will become new run_id. 
+            %
+            %         Syncrhonization with run_id stored in pixels have to
+            %         be performed separately.
             obj.runid_recalculated_ = logical(val);
         end
     end

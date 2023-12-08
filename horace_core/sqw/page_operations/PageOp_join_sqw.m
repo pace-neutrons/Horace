@@ -6,6 +6,9 @@ classdef PageOp_join_sqw < PageOpBase
         % property which contains MultipixBase class, describing
         % pixels in multiple datasets to be combined
         pix_combine_info;
+        % if provided, the new runid array to set as pixels runid for each
+        % contributing run
+        new_runid;
     end
     %
     properties(Access = protected)
@@ -26,7 +29,7 @@ classdef PageOp_join_sqw < PageOpBase
             obj.split_at_bin_edges = true;
         end
 
-        function [obj,in_sqw] = init(obj,in_sqw)
+        function [obj,in_sqw] = init(obj,in_sqw,new_runid)
             % initialize join_sqw algorithm.
             % Input:
             % in_sqw         -- special sqw object to join, prepared by
@@ -34,13 +37,14 @@ classdef PageOp_join_sqw < PageOpBase
             if ~isa(in_sqw.pix,'MultipixBase')
                 error('HORACE:PageOp_join_sqw:invalid_argument', ...
                     'Input sqw object does not contain information on how to combine input data')
-            end
+            end            
             % Transfer input MultipxBase object as source of data in the
             % operation
             obj.pix_combine_info = in_sqw.pix;
             in_sqw.pix = PixelDataMemory();
             %
             obj = init@PageOpBase(obj,in_sqw);
+            obj.new_runid = new_runid;
             % clear signal accumulator to save memory; it will not be used
             % here.
             obj.sig_acc_  = [];
@@ -95,6 +99,10 @@ classdef PageOp_join_sqw < PageOpBase
                 n_page_pix = size(contr_page_data,2);
                 obj.current_page_pix_pos_(i) = ...
                     obj.current_page_pix_pos_(i)+n_page_pix;
+                %
+                if ~isempty(obj.new_runid)
+                    contr_page_data(obj.run_idx_,:) = obj.new_runid(i);
+                end
 
                 % find indexes of i-th dataset's page pixels in the target's
                 % dataset page
@@ -135,24 +143,25 @@ classdef PageOp_join_sqw < PageOpBase
     end
 end
 function idx = fill_idx(bin_start,page_bin_distr)
-% find indices of sub-page within lage page with the same binning
+% find indices of sub-page within large page with the same binning
 %
 % Generates sequence of kind:
 % bin_start
 %  1,    10,  20, 30
 % page_bin_distr:
-%  3,    2,   0,    5    -- sum(page_bin_distr) == 10;
+%  3,    2,   0,    5          -- sum(page_bin_distr) == 10;
 % idx:
 % 1,2,3, 10,11, 30,31,32,33,34 -- numel(idx) == 10
 %
 % should be better way of generating such sequence
 
+to_use = page_bin_distr ~= 0;
+page_bin_distr = page_bin_distr(to_use);
+bin_start      = bin_start(to_use);
+
 idx = zeros(sum(page_bin_distr),1);
 ic = 0;
 for i=1:numel(bin_start)
-    if page_bin_distr(i) == 0
-        continue;
-    end
     idx((1:page_bin_distr(i))+ic) = bin_start(i):bin_start(i)+page_bin_distr(i)-1;
     ic = ic+page_bin_distr(i);
 end
