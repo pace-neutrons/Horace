@@ -9,7 +9,7 @@ function [sqw_out,pix_data_range,job_disp] = collect_sqw_metadata(inputs,varargi
 %
 % Inputs:
 % inputs  -- cellarray of files containing sqw objects or cellarray or array
-%            of filebacked or memorybased sqw objects to combine.
+%            of filebacked or memory-based sqw objects to combine.
 % Optional:
 % '-allow_equal_headers'
 %         -- if two objects or files from the list of input files contain
@@ -17,7 +17,7 @@ function [sqw_out,pix_data_range,job_disp] = collect_sqw_metadata(inputs,varargi
 %            otherwise.
 % '-keep_runid'
 %         -- if provided, keep existing run_id(s) according to numbers,
-%            stored in headers. If not, recaluclate runID according to number
+%            stored in headers. If not, recalculate runID according to number
 %            of input files.
 %
 % Returns:

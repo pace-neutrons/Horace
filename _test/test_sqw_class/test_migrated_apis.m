@@ -285,22 +285,6 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             assertEqualToTol(pbin{1}, expected_pbin', 1e-6);
         end
 
-        %% split/join
-        %function test_split(obj)
-        %    % tested in test_join
-        %end
-        %function test_join(obj)
-        %    % tested in test_join
-        %end
-        %function test_split_and_join(obj)
-        %    % tested in test_join
-        %end
-
-        %% mask
-        %function test_mask(obj)
-        %    % tested in test_mask
-        %end
-
         %% sets
         function test_set_efix(obj)
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);

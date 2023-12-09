@@ -2,7 +2,7 @@ function varargout = read_horace(files,varargin)
 % Read sqw object from named file or an array of sqw objects from a cell array of file names
 %
 %   >> w=read_horace(file)   % read named file or cell array of file names
-%                             into array of sqw objects or cellarray of sqw/dnd ojects
+%                             into array of sqw objects or cellarray of sqw/dnd objects
 %Main options:
 %   >> w=read_horace(file(s),'-get_dnd') --  read dnd parts of all (dnd and sqw) objects
 %                                            only.
