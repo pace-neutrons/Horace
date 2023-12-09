@@ -115,7 +115,7 @@ classdef test_join < TestCase
             clOb = onCleanup(@()delete(targ_file));
 
             split_obj = obj.sqw_to_join;
-            reformed_obj = join(split_obj,targ_file);
+            reformed_obj = sqw.join(split_obj,targ_file);
 
             assertTrue(reformed_obj.is_filebacked)
             assertTrue(isfile(targ_file));

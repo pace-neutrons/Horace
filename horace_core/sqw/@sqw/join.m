@@ -7,7 +7,7 @@ function wout = join(w,varargin)
 %
 % Input:
 % ------
-%   w       array or cellarray of sqw objects or cellarray of names of sqw 
+%   w       array or cellarray of sqw objects or cellarray of names of sqw
 %           files, each one made from a single spe data file
 % Optional:
 %   wi      initial pre-split sqw object (optional, recommended).
@@ -84,7 +84,11 @@ else
         argi = [argi(:),'-keep_runid'];
     end
     wout = collect_sqw_metadata(w,argi{:});
-    [fp,fn] = fileparts(w(1).full_filename);
+    if iscell(w)
+        [fp,fn] = fileparts(w{1}.full_filename);
+    else
+        [fp,fn] = fileparts(w(1).full_filename);
+    end
     wout.full_filename = fullfile(fp,['combined_',fn,'.sqw']);
 end
 
