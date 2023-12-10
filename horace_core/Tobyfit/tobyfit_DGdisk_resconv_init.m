@@ -87,6 +87,8 @@ function [ok,mess,lookup,npix] = tobyfit_DGdisk_resconv_init (win, varargin)
 %                      Size is [3,3,nrun], where nrun is the number of runs
 %           alatt       Lattice parameters (Angstroms), vector size [1,3]
 %           angdeg      Lattice angles in degrees (Angstroms), vector size [1,3]
+%           is_mosaic   Logical flag: true if a sample for at least one run in
+%                      the sqw object has a non-zero mosaic spread, scalar [1,1]
 %
 %       Cell array of widths of energy bins, one array per dataset
 %           dt          Time widths for each pixel (s), size [npix,1]
@@ -178,6 +180,7 @@ s_mat=cell(nw,1);       % element size [3,3,nrun]
 spec_to_rlu=cell(nw,1); % element size [3,3,nrun]
 alatt=cell(nw,1);       % element size [1,3]
 angdeg=cell(nw,1);      % element size [1,3]
+is_mosaic=cell(nw,1);   % element size [1,1]
 detectors=cell(nw,1);   % element size [nrun,1]
 dt=cell(nw,1);          % element size [npix,1]
 qw=cell(nw,1);          % element is cell array size [1,4], each element size [npix,1]
@@ -257,6 +260,11 @@ for iw=1:nw
     [sample{iw},s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
         sample_coords_to_spec_to_rlu(wtmp.experiment_info);
     
+    % Get array of mosaic spreads for the runs, and determine if any of them
+    % have other than the default of no spread
+    mosaic = arrayfun (@(x)(x.eta), sample{iw});
+    is_mosaic{iw} = any(mosaic_crystal(mosaic));   
+    
     % Get detector information for each pixel in the sqw object
     % size(x2) = [npix,1], size(d_mat) = [3,3,npix]
     [x2, detdcn] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
@@ -296,6 +304,7 @@ lookup.s_mat=s_mat;
 lookup.spec_to_rlu=spec_to_rlu;
 lookup.alatt=alatt;
 lookup.angdeg=angdeg;
+lookup.is_mosaic=is_mosaic;
 lookup.dt=dt;
 lookup.qw=qw;
 lookup.k_to_v=k_to_v;

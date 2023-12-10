@@ -185,7 +185,8 @@ if pix.num_pixels > 0
         if iscell(ipix)
             ipix = ipix{1};     % get the indices array inside ipix
         end
-        irun = experiment.get_experiment_idx(pix.run_idx(ipix));
+        run_idx = reshape(pix.run_idx(ipix), size(ipix));
+        irun = experiment.get_experiment_idx(run_idx);
         idet = reshape(pix.detector_idx(ipix), size(ipix));
         ien = reshape(pix.energy_idx(ipix), size(ipix));
     else

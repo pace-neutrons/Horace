@@ -189,6 +189,7 @@ for i=1:numel(ind)
     spec_to_rlu=lookup.spec_to_rlu{iw};
     alatt=lookup.alatt{iw};
     angdeg=lookup.angdeg{iw};
+    is_mosaic=lookup.is_mosaic{iw};
     dt=lookup.dt{iw};
     qw=lookup.qw{iw};
 
@@ -223,13 +224,6 @@ for i=1:numel(ind)
         s_mat(:,:,irun), f_mat, d_mat,...
         spec_to_rlu(:,:,irun), k_to_v, k_to_e);
 
-
-    % Find out if the crystal has a mosaic spread
-    % -------------------------------------------
-    % Get array of mosaic spreads for the runs, and determine if any of them
-    % have other than the default of no spread
-    mosaic = arrayfun (@(x)(x.eta), sample_table.object_array(iw));
-    mosaic_spread = any(mosaic_crystal (mosaic));
 
     % Simulate the signal for the data set
     % ------------------------------------
@@ -279,7 +273,7 @@ for i=1:numel(ind)
         q = dq + reshape([qw{1}';qw{2}';qw{3}';qw{4}'], size(dq));
 
         % Mosaic spread
-        if mosaic_spread && mc_contributions.mosaic
+        if is_mosaic && mc_contributions.mosaic
             Rrlu = sample_table.rand_ind (iw, irun, @rand_mosaic, alatt, angdeg);
             q(1:3,:,:) = mtimesx_horace(Rrlu, q(1:3,:,:));
         end
