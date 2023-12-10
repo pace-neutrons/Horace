@@ -1,38 +1,33 @@
-function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx)
+function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, ipix)
 % Return 4D momentum-energy covariance matrix for the resolution function
 %
 % For all pixels:
 %   >> [cov_spec, cov_proj, cov_hkle] = tobyfit_DGdisk_resfun_covariance (w)
 %
 % For selected pixels:
-%   >> [cov_spec, cov_proj, cov_hkle] = tobyfit_DGdisk_resfun_covariance (w, indx)
+%   >> [cov_spec, cov_proj, cov_hkle] = tobyfit_DGdisk_resfun_covariance (w, ipix)
 %
 %
 % Input:
 % ------
-%   win         Array of sqw objects, or cell array of scalar sqw objects
+%   win         Array of sqw objects
 %
-%  [Optional]
-%   indx        Pixel indices:
-%               Single sqw object:
-%                 - ipix            Array of pixels indices
-%            *OR* - {irun,idet,ien} Arrays of run, detector and energy bin index
-%                                   Dimension expansion is performed on scalar
-%                                  quantities i.e. each must be a scalar or array
-%                                  with arrays having the same length
-%               Multiple sqw object:
-%                 - As above, assumed to apply to all sqw objects,
-%            *OR* - Cell array of the above, one cell array per sqw object
-%                  e.g. if two sqw objects:
-%                       {ipix1, ipix2}
-%                       {{irun1,idet1,ien1}, {irun2,idet2,ien2}}
+% [Optional]
+%   ipix        Pixel indices for which the output is to be extracted from the
+%               sqw object(s)
+%
+%               - Array of pixel indices. If there are multiple sqw objects,
+%                 it is then applied to every sqw object
+%
+%               - Cell array of pixel indices arrays
+%                   - only one array: applied to every sqw object, or
+%                   - several pixel indices arrays: one per sqw object
 %
 % Output:
 % -------
 % [The format of the following three arguments depends on the format of win:
 %   - win is a scalar sqw object:       Array size [4,4,npix]
 %   - win is an array of sqw objects:   Cell array of arrays size [4,4,npix(i)]
-%   - win is a cell array:               "     "    "    "     "       "         ]
 %
 %   cov_proj    Covariance matrix for wavevector-energy in projection axes
 %
@@ -44,23 +39,14 @@ function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, 
 
 % Get lookup arrays
 % -----------------
-if exist('indx','var')
+if exist('ipix','var')
     all_pixels = false;
-    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win, indx);
+    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win, ipix);
 else
     all_pixels = true;
     [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win);
 end
 if ~ok, error(mess), end
-
-
-% Get variances
-% -------------
-% This block of code effectively does the equivalent of tobyfit_DGfermi_resconv
-
-cov_proj = cell(size(win));
-cov_spec = cell(size(win));
-cov_hkle = cell(size(win));
 
 
 % Create pointers to parts of lookup structure
@@ -78,17 +64,25 @@ k_to_e = lookup.k_to_e;
 
 % Get covariance matricies
 % ------------------------
-for iw = 1:numel(win)
-    if iscell(win)
-        wtmp = win{iw};
-    else
-        wtmp = win(iw);
-    end
+cov_proj = cell(size(win));
+cov_spec = cell(size(win));
+cov_hkle = cell(size(win));
 
+for iw = 1:numel(win)
+    % Get the indices to the runs in the experiment information block, the 
+    % detector indicies and the energy bin indices
     if all_pixels
-        [irun,idet] = parse_pixel_indices (wtmp);
+        % For all pixels in the sqw object
+        [irun,idet] = parse_pixel_indices (win(iw));
     else
-        [irun,idet] = parse_pixel_indices (wtmp,indx,iw);
+        % For the selected pixels only
+        if iscell(ipix) && numel(ipix)>1    
+            % Different ipix arrays for each sqw object
+            [irun, idet] = parse_pixel_indices(win(iw), ipix{iw});
+        else
+            % Single ipix array for all sqw objects
+            [irun, idet] = parse_pixel_indices(win(iw), ipix);
+        end
     end
     npix = npix_arr(iw);
 
@@ -126,20 +120,21 @@ for iw = 1:numel(win)
 
     % Compute wavevector-energy covariance matrix in different dimensions
     %TODO: Re #1040 this code is not consistent with generic projections
-    if ~isa(wtmp.data.proj,'line_proj')
+    if ~isa(win(iw).data.proj,'line_proj')
         error('HORACE:sqw:not_implemented', ...
             'resolution cannot currently be calculated for any projection except linear projection')
     end
     
     cov_hkle{iw} = transform_matrix (cov_x, dq_mat);
-    cov_proj{iw} = transform_matrix (cov_hkle{iw}, inv(wtmp.data.u_to_rlu));
+    cov_proj{iw} = transform_matrix (cov_hkle{iw}, inv(win(iw).data.u_to_rlu));
     rlu_to_spec = invert_matrix (spec_to_rlu);
     rlu_to_spec4(1:3,1:3,:) = rlu_to_spec(:,:,irun);
     rlu_to_spec4(4,4,:) = 1;
     cov_spec{iw} = transform_matrix (cov_hkle{iw}, rlu_to_spec4);
 end
 
-if ~iscell(win) && isscalar(win)
+if isscalar(win)
+    % Numeric array output if just one sqw object
     cov_hkle = cov_hkle{1};
     cov_proj = cov_proj{1};
     cov_spec = cov_spec{1};

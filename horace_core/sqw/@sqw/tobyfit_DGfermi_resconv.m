@@ -190,27 +190,8 @@ for i=1:numel(ind)
     qw=lookup.qw{iw};
 
     % Run and detector for each pixel
-    irun = win(i).pix.run_idx(:);       % column vector
-    idet = win(i).pix.detector_idx(:);  % column vector
     npix = win(i).pix.num_pixels;
-
-    %===========================================================================
-    %HACK. TODO: do it properly (ticket #901)
-    % *** The same hack appears in tobyfit_DGdisk_resconv. Fix together.
-    max_irun = max(irun);
-    if max_irun>win(i).main_header.nfiles
-        rmp = win(i).runid_map;
-        runid_array = rmp.keys;
-        runid_array = [runid_array{:}];
-        runid_val   = rmp.values;
-        runid_val   = [runid_val{:}];
-        max_id = max(runid_array);
-        min_id = min(runid_array)-1;
-        lookup_ind = inf(max_id-min_id+1,1);
-        lookup_ind(runid_array-min_id) = runid_val;
-        irun   = lookup_ind(irun-min_id);
-    end
-    %===========================================================================
+    [irun, idet] = parse_pixel_indices(win(i));     % returns column vectors
 
     % Get detector information for each pixel in the sqw object
     % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
@@ -243,7 +224,7 @@ for i=1:numel(ind)
     % Find out if the crystal has a mosaic spread
     % -------------------------------------------
     % Get array of mosaic spreads for the runs, and determine if any of them
-    % have other than the default no spread
+    % have other than the default of no spread
     mosaic = arrayfun (@(x)(x.eta), sample_table.object_array(iw));
     mosaic_spread = any(mosaic_crystal (mosaic));
 

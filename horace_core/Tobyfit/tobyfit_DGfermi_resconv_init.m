@@ -5,7 +5,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %   >> [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win)
 %
 % For specific pixels:
-%   >> [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win,indx)
+%   >> [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win,ipix)
 %
 % No lookup tables:
 %   >> [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(...,'notables')
@@ -24,29 +24,21 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 % ------
 %   win         Array of sqw objects, or cell array of scalar sqw objects
 %
-%  [Optional]
-%   indx        Pixel indices:
+% [Optional]
+%   ipix        Pixel indices for which the output is to be extracted from the
+%               sqw object(s)
 %
-%               Single sqw object:
-%               ------------------
-%                 - ipix            Array of pixels indices
-%            *OR* - {irun,idet,ien} Arrays of run, detector and energy bin index
-%                                   Dimension expansion is performed on scalar
-%                                  quantities i.e. each must be a scalar or array
-%                                  with arrays having the same length
+%               - Array of pixel indices. If there are multiple sqw objects,
+%                 it is then applied to every sqw object
 %
-%               Multiple sqw objects:
-%               ---------------------
-%                 - As above, assumed to apply to all sqw objects,
-%            *OR* - Cell array of the above, one cell array per sqw object
-%                  e.g. if two sqw objects:
-%                       {ipix1, ipix2}
-%                       {{irun1,idet1,ien1}, {irun2,idet2,ien2}}
+%               - Cell array of pixel indices arrays
+%                   - only one array: applied to every sqw object, or
+%                   - several pixel indices arrays: one per sqw object
 %
 %   opt         Option: 'tables' (default) or 'notables'
-%               If 'tables', then moderator and Fermi chopper lookup tables
-%              are added to the output argument lookup
-%
+%               If 'tables', then object_lookup tables for instrumnet
+%              components, sample and detectors are added to the output
+%              argument lookup
 %
 % Output:
 % -------
@@ -63,7 +55,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %               For details of contents of lookup, see below.
 %
 %   npix        Array of number of pixels for each workspace after selecting
-%               with the indexing argument indx. (Array has same size as win)
+%               with the indexing argument ipix. (Array has same size as win)
 %
 %
 % Contents of output argument: lookup
@@ -146,7 +138,7 @@ keywrd_def = struct('tables',1);
 flags = {'tables'};
 [args,keywrd] = parse_arguments (varargin,keywrd_def,flags);
 if numel(args)==1
-    indx = args{1};
+    ipix = args{1};
 elseif numel(args)>0
     ok = false;
     mess = 'Check the number of input arguments';
@@ -156,9 +148,11 @@ end
 
 % Check pixel indexing is valid
 % -----------------------------
-all_pixels = ~exist('indx','var');
+all_pixels = ~exist('ipix','var');
 if ~all_pixels
-    parse_pixel_indices (win,indx);
+    % Perform consistency checks of the pixel indices against the sqw objects
+    % if particular indices are selected
+    parse_pixel_indices (win, ipix);
 end
 
 
@@ -226,11 +220,20 @@ for iw=1:nw
         wtmp = win(iw);
     end
     
-    % Pixel indicies
+    % Get the indices to the runs in the experiment information block, the 
+    % detector indicies and the energy bin indices
     if all_pixels
-        [irun,idet,ien] = parse_pixel_indices(wtmp);
+        % For all pixels in the sqw object
+        [irun, idet, ien] = parse_pixel_indices(wtmp);
     else
-        [irun,idet,ien] = parse_pixel_indices(wtmp,indx,iw);
+        % For the selected pixels only
+        if iscell(ipix) && numel(ipix)>1    
+            % Different ipix arrays for each sqw object
+            [irun, idet, ien] = parse_pixel_indices(wtmp, ipix{iw});
+        else
+            % Single ipix array for all sqw objects
+            [irun, idet, ien] = parse_pixel_indices(wtmp, ipix);
+        end
     end
     npix(iw) = numel(irun);
     

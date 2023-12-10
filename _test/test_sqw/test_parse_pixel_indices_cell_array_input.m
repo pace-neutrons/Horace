@@ -27,7 +27,7 @@ classdef test_parse_pixel_indices_cell_array_input < TestCase
             %        (runid are 100 x header index)
             %   w2:  18 pixels, three runs, runid: 1000, 2000, 3000 
             %        (runid are 1000 x header index)
-            load('test_parse_pixel_indices_data.mat','w1','w2')
+            load('test_parse_pixel_indices_cell_array_input_data.mat','w1','w2')
             obj.w1 = w1;
             obj.w2 = w2;
             
