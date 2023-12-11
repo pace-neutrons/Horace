@@ -1,5 +1,5 @@
 classdef PageOp_cat_pix < PageOpBase
-    % Single page pixel operations specific for cat pixels algorithm. 
+    % Single page pixel operations specific for cat pixels algorithm.
     % This version works with pixels only
     %
     %
@@ -8,6 +8,10 @@ classdef PageOp_cat_pix < PageOpBase
         % PixelData, sqw objects or list of files, containing sqw objects
         in_objects;
         npix_tot;   % Total number of
+    end
+    properties(Hidden)
+        % access to pix for testing chuncing only
+        pix
     end
     properties(Access = private)
         page_size_;
@@ -48,6 +52,10 @@ classdef PageOp_cat_pix < PageOpBase
         function[npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
             % overload of split_into_pages as we also need npix_chunks to
             % process pages in this case.
+            if isa(obj.pix_,'PixelDataMemory') % if target pixels are in memory
+                % they always should be done in one stroke
+                chunk_size = sum(npix(:));
+            end
             [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,chunk_size);
             obj.block_idx_ = npix_idx;
         end
@@ -93,6 +101,18 @@ classdef PageOp_cat_pix < PageOpBase
 
         function obj = apply_op(obj,varargin)
             % cat does not change pixels
+        end
+        %==================================================================
+        function pix = get.pix(obj)
+            pix = obj.pix_;
+        end
+        function obj = set.pix(obj,val)
+            % Use this method in tests only
+            if ~isa(val,'PixelDataBase')
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                    'Pix can be an object of PixelDatBase class only');
+            end
+            obj.pix_ = val;
         end
         %
     end

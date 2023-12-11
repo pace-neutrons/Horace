@@ -46,10 +46,7 @@ if v.num_pixels > 0
     pix_mem_retained{n_mem_blocks} = v;    % accumulate pixels into buffer array
     pix_mem_ix_retained{n_mem_blocks} = ix_add;
 
-    new_range_min = min(pix_comb_info.data_range(1, :), pix_mem_retained{n_mem_blocks}.data_range(1, :));
-    new_range_max = max(pix_comb_info.data_range(2, :), pix_mem_retained{n_mem_blocks}.data_range(2, :));
-    pix_comb_info.data_range(1, :) = new_range_min;
-    pix_comb_info.data_range(2, :) = new_range_max;
+    pix_comb_info.data_range = minmax_ranges(pix_comb_info.data_range,pix_mem_retained{n_mem_blocks}.data_range);
 end
 
 if finish_accum

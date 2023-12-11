@@ -130,7 +130,6 @@ if ~use_mex
         pix = PixelDataMemory();
         return;
     end
-
     ix = cat(1, pix_ix_retained{:});
 
     clear pix_ix_retained;
@@ -140,26 +139,9 @@ if ~use_mex
     end
 
     [~,ind] = sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-    clear ix;          % clear big arrays so that final output variable pix is not way up the stack
+    clear ix;          % clear big arrays so that final output variable pix is not way up the stac
 
-
-    if pix.is_filebacked
-        mch_sz = get(hor_config, 'mem_chunk_size');
-
-        pix = pix.get_new_handle();
-
-        for i = 1:mch_sz:numel(ind)
-            end_idx = min(i+mch_sz-1, numel(ind));
-            slice = ind(i:end_idx);
-            data = pix.data(:, slice);
-            pix = pix.format_dump_data(data);
-        end
-
-        pix = pix.finish_dump();
-
-    else
-        pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
-    end
+    pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
     clear ind;
 end
 
