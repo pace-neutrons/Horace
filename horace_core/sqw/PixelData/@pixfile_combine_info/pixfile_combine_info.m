@@ -26,7 +26,6 @@ classdef pixfile_combine_info < MultipixBase
     properties(Access = protected)
         pos_npixstart_ = [];
         pos_pixstart_  = [];
-
     end
     methods
         %
@@ -94,6 +93,42 @@ classdef pixfile_combine_info < MultipixBase
                 end
             end
         end
+        %------------------------------------------------------------------        
+        function obj = init_pix_access(obj)
+            % initialize access to contributing pixels.
+
+            % as we normally read data and immediately dump them back, what
+            % is the point of converting them to double and back to sinlge?
+            % Keep precision.
+            for i=1:numel(obj.infiles_)
+                obj.infiles_{i}.keep_precision = true;
+            end
+        end
+
+        function [data,npix_chunk] = get_dataset_page(obj, ...
+                n_dataset,pix_pos_start,npix_idx)
+            % Return pixel data and pixel bin sub-distribution for the
+            % particular dataset ouf of multiple pixel datasets, stored
+            % within the class.
+            % Inputs:
+            % n_dataset -- number of dataset to get data from
+            % pix_pos_start
+            %           -- the position where pixel data are located.
+            %              Should be externaly synchronized with npix.
+            %              Can be calculated here, but ignored for saving
+            %              time and memory.
+            % npix_idx  -- two-element array containing first and last
+            %              indices of bins containing
+            %              distribution of pixels over bins.
+            %
+            npix          = obj.npix_list_{n_dataset};
+            npix_chunk    = npix(npix_idx(1):npix_idx(2));
+            npix_in_block = sum(npix_chunk);
+            pix_pos_end   = pix_pos_start+npix_in_block-1;
+            pix           = obj.infiles_{n_dataset};
+            data          = pix.get_pixels( ...
+                pix_pos_start:pix_pos_end,'-raw','-align');
+        end        
         %------------------------------------------------------------------
         function pos = get.pos_npixstart(obj)
             pos = obj.pos_npixstart_;
