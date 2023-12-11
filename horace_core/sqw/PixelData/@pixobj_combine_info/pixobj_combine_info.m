@@ -123,6 +123,10 @@ classdef pixobj_combine_info < MultipixBase
         %
     end
     methods(Access=protected)
+        function is = get_is_filebacked(~)
+            is = any(cellfun(@(x)x.is_filebacked,obj.infiles_));
+        end
+
         function obj = set_npix_each_file(varargin)
             error('HORACE:pixobj_combine_info:runtime_error', ...
                 'npix_each_file is calculated from list of input files and can not be set on this object')

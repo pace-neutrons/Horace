@@ -56,17 +56,21 @@ classdef PageOp_join_sqw < PageOpBase
             else
                 pix = PixelDataMemory();
             end
+            % set up pix earlier to build correct filename
+            obj.pix_ = pix;
+            if isempty(obj.outfile)
+                obj.outfile = obj.build_file_name_for_join();
+            end
+
             % only pixfile_combine_info is currently mex-ed
             obj.use_mex = use_mex && isa(obj.pix_combine_info,'pixfile_combine_info');
             %
             % set pixel data range to avoid warning about old file format
             % which does not have one.
             in_sqw.pix = pix.set_data_range(obj.pix_combine_info.data_range);
-            if isempty(obj.outfile)
-                obj = obj.build_tmp_file_name_for_join();
-            end
             %
             obj = init@PageOpBase(obj,in_sqw);
+
             obj.new_runid = new_runid;
             % clear signal accumulator to save memory; it will not be used
             % here.
@@ -75,7 +79,7 @@ classdef PageOp_join_sqw < PageOpBase
                 % initialize input datasets for read access
                 obj.pix_combine_info  = obj.pix_combine_info.init_pix_access();
                 obj.npix_page_read_ = zeros(1,obj.pix_combine_info.nfiles);
-            else               
+            else
                 obj.pixout_start_pos_ = obj.write_handle_.pixout_start;
             end
         end
@@ -197,20 +201,37 @@ classdef PageOp_join_sqw < PageOpBase
             % this operation changes pixels only regardless of image
             is = true;
         end
-        function  obj = build_tmp_file_name_for_join(obj)
-            % build tmp file=name for join operation using one of the
-            % names of partial contributing files
+        function  outfile = build_file_name_for_join(obj)
+            % build file-name for join operation using one of the
+            % contributing files name.
+            %
+            % uses obj.pix_ field contents to identify filename type
+            % so needs this filed defined
+            %
+            % if target object is filebacked, it will be tmp filename, but
+            % if result is memorybased, the extension would be sqw.
+            %
             hc = hor_config;
             wkdir = hc.working_directory;
-            [~,fb] = fileparts(obj.pix_combine_info.infiles{1});
+            if istext(obj.pix_combine_info.infiles{1})
+                part_file = obj.pix_combine_info.infiles{1};
+            else
+                part_file = obj.pix_combine_info.infiles{1}.full_filename;
+            end
+            [~,fb] = fileparts(part_file);
             fb = strsplit(fb,'_runID');
             if iscell(fb)
-                fb = fb{1};
+                fb = ['combined_',fb{1}];
             end
             if isempty(fb)
-                fb = 'form_mem';
+                fb = 'combined_form_mem';
             end
-            obj.outfile = build_tmp_file_name(fb,wkdir);
+            if obj.pix_.is_filebacked
+                outfile = build_tmp_file_name(fb,wkdir);
+            else % if result is memory based and does not have filenabe, its name
+                % should be defined here.
+                outfile = fullfile(wkdir,[fb,'.sqw']);
+            end
         end
         %
     end

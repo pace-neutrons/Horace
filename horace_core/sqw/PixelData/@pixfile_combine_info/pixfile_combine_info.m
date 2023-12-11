@@ -231,6 +231,9 @@ classdef pixfile_combine_info < MultipixBase
             end
             obj.loaders_list_ = {};
         end
+        function is = get_is_filebacked(~)
+            is = true;
+        end
         function obj = set_npix_each_file(obj,val)
             % accepts the numeric array which defines number of pixels
             % in each file or signle value if total number of pixels

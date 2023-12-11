@@ -1,5 +1,5 @@
 function wout = join(w,varargin)
-% Join an array or cellarray of sqw objects of sqw files into an single sqw object. 
+% Join an array or cellarray of sqw objects of sqw files into an single sqw object.
 %
 % The objects have to had common image shape, like objects produced by split
 % or files, stored by gen_sqw(___,'-tmp_only') options.
@@ -73,13 +73,40 @@ if initflag
         w = num2cell(w);
     end
     % check if input data and the input sqw can indeed be combined together.
-    check_img_consistency([{wout};w(:)],true);
+    [ok,mess,~,ldrs] = check_img_consistency([{wout};w(:)],true);
+    if ~ok
+        error('HORACE:sqw:invalid_argument', mess);
+    end
+    if ~isempty(ldrs{1})
+        ldrs{1} = ldrs{1}.delete(); % close loader for sample file
+    end
+    ldrs = ldrs(2:end); % remove loader for sample file if any
 
-    % build info for sqw combining
-    [pix_list,npix_list] = cellfun(@extract_info, w,'UniformOutput',false);
-    wout.pix = pixobj_combine_info(pix_list,npix_list);
-    if recalc_runid
-        wout.experiment_info.runid_map = 1:numel(w);
+    membased = cellfun(@isempty,ldrs);
+    if all(membased )
+        % build info for sqw combining
+        [pix_list,npix_list] = cellfun(@extract_info, w,'UniformOutput',false);
+        wout.pix = pixobj_combine_info(pix_list,npix_list);
+        if recalc_runid
+            wout.experiment_info.runid_map = 1:numel(w);
+        end
+    else
+        if any(membased)
+            close_lrds(ldrs);
+            error('HORACE:sqw:invalid_argument', ...
+                'join combines either inpuf files or input objects. Its impossible to mix both');
+        end
+        if recalc_runid
+            run_label = 1:numel(w);
+        else
+            run_label = 'nochange';
+        end
+        [npixtot,pos_npixstart,pos_pixstart] = cellfun(@extract_info_from_ldrs, ldrs);
+        pix = pixfile_combine_info(w,numel(wout.data.npix),npixtot, ...
+            pos_npixstart,pos_pixstart,run_label);
+        pix.data_range = wout.pix.data_range;
+        wout.pix = pix;
+        close_lrds(ldrs);
     end
 else
     if allow_equal_headers
@@ -91,16 +118,6 @@ else
         argi = [argi(:),'-keep_runid'];
     end
     wout = collect_sqw_metadata(w,argi{:});
-    if iscell(w)
-        if istext(w{1})
-            [fp,fn] = fileparts(w{1});
-        else
-            [fp,fn] = fileparts(w{1}.full_filename);
-        end
-    else
-        [fp,fn] = fileparts(w(1).full_filename);
-    end
-    wout.full_filename = fullfile(fp,['combined_',fn,'.sqw']);
 end
 
 hpc = hpc_config;
@@ -119,10 +136,30 @@ end
 
 [page_op,wout]  = page_op.init(wout,run_id,use_mex);
 wout            = sqw.apply_op(wout,page_op);
-
+if isempty(wout.full_filename)
+    % this may happen if combined from memory without sample object
+    wout.full_filename = page_op.outfile;
 end
 
+end
+%
 function [pix,npix] = extract_info(in_sqw)
 pix = in_sqw.pix;
 npix = in_sqw.data.npix(:);
+end
+%
+function [npixtot,pos_npixstart,pos_pixstart]=extract_info_from_ldrs(ldr)
+pos_npixstart=ldr.npix_position;  % start of npix field
+pos_pixstart =ldr.pix_position;   % start of pix field
+npixtot      =ldr.npixels;
+end
+
+function ldrs = close_lrds(ldrs)
+% close loader handles in case of error
+for i=1:numel(ldrs)
+    if ~isempty(ldrs{i})
+        ldrs{i} = ldrs{i}.delete();
+        ldrs{i} = [];
+    end
+end
 end

@@ -212,8 +212,8 @@ classdef MultipixBase < serializable
             obj.full_filename_ = val;
         end
         %
-        function is = get.is_filebacked(~)
-            is = true;
+        function is = get.is_filebacked(obj)
+            is = get_is_filebacked(obj);
         end
         function is = get.is_misaligned(~)
             is = false;
@@ -290,6 +290,7 @@ classdef MultipixBase < serializable
     methods(Abstract,Access=protected)
         obj = set_infiles(obj,val);
         obj = set_npix_each_file(obj,val);
+        is = get_is_filebacked(obj);
     end
     % SERIALIZABLE INTERFACE
     methods

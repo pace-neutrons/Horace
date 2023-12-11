@@ -78,16 +78,47 @@ classdef test_join < TestCase
 
             reformed_obj = sqw.join(split_obj,sqw_obj);
 
-            assertEqualToTol(sqw_obj, reformed_obj)
+            assertEqualToTol(sqw_obj, reformed_obj,'ignore_str',true);
         end
         %------------------------------------------------------------------
+        function test_join_changes_runid_on_files_mex(obj)
+            [~, ~, can_combine_with_mex] = check_horace_mex();
+            if ~can_combine_with_mex
+                skipTest('Combinbing with mex is not available on this system')
+            end
+            clWarn = set_temporary_warning('off','HORACE:physical_memory_configured');
+            clHConf = set_temporary_config_options(hor_config,'use_mex',true);
+            clConf = set_temporary_config_options(hpc_config,'combine_sqw_using','mex_code');
+
+            reformed_obj = sqw.join(obj.files_to_join,'-recalc');
+
+            runid = reformed_obj.runid_map.keys();
+            assertEqual([runid{:}],1:reformed_obj.main_header.nfiles);
+
+            sobj = obj.sample_obj;
+            pix_data = sobj.pix.data;
+            idx = PixelData.field_index('run_idx');
+            pix_data(idx,:) = pix_data(idx,:) - 18;
+            sobj.pix.data = pix_data;
+            sobj.experiment_info.runid_map  = 1:numel(obj.files_to_join);
+
+            %
+            assertEqual(obj.sample_obj.detpar,reformed_obj.detpar)
+            % This is bug Re #1432
+            reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
+
+            assertEqualToTol(sobj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
+            % clear configuration to avoid memory warnings
+            clear clConf;
+        end
         function test_join_works_with_file_list_with_mex(obj)
             [~, ~, can_combine_with_mex] = check_horace_mex();
             if ~can_combine_with_mex
                 skipTest('Combinbing with mex is not available on this system')
             end
+            clWarn = set_temporary_warning('off','HORACE:physical_memory_configured');
             clHConf = set_temporary_config_options(hor_config,'use_mex',true);
-            clConf = set_temporary_config_options(hpc_config,'combine_sqw_using','mex_code');            
+            clConf = set_temporary_config_options(hpc_config,'combine_sqw_using','mex_code');
 
             reformed_obj = sqw.join(obj.files_to_join);
             %
@@ -95,9 +126,11 @@ classdef test_join < TestCase
             % This is bug Re #1432
             reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
+            % clear configuration to avoid memory warnings
+            clear clConf;
             skipTest("Re #1432 detpar is not wired properly to detector_arrays")
         end
-        
+
         function test_join_works_with_file_list_with_nomex_pages(obj)
             page_size = obj.sample_obj.pix.num_pixels/4;
             clWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
@@ -113,8 +146,18 @@ classdef test_join < TestCase
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
 
             skipTest("Re #1432 detpar is not wired properly to detector_arrays")
-            skipTest("Re #1147 Equal_to_toll does not work correctly with arbitrary pages")            
+            skipTest("Re #1147 Equal_to_toll does not work correctly with arbitrary pages")
         end
+
+        function test_join_works_with_file_list_with_nomex_and_sample(obj)
+            clConf = set_temporary_config_options(hor_config,'use_mex',false);
+
+            reformed_obj = sqw.join(obj.files_to_join,obj.sample_obj);
+            %
+            assertEqual(obj.sample_obj.detpar,reformed_obj.detpar)
+            assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
+        end
+
 
         function test_join_works_with_file_list_with_nomex(obj)
             clConf = set_temporary_config_options(hor_config,'use_mex',false);
@@ -193,7 +236,6 @@ classdef test_join < TestCase
             sobj.pix.data = pix_data;
             sobj.experiment_info.runid_map  = 1:numel(split_obj);
 
-
             assertEqualToTol(sobj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
         end
 
@@ -214,7 +256,6 @@ classdef test_join < TestCase
             pix_data(idx,:) = pix_data(idx,:) - 18;
             sobj.pix.data = pix_data;
             sobj.experiment_info.runid_map  = 1:numel(split_obj);
-
 
             assertEqualToTol(sobj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
         end
