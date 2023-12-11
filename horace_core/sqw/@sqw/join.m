@@ -73,7 +73,7 @@ if initflag
         w = num2cell(w);
     end
     % check if input data and the input sqw can indeed be combined together.
-    [~,~,~,ldrs] = check_img_consistency([{wout};w(:)],true);
+    [~,ldrs] = check_img_consistency([{wout};w(:)],true);
     if ~isempty(ldrs{1})
         ldrs{1} = ldrs{1}.delete(); % close loader for reference file
     end
@@ -90,8 +90,8 @@ if initflag
     else
         if any(membased)
             close_lrds(ldrs);
-            error('HORACE:sqw:invalid_argument', ...
-                'join combines either inpuf files or input objects. Its impossible to mix both');
+            error('HORACE:sqw:not_implemented', ...
+                'join combines either input files or input objects. Possibility to mix them is not implemented');
         end
         if recalc_runid
             run_label = 1:numel(w);

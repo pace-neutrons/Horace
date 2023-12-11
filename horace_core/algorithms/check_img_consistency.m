@@ -1,15 +1,10 @@
-function [ok,mess,img_range,ldrs] = check_img_consistency(sqw_obj_input,throw_on_inconsistent)
-% CHECK_IMG_CONSISTENCY: Validates sqw images (dnd objects) consistencey
-% for the puropose of combining them together without rebinning.
+function [img_range,ldrs] = check_img_consistency(sqw_obj_input)
+% CHECK_IMG_CONSISTENCY: Validates sqw images (dnd objects) consistency
+% for the purpose of combining them together without rebinning.
 %
 % Input:
 % sqw_obi_input -- array or cellarray of the sqw objects or cellarray of
 %                  filenames containing such objects.
-% Optional:
-% throw_on_inconsistent
-%               -- if true, throw HORACE:algorithms:invalid_argument
-%                  instead of returing error message if images apears to be
-%                  inconsistent.
 %
 % Returns:
 % ok           -- true if images are consistent and can be combined together
@@ -17,13 +12,10 @@ function [ok,mess,img_range,ldrs] = check_img_consistency(sqw_obj_input,throw_on
 %                 ok is false
 % img_range    -- img_range -- if images are consistent, common range of
 %                 the images calculated to avoid round-off errors.
-% ldrs          -- if inputs are filenames, list of loaders which load data
-%                  from these files
-%                  Empty, if inputs are sqw objects.
+% ldrs         -- if inputs are filenames, list of loaders which load data
+%                 from these files
+%                 Empty, if inputs are sqw objects.
 %
-if nargin<2
-    throw_on_inconsistent = false;
-end
 if isa(sqw_obj_input,'sqw') || isa(sqw_obj_input,'dnd')
     inputs = num2cell(sqw_obj_input);
 else
@@ -31,22 +23,13 @@ else
 end
 [img_metadata,filenames,ldrs] = cellfun(@extract_meta,inputs,'UniformOutput',false);
 
-ok = true;
-mess = false;
-img_range = [];
 try
     img_range = check_img_consistency_(img_metadata,filenames);
 catch ME
-    ldrs = close_lrds(ldrs);
-    if strcmp(ME.identifier,'HORACE:algorithms:invalid_arguments') ||...
-            ~throw_on_inconsistent
-        ok = false;
-        mess = ME.message;
-    else
-        rethrow(ME)
-    end
+    close_lrds(ldrs);
+    rethrow(ME)
 end
-if nargout < 4
+if nargout < 2
     ldrs = close_lrds(ldrs);
 end
 

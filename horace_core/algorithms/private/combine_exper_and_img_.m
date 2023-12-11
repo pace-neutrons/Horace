@@ -16,13 +16,13 @@ function [dnd_data,exper_combined,mhc] = combine_exper_and_img_( ...
 %                  the runs found to be the same, throws invalid_argument
 %                  exception
 % keep_runid    -- if true, keep run_id-s already defined in input
-%                  experiment data. If false recalculate all experments
+%                  experiment data. If false recalculate all experiments
 %                  from 1 to number of contributing runs
 % job_dp        -- instance of job dispatcher, containing references to
 %                  running cluster to combine images in parallel. If empty,
 %                  no parallel combining.
 % hor_log_level -- the variable from hor_config.log_level, defining the
-%                  verbocity of the operations.
+%                  verbosity of the operations.
 
 
 % check the consistency of image headers as this is the grid where pixels
