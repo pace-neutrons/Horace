@@ -26,6 +26,11 @@ classdef pixfile_combine_info < MultipixBase
     properties(Access = protected)
         pos_npixstart_ = [];
         pos_pixstart_  = [];
+        % cellarray of loaders used to access page data
+        loaders_list_ = {};
+        % clean-up object closing the file-accessor when class goes out of
+        % scope
+        clean_obj_;
     end
     methods
         %
@@ -93,16 +98,20 @@ classdef pixfile_combine_info < MultipixBase
                 end
             end
         end
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         function obj = init_pix_access(obj)
             % initialize access to contributing pixels.
 
             % as we normally read data and immediately dump them back, what
             % is the point of converting them to double and back to sinlge?
             % Keep precision.
-            for i=1:numel(obj.infiles_)
-                obj.infiles_{i}.keep_precision = true;
+            n_ldrs = numel(obj.infiles_);
+            obj.loaders_list_ = cell(n_ldrs,1);
+            for i=1:n_ldrs
+                obj.loaders_list_{i} = ...
+                    sqw_formats_factory.instance.get_loader(obj.infiles{i});
             end
+            obj.clean_obj_ = onCleanup(@()close_faccessors(obj));
         end
 
         function [data,npix_chunk] = get_dataset_page(obj, ...
@@ -121,14 +130,13 @@ classdef pixfile_combine_info < MultipixBase
             %              indices of bins containing
             %              distribution of pixels over bins.
             %
-            npix          = obj.npix_list_{n_dataset};
-            npix_chunk    = npix(npix_idx(1):npix_idx(2));
+            ldr = obj.loaders_list_{n_dataset};
+            npix_chunk = ldr.get_npix_block(npix_idx(1),npix_idx(2));
             npix_in_block = sum(npix_chunk);
             pix_pos_end   = pix_pos_start+npix_in_block-1;
-            pix           = obj.infiles_{n_dataset};
-            data          = pix.get_pixels( ...
-                pix_pos_start:pix_pos_end,'-raw','-align');
-        end        
+
+            data          = ldr.get_raw_pix(pix_pos_start,pix_pos_end);
+        end
         %------------------------------------------------------------------
         function pos = get.pos_npixstart(obj)
             pos = obj.pos_npixstart_;
@@ -215,6 +223,14 @@ classdef pixfile_combine_info < MultipixBase
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function obj = close_faccessors(obj)
+            for i=1:numel(obj.loaders_list_)
+                if ~isempty(obj.loaders_list_)
+                    obj.loaders_list_{i}.delete();
+                end
+            end
+            obj.loaders_list_ = {};
+        end
         function obj = set_npix_each_file(obj,val)
             % accepts the numeric array which defines number of pixels
             % in each file or signle value if total number of pixels

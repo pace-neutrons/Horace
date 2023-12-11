@@ -81,6 +81,36 @@ classdef test_join < TestCase
             assertEqualToTol(sqw_obj, reformed_obj)
         end
         %------------------------------------------------------------------
+        function test_join_works_with_file_list_with_nomex_pages(obj)
+            page_size = obj.sample_obj.pix.num_pixels/4;
+            clWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clConf = set_temporary_config_options(hor_config,'use_mex',false, ...
+                'mem_chunk_size',page_size,'fb_scale_factor',3);
+
+            reformed_obj = sqw.join(obj.files_to_join);
+            %
+            assertEqual(obj.sample_obj.detpar,reformed_obj.detpar)
+            reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
+            % This is the issue Re #1147 should arrdess
+            clear clConf;
+            assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
+
+            skipTest("Re #1432 detpar is not wired properly to detector_arrays")
+            skipTest("Re #1147 Equal_to_toll does not work correctly with arbitrary pages")            
+        end
+
+        function test_join_works_with_file_list_with_nomex(obj)
+            clConf = set_temporary_config_options(hor_config,'use_mex',false);
+
+            reformed_obj = sqw.join(obj.files_to_join);
+            %
+            assertEqual(obj.sample_obj.detpar,reformed_obj.detpar)
+            % This is bug Re #1432
+            reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
+            assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
+            skipTest("Re #1432 detpar is not wired properly to detector_arrays")
+        end
+        %------------------------------------------------------------------
         function test_join_creates_tmp_filebacked_on_conditions(obj)
             page_size = obj.sample_obj.pix.num_pixels/4;
             clWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
@@ -101,7 +131,7 @@ classdef test_join < TestCase
             assertTrue(isfile(targ_file))
             % to compare filebacked and memory backed object properly, here
             % we need to have compatible page sizes. The comparison will
-            % fail otherwise. Re #1147 -- should be fixed.
+            % fail otherwise. Re #1147 -- should fix that.
             clear clConf;
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
 

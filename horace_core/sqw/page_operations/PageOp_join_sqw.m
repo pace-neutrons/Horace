@@ -45,7 +45,8 @@ classdef PageOp_join_sqw < PageOpBase
             % and set target sqw object with target pixels as the target.
             [mcs,fb] = config_store.instance().get_value('hor_config','mem_chunk_size','fb_scale_factor');
             % select if we want/need filebacked or memory based result
-            if obj.pix_combine_info.num_pixels > mcs*fb || ~isempty(obj.outfile)
+            if obj.pix_combine_info.num_pixels > mcs*fb || ...
+                    ~isempty(obj.outfile) || isa(obj.pix_combine_info,'pixfile_combine_info')
                 pix = PixelDataFileBacked();
             else
                 pix = PixelDataMemory();

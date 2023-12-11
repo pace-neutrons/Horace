@@ -1,14 +1,18 @@
 function wout = join(w,varargin)
-% Join an array of sqw objects into an single sqw object
-% This is intended only as the reverse of split
+% Join an array or cellarray of sqw objects of sqw files into an single sqw object. 
 %
-%   >> wout = join(w,wi)
-%   >> wout = join(w)
+% The objects have to had common image shape, like objects produced by split
+% or files, stored by gen_sqw(___,'-tmp_only') options.
+%
+%   >> wout = join(w,wi,varargin)
+%   >> wout = join(w,varargin)
 %
 % Input:
 % ------
 %   w       array or cellarray of sqw objects or cellarray of names of sqw
-%           files, each one made from a single spe data file
+%           files, each one made from a single spe data file and have
+%           common image shape, i.e. size(sqw.data.s) have to be the same
+%           for all contributing images.
 % Optional:
 %   wi      initial pre-split sqw object (optional, recommended).
 % outfile   if provided and input objects are filebacked, does resulting
@@ -20,7 +24,7 @@ function wout = join(w,varargin)
 % modifiers:
 % '-allow_equal_headers'
 %         -- if two objects of files from the list of input files contain
-%            the same information
+%            the same information.
 % '-recalc_runid'
 %         -- if provided, recalculate existing run-id(s) stored in headers
 %            in such way that pixels run-ids correspond to number of header
@@ -38,6 +42,9 @@ nfiles = numel(w);
 % Catch case of single contributing spe dataset
 if nfiles == 1
     wout = w;
+    if istext(wout)
+        wout = sqw(wout);
+    end
     return
 end
 if nargin>1 && isa(varargin{1},'sqw')
@@ -85,7 +92,11 @@ else
     end
     wout = collect_sqw_metadata(w,argi{:});
     if iscell(w)
-        [fp,fn] = fileparts(w{1}.full_filename);
+        if istext(w{1})
+            [fp,fn] = fileparts(w{1});
+        else
+            [fp,fn] = fileparts(w{1}.full_filename);
+        end
     else
         [fp,fn] = fileparts(w(1).full_filename);
     end
