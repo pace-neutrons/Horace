@@ -17,6 +17,7 @@ classdef pix_write_handle < handle
         move_to_original
     end
     properties(Dependent)
+        % number of pixels written using this write handle
         npix_written;
         % true, if file has extension tmp or has been set to be
         % true or false explicitly. tmp files deleted when the object
@@ -24,6 +25,12 @@ classdef pix_write_handle < handle
         is_tmp_file
         %
         write_handle;
+    end
+    properties(Dependent,Hidden)
+        % initial position (in bytes)from the beginning of file,
+        % where target pixels are written.
+        % Used by external mex code which writes pixels.
+        pixout_start
     end
     properties(Access=private)
         npix_written_ = 0;
@@ -173,6 +180,13 @@ classdef pix_write_handle < handle
             end
         end
         %==================================================================
+        function pixout = get.pixout_start(obj)
+            if ~obj.handle_is_class_
+                error('HORACE:pix_write_handle:runtime_error', ...
+                    'Attempt to get pix position from incompartible binary file')
+            end
+            pixout = obj.write_handle_.pix_position;
+        end
         function is = get.is_tmp_file(obj)
             if isempty(obj.is_tmp_file_)
                 [~,~,fe] = fileparts(obj.write_file_name);
@@ -186,6 +200,11 @@ classdef pix_write_handle < handle
         end
         function np = get.npix_written(obj)
             np = obj.npix_written_;
+        end
+        function set.npix_written(obj,val)
+            % should be used only when pixels are written externaly by
+            % mex-routine
+            obj.npix_written_ = double(val);
         end
     end
     methods(Access=private)

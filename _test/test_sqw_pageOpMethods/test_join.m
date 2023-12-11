@@ -81,6 +81,23 @@ classdef test_join < TestCase
             assertEqualToTol(sqw_obj, reformed_obj)
         end
         %------------------------------------------------------------------
+        function test_join_works_with_file_list_with_mex(obj)
+            [~, ~, can_combine_with_mex] = check_horace_mex();
+            if ~can_combine_with_mex
+                skipTest('Combinbing with mex is not available on this system')
+            end
+            clHConf = set_temporary_config_options(hor_config,'use_mex',true);
+            clConf = set_temporary_config_options(hpc_config,'combine_sqw_using','mex_code');            
+
+            reformed_obj = sqw.join(obj.files_to_join);
+            %
+            assertEqual(obj.sample_obj.detpar,reformed_obj.detpar)
+            % This is bug Re #1432
+            reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
+            assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
+            skipTest("Re #1432 detpar is not wired properly to detector_arrays")
+        end
+        
         function test_join_works_with_file_list_with_nomex_pages(obj)
             page_size = obj.sample_obj.pix.num_pixels/4;
             clWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');

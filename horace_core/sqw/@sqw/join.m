@@ -103,6 +103,10 @@ else
     wout.full_filename = fullfile(fp,['combined_',fn,'.sqw']);
 end
 
+hpc = hpc_config;
+hc = hor_config;
+use_mex = hc.use_mex && strncmp(hpc.combine_sqw_using,'mex',3);
+
 page_op         = PageOp_join_sqw;
 page_op.outfile = outfile;
 %
@@ -113,7 +117,7 @@ else
     run_id = [];
 end
 
-[page_op,wout]  = page_op.init(wout,run_id);
+[page_op,wout]  = page_op.init(wout,run_id,use_mex);
 wout            = sqw.apply_op(wout,page_op);
 
 end
