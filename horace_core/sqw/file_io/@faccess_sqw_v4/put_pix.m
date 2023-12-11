@@ -137,12 +137,7 @@ if num_pixels == 0
     return % nothing to do.
 end
 
-if isa(input_obj,'pixfile_combine_info') % pix field contains info to read &
-    %combine pixels from sequence of files. There is special sub-algorithm
-    %to do that.
-    obj = obj.put_sqw_data_pix_from_file(input_obj, jobDispatcher);
-
-elseif isa(input_obj,'PixelDataBase')  % write pixels stored in other file
+if isa(input_obj,'PixelDataBase')  % write pixels stored in other file
 
     n_pages = input_obj.num_pages;
     for i = 1:n_pages
