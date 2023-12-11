@@ -125,12 +125,6 @@ classdef MultipixBase < serializable
             obj.do_check_combo_arg_= true;
         end
         %------------------------------------------------------------------
-        function obj = init_pix_access(obj)
-            % initialize access to contributing pixels.
-            % Important for pixfile_combine. Does nothing for
-            % pixobj_combine
-        end
-        %------------------------------------------------------------------
         function nf   = get.nfiles(obj)
             % number of contributing files
             nf = numel(obj.infiles_);
@@ -151,8 +145,8 @@ classdef MultipixBase < serializable
             npix_tot = obj.npix_each_file_;
         end
         function obj= set.npix_each_file(obj,val)
-            % If defined, accepts the numeric array which defines number
-            % of pixels in each file or signle value if total number of
+            % If defined, accepts a numeric array which defines number
+            % of pixels in each file or single value if total number of
             % pixels in each file is the same
             obj = set_npix_each_file(obj,val);
         end
@@ -285,6 +279,8 @@ classdef MultipixBase < serializable
     end
     methods(Abstract)
         obj = recalc_data_range(obj)
+        % initialize access to contributing pixels.
+        obj = init_pix_access(obj)
     end
     %----------------------------------------------------------------------
     methods(Abstract,Access=protected)

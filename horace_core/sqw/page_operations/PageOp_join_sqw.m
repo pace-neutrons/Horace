@@ -64,8 +64,9 @@ classdef PageOp_join_sqw < PageOpBase
             obj.npix_page_read_ = zeros(1,obj.pix_combine_info.nfiles);
         end
         function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
-            % Overload of split method allowing to define large target chink
-            % and store npix_idx for internal usage
+            % Overload of split method allowing to define large target chunk
+            % and store npix_idx for internal usage.
+            %
             % Inputs:
             % npix  -- image npix array, which defines the number of pixels
             %           contributing into each image bin and the pixels
@@ -84,7 +85,7 @@ classdef PageOp_join_sqw < PageOpBase
             large_chunk = chunk_size*fb;
             [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,large_chunk);
             obj.block_idx_ = npix_idx;
-            page_sizes = cellfun(@(x)sum(x(:)),npix_chunks);
+            page_sizes = cellfun(@sum,npix_chunks);
             page_pos = cumsum(page_sizes);
             obj.page_start_pos_ = [1,page_pos(1:end-1)];
         end
@@ -115,7 +116,7 @@ classdef PageOp_join_sqw < PageOpBase
                     contr_page_data(obj.run_idx_,:) = obj.new_runid(i);
                 end
 
-                % find indexes of i-th dataset's page pixels in the target's
+                % find indices of i-th dataset's page pixels in the target's
                 % dataset page
                 targ_bin_idx = fill_idx(bin_start,page_bin_distr);
                 % TODO: Is this quicker?
