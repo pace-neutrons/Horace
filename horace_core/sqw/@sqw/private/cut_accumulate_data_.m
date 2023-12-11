@@ -298,6 +298,8 @@ function [npix, s, e, pix_out, unique_runid] = cut_tmp_files(pix, block_starts, 
 
 hc = hor_config;
 chunk_size = hc.mem_chunk_size;
+fb_size    = hc.fb_scale_factor;
+buf_size   = chunk_size*fb_size;
 
 % Get indices in order to split the candidate bin ranges into chunks whose sums
 % are less than, or equal to, a pixel page size
@@ -345,7 +347,7 @@ for iter = 1:num_chunks
         % passed to 'put_sqw'.
         pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file(pix_comb_info, false, ...
             pix_ok, pix_indx, npix, ...
-            0);
+            buf_size);
     end
 end  % loop over pixel blocks
 

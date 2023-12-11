@@ -32,7 +32,8 @@ outfile_specified = isfield(opt, 'outfile') && ~isempty(opt.outfile);
     w, targ_proj, targ_axes, opt.keep_pix, log_level, return_cut);
 
 
-if isa(pix_out, 'pixfile_combine_info')
+if isa(pix_out, 'MultipixBase')
+    pix_combine_necessary = true;
     % Make sure we clean up temp files.
     cleanup = onCleanup(@() clean_up_tmp_files(pix_out));
 
@@ -41,6 +42,8 @@ if isa(pix_out, 'pixfile_combine_info')
         opt.outfile = tmp_file.file_name;
         outfile_specified = true;
     end
+else
+    pix_combine_necessary = false;
 end
 
 
@@ -96,13 +99,19 @@ if outfile_specified
     if log_level >= 0
         disp(['*** Writing cut to output file ', opt.outfile, '...']);
     end
+    if pix_combine_necessary
+        hpc = hpc_config;
+        hc = hor_config;
 
-    try
+        use_mex = hc.use_mex && strcmp(hpc.combine_sqw_using,'mex_code');
+        page_op         = PageOp_join_sqw;
+        page_op.outfile = opt.outfile;
+        [page_op,wout]  = page_op.init(wout,[],use_mex);
+        % TODO: Re #1320 do not load result in memory and do not initilize
+        % filebacked operations if it is not requested
+        wout              = sqw.apply_op(wout,page_op);
+    else
         save(wout, opt.outfile);
-    catch ME
-        error('HORACE:cut_sqw:io_error', ...
-              'Error writing to file ''%s''.\n%s: %s', ...
-              opt.outfile, ME.identifier, ME.message);
     end
 end
 
@@ -128,7 +137,7 @@ end
 
 function clean_up_tmp_files(pix_comb_info)
 % Manually clean-up temporary files created by a pixfile_combine_info object
-    for nfile = 1:numel(pix_comb_info.infiles)
-        delete(pix_comb_info.infiles{nfile});
-    end
+for nfile = 1:numel(pix_comb_info.infiles)
+    delete(pix_comb_info.infiles{nfile});
+end
 end
