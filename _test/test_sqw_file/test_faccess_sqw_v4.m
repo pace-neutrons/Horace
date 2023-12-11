@@ -110,6 +110,7 @@ classdef test_faccess_sqw_v4< TestCase
             clear res_sqw; % try to delete memmapfile to be able to delete
             % test file
         end
+       
         function obj = test_save_load_sqwV4_crossbuf(obj)
             clob1 = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
 

@@ -22,8 +22,9 @@ catch ME
     throw(exc.addCause(ME))
 end
 
-size = pos_end-pos_start;
-npix = fread(obj.file_id_,size,'*uint64');
+n_elem = pos_end-pos_start + 1;
+npix = fread(obj.file_id_,n_elem,'uint64');
+%npix = double(npix);
 
 check_error_report_fail_(obj,...
     'get_npix_block: Can not read all or part of npix array');
