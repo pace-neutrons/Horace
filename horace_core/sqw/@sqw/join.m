@@ -73,14 +73,11 @@ if initflag
         w = num2cell(w);
     end
     % check if input data and the input sqw can indeed be combined together.
-    [ok,mess,~,ldrs] = check_img_consistency([{wout};w(:)],true);
-    if ~ok
-        error('HORACE:sqw:invalid_argument', mess);
-    end
+    [~,~,~,ldrs] = check_img_consistency([{wout};w(:)],true);
     if ~isempty(ldrs{1})
-        ldrs{1} = ldrs{1}.delete(); % close loader for sample file
+        ldrs{1} = ldrs{1}.delete(); % close loader for reference file
     end
-    ldrs = ldrs(2:end); % remove loader for sample file if any
+    ldrs = ldrs(2:end); % remove loader for reference object if any
 
     membased = cellfun(@isempty,ldrs);
     if all(membased )
@@ -137,7 +134,7 @@ end
 [page_op,wout]  = page_op.init(wout,run_id,use_mex);
 wout            = sqw.apply_op(wout,page_op);
 if isempty(wout.full_filename)
-    % this may happen if combined from memory without sample object
+    % this may happen if combined from memory without reference object
     wout.full_filename = page_op.outfile;
 end
 

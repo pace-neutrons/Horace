@@ -27,4 +27,3 @@ npix = fread(obj.file_id_,size,'*uint64');
 
 check_error_report_fail_(obj,...
     'get_npix_block: Can not read all or part of npix array');
-

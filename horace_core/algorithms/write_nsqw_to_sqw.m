@@ -1,4 +1,4 @@
-function [img_db_range,pix_data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
+function [img_db_range,pix_data_range,wout]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
@@ -54,8 +54,8 @@ if nargin<2
     error('HORACE:write_nsqw_to_sqw:invalid_argument',...
         'function should have at least 2 input arguments')
 end
-accepted_options = {'-parallel'};
-[ok,mess,combine_in_parallel,argi]...
+accepted_options = {'-parallel','-keep_runid'};
+[ok,mess,combine_in_parallel,keep_runid,argi]...
     = parse_char_options(varargin,accepted_options);
 if ~ok
     error('HORACE:write_nsqw_to_sqw:invalid_argument',mess);
@@ -110,11 +110,17 @@ end
 % construct target sqw object containing everything except pixel data.
 % Instead of PixelData, it will contain information about how to combine
 % PixelData
-[sqw_mem_part,job_disp] = collect_sqw_metadata(infiles,pix_data_range,job_disp_4head,argi{:});
+if keep_runid
+    argi = ['-keep_runid';argi(:)];
+end
+[sqw_mem_part,~,job_disp] = collect_sqw_metadata(infiles,pix_data_range,job_disp_4head,argi{:});
+if ~isempty(job_disp)
+    job_disp.finalize_all();
+end
 sqw_mem_part.full_filename = outfile;
 sqw_mem_part.creation_date  = datetime('now');
 %
-hor_log_level = get(hor_config,'log_level');
+[hor_log_level,use_mex] = config_store.instance().get_value(hor_config,'log_level','use_mex');
 if hor_log_level>-1
     disp(' ')
     disp(['Writing to output file ',outfile,' ...'])
@@ -130,13 +136,13 @@ page_op.outfile = outfile;
 if keep_runid
     run_id = [];
 else
-
     run_id = sqw_mem_part.runid_map.keys();
     run_id = [run_id{:}];
 end
-
+hpc = hpc_config;
+use_mex = use_mex && strncmp(hpc.combine_sqw_using,'mex',3);
 [page_op,wout]  = page_op.init(sqw_mem_part,run_id,use_mex);
-% TODO: Re #1320 do not load result in memory and do not initilize 
+% TODO: Re #1320 do not load result in memory and do not initilize
 % filebacked operations if it is not requested
 wout            = sqw.apply_op(wout,page_op);
 

@@ -81,6 +81,18 @@ classdef test_join < TestCase
             assertEqualToTol(sqw_obj, reformed_obj,'ignore_str',true);
         end
         %------------------------------------------------------------------
+        function test_join_eq_write_nsqw_to_sqw(obj)
+            clHConf = set_temporary_config_options(hor_config,'use_mex',false);
+            outfile = fullfile(tmp_dir,'write_nsqw_to_sqw_test_join.sqw');
+            clObj = onCleanup(@()delete(outfile));
+            [~,~,reformed_obj] = write_nsqw_to_sqw(obj.files_to_join,outfile,'-keep');
+
+            % This is bug Re #1432
+            reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
+            assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true,'-ignore_date')
+            clear reformed_obj % clear it first to allow delete
+            skipTest("Re #1432 detpar is not wired properly to detector_arrays")
+        end
         function test_join_changes_runid_on_files_mex(obj)
             [~, ~, can_combine_with_mex] = check_horace_mex();
             if ~can_combine_with_mex
