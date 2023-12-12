@@ -8,7 +8,7 @@ try
         sqw_formats_factory.instance.get_loader(obj.infiles{1});
     obj.binary_access_ = false;
 catch ME
-    if strcmp(ME.identifier,'')        
+    if strcmp(ME.identifier,'HORACE:horace_binfile_interface:runtime_error')        
         obj.binary_access_ = true;
     else
         rethrow(ME);

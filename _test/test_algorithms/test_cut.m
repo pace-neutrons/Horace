@@ -78,7 +78,7 @@ classdef test_cut < TestCase & common_state_holder
 
             ref_sqw = read_sqw(obj.ref_cut_file);
             assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, ...
-                             'ignore_str', true,'-ignore_date');
+                'ignore_str', true,'-ignore_date');
         end
 
         function test_cut_sqw_object(obj)
@@ -119,7 +119,7 @@ classdef test_cut < TestCase & common_state_holder
             % Pix are in different order due to paged application in FileBacked
             % Can only compare binned data here
             assertEqualToTol(sqw_cut_mb.data, sqw_cut_fb.data, ...
-                             obj.FLOAT_TOL, 'ignore_str', true);
+                obj.FLOAT_TOL, 'ignore_str', true);
 
         end
 
@@ -155,15 +155,19 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_file_to_file(obj)
-            mem_chunk_size = 4000;
+            mem_chunk_size = 500;
+            clWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
             cleanup_hor_config = set_temporary_config_options( ...
                 hor_config, ...
-                'mem_chunk_size', mem_chunk_size ...
+                'mem_chunk_size', mem_chunk_size, ...
+                'fb_scale_factor',3, ...
+                'use_mex',false ...
                 );
 
-            outfile = fullfile(obj.working_dir, 'tmp_outfile.sqw');
-            ret_sqw = cut(obj.sqw_file, obj.ref_params{:}, outfile);
+            outfile = fullfile(obj.working_dir, 'cut_sqw_file_to_file_out.sqw');
             cleanup = onCleanup(@() clean_up_file(outfile));
+
+            ret_sqw = cut(obj.sqw_file, obj.ref_params{:}, outfile);
 
             runid = unique(ret_sqw.pix.run_idx);
             assertEqual(runid,ret_sqw.experiment_info.expdata.get_run_ids());
@@ -175,7 +179,8 @@ classdef test_cut < TestCase & common_state_holder
 
         function test_cut_sqw_file_to_file_combined_mex(obj)
 
-            mem_chunk_size = 2000;
+            mem_chunk_size = 500;
+            clWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
             cleanup_hor_config = set_temporary_config_options( ...
                 hor_config, ...
                 'mem_chunk_size', mem_chunk_size, ...
@@ -217,7 +222,7 @@ classdef test_cut < TestCase & common_state_holder
             cleanup_hor_config = set_temporary_config_options( ...
                 hor_config, ...
                 'mem_chunk_size', mem_chunk_size, ...
-                'fb_scale_factor',3,...                
+                'fb_scale_factor',3,...
                 'use_mex', false ...
                 );
 
@@ -248,7 +253,7 @@ classdef test_cut < TestCase & common_state_holder
             cleanup_config = set_temporary_config_options( ...
                 hor_config, ...
                 'mem_chunk_size', mem_chunk_size, ...
-                'fb_scale_factor',3 ...                
+                'fb_scale_factor',3 ...
                 );
             ws = warning('off','HORACE:old_file_format');
             clWarn = onCleanup(@()warning(ws));
@@ -571,8 +576,8 @@ classdef test_cut < TestCase & common_state_holder
         %------------------------------------------------------------------
 
         function test_multicut_1(obj)
-        % Test multicut capability for cuts that are adjacent
-        % Note that the last cut has no pixels retained - a good test too!
+            % Test multicut capability for cuts that are adjacent
+            % Note that the last cut has no pixels retained - a good test too!
 
             range = [0,0.2];    % range of cut
             step = 0.01;        % Q step
@@ -593,9 +598,9 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_multicut_2(obj)
-        % Test multicut capability for cuts that are adjacent
-        % Last couple of cuts have no pixels read or are even outside the range
-        % of the input data
+            % Test multicut capability for cuts that are adjacent
+            % Last couple of cuts have no pixels read or are even outside the range
+            % of the input data
 
             range = [0,0.2];    % range of cut
             step = 0.01;        % Q step
@@ -603,7 +608,7 @@ classdef test_cut < TestCase & common_state_holder
             width = [-0.15,0.15];  % Width in Ang^-1 of cuts
             args = {obj.ref_params{1}, bin, width, width};
 
-        % Must use '-pix' to properly handle pixel double counting in general
+            % Must use '-pix' to properly handle pixel double counting in general
             w1 = cut(obj.sqw_4d, args{:}, [110,2,118,2], '-pix');
             w2 = repmat(sqw,[5,1]);
             for i=1:5
@@ -614,7 +619,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_multicut_3(obj)
-        % Test multicut capability for cuts that overlap adjacent cuts
+            % Test multicut capability for cuts that overlap adjacent cuts
 
             range = [0,0.2];    % range of cut
             step = 0.01;        % Q step
@@ -622,7 +627,7 @@ classdef test_cut < TestCase & common_state_holder
             width = [-0.15,0.15];  % Width in Ang^-1 of cuts
             args = {obj.ref_params{1}, bin, width, width};
 
-        % Must use '-pix' to properly handle pixel double counting in general
+            % Must use '-pix' to properly handle pixel double counting in general
             w1 = cut(obj.sqw_4d, args{:}, [106,4,114,8], '-pix');
             w2 = repmat(sqw,[3,1]);
             for i=1:3

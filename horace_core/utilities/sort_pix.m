@@ -17,10 +17,9 @@ function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
 %
 % '-force_mex' -- use only mex code and fail if mex is not available
 %                (usually for testing)
-% '-force_double'
-%              -- if provided, the routine changes type of pixels
-%                 it get on input, into double. if not, output pixels will
-%                 keep their initial type
+% '-keep_type'
+%              -- if provided, the routine keeps type of pixels
+%                 received on input. If not, pixels converted into double.
 %
 % these two options can not be used together.
 %
@@ -30,9 +29,9 @@ function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
 %
 
 %  Process inputs
-options = {'-nomex','-force_mex','-force_double'};
+options = {'-nomex','-force_mex','-keep_type'};
 %[ok,mess,nomex,force_mex,missing]=parse_char_options(varargin,options);
-[ok, mess, nomex, force_mex, force_double, argi] = ...
+[ok, mess, nomex, force_mex, keep_type, argi] = ...
     parse_char_options(varargin,options);
 
 if ~ok

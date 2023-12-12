@@ -127,7 +127,8 @@ classdef MultipixBase < serializable
         %------------------------------------------------------------------
         function nf   = get.nfiles(obj)
             % number of contributing files
-            nf = numel(obj.infiles_);
+            present = cellfun(@(x)~isempty(x),obj.infiles_);
+            nf = sum(present);
         end
         function infls = get.infiles(obj)
             infls = obj.infiles_;

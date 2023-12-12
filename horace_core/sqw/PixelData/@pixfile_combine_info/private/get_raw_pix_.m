@@ -7,7 +7,7 @@ function pix_data = get_raw_pix_(obj,n_file,pix_pos_start,pix_pos_end)
 % pix_pos_end  -- final poistion of pixels to read
 
 fid = obj.loaders_list_{n_file};
-npix_to_read = pix_pos_end-pos_pix_start+1;
+npix_to_read = pix_pos_end-pix_pos_start+1;
 pix_pos_start = obj.pos_pixstart_(n_file) + (pix_pos_start-1)*9*4;
 
 do_fseek(fid,pix_pos_start,'bof');

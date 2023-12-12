@@ -1,4 +1,4 @@
-function pix_comb_info =accumulate_pix_to_file_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size)
+function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size)
 % Function to handle case of keep_pixels. Nested so that variables are shared with main function to optimise memory use
 
 
@@ -19,12 +19,7 @@ if ischar(pix_comb_info) && strcmp(pix_comb_info,'cleanup')
 end
 
 if finish_accum && nargin == 2
-    pix_comb_info= save_pixels_to_file(pix_comb_info);
-    pix_comb_info.npix_cumsum = cumsum(npix_prev(:));
-
-    pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
-
-    clear_memory();
+    pix_comb_info = finalize_accum(pix_comb_info);
     return
 end
 
@@ -50,12 +45,7 @@ if v.num_pixels > 0
 end
 
 if finish_accum
-    pix_comb_info= save_pixels_to_file(pix_comb_info);
-    pix_comb_info.npix_cumsum = cumsum(npix(:));
-
-    pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
-
-    clear_memory();
+    pix_comb_info = finalize_accum(pix_comb_info);
     return
 end
 
@@ -63,6 +53,33 @@ end
 if n_pix_in_memory> max_buf_size % flush pixels in file
     pix_comb_info= save_pixels_to_file(pix_comb_info);
 end
+
+    function pix_comb_info = finalize_accum(pix_comb_info)
+        % finish accumulation and depending on the previous state return
+        % either:
+        % pifile_combine_info class instance, describing data written to
+        % files if any files were written
+        % or:
+        % PixelDataMemory class, which contains pixels, sorted by bins if
+        % any pixels were held in memory.
+        if n_writ_files > 0
+            pix_comb_info= save_pixels_to_file(pix_comb_info);
+            if exist('npix','var')
+                pix_comb_info.npix_cumsum = cumsum(npix(:));
+            end
+
+            pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
+        else
+            if n_pix_in_memory == 0
+                pix_comb_info = PixelDataMemory();
+            else
+                pix_comb_info  = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
+                    n_pix_in_memory,pix_comb_info.data_range);
+            end
+        end
+        clear_memory();
+
+    end
 
     function clear_memory()
         clear npix_prev pix_mem_retained pix_mem_ix_retained n_pix_in_memory;
