@@ -272,7 +272,7 @@ The inputs are:
 .. warning::
 
    It should be noted that masking through the ``xkeep`` and ``xremove``
-   arguments masks data based on the bin-centres and not through any
+   arguments will mask data based on the bin-centres and not through any
    intersection of any bin-edges. This means that for a 1-D case where:
 
    .. code-block:: matlab
@@ -280,7 +280,7 @@ The inputs are:
       bins = [1 2 3 4] % <- Defines bin-centres at: [1.5, 2.5, 3.5]
       mask_points(w, 'keep', [1.7, 3.51])
 
-   Will remove the first bin because even though ``1.7`` lies within the first
+   will remove the first bin because even though ``1.7`` lies within the first
    bin, the range does not contain the bin-centre. ``3.51``, however, just
    barely captures the last bin and so this will not be removed.
 
