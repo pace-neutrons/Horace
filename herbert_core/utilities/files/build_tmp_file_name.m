@@ -24,6 +24,9 @@ if nargin == 1
         filepath = tmp_dir();
     end
 end
+if isempty(name)
+    name = 'from_mem';
+end
 
 for i = 1:5
     file_name = fullfile(filepath, ...

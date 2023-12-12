@@ -62,8 +62,7 @@ function wout = parallel_cut_eval(nWorkers, args)
     if isempty(outfile)
         tmp_outfile = TmpFileHandler(w{1}.full_filename);
         outfile = tmp_outfile.file_name;
-        write_nsqw_to_sqw([filenames{:}], outfile, '-parallel','-allow_equal_headers');
-        wout = sqw(outfile);
+        [~,~,wout]=write_nsqw_to_sqw([filenames{:}], outfile, '-parallel','-allow_equal_headers');
 
         if wout.pix.is_filebacked % Preserve pix
             tmp_outfile.file_name = '';
