@@ -191,7 +191,7 @@ for i=1:numel(ind)
     angdeg=lookup.angdeg{iw};
     is_mosaic=lookup.is_mosaic{iw};
     dt=lookup.dt{iw};
-    qw=lookup.qw{iw};
+    en=lookup.en{iw};
 
     % Run and detector for each pixel
     npix = win(i).pix.num_pixels;
@@ -211,10 +211,10 @@ for i=1:numel(ind)
         % crystal orientation and lattice parameters will have changed
         [~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
 
-        % Recompute Q because crystal orientation will have changed (don't need to update qw{4})
-        qw(1:3) = calculate_q (ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
-
     end
+
+    % Recompute Q on-the-fly
+    qw = calculate_q(ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
 
     % Compute (Q,w) deviations matrix
     % This is done on-the-fly for each sqw object because dq_mat is so large
@@ -270,7 +270,7 @@ for i=1:numel(ind)
         % Calculate the deviations in Q and energy, and then the S(Q,w) intensity
         % -----------------------------------------------------------------------
         dq = mtimesx_horace(dq_mat,yvec);
-        q = dq + reshape([qw{1}';qw{2}';qw{3}';qw{4}'], size(dq));
+        q = dq + reshape([qw{1}';qw{2}';qw{3}';en'], size(dq));
 
         % Mosaic spread
         if is_mosaic && mc_contributions.mosaic
