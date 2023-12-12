@@ -116,8 +116,10 @@ if outfile_specified
 end
 
 if exist('tmp_file', 'var')
-    wout = sqw(opt.outfile);
-    wout.file_holder_ = tmp_file;
+    if ~pix_combine_necessary
+        wout = sqw(opt.outfile);
+        wout.file_holder_ = tmp_file;        
+    end
 end
 
 end
