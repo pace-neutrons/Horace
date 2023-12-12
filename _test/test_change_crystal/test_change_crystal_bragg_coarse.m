@@ -99,7 +99,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             % Apply to a copy of the sqw object to see that the alignment is now OK
             % ---------------------------------------------------------------------
-            tmp_file_1 = TmpFileHandler('test_change_crystal_coarse_sima_corr.sqw');
+            tmp_file_1 = TmpFileHandler('test_change_crystal_coarse_sima_corr.sqw',true);
             sim_sqw_file_corr = tmp_file_1.file_name;
 
             copyfile(obj.misaligned_sqw_file, sim_sqw_file_corr, 'f')
@@ -289,8 +289,6 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             clear test_fb_al;
             assertFalse(is_file(test_file));
         end
-
-
 
         function test_pageOp_moves_from_tmp_misaligned_to_tmp_same_obj(obj)
             % Prepare test data
