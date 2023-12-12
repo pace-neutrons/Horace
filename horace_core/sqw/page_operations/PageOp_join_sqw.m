@@ -187,6 +187,13 @@ classdef PageOp_join_sqw < PageOpBase
                 obj = common_page_op@PageOpBase(obj);
             end
         end
+        function [out_obj,obj] = finish_op(obj,in_obj)
+            % overload of generic finis_op, which allow close access to
+            % contributing file accessors
+            obj.pix_combine_info = obj.pix_combine_info.close_faccessors();
+            % Do common things things with resulting object
+            [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
+        end
         %
     end
     %======================================================================

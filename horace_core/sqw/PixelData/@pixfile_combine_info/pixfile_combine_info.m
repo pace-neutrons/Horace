@@ -222,10 +222,8 @@ classdef pixfile_combine_info < MultipixBase
             %
             obj = trim_nfiles_(obj,nfiles_to_leave);
         end
-    end
-    %----------------------------------------------------------------------
-    methods(Access=protected)
         function obj = close_faccessors(obj)
+            % close access to partial input files
             for i=1:numel(obj.loaders_list_)
                 if ~isempty(obj.loaders_list_)
                     if obj.binary_access_
@@ -237,6 +235,10 @@ classdef pixfile_combine_info < MultipixBase
             end
             obj.loaders_list_ = {};
         end
+        
+    end
+    %----------------------------------------------------------------------
+    methods(Access=protected)
         function is = get_is_filebacked(~)
             is = true;
         end

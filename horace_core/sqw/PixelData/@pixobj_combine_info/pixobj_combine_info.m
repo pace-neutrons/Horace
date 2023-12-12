@@ -121,6 +121,12 @@ classdef pixobj_combine_info < MultipixBase
             obj = set_npix_list_(obj,val);
         end
         %
+        function obj = close_faccessors(obj)
+            % close access to partial input files
+            for i=1:numel(obj.infiles_)
+                obj.infiles_{i} = obj.infiles_{i}.deactivate();
+            end
+        end
     end
     methods(Access=protected)
         function is = get_is_filebacked(~)

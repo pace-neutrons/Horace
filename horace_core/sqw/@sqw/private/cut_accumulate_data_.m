@@ -107,7 +107,7 @@ for iter = 1:num_chunks
     candidate_pix = pix.get_pix_in_ranges(pix_start, block_sizes, false, true);
 
     if ll >= 1
-        fprintf('*** Step %d of %d; Read data for %d pixels -- processing data...', ...
+        fprintf('*** Step %d of %d; Read data for %8d pixels -- processing data...', ...
             iter, num_chunks, candidate_pix.num_pixels);
     end
 
@@ -125,7 +125,7 @@ for iter = 1:num_chunks
         npix_step_retained = npsr - npix_tot_retained;
         npix_tot_retained = npsr;
 
-        fprintf(' ----->  %s  %d pixels\n', pixel_contrib_name, npix_step_retained);
+        fprintf(' ----->  %s  %8d pixels\n', pixel_contrib_name, npix_step_retained);
     end
 
 end  % loop over pixel blocks
@@ -166,7 +166,7 @@ for iter = 1:num_chunks
     candidate_pix = pix.get_pix_in_ranges(pix_start, block_sizes, false, keep_precision);
 
     if ll >= 1
-        fprintf('*** Step %d of %d; Read data for %d pixels -- processing data...', ...
+        fprintf('*** Step %d of %d; Read data for %8d pixels -- processing data...', ...
             iter, num_chunks, candidate_pix.num_pixels);
     end
 
@@ -182,7 +182,7 @@ for iter = 1:num_chunks
         unique_runid = unique([unique_runid, unique_runid_l(:)']);
 
         if ll >= 1
-            fprintf(' ----->  %s  %d pixels\n', pixel_contrib_name, npix_step_retained);
+            fprintf(' ----->  %s  %8d pixels\n', pixel_contrib_name, npix_step_retained);
         end
 
         % Generate tmp files and get a pixfile_combine_info object to manage

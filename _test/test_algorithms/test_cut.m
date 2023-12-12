@@ -156,7 +156,9 @@ classdef test_cut < TestCase & common_state_holder
 
         function test_cut_sqw_file_to_file(obj)
             mem_chunk_size = 500;
-            clWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWarn = set_temporary_warning('off', ...
+                'HOR_CONFIG:set_mem_chunk_size','HORACE:physical_memory_configured');
+
             cleanup_hor_config = set_temporary_config_options( ...
                 hor_config, ...
                 'mem_chunk_size', mem_chunk_size, ...
@@ -165,10 +167,10 @@ classdef test_cut < TestCase & common_state_holder
                 );
 
             outfile = fullfile(obj.working_dir, 'cut_sqw_file_to_file_out.sqw');
-            cleanup = onCleanup(@() clean_up_file(outfile));
+            cleanup = onCleanup(@()del_memmapfile_files(outfile));
 
             ret_sqw = cut(obj.sqw_file, obj.ref_params{:}, outfile);
-
+            clear cleanup_hor_config;
             runid = unique(ret_sqw.pix.run_idx);
             assertEqual(runid,ret_sqw.experiment_info.expdata.get_run_ids());
 
@@ -178,9 +180,17 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_file_to_file_combined_mex(obj)
+            [~, ~, can_combine_with_mex] = check_horace_mex();
+            if ~can_combine_with_mex
+                skipTest('Combinbing with mex is not available on this system')
+            end
 
             mem_chunk_size = 500;
-            clWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWarn = set_temporary_warning('off', ...
+                'HOR_CONFIG:set_mem_chunk_size', ...
+                'HORACE:physical_memory_configured', ...
+                'HORACE:insufficient_physical_memory');
+
             cleanup_hor_config = set_temporary_config_options( ...
                 hor_config, ...
                 'mem_chunk_size', mem_chunk_size, ...
@@ -194,17 +204,17 @@ classdef test_cut < TestCase & common_state_holder
                 );
 
             ref_obj= copy(obj.sqw_4d); % it has been read in constructor
-            %ref_obj.pix.signal = 1:ref_obj.pix.num_pixels;
-            %ref_obj.pix.data = single(ref_obj.pix.data);
+
             ref_tfile = fullfile(obj.working_dir, 'mex_combine_source_from_file_to_file.sqw');
-            rf_cleanup = onCleanup(@()file_delete(ref_tfile ));
+            rf_cleanup = onCleanup(@()del_memmapfile_files(ref_tfile ));
             save(ref_obj,ref_tfile);
 
             % test filebased cut
             outfile = fullfile(obj.working_dir, 'mex_combine_cut_from_file_to_file.sqw');
+            clear_targ_file = onCleanup(@()del_memmapfile_files(outfile));
             cut(ref_tfile, obj.ref_params{:}, outfile);
-            clear clear_fb_cut_buf_settings;
-            clear_targ_file = onCleanup(@() clean_up_file(outfile));
+            clear cleanup_hor_config;
+
 
             loaded_cut = read_sqw(outfile);
 
@@ -212,13 +222,21 @@ classdef test_cut < TestCase & common_state_holder
             ref_par = obj.ref_params;
             ref_cut = cut(ref_obj,ref_par{:});
 
-            assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
+            assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, ...
+                'ignore_str', true,'-ignore_date');
+            % clear custom hpc_config first to avoid warnings
+            clear cleanup_hpc_config;
+
         end
 
 
         function test_cut_sqw_file_to_sqw_file_combined_nomex(obj)
+            mem_chunk_size = 500;
+            clWarn = set_temporary_warning('off', ...
+                'HOR_CONFIG:set_mem_chunk_size', ...
+                'HORACE:physical_memory_configured', ...
+                'HORACE:insufficient_physical_memory');
 
-            mem_chunk_size = 2000;
             cleanup_hor_config = set_temporary_config_options( ...
                 hor_config, ...
                 'mem_chunk_size', mem_chunk_size, ...
@@ -234,20 +252,24 @@ classdef test_cut < TestCase & common_state_holder
             % test filebased cut
             outfile = fullfile(obj.working_dir, 'nomex_combine_cut_from_file_to_file.sqw');
             cut(obj.sqw_file, obj.ref_params{:}, outfile);
-            cleanup = onCleanup(@() clean_up_file(outfile));
+            cleanup = onCleanup(@()del_memmapfile_files(outfile));
 
             loaded_cut = sqw(outfile);
 
+            clear cleanup_hor_config;
             % reference memory-based cut
             sqw_obj = obj.sqw_4d; % it have just been read in constructor
             ref_par = obj.ref_params;
             ref_cut = cut(sqw_obj,ref_par{:});
 
             assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
+            % clear custom hpc_config first to avoid warnings
+            clear cleanup_hpc_config;
         end
 
-
         function test_cut_sqw_object_to_file(obj)
+            clWarn = set_temporary_warning('off', ...
+                'HOR_CONFIG:set_mem_chunk_size','HORACE:physical_memory_configured');
 
             mem_chunk_size = 4000;
             cleanup_config = set_temporary_config_options( ...
@@ -270,6 +292,7 @@ classdef test_cut < TestCase & common_state_holder
 
             assertEqualToTol(loaded_cut, ref_cut, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date');
+            clear cleanup_config
 
         end
 
@@ -373,29 +396,37 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_out_of_memory_cut_tmp_files_mex(obj)
-            skipTest('Ticket #896: mex cutting is disabled for the time being')
-            mem_chunk_size = 5e5/36;  % this gives two pages of pixels over obj.sqw_file
-            outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
+            [~, ~, can_combine_with_mex] = check_horace_mex();
+            if ~can_combine_with_mex
+                skipTest('Combinbing with mex is not available on this system')
+            end
+
+            mem_chunk_size = 500;  %
+            clWarn = set_temporary_warning('off', ...
+                'HOR_CONFIG:set_mem_chunk_size', ...
+                'HORACE:physical_memory_configured', ...
+                'HORACE:insufficient_physical_memory');
             cleanup_config = set_temporary_config_options( ...
                 hor_config, ...
                 'mem_chunk_size', mem_chunk_size, ...
+                'fb_scale_factor', 3, ...
                 'use_mex', true ...
                 );
-
-            cut(obj.sqw_file, obj.ref_params{:}, outfile);
+            cleanup_hpc_config = set_temporary_config_options( ...
+                hpc_config, ...
+                'combine_sqw_using', 'mex' ...
+                );
+            outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cleanup_tmp_file = onCleanup(@() clean_up_file(outfile));
+            cut(obj.sqw_file, obj.ref_params{:}, outfile);
 
+            clear cleanup_config;
+            clear cleanup_hpc_config;
             ref_sqw = sqw(obj.ref_cut_file);
             output_sqw = sqw(outfile);
-            %HACK: reference stored in binary file and one obtained from
-            %cut contains different representation of empty instruments
-            % these representations have to be aligned
 
-            ref_sqw.experiment_info.samples = output_sqw.experiment_info.samples;
-            ref_sqw.experiment_info.instruments = output_sqw.experiment_info.instruments;
-            assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
-            % SAMPLE COMPARISON and instrument comparison are disabled as some routes ignore empty samples/instruments
-            %%TODO fix
+            assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, ...
+                'ignore_str', true,'-ignore_date');
         end
 
         function test_out_of_memory_cut_tmp_files_no_mex(obj)

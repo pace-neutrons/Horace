@@ -280,8 +280,10 @@ classdef MultipixBase < serializable
     end
     methods(Abstract)
         obj = recalc_data_range(obj)
-        % initialize access to contributing pixels.
+        % initialize access to contributing pixel data.
         obj = init_pix_access(obj)
+        % close (finalize) access to contributing pixel data.
+        obj = close_faccessors(obj)
     end
     %----------------------------------------------------------------------
     methods(Abstract,Access=protected)
