@@ -6,7 +6,11 @@ function pix_out = cat(varargin)
 %
 % Input:
 % ------
-%   varargin    A cell array of PixelData objects
+%   varargin    A cell array of PixelData objects to concatenate
+% Optional:
+%  '-force_membased'
+%           -- if present, try to cat pixels in memory regardless of 
+% 
 %
 % Output:
 % -------
@@ -17,19 +21,27 @@ function pix_out = cat(varargin)
 %               object. If the number of pixels in the 
 
 % Take the class of the first object as the type of result.
-if ~isa(varargin{1},'PixelDataBase')
+[ok,mess,force_membased,argi] = parse_char_options(varargin,{'-force_membased'});
+if ~ok
+    error('HORACE:PixelDataBase:invalid_argument', mess)
+end
+
+if ~isa(argi{1},'PixelDataBase')
     error('HORACE:PixelDataBase:invalid_argument', ...
         ['cat requested arguments are PixelDatBase sub-classes.' ...
         ' Class of the first input is: %s'], ...
-        class(varargin{1}));
+        class(argi{1}));
 end
-pix_out = copy(varargin{1});
+
+
+pix_out = copy(argi{1});
 if numel(varargin) == 1
     return;
 end
 
 page_op = PageOp_cat_pix();
-page_op = page_op.init(varargin{:});
+page_op.force_cat_in_memory = force_membased;
+page_op = page_op.init(argi{:});
 if page_op.npix_tot == 0 % pix_out already defined and it is empty
     return;
 end

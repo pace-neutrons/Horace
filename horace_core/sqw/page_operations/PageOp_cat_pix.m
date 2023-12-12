@@ -8,6 +8,8 @@ classdef PageOp_cat_pix < PageOpBase
         % PixelData, sqw objects or list of files, containing sqw objects
         in_objects;
         npix_tot;   % Total number of
+        % if set to true, always try to concatenate pixels in memory.
+        force_cat_in_memory = false;
     end
     properties(Hidden)
         % access to pix for testing chuncing only
@@ -40,7 +42,7 @@ classdef PageOp_cat_pix < PageOpBase
                 'hor_config','mem_chunk_size','fb_scale_factor');
             fb_pix_limit = pf*mem_chunk_size;
             obj.page_size_ = mem_chunk_size;
-            if obj.npix_tot > fb_pix_limit
+            if obj.npix_tot > fb_pix_limit && ~obj.force_cat_in_memory
                 in_obj = PixelDataFileBacked();
                 obj.inform_about_target_file = true;
             else
@@ -53,8 +55,10 @@ classdef PageOp_cat_pix < PageOpBase
             % overload of split_into_pages as we also need npix_chunks to
             % process pages in this case.
             if isa(obj.pix_,'PixelDataMemory') % if target pixels are in memory
-                % they always should be done in one stroke
+                % they always should be done in one stroke as pix in memory
+                % do not support append operation. It is replaced.
                 chunk_size = sum(npix(:));
+                obj.page_size_ = chunk_size;
             end
             [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,chunk_size);
             obj.block_idx_ = npix_idx;

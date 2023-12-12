@@ -114,7 +114,7 @@ end
 
 if ~use_mex
     % combine pixels together. Type may be lost? Should not but form allows. Should we enforce it?
-    pix = PixelDataBase.cat(pix_retained{:});
+    pix = PixelDataBase.cat(pix_retained{:},'-force_membased');
     clear pix_retained;
     if isempty(pix)  % return early if no pixels
         pix = PixelDataMemory();
