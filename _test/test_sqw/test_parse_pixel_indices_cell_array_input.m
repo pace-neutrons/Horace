@@ -54,7 +54,7 @@ classdef test_parse_pixel_indices_cell_array_input < TestCase
         end
         
         function test_SqwObject_noPixels(~)
-            % Scalar sqw object, but without any pixels: is valid
+            % Scalar sqw object in the cell array, but without any pixels: is valid
             w = {sqw()};
             [irun,idet,ien]=parse_pixel_indices(w);
             assertEqual(irun, {zeros(0,1)})
@@ -63,7 +63,7 @@ classdef test_parse_pixel_indices_cell_array_input < TestCase
         end
         
         function test_scalarSqwObject(obj)
-            % Scalar sqw object
+            % Scalar sqw object in the cell array
             w = {obj.w1};
             [irun,idet,ien]=parse_pixel_indices(w);
             assertEqual(irun, {obj.irun1})
@@ -72,7 +72,7 @@ classdef test_parse_pixel_indices_cell_array_input < TestCase
         end
         
         function test_scalarSqwObject_ipix(obj)
-            % Scalar sqw object, ipix
+            % Scalar sqw object in the cell array, with ipix
             w = {obj.w1};
             ipix = [5,21,3;15,5,7];
             [irun,idet,ien]=parse_pixel_indices(w, ipix);
@@ -85,12 +85,12 @@ classdef test_parse_pixel_indices_cell_array_input < TestCase
         end
         
         function test_rowArraySqwObject(obj)
-            % Row vector sqw object
+            % Row cell array of sqw objects
             w = {obj.w1, obj.w2};
             [irun,idet,ien]=parse_pixel_indices(w);
-            assertTrue(isa(irun,'cell')&isequal(size(irun),[1,2]))
-            assertTrue(isa(idet,'cell')&isequal(size(idet),[1,2]))
-            assertTrue(isa(ien,'cell')&isequal(size(ien),[1,2]))
+            assertTrue(isa(irun,'cell') && isequal(size(irun),[1,2]))
+            assertTrue(isa(idet,'cell') && isequal(size(idet),[1,2]))
+            assertTrue(isa(ien,'cell') && isequal(size(ien),[1,2]))
             assertEqual(irun{1}, obj.irun1)
             assertEqual(idet{1}, obj.idet1)
             assertEqual(ien{1}, obj.ien1)
@@ -100,12 +100,12 @@ classdef test_parse_pixel_indices_cell_array_input < TestCase
         end       
         
         function test_columnArraySqwObject(obj)
-            % Row vector sqw object
+            % Column cell array of sqw objects
             w = {obj.w1; obj.w2};
             [irun,idet,ien]=parse_pixel_indices(w);
-            assertTrue(isa(irun,'cell')&isequal(size(irun),[2,1]))
-            assertTrue(isa(idet,'cell')&isequal(size(idet),[2,1]))
-            assertTrue(isa(ien,'cell')&isequal(size(ien),[2,1]))
+            assertTrue(isa(irun,'cell') && isequal(size(irun),[2,1]))
+            assertTrue(isa(idet,'cell') && isequal(size(idet),[2,1]))
+            assertTrue(isa(ien,'cell') && isequal(size(ien),[2,1]))
             assertEqual(irun{1}, obj.irun1)
             assertEqual(idet{1}, obj.idet1)
             assertEqual(ien{1}, obj.ien1)
@@ -115,15 +115,15 @@ classdef test_parse_pixel_indices_cell_array_input < TestCase
         end
         
         function test_columnArraySqwObject_ipixMultiple(obj)
-            % Row vector sqw object
+            % Column cell array of sqw objects, with cell of ipix
             w = {obj.w1; obj.w2};
             ipix1 = [5,21,3;15,5,7];
             ipix2 = [5,13,3;15,5,7];
             ipix = {ipix1; ipix2};
             [irun,idet,ien]=parse_pixel_indices(w, ipix);
-            assertTrue(isa(irun,'cell')&isequal(size(irun),[2,1]))
-            assertTrue(isa(idet,'cell')&isequal(size(idet),[2,1]))
-            assertTrue(isa(ien,'cell')&isequal(size(ien),[2,1]))
+            assertTrue(isa(irun,'cell') && isequal(size(irun),[2,1]))
+            assertTrue(isa(idet,'cell') && isequal(size(idet),[2,1]))
+            assertTrue(isa(ien,'cell') && isequal(size(ien),[2,1]))
             assertEqual(irun{1}, reshape(obj.irun1(ipix1), size(ipix1)))
             assertEqual(idet{1}, reshape(obj.idet1(ipix1), size(ipix1)))
             assertEqual(ien{1}, reshape(obj.ien1(ipix1), size(ipix1)))

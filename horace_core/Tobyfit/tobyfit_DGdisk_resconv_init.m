@@ -26,7 +26,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGdisk_resconv_init (win, varargin)
 %
 % [Optional]
 %   ipix        Pixel indices for which the output is to be extracted from the
-%               sqw object(s)
+%               sqw object(s). It has the form of one of:
 %
 %               - Array of pixel indices. If there are multiple sqw objects,
 %                 it is then applied to every sqw object
@@ -36,7 +36,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGdisk_resconv_init (win, varargin)
 %                   - several pixel indices arrays: one per sqw object
 %
 %   opt         Option: 'tables' (default) or 'notables'
-%               If 'tables', then object_lookup tables for instrumnet
+%               If 'tables', then object_lookup tables for instrument
 %              components, sample and detectors are added to the output
 %              argument lookup
 %
@@ -225,15 +225,12 @@ for iw=1:nw
     if all_pixels
         % For all pixels in the sqw object
         [irun, idet, ien] = parse_pixel_indices(wtmp);
+    elseif iscell(ipix) && numel(ipix)>1
+        % Different ipix arrays for each sqw object
+        [irun, idet, ien] = parse_pixel_indices(wtmp, ipix{iw});
     else
-        % For the selected pixels only
-        if iscell(ipix) && numel(ipix)>1    
-            % Different ipix arrays for each sqw object
-            [irun, idet, ien] = parse_pixel_indices(wtmp, ipix{iw});
-        else
-            % Single ipix array for all sqw objects
-            [irun, idet, ien] = parse_pixel_indices(wtmp, ipix);
-        end
+        % Single ipix array for all sqw objects
+        [irun, idet, ien] = parse_pixel_indices(wtmp, ipix);
     end
     npix(iw) = numel(irun);
     

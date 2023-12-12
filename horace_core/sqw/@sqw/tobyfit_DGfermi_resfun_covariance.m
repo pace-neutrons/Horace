@@ -14,7 +14,7 @@ function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win,
 %
 % [Optional]
 %   ipix        Pixel indices for which the output is to be extracted from the
-%               sqw object(s)
+%               sqw object(s). It has the form of one of:
 %
 %               - Array of pixel indices. If there are multiple sqw objects,
 %                 it is then applied to every sqw object
@@ -70,19 +70,16 @@ cov_hkle = cell(size(win));
 
 for iw = 1:numel(win)
     % Get the indices to the runs in the experiment information block, the 
-    % detector indicies and the energy bin indices
+    % detector indices and the energy bin indices
     if all_pixels
         % For all pixels in the sqw object
         [irun,idet] = parse_pixel_indices (win(iw));
+    elseif iscell(ipix) && numel(ipix)>1
+        % Different ipix arrays for each sqw object
+        [irun, idet] = parse_pixel_indices(win(iw), ipix{iw});
     else
-        % For the selected pixels only
-        if iscell(ipix) && numel(ipix)>1    
-            % Different ipix arrays for each sqw object
-            [irun, idet] = parse_pixel_indices(win(iw), ipix{iw});
-        else
-            % Single ipix array for all sqw objects
-            [irun, idet] = parse_pixel_indices(win(iw), ipix);
-        end
+        % Single ipix array for all sqw objects
+        [irun, idet] = parse_pixel_indices(win(iw), ipix);
     end
     npix = npix_arr(iw);
 

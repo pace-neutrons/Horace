@@ -9,9 +9,9 @@ function [irun, idet, ien] = parse_pixel_indices (win, varargin)
 %
 %   >> parse_pixel_indices (win, ipix)
 %
-% This will return silently without without spending time computing output
-% argument irun if the arguments are consistent, but will throw an error with an
-% appropriate message if e.g. ipix is out of range for
+% This will return silently without spending time computing the output argument 
+% irun if the input arguments are consistent, but otherwise will throw an error
+% with an appropriate message.
 %
 %
 % Input:
@@ -21,7 +21,7 @@ function [irun, idet, ien] = parse_pixel_indices (win, varargin)
 %
 % [Optional]
 %   ipix        Pixel indices for which the output is to be extracted from the
-%               sqw object(s)
+%               sqw object(s). It has the form of one of:
 %
 %               - Array of pixel indices. If there are multiple sqw objects,
 %                 it is then applied to every sqw object
@@ -32,17 +32,17 @@ function [irun, idet, ien] = parse_pixel_indices (win, varargin)
 %
 % Output:
 % -------
-%   irun        Single sqw object: Array of indices into the experiment_info
+%   irun        Scalar sqw object: Array of indices into the experiment_info
 %                                  In a cell array if the sqw object was in a cell
 %               Multiple sqw objects: Cell array of arrays, one per sqw object
 %                                  Cell array has the same size as win
 %
-%   idet        Single sqw object: Array of detector indices for the pixels
+%   idet        Scalar sqw object: Array of detector indices for the pixels
 %                                  In a cell array if the sqw object was in a cell
 %               Multiple sqw objects: Cell array of arrays, one per sqw object
 %                                  Cell array has the same size as win
 %
-%   ien         Single sqw object: Energy bin indices for each pixel (column vector)
+%   ien         Scalar sqw object: Energy bin indices for each pixel (column vector)
 %                                  In a cell array if the sqw object was in a cell
 %               Multiple sqw objects: Cell array of arrays, one per sqw object
 %                                  Cell array has the same size as win
@@ -53,7 +53,7 @@ function [irun, idet, ien] = parse_pixel_indices (win, varargin)
 %   as the corresponding array indices array within ipix
 
 
-% Ensure sqw objects form a cell array of scalar sqw object(s)
+% Ensure win is a cell array of scalar sqw object(s)
 % (The case of being an sqw object array will have been caught already by the
 % sqw method with the same name, according as the Matlab calling hierarchy)
 if ~iscell(win) || isempty(win) || ~all(cellfun(@(x)(isa(x,'sqw') && isscalar(x)), win))
@@ -63,14 +63,19 @@ end
 
 % Convert input into array of sqw objects and call sqw method on the array
 win_as_sqw_array = reshape([win{:}], size(win));
-[irun, idet, ien] = parse_pixel_indices (win_as_sqw_array, varargin{:});
-
-% If win was a cell array with just a scalar sqw object, then put the output in
-% cell arrays as well for consistency of packaging
-if numel(win) == 1
-    irun = {irun};
-    idet = {idet};
-    ien = {ien};
+if nargout == 0
+    % Silent return if just checking input argument consistency
+    parse_pixel_indices (win_as_sqw_array, varargin{:});
+else
+    % Return arguments required
+    [irun, idet, ien] = parse_pixel_indices (win_as_sqw_array, varargin{:}); 
+    % If win was a cell array with just a scalar sqw object, then put the output in
+    % cell arrays as well for consistency of packaging
+    if numel(win) == 1
+        irun = {irun};
+        idet = {idet};
+        ien = {ien};
+    end
 end
 
 end

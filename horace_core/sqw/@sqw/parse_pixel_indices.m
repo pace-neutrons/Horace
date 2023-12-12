@@ -9,9 +9,9 @@ function [irun, idet, ien] = parse_pixel_indices (win, ipix)
 %
 %   >> parse_pixel_indices (win, ipix)
 %
-% This will return silently without spending time computing the output
-% argument irun if the arguments are consistent, but will throw an error with an
-% appropriate message
+% This will return silently without spending time computing the output argument 
+% irun if the input arguments are consistent, but otherwise will throw an error
+% with an appropriate message.
 %
 %
 % Input:
@@ -21,7 +21,7 @@ function [irun, idet, ien] = parse_pixel_indices (win, ipix)
 %
 % [Optional]
 %   ipix        Pixel indices for which the output is to be extracted from the
-%               sqw object(s)
+%               sqw object(s). It has the form of one of:
 %
 %               - Array of pixel indices. If there are multiple sqw objects,
 %                 it is then applied to every sqw object
@@ -32,15 +32,15 @@ function [irun, idet, ien] = parse_pixel_indices (win, ipix)
 %
 % Output:
 % -------
-%   irun        Single sqw object: Array of indices into the experiment_info
+%   irun        Scalar sqw object: Array of indices into the experiment_info
 %               Multiple sqw objects: Cell array of arrays, one per sqw object
 %                                  Cell array has the same size as win
 %
-%   idet        Single sqw object: Array of detector indices for the pixels
+%   idet        Scalar sqw object: Array of detector indices for the pixels
 %               Multiple sqw objects: Cell array of arrays, one per sqw object
 %                                  Cell array has the same size as win
 %
-%   ien         Single sqw object: Energy bin indices for each pixel (column vector)
+%   ien         Scalar sqw object: Energy bin indices for each pixel (column vector)
 %               Multiple sqw objects: Cell array of arrays, one per sqw object
 %                                  Cell array has the same size as win
 %
@@ -81,7 +81,7 @@ if ipix_present
             error('HORACE:parse_pixel_indices:invalid_argument', ['The number of ',...
                 'arrays in ''ipix'' must be 1 or the number of sqw objects: %d'], nw)
         end
-        if numel(ipix)==1
+        if isscalar(ipix)
             min_ipix = min(ipix{1}(:)) * ones(sz_win);
             max_ipix = max(ipix{1}(:)) * ones(sz_win);
             ipix_cellarray = repmat(ipix, sz_win);          % effectively a set of pointers
@@ -120,35 +120,30 @@ if ipix_present
 end
 
 % If no return arguments, simply have a silent return.
-% This goes against the default Matlab behaviour for functions, which is to
-% return the first output argument in a variable called 'ans'. However, that
-% could be fairly CPUtime expensive here.
 if nargout == 0
     return
 end
 
 % Get the return arguments
 % We have repackaged ipix so that it is a cell array with size equal to the size
-% of win. In the following we only have to branch on (1) the presence or absence
-% of ipix, (2) win being an object array or a cell array of sqw objects
-if ipix_present
-    if nw == 1
-        % Outputs will be numeric arrays
+% of win. In the following we only have to branch on (1) win being scalar or
+% array, and (2) the presence or absence of ipix
+if nw ==1
+    % Outputs will be numeric arrays
+    if ipix_present
         [irun, idet, ien] = parse_pixel_indices_private (win, ipix_cellarray);
     else
-        % Outputs are cell arrays of numeric arrays
+        [irun, idet, ien] = parse_pixel_indices_private (win);
+    end
+else
+    % Outputs are cell arrays of numeric arrays
+    if ipix_present
         % Note that the call to arrayfun will work because internally the
         % function parse_pixel_indixes_private spots if ipix is a cell array
         % with one element and extracts the contents
         [irun, idet, ien] = arrayfun(@parse_pixel_indices_private, win, ...
             ipix_cellarray, 'uniformOutput', false);
-    end
-else
-    if nw == 1
-        % Outputs will be numeric arrays
-        [irun, idet, ien] = parse_pixel_indices_private (win);
     else
-        % Outputs are cell arrays of numeric arrays
         [irun, idet, ien] = arrayfun(@parse_pixel_indices_private, win, ...
             'uniformOutput', false);
     end
@@ -178,29 +173,30 @@ function [irun, idet, ien] = parse_pixel_indices_private (win, ipix)
 pix = win.pix;
 experiment = win.experiment_info;
 
-if pix.num_pixels > 0
-    % At least one pixel, so need to do some work
-    if exist('ipix', 'var')
-        % Get irun, idet, ien for pixels indicated by ipix with same shape as ipix
-        if iscell(ipix)
-            ipix = ipix{1};     % get the indices array inside ipix
-        end
-        run_idx = reshape(pix.run_idx(ipix), size(ipix));
-        irun = experiment.get_experiment_idx(run_idx);
-        idet = reshape(pix.detector_idx(ipix), size(ipix));
-        ien = reshape(pix.energy_idx(ipix), size(ipix));
-    else
-        % Get irun, idet, ien for all pixels in the sqw object
-        run_idx = pix.run_idx(:);   % make column
-        irun = experiment.get_experiment_idx(run_idx); % irun same shape as run_idx i.e. column
-        idet = pix.detector_idx(:); % make column
-        ien = pix.energy_idx(:);    % make column
-    end
-else
-    % Catch the case of no pixels for simplicity
+% Catch the case of no pixels for simplicity
+if pix.num_pixels == 0
     irun = zeros(0,1);  % convention is column vector
     idet = zeros(0,1);
     ien = zeros(0,1);
+    return
+end
+
+% At least one pixel, so need to do some work
+if exist('ipix', 'var')
+    % Get irun, idet, ien for pixels indicated by ipix with same shape as ipix
+    if iscell(ipix)
+        ipix = ipix{1};     % get the indices array inside ipix
+    end
+    run_idx = reshape(pix.run_idx(ipix), size(ipix));
+    irun = experiment.get_experiment_idx(run_idx);
+    idet = reshape(pix.detector_idx(ipix), size(ipix));
+    ien = reshape(pix.energy_idx(ipix), size(ipix));
+else
+    % Get irun, idet, ien for all pixels in the sqw object
+    run_idx = pix.run_idx(:);   % make column
+    irun = experiment.get_experiment_idx(run_idx); % irun same shape as run_idx i.e. column
+    idet = pix.detector_idx(:); % make column
+    ien = pix.energy_idx(:);    % make column
 end
 
 end

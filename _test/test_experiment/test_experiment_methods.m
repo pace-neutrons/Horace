@@ -336,7 +336,7 @@ classdef test_experiment_methods < TestCase
             
             % Array of valid run_idx
             run_idx = [30,40,20; 20,30,40]; % 2x3 array
-            sparse_lookup = true;
+            sparse_lookup = false;
             expt_idx = experiment.get_experiment_idx (run_idx, sparse_lookup);
             
             assertEqual(expt_idx, [3,2,1; 1,3,2])

@@ -91,9 +91,9 @@ classdef test_parse_pixel_indices < TestCase
             % Row vector sqw object
             w = [obj.w1, obj.w2];
             [irun,idet,ien]=parse_pixel_indices(w);
-            assertTrue(isa(irun,'cell')&isequal(size(irun),[1,2]))
-            assertTrue(isa(idet,'cell')&isequal(size(idet),[1,2]))
-            assertTrue(isa(ien,'cell')&isequal(size(ien),[1,2]))
+            assertTrue(isa(irun,'cell') && isequal(size(irun),[1,2]))
+            assertTrue(isa(idet,'cell') && isequal(size(idet),[1,2]))
+            assertTrue(isa(ien,'cell') && isequal(size(ien),[1,2]))
             assertEqual(irun{1}, obj.irun1)
             assertEqual(idet{1}, obj.idet1)
             assertEqual(ien{1}, obj.ien1)
@@ -116,9 +116,9 @@ classdef test_parse_pixel_indices < TestCase
             w = [obj.w1, obj.w2];
             ipix = [5,13,3;15,5,7];
             [irun,idet,ien]=parse_pixel_indices(w, ipix);
-            assertTrue(isa(irun,'cell')&isequal(size(irun),[1,2]))
-            assertTrue(isa(idet,'cell')&isequal(size(idet),[1,2]))
-            assertTrue(isa(ien,'cell')&isequal(size(ien),[1,2]))
+            assertTrue(isa(irun,'cell') && isequal(size(irun),[1,2]))
+            assertTrue(isa(idet,'cell') && isequal(size(idet),[1,2]))
+            assertTrue(isa(ien,'cell') && isequal(size(ien),[1,2]))
             assertEqual(irun{1}, reshape(obj.irun1(ipix), size(ipix)))
             assertEqual(idet{1}, reshape(obj.idet1(ipix), size(ipix)))
             assertEqual(ien{1}, reshape(obj.ien1(ipix), size(ipix)))
@@ -134,9 +134,9 @@ classdef test_parse_pixel_indices < TestCase
             ipix2 = [5,13,3;15,5,7];
             ipix = {ipix1; ipix2};  % column: should be OK as shape wrt w not tested
             [irun,idet,ien]=parse_pixel_indices(w, ipix);
-            assertTrue(isa(irun,'cell')&isequal(size(irun),[1,2]))
-            assertTrue(isa(idet,'cell')&isequal(size(idet),[1,2]))
-            assertTrue(isa(ien,'cell')&isequal(size(ien),[1,2]))
+            assertTrue(isa(irun,'cell') && isequal(size(irun),[1,2]))
+            assertTrue(isa(idet,'cell') && isequal(size(idet),[1,2]))
+            assertTrue(isa(ien,'cell') && isequal(size(ien),[1,2]))
             assertEqual(irun{1}, reshape(obj.irun1(ipix1), size(ipix1)))
             assertEqual(idet{1}, reshape(obj.idet1(ipix1), size(ipix1)))
             assertEqual(ien{1}, reshape(obj.ien1(ipix1), size(ipix1)))
@@ -152,9 +152,9 @@ classdef test_parse_pixel_indices < TestCase
             ipix2 = [5,13,3;15,5,7];
             ipix = {ipix1; ipix2};
             [irun,idet,ien]=parse_pixel_indices(w, ipix);
-            assertTrue(isa(irun,'cell')&isequal(size(irun),[2,1]))
-            assertTrue(isa(idet,'cell')&isequal(size(idet),[2,1]))
-            assertTrue(isa(ien,'cell')&isequal(size(ien),[2,1]))
+            assertTrue(isa(irun,'cell') && isequal(size(irun),[2,1]))
+            assertTrue(isa(idet,'cell') && isequal(size(idet),[2,1]))
+            assertTrue(isa(ien,'cell') && isequal(size(ien),[2,1]))
             assertEqual(irun{1}, reshape(obj.irun1(ipix1), size(ipix1)))
             assertEqual(idet{1}, reshape(obj.idet1(ipix1), size(ipix1)))
             assertEqual(ien{1}, reshape(obj.ien1(ipix1), size(ipix1)))
