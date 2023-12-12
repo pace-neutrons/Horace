@@ -18,6 +18,8 @@ function obj_out = apply_op(obj_in,page_op)
 %
 
 npix = page_op.npix;
+% use chunk size equal to total number of pixels to split pixels into one
+% chunk. Allows to overload split_into_pages for some specific operations
 mem_chunk_size = sum(npix);
 [npix_chunks, npix_idx,page_op] = page_op.split_into_pages(npix, mem_chunk_size);
 

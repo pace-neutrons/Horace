@@ -3,7 +3,7 @@ classdef test_pixobj_combine_info < TestCase
 
     properties
         npix_tst = [10,16,20]
-        npix_dirst
+        npix_distr
         pix_obj;
         pix_obj_range;
     end
@@ -24,7 +24,7 @@ classdef test_pixobj_combine_info < TestCase
                 distr(occupied) = 1;
                 occupied = randperm(20,obj.npix_tst(i)/2);
                 distr(occupied) = distr(occupied)+1;
-                obj.npix_dirst{i} = distr;
+                obj.npix_distr{i} = distr;
             end
             obj.pix_obj_range = obj.pix_obj{1}.data_range;
             for i=2:3
@@ -34,7 +34,7 @@ classdef test_pixobj_combine_info < TestCase
         end
 
         function test_serialize_deserialize(obj)
-            pc = pixobj_combine_info(obj.pix_obj,obj.npix_dirst);
+            pc = pixobj_combine_info(obj.pix_obj,obj.npix_distr);
             pc_str = pc.saveobj();
 
             pcr = serializable.loadobj(pc_str);
@@ -44,7 +44,7 @@ classdef test_pixobj_combine_info < TestCase
 
         function test_1distr_constructor(obj)
             pc = pixobj_combine_info( ...
-                {obj.pix_obj{1},obj.pix_obj{1}},obj.npix_dirst{1});
+                {obj.pix_obj{1},obj.pix_obj{1}},obj.npix_distr{1});
             assertEqual(pc.nfiles,2);
             assertEqual(pc.num_pixels,2*obj.npix_tst(1));
             assertEqual(pc.nbins,20);
@@ -60,7 +60,7 @@ classdef test_pixobj_combine_info < TestCase
         end
 
         function test_full_constructor(obj)
-            pc = pixobj_combine_info(obj.pix_obj,obj.npix_dirst);
+            pc = pixobj_combine_info(obj.pix_obj,obj.npix_distr);
             assertEqual(pc.nfiles,3);
             assertEqual(pc.num_pixels,sum(obj.npix_tst));
             assertEqual(pc.nbins,20);

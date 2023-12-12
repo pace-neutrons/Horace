@@ -140,7 +140,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         % pix array, like its size, shape, alignment, etc
         metadata;
         % the property contains or describes the pixel data array itself.
-        % Contains if the array fits area or describes it if the only
+        % Contains if the array fits memory or describes it if the only
         % possible location of this array is disk.
         data_wrap;
         %------------------------------------------------------------------
