@@ -9,6 +9,9 @@ function cleanup_handle = set_temporary_config_options(config_instance, varargin
 if nargout ~= 1
     error('TEST:set_temporary_config_option', 'Function requires 1 output argument.');
 end
+if istext(config_instance)
+    config_instance = feval(config_instance);
+end
 
 original_config = config_instance.get_all_configured();
 cleanup_handle = onCleanup(@() restore(config_instance,original_config));

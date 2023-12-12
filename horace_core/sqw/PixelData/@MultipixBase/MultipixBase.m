@@ -8,7 +8,7 @@ classdef MultipixBase < serializable
         infiles;      % cellarray of filenames or objects to combine.
         %
         num_pixels;   % total number of pixels to combine in all
-        %                contributing pixels datasets or files
+        %               contributing pixels datasets or files
         npix_each_file; % array defining numbers of pixels stored in each
         %                contributing file or datasets
         %
@@ -45,17 +45,25 @@ classdef MultipixBase < serializable
         change_fileno
     end
     properties(Dependent,Hidden)
+        %------------------------------------------------------------------
+        % The properties to support PixelDataBase interface:
+        %
         % The property, which describes the pixel data layout on disk or in
         % memory and all additional properties describing pix array
         metadata;
+        % returns data_wrap as for PixelDataFilebacked class, but the data
+        % are insufficient to recover the class
         data_wrap;
-        % PixelDataBase interface
+        % Unlike PixelDataBase contains name of target file to save
+        % all combined data together
         full_filename
+        % always true, as the data are filebacked
         is_filebacked
-        % the property here to support PixelData interface. Always false, as
-        % this kind of data are never misaligned and if components are
-        % misaligned, they will be aligned by join/combine operation.
+        % Always false, as this kind of data are never misaligned and
+        % if components are misaligned, they will be aligned while retrieved
+        % from components during join/combine operation.
         is_misaligned
+        %------------------------------------------------------------------
     end
     %
     %
@@ -137,10 +145,10 @@ classdef MultipixBase < serializable
             npix_tot = obj.npix_each_file_;
         end
         function obj= set.npix_each_file(obj,val)
-            % accepts the numeric array which defines number of pixels
-            % in each file or signle value if total number of pixels
-            % in each file is the same
-            obj = set_npix_each_file_(obj,val);
+            % If defined, accepts a numeric array which defines number
+            % of pixels in each file or single value if total number of
+            % pixels in each file is the same
+            obj = set_npix_each_file(obj,val);
         end
         %------------------------------------------------------------------
         function nb = get.nbins(obj)
@@ -271,10 +279,13 @@ classdef MultipixBase < serializable
     end
     methods(Abstract)
         obj = recalc_data_range(obj)
+        % initialize access to contributing pixels.
+        obj = init_pix_access(obj)
     end
     %----------------------------------------------------------------------
     methods(Abstract,Access=protected)
         obj = set_infiles(obj,val);
+        obj = set_npix_each_file(obj,val);
     end
     % SERIALIZABLE INTERFACE
     methods

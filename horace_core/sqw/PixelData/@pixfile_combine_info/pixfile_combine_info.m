@@ -94,6 +94,33 @@ classdef pixfile_combine_info < MultipixBase
                 end
             end
         end
+        function obj = init_pix_access(obj)
+            % initialize access to contributing pixels.
+            %
+            error('HORACE:pixfile_combine_info:not_implemented', ...
+                'This function has not been implemented')
+        end
+
+        function [data,npix_chunk] = get_dataset_page(obj, ...
+                n_dataset,pix_pos_start,npix_idx)
+            % Return pixel data and pixel bin sub-distribution for the
+            % particular dataset out of multiple pixel datasets, stored
+            % within the class.
+            % Inputs:
+            % n_dataset -- number of dataset to get data from
+            % pix_pos_start
+            %           -- the position where pixel data are located.
+            %              Should be externaly synchronized with npix.
+            %              Can be calculated here, but ignored for saving
+            %              time and memory.
+            % npix_idx  -- two-element array containing first and last
+            %              indices of bins containing
+            %              distribution of pixels over bins.
+            %
+            error('HORACE:pixfile_combine_info:not_implemented', ...
+                'This function has not been implemented')
+        end
+
         %------------------------------------------------------------------
         function pos = get.pos_npixstart(obj)
             pos = obj.pos_npixstart_;
@@ -180,6 +207,12 @@ classdef pixfile_combine_info < MultipixBase
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function obj = set_npix_each_file(obj,val)
+            % accepts the numeric array which defines number of pixels
+            % in each file or signle value if total number of pixels
+            % in each file is the same
+            obj = set_npix_each_file_(obj,val);
+        end
         function obj = set_infiles(obj,val)
             % Main method which sets list of input files
             if ~iscellstr(val)

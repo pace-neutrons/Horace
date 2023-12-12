@@ -117,7 +117,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         % combine together various sqw objects, containing the same size images
         wout = combine_sqw(w1,varargin);
-        wout = join(w,wi);
+        wout = join(w,varargin);
         wout = split(w,varargin);
 
         [wout,mask_array] = mask(win, mask_array);
