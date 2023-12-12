@@ -1,8 +1,9 @@
 function wout = join(w,varargin)
-% Join an array or cellarray of sqw objects of sqw files into an single sqw object.
+% Join an array or cellarray of sqw objects or sqw files into an single sqw
+% object.
 %
-% The objects have to had common image shape, like objects produced by split
-% or files, stored by gen_sqw(___,'-tmp_only') options.
+% The objects must have common image shape, like objects produced by split
+% or files stored by gen_sqw(___,'-tmp_only') option.
 %
 %   >> wout = join(w,wi,varargin)
 %   >> wout = join(w,varargin)
@@ -10,23 +11,24 @@ function wout = join(w,varargin)
 % Input:
 % ------
 %   w       array or cellarray of sqw objects or cellarray of names of sqw
-%           files, each one made from a single spe data file and have
-%           common image shape, i.e. size(sqw.data.s) have to be the same
-%           for all contributing images.
+%           files, each one have the same image shape, i.e. size(sqw.data.s)
+%           have to be the same for all contributing images.
 % Optional:
 %   wi      initial pre-split sqw object (optional, recommended).
-% outfile   if provided and input objects are filebacked, does resulting
+% outfile   if provided and input objects are filebacked, makes resulting
 %           combined object filebacked regardless of the fact that it may
 %           fit memory.
 %           Normally resulting object is filebacked or memory-based
-%           depending on its size and hor_config mem_chunk_size and fb_scale_factor
-%           settings.
+%           depending on its size and hor_config mem_chunk_size and 
+%           fb_scale_factor settings.
 % modifiers:
 % '-allow_equal_headers'
 %         -- if two objects of files from the list of input files contain
-%            the same information.
+%            the same information join fail. If this option is provided, 
+%            such objects allowed.
 % '-recalc_runid'
-%         -- if provided, recalculate existing run-id(s) stored in headers
+%         -- if provided, recalculate existing run-id(s) stored in pixels
+%            and headers (Experiment.exp
 %            in such way that pixels run-ids correspond to number of header
 %            (IX_experiment) this run describes in the array of
 %            Experiment.expdata headers (IX_experiments).
