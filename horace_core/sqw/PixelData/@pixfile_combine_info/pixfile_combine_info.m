@@ -101,33 +101,6 @@ classdef pixfile_combine_info < MultipixBase
                 end
             end
         end
-        function obj = init_pix_access(obj)
-            % initialize access to contributing pixels.
-            %
-            error('HORACE:pixfile_combine_info:not_implemented', ...
-                'This function has not been implemented')
-        end
-
-        function [data,npix_chunk] = get_dataset_page(obj, ...
-                n_dataset,pix_pos_start,npix_idx)
-            % Return pixel data and pixel bin sub-distribution for the
-            % particular dataset out of multiple pixel datasets, stored
-            % within the class.
-            % Inputs:
-            % n_dataset -- number of dataset to get data from
-            % pix_pos_start
-            %           -- the position where pixel data are located.
-            %              Should be externaly synchronized with npix.
-            %              Can be calculated here, but ignored for saving
-            %              time and memory.
-            % npix_idx  -- two-element array containing first and last
-            %              indices of bins containing
-            %              distribution of pixels over bins.
-            %
-            error('HORACE:pixfile_combine_info:not_implemented', ...
-                'This function has not been implemented')
-        end
-
         %------------------------------------------------------------------
         function obj = init_pix_access(obj)
             % initialize access to contributing pixels.
