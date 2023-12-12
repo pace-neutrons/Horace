@@ -104,9 +104,11 @@ function [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,
 % ---------------------------------------------------------------------------------
 ind=caller.ind;                 % indices into lookup tables
 if numel(ind) ~= numel(win)
-    error('Inconsistency between number of input datasets and number passed from control routine')
+    error('HORACE:tobyfit_resconv:invalid_argument', ...
+          'Inconsistency between number of input datasets and number passed from control routine')
 elseif numel(ind) ~= numel(state_in)
-    error('Inconsistency between number of input datasets and number of internal function status stores')
+    error('HORACE:tobyfit_resconv:invalid_argument', ...
+          'Inconsistency between number of input datasets and number of internal function status stores')
 end
 
 
@@ -115,7 +117,8 @@ end
 refine_crystal = ~isempty(xtal);
 refine_moderator = ~isempty(modshape);
 if refine_crystal && refine_moderator
-    error('Cannot refine both crystal and moderator parameters. Error in logic flow - this should have been caught')
+    error('HORACE:tobyfit_resconv:invalid_argument', ...
+          'Cannot refine both crystal and moderator parameters. Error in logic flow - this should have been caught')
 end
 
 
@@ -211,10 +214,8 @@ for i=1:numel(ind)
 
     end
 
-
     % Recompute Q on-the-fly
     qw = calculate_q(ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
-
 
     % Compute (Q,w) deviations matrix
     % This is done on-the-fly for each sqw object because dq_mat is so large

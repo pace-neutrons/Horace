@@ -104,9 +104,11 @@ function [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,s
 % ---------------------------------------------------------------------------------
 ind=caller.ind;                 % indices into lookup tables
 if numel(ind) ~= numel(win)
-    error('Inconsistency between number of input datasets and number passed from control routine')
+    error('HORACE:tobyfit_resconv:invalid_argument', ...
+          'Inconsistency between number of input datasets and number passed from control routine')
 elseif numel(ind) ~= numel(state_in)
-    error('Inconsistency between number of input datasets and number of internal function status stores')
+    error('HORACE:tobyfit_resconv:invalid_argument', ...
+          'Inconsistency between number of input datasets and number of internal function status stores')
 end
 
 
@@ -115,7 +117,8 @@ end
 refine_crystal = ~isempty(xtal);
 refine_moderator = ~isempty(modshape);
 if refine_crystal && refine_moderator
-    error('Cannot refine both crystal and moderator parameters. Error in logic flow - this should have been caught')
+    error('HORACE:tobyfit_resconv:invalid_argument', ...
+          'Cannot refine both crystal and moderator parameters. Error in logic flow - this should have been caught')
 end
 
 
