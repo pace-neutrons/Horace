@@ -73,7 +73,7 @@ if initflag
         w = num2cell(w);
     end
     % check if input data and the input sqw can indeed be combined together.
-    [~,ldrs] = check_img_consistency([{wout};w(:)],true);
+    [~,ldrs] = check_img_consistency([{wout};w(:)]);
     if ~isempty(ldrs{1})
         ldrs{1} = ldrs{1}.delete(); % close loader for reference file
     end

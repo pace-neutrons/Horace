@@ -73,16 +73,7 @@ end
 
 use_mex = false;
 
-% use_mex = ~pix_retained{1}.is_filebacked && ...
-%           force_mex || ...
-%           (exist('npix', 'var') && ...
-%            ~isempty(npix) && ...
-%            ~nomex && ...
-%            get(hor_config, 'use_mex'));
-
-%
 % Do the job -- sort pixels
-%
 if use_mex
     try
         % TODO: make "keep type" a default behaviour!
@@ -98,14 +89,14 @@ if use_mex
         if use_given_pix_range
             raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
-            pix = pix.set_raw_data(raw_pix);
-            pix = pix.set_data_range(data_range);
         else
             [raw_pix,data_range_l] = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
-            pix = pix.set_raw_data(raw_pix);
-            pix = pix.set_data_range(data_range_l);
+            data_range = data_range_l;
         end
+        pix = pix.set_raw_data(raw_pix);
+        pix = pix.set_data_range(data_range);
+        
         clear pix_retained pix_ix_retained;  % clear big arrays
 
     catch ME
