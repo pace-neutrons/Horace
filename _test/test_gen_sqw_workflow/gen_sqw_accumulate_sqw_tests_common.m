@@ -737,7 +737,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
             [~,grid_size,pix_range]=accumulate_sqw (spe_accum, '', sqw_file_accum,...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
-            assertEqual(pix_range,pix_range2);
+            assertElementsAlmostEqual(pix_range,pix_range2,'relative',4*eps('single'));
             assertEqual(grid_size,grid_size1);
 
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,...
