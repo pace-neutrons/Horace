@@ -188,6 +188,14 @@ classdef PageOp_join_sqw < PageOpBase
             end
         end
         function [out_obj,obj] = finish_op(obj,in_obj)
+            % external range is normally calculated with double precision
+            % and here -- with single precision. Use external if possible
+            extern_range = obj.pix_combine_info.data_range;
+            valid = extern_range == PixelDataBase.EMPTY_RANGE;
+            if all(valid)
+                obj.pix_data_range_ = obj.pix_combine_info.data_range;
+            end
+
             % overload of generic finis_op, which allow close access to
             % contributing file accessors
             obj.pix_combine_info = obj.pix_combine_info.close_faccessors();
