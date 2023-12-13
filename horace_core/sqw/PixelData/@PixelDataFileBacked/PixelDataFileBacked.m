@@ -79,9 +79,10 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
         % by `distribute` to send file portions to workers
         offset_ = 0;
 
-        % handle-class holding tmp file produced by filebacked
-        % operations. If all referring classes go out of scope the file
-        % gets deleted.
+        % Place for handle-class holding tmp pixel file produced by filebacked
+        % operations with pixels only (no sqw object). If all referring
+        % classes go out of scope the file gets deleted. See similar
+        % property on SQW object for operations with full sqw object.
         tmp_file_holder_ = [];
     end
 
