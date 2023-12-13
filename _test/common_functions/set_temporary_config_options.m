@@ -26,8 +26,11 @@ end
 end
 
 function restore(config_instance,original_config)
-
+% disable setup warning on restoring properties, which support it
+config_instance.disable_setup_warning = true;
+% restore original configuration
 set(config_instance, original_config);
+% allow 
 config_instance.saveable = true;
 
 end
