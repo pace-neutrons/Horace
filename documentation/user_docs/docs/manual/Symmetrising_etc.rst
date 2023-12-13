@@ -761,3 +761,9 @@ dataset (thereby increasing the counts four-fold).
    calculate magnetic form factor on or apply magnetic form factor to the
    dataset provided.
 
+Limitations
+===========
+* At present ``symmetrise_sqw``, ``combine_sqw``, and ``rebin_sqw`` work ONLY
+  for sqw objects, since they require access to individual detector pixel
+  information. The functions will work for any dimensionality of object,
+  however.
