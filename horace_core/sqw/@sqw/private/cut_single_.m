@@ -38,8 +38,7 @@ if isa(pix_out, 'MultipixBase')
     cleanup = onCleanup(@() clean_up_tmp_files(pix_out));
 
     if ~outfile_specified
-        tmp_file = TmpFileHandler(w.full_filename);
-        opt.outfile = tmp_file.file_name;
+        opt.outfile = build_tmp_file_name(w.full_filename);
         outfile_specified = true;
     end
 else
@@ -115,11 +114,10 @@ if outfile_specified
     end
 end
 
-if exist('tmp_file', 'var')
-    if ~pix_combine_necessary
-        wout = sqw(opt.outfile);
-        wout.file_holder_ = tmp_file;        
-    end
+if ~pix_combine_necessary
+    % TODO: Re #1320 save should return sqw object if requested
+    wout = sqw(opt.outfile);
+    wout = wout.set_as_tmp_obj();
 end
 
 end
