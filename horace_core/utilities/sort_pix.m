@@ -4,7 +4,7 @@ function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
 % It may be renamed sort_pixels_by_bins as the pix_ix_retained are the
 % sorting pixels according to array of indices which specify pixel location
 % in image bins and the indices of the pixels which place them into
-% appropriate bins were processed externaly.
+% appropriate bins were processed externally.
 %
 % This is explicitly memory-only operation which is applied to
 % block of pixels pixel in memory or to the part of such image.
@@ -29,7 +29,7 @@ function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
 %
 % '-force_mex' -- use only mex code and fail if mex is not available
 %                (usually for testing)
-% '-keep_type'
+% '-keep_precision'
 %              -- if provided, the routine keeps type of pixels
 %                 received on input. If not, pixels converted into double.
 %
@@ -40,9 +40,9 @@ function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
 %
 
 %  Process inputs
-options = {'-nomex','-force_mex','-keep_type'};
+options = {'-nomex','-force_mex','-keep_precision'};
 %[ok,mess,nomex,force_mex,missing]=parse_char_options(varargin,options);
-[ok, mess, nomex, force_mex, keep_type, argi] = ...
+[ok, mess, nomex, force_mex, keep_precision, argi] = ...
     parse_char_options(varargin,options);
 
 if ~ok
@@ -91,7 +91,7 @@ if use_mex
         % so returns double or single resolution pixels depending on this
         %IMPORTANT: use double type as mex code asks for double type, not
         %logical.
-        keep_type = double(force_double);
+        keep_type = double(keep_precision);
 
         raw_pix = cellfun(@(pix_data) pix_data.data, pix_retained, ...
             'UniformOutput', false);
@@ -126,6 +126,7 @@ end
 if ~use_mex
     % combine pixels together. Type may be lost? Should not but form allows. Should we enforce it?
     pix = PixelDataBase.cat(pix_retained{:},'-force_membased');
+    pix.keep_precision = keep_precision;
     clear pix_retained;
     if isempty(pix)  % return early if no pixels
         pix = PixelDataMemory();

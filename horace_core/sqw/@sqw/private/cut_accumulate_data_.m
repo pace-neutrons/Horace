@@ -241,7 +241,6 @@ else
 end
 
 if log_level > 1
-
     if use_tmp_files && ~keep_pixels
         fprintf('*** Cutting %s sqw object; returning result %s --> ignored as cut contains no pixels\n', ...
             obj_type, target);
@@ -252,7 +251,5 @@ if log_level > 1
         fprintf('*** Cutting %s sqw object; returning result %s; retuning pixels - %s\n', ...
             obj_type, target, pix_state);
     end
-
 end
-
 end

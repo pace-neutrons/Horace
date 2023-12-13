@@ -73,6 +73,7 @@ end
             if n_pix_in_memory == 0
                 pix_comb_info = PixelDataMemory();
             else
+                % not keeping precision here as this will be memory-based result
                 pix_comb_info  = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
                     n_pix_in_memory,pix_comb_info.data_range);
             end
@@ -93,8 +94,10 @@ end
         npix_in_mem = npix_now - npix_prev;
         npix_prev   = npix_now;
         clear npix_now;
+        % keep sorted pixels precision as they came from file and go to
+        % file
         pix_2write = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
-            npix_in_mem,pix_comb_info.data_range,'-keep_type');
+            npix_in_mem,pix_comb_info.data_range,'-keep_precision');
         % clear current memory buffer state;
         n_mem_blocks = 0;
         clear pix_mem_retained pix_mem_ix_retained;
