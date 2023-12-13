@@ -45,12 +45,12 @@ classdef hpc_config < config_base
     %                            combining files per each contributing file.
     %---
     % parallel_cluster          - what parallel cluster type to use to perform
-    %                             parallel  tasks. Possibilities currenlty are
+    %                             parallel  tasks. Possibilities currently are
     %                            'herbert', 'parpool', 'mpiexec_mpi' or
     %                            'slurm' (if appropriate clusters are
     %                             available)
     % phys_mem_available        - return real size (in bytes) of physical
-    %                             memory, avaliable to use by algoritms.
+    %                             memory, available to use by algorithms.
     %                             Tries to allocate continuous memory at
     %                             first call and stores result for future
     %                             usage, so first call should be tried on
@@ -63,11 +63,11 @@ classdef hpc_config < config_base
     %                             cell have to be sorted, which is
     %                             relatively expensive operation. If you
     %                             are sure that pixels in operation come
-    %                             from the same data (e.g. calculationg
+    %                             from the same data (e.g. calculating
     %                             foreground and background out of the same
     %                             dataset and adding them together), this
     %                             property may be set to false.
-    %                             This propery is not saveable, so
+    %                             This property is not saveable, so
     %                             returns to default each time memory is
     %                             cleared up.
     %
@@ -140,8 +140,8 @@ classdef hpc_config < config_base
         % the configuration class itself;
         parallel_config;
 
-        % return real size (in bytes) of physical  memory, avaliable to use
-        % by algoritms. Tries to allocate continuous memory at first call
+        % return real size (in bytes) of physical  memory, available to use
+        % by algorithms. Tries to allocate continuous memory at first call
         % and stores result for future usage, so first call should be tried
         % on clean system.
         phys_mem_available
@@ -153,7 +153,7 @@ classdef hpc_config < config_base
         % pixels in operation come  from the same data (e.g. calculating
         % foreground and background out of the same dataset and adding them
         % together), this property may be set to false.
-        % The propery is not saveable in configuration files so it returns
+        % The property is not saveable in configuration files so it returns
         % to default each time memory is cleared up.
         sort_pix_in_binary_op;
         % helper read-only property, returning list of options, which
