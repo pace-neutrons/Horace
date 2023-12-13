@@ -109,6 +109,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             %              modifications to pixels.
             obj = obj.pix.apply_op(obj,operation);
         end
+        % build sqw from multiple compatible-sqw parts.
+        wout = join(w,varargin);
     end
     %======================================================================
     % PageOp methods -- methods, which use PageOp for implementation, so
@@ -117,7 +119,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         % combine together various sqw objects, containing the same size images
         wout = combine_sqw(w1,varargin);
-        wout = join(w,varargin);
         wout = split(w,varargin);
 
         [wout,mask_array] = mask(win, mask_array);
