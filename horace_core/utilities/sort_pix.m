@@ -1,13 +1,25 @@
 function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
 % function sorts pixels according to their indices in n-D array npix
 %
+% It may be renamed sort_pixels_by_bins as the pix_ix_retained are the
+% sorting pixels according to array of indices which specify pixel location
+% in image bins and the indices of the pixels which place them into
+% appropriate bins were processed externaly.
+%
+% This is explicitly memory-only operation which is applied to
+% block of pixels pixel in memory or to the part of such image.
+%
 %input:
-% pix_retained   PixelData object, which is to be sorted or a cell array
+% pix_retained --  PixelData object, which is to be sorted or a cell array
 %       containing arrays of PixelData objects
 %
-% ix    indices of these pixels in n-D array or cell array of such indices
-% npix  auxiliary array, containing numbers of pixels in each cell of
-%       n-D array
+% pix_ix_retained
+%              -- indices of these pixels in n-D array or cell array of
+%                 such indices
+% npix         -- auxiliary array, containing numbers of pixels in each
+%                 cell of n-D array. Used by mex sorting only to simplify
+%                 memory allocation and allow to lock particular cells in
+%                 case of MPI sorting.
 % Optional input:
 %  pix_range -- if provided, prohibits pix range recalculation in pix
 %               constructor. The range  provided will be used instead
@@ -21,8 +33,7 @@ function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
 %              -- if provided, the routine keeps type of pixels
 %                 received on input. If not, pixels converted into double.
 %
-% these two options can not be used together.
-%
+% '-nomex' and '-force_mex' options can not be used together.
 
 %Output:
 %pix  array of pixels sorted into 1D array according to indices provided
@@ -133,6 +144,4 @@ if ~use_mex
 
     pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
     clear ind;
-end
-
 end
