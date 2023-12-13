@@ -111,16 +111,13 @@ if outfile_specified
         wout              = sqw.apply_op(wout,page_op);
     else
         save(wout, opt.outfile);
+        % TODO: Re #1320 save should return sqw object if requested
+        wout = sqw(opt.outfile);
+        wout = wout.set_as_tmp_obj();        
     end
 end
-
-if ~pix_combine_necessary
-    % TODO: Re #1320 save should return sqw object if requested
-    wout = sqw(opt.outfile);
-    wout = wout.set_as_tmp_obj();
 end
 
-end
 
 function data_out = compile_sqw_data(targ_axes, proj, s, e, npix, pix_out, ...
     keep_pix)

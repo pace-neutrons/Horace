@@ -314,7 +314,7 @@ classdef PageOp_split_sqw < PageOpBase
             %
             %
             % in_sqw   -- template for target filebacked object which would
-            %             be finalized and deleted leaving file, pointint
+            %             be finalized and deleted leaving file, pointing
             %             to it.
             % Returns:
             % out_file -- the name of the file, containing target sqw
@@ -342,9 +342,9 @@ classdef PageOp_split_sqw < PageOpBase
             % tmp files and is output folder provided.
             %
             % Depending on the input, the file will be the file,
-            % contstructed from provided filename file_in, suffix
+            % constructed from provided filename file_in, suffix
             % _runID000xxxx where xxxx are the numbers from the run and
-            % and extension ".tmp_yyyyyy"  where yyyy are rundom characters
+            % and extension ".tmp_yyyyyy"  where yyyy are random characters
             % for filebacked objects or ".sqw" extension if the target file
             % is the final result sqw file.
             %
