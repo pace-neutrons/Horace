@@ -75,8 +75,8 @@ classdef config_base
         % if true, issue warning if class have never been configured and
         % its values are choosen from defaults.
         warn_if_missing_config
-        % Helper property, which, if true, prohibit issuing warnings for
-        % setting up properties which support it and are set to a new value.
+        % If true, disables warnings issued during loading when
+        % certain properties are set to a new, potentially invalid value.
         % Default -- false.
         disable_setup_warnings
     end
