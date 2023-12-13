@@ -9,7 +9,7 @@ classdef PageOp_join_sqw < PageOpBase
         % if provided, the new runid array to set as pixels runid for each
         % contributing run
         new_runid;
-        % if mex code should be used for combining pixels
+        % true if mex code should be used for combining pixels
         use_mex;
     end
     %
@@ -24,8 +24,9 @@ classdef PageOp_join_sqw < PageOpBase
         % array of values how many pixels already retrieved from each
         % contributing dataset.
         npix_page_read_;
-        % Used in mex-combining only and defines the physical position
-        % pixels occupy in target binary file (expressed in bytes)
+        % Used in mex-combining only and contains the position counted
+        % from the start of the target binary file, which pixel data occupy
+        % (expressed in bytes)
         pixout_start_pos_;
     end
     methods
@@ -62,7 +63,8 @@ classdef PageOp_join_sqw < PageOpBase
                 obj.outfile = obj.build_file_name_for_join();
             end
 
-            % only pixfile_combine_info is currently mex-ed
+            % only pixfile_combine_info class can currently provide data
+            % for mex combining.
             obj.use_mex = use_mex && isa(obj.pix_combine_info,'pixfile_combine_info');
             %
             % set pixel data range to avoid warning about old file format

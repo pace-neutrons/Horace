@@ -106,7 +106,7 @@ if use_mex
         end
         pix = pix.set_raw_data(raw_pix);
         pix = pix.set_data_range(data_range);
-        
+
         clear pix_retained pix_ix_retained;  % clear big arrays
 
     catch ME
@@ -140,8 +140,11 @@ if ~use_mex
         return;
     end
 
-    [~,ind] = sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-    clear ix;          % clear big arrays so that final output variable pix is not way up the stac
+    [~,ind] = sort(ix);  % returns ind as the indexing array into pix
+    %                      that puts the elements of pix in increasing
+    %                      single bin index
+    clear ix;      % clear big arrays so that final output variable pix
+    %                is not way up the stack
 
     pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
     clear ind;

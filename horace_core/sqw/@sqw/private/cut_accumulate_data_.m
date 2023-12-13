@@ -1,5 +1,5 @@
 function [s, e, npix, pix_out, unique_runid] = ...
-    cut_accumulate_data_(obj, targ_proj, targ_axes, keep_pixels, log_level, return_cut)
+    cut_accumulate_data_(obj, targ_proj, targ_axes, keep_pixels, log_level)
 %%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
 % Input:
@@ -11,9 +11,6 @@ function [s, e, npix, pix_out, unique_runid] = ...
 %            is false return variable 'pix_out' will be empty.
 % log_level  The verbosity of the log messages. The values correspond to those
 %            used in 'hor_config', see `help hor_config/log_level`.
-% return_cut If true, the cut is intended to be returned as an object and
-%            pixels must be returned in memory. If false, we allow pixels to be
-%            held in temporary files managed by a pixfile_combine_info object.
 %
 % Output:
 % -------
@@ -185,9 +182,10 @@ for iter = 1:num_chunks
             fprintf(' ----->  %s  %8d pixels\n', pixel_contrib_name, npix_step_retained);
         end
 
-        % Generate tmp files and get a pixfile_combine_info object to manage
-        % the files - this object then recombines the files once it is
-        % passed to 'put_sqw'.
+        % Store produced data in cache, and when the cache is full
+        % generate tmp files. Return pixfile_combine_info object to manage
+        % the files - this object then used to recombine the files within
+        % PageOp_sqw_join operation.
         pix_comb_info = cut_data_from_file_job.accumulate_pix(pix_comb_info, false, ...
             pix_ok, pix_indx, npix, ...
             buf_size);

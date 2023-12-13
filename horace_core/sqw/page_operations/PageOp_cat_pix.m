@@ -16,7 +16,6 @@ classdef PageOp_cat_pix < PageOpBase
         pix
     end
     properties(Access = private)
-        page_size_;
         % the position of pixels in every pixel block
         pix_block_start_;
         % indixes of pages in the npix array, produced by split_into_pages
@@ -41,7 +40,6 @@ classdef PageOp_cat_pix < PageOpBase
             [mem_chunk_size,pf] = config_store.instance().get_value( ...
                 'hor_config','mem_chunk_size','fb_scale_factor');
             fb_pix_limit = pf*mem_chunk_size;
-            obj.page_size_ = mem_chunk_size;
             if obj.npix_tot > fb_pix_limit && ~obj.force_cat_in_memory
                 in_obj = PixelDataFileBacked();
                 obj.inform_about_target_file = true;
@@ -56,11 +54,13 @@ classdef PageOp_cat_pix < PageOpBase
             % process pages in this case.
             if isa(obj.pix_,'PixelDataMemory') % if target pixels are in memory
                 % they always should be done in one stroke as pix in memory
-                % do not support append operation. It is replaced.
-                chunk_size = sum(npix(:));
-                obj.page_size_ = chunk_size;
+                % do not append data in common_page_op performed later but
+                % replace contents of resulting PixDataMemory.
+                npix_chunks = {npix(:)};
+                npix_idx    = [1;numel(npix)];
+            else
+                [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,chunk_size);
             end
-            [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,chunk_size);
             obj.block_idx_ = npix_idx;
         end
 
@@ -111,7 +111,10 @@ classdef PageOp_cat_pix < PageOpBase
             pix = obj.pix_;
         end
         function obj = set.pix(obj,val)
-            % Use this method in tests only
+            % Set target pix data explicitly.
+            %
+            % Intended for use in tests only so should not be used in
+            % production code.
             if ~isa(val,'PixelDataBase')
                 error('HORACE:PixelDataBase:invalid_argument', ...
                     'Pix can be an object of PixelDatBase class only');
