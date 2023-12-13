@@ -161,6 +161,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             % ensure we indeed do filebacked algorithm
             assertTrue(wout_aligned.is_filebacked);
+            assertFalse(wout_aligned.is_tmp_obj);            
 
             corr_rev.rotvec = -corr_rev.rotvec;
             assertEqualToTol(corrections, corr_rev, 'tol', 1.e-9)
@@ -177,7 +178,9 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % test the cut from crystal with alignment and cut with aligned
             % crystal, alignment applied are the same
             cut_cor= cut(tf_ref_corr, proj, cut_range{:});
+            assertTrue(cut_cor.is_tmp_obj)
             cut_al = cut(tf_ref_al, proj, cut_range{:});
+            assertTrue(cut_al.is_tmp_obj)            
 
             assertEqualToTol(cut_cor, cut_al, 4*eps('single'), 'ignore_str', true);
         end
