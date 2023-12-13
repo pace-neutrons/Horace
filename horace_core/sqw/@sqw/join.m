@@ -3,7 +3,7 @@ function wout = join(w,varargin)
 % object.
 %
 % The objects must have common image shape, like objects produced by split
-% or files stored by gen_sqw(___,'-tmp_only') option.
+% or files produced by gen_sqw(___) using '-tmp_only' option.
 %
 %   >> wout = join(w,wi,varargin)
 %   >> wout = join(w,varargin)

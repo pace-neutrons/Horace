@@ -110,7 +110,7 @@ classdef pixfile_combine_info < MultipixBase
         function [data,npix_chunk] = get_dataset_page(obj, ...
                 n_dataset,pix_pos_start,npix_idx)
             % Return pixel data and pixel bin sub-distribution for the
-            % particular dataset ouf of multiple pixel datasets, stored
+            % particular dataset out of multiple pixel datasets, stored
             % within the class.
             % Inputs:
             % n_dataset -- number of dataset to get data from
