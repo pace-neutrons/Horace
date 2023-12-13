@@ -192,7 +192,7 @@ classdef hpc_config < config_base
             'mex_combine_buffer_size',...
             'parallel_multifit'...
 
-            }
+            };
         combine_sqw_options_ = {'matlab','mex_code','mpi_code'};
     end
     methods(Static)
