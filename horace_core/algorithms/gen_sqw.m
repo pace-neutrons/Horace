@@ -344,16 +344,21 @@ else
 end
 
 if accumulate_old_sqw % build only runfiles to process
-    run_files = rundatah.gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),...
+    run_files = rundatah.gen_runfiles(spe_file(ix),par_file(ix),efix(ix),emode(ix),...
         lattice(ix),instrument(ix),sample(ix),rundata_par{:});
 else % build all runfiles, including missing runfiles. TODO: Lost generality, assume detectors are all equvalent
-    if isempty(par_file) && sum(spe_exist) ~= n_all_spe_files % missing rf may need to use different
-        % par file (what is currently there) from what will be there later
-        % Get detector parameters
+    empty_par_files = cellfun(@(x)isempty(x),par_file);
+    if any(empty_par_files) && sum(spe_exist) ~= n_all_spe_files % missing rf may need to use different
+                                                                 % par file (what is currently there) from what will be there later 
+                               % NB might be easier to do any(spe_exist==0)
+        empty_par_files = find(empty_par_files);
+
+        % Get detector parameters from a known spe
         iex1 = indx(1);
-        rf1 = rundatah.gen_runfiles(spe_file{iex1},par_file,efix(1),emode(1),...
+        rf1 = rundatah.gen_runfiles(spe_file{iex1},par_file(iex1),efix(1),emode(1),...
             lattice(iex1),instrument(iex1),sample(iex1),rundata_par{:});
-        par_file = get_par(rf1{1}); %CM:get_par(
+        rf1_pfile = get_par(rf1{1}); %CM:get_par(
+        par_file(empty_par_files) = {rf1_pfile};
     end
 
     % build all runfiles, including missing runfiles
