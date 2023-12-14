@@ -761,17 +761,20 @@ dataset (thereby increasing the counts four-fold).
    calculate magnetic form factor on or apply magnetic form factor to the
    dataset provided.
 
+.. Re# 1447 should we reimplement `combine_equivalent_zones` ? See chunk symmeterize_equivalent_zones_description.bak file in this folder when ticket resolved.
+
+
 Limitations
 ===========
 * At present ``symmetrise_sqw``, ``combine_sqw``, and ``rebin_sqw`` work ONLY
   for sqw objects, since they require access to individual detector pixel
   information. The functions will work for any dimensionality of object,
   however.
-..
-* ``combine_equivalent_zones`` has to perform some memory and hdd-access
+
+.. | Re #1447 to enable  * ``combine_equivalent_zones`` has to perform some memory and hdd-access
   intensive calculations, which should ideally be performed on `high performance
   computing cluster
   <http://www.isis.stfc.ac.uk/groups/excitations/data-analysis-computers/connecting-to-isiscomputendrlacuk-using-nomachine15120.html>`__. The
   amount of memory used by the code is controlled by ``hor_config`` parameter
   ``mem_chunk_size`` and is approximately 10 times larger then the amount,
-  specified by this parameter.
+  specified by this parameter. | replace ::

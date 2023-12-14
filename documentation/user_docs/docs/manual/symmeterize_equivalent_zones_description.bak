@@ -1,0 +1,129 @@
+Commands for entire datasets
+============================
+
+..  note::
+
+   For application of symmetry operations to the entire sqw file when it is
+   being generated, :ref:`see above <gen_sqw>`
+
+It is possible to make a new ``.sqw`` data file that has had a specified
+symmetrisation performed on it for a certain data range. You specify which
+Brillouin zone you are interested in, and then tell Horace which Brillouin zones
+are symmetrically equivalent to this one. Data are then cut from all of these
+zones and combined with the data from your original choice. The result is output
+to a new file. For example:
+
+.. code-block:: matlab
+
+   transf_list=combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile);
+
+
+where ``data_source`` is the master ``.sqw`` file, ``proj`` is the projection
+structure array (the same format as that used for ``cut_sqw``), ``pos`` is a
+3-element vector [h,k,l] specifying the Brillouin zone of interest. ``qstep`` is
+a single number specifying the desired step size along h, k, and l of the
+4-dimensional output object ``wout``. ``erange`` is a 3-element vector
+specifying [lo,step,hi] for the energy range to be cut. Finally, ``outfile`` is
+the .sqw filename (including path and .sqw extension) where the symmetrised data
+will be saved. ``transf_list`` is the cell array of ``cut_transf`` classes where
+each element describes a transformation, applied to a particular zone. Note that
+the output argument ``transf_list`` is optional.
+
+For the basic case detailed above, data from all permutations of ``pos=[h,k,l]``
+will be included in the output file. The ``cut_transf`` objects in the
+``transf_list`` array by default are reflections described by the transformation
+matrix, specified by ``cut_transf.transf_matrix`` property.
+
+If you wish to be more restrictive then you can either use:
+
+.. code-block:: matlab
+
+   transf_list=combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,keyword);
+
+
+or
+
+.. code-block:: matlab
+
+   transf_list=combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,zonelist);
+
+
+The keywords that can be used are as follows:
+
+* ``-ab``
+
+  combines all equivalent zones with the same value of L (i.e. (H,K,L), (-H,K,L), (H,-K,L), (-H,-K,L), (K,H,L),
+  (-K,H,L), (K,-H,L), and (-K,-H,L))
+* ``-ac``
+
+  combines all equivalent zones with the same K
+
+* ``-bc``
+
+  combines equivalent zones with the same H
+
+* ``-cyclic`` / ``-cycwithneg``
+
+  combines all equivalent zones that are cyclic permutations of (H,K,L)
+
+.. note::
+   ``-cyclic`` ignores sign changes, whereas ``-cycwithneg`` includes sign changes.
+
+If you wish to specify which zones to combine manually, this can be done by
+specifying the argument ``zonelist``. This is a cell array, with each element a
+3-element vector. For example you might have:
+
+.. code-block:: matlab
+
+   pos=[1,2,3]
+   zonelist={[1,2,3],[3,2,1],[2,3,1],[2,1,3],[3,1,2]}
+
+
+Advanced usage
+==============
+
+By default ``combine_equivalent_zones`` generates a set of reflections,
+transforming equivalent zones into the target one. For specified Brillouin zones
+the user can modify transformations to use symmetry, specific to their
+problem. E.g, one can specify shifts, which use the symmetry of the reciprocal
+lattice to unite various zones together. To combine zones, located at
+inequivalent ``hkl`` positions one may need to apply a correction function. The
+script below gives the example of combining all equivalent zones and correcting
+for the magnetic form factor. The shift transformation is defined by the
+``symmetry_type`` keyword, and the function to apply to each zone before
+combining is specified by the ``correct_fun`` keyword.
+
+.. code-block:: matlab
+
+   data_source = fullfile(pwd,'Data','Fe_ei200.sqw');
+   proj = ortho_proj([1,0,0], [0,1,0]);
+
+   % move all zones into the centre.
+   pos = [0,0,0];
+
+   % define function to fix magnetic form-factor different for <1,1,0> and <2,0,0> zones.
+   mff = MagneticIons('Fe0');
+   fixer = @(ws)(mff.fix_magnetic_ff(ws));
+
+   erange = [0,2,200];
+   outfile = fullfile(pwd,'Data','Fe_ei200shift110allSymmetries.sqw');
+
+   % all zones to combine
+   zonelist = {[1,1,0],[1,-1,0],[-1,1,0], ...
+               [0,1,1],[0,1,-1],[0,-1,1], ...
+               [1,0,1],[1,0,-1],[-1,0,1], ...
+               [2,0,0],[-2,0,0],[0,2,0], ...
+               [0,-2,0],[0,0,2],[0,0,2]};
+
+   transf_list = combine_equivalent_zones(data_source,proj,pos,...
+                                          0.01,erange,outfile,zonelist,...
+                                          'symmetry_type','shift','correct_fun',fixer);
+
+
+``symmetry_type`` currently can be ``sigma`` (for reflections) or ``shift`` (for
+moving different zones).
+
+The sample script above also generates duplicated pixels, as the ``[2,0,0]``
+zones are moved into ``[0,0,0]`` positions and the same zones at the edges of
+the cuts (e.g ``[1,1,0]+-1``) will be accounted for twice. The direction of the
+projection should be changed to avoid this. 
