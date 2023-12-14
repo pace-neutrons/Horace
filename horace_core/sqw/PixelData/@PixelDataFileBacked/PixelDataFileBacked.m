@@ -79,33 +79,18 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
         % by `distribute` to send file portions to workers
         offset_ = 0;
 
-        % Re #1302 TODO: delete old interface
-        % handle to the class used to perform pixel writing
-        write_handle_ = []; %  in operations, involving move pixels
-        % from source file to the file, which is the target of operation.
-
-        % handle-class holding tmp file produced by filebacked
-        % operations. If all referring classes go out of scope the file
-        % gets deleted.
+        % Place for handle-class holding tmp pixel file produced by filebacked
+        % operations with pixels only (no sqw object). If all referring
+        % classes go out of scope the file gets deleted. See similar
+        % property on SQW object for operations with full sqw object.
         tmp_file_holder_ = [];
     end
-    properties (Hidden, Access=private)
-        % Re #1302 TODO: delete old interface
-        pix_written = 0;
-    end
-
 
     properties(Dependent,Hidden)
         % defines offset from the beginning of the pixels in the binary file
         % accessed through memmapfile.
         offset;
     end
-
-    properties(Dependent, Hidden)
-        has_open_file_handle;
-    end
-
-
     properties (Constant)
         is_filebacked = true;
     end
@@ -247,10 +232,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
         function offset = get.offset(obj)
             offset = obj.offset_;
         end
-
-        function has = get.has_open_file_handle(obj)
-            has = ~isempty(obj.write_handle_);
-        end
     end
 
     %======================================================================
@@ -288,47 +269,10 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
             obj = set_as_tmp_obj_(obj,filename);
         end
         %
-        function obj = prepare_dump(obj)
-            % Get new handle iff not already opened by sqw
-            if ~obj.has_open_file_handle
-                obj = obj.get_new_handle();
-            end
-        end
-        function obj = get_new_handle(obj, f_accessor)
-            % Always create a new PixTmpFile object
-            % If others point to it, file will be kept
-            % otherwise file will be cleared
-
-            if exist('f_accessor', 'var') && ~isempty(f_accessor)
-                obj.write_handle_ = f_accessor;
-                obj.full_filename = f_accessor.full_filename;
-            else
-                if isempty(obj.full_filename)
-                    obj.full_filename = 'in_mem';
-                end
-                obj.tmp_file_holder_ = TmpFileHandler(obj.full_filename);
-
-                obj.write_handle_ = sqw_fopen(obj.tmp_file_holder_.file_name, 'wb+');
-            end
-            obj.pix_written = 0;
-        end
-        function obj = format_dump_data(obj, data)
-            if ~obj.has_open_file_handle
-                error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'Cannot dump data, object does not have open filehandle')
-            end
-            if isa(obj.write_handle_, 'sqw_file_interface')
-                obj.write_handle_.put_raw_pix(data, obj.pix_written+1);
-            else
-                fwrite(obj.write_handle_, single(data), 'single');
-            end
-            obj.pix_written = obj.pix_written + size(data, 2);
-        end
-
-        function obj = finish_dump(obj,varargin)
+        function obj = finish_dump(obj,page_op)
             % complete pixel write operation, close writing to the target
             %  file and open pixel dataset for access operations.
-            obj = finish_dump_(obj,varargin{:});
+            obj = finish_dump_(obj,page_op);
         end
 
         function format = get_memmap_format(obj, tail,new)
