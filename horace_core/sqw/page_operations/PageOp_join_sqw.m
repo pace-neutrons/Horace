@@ -93,7 +93,7 @@ classdef PageOp_join_sqw < PageOpBase
         function obj = get_page_data(obj,idx,npix_blocks)
             % join-specific access to block of page data
             %
-            % reads data from mutiple sources and combines them together
+            % reads data from multiple sources and combines them together
             % into single page of data.
             %
             bin_start = cumsum(npix_blocks{idx});

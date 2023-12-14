@@ -1,28 +1,38 @@
 function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
 % function sorts pixels according to their indices in n-D array npix
 %
+% It may be renamed sort_pixels_by_bins as the pix_ix_retained are the
+% sorting pixels according to array of indices which specify pixel location
+% in image bins and the indices of the pixels which place them into
+% appropriate bins were processed externaly.
+%
+% This is explicitly memory-only operation which is applied to
+% block of pixels pixel in memory or to the part of such image.
+%
 %input:
-% pix_retained   PixelData object, which is to be sorted or a cell array
-%       containing arrays of PixelData objects
+% pix_retained --  PixelData object, which is to be sorted or a cell array
+%                  containing arrays of PixelData objects
 %
-% ix    indices of these pixels in n-D array or cell array of such indices
-% npix  auxiliary array, containing numbers of pixels in each cell of
-%       n-D array
+% pix_ix_retained
+%              -- indices of these pixels in n-D array or cell array of
+%                 such indices
+% npix         -- auxiliary array, containing numbers of pixels in each
+%                 cell of n-D array. Used by mex sorting only to simplify
+%                 memory allocation and allow to lock particular cells in
+%                 case of MPI sorting.
 % Optional input:
-%  pix_range -- if provided, prohibits pix range recalculation in pix
-%               constructor. The range  provided will be used instead
+%  pix_range   -- if provided, prohibits pix range recalculation in pix
+%                 constructor. The range  provided will be used instead
 %
-% '-nomex'    -- do not use mex code even if its available
-%               (usually for testing)
+% '-nomex'     -- do not use mex code even if its available
+%                 (usually for testing)
 %
 % '-force_mex' -- use only mex code and fail if mex is not available
-%                (usually for testing)
+%                 (usually for testing)
 % '-force_double'
 %              -- if provided, the routine changes type of pixels
 %                 it get on input, into double. if not, output pixels will
-%                 keep their initial type
-%
-% these two options can not be used together.
+%                 keep their initial type.
 %
 
 %Output:
@@ -140,27 +150,9 @@ if ~use_mex
     end
 
     [~,ind] = sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-    clear ix;          % clear big arrays so that final output variable pix is not way up the stack
+    clear ix;            % clear big arrays so that final output variable pix is not way up the stack
 
+    pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
 
-    if pix.is_filebacked
-        mch_sz = get(hor_config, 'mem_chunk_size');
-
-        pix = pix.get_new_handle();
-
-        for i = 1:mch_sz:numel(ind)
-            end_idx = min(i+mch_sz-1, numel(ind));
-            slice = ind(i:end_idx);
-            data = pix.data(:, slice);
-            pix = pix.format_dump_data(data);
-        end
-
-        pix = pix.finish_dump();
-
-    else
-        pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
-    end
     clear ind;
-end
-
 end

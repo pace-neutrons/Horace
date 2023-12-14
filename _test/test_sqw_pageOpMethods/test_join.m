@@ -43,7 +43,7 @@ classdef test_join < TestCase
             sqw_obj = sqw.generate_cube_sqw(10);
 
             split_obj = split(sqw_obj);
-            reformed_obj = join(sqw_obj);
+            reformed_obj = sqw.join(sqw_obj);
 
             assertEqualToTol(split_obj, reformed_obj)
             assertEqualToTol(sqw_obj, reformed_obj)
@@ -76,7 +76,7 @@ classdef test_join < TestCase
 
             assertEqual(numel(split_obj), 2)
 
-            reformed_obj = join(split_obj,sqw_obj);
+            reformed_obj = sqw.join(split_obj,sqw_obj);
 
             assertEqualToTol(sqw_obj, reformed_obj)
         end
@@ -88,19 +88,19 @@ classdef test_join < TestCase
                 'mem_chunk_size',page_size,'fb_scale_factor',3);
 
             nf = numel(obj.files_to_join);
-            split_obj = repmat(sqw(),1,nf);
+            split_obj = cell(1,nf);
             for i=1:nf
-                split_obj(i) = sqw(obj.files_to_join{i},'file_backed',true);
-                assertTrue(split_obj(i).is_filebacked);
+                split_obj{i} = sqw(obj.files_to_join{i},'file_backed',true);
+                assertTrue(split_obj{i}.is_filebacked);
             end
 
-            reformed_obj = join(split_obj);
+            reformed_obj = sqw.join(split_obj);
 
             assertTrue(reformed_obj.is_filebacked)
             targ_file = reformed_obj.full_filename;
             assertTrue(isfile(targ_file))
             % to compare filebacked and memory backed object properly, here
-            % we need to have compartible page sizes. The compariosn will
+            % we need to have compatible page sizes. The comparison will
             % fail otherwise. Re #1147 -- should be fixed.
             clear clConf;
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
@@ -115,7 +115,7 @@ classdef test_join < TestCase
             clOb = onCleanup(@()delete(targ_file));
 
             split_obj = obj.sqw_to_join;
-            reformed_obj = join(split_obj,targ_file);
+            reformed_obj = sqw.join(split_obj,targ_file);
 
             assertTrue(reformed_obj.is_filebacked)
             assertTrue(isfile(targ_file));
@@ -134,7 +134,7 @@ classdef test_join < TestCase
 
             assertTrue(all(arrayfun(@(x) x.main_header.nfiles == 1, split_obj)));
 
-            reformed_obj = join(split_obj,'-recalc_runid');
+            reformed_obj = sqw.join(split_obj,'-recalc_runid');
 
             runid = reformed_obj.runid_map.keys();
             assertEqual([runid{:}],1:reformed_obj.main_header.nfiles);
@@ -156,7 +156,7 @@ classdef test_join < TestCase
 
             assertTrue(all(arrayfun(@(x) x.main_header.nfiles == 1, split_obj)));
 
-            reformed_obj = join(split_obj,obj.sample_obj,'-recalc_runid');
+            reformed_obj = sqw.join(split_obj,obj.sample_obj,'-recalc_runid');
 
             runid = reformed_obj.runid_map.keys();
             assertEqual([runid{:}],1:reformed_obj.main_header.nfiles);
@@ -178,7 +178,7 @@ classdef test_join < TestCase
 
             assertTrue(all(arrayfun(@(x) x.main_header.nfiles == 1, split_obj)));
 
-            reformed_obj = join(split_obj);
+            reformed_obj = sqw.join(split_obj);
 
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
         end

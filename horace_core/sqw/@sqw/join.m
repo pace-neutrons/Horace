@@ -7,13 +7,14 @@ function wout = join(w,varargin)
 %
 % Input:
 % ------
-%   w       array of sqw objects, each one made from a single spe data file
+%   w       array or cellarray of sqw objects or cellarray of names of sqw
+%           files, each one made from a single spe data file
 % Optional:
 %   wi      initial pre-split sqw object (optional, recommended).
 % outfile   if provided and input objects are filebacked, does resulting
 %           combined object filebacked regardless of the fact that it may
 %           fit memory.
-%           Normally restulting object is filebacked or memory-based
+%           Normally resulting object is filebacked or memory-based
 %           depending on its size and hor_config mem_chunk_size and fb_scale_factor
 %           settings.
 % modifiers:
@@ -23,7 +24,7 @@ function wout = join(w,varargin)
 % '-recalc_runid'
 %         -- if provided, recalculate existing run-id(s) stored in headers
 %            in such way that pixels run-ids correspond to number of header
-%            (IX_experiment) this run desctibes in the array of
+%            (IX_experiment) this run describes in the array of
 %            Experiment.expdata headers (IX_experiments).
 %
 % Output:
@@ -83,7 +84,11 @@ else
         argi = [argi(:),'-keep_runid'];
     end
     wout = collect_sqw_metadata(w,argi{:});
-    [fp,fn] = fileparts(w(1).full_filename);
+    if iscell(w)
+        [fp,fn] = fileparts(w{1}.full_filename);
+    else
+        [fp,fn] = fileparts(w(1).full_filename);
+    end
     wout.full_filename = fullfile(fp,['combined_',fn,'.sqw']);
 end
 

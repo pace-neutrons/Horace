@@ -109,6 +109,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             %              modifications to pixels.
             obj = obj.pix.apply_op(obj,operation);
         end
+        % build sqw from multiple compatible-sqw parts.
+        wout = join(w,varargin);
     end
     %======================================================================
     % PageOp methods -- methods, which use PageOp for implementation, so
@@ -117,7 +119,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         % combine together various sqw objects, containing the same size images
         wout = combine_sqw(w1,varargin);
-        wout = join(w,varargin);
         wout = split(w,varargin);
 
         [wout,mask_array] = mask(win, mask_array);
@@ -461,10 +462,10 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         varargout = tobyfit (varargin);
         [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, ipix);
         [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, ipix);
     end
 
     %======================================================================
