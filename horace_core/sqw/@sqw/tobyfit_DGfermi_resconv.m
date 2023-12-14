@@ -186,31 +186,13 @@ for i=1:numel(ind)
     spec_to_rlu=lookup.spec_to_rlu{iw};
     alatt=lookup.alatt{iw};
     angdeg=lookup.angdeg{iw};
+    is_mosaic=lookup.is_mosaic{iw};
     dt=lookup.dt{iw};
     qw=lookup.qw{iw};
 
     % Run and detector for each pixel
-    irun = win(i).pix.run_idx(:);       % column vector
-    idet = win(i).pix.detector_idx(:);  % column vector
     npix = win(i).pix.num_pixels;
-
-    %===========================================================================
-    %HACK. TODO: do it properly (ticket #901)
-    % *** The same hack appears in tobyfit_DGdisk_resconv. Fix together.
-    max_irun = max(irun);
-    if max_irun>win(i).main_header.nfiles
-        rmp = win(i).runid_map;
-        runid_array = rmp.keys;
-        runid_array = [runid_array{:}];
-        runid_val   = rmp.values;
-        runid_val   = [runid_val{:}];
-        max_id = max(runid_array);
-        min_id = min(runid_array)-1;
-        lookup_ind = inf(max_id-min_id+1,1);
-        lookup_ind(runid_array-min_id) = runid_val;
-        irun   = lookup_ind(irun-min_id);
-    end
-    %===========================================================================
+    [irun, idet] = parse_pixel_indices(win(i));     % returns column vectors
 
     % Get detector information for each pixel in the sqw object
     % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
@@ -239,13 +221,6 @@ for i=1:numel(ind)
         s_mat(:,:,irun), f_mat, d_mat,...
         spec_to_rlu(:,:,irun), k_to_v, k_to_e);
 
-
-    % Find out if the crystal has a mosaic spread
-    % -------------------------------------------
-    % Get array of mosaic spreads for the runs, and determine if any of them
-    % have other than the default no spread
-    mosaic = arrayfun (@(x)(x.eta), sample_table.object_array(iw));
-    mosaic_spread = any(mosaic_crystal (mosaic));
 
     % Simulate the signal for the data set
     % ------------------------------------
@@ -296,7 +271,7 @@ for i=1:numel(ind)
         q = dq + reshape([qw{1}';qw{2}';qw{3}';qw{4}'], size(dq));
 
         % Mosaic spread
-        if mosaic_spread && mc_contributions.mosaic
+        if is_mosaic && mc_contributions.mosaic
             Rrlu = sample_table.rand_ind (iw, irun, @rand_mosaic, alatt, angdeg);
             q(1:3,:,:) = mtimesx_horace(Rrlu, q(1:3,:,:));
         end
