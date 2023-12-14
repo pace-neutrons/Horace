@@ -66,11 +66,13 @@ if is_string(source)
     % We expect either a .sqw or .dnd file, throw an error otherwise.
     ldr = sqw_formats_factory.instance().get_loader(source);
     % If we're cutting, don't ever want to load whole file
-    sqw_dnd_obj=obj_from_faccessor(ldr, n_object, sqw_only, dnd_only);
+    sqw_dnd_obj=obj_from_faccessor(ldr, n_object, sqw_only, dnd_only, ...
+        'file_backed',true);
 
 elseif isa(source,'horace_binfile_interface')
     % If we're cutting, don't ever want to load whole file
-    sqw_dnd_obj=obj_from_faccessor(source,n_object,sqw_only,dnd_only);
+    sqw_dnd_obj=obj_from_faccessor(source,n_object,sqw_only,dnd_only, ...
+        'file_backed',true);
 elseif isa(source, 'SQWDnDBase')
     sqw_dnd_obj = source;
     if sqw_only || dnd_only
