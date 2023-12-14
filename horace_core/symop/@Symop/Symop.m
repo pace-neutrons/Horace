@@ -160,7 +160,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                 end
             else
                 error('HORACE:Symop:not_implemented', ...
-                    'Transforming filebased pixels is not currently implemented');
+                    'Transforming file-backed pixels is not currently implemented');
             end
 
         end
