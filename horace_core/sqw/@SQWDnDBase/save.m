@@ -1,11 +1,11 @@
 function wout = save(w, varargin)
-% Save a sqw or dnd object or array of sqw/dnd objects to a binary sqw file 
+% Save a sqw or dnd object or array of sqw/dnd objects to a binary sqw file
 % of recommended file-format version.
 %
 %   >> save (w)              % prompt for file
 %   >> save (w, file)        % save to file with the name provided
 %   >> save (w, file,varargin)
-                            % provide additional save options. See below.
+% provide additional save options. See below.
 %  >> wout = save(___)      % return filebacked sqw object if you are
 %                             saving sqw object
 % Input:
@@ -18,7 +18,7 @@ function wout = save(w, varargin)
 %              this options
 %
 % Optional output:
-% wout -- filebacked sqw object with new filename if filename was provided 
+% wout -- filebacked sqw object with new filename if filename was provided
 %
 
 %   NOTE:
@@ -28,119 +28,155 @@ function wout = save(w, varargin)
 
 % Original author: T.G.Perring
 %
-
 [ok,mess,upgrade,update,argi] = parse_char_options(varargin,{'-update','-upgrade'});
 if ~ok
     error('HORACE:sqw:invalid_argument',mess);
 end
-upgrade = upgrade||update;
+return_result = nargout>0;
+num_to_save = numel(w);
 
-if numel(argi) == 0
-    filenames = '';
-else
-    filenames = argi{1};
-    argi      = argi(2:end);
-end
+[filenames,ldw]  = parse_additional_args(num_to_save,w,argi{:});
 
-if numel(w)>1 % We do not want to manually provide filename for every file to save
-    % cellarray of filenames have to be provided to save multiple files
-    if isempty(filenames)
-        error('HORACE:sqw:invalid_argument',...
-            'If you want to save array of sqw files, you need to provide cellarray of filenames to save');
-    end
-    if numel(filenames) ~= numel(w)
-        error('HORACE:sqw:invalid_argument',...
-            'Number of data objects in array to save does not match number of file names')
-    end
-    for i=1:numel(w)
-        cl = save_one(w(i),filenames{i},upgrade,argi{:});
-    end
-else
-    cl = save_one(w,filenames,upgrade,argi{:});
-end
-
-
-function cl = save_one(w,filename,upgrade,varargin)
-cl = []; % parallel cluster used to combine and save. Not tested, not used
-
-% Get file name - prompting if necessary
-[file_internal,mess]=putfile_horace(filename);
-if ~isempty(mess)
-    error('HORACE:sqw:invalid_argument',mess)
-end
-
-if ~isempty(varargin)
-    if isa(varargin{1},'horace_binfile_interface') % specific loader provided
-        ldw  = varargin{1};
-        argi = varargin(2:end);
-        if upgrade % we do not want to support upgrade to previous faccess versions
-            error('HORACE:sqw:invalid_argument',...
-                'specific loader and option "-upgrade" can not be used together');
-        end
+if num_to_save > 1
+    if return_result
+        wout = repmat(w(1),size(w));
     else
-        ldw = [];
-        argi = varargin;
+        wout = zeros(size(w));
+    end
+    for i=1:num_to_save
+        wout(i) = save_one(w(i),filenames{i},return_result,ldw{i});
     end
 else
-    ldw = [];
-    argi = {};
+    wout = save_one(w,filenames{1},return_result,ldw{1});
 end
+%==========================================================================
+function wout = save_one(w,filename,return_result,ldw,varargin)
+wout = []; % parallel cluster used to combine and save. Not tested, not used
 
 
 hor_log_level = get(hor_config,'log_level');
-sqw_type = isa(w,'sqw');
 
 % Write data to file   x
 if hor_log_level>0
-    disp(['*** Writing to: ',file_internal,'...'])
+    disp(['*** Writing to: ',filename,'...'])
 end
 
-if upgrade
-    if isfile(file_internal)
-        error('HORACE:sqw:not_implemented',...
-            'Update mode has not been yet implemented. See Re #1186');
+if isfile(filename) && ( ...
+        ~w.is_filebacked || (w.is_filebacked && w.pix.full_filename ~= filename) ...
+        )
+    delete(filename);
+end
+%
 
-        ldw = sqw_formats_factory.instance().get_loader(file_internal);
-        if sqw_type && ldw.sqw_type
-            if ldw.npixels ~= w.npixels
-                error('HORACE:sqw:invalid_argument',[...
-                    ' Upgrade makes sence only for the files with identical pixels .\n' ...
-                    ' file: "%s" contains: %d pixels and upgrade object has: %d\n'
-                    ' Its your responsibility to ensure the pixels for source and upgrade are the same'], ...
-                    file_internal,ldw.num_pixels,w.npixels);
+ldw = ldw.init(w,filename);
+if w.is_filebacked
+else
+    w.full_filename = filename;
+end
+
+ldw = ldw.put_sqw();
+ldw.delete();
+%
+if return_result
+    if isa(w,'sqw')
+        wout = sqw(filename,'file_backed',true);
+    else
+        wout = w;
+    end
+end
+%==========================================================================
+function [filenames,ldw] = parse_additional_args(num_to_save,w,varargin)
+% parse inputsd for filenames and loaders provided as input of save method.
+% fill default or ask user if some
+
+% Get file name - prompting if necessary
+if numel(varargin) == 0
+    if num_to_save > 1
+        error('HORACE:sqw:invalid_argument', ...
+            ['No target filenames provided to save method.\n' ...
+            'Storing %d files requests %d filenames provided. '], ...
+            num_to_save,num_to_save);
+    else
+        [filenames,mess]=putfile_horace('');
+        if ~isempty(mess)
+            error('HORACE:sqw:invalid_argument',mess)
+        end
+        argi = {};
+    end
+else
+    if num_to_save == 1
+        is_fn = cellfun(@istext,varargin);
+    else
+        is_fn = cellfun(@(x)iscell(x)&&istext(x{1}),varargin);
+    end
+    n_found = sum(is_fn);
+    if n_found > 1
+        fn_like = varargin(is_fn);
+        error('HORACE:sqw:invalid_argument', ...
+            'More then one input (%s) can be interpreted as filename', ...
+            disp2str(fn_like));
+    end
+    if n_found == 0
+        if num_to_save > 1
+            error('HORACE:sqw:invalid_argument', ...
+                ['No target filenames provided to save method.\n' ...
+                'Storing %d files requests %d filenames provided. '], ...
+                num_to_save,num_to_save);
+        else
+            [filenames,mess]=putfile_horace('');
+            if ~isempty(mess)
+                error('HORACE:sqw:invalid_argument',mess)
+            end
+            argi = varargin;
+        end
+    else
+        filenames = varargin(is_fn);
+        if iscell(filenames)
+            if numel(filenames) ~= num_to_save
+                error('HORACE:sqw:invalid_argument', ...
+                    ['Saving %d object requests providing cellarray of %d filenamse.\n' ...
+                    ' Actually provided: %d filenames'],...
+                    num_to_save,num_to_save,numel(filenames));
+            end
+            all_text = cellfun(@istext,filenames);
+            if ~all_text
+                n_filename_arg = find(is_fn);
+                error('HORACE:sqw:invalid_argument', ...
+                    'Not all members of filenames cellarray (Argument N%d ) are the text strings. This is not supported',...
+                    n_filename_arg)
             end
         end
-        ldw = ldw.upgrade_file_format();
-        ldw = ldw.put_sqw(w,'-update','-nopix');
-        ldw.delete();
-        return;
-    else
-        wargning('HORACE:missing_file',[...
-            'Upgrade for file: %s requested but the file does not exist.\n' ...
-            ' Saving provided sqw object into the file'])
-        ldw = sqw_formats_factory.instance().get_pref_access(w);
+        argi      = varargin(~is_fn);
+    end
+end
+if isempty(argi)
+    ldw = cell(1,num_to_save);
+    for i=1:num_to_save
+        ldw{i} = sqw_formats_factory.instance().get_pref_access(w(i));
+    end
+    return
+end
+ldw = argi{1};
+if isa(ldw,'horace_binfile_interface') % specific loader provided
+    if numel(ldw) ~= num_to_save
+        error('HORACE:sqw:invalid_argument', ...
+            'Saving %d sqw objects requests the same number of loaders. Proived %d',...
+            num_to_save,numel(ldw));
+    end
+    ldw = num2cell(ldw);
+elseif iscell(ldw)
+    is_faccesor = cellfun(@(x)isa(x,'horace_binfile_interface'),ldw);
+    if ~all(is_faccesor)
+        error('HORACE:sqw:invalid_argument', ...
+            'Not every file-accessor provided as input is child of horace_binfile_interface. This is not supported')
+    end
+    if numel(ldw) ~= num_to_save
+        error('HORACE:sqw:invalid_argument', ...
+            'Saving %d sqw objects requests the same number of loaders. Proived %d',...
+            num_to_save,numel(ldw));
     end
 else
-    if isfile(file_internal)
-        delete(file_internal);
-    end
-    if isempty(ldw)
-        ldw = sqw_formats_factory.instance().get_pref_access(w);
-    end
-    % pixels should always have actual filename
-    if w.has_pixels
-        w.pix.full_filename = file_internal;
-    end
-    ldw = ldw.init(w,file_internal);
+    error('HORACE:sqw:invalid_argument', ...
+        'Unable to use class %s as faccess-or for sqw data',...
+        class(ldw))
 end
-
-if sqw_type  % Actually, can be removed, as put_sqw for dnd does put dnd for faccess_dnd
-    % only the possible issue that is currently put_dnd and put_sqw do not
-    % accept the same key set. Should it be reconciled?
-    ldw = ldw.put_sqw(argi{:});
-else
-    ldw = ldw.put_dnd();
-end
-
-ldw.delete();
-

@@ -625,6 +625,11 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             varargout{1} = cut_single_(obj, tag_proj, targ_axes,...
                 return_cut, opt, log_level);
         end
+        function is = get_is_filebacked(~)
+            %DnD objects never filebacked
+            is = false;
+        end
+
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

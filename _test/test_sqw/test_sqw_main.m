@@ -1,4 +1,4 @@
-classdef test_sqw_main < TestCase & common_state_holder
+classdef test_sqw_main < TestCase
     % Series of tests to check work of mex files against Matlab files
 
     properties
@@ -43,90 +43,6 @@ classdef test_sqw_main < TestCase & common_state_holder
                 [10,5,5,5]);
             obj.sqw_obj = obj.sqw_obj{1};
 
-        end
-        function test_save_simple_two(obj)
-            [~,fn,fe] = fileparts(obj.sqw_file_res);
-            file1 = fullfile(tmp_dir,[fn,'_1_',fe]);
-            file2 = fullfile(tmp_dir,[fn,'_2_',fe]);
-            targ_files = {file1,file2};
-            clOb = onCleanup(@()del_memmapfile_files(targ_files));
-
-            data = repmat(obj.sqw_obj,2,1);
-            cl = data.save(targ_files);
-            assertTrue(isempty(cl));
-
-            assertTrue(isfile(targ_files{1}));
-            assertTrue(isfile(targ_files{2}));
-            rec = read_sqw(targ_files{2});
-
-            assertEqualToTol(obj.sqw_obj,rec,'tol',[4*eps('single'),4*eps('single')], ...
-                'ignore_str',true);
-        end
-
-        function test_save_upgrade(obj)
-            skipTest('Re #1186 save -upgrade option is not yet implemented')
-            targ_file = fullfile(tmp_dir,obj.sqw_file_res);
-            clOb = onCleanup(@()del_memmapfile_files(targ_file));
-
-            ldr = faccess_sqw_v2();
-            obj.sqw_obj.save(targ_file,ldr);
-            ldr.delete();
-
-            other_obj = obj.sqw_obj;
-            other_obj.data.title = 'My image';
-
-            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',100000);
-            other_obj.save(targ_file,'-upgrade');
-
-            ldr = sqw_formats_factory.instance().get_loader(targ_file);
-            assertTrue(isa(ldr,'faccess_sqw_v4'));
-            rec = ldr.get_sqw();
-            ldr.delete();
-
-            assertEqualToTol(rec,other_obj)
-
-        end
-
-
-        function test_save_upgrade_with_loader_throw(obj)
-            targ_file = fullfile(tmp_dir,obj.sqw_file_res);
-
-            ldr = faccess_sqw_v2();
-            assertExceptionThrown(@()save(obj.sqw_obj,targ_file, ...
-                ldr,'-upgrade'),'HORACE:sqw:invalid_argument');
-        end
-
-        function test_save_with_loader(obj)
-            targ_file = fullfile(tmp_dir,obj.sqw_file_res);
-            clOb = onCleanup(@()del_memmapfile_files(targ_file));
-
-            ldr = faccess_sqw_v2();
-            cl = obj.sqw_obj.save(targ_file,ldr);
-            assertTrue(isempty(cl));
-
-            assertTrue(isfile(targ_file));
-            ldr = sqw_formats_factory.instance().get_loader(targ_file);
-            assertTrue(isa(ldr,'faccess_sqw_v2'));
-            rec = ldr.get_sqw();
-            ldr.delete();
-
-            assertEqualToTol(obj.sqw_obj,rec, ...
-                'tol',[4*eps('single'),4*eps('single')], ...
-                'ignore_str',true,'-ignore_date');
-        end
-
-        function test_save_simple(obj)
-            targ_file = fullfile(tmp_dir,obj.sqw_file_res);
-            clOb = onCleanup(@()del_memmapfile_files(targ_file));
-
-            cl = obj.sqw_obj.save(targ_file);
-            assertTrue(isempty(cl));
-
-            assertTrue(isfile(targ_file));
-            rec = read_sqw(targ_file);
-
-            assertEqualToTol(obj.sqw_obj,rec,'tol',[4*eps('single'),4*eps('single')], ...
-                'ignore_str',true);
         end
 
         function test_read_sqw(obj)

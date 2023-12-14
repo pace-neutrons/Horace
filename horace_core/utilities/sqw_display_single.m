@@ -12,7 +12,7 @@ function sqw_display_single(din,npixtot,nfiles,type)
 %   npixtot         total number of pixels if sqw type
 %   nfiles          number of contributing files
 %   type            data type: 'a' or 'b+'
-%                  
+%
 %   If the optional parameters are given, then only the header information
 %   part of data needs to be passed, namely the fields:
 %      uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,pix_range]
@@ -84,14 +84,18 @@ if sqw_type || exist('nfiles','var') && isnumeric(nfiles)
     disp(' ')
 end
 
-[title_main, title_pax, title_iax, display_pax, display_iax] = din.data_plot_titles;
+[~, ~, ~, display_pax, display_iax] = din.data_plot_titles;
 if ndim~=0
     sz = din.nbins;
-    npchar = '[';
-    for i=1:ndim
-        npchar = [npchar,num2str(sz(din.dax(i))),'x'];   % size along each of the display axes
+    if ~isempty(sz)
+        npchar = '[';
+        for i=1:ndim
+            npchar = [npchar,num2str(sz(din.dax(i))),'x'];   % size along each of the display axes
+        end
+        npchar(end)=']';
+    else
+        npchar = '[ ]';
     end
-    npchar(end)=']';
     disp([' Size of ',num2str(ndim),'-dimensional dataset: ',npchar])
 end
 if ndim~=0
