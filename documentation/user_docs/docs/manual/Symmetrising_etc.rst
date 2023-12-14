@@ -761,7 +761,8 @@ dataset (thereby increasing the counts four-fold).
    calculate magnetic form factor on or apply magnetic form factor to the
    dataset provided.
 
-.. Re# 1447 should we reimplement `combine_equivalent_zones` ? See chunk symmeterize_equivalent_zones_description.bak file in this folder when ticket resolved.
+..
+ Re# 1447 should we reimplement `combine_equivalent_zones` ? See chunk symmeterize_equivalent_zones_description.bak file in this folder when ticket resolved.
 
 
 Limitations
