@@ -1,41 +1,30 @@
-function cl=save(w, varargin)
-% Save a sqw object or array of sqw objects to a binary sqw file with
-% recommended version
+function wout = save(w, varargin)
+% Save a sqw or dnd object or array of sqw/dnd objects to a binary sqw file 
+% of recommended file-format version.
 %
 %   >> save (w)              % prompt for file
 %   >> save (w, file)        % save to file with the name provided
-%   >> save (w, file,loader) % save file using specific binary data
-%                              accessor
-%                             ("-update" option, if provided with together
-%                             with loader will be ignored)
-%   >> save (w, file,['-parallel'|JobDispatcher])
-%                             combine file using parallel algorithm.
-%                             Useful and would works only if (when) pix
-%                             value of sqw object data is set up to the
-%                             instance of MultipixBase class,
-%                             containing information on the partial
-%                             tmp files, written by filebased gen_sqw or
-%                             cut algorithm
-%
-%   >> save (w, file,'-update') % if the target file exist, update it to
-%                               latest format if this is possible. If
-%                               update is possible, pixels in file will not be
-%                               overwritten.
+%   >> save (w, file,varargin)
+                            % provide additional save options. See below.
+%  >> wout = save(___)      % return filebacked sqw object if you are
+%                             saving sqw object
 % Input:
 %   w       sqw object
 %   file    [optional] File for output. if none given, then prompted for a file
-%
-%   Note that if w is an array of sqw objects then file must be a cell
-%   array of filenames of the same size.
+% Optional:
+%  loader   -- instance of registerted faccess loader (see sqw_formats_factory)
+%              to use to save data.
+%              May be used to save data in old file formats. Be careful, as
+%              this options
 %
 % Optional output:
-% cl -- running instance of parallel cluster, used to combine multiple tmp
-%       files together if pix field of sqw object contains pix_combine_into
-%       and -parallel option or parallel cluster itself are provided as
-%       inpout. Empty in any other case
+% wout -- filebacked sqw object with new filename if filename was provided 
 %
-%      TODO: currently empty. May re-enable when parallel saving is
-%      implemented properly
+
+%   NOTE:
+% % if w is an array of sqw objects then file must be a cell
+%   array of filenames of the same size.
+%
 
 % Original author: T.G.Perring
 %
