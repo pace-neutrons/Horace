@@ -50,5 +50,10 @@ if numel(obj)>1
     S = struct ('serial_name', class_name, 'version', version, 'array_dat', S);
 else
     % Scalar object: hold object data at top level
-    S = catstruct (struct('serial_name', class_name, 'version', version), S);
+    % Reorder fields so that serial_name and version are first
+    % (replaces call to catstruct which is very expensive)
+    S.serial_name = class_name;
+    S.version = version;
+    nf = numel(fieldnames(S));
+    S = orderfields(S, [nf-1, nf, 1:nf-2]);
 end

@@ -75,6 +75,10 @@ classdef config_base
         % if true, issue warning if class have never been configured and
         % its values are choosen from defaults.
         warn_if_missing_config
+        % If true, disables warnings issued during loading when
+        % certain properties are set to a new, potentially invalid value.
+        % Default -- false.
+        disable_setup_warnings
     end
 
     properties(Access=protected)
@@ -89,6 +93,7 @@ classdef config_base
         % the first time you define the configuration, which is set to
         % defaults
         warn_if_missing_config_ = true;
+        disable_setup_warnings_ = false;
     end
 
     methods(Abstract)
@@ -191,7 +196,13 @@ classdef config_base
         function obj = set.warn_if_missing_config(obj,val)
             obj.warn_if_missing_config_ = logical(val);
         end
-
+        %
+        function disabled = get.disable_setup_warnings(obj)
+            disabled = obj.disable_setup_warnings_;
+        end
+        function obj = set.disable_setup_warnings(obj,val)
+            obj.disable_setup_warnings_ = logical(val);
+        end
     end
     methods
         function isit = is_default(this)

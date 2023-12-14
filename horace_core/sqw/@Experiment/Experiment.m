@@ -411,6 +411,35 @@ classdef Experiment < serializable
             end
             subexper = get_subobj_(obj,runids_to_keep,indexes_provided);
         end
+        
+        function expt_idx = get_experiment_idx (obj, run_idx, varargin)
+            % Get the experiment indices for an array of run indices in the pixel data
+            %
+            %   >> expt_idx = get_experiment_idx (obj, run_idx)
+            %   >> expt_idx = get_experiment_idx (obj, run_idx, sparse_lookup)
+            %
+            % Input:
+            % ------
+            %   obj             Instance of Experiment object.
+            %   run_idx         Array of run indices selected from the pix field of an sqw object.
+            %                   The array can have any size.
+            %
+            % Optionally:
+            %   sparse_lookup   Force a sparse intermediate lookup array or a full lookup
+            %                   array according as the value true or false.
+            %                   This overrules the default behaviour that selects a full or
+            %                   sparse intermediate lookup array according to the size and
+            %                   sparcity of the runid_map
+            %
+            % Output:
+            % -------
+            %   expt_idx        Index into the arrays of experiment information held in the
+            %                   input Experiment object corresponding to the values of
+            %                   run_idx.
+            %                   The size of expt_idx is the same as that of run_idx.
+            expt_idx = get_experiment_idx_ (obj, run_idx, varargin{:});
+        end
+            
         %
         % GEN_SQW interface
         %------------------------------------------------------------------
