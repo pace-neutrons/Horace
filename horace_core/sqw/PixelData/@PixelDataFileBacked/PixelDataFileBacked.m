@@ -420,7 +420,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
                 % input is a file path
                 init = sqw_formats_factory.instance().get_loader(val.data);
             end
-            obj = obj.init(init);ni
+            obj = obj.init(init);
         end
         %------------------------------------------------------------------
         function data  = get_data(obj,page_number)
