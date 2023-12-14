@@ -99,8 +99,8 @@ classdef test_save < TestCase
             clOb = onCleanup(@()del_memmapfile_files(targ_file));
 
             ldr = faccess_sqw_v2();
-            cl = obj.sqw_obj.save(targ_file,ldr);
-            assertTrue(isempty(cl));
+            wout = obj.sqw_obj.save(targ_file,ldr);
+            assertTrue(wout.is_filebacked);
 
             assertTrue(isfile(targ_file));
             ldr = sqw_formats_factory.instance().get_loader(targ_file);
@@ -117,20 +117,17 @@ classdef test_save < TestCase
             targ_file = fullfile(tmp_dir,obj.sqw_file_res);
             clOb = onCleanup(@()del_memmapfile_files(targ_file));
 
-            cl = obj.sqw_obj.save(targ_file);
-            assertTrue(isempty(cl));
+            wout = obj.sqw_obj.save(targ_file);
+            assertTrue(wout.is_filebacked);
 
             assertTrue(isfile(targ_file));
             rec = read_sqw(targ_file);
 
             assertEqualToTol(obj.sqw_obj,rec,'tol',[4*eps('single'),4*eps('single')], ...
                 'ignore_str',true);
+            % clear output object to release targ_file for deletion
+            clear wout;
         end
 
-        function test_sqw_constructor(~)
-            data = d2d();
-            tsqw_obj = sqw(data);
-            assertTrue(tsqw_obj.dnd_type)
-        end
     end
 end

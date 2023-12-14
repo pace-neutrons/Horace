@@ -70,8 +70,6 @@ end
 
 ldw = ldw.init(w,filename);
 if w.is_filebacked
-else
-    w.full_filename = filename;
 end
 
 ldw = ldw.put_sqw();

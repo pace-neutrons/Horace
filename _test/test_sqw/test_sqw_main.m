@@ -97,7 +97,5 @@ classdef test_sqw_main < TestCase
             tsqw_obj = sqw(data);
             assertTrue(tsqw_obj.dnd_type)
         end
-
-
     end
 end
