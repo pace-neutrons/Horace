@@ -44,6 +44,8 @@ function [img_db_range,pix_data_range,wout]=write_nsqw_to_sqw (infiles, outfile,
 %                    defining the grid the pixel data base is binned on
 %  pix_data_range -- the actual range of the pixels data, contributing into the
 %                    sqw file (useful if input pix_range is not provided)
+%  wout           -- filebacked instance of sqw object produced by the
+%                    routine and backed by the outfile.
 
 
 % T.G.Perring   27 June 2007

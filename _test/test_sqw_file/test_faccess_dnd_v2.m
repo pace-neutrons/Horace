@@ -151,11 +151,11 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
             np1 = floor(np/2);
             npix1 = ldr.get_npix_block(1,np1);
 
-            assertEqual(dat.npix(1:np1),npix1');
+            assertEqual(npix(1:np1),npix1');
             npix2 = ldr.get_npix_block(np1+1,np);
-            ldr.delete(); % avoid problem with file-deleteon, as clOb
-            % clears up first
-            assertEqual(dat.npix(np1+1:np),npix2');
+            ldr.delete(); % avoid problem with file-deleteon, when clOb
+            % clears up before ldr in automatic clean-up
+            assertEqual(npix(np1+1:np),npix2');
         end
 
 
@@ -214,5 +214,3 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
         end
     end
 end
-
-
