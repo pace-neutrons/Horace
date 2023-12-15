@@ -109,7 +109,7 @@ classdef test_save < TestCase
             assertEqualToTol(rec,test_obj)
 
         end
-        function test_upgrade_all_bar_pix_filebacked_large_page(obj)
+        function test_save_and_move_to_new_file_upgrade_all_bar_pix(obj)
 
             source_to_move = fullfile(tmp_dir,obj.sqw_file_res);
             targ_file      = fullfile(tmp_dir,'save_filebacked_different_file.sqw');

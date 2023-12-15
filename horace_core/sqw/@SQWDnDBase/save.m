@@ -105,10 +105,17 @@ if isfile(filename)
         w.full_filename = filename;
     end
 else
-    ldw = ldw.init(w,filename);
+    if ~w.is_filebacked
+        ldw = ldw.init(w,filename);
+    end
 end
 %
 if w.is_filebacked
+    w.pix = w.pix.deactivate();
+    movefile(w.pix.full_filename,filename,'f');
+    ldw = ldw.init(filename);
+    w.full_filename = filename;
+    ldw = ldw.put_new_blocks_values(w,'-exclude',{'pix_data'});
 else
     ldw = ldw.put_sqw();
 end
