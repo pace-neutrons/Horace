@@ -195,11 +195,11 @@ for ii=1:n_par_files
         % if a struct has been input, extract the filename after checking
         % the correct fields are present
         else
-            if ~all(isfield(par_file{ii},pf))
+            if ~all(isfield(par_file_out{ii},pf))
                 error('HORACE:algorithms:invalid_argument',...
                     'Detector parameter information provided as input structure must be in Horace par_file format');
             end
-            par_file_out{ii} = par_file{ii}.filename;
+            par_file_out{ii} = par_file_out{ii}.filename;
             if ~exist(par_file_out{ii},'file')
                 error('HORACE:algorithms:invalid_argument',...
                     'Detector parameter file "%s" from struct not found',par_file_out{ii});
