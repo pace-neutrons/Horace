@@ -111,15 +111,17 @@ classdef test_save < TestCase
         end
         function test_upgrade_all_bar_pix_filebacked_large_page(obj)
 
-            targ_file = fullfile(tmp_dir,obj.sqw_file_res);
+            source_to_move = fullfile(tmp_dir,obj.sqw_file_res);
+            targ_file      = fullfile(tmp_dir,'save_filebacked_different_file.sqw');
             clOb = onCleanup(@()del_memmapfile_files(targ_file));
 
-            test_obj = obj.sqw_obj.save(targ_file);
+            test_obj = obj.sqw_obj.save(source_to_move);
 
             assertTrue(test_obj.is_filebacked)
             test_obj.data.title = 'My image';
 
             test_obj.save(targ_file);
+            assertFalse(isfile(source_to_move));
 
             ldr = sqw_formats_factory.instance().get_loader(targ_file);
             assertTrue(isa(ldr,'faccess_sqw_v4'));
@@ -128,31 +130,45 @@ classdef test_save < TestCase
 
             assertEqualToTol(rec,test_obj)
         end
-        
-        
+
+
         function test_save_invalid_arguments_throw(obj)
             targ_file = fullfile(tmp_dir,obj.sqw_file_res);
 
             ldr = faccess_sqw_v2();
-            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj] ...
+            ME1= assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj] ...
                 ),'HORACE:sqw:invalid_argument');
+            % multiple object saving request multiple filenames provided
+            assertTrue(strncmp(ME1.message,'No target filenames provided to save method',35));
 
-            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
+            ME2 = assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
                 targ_file),'HORACE:sqw:invalid_argument');
-            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
+            assertTrue(strncmp(ME2.message,'No target filenames provided to save method',35));
+
+            ME3 = assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
                 {'file1','file2'},'-make_temp'),'HORACE:sqw:invalid_argument');
+            assertTrue(strncmp(ME3.message, ...
+                'If you use "-make_temporary" option, you need to return output object(s)',35));
 
-            assertExceptionThrown(@()save(obj.sqw_obj, ...
+            ME4 = assertExceptionThrown(@()save(obj.sqw_obj, ...
                 'file1','bla=bla'),'HORACE:sqw:invalid_argument');
-            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
+            assertTrue(strncmp(ME4.message, ...
+                'More then one input ({''file1''}    {''bla=bla''}) can be interpreted as filename',35));
+
+            ME5 = assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
                 {'file1','file2'},'bla=bla'),'HORACE:sqw:invalid_argument');
-            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
+            assertTrue(strncmp(ME5.message, ...
+                'Unable to use class "char" as faccess-or for sqw data',35));
+
+            ME6 = assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
                 {'file1',ldr}),'HORACE:sqw:invalid_argument');
+            assertTrue(strncmp(ME6.message, ...
+                'Not all members of filenames cellarray (Argument N1 ) are the text strings',35));
 
-            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
+            ME7 = assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
                 {'fule1','file2'},{ldr,'file1'}),'HORACE:sqw:invalid_argument');
-
-
+            assertTrue(strncmp(ME7.message, ...
+                'Not every file-accessor provided as input (Argument N2) is child of horace_binfile_interface (faccess loader)',35));
         end
 
         function test_save_with_loader(obj)

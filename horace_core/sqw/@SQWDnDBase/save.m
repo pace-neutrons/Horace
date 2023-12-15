@@ -9,13 +9,19 @@ function wout = save(w, varargin)
 %                             saving sqw object
 % provide additional save options. See below.
 % Input:
-%   w       sqw object
+%   w       sqw or dnd object or array of such objects.
 %   file    [optional] File for output. if none given, then prompted for a file
+%           if w is array, cellarray of file names must be provided here,
+%           one filename per each input object.
 % Optional:
 %  loader   -- instance of registerted faccess loader (see sqw_formats_factory)
 %              to use to save data.
+%              if w is an array, array or cellarray of loaders have to be
+%              provided, one per each element of w.
 %              May be used to save data in old file formats. Be careful, as
-%              this options
+%              this options doe not support many features of new file
+%              formats.
+
 % Modifiers:
 % '-assume_written'  -- Affects only filebacked sqw objects. Ignored for any
 %                       other type of input object. Requests new file name
@@ -85,10 +91,11 @@ if hor_log_level>0
 end
 
 if isfile(filename)
-    if ~w.is_filebacked && ~(w.is_filebacked && strcmp(w.pix.full_filename,filename))
+    if ~w.is_filebacked || ~(w.is_filebacked && strcmp(w.pix.full_filename,filename))
+        % target file present and not the file I use for this object
         delete(filename);
         ldw = ldw.init(w,filename);
-    else
+    else % source filebacked and the target file is filebacked same file.
         lde = sqw_formats_factory.instance().get_loader(filename);
         if lde.faccess_version == ldw.faccess_version
             ldw = lde.reopen_to_write();
@@ -96,18 +103,15 @@ if isfile(filename)
             ldw = lde.upgrade_file_format();
         end
         w.full_filename = filename;
-        ldw = ldw.put_sqw(w,'-verbatim');
     end
 else
     ldw = ldw.init(w,filename);
-    ldw = ldw.put_sqw();    
 end
 %
-
 if w.is_filebacked
+else
+    ldw = ldw.put_sqw();
 end
-
-
 ldw.delete();
 %
 if return_result
@@ -204,8 +208,12 @@ if isa(ldw,'horace_binfile_interface') % specific loader provided
 elseif iscell(ldw)
     is_faccesor = cellfun(@(x)isa(x,'horace_binfile_interface'),ldw);
     if ~all(is_faccesor)
+        n_arg = find(~is_fn);
         error('HORACE:sqw:invalid_argument', ...
-            'Not every file-accessor provided as input is child of horace_binfile_interface (faccess loader). This is not supported')
+            ['Not every file-accessor provided as input (Argument N%d) is ' ...
+            'child of horace_binfile_interface (faccess loader).' ...
+            ' This is not supported'], ...
+            n_arg)
     end
     if numel(ldw) ~= num_to_save
         error('HORACE:sqw:invalid_argument', ...
@@ -214,6 +222,6 @@ elseif iscell(ldw)
     end
 else
     error('HORACE:sqw:invalid_argument', ...
-        'Unable to use class %s as faccess-or for sqw data',...
+        'Unable to use class "%s" as faccess-or for sqw data',...
         class(ldw))
 end
