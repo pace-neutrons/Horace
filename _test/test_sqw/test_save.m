@@ -63,35 +63,96 @@ classdef test_save < TestCase
                 'ignore_str',true);
         end
 
-        function test_save_upgrade(obj)
-            skipTest('Re #1186 save -upgrade option is not yet implemented')
+        function test_save_upgrade_automatically_filebacked(obj)
+
             targ_file = fullfile(tmp_dir,obj.sqw_file_res);
             clOb = onCleanup(@()del_memmapfile_files(targ_file));
 
+            clConf = set_temporary_config_options( ...
+                hor_config,'mem_chunk_size',3000,'fb_scale_factor',3);
             ldr = faccess_sqw_v2();
-            obj.sqw_obj.save(targ_file,ldr);
+            test_obj = obj.sqw_obj.save(targ_file,ldr);
             ldr.delete();
 
-            other_obj = obj.sqw_obj;
-            other_obj.data.title = 'My image';
+            assertTrue(test_obj.is_filebacked)
+            test_obj.data.title = 'My image';
 
-            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',100000);
-            other_obj.save(targ_file,'-upgrade');
+            test_obj.save(targ_file);
 
             ldr = sqw_formats_factory.instance().get_loader(targ_file);
             assertTrue(isa(ldr,'faccess_sqw_v4'));
             rec = ldr.get_sqw();
             ldr.delete();
 
-            assertEqualToTol(rec,other_obj)
+            assertEqualToTol(rec,test_obj)
+        end
+
+        function test_save_upgrade_automatically_membased_large_page(obj)
+
+            targ_file = fullfile(tmp_dir,obj.sqw_file_res);
+            clOb = onCleanup(@()del_memmapfile_files(targ_file));
+
+            ldr = faccess_sqw_v2();
+            test_obj = obj.sqw_obj.save(targ_file,ldr);
+            ldr.delete();
+
+            assertTrue(test_obj.is_filebacked)
+            test_obj.data.title = 'My image';
+
+            test_obj.save(targ_file);
+
+            ldr = sqw_formats_factory.instance().get_loader(targ_file);
+            assertTrue(isa(ldr,'faccess_sqw_v4'));
+            rec = ldr.get_sqw();
+            ldr.delete();
+
+            assertEqualToTol(rec,test_obj)
 
         end
-        function test_save_upgrade_with_loader_throw(obj)
+        function test_upgrade_all_bar_pix_filebacked_large_page(obj)
+
+            targ_file = fullfile(tmp_dir,obj.sqw_file_res);
+            clOb = onCleanup(@()del_memmapfile_files(targ_file));
+
+            test_obj = obj.sqw_obj.save(targ_file);
+
+            assertTrue(test_obj.is_filebacked)
+            test_obj.data.title = 'My image';
+
+            test_obj.save(targ_file);
+
+            ldr = sqw_formats_factory.instance().get_loader(targ_file);
+            assertTrue(isa(ldr,'faccess_sqw_v4'));
+            rec = ldr.get_sqw();
+            ldr.delete();
+
+            assertEqualToTol(rec,test_obj)
+        end
+        
+        
+        function test_save_invalid_arguments_throw(obj)
             targ_file = fullfile(tmp_dir,obj.sqw_file_res);
 
             ldr = faccess_sqw_v2();
-            assertExceptionThrown(@()save(obj.sqw_obj,targ_file, ...
-                ldr,'-upgrade'),'HORACE:sqw:invalid_argument');
+            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj] ...
+                ),'HORACE:sqw:invalid_argument');
+
+            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
+                targ_file),'HORACE:sqw:invalid_argument');
+            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
+                {'file1','file2'},'-make_temp'),'HORACE:sqw:invalid_argument');
+
+            assertExceptionThrown(@()save(obj.sqw_obj, ...
+                'file1','bla=bla'),'HORACE:sqw:invalid_argument');
+            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
+                {'file1','file2'},'bla=bla'),'HORACE:sqw:invalid_argument');
+            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
+                {'file1',ldr}),'HORACE:sqw:invalid_argument');
+
+            assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
+                {'fule1','file2'},{ldr,'file1'}),'HORACE:sqw:invalid_argument');
+
+
         end
 
         function test_save_with_loader(obj)

@@ -36,7 +36,6 @@ if ~ok
         mess);
 end
 
-jobDispatcher = [];
 
 if ~isempty(argi)
     is_sqw = cellfun(@(x) isa(x,'sqw'), argi);
@@ -52,16 +51,6 @@ if ~isempty(argi)
         %        end
         argi = argi(~is_sqw);
     end
-
-    is_jd = cellfun(@(x) isa(x,'JobDispatcher'), argi);
-    if any(is_jd)
-        if sum(is_jd) > 1
-            error('HORACE:sqw_binfile_common:invalid_argument',...
-                'only one JobDispatcher object can be provided as input for put_sqw');
-        end
-        jobDispatcher = argi{is_jd};
-    end
-    argi = argi(~is_jd);
 end
 
 if ~obj.sqw_holder.main_header.creation_date_defined ||...
@@ -86,8 +75,6 @@ if ~verbatim
     sqw_obj = obj.sqw_holder;
     sqw_obj.full_filename =obj.full_filename;
     obj.sqw_holder = sqw_obj;
-else
-    sqw_obj.pix.full_filename =obj.full_filename;
 end
 
 if nopix && ~(reserve||hold_pix) % Modify writeable object to contain no pixels
@@ -117,8 +104,5 @@ end
 
 obj = obj.put_all_blocks('ignore_blocks',{'bl_pix_metadata','bl_pix_data_wrap'});
 
-if ~isempty(jobDispatcher)
-    argi = [{jobDispatcher},argi];
-end
 
 obj=obj.put_pix(argi{:});

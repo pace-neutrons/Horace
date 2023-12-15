@@ -5,9 +5,9 @@ function wout = save(w, varargin)
 %   >> save (w)              % prompt for file
 %   >> save (w, file)        % save to file with the name provided
 %   >> save (w, file,varargin)
-% provide additional save options. See below.
 %  >> wout = save(___)      % return filebacked sqw object if you are
 %                             saving sqw object
+% provide additional save options. See below.
 % Input:
 %   w       sqw object
 %   file    [optional] File for output. if none given, then prompted for a file
@@ -16,23 +16,46 @@ function wout = save(w, varargin)
 %              to use to save data.
 %              May be used to save data in old file formats. Be careful, as
 %              this options
+% Modifiers:
+% '-assume_written'  -- Affects only filebacked sqw objects. Ignored for any
+%                       other type of input object. Requests new file name
+%                       being defined.
+%                       If provided, assumes that the information in memory
+%                       is the same as the information in file and the
+%                       backing file needs to be moved to new location.
+% '-make_temporary'  -- Affects only sqw objects and works in situations where
+%                       output object is returned. Normally, if you save sqw
+%                       object with extension '.tmp' save returns
+%                       temporary sqw object, i.e. the object with the file,
+%                       get deleted when object goes out of scope. With
+%                       this option, any saved sqw object becomes temporary
+%                       regardless of its extension.
+%
 %
 % Optional output:
 % wout -- filebacked sqw object with new filename if filename was provided
 %
-
-%   NOTE:
-% % if w is an array of sqw objects then file must be a cell
-%   array of filenames of the same size.
+%
+%  NOTE:
+% 1) if w is an array of sqw objects then file must be a cell
+%    array of filenames of the same size.
+% 2) If save is used for filebacked sqw objects backed by tmp files it is
+%    equivalent to moving the backing file to a file with new name.
 %
 
 % Original author: T.G.Perring
 %
-[ok,mess,upgrade,update,argi] = parse_char_options(varargin,{'-update','-upgrade'});
+options = {'-assume_written','-make_temporary'};
+[ok,mess,assume_written,make_tmp,argi] = parse_char_options(varargin,options);
 if ~ok
     error('HORACE:sqw:invalid_argument',mess);
 end
 return_result = nargout>0;
+if make_tmp && ~return_result && isa(w,'sqw')
+    error('HORACE:sqw:invalid_argument', ...
+        ['If you use "-make_temporary" option, you need to return output object(s).\n' ...
+        ' The file saved with this option gets deleted immediately after its object goes out of scope']);
+end
 num_to_save = numel(w);
 
 [filenames,ldw]  = parse_additional_args(num_to_save,w,argi{:});
@@ -61,18 +84,30 @@ if hor_log_level>0
     disp(['*** Writing to: ',filename,'...'])
 end
 
-if isfile(filename) && ( ...
-        ~w.is_filebacked || (w.is_filebacked && w.pix.full_filename ~= filename) ...
-        )
-    delete(filename);
+if isfile(filename)
+    if ~w.is_filebacked && ~(w.is_filebacked && strcmp(w.pix.full_filename,filename))
+        delete(filename);
+        ldw = ldw.init(w,filename);
+    else
+        lde = sqw_formats_factory.instance().get_loader(filename);
+        if lde.faccess_version == ldw.faccess_version
+            ldw = lde.reopen_to_write();
+        else
+            ldw = lde.upgrade_file_format();
+        end
+        w.full_filename = filename;
+        ldw = ldw.put_sqw(w,'-verbatim');
+    end
+else
+    ldw = ldw.init(w,filename);
+    ldw = ldw.put_sqw();    
 end
 %
 
-ldw = ldw.init(w,filename);
 if w.is_filebacked
 end
 
-ldw = ldw.put_sqw();
+
 ldw.delete();
 %
 if return_result
@@ -99,6 +134,7 @@ if numel(varargin) == 0
         if ~isempty(mess)
             error('HORACE:sqw:invalid_argument',mess)
         end
+        filenames = {filenames};
         argi = {};
     end
 else
@@ -125,10 +161,11 @@ else
             if ~isempty(mess)
                 error('HORACE:sqw:invalid_argument',mess)
             end
+            filenames = {filenames};
             argi = varargin;
         end
-    else
-        filenames = varargin(is_fn);
+    else % found one
+        filenames = varargin{is_fn};
         if iscell(filenames)
             if numel(filenames) ~= num_to_save
                 error('HORACE:sqw:invalid_argument', ...
@@ -136,13 +173,15 @@ else
                     ' Actually provided: %d filenames'],...
                     num_to_save,num_to_save,numel(filenames));
             end
-            all_text = cellfun(@istext,filenames);
-            if ~all_text
+            is_text = cellfun(@istext,filenames);
+            if ~all(is_text)
                 n_filename_arg = find(is_fn);
                 error('HORACE:sqw:invalid_argument', ...
                     'Not all members of filenames cellarray (Argument N%d ) are the text strings. This is not supported',...
                     n_filename_arg)
             end
+        else
+            filenames = {filenames};
         end
         argi      = varargin(~is_fn);
     end
@@ -166,7 +205,7 @@ elseif iscell(ldw)
     is_faccesor = cellfun(@(x)isa(x,'horace_binfile_interface'),ldw);
     if ~all(is_faccesor)
         error('HORACE:sqw:invalid_argument', ...
-            'Not every file-accessor provided as input is child of horace_binfile_interface. This is not supported')
+            'Not every file-accessor provided as input is child of horace_binfile_interface (faccess loader). This is not supported')
     end
     if numel(ldw) ~= num_to_save
         error('HORACE:sqw:invalid_argument', ...
