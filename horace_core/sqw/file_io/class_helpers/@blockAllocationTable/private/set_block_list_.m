@@ -92,5 +92,5 @@ if any(empty_spaces<0)
 end
 free_space_id = empty_spaces>0;
 bl_ps_end = bl_ps_end(1:end-1);
-obj.free_space_pos_and_size_ = ...
+obj.free_spaces_and_size_ = ...
     [bl_ps_end(free_space_id);empty_spaces(free_space_id)];

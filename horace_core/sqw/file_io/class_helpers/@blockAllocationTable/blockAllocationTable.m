@@ -53,7 +53,7 @@ classdef blockAllocationTable < serializable
         blocks_list_ = {};
         block_names_ = {};
         % location and sizes of free spaces within binary data, described by BAT
-        free_space_pos_and_size_ =zeros(2,0);
+        free_spaces_and_size_ =zeros(2,0);
         end_of_file_pos_ = 0;
     end
     %======================================================================
@@ -78,7 +78,7 @@ classdef blockAllocationTable < serializable
         end
         %------------------------------------------------------------------
         function size = get.bat_bin_size(obj)
-            size = obj.bat_blocks_size_+4;
+            size = uint64(obj.bat_blocks_size_+4);
         end
         function nb = get.n_blocks(obj)
             nb = numel(obj.blocks_list_);
@@ -139,7 +139,7 @@ classdef blockAllocationTable < serializable
             pos = uint64(obj.position + obj.bat_bin_size);
         end
         function fsp = get.free_spaces_and_size(obj)
-            fsp = obj.free_space_pos_and_size_;
+            fsp = obj.free_spaces_and_size_;
         end
         function pos = get.end_of_file_pos(obj)
             pos = uint64(obj.end_of_file_pos_);

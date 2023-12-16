@@ -58,7 +58,7 @@ next_pos          = next_pos(s_ind);
 %
 free_spaces = first_pos(2:end)-next_pos(1:end-1)-1;
 valid = free_spaces>0;
-obj.free_space_pos_and_size_ = [next_pos([valid,false]);free_spaces(valid)];
+obj.free_spaces_and_size_ = [next_pos([valid,false]);free_spaces(valid)];
 
 
 function [is_init,is_requested,position,size]=block_info(other_block,targ_block_name)

@@ -9,6 +9,8 @@ classdef pix_data_block < data_block
     % and the constrains of efficient binary access to this array for the
     % arrays which are impossible to load in memory
     %
+    % By default, this block is locked in place. 
+    %
     properties(Dependent)
         % properties defile the location of the appropriate arrays in
         % binary file. The positions are defined in bytes and counted from

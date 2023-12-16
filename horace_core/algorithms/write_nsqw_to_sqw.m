@@ -16,12 +16,14 @@ function [img_db_range,pix_data_range,wout]=write_nsqw_to_sqw (infiles, outfile,
 %                       error in normal operations so this option used in
 %                       tests in case of some specific data modelling.
 %                       To learn what headers are considered equal in details
-%                       look at  Experiment.combine_experiments method.
+%                       look at  Experiment.combine_experiments method, as
+%                       this method performs actual header combining and
+%                       checks.
 % -parallel          -- combine files using Herbert parallel framework.
-%                       this is duplicate for hpc_config option (currently
-%                       missing) so either this keyword or hpc_config
-%                       option or the instance of the JobDispatcher has to
-%                       be present to combine sqw files in  parallel.
+%                       this is duplicate for hpc_config option so either
+%                       this keyword or hpc_config option or the instance
+%                       of the JobDispatcher has to be present to combine
+%                       sqw files in  parallel.
 % -keep_runid        -- if present, forces routine to keep run-id defined
 %                       in the contributing  run-files instead of
 %                       setting run-id according to the number of file in

@@ -30,10 +30,10 @@ if the_block.allocated
     % add the space freed after removing the current block to the list of
     % the free spaces
     old_block_place = [the_block.position;the_block.size];
-    fs = [obj.free_space_pos_and_size_,old_block_place];
+    fs = [obj.free_spaces_and_size_,old_block_place];
     fs = merge_adjusent_space_(fs);
 else
-    fs = obj.free_space_pos_and_size_;
+    fs = obj.free_spaces_and_size_;
 end
 free_space_size = fs(2,:);
 will_fit = free_space_size>=block_size;
@@ -74,6 +74,6 @@ if fs(1,end)+fs(2,end) == obj.end_of_file_pos
     fs = fs(:,1:end-1);
 end
 
-obj.free_space_pos_and_size_ = fs;
+obj.free_spaces_and_size_ = fs;
 obj.blocks_list_{bl_ind} = the_block;
 
