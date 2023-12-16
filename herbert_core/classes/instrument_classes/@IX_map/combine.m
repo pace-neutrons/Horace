@@ -1,11 +1,11 @@
 function map_out = combine(varargin)
 % Combine map data to form a single map object by concatenating the input maps
 %
-%   >> map_out = combine(map1, map2,...)
+%   >> map_out = combine (map1, map2,...)
 %
-%   >> map_out = combine(map1, map2,...,'wkno')     % Keep workspace numbers where given
+%   >> map_out = combine (map1, map2,...,'wkno')     % Keep workspace numbers where given
 %
-%   >> map_out = combine(map1, map2,...,'wkno',vals)% Set workspace numbers
+%   >> map_out = combine (map1, map2,...,'wkno',vals)% Set workspace numbers
 %
 %
 % Input:

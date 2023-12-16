@@ -1,7 +1,7 @@
-function [w,ok,mess]=get_map(filename)
+function map = get_map (filename)
 % Read an ASCII .map file
 %
-%   >> [w,ok,mess]=get_map(filename)
+%   >> map = get_map (filename)
 %
 % Input:
 % ------
@@ -50,11 +50,10 @@ function [w,ok,mess]=get_map(filename)
 %   <list of spectrum numbers across as many lines as required>
 %       :
 
-
 % Remove blanks from beginning and end of filename
 [file_tmp,ok,mess]=translate_read(strtrim(filename));
 if ~ok
-    w=[];
+    map=[];
     return
 end
 
@@ -62,7 +61,7 @@ end
 str=strtrim(textcell(file_tmp));
 nline=numel(str);
 if nline==0
-    w=[]; ok=false; mess='Data file is empty'; return
+    map=[]; ok=false; mess='Data file is empty'; return
 end
 
 % Process data from file
@@ -92,10 +91,10 @@ while i<=nline
                 wkno = zeros(1,nw);     % to hold workspace number
                 first_line = false;
             else
-                w=[]; ok=false; mess='Check number of workspaces declared in first non-comment line'; return
+                map=[]; ok=false; mess='Check number of workspaces declared in first non-comment line'; return
             end
         elseif numel(nw>1)
-            w=[]; ok=false; mess='Check format of map file'; return
+            map=[]; ok=false; mess='Check format of map file'; return
         end
     else
         % Read information for each workspace
@@ -110,25 +109,25 @@ while i<=nline
                     elseif count==4
                         vms_format=true;
                     else
-                        w=[]; ok=false; mess='Check format of .map file'; return
+                        map=[]; ok=false; mess='Check format of .map file'; return
                     end
                     fmt='%d';
                     nval=1;
                 end
                 % If iw>nw, and we have read integers, then excess information
                 if iw > nw
-                    w=[]; ok=false; mess='Check format of .map file: excess uncommented information at bottom of file'; return
+                    map=[]; ok=false; mess='Check format of .map file: excess uncommented information at bottom of file'; return
                 end
                 % Get workspace number (if not VMS format) and number of spectra
                 if ~vms_format
                     if wkno(iw)==0  % haven't read workspace number yet
                         if wdata(1)<=0
-                            w=[]; ok=false; mess='Workspace number must be greater or equal to 1'; return
+                            map=[]; ok=false; mess='Workspace number must be greater or equal to 1'; return
                         end
                         wkno(iw)=wdata(1);
                     else
                         if wdata(1)<0
-                            w=[]; ok=false; mess=['Check number of spectra declared for workspace ',num2str(wkno(iw))]; return
+                            map=[]; ok=false; mess=['Check number of spectra declared for workspace ',num2str(wkno(iw))]; return
                         end
                         ns = wdata(1);
                         nrem = ns;
@@ -136,7 +135,7 @@ while i<=nline
                 else
                     wkno(iw)=iw;    % just 1,2,...nw
                     if wdata(1)<0
-                        w=[]; ok=false; mess=['Check number of spectra declared for workspace ',num2str(wkno(iw))]; return
+                        map=[]; ok=false; mess=['Check number of spectra declared for workspace ',num2str(wkno(iw))]; return
                     end
                     ns = wdata(1);
                     nrem = ns;
@@ -166,7 +165,7 @@ while i<=nline
                         iw = iw + 1;
                         ns = -1;
                     else
-                        w=[]; ok=false; mess=['Check number of spectra declared for workspace ',num2str(wkno(iw))]; return
+                        map=[]; ok=false; mess=['Check number of spectra declared for workspace ',num2str(wkno(iw))]; return
                     end
                 end
             else
@@ -181,13 +180,13 @@ end
 % Reached end of file; check last workspace is complete
 if ~((iw==nw+1 && ns==-1) || (iw==nw && ns==0))     % second condition allows for final workspace having zero spectra
     if iw<nw
-        w=[]; ok=false; mess=['File contains data only up to workspace ',num2str(iw),' of ',num2str(nw)]; return
+        map=[]; ok=false; mess=['File contains data only up to workspace ',num2str(iw),' of ',num2str(nw)]; return
     elseif iw==nw && ns==-1
-        w=[]; ok=false; mess=['File contains data only up to workspace ',num2str(iw-1),' of ',num2str(nw)]; return
+        map=[]; ok=false; mess=['File contains data only up to workspace ',num2str(iw-1),' of ',num2str(nw)]; return
     elseif nrem~=0
-        w=[]; ok=false; mess=['Not all spectra are present for workspace number ',num2str(wkno(iw))]; return
+        map=[]; ok=false; mess=['Not all spectra are present for workspace number ',num2str(wkno(iw))]; return
     else
-        w=[]; ok=false; mess='Unidentified error reading map file'; return
+        map=[]; ok=false; mess='Unidentified error reading map file'; return
     end
 end
 
@@ -195,10 +194,10 @@ end
 if numel(spec)~=nstot
     spec=spec(1:nstot);     % remove the excess buffer space
 end
-w.ns=nspec;
-w.s=spec;
+map.ns=nspec;
+map.s=spec;
 if ~vms_format
-    w.wkno=wkno;
+    map.wkno=wkno;
 else
-    w.wkno=zeros(1,0);
+    map.wkno=zeros(1,0);
 end

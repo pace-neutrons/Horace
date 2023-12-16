@@ -1,4 +1,4 @@
-function [ok,mess,filename,filepath]=put_map(data,file)
+function [filename, filepath] = put_map (data, file)
 % Writes ASCII .map file
 %   >> [ok,mess,filename,filepath]=put_map(data,file)
 %

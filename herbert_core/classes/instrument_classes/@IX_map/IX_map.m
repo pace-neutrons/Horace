@@ -1,152 +1,290 @@
-function wout=IX_map(varargin)
-% Constructor for IX_map object. There are numerous ways to specify the map
-%
-% Read from file:
-% ---------------
-%   >> w = IX_map(filename)                 % Read from ascii file, but ignore workspace numbers
-%   >> w = IX_map(filename,'wkno')          % Read workspace numbers as well
-%
-% Spectrum numbers:
-% -----------------
-%   >> w = IX_map(isp)                      % Single workspace with a single spectrum
-%   >> w = IX_map(isp_arr)                  % Map with one spectrum per workspace
-%   >> w = IX_map(isp_lo, isp_hi)           % Map with one spectrum per workspace,
-%                                            equivalent to IX_map(isp_lo:isp_hi)
-%   >> w = IX_map(isp_lo, isp_hi, nstep)    % Map with each workspace containing
-%                                            nstep spectra starting at isp_lo,
-%                                            isp_lo+nstep, isp_lo+2*nstep,...
-%
-%   The arguments is_lo, is_hi, nstep, can be vectors. The result is equivalent
-%   to the concatenation of IX_map applied to the arguments element-by-element i.e.
-%       IX_map (is_lo, is_hi, step)
-%   is equivalent to a combination of the output of
-%       IX_map(is_lo(1),is_hi(1),nstep(1)), IX_map(is_lo(2),is_hi(2),nstep(2)), ...
-%
-%   >> w = IX_map(...,'wkno',wk)            % in addition, give an array of numbers to
-%                                            uniquely identify each workspace.
-%
-% Cell array specification:
-% -------------------------
-%   >> w = IX_map(cell)             % cell array where each element is an array of
-%                                    spectrum numbers
-%
-%   >> w = IX_map(cell,'wkno',wk)   % in addition, give an array of numbers to
-%                                    uniquely identify each workspace.
-%
-% Structure:
-% ----------
-%   >> w = IX_map(struc)            % Structure with fields of IX_map object (see below)
-%
-%   >> w = IX_map(struc,'wkno',wk)
-%
-% In all cases, if the workspace numbers are not given (i.e. they are 'un-named')
-% they will be left undefined, and workspaces can be addressed by their index
-% in the range 1 to nw, where nw is the total number of workspaces.
-%
-%
-% Contents of map object:
-% -----------------------
-%   ns      Row vector of number of spectra in each workspace. There must be
-%          at least one workspace. ns(i)=0 is permitted (it means no spectra in ith workspace)
-%   s       Row vector of spectrum indicies in workspaces concatenated together. The
-%          spectrum numbers are sorted into numerically increasing order for
-%          each workspace
-%   wkno    Workspace numbers (think of them as the 'names' of the workspaces).
-%          Must be unique, and greater than or equal to one.
-%           If [], this means leave undefined.
-
-% Original author: T.G.Perring
-
-classname='IX_map';
-
-% Catch default constructor or existing IX_map
-% --------------------------------------------
-if nargin==0
-    % Default constructor: single empty workspace
-    wout.ns=0;
-    wout.s=zeros(1,0);
-    wout.wkno=zeros(1,0);
-    [ok,mess,wout]=checkfields(wout);   % Make checkfields the ultimate arbiter of the validity of a structure
-    if ok, wout = class(wout,classname); return, else error(mess); end
+classdef IX_map < serializable
+    % IX_map   Definition of map class
     
-elseif nargin==1 && isa(varargin{1},classname)
-    % Is a map object already
-    wout = varargin{1};
-    return
-end
+    properties (Access=private)
+        % Row vector of spectrum indices in workspaces, concatenated
+        % according to increasing workspace number.
+        % Spectrum numbers are sorted into numerically increasing
+        % order for each workspace.
+        s_ = zeros(1,0)
+        
+        % Row vector of workspace numbers for each spectrum, with same size as s_
+        % Workspace numbers are monotonically increasing
+        w_ = zeros(1,0)
+        
+        % Cached properties
+        % -----------------
+        % Dependent properties that may be expensive to evaluate
+        % (Code must keep these consist with the independent properties; use
+        % check_combo_arg to do this)
 
+        % Row vector of the number of spectra in each workspace.
+        ns_ = zeros(1,0)
 
-% Find 'wkno' option, if given
-% -----------------------------
-wkno_def=zeros(1,0);
-if nargin>1 && is_string(varargin{end}) && strncmpi(varargin{end},'wkno',numel(varargin{end}))    % ...,'wkno')
-    narg=nargin-1;
-    opt=true;
-    optval=false;
-elseif nargin>2 && is_string(varargin{end-1}) && strncmpi(varargin{end-1},'wkno',numel(varargin{end-1}))    % ...,'wkno',val)
-    narg=nargin-2;
-    opt=true;
-    optval=true;
-    wkno=varargin{end};
-else
-    narg=nargin;
-    opt=false;
-    optval=false;
-end
-
-
-% Parse the rest of the input
-% ---------------------------
-if nargin==1 && isstruct(varargin{1})
-    % Structure with the fields of a map object is permitted
-    wout = varargin{1};
-    if optval
-        wout.wkno=wkno;     % only override an existing wkno if one is provided in argument list
-    elseif opt
-        error('Must give replacement workspaces numbers if ''wkno'' option was provided')
+        % Row vector of unique workspace numbers
+        % Each element is >= 1
+        wkno_ = zeros(1,0)
     end
     
-elseif narg==1 && iscell(varargin{1})
-    % Cell array input
-    [wout,ok,mess]=cellarray_to_map(varargin{1});
-    if ~ok, error(mess), end
-    if optval
-        wout.wkno=wkno;     % only override an existing wkno if one is provided in argument list
-    elseif opt
-        error('Must give replacement workspaces numbers if ''wkno'' option was provided')
-    else
-        wout.wkno=wkno_def;
+    properties (Dependent)
+        % Mirrors of private properties; these define object state:
+        % ---------------------------------------------------------
+        s       % Row vector of spectrum numbers
+        w       % Row vector of corresponding workspace numbers
+        
+        % Other dependent properties
+        % --------------------------
+        nstot   % Total number of spectra
+        nwtot   % Total number of workspaces
+        ns      % Row vector of number of spectra in each workspace
+        wkno    % Row vector of Workspace numbers
     end
     
-elseif narg==1 && is_string(varargin{1})
-    % File name input
-    if ~isempty(varargin{1})
-        [wout,ok,mess]=get_map(varargin{1});
-        if ~ok, error(mess), end
-        if optval
-            wout.wkno=wkno;     % if ...'wkno') use value read from file, if ...'wkno',val) use provided value
-        elseif ~opt
-            wout.wkno=wkno_def; % use the default
+    methods
+        %------------------------------------------------------------------
+        % Constructor
+        %------------------------------------------------------------------
+        function obj = IX_map (varargin)
+            % Constructor for IX_map object.
+            %
+            % Single spectrum or array of spectra:
+            %   >> w = IX_map (isp)         % single spectraum
+            %   >> w = IX_map (isp_array)   % general case of array of spectra
+            %   >> w = IX_map (isp_array, 'wkno', iw_array)
+            %
+            % Block of contiguous spectra to contiguous workspaces:
+            %   >> w = IX_map (isp_beg, isp_end)
+            %   >> w = IX_map (isp_beg, isp_end, step)
+            %   >> w = IX_map (..., 'wkno', iw)
+            %
+            % Either of the two cases above:
+            %   >> w = IX_map (..., 'repeat', [nrepeat, delta_isp, delta_iw])
+            %
+            % Note:
+            % - Spectrum and workspace numbers must be greater or equal to one.
+            % - Spectra can be mapped to more than one workspace, but a warning
+            %   message will be printed as this is an unusual occurence
+            %
+            % Description:
+            % ------------
+            % The most general form of the constructor are: 
+            %
+            %   >> w = IX_map (isp_array, 'wkno', iw_array,...
+            %                   'repeat', [nrepeat, delta_isp, delta_iw])
+            %
+            %   >> w = IX_map (isp_beg, isp_end, step, 'wkno', iw_beg,...
+            %                   'repeat', [nrepeat, delta_isp, delta_iw])
+            %
+            % The first maps isp_array(1) to iw_array(1), isp_array(2) to iw_array(2) etc.
+            % and then repeats this mapping nrepeat times with the two arrays incremented
+            % by delta_isp and delta_iw respectively.
+            %
+            % The second case maps spectra from isp_beg to isp_end in groups of |step|,
+            % starting at workspace number iw. The workspace numbers are counting up if
+            % step>0 i.e. iw, iw+1, iw+2,... , or counting down if step<0 i.e. iw, iw-1, iw-2,...
+            % The mapping is then repeated nrepeat times with isp_beg and iw_beg incremented
+            % by delta_isp and delta_iw respectively
+            %
+            % EXAMPLE
+            %   >> w = IX_map (1256, 1001, -10, 'iw', 416, 'repeat', [16, 1000, -26])
+            %
+            % indicates that a total of 256 spectra, running from 1256 to 1001, are
+            % ganged in groups of 10 into the workspaces numbered 416, 415, 414 ...391.
+            % Workspace 416 contains spectra 1256-1247, workspace 415 contains spectra
+            % 1246-1237 and so on until workspace 391, which contains spectra 1006-1001.
+            % There are 26 workspaces in the block of spectra, with the final workspace
+            % containing just 6 spectra as 256 is not divisible exactly by 10. The
+            % mapping is repeated 16 times, with the initial spectrum numbers
+            % incrementing by 1000, i.e. 1256, 2256 ... 16256, and the initial workspace
+            % numbers are successively decreasing by 26 i.e. 416, 390, 366 ... 26
+            %
+            % It is equivalent to
+            %   >> w = IX_map ([1256:-10:1001], 'wkno', [416:-1:391], 'repeat', [12, 1000, -26])
+            %
+            % The block of spectra-to-workspace mapping is repeated nrepeat times, with
+            % the starting value for spectra being isp_beg + delta_isp, isp_beg + 2*delta_isp,...
+            % and the starting value of workspaces being iw, iw + delta_iw, iw + 2*delta_iw,...
+            %
+            %
+            % In detail:
+            % 
+            % Single spectrum to single workspace:
+            % ====================================
+            %   >> w = IX_map (isp)                      % Single workspace with a single spectrum                                           % Default is workspace is numbered 1
+            %   >> w = IX_map (isp, 'wkno', iw)          % Workspace given explicit number iw (need not be =1)
+            % 
+            %
+            % Explicit mapping of multiple spectra to multiple workspaces:
+            % ============================================================
+            %   >> w = IX_map (isp_array)                    % Array of workspaces, one spectrum per workspace
+            %   >> w = IX_map (isp_array, 'wkno', iw_array)  % With explicit array of workspace numbers
+            %                                                % isp_array and iw_array must have same length
+            % EXAMPLES
+            %   >> w = IX_map ([1,2,11,12,13])
+            %       Map has 5 workspaces, one spectrum each
+            %
+            %   >> w = IX_map ([1,2,11,12,13], 'wkno', [4,4,14,14,14])
+            %       Map has 2 workspaces, w4 with spectra 1 and 3, workspace 14 with spectra 11,12,13
+            % 
+            %
+            % Mapping of a sequence of spectra to a sequence of workspaces:
+            % =============================================================
+            % - Multiple workspaces, one spectrum per workspace:
+            %   ------------------------------------------------
+            %    First workspace contains spectrum isp_beg and last workspaces contains spectrum
+            %   isp_end (note that isp_beg can be bigger than isp_end) 
+            %
+            %   >> w = IX_map (isp_beg, isp_end)             % Workspaces numbered 1,2,3...
+            %   >> w = IX_map (isp_beg, isp_end, 'wkno', iw) % Workspaces are numbered iw, iw+1...
+            %
+            %
+            % - Multiple workspaces each with a group of spectra:
+            %   -------------------------------------------------
+            %    Map spectra starting from isp_beg in groups of |step| (step can be +ve or -ve)
+            %   The sign of step determines if the workspace number increases or decreases between
+            %   groups e.g. if iw=10 and step>0 then they are numbered 10,11,12,... but if step<0
+            %   then the workspaces are numbered 10,9,8,...
+            %
+            %   >> w = IX_map (isp_beg, isp_end, step)
+            %   >> w = IX_map (isp_beg, isp_end, step, 'wkno', iw)
+            %
+            %
+            % Repeated blocks of workspaces:
+            % ==============================
+            % Any of the above blocks of workspaces can be repeated multiple times, with the
+            % starting value for spectra being isp_beg, (isp_beg + delta_isp), (isp_beg + 2*delta_isp),...
+            % and the starting value of workspaces being iw, (iw + delta_iw), (iw + 2*delta_iw),...
+            % Note: Either or both of delta_isp and delta_iw can be negative
+            % Note: delta_iw=0 is permitted as you may want to accumulate many spectra to a 
+            % single workspace. It is possible to have delta_isp=0 too (which means that a given
+            % spectrum will be accumulated into several workspaces), although this is unusual.
+            %
+            %   >> w = IX_map (..., 'repeat', [nrepeat, delta_isp, delta_iw])
+            %
+            % 
+            % Multiple lines
+            % ==============
+            % The arguments isp_beg, isp_end, step, iw, nrepeat delta_isp and delta_iw
+            % can be vectors. The result is equivalent to the concatenation of IX_map applied
+            % to the arguments element-by-element e.g.
+            %   >> w = IX_map (is_lo, is_hi, step)
+            %
+            % is equivalent to:
+            %   >> wtmp(1) = IX_map (is_lo(1), is_hi(1), step(1))
+            %   >> wtmp(2) = IX_map (is_lo(2), is_hi(2), step(2));
+            %           :
+            %   >> w = combine (wtmp)
+            %
+            %
+            % One or more of the workspace numbers iw(i) can be set to NaN. This indicates iw(i)
+            % are set so that the bounding range of workspace numbers for the ith entry are
+            % immediately adjacent to the bounding range for the previous entry,
+            % at larger workspace number. Likewise, within an entry, delta_iw(i)
+            % can be NaN, indicting that a block is repeated so that the set of
+            % blocks forms a contiguous set of workspace numbers.
+
+            [is, iw, ns, wkno, unique_map, unique_spec] = parse_IX_map_args (varargin{:});
+            
+            obj.s_ = is';   % make row vector
+            obj.w_ = iw';   % make row vector
+
+            
+            
         end
-    else
-        error('File name cannot be an empty string')
+        
+        %------------------------------------------------------------------
+        % Set methods for dependent properties
+        function obj = set.s (obj, val)
+            [ok, mess] = is_integer_id (val);   % this also checks numel(val)>=1
+            if ~ok
+                error('HERBERT:IX_detector_bank:invalid_argument',...
+                    ['Detector ', mess])
+            end
+            obj.id_ = val(:);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+        
+    end
+    %------------------------------------------------------------------
+    % I/O methods
+    %------------------------------------------------------------------
+    methods
+        function save_ascii (obj, file)
+            % Save a map object to an ASCII file
+            %
+            %   >> save_ascii (obj)              % prompts for file
+            %   >> save_ascii (obj, file)
+            %
+            % Input:
+            % ------
+            %   w       Map object (single object only, not an array)
+            %   file    [optional] File for output.
+            %           If none given, then prompts for a file
+            
+            
+            % Get file name - prompting if necessary
+            % --------------------------------------
+            if nargin==1
+                file='*.map';
+            end
+            [file_full, ok, mess] = putfilecheck (file);
+            if ~ok
+                error ('IX_map:save:io_error', mess)
+            end
+            
+            % Write data to file
+            % ------------------
+            disp(['Writing map data to ', file_full, '...'])
+            put_map (obj, file_full);
+            
+        end
     end
     
-elseif narg<=3
-    [wout,ok,mess]=arrays_to_map(varargin{1:narg});
-    if ~ok, error(mess), end
-    if optval
-        wout.wkno=wkno;     % only override an existing wkno if one is provided in argument list
-    elseif opt
-        error('Must give replacement workspace numbers if ''wkno'' option was provided')
-    else
-        wout.wkno=wkno_def;
+    methods (Static)
+        function obj = read_ascii (file)
+            % Read map data from an ASCII file
+            %
+            %   >> obj = IX_map.read_ascii           % prompts for file
+            %   >> obj = IX_map.read_ascii (file)
+            
+            
+            % Get file name - prompt if file does not exist
+            % ---------------------------------------------
+            % The chosen file resets default seach location and extension
+            if nargin==0 || ~is_file(file)
+                file = '*.map';     % default for file prompt
+            end
+            [file_full, ok, mess] = getfilecheck (file);
+            if ~ok
+                error ('IX_map:read:io_error', mess)
+            end
+            
+            % Read data from file
+            % ---------------------
+            map = get_map(file_full);
+            obj = IX_map (map);
+            
+        end
+        
     end
     
-else
-    error('Check number and/or type of arguments')
+    
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    %======================================================================
+
+    methods
+        function ver = classVersion(~)
+            % Current version of class definition
+            ver = 1;
+        end
+        
+        function flds = saveableFields(~)
+            % Return cellarray of properties defining the class
+            flds = {'s', 'w'};
+        end
+    end
     
 end
-
-[ok,mess,wout]=checkfields(wout);   % Make checkfields the ultimate arbiter of the validity of a structure
-if ok, wout = class(wout,classname); return, else error(mess); end

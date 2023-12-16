@@ -75,8 +75,8 @@ classdef test_mask < TestCaseWithSave
             w = IX_mask();
             tmpfile = fullfile(tmp_dir,'tmp.msk');
             cleanup = onCleanup(@()delete(tmpfile));
-            save(w, tmpfile)
-            wtmp = IX_mask.read(tmpfile);
+            save_ascii(w, tmpfile)
+            wtmp = IX_mask.read_ascii(tmpfile);
             assertTrue (isequal(w,wtmp), 'Write+read does not make an identity');
         end
         
@@ -85,8 +85,8 @@ classdef test_mask < TestCaseWithSave
             w = IX_mask ([34:54, 2:5, 30:40]);
             tmpfile = fullfile(tmp_dir,'tmp.msk');
             cleanup = onCleanup(@()delete(tmpfile));
-            save(w, tmpfile)
-            wtmp = IX_mask.read(tmpfile);
+            save_ascii(w, tmpfile)
+            wtmp = IX_mask.read_ascii(tmpfile);
             assertTrue (isequal(w,wtmp), 'Write+read does not make an identity');
         end
         
@@ -95,8 +95,8 @@ classdef test_mask < TestCaseWithSave
             w = IX_mask ([60:-1:50, 2:5, 30:40, 19:23]);
             tmpfile = fullfile(tmp_dir,'tmp.msk');
             cleanup = onCleanup(@()delete(tmpfile));
-            save(w, tmpfile)
-            wtmp = IX_mask.read(tmpfile);
+            save_ascii(w, tmpfile)
+            wtmp = IX_mask.read_ascii(tmpfile);
             assertTrue (isequal(w,wtmp), 'Write+read does not make an identity');
         end
         
@@ -105,8 +105,8 @@ classdef test_mask < TestCaseWithSave
             w = IX_mask ([60:-1:50, 2:5, 30:40, 19:23, 38:42, 10:12]);
             tmpfile = fullfile(tmp_dir,'tmp.msk');
             cleanup = onCleanup(@()delete(tmpfile));
-            save(w, tmpfile)
-            wtmp = IX_mask.read(tmpfile);
+            save_ascii(w, tmpfile)
+            wtmp = IX_mask.read_ascii(tmpfile);
             assertTrue (isequal(w,wtmp), 'Write+read does not make an identity');
         end
         

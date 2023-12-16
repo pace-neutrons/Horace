@@ -1,4 +1,4 @@
-classdef IX_mask
+classdef IX_mask < serializable
     % IX_mask   Definition of mask class
     
     properties
@@ -40,13 +40,17 @@ classdef IX_mask
             %                   % Another comment line
             %                   11:3:35      % an in-line comment
             
-            if nargin>0 && ~isempty(val)
+            if nargin==0 || isempty(val)
+                % No argument or empty argument
+                obj.msk = zeros(1,0);
+                
+            else
                 if is_string (val)
                     % Assume a filename
                     if ~isempty(val)
                         msk = get_mask(val);
                     else
-                        error ('IX_mask:invalid_argument',...
+                        error ('HERBERT:IX_mask:invalid_argument',...
                             'File name cannot be an empty string')
                     end
                     
@@ -56,12 +60,10 @@ classdef IX_mask
                     
                 else
                     % Unrecognised input
-                    error ('IX_mask:invalid_argument',...
+                    error ('HERBERT:IX_mask:invalid_argument',...
                         'Input must be an array or file name')
                 end
                 obj.msk = msk;
-            else
-                obj.msk = zeros(1,0);
             end
             
         end
@@ -75,15 +77,17 @@ classdef IX_mask
         function obj = set.msk (obj, val)
             % Performs the checks on value, and sets with unique values
             % or empty value - defines the contents from all routes
-            if isnumeric(val) && ~(any(val<1) || any(~isfinite(val)))
-                if ~isempty(val)
-                    obj.msk = unique(val(:)');
-                else
-                    obj.msk = zeros(1,0);
-                end
-            else
+            
+            if ~isnumeric(val) || any(round(val)~=val) || any(val<1) ||...
+                    any(~isfinite(val))
                 error ('IX_mask:set:invalid_argument',...
-                    'Spectrum numbers must be finite and greater or equal to 1')
+                    'Spectrum numbers must be integers greater or equal to 1')
+            end
+            
+            if ~isempty(val)
+                obj.msk = unique(val(:)');
+            else
+                obj.msk = zeros(1,0);
             end
         end
     end
@@ -93,11 +97,11 @@ classdef IX_mask
     % I/O methods
     %------------------------------------------------------------------
     methods
-        function save (obj, file)
+        function save_ascii (obj, file)
             % Save a mask object to an ASCII file
             %
-            %   >> save (obj)              % prompts for file
-            %   >> save (obj, file)
+            %   >> save_ascii (obj)              % prompts for file
+            %   >> save_ascii (obj, file)
             %
             % Input:
             % ------
@@ -109,7 +113,7 @@ classdef IX_mask
             % Get file name - prompting if necessary
             % --------------------------------------
             if nargin==1
-                file='*.msk';
+                file = '*.msk';
             end
             [file_full, ok, mess] = putfilecheck (file);
             if ~ok
@@ -125,11 +129,11 @@ classdef IX_mask
     end
     
     methods (Static)
-        function obj = read (file)
+        function obj = read_ascii (file)
             % Read mask data from an ASCII file
             %
-            %   >> obj = IX_mask.read           % prompts for file
-            %   >> obj = IX_mask.read (file)
+            %   >> obj = IX_mask.read_ascii           % prompts for file
+            %   >> obj = IX_mask.read_ascii (file)
             
             
             % Get file name - prompt if file does not exist
@@ -150,6 +154,22 @@ classdef IX_mask
             
         end
         
+    end
+    
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    %======================================================================
+
+    methods
+        function ver = classVersion(~)
+            % Current version of class definition
+            ver = 1;
+        end
+        
+        function flds = saveableFields(~)
+            % Return cellarray of properties defining the class
+            flds = {'msk'};
+        end
     end
     
 end
