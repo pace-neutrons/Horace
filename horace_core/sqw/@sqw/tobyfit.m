@@ -62,9 +62,10 @@ if isempty(sqws)
 end
 
 if any(arrayfun(@(x) x.pix.is_filebacked, [sqws{:}]))
-    error(['HORACE:tobyfit:invalid_argument', 'Tobyfit does not currently support file-backed sqw objects\n' ...
-          ' In order to attempt to run please convert all sqws to memory-backed:\n' ...
-           '  >> my_sqw.pix = PixelDataMemory(my_sqw.pix);'])
+    error('HORACE:tobyfit:invalid_argument', ...
+        ['Tobyfit does not currently support file-backed sqw objects\n' ...
+        ' In order to attempt to run please convert all sqws to memory-backed:\n' ...
+        '  >> my_sqw.pix = PixelDataMemory(my_sqw.pix);'])
 end
 
 
@@ -82,21 +83,21 @@ end
 % by a character string
 if ~isempty(argi) && ischar(argi{end})
     warning('HORACE:tobyfit:deprecated_argument', ...
-            'The instrument is determined from the sqw object. Redundant option ''%s'' ignored', argi{end})
+        'The instrument is determined from the sqw object. Redundant option ''%s'' ignored', argi{end})
 end
 
 % Initialise
 switch class(inst)
-  case 'IX_inst_DGfermi'
-    mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv, [], @func_eval, [],...
-                               true, false, @tobyfit_DGfermi_resconv_init, []);
+    case 'IX_inst_DGfermi'
+        mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv, [], @func_eval, [],...
+            true, false, @tobyfit_DGfermi_resconv_init, []);
 
-  case 'IX_inst_DGdisk'
-    mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
-                               true, false, @tobyfit_DGdisk_resconv_init, []);
+    case 'IX_inst_DGdisk'
+        mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
+            true, false, @tobyfit_DGdisk_resconv_init, []);
 
-  otherwise
-    error('HORACE:tobyfit:invalid_argument', 'No resolution function model implemented for this instrument')
+    otherwise
+        error('HORACE:tobyfit:invalid_argument', 'No resolution function model implemented for this instrument')
 end
 
 % Construct

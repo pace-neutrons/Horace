@@ -105,7 +105,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
     end
     %======================================================================
     % File handling/migration. Does nothing on membased except dump_data
-    % which recets raw data with input.
+    % which resets raw data with input.
     methods
         function obj = deactivate(obj)
             % close all open file handles to allow file movements to new
@@ -121,12 +121,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
             end
         end
 
-        function obj = prepare_dump(obj)
-            % does nothing on Mem-based
-        end
-        function obj = get_new_handle(obj, varargin)
-            % does nothing on Mem-based
-        end
         function wh = get_write_handle(~, varargin)
             % does nothing on Mem-based
             wh = [];

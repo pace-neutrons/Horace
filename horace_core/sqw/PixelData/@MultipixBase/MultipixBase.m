@@ -127,7 +127,8 @@ classdef MultipixBase < serializable
         %------------------------------------------------------------------
         function nf   = get.nfiles(obj)
             % number of contributing files
-            nf = numel(obj.infiles_);
+            present = cellfun(@(x)~isempty(x),obj.infiles_);
+            nf = sum(present);
         end
         function infls = get.infiles(obj)
             infls = obj.infiles_;
@@ -206,8 +207,8 @@ classdef MultipixBase < serializable
             obj.full_filename_ = val;
         end
         %
-        function is = get.is_filebacked(~)
-            is = true;
+        function is = get.is_filebacked(obj)
+            is = get_is_filebacked(obj);
         end
         function is = get.is_misaligned(~)
             is = false;
@@ -279,13 +280,16 @@ classdef MultipixBase < serializable
     end
     methods(Abstract)
         obj = recalc_data_range(obj)
-        % initialize access to contributing pixels.
+        % initialize access to contributing pixel data.
         obj = init_pix_access(obj)
+        % close (finalize) access to contributing pixel data.
+        obj = close_faccessors(obj)
     end
     %----------------------------------------------------------------------
     methods(Abstract,Access=protected)
         obj = set_infiles(obj,val);
         obj = set_npix_each_file(obj,val);
+        is = get_is_filebacked(obj);
     end
     % SERIALIZABLE INTERFACE
     methods

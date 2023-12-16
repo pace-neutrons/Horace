@@ -261,6 +261,7 @@ classdef binfile_v4_common < horace_binfile_interface
         obj = put_dnd_data(obj,dnd_obh);
         obj = put_dnd_metadata(obj,varargin)
         obj = put_senpix_block(obj,img_struct,pos);
+        obj = get_npix_block(obj,bin_start,bin_end);
         %
         function  [data,obj] =  get_data(obj,varargin)
             % equivalent to get_dnd('-noclass). Should it also return pix

@@ -1,4 +1,4 @@
-function pix_comb_info =accumulate_pix_to_file_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size)
+function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size)
 % Function to handle case of keep_pixels. Nested so that variables are shared with main function to optimise memory use
 
 
@@ -19,12 +19,7 @@ if ischar(pix_comb_info) && strcmp(pix_comb_info,'cleanup')
 end
 
 if finish_accum && nargin == 2
-    pix_comb_info= save_pixels_to_file(pix_comb_info);
-    pix_comb_info.npix_cumsum = cumsum(npix_prev(:));
-
-    pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
-
-    clear_memory();
+    pix_comb_info = finalize_accum(pix_comb_info);
     return
 end
 
@@ -46,19 +41,11 @@ if v.num_pixels > 0
     pix_mem_retained{n_mem_blocks} = v;    % accumulate pixels into buffer array
     pix_mem_ix_retained{n_mem_blocks} = ix_add;
 
-    new_range_min = min(pix_comb_info.data_range(1, :), pix_mem_retained{n_mem_blocks}.data_range(1, :));
-    new_range_max = max(pix_comb_info.data_range(2, :), pix_mem_retained{n_mem_blocks}.data_range(2, :));
-    pix_comb_info.data_range(1, :) = new_range_min;
-    pix_comb_info.data_range(2, :) = new_range_max;
+    pix_comb_info.data_range = minmax_ranges(pix_comb_info.data_range,pix_mem_retained{n_mem_blocks}.data_range);
 end
 
 if finish_accum
-    pix_comb_info= save_pixels_to_file(pix_comb_info);
-    pix_comb_info.npix_cumsum = cumsum(npix(:));
-
-    pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
-
-    clear_memory();
+    pix_comb_info = finalize_accum(pix_comb_info);
     return
 end
 
@@ -66,6 +53,34 @@ end
 if n_pix_in_memory> max_buf_size % flush pixels in file
     pix_comb_info= save_pixels_to_file(pix_comb_info);
 end
+
+    function pix_comb_info = finalize_accum(pix_comb_info)
+        % finish accumulation and depending on the previous state return
+        % either:
+        % pifile_combine_info class instance, describing data written to
+        % files if any files were written
+        % or:
+        % PixelDataMemory class, which contains pixels, sorted by bins if
+        % any pixels were held in memory.
+        if n_writ_files > 0
+            pix_comb_info= save_pixels_to_file(pix_comb_info);
+            if exist('npix','var')
+                pix_comb_info.npix_cumsum = cumsum(npix(:));
+            end
+
+            pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
+        else
+            if n_pix_in_memory == 0
+                pix_comb_info = PixelDataMemory();
+            else
+                % not keeping precision here as this will be memory-based result
+                pix_comb_info  = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
+                    n_pix_in_memory,pix_comb_info.data_range);
+            end
+        end
+        clear_memory();
+
+    end
 
     function clear_memory()
         clear npix_prev pix_mem_retained pix_mem_ix_retained n_pix_in_memory;
@@ -79,8 +94,10 @@ end
         npix_in_mem = npix_now - npix_prev;
         npix_prev   = npix_now;
         clear npix_now;
+        % keep sorted pixels precision as they came from file and go to
+        % file
         pix_2write = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
-            npix_in_mem,pix_comb_info.data_range,'-keep_type');
+            npix_in_mem,pix_comb_info.data_range,'-keep_precision');
         % clear current memory buffer state;
         n_mem_blocks = 0;
         clear pix_mem_retained pix_mem_ix_retained;

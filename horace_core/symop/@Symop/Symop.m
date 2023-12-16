@@ -159,16 +159,8 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     pix.q_coordinates(:, ~sel) = obj(i).transform_vec(pix.q_coordinates(:, ~sel));
                 end
             else
-                for i = 1:pix.num_pages
-                    pix.page_num = i;
-                    curr_page = pix.data;
-                    for i = numel(obj):-1:1
-                        sel = ~obj(i).in_irreducible(curr_page(1:3, :), proj{:});
-                        curr_page(1:3, sel) = obj(i).transform_vec(curr_page(1:3, sel));
-                    end
-                    pix = pix.format_dump_data(curr_page);
-                end
-                pix = pix.finalise();
+                error('HORACE:Symop:not_implemented', ...
+                    'Transforming file-backed pixels is not currently implemented');
             end
 
         end

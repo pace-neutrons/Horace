@@ -29,12 +29,12 @@ function wout=multifit_func_eval(w,xye,func,bfunc,plist,bplist,...
 %   bplist      Array of valid parameter lists, one list per background function.
 %
 %   f_pass_caller_info  Keep internal state of foreground function evaluation e.g. seed of random
-%              number generator. Dictates the format of the fit fuction argument list.
+%              number generator. Dictates the format of the fit function argument list.
 %              Nothing is actually kept, however; it is just used to call the function
 %              with the correct syntax.
 %
 %   bf_pass_caller_info Keep internal state of background function evaluation e.g. seed of random
-%               number generator. Dictates the format of the fit fuction argument list.
+%               number generator. Dictates the format of the fit function argument list.
 %              Nothing is actually kept, however; it is just used to call the function
 %              with the correct syntax.
 %

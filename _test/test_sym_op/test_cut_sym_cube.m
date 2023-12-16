@@ -24,7 +24,7 @@ classdef test_cut_sym_cube < TestCase
             obj@TestCase(name)
         end
 
-        function test_cut_sym_identity_stripped(obj)
+        function test_cut_sym_identity_stripped(~)
             tsqw = sqw.generate_cube_sqw(10);
 
             res_sqw = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...

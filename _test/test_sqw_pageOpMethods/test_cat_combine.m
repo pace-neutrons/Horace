@@ -77,6 +77,7 @@ classdef test_cat_combine < TestCase
 
             page_op = PageOp_cat_pix();
             page_op  = page_op.init(pix1,pix2,pix3,pix4);
+            page_op.pix = PixelDataFileBacked();
 
             assertEqual(numel(page_op.npix),4);
             assertEqual(page_op.npix,[25,25,25,25]);
@@ -97,7 +98,7 @@ classdef test_cat_combine < TestCase
                 pb = pe+1;
             end
         end
-        
+
         function test_get_page_data_4pix_large_even_split_chunks(~)
             n_pix = 100;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,n_pix);
@@ -109,6 +110,7 @@ classdef test_cat_combine < TestCase
 
             page_op = PageOp_cat_pix();
             page_op  = page_op.init(pix1,pix2,pix3,pix4);
+            page_op.pix = PixelDataFileBacked();
 
             assertEqual(numel(page_op.npix),4);
             assertEqual(page_op.npix,[25,25,25,25]);
@@ -138,6 +140,7 @@ classdef test_cat_combine < TestCase
 
             page_op = PageOp_cat_pix();
             page_op  = page_op.init(pix1,pix2);
+            page_op.pix = PixelDataFileBacked();
 
             assertEqual(numel(page_op.npix),2);
             assertEqual(page_op.npix,[50,50]);
@@ -169,6 +172,7 @@ classdef test_cat_combine < TestCase
 
             page_op = PageOp_cat_pix();
             page_op  = page_op.init(pix1,pix2);
+            page_op.pix = PixelDataFileBacked();
 
             assertEqual(numel(page_op.npix),2);
             assertEqual(page_op.npix,[50,50]);
@@ -196,6 +200,7 @@ classdef test_cat_combine < TestCase
 
             page_op = PageOp_cat_pix();
             page_op  = page_op.init(pix1,pix2);
+            page_op.pix = PixelDataFileBacked();
 
             assertEqual(numel(page_op.npix),2);
             assertEqual(page_op.npix,[50,50]);

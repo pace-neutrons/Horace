@@ -358,13 +358,10 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         % operation, possibly using new file name
         [obj,varargout] = activate(obj,filename,varargin);
 
-        obj = prepare_dump(obj)
         obj = get_write_handle(obj, varargin)
         obj = store_page_data(obj,data_page)
-
-        obj = get_new_handle(obj, varargin)
         %
-        obj = finish_dump(obj,varargin)
+        obj = finish_dump(obj,page_op)
         %
         % Sets file, associated with object to be removed when obj gets out of scope
         obj =set_as_tmp_obj(obj,filename);

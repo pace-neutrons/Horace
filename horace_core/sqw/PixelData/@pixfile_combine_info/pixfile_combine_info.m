@@ -26,7 +26,14 @@ classdef pixfile_combine_info < MultipixBase
     properties(Access = protected)
         pos_npixstart_ = [];
         pos_pixstart_  = [];
-
+        % cellarray of loaders used to access page data
+        loaders_list_ = {};
+        % clean-up object closing the file-accessor when class goes out of
+        % scope
+        clean_obj_;
+        % is access to files organized through data loaders or using
+        % MATLAB binary access.
+        binary_access_ = false;
     end
     methods
         %
@@ -94,11 +101,10 @@ classdef pixfile_combine_info < MultipixBase
                 end
             end
         end
+        %------------------------------------------------------------------
         function obj = init_pix_access(obj)
             % initialize access to contributing pixels.
-            %
-            error('HORACE:pixfile_combine_info:not_implemented', ...
-                'This function has not been implemented')
+            obj = init_pix_access_(obj);
         end
 
         function [data,npix_chunk] = get_dataset_page(obj, ...
@@ -109,7 +115,8 @@ classdef pixfile_combine_info < MultipixBase
             % Inputs:
             % n_dataset -- number of dataset to get data from
             % pix_pos_start
-            %           -- the position where pixel data are located.
+            %           -- the position in pixel array
+            %              where requested pixel data are located.
             %              Should be externaly synchronized with npix.
             %              Can be calculated here, but ignored for saving
             %              time and memory.
@@ -117,10 +124,21 @@ classdef pixfile_combine_info < MultipixBase
             %              indices of bins containing
             %              distribution of pixels over bins.
             %
-            error('HORACE:pixfile_combine_info:not_implemented', ...
-                'This function has not been implemented')
-        end
+            if obj.binary_access_
+                npix_chunk = obj.get_npix_block(n_dataset,npix_idx(1),npix_idx(2));
+                npix_in_block = sum(npix_chunk);
+                pix_pos_end   = pix_pos_start+npix_in_block-1;
 
+                data          = obj.get_raw_pix(n_dataset,pix_pos_start,pix_pos_end);
+            else
+                ldr = obj.loaders_list_{n_dataset};
+                npix_chunk = ldr.get_npix_block(npix_idx(1),npix_idx(2));
+                npix_in_block = sum(npix_chunk);
+                pix_pos_end   = pix_pos_start+npix_in_block-1;
+
+                data          = ldr.get_raw_pix(pix_pos_start,pix_pos_end);
+            end
+        end
         %------------------------------------------------------------------
         function pos = get.pos_npixstart(obj)
             pos = obj.pos_npixstart_;
@@ -204,9 +222,26 @@ classdef pixfile_combine_info < MultipixBase
             %
             obj = trim_nfiles_(obj,nfiles_to_leave);
         end
+        function obj = close_faccessors(obj)
+            % close access to partial input files
+            for i=1:numel(obj.loaders_list_)
+                if ~isempty(obj.loaders_list_)
+                    if obj.binary_access_
+                        obj.loaders_list_{i} = fclose(obj.loaders_list_{i});
+                    else
+                        obj.loaders_list_{i}.delete();
+                    end
+                end
+            end
+            obj.loaders_list_ = {};
+        end
+        
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function is = get_is_filebacked(~)
+            is = true;
+        end
         function obj = set_npix_each_file(obj,val)
             % accepts the numeric array which defines number of pixels
             % in each file or signle value if total number of pixels
@@ -228,6 +263,38 @@ classdef pixfile_combine_info < MultipixBase
                 obj = check_combo_arg(obj);
             end
         end
+        %==================================================================
+        % BLOCKS supporing future Re #1436 operations
+        function pix_data = get_raw_pix(obj,n_file,pix_pos_start,pix_pos_end)
+            % read pixel block of the appropriate size located at the
+            % specified position in the binary file
+            %Inputs:
+            % n_file       -- the number of object to read
+            % pos_pixstart -- the initial position of the pix block to read
+            % pix_pos_end  -- final poistion of pixels to read
+
+            pix_data = get_raw_pix_(obj,n_file,pix_pos_start,pix_pos_end);
+        end
+        function npix_block = get_npix_block(obj,ds_num,ibin_start,ibin_end)
+            % Read npix block describing the distribution of pixels over
+            % image bins
+            %
+            %   >> npix_block =get_npix_section_(obj,ds_num,ibin_start,ibin_max)
+            %
+            % Input:
+            % ------
+            %   ds_num      -- number of dataset to read
+            %   ibin_start  -- First bin of data to read
+            %   ibin_max    -- last bin of data to read
+            %
+            % Output:
+            % -------
+            %   npix_block -- the block npix(ibin_start:ibin_end) for
+            %                  n_file's input file
+            npix_block = get_npix_block_(obj,ds_num,ibin_start,ibin_end);
+        end
+
+
     end
     %----------------------------------------------------------------------
     % SERIALIZABLE INTERFACE

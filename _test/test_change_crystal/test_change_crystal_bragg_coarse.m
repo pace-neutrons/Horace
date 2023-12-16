@@ -99,7 +99,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             % Apply to a copy of the sqw object to see that the alignment is now OK
             % ---------------------------------------------------------------------
-            tmp_file_1 = TmpFileHandler('test_change_crystal_coarse_sima_corr.sqw');
+            tmp_file_1 = TmpFileHandler('test_change_crystal_coarse_sima_corr.sqw',true);
             sim_sqw_file_corr = tmp_file_1.file_name;
 
             copyfile(obj.misaligned_sqw_file, sim_sqw_file_corr, 'f')
@@ -161,23 +161,26 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             % ensure we indeed do filebacked algorithm
             assertTrue(wout_aligned.is_filebacked);
+            assertFalse(wout_aligned.is_tmp_obj);            
 
             corr_rev.rotvec = -corr_rev.rotvec;
             assertEqualToTol(corrections, corr_rev, 'tol', 1.e-9)
 
             % test cut ranges:
-            cr = [-0.3,-2.0,-0.5,-0.5;...
+            cr=[-0.3,-2.0,-0.5,-0.5;...
                 +3.5,+4.2,+1.0,+0.5];
 
             proj = line_proj;
-            cut_range = {[cr(1, 1), 0.05, cr(2, 1)], ...
-                [cr(1, 2), 0.05, cr(2, 2)], ...
+            cut_range = {[cr(1, 1), 0.08, cr(2, 1)], ...
+                [cr(1, 2), 0.08, cr(2, 2)], ...
                 cr(:, 3)', cr(:, 4)'};
 
             % test the cut from crystal with alignment and cut with aligned
             % crystal, alignment applied are the same
             cut_cor= cut(tf_ref_corr, proj, cut_range{:});
+            assertTrue(cut_cor.is_tmp_obj)
             cut_al = cut(tf_ref_al, proj, cut_range{:});
+            assertTrue(cut_al.is_tmp_obj)            
 
             assertEqualToTol(cut_cor, cut_al, 4*eps('single'), 'ignore_str', true);
         end
@@ -211,12 +214,13 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertEqualToTol(corrections, corr_rev, 'tol', 1.e-9)
 
             % test cut ranges:
-            cr = [-0.3,-2.0,-0.5,-0.5;...
-                +3.5,+4.2,+1.0,+0.5];
+            cr=[-0.3, -2.0, -0.5, -0.5;...
+                +3.5, +4.2, +1.0, +0.5];
 
             proj = line_proj;
-            cut_range = {[cr(1, 1), 0.05, cr(2, 1)], ...
-                [cr(1, 2), 0.05, cr(2, 2)], ...
+            cut_range = {...
+                [cr(1, 1), 0.08, cr(2, 1)], ...
+                [cr(1, 2), 0.08, cr(2, 2)], ...
                 cr(:, 3)', cr(:, 4)'};
 
             cut_cor= cut_sqw(tf_ref_corr, proj, cut_range{:});
@@ -289,8 +293,6 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             clear test_fb_al;
             assertFalse(is_file(test_file));
         end
-
-
 
         function test_pageOp_moves_from_tmp_misaligned_to_tmp_same_obj(obj)
             % Prepare test data

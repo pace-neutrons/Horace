@@ -83,11 +83,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     properties(Access=private)
         % holder for the class, which deletes temporary file when holding
         % object goes out of scope.
-        % Has to be present on sqw level, as pix level can not delete file
-        % due to object destruction rules.
+        % Has to be present on sqw level, as its copy on pix level can not
+        % delete sqw file due to object destruction rules.
         tmp_file_holder_;
-        % Re #1302 TODO: delete old interface
-        file_holder_
     end
 
     methods(Static)
@@ -413,13 +411,12 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         end
     end
     %======================================================================
-    % supporting function for apply_op
+    % supporting methods for apply_op
     methods
         %----------------------------------
         new_sqw = copy(obj, varargin)
-        [obj, ldr] = get_new_handle(obj, outfile)
         wh  = get_write_handle(obj, outfile)
-        obj = finish_dump(obj,varargin);
+        obj = finish_dump(obj,page_op);
         %
     end
     %======================================================================

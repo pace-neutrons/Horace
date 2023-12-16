@@ -5,12 +5,18 @@ function free_memory = calc_free_memory_()
 %
 % Free memory assumed to be memory, which may be allocated.
 
-[~,free_memory]=sys_memory();
-ndata = floor(free_memory/8); % memory in bytes and I will be allocating doubles
+[~,phys_memory]=sys_memory();
+ndata = floor(phys_memory/8); % memory in bytes and I will be allocating doubles
 
 opt = struct('TolX',0.1);
 ndata = fzero(@heavi,ndata,opt);
 free_memory = floor(0.9*8*ndata);
+if free_memory<=0
+    free_memory = phys_memory;
+    if free_memory <=0
+        free_memory  = 1;
+    end
+end
 
 end
 
