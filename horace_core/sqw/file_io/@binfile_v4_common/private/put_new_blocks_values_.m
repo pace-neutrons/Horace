@@ -14,3 +14,36 @@ function obj = put_new_blocks_values_(obj,obj_to_write,varargin)
 %          -- cellarray of valid block names following 'exclude'
 %             keyword which contents should remains unchanged
 %             on disk.
+if ~obj.bat_.initialized
+    error('HORACE:file_io:runtime_error', ...
+        'attempting to put data using non-initialized file-accessor')
+end
+% ensure file is opened in write mode
+obj = reopen_to_write(obj);
+
+excluded_blocks = parse_addifional_input(varargin{:});
+BAT = obj.bat_;
+all_bl_names = BAT.block_names; 
+if ~isempty(excluded_blocks)
+    for i=1:BAT.n_blocks
+        is_excluded = ismember(all_bl_names{i},excluded_blocks);
+        if is_excluded
+            BAT.block_list{i}.locked = true;
+        end
+    end
+end
+
+
+function excluded_bl_list = parse_addifional_input(varargin)
+% retrieve list of excluded blocks if provided
+
+exclude_kw = cellfun(@(x)ischar(x)&&strncmp(x,'exclude',7),varargin);
+
+if ~any(exclude_kw)
+    excluded_bl_list = {};
+    return;
+end
+kw_num = find(exclude_kw);
+excluded_bl_list  = varargin{kw_num+1};
+
+

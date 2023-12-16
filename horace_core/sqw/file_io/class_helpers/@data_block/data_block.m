@@ -9,6 +9,9 @@ classdef data_block < serializable
     %
     % The information, contained in particular data_block occupies
     % constant size within the block allocation table
+    % 
+    % The blocks also knows how to retrieve its contents from 
+    % sqw object provied
 
     properties(Dependent)
         % unique name of the data_block, identifying this block in BAT.

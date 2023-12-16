@@ -34,7 +34,7 @@ else
         obj.full_file_name = fname;
         return;
     else
-        if ~(ischar(filename)|| isstring(filename))
+        if ~istext(filename)
             error('HORACE:horace_binfile_interface:invalid_argument',...
                 'Wrong type (%s) variable "filename" specified as input',...
                 class(filename))

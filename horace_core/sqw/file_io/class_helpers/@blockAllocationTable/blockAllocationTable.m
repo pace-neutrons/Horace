@@ -37,10 +37,15 @@ classdef blockAllocationTable < serializable
         ba_table;
     end
     properties(Access=protected)
+        % the position in bytes from the beginning of binary file where the
+        % BAT is stored (C numeration, starts with 0).
         position_=0;
-        % the size of empty BAT. recalculated as block list is assigned to
-        % block_list property.
-        bat_bin_size_ = 4;
+        %
+        % the base size of empty BAT stored in file. Recalculated as block
+        % list is assigned to block_list property.
+        % first 4 bytes of BAT binary representation is number of 
+        % records in the BAT and this is accounted for in get.bat_bin_size
+        bat_blocks_size_ = 0;
         % if the BAT is initialized with particular object or its image on
         % hdd
         initialized_ = false;
@@ -73,7 +78,7 @@ classdef blockAllocationTable < serializable
         end
         %------------------------------------------------------------------
         function size = get.bat_bin_size(obj)
-            size = obj.bat_bin_size_;
+            size = obj.bat_blocks_size_+4;
         end
         function nb = get.n_blocks(obj)
             nb = numel(obj.blocks_list_);
@@ -130,8 +135,8 @@ classdef blockAllocationTable < serializable
             % the data blocks start after BAT position
             % BAT size includes 4 bytes describing BAT binary block size,
             % + BAT binary representation itself, which include sum of
-            % record sizes + 4 first bytes defining number of recors
-            pos = uint64(obj.position + 4 + obj.bat_bin_size);
+            % record sizes + 4 first bytes defining number of records
+            pos = uint64(obj.position + obj.bat_bin_size);
         end
         function fsp = get.free_spaces_and_size(obj)
             fsp = obj.free_space_pos_and_size_;
@@ -280,6 +285,11 @@ classdef blockAllocationTable < serializable
             % HORACE:blockAllocationTable:runtime_error if the table have
             %       not been initialized
             pos = get_block_pos_(obj,block_name_or_class);
+        end
+        function obj = clear_unlocked_blocks(obj)
+            % method clears up information about position and sizes of all
+            % blocks which are not locked in their place
+            obj = clear_unlocked_blocks_(obj);
         end
         %
         function bindata = get.ba_table(obj)

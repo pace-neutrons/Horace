@@ -1,7 +1,7 @@
 function obj = set_block_list_(obj,val)
 % Body of block_list class setter
 %
-% 
+%
 if ~iscell(val)
     error('HORACE:blockAllocationTable:invalid_argument', ...
         'Block list value should be cellarray of data_block classes. It is: %s',...
@@ -16,42 +16,51 @@ if ~all(is_db)
         first_non,class(val{first_non}));
 end
 obj.blocks_list_ = val;
-[total_bl_size,initialized,bat_size,block_names,eof_pos] = calculate_bat_size_and_free_spaces(obj);
-obj.bat_bin_size_ = bat_size;
+
+[total_bl_size,initialized,bat_blocks_size,block_names,eof_pos] = calculate_bat_size_and_free_spaces(obj);
+obj.bat_blocks_size_ = bat_blocks_size; % (initial 4 bytes of bat size has been accounded for)
 obj.block_names_  = block_names;
 
 
 if ~initialized
     % EOF position in empty file -- first position+ 4 bytes BAT size +
     % binary BAT representation itself
-    obj.end_of_file_pos_ = obj.position_+ 4 + obj.bat_bin_size_;
+    obj.end_of_file_pos_ = obj.position_+ obj.bat_bin_size;
     obj.initialized_ = false;
     return % block list is not initialized
 end
-obj.initialized_ = true;
+obj.initialized_     = true;
 obj.end_of_file_pos_ = eof_pos;
 if obj.blocks_start_position+total_bl_size ~=eof_pos  % free spaces between blocks
     obj = find_free_spaces(obj);
 end
 
-function [total_bl_size,initialized,bat_size,name_list,eof_pos] = calculate_bat_size_and_free_spaces(obj)
+function [bl_contents_size,initialized,bat_blocks_size,name_list,eof_pos] = calculate_bat_size_and_free_spaces(obj)
 % calculate the size of the block allocation table to store it on disk
 %
-bat_size = 4; % first 4 bytes of BAT binary representation is number of 
-%             % records in the BAT
+% Initial blocks size. First number defines the number of blocks.
 n_blocks = numel(obj.blocks_list_);
-name_list = cell(1,n_blocks);
-eof_pos = 0;
-total_bl_size = 0;
-initialized = false;
+if n_blocks == 0
+    bat_blocks_size = 0; % If no no blocks are there the previous record states
+    % that length of the BAT record is 0.
+else
+    bat_blocks_size = 4; % initial BAT block size is 4 (4 bytes to store
+    % BAT's blocks number in BAT.
+end
+name_list     = cell(1,n_blocks);
+eof_pos       = bat_blocks_size;
+bl_contents_size = 0;
+initialized   = false;
 for i=1:n_blocks
     block = obj.blocks_list_{i};
     initialized = initialized||block.allocated;
-    total_bl_size = total_bl_size +block.size;
-    bat_size = bat_size+block.bat_record_size;
+    bl_contents_size = bl_contents_size +block.size;
+    bat_blocks_size = bat_blocks_size + block.bat_record_size;
     name_list{i} = block.block_name;
     if initialized
         eof_pos = max(eof_pos,block.position+block.size);
+    else
+        eof_pos  = bat_blocks_size;
     end
 end
 
@@ -69,7 +78,7 @@ for i=1:n_blocks
     bl_ps(2,i+1) = block.size;
 end
 if any(bl_ps(1,2:end)<obj.blocks_start_position)
-    error('HORACE:blockAllocationTable:invalid_argument', ...    
+    error('HORACE:blockAllocationTable:invalid_argument', ...
         'Data block location overlaps with the space, occupied by BAT')
 end
 

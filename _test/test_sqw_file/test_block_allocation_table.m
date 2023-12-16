@@ -4,6 +4,7 @@ classdef test_block_allocation_table < TestCase
     end
 
     methods
+        % Construction and helpers
         function obj = test_block_allocation_table(varargin)
             if nargin == 0
                 name = varargin{1};
@@ -35,9 +36,21 @@ classdef test_block_allocation_table < TestCase
             assertFalse(bac.initialized);
 
             test_class = binfile_v4_block_tester();
-            bac  = bac.init_obj_info(test_class);
+            bac  = bac.init_obj_info(test_class,'-nocache');
             assertTrue(bac.initialized);
         end
+    end
+    methods
+        % Test clear blocks of data, add blocks of modified data
+        function test_clear_block_info(obj)
+            bat = obj.init_bac();
+            bat = bat.clear_unlocked_blocks();
+            
+            assertFalse(bat.initialized);
+        end
+    end
+    methods
+        % Test functionality
         function test_init_with_insertion(~)
             data_list =  {data_block('','level2_a'),data_block('','level2_b')...
                 data_block('','level2_c'),dnd_data_block(),data_block('','level2_d'),...
@@ -115,7 +128,7 @@ classdef test_block_allocation_table < TestCase
                 pix_data_block()};
             bac = blockAllocationTable(10,data_list);
             assertFalse(bac.initialized);
-            first_free = bac.blocks_start_position;
+            first_free = bac.blocks_start_position; 
             assertEqual(first_free,bac.end_of_file_pos);
             assertTrue(isempty(bac.free_spaces_and_size));
 
@@ -222,7 +235,6 @@ classdef test_block_allocation_table < TestCase
             % end of file position have not changed
             assertEqual(bac.end_of_file_pos,old_eof_pos)
         end
-
         function test_two_blocks_moved_compression_possible_for_third(obj)
 
             bac = obj.init_bac();
@@ -341,7 +353,7 @@ classdef test_block_allocation_table < TestCase
 
             bac = blockAllocationTable(0,data_list);
             assertFalse(bac.initialized);
-            assertEqual(bac.bat_bin_size,4+54*4+55*2);
+            assertEqual(bac.bat_bin_size,4+4+54*4+55*2);
             bac = bac.init_obj_info(obj.test_structure);
             assertTrue(bac.initialized);
 
@@ -361,7 +373,7 @@ classdef test_block_allocation_table < TestCase
 
             bac = blockAllocationTable(0,data_list);
             assertFalse(bac.initialized);
-            assertEqual(bac.bat_bin_size,4+54*4+55*2);
+            assertEqual(bac.bat_bin_size,4+4+54*4+55*2);
 
             name = data_list{2};
             assertExceptionThrown(@()get_block_pos(bac,name), ...
@@ -375,7 +387,9 @@ classdef test_block_allocation_table < TestCase
 
             bac = blockAllocationTable(0,data_list);
             assertFalse(bac.initialized);
-            assertEqual(bac.bat_bin_size,4+54*4+55*2);
+            % 4 bytes BAT length, 4 bytes n_elements and elements
+            % themselves
+            assertEqual(bac.bat_bin_size,4+4+54*4+55*2);
 
             bac = bac.init_obj_info(obj.test_structure);
             assertTrue(bac.initialized);
@@ -404,13 +418,14 @@ classdef test_block_allocation_table < TestCase
 
             bac = blockAllocationTable(0,data_list);
             assertFalse(bac.initialized);
-            assertEqual(bac.bat_bin_size,167);
+            %assertEqual(bac.bat_bin_size,167);
+            assertEqual(bac.bat_bin_size,171);
             bac = bac.init_obj_info(obj.test_structure);
             assertTrue(bac.initialized);
 
             bin_data = bac.ba_table;
             assertTrue(isa(bin_data,'uint8'));
-            assertEqual(numel(bin_data),bac.bat_bin_size);
+            assertEqual(numel(bin_data),bac.bat_bin_size-4);
 
             rec_table = blockAllocationTable();
             rec_table.ba_table = bin_data;

@@ -31,7 +31,7 @@ if the_block.allocated
     % the free spaces
     old_block_place = [the_block.position;the_block.size];
     fs = [obj.free_space_pos_and_size_,old_block_place];
-    fs = merge_adjusent_blocks(fs);
+    fs = merge_adjusent_space_(fs);
 else
     fs = obj.free_space_pos_and_size_;
 end
@@ -74,33 +74,6 @@ if fs(1,end)+fs(2,end) == obj.end_of_file_pos
     fs = fs(:,1:end-1);
 end
 
-
 obj.free_space_pos_and_size_ = fs;
-
 obj.blocks_list_{bl_ind} = the_block;
 
-function [fs_new] = merge_adjusent_blocks(fs)
-% merge together free space blocks, with lie one after another and
-% describe continuous block of free space(s)
-[~,indx] = sort(fs(1,:));
-fs = fs(:,indx);
-
-start_pos   = fs(1,:);
-block_sizes = fs(2,:);
-end_pos = start_pos+block_sizes;
-adjusent = [false,start_pos(2:end)==end_pos(1:end-1)];
-if any(adjusent)
-    ic = 1;
-    fs_new = zeros(2,numel(start_pos)-sum(adjusent));
-    for i=1:numel(start_pos)
-        if adjusent(i)
-            fs_new(2,ic-1) = fs_new(2,ic-1)+fs(2,i);
-        else
-            fs_new(1,ic) = fs(1,i);
-            fs_new(2,ic) = fs(2,i);
-            ic = ic+1;
-        end
-    end
-else
-    fs_new = fs;
-end
