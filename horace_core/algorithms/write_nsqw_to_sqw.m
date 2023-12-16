@@ -2,6 +2,7 @@ function [img_db_range,pix_data_range,wout]=write_nsqw_to_sqw (infiles, outfile,
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
+%   >>[img_db_range,pix_data_range,wout]  =  write_nsqw_to_sqw (infiles, outfiles,varargin)
 %
 % Input:
 % ------
@@ -9,19 +10,23 @@ function [img_db_range,pix_data_range,wout]=write_nsqw_to_sqw (infiles, outfile,
 %   outfile         Full name of output sqw file
 %
 % Optional inputs:
-% -allow_equal_headers -- disables checking input files for absolutely
-%                       equal headers. Two file having equal headers is an error
-%                       in normal operations so this option  used in
-%                       tests or when equal zones are combined.
-% -parallel           -- combine files using Herbert parallel framework.
+% -allow_equal_headers
+%                    -- disables checking input files for absolutely
+%                       equal headers. Two file having equal headers is an
+%                       error in normal operations so this option used in
+%                       tests in case of some specific data modelling.
+%                       To learn what headers are considered equal in details
+%                       look at  Experiment.combine_experiments method.
+% -parallel          -- combine files using Herbert parallel framework.
 %                       this is duplicate for hpc_config option (currently
 %                       missing) so either this keyword or hpc_config
 %                       option or the instance of the JobDispatcher has to
 %                       be present to combine sqw files in  parallel.
-% -keep_runid         -- if present, forces routine to keep run-id specific
-%                       defined in the contributing run-files instead of
-%                       generating run-id on the basis of the data, stored
-%                       in the runfiles
+% -keep_runid        -- if present, forces routine to keep run-id defined
+%                       in the contributing  run-files instead of
+%                       setting run-id according to the number of file in
+%                       the list of files provided as input to this
+%                       algorithm.
 %
 % JobDispatcherInstance-- the initialized instance of JobDispatcher,
 %                       to use in combining sqw files in parallel
@@ -49,7 +54,8 @@ function [img_db_range,pix_data_range,wout]=write_nsqw_to_sqw (infiles, outfile,
 
 
 % T.G.Perring   27 June 2007
-% T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
+% T.G.Perring   22 March 2013  Modified to enable sqw files with more than
+%               one spe file to be combined.
 %
 
 if nargin<2
