@@ -1,41 +1,132 @@
 function obj = put_new_blocks_values_(obj,obj_to_write,varargin)
 % method takes initlized faccessor and replaces blocks
 % stored in file with new block values obtained from sqw or dnd
-% object provided.
+% object provided as input.
+%
 % Inputs:
-% obj   -- initialized instance of file-accessor.
+% obj   -- initialized instance of file-accessor attached to existing sqw 
+%          file containing sqw/dnd data.
 % obj_to_write
-%       -- sqw or dnd object which contents should be replaced
+%       -- sqw or dnd object with contents that replaces previous contents 
 %          on disk.
+%
 % Optional:
 % 'exclude' -- option followed by list of block names which
-%              should remain unchanged.
-% block_list
+%              should remain unchanged in file.
+%  block_list
 %          -- cellarray of valid block names following 'exclude'
-%             keyword which contents should remains unchanged
-%             on disk.
+%             keyword, describing blocks which contents in file should
+%             remains unchanged.
+%             If this keyword/list are missing the method replaces all data
+%             on disk except pixel data, which are locked by default.
+%
+% 'include' -- option followed by list of block names which shoud be
+%             replaced in file. This option is opposit to 'exclude' option.            
+%  block_list
+%          -- cellarray of valid block names following 'include'
+%             keyword, describing blocks which contents in file should
+%             be replaced.
+%             Similarly to 'exclude' if this option is missed, all blocks
+%             except pixels are replaced on disk excluding pixel data.
+%             If this option is present, only blocks from the list provided
+%             are updated.
+%
+% '-nocache'  if present tells the algorithm not to cache serialized
+%             contents of the blocks while calculating block sizes. 
+%             This means that objects roughly speaking would be serialized
+%             twice -- first time when their size is estimated (a bit quicker,
+%             as memory is not allocated) and second time  -- before writing
+%             data on disk. These are more expensive calculations but memory
+%             is saved, as when cache is used, the serialized data for all
+%             blocks to be stored are placed in memory together and saved
+%             later.
+
+% 
 if ~obj.bat_.initialized
     error('HORACE:file_io:runtime_error', ...
         'attempting to put data using non-initialized file-accessor')
 end
+[ok,mess,nocache,argi] = parse_char_options(varargin,{'-nocache'});
+if ~ok
+    error('HORACE:file_io:invalid_argument',mess);    
+end
 % ensure file is opened in write mode
 obj = reopen_to_write(obj);
 
-excluded_blocks = parse_addifional_input(varargin{:});
+bl_names_to_change = parse_addifional_input(obj,argi{:});
 BAT = obj.bat_;
-all_bl_names = BAT.block_names; 
-if ~isempty(excluded_blocks)
-    for i=1:BAT.n_blocks
-        is_excluded = ismember(all_bl_names{i},excluded_blocks);
-        if is_excluded
-            BAT.block_list{i}.locked = true;
-        end
+n_blocks = BAT.n_blocks;
+all_bl_names      = BAT.block_names;
+% store current block state to return to it later 
+block_locked = false(1,n_blocks);
+
+% unlock the blocks we want to change
+for i=1:n_blocks
+    block_locked(i) =  BAT.block_list{i}.locked;
+    if ismember(all_bl_names{i},bl_names_to_change)
+       BAT.block_list{i}.locked = false;                
+    else
+       BAT.block_list{i}.locked = true;        
     end
 end
+% clear size and position information about the blocks which should be modified
+BAT = BAT.clear_unlocked_blocks();
+% 
+% identify the modified blocks sizes
+BAT = BAT.place_unlocked_blocks(obj_to_write,nocache);
+%
+% % new_block_sizes = zeros(1,numel(bl_names_to_change));
+% ic_changed = 0;
+% for i=1:n_blocks
+%     if block_locked
+%         continue;
+%     end
+%     block = BAT.block_list{i};
+%     block = block.calc_obj_size(obj_to_write,nocache);
+%     ic_changed = ic_changed+1;
+%     new_block_sizes(ic_changed) = block.size;
+%     BAT.block_list{i} = block;
+% end
+% % 
+% % find places for new blocks
+% [positions,free_spaces,new_eof_pos] = pack_blocks( ...
+%     BAT.free_spaces_and_size,new_block_sizes,BAT.end_of_file_pos);
+% ic_changed = 0;
+% for i=1:n_blocks
+%     if block_locked
+%         continue;
+%     end
+%     block = BAT.block_list{i};
+%     block = block.calc_obj_size(obj_to_write,nocache);
+%     ic_changed = ic_changed+1;
+%     new_block_sizes(ic_changed) = block.size;
+%     BAT.block_list{i} = block;
+% end
+%
+ic_changed = 0;
+for i=1:n_blocks
+    BAT.block_list{i}.locked = block_locked(i);    
+    if block_locked(i)
+        continue;
+    end
+    block = BAT.block_list{i};
+    if nocache
+        block = block.calc_obj_size(obj_to_write,nocache);
+    end
+    ic_changed = ic_changed+1;
+    % store block
+    block.put_sqw_block(obj.file_id_);
+    BAT.block_list{i} = block;
+end
+%
+%
+obj.bat_ = BAT;
+obj.bat_.put_bat(obj.file_id_);
 
 
-function excluded_bl_list = parse_addifional_input(varargin)
-% retrieve list of excluded blocks if provided
+function excluded_bl_list = parse_addifional_input(obj,varargin)
+% retrieve list of excluded and included blocks if provided and return the
+% list of blocks requested to modify.
 
 exclude_kw = cellfun(@(x)ischar(x)&&strncmp(x,'exclude',7),varargin);
 

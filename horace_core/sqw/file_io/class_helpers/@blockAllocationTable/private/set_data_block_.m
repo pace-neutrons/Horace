@@ -18,7 +18,7 @@ function  obj = set_data_block_(obj,block_instance)
 
 % find place of the block_instance in the current blocks subscription list
 %
-targ_name = block_instance.block_name;
+targ_name   = block_instance.block_name;
 targ_start  = block_instance.position;
 targ_size = block_instance.size;
 [initialized,targ_found,start_position,size] = cellfun(@(x)block_info(x,targ_name), ...

@@ -228,19 +228,45 @@ classdef binfile_v4_common < horace_binfile_interface
         function obj = put_new_blocks_values(obj,obj_to_write,varargin)
             % method takes initlized faccessor and replaces blocks
             % stored in file with new block values obtained from sqw or dnd
-            % object provided.
+            % object provided as input.
+            %
             % Inputs:
-            % obj   -- initialized instance of file-accessor.
+            % obj   -- initialized instance of file-accessor attached to
+            %          existing sqw file containing sqw/dnd data.
             % obj_to_write
-            %       -- sqw or dnd object which contents should be replaced
-            %          on disk.
+            %       -- sqw or dnd object with contents that replaces
+            %          previous contents on disk.
             % Optional:
             % 'exclude' -- option followed by list of block names which
-            %              should remain unchanged.
-            % block_list
+            %              should remain unchanged in file.
+            %  block_list
             %          -- cellarray of valid block names following 'exclude'
-            %             keyword which contents should remains unchanged
-            %             on disk.
+            %             keyword, describing blocks which contents in file
+            %             should remains unchanged.
+            %             If this keyword/list are missing the method
+            %             replaces all data in file except pixel data,
+            %             which are locked by default.
+            %
+            % 'include' -- option followed by list of block names which
+            %             shoud be replaced in file. This option is opposite
+            %             to 'exclude' option.
+            %  block_list
+            %          -- cellarray of valid block names following 'include'
+            %             keyword, describing blocks which contents in file
+            %             should be replaced.
+            %             Similarly to 'exclude' if this option is missed,
+            %             all blocks except pixels are replaced in file
+            %             excluding pixel data. If this option is present,
+            %              only blocks from the list provided here are updated.
+            %
+            % '-nocache'  if present tells the algorithm not to cache serialized
+            %             contents of the blocks while calculating block sizes.
+            %             This means that objects roughly speaking would be serialized
+            %             twice -- first time when their size is estimated, and second
+            %             time  -- before writing data on disk. These are more expensive
+            %             calculations but memory is saved, as when cache is used, the
+            %             serialized data for all blocks to be stored are placed in
+            %             memory together and saved later.
             obj = put_new_blocks_values_(obj,obj_to_write,varargin{:});
         end
     end
