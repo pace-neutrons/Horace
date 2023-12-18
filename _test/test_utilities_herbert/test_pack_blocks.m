@@ -10,27 +10,46 @@ classdef test_pack_blocks< TestCase
             end
             this = this@TestCase(name);
         end
+        function test_pack_all_fit_inside_big_gap_at_the_end(~)
+            free_space = [...
+                10,100;
+                20, 40];
+            eof_pos    = 200;
+            block_size = [20,10,30];
+
+            [pos,free_space_rt,pos_eof]= pack_blocks(free_space,block_size,eof_pos);
+
+            assertEqual(pos,[10, 130,100])
+            assertTrue(isempty(free_space_rt));
+            assertEqual(pos_eof,200);
+        end
+
+
         function test_pack_all_fit_inside(~)
-            free_space = [10,100;40,20];
-            eof_pos = 200;
-            block = [20,10,30];
+            free_space = [...
+                10,100;
+                40, 20];
+            eof_pos    = 200;
+            block_size = [20,10,30];
 
-            [pos,free_space_rt,pos_eof]= pack_blocks(free_space,block,eof_pos);
+            [pos,free_space_rt,pos_eof]= pack_blocks(free_space,block_size,eof_pos);
 
-            assertEqual(pos,[10,130,100])
+            assertEqual(pos,[100,40,10])
             assertTrue(isempty(free_space_rt));
             assertEqual(pos_eof,200);
         end
 
         function test_pack_two_blcks_inside(~)
-            free_space = [10,100;40,10];
-            eof_pos = 200;
-            block = [20,10,30];
+            free_space = [
+                10,100;
+                40, 10];
+            eof_pos    = 200;
+            block_size = [20,10,30];
 
-            [pos,free_space_rt,pos_eof]= pack_blocks(free_space,block,eof_pos);
+            [pos,free_space_rt,pos_eof]= pack_blocks(free_space,block_size,eof_pos);
 
-            assertEqual(pos,[200,130,100])
-            assertEqual(free_space_rt,[10;10]);
+            assertEqual(pos,[200,40,10])
+            assertEqual(free_space_rt,[100;10]);
             assertEqual(pos_eof,220);
         end
 
