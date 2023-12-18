@@ -43,7 +43,7 @@ classdef blockAllocationTable < serializable
         %
         % the base size of empty BAT stored in file. Recalculated as block
         % list is assigned to block_list property.
-        % first 4 bytes of BAT binary representation is number of 
+        % first 4 bytes of BAT binary representation is number of
         % records in the BAT and this is accounted for in get.bat_bin_size
         bat_blocks_size_ = 0;
         % if the BAT is initialized with particular object or its image on
@@ -53,7 +53,7 @@ classdef blockAllocationTable < serializable
         blocks_list_ = {};
         block_names_ = {};
         % location and sizes of free spaces within binary data, described by BAT
-        free_spaces_and_size_ =zeros(2,0);
+        free_spaces_and_size_ =uint64(zeros(2,0));
         end_of_file_pos_ = 0;
     end
     %======================================================================
@@ -291,6 +291,32 @@ classdef blockAllocationTable < serializable
             % blocks which are not locked in their place
             obj = clear_unlocked_blocks_(obj);
         end
+        function obj = place_unlocked_blocks(obj,obj_to_write,nocache)
+            % replace contents of unlocked blocks with the contents of the
+            % input object and found places of these blocks within the BAT.
+            %
+            % Should work after clear_unocked_blocks was called, as clear_unocked_blocks
+            % calculates free spaces left after old blocks were
+            % removed.
+            %
+            % Inputs:
+            % obj           -- initialized instance of BAT.
+            % obj_to_write  -- input object, source of information about
+            %                  new block contents
+            % nocache       -- logical variable, defining if serialized
+            %                  data from the obj_to_write should be cached
+            %                  within the data blocks for storing them
+            %                  later. If this variable is true, the
+            %                  serialized data used to calculate block size
+            %                  are ignored and recalated again when block
+            %                  is prepared for writing to disk. Takes longer
+            %                  but saves memory.
+            % Output:
+            % obj           -- modified instance of BAT, containing
+            %                  information on where to store modified
+            %                  object's blocks.
+            obj = place_unlocked_blocks_(obj,obj_to_write,nocache);
+        end
         %
         function bindata = get.ba_table(obj)
             % generate BAT binary representation to store Block
@@ -320,10 +346,10 @@ classdef blockAllocationTable < serializable
             obj = restore_bat_(obj,fid,position);
         end
         function obj = clear(obj)
-            % nullify the position of data blocks for all blocks except 
+            % nullify the position of data blocks for all blocks except
             % the locked blocks.
-            % 
-            % Used to reposition all movable blocks 
+            %
+            % Used to reposition all movable blocks
             for i=1:obj.n_blocks
                 if ~obj.blocks_list_{i}.locked
                     obj.blocks_list_{i}.position = 0;

@@ -42,6 +42,48 @@ classdef test_block_allocation_table < TestCase
     end
     methods
         % Test clear blocks of data, add blocks of modified data
+        function test_set_leave_two_blocks_returns_same_BAT(obj)
+            bat = obj.init_bac();
+            bat.blocks_list{end-1}.locked = true;
+            bat.blocks_list{2}.locked = true;
+
+            bat0 = bat.clear_unlocked_blocks();
+
+            test_class = binfile_v4_block_tester();
+            batR = bat0.place_unlocked_blocks(test_class,true);
+
+            assertEqual(bat.free_spaces_and_size,batR.free_spaces_and_size);
+            assertEqual(bat.end_of_file_pos,batR.end_of_file_pos);
+
+        end
+
+        function test_set_block_info_one_before_last_returns_same_BAT(obj)
+            % reallocates free space between BAT and last block and adds
+            % free space at the end
+            bat = obj.init_bac();
+            bat.blocks_list{end-1}.locked = true;
+            bat0 = bat.clear_unlocked_blocks();
+
+            test_class = binfile_v4_block_tester();
+            batR = bat0.place_unlocked_blocks(test_class,true);
+
+            assertEqual(bat.free_spaces_and_size,batR.free_spaces_and_size);
+            assertEqual(bat.end_of_file_pos,batR.end_of_file_pos);
+
+        end
+
+        function test_set_block_info_last_returns_same_BAT(obj)
+            % reallocates free space between BAT and last block
+            bat = obj.init_bac();
+            bat.blocks_list{end}.locked = true;
+            bat0 = bat.clear_unlocked_blocks();
+
+            test_class = binfile_v4_block_tester();
+            batR = bat0.place_unlocked_blocks(test_class,true);
+            assertEqual(bat.free_spaces_and_size,batR.free_spaces_and_size);
+            assertEqual(bat.end_of_file_pos,batR.end_of_file_pos);
+        end
+        %
         function test_clear_leave_two_blocks(obj)
             bat = obj.init_bac();
             bat.blocks_list{end-1}.locked = true;

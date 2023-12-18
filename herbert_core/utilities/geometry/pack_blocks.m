@@ -7,7 +7,7 @@ function [positions,free_spaces,last_gap_pos] = pack_blocks(free_spaces,block_si
 %                 row) and sizes (second row) of gaps to place blocks in.
 % block_sizes  -- 1 x m-elements array of numbers defining the sizes of the
 %                 blocks to place within the gaps.
-%last_gap_position
+% last_gap_position
 %              -- the position of the last unlimited size gap, where all
 %                 blocks which do not fit free spaces should be placed in.
 %                 (current EOF position, where blocks not fitting within

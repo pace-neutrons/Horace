@@ -72,48 +72,15 @@ end
 % clear size and position information about the blocks which should be modified
 BAT = BAT.clear_unlocked_blocks();
 % 
-% identify the modified blocks sizes
+% identify the modified blocks sizes and found their places in BAT
 BAT = BAT.place_unlocked_blocks(obj_to_write,nocache);
 %
-% % new_block_sizes = zeros(1,numel(bl_names_to_change));
-% ic_changed = 0;
-% for i=1:n_blocks
-%     if block_locked
-%         continue;
-%     end
-%     block = BAT.block_list{i};
-%     block = block.calc_obj_size(obj_to_write,nocache);
-%     ic_changed = ic_changed+1;
-%     new_block_sizes(ic_changed) = block.size;
-%     BAT.block_list{i} = block;
-% end
-% % 
-% % find places for new blocks
-% [positions,free_spaces,new_eof_pos] = pack_blocks( ...
-%     BAT.free_spaces_and_size,new_block_sizes,BAT.end_of_file_pos);
-% ic_changed = 0;
-% for i=1:n_blocks
-%     if block_locked
-%         continue;
-%     end
-%     block = BAT.block_list{i};
-%     block = block.calc_obj_size(obj_to_write,nocache);
-%     ic_changed = ic_changed+1;
-%     new_block_sizes(ic_changed) = block.size;
-%     BAT.block_list{i} = block;
-% end
-%
-ic_changed = 0;
 for i=1:n_blocks
     BAT.block_list{i}.locked = block_locked(i);    
     if block_locked(i)
         continue;
     end
     block = BAT.block_list{i};
-    if nocache
-        block = block.calc_obj_size(obj_to_write,nocache);
-    end
-    ic_changed = ic_changed+1;
     % store block
     block.put_sqw_block(obj.file_id_);
     BAT.block_list{i} = block;
