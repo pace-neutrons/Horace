@@ -1,9 +1,12 @@
-function [is_out, iw_out] = repeat_s_w_blocks_multi (isp_beg, isp_end, ...
+function [is_out, iw_out] = repeat_s_w_blocks (isp_beg, isp_end, ...
     ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_sp, delta_w)
-% Create spectra and workspace number arrays from input ranges and repeat counts
+% Create spectra and workspace number arrays from input ranges and repeat blocks
 %
-%   >> [is_out, iw_out] = repeat_s_w_blocks_multi (isp_beg, isp_end, ...
+%   >> [is_out, iw_out] = repeat_s_w_blocks (isp_beg, isp_end, ...
 %                   ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_sp, delta_w)
+%
+% Input arguments can be scalars (one schema), or vectors (multiple schema). The
+% output for multiple schema are accumulated.
 %
 % Input:
 % ------
@@ -14,7 +17,10 @@ function [is_out, iw_out] = repeat_s_w_blocks_multi (isp_beg, isp_end, ...
 %              workspace (array, same size as isp_beg)
 %   isp_dcn     Increment in isp(i):isp_dcn(i):isp_end(i); takes value +1 or -1;
 %              same number of elements as isp_beg
-%   iw_beg      Starting workspace numbers (array same size as isp_beg)
+%   iw_beg      Starting workspace numbers (array same size as isp_beg).
+%               Elements can be NaN, indicating placeholders to be resolved as
+%              placing the block of workspaces defined by the schema contiguous
+%              with the previous block and at higher workspace number.
 %   iw_dcn      Increment in workspace number: +1 or -1; array same size as
 %              isp_beg
 %   nrepeat     Number of times to repeat the block of spectra and workspace
@@ -23,6 +29,9 @@ function [is_out, iw_out] = repeat_s_w_blocks_multi (isp_beg, isp_end, ...
 %              (array, same size as isp_beg)
 %   delta_w     Increment in workspace numbers between each repetition
 %              (array, same size as isp_beg)
+%               Elements can be NaN, indicating placeholders to be resolved as
+%              placing the each repeat block of workspaces defined in the schema
+%              contiguous with the previous block and at higher workspace number.
 %
 % Output:
 % -------
@@ -34,11 +43,13 @@ function [is_out, iw_out] = repeat_s_w_blocks_multi (isp_beg, isp_end, ...
 nw = 1 + floor(abs(isp_end-isp_beg)./ngroup);
 
 % Resolve place-holder values of iw and delta_w. The value of iw_max is updated
-% from the previous iteration, so this cannot be replaced by arrayfun
-ndescriptors = numel(isp_beg);
+% from the previous iteration, so this for...end loop cannot be replaced by a
+% call to arrayfun
+% Throw error if minimum workspace number is less than 1.
+Nschema = numel(isp_beg);
 iw_max = 0;
-for i = 1:ndescriptors
-    [iw_beg(i), delta_w(i), iw_min, iw_max] = resolve_w_range (iw_beg(i), iw_dcn(i), ...
+for i = 1:Nschema
+    [iw_beg(i), delta_w(i), iw_min, iw_max] = resolve_repeat_w_blocks (iw_beg(i), iw_dcn(i), ...
         delta_w(i), nw(i), nrepeat(i), iw_max);
     if iw_min < 1
         error ('IX_map:invalid_argument', ['Workspace array constructed for ',...
@@ -46,16 +57,17 @@ for i = 1:ndescriptors
     end
 end
 
-% Compute the total number of spectra and workspaces
-ns = abs(isp_end - isp_beg) +  1;   % could have isp_beg > isp_end
-ns_descriptor = ns .* nrepeat;
+% Create arrays of the spectrum and workspace numbers for each block, repeated
+% as required by a schema, and accumulated across schemas
+ns = abs(isp_end - isp_beg) +  1;   % number of spectra per block in each schema
+ns_schema = ns .* nrepeat;          % total number of spectra in each schema
 
-ihi = cumsum(ns_descriptor);
-ilo = ihi - ns_descriptor + 1;
+ihi = cumsum(ns_schema);
+ilo = ihi - ns_schema + 1;
 
 is_out = NaN(ihi(end), 1);
 iw_out = NaN(ihi(end), 1);
-for i = 1:ndescriptors
+for i = 1:Nschema
     is = isp_beg(i):isp_dcn(i):isp_end(i);
     iw = iw_create (ns(i), ngroup(i), iw_beg(i), iw_dcn(i));
     [is_out(ilo(i):ihi(i)), iw_out(ilo(i):ihi(i))] = repeat_s_w_arrays (...
@@ -74,9 +86,12 @@ function iw = iw_create (ns, ngroup, iw_beg, iw_dcn)
 % Input:
 % ------
 %   ns      Number of spectra
-%   ngroup  Grouping
-%   iw_beg  First workspace number
+%   ngroup  Spectrum-to-workspace grouping
+%   iw_beg  Initial workspace number
 %   iw_dcn  Increment direction: +1 or -1
+%
+% [Note: if iw_dcn == -1 then iw_be is not the smallest workspace number, as the
+%  workspace numbers in this case *decrease* from the starting value of iw_beg.]
 %
 % Output:
 % -------

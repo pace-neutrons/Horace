@@ -78,8 +78,8 @@ classdef IX_mask < serializable
             % Performs the checks on value, and sets with unique values
             % or empty value - defines the contents from all routes
             
-            if ~isnumeric(val) || any(round(val)~=val) || any(val<1) ||...
-                    any(~isfinite(val))
+            if ~isnumeric(val) || any(round(val(:))~=val(:)) || any(val(:)<1) ||...
+                    any(~isfinite(val(:)))
                 error ('IX_mask:set:invalid_argument',...
                     'Spectrum numbers must be integers greater or equal to 1')
             end

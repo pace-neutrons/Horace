@@ -3,7 +3,7 @@ classdef test_repeat_s_w_arrays < TestCase
     
     methods
         %-----------------------------------------------------------------------
-        function test_1 (~)
+        function test_oneRepeat (~)
             % nrepeat = 1 (i.e. no repeat)
             
             is = [1 4 5];
@@ -14,14 +14,15 @@ classdef test_repeat_s_w_arrays < TestCase
                         
             is_ref = is';
             iw_ref = iw';
-            [is_out, iw_out] = repeat_s_w_arrays (is, iw, nrepeat, delta_sp, delta_w);
+            [is_out, iw_out] = exposed_IX_map.repeat_s_w_arrays ...
+                (is, iw, nrepeat, delta_sp, delta_w);
             assertEqual (is_out, is_ref)
             assertEqual (iw_out, iw_ref)
         end
         
         %-----------------------------------------------------------------------
-        function test_2 (~)
-            % nrepeat > 1
+        function test_manyRepeats (~)
+            % nrepeat = 3
             
             is = [1 4 5];
             iw = [1 2 1];
@@ -31,7 +32,8 @@ classdef test_repeat_s_w_arrays < TestCase
                         
             is_ref = [1 4 5 11 14 15 21 24 25]';
             iw_ref = [1 2 1 3 4 3 5 6 5]';
-            [is_out, iw_out] = repeat_s_w_arrays (is, iw, nrepeat, delta_sp, delta_w);
+            [is_out, iw_out] = exposed_IX_map.repeat_s_w_arrays ...
+                (is, iw, nrepeat, delta_sp, delta_w);
             assertEqual (is_out, is_ref)
             assertEqual (iw_out, iw_ref)
         end

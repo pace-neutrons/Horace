@@ -1,12 +1,12 @@
-function [iw_beg, delta_w, iw_min, iw_max] = resolve_w_range (iw_beg_in, iw_dcn, ...
-    delta_w_in, nw, nrepeat, iw_max_prev)
-% Resolve first workspace number and/or step size for repeated blocks in the
-% case when they are indicated as placeholders (i.e. NaN) that mean they are to
-% be set such that the block of workspaces defined by the spectra-workspace
+function [iw_beg, delta_w, iw_min, iw_max] = resolve_repeat_w_blocks ...
+    (iw_beg_in, iw_dcn, delta_w_in, nw, nrepeat, iw_max_prev)
+% Resolve first workspace number and/or step size for repeated blocks, in the
+% case when one or both are indicated as placeholders (i.e. NaN) that mean they
+% are to be set such that the block of workspaces defined by the spectra-workspace
 % mapping block is adjacent to the previous block (at higher workspace numbers)
 %
-%   >> [iw_beg, delta_w, iw_min, iw_max] = resolve_w_range (iw_beg_in, iw_dcn, ...
-%                                       delta_w_in, nw, nrepeat, iw_max_prev)
+%   >> [iw_beg, delta_w, iw_min, iw_max] = resolve_repeat_w_blocks ...
+%                   (iw_beg_in, iw_dcn, delta_w_in, nw, nrepeat, iw_max_prev)
 %
 % Input:
 % ------
@@ -29,9 +29,10 @@ function [iw_beg, delta_w, iw_min, iw_max] = resolve_w_range (iw_beg_in, iw_dcn,
 %
 %   delta_w     Resolved value of step size between repeated blocks
 %
-%   iw_min      Minimum workspace number across the blocks
+%   iw_min      Minimum workspace number across the blocks (can be less than
+%               iw_beg if iw_dcn == -1)
 %
-%   iw_max      Maximum workspace number across the blocks
+%   iw_max      Maximum workspace number across the repeated blocks
 
 
 % Relative to iw i.e. for iw==0; will account for iw later.

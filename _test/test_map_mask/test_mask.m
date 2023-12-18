@@ -1,4 +1,4 @@
-classdef test_mask < TestCaseWithSave
+classdef test_mask < TestCase
     % test_mask  Tests IX_mask class
     
     methods

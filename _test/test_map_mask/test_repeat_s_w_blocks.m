@@ -1,10 +1,10 @@
-classdef test_repeat_s_w_blocks_multi < TestCase
-    % Test repeat_s_w_blocks_multi
+classdef test_repeat_s_w_blocks < TestCase
+    % Test repeat_s_w_blocks
     
     methods
         %-----------------------------------------------------------------------
-        function test_1 (~)
-            % Single block descriptor
+        function test_oneDescriptor_repeatedBlock (~)
+            % Single grouping descriptor
             
             isp_beg = 11;
             isp_end = 16;
@@ -18,14 +18,14 @@ classdef test_repeat_s_w_blocks_multi < TestCase
             
             is_ref = [11:16 21:26 31:36]';
             iw_ref = [5 5 5 5 6 6, 105 105 105 105 106 106 205 205 205 205 206 206]';
-            [is_out, iw_out] = repeat_s_w_blocks_multi (isp_beg, isp_end, ...
+            [is_out, iw_out] = exposed_IX_map.repeat_s_w_blocks (isp_beg, isp_end, ...
                 ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_sp, delta_w);
             assertEqual (is_out, is_ref)
             assertEqual (iw_out, iw_ref)
         end
         
         %-----------------------------------------------------------------------
-        function test_1a (~)
+        function test_oneDescriptor_repeatedBlock_spNegDcn_wNegDcn (~)
             % Single block descriptor with negative isp_dcn and iw_dcn
             
             isp_beg = 56;
@@ -40,14 +40,14 @@ classdef test_repeat_s_w_blocks_multi < TestCase
             
             is_ref = [56:-1:51 68:-1:63]';
             iw_ref = [8 8 8 8 8 7, 28 28 28 28 28 27]';
-            [is_out, iw_out] = repeat_s_w_blocks_multi (isp_beg, isp_end, ...
+            [is_out, iw_out] = exposed_IX_map.repeat_s_w_blocks (isp_beg, isp_end, ...
                 ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_sp, delta_w);
             assertEqual (is_out, is_ref)
             assertEqual (iw_out, iw_ref)
         end
         
         %-----------------------------------------------------------------------
-        function test_2 (~)
+        function test_twoDescriptors_repeatedBlocks_spMixedDcn_wMixedDcn (~)
             % Multiple block descriptors
             
             isp_beg = [11,56];
@@ -63,14 +63,14 @@ classdef test_repeat_s_w_blocks_multi < TestCase
             is_ref = [11:16 21:26 31:36 56:-1:51 68:-1:63]';
             iw_ref = [5 5 5 5 6 6, 105 105 105 105 106 106 ...
                 205 205 205 205 206 206 8 8 8 8 8 7, 28 28 28 28 28 27]';
-            [is_out, iw_out] = repeat_s_w_blocks_multi (isp_beg, isp_end, ...
+            [is_out, iw_out] = exposed_IX_map.repeat_s_w_blocks (isp_beg, isp_end, ...
                 ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_sp, delta_w);
             assertEqual (is_out, is_ref)
             assertEqual (iw_out, iw_ref)
         end
         
         %-----------------------------------------------------------------------
-        function test_2a (~)
+        function test_twoDescriptors_repeatedBlocks_wPlaceholders (~)
             % Two block descriptors, placeholder iw_beg and delta_w on second
             
             isp_beg = [11,56];
@@ -86,14 +86,14 @@ classdef test_repeat_s_w_blocks_multi < TestCase
             is_ref = [11:16 21:26 31:36 56:-1:51 68:-1:63]';
             iw_ref = [5 5 5 5 6 6, 105 105 105 105 106 106 ...
                 205 205 205 205 206 206 208 208 208 208 208 207, 210 210 210 210 210 209]';
-            [is_out, iw_out] = repeat_s_w_blocks_multi (isp_beg, isp_end, ...
+            [is_out, iw_out] = exposed_IX_map.repeat_s_w_blocks (isp_beg, isp_end, ...
                 ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_sp, delta_w);
             assertEqual (is_out, is_ref)
             assertEqual (iw_out, iw_ref)
         end
         
         %-----------------------------------------------------------------------
-        function test_3 (~)
+        function test_twoDescriptors_repeatedBlocks_wGoesnegative_ERROR (~)
             % Workspaces go < 1. Should fail
             
             isp_beg = [11,56];
@@ -106,7 +106,7 @@ classdef test_repeat_s_w_blocks_multi < TestCase
             delta_sp = [10,12];
             delta_w = [100,NaN];
             
-            func = @()repeat_s_w_blocks_multi (isp_beg, isp_end, ...
+            func = @()exposed_IX_map.repeat_s_w_blocks (isp_beg, isp_end, ...
                 ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_sp, delta_w);
             
             assertExceptionThrown (func, 'IX_map:invalid_argument');
