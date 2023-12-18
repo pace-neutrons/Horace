@@ -3,17 +3,17 @@ function [positions,free_spaces,last_gap_pos] = pack_blocks(free_spaces,block_si
 %trying to leave minimal free space.
 %
 % Inputs:
-% free_spaces  -- 2xn_element array of numbers, defining positions (first
+% free_spaces  -- 2 x n-element array of numbers, defining positions (first
 %                 row and sizes (second row) of gaps to place blocks in.
-% block_sizes  -- 1xm_elements array of numbers defining the sizes of the
+% block_sizes  -- 1 x m-elements array of numbers defining the sizes of the
 %                 blocks to place within the gaps.
 %last_gap_position
 %              -- the position of the last unlimited size gap, where all
 %                 blocks which do not fit free spaces should be placed in.
 %                 (current EOF position, where blocks not fitting within
-%                 the gaps should be places
+%                 the gaps should be placed.
 % Output:
-% positions    -- 1xm_elements array of numbers, defining positions of the
+% positions    -- 1 x m-elements array of numbers, defining positions of the
 %                 blocks to store.
 % free_spaces  -- array of free spaces remaining after blocks were packed
 % last_gap_pos -- if blocks do not fit gaps and placed at the end, changes
@@ -23,10 +23,19 @@ check_inputs_throw_error(free_spaces,block_sizes,last_gap_pos);
 
 n_blocks = numel(block_sizes);
 [block_sizes,block_ids] =  sort(block_sizes,'descend');
-free_spaces  = sort(free_spaces,2,'descend');
+[~,free_idx]= sort(free_spaces(2,:),'descend');
+free_spaces = free_spaces(:,free_idx);
 positions = zeros(1,n_blocks);
 for i = 1:n_blocks
-    fit =block_sizes(i) <= free_spaces(2,:);
+    best_fit = block_sizes(i) == free_spaces(2,:);
+    fit_idx = find(best_fit,1);
+    if ~isempty(fit_idx)
+        positions(block_ids(i)) = free_spaces(1,fit_idx);
+        free_spaces(2,fit_idx)  = 0;
+        continue;
+    end
+
+    fit =block_sizes(i) < free_spaces(2,:);
     fit_idx = find(fit,1);
     if ~isempty(fit_idx)
         positions(block_ids(i)) = free_spaces(1,fit_idx);
