@@ -4,21 +4,22 @@ function [positions,free_spaces,last_gap_pos] = pack_blocks(free_spaces,block_si
 %
 % Inputs:
 % free_spaces  -- 2 x n-element array of numbers, defining positions (first
-%                 row and sizes (second row) of gaps to place blocks in.
+%                 row) and sizes (second row) of gaps to place blocks in.
 % block_sizes  -- 1 x m-elements array of numbers defining the sizes of the
 %                 blocks to place within the gaps.
 %last_gap_position
 %              -- the position of the last unlimited size gap, where all
 %                 blocks which do not fit free spaces should be placed in.
 %                 (current EOF position, where blocks not fitting within
-%                 the gaps should be placed.
+%                 the gaps should be placed).
 % Output:
 % positions    -- 1 x m-elements array of numbers, defining positions of the
 %                 blocks to store.
 % free_spaces  -- array of free spaces remaining after blocks were packed
 % last_gap_pos -- if blocks do not fit gaps and placed at the end, changes
 %                 to point after last byte of the last block placed at the
-%                 end.
+%                 end. In other words, new EOF position.
+
 check_inputs_throw_error(free_spaces,block_sizes,last_gap_pos);
 
 n_blocks = numel(block_sizes);
