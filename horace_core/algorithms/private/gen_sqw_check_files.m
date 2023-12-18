@@ -157,7 +157,7 @@ elseif iscell(par_file)
             det_par_file = true(n_par_files,1);
             % all elements copied
             % this may not be memory efficient 
-            par_file_out = par_file;
+            par_file_out = par_file; 
         else
             error('HORACE:gen_sqw_check_files:invalid_argument', ...
                   'wrong type of contents of cell of N par files');
@@ -175,6 +175,9 @@ end
 % define the fields for a .par struct
 pf = {'filename','filepath','group','x2','phi','azim','width','height'};
 
+% Check the par file names and take copies (copy or struct filename) for
+% the name clash check following
+par_file_names = cell(n_par_files,1);
 for ii=1:n_par_files
     pfile = par_file_out{ii};
     if ~isempty(pfile)
@@ -192,6 +195,8 @@ for ii=1:n_par_files
                 error('HORACE:algorithms:invalid_argument',...
                     'Detector parameter file "%s" not found',par_file_out{ii});
             end
+            par_file_names{ii} = par_file_out{ii};
+            
         % if a struct has been input, extract the filename after checking
         % the correct fields are present
         else
@@ -199,15 +204,15 @@ for ii=1:n_par_files
                 error('HORACE:algorithms:invalid_argument',...
                     'Detector parameter information provided as input structure must be in Horace par_file format');
             end
-            par_file_out{ii} = par_file_out{ii}.filename;
-            if ~exist(par_file_out{ii},'file')
-                error('HORACE:algorithms:invalid_argument',...
-                    'Detector parameter file "%s" from struct not found',par_file_out{ii});
-            end
+            par_file_names{ii} = par_file_out{ii}.filename;
+            % NB existence of this filename is not checked; the struct
+            % filenames do not have credence. But for consistency they are
+            % checked below for name clashes
         end
     % no parameter file name has been given
     else
         par_file_out{ii} = '';
+        par_file_names{ii} = '';
     end
 end
 
@@ -229,7 +234,7 @@ end
 %See above (RAE)
 
 
-% Check that spe, par and sqw file names do not match
+% Check that spe, par and sqw file names do not clash
 % ---------------------------------------------------
 if any(strcmpi(sqw_file_out,spe_file_out)) && ~isempty(sqw_file_out)
     error('HORACE:algorithms:invalid_argument',...
@@ -238,16 +243,17 @@ end
 
 
 for ii=1:numel(par_file_out)
-    if ~isempty(par_file_out{ii})
+    if ~isempty(par_file_names{ii})
         for jj=1:numel(spe_file_out)
-            if any(strcmpi(par_file_out{ii},spe_file_out{jj}))
+            if any(strcmpi(par_file_names{ii},spe_file_out{jj}))
                 error('HORACE:algorithms:invalid_argument',...
-                    'Detector parameter file name %s matches one of the input spe file names',par_file_out);
+                    'Detector parameter file name %s matches one of the input spe file names',par_file_names{ii});
             end
         end
-        if strcmpi(par_file_out{ii},sqw_file_out)
+        if strcmpi(par_file_names{ii},sqw_file_out)
             error('HORACE:algorithms:invalid_argument',...
-                'Detector parameter file name %s and output sqw file name match',par_file_out);
+                'Detector parameter file name %s and output sqw file name match',par_file_names{ii});
         end
     end
 end
+

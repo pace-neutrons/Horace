@@ -79,7 +79,7 @@ n_spe_files = numel(spe_files);
 if nargin>1
     parfile_is_det = false(n_spe_files,1); % not a detpar structure
     if ischar(params{1}) && size(params{1},1)==1    % single par file provided as input
-        par_files = repmat({params(1)},n_spe_files,1);    % cell array with one character array
+        par_files = repmat({params{1}},n_spe_files,1);    % cell array with one character array
     elseif iscellstr(params{1})   % list of par files provided
         if numel(params{1})==1
             par_files = repmat({params{1}{1}},n_spe_files,1);
