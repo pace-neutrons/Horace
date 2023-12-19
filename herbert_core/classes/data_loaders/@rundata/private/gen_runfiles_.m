@@ -94,7 +94,24 @@ if nargin>1
     else
         par_files = params{1};
         if ~iscell(par_files)
-            par_files = { par_files };
+        	if numel(par_files)==1
+        	    a = repmat({par_files},n_spe_files,1);
+        	    par_files = a;
+        	elseif numel(par_files)==n_spe_files
+        	    par_files = num2cell(par_files);
+        	elseif isa(par_files,'double')
+        	    par_files = repmat({par_files},n_spe_files,1); % array form of detpar - further checks will be done in the isdetpar call below
+        	else
+        	    error('HERBERT:rundata:gen_runfiles', ...
+        	          'number of input par_files not 1 or number of spe files');
+        	end
+        else
+        	if numel(par_files)==1
+        	    par_files = repmat({par_files{1}},n_spe_files,1);
+        	elseif numel(par_files)~=n_spe_files
+        	    error('HERBERT:rundata:gen_runfiles', ...
+        	          'number of input par_files not 1 or number of spe files');
+			end        	
         end
         for ii=1:numel(par_files)
             [is,pfiles] = isdetpar(par_files{ii}); % will throw if array in wrong format
@@ -263,9 +280,10 @@ else   % multiple par and spe files;
     for i=1:n_files
         [runfiles{i},file_exist(i)]= init_runfile_with_par(runfiles{i},...
             spe_files{i},par_files{i},'',dfnd_params(i),allow_missing,parfile_is_det(i));
+        [~,runfiles{i}] = get_par(runfiles{i});
         if file_exist(i) && ~runfiles{i}.isvalid
             runfiles{i} = runfiles{i}.check_combo_arg();
-            if ~ok
+            if ~runfiles{i}.isvalid
                 error('HERBERT:gen_runfiles:invalid_argument',runfiles{i}.reason_for_invalid)
             end
         end
