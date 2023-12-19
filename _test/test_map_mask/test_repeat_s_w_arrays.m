@@ -9,13 +9,13 @@ classdef test_repeat_s_w_arrays < TestCase
             is = [1 4 5];
             iw = [1 2 1];
             nrepeat = 1;
-            delta_sp = 10;
-            delta_w = 2;
+            delta_isp = 10;
+            delta_iw = 2;
                         
             is_ref = is';
             iw_ref = iw';
             [is_out, iw_out] = exposed_IX_map.repeat_s_w_arrays ...
-                (is, iw, nrepeat, delta_sp, delta_w);
+                (is, iw, nrepeat, delta_isp, delta_iw);
             assertEqual (is_out, is_ref)
             assertEqual (iw_out, iw_ref)
         end
@@ -27,13 +27,13 @@ classdef test_repeat_s_w_arrays < TestCase
             is = [1 4 5];
             iw = [1 2 1];
             nrepeat = 3;
-            delta_sp = 10;
-            delta_w = 2;
+            delta_isp = 10;
+            delta_iw = 2;
                         
             is_ref = [1 4 5 11 14 15 21 24 25]';
             iw_ref = [1 2 1 3 4 3 5 6 5]';
             [is_out, iw_out] = exposed_IX_map.repeat_s_w_arrays ...
-                (is, iw, nrepeat, delta_sp, delta_w);
+                (is, iw, nrepeat, delta_isp, delta_iw);
             assertEqual (is_out, is_ref)
             assertEqual (iw_out, iw_ref)
         end

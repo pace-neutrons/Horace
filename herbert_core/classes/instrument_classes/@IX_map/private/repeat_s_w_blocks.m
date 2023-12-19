@@ -1,9 +1,9 @@
 function [is_out, iw_out] = repeat_s_w_blocks (isp_beg, isp_end, ...
-    ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_sp, delta_w)
+    ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_isp, delta_iw)
 % Create spectra and workspace number arrays from input ranges and repeat blocks
 %
 %   >> [is_out, iw_out] = repeat_s_w_blocks (isp_beg, isp_end, ...
-%                   ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_sp, delta_w)
+%                   ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_isp, delta_iw)
 %
 % Input arguments can be scalars (one schema), or vectors (multiple schema). The
 % output for multiple schema are accumulated.
@@ -25,9 +25,9 @@ function [is_out, iw_out] = repeat_s_w_blocks (isp_beg, isp_end, ...
 %              isp_beg
 %   nrepeat     Number of times to repeat the block of spectra and workspace
 %              numbers defined by the arguments above (array, same size as isp_beg)
-%   delta_sp    Increment in spectrum numbers between each repetition of the block
+%   delta_isp   Increment in spectrum numbers between each repetition of the block
 %              (array, same size as isp_beg)
-%   delta_w     Increment in workspace numbers between each repetition
+%   delta_iw    Increment in workspace numbers between each repetition
 %              (array, same size as isp_beg)
 %               Elements can be NaN, indicating placeholders to be resolved as
 %              placing the each repeat block of workspaces defined in the schema
@@ -39,18 +39,34 @@ function [is_out, iw_out] = repeat_s_w_blocks (isp_beg, isp_end, ...
 %   iw_out      Array of workspace numbers defined by the above
 
 
-% Number of workspaces in a single block from each repeat-block descriptor
+% Number of schema (or equivalently spectrum-to-workspace descriptors)
+Nschema = numel(isp_beg);
+
+% Number of spectra and workspaces in a single block from each schema
+ns = abs(isp_end - isp_beg) +  1;
 nw = 1 + floor(abs(isp_end-isp_beg)./ngroup);
 
-% Resolve place-holder values of iw and delta_w. The value of iw_max is updated
+% Get minimum spectrum number from the full set of repeat blocks for each
+% schema, and throw an error if the minimum spectrum number is less than 1
+% No placeholder values are permitted for spectrum blocks, which simplified the
+% call to the function resolve_repeat_blocks.
+for i = 1:Nschema
+    [~, ~, isp_min] = resolve_repeat_blocks ...
+        (isp_beg(i), isp_dcn(i), delta_isp(i), ns(i), nrepeat(i));
+    if isp_min < 1
+        error ('IX_map:invalid_argument', ['Spectrum array constructed for ',...
+            'at least one block descriptor includes zero or negative spectrum numbers'])
+    end
+end
+
+% Resolve place-holder values of iw and delta_iw. The value of iw_max is updated
 % from the previous iteration, so this for...end loop cannot be replaced by a
 % call to arrayfun
 % Throw error if minimum workspace number is less than 1.
-Nschema = numel(isp_beg);
 iw_max = 0;
 for i = 1:Nschema
-    [iw_beg(i), delta_w(i), iw_min, iw_max] = resolve_repeat_w_blocks (iw_beg(i), iw_dcn(i), ...
-        delta_w(i), nw(i), nrepeat(i), iw_max);
+    [iw_beg(i), delta_iw(i), iw_min, iw_max] = resolve_repeat_blocks ...
+        (iw_beg(i), iw_dcn(i), delta_iw(i), nw(i), nrepeat(i), iw_max);
     if iw_min < 1
         error ('IX_map:invalid_argument', ['Workspace array constructed for ',...
             'at least one block descriptor includes zero or negative workspace numbers'])
@@ -59,7 +75,6 @@ end
 
 % Create arrays of the spectrum and workspace numbers for each block, repeated
 % as required by a schema, and accumulated across schemas
-ns = abs(isp_end - isp_beg) +  1;   % number of spectra per block in each schema
 ns_schema = ns .* nrepeat;          % total number of spectra in each schema
 
 ihi = cumsum(ns_schema);
@@ -71,7 +86,7 @@ for i = 1:Nschema
     is = isp_beg(i):isp_dcn(i):isp_end(i);
     iw = iw_create (ns(i), ngroup(i), iw_beg(i), iw_dcn(i));
     [is_out(ilo(i):ihi(i)), iw_out(ilo(i):ihi(i))] = repeat_s_w_arrays (...
-        is, iw, nrepeat(i), delta_sp(i), delta_w(i));
+        is, iw, nrepeat(i), delta_isp(i), delta_iw(i));
 end
 
 end

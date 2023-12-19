@@ -18,8 +18,8 @@ classdef exposed_IX_map < IX_map
             [is_out, iw_out] = test_repeat_s_w_blocks (IX_map(), varargin{:});
         end
         
-        function [iw_beg, delta_w, iw_min, iw_max] = resolve_repeat_w_blocks (varargin)
-            [iw_beg, delta_w, iw_min, iw_max] = test_resolve_repeat_w_blocks ...
+        function [iw_beg, delta_iw, iw_min, iw_max] = resolve_repeat_blocks (varargin)
+            [iw_beg, delta_iw, iw_min, iw_max] = test_resolve_repeat_blocks ...
                 (IX_map(), varargin{:});
         end
     end

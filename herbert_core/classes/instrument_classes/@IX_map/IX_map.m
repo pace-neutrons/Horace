@@ -117,7 +117,7 @@ classdef IX_map < serializable
             % incremented by delta_isp and delta_iw respectively.
             %
             % EXAMPLE
-            %   >> w = IX_map (1256, 1001, -10, 'iw', 416, 'repeat', [16, 1000, -26])
+            %   >> w = IX_map (1256, 1001, -10, 'wkno', 416, 'repeat', [16, 1000, -26])
             %
             % indicates that a total of 256 spectra, running from 1256 to 1001, are
             % ganged in groups of 10 into the workspaces numbered 416, 415, 414 ...391.
@@ -414,8 +414,8 @@ classdef IX_map < serializable
             [is_out, iw_out] = repeat_s_w_blocks (varargin{:});
         end
         
-        function [iw_beg, delta_w, iw_min, iw_max] = test_resolve_repeat_w_blocks (~, varargin)
-            [iw_beg, delta_w, iw_min, iw_max] = resolve_repeat_w_blocks (varargin{:});
+        function [iw_beg, delta_iw, iw_min, iw_max] = test_resolve_repeat_blocks (~, varargin)
+            [iw_beg, delta_iw, iw_min, iw_max] = resolve_repeat_blocks (varargin{:});
         end
     end
         

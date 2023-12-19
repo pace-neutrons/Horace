@@ -77,10 +77,10 @@ if numel(par)==1
 
     % Parse 'repeat' option
     repeat_pars = keyval.repeat;
-    [nrepeat, delta_sp, delta_w] = parse_repeat_pars (repeat_pars, 1);
+    [nrepeat, delta_isp, delta_iw] = parse_repeat_pars (repeat_pars, 1);
     
     % Output full spectra and workspace numbers lists
-    [is, iw] = repeat_s_w_arrays (isp_array, iw_array, nrepeat, delta_sp, delta_w);
+    [is, iw] = repeat_s_w_arrays (isp_array, iw_array, nrepeat, delta_isp, delta_iw);
     
 else
     % Must be  IX_map(isp_beg, isp_end [, step]) or
@@ -101,11 +101,11 @@ else
     
     % Parse 'repeat' option
     repeat_pars = keyval.repeat;
-    [nrepeat, delta_sp, delta_w] = parse_repeat_pars (repeat_pars, Nschema);
+    [nrepeat, delta_isp, delta_iw] = parse_repeat_pars (repeat_pars, Nschema);
     
     % Output full spectra and workspace numbers lists
     [is, iw] = repeat_s_w_blocks (isp_beg, isp_end, ...
-        ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_sp, delta_w);
+        ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_isp, delta_iw);
 end
 
 end
@@ -268,10 +268,10 @@ end
 
 
 %-------------------------------------------------------------------------------
-function [nrepeat, delta_sp, delta_w] = parse_repeat_pars (repeat_pars, Nschema)
+function [nrepeat, delta_isp, delta_iw] = parse_repeat_pars (repeat_pars, Nschema)
 % Parse 'repeat' option, if present
 %
-%   >> [nrepeat, delta_sp, delta_w] = parse_repeat_pars (repeat_pars, Nschema)
+%   >> [nrepeat, delta_isp, delta_iw] = parse_repeat_pars (repeat_pars, Nschema)
 %
 % Returns column vectors with the number of repeats of of a block of spectra,
 % together with the offsets of the initial spectra and workspace numbers, for
@@ -296,9 +296,9 @@ function [nrepeat, delta_sp, delta_w] = parse_repeat_pars (repeat_pars, Nschema)
 % -------
 %   nrepeat     Number(s) of times to repeat spectra block - all integers >=1
 %              (Column vector length Nschema)
-%   delta_sp    Spectrum number offset between repeats of spectra block
+%   delta_isp   Spectrum number offset between repeats of spectra block
 %              (Column vector length Nschema)
-%   delta_w     Workspace number offset between repeats of spectra block
+%   delta_iw    Workspace number offset between repeats of spectra block
 %              (Column vector length Nschema)
 
 
@@ -331,8 +331,8 @@ if size(repeat_pars,1)==1 && Nschema>1
     repeat_pars = repmat(repeat_pars, Nschema, 1);
 end
 nrepeat = repeat_pars(:,1);
-delta_sp = repeat_pars(:,2);
-delta_w = repeat_pars(:,3);
+delta_isp = repeat_pars(:,2);
+delta_iw = repeat_pars(:,3);
 
 end
 

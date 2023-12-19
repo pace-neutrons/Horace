@@ -110,7 +110,8 @@ classdef test_map < TestCase
             delta_iw = 1;
             f = @()IX_map(isp, 'wkno', iw, 'repeat', [nrepeat, delta_isp, delta_iw]);
             ME = assertExceptionThrown (f, 'IX_map:invalid_argument');
-            %assertTrue(contains(ME.message, 'Spectrum numbers must all be >= 1'))
+            assertTrue(contains(ME.message, ['Spectrum array constructed for ',...
+        'at least one repeated array includes zero or negative spectrum numbers']))
         end
         
     end
