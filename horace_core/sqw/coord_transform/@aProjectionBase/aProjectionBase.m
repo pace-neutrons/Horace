@@ -1021,7 +1021,7 @@ classdef aProjectionBase < serializable
         end
         function  flds = saveableFields(obj)
             flds = {'alatt','angdeg','offset','label'};
-            if ~isempty(obj.title)
+            if ~isempty(obj.title) || ~all(obj.lattice_defined_)
                 flds = [flds(:);'title']';
             end
         end

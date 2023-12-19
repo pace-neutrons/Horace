@@ -241,14 +241,9 @@ classdef blockAllocationTable < serializable
             %                   written on hdd, and the method will just
             %                   calculate sizes and future locations
             %                   of the blocks.
-            % '-insertion'   -- if present, calculate sizes of blocks only
-            %                   if they have not been calculated before,
-            %                   and insert these blocks in free BAT space
-            %                   assuming that other blocks have already
-            %                   been allocated.
             % '-test_mode'   -- do not validate the size of the sub-objects
-            %                   of the initial object agains the size of
-            %                   these objects preallocated earlier. Should
+            %                   of the initial object against the size of
+            %                   these objects pre-allocated earlier. Should
             %                   be used in tests only.
             %  Used for upgrade of the old sqw files into new file format
             %  leaving pixels array in their place
@@ -266,7 +261,10 @@ classdef blockAllocationTable < serializable
             if ~ok
                 error('HORACE:blockAllocationTable:invalid_argument', mess);
             end
-            obj = init_obj_info_(obj,obj_to_analyze,nocache,insertion,test_mode);
+			if insertion
+				error('HORACE:blockAllocationTable:not_implemented','insertion mode is not implemented' )
+			end
+            obj = init_obj_info_(obj,obj_to_analyze,nocache,test_mode);
         end
         function pos = get_block_pos(obj,block_name_or_class)
             % return the position of block defined by current BAT
@@ -286,14 +284,10 @@ classdef blockAllocationTable < serializable
             %       not been initialized
             pos = get_block_pos_(obj,block_name_or_class);
         end
-        function obj = clear_unlocked_blocks(obj)
-            % method clears up information about position and sizes of all
-            % blocks which are not locked in their place
-            obj = clear_unlocked_blocks_(obj);
-        end
-        function obj = place_unlocked_blocks(obj,obj_to_write,nocache)
-            % replace contents of unlocked blocks with the contents of the
-            % input object and found places of these blocks within the BAT.
+        function obj = place_undocked_blocks(obj,obj_to_write,nocache)
+            % replace contents of blocks which have not been already placed
+            % (position = 0) with the contents taken from the input object
+            % and found places of these blocks within the BAT.
             %
             % Should work after clear_unocked_blocks was called, as clear_unocked_blocks
             % calculates free spaces left after old blocks were
@@ -315,7 +309,10 @@ classdef blockAllocationTable < serializable
             % obj           -- modified instance of BAT, containing
             %                  information on where to store modified
             %                  object's blocks.
-            obj = place_unlocked_blocks_(obj,obj_to_write,nocache);
+            if nargin<3
+                nocache = true;
+            end
+            obj = place_undocked_blocks_(obj,obj_to_write,nocache);
         end
         %
         function bindata = get.ba_table(obj)
@@ -345,17 +342,26 @@ classdef blockAllocationTable < serializable
             end
             obj = restore_bat_(obj,fid,position);
         end
+        %
         function obj = clear(obj)
-            % nullify the position of data blocks for all blocks except
-            % the locked blocks.
+            % nullify the positions of data blocks for all blocks
             %
-            % Used to reposition all movable blocks
+            % Used to reposition all movable blocks in different places.
             for i=1:obj.n_blocks
-                if ~obj.blocks_list_{i}.locked
-                    obj.blocks_list_{i}.position = 0;
-                end
+                obj.blocks_list_{i}.position = 0;
             end
-            obj.initialized_ = false;
+            obj.initialized_         = false;
+            obj.free_spaces_and_size_ = uint64(zeros(2,0));
+            obj.end_of_file_pos_     = obj.position+obj.bat_bin_size;
+        end
+        function obj = clear_unlocked_blocks(obj)
+            % method clears up information about positions of all
+            % blocks which are not locked. The space these blocks were
+            % occupied within the file is added to the free space
+            % (free_spaces_and_size array). end_of_file_pos is moved
+            % to the end of the last locked block to free the space occupied
+            % by unlocked blocks at the end of the file.
+            obj = clear_unlocked_blocks_(obj);
         end
     end
     %======================================================================

@@ -4,7 +4,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
         old_warn_state;
 
         small_page_size = 5e5;  % 1Mb, chosen since the file below is ~1.8 MB.
-        test_sqw_file_path = '../common_data/sqw_2d_1.sqw';
+        test_sqw_file_path = 'sqw_2d_1.sqw';
         npixels_in_file = 24689;
     end
 
@@ -12,7 +12,8 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
 
         function obj = test_write_then_read(~)
             obj = obj@TestCase('test_write_then_read');
-
+            hp = horace_paths;
+            obj.test_sqw_file_path = fullfile(hp.test_common,obj.test_sqw_file_path);
         end
 
 
@@ -50,7 +51,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
                 'mem_chunk_size', floor(obj.npixels_in_file/2) ...
                 );
             sqw_obj = sqw(obj.test_sqw_file_path, ...
-               'file_backed', true);
+                'file_backed', true);
             assertFalse(sqw_obj.main_header.creation_date_defined);
 
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);

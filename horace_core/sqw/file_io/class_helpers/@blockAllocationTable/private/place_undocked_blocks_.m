@@ -1,4 +1,4 @@
-function obj = place_unlocked_blocks_(obj,obj_to_write,nocache)
+function obj = place_undocked_blocks_(obj,obj_to_write,nocache)
 % replace contents of unlocked blocks with the contents of the
 % input object and found places of these blocks within the BAT.
 %

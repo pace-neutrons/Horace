@@ -1,5 +1,5 @@
 function obj = put_block_data_(obj, block_name_or_instance,varargin)
-%PUT_DND_BLOCK_  store the data described by the block provided as input
+%PUT_BLOCK_DATA_ store the data described by the block provided as input
 %
 % Inputs:
 % obj        -- initialized or not initialized instance of faccessor object

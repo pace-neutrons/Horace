@@ -16,13 +16,13 @@ function obj = put_sqw_block_(obj,fid,sqw_obj,check_size)
 %            if this does not happen
 %
 if ~isempty(sqw_obj)
-    obj = calc_obj_size_(obj,sqw_obj,false,check_size);
+    obj = obj.calc_obj_size(sqw_obj,false,check_size);
 else
     if isempty(obj.serialized_obj_cache_)
         error('HORACE:data_block:runtime_error',...
-            ['put_data_block is called sqw object argument, ', ...
+            ['put_data_block is called without sqw object argument, ', ...
             'but the size of the object has not been set ', ...
-            'and object cache is empty']);
+            'and the object cache is empty']);
     end
 end
 bindata = obj.serialized_obj_cache_;

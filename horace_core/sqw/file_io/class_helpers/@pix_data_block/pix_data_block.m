@@ -104,7 +104,7 @@ classdef pix_data_block < data_block
                 sqw_obj_to_set = obj.set_subobj(sqw_obj_to_set,subobj);
             end
         end
-        function obj =calc_obj_size(obj,sqw_obj,nocache)
+        function obj =calc_obj_size(obj,sqw_obj,nocache,varargin)
             % Overloaded: -- calculate size of the serialized object and
             % put the serialized object into data cache for subsequent put
             % operation(s)

@@ -50,7 +50,7 @@ classdef test_block_allocation_table < TestCase
             bat0 = bat.clear_unlocked_blocks();
 
             test_class = binfile_v4_block_tester();
-            batR = bat0.place_unlocked_blocks(test_class,true);
+            batR = bat0.place_undocked_blocks(test_class,true);
 
             assertEqual(bat.free_spaces_and_size,batR.free_spaces_and_size);
             assertEqual(bat.end_of_file_pos,batR.end_of_file_pos);
@@ -65,7 +65,7 @@ classdef test_block_allocation_table < TestCase
             bat0 = bat.clear_unlocked_blocks();
 
             test_class = binfile_v4_block_tester();
-            batR = bat0.place_unlocked_blocks(test_class,true);
+            batR = bat0.place_undocked_blocks(test_class,true);
 
             assertEqual(bat.free_spaces_and_size,batR.free_spaces_and_size);
             assertEqual(bat.end_of_file_pos,batR.end_of_file_pos);
@@ -79,7 +79,7 @@ classdef test_block_allocation_table < TestCase
             bat0 = bat.clear_unlocked_blocks();
 
             test_class = binfile_v4_block_tester();
-            batR = bat0.place_unlocked_blocks(test_class,true);
+            batR = bat0.place_undocked_blocks(test_class,true);
             assertEqual(bat.free_spaces_and_size,batR.free_spaces_and_size);
             assertEqual(bat.end_of_file_pos,batR.end_of_file_pos);
         end
@@ -160,7 +160,7 @@ classdef test_block_allocation_table < TestCase
             bac = bac.set_data_block(pdb);
 
             test_class = binfile_v4_block_tester();
-            bac = bac.init_obj_info(test_class,'-insertion','-test_mode');
+            bac = bac.place_undocked_blocks(test_class);
 
             assertEqual(bac.free_spaces_and_size,uint64([439;60]));
 

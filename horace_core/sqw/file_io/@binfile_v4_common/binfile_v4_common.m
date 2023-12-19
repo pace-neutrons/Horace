@@ -257,9 +257,13 @@ classdef binfile_v4_common < horace_binfile_interface
             %             Similarly to 'exclude' if this option is missed,
             %             all blocks except pixels are replaced in file
             %             excluding pixel data. If this option is present,
-            %              only blocks from the list provided here are updated.
+            %             only blocks from the list provided here are updated.
             %
-            % '-nocache'  if present tells the algorithm not to cache serialized
+            % '-ignore_locks'
+            %         --  if present, put new data even into blocks
+            %             already locked in place.
+            % '-nocache'
+            %         --  if present tells the algorithm not to cache serialized
             %             contents of the blocks while calculating block sizes.
             %             This means that objects roughly speaking would be serialized
             %             twice -- first time when their size is estimated, and second
@@ -267,7 +271,13 @@ classdef binfile_v4_common < horace_binfile_interface
             %             calculations but memory is saved, as when cache is used, the
             %             serialized data for all blocks to be stored are placed in
             %             memory together and saved later.
-            obj = put_new_blocks_values_(obj,obj_to_write,varargin{:});
+            [ok,mess,ignore_locks,nocache,argi] = parse_char_options( ...
+                varargin,{'-ignore_locks','-nocache'});
+            if ~ok
+                error('HORACE:file_io:invalid_argument',mess);
+            end
+            obj = put_new_blocks_values_(obj,obj_to_write, ...
+                ~ignore_locks,nocache,argi{:});
         end
     end
     %======================================================================

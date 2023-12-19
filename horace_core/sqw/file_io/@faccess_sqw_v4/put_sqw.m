@@ -44,11 +44,7 @@ if ~isempty(argi)
             error('HORACE:sqw_binfile_common:invalid_argument',...
                 'only one sqw object can be provided as input for put_sqw');
         end
-        %         if update
-        %             obj = obj.init_from_sqw_obj(argi{is_sqw},'-insertion');
-        %         else
         obj.sqw_holder = argi{is_sqw};
-        %        end
         argi = argi(~is_sqw);
     end
 end
@@ -60,6 +56,7 @@ if ~obj.sqw_holder.main_header.creation_date_defined ||...
     sqw_obj.creation_date= cd;
     if ~verbatim
         sqw_obj.full_filename = obj.full_filename;
+        verbatim = true; % disable repeated if ~verbatim below
     end
     obj.sqw_holder = sqw_obj;
 end

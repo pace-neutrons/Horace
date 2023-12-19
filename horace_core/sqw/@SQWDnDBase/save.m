@@ -96,6 +96,8 @@ if isfile(filename)
         delete(filename);
         ldw = ldw.init(w,filename);
     else % source filebacked and the target file is filebacked same file.
+        error('HORACE:sqw:not_implemented', ...
+            'This mode is not yet implemented')
         lde = sqw_formats_factory.instance().get_loader(filename);
         if lde.faccess_version == ldw.faccess_version
             ldw = lde.reopen_to_write();
@@ -105,12 +107,10 @@ if isfile(filename)
         w.full_filename = filename;
     end
 else
-    if ~w.is_filebacked
-        ldw = ldw.init(w,filename);
-    end
+   ldw = ldw.init(w,filename);
 end
 %
-if w.is_filebacked
+if w.is_filebacked && w.is_tmp_obj
     w.pix = w.pix.deactivate();
     movefile(w.pix.full_filename,filename,'f');
     ldw = ldw.init(filename);

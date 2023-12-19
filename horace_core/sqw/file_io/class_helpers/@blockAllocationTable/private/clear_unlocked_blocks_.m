@@ -1,7 +1,7 @@
 function obj = clear_unlocked_blocks_(obj)
-% method clears up information about position and sizes of all
+% method clears up information about positions of all
 % blocks which are not locked in their place updating information about
-% free space which remains between the blocks which remain locked.
+% free space which remains between the blocks left locked.
 %
 
 [bl_l,bl_space]  = cellfun(@clear_block,obj.blocks_list_,'UniformOutput',false);
@@ -28,6 +28,5 @@ if bl.locked
 end
 bl_space = [bl.position;bl.size];
 bl.position = 0;
-bl.size = 0;
 
 
