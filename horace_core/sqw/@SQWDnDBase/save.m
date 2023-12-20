@@ -2,9 +2,9 @@ function wout = save(w, varargin)
 % Save a sqw or dnd object or array of sqw/dnd objects to a binary sqw file
 % of recommended file-format version.
 %
-%   >> save (w)              % prompt for file
-%   >> save (w, file)        % save to file with the name provided
-%   >> save (w, file,varargin)
+%  >> save (w)              % prompt for file
+%  >> save (w, file)        % save to file with the name provided
+%  >> save (w, file,varargin)
 %  >> wout = save(___)      % return filebacked sqw object if you are
 %                             saving sqw object
 % provide additional save options. See below.
@@ -23,12 +23,12 @@ function wout = save(w, varargin)
 %              formats.
 
 % Modifiers:
-% '-assume_written'  -- Affects only filebacked sqw objects. Ignored for any
+% '-assume_updated'  -- Affects only filebacked sqw objects. Ignored for any
 %                       other type of input object. Requests new file name
 %                       being defined.
 %                       If provided, assumes that the information in memory
 %                       is the same as the information in file and the
-%                       backing file needs to be moved to new location.
+%                       backing file just needs to be moved to a new location.
 % '-make_temporary'  -- Affects only sqw objects and works in situations where
 %                       output object is returned. Normally, if you save sqw
 %                       object with extension '.tmp' save returns
@@ -36,7 +36,16 @@ function wout = save(w, varargin)
 %                       get deleted when object goes out of scope. With
 %                       this option, any saved sqw object becomes temporary
 %                       regardless of its extension.
-%
+% '-update'          -- Opposite '-assume_updated' and intended mainly for
+%                       filebacked objects but would also work
+%                       for memory based object with filename defined for
+%                       PixelData. Ignores input "file" property if one is
+%                       provided. Drops the contents of the memory-part of
+%                       the filebacked object into the file which backs the
+%                       object. Pixel part remains untouched for filebacked
+%                       object. If used with memory-based object writes
+%                       whole object contents into the file with name
+%                       defined for PixelData.
 %
 % Optional output:
 % wout -- filebacked sqw object with new filename if filename was provided
@@ -51,8 +60,10 @@ function wout = save(w, varargin)
 
 % Original author: T.G.Perring
 %
-options = {'-assume_written','-make_temporary'};
-[ok,mess,assume_written,make_tmp,argi] = parse_char_options(varargin,options);
+% Fully rewritten on 31/12/2023 for PACE project.
+%
+options = {'-assume_updated','-make_temporary','-update'};
+[ok,mess,assume_updated,make_tmp,update,argi] = parse_char_options(varargin,options);
 if ~ok
     error('HORACE:sqw:invalid_argument',mess);
 end
@@ -73,50 +84,67 @@ if num_to_save > 1
         wout = zeros(size(w));
     end
     for i=1:num_to_save
-        wout(i) = save_one(w(i),filenames{i},return_result,ldw{i});
+        wout(i) = save_one(w(i),filenames{i},assume_updated,return_result,ldw{i});
     end
 else
-    wout = save_one(w,filenames{1},return_result,ldw{1});
+    wout = save_one(w,filenames{1},assume_updated,return_result,ldw{1});
 end
 %==========================================================================
-function wout = save_one(w,filename,return_result,ldw,varargin)
-wout = []; % parallel cluster used to combine and save. Not tested, not used
+function wout = save_one(w,filename,assume_written,return_result,ldw,varargin)
+% save single sqw object
+%
+wout = []; % Target sqw object
 
-
-hor_log_level = get(hor_config,'log_level');
+ll = get(hor_config,'log_level');
 
 % Write data to file   x
-if hor_log_level>0
+if ll>0
     disp(['*** Writing to: ',filename,'...'])
 end
 
 if isfile(filename)
-    if ~w.is_filebacked || ~(w.is_filebacked && strcmp(w.pix.full_filename,filename))
-        % target file present and not the file I use for this object
-        delete(filename);
-        ldw = ldw.init(w,filename);
-    else % source filebacked and the target file is filebacked same file.
-        error('HORACE:sqw:not_implemented', ...
-            'This mode is not yet implemented')
-        lde = sqw_formats_factory.instance().get_loader(filename);
-        if lde.faccess_version == ldw.faccess_version
-            ldw = lde.reopen_to_write();
+    if w.is_filebacked && strcmp(w.pix.full_filename,filename)
+        % we are writing in the same file as the backing file
+        if w.pix.old_file_format
+            w = upgrade_file_calc_ranges(w,ll,filename);
+            % operations below will not write changes in metadata again
+            % as assume that they have already been written.
+            assume_written = true;
+
         else
-            ldw = lde.upgrade_file_format();
+            if ~assume_written
+                ldw = ldw.init(filename);
+                % store everything except pixels data.
+                ldw = ldw.put_new_blocks_values(w);
+                ldw.delete();
+            end
+            return;
         end
-        w.full_filename = filename;
+    else % writing to different file
+        delete(filename);
+
     end
-else
-   ldw = ldw.init(w,filename);
 end
 %
 if w.is_filebacked && w.is_tmp_obj
+    if w.pix.old_file_format
+        w = upgrade_file_calc_ranges(w,ll,filename);
+        assume_written = true;
+    end
     w.pix = w.pix.deactivate();
     movefile(w.pix.full_filename,filename,'f');
     ldw = ldw.init(filename);
     w.full_filename = filename;
-    ldw = ldw.put_new_blocks_values(w,'-exclude',{'pix_data'});
+    if assume_written
+        % store only blocks which contain changed file name.
+        ldw.put_new_blocks_values(w,'include', ...
+            {'bl__main_header','bl_data_metadata','bl_pix_metadata'});
+    else
+        % update all blocks except pixels
+        ldw = ldw.put_new_blocks_values(w);
+    end
 else
+    ldw = ldw.init(w,filename);
     ldw = ldw.put_sqw();
 end
 ldw.delete();
@@ -129,6 +157,25 @@ if return_result
     end
 end
 %==========================================================================
+function w = upgrade_file_calc_ranges(w,log_level,filename)
+% upgrade file format to new and recalculate averages and
+% ranges. Save result in temporary file.
+if log_level > 0
+    fprintf(2,[ '\n', ...
+        '*** Upgrading source SQW file %s into new file format\n', ...
+        '    and storing result of the operation in file %s\n',...
+        '    This is one-off upgrade operation which calculates all necessary averages,\n '...
+        '    stired in new sqw files.\n'
+        ], ...
+        w.pix.full_filename,filename);
+end
+pix_op = PageOp_recompute_bins();
+[fp,fn] = fileparts(filename);
+pix_op.outfile = build_tmp_file_name(fn,fp);
+pix_op = pix_op.init(w);
+w    = sqw.apply_op(w,pix_op);
+
+%
 function [filenames,ldw] = parse_additional_args(num_to_save,w,varargin)
 % parse inputsd for filenames and loaders provided as input of save method.
 % fill default or ask user if some
