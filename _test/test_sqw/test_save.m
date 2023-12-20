@@ -52,14 +52,12 @@ classdef test_save < TestCase
             clOb = onCleanup(@()del_memmapfile_files(targ_files));
 
             data = repmat(obj.sqw_obj,2,1);
-            cl = data.save(targ_files);
-            assertTrue(isempty(cl));
+            rec = data.save(targ_files);
 
             assertTrue(isfile(targ_files{1}));
             assertTrue(isfile(targ_files{2}));
-            rec = read_sqw(targ_files{2});
 
-            assertEqualToTol(obj.sqw_obj,rec,'tol',[4*eps('single'),4*eps('single')], ...
+            assertEqualToTol(data,rec,'tol',[4*eps('single'),4*eps('single')], ...
                 'ignore_str',true);
         end
 
