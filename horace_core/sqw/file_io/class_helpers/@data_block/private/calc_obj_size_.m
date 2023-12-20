@@ -1,6 +1,6 @@
 function obj = calc_obj_size_(obj,sqw_obj,nocache,check_size)
-%CALC_OBJ_SIZE_ Calculates size of the serialized sqw/dnd object and put
-% the serialized object into data cache for subsequent put operation(s)
+%CALC_OBJ_SIZE_ Calculates size of the serialized sqw/dnd sub-object and put
+% the serialized sub-object into data cache for subsequent put operation(s)
 %
 % Inputs:
 % obj     -- instance of data block class

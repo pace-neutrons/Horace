@@ -31,7 +31,7 @@ if the_block.allocated
     % the free spaces
     old_block_place = [the_block.position;the_block.size];
     fs = [obj.free_spaces_and_size_,old_block_place];
-    fs = merge_adjusent_space_(fs);
+    fs = merge_adjacent_space_(fs);
 else
     fs = obj.free_spaces_and_size_;
 end

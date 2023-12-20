@@ -289,9 +289,9 @@ classdef blockAllocationTable < serializable
             % (position = 0) with the contents taken from the input object
             % and found places of these blocks within the BAT.
             %
-            % Should work after clear_unocked_blocks was called, as clear_unocked_blocks
-            % calculates free spaces left after old blocks were
-            % removed.
+            % Should work after clear_unlocked_blocks was called, 
+            % as clear_unlocked_blocks calculates free spaces left after
+            % old blocks were removed.
             %
             % Inputs:
             % obj           -- initialized instance of BAT.

@@ -8,7 +8,7 @@ function obj = clear_unlocked_blocks_(obj)
 obj.blocks_list_ = bl_l;
 bl_space = cell2mat(bl_space);
 bl_space = [bl_space,obj.free_spaces_and_size_];
-bl_space = merge_adjusent_space_(bl_space);
+bl_space = merge_adjacent_space_(bl_space);
 if bl_space(1,end)+bl_space(2,end) == obj.end_of_file_pos_
     % some free space found at the end of the file. Move end of the file.
     obj.end_of_file_pos_ = bl_space(1,end);

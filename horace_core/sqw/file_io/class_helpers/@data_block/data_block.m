@@ -110,15 +110,15 @@ classdef data_block < serializable
             obj = put_sqw_block_(obj,fid,sqw_obj,check_size);
         end
         function obj = calc_obj_size(obj,sqw_obj,nocache,check_size)
-            % calculate size of the serialized sqw/dnd object and put the
-            % serialized object into data cache for subsequent put
+            % calculate size of the serialized sqw/dnd sub-object and put
+            % the serialized sub-object into data cache for subsequent put
             % operation(s)
             %
             % Inputs:
             % obj     -- instance of data block class
             % sqw_obj -- sqw/dnd object - source of data for this
             %            data_block
-            % nocache  -- if present and true do not serialize object for
+            % nocache  -- if present and true do not serialize subobject for
             %             evaluating its size and placing serialized array
             %             into cache but use serializable.serial_size
             %             method to find the object size.

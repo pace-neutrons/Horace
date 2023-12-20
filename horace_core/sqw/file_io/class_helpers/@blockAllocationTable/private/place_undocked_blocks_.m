@@ -2,14 +2,13 @@ function obj = place_undocked_blocks_(obj,obj_to_write,nocache)
 % replace contents of unlocked blocks with the contents of the
 % input object and found places of these blocks within the BAT.
 %
-% Should work after clear_unocked_blocks was called, as clear_unocked_blocks
-% calculates free spaces left after old blocks were
-% removed.
+% Should work after clear_unlocked_blocks was called, as clear_unlocked_blocks
+% calculates free spaces left after old blocks were removed.
 %
 % Inputs:
 % obj           -- initialized instance of BAT.
 % obj_to_write  -- input object, source of information about
-%                  new block contents
+%                  new block contents.
 % nocache       -- logical variable, defining if serialized
 %                  data from the obj_to_write should be cached
 %                  within the data blocks for storing them
@@ -32,7 +31,7 @@ for i=1:n_blocks
         continue;
     end
     unlocked(i)  = true;
-    block = block.calc_obj_size(obj_to_write,nocache);
+    block = block.calc_obj_size(obj_to_write,nocache,false);
     new_block_sizes(i) = block.size;
     obj.blocks_list_{i} = block;
 end
@@ -41,6 +40,7 @@ block_sizes = new_block_sizes(unlocked);
 % find where to place modified blocks.
 [positions,free_spaces,eof_pos] = pack_blocks( ...
     obj.free_spaces_and_size_,block_sizes,obj.end_of_file_pos_);
+%
 obj.free_spaces_and_size_ = uint64(free_spaces);
 obj.end_of_file_pos_      = uint64(eof_pos);
 ic_changed = 0;
