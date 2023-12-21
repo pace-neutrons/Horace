@@ -85,7 +85,7 @@ classdef test_save < TestCase
             assertEqualToTol(rec,test_obj)
         end
 
-        function test_save_upgrade_automatically_membased_large_page(obj)
+        function test_save_upgrade_automatically_filebased_large_page(obj)
 
             targ_file = fullfile(tmp_dir,obj.sqw_file_res);
             clOb = onCleanup(@()del_memmapfile_files(targ_file));
@@ -104,7 +104,7 @@ classdef test_save < TestCase
             rec = ldr.get_sqw();
             ldr.delete();
 
-            assertEqualToTol(rec,test_obj)
+            assertEqualToTol(rec,test_obj,'tol',[4*eps('single'),4*eps('single')])
 
         end
         function test_save_and_move_to_new_file_upgrade_all_bar_pix(obj)

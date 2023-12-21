@@ -62,7 +62,6 @@ for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix
         fprintf('*** Finished %dof#%d chunks in %d sec performing %s\n', ...
             i,n_chunks,tc,op_name);
     end
-
 end
 obj_out = page_op.finish_op(obj_in);
 %

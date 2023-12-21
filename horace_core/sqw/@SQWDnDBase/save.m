@@ -110,7 +110,6 @@ if isfile(filename)
             % operations below will not write changes in metadata again
             % as assume that they have already been written.
             assume_written = true;
-
         else
             if ~assume_written
                 ldw = ldw.init(filename);
@@ -122,7 +121,6 @@ if isfile(filename)
         end
     else % writing to different file
         delete(filename);
-
     end
 end
 %
@@ -131,7 +129,8 @@ if w.is_filebacked && w.is_tmp_obj
         w = upgrade_file_calc_ranges(w,ll,filename);
         assume_written = true;
     end
-    w.pix = w.pix.deactivate();
+    w = w.deactivate();
+    del_memmapfile_files(filename);
     movefile(w.pix.full_filename,filename,'f');
     ldw = ldw.init(filename);
     w.full_filename = filename;
@@ -153,7 +152,7 @@ if return_result
     if isa(w,'sqw')
         wout = sqw(filename,'file_backed',true);
     else
-        wout = w;
+        wout = [];
     end
 end
 %==========================================================================
@@ -164,8 +163,8 @@ if log_level > 0
     fprintf(2,[ '\n', ...
         '*** Upgrading source SQW file %s into new file format\n', ...
         '    and storing result of the operation in file %s\n',...
-        '    This is one-off upgrade operation which calculates all averages,\n '...
-        '    present in new-format sqw files.\n'
+        '    This is one-off upgrade operation which calculates all averages,\n'...
+        '    requested for new-format sqw files.\n'
         ], ...
         w.pix.full_filename,filename);
 end
