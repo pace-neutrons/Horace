@@ -32,6 +32,9 @@ classdef sqw_formats_factory < handle
     %
     %
     properties(Access=private) %
+        % Number (in the registered accessors list) of file accessor
+        % to choose for new binary files
+        preferred_accessor_num_ = 1;
         % List of registered file accessors:
         % Add all new file readers which inherit from sqw_file_interface and horace_binfile_interface
         % to this list in the order of expected frequency of their appearance.
@@ -165,7 +168,6 @@ classdef sqw_formats_factory < handle
                         err = addCause(ME,err);
                         rethrow(err);
                     end
-                    return
                 end
             end
             % no appropriate loader found.
@@ -183,6 +185,11 @@ classdef sqw_formats_factory < handle
                     full_data_name);
             end
 
+        end
+        function ver = last_version(obj)
+            % return the version number of file accessor to use for new sqw
+            % files.
+            ver = obj.supported_accessors_{obj.preferred_accessor_num_}.faccess_version;
         end
         %
         function loader = get_pref_access(obj,varargin)
@@ -207,9 +214,8 @@ classdef sqw_formats_factory < handle
             %            is not among the types specified above.
             %
             if nargin <2
-                % TODO: #893 default accessor would be the second one until faccess_sqw_v4 is completed
                 % When it is completed, return most functional accessor.
-                loader = obj.supported_accessors_{2};
+                loader = obj.supported_accessors_{obj.preferred_accessor_num_};
                 return
             end
             if ischar(varargin{1})
