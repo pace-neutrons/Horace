@@ -31,7 +31,7 @@ function wout = save(w, varargin)
 %                       backing file just needs to be moved to a new location.
 % '-make_temporary'  -- Affects only sqw objects and works in situations where
 %                       output object is returned. Normally, if you save sqw
-%                       object with extension '.tmp' save returns
+%                       object with extension '.tmpXXXX' save returns
 %                       temporary sqw object, i.e. the object with the file,
 %                       get deleted when object goes out of scope. With
 %                       this option, any saved sqw object becomes temporary
@@ -67,6 +67,10 @@ options = {'-assume_updated','-make_temporary','-update'};
 if ~ok
     error('HORACE:sqw:invalid_argument',mess);
 end
+if update
+    error('HORACE:sqw:not_implemented', ...
+        'Update option has not been implemented yet')
+end
 return_result = nargout>0;
 if make_tmp && ~return_result && isa(w,'sqw')
     error('HORACE:sqw:invalid_argument', ...
@@ -94,6 +98,12 @@ function wout = save_one(w,filename,assume_written,return_result,ldw,varargin)
 % save single sqw object
 %
 wout = []; % Target sqw object
+if return_result
+    [~,~,fe] = fileparts(filename);
+    target_is_tmp = strncmp(fe,'.tmp',4);
+else
+    target_is_tmp = false;
+end
 
 ll = get(hor_config,'log_level');
 
@@ -117,6 +127,7 @@ if isfile(filename)
                 ldw = ldw.put_new_blocks_values(w);
                 ldw.delete();
             end
+            wout = w;
             return;
         end
     else % writing to different file
@@ -133,7 +144,11 @@ if w.is_filebacked && w.is_tmp_obj
     del_memmapfile_files(filename);
     movefile(w.pix.full_filename,filename,'f');
     ldw = ldw.init(filename);
-    w.full_filename = filename;
+    if target_is_tmp
+        w.pix.full_filename = filename;
+    else
+        w.full_filename = filename;
+    end
     if assume_written
         % store only blocks which contain changed file name.
         ldw.put_new_blocks_values(w,'include', ...
@@ -151,8 +166,11 @@ ldw.delete();
 if return_result
     if isa(w,'sqw')
         wout = sqw(filename,'file_backed',true);
-    else
-        wout = [];
+        if target_is_tmp
+            wout = wout.set_as_tmp_obj();
+        end
+    else % dnd object never filebacked so just return it.
+        wout = w;
     end
 end
 %==========================================================================

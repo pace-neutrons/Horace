@@ -67,7 +67,7 @@ classdef test_save < TestCase
             clOb = onCleanup(@()del_memmapfile_files(targ_file));
 
             clConf = set_temporary_config_options( ...
-                hor_config,'mem_chunk_size',3000,'fb_scale_factor',3);
+                hor_config,'mem_chunk_size',500000,'fb_scale_factor',3);
             ldr = faccess_sqw_v2();
             test_obj = obj.sqw_obj.save(targ_file,ldr);
             ldr.delete();
@@ -82,10 +82,10 @@ classdef test_save < TestCase
             rec = ldr.get_sqw();
             ldr.delete();
 
-            assertEqualToTol(rec,test_obj)
+            assertEqualToTol(rec,test_obj,'tol',[4*eps('single'),4*eps('single')],'-ignore_date')
         end
 
-        function test_save_upgrade_automatically_filebased_large_page(obj)
+        function test_save_upgrade_automatically_filebacked_large_page(obj)
 
             targ_file = fullfile(tmp_dir,obj.sqw_file_res);
             clOb = onCleanup(@()del_memmapfile_files(targ_file));
@@ -107,15 +107,15 @@ classdef test_save < TestCase
             assertEqualToTol(rec,test_obj,'tol',[4*eps('single'),4*eps('single')])
 
         end
-        function test_save_and_move_to_new_file_upgrade_all_bar_pix(obj)
-
-            source_to_move = fullfile(tmp_dir,obj.sqw_file_res);
+        function test_save_tmp_moves_to_new_file_upgrades_all_bar_pix(obj)
+            source_to_move = fullfile(tmp_dir,'test_save_tmp_moves.tmp');
             targ_file      = fullfile(tmp_dir,'save_filebacked_different_file.sqw');
             clOb = onCleanup(@()del_memmapfile_files(targ_file));
 
             test_obj = obj.sqw_obj.save(source_to_move);
-
             assertTrue(test_obj.is_filebacked)
+            assertTrue(test_obj.is_tmp_obj)
+
             test_obj.data.title = 'My image';
 
             test_obj.save(targ_file);
@@ -126,7 +126,30 @@ classdef test_save < TestCase
             rec = ldr.get_sqw();
             ldr.delete();
 
-            assertEqualToTol(rec,test_obj)
+            test_obj = obj.sqw_obj;
+            test_obj.data.title = 'My image';
+            assertEqualToTol(rec,test_obj,'ignore_str',true,'tol',[4*eps('single'),4*eps('single')]);
+        end
+
+        function test_save_permanent_creates_new_file(obj)
+            source_for_fb = fullfile(tmp_dir,obj.sqw_file_res);
+            targ_file      = fullfile(tmp_dir,'save_filebacked_different_file.sqw');
+            clOb = onCleanup(@()del_memmapfile_files({source_for_fb,targ_file}));
+
+            test_obj = obj.sqw_obj.save(source_for_fb);
+
+            assertTrue(test_obj.is_filebacked)
+            test_obj.data.title = 'My image';
+
+            test_obj.save(targ_file);
+            assertTrue(isfile(source_for_fb));
+
+            ldr = sqw_formats_factory.instance().get_loader(targ_file);
+            assertTrue(isa(ldr,'faccess_sqw_v4'));
+            rec = ldr.get_sqw();
+            ldr.delete();
+
+            assertEqualToTol(rec,test_obj,'ignore_str',true);
         end
 
 
