@@ -812,7 +812,7 @@ classdef test_faccess_sqw_v4< TestCase
             ME2 = assertExceptionThrown(@()put_new_blocks_values(ldr, ...
                 dnd_data,'exclude','pix_data'), ...
                 'HORACE:file_io:invalid_argument');
-            assertTrue(strncmp(ME2.message,'The block name(s): "{''pix_data''}" are not familiar to faccessor faccess_sqw_v4',50));
+            assertTrue(strncmp(ME2.message,'The block name(s): "{''pix_data''}" are not familiar to faccessor faccess_sqw_v4',19));
         end
     end
 end
