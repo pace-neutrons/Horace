@@ -325,8 +325,10 @@ classdef main_header_cl < serializable
             elseif isfield(S,'filename_with_cdate')
                 fparts = strsplit(S.filename_with_cdate,'$');
                 S.full_filename = fullfile(S.filepath,fparts{1});
-                S.creation_date = fparts{2};
-                S = rmfield(S,'filename_with_cdate');
+                if numel(fparts)>1
+                    S.creation_date = fparts{2};
+                    S = rmfield(S,'filename_with_cdate');
+                end
             end
         end
     end
