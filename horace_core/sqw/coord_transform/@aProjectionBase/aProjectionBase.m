@@ -1019,11 +1019,8 @@ classdef aProjectionBase < serializable
         function ver  = classVersion(~)
             ver = 1;
         end
-        function  flds = saveableFields(obj)
-            flds = {'alatt','angdeg','offset','label'};
-            if ~isempty(obj.title) || ~all(obj.lattice_defined_)
-                flds = [flds(:);'title']';
-            end
+        function  flds = saveableFields(~)
+            flds = {'alatt','angdeg','offset','label','title'};
         end
         % validation
         function obj = check_combo_arg (obj)
