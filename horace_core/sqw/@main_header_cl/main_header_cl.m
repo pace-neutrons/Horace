@@ -99,9 +99,10 @@ classdef main_header_cl < serializable
                             disp2str(arg))
                     end
                 otherwise
-                    param_names_list = obj.saveableFields();
+                    param_names_list = {'filename','filepath','title','nfiles',...
+                        'creation_date'};
                     [obj,remains] = obj.set_positional_and_key_val_arguments(...
-                        param_names_list(1:4),false,varargin{:});
+                        param_names_list,false,varargin{:});
 
                     if ~isempty(remains)
                         error('HORACE:main_header:invalid_argument',...
