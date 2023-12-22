@@ -1,8 +1,8 @@
 function wout = read_map (file)
 % Read map data from an ASCII file (conventional extension: .map)
 % 
-%   >> w=read_map          % prompts for file
-%   >> w=read_map (file)
+%   >> w = read_map          % prompts for file
+%   >> w = read_map (file)
 %
 % See <a href="matlab:help('IX_map/read_ascii');">IX_map/read_ascii</a> for file format details and examples
 

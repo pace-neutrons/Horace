@@ -66,7 +66,7 @@ end
 str = strtrim(textcell(filename_full));
 nline = numel(str);
 if nline == 0
-    obj = IX_map();  % file is empty; return empty map
+    obj = IX_map();     % file is empty; return empty map
     return
 end
 

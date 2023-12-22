@@ -14,7 +14,7 @@ classdef test_mask < TestCase
         function test_constructor_bad (~)
             % Should fail because cannot have zero as a mask index
             func = @() IX_mask(0:9);
-            assertExceptionThrown (func, 'IX_mask:set:invalid_argument');
+            assertExceptionThrown (func, 'HERBERT:IX_mask:invalid_argument');
         end
         
         function test_constructor_sort_remove_duplicates_1 (~)

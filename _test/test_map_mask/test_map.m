@@ -286,11 +286,9 @@ classdef test_map < TestCase
         end
 
 
-
-%         *** change IX_map/save_ascii, rename put_map to put_map_ascii
-%         *** edit put_map_ascii and add tests
-%         *** make same changes to IX_mask: read_ascii, save_ascii, get_mask, put_mask
-%         *** change error messages to HERBERT:IX_map (apart from read_map, read_mask)
+%       *** Tests of IX_map are failing
+%       *** IX_mask with file; also implement for IX_map?
+%       *** refactor IX_map combine, mask_map, combine (if need them!)
         
     end
     

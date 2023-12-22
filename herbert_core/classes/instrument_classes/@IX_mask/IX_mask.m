@@ -48,7 +48,7 @@ classdef IX_mask < serializable
                 if is_string (val)
                     % Assume a filename
                     if ~isempty(val)
-                        msk = get_mask(val);
+                        msk = IX_mask.read_ascii(val);
                     else
                         error ('HERBERT:IX_mask:invalid_argument',...
                             'File name cannot be an empty string')
@@ -80,7 +80,7 @@ classdef IX_mask < serializable
             
             if ~isnumeric(val) || any(round(val(:))~=val(:)) || any(val(:)<1) ||...
                     any(~isfinite(val(:)))
-                error ('IX_mask:set:invalid_argument',...
+                error ('HERBERT:IX_mask:invalid_argument',...
                     'Spectrum numbers must be integers greater or equal to 1')
             end
             
@@ -98,60 +98,55 @@ classdef IX_mask < serializable
     %------------------------------------------------------------------
     methods
         function save_ascii (obj, file)
-            % Save a mask object to an ASCII file
+            % Save a mask object to an ASCII file (conventional extension: .msk)
             %
-            %   >> save_ascii (obj)              % prompts for file
             %   >> save_ascii (obj, file)
+            %
+            % See <a href="matlab:help('IX_mask/read_ascii');">IX_mask/read_ascii</a> for file format details and examples
             %
             % Input:
             % ------
-            %   w       Mask object (single object only, not an array)
-            %   file    [optional] File for output.
-            %           If none given, then prompts for a file
+            %   obj     Mask object (single object only, not an array)
+            %   file    Name of file for output
+            %
+            % EXAMPLE
+            %   >> save_ascii ('c:\temp\bad_spectra.msk')
             
-            
-            % Get file name - prompting if necessary
-            % --------------------------------------
-            if nargin==1
-                file = '*.msk';
-            end
-            [file_full, ok, mess] = putfilecheck (file);
-            if ~ok
-                error ('IX_mask:save:io_error', mess)
-            end
-            
-            % Write data to file
-            % ------------------
-            disp(['Writing mask data to ', file_full, '...'])
-            put_mask (obj.msk, file_full);
-            
+            put_mask_ascii (obj, file);   % private function to IX_mask          
         end
     end
     
     methods (Static)
         function obj = read_ascii (file)
-            % Read mask data from an ASCII file
+            % Read mask data from an ASCII file (conventional extension: .msk)
             %
-            %   >> obj = IX_mask.read_ascii           % prompts for file
             %   >> obj = IX_mask.read_ascii (file)
+            %
+            % EXAMPLE
+            %   >> my_map = IX_mask.read_ascii ('c:\temp\bad_spectra.msk')
+            %
+            %
+            % Format of an ascii mask file:
+            % -----------------------------
+            % The file consists of lists of indices in various forms, for
+            % example '7 12:15, 5:-2:1' will specify [7,12,13,14,15,5,3,1])
+            %
+            % Blank lines and comment lines (lines beginning with ! or %) are ignored.
+            % Comments can also be put at the end of lines following ! or %.
+            % As an example of the full contents of a valid .msk file:
+            %
+            %           ! A little mask
+            %           60:-1:50,2-5,30-40
+            %           19-23
+            %
+            %           ! Another comment
+            %           38-42
+            %           10,11,12        ! in-line comment
+            %
+            %           % Matlab style comment
+            %           12, 32, 56-62   % another in-line comment
             
-            
-            % Get file name - prompt if file does not exist
-            % ---------------------------------------------
-            % The chosen file resets default seach location and extension
-            if nargin==0 || ~is_file(file)
-                file = '*.msk';     % default for file prompt
-            end
-            [file_full, ok, mess] = getfilecheck (file);
-            if ~ok
-                error ('IX_mask:read:io_error', mess)
-            end
-            
-            % Read data from file
-            % ---------------------
-            msk = get_mask(file_full);
-            obj = IX_mask (msk);
-            
+            obj = get_mask_ascii(file);  % private function to IX_mask
         end
         
     end

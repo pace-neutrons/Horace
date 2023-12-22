@@ -9,10 +9,8 @@ function obj_out = combine(varargin)
 %
 % Output:
 % -------
-%   obj_out         IX_mask object created by concatenating all the input
-%                   objects, and then making a single IX_mask object by
-%                   combining all IX_mask objects in the array, removing
-%                   any duplicate indices.
+%   obj_out         IX_mask object created by concatenating the data of all the
+%                   input masks. Note: duplicate indices are removed
 
 
 % Catch trivial case of single, scalar or empty, IX_mask
@@ -34,7 +32,7 @@ if numel(varargin)>1
             mask_arr(nbeg(i):nend(i)) = varargin{i}(:);
         end
     else
-        error ('IX_mask:combine:invalid_argument',...
+        error ('HERBERT:IX_mask:invalid_argument',...
             'One or more input argument is not an IX_mask object')
     end
     

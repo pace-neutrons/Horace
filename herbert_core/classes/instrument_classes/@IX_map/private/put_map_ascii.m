@@ -1,7 +1,7 @@
 function [filename, filepath] = put_map_ascii (obj, file)
 % Writes ASCII .map file
 %
-%   >> [filename, filepath] = put_map_ascii (data, file)
+%   >> [filename, filepath] = put_map_ascii (obj, file)
 %
 % See <a href="matlab:help('IX_map/read_ascii');">IX_map/read_ascii</a> for file format details and examples
 %
@@ -17,9 +17,9 @@ function [filename, filepath] = put_map_ascii (obj, file)
 
 
 % Check file OK to write to
-[file_tmp, ok, mess] = translate_write(strtrim(file));
+[file_tmp, ok, mess] = translate_write (strtrim(file));
 if ~ok
-    error('HERBERT:IX_map:invalid_file_format', ...
+    error('HERBERT:IX_map:io_error', ...
         ['Error resolving file name while attempting to write data to .map file.\n', ...
         'File: %s\nMessage: %s'], strtrim(file), mess)
 end
@@ -48,11 +48,11 @@ try
     [path, name, ext] = fileparts(file_tmp);
     filename = [name, ext];
     filepath = [path, filesep];
-
+    
 catch ME
     if exist('fid', 'var') && fid>0 && ~isempty(fopen(fid)) % close file, if open
         fclose(fid);
-    end   
+    end
     % Add cause to error message for user information
     mess = ['Error while attempting to write .map file data to file:\n', file_tmp];
     causeException = MException('HERBERT:IX_map:io_error', mess);

@@ -335,7 +335,7 @@ classdef IX_map < serializable
     %------------------------------------------------------------------
     methods
         function save_ascii (obj, file)
-            % Save map data to an ASCII file (conventional extension: .map)
+            % Save a map object to an ASCII file (conventional extension: .map)
             %
             %   >> save_ascii (obj, file)
             %
@@ -348,7 +348,6 @@ classdef IX_map < serializable
             %
             % EXAMPLE
             %   >> save_ascii (my_map_object, 'c:\temp\maps_4to1.map')
-            %
             
             put_map_ascii (obj, file);   % private function to IX_map
         end
@@ -358,11 +357,10 @@ classdef IX_map < serializable
         function obj = read_ascii (file)
             % Read map data from an ASCII file (conventional extension: .map)
             %
-            %   >> obj = IX_map.read_ascii           % prompts for file name
             %   >> obj = IX_map.read_ascii (file)
             %
             % EXAMPLE
-            %   >> my_map = IX_map.read_ascii('c:\temp\maps_4to1.map')
+            %   >> my_map = IX_map.read_ascii ('c:\temp\maps_4to1.map')
             %
             %
             % Format of an ascii map file:
