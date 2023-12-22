@@ -99,8 +99,11 @@ else
 end
 
 % Find positions of tokens: 
-% - delimiters are [<whitespace>],[<whitespace>] or <whitespace>
-% - tokens run from iend(i)+1:ibeg(i+1)-1, but we must allow for the case of 
+% - Delimiters are:
+%   - A comma with any number of whitespace characters before and after
+%    (including no white space): \s*,\s*
+%   - One or more whitespace characters: \s+
+% - Tokens run from iend(i)+1:ibeg(i+1)-1, but we must allow for the case of 
 %   tokens at beginning &/or running to end; the construction below means that
 %   the first and/or last tokens are empty, which are handled in the function
 %   str_token_to_iarray
@@ -126,7 +129,7 @@ n = n(ok);
 if isempty(n)
     % Case of no integers read
     x = NaN(1,0);   % to be consistent with e.g. 3:2 which has size == [1,0]
-    le_nmax = true;  % nmax is guaranteed to be >= 1
+    le_nmax = true; % nmax is guaranteed to be >= 1
     
 else
     % At least one integer read
@@ -139,13 +142,15 @@ else
         ntok = lower_index(nend, nmax); % number of tokens required to contain nmax integers
         nend(ntok) = nmax;              % update nend(ntok); we will ignore all later entries
         n(ntok) = nmax - nbeg(ntok) + 1;% will be >=1 by design
+        le_nmax = false;
+    else
+        le_nmax = true;
     end
     
     x = NaN(1,nend(ntok));
     for i=1:ntok
         x(nbeg(i):nend(i)) = x1(i) + (0:n(i)-1) * dx(i);
     end
-    le_nmax = (numel(x) <= nmax);
 end
 
 
@@ -172,6 +177,8 @@ end
 %-------------------------------------------------------------------------------
 function [x1, dx, x2, n] = str_token_to_iarray (token)
 % Reads string and parses to elements of Matlab form in xlo:dx:xhi
+%
+%   >> [x1, dx, x2, n] = str_token_to_iarray (token)
 %
 % Input:
 % ------
@@ -201,9 +208,9 @@ function [x1, dx, x2, n] = str_token_to_iarray (token)
 %
 % Output:
 % -------
-%   xlo -|
+%   x1  -|
 %   dx   |- Integers such the array xlo:dx:xhi corresponds to the token
-%   xhi -|  (if string was empty, then xlo, dx, xhi all returned as NaN
+%   x2  -|  (if string was empty, then xlo, dx, xhi all returned as NaN
 %
 %   n       Number of integers encoded in the token
 

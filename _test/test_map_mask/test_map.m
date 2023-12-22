@@ -94,7 +94,7 @@ classdef test_map < TestCase
             % Single spectrum to default single workspace
             isp = 17;
             nrepeat = 3;
-            delta_isp = 10; 
+            delta_isp = 10;
             delta_iw = 1;
             map = IX_map(isp, 'repeat', [nrepeat, delta_isp, delta_iw]);
             assertEqual(map.s, [17, 27, 37]);
@@ -106,13 +106,128 @@ classdef test_map < TestCase
             isp = 17;
             iw = 5;
             nrepeat = 3;
-            delta_isp = -10; 
+            delta_isp = -10;
             delta_iw = 1;
             f = @()IX_map(isp, 'wkno', iw, 'repeat', [nrepeat, delta_isp, delta_iw]);
             ME = assertExceptionThrown (f, 'IX_map:invalid_argument');
             assertTrue(contains(ME.message, ['Spectrum array constructed for ',...
-        'at least one repeated array includes zero or negative spectrum numbers']))
+                'at least one repeated array includes zero or negative spectrum numbers']))
         end
+        
+        
+        %------------------------------------------------------------------
+        % Test reading from ASCII file (.map file)
+        %------------------------------------------------------------------
+        function test_read_0work (~)
+            % Test reading a map file with explicitly 0 workspaces
+            w = IX_map.read_ascii ('map_0work.map');
+            wref = IX_map ();
+            assertEqual (w, wref, 'File and array constructors not equivalent')
+        end
+        
+        function test_read_1work_0spec (~)
+            % Test reading a map file with one workspace, no spectra
+            w = IX_map.read_ascii ('map_1work_0spec.map');
+            wref = IX_map ();
+            assertEqual (w, wref, 'File and array constructors not equivalent')
+        end
+        
+        function test_read_1work_1spec (~)
+            % Test reading a map file with one workspace, one spectrum
+            w = IX_map.read_ascii ('map_1work_1spec.map');
+            wref = IX_map (5, 'wkno', 99);
+            assertEqual (w, wref, 'File and array constructors not equivalent')
+        end
+        
+        function test_read_1work_5spec (~)
+            % Test reading a map file with one workspace, five spectra
+            w = IX_map.read_ascii ('map_1work_5spec.map');
+            wref = IX_map ([2,3,4,11,13], 'wkno', 99);
+            assertEqual (w, wref, 'File and array constructors not equivalent')
+        end
+        
+        function test_read_1work_5spec_excessInfo_ERROR (~)
+            % Test reading a map file with data for two workspaces, but only
+            % declares one workspace
+            f = @()IX_map.read_ascii ('map_1work_5spec_extraWorkspaceInfo.map');
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_file_format');
+            assertTrue(contains(ME.message, ...
+                'Unexpected data encountered after the full map file has been read'))
+        end
+        
+        function test_read_2work_5and12spec (~)
+            % Test reading a map file with two workspaces, five and 12 spectra
+            w = IX_map.read_ascii ('map_2work_5and12spec.map');
+            is = [2,3,4,11,13,1,3,5,7,16,19,22,23,24,25,36,40];
+            iw = [99*ones(1,5), 23*ones(1,12)];
+            wref = IX_map (is, 'wkno', iw);
+            assertEqual (w, wref, 'File and array constructors not equivalent')
+        end
+        
+        function test_read_5work_noneEmpty (~)
+            % Test reading a map file with five workspaces, none empty
+            % It has nopn-standard extension (*.txt, not *.map)
+            w = IX_map.read_ascii ('map_5work_noneEmpty.txt');
+            is = [21:25, 31:36, 41:47, 51:58, 61:69];
+            iw = [2*ones(1,5), 3*ones(1,6), 4*ones(1,7), 5*ones(1,8), 6*ones(1,9)];
+            wref = IX_map (is, 'wkno', iw);
+            assertEqual (w, wref, 'File and array constructors not equivalent')
+        end
+        
+        function test_read_5work_1stEmpty (~)
+            % Test reading a map file with five workspaces, first one empty
+            % Should simply be ignored and output has four workspaces
+            w = IX_map.read_ascii ('map_5work_1stEmpty.map');
+            is = [31:36, 41:47, 51:58, 61:69];
+            iw = [3*ones(1,6), 4*ones(1,7), 5*ones(1,8), 6*ones(1,9)];
+            wref = IX_map (is, 'wkno', iw);
+            assertEqual (w, wref, 'File and array constructors not equivalent')
+        end
+        
+        function test_read_5work_3rdEmpty (~)
+            % Test reading a map file with five workspaces, third empty
+            % Should simply be ignored and output has four workspaces
+            w = IX_map.read_ascii ('map_5work_3rdEmpty.map');
+            is = [21:25, 31:36, 51:58, 61:69];
+            iw = [2*ones(1,5), 3*ones(1,6), 5*ones(1,8), 6*ones(1,9)];
+            wref = IX_map (is, 'wkno', iw);
+            assertEqual (w, wref, 'File and array constructors not equivalent')
+        end
+        
+        function test_read_5work_5thEmpty (~)
+            % Test reading a map file with five workspaces, last empty
+            % Should simply be ignored and output has four workspaces
+            w = IX_map.read_ascii ('map_5work_5thEmpty.map');
+            is = [21:25, 31:36, 41:47, 51:58];
+            iw = [2*ones(1,5), 3*ones(1,6), 4*ones(1,7), 5*ones(1,8)];
+            wref = IX_map (is, 'wkno', iw);
+            assertEqual (w, wref, 'File and array constructors not equivalent')
+        end
+        
+        function test_read_5work_3rdTooFewSpec (~)
+            % Test reading a map file with five workspaces, third empty
+            % Should simply be ignored and output has four workspaces
+            f = @()IX_map.read_ascii ('map_5work_3rdTooFewSpec.map');
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_file_format');
+            assertTrue(contains(ME.message, ...
+                'Unexpected characters when expecting numeric data'))
+        end
+        
+        function test_read_5work_3rdManyFewSpec (~)
+            % Test reading a map file with five workspaces, third empty
+            % Should simply be ignored and output has four workspaces
+            f = @()IX_map.read_ascii ('map_5work_3rdTooManySpec.map');
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_file_format');
+            assertTrue(contains(ME.message, ...
+                'Too many spectrum numbers given for the workspace numbered'))
+        end
+        
+            % Should simply be ignored and output has four workspaces
+%         *** finish off the test of five workspaces
+%         *** change IX_map/save_ascii, rename put_map to put_map_ascii
+%         *** edit put_map_ascii and add tests
+%         *** make same changes to IX_mask: read_ascii, save_ascii, get_mask, put_mask
+%         *** change error messages to HERBERT:IX_map (apart from read_map, read_mask)
         
     end
     
@@ -123,7 +238,7 @@ end
 % % Test read/write
 % % ---------------
 % tmpfile=fullfile(tmp_dir,'tmp.map');
-% 
+%
 %         %------------------------------------------------------------------
 %         % Test reading from ASCII file
 %         %------------------------------------------------------------------
@@ -131,75 +246,29 @@ end
 % save(w,tmpfile)
 % wtmp=read(IX_map,tmpfile);
 % if ~isequal(w,wtmp), assertTrue(false,'save followed by read not an identity'), end
-% 
+%
 % w=IX_map('map_14.map');
 % save(w,tmpfile)
 % wtmp=read(IX_map,tmpfile);
 % if ~isequal(w,wtmp), assertTrue(false,'save followed by read not an identity'), end
-% 
+%
 % w=IX_map('map_15_1st_empty.map');
 % save(w,tmpfile)
 % wtmp=read(IX_map,tmpfile);
 % if ~isequal(w,wtmp), assertTrue(false,'save followed by read not an identity'), end
-% 
+%
 % w=IX_map('map_15_3rd_empty.map');
 % save(w,tmpfile)
 % wtmp=read(IX_map,tmpfile);
 % if ~isequal(w,wtmp), assertTrue(false,'save followed by read not an identity'), end
-% 
+%
 % w=IX_map('map_15_last_empty.map');
 % save(w,tmpfile)
 % wtmp=read(IX_map,tmpfile);
 % if ~isequal(w,wtmp), assertTrue(false,'save followed by read not an identity'), end
-% 
-% 
-% % Read in a variety of maps that should fail
-% % ----------------------------------------------
-% try
-%     w=IX_map('map_14_too_many_spectra.map');
-%     ok=false;
-% catch
-%     ok=true;
-% end
-% if ~ok, assertTrue(false,'Map constructor should have failed but did not'), end
-% 
-% try
-%     w=IX_map('map_14_wrong_no_workspaces_1.map');
-%     ok=false;
-% catch
-%     ok=true;
-% end
-% if ~ok, assertTrue(false,'Map constructor should have failed but did not'), end
-% 
-% try
-%     w=IX_map('map_14_wrong_no_workspaces_2.map');
-%     ok=false;
-% catch
-%     ok=true;
-% end
-% if ~ok, assertTrue(false,'Map constructor should have failed but did not'), end
-% 
-% 
-% % Test optional 'wkno' argument
-% % -----------------------------
-% w1=IX_map('map_15_1st_empty.map');
-% 
-% w2=IX_map('map_15_1st_empty.map','wkno');
-% wtmp=w1; wtmp.wkno=[99,1:14]; 
-% if ~isequal(wtmp,w2), assertTrue(false,'wkno not correctly assigned'), end
-% 
-% w3=IX_map('map_15_1st_empty.map','wk',11:25);
-% wtmp=w1; wtmp.wkno=11:25; 
-% if ~isequal(wtmp,w3), assertTrue(false,'wkno not correctly assigned'), end
-% 
-% try
-%     w=IX_map('map_15_1st_empty.map','wk',11:26);   % should fail (numel(wkno) is wrong)
-%     ok=false;
-% catch
-%     ok=true;
-% end
-% if ~ok, assertTrue(false,'Map constructor should have failed but did not'), end
-%     
+%
+%
+%
 % % -----------------------------------------------------------------------------
 % % Test combine
 % % ------------
@@ -209,15 +278,15 @@ end
 % wrefnam=IX_map('map_14.map','wkno');
 % w1nam=IX_map('map_1to8.map','wkno');
 % w2nam=IX_map('map_9to14.map','wkno');
-% 
+%
 % % Trivial case of one map
 % wcomb=combine(w1);
 % if ~isequal(w1,wcomb), assertTrue(false,'Error combining two maps'), end
-% 
+%
 % % Combine two maps
 % wcomb=combine(w1,w2);
 % if ~isequal(wref,wcomb), assertTrue(false,'Error combining two maps'), end
-% 
+%
 % % Try to combine workspaces with shared spectra
 % try
 %     wcomb_bad=combine(w1,wref);
@@ -226,25 +295,25 @@ end
 %     ok=true;
 % end
 % if ~ok, assertTrue(false,'Should have failed because shared spectra'), end
-% 
+%
 % % Combine workspaces with names
 % wcomb=combine(w1nam,w2nam,'wkno');
 % if ~isequal(wrefnam,wcomb), assertTrue(false,'Error combining two maps'), end
-% 
+%
 % % A severe test:
 % m1=IX_map({[11,12,13],[21,22]});
 % m2=IX_map({[31,32,33,34],[41,42],51},'wkno',[2,99,5]);
 % m3=IX_map({61,[72,73],[81,82],(91:95)});
 % mtot=IX_map({[11,12,13],[21,22],[31,32,33,34],[41,42],51,61,[72,73],[81,82],(91:95)});
 % mtotnam=IX_map({[11,12,13],[21,22],[31,32,33,34],[41,42],51,61,[72,73],[81,82],(91:95)},'wkno',[1,3,2,99,5,4,6,7,8]);
-% 
+%
 % wcomb=combine(m1,m2,m3,'wkno');
 % if ~isequal(mtotnam,wcomb), assertTrue(false,'Error combining three maps'), end
-% 
+%
 % wcomb=combine(m1,m2,m3);
 % if ~isequal(mtot,wcomb), assertTrue(false,'Error combining three maps'), end
-% 
-% 
+%
+%
 % % -----------------------------------------------------------------------------
 % % Test mask_map
 % % -------------
@@ -252,4 +321,4 @@ end
 % wmsk=mask_map(wref,[35000:40000,5000:20000]);
 % wmskref=IX_map('map_14_msk.map');
 % if ~isequal(wmsk,wmskref), assertTrue(false,'Error masking map object'), end
-% 
+%

@@ -41,7 +41,7 @@ classdef test_mask < TestCase
         end
         
         %------------------------------------------------------------------
-        % Test reading from ASCII file
+        % Test reading from ASCII file (.msk file)
         %------------------------------------------------------------------
         function test_construct_from_file_single_line (~)
             % Test reading a mask file

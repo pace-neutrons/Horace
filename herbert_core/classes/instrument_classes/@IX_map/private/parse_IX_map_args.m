@@ -11,7 +11,7 @@ function [is, iw] = parse_IX_map_args (varargin)
 %   >> w = IX_map (isp_array)   % general case of array of spectra
 %   >> w = IX_map (isp_array, 'wkno', iw_array)
 %                               % if iw_array is scalar, all spectra
-%                               % are mapped into that wokspace
+%                               % are mapped into that workspace
 %
 % Groups of contiguous spectra to contiguous workspace numbers:
 %   >> w = IX_map (isp_beg, isp_end)        % one spectrum per workspace
@@ -53,7 +53,7 @@ if numel(par)==1
     
     % Check isp_array
     isp_array = par{1}(:);
-    if ~all_positive_integers (isp_array)
+    if ~(isempty(isp_array) || all_positive_integers (isp_array))
         error ('IX_map:invalid_argument', 'Spectrum numbers must all be >= 1')
     end
     
@@ -70,7 +70,7 @@ if numel(par)==1
                 error ('IX_map:invalid_argument', ['Workspace array must be ',...
                     'scalar or have same length as spectrum array'])
             end
-        else
+        elseif ~isempty(iw_array)
             error ('IX_map:invalid_argument', 'Workspace numbers must all be >= 1')
         end
     end

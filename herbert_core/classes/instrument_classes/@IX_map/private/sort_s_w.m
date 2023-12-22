@@ -35,6 +35,8 @@ function [is_sort, iw_sort, ns, wkno, unique_map, unique_spec] = sort_s_w (is, i
 if numel(is) < 1
     is_sort = is(:)';   % turns empty into zeros(1,0), leaves scalar unchanged
     iw_sort = iw(:)';
+    ns = zeros(1,0);
+    wkno = zeros(1,0);
     unique_map = true;
     unique_spec = true;
     return

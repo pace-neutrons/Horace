@@ -17,10 +17,10 @@ classdef IX_map < serializable
         % Dependent properties that may be expensive to evaluate
         % (Code must keep these consistent with the independent properties; use
         % check_combo_arg to do this)
-
+        
         % Row vector of the number of spectra in each workspace.
         ns_ = zeros(1,0)
-
+        
         % Row vector of unique workspace numbers
         % Each element is >= 1
         wkno_ = zeros(1,0)
@@ -57,9 +57,9 @@ classdef IX_map < serializable
             % to workspaces:
             %   >> w = IX_map (isp)         % single spectrum to workspace 1
             %   >> w = IX_map (isp_array)   % general case of array of spectra
-            %   >> w = IX_map (isp_array, 'wkno', iw_array) 
+            %   >> w = IX_map (isp_array, 'wkno', iw_array)
             %                               % if iw_array is scalar, all spectra
-            %                               % are mapped into that wokspace
+            %                               % are mapped into that workspace
             %
             % Groups of contiguous spectra to contiguous workspace numbers:
             %   >> w = IX_map (isp_beg, isp_end)        % one spectrum per workspace
@@ -82,7 +82,7 @@ classdef IX_map < serializable
             %
             % Full description:
             % =================
-            % The most general forms of the constructor are: 
+            % The most general forms of the constructor are:
             %
             %   >> w = IX_map (isp_array, 'wkno', iw_array,...
             %                   'repeat', [nrepeat, delta_isp, delta_iw])
@@ -103,7 +103,7 @@ classdef IX_map < serializable
             % EXAMPLE
             %   >> w = IX_map (1001:1010, 'wkno', 10:-1:1, 'repeat', [5, 1000, 0])
             %
-            % maps spectrum 1001 to workspace 10, spectrum 1002 to workspace 9,.. 1010 to 
+            % maps spectrum 1001 to workspace 10, spectrum 1002 to workspace 9,.. 1010 to
             % workspace 1. It then maps spectrum 2001 also to workspace 10, 2002 to workspace 9
             % etc.
             %
@@ -131,14 +131,14 @@ classdef IX_map < serializable
             %
             %
             % Other examples:
-            % 
+            %
             % Single spectrum to single workspace:
             % ====================================
             %   >> w = IX_map (isp)                 % Single spectrum mapped to workspace 1
             %   >> w = IX_map (isp, 'wkno', iw)     % Workspace given explicit number iw
-            % 
+            %
             % EXAMPLES
-            %   >> w = IX_map (5)   
+            %   >> w = IX_map (5)
             %       Spectrum 5 mapped to workspace 1
             %
             %   >> w = IX_map (5, 'wkno', 10)
@@ -147,12 +147,12 @@ classdef IX_map < serializable
             %
             % Explicit mapping of multiple spectra to multiple workspaces:
             % ============================================================
-            %   >> w = IX_map (isp_array)                   % Array of workspaces, one spectrum 
+            %   >> w = IX_map (isp_array)                   % Array of workspaces, one spectrum
             %                                               % per workspace
             %   >> w = IX_map (isp_array, 'wkno', iw_array) % With explicit array of workspace
             %                                               % numbers. Note isp_array and iw_array
             %                                               % must have same length or iw_array
-            %                                               % is a scalar (and all spectra are 
+            %                                               % is a scalar (and all spectra are
             %                                               % mapped to that one workspace)
             % EXAMPLES
             %   >> w = IX_map ([1,3,11,12,13])
@@ -165,17 +165,17 @@ classdef IX_map < serializable
             %
             %   >> w = IX_map ([1,3,11,12,13], 'wkno', 101)
             %       All five spectra are mapped to workspace 101
-            % 
+            %
             %
             % Mapping of a sequence of spectra to a sequence of workspaces:
             % =============================================================
             % - One spectrum per workspace:
             %   ---------------------------
             %   First workspace contains spectrum isp_beg and last workspaces contains spectrum
-            %   isp_end (note that isp_beg can be bigger than isp_end) 
+            %   isp_end (note that isp_beg can be bigger than isp_end)
             %
             %   >> w = IX_map (isp_beg, isp_end)                    % Workspaces numbered 1,2,3...
-            %   >> w = IX_map (isp_beg, isp_end, 'wkno', iw_beg)    % Workspaces are numbered 
+            %   >> w = IX_map (isp_beg, isp_end, 'wkno', iw_beg)    % Workspaces are numbered
             %                                                       % iw_beg, iw_beg+1...
             %
             %
@@ -196,13 +196,13 @@ classdef IX_map < serializable
             %
             %   >> w = IX_map (..., 'repeat', [nrepeat, delta_isp, delta_iw])
             %
-            % starting value for spectra being isp_beg, (isp_beg + delta_isp), 
+            % starting value for spectra being isp_beg, (isp_beg + delta_isp),
             % (isp_beg + 2*delta_isp),... and the starting value of workspaces being iw,
             % (iw + delta_iw), (iw + 2*delta_iw),...
             %
             % Note:
             % - Either or both of delta_isp and delta_iw can be negative
-            % - delta_iw=0 is permitted as you may want to accumulate many spectra to a 
+            % - delta_iw=0 is permitted as you may want to accumulate many spectra to a
             %   single workspace.
             % - delta_isp=0 is permitted too, which means that a given spectrum will be
             %   accumulated into several workspaces, although this is unusual.
@@ -223,7 +223,7 @@ classdef IX_map < serializable
             %           :
             %   >> w = combine (wtmp)
             %
-            % and similarly 
+            % and similarly
             %   >> w = IX_map (..., 'repeat', [nrepeat, delta_isp, delta_iw])
             %
             % is equivalent to:
@@ -238,14 +238,14 @@ classdef IX_map < serializable
             % workspace number. Likewise, within a repeat-block entry, delta_iw(i) can be NaN,
             % indicting that a block is repeated so that the set of blocks forms a contiguous
             % set of workspace numbers.
-
+            
             if nargin==0
                 % Case of default object - no spectra or workspaces
                 return
             end
             [obj.s_, obj.w_] = parse_IX_map_args (varargin{:});
             obj = check_combo_arg (obj);
-
+            
         end
         
         %------------------------------------------------------------------
@@ -326,7 +326,7 @@ classdef IX_map < serializable
             % True if each spectrum is mapped to only one workspace
             val = obj.unique_epec_;
         end
-    
+        
     end
     
     
@@ -335,7 +335,8 @@ classdef IX_map < serializable
     %------------------------------------------------------------------
     methods
         function save_ascii (obj, file)
-            % Save a map object to an ASCII file
+            % Save a map object to an ASCII file in the .map format
+            % See <a href="matlab:help('IX_map/read_ascii');">IX_map/read_ascii</a> for examples and format details
             %
             %   >> save_ascii (obj)              % prompts for file
             %   >> save_ascii (obj, file)
@@ -367,28 +368,54 @@ classdef IX_map < serializable
     
     methods (Static)
         function obj = read_ascii (file)
-            % Read map data from an ASCII file
+            % Read map data from an ASCII file (conventional extension: .map)
             %
-            %   >> obj = IX_map.read_ascii           % prompts for file
+            %   >> obj = IX_map.read_ascii           % prompts for file name
             %   >> obj = IX_map.read_ascii (file)
-            
-            
-            % Get file name - prompt if file does not exist
-            % ---------------------------------------------
-            % The chosen file resets default seach location and extension
-            if nargin==0 || ~is_file(file)
-                file = '*.map';     % default for file prompt
-            end
-            [file_full, ok, mess] = getfilecheck (file);
-            if ~ok
-                error ('IX_map:read:io_error', mess)
-            end
-            
-            % Read data from file
-            % ---------------------
-            map = get_map(file_full);
-            obj = IX_map (map);
-            
+            %
+            % EXAMPLE
+            %   >> my_map = IX_map.read_ascii('c:\temp\maps_4to1.map')
+            %
+            %
+            % Format of an ascii map file:
+            % ----------------------------
+            %       <nw (the number of workspaces)>
+            %       <wkno(1) (the workspace number>
+            %       <ns(1) (number of spectra in 1st workspace>
+            %       <list of spectrum numbers across as many lines as required>
+            %           :
+            %       <wkno(2) (the workspace number>
+            %       <ns(2) (number of spectra in 1st workspace>
+            %       <list of spectrum numbers across as many lines as required>
+            %           :
+            %       <wkno(nw) (the workspace number>
+            %       <no. spectra in last workspace>
+            %       <list of spectrum numbers across as many lines as required>
+            %           :
+            %
+            % The list of spectrum numbers can take the form e.g. '12:15, 5:-2:1'
+            % to specify ranges (in this case [12,13,14,15,5,3,1])
+            %
+            % Blank lines and comment lines (lines beginning with ! or %) are ignored.
+            % Comments can also be put at the end of lines following ! or %.
+            %
+            % For examples, see:
+            %
+            %
+            % NOTE: The old VMS format is also supported. This assumes
+            % the workspaces have numbers 1,2,3...nw, and there was also
+            % information about the effective detector positions that is now
+            % redundant. This format can no longer be written as it is obsolete:
+            %
+            %   <nw (the number of workspaces)>
+            %   <no. spectra in 1st workspace>   <dummy value>   <dummy value>    <dummy value>
+            %   <list of spectrum numbers across as many lines as required>
+            %       :
+            %   <no. spectra in 2nd workspace>   <dummy value>   <dummy value>    <dummy value>
+            %   <list of spectrum numbers across as many lines as required>
+            %       :
+
+            obj = get_map_ascii(file);  % private function to IX_map
         end
         
     end
@@ -418,12 +445,12 @@ classdef IX_map < serializable
             [iw_beg, delta_iw, iw_min, iw_max] = resolve_repeat_blocks (varargin{:});
         end
     end
-        
+    
     
     %======================================================================
     % SERIALIZABLE INTERFACE
     %======================================================================
-
+    
     methods
         function ver = classVersion(~)
             % Current version of class definition
@@ -455,7 +482,7 @@ classdef IX_map < serializable
             [obj.s_, obj.w_, obj.ns_, obj.wkno_, ~, obj.unique_spec_] = ...
                 sort_s_w (obj.s_, obj.w_);
         end
-
+        
     end
     
 end
