@@ -321,6 +321,9 @@ classdef main_header_cl < serializable
     methods(Access=protected)
         function  [S,obj] = convert_old_struct(obj, S, varargin)
             % Convert old header structure in the new (version 2) form
+            if isfield(S,'filepath')
+                S.filepath = regexprep(S.filepath,'[\\/]$','');
+            end
             if isfield(S,'filename')
                 S.full_filename = fullfile(S.filepath,S.filename);
             elseif isfield(S,'filename_with_cdate')
