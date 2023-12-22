@@ -42,7 +42,7 @@ keyval_def = struct('wkno', NaN, 'repeat', [1,0,0]);    % default: no repeat
     (varargin, npar_req, npar_opt, keyval_def);
 
 if ~ok
-    error ('IX_map:invalid_argument', mess)
+    error ('HERBERT:IX_map:invalid_argument', mess)
 end
 
 % Determine if IX_map(isp_beg, isp_end,...) or IX_map (isp_array,...) input
@@ -54,7 +54,7 @@ if numel(par)==1
     % Check isp_array
     isp_array = par{1}(:);
     if ~(isempty(isp_array) || all_positive_integers (isp_array))
-        error ('IX_map:invalid_argument', 'Spectrum numbers must all be >= 1')
+        error ('HERBERT:IX_map:invalid_argument', 'Spectrum numbers must all be >= 1')
     end
     
     % Check iw_array is valid and consistent with isp_array, if present;
@@ -67,11 +67,11 @@ if numel(par)==1
             try
                 iw_array = expand_args_by_ref (isp_array, iw_array);
             catch
-                error ('IX_map:invalid_argument', ['Workspace array must be ',...
+                error ('HERBERT:IX_map:invalid_argument', ['Workspace array must be ',...
                     'scalar or have same length as spectrum array'])
             end
         elseif ~isempty(iw_array)
-            error ('IX_map:invalid_argument', 'Workspace numbers must all be >= 1')
+            error ('HERBERT:IX_map:invalid_argument', 'Workspace numbers must all be >= 1')
         end
     end
 
@@ -164,17 +164,17 @@ if isnumeric(isp_beg_in) && isnumeric (isp_end_in) && isvector(isp_beg_in) ...
     isp_beg = isp_beg_in(:);
     isp_end = isp_end_in(:);
 else
-    error ('IX_map:invalid_argument', ...
+    error ('HERBERT:IX_map:invalid_argument', ...
         'Spectra range start and end arrays must both be numeric scalars or vectors')
 end
 
 if ~all_positive_integers (isp_beg) || ~all_positive_integers (isp_end)
-    error ('IX_map:invalid_argument', ...
+    error ('HERBERT:IX_map:invalid_argument', ...
         'Start and end of spectra range(s) must all be >= 1')
 end
 
 if numel(isp_beg)~=numel(isp_end)
-    error ('IX_map:invalid_argument', ['The spectra range start and end ',...
+    error ('HERBERT:IX_map:invalid_argument', ['The spectra range start and end ',...
         'arrays must both have the same number of elements'])
 end
 
@@ -184,12 +184,12 @@ Nschema = numel(isp_beg);
 if nargin==3
     % Check spectra grouping
     if ~isnumeric(step) || ~isvector(step) || ~any(numel(step)==[1,Nschema])
-        error ('IX_map:invalid_argument', ['Step size(s) must be a numeric ',...
+        error ('HERBERT:IX_map:invalid_argument', ['Step size(s) must be a numeric ',...
             'scalar or vector with length equal to number of mapping schema'])
     end
     % Check numeric validity
     if ~all_nonzero_integers (step)
-        error ('IX_map:invalid_argument', 'Step size(s) must be non-zero integer(s)')
+        error ('HERBERT:IX_map:invalid_argument', 'Step size(s) must be non-zero integer(s)')
     end
     % Expand value to vector if necessary
     if numel(step)==1 && Nschema>1
@@ -239,16 +239,16 @@ function iw_beg = parse_initial_workspace_numbers (iw_beg_in, Nschema)
 % Check validity of workspace number(s)
 if ~isnumeric(iw_beg_in) || ~isvector(iw_beg_in) || ~any(numel(iw_beg_in)==[1,Nschema])
     if Nschema==1     % single row only permitted
-        error ('IX_map:invalid_argument', ...
+        error ('HERBERT:IX_map:invalid_argument', ...
             'Workspace number must be a scalar')
     else
-        error ('IX_map:invalid_argument', ['Workspace number(s) must be a ',...
+        error ('HERBERT:IX_map:invalid_argument', ['Workspace number(s) must be a ',...
             'scalar or vector with length of initial spectrum numbers array'])
     end
 end
 
 if ~all_positive_integers_or_nan (iw_beg_in)
-    error ('IX_map:invalid_argument', ...
+    error ('HERBERT:IX_map:invalid_argument', ...
             'Workspace number(s) must be integer(s) >=0 or NaN(s)')
 end
 
@@ -306,23 +306,23 @@ function [nrepeat, delta_isp, delta_iw] = parse_repeat_pars (repeat_pars, Nschem
 if ~isnumeric(repeat_pars) || ~ismatrix(repeat_pars) || ...
         ~any(size(repeat_pars,1)==[1,Nschema]) || ~size(repeat_pars,2)==3
     if Nschema==1     % single row only permitted
-        error ('IX_map:invalid_argument', 'Block repeat data must by a 1x3 vector')
+        error ('HERBERT:IX_map:invalid_argument', 'Block repeat data must by a 1x3 vector')
     else
-        error ('IX_map:invalid_argument', ['Block repeat data must by a 1x3 ',...
+        error ('HERBERT:IX_map:invalid_argument', ['Block repeat data must by a 1x3 ',...
             'vector or Nx3 array (N is length of initial spectrum number array'])
     end
 end
 
 if ~all_positive_integers (repeat_pars(:,1))
-    error ('IX_map:invalid_argument', 'Value(s) of block repeats must be >= 1')
+    error ('HERBERT:IX_map:invalid_argument', 'Value(s) of block repeats must be >= 1')
 end
 
 if ~all_integers (repeat_pars(:,2))
-    error ('IX_map:invalid_argument', 'Spectrum offset(s) must be integer(s)')
+    error ('HERBERT:IX_map:invalid_argument', 'Spectrum offset(s) must be integer(s)')
 end
 
 if ~all_integers_or_nan (repeat_pars(:,3))
-    error ('IX_map:invalid_argument', ...
+    error ('HERBERT:IX_map:invalid_argument', ...
             'Workspace offset(s) must be integer(s) or NaN(s)')
 end
 

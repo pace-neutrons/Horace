@@ -1,10 +1,10 @@
 function wout = read_map (file)
-% Read .map object from a file
+% Read map data from an ASCII file (conventional extension: .map)
 % 
 %   >> w=read_map          % prompts for file
 %   >> w=read_map (file)
 %
-% See <a href="matlab:help('IX_map/read_ascii');">IX_map/read_ascii</a> for examples and format details
+% See <a href="matlab:help('IX_map/read_ascii');">IX_map/read_ascii</a> for file format details and examples
 
 
 % Get file name - prompt if file does not exist (using file to set default seach location and extension

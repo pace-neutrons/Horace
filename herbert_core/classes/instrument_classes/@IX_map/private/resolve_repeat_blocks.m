@@ -82,7 +82,7 @@ if isnan(ix_beg_in)
     % Set the starting value so that the minimum item number for the set of 
     % repeated blocks becomes ix_max_prev + 1
     if ~exist('ix_max_prev','var')
-        error ('IX_map:invalid_argument', ['Must provide ''ix_max_prev'' ',...
+        error ('HERBERT:IX_map:invalid_argument', ['Must provide ''ix_max_prev'' ',...
             'if block repeat increment is a placeholder value'])
     end
     ix_beg = ix_max_prev - ix_min + 1;

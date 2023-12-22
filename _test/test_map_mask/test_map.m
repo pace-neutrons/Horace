@@ -63,7 +63,7 @@ classdef test_map < TestCase
             isp = [14;-19;17];
             iwk = [6,4,9];
             f = @()IX_map(isp, 'wkno', iwk);
-            ME = assertExceptionThrown (f, 'IX_map:invalid_argument');
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_argument');
             assertTrue(contains(ME.message, 'Spectrum numbers must all be >= 1'))
         end
         
@@ -72,7 +72,7 @@ classdef test_map < TestCase
             isp = [14;19;17];
             iwk = [6,-4,9];
             f = @()IX_map(isp, 'wkno', iwk);
-            ME = assertExceptionThrown (f, 'IX_map:invalid_argument');
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_argument');
             assertTrue(contains(ME.message, 'Workspace numbers must all be >= 1'))
         end
         
@@ -81,7 +81,7 @@ classdef test_map < TestCase
             isp = [14;19;17];
             iwk = [6,9];
             f = @()IX_map(isp, 'wkno', iwk);
-            ME = assertExceptionThrown (f, 'IX_map:invalid_argument');
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_argument');
             assertTrue(contains(ME.message, ...
                 'Workspace array must be scalar or have same length as spectrum array'))
         end
@@ -109,7 +109,7 @@ classdef test_map < TestCase
             delta_isp = -10;
             delta_iw = 1;
             f = @()IX_map(isp, 'wkno', iw, 'repeat', [nrepeat, delta_isp, delta_iw]);
-            ME = assertExceptionThrown (f, 'IX_map:invalid_argument');
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_argument');
             assertTrue(contains(ME.message, ['Spectrum array constructed for ',...
                 'at least one repeated array includes zero or negative spectrum numbers']))
         end
@@ -222,8 +222,71 @@ classdef test_map < TestCase
                 'Too many spectrum numbers given for the workspace numbered'))
         end
         
-            % Should simply be ignored and output has four workspaces
-%         *** finish off the test of five workspaces
+        %------------------------------------------------------------------
+        % Test write to ASCII file
+        %------------------------------------------------------------------
+        function test_write_read_1work_0spec (~)
+            % Read a map file (tested elsewhere in this test that it works)
+            wref = IX_map.read_ascii ('map_1work_0spec.map');
+            % Save to temporary .map file
+            test_file = fullfile (tmp_dir(), 'test_map_IO.map');
+            cleanup = onCleanup(@()delete(test_file));
+            save_ascii (wref, test_file)
+            % Recover map
+            w = read_map (test_file);
+            assertEqual (w, wref)
+        end
+        
+        function test_write_read_14work_18432spec (~)
+            % Read a map file (tested elsewhere in this test that it works)
+            wref = IX_map.read_ascii ('map_14work_18432spec.map');
+            % Save to temporary .map file
+            test_file = fullfile (tmp_dir(), 'test_map_IO.map');
+            cleanup = onCleanup(@()delete(test_file));
+            save_ascii (wref, test_file)
+            % Recover map
+            w = read_map (test_file);
+            assertEqual (w, wref)
+        end
+        
+        function test_write_read_15work_18432spec_1st_empty (~)
+            % Read a map file (tested elsewhere in this test that it works)
+            wref = IX_map.read_ascii ('map_15work_18432spec_1st_empty.map');
+            % Save to temporary .map file
+            test_file = fullfile (tmp_dir(), 'test_map_IO.map');
+            cleanup = onCleanup(@()delete(test_file));
+            save_ascii (wref, test_file)
+            % Recover map
+            w = read_map (test_file);
+            assertEqual (w, wref)
+        end
+        
+        function test_write_read_15work_18432spec_3rd_empty (~)
+            % Read a map file (tested elsewhere in this test that it works)
+            wref = IX_map.read_ascii ('map_15work_18432spec_3rd_empty.map');
+            % Save to temporary .map file
+            test_file = fullfile (tmp_dir(), 'test_map_IO.map');
+            cleanup = onCleanup(@()delete(test_file));
+            save_ascii (wref, test_file)
+            % Recover map
+            w = read_map (test_file);
+            assertEqual (w, wref)
+        end
+        
+        function test_write_read_15work_18432spec_15th_empty (~)
+            % Read a map file (tested elsewhere in this test that it works)
+            wref = IX_map.read_ascii ('map_15work_18432spec_15th_empty.map');
+            % Save to temporary .map file
+            test_file = fullfile (tmp_dir(), 'test_map_IO.map');
+            cleanup = onCleanup(@()delete(test_file));
+            save_ascii (wref, test_file)
+            % Recover map
+            w = read_map (test_file);
+            assertEqual (w, wref)
+        end
+
+
+
 %         *** change IX_map/save_ascii, rename put_map to put_map_ascii
 %         *** edit put_map_ascii and add tests
 %         *** make same changes to IX_mask: read_ascii, save_ascii, get_mask, put_mask
@@ -234,41 +297,7 @@ classdef test_map < TestCase
 end
 
 
-% % -----------------------------------------------------------------------------
-% % Test read/write
-% % ---------------
-% tmpfile=fullfile(tmp_dir,'tmp.map');
-%
-%         %------------------------------------------------------------------
-%         % Test reading from ASCII file
-%         %------------------------------------------------------------------
-% w=IX_map('map_1_empty.map');
-% save(w,tmpfile)
-% wtmp=read(IX_map,tmpfile);
-% if ~isequal(w,wtmp), assertTrue(false,'save followed by read not an identity'), end
-%
-% w=IX_map('map_14.map');
-% save(w,tmpfile)
-% wtmp=read(IX_map,tmpfile);
-% if ~isequal(w,wtmp), assertTrue(false,'save followed by read not an identity'), end
-%
-% w=IX_map('map_15_1st_empty.map');
-% save(w,tmpfile)
-% wtmp=read(IX_map,tmpfile);
-% if ~isequal(w,wtmp), assertTrue(false,'save followed by read not an identity'), end
-%
-% w=IX_map('map_15_3rd_empty.map');
-% save(w,tmpfile)
-% wtmp=read(IX_map,tmpfile);
-% if ~isequal(w,wtmp), assertTrue(false,'save followed by read not an identity'), end
-%
-% w=IX_map('map_15_last_empty.map');
-% save(w,tmpfile)
-% wtmp=read(IX_map,tmpfile);
-% if ~isequal(w,wtmp), assertTrue(false,'save followed by read not an identity'), end
-%
-%
-%
+
 % % -----------------------------------------------------------------------------
 % % Test combine
 % % ------------

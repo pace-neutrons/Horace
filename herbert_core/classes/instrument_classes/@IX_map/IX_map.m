@@ -259,7 +259,7 @@ classdef IX_map < serializable
             % A spectrum number can appear multiple times
             if ~isnumeric(val) || any(round(val(:))~=val(:)) || any(val(:)<1) ||...
                     any(~isfinite(val(:)))
-                error ('IX_map:set:invalid_argument',...
+                error ('HERBERT:IX_map:invalid_argument',...
                     'Spectrum numbers must be integers greater or equal to 1')
             end
             
@@ -278,7 +278,7 @@ classdef IX_map < serializable
             % A workspace number can appear multiple times
             if ~isnumeric(val) || any(round(val(:))~=val(:)) || any(val(:)<1) ||...
                     any(~isfinite(val(:)))
-                error ('IX_map:set:invalid_argument',...
+                error ('HERBERT:IX_map:invalid_argument',...
                     'Workspace numbers must be integers greater or equal to 1')
             end
             
@@ -335,34 +335,22 @@ classdef IX_map < serializable
     %------------------------------------------------------------------
     methods
         function save_ascii (obj, file)
-            % Save a map object to an ASCII file in the .map format
-            % See <a href="matlab:help('IX_map/read_ascii');">IX_map/read_ascii</a> for examples and format details
+            % Save map data to an ASCII file (conventional extension: .map)
             %
-            %   >> save_ascii (obj)              % prompts for file
             %   >> save_ascii (obj, file)
+            %
+            % See <a href="matlab:help('IX_map/read_ascii');">IX_map/read_ascii</a> for file format details and examples
             %
             % Input:
             % ------
-            %   w       Map object (single object only, not an array)
-            %   file    [optional] File for output.
-            %           If none given, then prompts for a file
+            %   obj     Map object (single object only, not an array)
+            %   file    Name of file for output
+            %
+            % EXAMPLE
+            %   >> save_ascii (my_map_object, 'c:\temp\maps_4to1.map')
+            %
             
-            
-            % Get file name - prompting if necessary
-            % --------------------------------------
-            if nargin==1
-                file='*.map';
-            end
-            [file_full, ok, mess] = putfilecheck (file);
-            if ~ok
-                error ('IX_map:save:io_error', mess)
-            end
-            
-            % Write data to file
-            % ------------------
-            disp(['Writing map data to ', file_full, '...'])
-            put_map (obj, file_full);
-            
+            put_map_ascii (obj, file);   % private function to IX_map
         end
     end
     
