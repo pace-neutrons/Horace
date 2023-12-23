@@ -61,9 +61,7 @@ if ~obj.sqw_holder.main_header.creation_date_defined ||...
     obj.sqw_holder = sqw_obj;
 end
 
-if ~(isa(obj.sqw_holder.pix,'MultipixBase') || ...
-        obj.sqw_holder.pix.is_filebacked || ...
-        nopix)
+if ~(obj.sqw_holder.pix.is_filebacked || nopix)
     obj = obj.put_all_blocks();
     return;
 end

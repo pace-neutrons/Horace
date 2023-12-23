@@ -161,11 +161,10 @@ else
     ldw = ldw.init(w,filename);
     ldw = ldw.put_sqw();
 end
-ldw.delete();
 %
 if return_result
     if isa(w,'sqw')
-        wout = sqw(filename,'file_backed',true);
+        wout = sqw(ldw,'file_backed',true);
         if target_is_tmp
             wout = wout.set_as_tmp_obj();
         end
@@ -173,6 +172,7 @@ if return_result
         wout = w;
     end
 end
+ldw.delete();
 %==========================================================================
 function w = upgrade_file_calc_ranges(w,log_level,filename)
 % upgrade file format to new and recalculate averages and

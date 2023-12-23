@@ -61,6 +61,7 @@ classdef test_save < TestCase
                 'ignore_str',true);
         end
 
+        %------------------------------------------------------------------
         function test_save_upgrade_automatically_filebacked(obj)
 
             targ_file = fullfile(tmp_dir,obj.sqw_file_res);
@@ -107,6 +108,7 @@ classdef test_save < TestCase
             assertEqualToTol(rec,test_obj,'tol',[4*eps('single'),4*eps('single')])
 
         end
+        %
         function test_save_tmp_moves_to_new_file_upgrades_all_bar_pix(obj)
             source_to_move = fullfile(tmp_dir,'test_save_tmp_moves.tmp');
             targ_file      = fullfile(tmp_dir,'save_filebacked_different_file.sqw');
@@ -130,11 +132,11 @@ classdef test_save < TestCase
             test_obj.data.title = 'My image';
             assertEqualToTol(rec,test_obj,'ignore_str',true,'tol',[4*eps('single'),4*eps('single')]);
         end
-
+        %------------------------------------------------------------------
         function test_save_permanent_creates_new_file(obj)
             source_for_fb = fullfile(tmp_dir,obj.sqw_file_res);
             targ_file      = fullfile(tmp_dir,'save_filebacked_different_file.sqw');
-            clOb = onCleanup(@()del_memmapfile_files({source_for_fb,targ_file}));
+            clOb = onCleanup(@()del_memmapfile_files(source_for_fb,targ_file));
 
             test_obj = obj.sqw_obj.save(source_for_fb);
 
@@ -151,7 +153,6 @@ classdef test_save < TestCase
 
             assertEqualToTol(rec,test_obj,'ignore_str',true);
         end
-
 
         function test_save_invalid_arguments_throw(obj)
             targ_file = fullfile(tmp_dir,obj.sqw_file_res);
@@ -190,6 +191,30 @@ classdef test_save < TestCase
                 {'fule1','file2'},{ldr,'file1'}),'HORACE:sqw:invalid_argument');
             assertTrue(strncmp(ME7.message, ...
                 'Not every file-accessor provided as input (Argument N2) is child of horace_binfile_interface (faccess loader)',35));
+        end
+
+        function test_save_simple_filebacked(obj)
+            % Prepare recent faccess version source file.
+            tmp_sampl_file = fullfile(tmp_dir,obj.sqw_file_res);
+            targ_file =      fullfile(tmp_dir,'test_save_simple_filebacked.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(tmp_sampl_file,targ_file));
+
+            wout = obj.sqw_obj.save(tmp_sampl_file);
+            assertTrue(wout.is_filebacked);
+            assertTrue(isfile(tmp_sampl_file));
+            assertEqual(wout.full_filename,tmp_sampl_file);
+            wout.data.title = 'My image';
+
+            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',wout.pix.num_pixels/4);
+            wout2 = wout.save(targ_file);
+            assertTrue(wout2.is_filebacked);
+            assertTrue(isfile(targ_file));
+            assertEqual(wout2.full_filename,targ_file);
+
+            assertEqualToTol(wout,wout2, 'ignore_str',true);
+            % clear output object to release targ_file for deletion
+            clear wout;
+            clear wout2;
         end
 
         function test_save_with_loader(obj)
