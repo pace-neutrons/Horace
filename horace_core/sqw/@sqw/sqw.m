@@ -408,7 +408,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         %----------------------------------
         new_sqw = copy(obj, varargin)
-        wh  = get_write_handle(obj, outfile)
+        wh  = get_write_handle(obj, outfile,varargin)
         obj = finish_dump(obj,page_op);
         %
     end

@@ -347,6 +347,12 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
                 full_filename = obj.tmp_file_holder_.file_name;
             end
         end
+        function obj =  set_metadata(obj,val)
+            % main part of set from metadata setter
+            obj = set_metadata@PixelDataBase(obj,val);
+            obj.num_pixels_ = val.npix;
+        end
+        
 
         function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
             % Overloaded part of get_raw_pix operation.

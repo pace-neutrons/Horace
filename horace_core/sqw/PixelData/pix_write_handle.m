@@ -3,8 +3,8 @@ classdef pix_write_handle < handle
     % writing pixels and provides common interface for writing pixels.
     %
     % as pixels are closely related to image, the class also contains
-    % methods to update image or part of the inage, which was modified while
-    % modifyng pixels.
+    % methods to update image or part of the image, which was modified while
+    % modifying pixels.
     %
     % In addition, it closes accessor handle on class deletion, and may
     % delete target file if the class goes out of scope due to errors.
@@ -122,8 +122,8 @@ classdef pix_write_handle < handle
             end
             obj.npix_written_ = obj.npix_written_ + size(data, 2);
         end
-        function store_metadata = finish_pix_dump(obj,pix_obj,store_metadata)
-            % finalize multipage pix.write opeation writing information
+        function pix_meta = finish_pix_dump(obj,pix_obj,store_metadata)
+            % finalize multipage pix.write operation writing information
             % about number of pixels written using pix_write_handle at the
             % beginning of pixel data block stored in sqw file.
             %
@@ -141,6 +141,10 @@ classdef pix_write_handle < handle
             %       -- if true, pixel metadata are stored in sqw file
             %          together with pixel_data. If missing -- assumed
             %          true.
+            % Returns:
+            % pix_meta
+            %       -- modified by written pixel information pix_metadata
+            %          class
             % Result:
             % finalized pix.data block in sqw file.
             % if store_metadata is true
@@ -161,13 +165,17 @@ classdef pix_write_handle < handle
                 % block operations may reuse the released space.
                 wh = wh.put_num_pixels(num_pixels);
                 %
+                pix_meta = pix_obj.metadata;
+                pix_meta.full_filename = wh.full_filename;
+                pix_meta.npix = num_pixels;
                 if store_metadata
-                    pix_meta = pix_obj.metadata;
-                    pix_meta.full_filename = wh.full_filename;
-                    pix_meta.npix = num_pixels;
                     obj.write_handle_ = wh.put_new_blocks_values(pix_meta, ...
-                        'include','bl_pix_metadata');
+                        'update','bl_pix_metadata');
+                else
+                    obj.write_handle_ = wh;
                 end
+            else
+                pix_meta = [];
             end
         end
         %
