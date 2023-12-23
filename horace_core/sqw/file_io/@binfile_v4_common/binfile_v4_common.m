@@ -13,7 +13,7 @@ classdef binfile_v4_common < horace_binfile_interface
         data_blocks_list;
     end
     properties(Dependent,Hidden)
-        % old data type, not relevant any more. Left for compartibility.
+        % old data type, not relevant any more. Left for compatibility.
         % Always "b+" for dnd and "a" for sqw objects.
         data_type
     end
@@ -226,7 +226,7 @@ classdef binfile_v4_common < horace_binfile_interface
             dt = get_data_type(obj);
         end
         function obj = put_new_blocks_values(obj,obj_to_write,varargin)
-            % method takes initlized faccessor and replaces blocks
+            % method takes initialized faccessor and replaces blocks
             % stored in file with new block values obtained from sqw or dnd
             % object provided as input.
             %
@@ -247,11 +247,11 @@ classdef binfile_v4_common < horace_binfile_interface
             %             replaces all data in file except pixel data,
             %             which are locked by default.
             %
-            % 'include' -- option followed by list of block names which
-            %             shoud be replaced in file. This option is opposite
+            % 'update' -- option followed by list of block names which
+            %             should be replaced in file. This option is opposite
             %             to 'exclude' option.
             %  block_list
-            %          -- cellarray of valid block names following 'include'
+            %          -- cellarray of valid block names following 'update'
             %             keyword, describing blocks which contents in file
             %             should be replaced.
             %             Similarly to 'exclude' if this option is missed,
@@ -288,7 +288,7 @@ classdef binfile_v4_common < horace_binfile_interface
             % the sqw binary file.
             %
             % Overloaded for file format 4 to store BAT immediately after
-            % horace sqw file header
+            % Horace sqw file header
             obj = put_app_header@horace_binfile_interface(obj,varargin{:});
             obj.bat_.put_bat(obj.file_id_);
 

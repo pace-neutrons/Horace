@@ -151,7 +151,7 @@ if w.is_filebacked && w.is_tmp_obj
     end
     if assume_written
         % store only blocks which contain changed file name.
-        ldw.put_new_blocks_values(w,'include', ...
+        ldw.put_new_blocks_values(w,'update', ...
             {'bl__main_header','bl_data_metadata','bl_pix_metadata'});
     else
         % update all blocks except pixels

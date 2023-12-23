@@ -14,17 +14,18 @@ if isempty(wh)
 end
 if ~isempty(page_op.outfile)
     % the operations were performed into specific file and we want to
-    % modify resutling object to contain the name of this file.
+    % modify resulting object to contain the name of this file.
     obj.full_filename = page_op.outfile;
     out_blocks = {'bl__main_header';'bl_data_metadata';'bl_pix_metadata'};
 else % probably will be tmp file, but pixels still should contain correct filname
-    obj.pix.full_filename = wh.full_filename;
+    obj.pix.full_filename = wh.write_file_name;
     out_blocks  = {'bl_pix_metadata'};
 end
 
 pix = obj.pix;
-% finiwh writing pix_data but do not store pix_metadata
-wh.finish_pix_dump(pix,false);
+% finish writing pix_data but do not store pix_metadata
+pix_meta = wh.finish_pix_dump(pix,false);
+pix.metadata = pix_meta;
 % Get information necessary for storing the remaining data and initialize
 % IO operations to store other changed parts of sqw object,
 % do not close sqw_ldr handles
@@ -45,7 +46,8 @@ if ~page_op.changes_pix_only
     out_blocks = [out_blocks(:);'bl_data_nd_data'];
 end
 % Store all changes in target sqw file
-sqw_ldr = sqw_ldr.put_new_blocks_values(obj,'include',out_blocks);
+obj.pix_ = pix;
+sqw_ldr  = sqw_ldr.put_new_blocks_values(obj,'update',out_blocks);
 
 set_as_tmp_obj = false;
 if wh.move_to_original
