@@ -99,9 +99,10 @@ classdef main_header_cl < serializable
                             disp2str(arg))
                     end
                 otherwise
-                    param_names_list = obj.saveableFields();
+                    param_names_list = {'filename','filepath','title','nfiles',...
+                        'creation_date'};
                     [obj,remains] = obj.set_positional_and_key_val_arguments(...
-                        param_names_list(1:4),false,varargin{:});
+                        param_names_list,false,varargin{:});
 
                     if ~isempty(remains)
                         error('HORACE:main_header:invalid_argument',...
@@ -250,33 +251,19 @@ classdef main_header_cl < serializable
         end
 
     end
-    %------------------------------------------------------------------
-    % SERIALIZABLE INTERFACE
-    properties(Constant,Access = protected)
-        % fields used with serializable interface. Keep order of fields
-        % unchanged, as setting creation_date sets also creation_date_defined_
-        % and creation_date_defined_privately sets/reads creation_date_defined_
-        % (contrary to usual convention, but necessary for supporting old
-        % mat and sqw files, which do not have these properties stored within them)
-        fields_to_save_ = {'filename','filepath','title','nfiles',...
-            'creation_date','creation_date_defined_privately'};
-    end
+    %----------------------------------------------------------------------
+    methods(Static,Access=protected)
+        function dtstr = DT_out_transf_(dt)
+            % transform date-time into the requested string
+            if ~isa(dt,'datetime')
+                warning('HORACE:main_header_cl:invalid_argument', ...
+                    'call to class-protected function with invalid argument. Something wrong with class usave')
+                dt = datetime('now');
+            end
 
-    methods
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
-            % the older version, so version substitution is based on this
-            % number
-            ver = 1;
+            dtstr = datestr(dt, main_header_cl.dt_format);
         end
-
-        function flds = saveableFields(~)
-            flds = main_header_cl.fields_to_save_;
-        end
-
     end
-
     methods(Static)
         % Utility routines:
         function datt = convert_datetime_from_str(in_str)
@@ -305,17 +292,48 @@ classdef main_header_cl < serializable
             end
         end
     end
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    properties(Constant,Access = protected)
+        % fields used with serializable interface. Keep order of fields
+        % unchanged, as setting creation_date sets also creation_date_defined_
+        % and creation_date_defined_privately sets/reads creation_date_defined_
+        % (contrary to usual convention, but necessary for supporting old
+        % mat and sqw files, which do not have these properties stored within them)
+        fields_to_save_ = {'full_filename','title','nfiles',...
+            'creation_date','creation_date_defined_privately'};
+    end
 
-    methods(Static,Access=protected)
-        function dtstr = DT_out_transf_(dt)
-            % transform date-time into the requested string
-            if ~isa(dt,'datetime')
-                warning('HORACE:main_header_cl:invalid_argument', ...
-                    'call to class-protected function with invalid argument. Something wrong with class usave')
-                dt = datetime('now');
+    methods
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 2;
+        end
+
+        function flds = saveableFields(~)
+            flds = main_header_cl.fields_to_save_;
+        end
+
+    end
+    methods(Access=protected)
+        function  [S,obj] = convert_old_struct(obj, S, varargin)
+            % Convert old header structure in the new (version 2) form
+            if isfield(S,'filepath')
+                S.filepath = regexprep(S.filepath,'[\\/]$','');
             end
-
-            dtstr = datestr(dt, main_header_cl.dt_format);
+            if isfield(S,'filename')
+                S.full_filename = fullfile(S.filepath,S.filename);
+            elseif isfield(S,'filename_with_cdate')
+                fparts = strsplit(S.filename_with_cdate,'$');
+                S.full_filename = fullfile(S.filepath,fparts{1});
+                if numel(fparts)>1
+                    S.creation_date = fparts{2};
+                    S = rmfield(S,'filename_with_cdate');
+                end
+            end
         end
     end
 end

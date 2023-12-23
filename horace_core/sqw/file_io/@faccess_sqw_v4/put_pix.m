@@ -33,9 +33,8 @@ if ~isempty(argi) % parse inputs which may or may not contain any
     % combination of 3 following input parameters:
     sqw_pos = cellfun(@(x) isa(x,'sqw') || isstruct(x), argi);
     numeric_pos = cellfun(@(x) isnumeric(x) && ~isempty(x), argi);
-    parallel_Fw = cellfun(@(x) isa(x,'JobDispatcher'), argi);
 
-    unknown  = ~(sqw_pos|numeric_pos|parallel_Fw);
+    unknown  = ~(sqw_pos|numeric_pos);
     if any(unknown)
         if isempty(argi{1})
             disp('unknown empty input ');
@@ -44,12 +43,6 @@ if ~isempty(argi) % parse inputs which may or may not contain any
         end
         error('SQW_BINFILE_COMMON:invalid_argument',...
             'put_pixel: the routine accepts only sqw object and/or low and high numbers for pixels to save');
-    end
-
-    if any(parallel_Fw)
-        jobDispatcher = argi{parallel_Fw};
-    else
-        jobDispatcher  = [];
     end
 
     if any(sqw_pos)
@@ -70,7 +63,6 @@ if ~isempty(argi) % parse inputs which may or may not contain any
 
 else
     input_obj = obj.sqw_holder_.pix;
-    jobDispatcher = [];
 end
 
 if isnumeric(input_obj)

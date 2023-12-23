@@ -10,7 +10,8 @@ is_bool = cellfun(@islogical,varargin);
 log_par = [varargin{is_bool} false(1,2)]; % Pad with false
 update  = log_par(1);
 norange = log_par(2);
-argi = varargin(~is_bool);
+argi    = varargin(~is_bool);
+obj.old_file_format_ = false;
 
 if isscalar(argi)
     init_data = argi{1};

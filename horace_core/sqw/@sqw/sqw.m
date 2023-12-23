@@ -39,9 +39,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % The date of the sqw object file creation. As the date is defined both
         % in sqw and dnd object parts, this property synchronize both
         creation_date;
-        % return state of the object, if it is fully in memory or
-        % filebacked
-        is_filebacked;
     end
 
     properties(Dependent,Hidden=true)
@@ -382,10 +379,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             is = obj.pix_.num_pixels == 0;
         end
         %
-        function is = get.is_filebacked(obj)
-            is = obj.has_pixels && obj.pix.is_filebacked;
-        end
-        %
         function map = get.runid_map(obj)
             map = get_runid_map_(obj);
         end
@@ -481,6 +474,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         function obj = init_from_file(obj, in_struc)
             % Initialize SQW from file or file accessor
             obj = init_sqw_from_file_(obj, in_struc);
+        end
+        function is = get_is_filebacked(obj)
+            is = obj.has_pixels && obj.pix.is_filebacked;
         end
     end
     methods(Static,Access=protected)

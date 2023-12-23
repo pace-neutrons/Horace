@@ -6,6 +6,11 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     properties(Abstract,Dependent,Hidden=true)
         NUM_DIMS
     end
+    properties
+        % return state of the object, if it is fully in memory or
+        % backed by file
+        is_filebacked;
+    end
     %======================================================================
     methods (Abstract)
         %------------------------------------------------------------------
@@ -55,6 +60,8 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         % REDUNDANT METHOD to remove
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
+        % Check if object is filebacked or not.
+        is = get_is_filebacked(obj);
     end
     %======================================================================
     % METHODS, Available on SQW but requesting only DND object for
@@ -148,6 +155,11 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         varargout = multifit_func (varargin);
         varargout = multifit_sqw (varargin);
         varargout = multifit_sqw_sqw (varargin);
+
+        function is = get.is_filebacked(obj)
+            is = get_is_filebacked(obj);
+        end
+        %
     end
 
     methods (Access = protected)

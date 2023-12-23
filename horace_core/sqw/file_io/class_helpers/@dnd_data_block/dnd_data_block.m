@@ -5,6 +5,8 @@ classdef dnd_data_block < data_block
     %
     % The special form of data_block binary data format is caused by need
     % to access dnd_data_block from third party (non-Matlab) applications
+    % or need in organizing binary access to parts of these arrays from
+    % Matlab code.
     %
     properties(Dependent)
         % properties defile the location of the appropriate arrays in
