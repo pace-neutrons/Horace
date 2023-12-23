@@ -37,6 +37,11 @@ classdef PageOpBase
         % if provided, used as the name of the file for filebacked
         % operations
         outfile
+        % When pageop algorithm produces filebacked result and this option
+        % is true it returns its result as filebacked sqw object. If this
+        % option is set to false output  is not initialized and return is
+        % empty.
+        init_filebacked_output
         % property used in logs and returning the file name of the source data
         source_filename
 
@@ -108,8 +113,8 @@ classdef PageOpBase
         op_name_ = '';
         split_log_ratio_ = [];
 
-        % caches for some indices, defined in PixelDataBase, and used to
-        % extract appropriate fields from PixelData
+        % caches for some frequently used indices, defined in PixelDataBase,
+        % and used to extract appropriate fields from PixelData
         signal_idx_;
         var_idx_;
         run_idx_;
@@ -145,6 +150,8 @@ classdef PageOpBase
         % if true, page_op completed on filebacked object prints the name
         % of the file backing this object.
         inform_about_target_file_ = true;
+        % if true, intiialize output sqw object
+        init_filebacked_output_ = true;
     end
     methods(Abstract)
         % Specific apply operation method, which need overloading
@@ -477,6 +484,13 @@ classdef PageOpBase
         %
         function pd = get.page_data(obj)
             pd = obj.page_data_;
+        end
+        %
+        function do =  get.init_filebacked_output(obj)
+            do = obj.init_filebacked_output_;
+        end
+        function obj =  set.init_filebacked_output(obj,val)
+            obj.init_filebacked_output_ = logical(val);
         end
     end
     %======================================================================

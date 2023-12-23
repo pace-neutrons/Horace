@@ -4,8 +4,6 @@ classdef test_faccess_sqw_v4< TestCase
     %
     %
     %
-
-
     properties
         old_origin
         sample_dir;

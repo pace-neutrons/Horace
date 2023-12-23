@@ -16,24 +16,36 @@ if ~isempty(page_op.outfile)
     % the operations were performed into specific file and we want to
     % modify resutling object to contain the name of this file.
     obj.full_filename = page_op.outfile;
+    out_blocks = {'bl__main_header';'bl_data_metadata';'bl_pix_metadata'};
+else % probably will be tmp file, but pixels still should contain correct filname
+    obj.pix.full_filename = wh.full_filename;
+    out_blocks  = {'bl_pix_metadata'};
 end
 
 pix = obj.pix;
-wh.finish_pix_dump(pix);
+% finiwh writing pix_data but do not store pix_metadata
+wh.finish_pix_dump(pix,false);
 % Get information necessary for storing the remaining data and initialize
-% following pixel IO operations, do not close sqw_ldr handles
+% IO operations to store other changed parts of sqw object,
+% do not close sqw_ldr handles
 sqw_ldr = wh.release_pixinit_info(true);
 
-% Store modifications to image. Better implementation after Re #1319
+% Prepare storing modifications to experiment
 if page_op.exp_modified
-    sqw_ldr  = sqw_ldr.put_main_header(obj.main_header);
+    if isempty(out_blocks)
+        out_blocks = {out_blocks(:);'bl__main_header'};
+    end
     if page_op.exp_modified
-        sqw_ldr   = sqw_ldr.put_headers(obj.experiment_info);
+        out_blocks = [out_blocks(:);{'bl_experiment_info_instruments';...
+            'bl_experiment_info_samples';'bl_experiment_info_expdata'}];
     end
 end
+%  Check if image was modified and prepare storing changes to image
 if ~page_op.changes_pix_only
-    sqw_ldr  = sqw_ldr.put_dnd_data(obj.data);
+    out_blocks = [out_blocks(:);'bl_data_nd_data'];
 end
+% Store all changes in target sqw file
+sqw_ldr = sqw_ldr.put_new_blocks_values(obj,'include',out_blocks);
 
 set_as_tmp_obj = false;
 if wh.move_to_original
@@ -54,10 +66,12 @@ if wh.move_to_original
             obj.full_filename = targ_filename;
         end
     end
-    sqw_ldr.full_filename = targ_filename;
-    sqw_ldr = sqw_ldr.activate();
+    if page_op.init_filebacked_output
+        sqw_ldr.full_filename = targ_filename;
+        sqw_ldr = sqw_ldr.activate();
+    end
 else
-    if wh.is_tmp_file
+    if wh.is_tmp_file && page_op.init_filebacked_output
         % this will also set obj.full_filename to be wh.write_file_name
         % until TmpFileHandler is there and will leave the parts of the
         % original (permanent) file name and path within the sqw object
@@ -71,8 +85,13 @@ else
     % have been already modified and stored in target file
 end
 %
-obj.pix = pix.init(sqw_ldr);
-if set_as_tmp_obj % needs to happens after pixels are initialized
-    %
-    obj = obj.set_as_tmp_obj(wh.write_file_name);
+if page_op.init_filebacked_output
+    obj.pix = pix.init(sqw_ldr);
+    if set_as_tmp_obj % needs to happens after pixels are initialized
+        %
+        obj = obj.set_as_tmp_obj(wh.write_file_name);
+    end
+else
+    obj.pix  = [];
 end
+sqw_ldr.delete();
