@@ -25,6 +25,9 @@ end
 pix = obj.pix;
 % finish writing pix_data but do not store pix_metadata
 pix_meta = wh.finish_pix_dump(pix,false);
+if ~isempty(page_op.outfile)
+    pix_meta.full_filename = page_op.outfile;
+end
 pix.metadata = pix_meta;
 % Get information necessary for storing the remaining data and initialize
 % IO operations to store other changed parts of sqw object,

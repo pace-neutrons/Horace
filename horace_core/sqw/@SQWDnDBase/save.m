@@ -67,10 +67,6 @@ options = {'-assume_updated','-make_temporary','-update'};
 if ~ok
     error('HORACE:sqw:invalid_argument',mess);
 end
-if update
-    error('HORACE:sqw:not_implemented', ...
-        'Update option has not been implemented yet')
-end
 return_result = nargout>0;
 if make_tmp && ~return_result && isa(w,'sqw')
     error('HORACE:sqw:invalid_argument', ...
@@ -79,7 +75,8 @@ if make_tmp && ~return_result && isa(w,'sqw')
 end
 num_to_save = numel(w);
 
-[filenames,ldw]  = parse_additional_args(num_to_save,w,argi{:});
+[filenames,ldw]  = parse_additional_args(w,num_to_save,update,argi{:});
+
 
 if num_to_save > 1
     if return_result
@@ -116,10 +113,8 @@ if isfile(filename)
     if w.is_filebacked && strcmp(w.pix.full_filename,filename)
         % we are writing in the same file as the backing file
         if w.pix.old_file_format
-            w = upgrade_file_calc_ranges(w,ll,filename);
-            % operations below will not write changes in metadata again
-            % as assume that they have already been written.
-            assume_written = true;
+            wout = upgrade_file_calc_ranges(w,return_result,ll,filename);
+            return;
         else
             if ~assume_written
                 ldw = ldw.init(filename);
@@ -135,10 +130,10 @@ if isfile(filename)
     end
 end
 %
-if w.is_filebacked && w.is_tmp_obj
+if w.is_filebacked && w.is_tmp_obj && return_result
     if w.pix.old_file_format
-        w = upgrade_file_calc_ranges(w,ll,filename);
-        assume_written = true;
+        wout = upgrade_file_calc_ranges(w,return_result,ll,filename);
+        return;
     end
     w = w.deactivate();
     del_memmapfile_files(filename);
@@ -174,7 +169,7 @@ if return_result
 end
 ldw.delete();
 %==========================================================================
-function w = upgrade_file_calc_ranges(w,log_level,filename)
+function w = upgrade_file_calc_ranges(w,return_result,log_level,filename)
 % upgrade file format to new and recalculate averages and
 % ranges. Save result in temporary file.
 if log_level > 0
@@ -187,32 +182,26 @@ if log_level > 0
         w.pix.full_filename,filename);
 end
 pix_op = PageOp_recompute_bins();
-[fp,fn] = fileparts(filename);
-pix_op.outfile = build_tmp_file_name(fn,fp);
+pix_op.outfile =filename;
 pix_op = pix_op.init(w);
+pix_op.init_filebacked_output = return_result;
 w    = sqw.apply_op(w,pix_op);
 
 %
-function [filenames,ldw] = parse_additional_args(num_to_save,w,varargin)
+function [filenames,ldw] = parse_additional_args(w,num_to_save,update,varargin)
 % parse inputsd for filenames and loaders provided as input of save method.
-% fill default or ask user if some
+% fill default or ask user if some are missing.
+%
 
-% Get file name - prompting if necessary
 if numel(varargin) == 0
-    if num_to_save > 1
-        error('HORACE:sqw:invalid_argument', ...
-            ['No target filenames provided to save method.\n' ...
-            'Storing %d files requests %d filenames provided. '], ...
-            num_to_save,num_to_save);
+    if update %
+        filenames = extract_filenames_for_update(w,num_to_save);
     else
-        [filenames,mess]=putfile_horace('');
-        if ~isempty(mess)
-            error('HORACE:sqw:invalid_argument',mess)
-        end
-        filenames = {filenames};
-        argi = {};
+        % Get file name - prompting if necessary
+        filenames = ask_for_filename_if_possible(num_to_save);
     end
-else
+    argi = {};
+else % numel(varargin) > 0
     if num_to_save == 1
         is_fn = cellfun(@istext,varargin);
     else
@@ -226,41 +215,23 @@ else
             disp2str(fn_like));
     end
     if n_found == 0
-        if num_to_save > 1
-            error('HORACE:sqw:invalid_argument', ...
-                ['No target filenames provided to save method.\n' ...
-                'Storing %d files requests %d filenames provided. '], ...
-                num_to_save,num_to_save);
+        if update %
+            filenames = extract_filenames_for_update(w,num_to_save);
         else
-            [filenames,mess]=putfile_horace('');
-            if ~isempty(mess)
-                error('HORACE:sqw:invalid_argument',mess)
-            end
-            filenames = {filenames};
-            argi = varargin;
+            filenames = ask_for_filename_if_possible(num_to_save);
         end
+        argi = varargin;
     else % found one
-        filenames = varargin{is_fn};
-        if iscell(filenames)
-            if numel(filenames) ~= num_to_save
-                error('HORACE:sqw:invalid_argument', ...
-                    ['Saving %d object requests providing cellarray of %d filenamse.\n' ...
-                    ' Actually provided: %d filenames'],...
-                    num_to_save,num_to_save,numel(filenames));
-            end
-            is_text = cellfun(@istext,filenames);
-            if ~all(is_text)
-                n_filename_arg = find(is_fn);
-                error('HORACE:sqw:invalid_argument', ...
-                    'Not all members of filenames cellarray (Argument N%d ) are the text strings. This is not supported',...
-                    n_filename_arg)
-            end
-        else
-            filenames = {filenames};
+        filenames      = varargin{is_fn};
+        n_filename_arg = find(is_fn);
+        filenames = check_filenames_provided(num_to_save,n_filename_arg,filenames);
+        if update
+            filenames = extract_filenames_for_update(w,num_to_save,filenames);
         end
         argi      = varargin(~is_fn);
     end
 end
+%=== find loaders/savers for filenames:
 if isempty(argi)
     ldw = cell(1,num_to_save);
     for i=1:num_to_save
@@ -295,4 +266,99 @@ else
     error('HORACE:sqw:invalid_argument', ...
         'Unable to use class "%s" as faccess-or for sqw data',...
         class(ldw))
+end
+
+function filenames = check_filenames_provided(num_to_save,n_filename_arg,filenames)
+% if input parameter is identified as filename or list of filenames check
+% if it indeed can be treated as filename of list of filenames
+% Return cellarray of string which may be used as filenames.
+%
+if iscell(filenames)
+    if numel(filenames) ~= num_to_save
+        error('HORACE:sqw:invalid_argument', ...
+            ['Saving %d object requests providing cellarray of %d filenamse.\n' ...
+            ' Actually provided: %d filenames'],...
+            num_to_save,num_to_save,numel(filenames));
+    end
+    is_text = cellfun(@istext,filenames);
+    if ~all(is_text)
+        error('HORACE:sqw:invalid_argument', ...
+            'Not all members of filenames cellarray (Argument N%d ) are the text strings. This is not supported',...
+            n_filename_arg)
+    end
+else
+    filenames = {filenames};
+end
+
+%
+function filenames = ask_for_filename_if_possible(num_to_save)
+% if possible, ask user for filename to save the result.
+%
+% Throw 'HORACE:sqw:invalid_argument' if more then one object intended for
+% saving and no filenames was provided for all of them.
+%
+if num_to_save > 1
+    error('HORACE:sqw:invalid_argument', ...
+        ['No target filenames provided to save method.\n' ...
+        'Storing %d files requests %d filenames provided. '], ...
+        num_to_save,num_to_save);
+else
+    [filenames,mess]=putfile_horace('');
+    if ~isempty(mess)
+        error('HORACE:sqw:invalid_argument',mess)
+    end
+    filenames = {filenames};
+end
+%
+function filenames = extract_filenames_for_update(w,num_to_save,optional_filenames)
+% If update option is provided extract necessary filename to save object
+% from the objects themselves using optional_filenames in case of
+% non-filebacked objects.
+%
+if nargin <3
+    optional_filenames = [];
+end
+
+filenames = cell(1,num_to_save);
+for i=1:numel(w)
+    if w(i).is_filebacked
+        if isempty(optional_filenames)
+            filenames{i} = w(i).pix.full_filename;
+        else
+            filenames{i} = optional_filenames{i};
+        end
+    else
+        if isempty(optional_filenames)
+            filenames{i} = w(i).full_filename;
+            if isfile(filenames{i})
+                error('HORACE:sqw:invalid_argument', ...
+                    ['Attempt to implicitly save non_filebacked object N%d using "-update" option to file: %s which exist.\n' ...
+                    'Give this filename explicitly as input of "save" method if you want to overwrite existing file.'],...
+                    i,filenames{i});
+            else
+                [tgdir,fp,fe] = fileparts(filenames{i});
+                if isempty(tgdir)
+                    hc = hor_config;
+                    tgdir = hc.working_directory;
+                else
+                    if ~isfolder(tgdir)
+                        error('HORACE:sqw:invalid_argument', ...
+                            'Default folder: "%s" for saving memory-based object with "-update" key does not exist',...
+                            tgdir);
+                    end
+                    test_dir = fullfile(tgdir,'write_test_folder');
+                    clOb = onCleanup(@()rmdir(test_dir));
+                    ok = mkdir(test_dir);
+                    if ~ok
+                        error('HORACE:sqw:invalid_argument', ...
+                            'Default folder: "%s" for saving memory-based object with "-update" key is write-protected',...
+                            tgdir)
+                    end
+                end
+                filenames{i} = fullfile(tgdir,[fp,fe]);
+            end
+        else
+            filenames{i} = optional_filenames{i};
+        end
+    end
 end
