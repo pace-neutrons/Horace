@@ -2,7 +2,7 @@ classdef IX_mask < serializable
     % IX_mask   Definition of mask class
     
     properties
-        % Spectra to be masked. Row vector of integers greater than zero
+        % Indices of items to be masked. Row vector of integers greater than zero
         msk
     end
     
@@ -13,25 +13,25 @@ classdef IX_mask < serializable
         function obj = IX_mask (val)
             % Create IX_mask object.
             %
-            %   >> obj = IX_mask (iarray)       % Array of spectra
+            %   >> obj = IX_mask (iarray)       % Array of indices of items
             %   >> obj = IX_mask (filename)     % Read arrays from ascii file
             %
-            % A mask object contains a list of spectra to be masked, where
-            % all spectrum numbers are greater than or equal to one. The
+            % A mask object contains a list of indices to items to be masked,
+            % where all those indices are greater than or equal to one. The
             % array is sorted into numerically increasing order, with all
             % duplicates removed.
             %
             % Input:
             % ------
-            %   iarray      Array of spectra to be masked
+            %   iarray      Array of indices of items to be masked
             %
             % *OR*
-            %   filename    Name of ASCII file with list of spectra to mask
-            %               The file can have comment lines indicated by
-            %              %, !, or blank lines
-            %               Spectrum numbers are indicated by the contents
-            %              of any valid matlab array constructor (i.e. with
-            %              the leading '[' and closing ']' missing
+            %   filename    Name of ASCII file with list of indices of items to
+            %              be masked. The file can have comment lines indicated
+            %              by %, !, or blank lines
+            %               Indices can be given by the contents of any valid
+            %              Matlab array constructor (i.e. with the leading '['
+            %              and closing ']' missing)
             %
             %               EXAMPLE:
             %                   % A comment line
@@ -40,31 +40,50 @@ classdef IX_mask < serializable
             %                   % Another comment line
             %                   11:3:35      % an in-line comment
             
-            if nargin==0 || isempty(val)
-                % No argument or empty argument
-                obj.msk = zeros(1,0);
+            
+            if nargin==0 || (nargin==1 && isempty(val))
+                % No arguments or one argument only and it is empty e.g. [] or '' or {}.
+                obj.msk = [];   % will create the default object              
                 
-            else
-                if is_string (val)
-                    % Assume a filename
-                    if ~isempty(val)
-                        msk = IX_mask.read_ascii(val);
-                    else
-                        error ('HERBERT:IX_mask:invalid_argument',...
-                            'File name cannot be an empty string')
-                    end
-                    
-                elseif isnumeric(val)
-                    % Numeric input
-                    msk = val;
-                    
-                else
-                    % Unrecognised input
-                    error ('HERBERT:IX_mask:invalid_argument',...
-                        'Input must be an array or file name')
-                end
-                obj.msk = msk;
+            elseif nargin==1 && isa(val,'IX_mask')
+                % Input object is already an IX_mask, so just pass through
+                obj = val;
+                
+            elseif nargin==1 && is_string(val)
+                % Input is a character string. Assume it is a filename
+                obj = IX_mask.read_ascii(val);
+                
+            elseif nargin>0
+                % All other input
+                obj.msk = val;
             end
+            
+            
+%             if nargin==0 || isempty(val)
+%                 % No argument or empty argument
+%                 obj.msk = [];
+%                 
+%             else
+%                 if is_string (val)
+%                     % Assume a filename
+%                     if ~isempty(val)
+%                         msk = IX_mask.read_ascii(val);
+%                     else
+%                         error ('HERBERT:IX_mask:invalid_argument',...
+%                             'File name cannot be an empty string')
+%                     end
+%                     
+%                 elseif isnumeric(val)
+%                     % Numeric input
+%                     msk = val;
+%                     
+%                 else
+%                     % Unrecognised input
+%                     error ('HERBERT:IX_mask:invalid_argument',...
+%                         'Input must be an array or file name')
+%                 end
+%                 obj.msk = msk;
+%             end
             
         end
     end
@@ -81,7 +100,7 @@ classdef IX_mask < serializable
             if ~isnumeric(val) || any(round(val(:))~=val(:)) || any(val(:)<1) ||...
                     any(~isfinite(val(:)))
                 error ('HERBERT:IX_mask:invalid_argument',...
-                    'Spectrum numbers must be integers greater or equal to 1')
+                    'Mask indices must be integers greater or equal to 1')
             end
             
             if ~isempty(val)

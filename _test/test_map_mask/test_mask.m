@@ -40,8 +40,9 @@ classdef test_mask < TestCase
                 'Constructor not eliminating duplicates, or sorting')
         end
         
+        
         %------------------------------------------------------------------
-        % Test reading from ASCII file (.msk file)
+        % Test read_ascii by passing file name to constructor
         %------------------------------------------------------------------
         function test_construct_from_file_single_line (~)
             % Test reading a mask file
@@ -67,8 +68,37 @@ classdef test_mask < TestCase
                 'File and array constructors not equivalent')
         end
         
+        
         %------------------------------------------------------------------
-        % Test writing then reading ASCII file gives identity
+        % Test read_ascii
+        %------------------------------------------------------------------
+        function test_read_file_single_line (~)
+            % Test reading a mask file
+            w = IX_mask.read_ascii ('msk_1.msk');
+            wref = IX_mask ([34:54, 2:5, 30:40]);
+            assertEqual (w.msk, wref.msk,...
+                'File and array constructors not equivalent')
+        end
+        
+        function test_read_file_multiple_lines (~)
+            % Test reading a mask file
+            w = IX_mask.read_ascii ('msk_2.msk');
+            wref = IX_mask ([60:-1:50, 2:5, 30:40, 19:23]);
+            assertEqual (w.msk, wref.msk,...
+                'File and array constructors not equivalent')
+        end
+        
+        function test_read_file_multiple_lines_and_comments (~)
+            % Test reading a mask file
+            w = IX_mask.read_ascii ('msk_3.msk');
+            wref = IX_mask ([2:5, 10:12, 19:23, 30:42, 50:62]);
+            assertEqual (w.msk, wref.msk,...
+                'File and array constructors not equivalent')
+        end
+        
+        
+        %------------------------------------------------------------------
+        % Test save_ascii
         %------------------------------------------------------------------
         function test_IO_ascii_0 (~)
             % Empty mask ASCII IO
@@ -109,6 +139,7 @@ classdef test_mask < TestCase
             wtmp = IX_mask.read_ascii(tmpfile);
             assertTrue (isequal(w,wtmp), 'Write+read does not make an identity');
         end
+        
         
         %------------------------------------------------------------------
         % Test combine

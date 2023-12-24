@@ -116,7 +116,7 @@ classdef test_map < TestCase
         
         
         %------------------------------------------------------------------
-        % Test reading from ASCII file (.map file)
+        % Test read_ascii
         %------------------------------------------------------------------
         function test_read_0work (~)
             % Test reading a map file with explicitly 0 workspaces
@@ -222,8 +222,9 @@ classdef test_map < TestCase
                 'Too many spectrum numbers given for the workspace numbered'))
         end
         
+        
         %------------------------------------------------------------------
-        % Test write to ASCII file
+        % Test save_ascii
         %------------------------------------------------------------------
         function test_write_read_1work_0spec (~)
             % Read a map file (tested elsewhere in this test that it works)
@@ -285,10 +286,33 @@ classdef test_map < TestCase
             assertEqual (w, wref)
         end
 
+        
+        %------------------------------------------------------------------
+        % Test read_ascii by passing file name to constructor
+        %------------------------------------------------------------------
+        function test_read_2work_5and12spec_viaConstructor (~)
+            % Test reading a map file with two workspaces, five and 12 spectra
+            w = IX_map ('map_2work_5and12spec.map');
+            is = [2,3,4,11,13,1,3,5,7,16,19,22,23,24,25,36,40];
+            iw = [99*ones(1,5), 23*ones(1,12)];
+            wref = IX_map (is, 'wkno', iw);
+            assertEqual (w, wref, 'File and array constructors not equivalent')
+        end
+        
+        function test_read_5work_3rdTooFewSpec_viaConstructor (~)
+            % Test reading a map file with five workspaces, third empty
+            % Should simply be ignored and output has four workspaces
+            f = @()IX_map ('map_5work_3rdTooFewSpec.map');
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_file_format');
+            assertTrue(contains(ME.message, ...
+                'Unexpected characters when expecting numeric data'))
+        end
+        
 
-%       *** Tests of IX_map are failing
-%       *** IX_mask with file; also implement for IX_map?
-%       *** refactor IX_map combine, mask_map, combine (if need them!)
+%       *** create IX_map set.wkno
+%       *** refactor IX_map combine, mask_map, section (if need them!)
+%       *** tests of above
+%       *** merge with master
         
     end
     
