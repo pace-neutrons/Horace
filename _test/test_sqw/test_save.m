@@ -48,19 +48,43 @@ classdef test_save < TestCase
             [~,fn,fe] = fileparts(obj.sqw_file_res);
             file1 = fullfile(tmp_dir,[fn,'_1_',fe]);
             file2 = fullfile(tmp_dir,[fn,'_2_',fe]);
-            targ_files = {file1,file2};
-            clOb = onCleanup(@()del_memmapfile_files(targ_files));
+            clOb = onCleanup(@()del_memmapfile_files(file1,file2));
 
             data = repmat(obj.sqw_obj,2,1);
-            rec = data.save(targ_files);
+            rec = data.save({file1,file2});
 
-            assertTrue(isfile(targ_files{1}));
-            assertTrue(isfile(targ_files{2}));
+            assertTrue(isfile(file1));
+            assertTrue(isfile(file2));
 
             assertEqualToTol(data,rec,'tol',[4*eps('single'),4*eps('single')], ...
                 'ignore_str',true);
         end
+        %------------------------------------------------------------------
+        function test_save_dnd_return_dnd(obj)
+            targ_file = fullfile(tmp_dir,'save_dnd_test_file.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(targ_file ));
 
+            rec =obj.sqw_obj.data.save(targ_file);
+            assertTrue(isfile(targ_file));
+
+            assertEqualToTol(obj.sqw_obj.data,rec);
+
+            rec_file = read_horace(targ_file);
+            assertEqualToTol(rec_file,rec, ...
+                'ignore_str',true);
+        end
+        %
+        function test_save_dnd_produces_dnd_file(obj)
+            targ_file = fullfile(tmp_dir,'save_dnd_test_dnd.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(targ_file ));
+
+            obj.sqw_obj.data.save(targ_file);
+            assertTrue(isfile(targ_file));
+
+            rec_file = read_horace(targ_file);
+            assertEqualToTol(rec_file,obj.sqw_obj.data, ...
+                'ignore_str',true);
+        end
         %------------------------------------------------------------------
         function test_save_upgrade_automatically_filebacked(obj)
 
