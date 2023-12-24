@@ -239,6 +239,7 @@ classdef IX_map < serializable
             % indicting that a block is repeated so that the set of blocks forms a contiguous
             % set of workspace numbers.
             
+            
             if nargin==0 || (nargin==1 && isempty(varargin{1}))
                 % No arguments or one argument only and it is empty e.g. [] or '' or {}.
                 % Default constructor - so do nothing              
@@ -252,7 +253,7 @@ classdef IX_map < serializable
                 obj = IX_map.read_ascii(varargin{1});
                 
             elseif nargin>0
-                % All other input except empty constructor
+                % All other input
                 [obj.s_, obj.w_] = parse_IX_map_args (varargin{:});
                 obj = check_combo_arg (obj);
             end
