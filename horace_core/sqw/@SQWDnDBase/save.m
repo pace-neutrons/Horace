@@ -3,32 +3,43 @@ function wout = save(w, varargin)
 % of recommended file-format version.
 %
 %  >> save (w)              % prompt for file
-%  >> save (w, file)        % save to file with the name provided
-%  >> save (w, file,varargin)
+%  >> save (w, filename)    % save to file with the name provided
+%  >> save (w, filename,varargin)
 %  >> wout = save(___)      % return filebacked sqw object if you are
 %                             saving sqw object
 % provide additional save options. See below.
 % Input:
-%   w       sqw or dnd object or array of such objects.
-%   file    [optional] File for output. if none given, then prompted for a file
-%           if w is array, cellarray of file names must be provided here,
-%           one filename per each input object.
+%   w        -- sqw or dnd object or array of such objects.
 % Optional:
-%  loader   -- instance of registerted faccess loader (see sqw_formats_factory)
-%              to use to save data.
-%              if w is an array, array or cellarray of loaders have to be
-%              provided, one per each element of w.
-%              May be used to save data in old file formats. Be careful, as
-%              this options doe not support many features of new file
-%              formats.
-
-% Modifiers:
+%  filename  -- Filename for output. If none given, then prompted for
+%               a filename to save. If w is array, cellarray of file names
+%               must be provided here, one filename per each input object.
+%  loader    -- instance of registered faccess loader (see
+%               sqw_formats_factory) to use to save data.
+%               if w is an array, array or cellarray of loaders have to be
+%               provided, one per each element of w.
+%               May be used to save data in old file formats. Be careful,
+%               as this options does not support many features of new file
+%               formats.
+%
+% Modifiers: RELATED TO FILEBACKED OBJECTS, no much use for memory-based
+% objects. Incompatible with old file format loader provided as input
 % '-assume_updated'  -- Affects only filebacked sqw objects. Ignored for any
 %                       other type of input object. Requests new file name
 %                       being defined.
 %                       If provided, assumes that the information in memory
 %                       is the same as the information in file and the
 %                       backing file just needs to be moved to a new location.
+% '-update'          -- Opposite '-assume_updated' and intended mainly for
+%                       filebacked objects but would also work
+%                       for memory based object with filename defined in
+%                       PixelData. Ignores input "filename" property if one
+%                       is provided. Saves the contents of the memory-part
+%                       of the filebacked object into the file which backs
+%                       the object. Pixel part remains untouched for
+%                       filebacked object. If used with memory-based object
+%                       writes whole object contents into the file with
+%                       name defined for PixelData.
 % '-make_temporary'  -- Affects only sqw objects and works in situations where
 %                       output object is returned. Normally, if you save sqw
 %                       object with extension '.tmpXXXX' save returns
@@ -36,20 +47,24 @@ function wout = save(w, varargin)
 %                       get deleted when object goes out of scope. With
 %                       this option, any saved sqw object becomes temporary
 %                       regardless of its extension.
-% '-update'          -- Opposite '-assume_updated' and intended mainly for
-%                       filebacked objects but would also work
-%                       for memory based object with filename defined for
-%                       PixelData. Ignores input "file" property if one is
-%                       provided. Drops the contents of the memory-part of
-%                       the filebacked object into the file which backs the
-%                       object. Pixel part remains untouched for filebacked
-%                       object. If used with memory-based object writes
-%                       whole object contents into the file with name
-%                       defined for PixelData.
-%
+% '-clear_source'    -- Used with filebacked object together with target
+%                       filename, different from the name of the file,
+%                       currently backing filebacked object. Moves
+%                       filebacked object to new file and destroys previous
+%                       filebacked object if output object is not provided
+%                       for save operation, i.e.:
+%                       >>save(in_obj,target_filename,'-clear') saves contents
+%                       of in_obj in file target_filename and invalidates
+%                       in_obj.
+%                       If output object is provided, this key is ignored and
+%                       is equivalent to calling:
+%                       >>in_obj = save(in_obj,target_filename) operation.
+%                       If operation is invoked in the form:
+%                       >>out_obj = save(in_obj,target_filename), in_obj
+%                       gets invalidated.
 % Optional output:
-% wout -- filebacked sqw object with new filename if filename was provided
-%
+% wout -- filebacked sqw object built from input sqw object based on new
+%         filename if filename was provided
 %
 %  NOTE:
 % 1) if w is an array of sqw objects then file must be a cell
@@ -62,8 +77,9 @@ function wout = save(w, varargin)
 %
 % Fully rewritten on 31/12/2023 for PACE project.
 %
-options = {'-assume_updated','-make_temporary','-update'};
-[ok,mess,assume_updated,make_tmp,update,argi] = parse_char_options(varargin,options);
+options = {'-assume_updated','-make_temporary','-update','-clear_source'};
+[ok,mess,assume_updated,make_tmp,update,clear_source,argi] = ...
+    parse_char_options(varargin,options);
 if ~ok
     error('HORACE:sqw:invalid_argument',mess);
 end
@@ -85,13 +101,13 @@ if num_to_save > 1
         wout = zeros(size(w));
     end
     for i=1:num_to_save
-        wout(i) = save_one(w(i),filenames{i},assume_updated,return_result,ldw{i});
+        wout(i) = save_one(w(i),filenames{i},assume_updated,return_result,clear_source,ldw{i});
     end
 else
-    wout = save_one(w,filenames{1},assume_updated,return_result,ldw{1});
+    wout = save_one(w,filenames{1},assume_updated,return_result,clear_source,ldw{1});
 end
 %==========================================================================
-function wout = save_one(w,filename,assume_written,return_result,ldw,varargin)
+function wout = save_one(w,filename,assume_written,return_result,clear_source,ldw,varargin)
 % save single sqw object
 %
 wout = []; % Target sqw object
@@ -130,7 +146,7 @@ if isfile(filename)
     end
 end
 %
-if w.is_filebacked && w.is_tmp_obj && return_result
+if w.is_filebacked && w.is_tmp_obj && (return_result || clear_source)
     if w.pix.old_file_format
         wout = upgrade_file_calc_ranges(w,return_result,ll,filename);
         return;
@@ -189,7 +205,7 @@ w    = sqw.apply_op(w,pix_op);
 
 %
 function [filenames,ldw] = parse_additional_args(w,num_to_save,update,varargin)
-% parse inputsd for filenames and loaders provided as input of save method.
+% parse inputs for filenames and loaders provided as input of save method.
 % fill default or ask user if some are missing.
 %
 
