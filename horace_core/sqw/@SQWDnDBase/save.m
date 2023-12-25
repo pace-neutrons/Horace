@@ -5,8 +5,8 @@ function wout = save(w, varargin)
 %  >> save (w)              % prompt for file
 %  >> save (w, filename)    % save to file with the name provided
 %  >> save (w, filename,varargin)
-%  >> wout = save(___)      % returns filebacked sqw object if you are
-%                             saving any sqw object.
+%  >> wout = save(___)      % returns sqw object backed by file "filename"
+%                             if you are saving any sqw object.
 % provide additional save options. See below.
 % Input:
 %   w        -- sqw or dnd object or array of such objects.
@@ -23,7 +23,7 @@ function wout = save(w, varargin)
 %               formats.
 %
 % Modifiers: RELATED TO FILEBACKED OBJECTS, no much use for memory-based
-% objects. Incompatible with old file format loader provided as input
+% objects. Incompatible with old file format loader provided as input.
 % '-assume_updated'  -- Affects only filebacked sqw objects. Ignored for any
 %                       other type of input object. Requests new file name
 %                       being defined.
@@ -42,8 +42,8 @@ function wout = save(w, varargin)
 %                       writes whole object contents into the file with
 %                       name defined for PixelData.
 % '-make_temporary'  -- Affects only sqw objects and works in situations where
-%                       output object is returned. Normally, if you save sqw
-%                       object with extension '.tmpXXXX' save returns
+%  OR                   output object is returned. Normally, if you save sqw
+%  '-make_tmp'          object with extension '.tmpXXXX' save returns
 %                       temporary sqw object, i.e. the object with the file,
 %                       get deleted when object goes out of scope. With
 %                       this option, any saved sqw object becomes temporary
@@ -78,12 +78,13 @@ function wout = save(w, varargin)
 %
 % Fully rewritten on 31/12/2023 for PACE project.
 %
-options = {'-assume_updated','-make_temporary','-update','-clear_source'};
-[ok,mess,assume_updated,make_tmp,update,clear_source,argi] = ...
+options = {'-assume_updated','-make_temporary','-make_tmp','-update','-clear_source'};
+[ok,mess,assume_updated,make_tmp,make_temp,update,clear_source,argi] = ...
     parse_char_options(varargin,options);
 if ~ok
     error('HORACE:sqw:invalid_argument',mess);
 end
+make_tmp = make_tmp || make_temp;
 return_result = nargout>0;
 %
 if make_tmp && ~return_result && isa(w,'sqw')

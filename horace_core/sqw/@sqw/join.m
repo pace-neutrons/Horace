@@ -39,6 +39,7 @@ function wout = join(w,varargin)
 
 % Original author: G.S.Tucker
 % 2015-01-20
+% Fully rewritten for PACE project on 31/12/2023
 
 nfiles = numel(w);
 % Catch case of single contributing spe dataset
