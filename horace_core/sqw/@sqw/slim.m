@@ -13,6 +13,6 @@ function wout = slim (win, reduce)
 % -------
 %   wout    Output sqw object or array of szqw objects
 
-wout = mask_pixels_random_fraction(win, 1/reduce);
+wout = mask_random_fraction_pixels(win, 1/reduce);
 
 end
