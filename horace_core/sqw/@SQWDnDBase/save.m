@@ -5,8 +5,8 @@ function wout = save(w, varargin)
 %  >> save (w)              % prompt for file
 %  >> save (w, filename)    % save to file with the name provided
 %  >> save (w, filename,varargin)
-%  >> wout = save(___)      % return filebacked sqw object if you are
-%                             saving sqw object
+%  >> wout = save(___)      % returns filebacked sqw object if you are
+%                             saving any sqw object.
 % provide additional save options. See below.
 % Input:
 %   w        -- sqw or dnd object or array of such objects.
@@ -93,7 +93,7 @@ if make_tmp && ~return_result && isa(w,'sqw')
 end
 if assume_updated && update
     error('HORACE:sqw:invalid_argument', ...
-        '"-assume_updated" and "-update" options can not be used together.');    
+        '"-assume_updated" and "-update" options can not be used together.');
 end
 num_to_save = numel(w);
 
@@ -107,19 +107,23 @@ if num_to_save > 1
         wout = zeros(size(w));
     end
     for i=1:num_to_save
-        wout(i) = save_one(w(i),filenames{i},assume_updated,return_result,clear_source,ldw{i});
+        wout(i) = save_one(w(i),filenames{i},assume_updated,return_result,clear_source,make_tmp,ldw{i});
     end
 else
-    wout = save_one(w,filenames{1},assume_updated,return_result,clear_source,ldw{1});
+    wout = save_one(w,filenames{1},assume_updated,return_result,clear_source,make_tmp,ldw{1});
 end
 %==========================================================================
-function wout = save_one(w,filename,assume_updated,return_result,clear_source,ldw,varargin)
+function wout = save_one(w,filename,assume_updated,return_result,clear_source,make_tmp,ldw,varargin)
 % save single sqw object
 %
 wout = []; % Target sqw object
 if return_result
-    [~,~,fe] = fileparts(filename);
-    target_is_tmp = strncmp(fe,'.tmp',4);
+    if make_tmp
+        target_is_tmp  = true;
+    else
+        [~,~,fe] = fileparts(filename);
+        target_is_tmp = strncmp(fe,'.tmp',4);
+    end
 else
     target_is_tmp = false;
 end

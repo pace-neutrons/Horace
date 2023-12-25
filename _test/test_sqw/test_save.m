@@ -60,6 +60,18 @@ classdef test_save < TestCase
                 'ignore_str',true);
         end
         %------------------------------------------------------------------
+        function test_save_make_tmp(obj)
+            targ_file = fullfile(tmp_dir,'testfile_save_make_tmp.sqw');
+
+            test_obj = obj.sqw_obj.save(targ_file,'-make_temporary');
+            assertTrue(test_obj.is_filebacked)
+            assertTrue(test_obj.is_tmp_obj)
+            assertTrue(isfile(targ_file));
+
+            clear test_obj ;
+            assertFalse(isfile(targ_file));
+        end
+
         function test_save_assume_updated_file_moved_with_output(obj)
             source_file = fullfile(tmp_dir,'testfile_save_assume_updated_source.sqw');
             targ_file = fullfile(tmp_dir,'testfile_save_assume_updated_result.sqw');
