@@ -29,7 +29,8 @@ function wout = save(w, varargin)
 %                       being defined.
 %                       If provided, assumes that the information in memory
 %                       is the same as the information in file and the
-%                       backing file just needs to be moved to a new location.
+%                       backing file just needs to be moved to a new location
+%                       if any is provided.
 % '-update'          -- Opposite '-assume_updated' and intended mainly for
 %                       filebacked objects but would also work
 %                       for memory based object with filename defined in
@@ -84,10 +85,15 @@ if ~ok
     error('HORACE:sqw:invalid_argument',mess);
 end
 return_result = nargout>0;
+%
 if make_tmp && ~return_result && isa(w,'sqw')
     error('HORACE:sqw:invalid_argument', ...
         ['If you use "-make_temporary" option, you need to return output object(s).\n' ...
         ' The file saved with this option gets deleted immediately after its object goes out of scope']);
+end
+if assume_updated && update
+    error('HORACE:sqw:invalid_argument', ...
+        '"-assume_updated" and "-update" options can not be used together.');    
 end
 num_to_save = numel(w);
 
@@ -107,7 +113,7 @@ else
     wout = save_one(w,filenames{1},assume_updated,return_result,clear_source,ldw{1});
 end
 %==========================================================================
-function wout = save_one(w,filename,assume_written,return_result,clear_source,ldw,varargin)
+function wout = save_one(w,filename,assume_updated,return_result,clear_source,ldw,varargin)
 % save single sqw object
 %
 wout = []; % Target sqw object
@@ -132,7 +138,7 @@ if isfile(filename)
             wout = upgrade_file_calc_ranges(w,return_result,ll,filename);
             return;
         else
-            if ~assume_written
+            if ~assume_updated
                 ldw = ldw.init(filename);
                 % store everything except pixels data.
                 ldw = ldw.put_new_blocks_values(w);
@@ -146,7 +152,8 @@ if isfile(filename)
     end
 end
 %
-if w.is_filebacked && w.is_tmp_obj && (return_result || clear_source)
+if w.is_filebacked && (assume_updated || ...
+        (w.is_tmp_obj && (return_result || clear_source)))
     if w.pix.old_file_format
         wout = upgrade_file_calc_ranges(w,return_result,ll,filename);
         return;
@@ -160,9 +167,9 @@ if w.is_filebacked && w.is_tmp_obj && (return_result || clear_source)
     else
         w.full_filename = filename;
     end
-    if assume_written
+    if assume_updated
         % store only blocks which contain changed file name.
-        ldw.put_new_blocks_values(w,'update', ...
+        ldw = ldw.put_new_blocks_values(w,'update', ...
             {'bl__main_header','bl_data_metadata','bl_pix_metadata'});
     else
         % update all blocks except pixels

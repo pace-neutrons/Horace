@@ -60,6 +60,52 @@ classdef test_save < TestCase
                 'ignore_str',true);
         end
         %------------------------------------------------------------------
+        function test_save_assume_updated_file_moved_with_output(obj)
+            source_file = fullfile(tmp_dir,'testfile_save_assume_updated_source.sqw');
+            targ_file = fullfile(tmp_dir,'testfile_save_assume_updated_result.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(targ_file));
+            test_obj = obj.sqw_obj.save(source_file);
+            assertTrue(test_obj.is_filebacked)
+            assertFalse(test_obj.is_tmp_obj)
+
+            test_obj.data.s(1) = 666;
+
+            out_obj = save(test_obj,targ_file,'-assume_updated');
+
+            assertFalse(isfile(source_file));
+            assertTrue(isfile(targ_file));
+
+            assertTrue(out_obj.is_filebacked)
+            assertEqualToTol(obj.sqw_obj,out_obj, ...
+                [4*eps('single'),4*eps('single')],'ignore_str',true,'-ignore_date');
+            assertEqual(out_obj.full_filename,targ_file)
+            % clear out_obj to release outfie for clOb to be able to delete it
+            clear out_obj;
+        end
+
+        function test_save_assume_updated_file_moved_no_output(obj)
+            source_file = fullfile(tmp_dir,'testfile_save_assume_updated_source.sqw');
+            targ_file = fullfile(tmp_dir,'testfile_save_assume_updated_result.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(targ_file));
+            test_obj = obj.sqw_obj.save(source_file);
+            assertTrue(test_obj.is_filebacked)
+            assertFalse(test_obj.is_tmp_obj)
+
+            test_obj.data.s(1) = 666;
+
+            save(test_obj,targ_file,'-assume_updated');
+
+            assertFalse(isfile(source_file));
+            assertTrue(isfile(targ_file));
+
+            checkObj = read_sqw(targ_file);
+            assertFalse(checkObj.is_filebacked)
+            assertEqualToTol(obj.sqw_obj,checkObj,'tol', ...
+                [4*eps('single'),4*eps('single')],'ignore_str',true,'-ignore_date');
+            assertEqual(checkObj.full_filename,targ_file)
+
+        end
+
         function test_save_update_with_file_works_like_save_file_copied(obj)
             targ_file = fullfile(tmp_dir,'testfile_save_update_sqw1.sqw');
             test_file = fullfile(tmp_dir,'testfile_save_update_sqw2.sqw');
