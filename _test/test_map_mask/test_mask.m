@@ -42,7 +42,7 @@ classdef test_mask < TestCase
         
         
         %------------------------------------------------------------------
-        % Test read_ascii by passing file name to constructor
+        % Test use of read_ascii when passing file name to constructor
         %------------------------------------------------------------------
         function test_construct_from_file_single_line (~)
             % Test reading a mask file

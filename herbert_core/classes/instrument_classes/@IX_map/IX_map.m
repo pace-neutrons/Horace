@@ -2,15 +2,19 @@ classdef IX_map < serializable
     % IX_map   Definition of spectrum to workspace mapping class
     
     properties (Access=private)
+        % Row vector of unique workspace numbers
+        % Each element is >= 1
+        wkno_ = zeros(1,0)
+        
+        % Row vector of the number of spectra in each workspace.
+        % Each element is >= 0
+        ns_ = zeros(1,0)
+        
         % Row vector of spectrum indices in workspaces, concatenated
         % according to increasing workspace number.
         % Spectrum numbers are sorted into numerically increasing
         % order for each workspace.
         s_ = zeros(1,0)
-        
-        % Row vector of workspace numbers for each spectrum, with same size as s_
-        % Workspace numbers are monotonically increasing
-        w_ = zeros(1,0)
         
         % Cached dependent properties
         % ---------------------------
@@ -18,12 +22,9 @@ classdef IX_map < serializable
         % (Code must keep these consistent with the independent properties; use
         % check_combo_arg to do this)
         
-        % Row vector of the number of spectra in each workspace.
-        ns_ = zeros(1,0)
-        
-        % Row vector of unique workspace numbers
-        % Each element is >= 1
-        wkno_ = zeros(1,0)
+        % Row vector of workspace numbers for each spectrum, with same size as s_
+        % Workspace numbers are monotonically increasing
+        w_ = zeros(1,0)
         
         % Logical flag: true if each spectrum is mapped to only one workspace;
         % false if at least one spectrum is mapped to two or more workspaces
@@ -33,14 +34,14 @@ classdef IX_map < serializable
     properties (Dependent)
         % Mirrors of private properties that define object state
         % ------------------------------------------------------
+        wkno    % Row vector of workspace numbers
+        ns      % Row vector of number of spectra in each workspace [get only]
         s       % Row vector of spectrum numbers
-        w       % Row vector of corresponding workspace numbers
         
         % Other dependent properties
         % --------------------------
-        wkno    % Row vector of workspace numbers
+        w       % Row vector of workspace for each spectrum in the order of property s [get only]
         nw      % Number of workspaces [get only]
-        ns      % Row vector of number of spectra in each workspace [get only]
         nstot   % Total number of spectra in the workspaces [get only]
         unique_spec % true if each spectrum is mapped to only one workspace [get only]
     end
@@ -242,7 +243,7 @@ classdef IX_map < serializable
             
             if nargin==0 || (nargin==1 && isempty(varargin{1}))
                 % No arguments or one argument only and it is empty e.g. [] or '' or {}.
-                % Default constructor - so do nothing              
+                % Default constructor - so do nothing
                 
             elseif nargin==1 && isa(varargin{1},'IX_map')
                 % Input object is already an IX_map, so just pass through
@@ -254,8 +255,11 @@ classdef IX_map < serializable
                 
             elseif nargin>0
                 % All other input
-                [obj.s_, obj.w_] = parse_IX_map_args (varargin{:});
-                obj = check_combo_arg (obj);
+                [is, iw] = parse_IX_map_args (varargin{:});
+                % The following calls the same master function for checking the
+                % consistency of the spectrum and workspace numbers as is used
+                % inside check_combo_arg
+                [obj.wkno_, obj.ns_, obj.s_, obj.w_, obj.unique_spec_] = sort_s_w (is, iw);
             end
             
         end
@@ -266,49 +270,9 @@ classdef IX_map < serializable
         
         % Mirrors of private properties that define object state
         % ------------------------------------------------------
-        function obj = set.s (obj, val)
-            % All spectrum numbers must be integers greater or equal to unity.
-            % A spectrum number can appear multiple times
-            if ~isnumeric(val) || any(round(val(:))~=val(:)) || any(val(:)<1) ||...
-                    any(~isfinite(val(:)))
-                error ('HERBERT:IX_map:invalid_argument',...
-                    'Spectrum numbers must be integers greater or equal to 1')
-            end
-            
-            if ~isempty(val)
-                obj.s_ = val(:)';
-            else
-                obj.s_ = zeros(1,0);
-            end
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
-        end
-        
-        function obj = set.w (obj, val)
-            % All workspace numbers must be integers greater or equal to unity.
-            % A workspace number can appear multiple times
-            if ~isnumeric(val) || any(round(val(:))~=val(:)) || any(val(:)<1) ||...
-                    any(~isfinite(val(:)))
-                error ('HERBERT:IX_map:invalid_argument',...
-                    'Workspace numbers must be integers greater or equal to 1')
-            end
-            
-            if ~isempty(val)
-                obj.w_ = val(:)';
-            else
-                obj.w_ = zeros(1,0);
-            end
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
-        end
-        
-        % Other settable dependendant properties
-        % --------------------------------------
         function obj = set.wkno (obj, val)
             % Change the numerical 'names' of the workspaces, obj.wkno.
-            % All workspace numbers must be unique integers grater or equal to unity.
+            % All workspace numbers must be unique integers greater or equal to unity.
             % The values of wkno are changed in the order of the current wkno.
             %
             % EXAMPLE
@@ -316,7 +280,7 @@ classdef IX_map < serializable
             %   ans =
             %        1     3     5
             %   >> my_map.wkno = [101, 3, 1];
-            % 
+            %
             % relabels the workspace number for the first workspace from 1 to 101,
             % the second left unchanged as 3, and the third is relabelled from 5 to 1.
             % The spectra that were previously held as being in workspace 1 are now in
@@ -332,24 +296,61 @@ classdef IX_map < serializable
             if numel(val)~=obj.nw || numel(val)~=numel(unique(val(:)))
                 error ('HERBERT:IX_map:invalid_argument',...
                     ['Workspace numbers must be unique integers, one for each ',...
-                    'of the %d workspaces'], obj.nw)
+                    'of the workspaces'])
             end
             
-            if ~isempty(val)
-                % Get workspace number for each spectrum
-                obj.w_ = replicate_iarray(val, obj.ns);   
-            else
-                obj.w_ = zeros(1,0);
-            end
+            obj.wkno_ = val(:)';    % empty val ==> zeros(1,0), which is desired
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
         
+        function obj = set.ns (obj, val)
+            % Change the number of spectra in each workspace
+            if ~isnumeric(val) || any(round(val(:))~=val(:)) || any(val(:)<0) ||...
+                    any(~isfinite(val(:)))
+                error ('HERBERT:IX_map:invalid_argument',...
+                    'Number of spectra in each workspace must be an integer greater or equal to 0')
+            end
+            
+            obj.ns_ = val(:)';  % empty val ==> zeros(1,0), which is desired
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+        
+        function obj = set.s (obj, val)
+            % All spectrum numbers must be integers greater or equal to unity.
+            % Any spectrum number can appear multiple times
+            if ~isnumeric(val) || any(round(val(:))~=val(:)) || any(val(:)<1) ||...
+                    any(~isfinite(val(:)))
+                error ('HERBERT:IX_map:invalid_argument',...
+                    'Spectrum numbers must be integers greater or equal to 1')
+            end
+            
+            obj.s_ = val(:)';   % empty val ==> zeros(1,0), which is desired
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+        
+        % Other settable dependendant properties
+        % --------------------------------------
+        
         
         %------------------------------------------------------------------
         % Get methods for dependent properties
         %------------------------------------------------------------------
+        
+        function val = get.wkno(obj)
+            % Unique workspace numbers
+            val = obj.wkno_;
+        end
+        
+        function val = get.ns(obj)
+            % Number of spectra in each workspace
+            val = obj.ns_;
+        end
         
         % Mirrors of private properties that define object state
         function val = get.s(obj)
@@ -362,24 +363,14 @@ classdef IX_map < serializable
             val = obj.w_;
         end
         
-        function val = get.wkno(obj)
-            % Unique workspace numbers
-            val = obj.wkno_;
-        end
-        
         function val = get.nw(obj)
             % Number of unique workspaces
             val = numel(obj.wkno_);
         end
         
-        function val = get.ns(obj)
-            % Number of spectra in each workspace
-            val = obj.ns_;
-        end
-        
         function val = get.nstot(obj)
-            % Number of spectra in each workspace
-            val = sum(obj.ns_);
+            % Total number of spectra
+            val = numel(obj.s_);
         end
         
         function val = get.unique_spec(obj)
@@ -460,7 +451,7 @@ classdef IX_map < serializable
             %   <no. spectra in 2nd workspace>   <dummy value>   <dummy value>    <dummy value>
             %   <list of spectrum numbers across as many lines as required>
             %       :
-
+            
             obj = get_map_ascii(file);  % private function to IX_map
         end
         
@@ -518,15 +509,23 @@ classdef IX_map < serializable
             % without problem it they are not.
             
             % Check number of spectra and workspace indices match
-            if numel(obj.s_) ~= numel(obj.w_)
+            if numel(obj.wkno_) ~= numel(obj.ns_)
                 error('HERBERT:IX_map:invalid_argument', ...
-                    'The numbers of spectrum and workspace indices must match')
+                    ['The number of workspace numbers in ''wkno'' and the length of ',...
+                    'the list of number spectra in each workspace, ''ns'', do not match'])
+            end
+            
+            % Check number of spectra and workspace indices match
+            if numel(obj.s_) ~= sum(obj.ns_)
+                error('HERBERT:IX_map:invalid_argument', ...
+                    'The number of spectra does not match the sum of the number of spectra in each workspace')
             end
             
             % Sort spectra and workspaces to match definition of ordering, and
             % compute cached dependent properties
-            [obj.s_, obj.w_, obj.ns_, obj.wkno_, ~, obj.unique_spec_] = ...
-                sort_s_w (obj.s_, obj.w_);
+            w_tmp = replicate_iarray (obj.wkno_, obj.ns_);  % workspace numbers for each spectrum
+            [obj.wkno_, obj.ns_, obj.s_, obj.w_, obj.unique_spec_] = ...
+                sort_s_w (obj.s_, w_tmp);
         end
         
     end

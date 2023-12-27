@@ -57,34 +57,6 @@ classdef IX_mask < serializable
                 % All other input
                 obj.msk = val;
             end
-            
-            
-%             if nargin==0 || isempty(val)
-%                 % No argument or empty argument
-%                 obj.msk = [];
-%                 
-%             else
-%                 if is_string (val)
-%                     % Assume a filename
-%                     if ~isempty(val)
-%                         msk = IX_mask.read_ascii(val);
-%                     else
-%                         error ('HERBERT:IX_mask:invalid_argument',...
-%                             'File name cannot be an empty string')
-%                     end
-%                     
-%                 elseif isnumeric(val)
-%                     % Numeric input
-%                     msk = val;
-%                     
-%                 else
-%                     % Unrecognised input
-%                     error ('HERBERT:IX_mask:invalid_argument',...
-%                         'Input must be an array or file name')
-%                 end
-%                 obj.msk = msk;
-%             end
-            
         end
     end
     

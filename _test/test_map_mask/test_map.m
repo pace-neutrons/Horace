@@ -238,6 +238,16 @@ classdef test_map < TestCase
             assertEqual (w, wref)
         end
         
+        function test_write_5work_3rdEmpty (~)
+            % Test reading a map file with five workspaces, third empty
+            % Should simply be ignored and output has four workspaces
+            w = IX_map.read_ascii ('map_5work_3rdEmpty.map');
+            is = [21:25, 31:36, 51:58, 61:69];
+            iw = [2*ones(1,5), 3*ones(1,6), 5*ones(1,8), 6*ones(1,9)];
+            wref = IX_map (is, 'wkno', iw);
+            assertEqual (w, wref, 'File and array constructors not equivalent')
+        end
+        
         function test_write_read_14work_18432spec (~)
             % Read a map file (tested elsewhere in this test that it works)
             wref = IX_map.read_ascii ('map_14work_18432spec.map');
@@ -288,7 +298,7 @@ classdef test_map < TestCase
 
         
         %------------------------------------------------------------------
-        % Test read_ascii by passing file name to constructor
+        % Test use of read_ascii when passing file name to constructor
         %------------------------------------------------------------------
         function test_read_2work_5and12spec_viaConstructor (~)
             % Test reading a map file with two workspaces, five and 12 spectra

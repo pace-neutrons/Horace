@@ -1,4 +1,4 @@
-function [is_sort, iw_sort, ns, wkno, unique_map, unique_spec] = sort_s_w (is, iw)
+function [wkno, ns, s, w, unique_spec, unique_map] = sort_s_w (is, iw)
 % Sort spectrum and workspace number arrays
 % Sort into increasing workspace number, and within a given workspace, into
 % increasing spectrum number.
@@ -14,55 +14,55 @@ function [is_sort, iw_sort, ns, wkno, unique_map, unique_spec] = sort_s_w (is, i
 %
 % Output:
 % -------
-%   is_sort     Spectrum numbers sorted by workspace number, and within each
-%               workspace number by spectrum number. Row vector.
-%
-%   iw_sort     Workspace numbers for each of the spectra. Row vector (same
-%               length as is_sort)
+%   wkno        Unique workspace numbers. Row vector.
 %
 %   ns          Number of spectra in each workspace. Row vector.
 %
-%   wkno        Unique workspace numbers. Row vector.
+%   s           Spectrum numbers sorted by workspace number, and within each
+%               workspace number by spectrum number. Row vector.
 %
-%   unique_map  True if there were no repeated is-to-iw entries in the input;
-%               false otherwise
+%   w           Workspace numbers for each of the spectra. Row vector (same
+%               length as s)
 %
 %   unique_spec True if a spectrum is mapped to only one workspace;
+%               false otherwise
+%
+%   unique_map  True if there were no repeated is-to-iw entries in the input;
 %               false otherwise
 
 
 % Catch trivial case of empty or scalar spectrum and workspace arrays
-if numel(is) < 1
-    is_sort = is(:)';   % turns empty into zeros(1,0), leaves scalar unchanged
-    iw_sort = iw(:)';
-    ns = zeros(1,0);
+if numel(is) == 0
     wkno = zeros(1,0);
-    unique_map = true;
+    ns = zeros(1,0);
+    s = is(:)';   % turns empty into zeros(1,0), leaves scalar unchanged
+    w = iw(:)';
     unique_spec = true;
+    unique_map = true;
     return
 end
 
-% Two or more spectra
+% One or more spectra
 tmp = unique ([iw(:), is(:)], 'rows');
-is_sort = tmp(:,2)';    % row vector
-iw_sort = tmp(:,1)';    % row vector
+s = tmp(:,2)';    % row vector
+w = tmp(:,1)';    % row vector
 
 % Determine if there were repeated entries in the mapping
-if numel(is_sort)~=numel(is)
+if numel(s)~=numel(is)
     unique_map = true;
 else
     unique_map = false;
 end
 
 % Determine if a spectrum number appears more than once
-if numel(is_sort)==numel(unique(is_sort))
+if numel(s)==numel(unique(s))
     unique_spec = true;
 else
     unique_spec = false;
 end
 
 % Get unique workspace numbers and number of spectra in each workspace
-% (use the fact that iw_sort is already sorted)
-ix = logical(diff([Inf, iw_sort]));   % note: logical(Inf)==true
-wkno = iw_sort(ix);
+% (use the fact that w is already sorted)
+ix = logical(diff([Inf, w]));   % note: logical(Inf)==true
+wkno = w(ix);
 ns = diff([find(ix), numel(ix)+1]);
