@@ -38,11 +38,11 @@ classdef IX_map < serializable
         
         % Other dependent properties
         % --------------------------
-        wkno    % Row vector of Workspace numbers
-        nw      % Number of workspaces
-        ns      % Row vector of number of spectra in each workspace
-        nstot   % Total number of spectra in the workspaces
-        unique_spec % true if each spectrum is mapped to only one workspace
+        wkno    % Row vector of workspace numbers
+        nw      % Number of workspaces [get only]
+        ns      % Row vector of number of spectra in each workspace [get only]
+        nstot   % Total number of spectra in the workspaces [get only]
+        unique_spec % true if each spectrum is mapped to only one workspace [get only]
     end
     
     methods
@@ -304,6 +304,49 @@ classdef IX_map < serializable
             end
         end
         
+        % Other settable dependendant properties
+        % --------------------------------------
+        function obj = set.wkno (obj, val)
+            % Change the numerical 'names' of the workspaces, obj.wkno.
+            % All workspace numbers must be unique integers grater or equal to unity.
+            % The values of wkno are changed in the order of the current wkno.
+            %
+            % EXAMPLE
+            %   >> my_map.wkno
+            %   ans =
+            %        1     3     5
+            %   >> my_map.wkno = [101, 3, 1];
+            % 
+            % relabels the workspace number for the first workspace from 1 to 101,
+            % the second left unchanged as 3, and the third is relabelled from 5 to 1.
+            % The spectra that were previously held as being in workspace 1 are now in
+            % workspace 101, and those in the original workspace 5 are in the
+            % new workspace 1.
+            
+            if ~isnumeric(val) || any(round(val(:))~=val(:)) || any(val(:)<1) ||...
+                    any(~isfinite(val(:)))
+                error ('HERBERT:IX_map:invalid_argument',...
+                    'Workspace numbers must be integers greater or equal to 1')
+            end
+            
+            if numel(val)~=obj.nw || numel(val)~=numel(unique(val(:)))
+                error ('HERBERT:IX_map:invalid_argument',...
+                    ['Workspace numbers must be unique integers, one for each ',...
+                    'of the %d workspaces'], obj.nw)
+            end
+            
+            if ~isempty(val)
+                % Get workspace number for each spectrum
+                obj.w_ = replicate_iarray(val, obj.ns);   
+            else
+                obj.w_ = zeros(1,0);
+            end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+        
+        
         %------------------------------------------------------------------
         % Get methods for dependent properties
         %------------------------------------------------------------------
@@ -334,9 +377,14 @@ classdef IX_map < serializable
             val = obj.ns_;
         end
         
+        function val = get.nstot(obj)
+            % Number of spectra in each workspace
+            val = sum(obj.ns_);
+        end
+        
         function val = get.unique_spec(obj)
             % True if each spectrum is mapped to only one workspace
-            val = obj.unique_epec_;
+            val = obj.unique_spec_;
         end
         
     end

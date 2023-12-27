@@ -309,8 +309,112 @@ classdef test_map < TestCase
         end
         
 
-%       *** create IX_map set.wkno
-%       *** refactor IX_map combine, mask_map, section (if need them!)
+        %------------------------------------------------------------------
+        % Test combine
+        %------------------------------------------------------------------
+        function test_combine_1map (~)
+            % Single input - output the same as input
+            map1 = IX_map([11,12,30], 'wkno', [3,7,7]);
+            
+            mtot = combine(map1);
+            assertEqual (mtot, map1)
+        end
+        
+        function test_combine_2map_identical (~)
+            % Two identical map files combined should be the original
+            map1 = IX_map([11,12,30], 'wkno', [3,7,7]);
+            
+            mtot = combine(map1, map1);
+            assertEqual (mtot, map1)
+        end
+        
+        function test_combine_2map_noOverlap (~)
+            % Two map files that have interleaved workspace numbers but no
+            % shared spectra
+            map1 = IX_map([11,12,30], 'wkno', [3,7,7]);
+            map2 = IX_map([20,21,70], 'wkno', [5,8,8]); % no shared spectra
+            mtot_ref = IX_map([11,20,12,30,21,70], 'wkno', [3,5,7,7,8,8]);
+            
+            mtot = combine(map1, map2);
+            assertEqual (mtot, mtot_ref)
+        end
+        
+        function test_combine_3map_overlap (~)
+            % Three map files that share some workspace numbers
+            map1 = IX_map([11,12,30], 'wkno', [3,7,7]);
+            map2 = IX_map([20,21,70], 'wkno', [5,8,8]);
+            % Shared workspaces and spectra with map1 and map2
+            map3 = IX_map([12,12,21,1], 'wkno', [3,4,8,10]); 
+            mtot_ref = IX_map([11,12,12,20,12,30,21,70,1], ...
+                'wkno', [3,3,4,5,7,7,8,8,10]);
+            
+            mtot = combine(map1, map2, map3);
+            assertEqual (mtot, mtot_ref)
+        end
+        
+        
+        %------------------------------------------------------------------
+        % Test concatenate
+        %------------------------------------------------------------------
+        function test_concatenate_1map (~)
+            % Single input - output the same as input
+            map1 = IX_map([11,12,30], 'wkno', [3,7 7]);
+            
+            mtot = concatenate(map1);
+            assertEqual (mtot, map1)
+        end
+        
+        function test_concatenate_2map_identical (~)
+            % Two identical map files concatenated should be double the number
+            % of spectra with an offset second set of workspaces
+            map1 = IX_map([11,12,30], 'wkno', [3,7 7]);
+            mtot_ref = IX_map([11,12,30,11,12,30], 'wkno', [3,7,7,8,12,12]);
+            
+            mtot = concatenate(map1, map1);
+            assertEqual (mtot, mtot_ref)
+        end
+        
+        function test_concatenate_2map_noOverlap (~)
+            % Two map files that have interleaved workspace numbers but no
+            % shared spectra
+            map1 = IX_map([11,12,30], 'wkno', [3,7,7]);
+            map2 = IX_map([20,21,70], 'wkno', [5,8,8]); % no shared spectra
+            mtot_ref = IX_map([11,12,30,20,21,70], 'wkno', [3,7,7,8,11,11]);
+            
+            mtot = concatenate(map1, map2);
+            assertEqual (mtot, mtot_ref)
+        end
+        
+        function test_concatenate_3map_overlap (~)
+            % Three map files that share some workspace numbers
+            map1 = IX_map([11,12,30], 'wkno', [3,7,7]);
+            map2 = IX_map([20,21,70], 'wkno', [5,8,8]);
+            % Shared workspaces and spectra with map1 and map2
+            map3 = IX_map([12,12,21,1], 'wkno', [3,4,8,10]); 
+            mtot_ref = IX_map([11,12,30,20,21,70,12,12,21,1], ...
+                'wkno', [3,7,7,8,11,11,12,13,17,19]);
+            
+            mtot = concatenate(map1, map2, map3);
+            assertEqual (mtot, mtot_ref)
+        end
+        
+        function test_concatenate_3map_workspaceGaps (~)
+            % Three map files with workspace numbers that are distinct and not
+            % interleaved
+            map1 = IX_map([11,12,30], 'wkno', [3,5,5]);
+            map2 = IX_map([20,21,70], 'wkno', [6,8,8]);
+            % Shared workspaces and spectra with map1 and map2
+            map3 = IX_map([12,12,21,1], 'wkno', [10,10,13,13]); 
+            mtot_ref = IX_map([11,12,30,20,21,70,12,12,21,1], ...
+                'wkno', [3,5,5,6,8,8,10,10,13,13]);
+            
+            mtot = concatenate(map1, map2, map3);
+            assertEqual (mtot, mtot_ref)
+        end
+        
+        
+        
+%       *** refactor IX_map mask_map, section/get_spec (if need them!)
 %       *** tests of above
 %       *** merge with master
         
