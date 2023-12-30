@@ -282,6 +282,17 @@ classdef test_mask < TestCase
             assertEqual(raw_paged_pix, masked_2d.pix.data);
         end
 
+        function test_mask_random_fraction_equal_to_slim(obj)
+            sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
+
+            frac_to_keep = 1/5;
+            new_sqw = mask_random_fraction_pixels(sqw_obj, frac_to_keep);
+            slim_sqw = slim(sqw_obj,5);
+
+
+            assertEqual(new_sqw.num_pixels,slim_sqw.num_pixels);
+        end
+
         function test_mask_random_fraction_removes_perc_of_pix_in_mem(obj)
             sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
 
