@@ -65,7 +65,7 @@ classdef test_resolve_repeat_blocks < TestCase
             
             func = @()exposed_IX_map.resolve_repeat_blocks ...
                 (ix_beg_in, ix_dcn, delta_ix_in, nx, nrepeat);
-            ME = assertExceptionThrown (func, 'IX_map:invalid_argument');
+            ME = assertExceptionThrown (func, 'HERBERT:IX_map:invalid_argument');
             assertTrue(contains(ME.message, 'Must provide ''ix_max_prev'''))
         end
         

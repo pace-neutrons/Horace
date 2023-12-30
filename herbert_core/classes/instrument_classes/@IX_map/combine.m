@@ -49,18 +49,24 @@ map = cellfun(@(x)(x(:)), varargin, 'uniformOutput', false);
 map = cat(1, map{:});
 
 % Get full list of spectra and workspace numbers for all the maps
-nstot = arrayfun(@(x)(x.nstot), map);   % column with no. spectra in each map
-nend = cumsum(nstot);
-nbeg = nend - nstot + 1;
+nw = arrayfun(@(x)(x.nw), map);   % column with no. workspaces in each map
+iwhi = cumsum(nw);
+iwlo = iwhi - nw + 1;
 
-spec = NaN(1,nend(end));
-work = NaN(1,nend(end));
+nstot = arrayfun(@(x)(x.nstot), map);   % column with no. spectra in each map
+ishi = cumsum(nstot);
+islo = ishi - nstot + 1;
+
+wkno = NaN(1, iwhi(end));
+ns = NaN(1, iwhi(end));
+s = NaN(1, ishi(end));
 for i=1:numel(map)
-    if map(i).ns > 0    % no work to do if no spectra
-        spec(nbeg(i):nend(i)) = map(i).s;
-        work(nbeg(i):nend(i)) = map(i).w;
+    if nw(i) > 0    % no work to do if no workspaces
+        wkno(iwlo(i):iwhi(i)) = map(i).wkno;
+        ns(iwlo(i):iwhi(i)) = map(i).ns;
+        s(islo(i):ishi(i)) = map(i).s;
     end
 end
 
 % Create output IX_map
-obj_out = IX_map(spec, 'wkno', work);
+obj_out = IX_map(s, 'wkno', wkno, 'ns', ns);

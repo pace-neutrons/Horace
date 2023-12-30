@@ -94,8 +94,7 @@ if nw > 0
     
     % Repackage for IX_map constructor
     % --------------------------------
-    wkno = replicate_iarray(wkno, ns);   % get workspace number for every spectrum
-    obj = IX_map(spec(1:nstot), 'wkno', wkno);
+    obj = IX_map(spec(1:nstot), 'wkno', wkno, 'ns', ns);
     
 else
     % Trivial case of no workspaces

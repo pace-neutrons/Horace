@@ -6,110 +6,148 @@ classdef test_repeat_s_w_blocks < TestCase
         function test_oneDescriptor_repeatedBlock (~)
             % Single grouping descriptor
             
-            isp_beg = 11;
-            isp_end = 16;
+            s_beg = 11;
+            s_end = 16;
             ngroup = 4;
-            isp_dcn = 1;
-            iw_beg = 5;
-            iw_dcn = 1;
+            s_dcn = 1;
+            w_beg = 5;
+            w_dcn = 1;
             nrepeat = 3;
-            delta_isp = 10;
-            delta_iw = 100;
+            delta_s = 10;
+            delta_w = 100;
             
-            is_ref = [11:16 21:26 31:36]';
-            iw_ref = [5 5 5 5 6 6, 105 105 105 105 106 106 205 205 205 205 206 206]';
-            [is_out, iw_out] = exposed_IX_map.repeat_s_w_blocks (isp_beg, isp_end, ...
-                ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_isp, delta_iw);
-            assertEqual (is_out, is_ref)
-            assertEqual (iw_out, iw_ref)
+            wkno_ref = [5; 6; 105; 106; 205; 206];
+            ns_ref = [4; 2; 4; 2; 4; 2];
+            s_ref = [11:16 21:26 31:36]';
+            
+            [wkno, ns, s_out] = exposed_IX_map.repeat_s_w_blocks (s_beg, s_end, ...
+                ngroup, s_dcn, w_beg, w_dcn, nrepeat, delta_s, delta_w);
+            assertEqual (wkno, wkno_ref)
+            assertEqual (ns, ns_ref)
+            assertEqual (s_out, s_ref)
+        end
+        
+        %-----------------------------------------------------------------------
+        function test_oneDescriptor_repeatedBlock_exactGrouping (~)
+            % Single grouping descriptor
+            % Catches an error that earlier was not spotted: if the spectrum
+            % range is an exact multiple of the spectrum grouping: was adding a
+            % workspace with zero spectra.
+            
+            s_beg = 11;
+            s_end = 18;
+            ngroup = 4;
+            s_dcn = 1;
+            w_beg = 5;
+            w_dcn = 1;
+            nrepeat = 3;
+            delta_s = 10;
+            delta_w = 100;
+            
+            wkno_ref = [5; 6; 105; 106; 205; 206];
+            ns_ref = [4; 4; 4; 4; 4; 4];
+            s_ref = [11:18 21:28 31:38]';
+            
+            [wkno, ns, s_out] = exposed_IX_map.repeat_s_w_blocks (s_beg, s_end, ...
+                ngroup, s_dcn, w_beg, w_dcn, nrepeat, delta_s, delta_w);
+            assertEqual (wkno, wkno_ref)
+            assertEqual (ns, ns_ref)
+            assertEqual (s_out, s_ref)
         end
         
         %-----------------------------------------------------------------------
         function test_oneDescriptor_repeatedBlock_spNegDcn_wNegDcn (~)
-            % Single block descriptor with negative isp_dcn and iw_dcn
+            % Single block descriptor with negative s_dcn and w_dcn
             
-            isp_beg = 56;
-            isp_end = 51;
+            s_beg = 56;
+            s_end = 51;
             ngroup = 5;
-            isp_dcn = -1;
-            iw_beg = 8;
-            iw_dcn = -1;
+            s_dcn = -1;
+            w_beg = 8;
+            w_dcn = -1;
             nrepeat = 2;
-            delta_isp = 12;
-            delta_iw = 20;
+            delta_s = 12;
+            delta_w = 20;
             
-            is_ref = [56:-1:51 68:-1:63]';
-            iw_ref = [8 8 8 8 8 7, 28 28 28 28 28 27]';
-            [is_out, iw_out] = exposed_IX_map.repeat_s_w_blocks (isp_beg, isp_end, ...
-                ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_isp, delta_iw);
-            assertEqual (is_out, is_ref)
-            assertEqual (iw_out, iw_ref)
+            wkno_ref = [8; 7; 28; 27];
+            ns_ref = [5; 1; 5; 1];
+            s_ref = [56:-1:51 68:-1:63]';
+            
+            [wkno, ns, s_out] = exposed_IX_map.repeat_s_w_blocks (s_beg, s_end, ...
+                ngroup, s_dcn, w_beg, w_dcn, nrepeat, delta_s, delta_w);
+            assertEqual (wkno, wkno_ref)
+            assertEqual (ns, ns_ref)
+            assertEqual (s_out, s_ref)
         end
         
         %-----------------------------------------------------------------------
         function test_twoDescriptors_repeatedBlocks_spMixedDcn_wMixedDcn (~)
             % Multiple block descriptors
             
-            isp_beg = [11,56];
-            isp_end = [16,51];
+            s_beg = [11,56];
+            s_end = [16,51];
             ngroup = [4,5];
-            isp_dcn = [1,-1];
-            iw_beg = [5,8];
-            iw_dcn = [1,-1];
+            s_dcn = [1,-1];
+            w_beg = [5,8];
+            w_dcn = [1,-1];
             nrepeat = [3,2];
-            delta_isp = [10,12];
-            delta_iw = [100,20];
+            delta_s = [10,12];
+            delta_w = [100,20];
             
-            is_ref = [11:16 21:26 31:36 56:-1:51 68:-1:63]';
-            iw_ref = [5 5 5 5 6 6, 105 105 105 105 106 106 ...
-                205 205 205 205 206 206 8 8 8 8 8 7, 28 28 28 28 28 27]';
-            [is_out, iw_out] = exposed_IX_map.repeat_s_w_blocks (isp_beg, isp_end, ...
-                ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_isp, delta_iw);
-            assertEqual (is_out, is_ref)
-            assertEqual (iw_out, iw_ref)
+            wkno_ref = [5; 6; 105; 106; 205; 206; 8; 7; 28; 27];
+            ns_ref = [4; 2; 4; 2; 4; 2; 5; 1; 5; 1];
+            s_ref = [11:16 21:26 31:36 56:-1:51 68:-1:63]';
+            
+            [wkno, ns, s_out] = exposed_IX_map.repeat_s_w_blocks (s_beg, s_end, ...
+                ngroup, s_dcn, w_beg, w_dcn, nrepeat, delta_s, delta_w);
+            assertEqual (wkno, wkno_ref)
+            assertEqual (ns, ns_ref)
+            assertEqual (s_out, s_ref)
         end
         
         %-----------------------------------------------------------------------
         function test_twoDescriptors_repeatedBlocks_wPlaceholders (~)
-            % Two block descriptors, placeholder iw_beg and delta_iw on second
+            % Two block descriptors, placeholder w_beg and delta_w on second
             
-            isp_beg = [11,56];
-            isp_end = [16,51];
+            s_beg = [11,56];
+            s_end = [16,51];
             ngroup = [4,5];
-            isp_dcn = [1,-1];
-            iw_beg = [5,NaN];
-            iw_dcn = [1,-1];
+            s_dcn = [1,-1];
+            w_beg = [5,NaN];
+            w_dcn = [1,-1];
             nrepeat = [3,2];
-            delta_isp = [10,12];
-            delta_iw = [100,NaN];
+            delta_s = [10,12];
+            delta_w = [100,NaN];
             
-            is_ref = [11:16 21:26 31:36 56:-1:51 68:-1:63]';
-            iw_ref = [5 5 5 5 6 6, 105 105 105 105 106 106 ...
-                205 205 205 205 206 206 208 208 208 208 208 207, 210 210 210 210 210 209]';
-            [is_out, iw_out] = exposed_IX_map.repeat_s_w_blocks (isp_beg, isp_end, ...
-                ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_isp, delta_iw);
-            assertEqual (is_out, is_ref)
-            assertEqual (iw_out, iw_ref)
+            wkno_ref = [5; 6; 105; 106; 205; 206; 208; 207; 210; 209];
+            ns_ref = [4; 2; 4; 2; 4; 2; 5; 1; 5; 1];
+            s_ref = [11:16 21:26 31:36 56:-1:51 68:-1:63]';
+            [wkno, ns, s_out] = exposed_IX_map.repeat_s_w_blocks (s_beg, s_end, ...
+                ngroup, s_dcn, w_beg, w_dcn, nrepeat, delta_s, delta_w);
+            assertEqual (wkno, wkno_ref)
+            assertEqual (ns, ns_ref)
+            assertEqual (s_out, s_ref)
         end
         
         %-----------------------------------------------------------------------
         function test_twoDescriptors_repeatedBlocks_wGoesnegative_ERROR (~)
             % Workspaces go < 1. Should fail
             
-            isp_beg = [11,56];
-            isp_end = [16,51];
+            s_beg = [11,56];
+            s_end = [16,51];
             ngroup = [4,5];
-            isp_dcn = [1,-1];
-            iw_beg = [1,NaN];
-            iw_dcn = [-1,-1];
+            s_dcn = [1,-1];
+            w_beg = [1,NaN];
+            w_dcn = [-1,-1];
             nrepeat = [3,2];
-            delta_isp = [10,12];
-            delta_iw = [100,NaN];
+            delta_s = [10,12];
+            delta_w = [100,NaN];
             
-            func = @()exposed_IX_map.repeat_s_w_blocks (isp_beg, isp_end, ...
-                ngroup, isp_dcn, iw_beg, iw_dcn, nrepeat, delta_isp, delta_iw);
+            func = @()exposed_IX_map.repeat_s_w_blocks (s_beg, s_end, ...
+                ngroup, s_dcn, w_beg, w_dcn, nrepeat, delta_s, delta_w);
             
-            assertExceptionThrown (func, 'IX_map:invalid_argument');
+            ME = assertExceptionThrown (func, 'HERBERT:IX_map:invalid_argument');
+            assertTrue(contains(ME.message, 'Workspace array constructed for'))
         end
         
         %-----------------------------------------------------------------------

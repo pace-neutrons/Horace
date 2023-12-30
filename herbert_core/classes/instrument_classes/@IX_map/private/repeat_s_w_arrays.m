@@ -1,79 +1,97 @@
-function [is_out, iw_out] = repeat_s_w_arrays (is, iw, nrepeat, delta_isp, delta_iw)
+function [wkno_out, ns_out, s_out] = repeat_s_w_arrays (wkno, ns, s, nrepeat, delta_s, delta_w)
 % Create an array of spectrum and of workspace numbers by repeating reference
 % arrays of each with succesive offsets, reulting in:
 %
-%   is_out = [is_out; is_out + delta_isp; is_out + 2*delta_isp,...
-%                                                   , is_out + nrepeat*delta_isp]
-%   iw_out = [iw_out; iw_out + delta_iw;  iw_out + 2*delta_iw,...
-%                                                   , iw_out + nrepeat*delta_iw]
+%   s_out = [s_out; s_out + delta_s; s_out + 2*delta_s,...
+%                                                   , s_out + nrepeat*delta_s]
+%   w_out = [w_out; w_out + delta_w;  w_out + 2*delta_w,...
+%                                                   , w_out + nrepeat*delta_w]
 % The outputs are column vectors.
 %
-%   >> [is_out, iw_out] = repeat_s_w_arrays (is, iw, nrepeat, delta_isp, delta_iw)
+%   >> [wkno_out, ns_out, s_out] = repeat_s_w_arrays (wkno, ns, s, ...
+%                                                   nrepeat, delta_s, delta_w)
 %
 % Input:
 % ------
-%   is          Input spectrum numbers array
-%   iw          Input workspace numbers array. Must have the same number of
-%              elements as input argument is
+%   wkno        Unique workspace numbers array
+%   ns          Number of spectra in each workspace. Must have the same number
+%               of elements as wkno
+%   s           Spectrum numbers array
 %   nrepeat     Number of times to repeat (nrepeat >= 1)
-%   delta_isp   Offset between repeated blocks of spectra
-%   delta_iw    Offset between repeated blocks of workspaces
+%   delta_s     Offset between repeated blocks of spectra
+%   delta_w     Offset between repeated blocks of workspaces
 %
 % Output:
 % -------
-%   is_out      Output spectrum numbers (column vector)
-%   iw_out      Output workspace numbers (column vector)
+%   w_out       Workspace numbers (Column vector).
+%               There may be multiple occurences of the same workspace number in
+%               w_out, depending on the values of the input parameters (for
+%               example, there is no requirement that the list of workspace
+%               numbers in wkno contains just unique values)
+%
+%   ns_out      Number of spectra in each workspace in the array w_out. 
+%               (column vector, same length as w_out)
+%               If a workspace number is repeated in w_out this does not cause
+%               any problems: it is treated as the spectra contributing to the
+%               workspace as being split into two or more sections
+%
+%   s_out       Spectrum numbers that will be grouped into workspaces according
+%               as w_out and ns_out (column vector)
 
-
-ns = numel(is);
 
 % Catch the trivial case of no repetitions
 if nrepeat==1
-    is_out = is(:); % ensure output is a column vector
-    iw_out = iw(:); % column vector
+    wkno_out = wkno(:); % ensure output is a column vector
+    ns_out = ns(:);
+    s_out = s(:);
     return
 end
 
 % Determine if the minimum spectrum number in the repeated arrays is less than 1
-% No placeholder values for spectra are permitted, which simplified the call to
+% No placeholder values for spectra are permitted, which simplifies the call to
 % the function resolve_repeat_blocks
-is_min_in = min(is(:));
-is_max_in = max(is(:));
-isp_dcn = 1;
-ns_tmp = is_max_in - is_min_in + 1;     % created solely for this test
-[~, ~, is_min] = resolve_repeat_blocks (is_min_in, isp_dcn, ...
-    delta_isp, ns_tmp, nrepeat);
-if is_min < 1
+s_min_in = min(s(:));
+s_max_in = max(s(:));
+s_dcn = 1;
+ns_tmp = s_max_in - s_min_in + 1;     % created solely for this test
+[~, ~, s_min] = resolve_repeat_blocks (s_min_in, s_dcn, ...
+    delta_s, ns_tmp, nrepeat);
+if s_min < 1
     error ('HERBERT:IX_map:invalid_argument', ['Spectrum array constructed for ',...
         'at least one repeated array includes zero or negative spectrum numbers'])
 end
 
 
-% Resolve a placeholder value for delta_iw, if present, and determine if the
+% Resolve a placeholder value for delta_w, if present, and determine if the
 % minimum workspace number in the repeated arrays is less than 1
-iw_min_in = min(iw(:));
-iw_max_in = max(iw(:));
-iw_dcn = 1;
-nw_tmp = iw_max_in - iw_min_in + 1;     % created solely for this test
-iw_max_prev = 0;    % no previous mapping
-[~, delta_iw, iw_min] = resolve_repeat_blocks (iw_min_in, iw_dcn, ...
-    delta_iw, nw_tmp, nrepeat, iw_max_prev);
-if iw_min < 1
+w_min_in = min(wkno(:));
+w_max_in = max(wkno(:));
+w_dcn = 1;
+nw_tmp = w_max_in - w_min_in + 1;     % created solely for this test
+w_max_prev = 0;    % no previous mapping
+[~, delta_w, w_min] = resolve_repeat_blocks (w_min_in, w_dcn, ...
+    delta_w, nw_tmp, nrepeat, w_max_prev);
+if w_min < 1
     error ('HERBERT:IX_map:invalid_argument', ['Workspace array constructed for ',...
         'at least one repeated array includes zero or negative workspace numbers'])
 end
 
 % Create full list of spectrum and workspace numbers
-is_out = NaN(ns*nrepeat, 1);
-iw_out = NaN(ns*nrepeat, 1);
+nw = numel(wkno);
+nstot = numel(s);
+wkno_out = NaN(nw*nrepeat, 1);
+s_out = NaN(nstot*nrepeat, 1);
 
-is_out(1:ns) = is;
-iw_out(1:ns) = iw;
+wkno_out(1:nw) = wkno;
+s_out(1:nstot) = s;
 for irep=2:nrepeat
-    ibeg = (irep-1)*ns + 1;
-    iend = irep*ns;
-    is_out(ibeg:iend) = is + (irep-1)*delta_isp;
-    iw_out(ibeg:iend) = iw + (irep-1)*delta_iw;
+    iwbeg = (irep-1)*nw + 1;
+    iwend = irep*nw;
+    wkno_out(iwbeg:iwend) = wkno + (irep-1)*delta_w;
+    isbeg = (irep-1)*nstot + 1;
+    isend = irep*nstot;
+    s_out(isbeg:isend) = s + (irep-1)*delta_s;
 end
+ns_out = repmat(ns(:), [nrepeat, 1]);
 
 end

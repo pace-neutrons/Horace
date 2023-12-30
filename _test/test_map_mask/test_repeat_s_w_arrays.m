@@ -6,36 +6,42 @@ classdef test_repeat_s_w_arrays < TestCase
         function test_oneRepeat (~)
             % nrepeat = 1 (i.e. no repeat)
             
-            is = [1 4 5];
-            iw = [1 2 1];
+            wkno = [10 12 14 15];
+            ns = [1 3 0 1];
+            s = [1 4 5 2 7];
             nrepeat = 1;
-            delta_isp = 10;
-            delta_iw = 2;
+            delta_s = 10;
+            delta_w = 2;
                         
-            is_ref = is';
-            iw_ref = iw';
-            [is_out, iw_out] = exposed_IX_map.repeat_s_w_arrays ...
-                (is, iw, nrepeat, delta_isp, delta_iw);
-            assertEqual (is_out, is_ref)
-            assertEqual (iw_out, iw_ref)
+            wkno_ref = wkno(:);
+            ns_ref = ns(:);
+            s_ref = s(:);
+            [wkno_out, ns_out, s_out] = exposed_IX_map.repeat_s_w_arrays ...
+                (wkno, ns, s, nrepeat, delta_s, delta_w);
+            assertEqual (wkno_out, wkno_ref)
+            assertEqual (ns_out, ns_ref)
+            assertEqual (s_out, s_ref)
         end
         
         %-----------------------------------------------------------------------
         function test_manyRepeats (~)
             % nrepeat = 3
             
-            is = [1 4 5];
-            iw = [1 2 1];
+            wkno = [10 12 14 15];
+            ns = [1 3 0 1];
+            s = [1 4 5 2 7];
             nrepeat = 3;
-            delta_isp = 10;
-            delta_iw = 2;
+            delta_s = 10;
+            delta_w = 2;
                         
-            is_ref = [1 4 5 11 14 15 21 24 25]';
-            iw_ref = [1 2 1 3 4 3 5 6 5]';
-            [is_out, iw_out] = exposed_IX_map.repeat_s_w_arrays ...
-                (is, iw, nrepeat, delta_isp, delta_iw);
-            assertEqual (is_out, is_ref)
-            assertEqual (iw_out, iw_ref)
+            wkno_ref = [10 12 14 15 12 14 16 17 14 16 18 19]';
+            ns_ref = [1 3 0 1 1 3 0 1 1 3 0 1]';
+            s_ref = [1 4 5 2 7 11 14 15 12 17 21 24 25 22 27]';
+            [wkno_out, ns_out, s_out] = exposed_IX_map.repeat_s_w_arrays ...
+                (wkno, ns, s, nrepeat, delta_s, delta_w);
+            assertEqual (wkno_out, wkno_ref)
+            assertEqual (ns_out, ns_ref)
+            assertEqual (s_out, s_ref)
         end
         
         %-----------------------------------------------------------------------

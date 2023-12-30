@@ -10,16 +10,16 @@ classdef exposed_IX_map < IX_map
     end
     
     methods (Static)
-        function [is_out, iw_out] = repeat_s_w_arrays (varargin)
-            [is_out, iw_out] = test_repeat_s_w_arrays (IX_map(), varargin{:});
+        function [wkno_out, ns_out, s_out] = repeat_s_w_arrays (varargin)
+            [wkno_out, ns_out, s_out] = test_repeat_s_w_arrays (IX_map(), varargin{:});
         end
         
-        function [is_out, iw_out] = repeat_s_w_blocks (varargin)
-            [is_out, iw_out] = test_repeat_s_w_blocks (IX_map(), varargin{:});
+        function [wkno_out, ns_out, s_out] = repeat_s_w_blocks (varargin)
+            [wkno_out, ns_out, s_out] = test_repeat_s_w_blocks (IX_map(), varargin{:});
         end
         
-        function [iw_beg, delta_iw, iw_min, iw_max] = resolve_repeat_blocks (varargin)
-            [iw_beg, delta_iw, iw_min, iw_max] = test_resolve_repeat_blocks ...
+        function [ix_beg, delta_ix, ix_min, ix_max] = resolve_repeat_blocks (varargin)
+            [ix_beg, delta_ix, ix_min, ix_max] = test_resolve_repeat_blocks ...
                 (IX_map(), varargin{:});
         end
     end

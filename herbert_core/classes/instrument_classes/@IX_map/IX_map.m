@@ -54,6 +54,8 @@ classdef IX_map < serializable
             % Constructor for IX_map object, which maps spectra to workspaces,
             % either one-to-one or in groups of spectra per workspace:
             %
+            % One-to-one mapping of spectra to workspaces:
+            % --------------------------------------------
             % Single spectrum to single workspace, or one-to-one mapping of spectra
             % to workspaces:
             %   >> w = IX_map (isp)         % single spectrum to workspace 1
@@ -61,8 +63,12 @@ classdef IX_map < serializable
             %   >> w = IX_map (isp_array, 'wkno', iw_array)
             %                               % if iw_array is scalar, all spectra
             %                               % are mapped into that workspace
+            %   >> w = IX_map (isp_array, 'wkno', iw_array, 'ns', ns_array)
+            %                               % unique workspace numbers and number
+            %                               % of spectra in each of the workspaces
             %
             % Groups of contiguous spectra to contiguous workspace numbers:
+            % -------------------------------------------------------------
             %   >> w = IX_map (isp_beg, isp_end)        % one spectrum per workspace
             %   >> w = IX_map (isp_beg, isp_end, step)  % |step| spectra per workspace
             %   >> w = IX_map (..., 'wkno', iw_beg)     % Mapped into succesive workspaces starting
@@ -73,6 +79,10 @@ classdef IX_map < serializable
             % multiple times with successive increments of the spectra and
             % workspace number for each repeat block:
             %   >> w = IX_map (..., 'repeat', [nrepeat, delta_isp, delta_iw])
+            %
+            % Mapping spectrum array to workspace
+            %
+            %
             %
             % Note:
             % - Spectrum and workspace numbers must be greater or equal to one.
@@ -255,11 +265,8 @@ classdef IX_map < serializable
                 
             elseif nargin>0
                 % All other input
-                [is, iw] = parse_IX_map_args (varargin{:});
-                % The following calls the same master function for checking the
-                % consistency of the spectrum and workspace numbers as is used
-                % inside check_combo_arg
-                [obj.wkno_, obj.ns_, obj.s_, obj.w_, obj.unique_spec_] = sort_s_w (is, iw);
+                [obj.wkno_, obj.ns_, obj.s_] = parse_IX_map_args (varargin{:});
+                obj = check_combo_arg (obj);
             end
             
         end
@@ -470,16 +477,16 @@ classdef IX_map < serializable
     % methods
     
     methods (Access=protected)
-        function [is_out, iw_out] = test_repeat_s_w_arrays (~, varargin)
-            [is_out, iw_out] = repeat_s_w_arrays (varargin{:});
+        function [wkno_out, ns_out, s_out] = test_repeat_s_w_arrays (~, varargin)
+            [wkno_out, ns_out, s_out] = repeat_s_w_arrays (varargin{:});
         end
         
-        function [is_out, iw_out] = test_repeat_s_w_blocks (~, varargin)
-            [is_out, iw_out] = repeat_s_w_blocks (varargin{:});
+        function [wkno_out, ns_out, s_out] = test_repeat_s_w_blocks (~, varargin)
+            [wkno_out, ns_out, s_out] = repeat_s_w_blocks (varargin{:});
         end
         
-        function [iw_beg, delta_iw, iw_min, iw_max] = test_resolve_repeat_blocks (~, varargin)
-            [iw_beg, delta_iw, iw_min, iw_max] = resolve_repeat_blocks (varargin{:});
+        function [ix_beg, delta_ix, ix_min, ix_max] = test_resolve_repeat_blocks (~, varargin)
+            [ix_beg, delta_ix, ix_min, ix_max] = resolve_repeat_blocks (varargin{:});
         end
     end
     
@@ -496,7 +503,7 @@ classdef IX_map < serializable
         
         function flds = saveableFields(~)
             % Return cellarray of properties defining the class
-            flds = {'s', 'w'};
+            flds = {'wkno', 'ns', 's'};
         end
         
         function obj = check_combo_arg (obj)
@@ -523,9 +530,8 @@ classdef IX_map < serializable
             
             % Sort spectra and workspaces to match definition of ordering, and
             % compute cached dependent properties
-            w_tmp = replicate_iarray (obj.wkno_, obj.ns_);  % workspace numbers for each spectrum
             [obj.wkno_, obj.ns_, obj.s_, obj.w_, obj.unique_spec_] = ...
-                sort_s_w (obj.s_, w_tmp);
+                sort_s_w (obj.wkno_, obj.ns_, obj.s_);
         end
         
     end
