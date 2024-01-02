@@ -52,7 +52,7 @@ classdef test_sigvar_set < TestCase
             sqw_obj.data.s = zeros(2,3);
             sqw_obj.data.e = zeros(2,3);
             sqw_obj.data.npix = 10*ones(2,3);
-            sqw_obj.pix = PixelDataMemory(ones(9,60));
+            sqw_obj.pix = PixelDataFileBacked(ones(9,60));
 
             sigvar_obj = sigvar(struct(...
                 's', [1, 2, 3; 4, 5, 6], ...
@@ -103,7 +103,7 @@ classdef test_sigvar_set < TestCase
             sigvar_obj = sigvar(struct('s', [1, 2, 3], 'e', [44, 55, 66]));
 
             expected_signal = [1,1,1, 2,2,2,2,2, 3];
-            expected_varince = [44,44,44, 55,55,55,55,55, 66];
+            expected_varince = [3*[44,44,44],5*[55,55,55,55,55], 66];
 
             result = sqw_obj.sigvar_set(sigvar_obj);
 
@@ -124,7 +124,7 @@ classdef test_sigvar_set < TestCase
             sigvar_obj = sigvar(struct('s', [1, 2, 3], 'e', [44, 55, 66]));
 
             expected_signal = [1,1,1, 3];
-            expected_varince = [44,44,44, 66];
+            expected_varince = [3*[44,44,44], 66];
             expected_img_s = [1, 0, 3]';
             expected_img_e = [44, 0, 66]';
 
