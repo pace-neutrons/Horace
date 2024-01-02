@@ -46,7 +46,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         % the image grid
         [wout,irange] = section (win,varargin);
         % Make a higher dimensional dataset from a lower dimensional dataset
-        wout = replicate (win,wref);
+        wout = replicate (win,wref,varargin);
     end
     %----------------------------------------------------------------------
     % PageOp methods implemented on this level

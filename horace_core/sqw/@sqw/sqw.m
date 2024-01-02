@@ -138,7 +138,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % coordinate values
         w    = coordinates_calc(w, name);
         % Make a higher dimensional dataset from a lower dimensional dataset
-        wout = replicate (win,wref);
+        wout = replicate (win,wref,varargin);
 
         %Evaluate a function at the plotting bin centres of sqw object
         wout = func_eval (win, func_handle, pars, varargin)

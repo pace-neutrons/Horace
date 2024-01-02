@@ -80,8 +80,10 @@ for i=1:numel(win)
     dnd_obj = dnd(win(i));
     rep_obj = replicate(dnd_obj,wref_dnd_type);
     if has_pixels(wref) && set_pix
-        wout(i).data = rep_obj;
+        wout(i).data.s = rep_obj.s;
+        wout(i).data.e = rep_obj.e;
         page_op = PageOp_sigvar_set();
+        page_op.in_replicate = true;
         page_op = page_op.init( wout(i));
         wout(i)       = sqw.apply_op( wout(i),page_op);
     else
