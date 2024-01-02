@@ -24,6 +24,8 @@ classdef IX_map < serializable
         
         % Row vector of workspace numbers for each spectrum, with same size as s_
         % Workspace numbers are monotonically increasing
+        % Note: there can be workspaces with no spectra; those workspace numbers
+        % will not appear in this list
         w_ = zeros(1,0)
         
         % Logical flag: true if each spectrum is mapped to only one workspace;
@@ -40,9 +42,11 @@ classdef IX_map < serializable
         
         % Other dependent properties
         % --------------------------
-        w       % Row vector of workspace for each spectrum in the order of property s [get only]
-        nw      % Number of workspaces [get only]
-        nstot   % Total number of spectra in the workspaces [get only]
+        w           % Row vector of workspace for each spectrum in the order of property s [get only]
+        wkno_filled % Row vector of workspaces with at least one spectrum [get only]
+        wkno_empty  % Row vector of workspaces with no spectra [get only]
+        nw          % Number of workspaces [get only]
+        nstot       % Total number of spectra in the workspaces [get only]
         unique_spec % true if each spectrum is mapped to only one workspace [get only]
     end
     
@@ -368,6 +372,16 @@ classdef IX_map < serializable
         function val = get.w(obj)
             % Workspace numbers for each spectrum number
             val = obj.w_;
+        end
+        
+        function val = get.wkno_filled(obj)
+            % Workspace numbers with at least one spectrum
+            val = obj.wkno_(obj.ns_>0);
+        end
+        
+        function val = get.wkno_empty(obj)
+            % Workspace numbers with no spectra
+            val = obj.wkno_(obj.ns_==0);
         end
         
         function val = get.nw(obj)

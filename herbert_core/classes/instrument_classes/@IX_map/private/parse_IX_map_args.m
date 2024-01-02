@@ -71,23 +71,35 @@ if numel(par)==1
             'Spectrum numbers must all be greater than or equal to 1')
     end
     
-    % Check wkno is valid and consistent with s, if present;
-    % otherwise create default
+    % If present, check wkno is valid and consistent with s. Otherwise create
+    % default wkno.
     if ~present.wkno
-        % Assume 1:1 mapping to workspaces 1,2,3...; oprion 'ns' is invalid
+        % Assume 1:1 mapping to workspaces 1,2,3...; option 'ns' is invalid
         if present.ns
             error ('HERBERT:IX_map:invalid_argument', ['Keword option ',...
-                '''ns'' is not permitted if option ''wkno'' is not provided'])
+                '''ns'' is not permitted if option ''wkno'' is not given'])
         end
         wkno = (1:numel(s))';
         ns = ones(size(wkno));
+        
     else
-        % wkno is given; interpreted as one-to-one mapping to the spectrum
-        % numbers workspace numbers according to whether ns is given or not
+        % Workspace numbers are given - either one-to-one with the spectrum
+        % number list, s, or correspond to groups of spectra with the numbers in
+        % each group given by the optional argumnet ns.
         wkno = keyval.wkno(:);
+        if ~(isempty(wkno) || all_positive_integers(wkno))
+            error ('HERBERT:IX_map:invalid_argument', ...
+                'Workspace numbers must all be greater than or equal to 1')
+        end
         if present.ns
-            % workspaces withdefined number of spectra contributing (can be zero
-            % spectra i.e. elements of ns can be zero)
+            % Workspace numbers and the number of spectra in each workspace are
+            % given. Note:
+            % - wkno does not need to contain unique workspace numbers: the
+            %   total number of contributing spectra will be given by the sum of
+            %   the corresponding values of ns for each element of wkno with the
+            %   same workspace number
+            % - ns can contain zeros: these describe empty workspaces i.e. no
+            %   contributing spectra
             ns = keyval.ns(:);
             if numel(ns) ~= numel(wkno)
                 error ('HERBERT:IX_map:invalid_argument', ...
@@ -96,22 +108,17 @@ if numel(par)==1
             elseif sum(ns) ~= numel(s)
                 error ('HERBERT:IX_map:invalid_argument', ['The number of ' ...
                     'spectra does not match the number expected in the workspaces'])
-            elseif numel(s)>0 && ~all_integers_ge_zero(s)
+            elseif ~isempty(ns) && ~all_integers_ge_zero(ns)
                 error ('HERBERT:IX_map:invalid_argument', ['The number of ' ...
                     'spectra in each workspace must be greater than or equal to zero'])
             end
         else
             % Interpret wkno and spectrum array s being in one-to-one mapping
-            if all_positive_integers(wkno)
-                if isscalar(wkno)
-                    wkno = repmat(wkno, size(s));
-                elseif ~numel(wkno) == numel(s)
-                    error ('HERBERT:IX_map:invalid_argument', ['Workspace array ',...
-                        'must be scalar or have same length as spectrum array'])
-                end
-            elseif ~isempty(wkno)
-                error ('HERBERT:IX_map:invalid_argument', ...
-                    'Workspace numbers must all be greater than or equal to 1')
+            if isscalar(wkno)
+                wkno = repmat(wkno, size(s));
+            elseif ~numel(wkno) == numel(s)
+                error ('HERBERT:IX_map:invalid_argument', ['Workspace array ',...
+                    'must be scalar or have same length as spectrum array'])
             end
             ns = ones(size(wkno));
         end

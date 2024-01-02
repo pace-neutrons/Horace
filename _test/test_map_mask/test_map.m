@@ -94,6 +94,18 @@ classdef test_map < TestCase
                 'of spectra in each workspace']))
         end
         
+        function test_emptyWorkspace (~)
+            % This should fail as workspaces must have index number greater than
+            % zero
+            s = [15, 19, 4, 14, 17];
+            wkno = [4, 6, 9, 0, 0, 0];
+            ns = [2, 2, 1, 0, 0, 0];         
+            f = @()IX_map(s, 'wkno', wkno, 'ns', ns);
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_argument');
+            assertTrue(contains(ME.message, ...
+                'Workspace numbers must all be greater than or equal to 1'))
+        end
+        
         
         %--------------------------------------------------------------------------
         % Test constructor with repeat blocks
@@ -396,6 +408,17 @@ classdef test_map < TestCase
             assertEqual (mtot, mtot_ref)
         end
         
+        function test_combine_2map_noOverlap_largeMaps (~)
+            % Two map files read from file with large number of workspaces
+            % Tests multiple line spectrum description with realistic case
+            map1 = IX_map('map_14work_18432spec_select1to8work.map');
+            map2 = IX_map('map_14work_18432spec_select9to14work.map');
+            mtot_ref = IX_map('map_14work_18432spec.map');
+            
+            mtot = combine(map1, map2);
+            assertEqual (mtot, mtot_ref)
+        end
+
         
         %------------------------------------------------------------------
         % Test concatenate
@@ -457,67 +480,99 @@ classdef test_map < TestCase
         end
         
         
-        
-%       *** refactor IX_map mask_map, section/get_spec (if need them!)
-%       *** tests of above
-%       *** merge with master
-        
+        %------------------------------------------------------------------
+        % Test mask
+        %------------------------------------------------------------------
+        function test_mask_emptyMap_noMask (~)
+            % Empty map and no spectra being masked
+            map = IX_map();
+            
+            map_out = mask(map, []);
+            assertEqual (map_out, map)
+        end
+                
+        function test_mask_3workNoneEmpty_noMask (~)
+            % No spectra being masked
+            wkno = [4,6,9];
+            ns = [2,3,1];
+            s = [15,19,4,14,19,17];
+            map = IX_map(s, 'wkno', wkno, 'ns', ns);
+            
+            map_out = mask(map, []);
+            assertEqual (map_out, map)
+        end
+                
+        function test_mask_3work1empty_noMask (~)
+            % No spectra being masked
+            % [Map has an empty workspace and a spectrum mapped into two workspaces]
+            wkno = [4,6,1,9];
+            ns = [2,3,0,1];
+            s = [15,19,4,14,19,17];
+            map = IX_map(s, 'wkno', wkno, 'ns', ns);
+            
+            map_out = mask(map, []);
+            assertEqual (map_out, map)
+        end
+                
+        function test_mask_3work1empty_1Mask_1workReduced (~)
+            % Mask one spectrum, but leave the relevant workspace non-empty
+            % [Map has an empty workspace and a spectrum mapped into two workspaces]
+            wkno = [4,6,1,9];
+            ns = [2,3,0,1];
+            s = [15,19,4,14,19,17];
+            map = IX_map(s, 'wkno', wkno, 'ns', ns);
+            
+            map_out = mask(map, 15);
+            
+            map_ref = IX_map([19,4,14,19,17], 'wkno', wkno, 'ns', [1,3,0,1]);
+            assertEqual (map_out, map_ref)
+        end
+                
+        function test_mask_3work1empty_1Mask_2workReduced (~)
+            % Mask one spectrum shared between two workspaces, but leave the
+            % relevant workspaces non-empty
+            % [Map has an empty workspace and a spectrum mapped into two workspaces]
+            wkno = [4,6,1,9];
+            ns = [2,3,0,1];
+            s = [15,19,4,14,19,17];
+            map = IX_map(s, 'wkno', wkno, 'ns', ns);
+            
+            map_out = mask(map, 19);
+            
+            map_ref = IX_map([15,4,14,17], 'wkno', wkno, 'ns', [1,2,0,1]);
+            assertEqual (map_out, map_ref)
+        end
+                
+        function test_mask_3work1empty_3Mask_1workReduced2workEmpty (~)
+            % Mask three spectra, reduces one workspace and empties two
+            % [Map has an empty workspace and a spectrum mapped into two workspaces]
+            wkno = [4,6,1,9];
+            ns = [2,3,0,1];
+            s = [15,19,4,14,19,17];
+            map = IX_map(s, 'wkno', wkno, 'ns', ns);
+            
+            map_out = mask(map, [15,17,19]);
+            
+            map_ref = IX_map([4,14], 'wkno', wkno, 'ns', [0,2,0,0]);
+            assertEqual (map_out, map_ref)
+        end
+                
+        function test_mask_3work1empty_allMask (~)
+            % Mask all spectra. Note that this means four empty workspaces, not
+            % an empty map.
+            % [Map has an empty workspace and a spectrum mapped into two workspaces]
+            wkno = [4,6,1,9];
+            ns = [2,3,0,1];
+            s = [15,19,4,14,19,17];
+            map = IX_map(s, 'wkno', wkno, 'ns', ns);
+            
+            map_out = mask(map, [15,19,4,14,19,17]);
+            
+            assertEqual(map_out.wkno, [1,4,6,9]);
+            assertEqual(map_out.ns, [0,0,0,0])
+            assertEqual(map_out.s, zeros(1,0));
+        end
+                
     end
     
 end
-
-
-
-% % -----------------------------------------------------------------------------
-% % Test combine
-% % ------------
-% wref=IX_map('map_14.map');
-% w1=IX_map('map_1to8.map');
-% w2=IX_map('map_9to14.map');
-% wrefnam=IX_map('map_14.map','wkno');
-% w1nam=IX_map('map_1to8.map','wkno');
-% w2nam=IX_map('map_9to14.map','wkno');
-%
-% % Trivial case of one map
-% wcomb=combine(w1);
-% if ~isequal(w1,wcomb), assertTrue(false,'Error combining two maps'), end
-%
-% % Combine two maps
-% wcomb=combine(w1,w2);
-% if ~isequal(wref,wcomb), assertTrue(false,'Error combining two maps'), end
-%
-% % Try to combine workspaces with shared spectra
-% try
-%     wcomb_bad=combine(w1,wref);
-%     ok=false;
-% catch
-%     ok=true;
-% end
-% if ~ok, assertTrue(false,'Should have failed because shared spectra'), end
-%
-% % Combine workspaces with names
-% wcomb=combine(w1nam,w2nam,'wkno');
-% if ~isequal(wrefnam,wcomb), assertTrue(false,'Error combining two maps'), end
-%
-% % A severe test:
-% m1=IX_map({[11,12,13],[21,22]});
-% m2=IX_map({[31,32,33,34],[41,42],51},'wkno',[2,99,5]);
-% m3=IX_map({61,[72,73],[81,82],(91:95)});
-% mtot=IX_map({[11,12,13],[21,22],[31,32,33,34],[41,42],51,61,[72,73],[81,82],(91:95)});
-% mtotnam=IX_map({[11,12,13],[21,22],[31,32,33,34],[41,42],51,61,[72,73],[81,82],(91:95)},'wkno',[1,3,2,99,5,4,6,7,8]);
-%
-% wcomb=combine(m1,m2,m3,'wkno');
-% if ~isequal(mtotnam,wcomb), assertTrue(false,'Error combining three maps'), end
-%
-% wcomb=combine(m1,m2,m3);
-% if ~isequal(mtot,wcomb), assertTrue(false,'Error combining three maps'), end
-%
-%
-% % -----------------------------------------------------------------------------
-% % Test mask_map
-% % -------------
-% wref=IX_map('map_14.map');
-% wmsk=mask_map(wref,[35000:40000,5000:20000]);
-% wmskref=IX_map('map_14_msk.map');
-% if ~isequal(wmsk,wmskref), assertTrue(false,'Error masking map object'), end
-%
