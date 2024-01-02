@@ -572,7 +572,76 @@ classdef test_map < TestCase
             assertEqual(map_out.ns, [0,0,0,0])
             assertEqual(map_out.s, zeros(1,0));
         end
-                
+
+        
+        %------------------------------------------------------------------
+        % Test section
+        %------------------------------------------------------------------
+        function test_section_0work_emptyKeep (~)
+            % Should return the same as the input
+            map = IX_map();
+            map_out = section(map, []);
+            assertEqual(map_out, map)
+        end
+        
+        function test_section_2work_0keep (~)
+            % Should return empty map
+            map = IX_map([2,4,7,10,14], 'wkno', [104,106], 'ns', [3,2]);
+            map_out = section(map, []);
+            assertEqual(map_out, IX_map())
+        end
+
+        function test_section_2work_1keep (~)
+            % Keeps one of two workspaces
+            map = IX_map([2,4,7,10,14], 'wkno', [104,106], 'ns', [3,2]);
+            map_out = section(map, 106);
+            map_ref = IX_map([10,14], 'wkno', 106, 'ns', 2);
+            assertEqual(map_out, map_ref)
+        end
+        
+        function test_section_2work_1keep_ERROR (~)
+            % Keeps one of two workspaces
+            % Give the workspace to keep as 2 (second workspace), not 106 (the
+            % number of the second workspace)
+            map = IX_map([2,4,7,10,14], 'wkno', [104,106], 'ns', [3,2]);
+            f = @()section(map, 2);
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_argument');
+            assertTrue(contains(ME.message, ['Workspace number 2 and possibly ',...
+                'others to be kept are not one of the input workspace numbers']))
+        end
+        
+        function test_section_2work_2keep (~)
+            % Keeps both workspaces - output should be same as input
+            map = IX_map([2,4,7,10,14], 'wkno', [104,106], 'ns', [3,2]);
+            map_out = section(map, [106,104]);
+            assertEqual(map_out, map)
+        end
+        
+        function test_section_5work_3rdEmpty_2nd3rdKeep (~)
+            % Keep two workspaces, one of which is empty
+            map = IX_map([21:25, 31:36, 51:58, 61:69], 'wkno', [2,3,4,5,6], 'ns', [5,6,0,8,9]);
+            map_out = section(map, [3,4]);
+            map_ref = IX_map(31:36, 'wkno', [3,4], 'ns', [6,0]);
+            assertEqual(map_out, map_ref)
+        end
+        
+        function test_section_5work_3rdEmpty_3rd4thKeep (~)
+            % Keep two workspaces, one of which is empty
+            % Read a map file (tested elsewhere in this test that it works)
+            map = IX_map([21:25, 31:36, 51:58, 61:69], 'wkno', [2,3,4,5,6], 'ns', [5,6,0,8,9]);
+            map_out = section(map, [4,5]);
+            map_ref = IX_map(51:58, 'wkno', [4,5], 'ns', [0,8]);
+            assertEqual(map_out, map_ref)
+        end
+        
+        function test_section_5work_3rdEmpty_3rdKeep (~)
+            % Keep only the empty workspace
+            % Read a map file (tested elsewhere in this test that it works)
+            map = IX_map([21:25, 31:36, 51:58, 61:69], 'wkno', [2,3,4,5,6], 'ns', [5,6,0,8,9]);
+            map_out = section(map, 4);
+            map_ref = IX_map([], 'wkno', 4, 'ns', 0);
+            assertEqual(map_out, map_ref)
+        end
+        
     end
-    
 end
