@@ -52,7 +52,7 @@ classdef test_sigvar_set < TestCase
             sqw_obj.data.s = zeros(2,3);
             sqw_obj.data.e = zeros(2,3);
             sqw_obj.data.npix = 10*ones(2,3);
-            sqw_obj.pix = PixelDataMemory(ones(9,60));
+            sqw_obj.pix = PixelDataFileBacked(ones(9,60));
 
             sigvar_obj = sigvar(struct(...
                 's', [1, 2, 3; 4, 5, 6], ...
