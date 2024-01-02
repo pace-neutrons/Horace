@@ -43,34 +43,34 @@ end
 
 % If came from replicate method of a dnd class, then wref will be dnd-type sqw object
 % Otherwise, could be any sort of object, so check it is an sqw or dnd object, and convert to dnd-type sqw object
-if isscalar(wref) && isa(wref,'sqw')
-    wref_dnd_type=dnd(wref);
-elseif isscalar(wref) && isa(wref,'DnDBase')
-    wref_dnd_type=wref;
-else
+if ~(isscalar(wref) && isa(wref,'SQWDnDBase'))
     error('HORACE:replicate:invalid_argument',...
         'The second argument must be a scalar dnd or sqw object, actually it has %d elements and its type is %s',...
         numel(wref),class(wref));
+else
+    if isa(wref,'sqw')
+        wref_dnd_type = wref.data;
+    else
+        wref_dnd_type = wref;
+    end
 end
 
 
 % Perform replication
 % -------------------
-wout = repmat(wref_dnd_type,size(win));  % wout will be a dnd-type sqw object
+wout = repmat(wref,size(win));  % wout will be a dnd-type sqw object
 
 for i=1:numel(win)
     dnd_obj = dnd(win(i));
     rep_obj = replicate(dnd_obj,wref_dnd_type);
-    wout(i) = rep_obj;
-    %     % TODO: what about pixels? Should we replicate target pixels too to
-    %     % have fully consistent target sqw object (if target is sqw) with whole
-    %     % pixel informathion
-    %     wout(i).main_header = win(i).main_header;
-    %     wout(i).header = win(i).header;
-    %     wout(i).runid_map = win(i).runid_map;
-    %     wout(i).detpar    = win(i).detpar;
+    if has_pixels(wref) 
+        wout(i).data = rep_obj;
+        page_op = PageOp_sigvar_set();
+        page_op = page_op.init( wout(i));
+        wout(i)       = sqw.apply_op( wout(i),page_op);
+    else
+        wout(i) = rep_obj;
+    end
 end
 
-% Already DND object. Should it be SQW?
-%wout=dnd(wout);
 
