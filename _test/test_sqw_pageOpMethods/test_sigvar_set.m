@@ -23,7 +23,7 @@ classdef test_sigvar_set < TestCase
                 'HORACE:DnDBase:invalid_argument');
             assertTrue(contains(ME.message, 'size'));
             assertTrue(contains(ME.message, num2str(size(sqw_obj.data.e))));
-            
+
         end
 
         function test_sigvar_set_raises_error_if_e_not_same_size_as_dnd_object(~)
@@ -43,6 +43,32 @@ classdef test_sigvar_set < TestCase
             assertTrue(contains(ME.message, num2str(size(sqw_obj.data.e))));
 
         end
+        function test_sigvar_set_updates_s_and_e_values_with_pix(~)
+            sqw_obj = sqw();
+            sqw_obj.data = d2d( ...
+                line_axes('nbins_all_dims',[2,3,1,1],'img_range',[-1,-1,-1,-1;1,1,1,1]), ...
+                line_proj('alatt',3,'angdeg',90));
+
+            sqw_obj.data.s = zeros(2,3);
+            sqw_obj.data.e = zeros(2,3);
+            sqw_obj.data.npix = 10*ones(2,3);
+            sqw_obj.pix = PixelDataMemory(ones(9,60));
+
+            sigvar_obj = sigvar(struct(...
+                's', [1, 2, 3; 4, 5, 6], ...
+                'e', [44, 55, 66; 77, 88, 99]));
+
+            result = sqw_obj.sigvar_set(sigvar_obj);
+            assertEqualToTol(result.data.s, sigvar_obj.s);
+            assertEqualToTol(result.data.e, sigvar_obj.e);
+            assertEqualToTol(result.pix.signal(1:10),ones(1,10));
+            assertEqualToTol(result.pix.signal(51:60),6*ones(1,10));
+
+            sobj_test = recompute_bin_data(result);
+
+            assertEqualToTol(result,sobj_test)
+        end
+
 
         function test_sigvar_set_updates_s_and_e_values(~)
             sqw_obj = sqw();

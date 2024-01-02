@@ -15,8 +15,9 @@ classdef PageOp_sigvar_set < PageOpBase
         end
 
         function obj = apply_op(obj,~,npix_idx)
-            s = repelem(obj.img_.s(npix_idx(1):npix_idx(2)), obj.npix(npix_idx(1):npix_idx(2)));
-            e = repelem(obj.img_.e(npix_idx(1):npix_idx(2)), obj.npix(npix_idx(1):npix_idx(2)));
+            npix = obj.npix(npix_idx(1):npix_idx(2));
+            s = repelem(obj.img_.s(npix_idx(1):npix_idx(2)),npix  );
+            e = repelem(obj.img_.e(npix_idx(1):npix_idx(2)).*npix,npix);
             obj.page_data_(obj.signal_idx,:)   = s(:)';
             obj.page_data_(obj.var_idx,:)      = e(:)';
         end
