@@ -39,7 +39,7 @@ function obj_out = product (objB, objA)
 
 % Check both input arguments are scalar IX_map arrays
 % The first is an IX_map or this method would not have been called
-if ~isa(objB,'IX_map') || ~isscalar(objB) || ~isscalar(objA)
+if ~isa(objA,'IX_map') || ~isscalar(objA) || ~isscalar(objB)
     error ('HERBERT:IX_map:invalid_argument',...
         'Both input arguments to IX_map/product must have class ''IX_map''')
 end
