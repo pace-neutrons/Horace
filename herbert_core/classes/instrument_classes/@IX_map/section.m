@@ -6,7 +6,7 @@ function obj_out = section(obj, wkno_keep_in)
 % Input:
 % ------
 %   obj         IX_map object
-%   wkno_keep   List of workspace numbers from the IX_map object to retain ails))
+%   wkno_keep   List of workspace numbers from the IX_map object to retain
 %
 % Output:
 % -------
@@ -33,10 +33,10 @@ end
 ns = obj.ns;
 ns_keep = ns(loc_in_wkno);  % number of spectra in each of the workspaces to keep
 
-% Get a list of the spectra to keep
+% Get a list of the spectra to keep as a row vector
 nscum = cumsum(ns);
-is = ( replicate_iarray(nscum(loc_in_wkno) - ns(loc_in_wkno), ns_keep) + ...
-    sawtooth_iarray(ns_keep) )';    % make the output a row vector
+noffset = nscum(loc_in_wkno) - ns_keep;
+is = ( replicate_iarray(noffset, ns_keep) + sawtooth_iarray(ns_keep) )'; % make is a row
 s_keep = obj.s(is);
 
 % Create output IX_map

@@ -1,7 +1,7 @@
 function obj_out = concatenate (varargin)
 % Concatenate several IX_map objects to form a single IX_map
 %
-%   >> obj_out = combine (obj1, obj2, obj3, ...)
+%   >> obj_out = concatenate (obj1, obj2, obj3, ...)
 %
 % The workspaces in a collection of IX_map objects are used to make a single
 % IX_map object with those workspaces placed in sequence; the number of

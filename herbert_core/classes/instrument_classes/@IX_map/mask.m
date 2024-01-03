@@ -40,6 +40,8 @@ map = IX_map(s(keep), 'wkno', w(keep));
 % Make a list of those workspaces that
 % - are in the input map and contain no spectra 
 % - have at least one spectrum in the input map but are now fully masked
+% Either way, the result is the full list of workspaces of the output IX_map
+% that each have no spectra contributing
 wkno_empty = obj.wkno(~ismember(obj.wkno, map.wkno));
 
 % Output map will have the workspaces that were originally empty, or are now
