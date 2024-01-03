@@ -30,7 +30,8 @@ function wout = save(w, varargin)
 %                       If provided, assumes that the information in memory
 %                       is the same as the information in file and the
 %                       backing file just needs to be moved to a new location
-%                       if any is provided.
+%                       if any is provided. Source filebacked object becomes 
+%                       invalidated.
 % '-update'          -- Opposite '-assume_updated' and intended mainly for
 %                       filebacked objects but would also work
 %                       for memory based object with filename defined in

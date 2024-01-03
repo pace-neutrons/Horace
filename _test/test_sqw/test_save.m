@@ -178,6 +178,32 @@ classdef test_save < TestCase
             assertTrue(isfile(targ_file));
         end
 
+        function test_save_with_clear_moves_tmp_leaves_tmp_broken(obj)
+            % test shows tmp object gets broken.
+            targ_file = fullfile(tmp_dir,'testfile_save_update_tmp.tmp');
+            test_file = fullfile(tmp_dir,'testfile_save_update_tmp.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(test_file));
+            test_obj = obj.sqw_obj.save(targ_file);
+            assertTrue(test_obj.is_filebacked)
+            assertTrue(test_obj.is_tmp_obj)
+
+            test_obj.data.title = 'My image';
+            other_obj = save(test_obj,test_file,'-clear_source');
+            assertFalse(isfile(targ_file));
+            assertTrue(isfile(test_file));
+
+            checkObj = read_sqw(test_file);
+            assertFalse(checkObj.is_filebacked)
+            assertEqualToTol(other_obj,checkObj,'ignore_str',true);            
+
+            try
+                s = test_obj.pix.signal;
+            catch ME
+                assertEqual(ME.identifier,'MATLAB:memmapfile:mapfile:cannotStatFile');
+            end
+        end
+        
+
         function test_save_move_tmp_leaves_tmp_broken(obj)
             % test shows tmp object gets broken.
             targ_file = fullfile(tmp_dir,'testfile_save_update_tmp.tmp');
