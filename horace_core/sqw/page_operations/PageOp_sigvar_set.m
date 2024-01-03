@@ -43,8 +43,8 @@ classdef PageOp_sigvar_set < PageOpBase
     end
     methods(Access=protected)
         function  does = get_changes_pix_only(obj)
-            % pageOp calculates pixels only using image as source when
-            % sigvar_set is used, but when replicate is deployed, image
+            % sigvar_set sets the pixels using known image, 
+            % but when replicate is deployed, image
             % is recalculated from pixels.
             does = ~obj.in_replicate;
         end
