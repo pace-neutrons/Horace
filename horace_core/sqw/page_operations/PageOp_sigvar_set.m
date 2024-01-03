@@ -25,9 +25,10 @@ classdef PageOp_sigvar_set < PageOpBase
     end
     methods(Access=protected)
         function  does = get_changes_pix_only(~)
-            % pageOp calculates pixels only using image as source. No point
-            % of calculating image from pixels again as it would be in
-            % usual PageOp
+            % Usual pageOp calculates image from modified pixels. 
+            % PageOp_sigvar_set works with algorithm which already have
+            % the image so no point of calculating it again. It changes
+            % pixels only.
             does = true;
         end
     end

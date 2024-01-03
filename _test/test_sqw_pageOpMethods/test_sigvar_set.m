@@ -59,6 +59,9 @@ classdef test_sigvar_set < TestCase
                 'e', [44, 55, 66; 77, 88, 99]));
 
             result = sqw_obj.sigvar_set(sigvar_obj);
+            ss = sigvar(result);
+            assertEqual(ss,sigvar_obj);
+
             assertEqualToTol(result.data.s, sigvar_obj.s);
             assertEqualToTol(result.data.e, sigvar_obj.e);
             assertEqualToTol(result.pix.signal(1:10),ones(1,10));
@@ -102,13 +105,13 @@ classdef test_sigvar_set < TestCase
 
             sigvar_obj = sigvar(struct('s', [1, 2, 3], 'e', [44, 55, 66]));
 
-            expected_signal = [1,1,1, 2,2,2,2,2, 3];
-            expected_varince = [3*[44,44,44],5*[55,55,55,55,55], 66];
+            expected_signal   = [1,1,1, 2,2,2,2,2, 3];
+            expected_variance = [3*[44,44,44],5*[55,55,55,55,55], 66];
 
             result = sqw_obj.sigvar_set(sigvar_obj);
 
             assertEqualToTol(result.pix.signal, expected_signal);
-            assertEqualToTol(result.pix.variance, expected_varince);
+            assertEqualToTol(result.pix.variance, expected_variance);
         end
 
         function test_sigvar_set_zero_s_and_e_where_npix_zero(~)
@@ -124,7 +127,7 @@ classdef test_sigvar_set < TestCase
             sigvar_obj = sigvar(struct('s', [1, 2, 3], 'e', [44, 55, 66]));
 
             expected_signal = [1,1,1, 3];
-            expected_varince = [3*[44,44,44], 66];
+            expected_variance = [3*[44,44,44], 66];
             expected_img_s = [1, 0, 3]';
             expected_img_e = [44, 0, 66]';
 
@@ -134,7 +137,7 @@ classdef test_sigvar_set < TestCase
             assertEqualToTol(result.data.e, expected_img_e);
 
             assertEqualToTol(result.pix.signal, expected_signal);
-            assertEqualToTol(result.pix.variance, expected_varince);
+            assertEqualToTol(result.pix.variance, expected_variance);
         end
     end
 end
