@@ -45,7 +45,7 @@ classdef IX_map < serializable
         w           % Row vector of workspace for each spectrum in the order of property s [get only]
         wkno_filled % Row vector of workspaces with at least one spectrum [get only]
         wkno_empty  % Row vector of workspaces with no spectra [get only]
-        nw          % Number of workspaces [get only]
+        nwkno       % Number of workspaces [get only]
         nstot       % Total number of spectra in the workspaces [get only]
         unique_spec % true if each spectrum is mapped to only one workspace [get only]
     end
@@ -304,7 +304,7 @@ classdef IX_map < serializable
                     'Workspace numbers must be integers greater or equal to 1')
             end
             
-            if numel(val)~=obj.nw || numel(val)~=numel(unique(val(:)))
+            if numel(val)~=obj.nwkno || numel(val)~=numel(unique(val(:)))
                 error ('HERBERT:IX_map:invalid_argument',...
                     ['Workspace numbers must be unique integers, one for each ',...
                     'of the workspaces'])
@@ -384,7 +384,7 @@ classdef IX_map < serializable
             val = obj.wkno_(obj.ns_==0);
         end
         
-        function val = get.nw(obj)
+        function val = get.nwkno(obj)
             % Number of unique workspaces
             val = numel(obj.wkno_);
         end
@@ -437,7 +437,7 @@ classdef IX_map < serializable
             %
             % Format of an ascii map file:
             % ----------------------------
-            %       <nw (the number of workspaces)>
+            %       <nwkno (the number of workspaces)>
             %       <wkno(1) (the workspace number>
             %       <ns(1) (number of spectra in 1st workspace>
             %       <list of spectrum numbers across as many lines as required>
@@ -446,7 +446,7 @@ classdef IX_map < serializable
             %       <ns(2) (number of spectra in 1st workspace>
             %       <list of spectrum numbers across as many lines as required>
             %           :
-            %       <wkno(nw) (the workspace number>
+            %       <wkno(iw) (the workspace number>
             %       <no. spectra in last workspace>
             %       <list of spectrum numbers across as many lines as required>
             %           :
@@ -461,11 +461,11 @@ classdef IX_map < serializable
             %
             %
             % NOTE: The old VMS format is also supported. This assumes
-            % the workspaces have numbers 1,2,3...nw, and there was also
+            % the workspaces have numbers 1,2,3...nwkno, and there was also
             % information about the effective detector positions that is now
             % redundant. This format can no longer be written as it is obsolete:
             %
-            %   <nw (the number of workspaces)>
+            %   <nwkno (the number of workspaces)>
             %   <no. spectra in 1st workspace>   <dummy value>   <dummy value>    <dummy value>
             %   <list of spectrum numbers across as many lines as required>
             %       :

@@ -26,7 +26,7 @@ end
 
 % Write ascii file
 try
-    nw = obj.nw;
+    nwkno = obj.nwkno;
     ns = obj.ns;
     s = obj.s;
     wkno = obj.wkno;
@@ -34,8 +34,8 @@ try
     ns_end = cumsum(obj.ns);
     ns_beg = ns_end - obj.ns + 1;
     fid = fopen(file_tmp,'wt');
-    fprintf(fid, '%d \n', nw);
-    for i=1:nw
+    fprintf(fid, '%d \n', nwkno);
+    for i=1:nwkno
         fprintf(fid, '%d ! Workspace number\n', wkno(i));
         fprintf(fid, '%d ! Number of spectra\n', ns(i));
         str = iarray_to_str(s(ns_beg(i):ns_end(i)));    % str == '' if no spectra

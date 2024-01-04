@@ -64,29 +64,29 @@ end
 
 % Resolve a placeholder value for delta_w, if present, and determine if the
 % minimum workspace number in the repeated arrays is less than 1
-w_min_in = min(wkno(:));
-w_max_in = max(wkno(:));
-w_dcn = 1;
-nw_tmp = w_max_in - w_min_in + 1;     % created solely for this test
+wkno_min_in = min(wkno(:));
+wkno_max_in = max(wkno(:));
+wkno_dcn = 1;
+nwkno_tmp = wkno_max_in - wkno_min_in + 1;     % created solely for this test
 w_max_prev = 0;    % no previous mapping
-[~, delta_w, w_min] = resolve_repeat_blocks (w_min_in, w_dcn, ...
-    delta_w, nw_tmp, nrepeat, w_max_prev);
+[~, delta_w, w_min] = resolve_repeat_blocks (wkno_min_in, wkno_dcn, ...
+    delta_w, nwkno_tmp, nrepeat, w_max_prev);
 if w_min < 1
     error ('HERBERT:IX_map:invalid_argument', ['Workspace array constructed for ',...
         'at least one repeated array includes zero or negative workspace numbers'])
 end
 
 % Create full list of spectrum and workspace numbers
-nw = numel(wkno);
+nwkno = numel(wkno);
 nstot = numel(s);
-wkno_out = NaN(nw*nrepeat, 1);
+wkno_out = NaN(nwkno*nrepeat, 1);
 s_out = NaN(nstot*nrepeat, 1);
 
-wkno_out(1:nw) = wkno;
+wkno_out(1:nwkno) = wkno;
 s_out(1:nstot) = s;
 for irep=2:nrepeat
-    iwbeg = (irep-1)*nw + 1;
-    iwend = irep*nw;
+    iwbeg = (irep-1)*nwkno + 1;
+    iwend = irep*nwkno;
     wkno_out(iwbeg:iwend) = wkno + (irep-1)*delta_w;
     isbeg = (irep-1)*nstot + 1;
     isend = irep*nstot;

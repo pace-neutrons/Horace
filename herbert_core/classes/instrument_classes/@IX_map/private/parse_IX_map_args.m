@@ -31,7 +31,7 @@ function [wkno_out, ns_out, s_out] = parse_IX_map_args (varargin)
 %
 % Output:
 % -------
-%   w_out       Workspace numbers (Column vector).
+%   wkno_out    Workspace numbers (Column vector).
 %               There may be multiple occurences of the same workspace number in
 %               w_out, depending on the values of the input parameters (for
 %               example, there is no requirement that the list of workspace
@@ -142,7 +142,7 @@ else
     end
     
     % Parse the grouping of spectra and check that it is valid
-    [s_beg, s_end, ngroup, s_dcn, w_dcn] = parse_spectrum_grouping (par{:});
+    [s_beg, s_end, ngroup, s_dcn, wkno_dcn] = parse_spectrum_grouping (par{:});
     Nschema = numel(s_beg);   % number of spectra-to-workspace mapping schemas
     
     % Check w_beg is valid and consistent with s_beg and s_end
@@ -160,27 +160,27 @@ else
     
     % Output full spectra and workspace numbers lists
     [wkno_out, ns_out, s_out] = repeat_s_w_blocks (s_beg, s_end, ...
-        ngroup, s_dcn, w_beg, w_dcn, nrepeat, delta_s, delta_wkno);
+        ngroup, s_dcn, w_beg, wkno_dcn, nrepeat, delta_s, delta_wkno);
 end
 
 end
 
     
 %-------------------------------------------------------------------------------
-function [isp_beg, isp_end, ngroup, isp_dcn, iw_dcn] = parse_spectrum_grouping ...
-    (isp_beg_in, isp_end_in, step)
+function [s_beg, s_end, ngroup, s_dcn, wkno_dcn] = parse_spectrum_grouping ...
+    (s_beg_in, s_end_in, step)
 % Parse spectrum grouping for set of spectrum-to-workspace schemas
 %
-%   >> [isp_beg, isp_end, ngroup, isp_dcn, iw_dcn] = parse_spectrum_grouping ...
-%                                               (isp_beg_in, isp_end_in, step)
+%   >> [s_beg, s_end, ngroup, s_dcn, wkno_dcn] = parse_spectrum_grouping ...
+%                                               (s_beg_in, s_end_in, step)
 %
 % Input arguments can be scalars (one schema), or vectors (multiple schema)
 %
 % Input:
 % ------
-%   isp_beg_in      Starting spectrum numbers for each schema (vector; one
+%   s_beg_in        Starting spectrum numbers for each schema (vector; one
 %                  element per schema)
-%   isp_end_in      Final spectrum numbers for each schema (vector; one
+%   s_end_in        Final spectrum numbers for each schema (vector; one
 %                  element per schema)
 % 
 % Optionally:
@@ -195,47 +195,47 @@ function [isp_beg, isp_end, ngroup, isp_dcn, iw_dcn] = parse_spectrum_grouping .
 %
 %                   Default: +1 i.e. one spectrum per workspace, and workspace
 %                   number increments by +1 for each group starting from
-%                   isp_beg_in
+%                   s_beg_in
 %
 % Output:
 % -------
-%   isp_beg         Starting spectrum numbers for each schema (column vector)
-%   isp_end         Final spectrum numbers for each schema (column vectors)
+%   s_beg           Starting spectrum numbers for each schema (column vector)
+%   s_end           Final spectrum numbers for each schema (column vectors)
 %   ngroup          Spectrum group sizes for each schema (Column vector)
 %                   Elements are greater or equal to 1.
 %                   Default if step not given: 1 (i.e. one-to-one to workspaces)
-%   isp_dcn         +/-1 indicating spectrum numbers increment (+1) or decrement
-%                   (-1) from isp_beg (Column vector).
-%                   If isp_beg(i) == isp_end(i) then = +1) 
-%   iw_dcn          +/-1 indicate workspace numbers increment (+1) or decrement
+%   s_dcn           +/-1 indicating spectrum numbers increment (+1) or decrement
+%                   (-1) from s_beg (Column vector).
+%                   If s_beg(i) == s_end(i) then = +1) 
+%   wkno_dcn        +/-1 indicate workspace numbers increment (+1) or decrement
 %                   (-1) from the starting value for the schema (Column vector).
 %                   Default if step not given: +1 for each group
 
 
-% Check isp_beg and isp_end are valid and have same number of elements
-if isnumeric(isp_beg_in) && isnumeric (isp_end_in) && isvector(isp_beg_in) ...
-        && isvector(isp_end_in)
+% Check s_beg and s_end are valid and have same number of elements
+if isnumeric(s_beg_in) && isnumeric (s_end_in) && isvector(s_beg_in) ...
+        && isvector(s_end_in)
     % Make column vectors (could have been rows)
-    isp_beg = isp_beg_in(:);
-    isp_end = isp_end_in(:);
+    s_beg = s_beg_in(:);
+    s_end = s_end_in(:);
 else
     error ('HERBERT:IX_map:invalid_argument', ...
         'Spectra range start and end arrays must both be numeric scalars or vectors')
 end
 
-if ~all_positive_integers(isp_beg) || ~all_positive_integers(isp_end)
+if ~all_positive_integers(s_beg) || ~all_positive_integers(s_end)
     error ('HERBERT:IX_map:invalid_argument', ...
         'Start and end of spectra range(s) must all be >= 1')
 end
 
-if numel(isp_beg)~=numel(isp_end)
+if numel(s_beg)~=numel(s_end)
     error ('HERBERT:IX_map:invalid_argument', ['The spectra range start and end ',...
         'arrays must both have the same number of elements'])
 end
 
 % Check step is valid, and scalar or same number of elements as is_beg and
-% isp_end
-Nschema = numel(isp_beg);
+% s_end
+Nschema = numel(s_beg);
 if nargin==3
     % Check spectra grouping
     if ~isnumeric(step) || ~isvector(step) || ~any(numel(step)==[1,Nschema])
@@ -255,15 +255,15 @@ if nargin==3
     
 else
     % Set default step of +1
-    ngroup = ones(size(isp_beg));
+    ngroup = ones(size(s_beg));
 end
 
-% Sign of increment in iw: +1 or -1 in iw, (iw + iw_dcn), iw + (2*iw_dcn), ...
-iw_dcn = sign(ngroup);
+% Sign of increment in w: +1 or -1 in w, (w + wkno_dcn), w + (2*wkno_dcn), ...
+wkno_dcn = sign(ngroup);
 
-% Get increment for spectra in isp_beg:isp_dcn:isp_end
-isp_dcn = sign(isp_end - isp_beg);
-isp_dcn(isp_dcn==0) = 1;    % catch case of isp_beg==isp_end
+% Get increment for spectra in s_beg:s_dcn:s_end
+s_dcn = sign(s_end - s_beg);
+s_dcn(s_dcn==0) = 1;    % catch case of s_beg==s_end
 
 % Get spectrum grouping - absolute value
 ngroup = abs(ngroup);
@@ -272,14 +272,14 @@ end
 
 
 %-------------------------------------------------------------------------------
-function iw_beg = parse_initial_workspace_numbers (iw_beg_in, Nschema)
+function w_beg = parse_initial_workspace_numbers (w_beg_in, Nschema)
 % Parse initial workspace numbers for spectra-to-workspace mapping schemas
 %
-%   >> iw_beg = parse_initial_workspace_numbers (iw_beg_in, Nschema)
+%   >> w_beg = parse_initial_workspace_numbers (w_beg_in, Nschema)
 %
 % Input:
 % ------
-%   iw_beg_in   Values to parse: scalar or vector with length matching the 
+%   w_beg_in    Values to parse: scalar or vector with length matching the 
 %              numbr of mapping schemas, Nschema.
 %              - Elements are integers >= 1 or NaNs. NaN mean 'whatever workspace
 %              number immediately follows largest workspace number defined by
@@ -288,13 +288,13 @@ function iw_beg = parse_initial_workspace_numbers (iw_beg_in, Nschema)
 %
 % Output:
 % -------
-%   iw_beg      Initial workspace number for each spectra block
-%              If the first element of iw_beg was NaN, it is set to 1 on output.
+%   w_beg       Initial workspace number for each spectra block
+%              If the first element of w_beg was NaN, it is set to 1 on output.
 %              (Column vector length Nschema)
 
 
 % Check validity of workspace number(s)
-if ~isnumeric(iw_beg_in) || ~isvector(iw_beg_in) || ~any(numel(iw_beg_in)==[1,Nschema])
+if ~isnumeric(w_beg_in) || ~isvector(w_beg_in) || ~any(numel(w_beg_in)==[1,Nschema])
     if Nschema==1     % single row only permitted
         error ('HERBERT:IX_map:invalid_argument', ...
             'Workspace number must be a scalar')
@@ -304,31 +304,31 @@ if ~isnumeric(iw_beg_in) || ~isvector(iw_beg_in) || ~any(numel(iw_beg_in)==[1,Ns
     end
 end
 
-if ~all_positive_integers_or_nan(iw_beg_in)
+if ~all_positive_integers_or_nan(w_beg_in)
     error ('HERBERT:IX_map:invalid_argument', ...
             'Workspace number(s) must be integer(s) >=0 or NaN(s)')
 end
 
 
 % Expand to vector if necessary
-if numel(iw_beg_in)==1 && Nschema>1
-    iw_beg = repmat(iw_beg_in, Nschema, 1);
+if numel(w_beg_in)==1 && Nschema>1
+    w_beg = repmat(w_beg_in, Nschema, 1);
 else
-    iw_beg = iw_beg_in(:);
+    w_beg = w_beg_in(:);
 end
 
-if isnan(iw_beg(1))
-    iw_beg(1) = 1;  % ensure that the first workspace is +1
+if isnan(w_beg(1))
+    w_beg(1) = 1;  % ensure that the first workspace is +1
 end
 
 end
 
 
 %-------------------------------------------------------------------------------
-function [nrepeat, delta_isp, delta_iw] = parse_repeat_pars (repeat_pars, Nschema)
+function [nrepeat, delta_s, delta_wkno] = parse_repeat_pars (repeat_pars, Nschema)
 % Parse 'repeat' option, if present
 %
-%   >> [nrepeat, delta_isp, delta_iw] = parse_repeat_pars (repeat_pars, Nschema)
+%   >> [nrepeat, delta_s, delta_wkno] = parse_repeat_pars (repeat_pars, Nschema)
 %
 % Returns column vectors with the number of repeats of of a block of spectra,
 % together with the offsets of the initial spectra and workspace numbers, for
@@ -340,8 +340,8 @@ function [nrepeat, delta_isp, delta_iw] = parse_repeat_pars (repeat_pars, Nschem
 % ------
 %   repeat_pars Value to parse: 1x3 or Nx3 array (N defined below)
 %               Has the form:
-%                   [nrepeat, delta_isp, delta_iw]
-%               where for a single repeat block nrepeat, delta_isp and delta_iw
+%                   [nrepeat, delta_s, delta_wkno]
+%               where for a single repeat block nrepeat, delta_s and delta_wkno
 %               are scalars, or for N repeat blocks they can be scalars or 
 %               column vectors length N.
 %
@@ -353,9 +353,9 @@ function [nrepeat, delta_isp, delta_iw] = parse_repeat_pars (repeat_pars, Nschem
 % -------
 %   nrepeat     Number(s) of times to repeat spectra block - all integers >=1
 %              (Column vector length Nschema)
-%   delta_isp   Spectrum number offset between repeats of spectra block
+%   delta_s     Spectrum number offset between repeats of spectra block
 %              (Column vector length Nschema)
-%   delta_iw    Workspace number offset between repeats of spectra block
+%   delta_wkno  Workspace number offset between repeats of spectra block
 %              (Column vector length Nschema)
 
 
@@ -388,8 +388,8 @@ if size(repeat_pars,1)==1 && Nschema>1
     repeat_pars = repmat(repeat_pars, Nschema, 1);
 end
 nrepeat = repeat_pars(:,1);
-delta_isp = repeat_pars(:,2);
-delta_iw = repeat_pars(:,3);
+delta_s = repeat_pars(:,2);
+delta_wkno = repeat_pars(:,3);
 
 end
 

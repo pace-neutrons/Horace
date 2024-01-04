@@ -1,9 +1,9 @@
 function [wkno_out, ns_out, s_out] = repeat_s_w_blocks (s_beg, s_end, ...
-    ngroup, s_dcn, w_beg, w_dcn, nrepeat, delta_s, delta_w)
+    ngroup, s_dcn, w_beg, wkno_dcn, nrepeat, delta_s, delta_w)
 % Create spectra and workspace number arrays from input ranges and repeat blocks
 %
 %   >> [s_out, w_out] = repeat_s_w_blocks (s_beg, s_end, ...
-%                   ngroup, s_dcn, w_beg, w_dcn, nrepeat, delta_s, delta_w)
+%                   ngroup, s_dcn, w_beg, wkno_dcn, nrepeat, delta_s, delta_w)
 %
 % Input arguments can be scalars (one schema), or vectors (multiple schema). The
 % output for multiple schema are accumulated.
@@ -21,7 +21,7 @@ function [wkno_out, ns_out, s_out] = repeat_s_w_blocks (s_beg, s_end, ...
 %               Elements can be NaN, indicating placeholders to be resolved as
 %              placing the block of workspaces defined by the schema contiguous
 %              with the previous block and at higher workspace number.
-%   w_dcn       Increment in workspace number: +1 or -1; array same size as
+%   wkno_dcn    Increment in workspace number: +1 or -1; array same size as
 %              s_beg
 %   nrepeat     Number of times to repeat the block of spectra and workspace
 %              numbers defined by the arguments above (array, same size as s_beg)
@@ -77,7 +77,7 @@ end
 w_max = 0;
 for i = 1:Nschema
     [w_beg(i), delta_w(i), w_min, w_max] = resolve_repeat_blocks ...
-        (w_beg(i), w_dcn(i), delta_w(i), nw(i), nrepeat(i), w_max);
+        (w_beg(i), wkno_dcn(i), delta_w(i), nw(i), nrepeat(i), w_max);
     if w_min < 1
         error ('HERBERT:IX_map:invalid_argument', ['Workspace array constructed for ',...
             'at least one block descriptor includes zero or negative workspace numbers'])
@@ -98,7 +98,7 @@ wkno_out = NaN(iwhi(end), 1);
 ns_out = NaN(iwhi(end), 1);
 s_out = NaN(ishi(end), 1);
 for i = 1:Nschema
-    [wkno, ns] = w_create (nstot(i), ngroup(i), w_beg(i), w_dcn(i));
+    [wkno, ns] = wkno_create (nstot(i), ngroup(i), w_beg(i), wkno_dcn(i));
     s = s_beg(i):s_dcn(i):s_end(i);
     [wkno_out(iwlo(i):iwhi(i)), ns_out(iwlo(i):iwhi(i)), s_out(islo(i):ishi(i))] = ...
         repeat_s_w_arrays (wkno, ns, s, nrepeat(i), delta_s(i), delta_w(i));
@@ -108,19 +108,19 @@ end
 
 
 %-------------------------------------------------------------------------------
-function [wkno, ns] = w_create (nstot, ngroup, w_beg, w_dcn)
+function [wkno, ns] = wkno_create (nstot, ngroup, w_beg, wkno_dcn)
 % Create array of workspace numbers for grouped spectra
 %
-%   >> wkno = w_create (ns, ngroup, w_beg, w_dcn)
+%   >> wkno = wkno_create (ns, ngroup, w_beg, wkno_dcn)
 %
 % Input:
 % ------
-%   nstot   Number of spectra (>= 0)
-%   ngroup  Spectrum-to-workspace grouping
-%   w_beg   Initial workspace number
-%   w_dcn   Increment direction: +1 or -1
+%   nstot       Number of spectra (>= 0)
+%   ngroup      Spectrum-to-workspace grouping
+%   w_beg       Initial workspace number
+%   wkno_dcn    Increment direction: +1 or -1
 %
-% [Note: if w_dcn == -1 then w_beg is not the smallest workspace number, as the
+% [Note: if wkno_dcn == -1 then w_beg is not the smallest workspace number, as the
 %  workspace numbers in this case *decrease* from the starting value of w_beg.]
 %
 % Output:
@@ -144,6 +144,6 @@ function [wkno, ns] = w_create (nstot, ngroup, w_beg, w_dcn)
 % ns below correctly works for nstot=0, as ones(1,-1) == [] and so the first
 % term in the expression for ns is [].
 ns = [ngroup*ones(1,floor((nstot-1)/ngroup)), 1+rem((nstot-1),ngroup)];
-wkno = w_beg + w_dcn * (0:numel(ns)-1);
+wkno = w_beg + wkno_dcn * (0:numel(ns)-1);
 
 end

@@ -56,9 +56,9 @@ map = cellfun(@(x)(x(:)), varargin, 'uniformOutput', false);
 map = cat(1, map{:});
 
 % Get full list of spectra and workspace numbers for all the maps
-nw = arrayfun(@(x)(x.nw), map);   % column with no. workspaces in each map
-iwhi = cumsum(nw);
-iwlo = iwhi - nw + 1;
+nwkno = arrayfun(@(x)(x.nwkno), map);   % column with no. workspaces in each map
+iwhi = cumsum(nwkno);
+iwlo = iwhi - nwkno + 1;
 
 nstot = arrayfun(@(x)(x.nstot), map);   % column with no. spectra in each map
 ishi = cumsum(nstot);
@@ -69,7 +69,7 @@ ns = NaN(1, iwhi(end));
 s = NaN(1, ishi(end));
 wkno_max_prev = 0;
 for i=1:numel(map)
-    if nw(i) > 0    % no work to do if no workspaces
+    if nwkno(i) > 0    % no work to do if no workspaces
         % If the smallest workspace number is less than or equal to the largest
         % from the processed previous map, then the workspace numbers for the 
         % present map must be adjusted by adding an offset so that the smallest

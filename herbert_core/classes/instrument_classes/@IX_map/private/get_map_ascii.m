@@ -14,7 +14,7 @@ function obj = get_map_ascii (filename)
 %
 % Format of an ascii map file:
 % ----------------------------
-%       <nw (the number of workspaces)>
+%       <nwkno (the number of workspaces)>
 %       <wkno(1) (the workspace number>
 %       <ns(1) (number of spectra in 1st workspace>
 %       <list of spectrum numbers across as many lines as required>
@@ -23,7 +23,7 @@ function obj = get_map_ascii (filename)
 %       <ns(2) (number of spectra in 1st workspace>
 %       <list of spectrum numbers across as many lines as required>
 %           :
-%       <wkno(nw) (the workspace number>
+%       <wkno(iw) (the workspace number>
 %       <no. spectra in last workspace>
 %       <list of spectrum numbers across as many lines as required>
 %           :
@@ -38,11 +38,11 @@ function obj = get_map_ascii (filename)
 %
 %
 % NOTE: The old VMS format is also supported. This assumes
-% the workspaces have numbers 1,2,3...nw, and there was also
+% the workspaces have numbers 1,2,3...nwkno, and there was also
 % information about the effective detector positions that is now
 % redundant. This format can no longer be written as it is obsolete:
 %
-%   <nw (the number of workspaces)>
+%   <nwkno (the number of workspaces)>
 %   <no. spectra in 1st workspace>   <dummy value>   <dummy value>    <dummy value>
 %   <list of spectrum numbers across as many lines as required>
 %       :
@@ -75,18 +75,18 @@ end
 iline = 1;
 
 % Get number of workspaces and initialise arrays to hold data
-[nw, iline] = get_number_of_workspaces (str, iline, filename_full);
+[nwkno, iline] = get_number_of_workspaces (str, iline, filename_full);
 
 % Read data for workspaces
-if nw > 0
+if nwkno > 0
     % Get .map file format
     [file_fmt, iline] = get_map_file_format (str, iline, filename_full);
     
     % Read the information for each workspace in turn
-    wkno = NaN(1,nw);
-    ns = zeros(1,nw);
+    wkno = NaN(1,nwkno);
+    ns = zeros(1,nwkno);
     [spec, nstot] = accumulate_array_to_buffer([1,nbuffer]);  % create buffer array
-    for iw = 1:nw
+    for iw = 1:nwkno
         [wkno(iw), ns(iw), iline] = read_wkno_and_ns (str, iline, filename_full, file_fmt, iw);
         [spec_in_iw, iline] = read_spectrum_numbers (str, iline, ns(iw), filename_full, wkno(iw));
         [spec, nstot] = accumulate_array_to_buffer (spec, nstot, spec_in_iw);
@@ -112,10 +112,10 @@ end
 
 
 %===============================================================================
-function [nw, iline] = get_number_of_workspaces (str, iline_in, file_name)
+function [nwkno, iline] = get_number_of_workspaces (str, iline_in, file_name)
 % Get the number of workspaces in the map file
 %
-%   >> nw = get_number_of_workspaces (str, iline_in, file_name)
+%   >> nwkno = get_number_of_workspaces (str, iline_in, file_name)
 %
 % Input:
 % ------
@@ -126,13 +126,13 @@ function [nw, iline] = get_number_of_workspaces (str, iline_in, file_name)
 %
 % Output:
 % -------
-%   nw          Number of workspaces ( >= 0)
+%   nwkno       Number of workspaces ( >= 0)
 %   iline       Line number that is next to be read
-%               If nw was read from the final line, then on exit
+%               If nwkno was read from the final line, then on exit
 %               iline > numel(str).
 
-[nw, n, iline] = read_numeric_vector (str, iline_in, file_name);
-if (n ~= 1) || (round(nw)~=nw) || (nw < 0)
+[nwkno, n, iline] = read_numeric_vector (str, iline_in, file_name);
+if (n ~= 1) || (round(nwkno)~=nwkno) || (nwkno < 0)
     error ('HERBERT:IX_map:invalid_file_format', ...
         ['First non-comment line must have just one integer (the number ',...
         'of workspaces, >= 0) and no other non-comment data.\n', ...
