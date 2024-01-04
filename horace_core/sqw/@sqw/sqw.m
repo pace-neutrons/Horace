@@ -121,6 +121,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         wout = mask_pixels(win, mask_array,varargin);
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
+        wout = slim (win, reduce); % Slim an sqw object by removing random pixels
 
         % calculate pixel data range and recalculate image not modifying
         % pixel data
