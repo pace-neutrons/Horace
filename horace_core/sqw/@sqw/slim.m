@@ -13,6 +13,12 @@ function wout = slim (win, reduce)
 % -------
 %   wout    Output sqw object or array of szqw objects
 
-wout = mask_pixels_random_fraction(win, 1/reduce);
+if reduce<1
+    error('HORACE:sqw:invalid_argument', ...
+        'reduce factor has to be greater than or equal to 1. It is %s', ...
+        disp2str(reduce));
+end
+
+wout = mask_random_fraction_pixels(win, 1/reduce);
 
 end
