@@ -34,7 +34,7 @@ pix.metadata = pix_meta;
 % do not close sqw_ldr handles
 sqw_ldr = wh.release_pixinit_info(true);
 
-% Prepare storing modifications to experiment
+% Prepare for storing changes in experiment
 if page_op.exp_modified
     if isempty(out_blocks)
         out_blocks = {out_blocks(:);'bl__main_header'};

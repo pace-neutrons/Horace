@@ -30,7 +30,7 @@ function wout = save(w, varargin)
 %                       If provided, assumes that the information in memory
 %                       is the same as the information in file and the
 %                       backing file just needs to be moved to a new location
-%                       if any is provided. Source filebacked object becomes 
+%                       if any is provided. Source filebacked object becomes
 %                       invalidated.
 % '-update'          -- Opposite '-assume_updated' and intended mainly for
 %                       filebacked objects but would also work
@@ -340,9 +340,16 @@ else
 end
 %
 function filenames = extract_filenames_for_update(w,num_to_save,optional_filenames)
-% If update option is provided extract necessary filename to save object
-% from the objects themselves using optional_filenames in case of
-% non-filebacked objects.
+% The routine returns filenames to save data in case if '-update' option is
+% provided as input.
+%
+% If update option is provided changed data should be saved within the
+% existing files. For filebacked objects these files are the files backing
+% the object, but for memory based objects these files may or may not exist.
+%
+% The routine extracts necessary filenames to save object from the filebakced
+% objects themselves (the names of the backing files) using
+% optional_filenames in case of non-filebacked objects.
 %
 if nargin <3
     optional_filenames = [];
@@ -359,12 +366,16 @@ for i=1:numel(w)
     else
         if isempty(optional_filenames)
             filenames{i} = w(i).full_filename;
-            if isfile(filenames{i})
+            if isfile(filenames{i}) %
+                % if you have memory-based object, have not provided the
+                % filename to save it and use '-update' option this may be
+                % a mistake. As target file will be destroyed in this case,
+                % better not to allow this action at all.
                 error('HORACE:sqw:invalid_argument', ...
                     ['Attempt to implicitly save non_filebacked object N%d using "-update" option to file: %s which exist.\n' ...
                     'Give this filename explicitly as input of "save" method if you want to overwrite existing file.'],...
                     i,filenames{i});
-            else
+            else % let's just save memory-based object in guessed file ignoring '-update'
                 [tgdir,fp,fe] = fileparts(filenames{i});
                 if isempty(tgdir)
                     hc = hor_config;
