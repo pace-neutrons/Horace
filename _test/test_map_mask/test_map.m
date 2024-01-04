@@ -642,6 +642,128 @@ classdef test_map < TestCase
             map_ref = IX_map([], 'wkno', 4, 'ns', 0);
             assertEqual(map_out, map_ref)
         end
+
         
+        %------------------------------------------------------------------
+        % Test section
+        %------------------------------------------------------------------
+        % *** test one or both empty workspaces
+        % empty work, but work; no work
+        
+        function test_product_0work_0work (~)
+            % The result should be an empty map
+            mapA = IX_map (); 
+            mapB = IX_map ();
+            map_out = product(mapB, mapA);
+            
+            map_ref = IX_map();
+            assertEqual(map_out, map_ref)
+        end
+        
+        function test_product_0work_manyWorkmanySpec (~)
+            % Second map is empty, so the first map in the product is
+            % irrelevant, because the second has no spectra. The result shoudl
+            % be an empty map
+            mapA = IX_map( [[], [2,3,4], [], [5,6], [7,8,9], []],...
+                'wkno',    [11,    22,   33,   44,    55,    66],...
+                'ns',      [ 0,     3,    0,    2,     3,     0]);   
+            mapB = IX_map ();
+            map_out = product(mapB, mapA);
+            
+            map_ref = IX_map();
+            assertEqual(map_out, map_ref)
+        end
+        
+        function test_product_1work0spec_0work (~)
+            % Second map does not use the first map, so in the product is
+            % irrelevant, because the second has no spectra. The result should
+            % be the same as the second map            mapA = IX_map (); 
+            mapA = IX_map();
+            mapB = IX_map ([], 'wkno', 99, 'ns', 0);
+            map_out = product(mapB, mapA);
+            
+            assertEqual(map_out, mapB)
+        end
+        
+        function test_product_manyWork0spec_manyWorkManySpec (~)
+            % Second map does not use the first map, so in the product is
+            % irrelevant, because the second has no spectra. The result should
+            % be the same as the second map
+            mapA = IX_map( [[], [2,3,4], [], [5,6], [7,8,9], []],...
+                'wkno',    [11,    22,   33,   44,    55,    66],...
+                'ns',      [ 0,     3,    0,    2,     3,     0]);   
+            mapB = IX_map ([], 'wkno', [99,100,101], 'ns', [0,0,0]);
+            map_out = product(mapB, mapA);
+            
+            assertEqual(map_out, mapB)
+        end
+        
+        function test_product_manyWorkManySpec_manyWork_OP_manyWork0spec (~)
+            % Output should have zero spectra 
+            mapA = IX_map( [[], [2,3,4], [], [5,6], [7,8,9], []],...
+                'wkno',    [11,    22,   33,   44,    55,    66],...
+                'ns',      [ 0,     3,    0,    2,     3,     0]);   
+            mapB = IX_map ([11,33,66,11,33,66], 'wkno', [99,100,101], 'ns', [2,1,3]);
+            map_out = product(mapB, mapA);
+            
+            map_ref = IX_map([], 'wkno', [99,100,101], 'ns', [0,0,0]);
+            assertEqual(map_out, map_ref)
+        end
+        
+        function test_product_1work1spec_1work3spec (~)
+            % map with one workspace further mapped by a map with one spectrum
+            mapA = IX_map([2,3,4], 'wkno',33, 'ns',3);
+            mapB = IX_map(33, 'wkno', 2, 'ns', 1);
+            map_out = product(mapB, mapA);
+            
+            map_ref = IX_map([2,3,4], 'wkno',2, 'ns',3);
+            assertEqual(map_out, map_ref)
+        end
+        
+        function test_product_3work1empty_1work3spec (~)
+            % map with one workspace further mapped by a map with three spectra,
+            % one of which is empty
+            mapA = IX_map([2,3,4], 'wkno',33, 'ns',3);
+            mapB = IX_map([33,33], 'wkno', [2,12,22], 'ns', [1,0,1]);
+            map_out = product(mapB, mapA);
+            
+            map_ref = IX_map([2,3,4,2,3,4], 'wkno',[2,12,22], 'ns',[3,0,3]);
+            assertEqual(map_out, map_ref)
+        end
+        
+        function test_product_expectedWorkspaceMissingInFirstMap_ERROR (~)
+            % map with one workspace further mapped by a map with three spectra,
+            % one of which is empty
+            mapA = IX_map([2,3,4], 'wkno',33, 'ns',3);
+            mapB = IX_map([33,32], 'wkno', [2,12,22], 'ns', [1,0,1]);
+            f = @()product(mapB, mapA);
+            
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_argument');
+            assertTrue(contains(ME.message, ['The left-hand map refers to at ',...
+                'least one workspace (32)']))
+        end
+        
+        function test_product_manyWorkManySpec_manyWorkManySpec (~)
+            % map with multiple workspaces, some empty,further mapped by a map
+            % with multiple workspace, some of which are empty, others map
+            % together workspaces from the first map which are variously empty,
+            % mixed empty and non-empty, or none empty.
+            % Provides a tough test of the re-mapping algorithm.
+            mapA = IX_map( [[], [2,3,4], [], [5,6], [7,8,9], []],...
+                'wkno',    [11,    22,   33,   44,    55,    66],...
+                'ns',      [ 0,     3,    0,    2,     3,     0]);
+            
+            mapB = IX_map( [33,   [],  [44,11,22],   11,  33,66,    22,55,  11,33,66],...
+                'wkno',    [111, 222,     333,       444,  555,      666     777],...
+                'ns',       [1,    0,       3,        1,    2,        2,      3]);
+            
+            map_out = product(mapB, mapA);
+            
+            map_ref = IX_map([2,3,4,5,6,2,3,4,7,8,9],...
+                'wkno', [111,222,333,444,555,666,777],...
+                'ns', [0,0,5,0,0,6,0]);
+            assertEqual(map_out, map_ref)
+        end
+
     end
 end
