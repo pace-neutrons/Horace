@@ -6,7 +6,7 @@ function [wkno_out, ns_out, s_out] = parse_IX_map_args (varargin)
 % Input:
 % ------
 % Single spectrum to single workspace, or one-to-one mapping of spectra
-% to workspaces:
+% to workspaces, or general many-to-one mapping:
 %   >> w = IX_map (s)   % s scalar: single spectrum to workspace 1
 %                       % s array:  one spectrum in each of workspaces 1,2,3...
 %   >> w = IX_map (s, 'wkno', wkno)
@@ -17,11 +17,11 @@ function [wkno_out, ns_out, s_out] = parse_IX_map_args (varargin)
 %                       % of the workspaces
 %
 % Groups of contiguous spectra to contiguous workspace numbers:
-%   >> w = IX_map (s_beg, s_end)        % one spectrum per workspace
-%   >> w = IX_map (s_beg, s_end, step)  % |step| spectra per workspace
-%   >> w = IX_map (..., 'wkno', w_beg)  % Mapped into succesive workspaces starting
-%                                       % at w_beg, ascending or descending
-%                                       % according as the sign of step
+%   >> w = IX_map (s_beg, s_end)            % one spectrum per workspace
+%   >> w = IX_map (s_beg, s_end, step)      % |step| spectra per workspace
+%   >> w = IX_map (..., 'wkno', wkno_beg)   % Mapped to workspaces starting at
+%                                           % wkno_beg, ascending or descending
+%                                           % according as the sign of step
 %
 % With either of the two cases above, the mapping can be repeated multiple times
 % with successive increments of the spectra and workspace number for each repeat
@@ -33,23 +33,23 @@ function [wkno_out, ns_out, s_out] = parse_IX_map_args (varargin)
 % -------
 %   wkno_out    Workspace numbers (Column vector).
 %               There may be multiple occurences of the same workspace number in
-%               w_out, depending on the values of the input parameters (for
+%               wkno_out, depending on the values of the input parameters (for
 %               example, there is no requirement that the list of workspace
 %               numbers in wkno contains just unique values)
 %
-%   ns_out      Number of spectra in each workspace in the array w_out. 
-%               (column vector, same length as w_out)
-%               If a workspace number is repeated in w_out this does not cause
+%   ns_out      Number of spectra in each workspace in the array wkno_out. 
+%               (column vector, same length as wkno_out)
+%               If a workspace number is repeated in wkno_out this does not cause
 %               any problems: it is treated as the spectra contributing to the
 %               workspace as being split into two or more sections
 %
 %   s_out       Spectrum numbers that will be grouped into workspaces according
-%               as w_out and ns_out (column vector)
+%               as wkno_out and ns_out (column vector)
 
 
 npar_req = 1;
 npar_opt = 2;
-keyval_def = struct('wkno', [], 'ns', [], 'repeat', [1,0,0]);    % default: no repeat
+keyval_def = struct('wkno', [], 'ns', [], 'repeat', [1,0,0]);% default: no repeat
 [par, keyval, present, ~, ok, mess] = parse_arguments ...
     (varargin, npar_req, npar_opt, keyval_def);
 
@@ -66,34 +66,53 @@ if numel(par)==1
     
     % Check s
     s = par{1}(:);
-    if ~(isempty(s) || all_positive_integers(s))
+    if isempty(s)
+        s = zeros(0,1);
+    elseif ~all_positive_integers(s)
         error ('HERBERT:IX_map:invalid_argument', ...
             'Spectrum numbers must all be greater than or equal to 1')
     end
     
-    % If present, check wkno is valid and consistent with s. Otherwise create
-    % default wkno.
+    % Check presence or otherwise of wkno and ns
     if ~present.wkno
-        % Assume 1:1 mapping to workspaces 1,2,3...; option 'ns' is invalid
         if present.ns
-            error ('HERBERT:IX_map:invalid_argument', ['Keword option ',...
-                '''ns'' is not permitted if option ''wkno'' is not given'])
+            % Group spectra into workspaces according to the values in ns
+            % The workspace numbers will be assigned 1,2,3...
+            ns = keyval.ns(:);
+            if isempty(ns)
+                ns = zeros(0,1);
+            elseif ~all_integers_ge_zero(ns)
+                error ('HERBERT:IX_map:invalid_argument', ['The number of ' ...
+                    'spectra in each workspace must be greater than or equal to zero'])
+            end
+            
+            if sum(ns) ~= numel(s)
+                error ('HERBERT:IX_map:invalid_argument', ['The number of ' ...
+                    'spectra does not match the number expected in the workspaces'])
+            end
+            wkno = (1:numel(ns))';
+        else
+            % Assume 1:1 mapping to workspaces 1,2,3...
+            wkno = (1:numel(s))';
+            ns = ones(numel(wkno),1);
         end
-        wkno = (1:numel(s))';
-        ns = ones(size(wkno));
         
     else
         % Workspace numbers are given - either one-to-one with the spectrum
         % number list, s, or correspond to groups of spectra with the numbers in
         % each group given by the optional argumnet ns.
         wkno = keyval.wkno(:);
-        if ~(isempty(wkno) || all_positive_integers(wkno))
+        if isempty(wkno)
+            wkno = zeros(0,1);
+        elseif ~all_positive_integers(wkno)
             error ('HERBERT:IX_map:invalid_argument', ...
                 'Workspace numbers must all be greater than or equal to 1')
         end
+        
         if present.ns
             % Workspace numbers and the number of spectra in each workspace are
-            % given. Note:
+            % given.
+            %  Note:
             % - wkno does not need to contain unique workspace numbers: the
             %   total number of contributing spectra will be given by the sum of
             %   the corresponding values of ns for each element of wkno with the
@@ -101,6 +120,13 @@ if numel(par)==1
             % - ns can contain zeros: these describe empty workspaces i.e. no
             %   contributing spectra
             ns = keyval.ns(:);
+            if isempty(ns)
+                ns = zeros(0,1);
+            elseif ~all_integers_ge_zero(ns)
+                error ('HERBERT:IX_map:invalid_argument', ['The number of ' ...
+                    'spectra in each workspace must be greater than or equal to zero'])
+            end
+            
             if numel(ns) ~= numel(wkno)
                 error ('HERBERT:IX_map:invalid_argument', ...
                     ['The number of elements in the array ''ns'', which gives the number of\n' ...
@@ -108,19 +134,22 @@ if numel(par)==1
             elseif sum(ns) ~= numel(s)
                 error ('HERBERT:IX_map:invalid_argument', ['The number of ' ...
                     'spectra does not match the number expected in the workspaces'])
-            elseif ~isempty(ns) && ~all_integers_ge_zero(ns)
-                error ('HERBERT:IX_map:invalid_argument', ['The number of ' ...
-                    'spectra in each workspace must be greater than or equal to zero'])
             end
         else
-            % Interpret wkno and spectrum array s being in one-to-one mapping
+            % Interpret scalar wkno as all spectra into a single workspace, or
+            % otherwise the workspaces and spectra assumed to be in one-to-one
+            % mapping
             if isscalar(wkno)
-                wkno = repmat(wkno, size(s));
-            elseif ~numel(wkno) == numel(s)
-                error ('HERBERT:IX_map:invalid_argument', ['Workspace array ',...
+                % All spectra go into a single workspace (this includes the case
+                % when s is an empty array)
+                ns = numel(s);
+            elseif numel(wkno) == numel(s)
+                % Assume one-to-one mapping of workspaces and spectra
+                ns = ones(numel(wkno),1);
+            else
+                error ('HERBERT:IX_map:invalid_argument', ['The workspace array ',...
                     'must be scalar or have same length as spectrum array'])
             end
-            ns = ones(size(wkno));
         end
     end
 
@@ -135,7 +164,7 @@ if numel(par)==1
     
 else
     % Must be  IX_map(s_beg, s_end [, step]) or IX_map(s_beg, s_end [, step],...
-    % 'wkno', w_beg). Option 'ns' is not permitted
+    % 'wkno', wkno_beg). Option 'ns' is not permitted
     if present.ns
         error ('HERBERT:IX_map:invalid_argument', ['Keword option ''ns'' is not ',...
             'permitted if spectrum grouping is explicitly given'])
@@ -145,13 +174,13 @@ else
     [s_beg, s_end, ngroup, s_dcn, wkno_dcn] = parse_spectrum_grouping (par{:});
     Nschema = numel(s_beg);   % number of spectra-to-workspace mapping schemas
     
-    % Check w_beg is valid and consistent with s_beg and s_end
+    % Check wkno_beg is valid and consistent with s_beg and s_end
     % Otherwise create default
     if ~present.wkno
-        w_beg = parse_initial_workspace_numbers (NaN, Nschema);
+        wkno_beg = parse_initial_workspace_numbers (NaN, Nschema);
     else
-        w_beg_in = keyval.wkno;
-        w_beg = parse_initial_workspace_numbers (w_beg_in, Nschema);
+        wkno_beg_in = keyval.wkno;
+        wkno_beg = parse_initial_workspace_numbers (wkno_beg_in, Nschema);
     end
     
     % Parse 'repeat' option
@@ -160,7 +189,7 @@ else
     
     % Output full spectra and workspace numbers lists
     [wkno_out, ns_out, s_out] = repeat_s_w_blocks (s_beg, s_end, ...
-        ngroup, s_dcn, w_beg, wkno_dcn, nrepeat, delta_s, delta_wkno);
+        ngroup, s_dcn, wkno_beg, wkno_dcn, nrepeat, delta_s, delta_wkno);
 end
 
 end
@@ -179,9 +208,9 @@ function [s_beg, s_end, ngroup, s_dcn, wkno_dcn] = parse_spectrum_grouping ...
 % Input:
 % ------
 %   s_beg_in        Starting spectrum numbers for each schema (vector; one
-%                  element per schema)
+%                   element per schema)
 %   s_end_in        Final spectrum numbers for each schema (vector; one
-%                  element per schema)
+%                   element per schema)
 % 
 % Optionally:
 %   step            Grouping and workspace increment sign (all elements ~=0)
@@ -233,7 +262,7 @@ if numel(s_beg)~=numel(s_end)
         'arrays must both have the same number of elements'])
 end
 
-% Check step is valid, and scalar or same number of elements as is_beg and
+% Check step is valid, and scalar or same number of elements as s_beg and
 % s_end
 Nschema = numel(s_beg);
 if nargin==3
@@ -272,29 +301,30 @@ end
 
 
 %-------------------------------------------------------------------------------
-function w_beg = parse_initial_workspace_numbers (w_beg_in, Nschema)
+function wkno_beg = parse_initial_workspace_numbers (wkno_beg_in, Nschema)
 % Parse initial workspace numbers for spectra-to-workspace mapping schemas
 %
-%   >> w_beg = parse_initial_workspace_numbers (w_beg_in, Nschema)
+%   >> wkno_beg = parse_initial_workspace_numbers (wkno_beg_in, Nschema)
 %
 % Input:
 % ------
-%   w_beg_in    Values to parse: scalar or vector with length matching the 
-%              numbr of mapping schemas, Nschema.
-%              - Elements are integers >= 1 or NaNs. NaN mean 'whatever workspace
-%              number immediately follows largest workspace number defined by
-%              the previous schema'
+%   wkno_beg_in Values to parse: scalar or vector with length matching the 
+%               number of mapping schemas, Nschema.
+%               The elements of wkno_beg_in are integers >= 1 or NaNs. NaN mean
+%               'whatever workspace number immediately follows largest workspace
+%               number defined bythe previous schema'
 %   Nschema     Number of schemas. Assumed that Nschema>=1
 %
 % Output:
 % -------
-%   w_beg       Initial workspace number for each spectra block
-%              If the first element of w_beg was NaN, it is set to 1 on output.
-%              (Column vector length Nschema)
+%   wkno_beg    Initial workspace number for each spectra block
+%               If the first element of wkno_beg was NaN, it is set to 1 on
+%               output. (Column vector length Nschema)
 
 
 % Check validity of workspace number(s)
-if ~isnumeric(w_beg_in) || ~isvector(w_beg_in) || ~any(numel(w_beg_in)==[1,Nschema])
+if ~isnumeric(wkno_beg_in) || ~isvector(wkno_beg_in) || ...
+        ~any(numel(wkno_beg_in)==[1,Nschema])
     if Nschema==1     % single row only permitted
         error ('HERBERT:IX_map:invalid_argument', ...
             'Workspace number must be a scalar')
@@ -304,21 +334,21 @@ if ~isnumeric(w_beg_in) || ~isvector(w_beg_in) || ~any(numel(w_beg_in)==[1,Nsche
     end
 end
 
-if ~all_positive_integers_or_nan(w_beg_in)
+if ~all_positive_integers_or_nan(wkno_beg_in)
     error ('HERBERT:IX_map:invalid_argument', ...
             'Workspace number(s) must be integer(s) >=0 or NaN(s)')
 end
 
 
 % Expand to vector if necessary
-if numel(w_beg_in)==1 && Nschema>1
-    w_beg = repmat(w_beg_in, Nschema, 1);
+if numel(wkno_beg_in)==1 && Nschema>1
+    wkno_beg = repmat(wkno_beg_in, Nschema, 1);
 else
-    w_beg = w_beg_in(:);
+    wkno_beg = wkno_beg_in(:);
 end
 
-if isnan(w_beg(1))
-    w_beg(1) = 1;  % ensure that the first workspace is +1
+if isnan(wkno_beg(1))
+    wkno_beg(1) = 1;  % ensure that the first workspace is +1
 end
 
 end

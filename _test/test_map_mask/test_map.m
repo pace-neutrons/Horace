@@ -5,6 +5,30 @@ classdef test_map < TestCase
         %--------------------------------------------------------------------------
         % Test constructor without repeat blocks
         %--------------------------------------------------------------------------
+        function test_0Spec_1Work (~)
+            % Zero spectra in one workspace. Works as scalar wkno means all
+            % spectra mapped into one workspace
+            map = IX_map([], 'wkno', 99);
+            assertEqual(map.wkno, 99);
+            assertEqual(map.ns, 0)
+            assertEqual(map.s, zeros(1,0));
+        end
+        
+        function test_0Spec_1Work_nsGiven (~)
+            % Single spectrum to default single workspace
+            map = IX_map([], 'wkno', 99, 'ns', 0);
+            assertEqual(map.wkno, 99);
+            assertEqual(map.ns, 0)
+            assertEqual(map.s, zeros(1,0));
+        end
+        
+        function test_0Spec_1Work_nsOnly (~)
+            map = IX_map([],'ns',0);
+            assertEqual(map.wkno, 1);  % default is workspace 1
+            assertEqual(map.ns, 0)
+            assertEqual(map.s, zeros(1,0));
+        end
+        
         function test_1Spec_1WorkDefault (~)
             % Single spectrum to default single workspace
             s = 17;
@@ -89,12 +113,72 @@ classdef test_map < TestCase
             wkno = [6,9];
             f = @()IX_map(s, 'wkno', wkno);
             ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_argument');
-            assertTrue(contains(ME.message, ...
-                ['The number of spectra does not match the sum of the number ',...
-                'of spectra in each workspace']))
+            assertTrue(contains(ME.message, ['The workspace array ',...
+                    'must be scalar or have same length as spectrum array']))
         end
         
-        function test_emptyWorkspace (~)
+        function test_manySpec_manyWork_ns (~)
+            % Many spectra to workspaces mapping; not 1:1
+            s = [14;19;17;15;4];
+            wkno = [6,4,9];
+            map = IX_map(s, 'wkno', wkno, 'ns', [2,2,1]);
+            assertEqual(map.wkno, [4,6,9]);
+            assertEqual(map.ns, [2,2,1])
+            assertEqual(map.s, [15,17,14,19,4]);    % sorted by workspace number
+            assertEqual(map.w, [4,4,6,6,9]);        % sorted
+        end
+        
+        function test_manySpec_manyWorkSomeEmpty_ns (~)
+            % Many spectra to workspaces mapping; not 1:1
+            s = [14;21;19;17;15;4];
+            wkno = [2,6,4,8,9];
+            map = IX_map(s, 'wkno', wkno, 'ns', [0,3,2,0,1]);
+            assertEqual(map.wkno, [2,4,6,8,9]);
+            assertEqual(map.ns, [0,2,3,0,1])
+            assertEqual(map.s, [15,17,14,19,21,4]); % sorted by workspace number
+            assertEqual(map.w, [4,4,6,6,6,9]);      % sorted
+        end
+        
+        function test_manySpec_manyWorkSomeEmpty_nsWrongLength_ERROR (~)
+            % sum(ns) matches numel(s), but numel(ns)~=numel(wkno) ==> error
+            s = [14;21;19;17;15;4];
+            wkno = [2,6,4,8,9];
+            f = @()IX_map(s, 'wkno', wkno, 'ns', [0,3,2,1]);
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_argument');
+            assertTrue(contains(ME.message, ...
+                'The number of elements in the array ''ns'', which gives the number of'))
+        end
+        
+        function test_manySpec_manyWork_nsOnly (~)
+            % Many spectra to workspaces mapping; not 1:1
+            s = [14;19;17;15;4];
+            map = IX_map(s, 'ns', [2,2,1]);
+            assertEqual(map.wkno, [1,2,3]);
+            assertEqual(map.ns, [2,2,1])
+            assertEqual(map.s, [14,19,15,17,4]);    % sorted by workspace number
+            assertEqual(map.w, [1,1,2,2,3]);        % sorted
+        end
+        
+        function test_manySpec_manyWorkSomeEmpty_nsOnly (~)
+            % Many spectra to workspaces mapping; not 1:1
+            s = [14;21;19;17;15;4];
+            map = IX_map(s, 'ns', [0,3,2,0,1]);
+            assertEqual(map.wkno, [1,2,3,4,5]);
+            assertEqual(map.ns, [0,3,2,0,1])
+            assertEqual(map.s, [14,19,21,15,17,4]); % sorted by workspace number
+            assertEqual(map.w, [2,2,2,3,3,5]);      % sorted
+        end
+                
+        function test_manySpec_manyWork_nsOnly_ERROR (~)
+            % sum(ns) does not match the number of spectra ==> error
+            s = [14;19;17;15;4];
+            f = @()IX_map(s, 'ns', [2,2,2]);
+            ME = assertExceptionThrown (f, 'HERBERT:IX_map:invalid_argument');
+            assertTrue(contains(ME.message, ['The number of spectra does not ' ...
+                    'match the number expected in the workspaces']))
+        end
+        
+        function test_WorkNumberIs0_ERROR (~)
             % This should fail as workspaces must have index number greater than
             % zero
             s = [15, 19, 4, 14, 17];

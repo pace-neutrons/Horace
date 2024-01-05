@@ -1,15 +1,15 @@
-function [wkno_out, ns_out, s_out] = repeat_s_w_arrays (wkno, ns, s, nrepeat, delta_s, delta_w)
+function [wkno_out, ns_out, s_out] = repeat_s_w_arrays (wkno, ns, s, nrepeat,...
+    delta_s, delta_wkno)
 % Create an array of spectrum and of workspace numbers by repeating reference
 % arrays of each with succesive offsets, reulting in:
 %
-%   s_out = [s_out; s_out + delta_s; s_out + 2*delta_s,...
-%                                                   , s_out + nrepeat*delta_s]
-%   w_out = [w_out; w_out + delta_w;  w_out + 2*delta_w,...
-%                                                   , w_out + nrepeat*delta_w]
+%   s_out = [s_out; s_out + delta_s; s_out + 2*delta_s;... s_out + nrepeat*delta_s]
+%   wkno_out = [wkno_out; wkno_out + delta_wkno; wkno_out + 2*delta_wkno,...
+%                                                  , wkno_out + nrepeat*delta_wkno]
 % The outputs are column vectors.
 %
 %   >> [wkno_out, ns_out, s_out] = repeat_s_w_arrays (wkno, ns, s, ...
-%                                                   nrepeat, delta_s, delta_w)
+%                                                   nrepeat, delta_s, delta_wkno)
 %
 % Input:
 % ------
@@ -19,24 +19,24 @@ function [wkno_out, ns_out, s_out] = repeat_s_w_arrays (wkno, ns, s, nrepeat, de
 %   s           Spectrum numbers array
 %   nrepeat     Number of times to repeat (nrepeat >= 1)
 %   delta_s     Offset between repeated blocks of spectra
-%   delta_w     Offset between repeated blocks of workspaces
+%   delta_wkno     Offset between repeated blocks of workspaces
 %
 % Output:
 % -------
-%   w_out       Workspace numbers (Column vector).
+%   wkno_out    Workspace numbers (Column vector).
 %               There may be multiple occurences of the same workspace number in
-%               w_out, depending on the values of the input parameters (for
+%               wkno_out, depending on the values of the input parameters (for
 %               example, there is no requirement that the list of workspace
 %               numbers in wkno contains just unique values)
 %
-%   ns_out      Number of spectra in each workspace in the array w_out. 
-%               (column vector, same length as w_out)
-%               If a workspace number is repeated in w_out this does not cause
+%   ns_out      Number of spectra in each workspace in the array wkno_out. 
+%               (column vector, same length as wkno_out)
+%               If a workspace number is repeated in wkno_out this does not cause
 %               any problems: it is treated as the spectra contributing to the
 %               workspace as being split into two or more sections
 %
 %   s_out       Spectrum numbers that will be grouped into workspaces according
-%               as w_out and ns_out (column vector)
+%               as wkno_out and ns_out (column vector)
 
 
 % Catch the trivial case of no repetitions
@@ -62,16 +62,16 @@ if s_min < 1
 end
 
 
-% Resolve a placeholder value for delta_w, if present, and determine if the
+% Resolve a placeholder value for delta_wkno, if present, and determine if the
 % minimum workspace number in the repeated arrays is less than 1
 wkno_min_in = min(wkno(:));
 wkno_max_in = max(wkno(:));
 wkno_dcn = 1;
 nwkno_tmp = wkno_max_in - wkno_min_in + 1;     % created solely for this test
-w_max_prev = 0;    % no previous mapping
-[~, delta_w, w_min] = resolve_repeat_blocks (wkno_min_in, wkno_dcn, ...
-    delta_w, nwkno_tmp, nrepeat, w_max_prev);
-if w_min < 1
+wkno_max_prev = 0;    % no previous mapping
+[~, delta_wkno, wkno_min] = resolve_repeat_blocks (wkno_min_in, wkno_dcn, ...
+    delta_wkno, nwkno_tmp, nrepeat, wkno_max_prev);
+if wkno_min < 1
     error ('HERBERT:IX_map:invalid_argument', ['Workspace array constructed for ',...
         'at least one repeated array includes zero or negative workspace numbers'])
 end
@@ -87,7 +87,7 @@ s_out(1:nstot) = s;
 for irep=2:nrepeat
     iwbeg = (irep-1)*nwkno + 1;
     iwend = irep*nwkno;
-    wkno_out(iwbeg:iwend) = wkno + (irep-1)*delta_w;
+    wkno_out(iwbeg:iwend) = wkno + (irep-1)*delta_wkno;
     isbeg = (irep-1)*nstot + 1;
     isend = irep*nstot;
     s_out(isbeg:isend) = s + (irep-1)*delta_s;
