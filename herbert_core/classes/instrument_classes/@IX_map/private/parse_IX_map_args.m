@@ -5,18 +5,24 @@ function [wkno_out, ns_out, s_out] = parse_IX_map_args (varargin)
 %
 % Input:
 % ------
-% Single spectrum to single workspace, or one-to-one mapping of spectra
+%
+% Single spectrum to single workspace, one-to-one mapping of spectra
 % to workspaces, or general many-to-one mapping:
+% ----------------------------------------------
 %   >> w = IX_map (s)   % s scalar: single spectrum to workspace 1
 %                       % s array:  one spectrum in each of workspaces 1,2,3...
 %   >> w = IX_map (s, 'wkno', wkno)
 %                       % wkno scalar: all spectra mapped into that workspace
 %                       % wkno array:  one spectrum per workspace
+%   >> w = IX_map (s, 'ns', ns)
+%                       % Spectra grouped in workspaces by the number of spectra
+%                       % per workspace in ns. Workspaces numbered 1,2,3...
 %   >> w = IX_map (s, 'wkno', wkno, 'ns', ns)
-%                       % workspace numbers and number of spectra in each
+%                       % Workspace numbers and number of spectra in each
 %                       % of the workspaces
 %
 % Groups of contiguous spectra to contiguous workspace numbers:
+% -------------------------------------------------------------
 %   >> w = IX_map (s_beg, s_end)            % one spectrum per workspace
 %   >> w = IX_map (s_beg, s_end, step)      % |step| spectra per workspace
 %   >> w = IX_map (..., 'wkno', wkno_beg)   % Mapped to workspaces starting at

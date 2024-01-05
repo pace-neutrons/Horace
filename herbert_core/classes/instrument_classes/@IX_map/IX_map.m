@@ -58,35 +58,33 @@ classdef IX_map < serializable
             % Constructor for IX_map object, which maps spectra to workspaces,
             % either one-to-one or in groups of spectra per workspace:
             %
-            % One-to-one mapping of spectra to workspaces:
-            % --------------------------------------------
-            % Single spectrum to single workspace, or one-to-one mapping of spectra
-            % to workspaces:
-            %   >> w = IX_map (isp)         % single spectrum to workspace 1
-            %   >> w = IX_map (isp_array)   % general case of array of spectra
-            %   >> w = IX_map (isp_array, 'wkno', iw_array)
-            %                               % if iw_array is scalar, all spectra
-            %                               % are mapped into that workspace
-            %   >> w = IX_map (isp_array, 'wkno', iw_array, 'ns', ns_array)
-            %                               % unique workspace numbers and number
-            %                               % of spectra in each of the workspaces
+            % Single spectrum to single workspace, one-to-one mapping of spectra
+            % to workspaces, or general many-to-one mapping:
+            % ----------------------------------------------
+            %   >> w = IX_map (s)   % s scalar: single spectrum to workspace 1
+            %                       % s array:  one spectrum in each of workspaces 1,2,3...
+            %   >> w = IX_map (s, 'wkno', wkno)
+            %                       % wkno scalar: all spectra mapped into that workspace
+            %                       % wkno array:  one spectrum per workspace
+            %   >> w = IX_map (s, 'ns', ns)
+            %                       % Spectra grouped in workspaces by the number of spectra
+            %                       % per workspace in ns. Workspaces numbered 1,2,3...
+            %   >> w = IX_map (s, 'wkno', wkno, 'ns', ns)
+            %                       % Workspace numbers and number of spectra in each
+            %                       % of the workspaces
             %
             % Groups of contiguous spectra to contiguous workspace numbers:
             % -------------------------------------------------------------
-            %   >> w = IX_map (isp_beg, isp_end)        % one spectrum per workspace
-            %   >> w = IX_map (isp_beg, isp_end, step)  % |step| spectra per workspace
-            %   >> w = IX_map (..., 'wkno', iw_beg)     % Mapped into succesive workspaces starting
-            %                                           % at iw_beg, ascending or descending
+            %   >> w = IX_map (s_beg, s_end)            % one spectrum per workspace
+            %   >> w = IX_map (s_beg, s_end, step)      % |step| spectra per workspace
+            %   >> w = IX_map (..., 'wkno', wkno_beg)   % Mapped to workspaces starting at
+            %                                           % wkno_beg, ascending or descending
             %                                           % according as the sign of step
             %
-            % With either of the two cases above, the mapping can be repeated
-            % multiple times with successive increments of the spectra and
-            % workspace number for each repeat block:
-            %   >> w = IX_map (..., 'repeat', [nrepeat, delta_isp, delta_iw])
-            %
-            % Mapping spectrum array to workspace
-            %
-            %
+            % With either of the two cases above, the mapping can be repeated multiple times
+            % with successive increments of the spectra and workspace number for each repeat
+            % of the block:
+            %   >> ... = parse_IX_map_args (..., 'repeat', [nrepeat, delta_s, delta_w])
             %
             % Note:
             % - Spectrum and workspace numbers must be greater or equal to one.
@@ -99,37 +97,37 @@ classdef IX_map < serializable
             % =================
             % The most general forms of the constructor are:
             %
-            %   >> w = IX_map (isp_array, 'wkno', iw_array,...
-            %                   'repeat', [nrepeat, delta_isp, delta_iw])
+            %   >> w = IX_map (s, 'wkno', wkno,...
+            %                   'repeat', [nrepeat, delta_s, delta_wkno])
             %
-            %   >> w = IX_map (isp_beg, isp_end, step, 'wkno', iw_beg,...
-            %                   'repeat', [nrepeat, delta_isp, delta_iw])
+            %   >> w = IX_map (s_beg, s_end, step, 'wkno', wkno_beg,...
+            %                   'repeat', [nrepeat, delta_s, delta_wkno])
             %
             % The first case:
             % ---------------
-            %  This maps isp_array(1) to iw_array(1), isp_array(2) to iw_array(2) etc.
-            % and then repeats this mapping nrepeat times with the two arrays incremented
-            % by delta_isp and delta_iw respectively. That is, the first repeat
-            % maps isp_array(1) + delta_isp to iw_array(1) + delta_iw, isp_array(2) + delta_isp
-            % to iw_array(2) + delta_iw ...; the next repeat block maps isp_array(1) + delta_isp
-            % to iw_array(1) + delta_iw, isp_array(2) + delta_isp to iw_array(2) + delta_iw ...
-            % and so on.
+            %  This maps s(1) to wkno(1), s(2) to wkno(2) etc. and then repeats this mapping
+            % nrepeat times with the two arrays incremented by delta_s and delta_wkno
+            % respectively. That is, the first repeat maps (s(1) + delta_s) to
+            % (wkno(1) + delta_wkno), (s(2) + delta_s) to (wkno(2) + delta_wkno) ...; the
+            % next repeat block maps (s(1) + 2*delta_s) to (wkno(1) + 2*delta_wkno),
+            % (s(2) + 2*delta_s) to (wkno(2) + 2*delta_wkno) ... and so on.
             %
             % EXAMPLE
             %   >> w = IX_map (1001:1010, 'wkno', 10:-1:1, 'repeat', [5, 1000, 0])
             %
             % maps spectrum 1001 to workspace 10, spectrum 1002 to workspace 9,.. 1010 to
             % workspace 1. It then maps spectrum 2001 also to workspace 10, 2002 to workspace 9
-            % etc.
+            % etc., until the final repeat block maps spectrum 5001 to workspace 10,
+            % spectrum 5002 to workspace 9 ... spectrum 5010 to workspace 1.
             %
             % The second case:
             % ----------------
-            %  This maps spectra from isp_beg to isp_end in groups of |step|,
-            % starting at workspace number iw_beg. The workspace numbers for succesive blocks
-            % of spectra increase if step>0 i.e. they  go as iw_beg, iw_beg+1, iw_beg+2,... ;
-            % the workspace numbers decrease if step<0 i.e. they go as iw_beg, iw_beg-1,
-            % iw_beg-2,... The mapping is then repeated nrepeat times with isp_beg and iw_beg
-            % incremented by delta_isp and delta_iw respectively.
+            %  This maps spectra from s_beg to s_end in groups of |step|, starting at
+            % workspace number wkno_beg. The workspace numbers for succesive blocks
+            % of spectra increase if step>0 i.e. they  go as wkno_beg, (wkno_beg+1),
+            % (wkno_beg+2),... ; the workspace numbers decrease if step<0 i.e. they go as
+            % wkno_beg, (wkno_beg-1), (wkno_beg-2),... The mapping is then repeated nrepeat
+            % times with s_beg and wkno_beg incremented by delta_s and delta_wkno respectively.
             %
             % EXAMPLE
             %   >> w = IX_map (1256, 1001, -10, 'wkno', 416, 'repeat', [16, 1000, -26])
@@ -142,7 +140,7 @@ classdef IX_map < serializable
             % containing just 6 spectra as 256 is not divisible exactly by 10. The
             % mapping is repeated 16 times, with the initial spectrum numbers
             % incrementing by 1000, i.e. 1256, 2256 ... 16256, and the initial workspace
-            % numbers are successively decreasing by 26 i.e. 416, 390, 366 ... 26
+            % numbers are successively decreasing by 26 i.e. 416, 390, 366 ... 26.
             %
             %
             % Other examples:
@@ -162,21 +160,23 @@ classdef IX_map < serializable
             %
             % Explicit mapping of multiple spectra to multiple workspaces:
             % ============================================================
-            %   >> w = IX_map (isp_array)                   % Array of workspaces, one spectrum
-            %                                               % per workspace
-            %   >> w = IX_map (isp_array, 'wkno', iw_array) % With explicit array of workspace
-            %                                               % numbers. Note isp_array and iw_array
-            %                                               % must have same length or iw_array
-            %                                               % is a scalar (and all spectra are
-            %                                               % mapped to that one workspace)
+            %   >> w = IX_map (s)                   % Array of workspaces, one spectrum
+            %                                       % per workspace
+            %   >> w = IX_map (s, 'wkno', wkno)     % With explicit array of workspace
+            %                                       % numbers. Note s and wkno
+            %                                       % must have same length or wkno
+            %                                       % is a scalar (and all spectra are
+            %                                       % mapped to that one workspace)
             % EXAMPLES
             %   >> w = IX_map ([1,3,11,12,13])
-            %       Map has 5 workspaces, one spectrum 1 to workspace 1, spectrum 3 to workspace 2, ...
-            %       spectrum 13 to workspace 5.
+            %       Map has 5 workspaces, one spectrum 1 to workspace 1, spectrum 3 to
+            %       workspace 2, ... spectrum 13 to workspace 5
             %
             %   >> w = IX_map ([1,3,11,12,13], 'wkno', [4,4,14,14,14])
-            %       Map has 2 workspaces, spectra 1 and 3 mapped to workspace 4, and spectra 11,12,13
-            %       mapped to workspace 14
+            % or equivalently:
+            %   >> w = IX_map ([1,3,11,12,13], 'wkno', [4,14], 'ns', [2,3])
+            %       Map has 2 workspaces, spectra 1 and 3 mapped to workspace 4, and
+            %       spectra 11,12,13 mapped to workspace 14
             %
             %   >> w = IX_map ([1,3,11,12,13], 'wkno', 101)
             %       All five spectra are mapped to workspace 101
@@ -186,71 +186,71 @@ classdef IX_map < serializable
             % =============================================================
             % - One spectrum per workspace:
             %   ---------------------------
-            %   First workspace contains spectrum isp_beg and last workspaces contains spectrum
-            %   isp_end (note that isp_beg can be bigger than isp_end)
+            %   First workspace contains spectrum s_beg and last workspaces contains spectrum
+            %   s_end (note that s_beg can be bigger than s_end)
             %
-            %   >> w = IX_map (isp_beg, isp_end)                    % Workspaces numbered 1,2,3...
-            %   >> w = IX_map (isp_beg, isp_end, 'wkno', iw_beg)    % Workspaces are numbered
-            %                                                       % iw_beg, iw_beg+1...
+            %   >> w = IX_map (s_beg, s_end)                    % Workspaces numbered 1,2,3...
+            %   >> w = IX_map (s_beg, s_end, 'wkno', wkno_beg)  % Workspaces are numbered
+            %                                                   % wkno_beg, wkno_beg+1...
             %
             %
             % - Group of spectra to each workspace:
             %   -----------------------------------
-            %   Map spectra starting from isp_beg in groups of |step| (step can be +ve or -ve)
+            %   Map spectra starting from s_beg in groups of |step| (step can be +ve or -ve)
             %   The sign of step determines if the workspace number increases or decreases
-            %   between groups e.g. if iw_beg=10 and step>0 then they are numbered 10,11,12,...
+            %   between groups e.g. if wkno_beg=10 and step>0 then they are numbered 10,11,12,...
             %   but if step<0 then the workspaces are numbered 10,9,8,...
             %
-            %   >> w = IX_map (isp_beg, isp_end, step)
-            %   >> w = IX_map (isp_beg, isp_end, step, 'wkno', iw_beg)
+            %   >> w = IX_map (s_beg, s_end, step)
+            %   >> w = IX_map (s_beg, s_end, step, 'wkno', wkno_beg)
             %
             %
             % Repeated blocks of workspaces:
             % ==============================
             % Any of the above blocks of workspaces can be repeated multiple times:
             %
-            %   >> w = IX_map (..., 'repeat', [nrepeat, delta_isp, delta_iw])
+            %   >> w = IX_map (..., 'repeat', [nrepeat, delta_s, delta_wkno])
             %
-            % starting value for spectra being isp_beg, (isp_beg + delta_isp),
-            % (isp_beg + 2*delta_isp),... and the starting value of workspaces being iw,
-            % (iw + delta_iw), (iw + 2*delta_iw),...
+            % starting value for spectra in succesive repeat blocks being s_beg,
+            % (s_beg + delta_s), (s_beg + 2*delta_s),... and the starting value of
+            % workspaces being iw, (iw + delta_wkno), (iw + 2*delta_wkno),...
             %
             % Note:
-            % - Either or both of delta_isp and delta_iw can be negative
-            % - delta_iw=0 is permitted as you may want to accumulate many spectra to a
+            % - Either or both of delta_s and delta_wkno can be negative
+            % - delta_wkno=0 is permitted as you may want to accumulate many spectra to a
             %   single workspace.
-            % - delta_isp=0 is permitted too, which means that a given spectrum will be
+            % - delta_s=0 is permitted too, which means that a given spectrum will be
             %   accumulated into several workspaces, although this is unusual.
             %
             %
             % Multiple lines
             % ==============
             % In the case of grouping of contiguous spectra into contiguous workspace blocks,
-            % the arguments isp_beg, isp_end, step, iw_beg, nrepeat delta_isp and delta_iw
+            % the arguments s_beg, s_end, step, wkno_beg, nrepeat delta_s and delta_wkno
             % can be vectors. The result is equivalent to the concatenation of IX_map applied
             % to the arguments element-by-element e.g.
             %
-            %   >> w = IX_map (is_lo, is_hi, step, 'wkno', iw_beg)
+            %   >> w = IX_map (s_beg, s_end, step, 'wkno', wkno_beg)
             %
             % is equivalent to:
-            %   >> wtmp(1) = IX_map (is_lo(1), is_hi(1), step(1), 'wkno', iw_beg(1));
-            %   >> wtmp(2) = IX_map (is_lo(2), is_hi(2), step(2), 'wkno', iw_beg(2));
+            %   >> wtmp(1) = IX_map (s_beg(1), s_end(1), step(1), 'wkno', wkno_beg(1));
+            %   >> wtmp(2) = IX_map (s_beg(2), s_end(2), step(2), 'wkno', wkno_beg(2));
             %           :
             %   >> w = combine (wtmp)
             %
             % and similarly
-            %   >> w = IX_map (..., 'repeat', [nrepeat, delta_isp, delta_iw])
+            %   >> w = IX_map (..., 'repeat', [nrepeat, delta_s, delta_wkno])
             %
             % is equivalent to:
-            %   >> wtmp(1) = IX_map (..., 'repeat', [nrepeat(1), delta_isp(1), delta_iw(1)]);
-            %   >> wtmp(2) = IX_map (..., 'repeat', [nrepeat(2), delta_isp(2), delta_iw(2)]));
+            %   >> wtmp(1) = IX_map (..., 'repeat', [nrepeat(1), delta_s(1), delta_wkno(1)]);
+            %   >> wtmp(2) = IX_map (..., 'repeat', [nrepeat(2), delta_s(2), delta_wkno(2)]));
             %           :
             %   >> w = combine (wtmp)
             %
-            % One or more of the workspace numbers iw_beg(i) can be set to NaN. This indicates
+            % One or more of the workspace numbers wkno_beg(i) can be set to NaN. This indicates
             % that the iw(i) are set so that the bounding range of workspace numbers for the
             % ith entry is contiguous with the bounding range for the previous entry at larger
-            % workspace number. Likewise, within a repeat-block entry, delta_iw(i) can be NaN,
+            % workspace number. Likewise, within a repeat-block entry, delta_wkno(i) can be NaN,
             % indicting that a block is repeated so that the set of blocks forms a contiguous
             % set of workspace numbers.
             

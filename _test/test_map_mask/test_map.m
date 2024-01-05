@@ -192,6 +192,64 @@ classdef test_map < TestCase
         
         
         %--------------------------------------------------------------------------
+        % Test constructor with contiguous ranges
+        %--------------------------------------------------------------------------
+        function test_range_1spec_1work (~)
+            map = IX_map(1, 1, 1);
+            assertEqual(map.wkno, 1);
+            assertEqual(map.ns, 1)
+            assertEqual(map.s, 1); % sorted by workspace number
+        end
+        
+        function test_range_10spec_3work (~)
+            map = IX_map(11, 20, 4);
+            assertEqual(map.wkno, [1,2,3]);
+            assertEqual(map.ns, [4,4,2])
+            assertEqual(map.s, 11:20); % sorted by workspace number
+        end
+        
+        function test_range_10spec_3workNegDelta (~)
+            % Workspace numbers should decrease.
+            map = IX_map(11, 20, -4);
+            assertEqual(map.wkno, [1,2,3]);
+            assertEqual(map.ns, [2,4,4]);
+            assertEqual(map.s, [19,20,15,16,17,18,11,12,13,14])
+        end
+        
+        function test_range_10spec_3workNegDelta_explicitFirst (~)
+            % Workspace numbers should decrease.
+            map = IX_map(11, 20, -4, 'wkno', 3);
+            assertEqual(map.wkno, [1,2,3]);
+            assertEqual(map.ns, [2,4,4]);
+            assertEqual(map.s, [19,20,15,16,17,18,11,12,13,14])
+        end
+        
+        function test_range_10specNegDelta_3work (~)
+            % Workspace numbers should decrease.
+            map = IX_map(20, 11, 4);
+            assertEqual(map.wkno, [1,2,3]);
+            assertEqual(map.ns, [4,4,2]);
+            assertEqual(map.s, [17,18,19,20,13,14,15,16,11,12])
+        end
+        
+        function test_range_10specNegDelta_3workNegDelta (~)
+            % Workspace numbers should decrease.
+            map = IX_map(20, 11, -4);
+            assertEqual(map.wkno, [1,2,3]);
+            assertEqual(map.ns, [2,4,4]);
+            assertEqual(map.s, 11:20)
+        end
+        
+        function test_range_10specNegDelta_3workNegDelta_explicitFirst (~)
+            % Workspace numbers should decrease.
+            map = IX_map(20, 11, -4, 'wkno', 3);
+            assertEqual(map.wkno, [1,2,3]);
+            assertEqual(map.ns, [2,4,4]);
+            assertEqual(map.s, 11:20)
+        end
+        
+        
+        %--------------------------------------------------------------------------
         % Test constructor with repeat blocks
         %--------------------------------------------------------------------------
         function test_1Spec_1WorkDefault_3Repeat (~)
@@ -204,6 +262,20 @@ classdef test_map < TestCase
             assertEqual(map.wkno, [1, 2, 3]);  % default is workspace 1
             assertEqual(map.ns, [1, 1, 1])
             assertEqual(map.s, [17, 27, 37]);
+        end
+        
+        function test_manySpec_manyWork_3Repeat (~)
+            % Several spectra, one empty workspace, 3 repeats
+            s = [21,22,31,32,33];
+            wkno = [5,7,9];
+            ns = [2,3,0];
+            nrepeat = 3;
+            delta_s = 20;
+            delta_w = 100;
+            map = IX_map(s, 'wkno', wkno, 'ns', ns, 'repeat', [nrepeat, delta_s, delta_w]);
+            assertEqual(map.wkno, [5,7,9,105,107,109,205,207,209]);
+            assertEqual(map.ns, [2 3 0 2 3 0 2 3 0])
+            assertEqual(map.s, [21,22,31,32,33,41,42,51,52,53,61,62,71,72,73]);
         end
         
         function test_1Spec_1Work_3Repeat_negSpec_ERROR (~)
@@ -565,6 +637,24 @@ classdef test_map < TestCase
         
         
         %------------------------------------------------------------------
+        % Test multiple lines equivalent to concatenate
+        %------------------------------------------------------------------
+%         function test_1Spec_1WorkDefau*** (~)
+%             % Single spectrum to default single workspace
+%             sbeg = [101, 201, 301];
+%             send = [110, 220, 330];
+%             step = []
+%             nrepeat = 3;
+%             delta_s = 10;
+%             delta_w = 1;
+%             map = IX_map(s, 'repeat', [nrepeat, delta_s, delta_w]);
+%             assertEqual(map.wkno, [1, 2, 3]);  % default is workspace 1
+%             assertEqual(map.ns, [1, 1, 1])
+%             assertEqual(map.s, [17, 27, 37]);
+%         end
+        
+        
+        %------------------------------------------------------------------
         % Test mask
         %------------------------------------------------------------------
         function test_mask_emptyMap_noMask (~)
@@ -729,11 +819,8 @@ classdef test_map < TestCase
 
         
         %------------------------------------------------------------------
-        % Test section
-        %------------------------------------------------------------------
-        % *** test one or both empty workspaces
-        % empty work, but work; no work
-        
+        % Test product
+        %------------------------------------------------------------------        
         function test_product_0work_0work (~)
             % The result should be an empty map
             mapA = IX_map (); 
