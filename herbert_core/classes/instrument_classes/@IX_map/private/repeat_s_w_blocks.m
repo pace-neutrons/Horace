@@ -86,7 +86,7 @@ end
 
 % Create arrays of the spectrum and workspace numbers for each block, repeated
 % as required by a schema, and accumulated across schemas
-nwkno_schema = nwkno .* nrepeat;          % total number of workspaces in each schema
+nwkno_schema = nwkno .* nrepeat;    % total number of workspaces in each schema
 iwhi = cumsum(nwkno_schema);
 iwlo = iwhi - nwkno_schema + 1;
 

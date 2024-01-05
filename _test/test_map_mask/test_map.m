@@ -639,19 +639,50 @@ classdef test_map < TestCase
         %------------------------------------------------------------------
         % Test multiple lines equivalent to concatenate
         %------------------------------------------------------------------
-%         function test_1Spec_1WorkDefau*** (~)
-%             % Single spectrum to default single workspace
-%             sbeg = [101, 201, 301];
-%             send = [110, 220, 330];
-%             step = []
-%             nrepeat = 3;
-%             delta_s = 10;
-%             delta_w = 1;
-%             map = IX_map(s, 'repeat', [nrepeat, delta_s, delta_w]);
-%             assertEqual(map.wkno, [1, 2, 3]);  % default is workspace 1
-%             assertEqual(map.ns, [1, 1, 1])
-%             assertEqual(map.s, [17, 27, 37]);
-%         end
+        function test_multiline_concatenate (~)
+            map1 = IX_map(11, 20, -4);
+            map2 = IX_map(101, 200, 7);
+            map3 = IX_map(201, 240, 13);
+            % Put all three maps into one all
+            map = IX_map([11,101,201], [20,200,240], [-4,7,13]);
+            
+            % Reference map using combine method
+            map_ref = concatenate(map1, map2, map3);
+            
+            assertEqual(map, map_ref)
+        end
+        
+        function test_multiline_combine (~)
+            map1 = IX_map(11, 20, -4);
+            map2 = IX_map(101, 200, 7);
+            map3 = IX_map(201, 240, 13);
+            % Put all three maps into one all
+            % Need to give wkno_beg(1) = NaN, because if we give it the value 1 then, because
+            % the value of wkno_dcn is negative (as determined from the sign of step), the
+            % workspace range will count backwards: 1, 0 ,-1,... for the first map. THis
+            % throws an error.
+            map = IX_map([11,101,201], [20,200,240], [-4,7,13], 'wkno', [NaN, 1, 1]);
+            
+            % Reference map using combine method
+            map_ref = combine(map1, map2, map3);
+            
+            assertEqual(map, map_ref)
+        end
+        
+        function test_multiline_combine_wkno_begNotNeeded (~)
+            map1 = IX_map(11, 20, 4);
+            map2 = IX_map(101, 200, 7);
+            map3 = IX_map(201, 240, 13);
+            % In this case, the first workspace has wkno_dcn positive, so we can set the
+            % initial workspace number as 1. Because this is the case for all workspaces we
+            % only need to give skno_beg as the scalar value 1.
+            map = IX_map([11,101,201], [20,200,240], [4,7,13], 'wkno', 1);
+            
+            % Reference map using combine method
+            map_ref = combine(map1, map2, map3);
+            
+            assertEqual(map, map_ref)
+        end
         
         
         %------------------------------------------------------------------

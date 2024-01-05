@@ -13,13 +13,13 @@ function [wkno_out, ns_out, s_out] = repeat_s_w_arrays (wkno, ns, s, nrepeat,...
 %
 % Input:
 % ------
-%   wkno        Unique workspace numbers array
+%   wkno        Workspace numbers array
 %   ns          Number of spectra in each workspace. Must have the same number
 %               of elements as wkno
 %   s           Spectrum numbers array
 %   nrepeat     Number of times to repeat (nrepeat >= 1)
 %   delta_s     Offset between repeated blocks of spectra
-%   delta_wkno     Offset between repeated blocks of workspaces
+%   delta_wkno  Offset between repeated blocks of workspaces
 %
 % Output:
 % -------

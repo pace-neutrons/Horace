@@ -213,7 +213,7 @@ classdef IX_map < serializable
             %
             % starting value for spectra in succesive repeat blocks being s_beg,
             % (s_beg + delta_s), (s_beg + 2*delta_s),... and the starting value of
-            % workspaces being iw, (iw + delta_wkno), (iw + 2*delta_wkno),...
+            % workspaces being wkno_beg, (wkno_beg + delta_wkno), (wkno_beg + 2*delta_wkno),...
             %
             % Note:
             % - Either or both of delta_s and delta_wkno can be negative
@@ -228,7 +228,9 @@ classdef IX_map < serializable
             % In the case of grouping of contiguous spectra into contiguous workspace blocks,
             % the arguments s_beg, s_end, step, wkno_beg, nrepeat delta_s and delta_wkno
             % can be vectors. The result is equivalent to the concatenation of IX_map applied
-            % to the arguments element-by-element e.g.
+            % to the arguments element-by-element
+            %
+            % EXAMPLES
             %
             %   >> w = IX_map (s_beg, s_end, step, 'wkno', wkno_beg)
             %
@@ -247,10 +249,27 @@ classdef IX_map < serializable
             %           :
             %   >> w = combine (wtmp)
             %
+            %
             % One or more of the workspace numbers wkno_beg(i) can be set to NaN. This indicates
-            % that the iw(i) are set so that the bounding range of workspace numbers for the
-            % ith entry is contiguous with the bounding range for the previous entry at larger
-            % workspace number. Likewise, within a repeat-block entry, delta_wkno(i) can be NaN,
+            % that the wkno_beg(i) are set so that the bounding range of workspace numbers for the
+            % ith entry is contiguous with the bounding range for the previous entry, at larger
+            % workspace number. By default, the values of wkno_beg are equal to NaN.
+            % Therefore, if 'wkno' is omitted, successive 'rows' (s_beg(i), s_end(i), step(i))
+            % will be concatenated (i.e. blocks of workspaces are placed one after another,
+            % rather than combined).
+            %
+            % EXAMPLE
+            % In contrast to the example above:
+            %
+            %   >> w = IX_map (s_beg, s_end, step)
+            %
+            % is equivalent to:
+            %   >> wtmp(1) = IX_map (s_beg(1), s_end(1), step(1), 'wkno', wkno_beg(1));
+            %   >> wtmp(2) = IX_map (s_beg(2), s_end(2), step(2), 'wkno', wkno_beg(2));
+            %           :
+            %   >> w = concatenate (wtmp)
+            %
+            % Likewise, within a repeat-block entry, delta_wkno(i) can be NaN,
             % indicting that a block is repeated so that the set of blocks forms a contiguous
             % set of workspace numbers.
             

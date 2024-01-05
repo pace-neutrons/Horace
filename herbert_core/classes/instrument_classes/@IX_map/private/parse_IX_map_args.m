@@ -324,8 +324,6 @@ function wkno_beg = parse_initial_workspace_numbers (wkno_beg_in, Nschema)
 % Output:
 % -------
 %   wkno_beg    Initial workspace number for each spectra block
-%               If the first element of wkno_beg was NaN, it is set to 1 on
-%               output. (Column vector length Nschema)
 
 
 % Check validity of workspace number(s)
@@ -351,10 +349,6 @@ if numel(wkno_beg_in)==1 && Nschema>1
     wkno_beg = repmat(wkno_beg_in, Nschema, 1);
 else
     wkno_beg = wkno_beg_in(:);
-end
-
-if isnan(wkno_beg(1))
-    wkno_beg(1) = 1;  % ensure that the first workspace is +1
 end
 
 end
