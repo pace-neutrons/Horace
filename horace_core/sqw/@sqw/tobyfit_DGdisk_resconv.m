@@ -129,6 +129,54 @@ state_out = cell(size(win));    % create output argument
 store_out = [];
 
 
+% Perform resolution broadening calculation
+% -----------------------------------------
+% Package parameters as a cell for convenience
+if ~iscell(pars)
+    pars={pars};
+end
+
+reset_state=caller.reset_state;
+
+% Factor 10 because of 44 x npix array
+max_pix_size = get(hor_config, 'mem_chunk_size') / 10;
+
+for i=1:numel(ind)
+    % Get index of workspace into lookup tables
+    iw=ind(i);
+
+    % Set random number generator if necessary, and save if required for later
+    if reset_state
+        if ~isempty(state_in{i})
+            rng(state_in{i})
+        end
+    else
+        state_out{i} = rng;     % capture the random number generator state
+    end
+
+    npix = win(i).data.npix;
+    [npix_chunks, idxs] = split_vector_fixed_sum(npix, max_pix_size);
+    pix_bin_regions = [1, cumsum(cellfun(@sum, npix_chunks))];
+
+    for j = 1:numel(pix_bin_regions)-1
+        wout(i) = compute_resconv(wout(i), iw, lookup, sqwfunc, pars, ...
+                                  mc_contributions, mc_points, ...
+                                  refine_crystal, xtal, ...
+                                  refine_moderator, modshape, ...
+                                  pix_bin_regions(j), pix_bin_regions(j+1));
+
+    end
+    wout(i) = recompute_bin_data(wout(i));
+end
+
+end
+
+function sqw_obj = compute_resconv(sqw_obj, iw, lookup, sqwfunc, pars, ...
+                                   mc_contributions, mc_points, ...
+                                   refine_crystal, xtal, ...
+                                   refine_moderator, modshape, ...
+                                   idx_start, idx_end)
+
 % Create pointers to parts of lookup structure
 % --------------------------------------------
 mod_shape_mono_table = lookup.mod_shape_mono_table;
@@ -144,10 +192,38 @@ k_to_e = lookup.k_to_e;
 mc_mod_shape_mono = [mc_contributions.moderator,...
     mc_contributions.shape_chopper, mc_contributions.mono_chopper];
 
-% Perform resolution broadening calculation
-% -----------------------------------------
-% Package parameters as a cell for convenience
-if ~iscell(pars), pars={pars}; end
+% Create pointers to parts of lookup structure for the current dataset
+xa=lookup.xa{iw};
+x1=lookup.x1{iw};
+ki=lookup.ki{iw};
+kf = lookup.kf{iw}(idx_start:idx_end, :);
+s_mat=lookup.s_mat{iw};
+spec_to_rlu=lookup.spec_to_rlu{iw};
+alatt=lookup.alatt{iw};
+angdeg=lookup.angdeg{iw};
+is_mosaic=lookup.is_mosaic{iw};
+dt = lookup.dt{iw}(idx_start:idx_end, :);
+en = lookup.en{iw}(idx_start:idx_end, :);
+
+% Run and detector for each pixel
+npix = idx_end - idx_start + 1; %sqw_obj.pix.num_pixels;
+[irun, idet] = parse_pixel_indices(sqw_obj, idx_start:idx_end);     % returns column vectors
+
+% Get detector information for each pixel in the sqw object
+% size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
+% and size(detdcn) = [3,npix]
+[x2, detdcn, d_mat, f_mat] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
+
+% Catch case of refining crystal orientation
+if refine_crystal
+    % Strip out crystal refinement parameters and reorient datasets
+    [sqw_obj, pars{1}] = refine_crystal_strip_pars (sqw_obj, xtal, pars{1});
+
+    % Update s_mat, spec_to_rlu, alatt and angdeg because in general the
+    % crystal orientation and lattice parameters will have changed
+    [~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(sqw_obj.experiment_info);
+
+end
 
 % Catch case of refining moderator parameters
 if refine_moderator
@@ -169,132 +245,82 @@ if refine_moderator
     mod_shape_mono_table.object_store = mod_shape_mono;
 end
 
-reset_state=caller.reset_state;
-for i=1:numel(ind)
-    % Get index of workspace into lookup tables
-    iw=ind(i);
 
-    % Set random number generator if necessary, and save if required for later
-    if reset_state
-        if ~isempty(state_in{i})
-            rng(state_in{i})
-        end
-    else
-        state_out{i} = rng;     % capture the random number generator state
+% Recompute Q on-the-fly
+qw = calculate_q(ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
+
+% Compute (Q,w) deviations matrix
+% This is done on-the-fly for each sqw object because dq_mat is so large
+% (44 double precision numbers for each pixel)
+dq_mat = dq_matrix_DGdisk (ki(irun), kf,...
+                           xa(irun), x1(irun), x2',...
+                           s_mat(:,:,irun), f_mat, d_mat,...
+                           spec_to_rlu(:,:,irun), k_to_v, k_to_e);
+
+stmp = zeros(npix, 1);
+
+% Simulate the signal for the data set
+% ------------------------------------
+for imc=1:mc_points
+    yvec=zeros(11,1,npix);
+
+    % Deviations at the shaping and monochromating choppers
+    tchop_av = mod_shape_mono_table.func_eval_ind(iw, irun, @mean, mc_mod_shape_mono);
+    yvec([1,4],1,:) = 1e-6 * ...
+        (mod_shape_mono_table.rand_ind(iw, irun, @rand, 'mc', mc_mod_shape_mono) - tchop_av);
+    debugtools(@debug_histogram_array, (10^6)*yvec(1,1,:), 't_shape', 'microseconds')
+
+    % Divergence
+    if mc_contributions.horiz_divergence
+        yvec(2,1,:) = horiz_div_table.rand_ind(iw, irun, @rand);
     end
 
-    % Create pointers to parts of lookup structure for the current dataset
-    xa=lookup.xa{iw};
-    x1=lookup.x1{iw};
-    ki=lookup.ki{iw};
-    kf=lookup.kf{iw};
-    s_mat=lookup.s_mat{iw};
-    spec_to_rlu=lookup.spec_to_rlu{iw};
-    alatt=lookup.alatt{iw};
-    angdeg=lookup.angdeg{iw};
-    is_mosaic=lookup.is_mosaic{iw};
-    dt=lookup.dt{iw};
-    en=lookup.en{iw};
-
-    % Run and detector for each pixel
-    npix = win(i).pix.num_pixels;
-    [irun, idet] = parse_pixel_indices(win(i));     % returns column vectors
-
-    % Get detector information for each pixel in the sqw object
-    % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
-    % and size(detdcn) = [3,npix]
-    [x2, detdcn, d_mat, f_mat] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
-
-    % Catch case of refining crystal orientation
-    if refine_crystal
-        % Strip out crystal refinement parameters and reorient datasets
-        [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
-
-        % Update s_mat, spec_to_rlu, alatt and angdeg because in general the
-        % crystal orientation and lattice parameters will have changed
-        [~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
-
+    if mc_contributions.vert_divergence
+        yvec(3,1,:) = vert_div_table.rand_ind(iw, irun, @rand);
     end
 
-    % Recompute Q on-the-fly
-    qw = calculate_q(ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
+    % Sample deviations
+    if mc_contributions.sample
+        yvec(5:7,1,:) = sample_table.rand_ind (iw, irun, @rand);
+    end
 
-    % Compute (Q,w) deviations matrix
-    % This is done on-the-fly for each sqw object because dq_mat is so large
-    % (44 double precision numbers for each pixel)
-    dq_mat = dq_matrix_DGdisk (ki(irun), kf,...
-        xa(irun), x1(irun), x2,...
-        s_mat(:,:,irun), f_mat, d_mat,...
-        spec_to_rlu(:,:,irun), k_to_v, k_to_e);
-
-
-    % Simulate the signal for the data set
-    % ------------------------------------
-    for imc=1:mc_points
-        yvec=zeros(11,1,npix);
-
-        % Deviations at the shaping and monochromating choppers
-        tchop_av = mod_shape_mono_table.func_eval_ind(iw, irun, @mean, mc_mod_shape_mono);
-        yvec([1,4],1,:) = 1e-6 * ...
-            (mod_shape_mono_table.rand_ind(iw, irun, @rand, 'mc', mc_mod_shape_mono) - tchop_av);
-        debugtools(@debug_histogram_array, (10^6)*yvec(1,1,:), 't_shape', 'microseconds')
-
-        % Divergence
-        if mc_contributions.horiz_divergence
-            yvec(2,1,:) = horiz_div_table.rand_ind(iw, irun, @rand);
-        end
-
-        if mc_contributions.vert_divergence
-            yvec(3,1,:) = vert_div_table.rand_ind(iw, irun, @rand);
-        end
-
-        % Sample deviations
-        if mc_contributions.sample
-            yvec(5:7,1,:) = sample_table.rand_ind (iw, irun, @rand);
-        end
-
-        % Detector deviations
-        if mc_contributions.detector_depth || mc_contributions.detector_area
-            det_points = detector_table.rand_ind (iw, irun, idet, 'split', @rand, kf);
-            if ~mc_contributions.detector_area
-                yvec(8,1,:) = det_points(1,:);
-            elseif ~mc_contributions.detector_depth
-                yvec(9:10,1,:) = det_points(2:3,:);
-            else
-                yvec(8:10,1,:) = det_points;
-            end
-        end
-
-        % Energy bin
-        if mc_contributions.energy_bin
-            yvec(11,1,:) = dt' .* (rand(1,npix) - 0.5);
-        end
-
-        % Calculate the deviations in Q and energy, and then the S(Q,w) intensity
-        % -----------------------------------------------------------------------
-        dq = mtimesx_horace(dq_mat,yvec);
-        q = dq + reshape([qw{1}';qw{2}';qw{3}';en'], size(dq));
-
-        % Mosaic spread
-        if is_mosaic && mc_contributions.mosaic
-            Rrlu = sample_table.rand_ind (iw, irun, @rand_mosaic, alatt, angdeg);
-            q(1:3,:,:) = mtimesx_horace(Rrlu, q(1:3,:,:));
-        end
-        q = squeeze(q);    % 4 x 1 x npix ==> 4 x npix
-
-        if imc==1
-            stmp=sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
+    % Detector deviations
+    if mc_contributions.detector_depth || mc_contributions.detector_area
+        det_points = detector_table.rand_ind (iw, irun, idet, 'split', @rand, kf');
+        if ~mc_contributions.detector_area
+            yvec(8,1,:) = det_points(1,:);
+        elseif ~mc_contributions.detector_depth
+            yvec(9:10,1,:) = det_points(2:3,:);
         else
-            stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
+            yvec(8:10,1,:) = det_points;
         end
     end
 
-    wout(i).pix.signal = stmp(:)'/mc_points;
-    wout(i).pix.variance = zeros(1,numel(stmp));
+    % Energy bin
+    if mc_contributions.energy_bin
+        yvec(11,1,:) = dt' .* (rand(1,npix) - 0.5);
+    end
 
-    % TODO: #975 this have to be done during paging operations
-    % *** The same TODO appears in tobyfit_DGfermi_resconv. Fix together.
-    wout(i)=recompute_bin_data(wout(i));
+    % Calculate the deviations in Q and energy, and then the S(Q,w) intensity
+    % -----------------------------------------------------------------------
+    dq = mtimesx_horace(dq_mat,yvec);
+    q = dq + reshape([qw{1}';qw{2}';qw{3}';en'], size(dq));
+
+    % Mosaic spread
+    if is_mosaic && mc_contributions.mosaic
+        Rrlu = sample_table.rand_ind (iw, irun, @rand_mosaic, alatt, angdeg);
+        q(1:3,:,:) = mtimesx_horace(Rrlu, q(1:3,:,:));
+    end
+    q = squeeze(q);    % 4 x 1 x npix ==> 4 x npix
+
+    if imc==1
+        stmp=sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
+    else
+        stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
+    end
 end
+
+sqw_obj.pix.signal(idx_start:idx_end) = stmp(:)'/mc_points;
+sqw_obj.pix.variance(idx_start:idx_end) = zeros(1,numel(stmp));
 
 end

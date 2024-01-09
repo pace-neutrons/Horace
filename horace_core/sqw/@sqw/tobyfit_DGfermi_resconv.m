@@ -121,43 +121,23 @@ if refine_crystal && refine_moderator
           'Cannot refine both crystal and moderator parameters. Error in logic flow - this should have been caught')
 end
 
-
 % Initialise output arguments
 % ---------------------------
 wout = copy(win);
 state_out = cell(size(win));    % create output argument
 store_out = [];
 
-% Create pointers to parts of lookup structure
-% --------------------------------------------
-moderator_table = lookup.moderator_table;
-aperture_table = lookup.aperture_table;
-fermi_table = lookup.fermi_table;
-sample_table = lookup.sample_table;
-detector_table = lookup.detector_table;
-
 % Perform resolution broadening calculation
 % -----------------------------------------
 % Package parameters as a cell for convenience
-if ~iscell(pars), pars={pars}; end
-
-% Catch case of refining moderator parameters
-if refine_moderator
-    % Get the (single) moderator to be refined. Assume that any checks
-    % on moderator models in the sqw objects being fitted have been performed
-    % earlier on so that here all moderators are replaced by a single one
-    % derived from the first object in the lookup table.
-    moderator = moderator_table.object_store(1);
-
-    % Strip out moderator refinement parameters and update moderator
-    [moderator, pars{1}] = refine_moderator_strip_pars...
-        (moderator, modshape, pars{1});
-
-    % Replace moderator(s) in object lookup with updated moderator
-    moderator_table.object_store = moderator;
+if ~iscell(pars)
+    pars={pars};
 end
 
 reset_state=caller.reset_state;
+
+% Factor 10 because of 44 x npix array
+max_pix_size = get(hor_config, 'mem_chunk_size') / 10;
 
 for i=1:numel(ind)
     % Get index of workspace into lookup tables
@@ -172,16 +152,29 @@ for i=1:numel(ind)
         state_out{i} = rng;     % capture the random number generator state
     end
 
-    wout(i) = compute_resconv(win(i), sqwfunc, pars, mc_contributions, mc_points, ...
-                              refine_crystal, iw, lookup);
+    npix = win(i).data.npix;
+    [npix_chunks, idxs] = split_vector_fixed_sum(npix, max_pix_size);
+    pix_bin_regions = [1, cumsum(cellfun(@sum, npix_chunks))];
 
+    for j = 1:numel(pix_bin_regions)-1
+        wout(i) = compute_resconv(wout(i), iw, lookup, sqwfunc, pars, ...
+                                  mc_contributions, mc_points, ...
+                                  refine_crystal, xtal, ...
+                                  refine_moderator, modshape, ...
+                                  pix_bin_regions(j), pix_bin_regions(j+1));
+
+    end
+    wout(i) = recompute_bin_data(wout(i));
 end
 
 end
 
 
-function sqw_obj = compute_resconv(sqw_obj, sqwfunc, pars, mc_contributions, mc_points, ...
-                                   refine_crystal, iw, lookup)
+function sqw_obj = compute_resconv(sqw_obj, iw, lookup, sqwfunc, pars, ...
+                                   mc_contributions, mc_points, ...
+                                   refine_crystal, xtal, ...
+                                   refine_moderator, modshape, ...
+                                   idx_start, idx_end)
 
 % Create pointers to parts of lookup structure
 % --------------------------------------------
@@ -196,24 +189,24 @@ k_to_v = lookup.k_to_v;
 k_to_e = lookup.k_to_e;
 
 % Create pointers to parts of lookup structure for the current dataset
-x0=lookup.x0{iw};
-xa=lookup.xa{iw};
-x1=lookup.x1{iw};
-thetam=lookup.thetam{iw};
-angvel=lookup.angvel{iw};
-ki=lookup.ki{iw};
-kf=lookup.kf{iw};
-s_mat=lookup.s_mat{iw};
-spec_to_rlu=lookup.spec_to_rlu{iw};
-alatt=lookup.alatt{iw};
-angdeg=lookup.angdeg{iw};
-is_mosaic=lookup.is_mosaic{iw};
-dt=lookup.dt{iw};
-en=lookup.en{iw};
+x0 = lookup.x0{iw};
+xa = lookup.xa{iw};
+x1 = lookup.x1{iw};
+thetam = lookup.thetam{iw};
+angvel = lookup.angvel{iw};
+ki = lookup.ki{iw};
+kf = lookup.kf{iw}(idx_start:idx_end, :);
+s_mat = lookup.s_mat{iw};
+spec_to_rlu = lookup.spec_to_rlu{iw};
+alatt = lookup.alatt{iw};
+angdeg = lookup.angdeg{iw};
+is_mosaic = lookup.is_mosaic{iw};
+dt = lookup.dt{iw}(idx_start:idx_end, :);
+en = lookup.en{iw}(idx_start:idx_end, :);
 
 % Run and detector for each pixel
-npix = sqw_obj.pix.num_pixels;
-[irun, idet] = parse_pixel_indices(sqw_obj);     % returns column vectors
+npix = idx_end - idx_start + 1; %sqw_obj.pix.num_pixels;
+[irun, idet] = parse_pixel_indices(sqw_obj, idx_start:idx_end);     % returns column vectors
 
 % Get detector information for each pixel in the sqw object
 % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
@@ -231,6 +224,23 @@ if refine_crystal
 
 end
 
+% Catch case of refining moderator parameters
+if refine_moderator
+    % Get the (single) moderator to be refined. Assume that any checks
+    % on moderator models in the sqw objects being fitted have been performed
+    % earlier on so that here all moderators are replaced by a single one
+    % derived from the first object in the lookup table.
+    moderator = moderator_table.object_store(1);
+
+    % Strip out moderator refinement parameters and update moderator
+    [moderator, pars{1}] = refine_moderator_strip_pars...
+        (moderator, modshape, pars{1});
+
+    % Replace moderator(s) in object lookup with updated moderator
+    moderator_table.object_store = moderator;
+end
+
+
 % Recompute Q on-the-fly
 qw = calculate_q(ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
 
@@ -238,10 +248,11 @@ qw = calculate_q(ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
 % This is done on-the-fly for each sqw object because dq_mat is so large
 % (44 double precision numbers for each pixel)
 dq_mat = dq_matrix_DGfermi (ki(irun), kf,...
-                            x0(irun), xa(irun), x1(irun), x2, thetam(irun), angvel(irun),...
+                            x0(irun), xa(irun), x1(irun), x2', thetam(irun), angvel(irun),...
                             s_mat(:,:,irun), f_mat, d_mat,...
                             spec_to_rlu(:,:,irun), k_to_v, k_to_e);
 
+stmp = zeros(npix, 1);
 
 % Simulate the signal for the data set
 % ------------------------------------
@@ -271,7 +282,7 @@ for imc=1:mc_points
 
     % Detector deviations
     if mc_contributions.detector_depth || mc_contributions.detector_area
-        det_points = detector_table.rand_ind (iw, irun, idet, 'split', @rand, kf);
+        det_points = detector_table.rand_ind (iw, irun, idet, 'split', @rand, kf');
         if ~mc_contributions.detector_area
             yvec(8,1,:) = det_points(1,:);
         elseif ~mc_contributions.detector_depth
@@ -298,13 +309,10 @@ for imc=1:mc_points
     end
     q = squeeze(q);    % 4 x 1 x npix ==> 4 x npix
 
-    if imc==1
-        stmp=sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
-    else
-        stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
-    end
+    stmp = stmp + sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
 end
 
-sqw_obj.pix.signal = stmp(:)'/mc_points;
-sqw_obj.pix.variance = zeros(1,numel(stmp));
+sqw_obj.pix.signal(idx_start:idx_end) = stmp(:)'/mc_points;
+sqw_obj.pix.variance(idx_start:idx_end) = zeros(1,numel(stmp));
+
 end
