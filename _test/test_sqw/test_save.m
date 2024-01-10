@@ -194,7 +194,7 @@ classdef test_save < TestCase
 
             checkObj = read_sqw(test_file);
             assertFalse(checkObj.is_filebacked)
-            assertEqualToTol(other_obj,checkObj,'ignore_str',true);            
+            assertEqualToTol(other_obj,checkObj,'ignore_str',true);
 
             try
                 s = test_obj.pix.signal;
@@ -202,7 +202,7 @@ classdef test_save < TestCase
                 assertEqual(ME.identifier,'MATLAB:memmapfile:mapfile:cannotStatFile');
             end
         end
-        
+
 
         function test_save_move_tmp_leaves_tmp_broken(obj)
             % test shows tmp object gets broken.
@@ -411,24 +411,28 @@ classdef test_save < TestCase
 
         function test_save_simple_filebacked(obj)
             % Prepare recent faccess version source file.
-            tmp_sampl_file = fullfile(tmp_dir,obj.sqw_file_res);
-            targ_file =      fullfile(tmp_dir,'test_save_simple_filebacked.sqw');
-            clOb = onCleanup(@()del_memmapfile_files(tmp_sampl_file,targ_file));
-
-            wout = obj.sqw_obj.save(tmp_sampl_file);
+            tmp_source_file = fullfile(tmp_dir,obj.sqw_file_res);
+            targ_file       = fullfile(tmp_dir,'test_save_simple_filebacked.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(tmp_source_file,targ_file));
+            % write test source file to check for save later and check it
+            % is written correctly.
+            wout = obj.sqw_obj.save(tmp_source_file);
             assertTrue(wout.is_filebacked);
-            assertTrue(isfile(tmp_sampl_file));
-            assertEqual(wout.full_filename,tmp_sampl_file);
-            wout.data.title = 'My image';
+            assertTrue(isfile(tmp_source_file));
+            assertEqual(wout.full_filename,tmp_source_file);
 
+            % modify file for saving change and prepare paged save.
+            wout.data.title = 'My image';
             clConf = set_temporary_config_options(hor_config,'mem_chunk_size',wout.pix.num_pixels/4);
             wout2 = wout.save(targ_file);
+            % check file is written as expected.
             assertTrue(wout2.is_filebacked);
             assertTrue(isfile(targ_file));
             assertEqual(wout2.full_filename,targ_file);
 
             assertEqualToTol(wout,wout2, 'ignore_str',true);
-            % clear output object to release targ_file for deletion
+            % clear output objects to release targ_file and tmp_source_file
+            % for deletion
             clear wout;
             clear wout2;
         end

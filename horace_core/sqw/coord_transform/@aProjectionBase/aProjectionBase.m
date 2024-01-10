@@ -30,8 +30,8 @@ classdef aProjectionBase < serializable
         %
         angdeg       % angles between the lattice edges
         %
-        offset; % Offset of origin of the projection in r.l.u.
-        %         and energy i.e. [h; k; l; en] [row vector]
+        offset;     % Offset of origin of the projection in r.l.u.
+        %           % and energy i.e. [h; k; l; en] [row vector]
         img_offset; % Convenience property, providing/accepting the offset
         %           % expressed in the image coordinate system.
         %---------------------------------
