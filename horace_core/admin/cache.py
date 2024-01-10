@@ -1,4 +1,4 @@
-#!/usr/bin/python3.8
+#!/usr/bin/env python3
 import multiprocessing
 import time
 import sys
@@ -87,7 +87,7 @@ def read_chunk(filename,start,size,buf_size,progress,n_workers):
     got   = 0
     with fh as f:
         while got < size:
-            bl = fh.read(block)
+            bl = f.read(block)
             got = got+block
             if got+block> size:
                 block = size-got
