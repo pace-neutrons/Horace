@@ -109,6 +109,7 @@ classdef sqw_file_interface
                 fseek(obj.file_id,0,'eof');
                 pos  = ftell(obj.file_id);
             end
+            pos = uint64(pos);
         end
         function obj = set.eof_position(obj,val)
             obj.eof_pos_cache_ = val;

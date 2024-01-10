@@ -1,5 +1,5 @@
 function obj = put_new_blocks_values_(obj,obj_to_write,keep_locked,nocache,varargin)
-% method takes initlized faccessor and replaces blocks
+% method takes initialized faccessor and replaces blocks
 % stored in file with new block values obtained from sqw or dnd
 % object provided as input.
 %
@@ -11,7 +11,7 @@ function obj = put_new_blocks_values_(obj,obj_to_write,keep_locked,nocache,varar
 %            on disk.
 % keep_locked
 %         -- if true do not touch blocks already locked in place
-% nocache -- if ture, tells the algorithm not to cache serialized
+% nocache -- if true, tells the algorithm not to cache serialized
 %            contents of the blocks while calculating block sizes.
 %            This means that objects roughly speaking would be serialized
 %            twice -- first time when their size is estimated (a bit quicker,
@@ -29,15 +29,15 @@ function obj = put_new_blocks_values_(obj,obj_to_write,keep_locked,nocache,varar
 %             keyword, describing blocks which contents in file should
 %             remains unchanged.
 %
-% 'include' -- option followed by list of block names which shoud be
-%             replaced in file. This option is opposit to 'exclude' option.
+% 'update' -- option followed by list of block names which should be
+%             replaced in file. This option is opposite to 'exclude' option.
 %  block_list
-%          -- cellarray of valid block names following 'include'
+%          -- cellarray of valid block names following 'update'
 %             keyword, describing blocks which contents in file should
 %             be replaced.
 % NOTE:
-% 'exclude' and 'include' keywords can not be specified together.
-% if no 'exclued' and 'include' keywords are specified, all blocks except
+% 'exclude' and 'update' keywords can not be specified together.
+% if no 'exclude' and 'update' keywords are specified, all blocks except
 % pixels (locked by default) and blocks locked in addition to them will be
 % replaces in file
 %
@@ -102,13 +102,13 @@ function bl_names_to_change = parse_addifional_input(obj,varargin)
 % names to exclude from changes or block names to include in changes.
 [exclude_kw,include_kw] = cellfun(@find_keyword,varargin);
 excluded_provided = any(exclude_kw);
-included_provided = any(include_kw);
-if excluded_provided  && included_provided
+update_provided = any(include_kw);
+if excluded_provided  && update_provided
     error('HORACE:file_io:invalid_argument', ...
-        '"excluded" and "included" keywords can not be specified together')
+        '"excluded" and "update" keywords can not be specified together')
 end
 
-if ~excluded_provided  && ~included_provided
+if ~excluded_provided  && ~update_provided
     % change all unlocked blocks
     [bl_name,locked] = cellfun(@extract_locked,obj.bat_.blocks_list,'UniformOutput',false);
     locked = [locked{:}];
@@ -120,7 +120,7 @@ if excluded_provided
     kw_num        = find(exclude_kw);
     list_provided = varargin{kw_num+1};
 end
-if included_provided
+if update_provided
     kw_num        = find(include_kw);
     list_provided = varargin{kw_num+1};
 end
@@ -150,7 +150,7 @@ if ~istext(val)
     return;
 end
 is_exclue = strncmp(val,'exclude',7);
-is_include = strncmp(val,'include',7);
+is_include = strncmp(val,'update',7);
 %
 function [bl_name,is_locked] = extract_locked(bl)
 bl_name   = bl.block_name;

@@ -3,8 +3,8 @@ classdef pix_write_handle < handle
     % writing pixels and provides common interface for writing pixels.
     %
     % as pixels are closely related to image, the class also contains
-    % methods to update image or part of the inage, which was modified while
-    % modifyng pixels.
+    % methods to update image or part of the image, which was modified while
+    % modifying pixels.
     %
     % In addition, it closes accessor handle on class deletion, and may
     % delete target file if the class goes out of scope due to errors.
@@ -122,7 +122,38 @@ classdef pix_write_handle < handle
             end
             obj.npix_written_ = obj.npix_written_ + size(data, 2);
         end
-        function finish_pix_dump(obj,pix_obj)
+        function pix_meta = finish_pix_dump(obj,pix_obj,store_metadata)
+            % finalize multipage pix.write operation writing information
+            % about number of pixels written using pix_write_handle at the
+            % beginning of pixel data block stored in sqw file.
+            %
+            % if store_metadata true (or missing) also write pixel metadata
+            % block
+            % Inputs:
+            % obj   -- initialized instance of pix_write_handle used to
+            %          write pixels and containing number of pixels written
+            %          during all these write operations.
+            % pix_obj
+            %       -- PixelDataFilebacked object used as source of
+            %          metadata to store in sqw file. not used if
+            %          store_metadata is false;
+            % store_metadata
+            %       -- if true, pixel metadata are stored in sqw file
+            %          together with pixel_data. If missing -- assumed
+            %          true.
+            % Returns:
+            % pix_meta
+            %       -- modified by written pixel information pix_metadata
+            %          class
+            % Result:
+            % finalized pix.data block in sqw file.
+            % if store_metadata is true
+            % also pix.metadata stored in file so correctly formed
+            % PixelData block stored within sqw file.
+            %
+            if nargin<3
+                store_metadata = true;
+            end
             if obj.handle_is_class_
                 num_pixels = obj.npix_written;
                 wh = obj.write_handle_;
@@ -137,7 +168,14 @@ classdef pix_write_handle < handle
                 pix_meta = pix_obj.metadata;
                 pix_meta.full_filename = wh.full_filename;
                 pix_meta.npix = num_pixels;
-                obj.write_handle_ = wh.put_pix_metadata(pix_meta);
+                if store_metadata
+                    obj.write_handle_ = wh.put_new_blocks_values(pix_meta, ...
+                        'update','bl_pix_metadata');
+                else
+                    obj.write_handle_ = wh;
+                end
+            else
+                pix_meta = [];
             end
         end
         %
@@ -169,6 +207,7 @@ classdef pix_write_handle < handle
             % file is released for external access. Do not delete it on
             % deleteon of this class.
             obj.delete_target_file_ = false;
+
         end
         %
         function delete(obj)
