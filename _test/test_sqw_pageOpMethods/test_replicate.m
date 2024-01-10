@@ -5,7 +5,8 @@ classdef test_replicate< TestCase
 
     properties
         this_dir;
-        sqw_3D_artificial
+        w1
+        w2
     end
 
     methods
@@ -26,20 +27,29 @@ classdef test_replicate< TestCase
                 sig = ones(size(h))*p(1);
             end
 
-            obj.sqw_3D_artificial = sqw_eval(wtmp{1},@signal,{1});
+            sqw_4D_artificial = sqw_eval(wtmp{1},@signal,{1});
+            obj.w1 = cut(sqw_4D_artificial,[-1,0.02,1],[-1,1],[-1,1],[-0.5,0.5]);
+            obj.w2 = cut(sqw_4D_artificial,[-1,0.02,1],[-1,1],[-1,0.02,1],[-0.5,0.5]);
         end
 
         % tests
-        function test_replicate_1Dto3D(obj)
+        function test_replicate_1Dto2D_with_pix(obj)
 
-            w1 = cut(obj.sqw_3D_artificial,[-1,0.02,1],[-1,1],[-0.1,0.1],[-0.5,0.5]);
-            w2 = cut(obj.sqw_3D_artificial,[-1,0.02,1],[-1,1],[-1,0.02,1],[-0.5,0.5]);
+            d2r = replicate(obj.w1,obj.w2,'-set_pix');
 
-            d2r = replicate(w1,w2);
+            assertEqual(obj.w2.data.p{1},d2r.data.p{1})
+            assertEqual(obj.w2.data.p{2},d2r.data.p{2})
+
+            assertEqualToTol(d2r,obj.w2);
+        end
+
+        function test_replicate_1Dto2D(obj)
+
+            d2r = replicate(obj.w1,obj.w2);
 
             assertTrue(isa(d2r,'d2d'))
-            assertEqual(w2.data.p{1},d2r.p{1})
-            assertEqual(w2.data.p{2},d2r.p{2})
+            assertEqual(obj.w2.data.p{1},d2r.p{1})
+            assertEqual(obj.w2.data.p{2},d2r.p{2})
 
             % This does not work, but ideally should when sqw data look a
             % bit differenlty

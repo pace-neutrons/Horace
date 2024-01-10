@@ -17,7 +17,7 @@ classdef PageOp_recompute_bins < PageOpBase
         function obj = PageOp_recompute_bins(varargin)
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'recompute_bin_data_and_ranges';
-            obj.split_at_bin_edges = true;            
+            obj.split_at_bin_edges = true;
         end
 
         function obj = init(obj,in_obj)
@@ -35,7 +35,7 @@ classdef PageOp_recompute_bins < PageOpBase
             error  = obj.page_data_(obj.var_idx,:);
             % update image accumulators:
             obj = obj.update_img_accumulators(npix_block,npix_idx, ...
-                signal,error);            
+                signal,error);
         end
     end
     methods(Access=protected)
