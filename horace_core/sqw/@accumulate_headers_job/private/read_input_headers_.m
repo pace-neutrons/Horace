@@ -40,6 +40,7 @@ for i=1:nfiles
         det_tmp.filename = det.filename;
         det_tmp.filepath = det.filepath;
     end
+%{
     if ~equal_to_tol(det,det_tmp,[1.e-9,1.e-9])
         % CM:we will need to get rid of this once detpars start becoming
         % different between runs
@@ -47,6 +48,7 @@ for i=1:nfiles
             ' Detector parameters are not the same in first and %d file %s',...
             i,infiles{i});
     end
+    %}
     clear det_tmp       % save memory on what could be a large variable
 
     %pos_datastart(i)=ldrs{i}.data_position;  % start of data block

@@ -44,6 +44,44 @@ hor_log_level=get(hor_config,'log_level');
 mpi_obj= MPI_State.instance();
 running_mpi = mpi_obj.is_deployed;
 
+% convert NaN values of runid to sensible values
+% if all values are NaN, assign values by file number
+% if some values are NaN, assign values greater than the maximum non-NaN
+% one
+
+% (a) - find largest non-nan run id
+%     - flag existence of any nans
+maxrunid = NaN;
+hasnans = false;
+for ii=1:nfiles
+    runid = run_files{ii}.run_id;
+    if ~isnan(runid)
+        if isnan(maxrunid)
+            maxrunid = runid;
+        else
+            maxrunid = max(maxrunid, runid);
+        end
+    else
+        hasnans = true;
+    end
+end
+
+% (b) if there are any nans
+%     - number originally nan runids from 1+max value found above
+%     - if there were only nans, make the initial max value =0
+if hasnans
+    if isnan(maxrunid)
+        maxrunid = 0;
+    end
+    for ii=1:nfiles
+        runid = run_files{ii}.run_id;
+        if isnan(runid)
+            maxrunid = maxrunid+1;
+            run_files{ii}.run_id = maxrunid;
+        end
+    end
+end
+
 %
 % bin_range = arrayfun(@(x,y,z)get_cut_range(x,y,z),...
 %     pix_db_range(1,:),pix_db_range(2,:),grid_size_in,'UniformOutput',false);
