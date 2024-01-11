@@ -2,6 +2,7 @@
 import multiprocessing
 import time
 import sys
+import os
 import argparse
 #Read file using multiple threads to place file into CEPH cache.
 
@@ -113,11 +114,9 @@ def process_file(argi):
     buf_size = argi['buffer']
 
     # Estimate the file size
-    fh = open(filename,'rb',buffering=0)
-    fh.seek(0,2);
-    file_size = fh.tell()
-    #print 'File size=',nbytes
-    fh.close()
+    file_size = os.path.getsize(filename)
+    print ('File size={0:.0f}GB'.format(file_size/(1024*1024*1024)))
+
 
     # Evaluate the parameters of the file reading jobs.
     block_size = int(file_size/n_threads)+1
