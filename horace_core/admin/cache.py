@@ -89,7 +89,7 @@ def read_chunk(filename,start,size,buf_size,progress,n_workers):
     with fh as f:
         while got < size:
             bl = f.read(block)
-            got = got+block
+            got += block
             if got+block> size:
                 block = size-got
             if progress:
@@ -126,8 +126,8 @@ def process_file(argi):
     end_ch   = block_size
     if buf_size == 0:
         buf_size = block_size
-    if buf_size > sys.maxsize/1024:
-        buf_size = sys.maxsize/1024
+    if buf_size > sys.maxsize//1024:
+        buf_size = sys.maxsize//1024
 
     for i in range(0,n_threads):
         if end_ch > file_size:
