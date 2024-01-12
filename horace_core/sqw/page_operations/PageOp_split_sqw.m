@@ -35,6 +35,7 @@ classdef PageOp_split_sqw < PageOpBase
         % size of the image to split to evaluate size of the contributing
         % images
         img_size_;
+        %
     end
     methods
         function obj = PageOp_split_sqw(varargin)
@@ -132,7 +133,7 @@ classdef PageOp_split_sqw < PageOpBase
             obj.n_obj_contrib_to_page_ = zeros(numel(unique_id),1);
 
             % pixel over bin distribution
-            nbins   = numel(npix_block);
+            nbins  = numel(npix_block);
             ibin  = repelem(1:nbins, npix_block(:))';
             % sort pixels over objects
             for n_obj = 1:numel(unique_id) %
@@ -241,9 +242,9 @@ classdef PageOp_split_sqw < PageOpBase
                 out_obj = repmat(sqw,[1,n_obj]);
             end
             for i=1:n_obj
-                split_img =  obj.out_img{i};
                 % Set single split object as the result of page operation
                 if ~obj.img_filebacked_
+                    split_img         = obj.out_img{i};                    
                     obj.npix          = split_img.npix;
                     obj.sig_acc_      = split_img.s;
                     obj.var_acc_      = split_img.e;
@@ -325,7 +326,9 @@ classdef PageOp_split_sqw < PageOpBase
             out_split_sqw.pix  = pix;
             out_split_sqw.data = [];% this will force dump not to write updated
             obj.img_           = [];% image as the image have been already
-            % updated
+            obj.outfile        = ''; % do not write img.data and img.metadata again
+            %                        % already written at prepare_split_sqw
+            % update
             obj.write_handle_.is_tmp_file  = false;
             out_split_sqw    = out_split_sqw.finish_dump(obj);
             out_file = out_split_sqw.full_filename;
@@ -399,6 +402,7 @@ classdef PageOp_split_sqw < PageOpBase
             if img_filebacked
                 % three empty fields to calculate block averages
                 data = struct('s',[],'e',[],'npix',[]);
+                obj.init_filebacked_output = false;
             else
                 % 1D image with 3 accumulators for calculating image
                 data = struct('s',zeros(n_bins,1),'e',zeros(n_bins,1),'npix',zeros(n_bins,1));
@@ -430,10 +434,11 @@ classdef PageOp_split_sqw < PageOpBase
                 else
                     obj_i.pix    = PixelDataMemory();
                 end
-                obj.out_sqw{i}   = obj_i;
-                obj.out_img{i}   = data;
+                obj_i.full_filename = targ_file;
+                obj.out_sqw{i}      = obj_i;
+                obj.out_img{i}      = data;
 
-                obj.write_handles{i} = obj_i.get_write_handle(targ_file);
+                obj.write_handles{i} = obj_i.get_write_handle(targ_file,true);
                 if ~isempty(obj.write_handles{i})
                     obj.write_handles{i}.is_tmp_file = obj.results_are_tmp_files_;
                 end

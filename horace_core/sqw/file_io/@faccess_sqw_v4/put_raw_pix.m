@@ -28,6 +28,12 @@ if ~obj.is_activated('write')
     obj = obj.activate('write');
 end
 if pix_idx == 1
+    % this will work properly if number of pixels is known initially and
+    % stored in BAT, i.e. during overwriting. If you write pages one after
+    % another appending to file, this will not write correct number of
+    % pixels.
+    % Do not forget to update number of pixels (put_num_pixels) after using
+    % this method in algorithm, which changes number of pixels.
     pdb = obj.bat_.blocks_list{end};
     pdb.put_data_header(obj.file_id_);
 end

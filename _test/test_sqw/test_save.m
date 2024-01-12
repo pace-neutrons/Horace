@@ -48,19 +48,234 @@ classdef test_save < TestCase
             [~,fn,fe] = fileparts(obj.sqw_file_res);
             file1 = fullfile(tmp_dir,[fn,'_1_',fe]);
             file2 = fullfile(tmp_dir,[fn,'_2_',fe]);
-            targ_files = {file1,file2};
-            clOb = onCleanup(@()del_memmapfile_files(targ_files));
+            clOb = onCleanup(@()del_memmapfile_files(file1,file2));
 
             data = repmat(obj.sqw_obj,2,1);
-            rec = data.save(targ_files);
+            rec = data.save({file1,file2});
 
-            assertTrue(isfile(targ_files{1}));
-            assertTrue(isfile(targ_files{2}));
+            assertTrue(isfile(file1));
+            assertTrue(isfile(file2));
 
             assertEqualToTol(data,rec,'tol',[4*eps('single'),4*eps('single')], ...
                 'ignore_str',true);
         end
+        %------------------------------------------------------------------
+        function test_save_make_tmp(obj)
+            targ_file = fullfile(tmp_dir,'testfile_save_make_tmp.sqw');
 
+            test_obj = obj.sqw_obj.save(targ_file,'-make_temporary');
+            assertTrue(test_obj.is_filebacked)
+            assertTrue(test_obj.is_tmp_obj)
+            assertTrue(isfile(targ_file));
+
+            clear test_obj ;
+            assertFalse(isfile(targ_file));
+        end
+
+        function test_save_assume_updated_file_moved_with_output(obj)
+            source_file = fullfile(tmp_dir,'testfile_save_assume_updated_source.sqw');
+            targ_file = fullfile(tmp_dir,'testfile_save_assume_updated_result.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(targ_file));
+            test_obj = obj.sqw_obj.save(source_file);
+            assertTrue(test_obj.is_filebacked)
+            assertFalse(test_obj.is_tmp_obj)
+
+            test_obj.data.s(1) = 666;
+
+            out_obj = save(test_obj,targ_file,'-assume_updated');
+
+            assertFalse(isfile(source_file));
+            assertTrue(isfile(targ_file));
+
+            assertTrue(out_obj.is_filebacked)
+            assertEqualToTol(obj.sqw_obj,out_obj, ...
+                [4*eps('single'),4*eps('single')],'ignore_str',true,'-ignore_date');
+            assertEqual(out_obj.full_filename,targ_file)
+            % clear out_obj to release outfie for clOb to be able to delete it
+            clear out_obj;
+        end
+
+        function test_save_assume_updated_file_moved_no_output(obj)
+            source_file = fullfile(tmp_dir,'testfile_save_assume_updated_source.sqw');
+            targ_file = fullfile(tmp_dir,'testfile_save_assume_updated_result.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(targ_file));
+            test_obj = obj.sqw_obj.save(source_file);
+            assertTrue(test_obj.is_filebacked)
+            assertFalse(test_obj.is_tmp_obj)
+
+            test_obj.data.s(1) = 666;
+
+            save(test_obj,targ_file,'-assume_updated');
+
+            assertFalse(isfile(source_file));
+            assertTrue(isfile(targ_file));
+
+            checkObj = read_sqw(targ_file);
+            assertFalse(checkObj.is_filebacked)
+            assertEqualToTol(obj.sqw_obj,checkObj,'tol', ...
+                [4*eps('single'),4*eps('single')],'ignore_str',true,'-ignore_date');
+            assertEqual(checkObj.full_filename,targ_file)
+
+        end
+
+        function test_save_update_with_file_works_like_save_file_copied(obj)
+            targ_file = fullfile(tmp_dir,'testfile_save_update_sqw1.sqw');
+            test_file = fullfile(tmp_dir,'testfile_save_update_sqw2.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(test_file,targ_file));
+            test_obj = obj.sqw_obj.save(targ_file);
+            assertTrue(test_obj.is_filebacked)
+            assertFalse(test_obj.is_tmp_obj)
+
+            test_obj.data.title = 'My image';
+            save(test_obj,test_file,'-update');
+            assertTrue(isfile(targ_file));
+            assertTrue(isfile(test_file));
+
+            checkObj = read_sqw(test_file);
+            assertFalse(checkObj.is_filebacked)
+            assertEqualToTol(test_obj,checkObj,'ignore_str',true);
+        end
+
+        function test_save_update_tmp_with_file_works_like_save_file_moved(obj)
+            targ_file = fullfile(tmp_dir,'testfile_save_update_tmp.tmp');
+            test_file = fullfile(tmp_dir,'testfile_save_update_tmp.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(test_file));
+            test_obj = obj.sqw_obj.save(targ_file);
+            assertTrue(test_obj.is_filebacked)
+            assertTrue(test_obj.is_tmp_obj)
+
+            test_obj.data.title = 'My image';
+            test_obj = save(test_obj,test_file,'-update');
+            assertFalse(isfile(targ_file));
+            assertTrue(isfile(test_file));
+
+            checkObj = read_sqw(test_file);
+            assertFalse(checkObj.is_filebacked)
+            assertEqualToTol(test_obj,checkObj);
+
+            test_obj = obj.sqw_obj;
+            test_obj.data.title = 'My image';
+            assertEqualToTol(test_obj,checkObj, ...
+                'tol',[4*eps('single'),4*eps('single')],'ignore_str',true);
+        end
+
+        function test_save_update_updates(obj)
+            targ_file = fullfile(tmp_dir,'testfile_save_update_updates.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(targ_file));
+            test_obj = obj.sqw_obj.save(targ_file);
+            assertTrue(test_obj.is_filebacked)
+
+            test_obj.data.title = 'My image';
+            save(test_obj,'-update');
+            assertTrue(isfile(targ_file));
+
+
+            checkObj = read_sqw(targ_file);
+            assertFalse(checkObj.is_filebacked)
+            assertEqualToTol(test_obj,checkObj);
+
+            clear test_obj;
+            assertTrue(isfile(targ_file));
+        end
+
+        function test_save_with_clear_moves_tmp_leaves_tmp_broken(obj)
+            % test shows tmp object gets broken.
+            targ_file = fullfile(tmp_dir,'testfile_save_update_tmp.tmp');
+            test_file = fullfile(tmp_dir,'testfile_save_update_tmp.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(test_file));
+            test_obj = obj.sqw_obj.save(targ_file);
+            assertTrue(test_obj.is_filebacked)
+            assertTrue(test_obj.is_tmp_obj)
+
+            test_obj.data.title = 'My image';
+            other_obj = save(test_obj,test_file,'-clear_source');
+            assertFalse(isfile(targ_file));
+            assertTrue(isfile(test_file));
+
+            checkObj = read_sqw(test_file);
+            assertFalse(checkObj.is_filebacked)
+            assertEqualToTol(other_obj,checkObj,'ignore_str',true);
+
+            try
+                s = test_obj.pix.signal;
+            catch ME
+                assertEqual(ME.identifier,'MATLAB:memmapfile:mapfile:cannotStatFile');
+            end
+        end
+
+
+        function test_save_move_tmp_leaves_tmp_broken(obj)
+            % test shows tmp object gets broken.
+            targ_file = fullfile(tmp_dir,'testfile_save_update_tmp.tmp');
+            test_file = fullfile(tmp_dir,'testfile_save_update_tmp.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(test_file));
+            test_obj = obj.sqw_obj.save(targ_file);
+            assertTrue(test_obj.is_filebacked)
+            assertTrue(test_obj.is_tmp_obj)
+
+            test_obj.data.title = 'My image';
+            save(test_obj,test_file,'-assume_upd');
+            assertFalse(isfile(targ_file));
+            assertTrue(isfile(test_file));
+
+            checkObj = read_sqw(test_file);
+            assertFalse(checkObj.is_filebacked)
+            tob = test_obj;
+            tob.pix = [];
+            chob = checkObj;
+            chob.pix = [];
+            assertEqualToTol(tob,chob,'ignore_str',true);
+
+            try
+                s = test_obj.pix.signal;
+            catch ME
+                assertEqual(ME.identifier,'MATLAB:memmapfile:mapfile:cannotStatFile');
+            end
+        end
+
+        function test_save_update_invalid_folder_throw(obj)
+            tobj = obj.sqw_obj;
+            if ispc()
+                test_fn = 'c:\non_existent_directory\save_update_throw_invalid_file.sqw';
+            else
+                test_fn = '/non_existent_directory/save_update_throw_invalid_file.sqw';
+            end
+            tobj.full_filename =test_fn  ;
+
+            mess = sprintf('Default folder: "%s" for saving memory-based object with "-update" key does not exist',...
+                test_fn);
+            ME1= assertExceptionThrown(@()save(tobj,'-update'), ...
+                'HORACE:sqw:invalid_argument');
+            assertTrue(strncmp(ME1.message,mess,35));
+
+        end
+        %------------------------------------------------------------------
+        function test_save_dnd_return_dnd(obj)
+            targ_file = fullfile(tmp_dir,'save_dnd_test_file.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(targ_file ));
+
+            rec =obj.sqw_obj.data.save(targ_file);
+            assertTrue(isfile(targ_file));
+
+            assertEqualToTol(obj.sqw_obj.data,rec);
+
+            rec_file = read_horace(targ_file);
+            assertEqualToTol(rec_file,rec, ...
+                'ignore_str',true);
+        end
+        %
+        function test_save_dnd_produces_dnd_file(obj)
+            targ_file = fullfile(tmp_dir,'save_dnd_test_dnd.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(targ_file ));
+
+            obj.sqw_obj.data.save(targ_file);
+            assertTrue(isfile(targ_file));
+
+            rec_file = read_horace(targ_file);
+            assertEqualToTol(rec_file,obj.sqw_obj.data, ...
+                'ignore_str',true);
+        end
+        %------------------------------------------------------------------
         function test_save_upgrade_automatically_filebacked(obj)
 
             targ_file = fullfile(tmp_dir,obj.sqw_file_res);
@@ -68,6 +283,7 @@ classdef test_save < TestCase
 
             clConf = set_temporary_config_options( ...
                 hor_config,'mem_chunk_size',500000,'fb_scale_factor',3);
+            % prepare previous verion sqw file
             ldr = faccess_sqw_v2();
             test_obj = obj.sqw_obj.save(targ_file,ldr);
             ldr.delete();
@@ -107,6 +323,7 @@ classdef test_save < TestCase
             assertEqualToTol(rec,test_obj,'tol',[4*eps('single'),4*eps('single')])
 
         end
+        %
         function test_save_tmp_moves_to_new_file_upgrades_all_bar_pix(obj)
             source_to_move = fullfile(tmp_dir,'test_save_tmp_moves.tmp');
             targ_file      = fullfile(tmp_dir,'save_filebacked_different_file.sqw');
@@ -118,23 +335,24 @@ classdef test_save < TestCase
 
             test_obj.data.title = 'My image';
 
-            test_obj.save(targ_file);
+            test_obj = test_obj.save(targ_file);
             assertFalse(isfile(source_to_move));
 
             ldr = sqw_formats_factory.instance().get_loader(targ_file);
             assertTrue(isa(ldr,'faccess_sqw_v4'));
             rec = ldr.get_sqw();
             ldr.delete();
-
-            test_obj = obj.sqw_obj;
-            test_obj.data.title = 'My image';
             assertEqualToTol(rec,test_obj,'ignore_str',true,'tol',[4*eps('single'),4*eps('single')]);
-        end
 
+            ref_obj = obj.sqw_obj;
+            ref_obj.data.title = 'My image';
+            assertEqualToTol(rec,ref_obj,'ignore_str',true,'tol',[4*eps('single'),4*eps('single')]);
+        end
+        %------------------------------------------------------------------
         function test_save_permanent_creates_new_file(obj)
             source_for_fb = fullfile(tmp_dir,obj.sqw_file_res);
             targ_file      = fullfile(tmp_dir,'save_filebacked_different_file.sqw');
-            clOb = onCleanup(@()del_memmapfile_files({source_for_fb,targ_file}));
+            clOb = onCleanup(@()del_memmapfile_files(source_for_fb,targ_file));
 
             test_obj = obj.sqw_obj.save(source_for_fb);
 
@@ -151,7 +369,6 @@ classdef test_save < TestCase
 
             assertEqualToTol(rec,test_obj,'ignore_str',true);
         end
-
 
         function test_save_invalid_arguments_throw(obj)
             targ_file = fullfile(tmp_dir,obj.sqw_file_res);
@@ -190,6 +407,34 @@ classdef test_save < TestCase
                 {'fule1','file2'},{ldr,'file1'}),'HORACE:sqw:invalid_argument');
             assertTrue(strncmp(ME7.message, ...
                 'Not every file-accessor provided as input (Argument N2) is child of horace_binfile_interface (faccess loader)',35));
+        end
+
+        function test_save_simple_filebacked(obj)
+            % Prepare recent faccess version source file.
+            tmp_source_file = fullfile(tmp_dir,obj.sqw_file_res);
+            targ_file       = fullfile(tmp_dir,'test_save_simple_filebacked.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(tmp_source_file,targ_file));
+            % write test source file to check for save later and check it
+            % is written correctly.
+            wout = obj.sqw_obj.save(tmp_source_file);
+            assertTrue(wout.is_filebacked);
+            assertTrue(isfile(tmp_source_file));
+            assertEqual(wout.full_filename,tmp_source_file);
+
+            % modify file for saving change and prepare paged save.
+            wout.data.title = 'My image';
+            clConf = set_temporary_config_options(hor_config,'mem_chunk_size',wout.pix.num_pixels/4);
+            wout2 = wout.save(targ_file);
+            % check file is written as expected.
+            assertTrue(wout2.is_filebacked);
+            assertTrue(isfile(targ_file));
+            assertEqual(wout2.full_filename,targ_file);
+
+            assertEqualToTol(wout,wout2, 'ignore_str',true);
+            % clear output objects to release targ_file and tmp_source_file
+            % for deletion
+            clear wout;
+            clear wout2;
         end
 
         function test_save_with_loader(obj)

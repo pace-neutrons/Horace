@@ -153,7 +153,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         w  = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %------------------------------------------------------------------
-        wout = replicate (win, wref);
+        wout = replicate (win, wref,varargin);
 
         function obj=signal(~,varargin)
             error('HORACE:DnDBase:runtime_error',...
