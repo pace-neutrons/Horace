@@ -66,7 +66,7 @@ classdef test_str_make_cellstr < TestCase
         
         %-------------------------------------------------------------------
         function test_multipleCharArrays_stringArray_cellstr (S)
-            % Test that multiple forms of input, and that string arrays and
+            % Test multiple forms of input, and that string arrays and
             % cellstr are NOT stripped of trailing blanks, as Matlab behaviour
             % dictates
             [ok,cout] = str_make_cellstr([S.ch2; S.ch3], S.sarr, S.carr);
@@ -114,7 +114,7 @@ classdef test_str_make_cellstr < TestCase
         
         %-------------------------------------------------------------------
         function test_multipleCharArrays_stringArray_cellstr_trim (S)
-            % Test that multiple forms of input, and that string arrays and
+            % Test multiple forms of input, and that string arrays and
             % cellstr ARE stripped of trailing blanks by str_make_cellstr_trim
             [ok,cout] = str_make_cellstr_trim([S.ch2; S.ch3], S.sarr, S.carr);
             assertTrue(ok)

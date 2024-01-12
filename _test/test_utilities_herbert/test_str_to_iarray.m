@@ -9,7 +9,6 @@ classdef test_str_to_iarray < TestCase
         % Single number
         %--------------------------------------------------------------------------
         function test_single_number (~)
-            % Test constructor with no arguments
             iarr = str_to_iarray ('37');
             assertEqual (iarr, 37)
         end
@@ -100,7 +99,9 @@ classdef test_str_to_iarray < TestCase
         function test_non_Matlab_range_neg2neg_single_FAIL (~)
             % Tough test of parsing? Catch erroneous range indicator at front
             func = @()str_to_iarray ('--3--3');
-            assertExceptionThrown (func, 'HERBERT:str_to_iarray:invalid_argument');
+            ME = assertExceptionThrown (func, 'HERBERT:str_to_iarray:invalid_argument');
+            assertTrue(contains(ME.message, ...
+                'Invalid format array descriptor, or Inf or NaN found in'));
         end
        
         
@@ -151,13 +152,11 @@ classdef test_str_to_iarray < TestCase
         % Enclosing brackets
         %--------------------------------------------------------------------------
         function test_array_scalar (~)
-            % Test constructor with no arguments
             iarr = str_to_iarray ('[37]');
             assertEqual (iarr, 37)
         end
         
         function test_array_range (~)
-            % Test constructor with no arguments
             iarr = str_to_iarray (' [ 46,  45] ');
             assertEqual (iarr, [46,45])
         end
@@ -166,22 +165,44 @@ classdef test_str_to_iarray < TestCase
         % Comment lines, multiple lines
         %--------------------------------------------------------------------------
         function test_comment_line (~)
-            % Test constructor with no arguments
             iarr = str_to_iarray ('% 35');
             assertEqual (iarr, NaN(1,0))
         end
         
         function test_trailing_comment (~)
-            % Test constructor with no arguments
             iarr = str_to_iarray (' [ 46,  45] % a comment');
             assertEqual (iarr, [46,45])
         end
         
         function test_two_lines (~)
-            % Test constructor with no arguments
             iarr = str_to_iarray ({'45:47','49'});
             assertEqual (iarr, [45:47,49])
         end
         
+        %--------------------------------------------------------------------------
+        % Text other than a single character vector
+        %--------------------------------------------------------------------------
+        function test_characterArray (~)
+            iarr = str_to_iarray (['45,46                  '; ...
+                '99:-1:90  % Hello there']);
+            assertEqual (iarr, [45,46,99:-1:90])
+        end
+        
+        function test_cellArray (~)
+            iarr = str_to_iarray ({'45,46'; '99:-1:90  % Hello there'});
+            assertEqual (iarr, [45,46,99:-1:90])
+        end
+        
+        function test_MatlabString (~)
+            iarr = str_to_iarray ("45,46");
+            assertEqual (iarr, [45,46])
+        end
+        
+        function test_MatlabStringArray (~)
+            iarr = str_to_iarray (["45,46"; "99:-1:90  % Hello there"]);
+            assertEqual (iarr, [45,46,99:-1:90])
+        end
+        
+        %--------------------------------------------------------------------------
     end
 end

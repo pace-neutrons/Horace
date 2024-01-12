@@ -1,60 +1,73 @@
 function status = stringmatchi_log (str, strcell, exact)
-% Logical array of matches or unambiguous abbreviations in a cellstr
+% Find matches of a character vector to abbreviations of strings, ignoring case
+%
+% Returns a logical array of exact matches of a character vector to a cell array
+% of strings, if there are any.
+% If there are no exact matches, then returns a logical array where the 
+% character vector is an abbreviation of the contents of the cell array.
 %
 %   >> status = stringmatchi_log (str, strcell)
-%   >> status = stringmatchi_log (str, strcell, exact)      % logical 0 or 1
-%   >> status = stringmatchi_log (str, strcell, 'exact')    % character string
+%   >> status = stringmatchi_log (str, strcell, exact)      % option: logical 0 or 1
+%   >> status = stringmatchi_log (str, strcell, 'exact')    % option: character string
+% 
+% Differs from stringmatchi, which returns the indices of matches, not a logical
+% array.
+%
+% See also stringmatchi
+%
 %
 % Input:
 % ------
-%   str         Character string
-%   strcell     Cell array of strings
+%   str         Character vector (i.e. row vector of characters, or the empty character, '')
+%   strcell     Cell array of strings (as accepted by Matlab function strcmpi)
 %
 % Optional:
 %   exact       Logical flag
-%                   false [default]: exact matches not required
 %                   true: exact match required
+%                   false [default]: exact matches not required
 % *OR*
 %   'exact'     If present, output only for exact matches
 %
 % Output:
 % -------
-%   status      Logical array elements true where str is an exact match or
-%              unambiguous abbreviation of the corresponding element of
-%              strcell.
-%               If str is an exact match for one or more elements of
-%               strcell, only these indicies are returned even if it is
-%               also an abbreviation of other element.
+%   status      Logical array elements true where str is an exact match to the
+%              corresponding element of strcell; if there are no exact
+%              matches then the logical array elements indicate where str is
+%              an abbreviation of the corresponding element of strcell.
 
-if ~is_string(str)
-    error('HERBERT:stringmatchi_log:invalid_argument',...
-        'First argument must be a string')
+
+% Test class of input
+if ~is_charVector(str)
+    error('HERBERT:stringmatchi:invalid_argument',...
+        'First argument must be a character vector')
 end
 
-if nargin==2 || (islognumscalar(exact) && ~logical(exact))
-    nch = numel(str);
-    ind = find(strncmpi(str, strcell, nch));
-    
-    % If string and cellstr and more than one match, look for equality
-    if numel(ind)>1
-        ix = false(size(ind));
-        for i = 1:numel(ind(:))
-            if numel(strcell{ind(i)}) == nch
-                ix(i) = true;
-            end
-        end
-        if any(ix(:))
-            ind = ind(ix);
-        end
-    end
-    status = false(size(strcell));
-    status(ind) = true;
-    
-elseif (islognumscalar(exact) && logical(exact)) || ...
-        (is_string(exact) && strcmpi(exact,'exact'))
+% Determine if exact matches are required or not
+if nargin < 3
+    exact = false;
+elseif islognumscalar(exact)
+    exact = logical(exact);
+elseif is_string(exact) && strcmpi(exact,'exact')
+    exact = true;
+else
+    error('HERBERT:stringmatchi:invalid_argument', ['Optional third ', ...
+        'argument can only take the value ''exact'' or logical true/false'])
+end
+
+% Find matches
+if exact
+    % Search for exact matches only
     status = strcmpi(str, strcell);
     
 else
-    error('HERBERT:stringmatchi_log:invalid_argument',...
-        'Optional third argument can only take the value ''exact'' or logical true/false')
+    % Exact matches and abbreviations
+    status = strncmpi(str, strcell, numel(str));
+    
+    % If string and cellstr have more than one match, look for equality
+    if sum(status(:)) > 1
+        status_exact = strcmpi(str, strcell);
+        if sum(status_exact) > 0
+            status = status_exact;
+        end
+    end
 end

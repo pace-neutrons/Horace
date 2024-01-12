@@ -15,6 +15,18 @@ classdef test_stringmatchi < TestCase
         end
         
         %--------------------------------------------------------------------------
+        function test_nonUnique_unambiguous_stringInput (~)
+            % Two elements of the cell array start with the test string, but
+            % ambiguity is resolved by one being an exact match
+            strcell = ["hello", "help", "hell", "burp"];
+            ix = stringmatchi ('hell', strcell);
+            ok = stringmatchi_log ('hell', strcell);
+            
+            assertEqual (ix, 3);            
+            assertEqual (ok, logical([0,0,1,0]));            
+        end
+        
+        %--------------------------------------------------------------------------
         function test_nonUnique_ambiguous (~)
             % Three elements of the cell array start with the test string, but
             % no resolution of the ambiguity by an exact match
@@ -104,7 +116,7 @@ classdef test_stringmatchi < TestCase
             assertExceptionThrown (@()stringmatchi ('hell', strcell, 'extra'),...
                 'HERBERT:stringmatchi:invalid_argument');            
             assertExceptionThrown (@()stringmatchi_log ('hell', strcell, 'extra'),...
-                'HERBERT:stringmatchi_log:invalid_argument');            
+                'HERBERT:stringmatchi:invalid_argument');            
         end
         
         %--------------------------------------------------------------------------
