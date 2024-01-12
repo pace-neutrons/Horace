@@ -27,3 +27,8 @@ if isfield(in,'ulabel')
     in.label = in.ulabel;
     in = rmfield(in,'ulabel');
 end
+if sum(nbins_all_dims) == 4
+    if isfield(in,'dax')
+        in = rmfield(in,'dax');
+    end
+end
