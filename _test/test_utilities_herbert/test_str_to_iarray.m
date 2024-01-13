@@ -23,7 +23,7 @@ classdef test_str_to_iarray < TestCase
         
         function test_range_rhs_lt_lhs (~)
             iarr = str_to_iarray ('6:-3');
-            assertEqual (iarr, 6:-3)
+            assertEqual (iarr, zeros(1,0))
         end
         
         function test_range_with_positive_stride (~)
@@ -33,27 +33,31 @@ classdef test_str_to_iarray < TestCase
         
         function test_range_with_negative_stride (~)
             iarr = str_to_iarray ('3:-2:8');
-            assertEqual (iarr, 3:-2:8)
+            assertEqual (iarr, zeros(1,0))
         end
         
         function test_range_with_positive_stride_rhs_lt_lhs (~)
             iarr = str_to_iarray ('3:2:-4');
-            assertEqual (iarr, 3:2:-4)
+            assertEqual (iarr, zeros(1,0))
         end
         
         function test_range_with_negative_stride_rhs_gt_lhs (~)
             iarr = str_to_iarray ('3:-2:8');
-            assertEqual (iarr, 3:-2:8)
+            assertEqual (iarr, zeros(1,0))
         end
 
         function test_range_with_zero_stride_rhs_lt_lhs (~)
             func = @()str_to_iarray ('3:0:-4');
-            assertExceptionThrown (func, 'HERBERT:str_to_iarray:invalid_argument');
+            ME = assertExceptionThrown (func, 'HERBERT:str_to_iarray:invalid_argument');
+            assertTrue(contains(ME.message, ...
+                'Zero size stride found in array descriptor'));
         end
         
         function test_range_with_zero_stride_rhs_gt_lhs (~)
             func = @()str_to_iarray ('3:0:8');
-            assertExceptionThrown (func, 'HERBERT:str_to_iarray:invalid_argument');
+            ME = assertExceptionThrown (func, 'HERBERT:str_to_iarray:invalid_argument');
+            assertTrue(contains(ME.message, ...
+                'Zero size stride found in array descriptor'));
         end
         
         
@@ -121,7 +125,9 @@ classdef test_str_to_iarray < TestCase
         function test_range_with_positive_stride_rhs_gt_lhs_WSfail (~)
             % Should fail as we do not permit whitespace within the token
             func = @()str_to_iarray (' 3 :2: 14');
-            assertExceptionThrown (func, 'HERBERT:str_to_iarray:invalid_argument');
+            ME = assertExceptionThrown (func, 'HERBERT:str_to_iarray:invalid_argument');
+            assertTrue(contains(ME.message, ...
+                'Invalid format array descriptor, or Inf or NaN found in'));
         end
         
         function test_non_Matlab_range_with_positive_stride_rhs_gt_lhs_WS (~)
@@ -132,7 +138,9 @@ classdef test_str_to_iarray < TestCase
         function test_non_Matlab_range_with_positive_stride_rhs_gt_lhs_WSfail (~)
             % Should fail as we do not permit whitespace within the token
             func = @()str_to_iarray (' 3 - 14');
-            assertExceptionThrown (func, 'HERBERT:str_to_iarray:invalid_argument');
+            ME = assertExceptionThrown (func, 'HERBERT:str_to_iarray:invalid_argument');
+            assertTrue(contains(ME.message, ...
+                'Invalid format array descriptor, or Inf or NaN found in'));
         end
         
         %--------------------------------------------------------------------------

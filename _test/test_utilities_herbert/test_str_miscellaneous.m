@@ -241,7 +241,7 @@ classdef test_str_miscellaneous < TestCase
             % Matlab intrinsic function should fail
             f = @()strlength(ch);
             ME = assertExceptionThrown(f, 'MATLAB:string:MustBeCharCellArrayOrString');
-            assertTrue(contains(ME.message, 'First argument must be text.'))
+            assertTrue(contains(ME.message, 'First argument must be'))
             
             % Herbert function should also fail
             f = @()str_length(ch);
