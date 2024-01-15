@@ -152,7 +152,7 @@ for i=1:numel(ind)
         state_out{i} = rng;     % capture the random number generator state
     end
 
-    npix = win(i).data.npix;
+    npix = win(i).data.npix(:);
     [npix_chunks, idxs] = split_vector_fixed_sum(npix, max_pix_size);
     pix_bin_regions = [1, cumsum(cellfun(@sum, npix_chunks))];
 
@@ -168,7 +168,6 @@ for i=1:numel(ind)
 end
 
 end
-
 
 function sqw_obj = compute_resconv(sqw_obj, iw, lookup, sqwfunc, pars, ...
                                    mc_contributions, mc_points, ...
@@ -206,7 +205,7 @@ en = lookup.en{iw}(idx_start:idx_end, :);
 
 % Run and detector for each pixel
 npix = idx_end - idx_start + 1; %sqw_obj.pix.num_pixels;
-[irun, idet] = parse_pixel_indices(sqw_obj, idx_start:idx_end);     % returns column vectors
+[irun, idet] = parse_pixel_indices(sqw_obj, (idx_start:idx_end)');     % returns column vectors
 
 % Get detector information for each pixel in the sqw object
 % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
@@ -248,7 +247,7 @@ qw = calculate_q(ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
 % This is done on-the-fly for each sqw object because dq_mat is so large
 % (44 double precision numbers for each pixel)
 dq_mat = dq_matrix_DGfermi (ki(irun), kf,...
-                            x0(irun), xa(irun), x1(irun), x2', thetam(irun), angvel(irun),...
+                            x0(irun), xa(irun), x1(irun), x2, thetam(irun), angvel(irun),...
                             s_mat(:,:,irun), f_mat, d_mat,...
                             spec_to_rlu(:,:,irun), k_to_v, k_to_e);
 
@@ -282,7 +281,7 @@ for imc=1:mc_points
 
     % Detector deviations
     if mc_contributions.detector_depth || mc_contributions.detector_area
-        det_points = detector_table.rand_ind (iw, irun, idet, 'split', @rand, kf');
+        det_points = detector_table.rand_ind (iw, irun, idet, 'split', @rand, kf);
         if ~mc_contributions.detector_area
             yvec(8,1,:) = det_points(1,:);
         elseif ~mc_contributions.detector_depth
@@ -294,7 +293,7 @@ for imc=1:mc_points
 
     % Energy bin
     if mc_contributions.energy_bin
-        yvec(11,1,:) = dt'.*(rand(1,npix) - 0.5);
+        yvec(11,1,:) = dt' .* (rand(1,npix) - 0.5);
     end
 
     % Calculate the deviations in Q and energy, and then the S(Q,w) intensity

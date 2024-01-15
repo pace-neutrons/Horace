@@ -121,13 +121,11 @@ if refine_crystal && refine_moderator
           'Cannot refine both crystal and moderator parameters. Error in logic flow - this should have been caught')
 end
 
-
 % Initialise output arguments
 % ---------------------------
 wout = copy(win);
 state_out = cell(size(win));    % create output argument
 store_out = [];
-
 
 % Perform resolution broadening calculation
 % -----------------------------------------
@@ -207,7 +205,7 @@ en = lookup.en{iw}(idx_start:idx_end, :);
 
 % Run and detector for each pixel
 npix = idx_end - idx_start + 1; %sqw_obj.pix.num_pixels;
-[irun, idet] = parse_pixel_indices(sqw_obj, idx_start:idx_end);     % returns column vectors
+[irun, idet] = parse_pixel_indices(sqw_obj, (idx_start:idx_end)');     % returns column vectors
 
 % Get detector information for each pixel in the sqw object
 % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
@@ -253,7 +251,7 @@ qw = calculate_q(ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
 % This is done on-the-fly for each sqw object because dq_mat is so large
 % (44 double precision numbers for each pixel)
 dq_mat = dq_matrix_DGdisk (ki(irun), kf,...
-                           xa(irun), x1(irun), x2',...
+                           xa(irun), x1(irun), x2,...
                            s_mat(:,:,irun), f_mat, d_mat,...
                            spec_to_rlu(:,:,irun), k_to_v, k_to_e);
 
@@ -286,7 +284,7 @@ for imc=1:mc_points
 
     % Detector deviations
     if mc_contributions.detector_depth || mc_contributions.detector_area
-        det_points = detector_table.rand_ind (iw, irun, idet, 'split', @rand, kf');
+        det_points = detector_table.rand_ind (iw, irun, idet, 'split', @rand, kf);
         if ~mc_contributions.detector_area
             yvec(8,1,:) = det_points(1,:);
         elseif ~mc_contributions.detector_depth
@@ -313,11 +311,7 @@ for imc=1:mc_points
     end
     q = squeeze(q);    % 4 x 1 x npix ==> 4 x npix
 
-    if imc==1
-        stmp=sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
-    else
-        stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
-    end
+    stmp = stmp + sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
 end
 
 sqw_obj.pix.signal(idx_start:idx_end) = stmp(:)'/mc_points;
