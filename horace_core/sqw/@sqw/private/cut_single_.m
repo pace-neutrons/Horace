@@ -1,4 +1,4 @@
-function [wout,log_info] = cut_single_(w, targ_proj, targ_axes, opt, log_level)
+function wout = cut_single_(w, targ_proj, targ_axes, opt, log_level)
 %%CUT_SINGLE Perform a cut on a single sqw object
 %
 % Input:
