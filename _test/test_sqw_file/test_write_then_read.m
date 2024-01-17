@@ -16,6 +16,28 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             obj.test_sqw_file_path = fullfile(hp.test_common,obj.test_sqw_file_path);
         end
 
+        function test_read_dnd_v3_with_empty_sample(obj)
+            % prepare test file with empty sample
+            sam_sqw = read_sqw(obj.test_sqw_file_path);
+            test_file = fullfile(tmp_dir,'read_dnd_v3_empty_sample.sqw');
+            clObj = onCleanup(@()delete(test_file));
+            save(sam_sqw,test_file,faccess_sqw_v3_3);
+            ll = sqw_formats_factory.instance().get_loader(test_file);
+            assertEqual(ll.faccess_version,3.3);
+
+            exper = sam_sqw.experiment_info;
+            exper.samples = repmat(IX_null_sample,24,1);
+            sam_sqw.experiment_info = exper;
+
+            % store empty sample in the test file
+            ll = ll.put_samples(sam_sqw);
+            ll.delete();
+
+            % check it works after bug is fixed
+            rec_dnd = read_dnd(test_file);
+
+        end
+
 
         function test_sqw_with_paged_pix_saved_is_eq_to_original_with_all_pix(obj)
             sqw_obj = sqw(obj.test_sqw_file_path, ...

@@ -110,19 +110,19 @@ if footer_sample_present % set up its lattice if the lattice is not present
             'Number of unique lattices (%d) differs from number of unique samples (%d)',...
             n_latt,n_samp);
     end
-            for i=1:n_samp
+    for i=1:n_samp
         main_sampl{i} = set_lattice(main_sampl{i},bas_sample{i});
-            end
+    end
     %main_sampl.unique_objects = main_si;
     exp_info.samples = main_sampl;
 else % basic sample have already been built from lattice stored in header
-     % so nothing to do, if this is full sqw access. If not, may be
-     % variants
-     if ~isempty(obj.sqw_holder_) && main_sampl.contains('IX_null_samp')
-         warning('HORACE:faccess_sqw_v3:not_implemented',...
-             'setting sample from sqw object at get_exp_info is not yet implemented');
-     end
-end  
+    % so nothing to do, if this is full sqw access. If not, may be
+    % variants
+    if ~isempty(obj.sqw_holder_) && main_sampl.contains('IX_null_samp')
+        warning('HORACE:faccess_sqw_v3:not_implemented',...
+            'setting sample from sqw object at get_exp_info is not yet implemented');
+    end
+end
 %
 
 % This test is to exclude the case that no instrument was defined when the run data was read. In that case
