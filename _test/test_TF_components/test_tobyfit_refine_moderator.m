@@ -63,7 +63,7 @@ classdef test_tobyfit_refine_moderator < TestCaseWithSave
 
         function obj = test_RbMnF3_incoherent_1(obj)
 
-            % Fully disable chunking for this test
+            % Fully disable chunking for this test due to strict tolerances
             clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', 1e8);
             data = obj.w1inc;
 

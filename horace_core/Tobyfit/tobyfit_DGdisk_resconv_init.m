@@ -93,9 +93,9 @@ function [ok,mess,lookup,npix] = tobyfit_DGdisk_resconv_init (win, varargin)
 %       Cell array of widths of energy bins, one array per dataset
 %           dt          Time widths for each pixel (s), size [npix,1]
 %
-%       Cell arrays of q,w and transformation arrays, one array per dataset
-%           qw          Cell array size [1,4] with components of momentum (in rlu) and energy
-%                       for each pixel [Columns of length npix]
+%       Cell array of energy bin centres, one array per dataset
+%           en          Vector of size [1,npix] with components of energy
+%                       for each pixel
 %
 %       Constants:
 %           k_to_e      Constant in E(mev)=k_to_e*(k(Ang^-1))^2

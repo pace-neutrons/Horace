@@ -134,9 +134,30 @@ if ~iscell(pars)
     pars={pars};
 end
 
+% Catch case of refining moderator parameters
+if refine_moderator
+    % Get the (single) moderator to be refined. Assume that any checks
+    % on moderator models in the sqw objects being fitted have been performed
+    % earlier on so that here all moderators are replaced by a single one
+    % derived from the first object in the lookup table.
+    moderator = lookup.mod_shape_mono_table.object_store(1).moderator;
+
+    % Strip out moderator refinement parameters and update moderator
+    [moderator, pars{1}] = refine_moderator_strip_pars...
+        (moderator, modshape, pars{1});
+
+    % Replace moderator(s) in object lookup with updated moderator
+    mod_shape_mono = mod_shape_mono_table.object_store;
+    for i=1:numel(mod_shape_mono)
+        mod_shape_mono.moderator = moderator;
+    end
+    lookup.mod_shape_mono_table.object_store = mod_shape_mono;
+end
+
 reset_state=caller.reset_state;
 
-% Factor 10 because of 44 x npix array
+% chunking ratio currently specified as such for simplicity,
+% despite algorithm ultimately resulting in 44 x npix sized arrays
 max_pix_size = get(hor_config, 'mem_chunk_size') / 10;
 
 for i=1:numel(ind)
@@ -152,15 +173,25 @@ for i=1:numel(ind)
         state_out{i} = rng;     % capture the random number generator state
     end
 
-    npix = win(i).data.npix;
-    [npix_chunks, idxs] = split_vector_fixed_sum(npix, max_pix_size);
+    % Catch case of refining crystal orientation
+    if refine_crystal
+        % Strip out crystal refinement parameters and reorient datasets
+        [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
+
+        % Update s_mat, spec_to_rlu, alatt and angdeg because in general the
+        % crystal orientation and lattice parameters will have changed
+        [~, lookup.s_mat{iw}, lookup.spec_to_rlu{iw}, ...
+         lookup.alatt{iw}, lookup.angdeg{iw}] = sample_coords_to_spec_to_rlu(win(i).experiment_info);
+
+    end
+
+    npix = win(i).data.npix(:);
+    npix_chunks = split_vector_fixed_sum(npix, max_pix_size);
     pix_bin_regions = [1, cumsum(cellfun(@sum, npix_chunks))];
 
     for j = 1:numel(pix_bin_regions)-1
         wout(i) = compute_resconv(wout(i), iw, lookup, sqwfunc, pars, ...
                                   mc_contributions, mc_points, ...
-                                  refine_crystal, xtal, ...
-                                  refine_moderator, modshape, ...
                                   pix_bin_regions(j), pix_bin_regions(j+1));
 
     end
@@ -169,10 +200,10 @@ end
 
 end
 
+% --------------------------------------------------------------------------------
+
 function sqw_obj = compute_resconv(sqw_obj, iw, lookup, sqwfunc, pars, ...
                                    mc_contributions, mc_points, ...
-                                   refine_crystal, xtal, ...
-                                   refine_moderator, modshape, ...
                                    idx_start, idx_end)
 
 % Create pointers to parts of lookup structure
@@ -194,58 +225,29 @@ mc_mod_shape_mono = [mc_contributions.moderator,...
 xa=lookup.xa{iw};
 x1=lookup.x1{iw};
 ki=lookup.ki{iw};
-kf = lookup.kf{iw}(idx_start:idx_end, :);
 s_mat=lookup.s_mat{iw};
 spec_to_rlu=lookup.spec_to_rlu{iw};
 alatt=lookup.alatt{iw};
 angdeg=lookup.angdeg{iw};
 is_mosaic=lookup.is_mosaic{iw};
+
+% Take relevant sections of pix-related objects
+kf = lookup.kf{iw}(idx_start:idx_end, :);
 dt = lookup.dt{iw}(idx_start:idx_end, :);
 en = lookup.en{iw}(idx_start:idx_end, :);
 
 % Run and detector for each pixel
-npix = idx_end - idx_start + 1; %sqw_obj.pix.num_pixels;
-[irun, idet] = parse_pixel_indices(sqw_obj, (idx_start:idx_end)');     % returns column vectors
+[irun, idet] = parse_pixel_indices(sqw_obj, (idx_start:idx_end)'); % Output shape matches slice
+
+npix = idx_end - idx_start + 1;
 
 % Get detector information for each pixel in the sqw object
 % size(x2) = [npix,1], size(d_mat) = [3,3,npix], size(f_mat) = [3,3,npix]
 % and size(detdcn) = [3,npix]
 [x2, detdcn, d_mat, f_mat] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
 
-% Catch case of refining crystal orientation
-if refine_crystal
-    % Strip out crystal refinement parameters and reorient datasets
-    [sqw_obj, pars{1}] = refine_crystal_strip_pars (sqw_obj, xtal, pars{1});
-
-    % Update s_mat, spec_to_rlu, alatt and angdeg because in general the
-    % crystal orientation and lattice parameters will have changed
-    [~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(sqw_obj.experiment_info);
-
-end
-
-% Catch case of refining moderator parameters
-if refine_moderator
-    % Get the (single) moderator to be refined. Assume that any checks
-    % on moderator models in the sqw objects being fitted have been performed
-    % earlier on so that here all moderators are replaced by a single one
-    % derived from the first object in the lookup table.
-    moderator = mod_shape_mono_table.object_store(1).moderator;
-
-    % Strip out moderator refinement parameters and update moderator
-    [moderator, pars{1}] = refine_moderator_strip_pars...
-        (moderator, modshape, pars{1});
-
-    % Replace moderator(s) in object lookup with updated moderator
-    mod_shape_mono = mod_shape_mono_table.object_store;
-    for i=1:numel(mod_shape_mono)
-        mod_shape_mono.moderator = moderator;
-    end
-    mod_shape_mono_table.object_store = mod_shape_mono;
-end
-
-
 % Recompute Q on-the-fly
-qw = calculate_q(ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
+q = calculate_q(ki(irun), kf, detdcn, spec_to_rlu(:,:,irun));
 
 % Compute (Q,w) deviations matrix
 % This is done on-the-fly for each sqw object because dq_mat is so large
@@ -302,16 +304,16 @@ for imc=1:mc_points
     % Calculate the deviations in Q and energy, and then the S(Q,w) intensity
     % -----------------------------------------------------------------------
     dq = mtimesx_horace(dq_mat,yvec);
-    q = dq + reshape([qw{1}';qw{2}';qw{3}';en'], size(dq));
+    qw = dq + reshape([q{1}';q{2}';q{3}';en'], size(dq));
 
     % Mosaic spread
     if is_mosaic && mc_contributions.mosaic
         Rrlu = sample_table.rand_ind (iw, irun, @rand_mosaic, alatt, angdeg);
-        q(1:3,:,:) = mtimesx_horace(Rrlu, q(1:3,:,:));
+        qw(1:3,:,:) = mtimesx_horace(Rrlu, qw(1:3,:,:));
     end
-    q = squeeze(q);    % 4 x 1 x npix ==> 4 x npix
+    qw = squeeze(qw);    % 4 x 1 x npix ==> 4 x npix
 
-    stmp = stmp + sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
+    stmp = stmp + sqwfunc(qw(1,:)',qw(2,:)',qw(3,:)',qw(4,:)',pars{:});
 end
 
 sqw_obj.pix.signal(idx_start:idx_end) = stmp(:)'/mc_points;
