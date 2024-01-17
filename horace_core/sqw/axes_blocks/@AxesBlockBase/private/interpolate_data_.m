@@ -104,6 +104,9 @@ if ~isempty(targ_proj)
             mult,may_contrND,may_contr_dE);
         mult = mult*2;
         n_targ_nodes = size(inodes,2)*targ_contr_share;
+        if mult>4
+            all_accounted_for = true;
+        end
     end
     if ~all_accounted_for
         warning('HORACE:runtime_error', ...
