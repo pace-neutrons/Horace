@@ -153,16 +153,32 @@ pix_comb_info = init_pix_combine_info(num_chunks*num_proj, num_bins);
 clearPixAccum = onCleanup(@() cut_data_from_file_job.accumulate_pix('cleanup'));
 
 unique_runid = [];
+if ll>=2
+    n_read_pixels = 0;
+    n_retained_pixels = 0;
+    pix_byte_size   = pix.get_pix_byte_size(true);
+    time_to_read    = zeros(num_chunks);
+    time_to_process = zeros(num_chunks);
+    time_to_accum   = zeros(num_chunks);
+    t_proj_start = tic;
+end
 
 for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
     chunk = block_chunks{iter};
     pix_start = chunk{1};
     block_sizes = chunk{2};
+    if ll>=2
+        tic;
+    end
 
     candidate_pix = pix.get_pix_in_ranges(pix_start, block_sizes, false, keep_precision);
-
     if ll >= 1
+        if ll>=2
+            n_read_pixels = n_read_pixels + candidate_pix.num_pixels;
+            time_to_read(iter)= toc;
+            tic;
+        end
         fprintf('*** Step %d of %d; Read data for %8d pixels -- processing data...', ...
             iter, num_chunks, candidate_pix.num_pixels);
     end
@@ -179,6 +195,11 @@ for iter = 1:num_chunks
         unique_runid = unique([unique_runid, unique_runid_l(:)']);
 
         if ll >= 1
+            if ll>=2
+                time_to_process(iter) = toc;
+                n_retained_pixels     = n_retained_pixels+npix_step_retained;
+                tic;
+            end
             fprintf(' ----->  %s  %8d pixels\n', pixel_contrib_name, npix_step_retained);
         end
 
@@ -189,6 +210,10 @@ for iter = 1:num_chunks
         pix_comb_info = cut_data_from_file_job.accumulate_pix(pix_comb_info, false, ...
             pix_ok, pix_indx, npix, ...
             buf_size);
+        if ll>=2
+            time_to_accum(iter) = toc;
+            tic;
+        end
     end
 end  % loop over pixel blocks
 
@@ -197,6 +222,17 @@ end  % loop over pixel blocks
 % return pix_out which is either pixfile_combine_info or PixelDataMemory
 % depending on how many pixels were extracted.
 pix_out = cut_data_from_file_job.accumulate_pix(pix_comb_info, true);
+if ll>=2
+    accum_time = toc;
+    total_proj_time = toc(t_proj_start);
+    data_proc_time  = sum(time_to_process);
+    pix_read_time   = sum(time_to_read);
+    pix_accum_time  = accum_time +sum(time_to_accum);
+
+    log_progress(pix.is_filebacked,pix_byte_size, ...
+        pix.num_pixels,n_read_pixels,n_retained_pixels, ...
+        total_proj_time,pix_read_time,data_proc_time,pix_accum_time);
+end
 end
 
 function pci = init_pix_combine_info(nfiles, nbins)
@@ -250,4 +286,31 @@ if log_level > 1
             obj_type, target, pix_state);
     end
 end
+end
+
+function log_progress(is_filebacked,pix_byte_size,npix_total,n_read_pixels,n_retained_pixels, ...
+    total_proj_time,pix_read_time,data_proc_time,pix_accum_time)
+
+disp('--------------------------------------------------------------------------------')
+if is_filebacked
+    fprintf('Number of points in input file: %d\n',npix_total);
+    fprintf('         Fraction of file read: %8.2f%% (=%10d points) ;  Read speed: %8.2fMB/sec\n',...
+        100*n_read_pixels/double(npix_total),n_read_pixels,n_read_pixels*pix_byte_size/(1024*1024)/pix_read_time);
+    fprintf('     Fraction of file retained: %8.2f%% (=%10d points)\n',...
+        100*n_retained_pixels/double(npix_total),n_retained_pixels);
+else
+    fprintf('Number of points in input object: %d\n',npix_total);
+    fprintf('     Fraction of object selected: %8.2f%% (=%10d points) %  Access speed: %8.2fGB/sec',...
+        100*n_read_pixels/double(npix_total),n_read_pixels,n_read_pixels*pix_byte_size/(1024*1024*1024)/pix_read_time);
+    fprintf('     Fraction of object retained: %8.2f%% (=%10d points)\n',...
+        100*n_retained_pixels/double(npix_total),n_retained_pixels);
+end
+
+disp(' ')
+fprintf( ...
+    ['Total time in cut(sqw): %8.1fsec Including:\n' ...
+    ' Data access time : %5.1f%%; Transformation time: %5.1f%%; Preparing resulting pixels: %5.1f%%\n'], ...
+    total_proj_time,100*pix_read_time/total_proj_time,100*data_proc_time/total_proj_time,100*pix_accum_time/total_proj_time)
+disp('--------------------------------------------------------------------------------')
+
 end

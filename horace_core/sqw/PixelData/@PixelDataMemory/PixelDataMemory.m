@@ -156,6 +156,11 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
         function obj_out = copy(obj)
             obj_out = obj;
         end
+        %
+        function   sz = get_pix_byte_size(obj,varargin)
+            % Return the size of single pixel expressed in bytes.
+            sz = obj.DEFAULT_NUM_PIX_FIELDS*8;
+        end
     end
 
     methods
@@ -199,9 +204,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods(Access=protected)
-        function   sz = get_pix_byte_size(obj)
-            sz = obj.DEFAULT_NUM_PIX_FIELDS*8;
-        end
         function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
             % Overloaded part of get_raw_pix operation.
             %
