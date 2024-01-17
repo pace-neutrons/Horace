@@ -3,6 +3,8 @@ Get Horace symmetry matrices from symmetry group number
 """
 
 import sys
+from typing import Tuple, Union, List, Dict
+
 import spglib
 
 CONVERTER = {'A 1 1 2': 12,
@@ -884,7 +886,8 @@ CONVERTER = {'A 1 1 2': 12,
              'R3m': 451}
 
 
-def to_horace_symops(rotations, translations):
+def to_horace_symops(rotations: List[List[List[float]]],
+                     translations: List[List[float]]) -> str:
     """ Translate rotations and translations into horace symops """
     outstr = "sym = {...\n"
     outstr += ", ...\n".join(
@@ -896,7 +899,8 @@ def to_horace_symops(rotations, translations):
     return outstr
 
 
-def from_hall_number(hall_number):
+def from_hall_number(hall_number: int) -> Tuple[Dict[str, str], str]:
+    """ Convert from hall number to Horace Symop """
     dataset = spglib.get_symmetry_from_database(hall_number)
     info = spglib.get_spacegroup_type(hall_number)
 
@@ -904,7 +908,28 @@ def from_hall_number(hall_number):
     return info, out
 
 
+def from_international(international: str) -> Tuple[Dict[str, str], str]:
+    """ Convert from international notation to Horace Symop """
+    if international not in CONVERTER:
+        raise KeyError(f"Cannot find {international} in known symbols")
+
+    info, ops = from_hall_number(CONVERTER[international])
+
+    return info, ops
+
+
+def main(arg: Union[str, int]) -> Tuple[Dict[str, str], str]:
+    """ Convert from hall number or international to Horace Symop """
+    if isinstance(arg, int) or arg.isdecimal():
+        info, ops = from_hall_number(int(arg))
+    else:
+        info, ops = from_international(arg)
+
+    return info, ops
+
+
 def _usage():
+    """ Print usage and exit """
     print(f"Usage: python {sys.argv[0]} [<hall number>|<international_short>|<international_full>]")
     sys.exit(1)
 
@@ -913,13 +938,5 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         _usage()
 
-    arg = sys.argv[1]
-    if arg in CONVERTER:
-        inf, ops = from_hall_number(CONVERTER[arg])
-    elif arg.isdecimal():
-        inf, ops = from_hall_number(int(sys.argv[1]))
-    else:
-        _usage()
-
-    print(inf)
-    print(ops)
+    INFO, OPS = main(sys.argv[1])
+    print(INFO, OPS, sep="\n\n")
