@@ -123,9 +123,9 @@ classdef test_cut < TestCase & common_state_holder
 
         end
         function test_cut_sqw_with_pix_advanced_logging(obj)
-            diary_file1 = fullfile(tmp_dir,'advanced_logging_test_level0.txt');
+            diary_file1 = fullfile(tmp_dir,'advanced_logging_pix_test_level0.txt');
             clFile1 = onCleanup(@()delete(diary_file1));
-            diary_file2 = fullfile(tmp_dir,'advanced_logging_nopix_test_level2.txt');
+            diary_file2 = fullfile(tmp_dir,'advanced_logging_pix_test_level2.txt');
             clFile2 = onCleanup(@()delete(diary_file2));
             clConfig = set_temporary_config_options(hor_config,'log_level',0);
             diary(diary_file1);
@@ -147,7 +147,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_nopix_advanced_logging(obj)
-            diary_file1 = fullfile(tmp_dir,'advanced_logging_test_level0.txt');
+            diary_file1 = fullfile(tmp_dir,'advanced_logging_nopix_test_level0.txt');
             clFile1 = onCleanup(@()delete(diary_file1));
             diary_file2 = fullfile(tmp_dir,'advanced_logging_nopix_test_level2.txt');
             clFile2 = onCleanup(@()delete(diary_file2));
