@@ -27,19 +27,19 @@ elseif ismac
         'MAC compilation is not implemented. Trying with Unix settings which probably would not work');
 end
 % settings for compiling hdf routines
-[ma,me,mi]=H5.get_libversion();
-hdf_version = ma+0.1*me+0.001*mi;
-if hdf_version == 1.812
-    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.12',hdf_ext]);
-elseif hdf_version == 1.806
-    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.6',hdf_ext]);
-else
-    error('HORACE_MEX:not_implemented',...
-        ['Matlab uses %d.%d.%d version of HDF library. ',...
-        'HDF mex code is provided for HDF 1.8.12 and 1.8.6 versions only.',...
-        ' You need to download appropriate hdf headers yourseld and modify horace_mex to use your version'],...
-        ma,me,mi);
-end
+% [ma,me,mi]=H5.get_libversion();
+% hdf_version = ma+0.1*me+0.001*mi;
+% if hdf_version == 1.812
+%     hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.12',hdf_ext]);
+% elseif hdf_version == 1.806
+%     hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.6',hdf_ext]);
+% else
+%     error('HORACE_MEX:not_implemented',...
+%         ['Matlab uses %d.%d.%d version of HDF library. ',...
+%         'HDF mex code is provided for HDF 1.8.12 and 1.8.6 versions only.',...
+%         ' You need to download appropriate hdf headers yourseld and modify horace_mex to use your version'],...
+%         ma,me,mi);
+% end
 % lib directirues:
 %arc = computer('arch');
 %lib_dir = fullfile(matlabroot,'bin',arc);
@@ -73,9 +73,9 @@ try % mex C++
     
 
     % create the procedured to access hdf files
-    cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
-        'pix_block_processor.cpp'};
-    mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_hdf_dir,hdf_root_dir,cof{:} );
+%     cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
+%         'pix_block_processor.cpp'};
+%     mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_hdf_dir,hdf_root_dir,cof{:} );
 
 
     disp('**********> Successfully created required mex files from C++')
