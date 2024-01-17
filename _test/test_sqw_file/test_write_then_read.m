@@ -19,7 +19,8 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
         function test_read_dnd_v3_with_empty_sample(obj)
             % prepare test file with empty sample
             sam_sqw = read_sqw(obj.test_sqw_file_path);
-            test_file = fullfile(tmp_dir,'read_dnd_v3_empty_sample.sqw');
+            test_filename = 'read_dnd_v3_empty_sample.sqw';
+            test_file = fullfile(tmp_dir,test_filename );
             clObj = onCleanup(@()delete(test_file));
             save(sam_sqw,test_file,faccess_sqw_v3_3);
             ll = sqw_formats_factory.instance().get_loader(test_file);
@@ -29,13 +30,15 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             exper.samples = repmat(IX_null_sample,24,1);
             sam_sqw.experiment_info = exper;
 
-            % store empty sample in the test file
+            % store empty sample in old format test file
             ll = ll.put_samples(sam_sqw);
             ll.delete();
 
             % check it works after bug is fixed
             rec_dnd = read_dnd(test_file);
-
+            assertTrue (isa(rec_dnd,'d2d'))
+            assertEqual(size(rec_dnd.s),[16,11]);
+            assertEqual(rec_dnd.filename,test_filename);            
         end
 
 
