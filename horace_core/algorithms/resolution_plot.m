@@ -231,7 +231,7 @@ if ~isfield(detpar,'filename'), detpar.filename = ''; end
 if ~isfield(detpar,'filepath'), detpar.filepath = ''; end
 if ~isfield(detpar,'group'), detpar.group = 1; end
 
-wres.detpar = detpar;
+wres.detpar = detpar; % $DET wres is a holding struct, not sqw
 
 
 % Make data structure

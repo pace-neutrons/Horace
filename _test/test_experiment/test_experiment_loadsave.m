@@ -111,6 +111,59 @@ classdef test_experiment_loadsave < TestCase
             
             assertEqual( numel(ld1.sq3), 2);
             assertEqualToTol(sq3,ld1.sq3,1.e-12,'-ignore_date','ignore_str',true);
+        end % test_loadsave_multiple_run_and_sqw
+        
+        function test_loadsave_detectors(~)
+            % partial setup of an sqw for the purposes of testing the
+            % saving and reloading of detector arrays 
+            
+            % empty sqw
+            mysqw = sqw();
+            % add IX_experiment, instrument, sample for 2 runs
+            expdata = IX_experiment();
+            expdata = repmat(expdata, 2, 1);
+            inst = IX_null_inst();
+            inst = repmat({inst},2,1);
+            samp = IX_samp();
+            samp = repmat({samp},2,1);
+            % create a detpar structure with dummy data
+            detpar = struct('filename','fake',  ...
+                            'filepath', '/fake',...
+                            'group',    [1 2 3 4]', ...
+                            'x2',       [5 5 5 5]', ...
+                            'phi',      [1 1 1 1]', ...
+                            'azim',     [2 2 2 2]', ...
+                            'width',    [3 3 3 3]', ...
+                            'height',   [4 4 4 4]'  ...
+                            );
+             % clone it and alter x2 to distingiush the 2 detpars
+             detpar2 = detpar;
+             detpar2.x2 = [6 6 6 6]';
+             % make detector arrays from the detpars and combine in a cell
+             det = IX_detector_array(detpar);
+             det2 = IX_detector_array(detpar2);
+             dets = {det,det2};
+             % store all the above in an experiment and initialise
+             % experiment_info for the sqw
+             expinf = Experiment(dets,inst,samp,expdata);
+             mysqw.experiment_info = expinf;
+             % also initialise the top level detpar for the sqw
+             mysqw.detpar_struct = detpar;
+             
+             % save, load and compare the experiment info and detpar struct
+             % into a .mat file
+             save('a.mat','mysqw');
+             zzz = load('a.mat');
+             % compare the experiment_info and detpar struct for the
+             % original and reloaded sqws
+             assertEqualToTol(zzz.mysqw.experiment_info, mysqw.experiment_info,0.0,'ignore_str',true);
+             assertEqualToTol(zzz.mysqw.detpar_struct, mysqw.detpar_struct,0.0,'ignore_str',true);
+             % repeat the save and load to a file and repeat the comparison
+             mysqw.save('mysqw.sqw');
+             nusqw = read_sqw('mysqw.sqw','-nopix');
+             assertEqualToTol(nusqw.experiment_info, mysqw.experiment_info,0.0,'ignore_str',true);
+             assertEqualToTol(nusqw.detpar_struct, mysqw.detpar_struct,0.0,'ignore_str',true);
+            
         end
-    end
-end
+    end % methods
+end % class test_experiment_loadsave

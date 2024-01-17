@@ -61,8 +61,12 @@ if ~obj.sqw_holder.main_header.creation_date_defined ||...
     obj.sqw_holder = sqw_obj;
 end
 
+tmp_saving = obj.sqw_holder.saving;
+obj.sqw_holder.saving = 1;
+
 if ~(obj.sqw_holder.pix.is_filebacked || nopix)
     obj = obj.put_all_blocks();
+    obj.sqw_holder.saving = tmp_saving;
     return;
 end
 
@@ -83,6 +87,7 @@ if nopix && ~(reserve||hold_pix) % Modify writeable object to contain no pixels
     obj = obj.put_all_blocks();
     sqw_obj.pix    = old_pix;
     obj.sqw_holder = sqw_obj;
+    obj.sqw_holder.saving = tmp_saving;
     return;
 end
 
@@ -101,3 +106,5 @@ obj = obj.put_all_blocks('ignore_blocks',{'bl_pix_metadata','bl_pix_data_wrap'})
 
 
 obj=obj.put_pix(argi{:});
+
+obj.sqw_holder.saving = tmp_saving;

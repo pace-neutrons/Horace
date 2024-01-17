@@ -55,7 +55,10 @@ if upgrade_range
     obj.bat_ = obj.bat_.clear_unlocked_blocks();
 end
 % as pix data block position already allocated,
+tmp_saving = sqw_obj.saving;
+sqw_obj.saving = 1;
 obj.bat_ = obj.bat_.place_undocked_blocks(sqw_obj,true);
+sqw_obj.saving = tmp_saving;
 
 obj.sqw_holder_ = sqw_obj;
 missinig_fields = 'data_in_memory_write_result';

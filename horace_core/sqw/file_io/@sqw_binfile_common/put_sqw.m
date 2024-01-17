@@ -12,6 +12,8 @@ end
 %
 jobDispatcher = [];
 %
+
+
 if ~isempty(argi)
     is_sqw = cellfun(@(x)isa(x,'sqw'),argi,'UniformOutput',true);
     if any(is_sqw)
@@ -30,6 +32,8 @@ if ~isempty(argi)
         argi = argi(~is_jd);
     end
 end
+
+obj.sqw_holder.saving=1;
 %
 if update
     if ~obj.upgrade_mode % set up info for upgrade mode and the mode itself
@@ -39,7 +43,6 @@ if update
     argi{end+1} = '-update';
 end
 
-
 % store header, which describes file as sqw file
 obj=obj.put_app_header();
 %
@@ -47,7 +50,10 @@ obj=obj.put_main_header(argi{:});
 %
 obj=obj.put_headers(argi{:});
 %
+tmp_saving = obj.sqw_holder.saving;
+obj.sqw_holder.saving = 1;
 obj=obj.put_det_info(argi{:});
+obj.sqw_holder.saving = tmp_saving;
 %
 % write dnd image metadata
 obj=obj.put_dnd_metadata(argi{:});
@@ -66,4 +72,4 @@ if ~update
     obj.real_eof_pos_ = ftell(obj.file_id_);
 end
 obj.data_in_file_ = true;
-
+obj.sqw_holder.saving = 0;

@@ -37,7 +37,7 @@ if ~isfield(S,'version') || S.version<4
             ss.experiment_info = Experiment.loadobj(ss.experiment_info);
         end
         if isfield(ss,'detpar') && ~isempty(ss.detpar)
-            detector = IX_detector_array(ss.detpar);
+            detector = IX_detector_array(ss.detpar); % %DET
             ss.experiment_info.detector_arrays = ...
                 ss.experiment_info.detector_arrays.add_copies_(detector, ...
                                                                ss.experiment_info.n_runs);

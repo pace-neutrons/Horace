@@ -581,9 +581,9 @@ classdef test_cpp_deserialize < TestCase
                 skipTest('MEX not enabled');
             end
             ss = sqw();
-            ser =  hlp_serialize(ss.detpar);
+            ser =  hlp_serialize(ss.detpar_struct); % $DET
             test_data_rec = c_deserialize(ser);
-            assertEqual(ss.detpar, test_data_rec)
+            assertEqual(ss.detpar_struct, test_data_rec) % $DET
         end
 
         function test_ser_empty_empty_struct(obj)

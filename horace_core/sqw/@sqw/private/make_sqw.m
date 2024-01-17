@@ -6,7 +6,7 @@ function d = make_sqw(ndims)
 % ndim            Number of dimensions
 %
     d.experiment_info = make_sqw_header;
-    d.detpar = make_sqw_detpar;
+    d.detpar = make_sqw_detpar; % $DET
     d.data   = DnDBase.dnd(ndims);
     d.runid_map= containers.Map(1,1);
 end

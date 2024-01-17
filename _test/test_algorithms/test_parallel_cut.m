@@ -21,7 +21,7 @@ classdef test_parallel_cut < TestCase
             cut_ser = cut(data, proj, params{:});
             cut_par = parallel_call(@cut, {data, proj, params{:}});
 
-            assertEqualToTol(cut_ser.detpar, cut_par.detpar);
+            assertEqualToTol(cut_ser.detpar_struct, cut_par.detpar_struct);
             % Re #1432 This is because something wrong with detector arrays
             cut_ser.experiment_info.detector_arrays = cut_par.experiment_info.detector_arrays;
             assertEqualToTol(cut_ser, cut_par, 'ignore_str', true,'-ignore_date')

@@ -30,6 +30,11 @@ end
 % Test equality of sqw class fields, excluding the raw pixels which is performed
 % below. Pass class fields to the generic equal_to_tol.
 class_fields = properties(w1);
+saving_tmp_1 = w1.saving;
+saving_tmp_2 = w2.saving;
+w1.saving = -1; % not saving but dealing with both detpar_struct and detpar
+                  % so we need to say it is saving
+w2.saving = -1;
 % keep only the fields, which are compared in the main loop. Pixels will be
 % compared separately, and is_filebacked option does not count as
 % filebacked and memory backed objects should be equal
@@ -61,10 +66,15 @@ for idx = 1:numel(class_fields)
     name2 = [name_b,'.',field_name];
 
     [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name1, 'name_b', name2);
+   
     if ~ok
+        w1.saving = saving_tmp_1;
+        w2.saving = saving_tmp_2;
         return; % break on first failure
     end
 end
+w1.saving = saving_tmp_1;
+w2.saving = saving_tmp_2;
 
 % Compare pix
 [ok, mess] = equal_to_tol(w1.pix, w2.pix, args{:}, ...

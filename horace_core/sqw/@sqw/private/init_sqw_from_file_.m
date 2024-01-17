@@ -37,6 +37,9 @@ in_struc.legacy = true;
 [sqw_struc,ldr] = ldr.get_sqw(in_struc);
 sqw_struc.pix.full_filename = ldr.full_filename;
 %
+tmp_loading = obj.loading;
+obj.loading = 1;
 obj = init_from_loader_struct_(obj, sqw_struc);
+obj.loading = tmp_loading;
 ldr.delete();
 end

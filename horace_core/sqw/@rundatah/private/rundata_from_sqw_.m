@@ -9,7 +9,7 @@ function rd=rundata_from_sqw_(sqw_obj)
 %
 %
 
-detpar = sqw_obj.detpar();
+detpar = sqw_obj.detpar_struct(); % $DET
 %
 tmp=sqw_obj.pix.all_experiment';
 run_id = unique(tmp(:,1));

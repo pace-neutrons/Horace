@@ -88,7 +88,7 @@ if ~(opts.head||opts.his)
                    'the formation of exp_info upstream may be faulty.']);
         end
     end
-    sqw_struc.detpar = detpar;
+    sqw_struc.detpar = detpar; % $DET
 end
 
 % Get data

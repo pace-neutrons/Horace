@@ -12,7 +12,14 @@ end
 obj.num_dim_ = in_obj.dimensions();
 %
 argi = [varargin(:);'-nocache'];
+if isa(in_obj,'sqw')
+tmp_saving = in_obj.saving;
+in_obj.saving = 1;
+end
 obj.bat_ = obj.bat_.init_obj_info(in_obj,argi{:});
+if isa(in_obj,'sqw')
+in_obj.saving = tmp_saving;
+end
 %
 cn = class(obj);
 if contains(cn,"dnd") && isa(in_obj,"sqw")

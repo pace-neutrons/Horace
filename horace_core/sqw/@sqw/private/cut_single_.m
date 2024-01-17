@@ -51,7 +51,7 @@ data_out = compile_sqw_data(...
 if opt.keep_pix
     wout = sqw();
     wout.main_header = w.main_header;
-    wout.detpar = w.detpar;
+    wout.detpar_struct = w.detpar_struct; % $DET
     wout.data   = data_out.data;
     wout.pix  = data_out.pix;
 

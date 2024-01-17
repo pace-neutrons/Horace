@@ -68,18 +68,31 @@ end
 [obj,sqw_skel] = obj.get_all_blocks(sqw_skel,'ignore_blocks',skip_blocks);
 
 if ~(opts.head || opts.his)
-    detpar = sqw_skel.detpar;
-    if ~isempty(detpar) && ~isempty(detpar.group)
-        detpar = IX_detector_array(detpar);
-    else
-        detpar = IX_detector_array();
-    end
-    %detpar = repmat(detpar,numel(sqw_skel.experiment_info.expdata),1);
+    % detpar-independent inputs
     sqw_skel.data = DnDBase.dnd(sqw_skel.data.metadata,sqw_skel.data.nd_data);
     sqw_skel.experiment_info = Experiment([],sqw_skel.experiment_info.instruments, ...
         sqw_skel.experiment_info.samples,sqw_skel.experiment_info.expdata);
-    sqw_skel.experiment_info.detector_arrays = ...
-        sqw_skel.experiment_info.detector_arrays.add_copies_(detpar, numel(sqw_skel.experiment_info.expdata));
+    
+    % detpar inputs
+    detpar = sqw_skel.detpar; % $DET
+    if ~isempty(detpar)
+        if isstruct(detpar) && ~isempty(detpar.group)
+            detpar = IX_detector_array(detpar);
+            sqw_skel.experiment_info.detector_arrays = ...
+                sqw_skel.experiment_info.detector_arrays.add_copies_( ...
+                                     detpar, numel(sqw_skel.experiment_info.expdata));
+            sqw_skel.detpar_struct = detpar;
+            sqw_skel = rmfield(sqw_skel,'detpar');
+        elseif isa(detpar,'unique_references_container')
+            sqw_skel.experiment_info.detector_arrays = detpar;
+            sqw_skel.detpar_struct = detpar{1}.get_detpar_representation();
+        else
+            error('really bad');
+        end
+    else
+        sqw_skel.detpar_struct = [];
+        sqw_skel = rmfield(sqw_skel,'detpar');
+    end
 end
 
 
@@ -114,7 +127,7 @@ if opts.legacy
     else
         sqw_object   = sqw_skel.main_header;
         varargout{1} = sqw_skel.experiment_info;
-        varargout{2} = sqw_skel.detpar;
+        varargout{2} = sqw_skel.detpar; % $DET
         varargout{3} = sqw_skel.data;
         if isfield(sqw_skel,'pix')
             varargout{4} = sqw_skel.pix;

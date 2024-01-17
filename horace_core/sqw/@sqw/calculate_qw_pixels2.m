@@ -64,7 +64,7 @@ n_en = cellfun(@(x) numel(x.en)-1, header);
 spec_to_rlu = cat(3, spec_to_rlu{:});
 
 eps_diff = (eps_lo(irun) .* (n_en(irun) - ien) + eps_hi(irun) .* (ien - 1)) ./ (n_en(irun) - 1);
-[~, detdcn] = spec_coords_to_det(win.detpar);
+[~, detdcn] = spec_coords_to_det(win.detpar_struct); % $DET
 kfix = sqrt(efix/k_to_e);
 
 switch emode

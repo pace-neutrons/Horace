@@ -41,7 +41,10 @@ for i=2:n_files
 end
 obj.detpar_pos_ = pos;
 
-detpar = sqw_obj.detpar;
+tmp_saving = sqw_obj.saving;
+sqw_obj.saving = 1; % MAYBE TOO LOW IN CALL STACK
+detpar = sqw_obj.detpar; % this is writing to a file, so detpar not detpar_struct
+sqw_obj.saving = tmp_saving;
 detpar_form = obj.get_detpar_form();
 [detpar_pos,pos]=obj.sqw_serializer_.calculate_positions(detpar_form,detpar,pos);
 obj.detpar_pos_info_ = detpar_pos;

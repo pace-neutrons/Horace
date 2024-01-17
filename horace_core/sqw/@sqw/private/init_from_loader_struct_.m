@@ -17,6 +17,6 @@ if ~isempty(data_struct.pix) && data_struct.pix.old_file_format && ...
     data_struct.pix.old_file_format = false;
 end
 
-obj.detpar = data_struct.detpar;
+obj.detpar = data_struct.detpar; % $DET
 obj.data = data_struct.data;
 obj.pix = data_struct.pix;

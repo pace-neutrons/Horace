@@ -69,7 +69,17 @@ if isempty(name_b)
     name_b ='B';
 end
 if nargin<4 && isa(A,'serializable')
+    if isa(A,'sqw')
+        tmp_saving_A = A.saving;
+        tmp_saving_B = B.saving;
+        A.saving = 1;
+        B.saving = 1;
+    end
     [ok,custom_message] = eq(A,B,'name_a',name_a,'name_b',name_b);
+    if isa(A,'sqw')
+        A.saving = tmp_saving_A;
+        B.saving = tmp_saving_B;
+    end
     if ok
         return
     end

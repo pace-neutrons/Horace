@@ -28,7 +28,7 @@ function detectors = detector_array (wtmp, use_tubes)
 % Because detpar only contains minimal information, either hardwire in
 % the detector type here or use the info now available in the detector
 % arrays
-detpar = wtmp.detpar();   % just get a pointer
+detpar = wtmp.detpar_struct();   % just get a pointer $DET
 det = wtmp.experiment_info.detector_arrays;
 if isempty(det) || det.n_runs == 0
     % no detector info was available when the sqw was populated, so

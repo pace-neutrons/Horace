@@ -24,6 +24,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         main_header;
 
         detpar;
+        detpar_struct;
 
         experiment_info;
         % The information about the N-D neutron image, containing
@@ -75,6 +76,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % holder for pix data
         % Object containing data for each pixel recorded in experiment.
         pix_ = PixelDataBase.create();
+        
+        loading = false;
+        saving = false;
     end
     %
     properties(Access=private)
@@ -325,12 +329,38 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             obj= set_pix_(obj,val);
         end
         %
-        function val = get.detpar(obj)
+        function val = get.detpar_struct(obj) % $DET
+            if obj.saving == 1
+                disp('saving at get_detpar_struct');
+            end
             val = obj.detpar_;
+        end
+        function obj = set.detpar_struct(obj,val)
+            %TODO: implement checks for validity
+            if obj.loading
+                disp('loading at set_detpar_struct');
+            end
+            obj.detpar_ = val;
+        end
+        function val = get.detpar(obj) % $DET
+            if obj.saving==0
+                disp('get_detpar not saving');
+            end
+            val = obj.experiment_info.detector_arrays;
         end
         function obj = set.detpar(obj,val)
             %TODO: implement checks for validity
-            obj.detpar_ = val;
+            if ~obj.loading
+                disp('set_detpar not loading');
+            end
+            if isa(val,'unique_references_container')
+                obj.experiment_info_.detector_arrays = val;
+                obj.detpar_ = val{1}.get_detpar_representation();
+            elseif isstruct(val)
+                obj.detpar_ = val;
+            else
+                error('bad stuff round here');
+            end
         end
         %
         function val = get.main_header(obj)
@@ -542,7 +572,10 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
                 % support old files, which do not have creation date defined
                 obj.main_header_.creation_date = datetime('now');
             end
+            tmp_saving = obj.saving;
+            obj.saving = 1;
             str = saveobj@serializable(obj);
+            obj.saving = tmp_saving;
         end
 
         function obj = check_combo_arg(obj)
@@ -552,14 +585,14 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             % NB combined if-expression is in parentheses to help visually
             % locate it - just useful cosmetic
 
-            if (~isempty(obj.detpar)                             && ...
-                    IX_detector_array.check_detpar_parms(obj.detpar) && ...
-                    ~isempty(obj.detpar.group)                       && ...
+            if (~isempty(obj.detpar_struct)                             && ... % $DET
+                    IX_detector_array.check_detpar_parms(obj.detpar_struct) && ...
+                    ~isempty(obj.detpar_struct.group)                       && ...
                     obj.experiment_info.detector_arrays.n_runs == 0     ...
                     )
 
                 n_runs = obj.experiment_info.n_runs;
-                detector = IX_detector_array(obj.detpar);
+                detector = IX_detector_array(obj.detpar_struct);
                 updated_detectors = obj.experiment_info.detector_arrays;
                 %for i=1:n_runs
                 updated_detectors = updated_detectors.add_copies_(detector, n_runs);
@@ -596,7 +629,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             % saveable class. Provides empty sqw class instance to set up
             % the data on
             obj = sqw();
+            obj.loading = true;
             obj = loadobj@serializable(S,obj);
+            obj.loading = false;
         end
     end
     %======================================================================

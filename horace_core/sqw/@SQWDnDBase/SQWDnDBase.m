@@ -121,6 +121,9 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         % exceeds real pix_range (or input pix_range) by this value.
         border_size = -4*eps
     end
+    properties(Access=public)
+        saving = 0;
+    end
 
     methods (Static,Hidden) % should be protected but Matlab have some
         % issues with calling this from children

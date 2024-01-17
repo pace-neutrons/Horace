@@ -118,6 +118,7 @@ end
 function wout = save_one(w,filename,assume_updated,return_result,clear_source,make_tmp,ldw,varargin)
 % save single sqw object
 %
+w.saving = 1;
 wout = []; % Target sqw object
 if return_result
     if make_tmp
@@ -197,6 +198,7 @@ if return_result
     end
 end
 ldw.delete();
+w.saving = 0;
 %==========================================================================
 function w = upgrade_file_calc_ranges(w,return_result,log_level,filename)
 % upgrade file format to new and recalculate averages and

@@ -386,11 +386,17 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             %
             if old_ldr.faccess_version ~= new_ldr.faccess_version
                 if PixelDataBase.do_filebacked(old_ldr.npixels)
+                    tmp_saving = new_ldr.sqw_holder.saving;
+                    new_ldr.sqw_holder.saving = 1;
                     new_ldr = new_ldr.update_sqw_keep_pix();
+                    new_ldr.sqw_holder.saving = tmp_saving;
                 else
                     sqw_obj = old_ldr.get_sqw('-verbatim');
                     new_ldr.sqw_holder = sqw_obj;
+                    tmp_saving = new_ldr.sqw_holder.saving;
+                    new_ldr.sqw_holder.saving = 1;
                     new_ldr = new_ldr.put_sqw('-verbatim');
+                    new_ldr.sqw_holder.saving = tmp_saving;
                 end
                 old_ldr.delete();
             end

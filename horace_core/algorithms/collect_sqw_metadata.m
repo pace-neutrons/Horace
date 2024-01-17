@@ -102,7 +102,7 @@ if ~any(pix_data_range(:) == PixelDataBase.EMPTY_RANGE(:))
 end
 pix_data_range = pix.data_range;
 
-det = inputs{1}.detpar; % To modify according to new interface
+det = inputs{1}.detpar_struct; % To modify according to new interface $DET
 sqw_sum_struc= struct('main_header',mhc,'experiment_info',exper_combined,'detpar',det);
 sqw_sum_struc.data = dnd_data;
 sqw_sum_struc.pix = pix;

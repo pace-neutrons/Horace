@@ -17,10 +17,13 @@ end
 %
 obj=obj.check_obj_initated_properly();
 %
+tmp_saving = obj.sqw_holder.saving;
+obj.sqw_holder.saving = 1;
 [detpar,new_obj] = obj.extract_correct_subobj('detpar',argi{:});
 if new_obj
     update = true;
 end
+obj.sqw_holder.saving = tmp_saving;
 
 if update
     det_form = obj.get_detpar_form('-const');
