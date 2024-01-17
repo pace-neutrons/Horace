@@ -29,9 +29,6 @@ end
 
 cstr = strtrim(cstr_in(:));
 non_empty = ~cellfun(@isempty, cstr);
-if ~all(non_empty)
-    cstr = cstr(non_empty);
-    all_non_empty = false;    
-else
-    all_non_empty = true;
-end
+
+all_non_empty = all(non_empty);
+cstr = cstr(non_empty);

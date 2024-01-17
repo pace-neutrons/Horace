@@ -1,5 +1,5 @@
 function status = stringmatchi_log (str, strcell, exact)
-% Find matches of a character vector to abbreviations of strings, ignoring case
+% Find matches of a character vector to initial substrings of strings, ignoring case
 %
 % Returns a logical array of exact matches of a character vector to a cell array
 % of strings, if there are any.
@@ -8,7 +8,7 @@ function status = stringmatchi_log (str, strcell, exact)
 %
 %   >> status = stringmatchi_log (str, strcell)
 %   >> status = stringmatchi_log (str, strcell, exact)      % option: logical 0 or 1
-%   >> status = stringmatchi_log (str, strcell, 'exact')    % option: character string
+%   >> status = stringmatchi_log (str, strcell, '-exact')   % option: character string
 % 
 % Differs from stringmatchi, which returns the indices of matches, not a logical
 % array.
@@ -47,7 +47,7 @@ if nargin < 3
     exact = false;
 elseif islognumscalar(exact)
     exact = logical(exact);
-elseif is_string(exact) && strcmpi(exact,'exact')
+elseif is_string(exact) && numel(exact)>1 && strcmpi(exact,'-exact')
     exact = true;
 else
     error('HERBERT:stringmatchi:invalid_argument', ['Optional third ', ...

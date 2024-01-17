@@ -1,5 +1,5 @@
 function ind = stringmatchi (varargin)
-% Find matches of a character vector to abbreviations of strings, ignoring case
+% Find matches of a character vector to initial substrings of strings, ignoring case
 %
 % Returns an index array of exact matches of a character vector to a cell array
 % of strings, if there are any.
@@ -8,7 +8,7 @@ function ind = stringmatchi (varargin)
 %
 %   >> ind = stringmatchi (str, strcell)
 %   >> ind = stringmatchi (str, strcell, exact)      % option: logical 0 or 1
-%   >> ind = stringmatchi (str, strcell, 'exact')    % option: character string
+%   >> ind = stringmatchi (str, strcell, '-exact')   % option: character string
 % 
 % Differs from stringmatchiLog, which returns a logical array matches, not an
 % index array.

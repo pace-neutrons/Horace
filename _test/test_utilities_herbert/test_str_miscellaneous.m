@@ -24,7 +24,7 @@ classdef test_str_miscellaneous < TestCase
         
         %--------------------------------------------------------------------------
         function test_str_is_cellstr_1by1_charVector (~)
-            % Cell with empty character vector
+            % Cell with a single character vector
             [ok, n] = str_is_cellstr({'45'});
             
             assertEqual (ok, true);
@@ -135,7 +135,7 @@ classdef test_str_miscellaneous < TestCase
         
         %--------------------------------------------------------------------------
         function test_is_charVector_1arg_charArray (~)
-            % Character array - should fail as not a character vector
+            % Character array - should return false as not a character vector
             [ok, n] = is_charVector(['Hello ';'Mister']);
             
             assertEqual (ok, false);
@@ -167,7 +167,7 @@ classdef test_str_miscellaneous < TestCase
             % arguments
             [ok, n] = is_charVector('Peanuts', 35, '', "kernel", ['Hello ';'Mister']);
             
-            assertEqual (ok, logical([1,0,1,0,0]));
+            assertEqual (ok, [true, false, true, false, false]);
             assertEqual (n, [7, NaN, 0, NaN, NaN]);
         end
         
@@ -175,7 +175,7 @@ classdef test_str_miscellaneous < TestCase
         %   Test str_length
         %==========================================================================
         function test_str_length_emptyCharVector (~)
-            % Empty character vector
+            % Empty character vector size [0,0]
             ch = '';
             Lstr = strlength(ch);
             L = str_length(ch);
@@ -185,7 +185,7 @@ classdef test_str_miscellaneous < TestCase
         
         %--------------------------------------------------------------------------
         function test_str_length_empty1by0CharVector (~)
-            % Empty character vector
+            % Empty character vector size [1,0]
             ch = 'a'; ch=ch(1:0);
             Lstr = strlength(ch);
             L = str_length(ch);
@@ -195,7 +195,7 @@ classdef test_str_miscellaneous < TestCase
         
         %--------------------------------------------------------------------------
         function test_str_length_CharVector (~)
-            % Empty character vector
+            % Single character vector
             ch = 'Turnip';
             Lstr = strlength(ch);
             L = str_length(ch);
@@ -205,7 +205,7 @@ classdef test_str_miscellaneous < TestCase
         
         %--------------------------------------------------------------------------
         function test_str_length_CharVectorCellArray (~)
-            % Empty character vector
+            % Two character vectors
             ch = {'Turnip', 'Peanuts'};
             Lstr = strlength(ch);
             L = str_length(ch);
@@ -215,7 +215,7 @@ classdef test_str_miscellaneous < TestCase
         
         %--------------------------------------------------------------------------
         function test_str_length_MatlabString (~)
-            % Empty character vector
+            % Single Matlab string
             ch = "Turnip";
             Lstr = strlength(ch);
             L = str_length(ch);
@@ -225,7 +225,7 @@ classdef test_str_miscellaneous < TestCase
         
         %--------------------------------------------------------------------------
         function test_str_length_MatlabStringArray (~)
-            % Empty character vector
+            % Array of two Matlab strings
             ch = ["Turnip", "Peanuts"];
             Lstr = strlength(ch);
             L = str_length(ch);
@@ -235,7 +235,8 @@ classdef test_str_miscellaneous < TestCase
         
         %--------------------------------------------------------------------------
         function test_str_length_charArray (~)
-            % Empty character vector
+            % 2D Character array - str_length and Matlab strlength should both
+            % throw errors
             ch = ['Turnip '; 'Peanuts'];
             
             % Matlab intrinsic function should fail

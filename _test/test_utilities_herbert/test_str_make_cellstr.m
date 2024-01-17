@@ -97,7 +97,7 @@ classdef test_str_make_cellstr < TestCase
         %-------------------------------------------------------------------
         function test_charArray_trim (S)
             % Tests str_make_cellstr_trim removes leading and trailing blanks
-            % from a characater array
+            % from a character array
             [ok,cout] = str_make_cellstr_trim(S.ch3);
             assertTrue(ok)
             assertEqual(cout, {strtrim(S.ch3)})
@@ -106,7 +106,7 @@ classdef test_str_make_cellstr < TestCase
         %-------------------------------------------------------------------
         function test_multipleCharArrays_trim (S)
             % Tests str_make_cellstr_trim removes leading and trailing blanks
-            % from multiple characater arrays
+            % from multiple character arrays
             [ok,cout] = str_make_cellstr_trim(S.ch1, S.ch2, S.ch3);
             assertTrue(ok)
             assertEqual(cout, S.carr_trim)

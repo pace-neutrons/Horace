@@ -27,7 +27,7 @@ if nargin == 1
     % Don't create an anonymous function if only a single input - it turns out
     % to take a significant fraction of the running total time
     var = varargin{1};
-    ok = ischar(var) && ((numel(size(var))==2 && size(var,1)==1) || isempty(var));
+    ok = ischar(var) && (isrow(var) || isempty(var));
     if ok
         n = numel(var);
     else
@@ -37,8 +37,7 @@ if nargin == 1
 elseif nargin > 1
     % Two or more input arguments
     % Create anonymous function so can call cellfun
-    isstr = @(a)(ischar(a) && ((numel(size(a))==2 && size(a,1)==1) || isempty(a)));
-    ok = cellfun(isstr, varargin);
+    ok = cellfun(@(x)(ischar(x) && (isrow(x) || isempty(x))), varargin);
     n = NaN(size(varargin));
     n(ok) = cellfun(@numel,varargin(ok));
     
