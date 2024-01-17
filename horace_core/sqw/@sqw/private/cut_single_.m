@@ -90,7 +90,7 @@ else
 end
 
 
-if log_level >= 0
+if log_level >= 0 && outfile_specified
     disp(['*** Writing cut to output file ', opt.outfile, '...']);
 end
 % Write result to file if necessary

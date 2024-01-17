@@ -122,6 +122,54 @@ classdef test_cut < TestCase & common_state_holder
                 obj.FLOAT_TOL, 'ignore_str', true);
 
         end
+        function test_cut_sqw_with_pix_advanced_logging(obj)
+            diary_file1 = fullfile(tmp_dir,'advanced_logging_test_level0.txt');
+            clFile1 = onCleanup(@()delete(diary_file1));
+            diary_file2 = fullfile(tmp_dir,'advanced_logging_nopix_test_level2.txt');
+            clFile2 = onCleanup(@()delete(diary_file2));
+            clConfig = set_temporary_config_options(hor_config,'log_level',0);
+            diary(diary_file1);
+            sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
+            assertTrue(isfile(diary_file1));
+            diary off;
+            clConfig2 = set_temporary_config_options(hor_config,'log_level',2);
+            diary(diary_file2);
+            sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
+            assertTrue(isfile(diary_file2));
+            diary off;
+
+            log_1 = fileread(diary_file1);
+            log_2 = fileread(diary_file2);
+            assertTrue(numel(log_2)> numel(log_1))
+            assertFalse(contains(log_1,'Read speed'))
+            assertTrue(contains(log_2,'Read speed'))
+
+        end
+
+        function test_cut_sqw_nopix_advanced_logging(obj)
+            diary_file1 = fullfile(tmp_dir,'advanced_logging_test_level0.txt');
+            clFile1 = onCleanup(@()delete(diary_file1));
+            diary_file2 = fullfile(tmp_dir,'advanced_logging_nopix_test_level2.txt');
+            clFile2 = onCleanup(@()delete(diary_file2));
+            clConfig1 = set_temporary_config_options(hor_config,'log_level',0);
+            diary(diary_file1);
+            sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
+            assertTrue(isfile(diary_file1));
+            diary off;
+            clConfig2 = set_temporary_config_options(hor_config,'log_level',2);
+            diary(diary_file2);
+            sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
+            assertTrue(isfile(diary_file2));
+            diary off;
+
+            log_1 = fileread(diary_file1);
+            log_2 = fileread(diary_file2);
+            assertTrue(numel(log_2)> numel(log_1))
+            assertFalse(contains(log_1,'Read speed'))
+            assertTrue(contains(log_2,'Read speed'))
+            assertTrue(contains(log_2,'Resulting pix preparation:   0.0%'))
+        end
+
 
         function test_cut_sqw_nopix(obj)
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
