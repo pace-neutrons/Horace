@@ -95,15 +95,33 @@ block_chunks = split_data_blocks(block_starts, block_sizes, chunk_size);
 num_chunks = numel(block_chunks);
 npix_tot_retained = 0;
 
+if ll>=2
+    n_read_pixels = 0;
+    n_retained_pixels = 0;
+    pix_byte_size   = pix.get_pix_byte_size(true);
+    time_to_read    = zeros(num_chunks);
+    time_to_process = zeros(num_chunks);
+    t_proj_start = tic;
+end
+
 for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
     chunk = block_chunks{iter};
     pix_start = chunk{1};
     block_sizes = chunk{2};
 
+    if ll>=2
+        tic;
+    end
+
     candidate_pix = pix.get_pix_in_ranges(pix_start, block_sizes, false, true);
 
     if ll >= 1
+        if ll>=2
+            n_read_pixels = n_read_pixels + candidate_pix.num_pixels;
+            time_to_read(iter)= toc;
+            tic;
+        end
         fprintf('*** Step %d of %d; Read data for %8d pixels -- processing data...', ...
             iter, num_chunks, candidate_pix.num_pixels);
     end
@@ -121,7 +139,11 @@ for iter = 1:num_chunks
         npsr = sum(npix(:));
         npix_step_retained = npsr - npix_tot_retained;
         npix_tot_retained = npsr;
-
+        if ll>=2
+            time_to_process(iter) = toc;
+            n_retained_pixels     = n_retained_pixels+npix_step_retained;
+            tic;
+        end
         fprintf(' ----->  %s  %8d pixels\n', pixel_contrib_name, npix_step_retained);
     end
 
@@ -129,6 +151,16 @@ end  % loop over pixel blocks
 
 pix_out = PixelDataBase.create();
 unique_runid = [];
+if ll>=2
+    total_proj_time = toc(t_proj_start);
+    data_proc_time  = sum(time_to_process);
+    pix_read_time   = sum(time_to_read);
+
+    log_progress(pix.is_filebacked,pix_byte_size, ...
+        pix.num_pixels,n_read_pixels,n_retained_pixels, ...
+        total_proj_time,pix_read_time,data_proc_time,0);
+end
+
 
 end
 
