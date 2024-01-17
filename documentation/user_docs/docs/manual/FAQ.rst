@@ -41,7 +41,7 @@ The ``sqw`` object carries around an array containing the information of each
 detector-energy pixel which underlies the result in a raw form. These pixels are
 then accumulated and binned into the intensity histogram which makes up the
 ``dnd``. ``sqw`` s also carry around details about the contributing ``.nxspe``
-files from which it was made and, in particular, allows for instrunment
+files from which it was made and, in particular, allows for instrument's
 information to be attached enabling resolution-convolution to be performed.
 
 .. note::

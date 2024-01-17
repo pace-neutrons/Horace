@@ -25,11 +25,9 @@ classdef test_parallel_cut < TestCase
             % Re #1432 This is because something wrong with detector arrays
             cut_ser.experiment_info.detector_arrays = cut_par.experiment_info.detector_arrays;
             assertEqualToTol(cut_ser, cut_par, 'ignore_str', true,'-ignore_date')
-            skipTest("Re #1432 detpar is not wired properly to detector_arrays");
         end
 
         function test_cut_cube_herbert(~)
-            skipTest('Job fails on Jenkins for unknown reasons see #1172')
             clean = set_temporary_config_options(hpc_config, ...
                 'parallel_workers_number', 2, ...
                 'parallel_cluster', 'herbert');
@@ -47,7 +45,6 @@ classdef test_parallel_cut < TestCase
         end
 
         function test_cut_cube_parpool(~)
-            skipTest('Job fails on Jenkins for unknown reasons see #1172')
             clean = set_temporary_config_options(hpc_config, ...
                 'parallel_workers_number', 2, ...
                 'parallel_cluster', 'parpool');
