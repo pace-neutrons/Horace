@@ -78,7 +78,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         pix_ = PixelDataBase.create();
         
         loading = false;
-        saving = false;
+        %saving = false; % defined in superclass
     end
     %
     properties(Access=private)
