@@ -183,5 +183,4 @@ end
 if return_cut
     wout = [wout{:}]';
 end
-
 end

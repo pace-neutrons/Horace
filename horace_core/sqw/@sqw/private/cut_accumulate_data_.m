@@ -99,8 +99,8 @@ if ll>=2
     n_read_pixels = 0;
     n_retained_pixels = 0;
     pix_byte_size   = pix.get_pix_byte_size(true);
-    time_to_read    = zeros(num_chunks);
-    time_to_process = zeros(num_chunks);
+    time_to_read    = zeros(num_chunks,1);
+    time_to_process = zeros(num_chunks,1);
     t_proj_start = tic;
 end
 
@@ -189,9 +189,9 @@ if ll>=2
     n_read_pixels = 0;
     n_retained_pixels = 0;
     pix_byte_size   = pix.get_pix_byte_size(true);
-    time_to_read    = zeros(num_chunks);
-    time_to_process = zeros(num_chunks);
-    time_to_accum   = zeros(num_chunks);
+    time_to_read    = zeros(num_chunks,1);
+    time_to_process = zeros(num_chunks,1);
+    time_to_accum   = zeros(num_chunks,1);
     t_proj_start = tic;
 end
 
