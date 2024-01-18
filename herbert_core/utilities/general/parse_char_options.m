@@ -81,7 +81,7 @@ for i=1:narg
             if return_remaining
                 remaining_args(i)=true;
             else
-                ok=false; mess=['Invalid input key: ''',args{i},''''];
+                ok=false; mess=sprintf('Invalid input key: "%s"',disp2str(args{i}));
                 return
             end
         else

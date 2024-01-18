@@ -2,7 +2,6 @@ function varargout = head(obj,varargin)
 % Display a summary of an sqw object or file containing sqw information.
 %
 %   >> head(w)              % Display summary for object (or array of objects)
-%   >> head(sqw,filename)   % Display summary for named file (or array of names)
 %
 % To return header information in a structure, without displaying to screen:
 %
@@ -12,9 +11,11 @@ function varargout = head(obj,varargin)
 %
 % The facility to get head information from file(s) is included for completeness, but
 % more usually you would use the function:
-%   >> head_horace(filename)
-%   >> h=head_horace(filename)
-%   >> h=head_horace(filename,'-full')
+%   >> head(filename)
+%   >> h=head(filename,___)
+
+% Alternative (old) form is also possible:
+%   >> h=head_horace(___)
 %
 %
 % Input:
@@ -39,8 +40,23 @@ function varargout = head(obj,varargin)
 
 
 % Check input arguments
-[ok,mess,full_data] = parse_char_options(varargin,{'-full'});
+[ok,mess,full_data,argi] = parse_char_options(varargin,{'-full'});
 if ~ok
+    error('HORACE:head:invalid_argument',mess);
+end
+if ~isempty(argi)
+    if isfile(argi{1})
+        file = argi{1};
+        if ispc
+            file = strrep(file,'\','/');
+        end
+        mess = sprintf([ ...
+            ' Invalid input key: "%s"\n.' ...
+            ' Are you using old "head" format: head(sqw,filename)?\n' ...
+            ' Update your script to runt "head(filename)" command'],file);
+    else
+        mess = sprintf('Invalid input key: "%s"',disp2str(argi{1}));
+    end
     error('HORACE:head:invalid_argument',mess);
 end
 
