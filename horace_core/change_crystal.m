@@ -53,6 +53,9 @@ for i=1:numel(in_data)
     else
         out{i} = in_data{i};
         ld = sqw_formats_factory.instance().get_loader(in_data{i});
+        if ld.faccess_version<4
+            alignment_info.legacy_mode = true;
+        end
         data    = ld.get_dnd();
         ld = ld.set_file_to_update();
         if ld.sqw_type
