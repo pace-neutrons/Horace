@@ -146,12 +146,12 @@ elseif iscell(par_file)
                   'wrong type of contents of cell of one par file');
         end
     elseif numel(par_file) == n_par_files
-        if cellfun(@(x)istext(x),par_file)
+        if cellfun(@istext,par_file)
             % cell array with text element == nr spe files has been provided
             % use it as is trimmed
             par_file_out = cellfun(@strtrim,par_file,'UniformOutput',false);            
             det_par_file = true(n_par_files,1);
-        elseif cellfun(@(x)isstruct(x),par_file)
+        elseif cellfun(@isstruct,par_file)
             % cell array with N struct elements has been provided
             % par file out is filled with these elements
             det_par_file = true(n_par_files,1);

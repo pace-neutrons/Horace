@@ -61,6 +61,8 @@ for ii=1:nfiles
         else
             maxrunid = max(maxrunid, runid);
         end
+	% as max(integer,NaN) is integer, the else would also work for the if
+	% but leaving this explicit to make the point
     else
         hasnans = true;
     end

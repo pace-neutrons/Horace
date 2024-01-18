@@ -543,9 +543,9 @@ classdef IX_detector_array < serializable
         end
         
         function val = get_detpar_representation(obj)
-            %GET_DETPAR convert first detector bank into detpar struct
-            % intended for use initialising from a *default* ix_detector_array
-            % but other combinations not excluded
+            %GET_DETPAR_REPRESENTATION convert first detector bank into detpar struct
+            % intended for use initialising from a *default* IX_detector_array
+            % (i.e. IX_detector_array() with no args) but other combinations not excluded
             val = struct();
             val.group    = obj.det_bank_(1).id;
             val.x2       = obj.det_bank_(1).x2;

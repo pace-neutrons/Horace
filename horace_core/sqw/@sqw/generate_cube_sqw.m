@@ -113,7 +113,7 @@ out.detpar = struct( ...
     %}
 % initialise detpar with a value which will not crash its conversion to an
 % IX_detector_bank
-out.detpar=IX_detector_array().get_detpar_representation; % init with default
+out.detpar=IX_detector_array().get_detpar_representation(); % init with default
 out.detpar.filename='fake';
 out.detpar.filepath='/fake';
 
