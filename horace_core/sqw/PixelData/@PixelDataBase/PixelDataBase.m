@@ -340,9 +340,9 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     methods(Abstract)
         % --- Pixel operations ---
-        pix_copy = copy(obj)
+        pix_copy = copy(obj);
 
-        data = get_raw_data(obj,varargin)
+        data = get_raw_data(obj,varargin);
         pix  = set_raw_data(obj,pix);
 
         obj = recalc_data_range(obj,varargin);
