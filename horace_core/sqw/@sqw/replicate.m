@@ -2,7 +2,7 @@ function wout = replicate (win,wref,varargin)
 % Make a higher dimensional dataset from a lower dimensional dataset by
 % replicating the data along the extra dimensions of a reference dataset.
 %
-%   >> wout = replicate (win, wref)
+%   >> wout = replicate (win, wref,varargin)
 %
 % Input:
 % ------
