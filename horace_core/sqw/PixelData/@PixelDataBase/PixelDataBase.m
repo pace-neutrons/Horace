@@ -315,7 +315,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             elseif isnumeric(fld_name)
                 idx = fld_name(:)';
             elseif istext(fld_name)
-                idx = PixelDataBase.FIELD_INDEX_MAP_(fld_name);                
+                idx = PixelDataBase.FIELD_INDEX_MAP_(fld_name);
             else
                 error('HORACE:PixelDataBase:invalid_argument',...
                     ['Method accepts the name of the pixel field, array of field indices or cellarray of fields.\n' ...
@@ -340,13 +340,15 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     methods(Abstract)
         % --- Pixel operations ---
-        pix_copy = copy(obj)
+        pix_copy = copy(obj);
 
-        data = get_raw_data(obj,varargin)
+        data = get_raw_data(obj,varargin);
         pix  = set_raw_data(obj,pix);
 
         obj = recalc_data_range(obj,varargin);
-        % realign pixels using alignment matrix stored with pixels
+
+        % return byte-size of single pixel
+        sz = get_pix_byte_size(obj,keep_precision);
     end
     %======================================================================
     % File handling/migration.
@@ -374,8 +376,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     end
     %======================================================================
     methods(Abstract,Access=protected)
-        % return byte-size of single pixel
-        sz = get_pix_byte_size(obj);        
         % Main part of get.num_pixels accessor
         num_pix = get_num_pixels(obj);
         ro      = get_read_only(obj)
@@ -582,8 +582,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             is = obj.is_misaligned_;
         end
         function obj = clear_alignment(obj)
-            % Clears alignment. 
-            % 
+            % Clears alignment.
+            %
             % If alignment changes, invalidates object integrity,
             % (data_ranges need recalculation)
             % so should be used as part of algorithms only.
