@@ -96,7 +96,7 @@ for i=1:n_files2_process
         bytes = obj.sqw_serializer_.serialize(data_2save(i),head_form);
     end
     if update
-        if numel(bytes) ~= size_list(i)
+        if numel(bytes) > size_list(i)
             error('HORACE:put_headers:runtime_error',...
                 'SQW_BINFILE_COMMON::put_headers : size of upgraded header N%d (%d)  different from one on hdd (%d)',...
                 i,numel(bytes),size_list(i));

@@ -9,7 +9,7 @@ classdef IX_experiment < goniometer
         filename; % name of the file which was the source of data for this
         %         % experiment
         filepath; % path where the experiment data were initially stored
-        run_id    % the identifier, which uniquely defines this experiment
+        run_id;   % the identifier, which uniquely defines this experiment
         %         % this identifier is also stored within the PixelData,
         %         % providing connection between the particular pixel and
         %         % the experiment info
@@ -26,6 +26,13 @@ classdef IX_experiment < goniometer
         % with legacy alignment, as it multiplies it by alignment rotation
         % matrix and keeps legacy alignment matrix this way.
         u_to_rlu;
+    end
+    properties(Hidden)
+        % these properties are not used in Horace-4 but left for compartibility
+        % with Horace-3 file format when it read/updated from/to Horace-3
+        % format files.
+        ulabel = {'','','',''};
+        ulen = [1,1,1,1];
     end
     properties(Constant)
         % the list of properties which define IX_experiment uniques

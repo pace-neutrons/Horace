@@ -21,20 +21,20 @@ for i=1:numel(fn)
     end
     if isa(fmt,'sqw_field_format_interface')
         if isa(fmt,'iVirt_field')
-            bytes{i} = fmt.bytes_from_field(struc);
+            ser_field = fmt.bytes_from_field(struc);
         else
-            bytes{i} = fmt.bytes_from_field(val);
+            ser_field = fmt.bytes_from_field(val);
         end
     else
         if ischar(val)
             % strings have length written in the beginning
-            bytes{i} = [typecast(uint32(numel(val)),'uint8'),uint8(val)];
+            ser_field = [typecast(uint32(numel(val)),'uint8'),uint8(val)];
         elseif iscell(val)
             tBytes = cell(1,numel(val));
             for j=1:numel(val)
                 tBytes{j} = serialize_(obj,val{j})';
             end
-            bytes{i} = [tBytes{:}];
+            ser_field = [tBytes{:}];
             
         else % convert according to known exisiting format definitions
             type  = class(val);
@@ -57,10 +57,10 @@ for i=1:numel(fn)
                 if nel >1
                     val = reshape(val,1,nel);
                 end
-                bytes{i} = typecast(val,'uint8');
+                ser_field = typecast(val,'uint8');
             else % can it be structure?
                 if isstruct(val)
-                    bytes{i} = serialize_(obj,val)';
+                    ser_field = serialize_(obj,val)';
                 else
                     error('STRUCT_SERIALIZER:invalid_argument',...
                         'Unsupported type for: field %s, type: %s',...
@@ -69,6 +69,7 @@ for i=1:numel(fn)
             end
         end
     end
+    bytes{i}= ser_field(:)';
 end
 bytes = [bytes{:}]';
 
