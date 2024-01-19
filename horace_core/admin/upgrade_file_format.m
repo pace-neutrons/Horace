@@ -15,9 +15,9 @@ function msln_files_list = upgrade_file_format(filenames,varargin)
 % angdeg    -- 3-component vector of original lattice angles, originaly
 %              present in legacy aligned file and modified later or
 %              cellarray of such vectors with vector for each file
-% 
-% '-upgrade_range' 
-%           -- if the pixel data range is not defined, recalculate 
+%
+% '-upgrade_range'
+%           -- if the pixel data range is not defined, recalculate
 %               and store this range with new file format
 % Result:
 % The file format of the provided files is updated to version 4
@@ -78,13 +78,13 @@ for i=1:n_inputs
                     warning('HORACE:legacy_alignment', ...
                         ['file %s contains legacy-aligned data.\n' ...
                         ' Realign them using "upgrade_legacy_alignment" routine first\n' ...
-                        ' or provide original lattice to this function for realigning during pugrade'], ...
+                        ' or provide original lattice to this function for realigning during upgrade'], ...
                         filenames{i});
                     ld.delete();
                     continue;
                 end
             end
-            ld_new = ld.upgrade_file_format(upgrade_arg{:});            
+            ld_new = ld.upgrade_file_format(upgrade_arg{:});
 
             ld_new.delete();
         end
