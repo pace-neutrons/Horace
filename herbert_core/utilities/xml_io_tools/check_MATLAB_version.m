@@ -3,13 +3,9 @@ function check_MATLAB_version()
 %xml_read/xml_write
 
 v = ver('MATLAB');
-vs = regexp(v.Version, '\d\d.\d','match','once'); % new Matlab after 2023a
-if isempty(vs)
-    vs = regexp(v.Version, '\d.\d','match','once'); % Matlab before 2023a
-end
+vs = regexp(v.Version, '\d\d?.\d','match','once'); 
 version = str2double(vs);
 if (version<7.1)
     error('HERBERT:xml_io_toold:runtime_error', ...
         'Your MATLAB version is too old. You need version 7.1 or newer.');
 end
-
