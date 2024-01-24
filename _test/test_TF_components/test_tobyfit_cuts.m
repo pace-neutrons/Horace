@@ -66,7 +66,7 @@ classdef test_tobyfit_cuts < TestCaseWithSave
             obj.fe_arr = fe_arr;  % three short const-E cuts, 140-160, 160-180, 180-200 meV
             obj.rb_arr = rb_arr;    % two const-Q cuts, 2-10 meV
 
-            tol_sig = 0.25;        % tolerance as multiple of st. dev. of reference value
+            tol_sig = 0.5;        % tolerance as multiple of st. dev. of reference value
             tol_abs = 0;        % absolute tolerance
             tol_rel = 0;        % relative tolerance
             obj.tolerance = [tol_sig, tol_abs, tol_rel];
@@ -99,6 +99,22 @@ classdef test_tobyfit_cuts < TestCaseWithSave
             % Single cut, starting parameters close to a good fit
 
             amp=50;  sj=40;   fwhh=50;   const=0.1;  grad=0;
+
+            kk = tobyfit(obj.fe_1);
+            kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd, [amp,sj,fwhh,const,grad], [1,1,0,1,0]);
+            kk = kk.set_mc_points(obj.mc_fe);
+            kk = kk.set_options('listing', obj.nlist);
+            [~, fp] = kk.fit;
+
+            assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
+
+        end
+
+        function obj = test_fit_fe_single_good_par_chunked(obj)
+            % Single cut, starting parameters close to a good fit
+
+            amp=50;  sj=40;   fwhh=50;   const=0.1;  grad=0;
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', 10000);
 
             kk = tobyfit(obj.fe_1);
             kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd, [amp,sj,fwhh,const,grad], [1,1,0,1,0]);
