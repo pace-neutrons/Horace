@@ -498,10 +498,10 @@ classdef unique_references_container < serializable
                 error('HERBERT:unique_references_container:incomplete_setup', ...
                     'global name unset');
             end
-            [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(inobj);
+            [glindex, hash] = self.global_container('value',self.global_name_).find_in_container(inobj);
             if isempty(glindex)
                 glcont = self.global_container('value',self.global_name_);
-                [glcont,glindex] = glcont.add(inobj);
+                [glcont,glindex] = glcont.add_single_(inobj,[],hash);
                 if glindex == 0
                     % object was not added
                     nuix = 0;
