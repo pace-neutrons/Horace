@@ -2,8 +2,8 @@ Horace Manual
 #############
 
 .. toctree::
-   :caption: Horace Manual Chapters
-   :maxdepth: 1
+   :numbered:
+   :maxdepth: 3
 
    manual/Planning_a_Horace_scan
    manual/Generating_SQW_files
@@ -11,7 +11,8 @@ Horace Manual
    manual/Data_diagnostics
    manual/Correcting_for_sample_misalignment
 
-   manual/Manipulating_and_extracting_data_from_SQW_files_and_objects
+   manual/Extracting_data_from_SQW_files_and_objects
+   manual/Observing_SQW_data
    manual/Reshaping_etc
    manual/Symmetrising_etc
 

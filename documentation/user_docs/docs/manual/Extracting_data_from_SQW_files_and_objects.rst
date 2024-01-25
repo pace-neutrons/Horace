@@ -1,23 +1,28 @@
 ###########################################################
-Manipulating and extracting data from SQW files and objects
+Extracting data of interest from SQW files and objects
 ###########################################################
 
 .. |SQW| replace:: S(**Q**, :math:`\omega{}`)
 .. |Q| replace:: :math:`|\textbf{Q}|`
 
+Normally the whole data produced on the previous stages of the neutron experiment are too large to fit the memory 
+of majority of the modern computers. 
+
+
 cut
 ===
 
 ``cut`` takes data from an ``sqw`` object, ``dnd`` object or saved ``sqw`` or
-``dnd`` file and rebins it to an object of the same or reduced size. It can cut
-down either ranges or dimensionality. The resulting cut object is itself an
-``sqw`` or ``dnd`` object which can be plotted, manipulated,
-etc. like any other ``sqw`` or ``dnd`` object. The required inputs are as follows:
+``dnd`` file and converts it to an object of the same or reduced size and dimensions.
+The resulting cut object is itself an ``sqw`` or ``dnd`` object which can be plotted, manipulated,
+etc. like any other ``sqw`` or ``dnd`` object. If the resulting object is itself too big to fit memory,
+it will be backed by appropriate ``sqw`` file. 
+The required inputs are as follows:
 
 .. note::
 
    For the differences between ``dnd`` and ``sqw`` objects see: :ref:`here
-   <manual/FAQ:The difference between sqw and dnd objects>`
+   <manual/FAQ:What is the difference between sqw and dnd objects>`
 
 .. code-block:: matlab
 
@@ -401,168 +406,3 @@ In order to extract bins whose centres lie in the range ``[-5 5]`` from a 4-D
 
    w2 = section(w1, [-5 5], [], [], [])
 
-
-head_horace
-===========
-
-Gets the principal header information in a ``.sqw`` file at the location given
-in ``filename``.
-
-If the option ``'-full'`` is used, then the full set of header information,
-rather than just the principal header, is returned.
-
-.. code-block:: matlab
-
-   info = head_horace(filename[,'-full'])
-
-
-The main use of this function is to determine whether or not the file contains
-an ``sqw`` or a ``dnd`` object.
-
-head_sqw
-========
-
-Gets the principal header information in a ``.sqw`` file which contains an
-``sqw`` object at the location given in ``filename``.
-
-If the option ``'-full'`` is used, then the full set of header information,
-rather than just the principal header, is returned.
-
-.. code-block:: matlab
-
-   info = head_sqw(filename[,'-full'])
-
-head_dnd
-========
-
-Gets the header information in a ``.sqw`` file which contains a ``dnd`` object
-at the location given in ``filename``.
-
-.. code-block:: matlab
-
-   info = head_dnd(filename);
-
-read_horace
-===========
-
-Reads ``sqw`` or ``dnd`` data from a file. The object type is determined from
-the contents of the file.
-
-.. code-block:: matlab
-
-   output = read_horace(filename);
-
-The returned variable is an ``sqw`` or ``dnd`` object.
-
-read_sqw
-========
-
-Reads ``sqw`` data from a file.
-
-.. code-block:: matlab
-
-   output = read_sqw(filename);
-
-The returned variable is an ``sqw`` object.
-
-read_dnd
-========
-
-As `read_sqw`_, but reads ``dnd`` data saved to file. If the file contains a
-full sqw dataset, then only the binned data will be read.
-
-.. code-block:: matlab
-
-   output = read_dnd(filename);
-
-The returned variable is an ``dnd`` object.
-
-save
-====
-
-Saves the ``sqw`` or ``dnd`` object from the Matlab workspace to the file
-specified by ``filename``.
-
-.. code-block:: matlab
-
-   save(object, filename)
-
-xye
-===
-
-Extract the bin centres, intensity and standard errors from an sqw or dnd
-object.
-
-.. code-block:: matlab
-
-   S = xye(object);
-
-
-The output is a structure with fields:
-
-- ``S.x`` - vector of bin centres if a 1D object, or cell array of vectors
-  containing the bin centres along each axis if 2D, 3D or 4D object
-
-- ``S.y`` - array of intensities
-
-- ``S.e`` - array of estimated error on the intensities
-
-
-save_xye
-========
-
-Save an ``sqw`` or ``dnd`` object to an ascii format file at the location
-``filename``.
-
-.. code-block:: matlab
-
-   save_xye(object, filename);
-
-The format of the ascii file for an n-dimensional dataset is n columns of
-co-ordinates along each of the axes, plus one column of signal and another
-column of error (standard deviation).
-
-
-
-..
-    hkle
-    ====
-
-    Obtain the reciprocal space coordinate :math:`[h,k,l,e]` for points in the
-    coordinates of the display axes for an ``sqw`` object
-
-    .. warning::
-
-       This extracts data only from an ``sqw`` derived from a single ``.spe`` file
-
-    .. code-block:: matlab
-
-        [qe1, qe2] = hkle(object, x)
-
-
-    The inputs take the form:
-
-    * ``w``
-
-      sqw object
-
-    * ``x``
-
-      Vector of coordinates in the display axes of an sqw object. The number of
-      coordinates must match the dimensionality of the object. e.g. for a 2D sqw
-      object, ``x = [x1,x2]``, where ``x1``, ``x2`` are column vectors. More than
-      one point can be provided by giving more rows e.g. ``[1.2,4.3; 1.1,5.4; 1.32,
-      6.7]`` for 3 points from a 2D object. Generally, an (``n`` x ``nd``) array,
-      where ``n`` is the number of points, and ``nd`` the dimensionality of the
-      object.
-
-    The outputs take the form:
-
-    * ``qe1``
-
-      Components of momentum (in rlu) and energy for each bin in the
-      dataset. Generally, will be (n x 4) array, where n is the number of points
-
-    * ``qe2``
-
-      For the second root
