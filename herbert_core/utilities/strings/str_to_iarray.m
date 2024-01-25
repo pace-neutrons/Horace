@@ -1,5 +1,5 @@
 function [x, le_nmax] = str_to_iarray (str, nmax)
-% Read integers from a character vector or array, or cell array oc character vectors
+% Read integers from a character vector or array, or cell array of character vectors
 %
 %   >> [x, le_nmax] = str_to_iarray (str)
 %   >> [x, le_nmax] = str_to_iarray (str, nmax)
@@ -72,8 +72,7 @@ function [x, le_nmax] = str_to_iarray (str, nmax)
 if nargin == 1
     nmax = Inf;
 else
-    nmax = floor(nmax);
-    if nmax < 1
+    if ~isnumeric(nmax) || ~isscalar(nmax) || ~(rem(nmax,1)==nmax) || nmax < 1
         error('HERBERT:str_to_iarray:invalid_argument', ['The maximum number ',...
             'of integers to be read must be greater or equal to unity (Default: +Inf)'])
     end
@@ -86,20 +85,15 @@ if ~ok
         'a character string, character array or cellarray of strings'])
 end
 
-% Remove comment lines and trailing comments (first occurence of '%' or '!')
-cout = cellfun(@strip_comment, cout, 'UniformOutput', false);
-ok = ~cellfun(@isempty, cout);
-cout = cout(ok);
-
-% Remove brackets if has form '[...]'
-cout = cellfun(@strip_square_brackets, cout, 'UniformOutput', false);
+% Remove comment lines and trailing comments (first occurence of '%' or '!'), and
+% then remove brackets if has form '[...]'
+cout = cellfun(@(x)strip_square_brackets(strip_comment(x)), cout, 'UniformOutput', false);
 ok = ~cellfun(@isempty, cout);
 cout = cout(ok);
 
 % Concatenate all strings into one (with a leading space to ensure whitespace delimiter)
 if ~isempty(cout)
-    ctmp = cellfun(@(x)([' ', x]), cout, 'UniformOutput', false);
-    strtmp = strcat(ctmp{:});
+    strtmp = strjoin(cout, ' ');
 else
     strtmp = ' ';   % ensures output consistent with non-empty but no-integer string
 end

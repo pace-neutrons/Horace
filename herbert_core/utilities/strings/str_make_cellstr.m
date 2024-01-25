@@ -28,40 +28,36 @@ function [ok, cstr] = str_make_cellstr (varargin)
 %   cstr            Column vector cell array of character vectors.
 %                   Uses the Matlab function cellstr to perform the conversion
 %                   on each input argument.
-%                   Trailing whitespace is removed from character vectors and 
+%                   Trailing whitespace is removed from character vectors and
 %                   character vectors created from 2D character arrays, but not
 %                   from Matlab string objects.
 %
-%                   If ok is false (i.e. conversion of all input arguments to 
+%                   If ok is false (i.e. conversion of all input arguments to
 %                   character vectors was not possible), then false.
 
 
+% Use Matlab cellstr to convert to each input argument to a cell array of
+% character vectors, if possible.
+% If not possible, retain the long-standing behaviour of str_make_cellstr
+% snd return a status flag of false, and do *NOT* throw an error
 try
-    % Use Matlab cellstr to convert to each input argument to a cell array of
-    % character vectors, if possible.
     cstr_arr = cellfun(@cellstr, varargin, 'UniformOutput', false);
-
-    % There are cases that cellstr returns but which are not a cell array of
-    % character vectors. An example is var = {['Pete';'Bob ']}; this results in
-    % cellstr(var) == var, but var is not a valid character vector. Catch any
-    % such cases with a call to str_is_cellstr
-    ok_arr = cellfun(@str_is_cellstr, cstr_arr);
-    if ~all(ok_arr(:))
-        error('HERBERT:str_make_cellstr:invalid_argument', ['Input argument %d ',...
-            'and maybe others was not converted to a cellstr containing \n',...
-            'one or more character vectors'], find(~ok_arr,1))
-    end
 catch
-    % One or more input arguments could not be converted to a cell array of
-    % character vectors.
-    % Retain the long-standing behaviour of str_make_cellstr snd return a status
-    % flag of false, and do *NOT* throw an error
     ok = false;
     cstr = cell(0,1);
     return
 end
 
-% Fill up output cellstr
-ok = true;
-cstr_arr = cellfun(@make_column, cstr_arr, 'UniformOutput', false);
-cstr = cat(1, cstr_arr{:});
+% There are cases that cellstr returns but which are not a cell array of
+% character vectors. An example is var = {['Pete';'Bob ']}; this results in
+% cellstr(var) == var, but var is not a valid character vector. Catch any
+% such cases with a call to str_is_cellstr
+ok_arr = cellfun(@str_is_cellstr, cstr_arr);
+if all(ok_arr(:))
+    ok = true;
+    cstr_arr = cellfun(@make_column, cstr_arr, 'UniformOutput', false);
+    cstr = cat(1, cstr_arr{:});
+else
+    ok = false;
+    cstr = cell(0,1);
+end
