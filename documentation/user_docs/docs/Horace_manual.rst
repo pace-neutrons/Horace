@@ -31,7 +31,6 @@ Horace Manual
    :caption: Horace Manual Appendix
    :maxdepth: 1
 
-   manual/Changing_Horace_settings
    manual/List_of_functions
    manual/Input_file_formats
    manual/FAQ
