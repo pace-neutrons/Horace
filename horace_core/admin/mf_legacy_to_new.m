@@ -16,7 +16,7 @@ function conv = mf_legacy_to_new(funcline)
 %
 % J. Wilkins 8-9-2023
 
-    pth = fullfile(horace_paths().root, 'tools');
+    pth = fullfile(horace_paths().horace, 'admin');
     if count(py.sys.path, pwd) == 0
         insert(py.sys.path, int32(0), pth);
     end
