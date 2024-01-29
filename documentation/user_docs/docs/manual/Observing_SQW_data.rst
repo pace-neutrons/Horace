@@ -12,7 +12,8 @@ a lot of unnecessary and unclear information. This is why MATLAB normally warns 
 function to an object.
 
 To return full essential information about Horace objects in memory, one may use ``to_struct`` method. 
-Majority of Horace objects are ``serializable`` objects, which means they may be converted into serial sequence of bytes. 
+Majority of Horace objects are ``serializable`` objects, which means they may be converted into linear sequence of 
+bytes and reconstruct from this sequence. 
 ``to_struct`` method is used for converting object into a structure containing information, sufficient for recovering
  ``sqw`` or ``dnd`` object from this information. 
  
@@ -32,21 +33,23 @@ Gets the principal information about binary ``.sqw`` or ``.dnd`` file at the loc
 in ``filename`` or in the object, specified as input.
 
 If the option ``'-full'`` is used, then the full set of header information,
-rather than just the principal header, is returned.
+rather than just the principal header, is returned. Equivalent usage forms are:
 
 .. code-block:: matlab
 
    info = head(filename[,'-full']);
-   info = head(sqw_object[,'-full']);
-   info = sqw_or_dnd_object.head(['-full']);   
+   info = head(obj,[,'-full']);
+   info = obj.head(['-full']);   
 
+where ``obj`` is an ``sqw`` or ``dnd`` object.
 
 If applied to file, the main use of this function is to determine whether or not the file contains
 an ``sqw`` or a ``dnd`` object. It also returns general information about the contents of the
-this object, i.e. data ranges, number of pixels in ``sqw`` file etc.
+this object, i.e. data ranges, number of pixels in ``sqw`` file etc., whatever developers decided 
+most important for user to know about correspondent object.
 
-legacy equivalents
---------------------
+legacy equivalents of ``head``
+------------------------------
 
 Number of methods were used in the past to retrieve information similar to the information returned by ``head`` function. 
 These methods are still available and work as before repeating the operations, performed by ``head`` function.
@@ -133,51 +136,3 @@ column of error (standard deviation).
 
       For the second root
 
-######################################################################################
-Saving sqw objects from memory and loading them back in memory
-######################################################################################
-
-read_horace
-===========
-
-Reads ``sqw`` or ``dnd`` data from a file. The object type is determined from
-the contents of the file.
-
-.. code-block:: matlab
-
-   output = read_horace(filename);
-
-The returned variable is an ``sqw`` or ``dnd`` object.
-
-read_sqw
-========
-
-Reads ``sqw`` data from a file.
-
-.. code-block:: matlab
-
-   output = read_sqw(filename);
-
-The returned variable is an ``sqw`` object.
-
-read_dnd
-========
-
-As `read_sqw`_, but reads ``dnd`` data saved to file. If the file contains a
-full sqw dataset, then only the binned data will be read.
-
-.. code-block:: matlab
-
-   output = read_dnd(filename);
-
-The returned variable is an ``dnd`` object.
-
-save
-====
-
-Saves the ``sqw`` or ``dnd`` object from the Matlab workspace to the file
-specified by ``filename``.
-
-.. code-block:: matlab
-
-   save(object, filename)

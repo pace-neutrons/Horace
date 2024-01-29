@@ -1,13 +1,16 @@
 ###########################################################
-Extracting data of interest from SQW files and objects
+Cutting data of interest from SQW files and objects
 ###########################################################
 
 .. |SQW| replace:: S(**Q**, :math:`\omega{}`)
 .. |Q| replace:: :math:`|\textbf{Q}|`
 
-Normally the whole data produced on the previous stages of the neutron experiment are too large to fit the memory 
-of majority of the modern computers. 
+Normally the whole data produced in neutron experiment are too large to fit the memory 
+of majority of modern computers. Horace have stored them in large 4-D dataset, containing full information about experiment,
+4-Dimensional image of reciprocal space ``hkl-dE`` covered during experiment and neutron events registered during experiment.
+User operates with number of smaller objects, extracted from this dataset using various forms of ``cut`` command.
 
+``cut`` is probably the most important Horace command, so its parameters demand special attention.
 
 cut
 ===
@@ -314,7 +317,7 @@ Optional arguments
 * ``filename``
 
   is a string specifying a full filename (including path) for the data to be
-  stored, in addition to being stored in the Matlab workspace.
+  stored, in addition to being stored in the MATLAB workspace.
 
 Further Examples
 ----------------
@@ -337,6 +340,16 @@ projection axes and binning:
    integration ranges, and have to use ``[]`` for the plot axis. The only option
    you have is to change the range of the plot axis by specifying
    ``[lo1,0,hi1]`` instead of ``[]`` (the '0' means 'use existing bin size').
+
+
+Legacy calls to ``cut``: ``cut_sqw`` and ``cut_dnd``
+----------------------------------------------------
+Historically, ``cut`` was used in two different forms ``cut_sqw`` and ``cut_dnd``. These forms 
+are still available now. ``cut_sqw`` is fully equivalent to ``cut`` except attempt to apply it to
+``dnd`` object or file, containing ``dnd`` object will throw ``HORACE:DnDBase:invalid_argument`` exception. 
+``cut_dnd`` is equivalent to ``cut`` applied to ``dnd`` object or correspondent file. If ``cut_dnd`` is applied 
+to ``sqw`` object, it acts on ``dnd`` part of ``sqw`` object (``sqw.data`` field) and returns ``dnd`` 
+object cut from this ``dnd`` object.
 
 
 section

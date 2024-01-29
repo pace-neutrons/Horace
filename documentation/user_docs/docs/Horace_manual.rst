@@ -13,6 +13,7 @@ Horace Manual
 
    manual/Extracting_data_from_SQW_files_and_objects
    manual/Observing_SQW_data
+   manual/Save_and_load   
    manual/Reshaping_etc
    manual/Symmetrising_etc
 
