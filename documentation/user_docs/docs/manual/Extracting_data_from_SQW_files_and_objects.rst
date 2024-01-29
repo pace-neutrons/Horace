@@ -56,14 +56,14 @@ Projection
 This defines the coordinate and thus binning system you will use to plot the
 data.
 
-``proj`` should be an instance of a ``projection`` (such as ``line_proj``,
-``sphere_proj``, etc.) containing information about the axes and the coordinate
-system you wish to use to plot the data.
+``proj`` should be an child of a ``aProjectionBase`` class (such as ``line_proj``,
+``sphere_proj``, etc.) containing information about the the coordinate
+system you wish to use to plot and analyse the data.
 
 .. note::
 
-   Because each point in the ``sqw`` file is labelled with h, k, and l (the
-   reciprocal lattice vectors) and energy, the underlying pixels will be
+   Because each point of ``sqw.pix`` data describes the
+   position in the reciprocal space and energy transfer, the underlying pixels will be
    unchanged. It is possible to redefine the coordinate system with the one of
    your choice; the projection merely describes how pixels will be accumulated
    (binned) and thus displayed.
@@ -118,15 +118,15 @@ The ``line_proj`` structure has several mandatory fields:
 
 There are optional fields too:
 
-* ``proj.uoffset``
+* ``proj.offset``
 
   3-vector in (h,k,l) or 4-vector in (h,k,l,e) specifies an offset for all
   cuts. For example you may wish to make the origin of all your plots (2,1,0),
-  in which case set ``proj.uoffset = [2,1,0]``.
+  in which case set ``proj.offset = [2,1,0]``.
 
 * ``proj.type``
 
-  Three character string denoting the unit along each of the three
+  Three character string denoting the scaling along each of the three
   **Q**-axes, one character for each axis.
 
   There are 3 possible options for each element of ``type``:
@@ -160,6 +160,31 @@ you define, even if they are not orthogonal in the crystal lattice basis.
    The benefit to this is that it makes reading the location of a feature in a
    two-dimensional **Q**-**Q** plot straightforward. This is the main reason for
    treating non-orthogonal bases this way.
+   
+``line_proj`` example:
+^^^^^^^^^^^^^^^^^^^^^^
+
+Let's have a look at scattering function of iron dataset. The reduced part of this dataset
+is provided as demonstration dataset in Horace demo folder available on Github. The 
+iron crystal has been aligned along [1,0,0] axis, so to see the part of the reciprocal space 
+as viewed from sample position, one needs to make cut along [0,1,0],[0,0,1] directions:
+
+.. code-block:: matlab
+
+	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+	proj  = line_proj([0,1,0],[0,0,1]);
+	w2    = cut(data_source,proj,[],[],[-0.1,0.1],[-10,10]);
+	plot(w2);
+
+The code produces: 
+
+.. figure:: ../images/iv_hkl.png 
+   :align: center
+   :width: 800px
+   :alt: 2d cut
+
+   MAPS; slice of reciprocal space covered by the instrument for iron dataset with input neutron energy 401mEv
+
 
 Spherical Projections
 ---------------------
