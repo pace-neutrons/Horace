@@ -7,10 +7,10 @@ Input file formats
 To generate the ``.sqw`` file from which Horace reads |SQW|, neutron scattering
 data for each individual run needs to be provided in one of two formats:
 
+- the HDF5 (Hierarchical Data Format) ``.nxspe`` file.
+
 - the legacy ASCII format ``.spe`` file, together with an ASCII detector
   parameter file (the ``.par`` file)
-
-- their replacements, the HDF5 (Hierarchical Data Format) ``.nxspe`` file.
 
 Two functions are available as part of Horace to create ``.sqw`` files from
 these input files:
@@ -41,9 +41,10 @@ incident neutron energy :math:`E_i`.
 
 .. note::
 
-   The ``.nxspe`` file stores the information in a NeXus format file, which is a
-   common data exchange format for neutron, X-ray and muon data that is built on
-   top of the HDF5 (Hierarchical Data Format) scientific data format.
+   The ``.nxspe`` file stores the information in a [NeXus format
+   file](http://www.nexusformat.org/), which is a common data exchange
+   format for neutron, X-ray and muon data that is built on top of the
+   HDF5 (Hierarchical Data Format) scientific data format.
 
 
 .. note::
@@ -71,7 +72,7 @@ More suitable for a 'quick start', is if you can read corrected scattering data,
 associated estimated errors, and detector parameters into Matlab arrays. You can
 then use the Horace utility function ``gen_nxspe`` to create ``.nxspe`` files.
 
-This is a flexible to repackage and save |SQW| and detector information to
+This is a flexible method to repackage and save |SQW| and detector information to
 file. To write a single ``.nxspe`` file the syntax is as follows:
 
 ::
@@ -110,7 +111,7 @@ The input parameters are defined as follows:
   .. note::
 
      In spherical polar coordinates where the conventional z-axis
-     (:math:`\vec{u}`) points in the direction of the incident beam and with the
+     (:math:`\vec{u}`) points along the direction of the incident beam and with the
      conventional y-axis (:math:`\vec{v}`) pointing vertically upwards:
 
      - ``phi`` is the conventional polar angle :math:`\theta`.
@@ -195,10 +196,12 @@ that begin with '###'. In full:
    :
    ...  S(ne)
 
-   ### Errors ERR(1)  ERR(2)  ERR(3)  ERR(4)  ERR(5)  ERR(6)  ERR(7)  ERR(8)
-   ERR(9)     ERR(10) ERR(11) ERR(12) ERR(13) ERR(14) ERR(15) ERR(16)
+   ### Errors
+
+   ERR(1)  ERR(2)  ERR(3)  ERR(4)  ERR(5)  ERR(6)  ERR(7)  ERR(8)
+   ERR(9)  ERR(10) ERR(11) ERR(12) ERR(13) ERR(14) ERR(15) ERR(16)
    :
-   ...        ERR(ne)
+   ...  ERR(ne)
 
    ### S(Phi,w)
    :
