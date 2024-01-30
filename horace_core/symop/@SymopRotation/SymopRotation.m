@@ -73,6 +73,12 @@ classdef SymopRotation < Symop
                 proj = line_proj();
             end
 
+            if ~isequal(proj.angdeg, [90 90 90])
+                error('HORACE:SymopRotation:invalid_argument', ...
+                      ['Rotational reduction is only supported for an orthogonal projection. ', ...
+                       'If using symmetrise_sqw, please pass through an orthogonal projection'])
+            end
+
             n = obj.n / norm(obj.n);
             if sum(abs(n - [1; 0; 0])) > 1e-1
                 u = [1; 0; 0];
@@ -88,7 +94,7 @@ classdef SymopRotation < Symop
             normvec_u = cross(n, u);
             normvec_v = cross(v, n);
 
-            selected = (coords'*normvec_u > 0 & ...
+            selected = (coords'*normvec_u >= 0 & ...
                         coords'*normvec_v > 0);
         end
 

@@ -68,10 +68,8 @@ if isa(varargin{end}, 'aProjectionBase')
 else
     proj = {line_proj([1 0 0], [0 1 0], ...
                       'alatt', win.data.proj.alatt, ...
-                      'angdeg', win.data.proj.angdeg)};
+                      'angdeg', [90, 90, 90])};
 end
-
-
 
 
 if numel(varargin) == 1 && isa(varargin{1}, 'Symop') || ...
