@@ -318,9 +318,14 @@ Where:
    and ``v`` and perpendicular to ``u``.
 
    The third viewing axes is by default defined as the cross product of the first
-   two.
+   two. (:math:`u \times{} v`)
 
    The fourth viewing axis is always energy and cannot be modified.
+
+   .. warning::
+
+      None of these vectors can be collinear. An error will be thrown
+      in this case.
 
 .. note::
 
@@ -328,8 +333,7 @@ Where:
    and ``v`` that are specified in :ref:`gen_sqw
    <manual/Generating_SQW_files:gen_sqw>`, which describe how the crystal is
    oriented with respect to the spectrometer and are determined by the physical
-   orientation of your sample. Like the ``u`` and ``v`` vectors used during
-   ``gen_sqw``, these vectors can not be parallel.
+   orientation of your sample.
 
 .. note::
 
