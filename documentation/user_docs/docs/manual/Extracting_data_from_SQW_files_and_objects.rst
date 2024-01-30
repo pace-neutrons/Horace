@@ -276,6 +276,14 @@ The cut with the same parameters as above at higher energy transfer
    
 The data    
 
+``line_proj`` legacy usage:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Historically, Horace ``cut_sqw`` and ``cut_dnd`` were accepting a structure with fields defining the same values as properties of ``line_proj``. 
+This still the case, so if you define the ``cut`` input ``proj`` as a structure with the same fields as ``line_proj`` have, 
+``line_proj`` will be constructed from these fields internally.
+
+
 Spherical Projections
 ---------------------
 
@@ -340,7 +348,7 @@ are in degrees.
 	s2    = cut(data_source,sp_proj,[0,0.1,14],[0,180],[-180,180],[-10,4,400]);
 	plot(s2);
 
-The default constructor builds sperical projection with ``sp_proj.ez == [1,0,0]``, ``sp_proj.ex == [0,1,0]``
+The default constructor builds spherical projection with ``sp_proj.ez == [1,0,0]``, ``sp_proj.ex == [0,1,0]``
 and ``sp_proj.offset == [0,0,0,0]``  Cut produces:
 
 .. figure:: ../images/powder_avrg.png
@@ -351,7 +359,7 @@ and ``sp_proj.offset == [0,0,0,0]``  Cut produces:
    MAPS; Scattering from iron at 400meV.
 
 To the experts in the field this picture shows that the energies of phonons excitations are located under 50meV, some magnetic
-scattering is present at |Q|<5 and spin waves at high |Q| are suppressed by magnetic form factor.
+scattering is present at |Q| < 5 and spin waves at high |Q| are suppressed by magnetic form factor.
 
 Using spherical projection we can conveniently investigate the details of the particular spin wave
 presented on the images produced using linear projection above, i.e. around the scattering point :math:`[0,-1,1]`. 
@@ -364,7 +372,7 @@ presented on the images produced using linear projection above, i.e. around the 
 	s2    = cut(data_source,sp_proj,[0,0.1,2],[80,90],[-180,4,180],[50,60]);
 	plot(s2);
 
-one can unwrap the intensity of the spin-wave located around :math:`[0,-1,1]` Bragg peak:
+The unwrapping of the intensity of the spin-wave located around :math:`[0,-1,1]` Bragg peak shows:
 
 .. figure:: ../images/spin_w_tiny.png
    :align: center
