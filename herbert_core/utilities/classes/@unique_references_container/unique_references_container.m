@@ -127,8 +127,9 @@ classdef unique_references_container < serializable
     properties (Constant, Access=private) % serializable interface
         fields_to_save_ = { ...
             'stored_baseclass', ...
-            'global_name', ... 5 must come before unique_objects
+            'global_name', ... % must come before unique_objects
             'unique_objects', ...
+            'idx'
             };
     end
 
@@ -169,8 +170,14 @@ classdef unique_references_container < serializable
 
         function val = get.idx(self)
             %GET.IDX - list of indices into the global container
-            % Not recommended for normal use.
+            % Not recommended for normal use outside of saving.
             val = self.idx_;
+        end
+        
+        function self = set.idx(self,val)
+            %SET.IDX - set list of indices into the global container
+            % not recommended for normal use outside of loading
+            self.idx_ = val;
         end
 
         function val = get.stored_baseclass(self)

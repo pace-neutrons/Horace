@@ -150,6 +150,9 @@ classdef test_unique_references < TestCase
             % be succesfully modified.
             ed = IX_experiment();
             det = IX_detector_array();
+            % provides an identifiable field on an otherwise vanilla object
+            % for comparison at the last assertEqual
+            det.filename = 'myfile';
             ex = Experiment(det,obj.li,sam,ed);
             assertEqual(ex.samples(1),sam);
             sam2 = IX_samp(5,80);
