@@ -108,7 +108,7 @@ The ``line_proj`` structure has several mandatory fields:
 
 .. warning::
 
-   The vectors ``u`` and ``v`` may not be collinear. An error will be thrown in
+   The vectors ``u`` and ``v`` must not be collinear. An error will be thrown in
    this case.
 
 There are optional fields too:
