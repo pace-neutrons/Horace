@@ -3,7 +3,11 @@ Cutting data of interest from SQW files and objects
 ###########################################################
 
 .. |SQW| replace:: S(**Q**, :math:`\omega{}`)
+
 .. |Q| replace:: :math:`|\textbf{Q}|`
+
+.. role:: matlab(code)
+   :language: matlab
 
 Normally the whole data produced in neutron experiment are too large to fit the memory 
 of majority of modern computers. Horace have stored them in large 4-D dataset, containing full information about experiment,
@@ -29,18 +33,36 @@ The required inputs are as follows:
 
 .. code-block:: matlab
 
-   my_cut = cut(data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
+   my_cut = cut(data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin,varargin)
 
+where ``varargin`` describes optional parameters and may contain:
+
+  ``-nopix``   -- the key requests that the cut should contain just image (``dnd`` object) and drop all pixels contributing into this image. This  option is faster but should not be used if you want to do subsequent cuts from the resulting cut ``my_cut``.
+  
+  ``filename`` -- if provided, requests that the resulting file is backed by the file with the ``filename``. This option is mandatory if cut is called without output argument.
 
 Cutting consists of a rebinning of the pixels into the bins specified by the cut
 parameters (described below).  These binned pixels will make up the ``dnd`` of
 the output object which contains information regarding the plottable data.
 
+Filebacked and memory based cuts.
+--------------------------------
+
+By default, ``cut`` attempts to put the image and all pixels in memory. Pixels from large cuts would not fit memory. 
+For this reason, if size of cut exceeds the specified size, the pixels are backed by file. If the ``filename`` option 
+is provided, the file has this name, and if not, the file will have name of the source file and 
+random extension in the form ``.tmp_XXXXXXX`` where ``XXXXXXX`` are random letters and numbers. This file gets deleted if ``sqw`` object
+it backs gets deleted unless you ``save`` this object in file with permanent file name.
+
+The options which define the number of pixels after which resulting cut becomes filebacked is defined in the configuration namely ``hor_config`` class. 
+The options are ``mem_chunk_size`` and ``fb_scale_factor``. If the number of pixels in cut exceeds ``mem_chunk_size*fb_scale_factor``,
+the pixels are dropped to file and the cut becomes filebacked.
+
 
 Data Source
 -----------
 
-``data_source`` is either a string giving the full filename (including path) of
+``data_source`` in ``cut`` is either a string giving the full filename (including path) of
 the input ``.sqw`` file or just the variable containing an ``sqw`` or ``dnd``
 object stored in memory from which the pixels will be taken.
 
@@ -53,7 +75,7 @@ object stored in memory from which the pixels will be taken.
 Projection
 ----------
 
-This defines the coordinate and thus binning system you will use to plot the
+This defines the coordinate and thus binning system you will use to plot and analyse the
 data.
 
 ``proj`` should be an child of a ``aProjectionBase`` class (such as ``line_proj``,
@@ -64,19 +86,71 @@ system you wish to use to plot and analyse the data.
 
    Because each point of ``sqw.pix`` data describes the
    position in the reciprocal space and energy transfer, the underlying pixels will be
-   unchanged. It is possible to redefine the coordinate system with the one of
+   unchanged. For image (``dnd`` object) it is possible to redefine the coordinate system with the one of
    your choice; the projection merely describes how pixels will be accumulated
-   (binned) and thus displayed.
+   (binned) and thus displayed in image coordinate system.
 
 
-Lattice basis projections
+Lattice based projections
 -------------------------
 
-The most common type of projection for single-crystal experiments will be the
+The most common type of projection for single-crystal experiments is the
 ``line_proj`` which defines a (usually orthogonal, but not necessarily) system
 of linear coordinates from a set of basis vectors.
 
-The ``line_proj`` structure has several mandatory fields:
+Full ``line_proj`` constructor may contain up to 14 fields but normally you need to use
+form two to five of them.
+
+.. code-block:: matlab
+
+   proj = line_proj(u,v,w,nonorthogonal,type,alatt,angdeg,offset,label,title,lab1,lab2,lab3,lab4);
+   
+Where:
+	``u`` -- reciprocal vector for first viewing axis.
+	
+	``v`` -- reciprocal vector for second viewing axis.
+	
+	``w`` -- optional reciprocal vector of third axis.
+	
+	 See more information about these vectors below. 
+	 
+	``nonorthogonal`` -- true of false defines treatment of the lattice vectors.
+	
+	``type`` -- the type of the projection normalization
+	
+	``alatt``  -- three components of lattice parameters.
+	
+	``angdeg`` -- three components of lattice vectors. 
+	
+	One do not need to define these vectors for cut unless he wants to use projection class separately. The vectors will be taken from lattice defined in ``sqw`` object.
+	
+	``offset`` -- centre of the projection coordinate system in (h,k,l,dE) coordinate system. 
+	
+	``label``  -- 4-element cellarray containing captions for axes of target ``sqw`` object.
+	
+	``title``  -- the string to place as the title of the plot you would make from the ``sqw`` or ``dnd`` object resulting from cut.
+	
+	``lab1-n`` -- separate components of the projection label.
+
+Empty ``line_proj`` constructor builds ``line_proj`` with ``u=[1,0,0]`` and ``v=[0,1,0]``.
+Like the majority of Horace objects, you may build ``line_proj`` providing some positional parameters and
+provide any optional parameters as key-value pairs e.g.:
+
+.. code-block:: matlab
+
+   proj = line_proj([0,1,0],[0,0,1],'type','aaa','titile','my linear cut');
+
+or define some parameters in constructor, and then set other parameters values using properties:
+
+.. code-block:: matlab
+
+   proj = line_proj([0,1,0],[0,0,1]);
+   proj.type = 'ppr';
+   proj.offset = [1,0,0];
+
+
+The most important fields of ``line_proj`` constructor are the fields, which define the 
+the position of the plain you want to cut. These fields are ``u`` and ``v``:
 
 * ``proj.u``
 
@@ -97,7 +171,8 @@ The ``line_proj`` structure has several mandatory fields:
    and ``v`` that are specified in :ref:`gen_sqw
    <manual/Generating_SQW_files:gen_sqw>`, which describe how the crystal is
    oriented with respect to the spectrometer and are determined by the physical
-   orientation of your sample.
+   orientation of your sample. Like ``u`` and ``v`` vectors used during ``.sqw`` file 
+   generation these vectors can not be parallel.
 
 .. note::
 
@@ -161,8 +236,8 @@ you define, even if they are not orthogonal in the crystal lattice basis.
    two-dimensional **Q**-**Q** plot straightforward. This is the main reason for
    treating non-orthogonal bases this way.
    
-``line_proj`` example:
-^^^^^^^^^^^^^^^^^^^^^^
+``line_proj`` 2D cut example:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Let's have a look at scattering function of iron dataset. The reduced part of this dataset
 is provided as demonstration dataset in Horace demo folder available on Github. The 
@@ -173,7 +248,8 @@ as viewed from sample position, one needs to make cut along [0,1,0],[0,0,1] dire
 
 	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
 	proj  = line_proj([0,1,0],[0,0,1]);
-	w2    = cut(data_source,proj,[],[],[-0.1,0.1],[-10,10]);
+	proj.type = 'aaa';
+	w2    = cut(data_source,proj,[-4.5,0.1,14.5],[-5,0.1,5],[-0.1,0.1],[-10,10]);
 	plot(w2);
 
 The code produces: 
@@ -183,21 +259,46 @@ The code produces:
    :width: 800px
    :alt: 2d cut
 
-   MAPS; slice of reciprocal space covered by the instrument for iron dataset with input neutron energy 401mEv
+   MAPS; slice of reciprocal space covered by the instrument for iron dataset with input neutron energy 401meV. Elastic line.
+   
+The cut with the same parameters as above at higher energy transfer 
+(:matlab:`w2 = cut(data_source,proj,[-4.5,0.1,14.5],[-5,0.1,5],[-0.1,0.1],[50,60]);`) shows clear spin waves:
 
+.. figure:: ../images/iv_hkl_dE.png 
+   :align: center
+   :width: 800px
+   :alt: 2d cut instrument view energy transfer.
+
+   MAPS; slice of reciprocal space covered by the instrument for iron dataset with input neutron energy 401meV. Energy transfer [50-60]meV.
+   
+``line_proj`` 1D cut example:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   
+The data    
 
 Spherical Projections
 ---------------------
 
 In order to construct a spherical projection, i.e. a projection in
-|Q|, :math:`\theta` (azimuth), :math:`\phi` (elevation), :math:`E`, we define the
-projection in a similar way to other projections, but instead use ``sphere_proj``:
+|Q|, :math:`\theta` (scattering angle), :math:`\phi` (azimuthal angle), :math:`E`, we define the
+projection in a similar way to other projections, but instead use ``sphere_proj`` class:
 
 .. code-block:: matlab
 
-   sp_proj = sphere_proj([0, 0, 0, 0]);
+   sp_proj = sphere_proj();
 
-Where ``[0, 0, 0, 0]`` is the offset of the projection with respect to :math:`h,k,l,E`
+The projection defines spherical coordinates system, where :math:`\theta` angle is 
+measured from z-axis directed along :math:`e_z` vector of the 
+projection and changes from :math:`0` to :math:`180^o`. :math:`\phi` angle is measured
+from :math:`e_x` vector of the projection and changes from :math:`-180^o` to :math:`180^o`.
+
+.. figure:: ../images/spher_coordinates.png 
+   :align: center
+   :width: 500px
+   :alt: spherical coordinate system.
+
+   Spherical coordinate system used by ``sphere_proj``
+
 
 .. note::
 
@@ -224,6 +325,82 @@ The structure of the arguments to cut is still the same (see `Binning arguments`
    <manual/Generating_SQW_files:gen_sqw>`. It is possible to change these by
    setting ``ex`` and ``ez`` which are vectors lying in-plane and perpendicular
    to the plane respectively.
+   
+   
+``sphere_proj`` 2D and 1D cuts samples:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Spherical projection allows you to obtain powder average. Note that binning ranges are specified in 
+target coordinate system. Energy transfer by default is expressed in inverse Angstroms and angles 
+are in degrees.
+
+.. code-block:: matlab
+
+	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+	sp_proj  = sphere_proj();
+	s2    = cut(data_source,sp_proj,[0,0.1,14],[0,180],[-180,180],[-10,4,400]);
+	plot(s2);
+
+The default constructor builds sperical projection with ``sp_proj.ez == [1,0,0]``, ``sp_proj.ex == [0,1,0]``
+and ``sp_proj.offset == [0,0,0,0]``  Cut produces:
+
+.. figure:: ../images/powder_avrg.png
+   :align: center
+   :width: 500px
+   :alt: |Q|-dE cut.
+
+   MAPS; Scattering from iron at 400meV.
+
+To the experts in the field this picture shows that the energies of phonons excitations are located under 50meV, some magnetic
+scattering is present at |Q|<5 and spin waves at high |Q| are suppressed by magnetic form factor.
+
+Using spherical projection we can conveniently investigate the details of the particular spin wave
+presented on the images produced using linear projection above, i.e. around the scattering point :math:`[0,-1,1]`. 
+
+.. code-block:: matlab
+
+	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+	sp_proj  = sphere_proj();
+	sp_proj.offset  = [0,-1,1];	
+	s2    = cut(data_source,sp_proj,[0,0.1,2],[80,90],[-180,4,180],[50,60]);
+	plot(s2);
+
+one can unwrap the intensity of the spin-wave located around :math:`[0,-1,1]` Bragg peak:
+
+.. figure:: ../images/spin_w_tiny.png
+   :align: center
+   :width: 500px
+   :alt: Q-phi cut
+
+   Spin-wave scattering intensity around :math:`[0,-1,1]` point, expressed in spherical coordinate system.
+   
+Visible gap caused by missing detectors is obvious in :math:`[-50^o:+50^o]` angles range. Averaging over all 
+:math:`\theta` angles substantially improves statistics:
+
+.. code-block:: matlab
+
+	s2    = cut(data_source,sp_proj,[0,0.1,2],[0,180],[-180,4,180],[50,60]);
+
+.. figure:: ../images/spin_w_theta_av.png
+   :align: center
+   :width: 500px
+   :alt: Q-phi cut theta-averages
+
+   :math:`\theta`-averaged spin-wave scattering intensity around :math:`[0,-1,1]` point.
+   
+and finally, 1D cut provides the intensity distribution as function of |Q|-distance from the spin-wave centre:
+
+.. code-block:: matlab
+
+	s2    = cut(data_source,sp_proj,[0,0.1,2],[0,180],[-180,180],[50,60]);
+
+.. figure:: ../images/spin_w_intensity_1D.png
+   :align: center
+   :width: 500px
+   :alt: intensity vs Q.
+   
+   Spin-wave intensity as function of distance from the scattering centre at :math:`[0,-1,1]`.
+   
+   
 
 Cylindrical Projections
 -----------------------
