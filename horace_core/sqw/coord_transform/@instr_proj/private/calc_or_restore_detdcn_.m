@@ -35,9 +35,11 @@ if numel(det.phi) ~= numel(det_buff.phi)
     det_eq = false;
     return;
 end
-if any(abs(det.group-det_buff.group)<1.e-8) && ...
-        any(abs(det.phi-det_buff.phi)<1.e-8) && ...
-        any(abs(det.azim-det_buff.azim)<1.e-8)
+
+% columnise to ensure working comparison
+if all(abs(det.group(:)-det_buff.group(:))<1.e-8) && ...
+   all(abs(det.phi(:)-det_buff.phi(:))<1.e-8)     && ...
+   all(abs(det.azim(:)-det_buff.azim(:))<1.e-8)
     det_eq = true;
 else
     det_eq = false;
