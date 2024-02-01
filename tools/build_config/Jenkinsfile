@@ -92,7 +92,8 @@ pipeline {
   environment {
     // SL7 nodes had matlab/R20xx[ab] + matlab/2020b. Rocky8 nodes do not, only matlab/20xx[ab]
     // removing the R here from the pipeline library standard version so as not to break other library dependent pipelines
-    MATLAB_VERSION = utilities.get_param('MATLAB_VERSION', pli.matlab_release.minus('R'))
+    MATLAB_VERSION = utilities.get_param('MATLAB_VERSION', pli.matlab_release)
+    MATLAB_MODULE = utilities.get_param('MATLAB_VERSION', pli.matlab_release.minus('R'))
     CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', '3.26')
     GCC_VERSION = utilities.get_param('GCC_VERSION', '13')
     PYTHON_VERSION = utilities.get_param('PYTHON_VERSION', '3.8')
@@ -141,7 +142,7 @@ pipeline {
               module load python/\$PYTHON_VERSION &&
               export PATH=${PATH}:~/.local/bin &&
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
               ./tools/build_config/build.sh \
@@ -170,7 +171,7 @@ pipeline {
           if (isUnix()) {
             sh '''
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
               ./tools/build_config/build.sh --analyze
@@ -196,7 +197,7 @@ pipeline {
           if (isUnix()) {
             sh '''
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               ./tools/build_config/build.sh --build
             '''
@@ -254,7 +255,7 @@ pipeline {
           if (isUnix()) {
             sh '''
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               ./tools/build_config/build.sh --test
             '''
@@ -277,7 +278,7 @@ pipeline {
           if (isUnix()) {
             sh '''
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               ./tools/build_config/build.sh --benchmark
              '''
