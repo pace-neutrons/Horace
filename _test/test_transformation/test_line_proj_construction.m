@@ -20,34 +20,12 @@ classdef test_line_proj_construction<TestCase
             assertEqual(proj.v,[1,0,0]);
             assertTrue(isempty(proj.w));
             assertEqual(proj.type,'ppr');
-            assertEqual(proj.img_offset,[1,1,0,0]);
-            assertEqual(proj.img_offset,proj.uoffset);
-            assertEqual(proj.offset,zeros(1,4))
+            assertEqual(proj.offset,[1,1,0,0]);
+            assertEqual(proj.offset,proj.uoffset);
 
             assertExceptionThrown(@()transform_pix_to_img(proj,ones(4,1)), ...
                 'HORACE:line_proj:runtime_error');
-            proj.alatt = 2*pi;
-            proj.angdeg = 90;
-            assertElementsAlmostEqual(proj.img_offset,proj.offset);
         end
-        function test_no_lattice_uoffset_hangs_before_lattice_defined(~)
-            proj = line_proj([1,0,0],[0,1,0],...
-                'angdeg',90);
-            proj.img_offset = [1,1,0,0];
-            assertEqual(proj.img_offset,[1,1,0,0]);
-            assertEqual(proj.offset,[0,0,0,0]);
-            proj.alatt = 2;
-            assertElementsAlmostEqual(proj.img_offset,proj.offset);
-        end
-        function test_no_lattice_not_calculated_before_lattice_defined(~)
-            proj = line_proj([1,0,0],[0,1,0],...
-                'alatt',[2,3,4]);
-            proj.offset = [1,1,0,0];
-            assertTrue(isempty(proj.img_offset));
-            proj.angdeg = 90;
-            assertElementsAlmostEqual(proj.img_offset,proj.offset);
-        end
-
         function test_no_lattice_throws_on_acces_to_transf(~)
             proj = line_proj([1,0,0],[0,1,0],...
                 'alatt',[2,3,4],'type','aaa',...
@@ -323,9 +301,9 @@ classdef test_line_proj_construction<TestCase
             proj1=do.proj;
             pp = proj1.transform_pix_to_img([eye(3),[1;1;1]]);
             p_ref =[...
-                -0.7726   -1.2274   -1.0000   -1.0000;...
-                -0.2929   -0.2929   -1.0000    0.4142;...
-                +0         0         1.0000    1.0000];
+                0.2274   -0.2274         0    0.0000;...
+                0.7071    0.7071         0    1.4142;...
+                0         0    1.0000    1.0000];
             assertElementsAlmostEqual(pp,p_ref,'absolute',1.e-4);
             opt = line_projTester(proj1);
 
