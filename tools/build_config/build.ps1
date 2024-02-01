@@ -76,7 +76,7 @@ param (
   $cmake_flags = "",
 
   # The release of Matlab to build and run tests against e.g. R2018b.
-  [string][ValidatePattern("R[0-9]{4}[ab]")]
+  [string][ValidatePattern("R?[0-9]{4}[ab]")]
   [Alias("M")]
   $matlab_release = ""
 )
@@ -215,6 +215,10 @@ function Invoke-Docs {
 # Resolve/set default parameters
 if ($build_dir -eq "") {
   $build_dir = Join-Path -Path "$HORACE_ROOT" -ChildPath "build"
+}
+
+if (-not $matlab_release.startsWith("R")) {
+  $matlab_release = "R" + $matlab_release
 }
 
 if ($print_versions) {
