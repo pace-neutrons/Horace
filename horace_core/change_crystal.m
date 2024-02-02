@@ -1,15 +1,16 @@
 function out = change_crystal(in_data,alignment_info,varargin)
-% Change the crystal lattice and orientation of an sqw object stored in a file
-% or celarray of files
+% Change the crystal lattice and orientation of an sqw/dnd objects or
+% sqw/dnd object  stored in a file or celarray of files
 %
-%   >> change_crystal (filenames, alignment_info) % change lattice parameters and orientation
-%                                                 % of the crystal according to the
-%                                                 % crystal alignment information provided
+% Usage:
+%   >>change_crystal (in_data, alignment_info,varargin);
+%   >>out = change_crystal (in_data, alignment_info,varargin);
 %
 %
 % Input:
 % -----
-%   w           Input sqw object
+%  in_data       --  Input sqw object, cellarray of sqw/dnd objects or
+%                     cellarray of files containing sqw/dnd objects.
 %
 % alignment_info -- class helper containing all information about crystal
 %                   realignment, produced by refine_crystal procedure.
@@ -19,6 +20,9 @@ function out = change_crystal(in_data,alignment_info,varargin)
 % Optional:
 % '-dnd_only'   -- align only dnd-part of the object. Algorithm will fail
 %                  if applied to .sqw files containing sqw objects.
+% '-sqw_only'   -- align only sqw objects or files containing sqw objects.
+%                  Throw error if dnd object or dnd file is provided as
+%                  input.
 %
 % Output:
 % -------
@@ -35,14 +39,15 @@ function out = change_crystal(in_data,alignment_info,varargin)
 % Original author: T.G.Perring
 %
 
-
-% This routine used to change the crystal in sqw files, when it overwrites the input file.
-
 % Parse input
 % -----------
-[ok,mess,dnd_only]  = parse_char_options(varargin,'-dnd_only');
+[ok,mess,dnd_only,sqw_only]  = parse_char_options(varargin,{'-dnd_only','-sqw_only'});
 if ~ok
     error('HORACE:algorithms:invalid_argument',mess);
+end
+if sqw_only && dnd_only
+    error('HORACE:algorithms:invalid_argument', ...
+        '-sqw_only and -dnd_only options can not be used together');
 end
 
 if ischar(in_data)
@@ -59,8 +64,13 @@ end
 out = cell(1,numel(in_data));
 for i=1:numel(in_data)
     if isa(in_data{i},'SQWDnDBase')
+        is_sqw = isa(in_data{i},'sqw');
+        if sqw_only && ~is_sqw
+            error('HORACE:change_crystal:invalid_argument',...
+                'change_crystal called to align sqw objects but obj N%d is dnd object',i)
+        end
         if dnd_only
-            if isa(in_data{i},'sqw')
+            if is_sqw
                 out{i} = in_data{i}.data.change_crystal(alignment_info);
             else
                 out{i} = in_data{i}.change_crystal(alignment_info);
@@ -97,6 +107,10 @@ for i=1:numel(in_data)
                 pix_info.alignment_matr = alignment_info.rotmat;
                 ld = ld.put_pix_metadata(pix_info);
             end
+        elseif sqw_only
+            error('HORACE:change_crystal:invalid_argument',...
+                'change_crystal called to align sqw objects but file%s contains dnd object', ...
+                in_data{i})
         end
         data= data.change_crystal(alignment_info);
         ld = ld.put_dnd_metadata(data);

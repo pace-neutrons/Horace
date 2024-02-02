@@ -1,32 +1,52 @@
-function out=change_crystal_sqw(filenames,alignment_info)
-% Change the crystal lattice and orientation of an sqw object or array of objects
+function varargout=change_crystal_sqw(filenames,alignment_info)
+% Change the crystal lattice and orientation of an sqw/dnd objects or
+% sqw/dnd object  stored in a file or celarray of files
 %
-% Most commonly:
-%   >> wout = change_crystal (w, alignment_info)      % change lattice parameters and orientation
+% Usage:
+%   >>change_crystal (in_data, alignment_info,varargin);
+%   >>out = change_crystal (in_data, alignment_info,varargin);
+%
 %
 % Input:
 % -----
-%   w           Input sqw object
+%  in_data       --  Input sqw object, cellarray of sqw/dnd objects or
+%                     cellarray of files containing sqw/dnd objects.
 %
 % alignment_info -- class helper containing all information about crystal
 %                   realignment, produced by refine_crystal procedure.
-%               This matrix can be obtained from refining the lattice and
-%              orientation with the function refine_crystal (type
-%              >> help refine_crystal  for more details).
+%
+%              do:
+%              >> help refine_crystal  for more details.
+%
 % Output:
 % -------
-%   wout        Output sqw object with changed crystal lattice parameters and orientation
+%   out        Output sqw object with changed crystal lattice parameters and orientation
+%              or cellarray contaning such objects.
+%
+%  Throws error if dnd object or dnd file is provided as input for
+%  alignment
+%
 %
 % NOTE
 %  The input data set(s) can be reset to their original orientation by inverting the
-%  input data e.g.
-%    - call with inv(rlu_corr)
-%    - call with the original alatt, angdeg, u and v
-
-% Original author: T.G.Perring
+%  input data i.e. providing alignment_info with original alatt and angdeg
+%  and rotvec describing 3-D rotation in the direction opposite to initial
+%  direction. (rovect_inv = -rotvec_alignment)
 %
 
+% Original author: T.G.Perring
 
-% This routine is also used to change the crystal in sqw files, when it overwrites the input file.
 
-out = change_crystal(filenames,alignment_info);
+argi = {filenames,alignment_info,'-sqw_only'};
+if nargout>0
+    if numel(varargin{1}) == nargout
+        out = change_crystal(argi{:});
+        for i=1:nargout
+            varargout{i} = out{i};
+        end
+    else
+        varargout{1} = change_crystal(argi{:});
+    end
+else
+    change_crystal(argi{:});
+end
