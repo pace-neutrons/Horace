@@ -72,7 +72,7 @@ function [x, le_nmax] = str_to_iarray (str, nmax)
 if nargin == 1
     nmax = Inf;
 else
-    if ~isnumeric(nmax) || ~isscalar(nmax) || ~(rem(nmax,1)==nmax) || nmax < 1
+    if ~isnumeric(nmax) || ~isscalar(nmax) || rem(nmax,1)~=0 || nmax < 1
         error('HERBERT:str_to_iarray:invalid_argument', ['The maximum number ',...
             'of integers to be read must be greater or equal to unity (Default: +Inf)'])
     end
