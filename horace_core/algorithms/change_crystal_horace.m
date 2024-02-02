@@ -2,7 +2,7 @@ function varargout=change_crystal_horace(varargin)
 % Change the crystal lattice and orientation of an sqw object stored in a file
 % or celarray of files
 %
-%   >> change_crystal (filenames, alignment_info) % change lattice parameters and orientation
+%   >> change_crystal_horace(filenames, alignment_info) % change lattice parameters and orientation
 %                                                 % of the crystal according to the
 %                                                 % crystal alignment information provided
 %
@@ -20,13 +20,14 @@ function varargout=change_crystal_horace(varargin)
 %
 % Output:
 % -------
-%   out        Output sqw object with changed crystal lattice parameters and orientation
+%   out        Output sqw/dnd object with changed crystal lattice parameters
+%              and pixels orientation
 %
 % NOTE
 %  The input data set(s) can be reset to their original orientation by inverting the
-%  input data e.g.
-%    - call with inv(rlu_corr)
-%    - call with the original alatt, angdeg, u and v
+%  input data i.e. providing alignment_info with original alatt and angdeg
+%  and rotvec describing 3-D rotation in the direction opposite to initial
+%  direction. (rovect_inv = -rotvec_alignment)
 
 % Original author: T.G.Perring
 %

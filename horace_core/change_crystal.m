@@ -16,16 +16,21 @@ function out = change_crystal(in_data,alignment_info,varargin)
 %
 %              do:
 %              >> help refine_crystal  for more details.
+% Optional:
+% '-dnd_only'   -- align only dnd-part of the object. Algorithm will fail
+%                  if applied to .sqw files containing sqw objects.
 %
 % Output:
 % -------
 %   out        Output sqw object with changed crystal lattice parameters and orientation
+%              or cellarray contaning such objects.
 %
 % NOTE
 %  The input data set(s) can be reset to their original orientation by inverting the
-%  input data e.g.
-%    - call with inv(rlu_corr)
-%    - call with the original alatt, angdeg, u and v
+%  input data i.e. providing alignment_info with original alatt and angdeg
+%  and rotvec describing 3-D rotation in the direction opposite to initial
+%  direction. (rovect_inv = -rotvec_alignment)
+%
 
 % Original author: T.G.Perring
 %
@@ -35,6 +40,11 @@ function out = change_crystal(in_data,alignment_info,varargin)
 
 % Parse input
 % -----------
+[ok,mess,dnd_only]  = parse_char_options(varargin,'-dnd_only');
+if ~ok
+    error('HORACE:algorithms:invalid_argument',mess);
+end
+
 if ischar(in_data)
     in_data = {in_data};
 end
@@ -49,16 +59,30 @@ end
 out = cell(1,numel(in_data));
 for i=1:numel(in_data)
     if isa(in_data{i},'SQWDnDBase')
-        out{i} = in_data{i}.change_crystal(alignment_info);
+        if dnd_only
+            if isa(in_data{i},'sqw')
+                out{i} = in_data{i}.data.change_crystal(alignment_info);
+            else
+                out{i} = in_data{i}.change_crystal(alignment_info);
+            end
+        else
+            out{i} = in_data{i}.change_crystal(alignment_info);
+        end
     else
         out{i} = in_data{i};
         ld = sqw_formats_factory.instance().get_loader(in_data{i});
         if ld.faccess_version<4
             alignment_info.legacy_mode = true;
         end
-        data    = ld.get_dnd();
-        ld = ld.set_file_to_update();
+        data = ld.get_dnd();
+        ld   = ld.set_file_to_update();
         if ld.sqw_type
+            if dnd_only
+                ld.delete();
+                error('HORACE:change_crystal:invalid_argument',...
+                    'file: %s contains sqw object but it is modified in dnd-mode only', ...
+                    in_data{i});
+            end
             exp_info= ld.get_exp_info('-all');
             if alignment_info.legacy_mode
                 exp_info = change_crystal(exp_info,alignment_info,data.proj);
