@@ -19,7 +19,7 @@ function out = change_crystal(in_data,alignment_info,varargin)
 %
 % Output:
 % -------
-%   wout        Output sqw object with changed crystal lattice parameters and orientation
+%   out        Output sqw object with changed crystal lattice parameters and orientation
 %
 % NOTE
 %  The input data set(s) can be reset to their original orientation by inverting the
