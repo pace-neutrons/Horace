@@ -1,4 +1,4 @@
-function varargout=change_crystal_sqw(filenames,alignment_info)
+function varargout=change_crystal_sqw(in_data,alignment_info)
 % Change the crystal lattice and orientation of an sqw/dnd objects or
 % sqw/dnd object  stored in a file or celarray of files
 %
@@ -37,9 +37,9 @@ function varargout=change_crystal_sqw(filenames,alignment_info)
 % Original author: T.G.Perring
 
 
-argi = {filenames,alignment_info,'-sqw_only'};
+argi = {in_data,alignment_info,'-sqw_only'};
 if nargout>0
-    if numel(varargin{1}) == nargout
+    if numel(argi{1}) == nargout
         out = change_crystal(argi{:});
         for i=1:nargout
             varargout{i} = out{i};

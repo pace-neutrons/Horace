@@ -60,6 +60,29 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
         end
 
+        function test_change_crystal_family_invalid_throw(obj)
+            targ_file = fullfile(tmp_dir,'aligned_copy.sqw');
+            clOb = onCleanup(@()delete(targ_file));
+
+            copyfile(obj.misaligned_sqw_file, targ_file, 'f');
+            corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250], [-0.0530 0.0519 0.0345]);
+
+            assertExceptionThrown(@()change_crystal_dnd(targ_file,corrections), ...
+                'HORACE:change_crystal:invalid_argument');
+
+            dnd_obj = read_dnd(targ_file);
+
+            dnd_obj1 = change_crystal(dnd_obj,corrections);
+            dnd_obj2 = change_crystal_dnd(dnd_obj,corrections);
+            assertEqual(dnd_obj1,dnd_obj2)
+
+            save(dnd_obj,targ_file);
+            assertExceptionThrown(@()change_crystal_sqw(targ_file,corrections), ...
+                'HORACE:change_crystal:invalid_argument');
+        end
+
+
         function test_u_alignment_tf_way(obj)
             % Fit Bragg peak positions
             % ------------------------
@@ -161,7 +184,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             % ensure we indeed do filebacked algorithm
             assertTrue(wout_aligned.is_filebacked);
-            assertFalse(wout_aligned.is_tmp_obj);            
+            assertFalse(wout_aligned.is_tmp_obj);
 
             corr_rev.rotvec = -corr_rev.rotvec;
             assertEqualToTol(corrections, corr_rev, 'tol', 1.e-9)
@@ -180,7 +203,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             cut_cor= cut(tf_ref_corr, proj, cut_range{:});
             assertTrue(cut_cor.is_tmp_obj)
             cut_al = cut(tf_ref_al, proj, cut_range{:});
-            assertTrue(cut_al.is_tmp_obj)            
+            assertTrue(cut_al.is_tmp_obj)
 
             assertEqualToTol(cut_cor, cut_al, 4*eps('single'), 'ignore_str', true);
         end

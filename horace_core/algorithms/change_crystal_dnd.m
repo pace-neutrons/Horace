@@ -1,4 +1,4 @@
-function change_crystal_dnd(varargin)
+function varargout = change_crystal_dnd(varargin)
 % Change the crystal lattice and orientation of dnd objects or
 % dnd objects stored in a file or celarray of files
 %
@@ -39,11 +39,10 @@ function change_crystal_dnd(varargin)
 %
 argi = [varargin(:);'-dnd_only'];
 if nargout>0
-
-    if numel(varargin{1}) == nargout
+    if numel(argi{1}) == nargout
         out = change_crystal(argi{:});
         for i=1:nargout
-            varargout{i} = out{i};
+            varargout{i} = out(i);
         end
     else
         varargout{1} = change_crystal(argi{:});
