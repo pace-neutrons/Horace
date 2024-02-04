@@ -4,7 +4,7 @@ classdef IX_data_3d < IX_dataset
     %   >> w = IX_data_3d (x,y,z)
     %   >> w = IX_data_3d (x,y,z,signal)
     %   >> w = IX_data_3d (x,y,z,signal,error)
-    %   >> w = IX_data_2d (x,y,z,signal,error, x_distribution,y_distribution,z_distribution)    
+    %   >> w = IX_data_2d (x,y,z,signal,error, x_distribution,y_distribution,z_distribution)
     %   >> w = IX_data_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis)
     %   >> w = IX_data_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis,x_distribution,y_distribution,z_distribution)
     %   >> w = IX_data_3d (title, signal, error, s_axis, x, x_axis, x_distribution,...
@@ -33,7 +33,7 @@ classdef IX_data_3d < IX_dataset
     %   z_axis              IX_axis          |- same as above but for z-axis
     %   z_distribution      logical         -|
     properties(Dependent)
-        % x - vector of bin boundaries for histogram data or bin centers
+        % x - vector of bin boundaries for histogram data or bin centres
         % for distribution
         x
         % x_axis -- IX_axis class containing x-axis caption
@@ -41,7 +41,7 @@ classdef IX_data_3d < IX_dataset
         % x_distribution -- an identifier, stating if the x-data contain
         % points or distribution in x-direction
         x_distribution;
-        % y - vector of bin boundaries for histogram data or bin centers
+        % y - vector of bin boundaries for histogram data or bin centres
         % for distribution in y-direction
         y
         % y_axis -- IX_axis class containing y-axis caption
@@ -49,7 +49,7 @@ classdef IX_data_3d < IX_dataset
         % y_distribution -- an identifier, stating if the y-data contain
         % points or distribution in y-direction
         y_distribution;
-        % z - vector of bin boundaries for histogram data or bin centers
+        % z - vector of bin boundaries for histogram data or bin centres
         % for distribution in z-direction
         z
         % z_axis -- IX_axis class containing z-axis caption
@@ -74,10 +74,10 @@ classdef IX_data_3d < IX_dataset
             obj.xyz_ = cell(3,1);
             obj.xyz_axis_ = repmat(IX_axis(),3,1);
             obj.xyz_distribution_ = true(3,1);
-            
+
             if nargin==0
                 obj.signal_ = zeros(0,0,0);
-                obj.error_ = zeros(0,0,0);
+                obj.error_  = zeros(0,0,0);
                 obj.xyz_{1} = zeros(1,0);
                 obj.xyz_{2} = zeros(1,0);
                 obj.xyz_{3} = zeros(1,0);
@@ -89,12 +89,12 @@ classdef IX_data_3d < IX_dataset
             % efficiently (re)initialize object using constructor's code
             obj = build_IXdataset_3d_(obj,varargin{:});
         end
-        
+
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         % Get information for one or more axes and if is histogram data for each axis
         [ax,hist]=axis(w,n)
-        
+
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         function xx = get.x(obj)
@@ -104,18 +104,22 @@ classdef IX_data_3d < IX_dataset
             ax = obj.xyz_axis_(1);
         end
         function dist = get.x_distribution(obj)
+            %dist = size(obj.signal_,1) == numel(obj.xyz_{1});
             dist = obj.xyz_distribution_(1);
         end
         %
         function obj = set.x(obj,val)
             obj = set_xyz_data(obj,1,val);
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
+            end
         end
         function obj = set.x_axis(obj,val)
             obj.xyz_axis_(1) = obj.check_and_build_axis(val);
         end
         function obj = set.x_distribution(obj,val)
-            % TODO: should setting it to true/false involve chaning x from
-            % disrtibution to bin centers and v.v.?
+            % TODO: should setting it to true/false involve changing x from
+            % distribution to bin centres and v.v.?
             obj.xyz_distribution_(1) = logical(val);
         end
         %-----------------------------------------------------------------
@@ -124,6 +128,7 @@ classdef IX_data_3d < IX_dataset
         end
         %
         function dist = get.y_distribution(obj)
+            %dist = size(obj.signal_,2) == numel(obj.xyz_{2});
             dist = obj.xyz_distribution_(2);
         end
         function ax = get.y_axis(obj)
@@ -132,10 +137,13 @@ classdef IX_data_3d < IX_dataset
         %
         function obj = set.y(obj,val)
             obj = set_xyz_data(obj,2,val);
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
+            end
         end
         function obj = set.y_distribution(obj,val)
-            % TODO: should setting it to true/false involve chaning y from
-            % disrtibution to bin centers and v.v.? + signal changes
+            % TODO: should setting it to true/false involve changing y from
+            % distribution to bin centres and v.v.? + signal changes
             obj.xyz_distribution_(2) = logical(val);
         end
         function obj = set.y_axis(obj,val)
@@ -147,6 +155,7 @@ classdef IX_data_3d < IX_dataset
         end
         %
         function dist = get.z_distribution(obj)
+            %dist = size(obj.signal_,3) == numel(obj.xyz_{3});
             dist = obj.xyz_distribution_(3);
         end
         function ax = get.z_axis(obj)
@@ -155,10 +164,13 @@ classdef IX_data_3d < IX_dataset
         %
         function obj = set.z(obj,val)
             obj = set_xyz_data(obj,3,val);
+            if obj.do_check_combo_arg
+                obj = check_combo_arg (obj);
+            end
         end
         function obj = set.z_distribution(obj,val)
-            % TODO: should setting it to true/false involve chaning y from
-            % disrtibution to bin centers and v.v.? + signal changes
+            % TODO: should setting it to true/false involve changing y from
+            % distribution to bin centres and v.v.? + signal changes
             obj.xyz_distribution_(3) = logical(val);
         end
         function obj = set.z_axis(obj,val)
@@ -167,11 +179,6 @@ classdef IX_data_3d < IX_dataset
     end
     %======================================================================
     methods(Access=protected)
-        function  [ok,mess] = check_joint_fields(obj)
-            % implement class specific check for connected fiedls
-            % consistency
-            [ok,mess] = check_joint_fields_(obj);
-        end
         function obj = check_and_set_sig_err(obj,field_name,value)
             % verify and set up signal or error arrays. Throw if
             % input can not be converted to correct array data.
@@ -180,11 +187,35 @@ classdef IX_data_3d < IX_dataset
     end
     %======================================================================
     methods(Static,Access = protected)
-        
+
         % Rebins histogram data along specific axis.
         [wout_s, wout_e] = rebin_hist(iax,x, s, e, xout)
         %Integrates point data along along specific axis.
         [wout_s,wout_e] = integrate_points(iax, x, s, e, xout)
     end
-    
+    %======================================================================
+    methods
+        function obj = check_combo_arg (obj)
+            % Check validity of interdependent properties
+            [ok,mess] = check_joint_fields_(obj);
+            if ~ok
+                error('HERBERT:IX_data_3d:invalid_argument',mess)
+            end
+        end
+        function flds = saveableFields(obj)
+            base = saveableFields@IX_dataset(obj);
+            flds = [base(:);'x';'x_axis';'x_distribution';...
+                'y';'y_axis';'y_distribution';...
+                'z';'z_axis';'z_distribution'];
+        end
+
+    end
+    methods(Static)
+        function obj = loadobj(S)
+            % function to support loading of outdated versions of the class
+            % from mat files on hdd
+            obj = IX_data_3d();
+            obj = loadobj@serializable(S,obj);
+        end
+    end
 end

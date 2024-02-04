@@ -27,14 +27,12 @@ for i=1:numel(keys2check )
             bsm(theKey) =[];
         end
     else
-        if strncmp(theKey,'$0',2)
+        if strncmp(theKey,'$0',2) % last header's position and constant block size
                 bsm(theKey) =[s1(end); s2(end)-s1(end)];
         elseif strncmp(theKey,'$n',2)
-            res = zeros(2,numel(s1)-1);
-            for j=1:numel(s1)-1
-                res(:,j) = [s2(j); s1(j+1)-s2(j)];
-            end
-            bsm(theKey) =res;
+            start = s2(1:end-1);
+            size  = s1(2:end)-s2(1:end-1);
+            bsm(theKey) =[start;size];
         elseif isempty(s1) || isempty(s2)
             bsm(theKey) =[];
         else

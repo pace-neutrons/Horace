@@ -133,7 +133,7 @@ classdef test_pc_spec_config < TestCase
 
         function test_set_pc_type_by_id(~)
             cm = opt_config_manager();
-            kpc = cm.known_pc_types;
+            kpc = cm.pc_types;
             ntypes = numel(kpc);
             for i=1:ntypes
                 cm.this_pc_type = i;
@@ -144,7 +144,7 @@ classdef test_pc_spec_config < TestCase
 
         function test_set_pc_id_by_name(~)
             cm = opt_config_manager();
-            kpc = cm.known_pc_types;
+            kpc = cm.pc_types;
             ntypes = numel(kpc);
             for i=1:ntypes
                 cm.this_pc_type = kpc{i};

@@ -1,9 +1,7 @@
-classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
+classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
-    properties(Abstract,Dependent,Hidden=true)
-        NUM_DIMS
-    end
+
     % The dependent props here have been created solely to retain the (old) DnD object API during the refactor.
     % These will be updated/removed at a later phase of the refactor when the class API is modified.
     properties(Dependent)
@@ -152,9 +150,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %------------------------------------------------------------------
         sob = sigvar(w);
         [s,var,mask_null] = sigvar_get (w);
-        w = sigvar_set(win, sigvar_obj);
+        w  = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %------------------------------------------------------------------
+        wout = replicate (win, wref,varargin);
+
         function obj=signal(~,varargin)
             error('HORACE:DnDBase:runtime_error',...
                 'Call to signal function is possible for sqw objects only')
@@ -190,6 +190,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %
         save_xye(obj,varargin)  % save data in xye format
         s=xye(w, null_value);   % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
+        [value, sigma] = value(w, x);
         % smooth dnd object or array of dnd objects
         wout = smooth(win, varargin)
         %------------------------------------------------------------------
@@ -234,6 +235,45 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % calculate the range of the image to be produced by target
         % projection from the current object
         range = targ_range(obj,targ_proj,varargin)
+        %
+        % add various noise to signal
+        wout = noisify(w,varargin);
+        % take part of the object limited by fraction of the image grit
+        [wout,out_axes] = section (win,varargin);
+        function sz = img_size_bytes(obj)
+            % return size of data image expressed in bytes.
+            %
+            % Now and in foreseeable future, our image contains 3 double
+            % precision arrays so conversion to bytes would be
+            % 3x8x(number of image array elements)
+            sz = 3*numel(obj.s_)*8; % size of resulting split images in Bytes
+        end
+        function dat = get_se_npix(obj,varargin)
+            % return image arrays using interface, common to data reader
+            % Input:
+            % obj  -- initialized DnDBase object
+            % Returns:
+            % dat  -- dnd_data object containing information about image
+            dat = obj.nd_data();
+        end
+        function npix = get_npix_block(obj,block_start,block_size)
+            % return specified chunk of npix array which describes pixel
+            % destribution over block bins.
+            % Inputs:
+            % obj         -- initalized DnDBase object.
+            % block_start -- initial location of the block within the npix
+            %                array. To be compartible with file interface, the
+            %                position starts from 0, unlike Matlab arrays,
+            %                which start from 1.
+            % block_size  -- number of npix elements to return.
+            % Returns:
+            % npix        -- block_size-size chunk of npix array, describing
+            %                 distribution of pixels over bins.
+            %
+            npix = obj.npix_((1+block_start):(block_start+block_size));
+        end
+
+
     end
     %======================================================================
     % Redundant and convenience Accessors
@@ -455,28 +495,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         end
         %
-        function fn = get.full_filename(obj)
-            fn = obj.axes_.full_filename;
-        end
-        function obj = set.full_filename(obj,val)
-            obj.axes_.full_filename = val;
-        end
-
-        %
-        function val = get.filename(obj)
-            val = obj.axes_.filename;
-        end
-        function obj = set.filename(obj, filename)
-            obj.axes_.filename = filename;
-        end
-        %
-        function val = get.filepath(obj)
-            val = obj.axes_.filepath;
-        end
-        function obj = set.filepath(obj, filepath)
-            obj.axes_.filepath = filepath;
-        end
-        %
         function val = get.title(obj)
             val = obj.axes_.title;
         end
@@ -504,11 +522,38 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % build the axes block which specified by projection and target cut
         % parameters
         [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, input_pbin,varagin);
+        %================================================================
+        % Filename, Filepath
+        function fn = get.full_filename(obj)
+            fn = obj.axes_.full_filename;
+        end
+        function obj = set.full_filename(obj,val)
+            obj.axes_.full_filename = val;
+        end
+
+        %
+        function val = get.filename(obj)
+            val = obj.axes_.filename;
+        end
+        function obj = set.filename(obj, filename)
+            obj.axes_.filename = filename;
+        end
+        %
+        function val = get.filepath(obj)
+            val = obj.axes_.filepath;
+        end
+        function obj = set.filepath(obj, filepath)
+            obj.axes_.filepath = filepath;
+        end
     end
     %======================================================================
     % binfile IO interface
     methods
         function md = get.metadata(obj)
+            md = get_dnd_metadata(obj);
+        end
+        function md = get_dnd_metadata(obj)
+            % return metadata describing image.
             md = dnd_metadata(obj);
         end
         function obj = set.metadata(obj,val)
@@ -540,8 +585,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     end
 
     methods(Access = protected)
-        wout = unary_op_manager(obj, operation_handle);
-        wout = binary_op_manager_single(w1, w2, binary_op);
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
 
@@ -564,7 +607,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                 error('HORACE:DnDBase:invalid_argument',...
                     'input %s must be numeric array',field)
             end
-            obj.([field,'_']) = val;
+            if numel(val) == 1 && ~isempty(obj.([field,'_']))
+                % if contents is array and the input is a single value,
+                % assign this value to the whole array.
+                obj.([field,'_'])(:) = val;
+            else
+                obj.([field,'_']) = val;
+            end
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -576,6 +625,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             varargout{1} = cut_single_(obj, tag_proj, targ_axes,...
                 return_cut, opt, log_level);
         end
+        function is = get_is_filebacked(~)
+            %DnD objects never filebacked
+            is = false;
+        end
+
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

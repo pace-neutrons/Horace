@@ -173,22 +173,6 @@ classdef test_migrated_apis < TestCaseWithSave
             assertEqualToTol(pbin, expected_pbin, 1e-6);
         end
 
-        %% split/join
-        %function test_split(obj)
-        %    % tested in test_join
-        %end
-        %function test_join(obj)
-        %    % tested in test_join
-        %end
-        %function test_split_and_join(obj)
-        %    % tested in test_join
-        %end
-
-        %% mask
-        %function test_mask(obj)
-        %    % tested in test_mask
-        %end
-
         %% xye
         function test_xye_returns_bin_centres_and_errors_sqw(obj)
             sqw_2d_obj = read_sqw(obj.test_sqw_2d_fullpath);

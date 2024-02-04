@@ -32,12 +32,9 @@ else
         end
         obj=fclose_file(obj);
         obj.full_file_name = fname;
-        if isempty(obj.file_closer_ )
-            obj.file_closer_ = onCleanup(@()fclose(obj));
-        end
         return;
     else
-        if ~(ischar(filename)|| isstring(filename))
+        if ~istext(filename)
             error('HORACE:horace_binfile_interface:invalid_argument',...
                 'Wrong type (%s) variable "filename" specified as input',...
                 class(filename))
@@ -75,19 +72,11 @@ else
 end
 obj.file_id_ = sqw_fopen(fname,permissions);
 if isempty(obj.file_closer_)
-    obj.file_closer_  = onCleanup(@()fclose(obj));
+    obj.file_closer_  = fcloser(obj.file_id_);
 end
-
 
 
 function obj=fclose_file(obj)
 if obj.file_id_>0
-    % obj.file_closer_ = [];  % This should close the file but not
-    % immediately but randomly at the moment, dependent on Matlab version,
-    % so we should avoid doing this unless sure that if works as expected.
-    % We assume that automatic file closer would close file, associated
-    % with the object regardless of file id, currently attached to the
-    % object
-    obj = obj.fclose();
-
+    obj.file_closer_.delete();
 end

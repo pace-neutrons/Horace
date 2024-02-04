@@ -17,29 +17,32 @@ types = obj.known_pc_types_;
 nproc = idivide(int64(phys_mem),int64(obj.mem_size_per_worker_*Gb),'floor');
 if ispc
     if phys_mem <  32*Gb
-        pc_type = types{1}; %windows small
+        pc_type = types('win_small'); %windows small
     else
         if free_mem >= 0.5*phys_mem
             if nproc >2
-                pc_type = types{2}; %windows large
+                pc_type = types('win_large'); %windows large
             else
-                pc_type = types{1};  %windows small
+                pc_type = types('win_small');  %windows small
             end
         else
-            pc_type = types{1};%windows small
+            pc_type = types('win_small');%windows small
         end
     end
     if is_jenkins()
-        pc_type = types{8};  % 'jenkins_win'
+        pc_type = types('jenkins_win');  % 'jenkins_win'
     end
 elseif isunix
     if ismac %MAC
-        pc_type = types{3};
+        pc_type = types('a_mac');
         return;
     end
     [nok,mess] = system('lscpu');
     if nok  %still MAC or strange unix without lscpu. Assuming mac.
-        pc_type = types{3};
+        pc_type = types('a_mac');
+        warning('HERBERT:unknow_machine',...
+            ['Unknown unix machine, which does not have "lscpu" function has been encountered.\n' ...
+            ' Assuming it is mac and selecting configuration for it.'])
         return;
     end
 
@@ -50,24 +53,26 @@ elseif isunix
     % node and we consider this computer to be an hpc system.
     hpc_computer = numel(rez)>2 || nproc>4;
     
-    [is_virtual,type] = is_idaaas();
+    [is_virtual,size_type] = is_idaaas();
     if is_virtual
-        if strcmpi(type,'idaas_large')
-            n_profile = 7; % iDaaaS large
+        if strcmp(size_type,'large')
+            pc_type = types('idaaas_large');            
         else
-            n_profile = 6; % iDaaaS small
-        end
+            pc_type = types('idaaas_small');                        
+        end        
     else
-        n_profile = 4; % normal unix machine
+        if hpc_computer
+            size_type = 'large';
+        end
+        if strcmp(size_type,'large')
+            pc_type = types('unix_large');            
+        else
+            pc_type = types('unix_small');                        
+        end                       
     end
-
-    if hpc_computer
-        n_profile=n_profile+1;
-    end
-    pc_type = types{n_profile};
     %
     if is_jenkins()
-        pc_type = types{9};  % 'jenkins_unix'
+        pc_type = types('jenkins_unix');  % 'jenkins_unix'
         return;
     end
 end

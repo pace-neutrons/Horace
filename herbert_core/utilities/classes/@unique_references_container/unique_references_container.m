@@ -14,6 +14,10 @@ classdef unique_references_container < serializable
     % global_container implements this global container. The class
     % unique_objects_container is used to implement this storage.
     %
+    % The adaptation of the standard Matlab singleton pattern to the
+    % present code where several singletons, one per data type, are stored
+    % in the same class, is documented in SMG-22.
+    %
     % The global container does not persist between sessions, and containers
     % written out to file are represented by separate
     % unique_objects_containers, one for each owner of the container
@@ -342,6 +346,14 @@ classdef unique_references_container < serializable
     methods % overloaded indexers, subsets, find functions
         
         function field_vals = get_unique_field(self, field)
+        %GET_UNIQUE_FIELD each of the unique objects referred to by self
+        % should have a property named 'field'. The code below takes each of the
+        % referred objects in turn, extracts the object referred to by
+        % 'field' and stores it in the unique_OBJECTS_container field_vals
+        % created here. field_vals will then contain unique copies of all
+        % the values of 'field' within the objects referred to in self, indexed
+        % in the same way as the original referred objects.
+
             s1 = self.get(1);
             v = s1.(field);
             field_vals = unique_objects_container(class(v));

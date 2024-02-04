@@ -1,33 +1,49 @@
 function [buffer, nel] = accumulate_array_to_buffer (buffer, nel, vals)
-% Append a set of values to a buffer array, doubling its number of elements if
-% there is not enough space left in the buffer.
-% Use rather than the Matlab intrinsic cat function to reduce the amount of
-% memory reallocation should there a large number of accumulations.
+% Append a set of values to a buffer array, doubling its number of elements
+% if there is not enough space left in the buffer in anticipation of further
+% accumulation.
 %
-% Append to a buffer array:
-%   >> [buffer, nel] = accumulate_array_to_buffer (buffer, nel, appendvals)
+% Use this rather than the Matlab intrinsic cat function to reduce the amount of
+% memory reallocation should there a large number of accumulations.
 %
 % To create a buffer:
 %   >> [buffer, nel] = accumulate_array_to_buffer (buffer_size)
-% (Merely a simple utility: creates an array size buffer_size filled with NaNs
-% and sels nel=0)
+%
+%       Creates an array size buffer_size filled with NaNs and sets nel=0)
+%
+% Append to an existing array:
+%   >> [buffer, nel] = accumulate_array_to_buffer (buffer, nel, appendvals)
+%
+% Note: you can use an pre-existing array as a buffer, although for clarity in
+% code it may be worth creating a buffer and appending to it as two separate
+% steps.
+%
 %
 % Input:
 % ------
-%   buffer      Current buffer array
-%   nel         The number of elements currently filled. If [], then assumes
-%               that the buffer is completely full
-%   vals        Array of values to eppend to the buffer
+% *** Creation of a buffer:
+%   buffer_size Size of matlab array to be created e.g.
 %
-% C
+% *** Appending to existing array:
+%   buffer      Current buffer array
+%   nel         The number of elements currently filled. If [], then the 
+%               function assumes that the buffer is completely full
+%   appendvals  Array of values to eppend to the buffer
+%
+%
 %
 % Output:
 % -------
-%   buffer      Updated buffer array. The first nel_in values are copied from
-%               the input buffer before vals are appended. If the buffer had
-%               insufficient space to hold vals, then it is increased to twice
-%               the number of elements required to hold the input buffer and
-%               vals. The excess elements are set to NaN.
+%   buffer      Creation: Newly created buffer, filled with NaN
+%               Appending: Updated buffer array.
+%               - If the buffer has sufficient space to hold the additional 
+%                 values in val, then only those elements are updated in-place
+%               - If the buffer has insufficient space, then memory is
+%                 allocated to hold twice the number of elements required to
+%                 hold the input buffer and the additional values. The excess
+%                 elements are set to NaN.
+%               
+%               Shape of the buffer array:
 %               - If the buffer on input was large enough to accommodate vals,
 %                 then the size and shape of the buffer are unchanged.
 %               - If the buffer size was increased, then it is returned as a
@@ -39,7 +55,8 @@ function [buffer, nel] = accumulate_array_to_buffer (buffer, nel, vals)
 %                   input buffer size: [1,1]   output size: [nel,1]
 %                        (as a scalar is ambiguous: it is both a row and a column)
 %
-%   nel         The updated number of values
+%   nel         Creation: Number of filled elements is zero, i.e. nel = 0
+%               Appending: The updated total number of values
 
 % Catch case of creating a buffer
 if nargin==1

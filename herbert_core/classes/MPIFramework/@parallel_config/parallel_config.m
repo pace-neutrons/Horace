@@ -23,8 +23,8 @@ classdef parallel_config<config_base
     % worker           - The name of the script or program to run
     %                    on cluster in parallel using parallel
     %                    workers.
-    % is_compiled      - false if the worker is a Matlab script and
-    %                    true if this script is compiled using Matlab
+    % is_compiled      - false if the worker is a MATLAB script and
+    %                    true if this script is compiled using MATLAB
     %                    applications compiler.
     %
     % parallel_cluster   - The name of a cluster to use. Currently
@@ -53,7 +53,7 @@ classdef parallel_config<config_base
     %                        installed on system rather then the one,
     %                        provided with Herbert,the full name (with path)
     %                        to mpiexec program used to run parallel job
-    %            Used ony when  parallel_cluster=='mpiexec_mpi'
+    %            Used only when  parallel_cluster=='mpiexec_mpi'
     % =====================================================================
     % known_clusters       - Information method returning the list of
     %                        the parallel clusters, known to Herbert.
@@ -82,7 +82,7 @@ classdef parallel_config<config_base
         % available are h[erbert], p[arpool] and [m]pi_cluster-s .
         % where:
         %    [h]erbert -- Poor man's MPI cluster, which runs on a single
-        %              node only. Launches separate Matlab sessions using Java
+        %              node only. Launches separate MATLAB sessions using Java
         %              Launcher, which exchange information using
         %              file-based messages (.mat files), so this cluster is
         %              not suitable for any tasks, demanding heavy interprocess
@@ -108,8 +108,8 @@ classdef parallel_config<config_base
 
         % The configuration class describing parallel cluster, running
         % selected cluster.
-        % For herbert cluster, the configuration name can only be 'local'
-        % as herbert clusters runs on a single node only. A parpool
+        % For Herbert cluster, the configuration name can only be 'local'
+        % as Herbert clusters runs on a single node only. A parpool
         % cluster accepts only 'default' configuration and actual configuration
         % is set up as default on distributed computing toolbox GUI.
         % 'mpi_cluster' can accept 'local' configuration for jobs, running
@@ -143,9 +143,9 @@ classdef parallel_config<config_base
         % These host files should be present in admin/mpi_cluster_configs
         % folder.
         % herbert cluster runs only on a local cluster.
-        % The cluster used by parpool and slurm clusters are using the default
+        % The cluster used by parpool and Slurm clusters are using the default
         % configurations selected in parallel computing toolbox GUI for
-        % parpool and slurm database configuration for slurm.
+        % parpool and Slurm database configuration for Slurm.
         known_cluster_configs;
 
         % The folder on your working machine containing the job input and
@@ -190,11 +190,11 @@ classdef parallel_config<config_base
         % launched by the mpiexec, provided with these libraries.
         %
         % Also accepts true/false values. False disables external mpiexec
-        % and true tries to idenfiy mpiexec on system using "where mpiexec"
+        % and true tries to identify mpiexec on system using "where mpiexec"
         % if this fails, external mpiexec remains empty.
         external_mpiexec;
 
-        % Commands to be passed to slurm, can be provided as a cell array or
+        % Commands to be passed to Slurm, can be provided as a cell array or
         % loaded from an sbatch-like file
         slurm_commands;
     end
@@ -271,7 +271,12 @@ classdef parallel_config<config_base
 
         % Redirect IO to host
         debug_ = false;
-
+    end
+    properties(Access = private)
+        % Property, used by setter of cluster configuration to keep cluster
+        % configuration until all properties are set and final validation
+        % may be performed. 
+        trial_cluster_config_;
     end
 
     properties(Constant)
@@ -347,8 +352,8 @@ classdef parallel_config<config_base
         end
 
         function commands = get.slurm_commands(obj)
-            % extra slurm commands to be passed through to
-            % slurm when initialising slurm job
+            % extra Slurm commands to be passed through to
+            % Slurm when initialising Slurm job
             orig_obj = obj.get_or_restore_field('slurm_commands');
             % Due to handle class need to return copy of obj.
             if isempty(orig_obj)
@@ -458,15 +463,10 @@ classdef parallel_config<config_base
             % select one of the clusters which configuration is available
             % Throws HERBERT:parallel_config:invalid_argument if the cluster
             % configuration is invalid or not available on the current system.
-
-            opt = obj.known_cluster_configs;
-            if strcmpi(opt{1},'none')
-                the_config = 'none';
-            else
-                the_config = select_option_(opt,val);
+            obj.trial_cluster_config_ = val;
+            if obj.do_check_combo_arg
+                obj = obj.check_combo_arg();
             end
-
-            config_store.instance().store_config(obj,'cluster_config',the_config);
         end
 
         function obj = set.parallel_workers_number(obj,val)
@@ -494,9 +494,12 @@ classdef parallel_config<config_base
             n_poss_threads = floor(obj.n_cores/n_workers);
 
             if n_threads < 0
-                error('HERBERT:parallel_config:invalid_argument', 'parallel_threads must be positive or 0 (automatic)')
+                error('HERBERT:parallel_config:invalid_argument', ...
+                    'parallel_threads must be positive or 0 (automatic)')
             elseif n_threads > n_poss_threads
-                warning('HERBERT:parallel_config:parallel_threads', 'Number of par threads (%d) might exceed computer capacity (%d)', n_threads, n_poss_threads)
+                warning('HERBERT:parallel_config:parallel_threads', ...
+                    'Total number of threads used by all parallel workers n_threads*n_workers = (%d) might exceed computer capacity (%d threads)', ...
+                    n_threads*n_workers, n_poss_threads)
             end
             config_store.instance().store_config(obj,'parallel_threads',n_threads);
         end
@@ -655,11 +658,13 @@ classdef parallel_config<config_base
             fields = obj.saved_properties_list_;
         end
 
-        function value = get_internal_field(obj,field_name)
+        function value = get_default_value(obj,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface
             value = obj.([field_name,'_']);
         end
+        %
+        obj = check_combo_arg(obj);
     end
 
     methods(Static)

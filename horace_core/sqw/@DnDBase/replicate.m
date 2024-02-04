@@ -1,14 +1,14 @@
 function wout = replicate (win, wref)
-% Make a higher dimensional dataset from a two dimensional dataset by
+% Make a higher dimensional dataset from a lower dimensional dataset by
 % replicating the data along the extra dimensions of a reference dataset.
 %
 %   >> wout = replicate (win, wref)
 %
 % Input:
 % ------
-%   win     Two dimensional dataset or array of datasets. The signal, error
-%           and npix arrays will be replicated over the extra dimensions of
-%           the reference dataset.
+%   win     Low dimensional dataset of datasets. The signal, error
+%           and npix arrays of this object will be replicated over the 
+%           extra dimensions of the reference dataset.
 %
 %   wref    Reference dataset structure to use as template for expanding the
 %           input straucture. Can be a dnd or sqw dataset.
@@ -32,10 +32,4 @@ function wout = replicate (win, wref)
 % Note that the second argument cannot be an sqw object, as otherwise the sqw replicate method would have been
 % called, because the sqw class has been defined as superior to dnd classes.
 
-if isscalar(wref) && isa(wref,'DnDBase')
-    wout=replicate_dnd_(win,wref);
-else
-    error('HORACE:DnDBase:invalid_argument',...
-        'Check input argument type - the second argument must be a scalar dnd object')
-end
-
+wout=replicate_dnd_(win,wref);

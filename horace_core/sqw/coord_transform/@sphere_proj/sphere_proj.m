@@ -62,12 +62,15 @@ classdef sphere_proj<aProjectionBase
     properties(Constant,Access = private)
         % cellarray describing what letters are available to assign for
         % type properties.
-        % 'a' -- Angstrom, 'd' - degree, 'r' -- radians, e-energy transfer in mEv;
+        % 'a' -- Angstrom, 'd' - degree, 'r' -- radians, e-energy transfer in meV;
         types_available_ = {'a',{'d','r'},{'d','r'}};
     end
 
     methods
         function obj=sphere_proj(varargin)
+            % Constrtuctor for spherical projection
+            % See init for the list of input parameters
+            %
             obj = obj@aProjectionBase();
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
             obj.label = {'|Q|','\theta','\phi','En'};
@@ -78,6 +81,23 @@ classdef sphere_proj<aProjectionBase
             % initialization routine taking any parameters non-default
             % constructor would take and initiating internal state of the
             % projection class.
+            %
+            % Optional list of positional parameters
+            % ez  -- hkl direction of z-axis of the spherical coordinate
+            %        system this projection defines. The axis to calculate
+            %        theta angle from, notmally beam direction.
+            % ex  -- hkl direction of x-axis of the spherical coordinate
+            %        system. The axis to calculate Phi angle from. By
+            %        default, [ez,ex] defines Horace rotation plane.
+            % type-- 3-letter symbol, defining the spherical coordinate
+            %        system units (see type property)
+            % alatt-- 3-vector of lattice parameters
+            % angdeg- 3-vector of lattice angles
+            % offset- 4-vector, defining hkldE value of sentre of
+            %          coordinate of the spherical coordinate system.
+            % label - 4-element celarray, which defines axes lables
+            % title - character string to title the plots of cuts, obtained
+            %         using this projection.
             %
             if nargin == 1
                 obj = obj.check_combo_arg();

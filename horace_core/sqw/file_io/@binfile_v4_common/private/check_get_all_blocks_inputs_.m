@@ -20,7 +20,7 @@ function [obj,obj_to_set,is_serializable,ignored_blocks_list] = check_get_all_bl
 % list of block names ! following the the first keyword the list of block
 %                     ! banes to ignore
 
-% if none of additinal parameters is specified, result is
+% if none of additional parameters is specified, result is
 % returned in sqw object
 % Output:
 % obj          -- initialized instance of faccessor.

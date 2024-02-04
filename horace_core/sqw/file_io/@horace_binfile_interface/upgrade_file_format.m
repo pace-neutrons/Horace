@@ -1,6 +1,17 @@
 function new_obj = upgrade_file_format(obj,varargin)
 %UPGRADE_FILE_FORMAT upgrade file format to the new current preferred file format
 
+[ok,mess,upgrade_range,argi] = parse_char_options(varargin,'-upgrade_range');
+if ~ok
+    error('HORACE:faccess_sqw_v4:invalid_argument',mess);
+end
+if upgrade_range
+    copy_arg = {'-write_mode','-upgrade_range'};
+else
+    copy_arg = {'-write_mode'};    
+end
+
+
 ff_obj = obj.format_for_object;
 
 new_obj = sqw_formats_factory.instance().get_pref_access(ff_obj);
@@ -8,8 +19,7 @@ if ischar(obj.num_dim) % source object is not initiated. Just return
     % non-initialized target object
     return
 end
-
-[new_obj,missing] = new_obj.copy_contents(obj,'-write_mode');
+[new_obj,missing] = new_obj.copy_contents(obj,copy_arg{:});
 if isempty(missing) % source and target are the same class. Invoke copy constructor only
     return;
 end
@@ -24,5 +34,5 @@ if ~file_exist
     return
 end
 
-new_obj = obj.do_class_dependent_updates(new_obj,varargin{:});
+new_obj = obj.do_class_dependent_updates(new_obj,upgrade_range,argi{:});
 %

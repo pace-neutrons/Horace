@@ -246,7 +246,7 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             for idx=1:20
                 hdr.instruments{idx} = expected_inst;
             end
-            s = s.change_header(hdr);
+            s.experiment_info = hdr;
 
 
             [inst,all_inst] = get_inst_class(s);
@@ -284,22 +284,6 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             assertEqualToTol(proj, expected_proj, 1e-6);
             assertEqualToTol(pbin{1}, expected_pbin', 1e-6);
         end
-
-        %% split/join
-        %function test_split(obj)
-        %    % tested in test_join
-        %end
-        %function test_join(obj)
-        %    % tested in test_join
-        %end
-        %function test_split_and_join(obj)
-        %    % tested in test_join
-        %end
-
-        %% mask
-        %function test_mask(obj)
-        %    % tested in test_mask
-        %end
 
         %% sets
         function test_set_efix(obj)

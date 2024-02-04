@@ -29,28 +29,33 @@ methods
     function test_DNDBASE_error_if_operand_is_char(obj)
         f = @() ('some char' + obj.dnd_obj);
         ff = @()  (obj.dnd_obj + 'some char');
-        assertExceptionThrown(f, 'SQWDNDBASE:binary_op_manager');
-        assertExceptionThrown(ff, 'SQWDNDBASE:binary_op_manager');
+        assertExceptionThrown(f, ...
+            'HERBERT:data_op_interface:invalid_argument');
+        assertExceptionThrown(ff, ...
+            'HERBERT:data_op_interface:invalid_argument');
     end
 
     function test_DNDBASE_error_if_operand_is_cell_array(obj)
         f = @() ({1, 2, 3} + obj.dnd_obj);
         ff = @() (obj.dnd_obj + {0});
-        assertExceptionThrown(f, 'SQWDNDBASE:binary_op_manager');
-        assertExceptionThrown(ff, 'SQWDNDBASE:binary_op_manager');
+        assertExceptionThrown(f, ...
+            'HERBERT:data_op_interface:invalid_argument');
+        assertExceptionThrown(ff, ...
+            'HERBERT:data_op_interface:invalid_argument');
     end
 
-    function test_DNDBASE_error_if_operand_is_numeric_but_not_double(obj)
-        unsupported_types = {@single, @int8, @int16, @int32, @int64, ...
-                             @uint8, @uint16, @uint32, @uint64};
+    function test_DNDBASE_error_if_operand_is_logical(obj)
+        unsupported_types = {@logical};
 
         for i = 1:numel(unsupported_types)
             type_func = unsupported_types{i};
             numeric_array = type_func(ones(size(obj.sqw_obj.data.npix)));
             f = @() (obj.dnd_obj + numeric_array);
             ff = @() (numeric_array + obj.dnd_obj);
-            assertExceptionThrown(f, 'SQWDNDBASE:binary_op_manager');
-            assertExceptionThrown(ff, 'SQWDNDBASE:binary_op_manager');
+            assertExceptionThrown(f, ...
+                'HERBERT:data_op_interface:invalid_argument');
+            assertExceptionThrown(ff, ...
+                'HERBERT:data_op_interface:invalid_argument');
         end
     end
 

@@ -24,7 +24,7 @@ function [ok, ipix] = get_nearest_pixels (win, xp)
 %           - 0 indicates the point lies in a bin without any contributing
 %            pixels, or the point lies outside the range of the sqw dataset
 %
-%   ipix    Column vector with the indicies of the nearest pixel to each
+%   ipix    Column vector with the indices of the nearest pixel to each
 %          for which ok is true; that is for those points given by xp(ok,:)
 %
 %           The nearest pixel is defined as that which has minimum distance

@@ -1,11 +1,17 @@
 function [x, le_nmax] = str_to_iarray (str, nmax)
-% Reads a row vector of integers from a character string, array or cell array
+% Read integers from a character vector or array, or cell array of character vectors
 %
-%   >> x = str_to_iarray (str)
+%   >> [x, le_nmax] = str_to_iarray (str)
+%   >> [x, le_nmax] = str_to_iarray (str, nmax)
 %
 % Input:
 % ------
-%   str     Character string, character array or cell array of strings
+%   str     Input text: can be one of:
+%               - Character vector (i.e. row vector of characters length >= 0
+%                 or the empty character array, '')
+%               - Two-dimensional character array
+%               - Cell array of character vectors
+%               - strings or string array (Matlab release R2017a onwards)
 %
 %           The contents of each string (or row in a character array) can be any
 %          number of delimited single integers or ranges of integers as specified
@@ -59,15 +65,14 @@ function [x, le_nmax] = str_to_iarray (str, nmax)
 %
 %   >> str_to_iarray('5:9,12-16 7 11 -4--7')
 % ans =
-%     5     6     7     8     9    12    13    14    15    16     7    11    -4    -5    -6    -7
+%     5   6   7   8   9  12  13  14  15  16   7  11  -4  -5  -6  -7
 
 
 % Determine maximum number of integers to be read
 if nargin == 1
     nmax = Inf;
 else
-    nmax = floor(nmax);
-    if nmax < 1
+    if ~isnumeric(nmax) || ~isscalar(nmax) || ~(rem(nmax,1)==nmax) || nmax < 1
         error('HERBERT:str_to_iarray:invalid_argument', ['The maximum number ',...
             'of integers to be read must be greater or equal to unity (Default: +Inf)'])
     end
@@ -76,24 +81,19 @@ end
 % Check character data (input will be turned into one long string)
 [ok, cout] = str_make_cellstr_trim (str);
 if ~ok
-    error('HERBERT:str_to_iarray:invalid_argument', ['The input data must be',...
+    error('HERBERT:str_to_iarray:invalid_argument', ['The input data must be ',...
         'a character string, character array or cellarray of strings'])
 end
 
-% Remove comment lines and trailing comments (first occurence of '%' or '!')
-cout = cellfun(@strip_comment, cout, 'UniformOutput', false);
-ok = ~cellfun(@isempty, cout);
-cout = cout(ok);
-
-% Remove brackets if has form '[...]'
-cout = cellfun(@strip_square_brackets, cout, 'UniformOutput', false);
+% Remove comment lines and trailing comments (first occurence of '%' or '!'), and
+% then remove brackets if has form '[...]'
+cout = cellfun(@(x)strip_square_brackets(strip_comment(x)), cout, 'UniformOutput', false);
 ok = ~cellfun(@isempty, cout);
 cout = cout(ok);
 
 % Concatenate all strings into one (with a leading space to ensure whitespace delimiter)
 if ~isempty(cout)
-    ctmp = cellfun(@(x)([' ', x]), cout, 'UniformOutput', false);
-    strtmp = strcat(ctmp{:});
+    strtmp = strjoin(cout, ' ');
 else
     strtmp = ' ';   % ensures output consistent with non-empty but no-integer string
 end
@@ -159,9 +159,9 @@ function cout = strip_comment (cin)
 % Remove trailing comments and trim a character string
 ind = [strfind(cin, '!'), strfind(cin, '%')];
 if ~isempty(ind)
-    cout =strtrim(cin(1:min(ind)-1));
+    cout = strtrim(cin(1:min(ind)-1));
 else
-    cout = cin;
+    cout = strtrim(cin);
 end
 
 
@@ -171,7 +171,7 @@ function cout = strip_square_brackets (cin)
 if numel(cin)>=2 && cin(1)=='[' && cin(end)==']'
     cout = strtrim(cin(2:end-1));
 else
-    cout = cin;
+    cout = strtrim(cin);
 end
 
 %-------------------------------------------------------------------------------
@@ -223,16 +223,24 @@ if isempty(token)
 end
 
 % Parse token
+% Use str2double to turn character vectors into integers, because no character
+% string can caus it to crash; something that is not a valid double array will
+% return NaN. We can mop up all the non-integer results of parsing at the end
 ind = strfind (token, ':');
 switch numel(ind)
-    case 0  % no colon operators - single integer or non_matlab form
+    case 0
+        % No colon operators - the only valid possibilities are a single integer
+        % or one of the non_matlab forms
         idash = strfind (token(2:end), '-') + 1;    % position of non-leading '-'
         switch numel(idash)
-            case 0      % Can only be a single integer
+            case 0      
+                % No non-leading '-'. The only valid possibility is a single integer
                 x1 = str2double(token);
                 x2 = x1;
                 dx = 1;
-            otherwise   % At least one non-leading '-'; try non-Matlab format x1-x2
+            otherwise
+                % At least one non-leading '-'. The only valid possibility is the
+                % non-Matlab format x1-x2 (x1 and x2 could be -ve integers)
                 x1 = str2double(token(1:idash(1)-1));
                 x2 = str2double(token(idash(1)+1:end));
                 if x2>=x1
@@ -258,9 +266,10 @@ switch numel(ind)
 end
 
 % Perform checks
-if isempty(dx) || ~isfinite(dx) || ~isfinite(x1) || ~isfinite(x2)
+if isempty(dx) || ~finite_real_scalar(dx) || ~finite_real_scalar(x1) || ...
+        ~finite_real_scalar(x2)
     error ('HERBERT:str_to_iarray:invalid_argument',...
-        'Invalid format array descriptor, Inf or NaN found in: %s', token)
+        'Invalid format array descriptor, or Inf or NaN found in: %s', token)
 end
 
 if round(x1)~=x1 || round(dx)~=dx || round(x2)~=x2
@@ -280,3 +289,7 @@ if nstep >= 0
 else
     n = 0;
 end
+
+%-------------------------------------------------------------------------------
+function ok = finite_real_scalar(x)
+ok = isscalar(x) && isfinite(x) && isreal(x);

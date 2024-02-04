@@ -30,8 +30,8 @@ classdef aProjectionBase < serializable
         %
         angdeg       % angles between the lattice edges
         %
-        offset; % Offset of origin of the projection in r.l.u.
-        %         and energy i.e. [h; k; l; en] [row vector]
+        offset;     % Offset of origin of the projection in r.l.u.
+        %           % and energy i.e. [h; k; l; en] [row vector]
         img_offset; % Convenience property, providing/accepting the offset
         %           % expressed in the image coordinate system.
         %---------------------------------
@@ -102,7 +102,7 @@ classdef aProjectionBase < serializable
         % The property specifies if the projection is aligned. Depending on
         % the value of this property, pix to img transformation calculated
         % differently
-        proj_aligned        
+        proj_aligned
     end
 
     properties(Constant, Hidden)
@@ -392,7 +392,7 @@ classdef aProjectionBase < serializable
         function obj = set.proj_aligned(obj,val)
             obj = obj.set_proj_aligned(val);
         end
-        
+
     end
 
     %======================================================================
@@ -619,6 +619,46 @@ classdef aProjectionBase < serializable
             if nargout == 1
                 pix_hkl = [pix_hkl;en];
             end
+        end
+
+        function pix_img = transform_hkl_to_pix(obj,pix_hkl,varargin)
+            % Converts from hkl coordinate system
+            % to pixel coordinate system (Crystal Cartesian)
+            %
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in.
+            %
+            % pix_hkl  -- 4xNpix or 3xNpix array of pixel coordinates in
+            %             hkl (physical) coordinate system (4-th
+            %             coordinate, if requested, is the energy transfer)
+            %
+            % Output:
+            % pix_img   -- 4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the coordinate system defined by
+            %              this projection
+            pix_img = obj.bmatrix() * pix_hkl;
+        end
+
+        function pix_img = transform_hkl_to_img(obj,pix_hkl,varargin)
+            % Converts from hkl coordinate system
+            % to image coordinate system
+            %
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in.
+            %
+            % pix_hkl  -- 4xNpix or 3xNpix array of pixel coordinates in
+            %             hkl (physical) coordinate system (4-th
+            %             coordinate, if requested, is the energy transfer)
+            %
+            % Output:
+            % pix_img   -- 4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the coordinate system defined by
+            %              this projection
+            pix_img = obj.transform_pix_to_img(obj.bmatrix() * pix_hkl);
         end
 
         function pix_hkl = tansform_img_to_hkl(obj,img_coord,varargin)
@@ -979,11 +1019,8 @@ classdef aProjectionBase < serializable
         function ver  = classVersion(~)
             ver = 1;
         end
-        function  flds = saveableFields(obj)
-            flds = {'alatt','angdeg','offset','label'};
-            if ~isempty(obj.title)
-                flds = [flds(:);'title']';
-            end
+        function  flds = saveableFields(~)
+            flds = {'alatt','angdeg','offset','label','title'};
         end
         % validation
         function obj = check_combo_arg (obj)

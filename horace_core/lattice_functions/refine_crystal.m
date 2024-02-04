@@ -1,12 +1,14 @@
-function aligment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
+function [alignment_info, error_estimate] = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 % Refine crystal orientation and lattice parameters
 %
-%   >> aligment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu)
-%   >> aligment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu, alatt_init, angdeg_init)
+%   >> alignment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu)
+%   >> alignment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu, alatt_init, angdeg_init)
+% Return estimates of the error in the crystal alignment fit
+%   >> [..., error_estimate] = refine_crystal( ... )
 %
 % In addition, there are keyword arguments to control the refinement e.g.
-%   >> aligment_info = refine_crystal(..., 'fix_angdeg')
-%   >> aligment_info = refine_crystal(..., 'free_alatt', [1,0,1])
+%   >> alignment_info = refine_crystal(..., 'fix_angdeg')
+%   >> alignment_info = refine_crystal(..., 'free_alatt', [1,0,1])
 %
 %
 % This function is used to get the information necessary to relate the coordinates of a vector (h0,k0,l0)
@@ -61,7 +63,7 @@ function aligment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 %
 % Output:
 % -------
-%  alighment_info  -- helper class, which contains information, necessary
+%  alignment_info  -- helper class, which contains information, necessary
 %                     for the crystal alignment. The class contains the
 %                     following fields, calculated by the procedure:
 %
@@ -77,14 +79,19 @@ function aligment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 %      rotangle       Angle of rotation corresponding to rotmat (to give a measure
 %                     of the misorientation) (degrees)
 %
+% error_estimate  --  Structure containing estimated errors on the fit parameters as a result of refinement
+%
+%      alatt          Error on refined lattice parameters [a,b,c] (Angstroms)
+%      angdeg         Error on refined lattice angles [alph,bet,gam] (degrees)
+%      rotmat         Error on rotation matrix
 %
 % EXAMPLES
 %   Want to refine crystal orientation only:
-%   >> alighment_info =refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_lattice')
+%   >> alignment_info =refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_lattice')
 %    the alignment info would contain the initial lattice values i.e.  alatt0, angdeg0
 %
 %   Want to refine lattice parameters a,b,c as well as crystal orientation:
-%   >> alighment_info=refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_angdeg')
+%   >> alignment_info=refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_angdeg')
 %    the alignment info would contain the initial lattice angles i.e.  angdeg0
 
 small=1e-10;
@@ -184,7 +191,11 @@ alatt  = fitpar.p(1:3);
 angdeg = fitpar.p(4:6);
 distance=sqrt(sum(reshape(distance,3,nv).^2,1))';
 
-aligment_info = crystal_alignment_info(alatt,angdeg,rotvec,distance);
+error_estimate = struct('alatt', fitpar.sig(1:3), ...
+                        'angdeg', fitpar.sig(4:6), ...
+                        'rotvec', fitpar.sig(7:9));
+
+alignment_info = crystal_alignment_info(alatt,angdeg,rotvec,distance);
 
 
 %============================================================================================================

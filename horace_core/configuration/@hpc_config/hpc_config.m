@@ -36,7 +36,8 @@ classdef hpc_config < config_base
     % combine_sqw_options      - the helper property providing options,
     %                            available to provide for
     %                           'combine_sqw_using' property.
-    %                            Currently these options are 'matlab', 'mex_code' and 'mpi_code'
+    %                            Currently these options are 'matlab',
+    %                            'mex_code' and 'mpi_code'
     %---
     % mex_combine_thread_mode   - various thread modes deployed when
     %                             combining sqw files using mex code.
@@ -44,10 +45,31 @@ classdef hpc_config < config_base
     %                            combining files per each contributing file.
     %---
     % parallel_cluster          - what parallel cluster type to use to perform
-    %                             parallel  tasks. Possibilities currenlty are
+    %                             parallel  tasks. Possibilities currently are
     %                            'herbert', 'parpool', 'mpiexec_mpi' or
     %                            'slurm' (if appropriate clusters are
     %                             available)
+    % phys_mem_available        - return real size (in bytes) of physical
+    %                             memory, available to use by algorithms.
+    %                             Tries to allocate continuous memory at
+    %                             first call and stores result for future
+    %                             usage, so first call should be tried on
+    %                             relatively clean system
+    %
+    % sort_pix_in_binary_op     - pixels are usually randomly distributed
+    %                             within an image cell. To perform correct
+    %                             binary operations between two sqw files
+    %                             with pixel data, pixels within each image
+    %                             cell have to be sorted, which is
+    %                             relatively expensive operation. If you
+    %                             are sure that pixels in operation come
+    %                             from the same data (e.g. calculating
+    %                             foreground and background out of the same
+    %                             dataset and adding them together), this
+    %                             property may be set to false.
+    %                             This property is not saveable, so
+    %                             returns to default each time memory is
+    %                             cleared up.
     %
     %
     % Type >> hpc_config  to see the list of current configuration option values.
@@ -118,6 +140,22 @@ classdef hpc_config < config_base
         % the configuration class itself;
         parallel_config;
 
+        % return real size (in bytes) of physical  memory, available to use
+        % by algorithms. Tries to allocate continuous memory at first call
+        % and stores result for future usage, so first call should be tried
+        % on clean system.
+        phys_mem_available
+
+        % pixels are usually randomly distributed within an image cell.
+        % To perform correct binary operations between two sqw files with
+        % pixel data, pixels within each image cell have to be sorted,
+        % which is relatively expensive operation. If you are sure that
+        % pixels in operation come  from the same data (e.g. calculating
+        % foreground and background out of the same dataset and adding them
+        % together), this property may be set to false.
+        % The property is not saveable in configuration files so it returns
+        % to default each time memory is cleared up.
+        sort_pix_in_binary_op;
         % helper read-only property, returning list of options, which
         % define hpc configuration. Set by saved_properties_list_
         hpc_options;
@@ -141,6 +179,7 @@ classdef hpc_config < config_base
 
         mex_combine_thread_mode_   = 0;
         mex_combine_buffer_size_ = 1024*64;
+        sort_pix_in_binary_op_ = true;
     end
 
     properties(Constant,Access=private)
@@ -152,8 +191,18 @@ classdef hpc_config < config_base
             'mex_combine_thread_mode',...
             'mex_combine_buffer_size',...
             'parallel_multifit'...
-            }
+            };
         combine_sqw_options_ = {'matlab','mex_code','mpi_code'};
+    end
+    methods(Static)
+        function free_memory = calc_free_memory()
+            % function tries to estimate actual free memory available to
+            % Horace
+            %
+            % Result is expressed in bytes.
+            %
+            free_memory = calc_free_memory_();
+        end
     end
 
     methods
@@ -169,6 +218,9 @@ classdef hpc_config < config_base
                 obj.mex_combine_thread_mode_   = 0;
                 obj.mex_combine_buffer_size_ = 64*1024;
             end
+            %
+            obj.mem_only_prop_list_ = {'sort_pix_in_binary_op',...
+                'phys_mem_available'};
         end
 
         %----------------------------------------------------------------
@@ -202,7 +254,7 @@ classdef hpc_config < config_base
             p_mf = get_or_restore_field(obj,'parallel_multifit');
         end
 
-        function accum = get.parallel_workers_number(obj)
+        function accum = get.parallel_workers_number(~)
             accum = config_store.instance.get_value('parallel_config','parallel_workers_number');
         end
 
@@ -214,6 +266,10 @@ classdef hpc_config < config_base
             rem_f = config_store.instance.get_value('parallel_config','remote_folder');
         end
 
+        function rem_f = get.sort_pix_in_binary_op(obj)
+            rem_f = get_or_restore_field(obj,'sort_pix_in_binary_op');
+        end
+
         function config = get.parallel_config(~)
             config = parallel_config();
         end
@@ -222,6 +278,9 @@ classdef hpc_config < config_base
             hpco = obj.saved_properties_list_;
         end
 
+        function mem = get.phys_mem_available(obj)
+            mem = get_phys_mem_available_(obj);
+        end
         %----------------------------------------------------------------
 
         function obj = set.combine_sqw_using(obj,val)
@@ -259,7 +318,6 @@ classdef hpc_config < config_base
         end
 
         function opt = get.combine_sqw_options(obj)
-
             opt = obj.combine_sqw_options_;
         end
 
@@ -328,6 +386,11 @@ classdef hpc_config < config_base
             config_store.instance().store_config(obj,'parallel_multifit',p_mf);
         end
 
+        function obj = set.sort_pix_in_binary_op(obj,val)
+            config_store.instance().store_config(obj, ...
+                'sort_pix_in_binary_op',logical(val));
+        end
+
         function obj = set.build_sqw_in_parallel(obj,val)
             accum = val>0;
             if accum
@@ -336,10 +399,10 @@ classdef hpc_config < config_base
                 wrker_path = fileparts(which(wkr));
                 if isempty(wrker_path)
                     warning(['HORACE:hpc_config:invalid_argument',...
-                             'Can not start accumulating in separate process.',...
-                             'Can not find worker on a data search path; ',...
-                             'See: http://horace.isis.rl.ac.uk/Download_and_setup#Enabling_multi-sessions_processing ',...
-                             'for the details on how to set it up']);
+                        'Can not start accumulating in separate process.',...
+                        'Can not find worker on a data search path; ',...
+                        'See: http://horace.isis.rl.ac.uk/Download_and_setup#Enabling_multi-sessions_processing ',...
+                        'for the details on how to set it up']);
                     accum = false;
                 end
             end
@@ -348,20 +411,25 @@ classdef hpc_config < config_base
         end
 
         function obj = set.parallel_workers_number(obj, val)
-            pf = parallel_config;
+            pf = parallel_config();
             pf.parallel_workers_number = val;
         end
 
 
         function obj = set.parallel_cluster(obj,val)
-            pf = parallel_config;
+            pf = parallel_config();
             pf.parallel_cluster = val;
         end
 
         function obj = set.remote_folder(obj,val)
-            pf = parallel_config;
+            pf = parallel_config();
             pf.remote_folder = val;
         end
+
+        function obj = set.phys_mem_available(obj,val)
+            set_phys_mem_available_(obj,val,true);
+        end
+
 
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
@@ -372,12 +440,21 @@ classdef hpc_config < config_base
             fields = obj.saved_properties_list_;
         end
 
-        function value = get_internal_field(obj,field_name)
+        function value = get_default_value(obj,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface.
-            % Relies on assumption, that each public
-            % field has a private field with name different by underscore
-            value = obj.([field_name,'_']);
+
+            if strcmp(field_name,'phys_mem_available')
+                % This field does not have value as such and if it is
+                % not located in config_store it is recalculated and placed
+                % in store.
+                value = get_phys_mem_available_(obj);
+            else
+                % Relies on agreement that each public
+                % field has a private (default) field with name different
+                % by underscore
+                value = obj.([field_name,'_']);
+            end
         end
 
     end

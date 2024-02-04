@@ -11,6 +11,7 @@ classdef test_sphere_proj<TestCase
             end
             this=this@TestCase(name);
         end
+
         %------------------------------------------------------------------
         function test_coord_transf_PixData_plus_offset(~)
             proj = sphere_proj('alatt',2*pi,'angdeg',90);

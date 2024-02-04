@@ -5,7 +5,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %   >> [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win)
 %
 % For specific pixels:
-%   >> [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win,indx)
+%   >> [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win,ipix)
 %
 % No lookup tables:
 %   >> [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(...,'notables')
@@ -24,29 +24,21 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 % ------
 %   win         Array of sqw objects, or cell array of scalar sqw objects
 %
-%  [Optional]
-%   indx        Pixel indices:
+% [Optional]
+%   ipix        Pixel indices for which the output is to be extracted from the
+%               sqw object(s). It has the form of one of:
 %
-%               Single sqw object:
-%               ------------------
-%                 - ipix            Array of pixels indices
-%            *OR* - {irun,idet,ien} Arrays of run, detector and energy bin index
-%                                   Dimension expansion is performed on scalar
-%                                  quantities i.e. each must be a scalar or array
-%                                  with arrays having the same length
+%               - Array of pixel indices. If there are multiple sqw objects,
+%                 it is then applied to every sqw object
 %
-%               Multiple sqw objects:
-%               ---------------------
-%                 - As above, assumed to apply to all sqw objects,
-%            *OR* - Cell array of the above, one cell array per sqw object
-%                  e.g. if two sqw objects:
-%                       {ipix1, ipix2}
-%                       {{irun1,idet1,ien1}, {irun2,idet2,ien2}}
+%               - Cell array of pixel indices arrays
+%                   - only one array: applied to every sqw object, or
+%                   - several pixel indices arrays: one per sqw object
 %
 %   opt         Option: 'tables' (default) or 'notables'
-%               If 'tables', then moderator and Fermi chopper lookup tables
-%              are added to the output argument lookup
-%
+%               If 'tables', then object_lookup tables for instrument
+%              components, sample and detectors are added to the output
+%              argument lookup
 %
 % Output:
 % -------
@@ -63,7 +55,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %               For details of contents of lookup, see below.
 %
 %   npix        Array of number of pixels for each workspace after selecting
-%               with the indexing argument indx. (Array has same size as win)
+%               with the indexing argument ipix. (Array has same size as win)
 %
 %
 % Contents of output argument: lookup
@@ -95,29 +87,17 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %                      components in r.l.u.:
 %                           v_rlu = spec_to_rlu * v_spec
 %                      Size is [3,3,nrun], where nrun is the number of runs
-%           alatt       Lattice parameters (Angstroms), vector size[1,3]
-%           angdeg      Lattice angles in degrees (Angstroms), vector size[1,3]
-%
-%       Cell arrays of arrays of detector information, one array per dataset:
-%           f_mat       Array size [3,3,ndet] to take coordinates in spectrometer
-%                      frame and convert into secondary spectrometer frame.
-%
-%           d_mat       Array size [3,3,ndet] to take coordinates in detector
-%                      frame and convert into secondary spectrometer frame.
-%
-%           detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
-%
-%           x2          Sample-detector distances (m) (size [ndet,1])
+%           alatt       Lattice parameters (Angstroms), vector size [1,3]
+%           angdeg      Lattice angles in degrees (Angstroms), vector size [1,3]
+%           is_mosaic   Logical flag: true if a sample for at least one run in
+%                      the sqw object has a non-zero mosaic spread, scalar [1,1]
 %
 %       Cell array of widths of energy bins, one array per dataset
 %           dt          Time widths for each pixel (s), size [npix,1]
 %
-%       Cell arrays of q,w and transformation arrays, one array per dataset
-%           qw          Cell array size [1,4] with components of momentum (in rlu) and energy
-%                        for each pixel [Columns of size npix]
-%
-%           dq_mat      Array of matricies, size [4,11,npix],  to convert deviations in
-%                      tm, tch etc. into deviations in Q in rlu
+%       Cell array of energy bin centres, one array per dataset
+%           en          Vector of size [1,npix] with components of energy
+%                       for each pixel
 %
 %       Constants:
 %           k_to_e      Constant in E(mev)=k_to_e*(k(Ang^-1))^2
@@ -129,7 +109,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %              possible contributions e.g. {'chopper','moderator'}
 
 
-% Use 3He cylindrical gas tube (ture) or Tobyfit original (false)
+% Use 3He cylindrical gas tube (true) or Tobyfit original (false)
 use_tubes=false;
 
 % Catch case of inquiry about mc_contributions
@@ -160,7 +140,7 @@ keywrd_def = struct('tables',1);
 flags = {'tables'};
 [args,keywrd] = parse_arguments (varargin,keywrd_def,flags);
 if numel(args)==1
-    indx = args{1};
+    ipix = args{1};
 elseif numel(args)>0
     ok = false;
     mess = 'Check the number of input arguments';
@@ -170,10 +150,11 @@ end
 
 % Check pixel indexing is valid
 % -----------------------------
-
-all_pixels = ~exist('indx','var');
+all_pixels = ~exist('ipix','var');
 if ~all_pixels
-    parse_pixel_indices (win,indx);
+    % Perform consistency checks of the pixel indices against the sqw objects
+    % if particular indices are selected
+    parse_pixel_indices (win, ipix);
 end
 
 
@@ -202,17 +183,14 @@ s_mat=cell(nw,1);       % element size [3,3,nrun]
 spec_to_rlu=cell(nw,1); % element size [3,3,nrun]
 alatt=cell(nw,1);       % element size [1,3]
 angdeg=cell(nw,1);      % element size [1,3]
+is_mosaic=cell(nw,1);   % element size [1,1]
 detectors=cell(nw,1);   % element size [nrun,1]
-f_mat=cell(nw,1);       % element size [3,3,ndet]
-d_mat=cell(nw,1);       % element size [3,3,ndet]
-detdcn=cell(nw,1);      % element size [3,ndet]
-x2=cell(nw,1);          % element size [ndet,1]
 dt=cell(nw,1);          % element size [npix,1]
-qw=cell(nw,1);          % element is cell array size [1,4], each element size [npix,1]
-dq_mat=cell(nw,1);      % element size [4,11,npix]
+en=cell(nw,1);          % element size [npix,1]
 
 
-% Get quantities and derived quantities from the header
+% Get detector information for the entire collection of sqw objects as an
+% instance of the object_lookup class
 n_runs = NaN(nw,1);
 for iw=1:nw
     % Get pointer to a specific sqw pobject
@@ -221,75 +199,84 @@ for iw=1:nw
     else
         wtmp = win(iw);
     end
-    
+
     % Get number of runs in the sqw object
     n_runs(iw) = wtmp.experiment_info.n_runs;
-    
-    % Pixel indicies
-    if all_pixels
-        [irun,idet,ien] = parse_pixel_indices(wtmp);
+
+    % Get IX_detector_array for the sqw object
+    detectors{iw} = detector_array (wtmp, use_tubes);
+end
+% Because the detector info extraction above still assumes that there is
+% only one IX_detector_array per sqw (rather than possibly a different one for
+% each run), for the moment continue to fill the object_lookup for detectors
+% with repeats by n_runs for each sqw object
+sz_cell = num2cell([n_runs, ones(nw,1)], 2);    % sz_repeat for object_lookup
+detector_table = object_lookup(detectors, 'repeat', sz_cell);
+
+
+% Get quantities and derived quantities from the header
+for iw=1:nw
+    % Get pointer to a specific sqw pobject
+    if iscell(win)
+        wtmp = win{iw};
     else
-        [irun,idet,ien] = parse_pixel_indices(wtmp,indx,iw);
+        wtmp = win(iw);
+    end
+
+    % Get the indices to the runs in the experiment information block, the
+    % detector indicies and the energy bin indices
+    if all_pixels
+        % For all pixels in the sqw object
+        [irun, idet, ien] = parse_pixel_indices(wtmp);
+    elseif iscell(ipix) && numel(ipix)>1
+        % Different ipix arrays for each sqw object
+        [irun, idet, ien] = parse_pixel_indices(wtmp, ipix{iw});
+    else
+        % Single ipix array for all sqw objects
+        [irun, idet, ien] = parse_pixel_indices(wtmp, ipix);
     end
     npix(iw) = numel(irun);
-    
+
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
     %  pixels have been shifted, so recalculate)
-    
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
-    
+
     if ne>1
         eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
     else
         eps=eps_lo;     % only one bin, so ne=1 eps_lo=eps_hi, and the above line fails
     end
-    
+
     % Get instrument information
     [ei{iw},x0{iw},xa{iw},x1{iw},thetam{iw},angvel{iw},...
         moderator{iw},aperture{iw},chopper{iw}] = instpars_DGfermi(wtmp.experiment_info);
-    
+
     % Compute ki and kf
     ki{iw}=sqrt(ei{iw}/k_to_e);
     kf{iw}=sqrt((ei{iw}(irun)-eps)/k_to_e);
-    
+
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
     [sample{iw},s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
         sample_coords_to_spec_to_rlu(wtmp.experiment_info);
-    
-    % Get detector information
-    % Because detpar only contains minimal information, hardwire in the detector type here
-    detpar = wtmp.detpar();   % just get a pointer
-    if use_tubes
-        detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), ...
-            detpar.phi(:), detpar.azim(:),...
-            IX_det_He3tube (detpar.width, detpar.height, 6.35e-4, 10));   % 10atms, wall thickness=0.635mm
-    else
-        detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
-            IX_det_TobyfitClassic (detpar.width, detpar.height));
-    end
-    x2{iw} = detectors{iw}.x2;
-    d_mat{iw} = detectors{iw}.dmat;
-    f_mat{iw} = spec_to_secondary(detectors{iw});
-    detdcn{iw} = det_direction(detectors{iw});
-    
+
+    % Get array of mosaic spreads for the runs, and determine if any of them
+    % have other than the default of no spread
+    mosaic = arrayfun (@(x)(x.eta), sample{iw});
+    is_mosaic{iw} = any(mosaic_crystal(mosaic));
+
+    % Get detector information for each pixel in the sqw object
+    % size(x2) = [npix,1], size(d_mat) = [3,3,npix]
+    [x2, detdcn] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
+
     % Time width corresponding to energy bins for each pixel
-    dt{iw} = deps_to_dt*(x2{iw}(idet).*deps(irun)./kf{iw}.^3);
-    
-    % Calculate h,k,l (symmetrised objects will not have true pixel coordinates)
-    qw{iw} = cell(1,4);
-    qw{iw}(1:3) = calculate_q (ki{iw}(irun), kf{iw}, detdcn{iw}(:,idet), spec_to_rlu{iw}(:,:,irun));
-    qw{iw}{4} = eps;
-    
-    % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
-    dq_mat{iw} = dq_matrix_DGfermi (ki{iw}(irun), kf{iw},...
-        x0{iw}(irun), xa{iw}(irun), x1{iw}(irun), x2{iw}(idet), thetam{iw}(irun), angvel{iw}(irun),...
-        s_mat{iw}(:,:,irun), f_mat{iw}(:,:,idet), d_mat{iw}(:,:,idet),...
-        spec_to_rlu{iw}(:,:,irun), k_to_v, k_to_e);
-    
+    dt{iw} = deps_to_dt*(x2.*deps(irun)./kf{iw}.^3);
+
+    en{iw} = eps;
+
 end
 
-% Package output as a structure, in cell array length unity if win was a cell array
+% Package output
 ok=true;
 mess='';
 lookup = struct();    % reinitialise
@@ -299,11 +286,10 @@ if keywrd.tables
     lookup.moderator_table = object_lookup(moderator);
     lookup.aperture_table = object_lookup(aperture);
     lookup.fermi_table = object_lookup(chopper);
-    % Expand indexing of lookups to refer to n_runs copies (recall one element
-    % of n_runs per sqw object)
-    sz_cell = num2cell([n_runs, ones(nw,1)], 2);    % sz_repeat for object_lookup
+    % Expand indexing of object_lookup for the sample to refer to n_runs copies
+    % (recall one element of n_runs per sqw object)
     lookup.sample_table = object_lookup(sample, 'repeat', sz_cell);
-    lookup.detector_table = object_lookup(detectors, 'repeat', sz_cell);
+    lookup.detector_table = detector_table;     % already an object_lookup
 end
 lookup.ei=ei;
 lookup.x0=x0;
@@ -317,16 +303,12 @@ lookup.s_mat=s_mat;
 lookup.spec_to_rlu=spec_to_rlu;
 lookup.alatt=alatt;
 lookup.angdeg=angdeg;
-lookup.f_mat=f_mat;
-lookup.d_mat=d_mat;
-lookup.detdcn=detdcn;
-lookup.x2=x2;
+lookup.is_mosaic=is_mosaic;
 lookup.dt=dt;
-lookup.qw=qw;
-lookup.dq_mat=dq_mat;
+lookup.en=en;
 lookup.k_to_v=k_to_v;
 lookup.k_to_e=k_to_e;
 
 if iscell(win)
-    lookup = {lookup};
+    lookup = {lookup};  % make it a cell array length unity if win was a cell array
 end

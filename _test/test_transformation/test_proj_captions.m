@@ -17,7 +17,7 @@ classdef test_proj_captions<TestCase
 
             obj_range(1,4) = -5;
             obj_range(2,4) = 20;
-            proj  = line_proj('alatt',2,'angdeg',90,'u',[1,1,0],'v',[-1,1,0]);                        
+            proj  = line_proj('alatt',2,'angdeg',90,'u',[1,1,0],'v',[-1,1,0]);
             ab = line_axes('img_range',obj_range,'nbins_all_dims',[50,1,1,40]);
             [~,~,ulen]  = proj.get_pix_img_transformation(3);
             ab.ulen  = ulen;
@@ -30,8 +30,8 @@ classdef test_proj_captions<TestCase
             range = [0,0,-180,-5;8,90,-180,20];
             dat.do_check_combo_arg = false;
             dat.axes = sphere_axes('img_range',range,'nbins_all_dims',[50,1,1,40]);
-            dat.proj = sphere_proj();       
-            dat.do_check_combo_arg = true;            
+            dat.proj = sphere_proj();
+            dat.do_check_combo_arg = true;
             dat = dat.check_combo_arg();
 
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
@@ -43,7 +43,7 @@ classdef test_proj_captions<TestCase
 
             assertEqual(numel(title_pax),2);
             assertEqual(title_pax{1},['|Q| (',char(197),'^{-1})']);
-            assertEqual(title_pax{2},'En (mEv)');
+            assertEqual(title_pax{2},'En (meV)');
 
             assertEqual(numel(title_iax),2);
             assertEqual(title_iax{1},'0 \leq \theta \leq 90 in ^{o}');
@@ -51,7 +51,7 @@ classdef test_proj_captions<TestCase
 
             assertEqual(numel(display_pax),2);
             assertEqual(display_pax{1},['|Q| = 0.08:0.16:7.92 in ',char(197)','^{-1}']);
-            assertEqual(display_pax{2},'En = -4.6875:0.625:19.6875 in mEv');
+            assertEqual(display_pax{2},'En = -4.6875:0.625:19.6875 in meV');
 
             assertEqual(numel(display_iax),2);
             assertEqual(display_iax{1},'0 =< \theta =< 90 in ^{o}');
@@ -60,7 +60,7 @@ classdef test_proj_captions<TestCase
             assertEqual(energy_axis,4);
 
         end
-        
+
 
         function test_line_proj_description_with_dax_non_default(obj)
 
@@ -115,9 +115,9 @@ classdef test_proj_captions<TestCase
 
             assertEqual(numel(title_pax),2);
             %assertEqual(title_pax{1},['[1+0.7071\zeta, 1-0.7071\zeta, 1] in 4.4429 ',char(197),'^{-1}']);
-            % not sure it is better 
+            % not sure it is better
             assertEqual(title_pax{1},['[1+\zeta, 1+\zeta, 1] in 4.4429 ',char(197),'^{-1}']);
-                
+
             assertEqual(title_pax{2},'[0, 0, 0, 1+E] (meV)'); % Re #954 why 0,0,0, why not 1,1,1,1+dE
 
             assertEqual(numel(title_iax),2);
@@ -138,7 +138,7 @@ classdef test_proj_captions<TestCase
             assertEqual(energy_axis,4);
 
         end
-        
+
 
         function test_line_proj_description(obj)
 
@@ -151,7 +151,7 @@ classdef test_proj_captions<TestCase
 
             assertEqual(numel(title_pax),2);
             %assertEqual(title_pax{1},['[0.7071\zeta, -0.7071\zeta, 0] in 4.4429 ', ...
-            assertEqual(title_pax{1},['[\zeta, \zeta, 0] in 4.4429 ', ...            
+            assertEqual(title_pax{1},['[\zeta, \zeta, 0] in 4.4429 ', ...
                 char(197),'^{-1}']);
             assertEqual(title_pax{2},' (meV)');
 

@@ -1,14 +1,10 @@
 function obj = check_and_set_ticks_(obj,ticks)
 % Method verifies axis ticks and sets axis ticks if the value is valid
 %
-% Throws IX_axis:invalid_argument if ticks are invalid
-%
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
+% Throws HORACE:IX_axis:invalid_argument if ticks are invalid
 %
 if isempty(ticks)
-    obj.ticks_ = '';
+    obj.ticks_ = struct('positions',[],'labels',{{}});
     return
 end
 
@@ -43,7 +39,7 @@ end
 
 if isempty(ticks.labels)
     if ~isempty(ticks.positions)
-        obj.ticks_.labels=cell(1,numel(ticks.positions));        
+        obj.ticks_.labels=cell(1,numel(ticks.positions));
     else
         obj.ticks_.labels={};
     end
@@ -56,10 +52,9 @@ elseif iscellstr(ticks.labels)
 elseif ischar(ticks.labels) && numel(size(ticks.labels))==2
     obj.ticks_.labels=cellstr(ticks.labels)';
 else
-    error('IX_axis:invalid_argument',...
-        'tick labels must be a cellstr or character array');
+    error('HORACE:IX_axis:invalid_argument',...
+        'tick labels must be a cellstr or character array. It is %s', ...
+        disp2str(ticks));
 end
 
 obj.ticks_=orderfields(obj.ticks_,{'positions','labels'});
-
-

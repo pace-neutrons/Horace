@@ -1,212 +1,202 @@
-function [irun, idet, ien] = parse_pixel_indices (win,indx,iw)
-% Return the indices to pixels
+function [irun, idet, ien] = parse_pixel_indices (win, ipix)
+% Return the run, detector and energy indices of pixels in one or more sqw objects
 %
-% Check validity (sizes and extent of arrays, format of input arguments etc)
-%   >> parse_pixel_indices (win,indx)
+%   >> [irun, idet, ien] = parse_pixel_indices (win)        % for all pixels
+%   >> [irun, idet, ien] = parse_pixel_indices (win, ipix)  % selected pixels
 %
-% Get indices for a particular sqw object
-%   >> [irun,idet,ien] = parse_pixel_indices (win)           % all pixels
-%   >> [irun,idet,ien] = parse_pixel_indices (win,indx)      % pixels in indx (if scalar)
-%   >> [irun,idet,ien] = parse_pixel_indices (win,indx,iw)   % Index in indx if not scalar
+% Note: an efficient way of checking that ipix is consistent with all the sqw
+% objects is to call without output arguments i.e.
+%
+%   >> parse_pixel_indices (win, ipix)
+%
+% This will return silently without spending time computing the output argument 
+% irun if the input arguments are consistent, but otherwise will throw an error
+% with an appropriate message.
+%
 %
 % Input:
 % ------
 % Checking validity:
-%   win         Array of sqw objects, or cell array of scalar sqw objects
-%
-%   indx        Pixel indices to be extracted fromt he sqw object(s)
-%
-%               Single sqw object:
-%               ------------------
-%                 - ipix            Column vector of pixels indices
-%            *OR* - irun_idet_ien   Array of run, detector and energy bin index
-%                                  (array size nx3 where n is the number of pixels)
-%
-%               Multiple sqw objects:
-%               ---------------------
-%                 - As above: assumed to apply to all sqw objects,
-%            *OR* - Cell array of the above, one cell array per sqw object
-%                  e.g. if two sqw objects:
-%                       {ipix1, ipix2}
-%                       {irun_idet_ien_1, irun_idet_ien_2}
+%   win         Array of sqw objects
 %
 % [Optional]
-%   iw          Indices of the sqw objects in win into the indexing arrays
-%              given by indx, one index for each for the sqw objects in win.
-%               This can be used to fine tune the use of indx for a specific
-%              sqw object or set of sqw objects without having to divide
-%              up indx. If indx has only one entry, then it is assumed to
-%              apply for any value of iw.
+%   ipix        Pixel indices for which the output is to be extracted from the
+%               sqw object(s). It has the form of one of:
+%
+%               - Array of pixel indices. If there are multiple sqw objects,
+%                 it is then applied to every sqw object
+%
+%               - Cell array of pixel indices arrays
+%                   - only one array: applied to every sqw object, or
+%                   - several pixel indices arrays: one per sqw object
 %
 % Output:
 % -------
-%   irun        Single sqw object: Indexes of the experiments, containing
+%   irun        Scalar sqw object: Array of indices into the experiment_info
+%               Multiple sqw objects: Cell array of arrays, one per sqw object
+%                                  Cell array has the same size as win
 %
-%               Run indices for each pixel (column vector)
-%               Multiple sqw objects: Array of column vectors, one per object
+%   idet        Scalar sqw object: Array of detector indices for the pixels
+%               Multiple sqw objects: Cell array of arrays, one per sqw object
+%                                  Cell array has the same size as win
 %
-%   idet        Single sqw object: Detector indices for each pixel (column vector)
-%               Multiple sqw objects: Array of column vectors, one per object
+%   ien         Scalar sqw object: Energy bin indices for each pixel (column vector)
+%               Multiple sqw objects: Cell array of arrays, one per sqw object
+%                                  Cell array has the same size as win
 %
-%   ien         Single sqw object: Energy bin indices for each pixel (column vector)
-%               Multiple sqw objects: Array of column vectors, one per object
+% For each of irun, idet and ien, note that:
+% - If ipix was not given, the output arrays for each sqw object are column vectors
+% - If ipix was given, the output arrays for each sqw object have the same shape
+%   as the corresponding array indices array within ipix
 
 
+% Check number of sqw objects
 nw = numel(win);
-
 if nw == 0
-    error('HORACE:parse_pixel_indices:invalid_argument', 'Function called with empty sqw argument')
+    error('HORACE:parse_pixel_indices:invalid_argument', ...
+        'Function was called with an empty sqw argument')
+end
+sz_win = size(win);
+
+% If ipix is given, check that it is consistent with the number and sizes of the
+% input sqw object(s)
+ipix_present = exist('ipix', 'var');
+if ipix_present
+    % Get min and max indices in ipix (as column vectors)
+    % If ipix is numeric, then get make it a cell array that is replicated to the
+    % size of the input sqw object array. This is to make the block of code that
+    % gets the output for a single sqw object much cleaner (without lots of
+    % capturing of cases of numeric or cell array input, and scalar or array
+    % cell arrays). The creation of a cell that is then input to repmat has no
+    % memory or CPU penalty as the contents are not altered at any point, so it
+    % is essentially just making a bunch of pointers.
+    if iscell(ipix)
+        % Assume cell array of integer arrays - none of them are permitted to be empty
+        n_ipix = numel(ipix);
+        if n_ipix==0 || any(cellfun(@isempty, ipix))
+            error('HORACE:parse_pixel_indices:invalid_argument', ['The cell array ',...
+                '''ipix'' is empty, or one or more arrays in ''ipix'' is empty'])
+        end
+        if ~any(numel(ipix) == [1,nw])
+            error('HORACE:parse_pixel_indices:invalid_argument', ['The number of ',...
+                'arrays in ''ipix'' must be 1 or the number of sqw objects: %d'], nw)
+        end
+        if isscalar(ipix)
+            min_ipix = min(ipix{1}(:)) * ones(sz_win);
+            max_ipix = max(ipix{1}(:)) * ones(sz_win);
+            ipix_cellarray = repmat(ipix, sz_win);          % effectively a set of pointers
+        else
+            min_ipix = cellfun(@(x)(min(x(:))), ipix(:));   % output is column vector
+            max_ipix = cellfun(@(x)(max(x(:))), ipix(:));
+            ipix_cellarray = reshape(ipix, sz_win);
+        end
+    else
+        % Assume ipix is an integer array - but it cannot be empty
+        if isempty(ipix)
+            error('HORACE:parse_pixel_indices:invalid_argument', ...
+                'Optional pixel index argument ''ipix'' is empty')
+        end
+        if nw == 1
+            min_ipix = min(ipix(:));
+            max_ipix = max(ipix(:));
+            ipix_cellarray = {ipix};
+        else
+            min_ipix = min(ipix(:)) * ones(size(win));
+            max_ipix = max(ipix(:)) * ones(size(win));
+            ipix_cellarray = repmat({ipix}, sz_win);    % make a cell for convenience later on
+        end
+    end
+    
+    % Get number of pixels in each sqw object
+    npix = arrayfun(@(x)(x.npixels), win);
+    
+    % Check consistency
+    bad = (min_ipix(:) < 1) | (max_ipix(:) > npix(:));
+    if any(bad)
+        ind = find(bad, 1);     % index of first bad dataset
+        error('HORACE:parse_pixel_indices:invalid_argument', ['One or more pixel ',...
+            'indices are out of the valid range 1-%d for dataset %d'], npix(ind), ind)
+    end
 end
 
-nout = nargout;     % number of optional output arguments in series irun, idet, ien
-
-
-% Case of only w as an input argument
-% -----------------------------------
-if nargin==1
-    if nout>0
-        irun = cell(size(win));
-        idet = cell(size(win));
-        ien  = cell(size(win));
-        for i = 1:nw
-            if iscell(win)
-                pix = win{i}.pix;
-                runid_map = win{i}.runid_map;
-            else
-                pix = win(i).pix;
-                runid_map = win(i).runid_map;
-            end
-
-            run_idx= pix.get_fields('run_idx', 'all')';
-            irun{i} = arrayfun(@(x)runid_map(x),run_idx);
-            idet{i} = pix.get_fields('detector_idx', 'all')';
-            ien{i}  = pix.get_fields('energy_idx', 'all')';
-        end
-
-        if nw == 1
-            irun = irun{1};
-            idet = idet{1};
-            ien = ien{1};
-        end
-
-    end
-
+% If no return arguments, simply have a silent return.
+if nargout == 0
     return
 end
 
-% Case when given index array(s)
-% ------------------------------
-% Check iw, if given, is positive and consistent with the number of sqw objects
-if exist('iw','var')
-    if numel(iw)~=numel(win)
-        error('HORACE:parse_pixel_indices:invalid_argument', 'Number of indices in index argument ''iw'' must equal the number of sqw objects');
-    elseif any(iw<1)
-        error('HORACE:parse_pixel_indices:invalid_argument', 'Indices in index argument ''iw'' must be greater or equal to zero');
+% Get the return arguments
+% We have repackaged ipix so that it is a cell array with size equal to the size
+% of win. In the following we only have to branch on (1) win being scalar or
+% array, and (2) the presence or absence of ipix
+if nw ==1
+    % Outputs will be numeric arrays
+    if ipix_present
+        [irun, idet, ien] = parse_pixel_indices_private (win, ipix_cellarray);
+    else
+        [irun, idet, ien] = parse_pixel_indices_private (win);
     end
-end
-
-% Check indx
-if ~iscell(indx)
-    indx = {indx};
-end
-
-nind = numel(indx);
-
-if any(~cellfun(@(x) isnumeric(x) && (size(x, 2) == 1 || size(x, 2) == 3), indx))
-    error('HORACE:parse_pixel_indices:invalid_argument', 'Each indexing array must be a numeric column vector or an nx3 array of run-detector-energy bin indices');
-end
-
-indx_internal = indx;        % standard name for internal working
-
-if nind==1
-    iw_internal = ones(nw,1);    % every sqw object has the same indx array - indx is effectively infinitely long
 else
-    if exist('iw','var')
-        if any(iw) > nind
-            error('HORACE:parse_pixel_indices:invalid_argument', 'Value(s) in the index argument ''iw'' must lie in the range 1 - %d', nind);
-        end
-        iw_internal = iw;
+    % Outputs are cell arrays of numeric arrays
+    if ipix_present
+        % Note that the call to arrayfun will work because internally the
+        % function parse_pixel_indixes_private spots if ipix is a cell array
+        % with one element and extracts the contents
+        [irun, idet, ien] = arrayfun(@parse_pixel_indices_private, win, ...
+            ipix_cellarray, 'uniformOutput', false);
     else
-        if nind ~= nw
-            error('HORACE:parse_pixel_indices:invalid_argument', 'If there is more than one indexing array, the number must match the number of sqw objects');
-        end
-        iw_internal = 1:nw;  % one indx array per sqw object
+        [irun, idet, ien] = arrayfun(@parse_pixel_indices_private, win, ...
+            'uniformOutput', false);
     end
 end
 
-% Check consistency
-for i=1:nw
-    if iscell(win)
-        wtmp = win{i};
-    else
-        wtmp = win(i);
-    end
-
-    indx_tmp = indx_internal{iw_internal(i)};
-
-    if size(indx_tmp,2)==1
-        if ~(max(indx_tmp)<=wtmp.pix.num_pixels && min(indx_tmp)>=0)
-            error('HORACE:parse_pixel_indices:invalid_argument', 'One or more pixel indices outside range of sqw object');
-        end
-        continue
-    end
-
-    if iscell(wtmp.header)
-        nrun = numel(wtmp.header);
-        ne = cellfun(@(x)(numel(x.en)-1),wtmp.header);
-    else
-        nrun = 1;
-        ne = numel(wtmp.header.en)-1;
-    end
-    ndet = numel(wtmp.detpar.x2);
-    irun = indx_tmp(:,1);
-    idet = indx_tmp(:,2);
-    ien  = indx_tmp(:,3);
-
-    if ~(max(irun)<=nrun && min(irun)>=0)
-        error('HORACE:parse_pixel_indices:invalid_argument', 'One or more run indices outside range of sqw object');
-    elseif ~(max(idet)<=ndet && min(idet)>=0)
-        error('HORACE:parse_pixel_indices:invalid_argument', 'One or more detector indices outside range of sqw object');
-    elseif ~(all(ien<=ne(irun)) && min(ien)>=0)
-        error('HORACE:parse_pixel_indices:invalid_argument', 'One or more energy bin indices outside range of sqw object');
-    end
 end
 
-% Fill output arrays if required
-if nout>0
-    irun = cell(size(win));
-    idet = cell(size(win));
-    ien  = cell(size(win));
+%-------------------------------------------------------------------------------
+function [irun, idet, ien] = parse_pixel_indices_private (win, ipix)
+% Get the experiment indices (sometimes known as 'header index'), detector
+% indices and energy bin indices for an sqw object.
+% Private function that assumes all validity checks for the input arguments have
+% already been done.
+%
+% Input:
+% ------
+%   win         sqw object
+%   ipix        Pixel indices array, or cell array with one element that is an
+%               array of pixel indices
+%
+% Output:
+% -------
+%   irun -|
+%   idet  |-    Indices corresponding to the selected pixels (column vectors)
+%   ien  -|
 
-    for i = 1:nw
-        indx_tmp = indx_internal{iw_internal(i)};
-        if size(indx_tmp,2)==1
-            if iscell(win)
-                pix = win{i}.pix;
-                runid_map = win{i}.runid_map;
-            else
-                pix = win(i).pix;
-                runid_map = win(i).runid_map;
-            end
+pix = win.pix;
+experiment = win.experiment_info;
 
-            run_idx= pix.get_fields('run_idx', indx_tmp)';
-            irun{i} = arrayfun(@(x)runid_map(x),run_idx);
-            idet{i} = pix.get_fields('detector_idx', indx_tmp)';
-            ien{i}  = pix.get_fields('energy_idx', indx_tmp)';
-        else
-            irun{i} = indx_tmp(:,1);
-            %? Does this index need to be transformed from run_idx to
-            %index ?
-            idet{i} = indx_tmp(:,2);
-            ien{i}  = indx_tmp(:,3);
-        end
+% Catch the case of no pixels for simplicity
+if pix.num_pixels == 0
+    irun = zeros(0,1);  % convention is column vector
+    idet = zeros(0,1);
+    ien = zeros(0,1);
+    return
+end
+
+% At least one pixel, so need to do some work
+if exist('ipix', 'var')
+    % Get irun, idet, ien for pixels indicated by ipix with same shape as ipix
+    if iscell(ipix)
+        ipix = ipix{1};     % get the indices array inside ipix
     end
-
-    if nw == 1
-        irun = irun{1};
-        idet = idet{1};
-        ien = ien{1};
-    end
+    run_idx = reshape(pix.run_idx(ipix), size(ipix));
+    irun = experiment.get_experiment_idx(run_idx);
+    idet = reshape(pix.detector_idx(ipix), size(ipix));
+    ien = reshape(pix.energy_idx(ipix), size(ipix));
+else
+    % Get irun, idet, ien for all pixels in the sqw object
+    run_idx = pix.run_idx(:);   % make column
+    irun = experiment.get_experiment_idx(run_idx); % irun same shape as run_idx i.e. column
+    idet = pix.detector_idx(:); % make column
+    ien = pix.energy_idx(:);    % make column
 end
 
 end

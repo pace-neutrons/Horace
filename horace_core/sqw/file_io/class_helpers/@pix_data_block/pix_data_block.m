@@ -1,13 +1,16 @@
 classdef pix_data_block < data_block
     % PIX_DATA_BLOCK describes the binary data, corresponding to pixelData
     % arrays (extracted by  pix_data class v0) and used for storing/restoring
-    % pixel information on HDD in a binary form if it is possible or ogranizing
+    % pixel information on HDD in a binary form if it is possible or organizing
     % file-based access to the data on HDD.
     %
     % The special form of data_block binary data format is caused by need
-    % to access pix_data_block from third party (non-Matlab) applications
+    % to access pix_data_block from third party (non-MATLAB) applications
     % and the constrains of efficient binary access to this array for the
     % arrays which are impossible to load in memory
+    %
+    % By default, this block is locked in its place so unlike other data blocks 
+    % can not be moved within binary sqw file
     %
     properties(Dependent)
         % properties defile the location of the appropriate arrays in
@@ -23,7 +26,7 @@ classdef pix_data_block < data_block
         bytes_pp % bytes per point -- how much every pixel value occupies on hdd
     end
     properties(Access=protected)
-        npixels_  = 'undefined'; % ugly but to keep compartibility with previous file format
+        npixels_  = 'undefined'; % ugly but to keep compatibility with previous file format
         n_rows_   = 9;
     end
     methods
@@ -32,6 +35,7 @@ classdef pix_data_block < data_block
             obj = obj@data_block(varargin{:});
             obj.sqw_prop_name = 'pix';
             obj.level2_prop_name = 'data_wrap';
+            obj.locked = true;
             if nargin == 0
                 return
             end
@@ -59,7 +63,7 @@ classdef pix_data_block < data_block
                 return
             elseif ~(isscalar(np) && isnumeric(np) && np >= 0 )
                 error('HORACE:pix_data_block:invalid_argument', ...
-                    'Number of pixels shoud be single non-negative number. In fact it is: %s', ...
+                    'Number of pixels should be single non-negative number. In fact it is: %s', ...
                     disp2str(np))
             end
             obj.npixels_ = np;
@@ -88,7 +92,6 @@ classdef pix_data_block < data_block
                     disp2str(val))
             end
             obj.position_ = val - 12;
-            obj.initialized_ = true;
         end
         %
         function [obj,sqw_obj_to_set] = get_sqw_block(obj,fid,sqw_obj_to_set)
@@ -102,7 +105,7 @@ classdef pix_data_block < data_block
                 sqw_obj_to_set = obj.set_subobj(sqw_obj_to_set,subobj);
             end
         end
-        function obj =calc_obj_size(obj,sqw_obj,nocache)
+        function obj =calc_obj_size(obj,sqw_obj,nocache,varargin)
             % Overloaded: -- calculate size of the serialized object and
             % put the serialized object into data cache for subsequent put
             % operation(s)

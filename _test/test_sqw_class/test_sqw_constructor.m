@@ -122,7 +122,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             ids = sqw_obj.experiment_info.expdata.get_run_ids();
             assertEqual(keys,ids);
 
-            pix_ids = unique(sqw_obj.pix.get_fields('run_idx', 'all'));
+            pix_ids = unique(sqw_obj.pix.run_idx);
             assertEqual(ids,pix_ids)
 
             save(tmp_filename, 'sqw_obj');

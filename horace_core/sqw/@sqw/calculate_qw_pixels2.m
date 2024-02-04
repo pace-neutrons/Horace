@@ -1,5 +1,5 @@
 function qw=calculate_qw_pixels2(win)
-% Calculate qh, qk, ql, en for the pixels in an sqw dataset from the headers
+% Calculate qh, qk, ql, en for the pixels in an sqw dataset from the experiment information
 %
 %   >> qw = calculate_qw_pixels2(win)
 %
@@ -31,9 +31,10 @@ c = neutron_constants;
 k_to_e = c.c_k_to_emev;
 
 % as column vectors
-irun = win.pix.get_fields('run_idx')';
-idet = win.pix.get_fields('detector_idx')';
-ien = win.pix.get_fields('energy_idx')';
+idx = win.pix.all_indexes();
+irun = idx(1,:)';
+idet = idx(2,:)';
+ien = idx(3,:)';
 
 if ~iscell(win.header)
     header = {win.header};

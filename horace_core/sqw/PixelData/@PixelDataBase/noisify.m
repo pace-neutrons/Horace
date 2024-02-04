@@ -1,4 +1,4 @@
-function [pix_out, data] = noisify(obj, varargin)
+function pix_out = noisify(obj, varargin)
 %=========================================================================
 % This is a method of the PixelData class.
 % It is called from the noisify(sqw_object,[options]) function to allow
@@ -25,51 +25,28 @@ function [pix_out, data] = noisify(obj, varargin)
 % pix_out     If specified, returns a "noisified" copy of the input data
 %             Otherwise it is a reference to the input object, which is
 %             "noisified" in place.
-% data        If input `data` is provided will be recomputed DnD object
 %=========================================================================
 
 % Output specification determines object copying behaviour.
 % Only perform the operation on a copy if a return argument exists,
 % otherwise perform the operation on obj itself.
+pix_out = copy(obj);
 
-pix_out = obj;
-
-uses_poisson_distribution = (   ...
-    nargin==3 ...                            % only 3 args for poisson
-    && ischar(varargin{1}) ...                  % arg is string
-    && is_stringmatchi(varargin{1},'poisson')); % string is poisson
-
-if ~uses_poisson_distribution
+pix_op = PageOp_noisify();
+if ~isempty(npix)
+    pix_op.npix = npix;
+end
+pix_op    = pix_op.init(pix_out ,varargin{:});
+if ~pix_op.noisify_par.is_poisson
     if ~pix_out.is_range_valid('signal')
-        % Other options than poisson require the signal maximum.
+        % Other options than Poisson require the signal maximum.
         % As we are paging, we need to get the overall max signal out of pix_out
         % before applying noisify to the individual pages.
-        max_sig = -inf;
-        for i = 1:pix_out.num_pages
-            pix_out.page_num = i;
-            max_sig_page = max(abs(pix_out.signal));
-            max_sig = max(max_sig, max_sig_page);
-        end
-    else
-        range = pix_out.data_range;
-        max_sig = range(2,pix_out.check_pixel_fields('signal'));
+        pix_out = pix_out.recompute_bin_data();
     end
-    % tell the Herbert noisify that we are providing a max signal value
-    % by appending it with its flag to varargin
-    varargin{end+1} = 'maximum_value';
-    varargin{end+1} = max_sig;
+    range = pix_out.data_range;
+    max_sig = range(2,pix_out.field_index('signal'));
+    pix_op.noisify_par.ymax = max_sig;
 end
+pix_out   = pix_out.apply_op(pix_out,pix_op);
 
-if ~isempty(varargin{1}) && isa(varargin{1}, 'DnDBase')
-    data = varargin{1};
-    varargin = varargin(2:end);
-    [pix_out, data] = pix_out.apply(@add_noise, {varargin}, data);
-else
-    pix_out = pix_out.apply(@add_noise, {varargin});
-end
-
-end
-
-function pix = add_noise(pix, varargin)
-    [pix.signal, pix.variance] = noisify(pix.signal, pix.variance, varargin{:});
-end

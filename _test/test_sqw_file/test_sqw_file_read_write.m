@@ -166,7 +166,7 @@ classdef test_sqw_file_read_write < TestCase
             hdr = wref.experiment_info;
             hdr.expdata(1).efix=130;
             hdr.expdata(1).efix=135; % betting this is {2} like the instrument change below
-            wref = wref.change_header(hdr);
+            wref.experiment_info = hdr;
             inst_arr=create_test_instrument(95,250,'s');
             inst_arr(2)=create_test_instrument(105,300,'a');
 
@@ -182,7 +182,7 @@ classdef test_sqw_file_read_write < TestCase
             hdr = wtmp_ref.experiment_info;
             hdr.instruments{1}=inst_arr(1);
             hdr.instruments{2}=inst_arr(2);
-            wtmp_ref = wtmp_ref.change_header(hdr);
+            wtmp_ref.experiment_info = hdr;
 
             wtmp=set_instrument(wref,@create_test_instrument,[400;105],[500;600],{'s';'a'});
             assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
@@ -202,7 +202,7 @@ classdef test_sqw_file_read_write < TestCase
             hdr = wtmp_ref.experiment_info;
             hdr.instruments{1}=inst_arr(1);
             hdr.instruments{2}=inst_arr(2);
-            wtmp_ref = wtmp_ref.change_header(hdr);
+            wtmp_ref.experiment_info = hdr;
 
             wtmp=set_instrument(wref,@create_test_instrument,400,500,'s');
             assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
@@ -222,7 +222,7 @@ classdef test_sqw_file_read_write < TestCase
             hdr = wtmp_ref.experiment_info;
             hdr.instruments{1}=inst_arr(1);
             hdr.instruments{2}=inst_arr(2);
-            wtmp_ref = wtmp_ref.change_header(hdr);
+            wtmp_ref.experiment_info = hdr;
 
             wtmp=set_instrument(wref,@create_test_instrument,'-efix',500,'s');
             assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')

@@ -28,7 +28,7 @@ else
     if isnumeric(iax) && isvector(iax)    % is non-empty vector (including non-empty scalar)
         if any(mod(iax,1)~=0)||numel(iax)>nd||numel(unique(iax))~=numel(iax)||...
                 any(iax<1)||any(iax>nd)
-            error('Check indicies of axes to be converted')
+            error('Check indices of axes to be converted')
         end
         if any(iax==1), convert_x=true; else convert_x=false; end
         if any(iax==2), convert_y=true; else convert_y=false; end
@@ -40,7 +40,7 @@ end
 % Perform conversion
 wout=win;
 for iw=1:numel(win)
-    [dummy,sz]=dimensions(win(iw));
+    [~,sz]=dimensions(win(iw));
     if convert_x && numel(win(iw).x)==sz(1)
         if numel(win(iw).x)>0
             [wout(iw).x,ok,mess]=bin_boundaries_simple(win(iw).x);

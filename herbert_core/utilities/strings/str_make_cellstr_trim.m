@@ -1,24 +1,60 @@
-function [ok, cout, all_non_empty] = str_make_cellstr_trim (varargin)
-% Try to make a cellstr of strings from a set of input arguments
+function [ok, cstr, all_non_empty, non_empty] = str_make_cellstr_trim (varargin)
+% Make a cellstr of trimmed character vectors from a set of input arguments
+% After trimming leading and trailing whitespace, the function also removes
+% empty character vectors.
 %
-%   >> [ok, cout, all_non_empty] = str_make_cellstr (c1, c2, c3,...)
+%   >> [ok, cstr, all_non_empty, non_empty] = str_make_cellstr_trim (c1, c2, c3,...)
+%
+% Differs from str_make_cellstr, which only removes trailing whitespace from
+% character vectors and does not trim Matlab string objects at all; nor does it
+% remove empty character vectors.
+%
+% See also str_make_cellstr
+%
 %
 % Input:
 % ------
-%   c1,c2,c3,...    Two-dimensional character arrays, cell arrays of strings,
-%                  or string array (Matlab release R2016b onwards)
+%   c1,c2,c3,...    Input text: each can be one of:
+%                   - Character vector (i.e. row vector of characters length >= 0
+%                     or the empty character array, '')
+%                   - Two-dimensional character array
+%                   - Cell array of character vectors
+%                   - strings or string array (Matlab release R2017a onwards)
 %
 % Output:
 % -------
-%   ok              =true if valid input (could all be empty)
-%   cout            Column vector cellstr, with empty entries removed.
-%   all_non_empty   True if all input strings are non-empty, false otherwise
+%   ok              Logical scalar:
+%                   - true if all input arguments were convertible to a cell
+%                     array of character vectors
+%                   - false if conversion not possible
+%
+%   cstr            Column vector cell array of character vectors.
+%                   Uses the Matlab function cellstr to perform the conversion
+%                   on each input argument.
+%                   Trailing whitespace is removed from character vectors and 
+%                   character vectors created from 2D character arrays, but not
+%                   from Matlab string objects.
+%
+%                   If ok is false: (i.e. conversion of all input arguments to 
+%                   character vectors was not possible), then false.
+%
+%   all_non_empty   If ok is true, then all_non_empty is true if all input
+%                       strings are non-empty; false otherwise.
+%                   If ok is false, then all_non_empty is set to false
+%
+%   non_empty       If ok is true: 
+%                   Logical column vector with length equal to the number of
+%                   character vectors in the input cell array, cstr_in, where
+%                   elements are true if the corresponding element of cstr_in is
+%                   non-empty after trimming, and false otherwise
+%
+%                   If ok is false, then all_non_empty is set to false
 
-[ok,cout] = str_make_cellstr (varargin{:});
+
+[ok, cstr] = str_make_cellstr (varargin{:});
 if ok
-    [cout, all_non_empty] = str_trim_cellstr(cout);
+    [cstr, all_non_empty, non_empty] = str_trim_cellstr(cstr);
 else
     all_non_empty = false;
-end
-
+    non_empty = false;
 end

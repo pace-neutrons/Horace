@@ -3,6 +3,6 @@ function data = concatenate_pixel_pages(pix)
 % a single array of data. This returns a raw Matlab array, not a PixelData
 % object
 %
-data = pix.get_fields('all', 'all');
+data = pix.data;
 
 end

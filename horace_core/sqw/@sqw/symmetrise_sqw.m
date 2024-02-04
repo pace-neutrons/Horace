@@ -45,7 +45,8 @@ function wout=symmetrise_sqw(win,varargin)
 
 if numel(win) ~= 1
     error('HORACE:symmetrise_sqw:invalid_argument', ...
-          'symmetrisation only implemented for single sqw object, not arrays of objects. Use a for-loop to deal with arrays');
+          ['symmetrisation only implemented for single sqw object, ' ...
+          'not arrays of objects. Use a for-loop to deal with arrays']);
 end
 
 if ~has_pixels(win)
@@ -113,7 +114,7 @@ cc_ranges = proj.transform_img_to_pix(exp_range);
 % identify intersection points between the image range and the symmetry plane
 if isa(sym, 'SymopReflection')
 
-    cc_exist_range = [cc_ranges];
+    cc_exist_range = cc_ranges;
     for i = 1:fold
         cross_points = box_intersect(cc_ranges, ...
                                  [sym(i).u+sym(i).offset,sym(i).v+sym(i).offset,sym(i).offset]);
@@ -129,7 +130,7 @@ if isa(sym, 'SymopReflection')
     end
 
 else
-    cc_exist_range = [cc_ranges]; % Keep old range
+    cc_exist_range = cc_ranges; % Keep old range
 end
 
 img_box_points = proj.transform_pix_to_img(cc_exist_range);
@@ -157,7 +158,7 @@ for i=1:4
             % Ranges are bin-centres
             new_range_arg{i} = [range(1), step, range(2)];
         else
-            new_range_arg{i} = range
+            new_range_arg{i} = range;
         end
     end
 end

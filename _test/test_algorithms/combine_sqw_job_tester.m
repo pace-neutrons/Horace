@@ -51,7 +51,7 @@ classdef combine_sqw_job_tester < combine_sqw_pix_job
             n_pix_written = n_pix_written+size(pix_section,2);
         end
         %
-        function npix_section = read_npix_block(obj,ibin_start,nbin_buf_size)
+        function npix_section = get_npix_block(obj,ibin_start,nbin_buf_size)
             % Inputs:
             % ibin_start -- first bin to process
             % nbin_buf_size -- number of bins to read and process

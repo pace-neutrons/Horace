@@ -14,6 +14,54 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
             obj.sample_dir = pths.test_common;
             obj.sample_file  = fullfile(obj.sample_dir,'w2d_qe_sqw.sqw');
         end
+        function test_activate_deactivate_new_place(~)
+            test_data = rand(9,100);
+            pix = PixelDataFileBacked(test_data);
+            pix.keep_precision = true;
+            test_file = pix.full_filename;
+
+            pix = pix.deactivate();
+            assertTrue(is_file(test_file))
+            assertTrue(isempty(pix.u1));
+
+            other_file = fullfile(tmp_dir,'testPixelDataFile_activate.bin');
+            movefile(test_file,other_file,'f');
+            pix = pix.activate(other_file);
+            assertEqual(single(test_data),pix.data);
+            assertFalse(pix.is_tmp_obj);
+            assertEqual(pix.full_filename,other_file);
+
+            pix = pix.deactivate();
+            assertTrue(isempty(pix.u2));
+
+            test_file  = other_file;
+            other_file = build_tmp_file_name(test_file);
+            movefile(test_file,other_file,'f');
+            pix = pix.activate(other_file);
+
+            assertEqual(single(test_data),pix.data);
+            assertTrue(pix.is_tmp_obj);
+            clear pix;
+            assertFalse(is_file(other_file));
+        end
+        function test_activate_deactivate_itself(~)
+            test_data = rand(9,100);
+            pix = PixelDataFileBacked(test_data);
+            pix.keep_precision = true;            
+            test_file = pix.full_filename;
+
+            pix = pix.deactivate();
+            assertTrue(is_file(test_file))
+            assertTrue(isempty(pix.u1));
+
+            pix = pix.activate();
+
+            assertEqual(single(test_data),pix.data);
+            assertTrue(pix.is_tmp_obj);
+            clear pix;
+            assertFalse(is_file(test_file));
+        end
+        
 
         function test_get_raw_pix(obj)
             clOb = set_temporary_warning('off','HORACE:old_file_format');
@@ -198,6 +246,47 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
             assertEqual(pdf.pix_range,PixelDataBase.EMPTY_RANGE_)
             assertEqual(pdf.data_range,PixelDataBase.EMPTY_RANGE)
         end
+        function test_tail(~)
+            wkdir = tmp_dir();
+            tmp_file = fullfile(wkdir,'test_tail.bin');
+            clOb = onCleanup(@()del_memmapfile_files(tmp_file));
 
+            npix = 200;
+            ncols = 9;
+            data = rand(ncols,npix);
+            tail_size = 100;
+            [offset,tail_pos]=test_PixelDataFile.write_test_pix_data(tmp_file,data,tail_size);
+
+            data_size = size(data);
+            format1 = {'single',data_size,'data'};
+            fh1 = memmapfile(tmp_file,'format', format1,'Repeat', 1, ...
+                'Writable', true,'offset', offset);
+            pix_data = fh1.Data.data(:,1:npix);
+            assertEqual(pix_data,single(data));
+
+            format2 = {'single',data_size,'data';'uint8',4*double(tail_size),'tail'};
+            fh2 = memmapfile(tmp_file,'format', format2,'Repeat', 1, ...
+                'Writable', true,'offset', offset);
+            pix_data2 = fh2.Data.data(:,1:npix);
+            assertEqual(pix_data2,single(data));
+            clear('fh2');
+            clear('fh1');
+        end
+    end
+    methods(Static,Access=private)
+        function [data_pos,tail_pos] = write_test_pix_data(filename,data,tail_size)
+            fh = fopen(filename,'wb+');
+            if fh<1
+                error('HORACE:test','can not open test file');
+            end
+            clOb = onCleanup(@()fclose(fh));
+            datasize  = size(data);
+            fwrite(fh,datasize,'float32');
+            data_pos = ftell(fh);
+            fwrite(fh,data,'float32');
+            tail_pos = ftell(fh);
+            tail = 1:tail_size;
+            fwrite(fh,tail,'float32');
+        end
     end
 end

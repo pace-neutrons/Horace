@@ -1,8 +1,8 @@
-function wout = replicate (win,wref)
-% Make a higher dimensional dataset from a two dimensional dataset by
+function wout = replicate (win,wref,varargin)
+% Make a higher dimensional dataset from a lower dimensional dataset by
 % replicating the data along the extra dimensions of a reference dataset.
 %
-%   >> wout = replicate (win, wref)
+%   >> wout = replicate (win, wref,varargin)
 %
 % Input:
 % ------
@@ -19,11 +19,19 @@ function wout = replicate (win,wref)
 %           - The data is expanded along the plot axes of wref that are
 %           integration axes of win.
 %           - The annotations etc. are taken from the reference dataset.
+% Optional:
+% '-set_pix'
+%           -- if provided, return full sqw object with pixels providing the
+%              wref impage insead of just dnd object with the same
+%              dimensionality as wref.
 %
 % Output:
 % -------
-%   wout    Output dataset object (or array of objects). It is dnd object
-%           with the same dimensionality as wref.
+%   wout    Output dataset object (or array of objects). It is dnd
+%           object with the same dimensionality as wref. If '-set_pix'
+%           key is provided it also has the same pixels as wref if wref has
+%           pixels, but pixels signal and error are set to form the replicated
+%           image
 %
 % Original author: T.G.Perring
 %
@@ -40,37 +48,45 @@ for i=2:numel(win)
             'Check first input argument - an array of sqw objects must all have the same dimensionality')
     end
 end
+[ok,mess,set_pix] = parse_char_options(varargin,'-set_pix');
+if ~ok
+    error('HORACE:sqw:invalid_argument',mess);
+end
 
 % If came from replicate method of a dnd class, then wref will be dnd-type sqw object
 % Otherwise, could be any sort of object, so check it is an sqw or dnd object, and convert to dnd-type sqw object
-if isscalar(wref) && isa(wref,'sqw')
-    wref_dnd_type=dnd(wref);
-elseif isscalar(wref) && isa(wref,'DnDBase')
-    wref_dnd_type=wref;
-else
+if ~(isscalar(wref) && isa(wref,'SQWDnDBase'))
     error('HORACE:replicate:invalid_argument',...
         'The second argument must be a scalar dnd or sqw object, actually it has %d elements and its type is %s',...
         numel(wref),class(wref));
+else
+    if isa(wref,'sqw')
+        wref_dnd_type = wref.data;
+    else
+        wref_dnd_type = wref;
+    end
 end
 
 
 % Perform replication
 % -------------------
-wout = repmat(wref_dnd_type,size(win));  % wout will be a dnd-type sqw object
+if set_pix
+    wout = repmat(wref,size(win));
+else
+    wout = repmat(wref_dnd_type,size(win));  % wout will be a dnd-type sqw object
+end
 
 for i=1:numel(win)
     dnd_obj = dnd(win(i));
     rep_obj = replicate(dnd_obj,wref_dnd_type);
-    wout(i) = rep_obj;
-    %     % TODO: what about pixels? Should we replicate target pixels too to
-    %     % have fully consistent target sqw object (if target is sqw) with whole
-    %     % pixel informathion
-    %     wout(i).main_header = win(i).main_header;
-    %     wout(i).header = win(i).header;
-    %     wout(i).runid_map = win(i).runid_map;
-    %     wout(i).detpar    = win(i).detpar;
+    if has_pixels(wref) && set_pix
+        wout(i).data.s = rep_obj.s;
+        wout(i).data.e = rep_obj.e;
+        page_op = PageOp_sigvar_set();
+        page_op.in_replicate = true;
+        page_op = page_op.init( wout(i));
+        wout(i)       = sqw.apply_op( wout(i),page_op);
+    else
+        wout(i) = rep_obj;
+    end
 end
-
-% Already DND object. Should it be SQW?
-%wout=dnd(wout);
-

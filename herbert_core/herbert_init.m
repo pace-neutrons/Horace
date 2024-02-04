@@ -1,4 +1,4 @@
-function herbert_init
+function herbert_init(nobaner)
 % Adds the paths needed by Herbert.
 %
 % In your startup.m, add the Horace root path and call horace_on, do not
