@@ -33,6 +33,95 @@ classdef test_replicate< TestCase
         end
 
         % tests
+        function test_replicate_sqw_1Dto2D_dnd_warns(obj)
+            clWarn = set_temporary_warning('off','HORACE:invalid_argument','HORACE:test_warn');
+
+            s2r = replicate(obj.w1,obj.w2);
+            assertTrue(isa(s2r,'d2d'))
+            warning('HORACE:test_warn','issue test warning to check correct warning is issued');
+            s2rd = replicate(obj.w1,obj.w2.data,'-set_pix');
+            assertTrue(isa(s2rd,'d2d'))
+            [~,lwid] = lastwarn;
+            assertEqual(lwid,'HORACE:invalid_argument')
+
+            assertEqual(s2r ,s2rd )
+        end
+
+        function test_replicate_sqw_1Dto2D_sqw_nopix_warns(obj)
+            clWarn = set_temporary_warning('off','HORACE:invalid_argument','HORACE:test_warn');
+
+            s2r = replicate(obj.w1,obj.w2);
+            assertTrue(isa(s2r,'d2d'))
+            w2nop = obj.w2;
+            w2nop.pix = PixelDataMemory();
+            warning('HORACE:test_warn','issue test warning to check correct warning is issued');
+            s2rd = replicate(obj.w1,w2nop,'-set_pix');
+            assertTrue(isa(s2rd,'d2d'))
+            [~,lwid] = lastwarn;
+            assertEqual(lwid,'HORACE:invalid_argument')
+
+            assertEqual(s2r ,s2rd )
+        end
+
+        function test_replicate_dnd_1Dto2D_sqw_nopix_warns(obj)
+            clWarn = set_temporary_warning('off','HORACE:invalid_argument','HORACE:test_warn');
+
+            s2r = replicate(obj.w1,obj.w2);
+            assertTrue(isa(s2r,'d2d'))
+            w2nop = obj.w2;
+            w2nop.pix = PixelDataMemory();
+            warning('HORACE:test_warn','issue test warning to check correct warning is issued');
+            s2rd = replicate(obj.w1.data,w2nop,'-set_pix');
+            assertTrue(isa(s2rd,'d2d'))
+            [~,lwid] = lastwarn;
+            assertEqual(lwid,'HORACE:invalid_argument')
+
+            assertEqual(s2r ,s2rd )
+        end
+
+        function test_replicate_dnd_1Dto2D_dnd_warns(obj)
+            clWarn = set_temporary_warning('off','HORACE:invalid_argument','HORACE:test_warn');
+
+            s2r = replicate(obj.w1,obj.w2);
+            assertTrue(isa(s2r,'d2d'))
+            warning('HORACE:test_warn','issue test warning to check correct warning is issued');
+            s2rd = replicate(obj.w1.data,obj.w2.data,'-set_pix');
+            assertTrue(isa(s2rd,'d2d'))
+            [~,lwid] = lastwarn;
+            assertEqual(lwid,'HORACE:invalid_argument')
+
+            assertEqual(s2r ,s2rd )
+        end
+
+        function test_replicate_dnd_1Dto2D_dnd(obj)
+            s2r = replicate(obj.w1,obj.w2);
+            assertTrue(isa(s2r,'d2d'))
+            s2rd = replicate(obj.w1.data,obj.w2.data);
+            assertTrue(isa(s2rd,'d2d'))
+
+            assertEqual(s2r ,s2rd )
+        end
+
+        function test_replicate_dnd_1Dto2D_eq_sqw(obj)
+
+            s2r = replicate(obj.w1,obj.w2);
+            assertTrue(isa(s2r,'d2d'))
+            s2rd = replicate(obj.w1.data,obj.w2);
+            assertTrue(isa(s2rd,'d2d'))
+
+            assertEqual(s2r ,s2rd )
+        end
+
+        function test_replicate_dnd_1Dto2D_with_pix(obj)
+
+            s2r = replicate(obj.w1,obj.w2,'-set_pix');
+            assertTrue(isa(s2r,'sqw'))
+            s2rd = replicate(obj.w1.data,obj.w2,'-set_pix');
+            assertTrue(isa(s2rd,'sqw'))
+
+            assertEqual(s2r ,s2rd )
+        end
+
         function test_replicate_1Dto2D_with_pix(obj)
 
             d2r = replicate(obj.w1,obj.w2,'-set_pix');

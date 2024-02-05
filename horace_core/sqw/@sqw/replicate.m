@@ -12,7 +12,7 @@ function wout = replicate (win,wref,varargin)
 %           but not the individual pixels.
 %
 %   wref    Reference dataset structure to use as template for expanding the
-%           input straucture. Can be a dnd or sqw dataset.
+%           input structure. Can be a dnd or sqw dataset.
 %           - The plot axes of win must also be plot axes of wref, and the number
 %           of points along these common axes must be the same, although the
 %           numerical values of the coordinates need not be the same.
@@ -70,7 +70,7 @@ end
 
 % Perform replication
 % -------------------
-if set_pix
+if set_pix && wref.has_pixels()
     wout = repmat(wref,size(win));
 else
     wout = repmat(wref_dnd_type,size(win));  % wout will be a dnd-type sqw object
@@ -79,13 +79,25 @@ end
 for i=1:numel(win)
     dnd_obj = dnd(win(i));
     rep_obj = replicate(dnd_obj,wref_dnd_type);
-    if has_pixels(wref) && set_pix
-        wout(i).data.s = rep_obj.s;
-        wout(i).data.e = rep_obj.e;
-        page_op = PageOp_sigvar_set();
-        page_op.in_replicate = true;
-        page_op = page_op.init( wout(i));
-        wout(i)       = sqw.apply_op( wout(i),page_op);
+    if set_pix
+        if has_pixels(wref)
+            wout(i).data.s = rep_obj.s;
+            wout(i).data.e = rep_obj.e;
+            page_op = PageOp_sigvar_set();
+            page_op.in_replicate = true;
+            page_op = page_op.init( wout(i));
+            wout(i)       = sqw.apply_op( wout(i),page_op);
+        else
+            if isa(wref,'DnDBase')
+                explanation ='sqw_ref_object is a dnd object';
+            else
+                explanation ='sqw_ref_object is sqw object without pixels';
+            end
+            warning('HORACE:invalid_argument', ...
+                '-set_pix key is provided as input of replicate(sqw_rep,sqw_ref_object,"-set_pix"), but %s', ...
+                explanation)
+            wout(i) = rep_obj;
+        end
     else
         wout(i) = rep_obj;
     end
