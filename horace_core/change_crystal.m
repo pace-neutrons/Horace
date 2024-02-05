@@ -13,7 +13,7 @@ function out = change_crystal(in_data,alignment_info,varargin)
 %                    filename or cellarray of filenames containing sqw/dnd
 %                    objects.
 %
-% alignment_info -- crystal_alignment_info class helper containing all
+% alignment_info -- crystal_alignment_info class -- helper containing all
 %                   information about crystal realignment, produced by
 %                   refine_crystal procedure.
 %
@@ -35,12 +35,14 @@ function out = change_crystal(in_data,alignment_info,varargin)
 % -------
 %   out        Output sqw object with changed crystal lattice parameters and orientation
 %              or cellarray contaning such objects.
+%              Must be provided if input contains filebacked sqw objects.
 %
 % NOTE
-%  The input data set(s) can be reset to their original orientation by inverting the
-%  input data i.e. providing alignment_info with original alatt and angdeg
-%  and rotvec describing 3-D rotation in the direction opposite to initial
-%  direction. (rovect_inv = -rotvec_alignment)
+%  The input data set(s) can be reset to their original orientation by
+%  providing input data which correspond to aligingment to initial state
+%  i.e. providing 'crystl_alignment_info' with original alatt and angdeg
+%  and rotvec describing 3-D rotation in the direction opposite to the
+%  alignment direction i.e. rovect_inv = -rotvec_alignment.
 %
 
 % Original author: T.G.Perring
