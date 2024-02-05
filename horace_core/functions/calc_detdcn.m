@@ -26,6 +26,10 @@ function detdcn = calc_detdcn(det,varargin)
 ex = cosd(det.phi);
 ey = sind(det.phi).*cosd(det.azim);
 ez = sind(det.phi).*sind(det.azim);
+% the assumption here is that det will have row vectors, however it is now
+% veru possible that they may be columns. So convert ex/y/z to rows
+ex = ex(:); ey = ey(:); ez = ez(:); % ensure columns
+ex = ex';   ey = ey';   ez = ez';   % and ensure rows
 if nargin == 1
     detdcn = [ex;ey;ez];
 else

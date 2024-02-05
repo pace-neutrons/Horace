@@ -188,6 +188,10 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
             rd = rundatah(test_file,ds);
             rd = rd.load();
+            % this is needed to fix one bug; see use of rundata.get_det_par_rows()
+            % for where this causes further problems and the rows call fixes that.
+            %TODO fix the mex call calc_projections_c to make this unnecessary
+            rd.loader.detpar_loader = rd.loader.detpar_loader.columnize_detpar();
 
             clob = set_temporary_config_options(hor_config, ...
                                                 'use_mex', false, ...
