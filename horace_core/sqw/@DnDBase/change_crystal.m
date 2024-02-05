@@ -40,7 +40,10 @@ for i=1:numel(obj)
         rlu_corr = this_alignment.get_corr_mat(obj.proj);
         rlu_to_u = wout(i).proj.bmatrix();
         proj = wout(i).proj;
+        % img_offset is not the property of the projection but if it was: 
         %proj.img_offset(1:3)=rlu_corr*wout(i).img_offset(1:3)';
+        % here we apply modifications to image_offset converting it into 
+        % offset (hkle)
         proj.offset = 0;
         proj.alatt  = alatt;
         proj.angdeg = angdeg;
