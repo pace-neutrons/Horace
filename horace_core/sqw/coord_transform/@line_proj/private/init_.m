@@ -42,12 +42,6 @@ if ismember('type',text_in) || ... % defined as key-value pair
     obj.type_is_defined_explicitly_ = true;
 end
 is_uoffset = ismember(text_in,'uoffset');
-is_img_offset = ismember(text_in,'img_offset');
-if any(is_uoffset) && any(is_img_offset)
-    error('HORACE:line_proj:invalid_argument',...    
-        'only one key describing image offset (img_offset or uoffset) may be provided as input')
-end
-is_uoffset = is_uoffset | is_img_offset;
 if any(is_uoffset)
     uoffset_provided = true;
     uoffset_nval = find(is_uoffset)+1;
@@ -66,5 +60,5 @@ if ~isempty(remains)
         disp2str(remains));
 end
 if uoffset_provided
-    obj.img_offset = varargin{uoffset_nval};
+    obj.offset = varargin{uoffset_nval};
 end

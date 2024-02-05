@@ -41,12 +41,20 @@ for i=1:numel(obj)
         rlu_corr = this_alignment.get_corr_mat(obj.proj);
         rlu_to_u = wout(i).proj.bmatrix();
         proj = wout(i).proj;
-        proj.img_offset(1:3)=rlu_corr*wout(i).img_offset(1:3)';
-        proj = proj.set_ub_inv_compat(rlu_corr/rlu_to_u);
-        wout(i).proj = proj;
+        % img_offset is not the property of the projection but if it was: 
+        %proj.img_offset(1:3)=rlu_corr*wout(i).img_offset(1:3)';
+        % here we apply modifications to image_offset converting it into 
+        % offset (hkle)
+        proj.offset = 0;
+        proj.alatt  = alatt;
+        proj.angdeg = angdeg;
+        img_offset     = wout(i).img_offset;        
+        new_img_offset = rlu_corr*img_offset(1:3)';
+        proj           = proj.set_ub_inv_compat(rlu_corr/rlu_to_u);
+        offset = proj.transform_img_to_hkl(new_img_offset(:));
+        proj.offset    = [offset;img_offset(4)];
         %
-        wout(i).alatt=alatt;
-        wout(i).angdeg=angdeg;
+        wout(i).proj = proj;        
     else
         [wout(i).proj,wout(i).axes] = wout(i).proj.align_proj(alignment_info,wout(i).axes);
     end

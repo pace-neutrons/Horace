@@ -32,8 +32,6 @@ classdef aProjectionBase < serializable
         %
         offset;     % Offset of origin of the projection in r.l.u.
         %           % and energy i.e. [h; k; l; en] [row vector]
-        img_offset; % Convenience property, providing/accepting the offset
-        %           % expressed in the image coordinate system.
         %---------------------------------
         label % the method which allows user to change labels present on a
         %      cut
@@ -121,8 +119,8 @@ classdef aProjectionBase < serializable
         lattice_defined_= [false,false];
         %------------------------------------
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        offset_  = [0,0,0,0] %Offset of origin of projection axes in image units
-        % e.g. r.l.u. and energy [h; k; l; en] [row vector]
+        offset_  = [0,0,0,0] %Offset of origin of projection axes in 
+        % r.l.u. and energy [h; k; l; en] [row vector]
         %
         label_  = {'Q_h','Q_k','Q_l','En'};
         title_ ='';
@@ -148,10 +146,6 @@ classdef aProjectionBase < serializable
         % algorithmically simpler so actively used in tests.
         do_3D_transformation_ = true;
         %------------------------------------------------------------------
-        % temporary variable used to keep img_offset if one is set to the
-        % projection, until hkl offset can be properly calculated (lattice
-        % and coordinate transformations are fully defined)
-        tmp_img_offset_holder_ = [];
     end
     %======================================================================
     % ACCESSORS AND CONSTRUCTION
@@ -254,38 +248,9 @@ classdef aProjectionBase < serializable
         end
         function obj = set.offset(obj,val)
             obj.offset_ = check_offset_(obj,val);
-            obj.tmp_img_offset_holder_ = []; % just in case if you set up
             % one and then another but reconciliation have not happened yet
             if obj.do_check_combo_arg_ % does nothing here, but
                 % will recalculate caches in children
-                obj = obj.check_combo_arg();
-            end
-        end
-        function uoffset = get.img_offset(obj)
-            % convert hkl offset into Crystal Cartesian
-            if ~isempty(obj.tmp_img_offset_holder_)
-                uoffset = obj.tmp_img_offset_holder_(:)';
-                return;
-            end
-            if ~obj.alatt_defined || ~obj.angdeg_defined
-                uoffset = [];
-                return;
-            end
-            uoffset  = zeros(1,4);
-            hkl_offset = obj.offset_(:)';
-            if ~isequal(hkl_offset,uoffset)
-                % nullify internal offset to kill side effects of offset to
-                % pix->img transformation. Results are local anyway.
-                obj.offset = zeros(1,4);
-                pix_offset_cc = obj.bmatrix(4)*hkl_offset(:);
-                uoffset = (obj.transform_pix_to_img(pix_offset_cc))';
-            end
-        end
-        function obj = set.img_offset(obj,val)
-            % check common offset properties (shape, size) numeric value
-            % and set offset_ in invalid units
-            obj.tmp_img_offset_holder_ = check_offset_(obj,val);
-            if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
@@ -378,10 +343,10 @@ classdef aProjectionBase < serializable
         end
         % OLD sqw object creation interface.
         function off = get.uoffset(obj)
-            off = obj.img_offset;
+            off = obj.offset;
         end
         function obj = set.uoffset(obj,val)
-            obj.img_offset = val;
+            obj.offset = val;
         end
         function name = get.axes_name(obj)
             name = get_axes_name(obj);
@@ -1021,24 +986,6 @@ classdef aProjectionBase < serializable
         end
         function  flds = saveableFields(~)
             flds = {'alatt','angdeg','offset','label','title'};
-        end
-        % validation
-        function obj = check_combo_arg (obj)
-            % check if the img_offset has been set and transform it into
-            % hkl offset if all necessary class properties are defined
-            if ~isempty(obj.tmp_img_offset_holder_) && obj.alatt_defined && obj.angdeg_defined
-                img_offset_ = obj.tmp_img_offset_holder_(:);
-
-                % Extract existing offset here to add it in the transformation
-                offset_cc = obj.bmatrix(4)*obj.offset_(:);
-                img_offset_here_ = obj.transform_pix_to_img(offset_cc);
-                img_offset_ = img_offset_- img_offset_here_;
-
-                % transform offset into hkl coordinate system and set it
-                % using public interface (check interdependent properties)
-                obj.offset  = (obj.transform_img_to_hkl(img_offset_))';
-                obj.tmp_img_offset_holder_ = [];
-            end
         end
     end
 end
