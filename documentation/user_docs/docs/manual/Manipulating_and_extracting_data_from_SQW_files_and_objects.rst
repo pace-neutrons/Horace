@@ -79,8 +79,7 @@ The ``line_proj`` structure has several mandatory fields:
   3-vector of (h,k,l) in the plane of the second viewing axis.
 
   The second viewing axis is constructed to be in the plane of ``proj.u`` and
-  ``proj.v`` and perpendicular to ``proj.u``.  The the third viewing axes is
-  defined as the cross product of the first two. The 4th axis is always energy
+  ``proj.v`` and perpendicular to ``proj.u``. The 4th axis is always energy
   and need not be specified.
 
 .. note::
@@ -107,8 +106,20 @@ The ``line_proj`` structure has several mandatory fields:
    such that ``proj.u`` = :math:`(1,0,0)` and ``proj.v`` = :math:`(0,1,0)`. The
    reciprocal space projection will actually be skewed according to ``angdeg``.
 
+.. warning::
+
+   The vectors ``u`` and ``v`` must not be collinear. An error will be thrown in
+   this case.
 
 There are optional fields too:
+
+* ``proj.w``
+
+  3-vector of (h,k,l) in the plane of the third viewing axis.
+
+  .. note::
+
+     If you do not specify ``w``, ``w`` will default to ``u`` x ``v``.
 
 * ``proj.uoffset``
 
@@ -133,25 +144,27 @@ There are optional fields too:
   For example, if we wanted the first two **Q**-components to be in r.l.u. and
   the third to be in inverse Angstroms we would have ``proj.type = 'rra'``.
 
-You may optionally choose to use non-orthogonal axes:
+* ``'nonorthogonal'``
 
-.. code-block:: matlab
+  You may optionally choose to use non-orthogonal axes:
 
-   proj = line_proj([1 0 0], [0 1 0], [0 0 1], 'nonorthogonal', true);
+  .. code-block:: matlab
 
-If you don't specify ``nonorthogonal``, or set it to ``false``, you will get
-orthogonal axes defined by ``u`` and ``v`` normal to ``u`` and ``u`` x
-``v``. Setting ``nonorthogonal`` to true forces the axes to be exactly the ones
-you define, even if they are not orthogonal in the crystal lattice basis.
+     proj = line_proj([1 0 0], [0 1 0], [0 0 1], 'nonorthogonal', true);
 
-.. warning::
+  If you don't specify ``nonorthogonal``, or set it to ``false``, you will get
+  orthogonal axes defined by ``u`` and ``v`` normal to ``u`` and ``u`` x
+  ``v``. Setting ``nonorthogonal`` to ``true`` forces the axes to be exactly the
+  ones you define, even if they are not orthogonal in the crystal lattice basis.
 
-   Any plots produced using a non-orthogonal basis will plot them as though the
-   basis vectors are orthogonal, so features may be skewed.
+  .. warning::
 
-   The benefit to this is that it makes reading the location of a feature in a
-   two-dimensional **Q**-**Q** plot straightforward. This is the main reason for
-   treating non-orthogonal bases this way.
+     Any plots produced using a non-orthogonal basis will plot them as though the
+     basis vectors are orthogonal, so features may be skewed.
+
+     The benefit to this is that it makes reading the location of a feature in a
+     two-dimensional **Q**-**Q** plot straightforward. This is the main reason for
+     treating non-orthogonal bases this way.
 
 Spherical Projections
 ---------------------
