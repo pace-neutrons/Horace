@@ -1,6 +1,6 @@
 function out = change_crystal(in_data,alignment_info,varargin)
-% Change the crystal lattice and orientation of an sqw/dnd objects or
-% sqw/dnd object  stored in a file or celarray of files
+% Change the crystal lattice and orientation of sqw/dnd object or objects
+% placed in various type of containers.
 %
 % Usage:
 %   >>change_crystal (in_data, alignment_info,varargin);
@@ -9,20 +9,27 @@ function out = change_crystal(in_data,alignment_info,varargin)
 %
 % Input:
 % -----
-%  in_data       --  Input sqw object, cellarray of sqw/dnd objects or
-%                     cellarray of files containing sqw/dnd objects.
+%  in_data       --  Input sqw.dnd object, cellarray of sqw/dnd objects or
+%                    filename or cellarray of filenames containing sqw/dnd
+%                    objects.
 %
-% alignment_info -- class helper containing all information about crystal
-%                   realignment, produced by refine_crystal procedure.
+% alignment_info -- crystal_alignment_info class helper containing all
+%                   information about crystal realignment, produced by
+%                   refine_crystal procedure.
 %
 %              do:
-%              >> help refine_crystal  for more details.
+%              >> help refine_crystal
+%              or
+%              >> help crystal_alignment_info
+%              for more details.
 % Optional:
-% '-dnd_only'   -- align only dnd-part of the object. Algorithm will fail
-%                  if applied to .sqw files containing sqw objects.
+% '-dnd_only'   -- Align only dnd object, so will work on files
+%                  or cellarray of objects contaning dnd objects only.
+%                  Algorithm will fail if applied to .sqw files or cellarrays
+%                  containing sqw objects.
 % '-sqw_only'   -- align only sqw objects or files containing sqw objects.
-%                  Throw error if dnd object or dnd file is provided as
-%                  input.
+%                  Throw error if dnd object (as member of cellarray) or
+%                  dnd object in .sqw file is provided as input.
 %
 % Output:
 % -------
