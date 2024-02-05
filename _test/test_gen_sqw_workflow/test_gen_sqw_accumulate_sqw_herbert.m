@@ -166,7 +166,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             % Accumulate headers job. Test components.
             %write_nsqw_to_sqw(infiles,'test_sqw_file.sqw');
             %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
-            [~,~,~,~,~,~,~,ldrs] = accumulate_headers_job.read_input_headers(tmp_files);
+            [~,~,~,~,~,~,ldrs] = accumulate_headers_job.read_input_headers(tmp_files);
             %
             data_range = PixelDataBase.EMPTY_RANGE;
             for i=1:numel(tmp_files)
