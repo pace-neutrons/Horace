@@ -32,10 +32,3 @@ non_empty = ~cellfun(@isempty, cstr);
 
 all_non_empty = all(non_empty);
 cstr = cstr(non_empty);
-
-
-function is = str_is_cellstr(strin)
-is = iscell(strin);
-if ~is; return; end
-all_str = cellfun(@istext,strin);
-is = all(all_str);
