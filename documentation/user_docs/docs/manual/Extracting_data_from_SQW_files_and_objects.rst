@@ -75,8 +75,8 @@ object stored in memory from which the pixels will be taken.
 Projection
 ----------
 
-This defines the coordinate and thus binning system you will use to plot and analyse the
-data.
+This defines the coordinate and thus the meaning of the binning you provided as arguments to `cut` and 
+will use to plot and analyse the data.
 
 ``proj`` should be an child of a ``aProjectionBase`` class (such as ``line_proj``,
 ``sphere_proj``, etc.) containing information about the the coordinate
@@ -87,7 +87,7 @@ system you wish to use to plot and analyse the data.
    Because each point of ``sqw.pix`` data describes the
    position in the reciprocal space and energy transfer, the underlying pixels will be
    unchanged. For image (``dnd`` object) it is possible to redefine the coordinate system with the one of
-   your choice; the projection merely describes how pixels will be accumulated
+   your choice; the projection and bining parameters merely describe how pixels will be accumulated
    (binned) and thus displayed in image coordinate system.
 
 
@@ -361,8 +361,8 @@ and ``sp_proj.offset == [0,0,0,0]``  Cut produces:
 To the experts in the field this picture shows that the energies of phonons excitations are located under 50meV, some magnetic
 scattering is present at |Q| < 5 and spin waves at high |Q| are suppressed by magnetic form factor.
 
-Using spherical projection we can conveniently investigate the details of the particular spin wave
-presented on the images produced using linear projection above, i.e. around the scattering point :math:`[0,-1,1]`. 
+Using spherical projection we can conveniently investigate the details of the particular spin wave branches taken from 
+the objects produced using linear projection above, i.e. around the scattering point :math:`[0,-1,1]`. 
 
 .. code-block:: matlab
 
