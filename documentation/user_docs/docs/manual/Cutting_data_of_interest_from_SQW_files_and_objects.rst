@@ -9,7 +9,7 @@ Cutting data of interest from SQW files and objects
 .. role:: matlab(code)
    :language: matlab
 
-Normally the whole data produced in neutron experiment are too large to fit the memory 
+Normally the whole data produced in neutron experiment are too large to fit the memory
 of majority of modern computers. Horace have stored them in large 4-D dataset, containing full information about experiment,
 4-Dimensional image of reciprocal space ``hkl-dE`` covered during experiment and neutron events registered during experiment.
 User operates with number of smaller objects, extracted from this dataset using various forms of ``cut`` command.
@@ -23,7 +23,7 @@ cut
 ``dnd`` file and converts it to an object of the same or reduced size and dimensions.
 The resulting cut object is itself an ``sqw`` or ``dnd`` object which can be plotted, manipulated,
 etc. like any other ``sqw`` or ``dnd`` object. If the resulting object is itself too big to fit memory,
-it will be backed by appropriate ``sqw`` file. 
+it will be backed by appropriate ``sqw`` file.
 The required inputs are as follows:
 
 .. note::
@@ -38,7 +38,7 @@ The required inputs are as follows:
 where ``varargin`` describes optional arguments and may contain:
 
   ``-nopix``   -- the key requests that the cut should contain just image (``dnd`` object) and drop all pixels contributing into this image. This  option is faster but should not be used if you want to do subsequent cuts from the resulting cut ``my_cut``.
-  
+
   ``filename`` -- if provided, requests that the resulting file is backed by the file with the ``filename``. This option is mandatory if cut is called without output argument.
 
 Cutting consists of a rebinning of the pixels into the bins specified by the cut
@@ -62,8 +62,8 @@ object stored in memory from which the pixels will be taken.
 Projection (proj)
 -----------------
 
-Second argument defines the coordinate system and thus the meaning of the 
-`Binning arguments`_ you provided as arguments to `cut` and will 
+Second argument defines the coordinate system and thus the meaning of the
+`Binning arguments`_ you provided as arguments to `cut` and will
 use to plot and analyse the data.
 
 ``proj`` should be an child of a ``aProjectionBase`` class (such as ``line_proj``,
@@ -77,7 +77,7 @@ system you wish to use to plot and analyse the data.
    unchanged. For image (``dnd`` object) it is possible to redefine the coordinate system with the one of
    your choice; the projection and binning parameters merely describe how pixels will be accumulated
    (binned) and thus displayed in image coordinate system.
-   
+
 Different projections in more details are covered in `Projection in more details`_ chapter below.
 
 
@@ -85,7 +85,7 @@ Binning arguments
 -----------------
 
 Specify the binning / integration ranges for the ``Q&Energy`` axes in the
-target coordinate system. 
+target coordinate system.
 
 .. code-block:: matlab
 
@@ -145,13 +145,13 @@ cut is what you expect.
 
   A four-component binning axis defines **multiple** cuts with **multiple**
   integration limits in the selected direction.  These components are:
-  
+
 .. code-block:: matlab
 
   * `lower`      -- % minimum cut bin-centre
   * `separation` -- % distance between cut bin-centres
   * `upper`      -- % approximate maximum cut bin-centre
-  * `cut_width`  -- % half-width of each cut from each bin-centre in both directions
+  * `cut_width`  -- % width of each cut, centred on each bin-centre, thus extending one half-width in both directions
 
 The number of cuts produced will be the number of ``separation``-sized steps
 between ``lower`` and ``upper``.
@@ -163,20 +163,20 @@ between ``lower`` and ``upper``.
    divides ``upper - lower``.  For example, ``[106, 4, 113, 2]`` defines the
    integration ranges for three cuts, the first cut integrates the axis over
    ``105-107``, the second over ``109-111`` and the third ``113-115``.
-   
+
 Filebacked and memory based cuts
 --------------------------------
 
-By default, ``cut`` attempts to put its result i.e. the image and all pixels contributed into image in memory. 
-Pixels from large cuts would not fit memory. For this reason, if size of cut exceeds the specified size, 
-the pixels are backed by file. If the ``filename`` option is provided, the file has this name, and if not, 
-the file will have name of the source file and random extension in the form ``.tmp_XXXXXXX`` where 
-``XXXXXXX`` are random letters and numbers. This file gets deleted if ``sqw`` object-cut result 
+By default, ``cut`` attempts to put its result i.e. the image and all pixels contributed into image in memory.
+Pixels from large cuts would not fit memory. For this reason, if size of cut exceeds the specified size,
+the pixels are backed by file. If the ``filename`` option is provided, the file has this name, and if not,
+the file will have name of the source file and random extension in the form ``.tmp_XXXXXXX`` where
+``XXXXXXX`` are random letters and numbers. This file gets deleted if ``sqw`` object-cut result
 which the file backs gets deleted unless you :ref:`manual/Save_and_load:save` this object in file with permanent file name.
 
-The options which define the number of pixels after which resulting cut becomes filebacked 
-are defined in the configuration namely ``hor_config`` class. 
-The options are ``mem_chunk_size`` and ``fb_scale_factor``. If the number of pixels in cut exceeds 
+The options which define the number of pixels after which resulting cut becomes filebacked
+are defined in the configuration namely ``hor_config`` class.
+The options are ``mem_chunk_size`` and ``fb_scale_factor``. If the number of pixels in cut exceeds
 ``mem_chunk_size*fb_scale_factor``,
 the pixels are dropped to file and the ``sqw`` object obtained ast the result of ``cut`` becomes filebacked.
 
@@ -184,11 +184,11 @@ the pixels are dropped to file and the ``sqw`` object obtained ast the result of
 Projection in more details
 ---------------------------
 
-As it is said before, the ``proj`` argument of the cut describes the coordinate system, you want to get the image of 
+As it is said before, the ``proj`` argument of the cut describes the coordinate system, you want to get the image of
 your cut object in.
 
-Historically, Horace ``cut_sqw`` and ``cut_dnd`` algorithms were accepting a structure with fields ``u``, ``v`` etc. (see below) 
-defining linear (:math:`hkle`) coordinate system, which is similar or may be rotated with regards to 
+Historically, Horace ``cut_sqw`` and ``cut_dnd`` algorithms were accepting a structure with fields ``u``, ``v`` etc. (see below)
+defining linear (:math:`hkle`) coordinate system, which is similar or may be rotated with regards to
 initial coordinate system produced by ``gen_sqw`` algorithm.  This coordinate system is now defined using ``line_proj`` class.
 You still can use the structure with the appropriate fields, so if you define the ``cut`` input ``proj`` as a structure with
 the same fields as ``line_proj`` below the ``line_proj`` will be constructed from these fields internally within ``cut`` algorithm.
@@ -207,33 +207,33 @@ form two to five of them.
 .. code-block:: matlab
 
    proj = line_proj(u,v,w,nonorthogonal,type,alatt,angdeg,offset,label,title,lab1,lab2,lab3,lab4);
-   
+
 Where:
 
 .. code-block:: matlab
 
-	'u' --  % reciprocal vector for first viewing axis.	
-	'v' --  % reciprocal vector for second viewing axis.
-	'w' --  % optional reciprocal vector of third axis.	
-	        % See more information about these vectors below. 
-	'nonorthogonal' -- true of false % defines treatment of the lattice vectors.	
-	'type'   -- % the type of the projection normalization i.e. `aaa`, `rrr`, `ppp` 
-	            % or the combinations of these letters.
-	'alatt'  -- % three components of lattice parameters.	
-	'angdeg' -- % three components of lattice angles. 	
-	%           %  One do not need to define these vectors for cut unless he wants 
-	%           %  to use projection class separately.
-	%           %  The vectors will be taken from lattice defined in 
-	%           %   ``sqw`` object.
-	'offset' -- % centre of the projection coordinate system in (h,k,l,dE) coordinate system. 	
-	'label'  -- % 4-element cellarray containing captions for axes of target ``sqw`` object.	
-	'title'  -- % the string to place as the title of the plot you would
-	%           % make from the ``sqw`` or ``dnd`` object resulting from cut.	
-	'lab1-n' -- % separate components of the projection label.
+        'u' --  % reciprocal vector for first viewing axis.
+        'v' --  % reciprocal vector for second viewing axis.
+        'w' --  % optional reciprocal vector of third axis.
+                % See more information about these vectors below.
+        'nonorthogonal' -- true of false % defines treatment of the lattice vectors.
+        'type'   -- % the type of the projection normalization i.e. `aaa`, `rrr`, `ppp`
+                    % or the combinations of these letters.
+        'alatt'  -- % three components of lattice parameters.
+        'angdeg' -- % three components of lattice angles.
+        %           %  One do not need to define these vectors for cut unless he wants
+        %           %  to use projection class separately.
+        %           %  The vectors will be taken from lattice defined in
+        %           %   ``sqw`` object.
+        'offset' -- % centre of the projection coordinate system in (h,k,l,dE) coordinate system.
+        'label'  -- % 4-element cellarray containing captions for axes of target ``sqw`` object.
+        'title'  -- % the string to place as the title of the plot you would
+        %           % make from the ``sqw`` or ``dnd`` object resulting from cut.
+        'lab1-n' -- % separate components of the projection label.
 
 Empty ``line_proj`` constructor builds ``line_proj`` with ``u=[1,0,0]`` and ``v=[0,1,0]``.
 Like the majority of Horace objects, you may build ``line_proj`` providing some positional parameters in
-order of their following in constructor and then provide any optional parameters as key-value pairs e.g. 
+order of their following in constructor and then provide any optional parameters as key-value pairs e.g.
 the constructor:
 
 .. code-block:: matlab
@@ -264,7 +264,7 @@ Alternatively you may define some parameters in constructor, and then set other 
    proj.offset = [1,0,0];
 
 
-The most important fields of ``line_proj`` constructor are the fields, which define the 
+The most important fields of ``line_proj`` constructor are the fields, which define the
 the position of the plain you want to cut. These fields are ``u`` and ``v``:
 
 * ``proj.u`` --   3-vector of :math:`[h,k,l]` specifying first viewing axis.
@@ -281,7 +281,7 @@ the position of the plain you want to cut. These fields are ``u`` and ``v``:
    and ``v`` that are specified in :ref:`gen_sqw
    <manual/Generating_SQW_files:gen_sqw>`, which describe how the crystal is
    oriented with respect to the spectrometer and are determined by the physical
-   orientation of your sample. Like ``u`` and ``v`` vectors used during ``.sqw`` file 
+   orientation of your sample. Like ``u`` and ``v`` vectors used during ``.sqw`` file
    generation these vectors can not be parallel.
 
 .. note::
@@ -345,59 +345,59 @@ you define, even if they are not orthogonal in the crystal lattice basis.
    The benefit to this is that it makes reading the location of a feature in a
    two-dimensional **Q**-**Q** plot straightforward. This is the main reason for
    treating non-orthogonal bases this way.
-   
+
 ``line_proj`` 2D cut example:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Let's have a look at scattering function of iron dataset. The reduced part of this dataset
-is provided as demonstration dataset in Horace demo folder available on Github. The 
-iron crystal has been aligned along [1,0,0] axis, so to see the part of the reciprocal space 
+is provided as demonstration dataset in Horace demo folder available on Github. The
+iron crystal has been aligned along [1,0,0] axis, so to see the part of the reciprocal space
 as viewed from sample position, one needs to make cut along [0,1,0],[0,0,1] directions:
 
 .. code-block::matlab
 
-	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
-	proj  = line_proj([0,1,0],[0,0,1]);
-	proj.type = 'aaa';
-	w2    = cut(data_source,proj,[-4.5,0.1,14.5],[-5,0.1,5],[-0.1,0.1],[-10,10]);
-	plot(w2);
+        data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+        proj  = line_proj([0,1,0],[0,0,1]);
+        proj.type = 'aaa';
+        w2    = cut(data_source,proj,[-4.5,0.1,14.5],[-5,0.1,5],[-0.1,0.1],[-10,10]);
+        plot(w2);
 
-The code produces: 
+The code produces:
 
-.. figure:: ../images/iv_hkl.png 
+.. figure:: ../images/iv_hkl.png
    :align: center
    :width: 800px
    :alt: 2d cut
 
    MAPS; slice of reciprocal space covered by the instrument for iron dataset with input neutron energy 401meV. Elastic line.
-   
-The cut with the same parameters as above at higher energy transfer 
+
+The cut with the same parameters as above at higher energy transfer
 (:matlab:`w2 = cut(data_source,proj,[-4.5,0.1,14.5],[-5,0.1,5],[-0.1,0.1],[50,60]);`) shows clear spin waves:
 
-.. figure:: ../images/iv_hkl_dE.png 
+.. figure:: ../images/iv_hkl_dE.png
    :align: center
    :width: 800px
    :alt: 2d cut instrument view energy transfer.
 
    MAPS; slice of reciprocal space covered by the instrument for iron dataset with input neutron energy 401meV. Energy transfer [50-60]meV.
-   
+
 ``line_proj`` 1D cut example:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   
+
 The sample cut along the direction :math:`[1,1,0]` i.e. the diagonal of the figure above shows the intensity of the spin wave:
 
 .. code-block::matlab
 
-	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
-	proj  = line_proj([1,1,0],[-1,1,0],'offset',[-1,1,0]);
-	w1    = cut(data_source,proj,[-5,0.1,5],[-0.1,0.1],[-0.1,0.1],[-50,60]);
-	plot(w1);
+        data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+        proj  = line_proj([1,1,0],[-1,1,0],'offset',[-1,1,0]);
+        w1    = cut(data_source,proj,[-5,0.1,5],[-0.1,0.1],[-0.1,0.1],[-50,60]);
+        plot(w1);
 
-.. figure:: ../images/Fe_cut1D.png  
+.. figure:: ../images/Fe_cut1D.png
    :align: center
    :width: 800px
    :alt: 1d cut along diagonal.
-   
+
    MAPS; 1D cut along the the diagonal of 2D image above.
 
 
@@ -409,10 +409,10 @@ In order to construct a spherical projection, i.e. a projection in
 projection in a similar way to other projections, but instead use ``sphere_proj`` class:
 
 .. code-block:: matlab
- 
+
     sp_pr = sphere_proj()
-    sp_pr =      
-       sphere_proj with properties:   
+    sp_pr =
+       sphere_proj with properties:
              ez: [1 0 0]
              ex: [0 1 0]
            type: 'add'
@@ -422,22 +422,22 @@ projection in a similar way to other projections, but instead use ``sphere_proj`
           label: {'|Q|'  '\theta'  '\phi'  'En'}
           title: ''
 
-Projection's lattice parameters (``alatt`` and ``angdeg``) are taken within the ``cut`` from source ``sqw`` object. 
+Projection's lattice parameters (``alatt`` and ``angdeg``) are taken within the ``cut`` from source ``sqw`` object.
 You need to set them up manually only if you intend to use the projection separately in your custom code.
 
-The projection defines spherical coordinates system, where :math:`\theta` angle is 
-measured from z-axis directed along :math:`e_z` vector of the 
+The projection defines spherical coordinates system, where :math:`\theta` angle is
+measured from z-axis directed along :math:`e_z` vector of the
 projection and changes from :math:`0` to :math:`180^o`. :math:`\phi` angle is measured
-from :math:`r_x` vector of the projection and changes from :math:`-180^o` to :math:`180^o`. 
+from :math:`r_x` vector of the projection and changes from :math:`-180^o` to :math:`180^o`.
 Spherical projection :math:`r_x` vector corresponds to ``sphere_proj`` class :math:`e_x` vector
 for orthogonal reciprocal lattice. If reciprocal lattice is non-orthogonal, the :math:`e_x`-vector
-of spherical projection defines the :math:`z-x` plane of spherical coordinate system and :math:`r_x` 
+of spherical projection defines the :math:`z-x` plane of spherical coordinate system and :math:`r_x`
 vector is build in this plane but orthogonal to :math:`e_z` vector.
 
-.. figure:: ../images/spher_coordinates.png 
+.. figure:: ../images/spher_coordinates.png
    :align: center
    :width: 800px
-   :alt: spherical coordinate system. 
+   :alt: spherical coordinate system.
 
    Spherical coordinate system used by ``sphere_proj`` in case of orthogonal and non-orthogonal reciprocal lattice. In latter case vectors :math:`e_x,e_z` define the plane where orthogonal to :math:`e_z` x-axis (:math:`r_x` on the picture) of spherical coordinate system lies.
 
@@ -459,25 +459,25 @@ arguments of ``cut`` no longer refer to :math:`h,k,l,E`, but to |Q|,
 
 The structure of the arguments to cut is still the same (see `Binning arguments`_)
 
-By default a ``sphere_proj`` will define its principal axes :math:`e_z` and :math:`e_x` or rather 
-:math:`r_x` for angular integration (:math:`\theta`, :math:`\phi`) along 
-defined :math:`hkl` directions :math:`[1,0,0] (e_z)` and :math:`[0,1,0] (e_x)`. Using ``sphere_proj`` 
+By default a ``sphere_proj`` will define its principal axes :math:`e_z` and :math:`e_x` or rather
+:math:`r_x` for angular integration (:math:`\theta`, :math:`\phi`) along
+defined :math:`hkl` directions :math:`[1,0,0] (e_z)` and :math:`[0,1,0] (e_x)`. Using ``sphere_proj``
 properties :math:`e_z` and :math:`e_x` spherical coordinate system may be reoriented to any
-reciprocal lattice direction. Naturally, :math:`e_z` and :math:`e_x` vectors can not be parallel. 
-   
-   
+reciprocal lattice direction. Naturally, :math:`e_z` and :math:`e_x` vectors can not be parallel.
+
+
 ``sphere_proj`` 2D and 1D cuts samples:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Spherical projection allows you to obtain powder average. Note that binning ranges are specified in 
-target coordinate system. Energy transfer by default is expressed in inverse Angstroms and angles 
+Spherical projection allows you to obtain powder average. Note that binning ranges are specified in
+target coordinate system. Energy transfer by default is expressed in inverse Angstroms and angles
 are in degrees.
 
 .. code-block:: matlab
 
-	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
-	sp_proj  = sphere_proj();
-	s2    = cut(data_source,sp_proj,[0,0.1,14],[0,180],[-180,180],[-10,4,400]);
-	plot(s2);
+        data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+        sp_proj  = sphere_proj();
+        s2    = cut(data_source,sp_proj,[0,0.1,14],[0,180],[-180,180],[-10,4,400]);
+        plot(s2);
 
 The default constructor builds spherical projection with ``sp_proj.ez == [1,0,0]``, ``sp_proj.ex == [0,1,0]``
 and ``sp_proj.offset == [0,0,0,0]``  Cut produces:
@@ -492,16 +492,16 @@ and ``sp_proj.offset == [0,0,0,0]``  Cut produces:
 To the experts in the field this picture shows that the energies of phonons excitations are located under 50meV, some magnetic
 scattering is present at |Q| < 5 and spin waves at high |Q| are suppressed by magnetic form factor.
 
-Using spherical projection we can conveniently investigate the details of the particular spin wave branches taken from 
-the objects produced using linear projection above, i.e. around the scattering point :math:`[0,-1,1]`. 
+Using spherical projection we can conveniently investigate the details of the particular spin wave branches taken from
+the objects produced using linear projection above, i.e. around the scattering point :math:`[0,-1,1]`.
 
 .. code-block:: matlab
 
-	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
-	sp_proj  = sphere_proj();
-	sp_proj.offset  = [0,-1,1];	
-	s2    = cut(data_source,sp_proj,[0,0.1,2],[80,90],[-180,4,180],[50,60]);
-	plot(s2);
+        data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+        sp_proj  = sphere_proj();
+        sp_proj.offset  = [0,-1,1];
+        s2    = cut(data_source,sp_proj,[0,0.1,2],[80,90],[-180,4,180],[50,60]);
+        plot(s2);
 
 The unwrapping of the intensity of the spin-wave located around :math:`[0,-1,1]` Bragg peak shows:
 
@@ -511,13 +511,13 @@ The unwrapping of the intensity of the spin-wave located around :math:`[0,-1,1]`
    :alt: Q-phi cut
 
    Spin-wave scattering intensity around :math:`[0,-1,1]` point, expressed in spherical coordinate system.
-   
-Visible gap caused by missing detectors is obvious in :math:`[-50^o:+50^o]` angles range. Averaging over all 
+
+Visible gap caused by missing detectors is obvious in :math:`[-50^o:+50^o]` angles range. Averaging over all
 :math:`\theta` angles substantially improves statistics:
 
 .. code-block:: matlab
 
-	s2    = cut(data_source,sp_proj,[0,0.1,2],[0,180],[-180,4,180],[50,60]);
+        s2    = cut(data_source,sp_proj,[0,0.1,2],[0,180],[-180,4,180],[50,60]);
 
 .. figure:: ../images/spin_w_theta_av.png
    :align: center
@@ -525,21 +525,21 @@ Visible gap caused by missing detectors is obvious in :math:`[-50^o:+50^o]` angl
    :alt: Q-phi cut theta-averages
 
    :math:`\theta`-averaged spin-wave scattering intensity around :math:`[0,-1,1]` point.
-   
+
 and finally, 1D cut provides the intensity distribution as function of |Q|-distance from the spin-wave centre:
 
 .. code-block:: matlab
 
-	s2    = cut(data_source,sp_proj,[0,0.1,2],[0,180],[-180,180],[50,60]);
+        s2    = cut(data_source,sp_proj,[0,0.1,2],[0,180],[-180,180],[50,60]);
 
 .. figure:: ../images/spin_w_intensity_1D.png
    :align: center
    :width: 500px
    :alt: intensity vs Q.
-   
+
    Spin-wave intensity as function of distance from the scattering centre at :math:`[0,-1,1]`.
-   
-   
+
+
 
 Cylindrical Projections
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -572,11 +572,11 @@ projection axes and binning:
 
 Legacy calls to ``cut``: ``cut_sqw`` and ``cut_dnd``
 ----------------------------------------------------
-Historically, ``cut`` was used in two different forms ``cut_sqw`` and ``cut_dnd``. These forms 
+Historically, ``cut`` was used in two different forms ``cut_sqw`` and ``cut_dnd``. These forms
 are still available now. ``cut_sqw`` is fully equivalent to ``cut`` except attempt to apply it to
-``dnd`` object or file, containing ``dnd`` object will throw ``HORACE:DnDBase:invalid_argument`` exception. 
-``cut_dnd`` is equivalent to ``cut`` applied to ``dnd`` object or correspondent file. If ``cut_dnd`` is applied 
-to ``sqw`` object, it acts on ``dnd`` part of ``sqw`` object (``sqw.data`` field) and returns ``dnd`` 
+``dnd`` object or file, containing ``dnd`` object will throw ``HORACE:DnDBase:invalid_argument`` exception.
+``cut_dnd`` is equivalent to ``cut`` applied to ``dnd`` object or correspondent file. If ``cut_dnd`` is applied
+to ``sqw`` object, it acts on ``dnd`` part of ``sqw`` object (``sqw.data`` field) and returns ``dnd``
 object cut from this ``dnd`` object.
 
 
@@ -646,4 +646,3 @@ In order to extract bins whose centres lie in the range ``[-5 5]`` from a 4-D
 .. code-block:: matlab
 
    w2 = section(w1, [-5 5], [], [], [])
-
