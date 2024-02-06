@@ -75,7 +75,7 @@ object stored in memory from which the pixels will be taken.
 Projection
 ----------
 
-This defines the coordinate and thus the meaning of the binning you provided as arguments to `cut` and 
+This defines the coordinate system and thus the meaning of the binning you provided as arguments to `cut` and 
 will use to plot and analyse the data.
 
 ``proj`` should be an child of a ``aProjectionBase`` class (such as ``line_proj``,
@@ -87,12 +87,118 @@ system you wish to use to plot and analyse the data.
    Because each point of ``sqw.pix`` data describes the
    position in the reciprocal space and energy transfer, the underlying pixels will be
    unchanged. For image (``dnd`` object) it is possible to redefine the coordinate system with the one of
-   your choice; the projection and bining parameters merely describe how pixels will be accumulated
+   your choice; the projection and binning parameters merely describe how pixels will be accumulated
    (binned) and thus displayed in image coordinate system.
+   
+Different projections in more details are described below.
+
+Binning arguments
+-----------------
+
+.. _barguments:
+
+* ``p1_bin``, ``p2_bin``, ``p3_bin`` and ``p4_bin``
+
+  specify the binning / integration arguments for the Q & Energy axes in the
+  target coordinate system. Each can independently have one of four
+  different forms:
+
+.. warning::
+
+   The meaning of the first, second, third, etc. components changes between each
+   form. Ensure that you have the correct value in each component to ensure your
+   cut is what you expect.
+
+* ``[]``
+
+  An empty binning range will use the source binning axes in that dimension.
+
+* ``[n]``
+
+  if a single (scalar) number is given then that axis will be a plot axis and the
+  bin width will be the number you specify. The lower and upper limits are the
+  source binning axes in that dimension.
+
+.. note::
+
+   A value of ``[0]`` is equivalent to ``[]`` and will use the source binning axes.
+
+* ``[lo,hi]``
+
+  If you specify a vector with two components then the signal will be integrated
+  over that axis between limits specified by the two components of the vector.
+
+.. warning::
+
+   A two-component binning axis defines the integration region between bin
+   edges. For example, ``[-1 1]`` will capture pixels from ``-1`` to ``1``
+   inclusive.
+
+* ``[lower,step,upper]``
+
+  A three-component binning axis specifies an axis is a plot axis with the first
+  ``lower`` and the last ``upper`` components specifying the centres of the
+  first and the last bins of the data to be cut. The middle component specifies
+  the bin width.
+
+.. note ::
+
+   If ``step`` is ``0``, the ``step`` is taken from the source binning axes.
+
+.. warning::
+
+   A three-component binning axis defines the integration region by bin centres,
+   i.e. the limits of the data to be cut lie between ``min = lower-step/2`` and
+   ``max = upper+step/2``, including ``min/max`` values. For example, ``[-1 1
+   1]`` will capture pixels from ``-1.5`` to ``1.5`` inclusive.
 
 
-Lattice based projections
--------------------------
+* ``[lower, separation, upper, cut_width]``
+
+  A four-component binning axis defines **multiple** cuts with **multiple**
+  integration limits in the selected direction.  These components are:
+
+  * ``lower``
+
+    minimum cut bin-centre
+
+  * ``separation``
+
+    distance between cut bin-centres
+
+  * ``upper``
+
+    approximate maximum cut bin-centre
+
+  * ``cut_width``
+
+    half-width of each cut from each bin-centre in both directions
+
+  The number of cuts produced will be the number of ``separation``-sized steps
+  between ``lower`` and ``upper``.
+
+
+.. warning::
+
+   ``upper`` will be automatically increased such that ``separation`` evenly
+   divides ``upper - lower``.  For example, ``[106, 4, 113, 2]`` defines the
+   integration ranges for three cuts, the first cut integrates the axis over
+   ``105-107``, the second over ``109-111`` and the third ``113-115``.
+
+Projection in more details.
+---------------------------
+As it is said before, the ``proj`` argument of the cut describes the coordinate system, you want to get the image of 
+your cut object in.
+
+Historically, Horace ``cut_sqw`` and ``cut_dnd`` algorithms were accepting a structure with fields ``u``, ``v`` etc. (see below) 
+defining linear (:math:`hkle`) coordinate system, which is similar or may be rotated with regards to 
+initial coordinate system produced by ``gen_sqw`` algorithm.  This coordinate system is now defined using ``line_proj`` class.
+You still can use the structure with the appropriate fields, so if you define the ``cut`` input ``proj`` as a structure with
+the same fields as ``line_proj`` below have  ``line_proj`` will be constructed from these fields internally within ``cut`` algorithm.
+
+
+Lattice based projections (``line_proj``)
+-----------------------------------------
 
 The most common type of projection for single-crystal experiments is the
 ``line_proj`` which defines a (usually orthogonal, but not necessarily) system
@@ -106,35 +212,31 @@ form two to five of them.
    proj = line_proj(u,v,w,nonorthogonal,type,alatt,angdeg,offset,label,title,lab1,lab2,lab3,lab4);
    
 Where:
-	``u`` -- reciprocal vector for first viewing axis.
-	
-	``v`` -- reciprocal vector for second viewing axis.
-	
-	``w`` -- optional reciprocal vector of third axis.
-	
-	 See more information about these vectors below. 
-	 
-	``nonorthogonal`` -- true of false defines treatment of the lattice vectors.
-	
-	``type`` -- the type of the projection normalization
-	
-	``alatt``  -- three components of lattice parameters.
-	
-	``angdeg`` -- three components of lattice vectors. 
-	
-	One do not need to define these vectors for cut unless he wants to use projection class separately. The vectors will be taken from lattice defined in ``sqw`` object.
-	
-	``offset`` -- centre of the projection coordinate system in (h,k,l,dE) coordinate system. 
-	
-	``label``  -- 4-element cellarray containing captions for axes of target ``sqw`` object.
-	
-	``title``  -- the string to place as the title of the plot you would make from the ``sqw`` or ``dnd`` object resulting from cut.
-	
-	``lab1-n`` -- separate components of the projection label.
+
+.. code-block:: matlab
+
+	'u' --  % reciprocal vector for first viewing axis.	
+	'v' --  % reciprocal vector for second viewing axis.
+	'w' --  % optional reciprocal vector of third axis.	
+	        % See more information about these vectors below. 
+	'nonorthogonal' -- true of false % defines treatment of the lattice vectors.	
+	'type'   -- % the type of the projection normalization i.e. `aaa`, `rrr`, `ppp` 
+	            % or the combinations of these letters.
+	'alatt'  -- % three components of lattice parameters.	
+	'angdeg' -- % three components of lattice angles. 	
+	%           %  One do not need to define these vectors for cut unless he wants 
+	%           %  to use projection class separately.
+	%           %  The vectors will be taken from lattice defined in 
+	%           %   ``sqw`` object.
+	'offset' -- % centre of the projection coordinate system in (h,k,l,dE) coordinate system. 	
+	'label'  -- % 4-element cellarray containing captions for axes of target ``sqw`` object.	
+	'title'  -- % the string to place as the title of the plot you would
+	%           % make from the ``sqw`` or ``dnd`` object resulting from cut.	
+	'lab1-n' -- % separate components of the projection label.
 
 Empty ``line_proj`` constructor builds ``line_proj`` with ``u=[1,0,0]`` and ``v=[0,1,0]``.
-Like the majority of Horace objects, you may build ``line_proj`` providing some positional parameters and
-provide any optional parameters as key-value pairs e.g.:
+Like the majority of Horace objects, you may build ``line_proj`` providing some positional parameters in
+order of their following in constructor and then provide any optional parameters as key-value pairs e.g.:
 
 .. code-block:: matlab
 
@@ -152,13 +254,8 @@ or define some parameters in constructor, and then set other parameters values u
 The most important fields of ``line_proj`` constructor are the fields, which define the 
 the position of the plain you want to cut. These fields are ``u`` and ``v``:
 
-* ``proj.u``
-
-  3-vector of (h,k,l) specifying first viewing axis.
-
-* ``proj.v``
-
-  3-vector of (h,k,l) in the plane of the second viewing axis.
+* ``proj.u`` --   3-vector of :math:`[h,k,l]` specifying first viewing axis.
+* ``proj.v`` --   3-vector of :math:`[h,k,l]` in the plane of the second viewing axis.
 
   The second viewing axis is constructed to be in the plane of ``proj.u`` and
   ``proj.v`` and perpendicular to ``proj.u``.  The the third viewing axes is
@@ -187,7 +284,7 @@ the position of the plain you want to cut. These fields are ``u`` and ``v``:
       angdeg % => [60 60 90]
       proj = line_proj([1 0 0], [0 1 0]);
 
-   such that ``proj.u`` = :math:`(1,0,0)` and ``proj.v`` = :math:`(0,1,0)`. The
+   such that ``proj.u`` = :math:`[1,0,0]` and ``proj.v`` = :math:`[0,1,0]`. The
    reciprocal space projection will actually be skewed according to ``angdeg``.
 
 
@@ -195,8 +292,8 @@ There are optional fields too:
 
 * ``proj.offset``
 
-  3-vector in (h,k,l) or 4-vector in (h,k,l,e) specifies an offset for all
-  cuts. For example you may wish to make the origin of all your plots (2,1,0),
+  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` specifies an offset for all
+  cuts. For example you may wish to make the origin of all your plots :math:`[2,1,0]`,
   in which case set ``proj.offset = [2,1,0]``.
 
 * ``proj.type``
@@ -208,12 +305,12 @@ There are optional fields too:
 
   1. ``'a'`` -- Inverse angstroms
 
-  2. ``'r'`` -- Reciprocal lattice units (r.l.u.) which normalises so that the
-     maximum of :math:`|h|`, :math:`|k|` and :math:`|l|` is unity
+  2. ``'r'`` -- Reciprocal lattice units :math:`(r.l.u.)` which normalises so that the
+     maximum of :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
 
   3. ``'p'`` -- Preserve the values of ``proj.u`` and ``proj.v``
 
-  For example, if we wanted the first two **Q**-components to be in r.l.u. and
+  For example, if we wanted the first two **Q**-components to be in :math:`r.l.u` and
   the third to be in inverse Angstroms we would have ``proj.type = 'rra'``.
 
 You may optionally choose to use non-orthogonal axes:
@@ -275,13 +372,6 @@ The cut with the same parameters as above at higher energy transfer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    
 The data    
-
-``line_proj`` legacy usage:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Historically, Horace ``cut_sqw`` and ``cut_dnd`` were accepting a structure with fields defining the same values as properties of ``line_proj``. 
-This still the case, so if you define the ``cut`` input ``proj`` as a structure with the same fields as ``line_proj`` have, 
-``line_proj`` will be constructed from these fields internally.
 
 
 Spherical Projections
@@ -414,99 +504,6 @@ Cylindrical Projections
 -----------------------
 
 TBD
-
-Binning arguments
------------------
-
-.. _barguments:
-
-* ``p1_bin``, ``p2_bin``, ``p3_bin`` and ``p4_bin``
-
-  specify the binning / integration arguments for the Q & Energy axes in the
-  target projection's coordinate system. Each can independently have one of four
-  different forms:
-
-.. warning::
-
-   The meaning of the first, second, third, etc. components changes between each
-   form. Ensure that you have the correct value in each component to ensure your
-   cut is what you expect.
-
-* ``[]``
-
-  An empty binning range will use the source binning axes in that dimension.
-
-* ``[n]``
-
-  if a single (scalar) number is given then that axis will be a plot axis and the
-  bin width will be the number you specify. The lower and upper limits are the
-  source binning axes in that dimension.
-
-.. note::
-
-   A value of ``[0]`` is equivalent to ``[]`` and will use the source binning axes.
-
-* ``[lo,hi]``
-
-  If you specify a vector with two components then the signal will be integrated
-  over that axis between limits specified by the two components of the vector.
-
-.. warning::
-
-   A two-component binning axis defines the integration region between bin
-   edges. For example, ``[-1 1]`` will capture pixels from ``-1`` to ``1``
-   inclusive.
-
-* ``[lower,step,upper]``
-
-  A three-component binning axis specifies an axis is a plot axis with the first
-  ``lower`` and the last ``upper`` components specifying the centres of the
-  first and the last bins of the data to be cut. The middle component specifies
-  the bin width.
-
-.. note ::
-
-   If ``step`` is ``0``, the ``step`` is taken from the source binning axes.
-
-.. warning::
-
-   A three-component binning axis defines the integration region by bin centres,
-   i.e. the limits of the data to be cut lie between ``min = lower-step/2`` and
-   ``max = upper+step/2``, including ``min/max`` values. For example, ``[-1 1
-   1]`` will capture pixels from ``-1.5`` to ``1.5`` inclusive.
-
-
-* ``[lower, separation, upper, cut_width]``
-
-  A four-component binning axis defines **multiple** cuts with **multiple**
-  integration limits in the selected direction.  These components are:
-
-  * ``lower``
-
-    minimum cut bin-centre
-
-  * ``separation``
-
-    distance between cut bin-centres
-
-  * ``upper``
-
-    approximate maximum cut bin-centre
-
-  * ``cut_width``
-
-    half-width of each cut from each bin-centre in both directions
-
-  The number of cuts produced will be the number of ``separation``-sized steps
-  between ``lower`` and ``upper``.
-
-
-.. warning::
-
-   ``upper`` will be automatically increased such that ``separation`` evenly
-   divides ``upper - lower``.  For example, ``[106, 4, 113, 2]`` defines the
-   integration ranges for three cuts, the first cut integrates the axis over
-   ``105-107``, the second over ``109-111`` and the third ``113-115``.
 
 
 Optional arguments
