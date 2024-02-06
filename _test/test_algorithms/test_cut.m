@@ -81,6 +81,15 @@ classdef test_cut < TestCase & common_state_holder
                 'ignore_str', true,'-ignore_date');
         end
 
+        function test_cut_default_ranges(obj)
+            ref_sqw = read_sqw(obj.ref_cut_file);
+            cut_sqw = cut(ref_sqw,[-0.05,0.05],[-0.05,0.05],[]);
+
+            assertEqual(ref_sqw.data.p{3},cut_sqw.data.p{1});
+
+        end
+        
+
         function test_cut_sqw_object(obj)
             %sqw_obj = read_sqw(obj.sqw_file);
             sqw_obj = obj.sqw_4d; % it has already been read in constructor
