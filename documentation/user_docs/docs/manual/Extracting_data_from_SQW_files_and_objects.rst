@@ -35,7 +35,7 @@ The required inputs are as follows:
 
    my_cut = cut(data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin,varargin)
 
-where ``varargin`` describes optional parameters and may contain:
+where ``varargin`` describes optional arguments and may contain:
 
   ``-nopix``   -- the key requests that the cut should contain just image (``dnd`` object) and drop all pixels contributing into this image. This  option is faster but should not be used if you want to do subsequent cuts from the resulting cut ``my_cut``.
   
@@ -44,6 +44,7 @@ where ``varargin`` describes optional parameters and may contain:
 Cutting consists of a rebinning of the pixels into the bins specified by the cut
 parameters (described below).  These binned pixels will make up the ``dnd`` of
 the output object which contains information regarding the plottable data.
+
 
 Data Source
 -----------
@@ -203,7 +204,7 @@ the same fields as ``line_proj`` below have  ``line_proj`` will be constructed f
 
 
 Lattice based projections (``line_proj``)
------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The most common type of projection for single-crystal experiments is the
 ``line_proj`` which defines a (usually orthogonal, but not necessarily) system
@@ -394,7 +395,7 @@ The sample cut along the direction :math:`[1,1,0]` i.e. the diagonal of the figu
 
 
 Spherical Projections
----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 In order to construct a spherical projection, i.e. a projection in
 |Q|, :math:`\theta` (scattering angle), :math:`\phi` (azimuthal angle), :math:`E`, we define the
@@ -519,30 +520,10 @@ and finally, 1D cut provides the intensity distribution as function of |Q|-dista
    
 
 Cylindrical Projections
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 
 TBD
 
-
-Optional arguments
-------------------
-
-.. code-block:: matlab
-
-   my_cut = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin, '-nopix', filename)
-
-
-* ``'-nopix'``
-
-  means that the individual pixel information contributing to the resulting data
-  is NOT retained (at present the default is to retain it, resulting in an
-  output that is an ``sqw`` object, whereas using ``'-nopix'`` gives a ``dnd``
-  output).
-
-* ``filename``
-
-  is a string specifying a full filename (including path) for the data to be
-  stored, in addition to being stored in the MATLAB workspace.
 
 Further Examples
 ----------------
