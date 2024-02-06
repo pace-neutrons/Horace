@@ -78,15 +78,12 @@ for i=1:numel(in_data)
             error('HORACE:change_crystal:invalid_argument',...
                 'change_crystal called to align sqw objects but obj N%d is dnd object',i)
         end
-        if dnd_only
-            if is_sqw
-                out{i} = in_data{i}.data.change_crystal(alignment_info);
-            else
-                out{i} = in_data{i}.change_crystal(alignment_info);
-            end
-        else
-            out{i} = in_data{i}.change_crystal(alignment_info);
+        if dnd_only && is_sqw
+            error('HORACE:change_crystal:invalid_argument',...
+                'object N: %d contains sqw object but it is modified in dnd-mode only', ...
+                i);
         end
+        out{i} = in_data{i}.change_crystal(alignment_info);
     else
         out{i} = in_data{i};
         ld = sqw_formats_factory.instance().get_loader(in_data{i});
