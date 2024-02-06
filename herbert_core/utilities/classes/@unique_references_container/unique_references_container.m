@@ -502,11 +502,6 @@ classdef unique_references_container < serializable
             if isempty(glindex)
                 glcont = self.global_container('value',self.global_name_);
                 [glcont,glindex] = glcont.add_single_(inobj,[],hash);
-                if glindex == 0
-                    % object was not added
-                    nuix = 0;
-                    return
-                end
                 self.global_container('reset',self.global_name_,glcont);
             end
             self.idx_ = [ self.idx(:)', glindex ];
