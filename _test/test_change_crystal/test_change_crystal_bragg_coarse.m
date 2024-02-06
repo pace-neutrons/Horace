@@ -59,6 +59,23 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             obj = obj.build_misaligned_source_file(sim_sqw_file);
 
         end
+        function test_change_crystal_family_invalid_throw_in_memory(obj)
+            sqw_sample = read_sqw(obj.misaligned_sqw_file);
+            dnd_sample = sqw_sample.data;
+
+            corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250], [-0.0530 0.0519 0.0345]);
+
+            assertExceptionThrown(@()change_crystal_dnd({sqw_sample,dnd_sample},corrections), ...
+                'HORACE:change_crystal:invalid_argument');
+
+            assertExceptionThrown(@()change_crystal_sqw({sqw_sample,dnd_sample},corrections), ...
+                'HORACE:change_crystal:invalid_argument');
+
+            al_obj = change_crystal({sqw_sample,dnd_sample},corrections);
+
+            assertEqualToTol(al_obj{1}.data,al_obj{2})
+        end
 
         function test_change_crystal_family_invalid_throw(obj)
             targ_file = fullfile(tmp_dir,'aligned_copy.sqw');
