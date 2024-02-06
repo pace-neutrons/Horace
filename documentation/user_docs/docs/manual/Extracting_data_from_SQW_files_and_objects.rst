@@ -45,20 +45,6 @@ Cutting consists of a rebinning of the pixels into the bins specified by the cut
 parameters (described below).  These binned pixels will make up the ``dnd`` of
 the output object which contains information regarding the plottable data.
 
-Filebacked and memory based cuts.
---------------------------------
-
-By default, ``cut`` attempts to put the image and all pixels in memory. Pixels from large cuts would not fit memory. 
-For this reason, if size of cut exceeds the specified size, the pixels are backed by file. If the ``filename`` option 
-is provided, the file has this name, and if not, the file will have name of the source file and 
-random extension in the form ``.tmp_XXXXXXX`` where ``XXXXXXX`` are random letters and numbers. This file gets deleted if ``sqw`` object
-it backs gets deleted unless you ``save`` this object in file with permanent file name.
-
-The options which define the number of pixels after which resulting cut becomes filebacked is defined in the configuration namely ``hor_config`` class. 
-The options are ``mem_chunk_size`` and ``fb_scale_factor``. If the number of pixels in cut exceeds ``mem_chunk_size*fb_scale_factor``,
-the pixels are dropped to file and the cut becomes filebacked.
-
-
 Data Source
 -----------
 
@@ -72,11 +58,12 @@ object stored in memory from which the pixels will be taken.
    stored to disc. It is advisable to name the file appropriately to distinguish
    the types stored inside, e.g. ``MnO2_sqw.sqw``, ``MnO2_d2d.sqw``.
 
-Projection
-----------
+Projection (proj)
+-----------------
 
-This defines the coordinate system and thus the meaning of the binning you provided as arguments to `cut` and 
-will use to plot and analyse the data.
+Second argument defines the coordinate system and thus the meaning of the 
+:ref:`Bining_arguments-label`  you provided as arguments to `cut` and will 
+use to plot and analyse the data.
 
 ``proj`` should be an child of a ``aProjectionBase`` class (such as ``line_proj``,
 ``sphere_proj``, etc.) containing information about the the coordinate
@@ -90,7 +77,9 @@ system you wish to use to plot and analyse the data.
    your choice; the projection and binning parameters merely describe how pixels will be accumulated
    (binned) and thus displayed in image coordinate system.
    
-Different projections in more details are described below.
+Different projections in more details are described below in :ref:`Projection_in_more_details-label` chapter below.
+
+.. _Bining_arguments-label:
 
 Binning arguments
 -----------------
@@ -184,9 +173,25 @@ Binning arguments
    divides ``upper - lower``.  For example, ``[106, 4, 113, 2]`` defines the
    integration ranges for three cuts, the first cut integrates the axis over
    ``105-107``, the second over ``109-111`` and the third ``113-115``.
+   
+Filebacked and memory based cuts
+--------------------------------
 
-Projection in more details.
+By default, ``cut`` attempts to put the image and all pixels in memory. Pixels from large cuts would not fit memory. 
+For this reason, if size of cut exceeds the specified size, the pixels are backed by file. If the ``filename`` option 
+is provided, the file has this name, and if not, the file will have name of the source file and 
+random extension in the form ``.tmp_XXXXXXX`` where ``XXXXXXX`` are random letters and numbers. This file gets deleted if ``sqw`` object
+it backs gets deleted unless you ``save`` this object in file with permanent file name.
+
+The options which define the number of pixels after which resulting cut becomes filebacked is defined in the configuration namely ``hor_config`` class. 
+The options are ``mem_chunk_size`` and ``fb_scale_factor``. If the number of pixels in cut exceeds ``mem_chunk_size*fb_scale_factor``,
+the pixels are dropped to file and the cut becomes filebacked.
+
+.. _Projection_in_more_details-label:
+
+Projection in more details
 ---------------------------
+
 As it is said before, the ``proj`` argument of the cut describes the coordinate system, you want to get the image of 
 your cut object in.
 
@@ -341,7 +346,7 @@ is provided as demonstration dataset in Horace demo folder available on Github. 
 iron crystal has been aligned along [1,0,0] axis, so to see the part of the reciprocal space 
 as viewed from sample position, one needs to make cut along [0,1,0],[0,0,1] directions:
 
-.. code-block:: matlab
+.. code-block::matlab
 
 	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
 	proj  = line_proj([0,1,0],[0,0,1]);
@@ -371,7 +376,21 @@ The cut with the same parameters as above at higher energy transfer
 ``line_proj`` 1D cut example:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    
-The data    
+The sample cut along the direction :math:`[1,1,0]` i.e. the diagonal of the figure above shows the intensity of the spin wave:
+
+.. code-block::matlab
+
+	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+	proj  = line_proj([1,1,0],[-1,1,0],'offset',[-1,1,0]);
+	w1    = cut(data_source,proj,[-5,0.1,5],[-0.1,0.1],[-0.1,0.1],[-50,60]);
+	plot(w1);
+
+.. figure:: ../images/Fe_cut1D.png  
+   :align: center
+   :width: 800px
+   :alt: 1d cut along diagonal.
+   
+   MAPS; 1D cut along the the diagonal of 2D image above.
 
 
 Spherical Projections
@@ -407,22 +426,21 @@ from :math:`e_x` vector of the projection and changes from :math:`-180^o` to :ma
 When it comes to cutting and plotting, we can use a ``sphere_proj`` in exactly
 the same way as we would a ``line_proj`` with one key difference. The binning
 arguments of ``cut`` no longer refer to :math:`h,k,l,E`, but to |Q|,
-:math:`\theta`, :math:`\phi`, :math:`E`.
+:math:`\theta`, :math:`\phi`, :math:`E` coordinates.
 
 .. code-block:: matlab
 
    sp_cut = cut(w, sp_proj, Q, theta, phi, e, ...);
 
-The structure of the arguments to cut is still the same (see `Binning arguments`_ below)
+The structure of the arguments to cut is still the same (see `Binning arguments`_)
 
 .. note::
 
-   By default a ``sphere_proj`` will define its principal axes for angular
-   integration (:math:`\theta`, :math:`\phi`) as the notional goniometer axes as
-   defined by ``u`` and ``v`` in :ref:`gen_sqw
-   <manual/Generating_SQW_files:gen_sqw>`. It is possible to change these by
-   setting ``ex`` and ``ez`` which are vectors lying in-plane and perpendicular
-   to the plane respectively.
+   By default a ``sphere_proj`` will define its principal axes :math:`e_z` and :math:`e_x` 
+   for angular integration (:math:`\theta`, :math:`\phi`) along 
+   defined :math:`hkl` directions :math:`[1,0,0] (e_z)` and :math:`[0,1,0] (e_x)`. Using ``sphere_proj`` 
+   properties :math:`e_z` and :math:`e_x` spherical coordinate system may be reoriented to any
+   reciprocal lattice direction.
    
    
 ``sphere_proj`` 2D and 1D cuts samples:
