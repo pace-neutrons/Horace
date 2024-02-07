@@ -6,9 +6,9 @@ function wout = replicate (win, wref,varargin)
 %
 % Input:
 % ------
-%   win     Low dimensional dataset of datasets. The signal, error
-%           and npix arrays of this object will be replicated over the
-%           extra dimensions of the reference dataset.
+%   win     Low dimensional dataset of array of dnd datasets.
+%           The signal, error and npix arrays of this object will be
+%           replicated over the extra dimensions of the reference dataset.
 %
 %   wref    Reference dataset structure to use as template for expanding the
 %           input straucture. Can be a dnd or sqw dataset.
@@ -20,22 +20,22 @@ function wout = replicate (win, wref,varargin)
 %           - The annotations etc. are taken from the reference dataset.
 % Optional:
 % '-set_pix' -- if provided, wref object should be sqw objects with pixels.
-%               in this case result would be sqw object(s) with pixels set
-%               to reprouce replicated image, defined by input dnd object.
+%               In this case result would be sqw object(s) with pixels set
+%               to reproduce replicated image, defined by input dnd object.
 %
 % Output:
 % -------
-%   wout    Output dataset object (or array of objects). It is dnd object
-%           with the same dimensionality as wref or sqw object with the
-%           same dimensionality as input dnd object and
+%   wout    Output dataset object (or array of objects). Depending on wref
+%           object type (dnd, pixelles sqw or sqw) it is dnd,dnd or sqw
+%           object with the same dimensionality as wref and win image(s)
+%           replicated to additional dimensions.
+%           If '-set_pix' key is provided it is sqw object (wref must be
+%           sqw object with pixels) which also has the same pixels as
+%           wref. The pixels signal and error in this case are set to form
+%           the replicated image.
 %
 % Original author: T.G.Perring
 %
-
-% ----- The following shoudld be independent of d0d, d1d,...d4d ------------
-% Work via sqw class type: ensure call is with dnd-type sqw object as first argument, sqw object as second
-% Note that the second argument cannot be an sqw object, as otherwise the sqw replicate method would have been
-% called, because the sqw class has been defined as superior to dnd classes.
 
 if ~(isscalar(wref) && isa(wref,'SQWDnDBase'))
     error('HORACE:replicate:invalid_argument',...

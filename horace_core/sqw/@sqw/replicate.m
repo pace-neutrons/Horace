@@ -7,9 +7,9 @@ function wout = replicate (win,wref,varargin)
 % Input:
 % ------
 %   win     sqw object or array of sqw objects all with the same dimensionality
-%           to be replicated. The signal and npix array will be
-%           replicated  over the extra dimensions of the reference dataset,
-%           but not the individual pixels.
+%           to be replicated. The signal, error and npix arrays of this
+%           object will be replicated over the extra dimensions of the
+%           reference dataset and win pixels values are just ignored.
 %
 %   wref    Reference dataset structure to use as template for expanding the
 %           input structure. Can be a dnd or sqw dataset.
@@ -21,17 +21,21 @@ function wout = replicate (win,wref,varargin)
 %           - The annotations etc. are taken from the reference dataset.
 % Optional:
 % '-set_pix'
-%           -- if provided, return full sqw object with pixels providing the
-%              wref impage insead of just dnd object with the same
-%              dimensionality as wref.
+%        -- if provided, wref object should be sqw objects with pixels.
+%           In this case result would be sqw object(s) with pixels set
+%           to reproduce replicated image, defined by dnd part of input sqw
+%           object.
 %
 % Output:
 % -------
-%   wout    Output dataset object (or array of objects). It is dnd
-%           object with the same dimensionality as wref. If '-set_pix'
-%           key is provided it also has the same pixels as wref if wref has
-%           pixels, but pixels signal and error are set to form the replicated
-%           image
+%   wout    Output dataset object (or array of objects). Depending on wref
+%           object type (dnd, pixelles sqw or sqw) it is dnd,dnd or sqw
+%           object with the same dimensionality as wref and win image(s)
+%           replicated to additional dimensions.
+%           If '-set_pix' key is provided it is sqw object (wref must be
+%           sqw object with pixels) which also has the same pixels as
+%           wref. The pixels signal and error in this case are set to form
+%           the replicated image.
 %
 % Original author: T.G.Perring
 %
