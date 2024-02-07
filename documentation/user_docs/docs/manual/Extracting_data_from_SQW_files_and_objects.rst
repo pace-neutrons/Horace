@@ -63,7 +63,7 @@ Projection (proj)
 -----------------
 
 Second argument defines the coordinate system and thus the meaning of the 
-:ref:`Bining_arguments-label`  you provided as arguments to `cut` and will 
+`Binning arguments`_ you provided as arguments to `cut` and will 
 use to plot and analyse the data.
 
 ``proj`` should be an child of a ``aProjectionBase`` class (such as ``line_proj``,
@@ -78,9 +78,8 @@ system you wish to use to plot and analyse the data.
    your choice; the projection and binning parameters merely describe how pixels will be accumulated
    (binned) and thus displayed in image coordinate system.
    
-Different projections in more details are described below in :ref:`Projection_in_more_details-label` chapter below.
+Different projections in more details are covered in `Projection in more details`_ chapter below.
 
-.. _Bining_arguments-label:
 
 Binning arguments
 -----------------
@@ -147,25 +146,16 @@ Binning arguments
 
   A four-component binning axis defines **multiple** cuts with **multiple**
   integration limits in the selected direction.  These components are:
+  
+.. code-block:: matlab
 
-  * ``lower``
+  * `lower`      -- % minimum cut bin-centre
+  * `separation` -- % distance between cut bin-centres
+  * `upper`      -- % approximate maximum cut bin-centre
+  * `cut_width`  -- % half-width of each cut from each bin-centre in both directions
 
-    minimum cut bin-centre
-
-  * ``separation``
-
-    distance between cut bin-centres
-
-  * ``upper``
-
-    approximate maximum cut bin-centre
-
-  * ``cut_width``
-
-    half-width of each cut from each bin-centre in both directions
-
-  The number of cuts produced will be the number of ``separation``-sized steps
-  between ``lower`` and ``upper``.
+The number of cuts produced will be the number of ``separation``-sized steps
+between ``lower`` and ``upper``.
 
 
 .. warning::
@@ -178,17 +168,19 @@ Binning arguments
 Filebacked and memory based cuts
 --------------------------------
 
-By default, ``cut`` attempts to put the image and all pixels in memory. Pixels from large cuts would not fit memory. 
-For this reason, if size of cut exceeds the specified size, the pixels are backed by file. If the ``filename`` option 
-is provided, the file has this name, and if not, the file will have name of the source file and 
-random extension in the form ``.tmp_XXXXXXX`` where ``XXXXXXX`` are random letters and numbers. This file gets deleted if ``sqw`` object
-it backs gets deleted unless you ``save`` this object in file with permanent file name.
+By default, ``cut`` attempts to put its result i.e. the image and all pixels contributed into image in memory. 
+Pixels from large cuts would not fit memory. For this reason, if size of cut exceeds the specified size, 
+the pixels are backed by file. If the ``filename`` option is provided, the file has this name, and if not, 
+the file will have name of the source file and random extension in the form ``.tmp_XXXXXXX`` where 
+``XXXXXXX`` are random letters and numbers. This file gets deleted if ``sqw`` object-cut result 
+which the file backs gets deleted unless you :ref:`manual/Save_and_load:save` this object in file with permanent file name.
 
-The options which define the number of pixels after which resulting cut becomes filebacked is defined in the configuration namely ``hor_config`` class. 
-The options are ``mem_chunk_size`` and ``fb_scale_factor``. If the number of pixels in cut exceeds ``mem_chunk_size*fb_scale_factor``,
-the pixels are dropped to file and the cut becomes filebacked.
+The options which define the number of pixels after which resulting cut becomes filebacked 
+are defined in the configuration namely ``hor_config`` class. 
+The options are ``mem_chunk_size`` and ``fb_scale_factor``. If the number of pixels in cut exceeds 
+``mem_chunk_size*fb_scale_factor``,
+the pixels are dropped to file and the ``sqw`` object obtained ast the result of ``cut`` becomes filebacked.
 
-.. _Projection_in_more_details-label:
 
 Projection in more details
 ---------------------------
@@ -200,7 +192,7 @@ Historically, Horace ``cut_sqw`` and ``cut_dnd`` algorithms were accepting a str
 defining linear (:math:`hkle`) coordinate system, which is similar or may be rotated with regards to 
 initial coordinate system produced by ``gen_sqw`` algorithm.  This coordinate system is now defined using ``line_proj`` class.
 You still can use the structure with the appropriate fields, so if you define the ``cut`` input ``proj`` as a structure with
-the same fields as ``line_proj`` below have  ``line_proj`` will be constructed from these fields internally within ``cut`` algorithm.
+the same fields as ``line_proj`` below the ``line_proj`` will be constructed from these fields internally within ``cut`` algorithm.
 
 
 Lattice based projections (``line_proj``)
@@ -242,13 +234,29 @@ Where:
 
 Empty ``line_proj`` constructor builds ``line_proj`` with ``u=[1,0,0]`` and ``v=[0,1,0]``.
 Like the majority of Horace objects, you may build ``line_proj`` providing some positional parameters in
-order of their following in constructor and then provide any optional parameters as key-value pairs e.g.:
+order of their following in constructor and then provide any optional parameters as key-value pairs e.g. 
+the constructor:
 
 .. code-block:: matlab
 
    proj = line_proj([0,1,0],[0,0,1],'type','aaa','titile','my linear cut');
 
-or define some parameters in constructor, and then set other parameters values using properties:
+would produce ``line_proj`` with fields:
+
+.. code-block:: matlab
+
+   line_proj with properties:
+
+                u: [0 1 0]
+                v: [0 0 1]
+                w: []
+             type: 'aaa'
+    nonorthogonal: 0
+           offset: [0 0 0 0]
+            label: {'\zeta'  '\xi'  '\eta'  'E'}
+            title: ''
+
+Alternatively you may define some parameters in constructor, and then set other parameters values using properties:
 
 .. code-block:: matlab
 
@@ -408,7 +416,11 @@ projection in a similar way to other projections, but instead use ``sphere_proj`
 The projection defines spherical coordinates system, where :math:`\theta` angle is 
 measured from z-axis directed along :math:`e_z` vector of the 
 projection and changes from :math:`0` to :math:`180^o`. :math:`\phi` angle is measured
-from :math:`e_x` vector of the projection and changes from :math:`-180^o` to :math:`180^o`.
+from :math:`r_x` vector of the projection and changes from :math:`-180^o` to :math:`180^o`. 
+Spherical projection :math:`r_x` vector corresponds with ``shphere_proj`` class :math:`e_x` vector
+for orthogonal reciprocal lattice. If reciprocal lattice is non-orthogonal, the :math:`e_x`-vector
+of spherical projection defines the :math:`z-x` plane of spherical coordinate system and :math:`r_x` 
+vector is build in this plane but orthogonal to :math:`e_z` vector.
 
 .. figure:: ../images/spher_coordinates.png 
    :align: center
@@ -435,13 +447,11 @@ arguments of ``cut`` no longer refer to :math:`h,k,l,E`, but to |Q|,
 
 The structure of the arguments to cut is still the same (see `Binning arguments`_)
 
-.. note::
-
-   By default a ``sphere_proj`` will define its principal axes :math:`e_z` and :math:`e_x` 
-   for angular integration (:math:`\theta`, :math:`\phi`) along 
-   defined :math:`hkl` directions :math:`[1,0,0] (e_z)` and :math:`[0,1,0] (e_x)`. Using ``sphere_proj`` 
-   properties :math:`e_z` and :math:`e_x` spherical coordinate system may be reoriented to any
-   reciprocal lattice direction.
+By default a ``sphere_proj`` will define its principal axes :math:`e_z` and :math:`e_x` or rather 
+:math:`r_x` for angular integration (:math:`\theta`, :math:`\phi`) along 
+defined :math:`hkl` directions :math:`[1,0,0] (e_z)` and :math:`[0,1,0] (e_x)`. Using ``sphere_proj`` 
+properties :math:`e_z` and :math:`e_x` spherical coordinate system may be reoriented to any
+reciprocal lattice direction. Naturally, :math:`e_z` and :math:`e_x` vectors can not be parallel. 
    
    
 ``sphere_proj`` 2D and 1D cuts samples:
