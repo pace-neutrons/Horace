@@ -1,42 +1,58 @@
-function change_crystal_dnd(varargin)
-% Change the crystal lattice and orientation in a file or set of files containing dnd information
-% 
-% Most commonly:
-%   >> change_crystal (file, rlu_corr)              % change lattice parameters and orientation
+function varargout = change_crystal_dnd(in_data,alignment_info)
+% Change the crystal lattice and orientation of dnd object(s),
+% cellarray of dnd object(s) or dnd object(s) stored in a file or celarray 
+% of files.
 %
-% OR
-%   >> change_crystal (file, alatt)                 % change just length of lattice vectors
-%   >> change_crystal (file, alatt, angdeg)         % change all lattice parameters
-%   >> change_crystal (file, alatt, angdeg, rotmat) % change lattice parameters and orientation
+% Usage:
+%   >>change_crystal_dnd(in_data, alignment_info);
+%   >>out = change_crystal_dnd(in_data, alignment_info);
 %
-% The altered object is written to the same file.
 %
 % Input:
 % -----
-%   file        File name, or cell array of file names. In latter case, the
-%              change is performed on each file
+% in_data        --  Input dnd object, cellarray of dnd objects or
+%                    cellarray of files containing dnd objects.
 %
-%   rlu_corr    Matrix to convert notional rlu in the current crystal lattice to
-%              the rlu in the the new crystal lattice together with any re-orientation
-%              of the crystal. The matrix is defined by the matrix:
-%                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
-%               This matrix can be obtained from refining the lattice and
-%              orientation with the function refine_crystal (type
-%              >> help refine_crystal  for more details).
-% *OR*
-%   alatt       New lattice parameters [a,b,c] (Angstroms)
-%   angdeg      New lattice angles [alf,bet,gam] (degrees)
-%   rotmat      Rotation matrix that relates crystal Cartesian coordinate frame of the new
-%              lattice as a rotation of the current crystal frame. Orthonormal coordinates
-%              in the two frames are related by 
-%                   v_new(i)= rotmat(i,j)*v_current(j)
+% alignment_info -- crystal_alignment_info class -- helper containing all
+%                   information about crystal realignment, produced by
+%                   refine_crystal procedure.
+%
+%              do:
+%              >> help refine_crystal
+%              or
+%              >> help crystal_alignment_info
+%              for more details.
+%
+% Output:
+% -------
+%   varargout  Output dnd object with changed crystal lattice parameters 
+%              and orientation  or cellarray contaning such objects or set
+%              of dnd objects.
+%
+%  Algorithm will fail if applied to cellarray containing .sqw files
+%  or sqw objects.
+%
 %
 % NOTE
-%  The input data file(s) can be reset to their original orientation by inverting the
-%  input data e.g.
-%    - call with inv(rlu_corr)
-
-
+%  The input data set(s) can be reset to their original orientation by
+%  providing input data which correspond to aligingment to initial state
+%  i.e. providing 'crystl_alignment_info' with original alatt and angdeg
+%  and rotvec describing 3-D rotation in the direction opposite to the
+%  alignment direction i.e. rovect_inv = -rotvec_alignment.
+%
 % Original author: T.G.Perring
 %
-change_crystal(varargin{:});
+%
+argi = {in_data,alignment_info,'-dnd_only'};
+if nargout>0
+    if numel(argi{1}) == nargout
+        out = change_crystal(argi{:});
+        for i=1:nargout
+            varargout{i} = out(i);
+        end
+    else
+        varargout{1} = change_crystal(argi{:});
+    end
+else
+    change_crystal(argi{:});
+end
