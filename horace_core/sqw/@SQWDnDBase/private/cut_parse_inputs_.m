@@ -386,14 +386,18 @@ if isempty(pbin_given)
     pbin = [bin_centers(1),bin_width,bin_centers(end)];
 
 elseif numel(pbin_given) == 1
-    n_steps = floor((paxis(end)-paxis(1))/pbin_given);
-    err = rem(paxis(end)-paxis(1),pbin_given);
-    if err > 4*eps('single')
-        n_steps = n_steps+1;
+    if abs(pbin_given) < eps('single')
+        new_axis = paxis;
+    else
+        n_steps = floor((paxis(end)-paxis(1))/pbin_given);
+        err = rem(paxis(end)-paxis(1),pbin_given);
+        if err > 4*eps('single')
+            n_steps = n_steps+1;
+        end
+        paxis_end = paxis(1)+pbin_given*n_steps;
+        new_axis = linspace(paxis(1),paxis_end,n_steps+1);
     end
-    paxis_end = paxis(1)+pbin_given*n_steps;
-    new_axis = linspace(paxis(1),paxis_end,n_steps+1);
-    bin_centers = 0.5*(new_axis(1:end-1)+new_axis(2:end));    
+    bin_centers = 0.5*(new_axis(1:end-1)+new_axis(2:end));
     pbins =  new_axis(2:end)-new_axis(1:end-1);
     pbin = sum(pbins)/numel(pbins);
     pbin = [bin_centers(1),pbin,bin_centers(end)];
