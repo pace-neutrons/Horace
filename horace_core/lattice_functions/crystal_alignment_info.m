@@ -5,8 +5,13 @@ classdef crystal_alignment_info < serializable
     % Created to support common interface between legacy alignment,
     % applicable for orthonormal or triclinic coordinate systems only and
     % generic alignment, applicable for any projections
+    % 
+    % by default class is defined by lattice parameters and angles which
+    % describe modified lattice and 3-element rotvect, which defines 
+    % 3-D rotations (rotation matrix) necessary to align the crystal.
     %
-    % The properties class should contain:
+    % It also contans and may be redefined using the following class
+    % properties:
     %
     %   rlu_corr       Conversion matrix to relate notional rlu to true rlu, accounting for the the
     %                  refined crystal lattice parameters and orientation

@@ -19,7 +19,8 @@ function wout = change_crystal(obj,alignment_info,varargin)
 % -------
 %   wout        Output dnd object with changed crystal lattice parameters and orientation
 
-if ~isa(alignment_info,'crystal_alignment_info') || nargin>2
+
+if ~isa(alignment_info,'crystal_alignment_info')
     error('HORACE:DnDBase:invalid_argument',...
         ['Old interface to modify the crystal alignment is deprecated.\n', ...
         ' Use crystal_alignment_info class obtained from "refine_crystal" routine to realign crystal.\n', ...
@@ -36,7 +37,7 @@ for i=1:numel(obj)
     this_alignment = alignment_info;
 
     if legacy_mode
-        this_alignment.hkl_mode  = true;        
+        this_alignment.hkl_mode  = true;
         rlu_corr = this_alignment.get_corr_mat(obj.proj);
         rlu_to_u = wout(i).proj.bmatrix();
         proj = wout(i).proj;
