@@ -84,19 +84,18 @@ Different projections in more details are covered in `Projection in more details
 Binning arguments
 -----------------
 
-.. _barguments:
+Specify the binning / integration ranges for the ``Q&Energy`` axes in the
+target coordinate system. 
 
-* ``p1_bin``, ``p2_bin``, ``p3_bin`` and ``p4_bin``
+.. code-block:: matlab
 
-  specify the binning / integration arguments for the Q & Energy axes in the
-  target coordinate system. Each can independently have one of four
-  different forms:
+  `p1_bin`, `p2_bin``, `p3_bin` and `p4_bin`
 
-.. warning::
+Each can independently have one of four
+different forms below. The meaning of the first, second, third, etc. component in ``pN_bin``
+changes between each form. Ensure that you have the correct value in each component to ensure your
+cut is what you expect.
 
-   The meaning of the first, second, third, etc. components changes between each
-   form. Ensure that you have the correct value in each component to ensure your
-   cut is what you expect.
 
 * ``[]``
 
