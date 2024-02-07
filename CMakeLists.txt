@@ -33,7 +33,13 @@ find_package(Herbert REQUIRED)
 find_package(OpenMP)
 include(PACE_AddMex)
 include(PACE_FindMatlab)
-include(horace_FindHDF5)
+#
+message(" MATLAB CURRENT VERSION: ${MATLAB_CURRENT_VERSION}")
+set(BUILD_HDF_MEX_PLUGIN TRUE)
+if ((${MATLAB_CURRENT_VERSION} VERSION_LESS "7.11") OR (${MATLAB_CURRENT_VERSION} VERSION_GREATER "9.4"))
+    set(BUILD_HDF_MEX_PLUGIN FALSE)
+endif()
+
 include(PACE_Version)
 
 # Make analysis ignore Herbert in case of nesting
@@ -41,6 +47,12 @@ include(PACE_Version)
 set(PACE_MLINT_IGNORE ${PACE_MLINT_IGNORE} "${Herbert_ROOT}/**/*.m")
 
 include(PACE_CodeAnalysis)
+include(PACE_Docs)
+if (${BUILD_HDF_MEX_PLUGIN})
+	include(horace_FindHDF5)
+endif()
+
+include(herbert_FindMPI)
 include(CTest)
 if(BUILD_TESTING)
     include(PACE_FindGTest)
