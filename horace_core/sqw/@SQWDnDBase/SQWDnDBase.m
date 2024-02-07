@@ -23,6 +23,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         % values for the named argument
         wout = cut(obj, varargin);    % take cut from a sqw or sqw/dnd object
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
+        wout = cut_dnd(obj,varargin); % legacy entrance for cut for dnd objects
         % rebin an object to the other object with the dimensionality
         % smaller then the dimensionality of the current object
         obj = rebin(obj,varargin);
@@ -68,7 +69,6 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     % implementation
     methods(Abstract)
         wout = compact(win)
-        wout = cut_dnd(obj,varargin); % legacy entrance for cut for dnd objects
 
         [nd,sz] = dimensions(win)
         [wout_disp, wout_weight] = dispersion(win, dispreln, pars) % Calculate
