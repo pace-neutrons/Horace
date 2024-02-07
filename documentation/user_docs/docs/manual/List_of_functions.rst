@@ -41,11 +41,11 @@ Listed here are all the functions and commands that can be used in Horace. Each 
 - :ref:`cut_sqw <manual/Cutting_data_of_interest_from_SQW_files_and_objects:cut>`
 - :ref:`cut_sqw <manual/Cutting_data_of_interest_from_SQW_files_and_objects:section>`
 
-:ref:`Observing SQW data stored in files and obtaining information about SQW files and objects and their contents <manual/Observing_SQW_data:Observing SQW data stored in files and obtaining information about SQW files and objects and their contents>`
+:ref:`Special ``SQW`` information from sqw objects and files <manual/Special_sqw_information:Special ``SQW`` information from sqw objects and files>`
 
-- :ref:`head_sqw <manual/Observing_SQW_data:head>`
-- :ref:`extract coordinates <manual/Observing_SQW_data:xye>`
-- :ref:`save xye ascii file <manual/Observing_SQW_data:save_xye>`
+- :ref:`head_sqw <manual/Special_sqw_information:head>`
+- :ref:`extract coordinates <manual/Special_sqw_information:xye>`
+- :ref:`save xye ascii file <manual/Special_sqw_information:save_xye>`
 
 
 :ref:`Loading ``sqw`` and ``dnd`` objects to memory <manual/Save_and_load:Loading ``sqw`` and ``dnd`` objects to memory>`

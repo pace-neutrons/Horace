@@ -105,7 +105,7 @@ permute the axes by one (e.g. 1->2, 2->3, 3->4, 4->1).
 =======
 
 Produce a rebinned dataset from a starting dataset. See :ref:`cut
-<manual\Cutting_data_of_interest_from_SQW_files_and_objects:cut>` for
+<manual/Cutting_data_of_interest_from_SQW_files_and_objects:cut>` for
 more details.
 
 ::

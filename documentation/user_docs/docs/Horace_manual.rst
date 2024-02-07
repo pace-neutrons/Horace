@@ -12,7 +12,7 @@ Horace Manual
    manual/Correcting_for_sample_misalignment
 
    manual/Cutting_data_of_interest_from_SQW_files_and_objects
-   manual/Observing_SQW_data
+   manual/Special_sqw_information
    manual/Save_and_load   
    manual/Reshaping_etc
    manual/Symmetrising_etc
