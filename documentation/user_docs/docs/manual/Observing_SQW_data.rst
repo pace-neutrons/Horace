@@ -1,5 +1,5 @@
 ############################################################################################################
-Observing SQW data stored in files and obtaining information about SQW files and objects and their contents.
+Observing SQW data stored in files and obtaining information about SQW files and objects and their contents
 ############################################################################################################
 
 .. |SQW| replace:: S(**Q**, :math:`\omega{}`)

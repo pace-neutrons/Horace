@@ -11,7 +11,7 @@ Horace Manual
    manual/Data_diagnostics
    manual/Correcting_for_sample_misalignment
 
-   manual/Extracting_data_from_SQW_files_and_objects
+   manual/Cutting_data_of_interest_from_SQW_files_and_objects
    manual/Observing_SQW_data
    manual/Save_and_load   
    manual/Reshaping_etc

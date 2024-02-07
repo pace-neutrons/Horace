@@ -55,7 +55,7 @@ plotting region and the histogram bins into which the pixels are accumulated.
 
 Should a ``dnd`` be separated from an ``sqw`` (e.g. by using the ``-nopix``
 option on a :ref:`cut
-<manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut>` or by
+<manual/Cutting_data_of_interest_from_SQW_files_and_objects:cut>` or by
 extracting the ``data`` property from an ``sqw`` directly) certain operations
 are no longer possible or act differently because the ``dnd`` no longer has the
 underlying pixel data. This means that only operation which can act on the

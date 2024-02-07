@@ -36,14 +36,24 @@ Listed here are all the functions and commands that can be used in Horace. Each 
 - :ref:`Spaghetti plot <manual/Plotting:spaghetti_plot>`
 
 
-:ref:`Manipulating and extracting data from SQW files and objects <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:Manipulating and extracting data from SQW files and objects>`
+:ref:`Cutting data of interest from SQW files and objects <manual/Cutting_data_of_interest_from_SQW_files_and_objects:Cutting data of interest from SQW files and objects>`
 
-- :ref:`cut_sqw <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut_sqw>`
-- :ref:`head_sqw <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:head_horace>`
-- :ref:`read <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:read_sqw>`
-- :ref:`save <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:save>`
-- :ref:`save xye ascii file <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:save>`
-- :ref:`extract coordinates <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:hkle>`
+- :ref:`cut_sqw <manual/Cutting_data_of_interest_from_SQW_files_and_objects:cut>`
+- :ref:`cut_sqw <manual/Cutting_data_of_interest_from_SQW_files_and_objects:section>`
+
+:ref:`Observing SQW data stored in files and obtaining information about SQW files and objects and their contents <manual/Observing_SQW_data:Observing SQW data stored in files and obtaining information about SQW files and objects and their contents>`
+
+- :ref:`head_sqw <manual/Observing_SQW_data:head>`
+- :ref:`extract coordinates <manual/Observing_SQW_data:xye>`
+- :ref:`save xye ascii file <manual/Observing_SQW_data:save_xye>`
+
+
+:ref:`Loading ``sqw`` and ``dnd`` objects to memory <manual/Save_and_load:Loading ``sqw`` and ``dnd`` objects to memory>`
+
+- :ref:`read <manual/Save_and_load:read_horace>`
+- :ref:`read <manual/Save_and_load:read_sqw>`
+- :ref:`read <manual/Save_and_load:read_dnd>`
+- :ref:`save <manual/Save_and_load:save>`
 
 
 :ref:`Symmetrising etc <manual/Symmetrising_etc:Symmetry Operations>`

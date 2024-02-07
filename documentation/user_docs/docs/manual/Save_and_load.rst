@@ -1,5 +1,5 @@
 ###############################################################
-Loading ``sqw`` and ``dnd`` objects to memory.
+Loading ``sqw`` and ``dnd`` objects to memory
 ###############################################################
 
 Majority of Horace algorithms accept the name of file containing binary ``sqw`` or ``dnd`` object
