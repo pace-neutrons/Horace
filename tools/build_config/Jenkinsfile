@@ -93,12 +93,12 @@ pipeline {
     // SL7 nodes had matlab/R20xx[ab] + matlab/2020b. Rocky8 nodes do not, only matlab/20xx[ab]
     // removing the R here from the pipeline library standard version so as not to break other library dependent pipelines
     MATLAB_VERSION = utilities.get_param('MATLAB_VERSION', pli.matlab_release)
-    MATLAB_MODULE = utilities.get_param('MATLAB_VERSION', pli.matlab_release.minus('R'))
-    CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', '3.26')
-    GCC_VERSION = utilities.get_param('GCC_VERSION', '13')
-    PYTHON_VERSION = utilities.get_param('PYTHON_VERSION', '3.8')
+    MATLAB_MODULE = utilities.get_param('MATLAB_VERSION', pli.matlab_release)  // .minus('R')
+    CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', '3.19')
+    GCC_VERSION = utilities.get_param('GCC_VERSION', '6.3.0')
+    PYTHON_VERSION = utilities.get_param('PYTHON_VERSION', '3.6')
     VS_VERSION = utilities.get_param('VS_VERSION', '2019')
-    CPPCHECK_VERSION = utilities.get_param('CPPCHECK_VERSION', '2.13')
+    CPPCHECK_VERSION = utilities.get_param('CPPCHECK_VERSION', '1.77')
     BUILD_DOCS = utilities.get_param('BUILD_DOCS', 'true')
   }
 
