@@ -27,7 +27,7 @@ else % if pix_input is 4-d,
 
 end
 
-if ~isempty(obj.ub_inv_legacy) % legacy alignment
+if ismethod(obj,'ub_inf_legaccy') && ~isempty(obj.ub_inv_legacy) % legacy alignment
     transf_to_hkl = inv(obj.ub_inv_legacy(1:3,1:3));
 else
     transf_to_hkl = obj.bmatrix();
