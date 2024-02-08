@@ -545,7 +545,7 @@ Cutting
 =======
 
 In order to do a symmetrised cut, the ordinary ``cut`` function (see
-:ref:`manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut`)
+:ref:`manual/Cutting_data_of_interest_from_SQW_files_and_objects:cut`)
 is used with the appropriate symmetry operations additionally passed into the
 function as an argument after the bin axes specification (see example
 below). The ``cut`` operation will then use the symmetry operations to compute
