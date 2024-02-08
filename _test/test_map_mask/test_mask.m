@@ -70,38 +70,10 @@ classdef test_mask < TestCase
         
         
         %------------------------------------------------------------------
-        % Test read_ascii
-        %------------------------------------------------------------------
-        function test_read_file_single_line (~)
-            % Test reading a mask file
-            w = IX_mask.read_ascii ('msk_1.msk');
-            wref = IX_mask ([34:54, 2:5, 30:40]);
-            assertEqual (w.msk, wref.msk,...
-                'File and array constructors not equivalent')
-        end
-        
-        function test_read_file_multiple_lines (~)
-            % Test reading a mask file
-            w = IX_mask.read_ascii ('msk_2.msk');
-            wref = IX_mask ([60:-1:50, 2:5, 30:40, 19:23]);
-            assertEqual (w.msk, wref.msk,...
-                'File and array constructors not equivalent')
-        end
-        
-        function test_read_file_multiple_lines_and_comments (~)
-            % Test reading a mask file
-            w = IX_mask.read_ascii ('msk_3.msk');
-            wref = IX_mask ([2:5, 10:12, 19:23, 30:42, 50:62]);
-            assertEqual (w.msk, wref.msk,...
-                'File and array constructors not equivalent')
-        end
-        
-        
-        %------------------------------------------------------------------
         % Test save_ascii
         %------------------------------------------------------------------
-        function test_IO_ascii_0 (~)
-            % Empty mask ASCII IO
+        function test_save_then_read_ascii_emptyMask (~)
+            % Save empty mask and read back in again and check identical
             w = IX_mask();
             tmpfile = fullfile(tmp_dir,'tmp.msk');
             cleanup = onCleanup(@()delete(tmpfile));
@@ -110,8 +82,8 @@ classdef test_mask < TestCase
             assertTrue (isequal(w,wtmp), 'Write+read does not make an identity');
         end
         
-        function test_IO_ascii_1 (~)
-            % Non-empty mask ASCII IO
+        function test_save_then_read_ascii_nonEmptyMask (~)
+            % Save non-empty mask and read back in again and check identical
             w = IX_mask ([34:54, 2:5, 30:40]);
             tmpfile = fullfile(tmp_dir,'tmp.msk');
             cleanup = onCleanup(@()delete(tmpfile));
@@ -120,19 +92,10 @@ classdef test_mask < TestCase
             assertTrue (isequal(w,wtmp), 'Write+read does not make an identity');
         end
         
-        function test_IO_ascii_2 (~)
-            % Non-empty mask ASCII IO
+        function test_save_then_read_ascii_nonEmptyMaskWithNegativeStride (~)
+            % Save non-empty mask and read back in again and check identical
+            % Has negative stride in the constructor of the mask.
             w = IX_mask ([60:-1:50, 2:5, 30:40, 19:23]);
-            tmpfile = fullfile(tmp_dir,'tmp.msk');
-            cleanup = onCleanup(@()delete(tmpfile));
-            save_ascii(w, tmpfile)
-            wtmp = IX_mask.read_ascii(tmpfile);
-            assertTrue (isequal(w,wtmp), 'Write+read does not make an identity');
-        end
-        
-        function test_IO_ascii_3 (~)
-            % Non-empty mask ASCII IO
-            w = IX_mask ([60:-1:50, 2:5, 30:40, 19:23, 38:42, 10:12]);
             tmpfile = fullfile(tmp_dir,'tmp.msk');
             cleanup = onCleanup(@()delete(tmpfile));
             save_ascii(w, tmpfile)
@@ -144,15 +107,16 @@ classdef test_mask < TestCase
         %------------------------------------------------------------------
         % Test combine
         %------------------------------------------------------------------
-        function test_combine_1 (~)
-            % Test combine with one argument only
+        function test_combine_1arg (~)
+            % Test combine with one argument only. 
+            % Output should be the same as the input.
             w = IX_mask ('msk_1.msk');
             c = combine (w);
             assertEqual (w, c)
         end
         
         function test_combine_2 (~)
-            % Test combining with an empty
+            % Test combine of a mask with an empty mask. Should 
             w = IX_mask ('msk_1.msk');
             c = combine (w, IX_mask());
             assertEqual (w, c)

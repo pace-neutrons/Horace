@@ -27,7 +27,7 @@ classdef test_resolve_repeat_blocks < TestCase
         
         %-----------------------------------------------------------------------
         function test_delta_ix_NaN (~)
-            % delta_ix_in is a placeholder - needs to set from nx
+            % delta_ix_in is a placeholder - needs to be set from nx
             % ix_max_prev is not needed, so can be omitted
             ix_beg_in = 11; ix_dcn = 1; delta_ix_in = NaN; nx = 5; nrepeat = 4;
             

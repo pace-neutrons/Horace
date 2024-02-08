@@ -1,10 +1,14 @@
 classdef test_repeat_s_w_arrays < TestCase
-    % Test repeat_s_w_arrays
+    % Test private utility function of IX_map named repeat_s_w_arrays
+    % That function appends copies of arrays of workspace and spectrum numbers
+    % with offsets multiple times according as its input argument nrepeat.
+    % See that function for details of its functionality.
     
     methods
         %-----------------------------------------------------------------------
         function test_oneRepeat (~)
-            % nrepeat = 1 (i.e. no repeat)
+            % nrepeat = 1 i.e. no appended copies of workspaces and spectra
+            % arrays. Tests the possibility of branch that makes trivial return
             
             wkno = [10 12 14 15];
             ns = [1 3 0 1];
@@ -25,7 +29,8 @@ classdef test_repeat_s_w_arrays < TestCase
         
         %-----------------------------------------------------------------------
         function test_manyRepeats (~)
-            % nrepeat = 3
+            % nrepeat = 3 i.e. three appended copies of workspace and spectra
+            % arrays with offsets.
             
             wkno = [10 12 14 15];
             ns = [1 3 0 1];

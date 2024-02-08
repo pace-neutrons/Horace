@@ -1,10 +1,15 @@
 classdef test_repeat_s_w_blocks < TestCase
-    % Test repeat_s_w_blocks
+    % Test private utility function of IX_map named repeat_s_w_blocks
+    % That function takes a descriptor that defines blocks of workspace and
+    % spectra and also appends multiple copies of those blocks with offsets
+    % according to input argument nrepeat.
+    % See the function repeat_s_w_blocks for details.
     
     methods
         %-----------------------------------------------------------------------
         function test_oneDescriptor_repeatedBlock (~)
-            % Single grouping descriptor
+            % Single workspace-spectra descriptor with multiple repeats of the
+            % defined blocks of workspaces and spectra
             
             s_beg = 11;
             s_end = 16;
@@ -29,10 +34,13 @@ classdef test_repeat_s_w_blocks < TestCase
         
         %-----------------------------------------------------------------------
         function test_oneDescriptor_repeatedBlock_exactGrouping (~)
-            % Single grouping descriptor
-            % Catches an error that earlier was not spotted: if the spectrum
-            % range is an exact multiple of the spectrum grouping: was adding a
-            % workspace with zero spectra.
+            % Single workspace-spectra descriptor with multiple repeats of the
+            % defined blocks of workspaces and spectra
+            % This tests that what was originally an obscure bug is not
+            % inadvertently reinstituted: if the number of spectra in the full
+            % spectrum range (s_beg to s_end) is an exact multiple of the
+            % number of spectra grouped into one workspace (ngroup) the bug was
+            % also creating a final workspace with zero spectra.
             
             s_beg = 11;
             s_end = 18;
@@ -57,7 +65,9 @@ classdef test_repeat_s_w_blocks < TestCase
         
         %-----------------------------------------------------------------------
         function test_oneDescriptor_repeatedBlock_spNegDcn_wNegDcn (~)
-            % Single block descriptor with negative s_dcn and w_dcn
+            % Single workspace-spectra descriptor with multiple repeats of the
+            % defined blocks of workspaces and spectra, in this test with
+            % negative s_dcn and w_dcn
             
             s_beg = 56;
             s_end = 51;
@@ -82,7 +92,9 @@ classdef test_repeat_s_w_blocks < TestCase
         
         %-----------------------------------------------------------------------
         function test_twoDescriptors_repeatedBlocks_spMixedDcn_wMixedDcn (~)
-            % Multiple block descriptors
+            % Two workspace-spectra descriptor each with multiple repeats
+            % of the defined blocks of workspaces and spectra. One descriptor
+            % has negative s_dcn and w_dcn
             
             s_beg = [11,56];
             s_end = [16,51];
@@ -107,7 +119,11 @@ classdef test_repeat_s_w_blocks < TestCase
         
         %-----------------------------------------------------------------------
         function test_twoDescriptors_repeatedBlocks_wPlaceholders (~)
-            % Two block descriptors, placeholder w_beg and delta_w on second
+            % Two workspace-spectra descriptor each with multiple repeats
+            % of the defined blocks of workspaces and spectra.
+            % Placeholder initial workspace number and offsets (w_beg and
+            % delta_w) on the second descriptor to be determined within
+            % repeat_s_w_blocks after the first block is constructed.
             
             s_beg = [11,56];
             s_end = [16,51];
@@ -130,8 +146,10 @@ classdef test_repeat_s_w_blocks < TestCase
         end
         
         %-----------------------------------------------------------------------
-        function test_twoDescriptors_repeatedBlocks_wGoesnegative_ERROR (~)
-            % Workspaces go < 1. Should fail
+        function test_twoDescriptors_repeatedBlocks_wGoesNegative_ERROR (~)
+            % Create an error condition with two workspace-spectra descriptors
+            % where the workspace numbers defined by the block descriptors go
+            % negative - not permitted as workpsace numbers must be positive.
             
             s_beg = [11,56];
             s_end = [16,51];
@@ -147,7 +165,8 @@ classdef test_repeat_s_w_blocks < TestCase
                 ngroup, s_dcn, w_beg, w_dcn, nrepeat, delta_s, delta_w);
             
             ME = assertExceptionThrown (func, 'HERBERT:IX_map:invalid_argument');
-            assertTrue(contains(ME.message, 'Workspace array constructed for'))
+            assertTrue(contains(ME.message, ['Workspace array constructed for ',...
+            'at least one block descriptor includes zero or negative workspace numbers']))
         end
         
         %-----------------------------------------------------------------------

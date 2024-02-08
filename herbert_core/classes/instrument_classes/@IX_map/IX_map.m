@@ -1,5 +1,11 @@
 classdef IX_map < serializable
-    % IX_map   Definition of spectrum to workspace mapping class
+    % IX_map   Definition of mapping of spectra to workspaces.
+    %   In the context of neutron scattering instrumentation the spectra are the
+    %   counts as a function time-of-flight or energy or wavelength; workspaces
+    %   are defined by grouping one or more spectra together as one entity.
+    %   More generally, an IX_map object can be considered as a ont-to-one or
+    %   many-to-one mapping of a collection of spectra to a collection of
+    %   workspaces.
     
     properties (Access=private)
         % Row vector of unique workspace numbers
@@ -56,7 +62,7 @@ classdef IX_map < serializable
         %------------------------------------------------------------------
         function obj = IX_map (varargin)
             % Constructor for IX_map object, which maps spectra to workspaces,
-            % either one-to-one or in groups of spectra per workspace:
+            % either one-to-one or in groups of spectra per workspace.
             %
             % Single spectrum to single workspace, one-to-one mapping of spectra
             % to workspaces, or general many-to-one mapping:
@@ -477,6 +483,8 @@ classdef IX_map < serializable
             % Comments can also be put at the end of lines following ! or %.
             %
             % For examples, see:
+            %   <a href="matlab:edit('map_14work_18432spec.map');">Example MAPS instrument .map file</a>
+            %   <a href="matlab:edit('map_HET_fourfold.map');">Example HET instrument .map file</a>
             %
             %
             % NOTE: The old VMS format is also supported. This assumes

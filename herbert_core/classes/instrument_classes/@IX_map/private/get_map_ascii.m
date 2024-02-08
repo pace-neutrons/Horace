@@ -35,6 +35,8 @@ function obj = get_map_ascii (filename)
 % Comments can also be put at the end of lines following ! or %.
 %
 % For examples, see:
+%   <a href="matlab:edit('map_14work_18432spec.map');">Example MAPS instrument .map file</a>
+%   <a href="matlab:edit('map_HET_fourfold.map');">Example HET instrument .map file</a>
 %
 %
 % NOTE: The old VMS format is also supported. This assumes
