@@ -57,7 +57,7 @@ napoleon_use_ivar = True
 napoleon_use_param = False
 napoleon_use_admonition_for_notes = True
 
-matlab_src_dir = os.path.abspath(os.path.join(os.path.abspath('.'), "../../../horace_core"))
+#matlab_src_dir = os.path.abspath(os.path.join(os.path.abspath('.'), "../../../horace_core"))
 matlab_keep_package_prefix = False
 primary_domain = 'mat'
 

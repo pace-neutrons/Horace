@@ -26,7 +26,7 @@ and somebody will come back and try to help you answering your question.
    Developers
 
    Contributing
-   API_Reference
+
 
    General_disclaimer
    Previous_versions
