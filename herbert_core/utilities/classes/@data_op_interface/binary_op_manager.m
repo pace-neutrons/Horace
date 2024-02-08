@@ -1,7 +1,8 @@
-function w = binary_op_manager(w1, w2, binary_op)
+function w = binary_op_manager(w1, w2, binary_op,ignore_cell_sorting)
 % Implements a binary operation for objects with a signal and a variance array.
 %
 %   >> w = binary_op_manager(w1, w2, binary_op)
+%   >> w = binary_op_manager(w1, w2, binary_op,ignore_cell_sorting)
 %
 % All binary operations on Matlab double arrays are permitted
 % (+, -, *, /, \) and are applied element by element to the signal and
@@ -47,6 +48,18 @@ function w = binary_op_manager(w1, w2, binary_op)
 %   binary_op   Function handle to a binary operation. All binary operations
 %               on Matlab double or single arrays are permitted (+, -, *,
 %               /, \).
+%
+% Optional:
+% ignore_cell_sorting
+%             By default false and binary operation which includes pixels
+%             sort pixels with every bin when operation is performed. 
+%
+%             if operation is performed between two sqw objects and user
+%             sure that pixels in cells of the objects have the same order
+%             (this happens if e.g. one object is build from another object
+%              within the previous operation) this property may be set to
+%              true to improve operation performance.
+%
 %
 % Output:
 % -------
@@ -100,6 +113,10 @@ function w = binary_op_manager(w1, w2, binary_op)
 % The dominant class is also this class type, for the same reason.
 %
 % Think of a numeric array as a stack of objects, each one a smaller array
+
+if nargin < 4
+    ignore_cell_sorting = false;
+end
 
 if isobject(w1)
     % w1 is not an intrinsic matlab class
@@ -186,7 +203,7 @@ nobj2 = prod(size_stack2);
 
 if (nobj1 == nobj2 && nobj1 == 1)
     % w1 and w2 both scalar instances of objects
-    w = binary_op_manager_single(w1, w2, binary_op);
+    w = binary_op_manager_single(w1, w2, binary_op,ignore_cell_sorting);
 
 elseif isequal(size_stack1, size_stack2)
     % w1 and w2 are both non-scalar arrays of objects (scalar case caught above)
@@ -205,7 +222,7 @@ elseif (nobj1 == 1 && nobj2 > 1)
     w2_2D = reshape(w2, nroot2, nobj2);
     for i = 1:nobj2
         obj2 = reshape(w2_2D(:,i), size_root2);
-        w(i) = binary_op_manager_single(w1, obj2, binary_op);
+        w(i) = binary_op_manager_single(w1, obj2, binary_op,ignore_cell_sorting);
     end
 
 elseif (nobj1 > 1 && nobj2 == 1)
@@ -214,7 +231,7 @@ elseif (nobj1 > 1 && nobj2 == 1)
     w1_2D = reshape(w1, nroot1, nobj1);
     for i = 1:nobj1
         obj1 = reshape(w1_2D(:,i), size_root1);
-        w(i) = binary_op_manager_single(obj1, w2, binary_op);
+        w(i) = binary_op_manager_single(obj1, w2, binary_op,ignore_cell_sorting);
     end
 
 else

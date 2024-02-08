@@ -1,4 +1,4 @@
-function wout = binary_op_manager_single(w1, w2, binary_op)
+function wout = binary_op_manager_single(w1, w2, binary_op,ignore_cell_sorting)
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
@@ -22,7 +22,20 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 %   <#file:> <doc_file_sigvar_notes>
 % <#doc_end:>
 % -----------------------------------------------------------------------------
+% Optional:
+% ignore_cell_sorting
+%             By default false and binary operation which includes pixels
+%             sort pixels with every bin when operation is performed. 
+%
+%             if operation is performed between two sqw objects and user
+%             sure that pixels in cells of the objects have the same order
+%             (this happens if e.g. one object is build from another object
+%              within the previous operation) this property may be set to
+%              true to improve operation performance.
 
+if nargin < 4
+    ignore_cell_sorting = false;
+end
 
 op_name = func2str(binary_op);
 % identify order of operations, operands superiority and the type of 
@@ -50,6 +63,7 @@ switch(page_op_kind)
         page_op = PageOp_binary_sqw_img();
     case(3) % operation between two objects with pixels and images
         page_op = PageOp_binary_sqw_sqw();
+        page_op.sort_pixels_in_bins = ~ignore_cell_sorting;
     otherwise
         error('HERBERT:data_op_interface:invalid_argument', ...
             'unsupported type of operation %d for operation %s between objects of class %s and class %s', ...

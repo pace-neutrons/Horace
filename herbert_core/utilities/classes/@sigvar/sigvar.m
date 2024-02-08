@@ -206,7 +206,7 @@ classdef sigvar < data_op_interface & serializable
         function wout = copy(win)
             wout = win;
         end
-        wout = binary_op_manager_single(w1, w2, binary_op);
+        wout = binary_op_manager_single(w1, w2, binary_op,varargin);
     end
 
 
