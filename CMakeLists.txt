@@ -62,11 +62,21 @@ set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 # Look for packages early so we can exit if they're not found
 find_package(OpenMP)
 include(PACE_FindMatlab)
+#
+message(" MATLAB CURRENT VERSION: ${MATLAB_CURRENT_VERSION}")
+set(BUILD_HDF_MEX_PLUGIN TRUE)
+if ((${MATLAB_CURRENT_VERSION} VERSION_LESS "7.11") OR (${MATLAB_CURRENT_VERSION} VERSION_GREATER "9.4"))
+    set(BUILD_HDF_MEX_PLUGIN FALSE)
+endif()
+
 include(PACE_Version)
 include(PACE_AddMex)
 include(PACE_CodeAnalysis)
 include(PACE_Docs)
-include(horace_FindHDF5)
+if (${BUILD_HDF_MEX_PLUGIN})
+	include(horace_FindHDF5)
+endif()
+
 include(herbert_FindMPI)
 include(CTest)
 if(BUILD_TESTING)
