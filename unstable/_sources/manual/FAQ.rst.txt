@@ -41,7 +41,7 @@ The ``sqw`` object carries around an array containing the information of each
 detector-energy pixel which underlies the result in a raw form. These pixels are
 then accumulated and binned into the intensity histogram which makes up the
 ``dnd``. ``sqw`` s also carry around details about the contributing ``.nxspe``
-files from which it was made and, in particular, allows for instrunment
+files from which it was made and, in particular, allows for instrument's
 information to be attached enabling resolution-convolution to be performed.
 
 .. note::
@@ -55,7 +55,7 @@ plotting region and the histogram bins into which the pixels are accumulated.
 
 Should a ``dnd`` be separated from an ``sqw`` (e.g. by using the ``-nopix``
 option on a :ref:`cut
-<manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut>` or by
+<manual/Cutting_data_of_interest_from_SQW_files_and_objects:cut>` or by
 extracting the ``data`` property from an ``sqw`` directly) certain operations
 are no longer possible or act differently because the ``dnd`` no longer has the
 underlying pixel data. This means that only operation which can act on the

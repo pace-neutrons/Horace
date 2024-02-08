@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Binary operations &mdash; Horace  documentation</title>
+  <title>12. Binary operations &mdash; Horace  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -21,8 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Plotting" href="Plotting.html" />
-    <link rel="prev" title="Unary operations" href="Unary_operations.html" /> 
+    <link rel="next" title="13. Plotting" href="Plotting.html" />
+    <link rel="prev" title="11. Unary operations" href="Unary_operations.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,46 +49,46 @@
 <li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">Other shape functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">Symmetry Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Binary operations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#sqw-objects">sqw objects</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#single-sqw-object">Single sqw object</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#array-of-sqw-objects">Array of sqw objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">1. Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">2. Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">3. Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Special_sqw_information.html">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">9. Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">12. Binary operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sqw-objects">12.1. sqw objects</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#single-sqw-object">12.1.1. Single sqw object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#array-of-sqw-objects">12.1.2. Array of sqw objects</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#dnd-objects">dnd objects</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#single-dnd-object">Single dnd object</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#array-of-dnd-objects">Array of dnd objects</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#list-of-operations-and-their-equivalent-code">List of operations and their equivalent code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dnd-objects">12.2. dnd objects</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#single-dnd-object">12.2.1. Single dnd object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#array-of-dnd-objects">12.2.2. Array of dnd objects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#list-of-operations-and-their-equivalent-code">12.2.3. List of operations and their equivalent code</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Plotting.html">Plotting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Parallel.html">Running Horace in Parallel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">13. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">15. Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">16. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">17. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">18. Changing Horace settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../Unsorted.html">Unsorted Manual Pages</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
 </ul>
@@ -108,7 +108,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
-      <li class="breadcrumb-item active">Binary operations</li>
+      <li class="breadcrumb-item active"><span class="section-number">12. </span>Binary operations</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/manual/Binary_operations.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -119,13 +119,13 @@
            <div itemprop="articleBody">
              
   <section id="binary-operations">
-<h1>Binary operations<a class="headerlink" href="#binary-operations" title="Permalink to this heading"></a></h1>
+<h1><span class="section-number">12. </span>Binary operations<a class="headerlink" href="#binary-operations" title="Permalink to this heading"></a></h1>
 <p>Binary operations between two objects can be applied in a variety of ways in
 Horace. You can either use the symbolic form (<code class="docutils literal notranslate"><span class="pre">+</span></code>, <code class="docutils literal notranslate"><span class="pre">-</span></code> , <code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">/</span></code>,
 <code class="docutils literal notranslate"><span class="pre">\</span></code>), or you can use the explicit function names (<code class="docutils literal notranslate"><span class="pre">plus,</span> <span class="pre">minus,</span> <span class="pre">mtimes,</span>
 <span class="pre">mrdivide</span></code>, <code class="docutils literal notranslate"><span class="pre">mldivide</span></code>, etc.).</p>
 <section id="sqw-objects">
-<h2>sqw objects<a class="headerlink" href="#sqw-objects" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">12.1. </span>sqw objects<a class="headerlink" href="#sqw-objects" title="Permalink to this heading"></a></h2>
 <p>Let us take for our example the addition operator <code class="docutils literal notranslate"><span class="pre">+</span></code>. Our initial <code class="docutils literal notranslate"><span class="pre">sqw</span></code>
 object is called <code class="docutils literal notranslate"><span class="pre">w1</span></code> and has an attached <code class="docutils literal notranslate"><span class="pre">pix</span></code> array.</p>
 <div class="admonition note">
@@ -134,7 +134,7 @@ object is called <code class="docutils literal notranslate"><span class="pre">w1
 and <code class="docutils literal notranslate"><span class="pre">variance</span></code> elements of the pixel data.</p>
 </div>
 <section id="single-sqw-object">
-<h3>Single sqw object<a class="headerlink" href="#single-sqw-object" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">12.1.1. </span>Single sqw object<a class="headerlink" href="#single-sqw-object" title="Permalink to this heading"></a></h3>
 <p>You operate on <code class="docutils literal notranslate"><span class="pre">w1</span></code> with the following types:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object with a pix array of identical size to the pix
@@ -175,7 +175,7 @@ longer corresponds to the underlying pixels.</p>
 </ul>
 </section>
 <section id="array-of-sqw-objects">
-<h3>Array of sqw objects<a class="headerlink" href="#array-of-sqw-objects" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">12.1.2. </span>Array of sqw objects<a class="headerlink" href="#array-of-sqw-objects" title="Permalink to this heading"></a></h3>
 <p>You can use the same binary operation syntax as for single sqw objects, with the
 following conditions</p>
 <ul class="simple">
@@ -192,7 +192,7 @@ sqw objects.</p></li>
 </section>
 </section>
 <section id="dnd-objects">
-<h2>dnd objects<a class="headerlink" href="#dnd-objects" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">12.2. </span>dnd objects<a class="headerlink" href="#dnd-objects" title="Permalink to this heading"></a></h2>
 <p>Let us again take for our example the addition operator <code class="docutils literal notranslate"><span class="pre">+</span></code>, with our initial
 <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object called <code class="docutils literal notranslate"><span class="pre">w1</span></code> .</p>
 <div class="admonition note">
@@ -201,7 +201,7 @@ sqw objects.</p></li>
 <code class="docutils literal notranslate"><span class="pre">e</span></code> matrices</p>
 </div>
 <section id="single-dnd-object">
-<h3>Single dnd object<a class="headerlink" href="#single-dnd-object" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">12.2.1. </span>Single dnd object<a class="headerlink" href="#single-dnd-object" title="Permalink to this heading"></a></h3>
 <p>You can add values to <code class="docutils literal notranslate"><span class="pre">w1</span></code> in the following ways:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object with a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> (in <code class="docutils literal notranslate"><span class="pre">data</span></code>) of identical size to
@@ -228,14 +228,14 @@ sqw objects.</p></li>
 </ul>
 </section>
 <section id="array-of-dnd-objects">
-<h3>Array of dnd objects<a class="headerlink" href="#array-of-dnd-objects" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">12.2.2. </span>Array of dnd objects<a class="headerlink" href="#array-of-dnd-objects" title="Permalink to this heading"></a></h3>
 <p>Similar to arrays of sqw objects.</p>
 <p>As for sqw objects, arrays have to be the same size as the array of dnd objects
 with respectively commensurate array sizes, or a scalar object as the same size
 of each.</p>
 </section>
 <section id="list-of-operations-and-their-equivalent-code">
-<h3>List of operations and their equivalent code<a class="headerlink" href="#list-of-operations-and-their-equivalent-code" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">12.2.3. </span>List of operations and their equivalent code<a class="headerlink" href="#list-of-operations-and-their-equivalent-code" title="Permalink to this heading"></a></h3>
 <p>The arithmetic operations above correspond to equivalent Matlab functions. You
 should never need to use these, but for reference the corresponding functions
 are:</p>
@@ -259,15 +259,15 @@ element-by-element. So the equivalent Matlab routines would be <code class="docu
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Unary_operations.html" class="btn btn-neutral float-left" title="Unary operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="Plotting.html" class="btn btn-neutral float-right" title="Plotting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Unary_operations.html" class="btn btn-neutral float-left" title="11. Unary operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Plotting.html" class="btn btn-neutral float-right" title="13. Plotting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Dec 14, 2023, 12:25:41 PM.
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 8, 2024, 10:59:22 AM.
       </span></p>
   </div>
 

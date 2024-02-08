@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plotting &mdash; Horace  documentation</title>
+  <title>13. Plotting &mdash; Horace  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -21,8 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Simulation" href="Simulation.html" />
-    <link rel="prev" title="Binary operations" href="Binary_operations.html" /> 
+    <link rel="next" title="14. Simulation" href="Simulation.html" />
+    <link rel="prev" title="12. Binary operations" href="Binary_operations.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,85 +49,85 @@
 <li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">Other shape functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">Symmetry Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Plotting</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#plot">plot</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#smooth">smooth</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#altering-plot-characteristics-and-other-useful-commands">Altering plot characteristics and other useful commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">1. Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">2. Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">3. Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Special_sqw_information.html">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">9. Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">12. Binary operations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">13. Plotting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plot">13.1. plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#smooth">13.2. smooth</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#altering-plot-characteristics-and-other-useful-commands">13.2.1. Altering plot characteristics and other useful commands</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#colour-of-lines-and-markers">Colour of lines and markers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#line-style">Line style</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#marker-style">Marker style</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#axes-limits">Axes Limits</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#cursor">Cursor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#keeping-plots">Keeping plots</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#one-dimensional-plots">One dimensional plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#colour-of-lines-and-markers">13.3. Colour of lines and markers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#line-style">13.4. Line style</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#marker-style">13.5. Marker style</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#axes-limits">13.6. Axes Limits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cursor">13.7. Cursor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keeping-plots">13.8. Keeping plots</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#one-dimensional-plots">13.8.1. One dimensional plots</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#dd-draw-data">dd (draw data)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#dl-draw-line">dl (draw line)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#dm-draw-markers">dm (draw markers)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#dp-draw-points">dp (draw points)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#de-draw-errors">de (draw errors)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#dh-draw-histogram">dh (draw histogram)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pd-plot-data">pd (plot data)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pl-plot-line">pl (plot line)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pm-plot-markers">pm (plot markers)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pp-plot-points">pp (plot points)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pe-plot-errors">pe (plot errors)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ph-plot-histogram">ph (plot histogram)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ploc-plot-line-over-current">ploc (plot line over current)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pdoc-plot-data-over-current">pdoc (plot data over current)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pmoc-plot-markers-over-current">pmoc (plot markers over current)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ppoc-plot-points-over-current">ppoc (plot points over current)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#peoc-plot-errors-over-current">peoc (plot errors over current)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#phoc">phoc</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#two-dimensional-plots">Two dimensional plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dd-draw-data">13.9. dd (draw data)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dl-draw-line">13.10. dl (draw line)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dm-draw-markers">13.11. dm (draw markers)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dp-draw-points">13.12. dp (draw points)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#de-draw-errors">13.13. de (draw errors)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dh-draw-histogram">13.14. dh (draw histogram)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pd-plot-data">13.15. pd (plot data)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pl-plot-line">13.16. pl (plot line)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pm-plot-markers">13.17. pm (plot markers)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pp-plot-points">13.18. pp (plot points)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pe-plot-errors">13.19. pe (plot errors)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ph-plot-histogram">13.20. ph (plot histogram)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ploc-plot-line-over-current">13.21. ploc (plot line over current)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdoc-plot-data-over-current">13.22. pdoc (plot data over current)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pmoc-plot-markers-over-current">13.23. pmoc (plot markers over current)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ppoc-plot-points-over-current">13.24. ppoc (plot points over current)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#peoc-plot-errors-over-current">13.25. peoc (plot errors over current)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phoc">13.26. phoc</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#two-dimensional-plots">13.26.1. Two dimensional plots</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#da-draw-area">da (draw area)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ds-draw-surface">ds (draw surface)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ds2-draw-surface-from-2-sources">ds2 (draw surface from 2 sources)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pa-plot-area">pa (plot area)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ps-plot-surface">ps (plot surface)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ps2-plot-surface-from-2-objects">ps2 (plot surface from 2 objects)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#spaghetti-plot">spaghetti_plot</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#three-dimensional-plots">Three dimensional plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#da-draw-area">13.27. da (draw area)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ds-draw-surface">13.28. ds (draw surface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ds2-draw-surface-from-2-sources">13.29. ds2 (draw surface from 2 sources)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pa-plot-area">13.30. pa (plot area)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ps-plot-surface">13.31. ps (plot surface)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ps2-plot-surface-from-2-objects">13.32. ps2 (plot surface from 2 objects)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spaghetti-plot">13.33. spaghetti_plot</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#three-dimensional-plots">13.33.1. Three dimensional plots</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#sliceomatic">sliceomatic</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#sliceomatic-overview">sliceomatic_overview</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#miscellaneous-functions">Miscellaneous functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sliceomatic">13.34. sliceomatic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sliceomatic-overview">13.35. sliceomatic_overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#miscellaneous-functions">13.35.1. Miscellaneous functions</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Parallel.html">Running Horace in Parallel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">15. Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">16. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">17. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">18. Changing Horace settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../Unsorted.html">Unsorted Manual Pages</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
 </ul>
@@ -147,7 +147,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
-      <li class="breadcrumb-item active">Plotting</li>
+      <li class="breadcrumb-item active"><span class="section-number">13. </span>Plotting</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/manual/Plotting.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -158,11 +158,11 @@
            <div itemprop="articleBody">
              
   <section id="plotting">
-<h1>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading"></a></h1>
+<h1><span class="section-number">13. </span>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading"></a></h1>
 <p>An exhaustive list of commands to do with plotting your data - one of the
 primary functions of Horace!</p>
 <section id="plot">
-<h2>plot<a class="headerlink" href="#plot" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.1. </span>plot<a class="headerlink" href="#plot" title="Permalink to this heading"></a></h2>
 <p>Plot a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> or <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. In general the axes are the dimensions of the
 <code class="docutils literal notranslate"><span class="pre">dnd</span></code> or <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects themselves according to the cut and the
 signal/intensity.</p>
@@ -189,7 +189,7 @@ window, the axes, and the plot respectively. These are useful if, for example,
 you wish to resize the axes, change the font size of labels, etc.</p>
 </section>
 <section id="smooth">
-<h2>smooth<a class="headerlink" href="#smooth" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.2. </span>smooth<a class="headerlink" href="#smooth" title="Permalink to this heading"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wsmooth</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">smooth</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
 
 <span class="n">wsmooth</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">smooth</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">wid_x</span><span class="p">,</span><span class="w"> </span><span class="n">wid_y</span><span class="p">,</span><span class="w"> </span><span class="p">..],</span><span class="w"> </span><span class="n">shape</span><span class="p">)</span>
@@ -206,11 +206,11 @@ the object is designed to hold. To convert an <code class="docutils literal notr
 <code class="docutils literal notranslate"><span class="pre">dnd</span></code>, simply type <code class="docutils literal notranslate"><span class="pre">wout</span> <span class="pre">=</span> <span class="pre">dnd(win)</span></code>.</p>
 </div>
 <section id="altering-plot-characteristics-and-other-useful-commands">
-<h3>Altering plot characteristics and other useful commands<a class="headerlink" href="#altering-plot-characteristics-and-other-useful-commands" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">13.2.1. </span>Altering plot characteristics and other useful commands<a class="headerlink" href="#altering-plot-characteristics-and-other-useful-commands" title="Permalink to this heading"></a></h3>
 </section>
 </section>
 <section id="colour-of-lines-and-markers">
-<h2>Colour of lines and markers<a class="headerlink" href="#colour-of-lines-and-markers" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.3. </span>Colour of lines and markers<a class="headerlink" href="#colour-of-lines-and-markers" title="Permalink to this heading"></a></h2>
 <p>To change the marker and line colour in a 1-dimensional Horace plot, type</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">acolor</span><span class="w"> </span><span class="o">&lt;</span><span class="n">the</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">want</span><span class="o">&gt;</span>
 </pre></div>
@@ -221,7 +221,7 @@ the object is designed to hold. To convert an <code class="docutils literal notr
 </div>
 </section>
 <section id="line-style">
-<h2>Line style<a class="headerlink" href="#line-style" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.4. </span>Line style<a class="headerlink" href="#line-style" title="Permalink to this heading"></a></h2>
 <p>To change the line style in a 1-dimensional plot, type e.g.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">aline</span><span class="w"> </span><span class="o">--</span>
 </pre></div>
@@ -238,7 +238,7 @@ like</p>
 <p>Type <code class="docutils literal notranslate"><span class="pre">help</span> <span class="pre">aline</span></code> in Matlab for a full list of options.</p>
 </section>
 <section id="marker-style">
-<h2>Marker style<a class="headerlink" href="#marker-style" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.5. </span>Marker style<a class="headerlink" href="#marker-style" title="Permalink to this heading"></a></h2>
 <p>You can change the style of marker in a 1-dimensional plot in a similar way to
 the above, e.g.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">amark</span><span class="w"> </span><span class="s">o</span><span class="w"> </span><span class="s">%gives</span><span class="w"> </span><span class="s">a</span><span class="w"> </span><span class="s">circular</span><span class="w"> </span><span class="s">marker</span>
@@ -249,7 +249,7 @@ the above, e.g.</p>
 <p>Type <code class="docutils literal notranslate"><span class="pre">help</span> <span class="pre">amark</span></code> in Matlab for a full list of options.</p>
 </section>
 <section id="axes-limits">
-<h2>Axes Limits<a class="headerlink" href="#axes-limits" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.6. </span>Axes Limits<a class="headerlink" href="#axes-limits" title="Permalink to this heading"></a></h2>
 <p>To change the x, y, or z limits of a plot, type e.g.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">lx</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">3</span>
 <span class="n">ly</span><span class="w"> </span><span class="o">-</span><span class="mi">6</span><span class="w"> </span><span class="mi">1</span>
@@ -277,7 +277,7 @@ logy
 </dl>
 </section>
 <section id="cursor">
-<h2>Cursor<a class="headerlink" href="#cursor" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.7. </span>Cursor<a class="headerlink" href="#cursor" title="Permalink to this heading"></a></h2>
 <p>In order to get a cursor on your Horace plots, type</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">xycursor</span>
 </pre></div>
@@ -294,7 +294,7 @@ in the Matlab command window or save them to arrays, type</p>
 </div>
 </section>
 <section id="keeping-plots">
-<h2>Keeping plots<a class="headerlink" href="#keeping-plots" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.8. </span>Keeping plots<a class="headerlink" href="#keeping-plots" title="Permalink to this heading"></a></h2>
 <p>To store a figure in your current session (i.e. so that the next plot you make
 opens in a new window, with the current plot preserved), type</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">keep_figure</span>
@@ -309,13 +309,13 @@ click on it and then type</p>
 <p>Note that both of these options are also available in drop-down menus in the
 figures windows themselves.</p>
 <section id="one-dimensional-plots">
-<h3>One dimensional plots<a class="headerlink" href="#one-dimensional-plots" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">13.8.1. </span>One dimensional plots<a class="headerlink" href="#one-dimensional-plots" title="Permalink to this heading"></a></h3>
 <p>In the following the object being plotted can be a single sqw or dnd object, or
 an array of objects.</p>
 </section>
 </section>
 <section id="dd-draw-data">
-<h2>dd (draw data)<a class="headerlink" href="#dd-draw-data" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.9. </span>dd (draw data)<a class="headerlink" href="#dd-draw-data" title="Permalink to this heading"></a></h2>
 <p>Plotting command for 1-dimensional objects only, plotting markers, errorbars,
 and connecting lines. Any existing 1-dimensional figure window is cleared before
 plotting i.e. existing data is not overplotted. If you use this command and the
@@ -328,7 +328,7 @@ figure window will be created.</p>
 </div>
 </section>
 <section id="dl-draw-line">
-<h2>dl (draw line)<a class="headerlink" href="#dl-draw-line" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.10. </span>dl (draw line)<a class="headerlink" href="#dl-draw-line" title="Permalink to this heading"></a></h2>
 <p>Plot line between points for a 1-dimensional object. No markers or errorbars
 displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dl</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -338,7 +338,7 @@ displayed.</p>
 </div>
 </section>
 <section id="dm-draw-markers">
-<h2>dm (draw markers)<a class="headerlink" href="#dm-draw-markers" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.11. </span>dm (draw markers)<a class="headerlink" href="#dm-draw-markers" title="Permalink to this heading"></a></h2>
 <p>Plot markers at points for a 1-dimensional object. No line or errorbars
 displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dm</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -348,7 +348,7 @@ displayed.</p>
 </div>
 </section>
 <section id="dp-draw-points">
-<h2>dp (draw points)<a class="headerlink" href="#dp-draw-points" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.12. </span>dp (draw points)<a class="headerlink" href="#dp-draw-points" title="Permalink to this heading"></a></h2>
 <p>Plot markers and errorbars for a 1-dimensional object. No lines linking points
 are displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dp</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -358,7 +358,7 @@ are displayed.</p>
 </div>
 </section>
 <section id="de-draw-errors">
-<h2>de (draw errors)<a class="headerlink" href="#de-draw-errors" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.13. </span>de (draw errors)<a class="headerlink" href="#de-draw-errors" title="Permalink to this heading"></a></h2>
 <p>Plot errorbars at points for a 1-dimensional object. No linking lines or markers
 are displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">de</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -368,7 +368,7 @@ are displayed.</p>
 </div>
 </section>
 <section id="dh-draw-histogram">
-<h2>dh (draw histogram)<a class="headerlink" href="#dh-draw-histogram" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.14. </span>dh (draw histogram)<a class="headerlink" href="#dh-draw-histogram" title="Permalink to this heading"></a></h2>
 <p>Plot histogram of a 1-dimensional object.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dh</span><span class="p">(</span><span class="n">w_1d</span><span class="p">);</span>
 
@@ -377,7 +377,7 @@ are displayed.</p>
 </div>
 </section>
 <section id="pd-plot-data">
-<h2>pd (plot data)<a class="headerlink" href="#pd-plot-data" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.15. </span>pd (plot data)<a class="headerlink" href="#pd-plot-data" title="Permalink to this heading"></a></h2>
 <p>Overplotting command for 1-dimensional objects only, plotting markers,
 errorbars, and connecting lines.</p>
 <ul class="simple">
@@ -394,7 +394,7 @@ window the existing plot is overplotted.</p></li>
 </div>
 </section>
 <section id="pl-plot-line">
-<h2>pl (plot line)<a class="headerlink" href="#pl-plot-line" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.16. </span>pl (plot line)<a class="headerlink" href="#pl-plot-line" title="Permalink to this heading"></a></h2>
 <p>Overplot line between points for a 1-dimensional object. No markers or errorbars
 displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pl</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -404,7 +404,7 @@ displayed.</p>
 </div>
 </section>
 <section id="pm-plot-markers">
-<h2>pm (plot markers)<a class="headerlink" href="#pm-plot-markers" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.17. </span>pm (plot markers)<a class="headerlink" href="#pm-plot-markers" title="Permalink to this heading"></a></h2>
 <p>Overplot markers at points for a 1-dimensional object. No line or errorbars
 displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pm</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -414,7 +414,7 @@ displayed.</p>
 </div>
 </section>
 <section id="pp-plot-points">
-<h2>pp (plot points)<a class="headerlink" href="#pp-plot-points" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.18. </span>pp (plot points)<a class="headerlink" href="#pp-plot-points" title="Permalink to this heading"></a></h2>
 <p>Overplot markers and errorbars for a 1-dimensional object. No lines linking
 points are displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -424,7 +424,7 @@ points are displayed.</p>
 </div>
 </section>
 <section id="pe-plot-errors">
-<h2>pe (plot errors)<a class="headerlink" href="#pe-plot-errors" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.19. </span>pe (plot errors)<a class="headerlink" href="#pe-plot-errors" title="Permalink to this heading"></a></h2>
 <p>Overplot errorbars at points for a 1-dimensional object. No linking lines or
 markers are displayed.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pe</span><span class="p">(</span><span class="n">w_1d</span><span class="p">)</span>
@@ -434,7 +434,7 @@ markers are displayed.</p>
 </div>
 </section>
 <section id="ph-plot-histogram">
-<h2>ph (plot histogram)<a class="headerlink" href="#ph-plot-histogram" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.20. </span>ph (plot histogram)<a class="headerlink" href="#ph-plot-histogram" title="Permalink to this heading"></a></h2>
 <p>Overplot histogram of a 1-dimensional object.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ph</span><span class="p">(</span><span class="n">w_1d</span><span class="p">);</span>
 
@@ -443,7 +443,7 @@ markers are displayed.</p>
 </div>
 </section>
 <section id="ploc-plot-line-over-current">
-<h2>ploc (plot line over current)<a class="headerlink" href="#ploc-plot-line-over-current" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.21. </span>ploc (plot line over current)<a class="headerlink" href="#ploc-plot-line-over-current" title="Permalink to this heading"></a></h2>
 <p>Overplot a line in the current figure, regardless of type (i.e. can plot a 1d
 curve on top of a 2d dataset, such as when plotting a dispersion relation over a
 2d <strong>Q</strong>-E slice).</p>
@@ -452,21 +452,21 @@ curve on top of a 2d dataset, such as when plotting a dispersion relation over a
 </div>
 </section>
 <section id="pdoc-plot-data-over-current">
-<h2>pdoc (plot data over current)<a class="headerlink" href="#pdoc-plot-data-over-current" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.22. </span>pdoc (plot data over current)<a class="headerlink" href="#pdoc-plot-data-over-current" title="Permalink to this heading"></a></h2>
 <p>Overplot line, markers and error bars in the current figure, regardless of type.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pdoc</span><span class="p">(</span><span class="n">w_1d</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
 <section id="pmoc-plot-markers-over-current">
-<h2>pmoc (plot markers over current)<a class="headerlink" href="#pmoc-plot-markers-over-current" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.23. </span>pmoc (plot markers over current)<a class="headerlink" href="#pmoc-plot-markers-over-current" title="Permalink to this heading"></a></h2>
 <p>Overplot markers in the current figure, regardless of type.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pmoc</span><span class="p">(</span><span class="n">w_1d</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
 <section id="ppoc-plot-points-over-current">
-<h2>ppoc (plot points over current)<a class="headerlink" href="#ppoc-plot-points-over-current" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.24. </span>ppoc (plot points over current)<a class="headerlink" href="#ppoc-plot-points-over-current" title="Permalink to this heading"></a></h2>
 <p>Overplot markers and error bars in the current figure, regardless of type.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pm</span>
 <span class="s">ppoc(w_1d)</span><span class="p">;</span>
@@ -474,24 +474,24 @@ curve on top of a 2d dataset, such as when plotting a dispersion relation over a
 </div>
 </section>
 <section id="peoc-plot-errors-over-current">
-<h2>peoc (plot errors over current)<a class="headerlink" href="#peoc-plot-errors-over-current" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.25. </span>peoc (plot errors over current)<a class="headerlink" href="#peoc-plot-errors-over-current" title="Permalink to this heading"></a></h2>
 <p>Overplot error bars in the current figure, regardless of type.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">peoc</span><span class="p">(</span><span class="n">w_1d</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
 <section id="phoc">
-<h2>phoc<a class="headerlink" href="#phoc" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.26. </span>phoc<a class="headerlink" href="#phoc" title="Permalink to this heading"></a></h2>
 <p>Overplot a histogram in the current figure, regardless of type.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">phoc</span><span class="p">(</span><span class="n">w_1d</span><span class="p">);</span>
 </pre></div>
 </div>
 <section id="two-dimensional-plots">
-<h3>Two dimensional plots<a class="headerlink" href="#two-dimensional-plots" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">13.26.1. </span>Two dimensional plots<a class="headerlink" href="#two-dimensional-plots" title="Permalink to this heading"></a></h3>
 </section>
 </section>
 <section id="da-draw-area">
-<h2>da (draw area)<a class="headerlink" href="#da-draw-area" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.27. </span>da (draw area)<a class="headerlink" href="#da-draw-area" title="Permalink to this heading"></a></h2>
 <p>Area plot for a two-dimensional object, with colour-scale signifying
 intensity. It is this that is called when <code class="docutils literal notranslate"><span class="pre">plot</span></code> is used for a 2-dimensional
 object.</p>
@@ -502,7 +502,7 @@ object.</p>
 </div>
 </section>
 <section id="ds-draw-surface">
-<h2>ds (draw surface)<a class="headerlink" href="#ds-draw-surface" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.28. </span>ds (draw surface)<a class="headerlink" href="#ds-draw-surface" title="Permalink to this heading"></a></h2>
 <p>Surface plot for a two-dimensional object, with colour scale and contour
 signifying intensity.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="p">(</span><span class="n">w_2d</span><span class="p">);</span>
@@ -512,7 +512,7 @@ signifying intensity.</p>
 </div>
 </section>
 <section id="ds2-draw-surface-from-2-sources">
-<h2>ds2 (draw surface from 2 sources)<a class="headerlink" href="#ds2-draw-surface-from-2-sources" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.29. </span>ds2 (draw surface from 2 sources)<a class="headerlink" href="#ds2-draw-surface-from-2-sources" title="Permalink to this heading"></a></h2>
 <p>This routine is especially useful for making surface plots of dispersion
 relations when used in conjunction with dispersion.</p>
 <p>Make a surface plot of a 2D <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">d2d</span></code> object, with the signal array
@@ -533,7 +533,7 @@ the energy and the error array holds the spectral weight).</p>
 </div>
 </section>
 <section id="pa-plot-area">
-<h2>pa (plot area)<a class="headerlink" href="#pa-plot-area" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.30. </span>pa (plot area)<a class="headerlink" href="#pa-plot-area" title="Permalink to this heading"></a></h2>
 <p>Overplot an area plot of a two-dimensional object</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pa</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
 </pre></div>
@@ -544,7 +544,7 @@ the energy and the error array holds the spectral weight).</p>
 </div>
 </section>
 <section id="ps-plot-surface">
-<h2>ps (plot surface)<a class="headerlink" href="#ps-plot-surface" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.31. </span>ps (plot surface)<a class="headerlink" href="#ps-plot-surface" title="Permalink to this heading"></a></h2>
 <p>Overplot a surface plot of a two-dimensional object</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ps</span><span class="p">(</span><span class="n">w_2d</span><span class="p">)</span>
 </pre></div>
@@ -555,7 +555,7 @@ the energy and the error array holds the spectral weight).</p>
 </div>
 </section>
 <section id="ps2-plot-surface-from-2-objects">
-<h2>ps2 (plot surface from 2 objects)<a class="headerlink" href="#ps2-plot-surface-from-2-objects" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.32. </span>ps2 (plot surface from 2 objects)<a class="headerlink" href="#ps2-plot-surface-from-2-objects" title="Permalink to this heading"></a></h2>
 <p>Overplot a surface plot of a two-dimensional object with the colour scale set by
 the error bars or a second object)</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ps2</span><span class="p">(</span><span class="n">w_2d</span><span class="p">)</span>
@@ -569,17 +569,17 @@ the error bars or a second object)</p>
 </div>
 </section>
 <section id="spaghetti-plot">
-<h2>spaghetti_plot<a class="headerlink" href="#spaghetti-plot" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.33. </span>spaghetti_plot<a class="headerlink" href="#spaghetti-plot" title="Permalink to this heading"></a></h2>
 <p>Plots data in <code class="docutils literal notranslate"><span class="pre">sqw</span></code> HKL directions.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wsp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">spaghetti_plot</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="mf">0.5</span><span class="p">;</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="n">sqw_file</span><span class="p">,</span><span class="s">&#39;labels&#39;</span><span class="p">,{</span><span class="s">&#39;\\Gamma&#39;</span><span class="p">,</span><span class="s">&#39;R&#39;</span><span class="p">,</span><span class="s">&#39;M&#39;</span><span class="p">})</span>
 </pre></div>
 </div>
 <section id="three-dimensional-plots">
-<h3>Three dimensional plots<a class="headerlink" href="#three-dimensional-plots" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">13.33.1. </span>Three dimensional plots<a class="headerlink" href="#three-dimensional-plots" title="Permalink to this heading"></a></h3>
 </section>
 </section>
 <section id="sliceomatic">
-<h2>sliceomatic<a class="headerlink" href="#sliceomatic" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.34. </span>sliceomatic<a class="headerlink" href="#sliceomatic" title="Permalink to this heading"></a></h2>
 <p>Sliceomatic plot of multiple area plots, for a 3-dimensional object. This
 function is called by the <code class="docutils literal notranslate"><span class="pre">plot</span></code> routine.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sliceomatic</span><span class="p">(</span><span class="n">w_3d</span><span class="p">);</span>
@@ -587,7 +587,7 @@ function is called by the <code class="docutils literal notranslate"><span class
 </div>
 </section>
 <section id="sliceomatic-overview">
-<h2>sliceomatic_overview<a class="headerlink" href="#sliceomatic-overview" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">13.35. </span>sliceomatic_overview<a class="headerlink" href="#sliceomatic-overview" title="Permalink to this heading"></a></h2>
 <p>As <code class="docutils literal notranslate"><span class="pre">sliceomatic</span></code>, but the default view is from above. In effect this means you
 see a 2d slice which can be animated/changed by the third slider bar. Useful for
 e.g. following a spin wave dispersion ring/cone as a function of energy.</p>
@@ -597,7 +597,7 @@ e.g. following a spin wave dispersion ring/cone as a function of energy.</p>
 </pre></div>
 </div>
 <section id="miscellaneous-functions">
-<h3>Miscellaneous functions<a class="headerlink" href="#miscellaneous-functions" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">13.35.1. </span>Miscellaneous functions<a class="headerlink" href="#miscellaneous-functions" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">meta(fig)</span></code> allows you to copy the figure into a metafile. On Windows, this
 function puts the file in the clipboard so that it can be pasted directly into
 Word, Powerpoint etc.</p>
@@ -609,15 +609,15 @@ Word, Powerpoint etc.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Binary_operations.html" class="btn btn-neutral float-left" title="Binary operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="Simulation.html" class="btn btn-neutral float-right" title="Simulation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Binary_operations.html" class="btn btn-neutral float-left" title="12. Binary operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Simulation.html" class="btn btn-neutral float-right" title="14. Simulation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Dec 14, 2023, 12:25:41 PM.
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 8, 2024, 10:59:22 AM.
       </span></p>
   </div>
 

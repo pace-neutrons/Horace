@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Unary operations &mdash; Horace  documentation</title>
+  <title>11. Unary operations &mdash; Horace  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -21,8 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Binary operations" href="Binary_operations.html" />
-    <link rel="prev" title="Symmetry Operations" href="Symmetrising_etc.html" /> 
+    <link rel="next" title="12. Binary operations" href="Binary_operations.html" />
+    <link rel="prev" title="10. Symmetry Operations" href="Symmetrising_etc.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,39 +49,39 @@
 <li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">Other shape functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">Symmetry Operations</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Unary operations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#unary-plus">unary plus</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#unary-minus">unary minus</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#trigonometric-and-hyperbolic-functions">Trigonometric and hyperbolic functions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#other-mathematical-functions">Other mathematical functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">1. Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">2. Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">3. Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Special_sqw_information.html">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">9. Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">11. Unary operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#unary-plus">11.1. unary plus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unary-minus">11.2. unary minus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#trigonometric-and-hyperbolic-functions">11.3. Trigonometric and hyperbolic functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other-mathematical-functions">11.4. Other mathematical functions</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Plotting.html">Plotting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Parallel.html">Running Horace in Parallel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">12. Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">13. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">15. Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">16. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">17. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">18. Changing Horace settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../Unsorted.html">Unsorted Manual Pages</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
 </ul>
@@ -101,7 +101,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
-      <li class="breadcrumb-item active">Unary operations</li>
+      <li class="breadcrumb-item active"><span class="section-number">11. </span>Unary operations</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/manual/Unary_operations.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -112,10 +112,10 @@
            <div itemprop="articleBody">
              
   <section id="unary-operations">
-<h1>Unary operations<a class="headerlink" href="#unary-operations" title="Permalink to this heading"></a></h1>
+<h1><span class="section-number">11. </span>Unary operations<a class="headerlink" href="#unary-operations" title="Permalink to this heading"></a></h1>
 <p>A unary operation is one that is performed on a single object, with no additional inputs. A single object is returned.</p>
 <section id="unary-plus">
-<h2>unary plus<a class="headerlink" href="#unary-plus" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">11.1. </span>unary plus<a class="headerlink" href="#unary-plus" title="Permalink to this heading"></a></h2>
 <p>Unary plus. Returns the input object <code class="docutils literal notranslate"><span class="pre">win</span></code> with no modification.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">+</span><span class="n">win</span>
 </pre></div>
@@ -123,7 +123,7 @@
 <p>Equivalent to <code class="docutils literal notranslate"><span class="pre">wout</span> <span class="pre">=</span> <span class="pre">uplus(win)</span></code></p>
 </section>
 <section id="unary-minus">
-<h2>unary minus<a class="headerlink" href="#unary-minus" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">11.2. </span>unary minus<a class="headerlink" href="#unary-minus" title="Permalink to this heading"></a></h2>
 <p>Unary minus. Returns the intensity field of the input object multiplied by -1, i.e. <code class="docutils literal notranslate"><span class="pre">wout</span> <span class="pre">=</span> <span class="pre">-1</span>&#160; <span class="pre">win</span></code>.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">-</span><span class="n">win</span>
 </pre></div>
@@ -131,7 +131,7 @@
 <p>Equivalent to <code class="docutils literal notranslate"><span class="pre">wout</span> <span class="pre">=</span> <span class="pre">uminus(win)</span></code></p>
 </section>
 <section id="trigonometric-and-hyperbolic-functions">
-<h2>Trigonometric and hyperbolic functions<a class="headerlink" href="#trigonometric-and-hyperbolic-functions" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">11.3. </span>Trigonometric and hyperbolic functions<a class="headerlink" href="#trigonometric-and-hyperbolic-functions" title="Permalink to this heading"></a></h2>
 <p>With the form</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">win</span><span class="p">)</span>
 </pre></div>
@@ -165,7 +165,7 @@
 </ul>
 </section>
 <section id="other-mathematical-functions">
-<h2>Other mathematical functions<a class="headerlink" href="#other-mathematical-functions" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">11.4. </span>Other mathematical functions<a class="headerlink" href="#other-mathematical-functions" title="Permalink to this heading"></a></h2>
 <p>Using the same syntax as above, one can perform the following operations:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">exp</span></code> - exponential</p></li>
@@ -179,15 +179,15 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Symmetrising_etc.html" class="btn btn-neutral float-left" title="Symmetry Operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="Binary_operations.html" class="btn btn-neutral float-right" title="Binary operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Symmetrising_etc.html" class="btn btn-neutral float-left" title="10. Symmetry Operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Binary_operations.html" class="btn btn-neutral float-right" title="12. Binary operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Dec 14, 2023, 12:25:41 PM.
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 8, 2024, 10:59:22 AM.
       </span></p>
   </div>
 

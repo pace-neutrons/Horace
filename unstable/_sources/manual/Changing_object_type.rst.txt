@@ -16,7 +16,7 @@ Convert a ``dnd`` object into an n-dimensional ``sqw`` object
 
    The pixel information has been lost in the conversion from an ``sqw`` to a
    ``dnd`` (see: :ref:`cut
-   <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut>`, `dnd`_) and
+   <manual/Cutting_data_of_interest_from_SQW_files_and_objects:cut>`, `dnd`_) and
    will not be recovered on converting back, leaving you with an invalid ``sqw``
    object for many operations.
 
@@ -35,14 +35,22 @@ pixel information)
    wout_d2d = d2d(win_sqw)
    wout_d3d = d3d(win_sqw)
    wout_d4d = d4d(win_sqw)
+   
+Alternatively:   
+
+::
+
+   woud_dnd = win_sqw.data % return the object with the dimensionality of sqw.
 
 .. warning::
 
    It is not recommended to use e.g. ``d0d`` to extract the ``dnd`` from an
    ``sqw``. This should be done by getting the ``sqw`` object's ``data``
    property or by :ref:`cutting
-   <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut>` with the
+   <manual/Cutting_data_of_interest_from_SQW_files_and_objects:cut>` with the
    ``'-nopix'`` option.
+   
+
 
 
 IX_datasets

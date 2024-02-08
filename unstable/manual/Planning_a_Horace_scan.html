@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Planning a Horace scan &mdash; Horace  documentation</title>
+  <title>1. Planning a Horace scan &mdash; Horace  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -22,7 +22,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Generating SQW files" href="Generating_SQW_files.html" />
+    <link rel="next" title="2. Generating SQW files" href="Generating_SQW_files.html" />
     <link rel="prev" title="Horace Manual" href="../Horace_manual.html" /> 
 </head>
 
@@ -50,37 +50,37 @@
 <li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Planning a Horace scan</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#horace-planner-a-simple-scan-planner">horace_planner: a simple scan planner</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#more-detailed-planning-of-scans">More detailed planning of scans</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1. Planning a Horace scan</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#horace-planner-a-simple-scan-planner">1.1. horace_planner: a simple scan planner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#more-detailed-planning-of-scans">1.2. More detailed planning of scans</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">Other shape functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">Symmetry Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Plotting.html">Plotting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Parallel.html">Running Horace in Parallel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">2. Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">3. Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Special_sqw_information.html">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">9. Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">12. Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">13. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">15. Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">16. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">17. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">18. Changing Horace settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../Unsorted.html">Unsorted Manual Pages</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
 </ul>
@@ -100,7 +100,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
-      <li class="breadcrumb-item active">Planning a Horace scan</li>
+      <li class="breadcrumb-item active"><span class="section-number">1. </span>Planning a Horace scan</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/manual/Planning_a_Horace_scan.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -111,9 +111,9 @@
            <div itemprop="articleBody">
              
   <section id="planning-a-horace-scan">
-<h1>Planning a Horace scan<a class="headerlink" href="#planning-a-horace-scan" title="Permalink to this heading"></a></h1>
+<h1><span class="section-number">1. </span>Planning a Horace scan<a class="headerlink" href="#planning-a-horace-scan" title="Permalink to this heading"></a></h1>
 <section id="horace-planner-a-simple-scan-planner">
-<h2>horace_planner: a simple scan planner<a class="headerlink" href="#horace-planner-a-simple-scan-planner" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">1.1. </span>horace_planner: a simple scan planner<a class="headerlink" href="#horace-planner-a-simple-scan-planner" title="Permalink to this heading"></a></h2>
 <p>Horace has a useful little tool which allows you to work out the coverage of
 reciprocal space that will be achieved for a given instrument, the incident
 energy and the sample angle range.</p>
@@ -168,7 +168,7 @@ negative side)</p></li>
 </ul>
 </section>
 <section id="more-detailed-planning-of-scans">
-<h2>More detailed planning of scans<a class="headerlink" href="#more-detailed-planning-of-scans" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">1.2. </span>More detailed planning of scans<a class="headerlink" href="#more-detailed-planning-of-scans" title="Permalink to this heading"></a></h2>
 <p>The scan planner shown above is quick and simple to use, but sometimes you need
 greater detail about what reciprocal space coverage you will get for a given
 scan. To do this, you can generate a fake dataset, where the <code class="docutils literal notranslate"><span class="pre">signal</span></code> is
@@ -230,14 +230,14 @@ in exactly the same way as you would a real dataset. For example:</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../Horace_manual.html" class="btn btn-neutral float-left" title="Horace Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="Generating_SQW_files.html" class="btn btn-neutral float-right" title="Generating SQW files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Generating_SQW_files.html" class="btn btn-neutral float-right" title="2. Generating SQW files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Dec 14, 2023, 12:25:41 PM.
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 8, 2024, 10:59:22 AM.
       </span></p>
   </div>
 

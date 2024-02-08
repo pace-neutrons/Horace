@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Correcting for sample misalignment &mdash; Horace  documentation</title>
+  <title>4. Correcting for sample misalignment &mdash; Horace  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -22,8 +22,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Manipulating and extracting data from SQW files and objects" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html" />
-    <link rel="prev" title="Data diagnostics" href="Data_diagnostics.html" /> 
+    <link rel="next" title="5. Cutting data of interest from SQW files and objects" href="Cutting_data_of_interest_from_SQW_files_and_objects.html" />
+    <link rel="prev" title="3. Data diagnostics" href="Data_diagnostics.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,55 +50,55 @@
 <li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Correcting for sample misalignment</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#step-1-determining-the-true-bragg-peak-positions">Step 1 - determining the true Bragg peak positions</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#bragg-positions">Bragg Positions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#step-2-check-the-bragg-positions-fits-worked-properly">Step 2 - check the Bragg positions fits worked properly</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#step-3-calculate-the-misalignment-correction">Step 3 - calculate the misalignment correction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#step-4-apply-the-correction-to-the-data">Step 4 - apply the correction to the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">1. Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">2. Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">3. Data diagnostics</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">4. Correcting for sample misalignment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-determining-the-true-bragg-peak-positions">4.1. Step 1 - determining the true Bragg peak positions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bragg-positions">4.1.1. Bragg Positions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-2-check-the-bragg-positions-fits-worked-properly">4.1.2. Step 2 - check the Bragg positions fits worked properly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-3-calculate-the-misalignment-correction">4.1.3. Step 3 - calculate the misalignment correction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-4-apply-the-correction-to-the-data">4.1.4. Step 4 - apply the correction to the data</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#option-1-apply-the-correction-to-an-existing-sqw-file">Option 1 : apply the correction to an existing sqw file</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#option-2-calculate-goniometer-offsets-for-regeneration-of-sqw-file-s">Option 2 : calculate goniometer offsets for regeneration of sqw file(s)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#option-2a-for-use-with-e-g-mslice-calculate-the-true-u-and-v-for-your-misaligned-crystal">Option 2a (for use with e.g. Mslice): calculate the true u and v for your misaligned crystal</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#list-of-alignment-correction-routines">List of alignment correction routines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#option-1-apply-the-correction-to-an-existing-sqw-file">4.2. Option 1 : apply the correction to an existing sqw file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#option-2-calculate-goniometer-offsets-for-regeneration-of-sqw-file-s">4.3. Option 2 : calculate goniometer offsets for regeneration of sqw file(s)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#option-2a-for-use-with-e-g-mslice-calculate-the-true-u-and-v-for-your-misaligned-crystal">4.4. Option 2a (for use with e.g. Mslice): calculate the true u and v for your misaligned crystal</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#list-of-alignment-correction-routines">4.4.1. List of alignment correction routines</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id1">bragg_positions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bragg-positions-view">bragg_positions_view</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#crystal-pars-correct">crystal_pars_correct</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#refine-crystal">refine_crystal</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ubmatrix">ubmatrix</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#uv-correct">uv_correct</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#rlu-corr-to-lattice">rlu_corr_to_lattice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">4.5. bragg_positions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bragg-positions-view">4.6. bragg_positions_view</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#crystal-pars-correct">4.7. crystal_pars_correct</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#refine-crystal">4.8. refine_crystal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ubmatrix">4.9. ubmatrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uv-correct">4.10. uv_correct</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rlu-corr-to-lattice">4.11. rlu_corr_to_lattice</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">Other shape functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">Symmetry Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Plotting.html">Plotting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Parallel.html">Running Horace in Parallel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Special_sqw_information.html">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">9. Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">12. Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">13. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">15. Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">16. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">17. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">18. Changing Horace settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../Unsorted.html">Unsorted Manual Pages</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
 </ul>
@@ -118,7 +118,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
-      <li class="breadcrumb-item active">Correcting for sample misalignment</li>
+      <li class="breadcrumb-item active"><span class="section-number">4. </span>Correcting for sample misalignment</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/manual/Correcting_for_sample_misalignment.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -129,7 +129,7 @@
            <div itemprop="articleBody">
              
   <section id="correcting-for-sample-misalignment">
-<h1>Correcting for sample misalignment<a class="headerlink" href="#correcting-for-sample-misalignment" title="Permalink to this heading"></a></h1>
+<h1><span class="section-number">4. </span>Correcting for sample misalignment<a class="headerlink" href="#correcting-for-sample-misalignment" title="Permalink to this heading"></a></h1>
 <p>When mounting your sample on a spectrometer, it can often be the case that it is slightly misaligned with respect to the
 ‘perfect’ alignment assumed when generating the SQW file (the <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> vectors provided in <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> and
 <code class="docutils literal notranslate"><span class="pre">accumulate_sqw</span></code>). It is straightforward to correct this misalignment, once enough data have been accumulated, by
@@ -140,9 +140,9 @@ comparing the positions of Bragg peaks with what they are expected to be.</p>
 <li><p>Then, the correction must be applied to the data.</p></li>
 </ol>
 <section id="step-1-determining-the-true-bragg-peak-positions">
-<h2>Step 1 - determining the true Bragg peak positions<a class="headerlink" href="#step-1-determining-the-true-bragg-peak-positions" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">4.1. </span>Step 1 - determining the true Bragg peak positions<a class="headerlink" href="#step-1-determining-the-true-bragg-peak-positions" title="Permalink to this heading"></a></h2>
 <section id="bragg-positions">
-<h3>Bragg Positions<a class="headerlink" href="#bragg-positions" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">4.1.1. </span>Bragg Positions<a class="headerlink" href="#bragg-positions" title="Permalink to this heading"></a></h3>
 <p>First you should identify several Bragg peaks which are strong and not parallel along <span class="math notranslate nohighlight">\(\{p \in{} P:
 \Gamma{}\rightarrow{}p\}\)</span> in your data, where <span class="math notranslate nohighlight">\(\{P\}\)</span> is the set of Bragg peaks, where
 <span class="math notranslate nohighlight">\(\Gamma{}\rightarrow{}p\)</span> is the path from the gamma point (<span class="math notranslate nohighlight">\([0,0,0]\)</span>) to the point <span class="math notranslate nohighlight">\(p\)</span>.</p>
@@ -221,7 +221,7 @@ peak positions were determined.</p></li>
 </div>
 </section>
 <section id="step-2-check-the-bragg-positions-fits-worked-properly">
-<h3>Step 2 - check the Bragg positions fits worked properly<a class="headerlink" href="#step-2-check-the-bragg-positions-fits-worked-properly" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">4.1.2. </span>Step 2 - check the Bragg positions fits worked properly<a class="headerlink" href="#step-2-check-the-bragg-positions-fits-worked-properly" title="Permalink to this heading"></a></h3>
 <p>You can make plots of the cuts and fits of your predicted Bragg peaks to check that the program has correctly fitted
 everything, using outputs from <code class="docutils literal notranslate"><span class="pre">bragg_positions</span></code> described above.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">bragg_positions_view</span><span class="p">(</span><span class="n">wcut</span><span class="p">,</span><span class="n">wpeak</span><span class="p">)</span>
@@ -242,7 +242,7 @@ fitting, etc.</p>
 </div>
 </section>
 <section id="step-3-calculate-the-misalignment-correction">
-<h3>Step 3 - calculate the misalignment correction<a class="headerlink" href="#step-3-calculate-the-misalignment-correction" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">4.1.3. </span>Step 3 - calculate the misalignment correction<a class="headerlink" href="#step-3-calculate-the-misalignment-correction" title="Permalink to this heading"></a></h3>
 <p>Using the outputs of <code class="docutils literal notranslate"><span class="pre">bragg_positions</span></code>, you can determine a transformation matrix to go from the original
 misaligned frame to the aligned frame.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">al_info</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">refine_crystal</span><span class="p">(</span><span class="n">rlu0</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="n">bragg_peaks</span><span class="p">,</span><span class="w"> </span><span class="o">&lt;</span><span class="n">keyword</span><span class="w"> </span><span class="n">options</span><span class="o">&gt;</span><span class="p">);</span>
@@ -278,7 +278,7 @@ overall scale of the lattice to be refined together with crystal orientation</p>
 <p>The output is an <code class="docutils literal notranslate"><span class="pre">crystal_alignment_info</span></code> object which contains all the relevant data for crystal realignment.</p>
 </section>
 <section id="step-4-apply-the-correction-to-the-data">
-<h3>Step 4 - apply the correction to the data<a class="headerlink" href="#step-4-apply-the-correction-to-the-data" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">4.1.4. </span>Step 4 - apply the correction to the data<a class="headerlink" href="#step-4-apply-the-correction-to-the-data" title="Permalink to this heading"></a></h3>
 <p>There are different to do this, for different circumstances:</p>
 <ul>
 <li><p>When you have a completed scan and an existing <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file:</p>
@@ -294,7 +294,7 @@ overall scale of the lattice to be refined together with crystal orientation</p>
 </section>
 </section>
 <section id="option-1-apply-the-correction-to-an-existing-sqw-file">
-<h2>Option 1 : apply the correction to an existing sqw file<a class="headerlink" href="#option-1-apply-the-correction-to-an-existing-sqw-file" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">4.2. </span>Option 1 : apply the correction to an existing sqw file<a class="headerlink" href="#option-1-apply-the-correction-to-an-existing-sqw-file" title="Permalink to this heading"></a></h2>
 <p>There is a simple routine to apply the changes to an existing file, without the need to regenerate it from raw data</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">change_crystal</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">alignment_info</span><span class="p">)</span>
 </pre></div>
@@ -324,7 +324,7 @@ overall scale of the lattice to be refined together with crystal orientation</p>
 </ul>
 </section>
 <section id="option-2-calculate-goniometer-offsets-for-regeneration-of-sqw-file-s">
-<h2>Option 2 : calculate goniometer offsets for regeneration of sqw file(s)<a class="headerlink" href="#option-2-calculate-goniometer-offsets-for-regeneration-of-sqw-file-s" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">4.3. </span>Option 2 : calculate goniometer offsets for regeneration of sqw file(s)<a class="headerlink" href="#option-2-calculate-goniometer-offsets-for-regeneration-of-sqw-file-s" title="Permalink to this heading"></a></h2>
 <p>In this case there is a single routine to calculate the new goniometer offsets, that can then be used in future sqw file generation.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gl_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gs_deg</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">crystal_pars_correct</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">alatt0</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg0</span><span class="p">,</span><span class="w"> </span><span class="n">omega0_deg</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi0_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gl0_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gs0_deg</span><span class="p">,</span><span class="w"> </span><span class="n">al_info</span><span class="p">,</span><span class="w"> </span><span class="o">&lt;</span><span class="n">keyword</span><span class="w"> </span><span class="n">options</span><span class="o">&gt;</span><span class="p">)</span>
 </pre></div>
@@ -370,7 +370,7 @@ conventions may differ in other notations, e.g. <span class="math notranslate no
 </ul>
 </section>
 <section id="option-2a-for-use-with-e-g-mslice-calculate-the-true-u-and-v-for-your-misaligned-crystal">
-<h2>Option 2a (for use with e.g. Mslice): calculate the true u and v for your misaligned crystal<a class="headerlink" href="#option-2a-for-use-with-e-g-mslice-calculate-the-true-u-and-v-for-your-misaligned-crystal" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">4.4. </span>Option 2a (for use with e.g. Mslice): calculate the true u and v for your misaligned crystal<a class="headerlink" href="#option-2a-for-use-with-e-g-mslice-calculate-the-true-u-and-v-for-your-misaligned-crystal" title="Permalink to this heading"></a></h2>
 <p>Following option 2 above, you can recalculate the true <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> vectors with the following method:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">u_true</span><span class="p">,</span><span class="w"> </span><span class="n">v_true</span><span class="p">,</span><span class="w"> </span><span class="n">rlu_corr</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">uv_correct</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">alatt0</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg0</span><span class="p">,</span><span class="w"> </span><span class="n">omega_deg</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gl_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gs_deg</span><span class="p">,</span><span class="w"> </span><span class="n">alatt_true</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg_true</span><span class="p">)</span>
 </pre></div>
@@ -389,7 +389,7 @@ conventions may differ in other notations, e.g. <span class="math notranslate no
 <li><p><code class="docutils literal notranslate"><span class="pre">rlu_corr</span></code> - the orientation correction matrix to go from the notional to the real crystal (see above)</p></li>
 </ul>
 <section id="list-of-alignment-correction-routines">
-<h3>List of alignment correction routines<a class="headerlink" href="#list-of-alignment-correction-routines" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">4.4.1. </span>List of alignment correction routines<a class="headerlink" href="#list-of-alignment-correction-routines" title="Permalink to this heading"></a></h3>
 <p>Below we provide a brief summary of the routines available for different aspects of alignment corrections. For further information type</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">help</span><span class="w"> </span><span class="o">&lt;</span><span class="k">function</span><span class="w"> </span><span class="n">name</span><span class="o">&gt;</span>
 </pre></div>
@@ -398,7 +398,7 @@ conventions may differ in other notations, e.g. <span class="math notranslate no
 </section>
 </section>
 <section id="id1">
-<h2>bragg_positions<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">4.5. </span>bragg_positions<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">rlu0</span><span class="p">,</span><span class="nb">width</span><span class="p">,</span><span class="n">wcut</span><span class="p">,</span><span class="n">wpeak</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">bragg_positions</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">rlu</span><span class="p">,</span><span class="w"> </span><span class="n">radial_cut_length</span><span class="p">,</span><span class="w"> </span><span class="n">radial_bin_width</span><span class="p">,</span><span class="w"> </span><span class="n">radial_thickness</span><span class="p">,</span><span class="k">...</span>
 <span class="w">                                          </span><span class="n">trans_cut_length</span><span class="p">,</span><span class="w"> </span><span class="n">trans_bin_width</span><span class="p">,</span><span class="w"> </span><span class="n">trans_thickness</span><span class="p">)</span>
 </pre></div>
@@ -406,28 +406,28 @@ conventions may differ in other notations, e.g. <span class="math notranslate no
 <p>Get actual Bragg peak positions, given initial estimates of their positions, from an sqw object or file</p>
 </section>
 <section id="bragg-positions-view">
-<h2>bragg_positions_view<a class="headerlink" href="#bragg-positions-view" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">4.6. </span>bragg_positions_view<a class="headerlink" href="#bragg-positions-view" title="Permalink to this heading"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">bragg_positions_view</span><span class="p">(</span><span class="n">wcut</span><span class="p">,</span><span class="w"> </span><span class="n">wpeak</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>View the output of fitting to Bragg peaks performed by <code class="docutils literal notranslate"><span class="pre">bragg_positions</span></code></p>
 </section>
 <section id="crystal-pars-correct">
-<h2>crystal_pars_correct<a class="headerlink" href="#crystal-pars-correct" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">4.7. </span>crystal_pars_correct<a class="headerlink" href="#crystal-pars-correct" title="Permalink to this heading"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gl_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gs_deg</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">crystal_pars_correct</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">alatt0</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg0</span><span class="p">,</span><span class="w"> </span><span class="n">omega0_deg</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi0_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gl0_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gs0_deg</span><span class="p">,</span><span class="w"> </span><span class="n">al_info</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Return correct lattice parameters and crystal orientation for gen_sqw from a matrix that corrects the r.l.u.</p>
 </section>
 <section id="refine-crystal">
-<h2>refine_crystal<a class="headerlink" href="#refine-crystal" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">4.8. </span>refine_crystal<a class="headerlink" href="#refine-crystal" title="Permalink to this heading"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">al_info</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">refine_crystal</span><span class="p">(</span><span class="n">rlu0</span><span class="p">,</span><span class="w"> </span><span class="n">alatt0</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg0</span><span class="p">,</span><span class="w"> </span><span class="n">bragg_peaks</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">fix_</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Refine crystal orientation and lattice parameters</p>
 </section>
 <section id="ubmatrix">
-<h2>ubmatrix<a class="headerlink" href="#ubmatrix" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">4.9. </span>ubmatrix<a class="headerlink" href="#ubmatrix" title="Permalink to this heading"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">ub</span><span class="p">,</span><span class="w"> </span><span class="n">mess</span><span class="p">,</span><span class="w"> </span><span class="n">umat</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">ubmatrix</span><span class="w"> </span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -435,14 +435,14 @@ conventions may differ in other notations, e.g. <span class="math notranslate no
 defined by the two vectors u and v (each given in r.l.u)</p>
 </section>
 <section id="uv-correct">
-<h2>uv_correct<a class="headerlink" href="#uv-correct" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">4.10. </span>uv_correct<a class="headerlink" href="#uv-correct" title="Permalink to this heading"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">u_true</span><span class="p">,</span><span class="w"> </span><span class="n">v_true</span><span class="p">,</span><span class="w"> </span><span class="n">rlu_corr</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">uv_correct</span><span class="w"> </span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">alatt0</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg0</span><span class="p">,</span><span class="w"> </span><span class="n">omega_deg</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gl_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gs_deg</span><span class="p">,</span><span class="w"> </span><span class="n">alatt_true</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg_true</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Calculate the correct u and v vectors for a misaligned crystal, for use e.g. with Mslice.</p>
 </section>
 <section id="rlu-corr-to-lattice">
-<h2>rlu_corr_to_lattice<a class="headerlink" href="#rlu-corr-to-lattice" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">4.11. </span>rlu_corr_to_lattice<a class="headerlink" href="#rlu-corr-to-lattice" title="Permalink to this heading"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">alatt</span><span class="p">,</span><span class="n">angdeg</span><span class="p">,</span><span class="n">rotmat</span><span class="p">,</span><span class="n">ok</span><span class="p">,</span><span class="n">mess</span><span class="p">]=</span><span class="n">rlu_corr_to_lattice</span><span class="p">(</span><span class="n">rlu_corr</span><span class="p">,</span><span class="n">alatt0</span><span class="p">,</span><span class="n">angdeg0</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -454,15 +454,15 @@ defined by the two vectors u and v (each given in r.l.u)</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Data_diagnostics.html" class="btn btn-neutral float-left" title="Data diagnostics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html" class="btn btn-neutral float-right" title="Manipulating and extracting data from SQW files and objects" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Data_diagnostics.html" class="btn btn-neutral float-left" title="3. Data diagnostics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Cutting_data_of_interest_from_SQW_files_and_objects.html" class="btn btn-neutral float-right" title="5. Cutting data of interest from SQW files and objects" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Dec 14, 2023, 12:25:41 PM.
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 8, 2024, 10:59:22 AM.
       </span></p>
   </div>
 

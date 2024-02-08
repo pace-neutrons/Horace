@@ -71,7 +71,13 @@
 <li class="toctree-l3"><a class="reference internal" href="#generic-interface">Generic interface</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#matlab-function">Matlab function</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#python-function">Python function</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#c-c-fortran-function">C / C++ / Fortran function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#c-c-fortran-function">C / C++ / Fortran function</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#c-example">C example</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#id2">C++ example</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#fortran-example">Fortran example</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -83,7 +89,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
 </ul>
@@ -168,21 +173,21 @@ Horace takes two types of model functions:</p>
 <li><p>User model functions which operate on the <span class="math notranslate nohighlight">\((x,y,z,e)\)</span> coordinates of a particular cut,
 evaluated using <code class="xref mat mat-mod docutils literal notranslate"><span class="pre">func_eval</span></code> and similar functions.</p></li>
 <li><p>User model functions which operate on the <span class="math notranslate nohighlight">\((\mathbf{Q}, \omega)\)</span> coordinates,
-evaluated using <a class="reference internal" href="../API_Reference.html#sqw.&#64;SQWDnDBase.sqw_eval" title="sqw.&#64;SQWDnDBase.sqw_eval"><code class="xref mat mat-mod docutils literal notranslate"><span class="pre">sqw_eval</span></code></a> and similar functions.</p></li>
+evaluated using <code class="xref mat mat-mod docutils literal notranslate"><span class="pre">sqw_eval</span></code> and similar functions.</p></li>
 </ul>
 <p>In the first case, for example, if the user makes a 1D cut along the <span class="math notranslate nohighlight">\(\mathbf{Q}=(1,1,0)\)</span> direction,
 and calls <code class="xref mat mat-mod docutils literal notranslate"><span class="pre">func_eval</span></code> on this cut, a single vector of the values of
 <span class="math notranslate nohighlight">\(\sqrt{Q_h^2 + Q_k^2}\)</span> is passed to the user model function.
-On the other hand, if she calls <a class="reference internal" href="../API_Reference.html#sqw.&#64;SQWDnDBase.sqw_eval" title="sqw.&#64;SQWDnDBase.sqw_eval"><code class="xref mat mat-mod docutils literal notranslate"><span class="pre">sqw_eval</span></code></a> on this cut,
+On the other hand, if she calls <code class="xref mat mat-mod docutils literal notranslate"><span class="pre">sqw_eval</span></code> on this cut,
 4 vectors, namely <span class="math notranslate nohighlight">\((Q_h, Q_k, Q_l, E)\)</span>, are passed to the user model function.
 Generally, “simple” functions such as linear backgrounds or peak functions (Gaussians, Lorentzians, etc),
 are used with <code class="xref mat mat-mod docutils literal notranslate"><span class="pre">func_eval</span></code> whilst more complex models use
-<a class="reference internal" href="../API_Reference.html#sqw.&#64;SQWDnDBase.sqw_eval" title="sqw.&#64;SQWDnDBase.sqw_eval"><code class="xref mat mat-mod docutils literal notranslate"><span class="pre">sqw_eval</span></code></a>.
+<code class="xref mat mat-mod docutils literal notranslate"><span class="pre">sqw_eval</span></code>.
 In particular the interface with external modelling codes described here exclusively use the second type.</p>
 </section>
 <section id="energy-convolution">
 <h2><a class="toc-backref" href="#id4" role="doc-backlink">Energy convolution</a><a class="headerlink" href="#energy-convolution" title="Permalink to this heading"></a></h2>
-<p>The <a class="reference internal" href="../API_Reference.html#sqw.&#64;SQWDnDBase.sqw_eval" title="sqw.&#64;SQWDnDBase.sqw_eval"><code class="xref mat mat-mod docutils literal notranslate"><span class="pre">sqw_eval</span></code></a> function expects the user model function to return a single vector
+<p>The <code class="xref mat mat-mod docutils literal notranslate"><span class="pre">sqw_eval</span></code> function expects the user model function to return a single vector
 <span class="math notranslate nohighlight">\(S(Q_h, Q_k, Q_l, E)\)</span> of neutron intensity evaluated at the 4 reciprocal space coordinates.
 However, in many cases calculations instead return pairs of values <span class="math notranslate nohighlight">\((E, I)\)</span>
 of mode energy <span class="math notranslate nohighlight">\(E\)</span> and intensity <span class="math notranslate nohighlight">\(I\)</span> for a particular <span class="math notranslate nohighlight">\(\mathbf{Q}=(Q_h, Q_k, Q_l)\)</span> point.
@@ -190,7 +195,7 @@ This is the case for phonon calculations, where at each <span class="math notran
 a dynamical matrix is constructed whose eigenvalues are the mode energies squared
 and whose eigenvectors can be used to calculate the dynamical structure factor which is proportional to <span class="math notranslate nohighlight">\(I\)</span>.</p>
 <p>In these cases, an energy convolution has to be performed to obtain <span class="math notranslate nohighlight">\(S(Q_h, Q_k, Q_l, E)\)</span>.
-This can be done with the <a class="reference internal" href="../API_Reference.html#sqw.&#64;SQWDnDBase.disp2sqw_eval" title="sqw.&#64;SQWDnDBase.disp2sqw_eval"><code class="xref mat mat-mod docutils literal notranslate"><span class="pre">disp2sqw_eval</span></code></a> function.
+This can be done with the <code class="xref mat mat-mod docutils literal notranslate"><span class="pre">disp2sqw_eval</span></code> function.
 This function passes the needed <span class="math notranslate nohighlight">\((Q_h, Q_k, Q_l)\)</span> to the model function
 and performs an energy convolution using either:</p>
 <ul class="simple">
@@ -265,7 +270,7 @@ To do this we create a <code class="xref py py-class docutils literal notranslat
 <a class="reference external" href="https://euphonic.readthedocs.io/en/stable/force-constants.html#euphonic.force_constants.ForceConstants" title="(in Euphonic)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForceConstants</span></code></a> data we read in.
 This <code class="xref py py-class docutils literal notranslate"><span class="pre">CoherentCrystal</span></code> has a method (function),
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">horace_disp()</span></code> which can be passed to the Horace
-<a class="reference internal" href="../API_Reference.html#sqw.&#64;SQWDnDBase.disp2sqw_eval" title="sqw.&#64;SQWDnDBase.disp2sqw_eval"><code class="xref mat mat-mod docutils literal notranslate"><span class="pre">disp2sqw_eval</span></code></a> function.</p>
+<code class="xref mat mat-mod docutils literal notranslate"><span class="pre">disp2sqw_eval</span></code> function.</p>
 <p>The following code reads the force constants from a CASTEP file, sets up the
 <code class="xref py py-class docutils literal notranslate"><span class="pre">CoherentCrystal</span></code> object and then evaluate the phonon model on an experimental cut:</p>
 <div class="highlight-matlab notranslate" id="sim-euphonic"><div class="highlight"><pre><span></span><span class="c">% Read force constants</span>
@@ -391,7 +396,7 @@ which is used as a gateway between SpinW and Horace.</p>
 which carry out the actual spin wave INS calculations in SpinW.
 In addition, it also carries out the energy convolution described in the <a class="reference internal" href="#energy-convolution">Energy convolution</a> section above.</p>
 <p>A user should set up a SpinW model and then pass a handle (indicated by the <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> operator)
-to the <code class="docutils literal notranslate"><span class="pre">horace_sqw</span></code> method to <a class="reference internal" href="../API_Reference.html#sqw.&#64;SQWDnDBase.sqw_eval" title="sqw.&#64;SQWDnDBase.sqw_eval"><code class="xref mat mat-mod docutils literal notranslate"><span class="pre">sqw_eval</span></code></a>
+to the <code class="docutils literal notranslate"><span class="pre">horace_sqw</span></code> method to <code class="xref mat mat-mod docutils literal notranslate"><span class="pre">sqw_eval</span></code>
 or directly to a <a class="reference internal" href="../manual/Multifit.html#multifit"><span class="std std-ref">multifit object</span></a>, for example:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Set up a simple triangular lattice antiferromagnet model</span>
 <span class="n">J</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">1.2</span><span class="p">;</span><span class="w"> </span><span class="n">K</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">0.2</span><span class="p">;</span><span class="w"> </span><span class="n">fwhm</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">0.75</span><span class="p">;</span><span class="w"> </span><span class="n">scalefactor</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
@@ -896,8 +901,8 @@ same script as above, except that the function is now:</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Dec 14, 2023, 12:25:41 PM.
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 8, 2024, 10:59:22 AM.
       </span></p>
   </div>
 
