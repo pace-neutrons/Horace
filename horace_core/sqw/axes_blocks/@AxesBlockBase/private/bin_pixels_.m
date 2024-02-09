@@ -84,7 +84,7 @@ if ~ok
 end
 if return_selected && nout ~= 4
     error('HORACE:AxesBlockBase:invalid_argument', ...
-          'return_selected requested for non pixel cut')
+        'return_selected requested for non pixel cut')
 end
 
 bin_array_size  = obj.nbins_all_dims; % arrays of this size will be allocated too
@@ -153,13 +153,20 @@ else
             pix_indx(on_edge(:,i),i) = n_bins(i);
         end
     end
+    reconcile_sizes = false;
     if numel(n_bins) == 1
         n_bins = [n_bins,1];
+        reconcile_sizes = true;
     end
     % mex code, if deployed below, needs pixels collected during this
     % particular accumulation.
     npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
-    npix = npix + npix1;
+    % do we need to do this or it is always column array?
+    if reconcile_sizes
+        npix = npix+ resize(npix1,size(npix));
+    else
+        npix = npix + npix1;
+    end
 end
 
 if nout<3

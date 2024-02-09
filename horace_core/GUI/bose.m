@@ -21,5 +21,5 @@ wout = binary_op_manager(win,sqw_bose,@mtimes,true);
 
 function y = bose_factor(h,k,l,en,T)
 %
-y = (1 - exp(-11.6044.*en/T));
+y = (1 - exp(-11.6044/T.*en));
 
