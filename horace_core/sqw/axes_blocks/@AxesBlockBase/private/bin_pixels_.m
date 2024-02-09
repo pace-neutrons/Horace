@@ -163,7 +163,7 @@ else
     npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
     % do we need to do this or it is always column array?
     if reconcile_sizes
-        npix = npix+ resize(npix1,size(npix));
+        npix = npix+ reshape(npix1,size(npix));
     else
         npix = npix + npix1;
     end
