@@ -22,7 +22,6 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
         % Mirrors of private properties; these define object state:
         dia         % Outer diameter of tube (m) (column vector)
         height      % Height (m) (column vector)
-        width       % clone of dia to provide uniform interfact across detector types
         
         % Other dependent properties required by abstract template:
         ndet        % Number of detectors (get access only) (scalar)
@@ -103,11 +102,7 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
         function val = get.dia(obj)
             val = obj.dia_;
         end
-        
-        function val = get.width(obj)
-            val = obj.dia_; % same as get.dia, provides common interface
-        end
-        
+
         function val = get.height(obj)
             val = obj.height_;
         end

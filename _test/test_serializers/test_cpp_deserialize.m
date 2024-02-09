@@ -581,7 +581,6 @@ classdef test_cpp_deserialize < TestCase
                 skipTest('MEX not enabled');
             end
             ss = sqw();
-            % now tests the extracted detector arrays
             ser =  hlp_serialize(ss.detpar);
             test_data_rec = c_deserialize(ser);
             assertEqual(ss.detpar, test_data_rec)

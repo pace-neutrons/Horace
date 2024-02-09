@@ -61,7 +61,7 @@ if hor_log_level>-1
 end
 
 %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs]
-[~,experiments_from_files,img_hdrs,pos_npixstart,pos_pixstart,npixtot,ldrs] = ...
+[~,experiments_from_files,img_hdrs,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
     accumulate_headers_job.read_input_headers(infiles);
 undef = data_range == PixelDataBase.EMPTY_RANGE;
 if any(undef(:))
@@ -88,6 +88,6 @@ pix = pixfile_combine_info(infiles,numel(dnd_data.npix),npixtot, ...
     pos_npixstart,pos_pixstart,run_label);
 pix.data_range = data_range;
 
-sqw_sum_struc= struct('main_header',mhc,'experiment_info',exper_combined,'detpar',[]);
+sqw_sum_struc= struct('main_header',mhc,'experiment_info',exper_combined,'detpar',det);
 sqw_sum_struc.data = dnd_data;
 sqw_sum_struc.pix  = pix;

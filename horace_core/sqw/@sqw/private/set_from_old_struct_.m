@@ -36,28 +36,12 @@ if ~isfield(S,'version') || S.version<4
         if isfield(ss,'experiment_info') && isstruct(ss.experiment_info)
             ss.experiment_info = Experiment.loadobj(ss.experiment_info);
         end
-        % do not do any of this now as the detpar value will be put in
-        % further down in from_bare_struct
-        % this will require experiment_info having an empty detector_arrays
-        %{
         if isfield(ss,'detpar') && ~isempty(ss.detpar)
-            if isstruct(ss.detpar)
-                detector = IX_detector_array(ss.detpar); % %DET
-                ss.experiment_info.detector_arrays = ...
-                    ss.experiment_info.detector_arrays.add_copies_(detector, ...
-                                                                   ss.experiment_info.n_runs);
-                % now reset detpar from the detector_array created from it
-                % so that the detpar components' shapes are consistent with
-                % the detector_arrays
-                %ss.detpar = ss.experiment_info.detector_arrays{1}.get_detpar_representation();     
-            elseif isa(ss.detpar,'unique_references_container')
-                ss.experiment_info.detector_arrays = ss.detpar;
-            else
-                error('HORACE:set_from_old_struct:invalid_argument', ...
-                      'detpar not struct or unique_references_container');
-            end
+            detector = IX_detector_array(ss.detpar);
+            ss.experiment_info.detector_arrays = ...
+                ss.experiment_info.detector_arrays.add_copies_(detector, ...
+                                                               ss.experiment_info.n_runs);
         end
-        %}
         if isfield(ss,'data_')
             ss.data = ss.data_;
             ss = rmfield(ss,'data_');

@@ -148,7 +148,7 @@ hdr    = ldr.get_exp_info();
 hdr    = hdr.expdata(1);
 ldr.delete();
 
-ndet=numel(detpar{1}.get_detpar_representation().group);
+ndet=numel(detpar.group);
 nqbin=min(max(1,round(sqrt(ndet)/2)),nQbin_def);     % A reasonable number of bins along each Q axis
 dQip=round_to_vals((Qip_max-Qip_min)/nqbin);
 dQz=round_to_vals((Qz_max-Qz_min)/nqbin);

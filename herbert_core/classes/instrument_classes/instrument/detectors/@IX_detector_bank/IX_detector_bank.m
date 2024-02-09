@@ -47,9 +47,6 @@ classdef IX_detector_bank < serializable
         % Information about an array of detector elements of the same type e.g.
         % IX_det_He3tube. The detector type inherits from IX_det_abstractType 
         det
-        
-        width
-        height
 
         % Other dependent properties:
         % ---------------------------
@@ -202,10 +199,6 @@ classdef IX_detector_bank < serializable
         
         %------------------------------------------------------------------
         % Get methods for dependent properties
-        function val = get.width(obj)
-            val = obj.det_.width;
-        end
-        
         function val = get.id(obj)
             val = obj.id_;
         end
@@ -237,11 +230,6 @@ classdef IX_detector_bank < serializable
         function val = get.ndet(obj)
             val = obj.det_.ndet;
         end
-        
-        function val = get.height(obj)
-            val = obj.det_.height;
-        end
-        
         
         %------------------------------------------------------------------
         
