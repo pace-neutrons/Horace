@@ -163,15 +163,6 @@ classdef nxspepar_loader < a_detpar_loader_interface
         function fields = par_can_define(obj)
             fields = obj.par_can_define_;
         end
-        
-        function obj = columnize_detpar(obj)
-            obj.det_par.group  = obj.det_par.group(:);
-            obj.det_par.x2     = obj.det_par.x2(:);
-            obj.det_par.phi    = obj.det_par.phi(:);
-            obj.det_par.azim   = obj.det_par.azim(:);
-            obj.det_par.width  = obj.det_par.width(:);
-            obj.det_par.height = obj.det_par.height(:);
-        end
 
         %
         function this=delete(this)

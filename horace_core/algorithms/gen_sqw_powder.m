@@ -100,7 +100,7 @@ detpar = ldr.get_detpar();
 hdr    = ldr.get_exp_info();
 ldr.delete();
 
-ndet=numel(detpar{1}.get_detpar_representation().group);
+ndet=numel(detpar.group);
 nqbin=min(max(1,round(sqrt(ndet)/2)),nQbin_def);     % A reasonable number of bins along each Q axis
 dQ=round_to_vals((Q_max-Q_min)/nqbin);
 small=1e-10;

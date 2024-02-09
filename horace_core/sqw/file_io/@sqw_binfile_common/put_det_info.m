@@ -18,8 +18,6 @@ end
 obj=obj.check_obj_initated_properly();
 %
 [detpar,new_obj] = obj.extract_correct_subobj('detpar',argi{:});
-% converting to old detpar representation for old file format
-detpar = detpar{1}.get_detpar_representation();
 if new_obj
     update = true;
 end
