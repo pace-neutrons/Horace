@@ -17,6 +17,8 @@ if ~isempty(data_struct.pix) && data_struct.pix.old_file_format && ...
     data_struct.pix.old_file_format = false;
 end
 
-obj.detpar = data_struct.detpar;
+%data_struct detpar field now removed in loader/get_sqw after transfer to
+%detector arrays
+%obj.detpar = data_struct.detpar;
 obj.data = data_struct.data;
 obj.pix = data_struct.pix;
