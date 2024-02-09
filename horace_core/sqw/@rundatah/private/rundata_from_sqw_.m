@@ -9,7 +9,11 @@ function rd=rundata_from_sqw_(sqw_obj)
 %
 %
 
-detpar = sqw_obj.detpar();
+if sqw_obj.experiment_info.detector_arrays.n_runs == 1
+    detpar = sqw_obj.experiment_info.detector_arrays{1}.get_detpar_representation();
+else
+    error('HORACE:rundatah-rundata_from_sqw_:invalid_argument','no detector array available in sqw');
+end
 %
 tmp=sqw_obj.pix.all_experiment';
 run_id = unique(tmp(:,1));
