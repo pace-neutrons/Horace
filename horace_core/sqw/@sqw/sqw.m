@@ -392,6 +392,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         function npix = get.num_pixels(obj)
             npix = obj.pix_.num_pixels;
         end
+        % if sqw object has actual pixels or pixelles object
+        has = has_pixels(w);
     end
     %======================================================================
     % REDUNDANT and compatibility methods
