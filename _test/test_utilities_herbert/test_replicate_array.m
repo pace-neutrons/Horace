@@ -15,6 +15,23 @@ classdef test_replicate_array < TestCase
             assertEqual(vout, zeros(0,1));
         end
         
+        function test_array_scalar_v_zero_n (~)
+            % Output should be a column independent of shape of input
+            v = 3;
+            n = 0;
+            vout = replicate_array (v, n);
+            assertEqual(vout, zeros(0,1));
+        end
+        
+        function test_array_scalar_v_scalar_n (~)
+            % Output should be a column independent of shape of input
+            v = 3;
+            n = 2;
+            vout = replicate_array (v, n);
+            vout_ref = [3;3];
+            assertEqual(vout, vout_ref);
+        end
+        
         function test_array_row_v_row_n (~)
             % Output should be a column independent of shape of input
             v = [3,1,5];
@@ -107,6 +124,23 @@ classdef test_replicate_array < TestCase
             assertEqual(vout, zeros(0,1));
         end
         
+        function test_iarray_scalar_v_zero_n (~)
+            % Output should be a column independent of shape of input
+            v = 3;
+            n = 0;
+            vout = replicate_array (v, n);
+            assertEqual(vout, zeros(0,1));
+        end
+        
+        function test_iarray_scalar_v_scalar_n (~)
+            % Output should be a column independent of shape of input
+            v = 3;
+            n = 2;
+            vout = replicate_array (v, n);
+            vout_ref = [3;3];
+            assertEqual(vout, vout_ref);
+        end
+        
         function test_iarray_row_v_row_n (~)
             % Output should be a column independent of shape of input
             v = [3,1,5];
@@ -197,6 +231,23 @@ classdef test_replicate_array < TestCase
             n = [];
             vout = replicate_logarray (v, n);
             assertEqual(vout, false(0,1));
+        end
+        
+        function test_logarray_scalar_v_zero_n (~)
+            % Output should be a column independent of shape of input
+            v = true;
+            n = 0;
+            vout = replicate_array (v, n);
+            assertEqual(vout, false(0,1));
+        end
+        
+        function test_logarray_scalar_v_scalar_n (~)
+            % Output should be a column independent of shape of input
+            v = true;
+            n = 2;
+            vout = replicate_array (v, n);
+            vout_ref = [true; true];
+            assertEqual(vout, vout_ref);
         end
         
         function test_logarray_row_numeric_v_row_n (~)

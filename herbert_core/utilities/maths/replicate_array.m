@@ -28,6 +28,9 @@ function vout = replicate_array (v, n)
 
 if numel(n)==numel(v)
     vout = repelem(v(:), n(:));
+    if isrow(vout)
+        vout = vout(:);
+    end
 else
     error('HERBERT:replicate_array:invalid_argument',...
         ['The number of elements in input array ''v'' (%d) is different from \n', ...

@@ -28,6 +28,9 @@ function ivout = replicate_iarray (iv, n)
 
 if numel(n)==numel(iv)
     ivout = repelem(iv(:), n(:));
+    if isrow(ivout)
+        ivout = ivout(:);
+    end
 else
     error('HERBERT:replicate_iarray:invalid_argument',...
         ['The number of elements in input array ''iv'' (%d) is different from \n', ...

@@ -34,6 +34,9 @@ if numel(n)==numel(v)
     else
         vout = repelem(logical(v(:)), n(:));
     end
+    if isrow(vout)
+        vout = vout(:);
+    end
 else
     error('HERBERT:replicate_logarray:invalid_argument',...
         ['The number of elements in input array ''v'' (%d) is different from \n', ...
