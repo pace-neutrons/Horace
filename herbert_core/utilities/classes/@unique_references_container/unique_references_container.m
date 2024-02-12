@@ -354,14 +354,52 @@ classdef unique_references_container < serializable
         % the values of 'field' within the objects referred to in self, indexed
         % in the same way as the original referred objects.
 
-            s1 = self.get(1);
+            % determine type of unique_objects_container to make from the
+            % object feld type, and construct the container
+            s1 = self.get(1); 
             v = s1.(field);
             field_vals = unique_objects_container(class(v));
+            
+            %
+            % get a list without duplicates of the objects in self
+            % these are the indices into the global container
+            uix = unique( self.idx_ );
+            % get the global container (a uoc)
+            glc = self.global_container('value',self.global_name_);
+            % get the unique field objects out of it, and their hashes
+            unique_field_vals = cell(numel(uix));
+            unique_field_hashes = cell(numel(uix));
+            for ii=1:numel(uix)
+                sii = glc{ uix(ii) };
+                v = sii.(field);
+                unique_field_vals{ii} = v;
+                unique_field_hashes{ii} = glc.hashify(v);
+            end
+            
+            prev_insertion_idx = zeros(numel(uix));
+            for ii = 1:self.n_runs
+                % 
+                idx = self.idx_( ii );
+                [~, jj] = ismember( idx, uix );
+                val = unique_field_vals{jj};
+                hsh = unique_field_hashes{jj};
+                
+                pidx = prev_insertion_idx(jj);
+                if pidx==0
+                    pidx = [];
+                    prev_insertion_idx(jj) = ii;
+                end
+                field_vals = field_vals.add_single_(val,pidx,hsh);
+            end
+            %
+            %{
+            
             for ii=1:self.n_runs
                 sii = self.get(ii);
                 v = sii.(field);
                 field_vals = field_vals.add(v);
             end
+            %}
         end
         
         function varargout = subsref(self, idxstr)

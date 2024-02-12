@@ -419,7 +419,13 @@ classdef unique_objects_container < serializable
             % Output:
             % - hash : the resulting has, a row vector of uint8's
             %
+            persistent count;
             persistent Engine;
+            if isempty(count)
+                count=0;
+            end
+            count=count+1;
+            count
             if isempty(Engine)
                 Engine = java.security.MessageDigest.getInstance('MD5');
             end
@@ -431,6 +437,10 @@ classdef unique_objects_container < serializable
                 Engine.update(self.convert_to_stream_f_(obj));
             end
             hash = typecast(Engine.digest,'uint8');
+            if strcmp(class(obj),'IX_fermi_chopper')
+                disp('');
+            end
+            disp(class(obj));
             hash = char(hash');
         end
 
@@ -748,9 +758,13 @@ classdef unique_objects_container < serializable
         end
         
         function field_vals = get_unique_field(self, field)
+            % determine type of unique_objects_container to make from the
+            % object feld type, and construct the container
             s1 = self.get(1);
             v = s1.(field);
             field_vals = unique_objects_container(class(v));
+            
+            %
             for ii=1:self.n_runs
                 sii = self.get(ii);
                 v = sii.(field);
