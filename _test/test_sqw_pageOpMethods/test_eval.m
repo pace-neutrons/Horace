@@ -22,13 +22,13 @@ classdef test_eval < TestCase
             ds = disp2sqw_eval(obj.sqw_obj, @test_eval.disp2sqw_eval_tester2D, [], 1.0, '-all');
         end
         %
-        function test_func_eval_with_shpere_proj(obj)
+        function test_sqw_eval_with_sphere_proj(obj)
             spp = sphere_proj;
             spp.offset = [0,1.5,0];
             sp_cut = cut(obj.sqw_obj,spp,[0,0.01,2],[0,180],[-180,180],0);
 
-            % Almost zero bose correction in this case. Just to check
-            % algorighm works
+            % Almost zero Bose correction in this case. Just to check
+            % algorithm works
             spBose = bose(sp_cut,8);
             diff = sp_cut-spBose;
             assertEqualToTol(diff.data.s,zeros(size(diff.data.s)));

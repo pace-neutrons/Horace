@@ -50,15 +50,18 @@ function w = binary_op_manager(w1, w2, binary_op,ignore_cell_sorting)
 %               /, \).
 %
 % Optional:
+% Optional:
 % ignore_cell_sorting
-%             By default false and binary operation which includes pixels
-%             sort pixels with every bin when operation is performed. 
+%             By default equal to false and any binary operation which
+%             involves pixels sorts pixels within every bin when operation
+%             is performed.
 %
 %             if operation is performed between two sqw objects and user
 %             sure that pixels in cells of the objects have the same order
 %             (this happens if e.g. one object is build from another object
-%              within the previous operation) this property may be set to
-%              true to improve operation performance.
+%             within the previous operation like background and foreground
+%             for the same sqw object) this property may be set to
+%             true to ignore sorting and improve operation performance.
 %
 %
 % Output:
