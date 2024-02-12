@@ -3,6 +3,15 @@ function vout = replicate_array (v, n)
 %
 %   >> vout = replicate_array (v, n)
 %
+% This is a legacy function retained for backwards compatibility. The same
+% behaviour is accomplished with the Matlab intrinsic function repelem which was
+% introduced in release R2015a:
+%  Instead of:
+%   >> vout = replicate_array (v, n)
+%  use:
+%   >> vout = repelem (v(:), n(:))
+%
+%
 % Input:
 % ------
 %   v       Array of values
@@ -11,26 +20,14 @@ function vout = replicate_array (v, n)
 % Output:
 % -------
 %   vout    Output array: column vector
-%               vout=[v(1)*ones(1:n(1)), v(2)*ones(1:n(2), ...)]'
-
-
-% Original author: T.G.Perring
+%               vout = [repmat(v(1),[n(1),1]); repmat(v(2),[n(2),1]); ...]
+%
+%           Note: In the case of vout being empty, this means that the output
+%           has size [0,1]
 
 
 if numel(n)==numel(v)
-    if ~isempty(n)
-        % Start and end indices for each range to replicate
-        nend=cumsum(n(:));
-        nbeg=nend-n(:)+1;   % nbeg(i)=nend(i)+1 if n(i)==0, but that's OK below
-        nbin=numel(n);
-        ntot=nend(end);
-        vout=zeros(ntot,1);
-        for i=1:nbin
-            vout(nbeg(i):nend(i))=v(i); % if n(i)=0, this assignment does nothing
-        end
-    else
-        vout=zeros(0,1);
-    end
+    vout = repelem(v(:), n(:));
 else
     error('HERBERT:replicate_array:invalid_argument',...
         ['The number of elements in input array ''v'' (%d) is different from \n', ...
