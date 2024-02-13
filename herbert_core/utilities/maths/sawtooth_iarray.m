@@ -1,38 +1,47 @@
 function ivout = sawtooth_iarray (n)
-% Create array of successive runs [1,2,3..n(1),1,2,3...n(2),...]'
+% Create column vector [1;2;3..n(1); 1;2;3...n(2); ...] from integer array n
 %
 %   >> ivout = sawtooth_iarray (n)
 %
+% This is a 'sawtooth' array as each element n(i) defines a right angle triangle
+% with length n and values 1,2,3,...n(i).
+%
+%
 % Input:
 % ------
-%   n       List of length of each sawtooth section (integer)
-%          (Zeros correspond to zero length section i.e. they are
+%   n       Array with the lengths of each sawtooth section
+%           Elements should have integer values greater or equal to zero.
+%           Zeros correspond to zero length sections i.e. they are
 %           effectively ignored).
-%           Must have all(n(:)>=0).
 %
 % Output:
 % -------
-%   ivout   Output array: column vector
-%               ivout=[1:n(1),1:n(2),...]'
+%   ivout   Output array: always a column vector
+%           It is constructed as
+%               ivout [(1:n(1))'; (1:n(2))'; ...] 
+%           Non-integer values of n are rounded down to the next smaller
+%           integer, and any negative values are treated as zero
+%           Note: if the output is empty then it is still a column with zero
+%           length i.e. has size = [0,1]
 %
-% NOTE: This is designed for integer array n only, as it assumes that
-%       there are no rounding errors on addition.
-
-% Original author: T.G.Perring
+% EXAMPLES
+%   ivout = sawtooth_iarray(n)
 %
+%   n                 ivout
+% ----------------------------------------------------------------------
+%   0               zeros(0,1)      % column vector with zero length
+%   [2,3,1]         [1;2;1;2;3;1]
+%   [2,0,1]         [1;2;1]         % zero length middle sawtooth section
+%   [2.3,-0.7,3.99] [1;2;1;2;3]     % reals rounded downwards
 
 
-nn0=n(n>0);
-nn0=nn0(:);
-if ~isempty(nn0)
-    nend=cumsum(nn0);
-    tmp=ones(nend(end),1);
-    ix=1+nend(1:end-1);
-    if ~isempty(ix)
-        tmp(ix)=tmp(ix)-double(nn0(1:end-1));
-    end
-    ivout=cumsum(tmp);
+n = floor(n(:));
+n = n(n>0);
+if isempty(n)
+    ivout = zeros(0,1);
+elseif isscalar(n)
+    ivout = (1:n)';
 else
-    ivout=[];
+    offset = cumsum([0;n]);
+    ivout = (1:offset(end))' - repelem(offset(1:end-1), n);
 end
-
