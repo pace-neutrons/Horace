@@ -16,7 +16,7 @@ function vout = replicate_logarray (v, n)
 % Input:
 % ------
 %   v       Array of logical values i.e. true or false
-%           If the class of v is not 'logical', an attempt to convert is mode.
+%           If the class of v is not 'logical', an attempt to convert is made.
 %   n       List of number of times to replicate each value
 %
 % Output:

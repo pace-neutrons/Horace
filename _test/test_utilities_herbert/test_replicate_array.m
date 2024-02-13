@@ -8,7 +8,7 @@ classdef test_replicate_array < TestCase
         % Test replicate_array
         %--------------------------------------------------------------------------
         function test_array_empty_v_empty_n (~)
-            % Empty input array, empty n ==> zerp(0,1) output
+            % Empty input array, empty n ==> zero(0,1) output
             v = [];
             n = [];
             vout = replicate_array (v, n);
@@ -117,7 +117,7 @@ classdef test_replicate_array < TestCase
         % Test replicate_iarray
         %--------------------------------------------------------------------------
         function test_iarray_empty_v_empty_n (~)
-            % Empty input array, empty n ==> zerp(0,1) output
+            % Empty input array, empty n ==> zero(0,1) output
             v = [];
             n = [];
             vout = replicate_iarray (v, n);
