@@ -81,29 +81,23 @@ classdef test_sawtooth_iarray < TestCase
             vout_ref = [1;2;3;4;1;2];
             assertEqual(vout, vout_ref);
         end
-                
-        function test_sawtooth_iarray_real_n (~)
-            % Reals rounded down to nearest integer
-            n = 3.7;
-            vout = sawtooth_iarray (n);
-            vout_ref = [1;2;3];
-            assertEqual(vout, vout_ref);
-        end
-                
-        function test_sawtooth_iarray_real_n_ltZero (~)
-            % Negative reals equivalent to zero
-            n = -0.7;
-            vout = sawtooth_iarray (n);
-            assertEqual(vout, zeros(0,1));
+        
+        function test_negative_n_ERROR (~)
+            % Throw an error because one of the elements of n is negative
+            n = [4,-2,2];
+            f = @()sawtooth_iarray(n);
+            ME = assertExceptionThrown (f, 'HERBERT:sawtooth_iarray:invalid_argument');
+            assertTrue(contains(ME.message, ...
+                'The elements of the input argument must all be nonnegative integer values'))
         end
         
-        function test_sawtooth_iarray_realArray_n (~)
-            % Reals rounded down to nearest integer; array input that exercises
-            % this in several cases
-            n = [-0.7, 3.7, 2, 0, 4.0, -0.001];
-            vout = sawtooth_iarray (n);
-            vout_ref = [1;2;3;1;2;1;2;3;4];
-            assertEqual(vout, vout_ref);
+        function test_real_n_ERROR (~)
+            % Throw an error because one of the elements of n is non-integer
+            n = [4,1.8,2];
+            f = @()sawtooth_iarray(n);
+            ME = assertExceptionThrown (f, 'HERBERT:sawtooth_iarray:invalid_argument');
+            assertTrue(contains(ME.message, ...
+                'The elements of the input argument must all be nonnegative integer values'))
         end
                                 
     end
