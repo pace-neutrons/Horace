@@ -57,7 +57,8 @@ classdef(Abstract) data_op_interface
         wout = mtimes  (w1,w2)
         wout = plus    (w1,w2)
         %------------------------------------------------------------------
-        w = binary_op_manager_single(w1, w2, op_function_handle);
+        w = binary_op_manager(w1,w2,op_function_handle,varargin);
+        w = binary_op_manager_single(w1, w2, op_function_handle,varargin);
     end
     methods(Static)
         function [priority,sv_size,has_pix,has_img] = get_priority(obj)
@@ -119,7 +120,6 @@ classdef(Abstract) data_op_interface
         end
     end
     methods(Access=protected)
-        w = binary_op_manager(w1,w2,op_function_handle);
         w = unary_op_manager (w1, op_function_handle);
     end
 

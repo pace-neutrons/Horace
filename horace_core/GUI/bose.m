@@ -10,11 +10,16 @@ function wout=bose(win,T)
 %factor for all of the points:
 sqw_bose=sqw_eval(win,@bose_factor,T);
 
-wout=mtimes(win,sqw_bose);
+% as bose and sqw_bose have the same pixels, and the same pixels
+% coordinates, sorting pixels over bins are not necessary. This is why we
+% set ignore_cell_sorting to true
+wout = binary_op_manager(win,sqw_bose,@mtimes,true);
+
+
 
 %==============================
 
 function y = bose_factor(h,k,l,en,T)
 %
-y = (1 - exp(-11.6044.*en/T));
+y = (1 - exp(-11.6044/T.*en));
 
