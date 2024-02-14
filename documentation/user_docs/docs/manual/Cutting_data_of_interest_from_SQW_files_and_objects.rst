@@ -423,10 +423,11 @@ vector is build in this plane but orthogonal to :math:`e_z` vector.
 
 .. figure:: ../images/spher_coordinates.png 
    :align: center
-   :width: 500px
-   :alt: spherical coordinate system.
+   :width: 800px
+   :alt: spherical coordinate system. 
 
-   Spherical coordinate system used by ``sphere_proj``
+   Spherical coordinate system used by ``sphere_proj`` in case of orthogonal and non-orthogonal reciprocal lattice. In later case :math:`e_x` 
+   defines the plain for :math:`r_x` spherical axis.
 
 
 .. note::
