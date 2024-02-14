@@ -422,8 +422,8 @@ projection in a similar way to other projections, but instead use ``sphere_proj`
           label: {'|Q|'  '\theta'  '\phi'  'En'}
           title: ''
 
-Projection's lattice parameters (``alatt`` and ``angdeg``) are taken within the cut from existing ``sqw`` object. 
-You need to set them up manually only if intend to use the projection separately in your custom code.
+Projection's lattice parameters (``alatt`` and ``angdeg``) are taken within the ``cut`` from source ``sqw`` object. 
+You need to set them up manually only if you intend to use the projection separately in your custom code.
 
 The projection defines spherical coordinates system, where :math:`\theta` angle is 
 measured from z-axis directed along :math:`e_z` vector of the 
@@ -439,8 +439,8 @@ vector is build in this plane but orthogonal to :math:`e_z` vector.
    :width: 800px
    :alt: spherical coordinate system. 
 
-   Spherical coordinate system used by ``sphere_proj`` in case of orthogonal and non-orthogonal reciprocal lattice. In later case :math:`e_x` 
-   defines the plain where x-axis (:math:`r_x` on the picture) of spherical coordinate system lies.
+   Spherical coordinate system used by ``sphere_proj`` in case of orthogonal and non-orthogonal reciprocal lattice. In latter case :math:`e_x` 
+   defines the plane where x-axis (:math:`r_x` on the picture) of spherical coordinate system lies.
 
 
 .. note::
