@@ -409,8 +409,21 @@ In order to construct a spherical projection, i.e. a projection in
 projection in a similar way to other projections, but instead use ``sphere_proj`` class:
 
 .. code-block:: matlab
+ 
+    sp_pr = sphere_proj()
+    sp_pr =      
+       sphere_proj with properties:   
+             ez: [1 0 0]
+             ex: [0 1 0]
+           type: 'add'
+          alatt: []
+         angdeg: []
+         offset: [0 0 0 0]
+          label: {'|Q|'  '\theta'  '\phi'  'En'}
+          title: ''
 
-   sp_proj = sphere_proj();
+Projection's lattice parameters (``alatt`` and ``angdeg``) are taken within the cut from existing ``sqw`` object. 
+You need to set them up manually only if intend to use the projection separately in your custom code.
 
 The projection defines spherical coordinates system, where :math:`\theta` angle is 
 measured from z-axis directed along :math:`e_z` vector of the 
