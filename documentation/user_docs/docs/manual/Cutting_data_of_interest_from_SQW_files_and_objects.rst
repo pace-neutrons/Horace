@@ -427,7 +427,7 @@ vector is build in this plane but orthogonal to :math:`e_z` vector.
    :alt: spherical coordinate system. 
 
    Spherical coordinate system used by ``sphere_proj`` in case of orthogonal and non-orthogonal reciprocal lattice. In later case :math:`e_x` 
-   defines the plain for :math:`r_x` spherical axis.
+   defines the plain where x-axis (:math:`r_x` on the picture) of spherical coordinate system lies.
 
 
 .. note::
