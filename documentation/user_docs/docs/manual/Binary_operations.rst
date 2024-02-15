@@ -37,7 +37,8 @@ into each image cell, so its priority in operations is higher then ``IX_dataset`
    e.g. operation between ``PixelDataMemory`` (pixels) and ``dnd`` object (image) is undefined. 
 
 ``sqw`` objects contain both pixels and image information and this information is consistent. 
-(See `Tips and Tricks`_ on more about this)  As top priority Horace object, ``sqw`` object may participate in operations with any other primary Horace object.
+(See `Binary operations manager`_ on more about this)  As top priority Horace object,
+``sqw`` object may participate in operations with any other primary Horace object.
 
 For two objects to be able to participate in binary operation their image size and shape and ``pixel`` size (number of elements)
 must be equal. Other possibility is that some information (pixel or image) is missing. 
@@ -199,8 +200,12 @@ with respectively commensurate array sizes, or a scalar object as the same size
 of each.
 
 
+
+Tips and Tricks
+===============
+
 List of operations and their equivalent code
-============================================
+--------------------------------------------
 
 The arithmetic operations above correspond to equivalent MATLAB functions. You
 should never need to use these, but for reference the corresponding functions
@@ -231,13 +236,12 @@ are:
 	If you do ``w_out = w1+w2`` and ``w1_out = w_out-w2`` ``w1_out ~= w1``. 
 	
 	Actually ``w1.data.s==w1_out.data.s`` and ``w1.pix.signal==w1_out.pix.signal`` but
-	errors are accumulated for each operation so:
+	errors are accumulated in each operation so:
 	
 	``w1.data.e<w1_out.data.e`` and ``w1.pix.variance<w1_out.pix.variance``
 
-
-Tips and Tricks
-===============
+Binary operations manager
+--------------------------------------------
 
 ``sqw`` objects contain both pixels and image information and this information is consistent, i.e. 
 image is calculated from pixels and pixels are sorted within ``PixelData`` array in such a way that the block of
@@ -250,7 +254,7 @@ are random.
 When you perform binary operation between two objects containing pixels, the pixels have to be sorted within the bin to ensure
 the operation performed between correspondent pixels. In many cases, user may be sure that the operation is performed between two 
 objects with pixels ordered in the same way. For example, you calculate foreground and background on the same ``sqw`` object and now want 
-to add them together. In this case, you may decrease time of your operation avoiding sorting as follows:
+to add them together. In this case, you may decrease time of your operation by avoiding sorting pixels within the bins as follows:
 
 .. code-block:: matlab
 
