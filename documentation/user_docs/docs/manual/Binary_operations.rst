@@ -2,15 +2,18 @@
 Binary operations
 #################
 
+Introduction
+============
+
 Binary operations between two objects can be applied in a variety of ways in
 Horace. You can either use the symbolic form (``+``, ``-`` , ``*``, ``/``,
 ``\``), or you can use the explicit function names (``plus, minus, mtimes,
 mrdivide``, ``mldivide``, etc.).
 
-Main Horace data objects (main from binary operation point of view) have binary operations defined between them
+Main from binary operation point of view Horace data objects have binary operations defined between them
 excluding some special cases below.
 Here we call "main" the objects which are related to results of experiment and contain arrays of data
-obtained in experiment. These objects in order of their priority are:
+obtained from experiment. These objects in order of their priority are:
  
 .. code-block:: matlab
 
@@ -31,26 +34,27 @@ into each image cell, so its priority in operations is higher then ``IX_dataset`
 
 .. note::
    The binary operations are undefined between the objects which contain only pixels and only image information  
-   e.g. operation between ``PixelDataMemory`` (pixels) and ``dnd`` object (image) is undefined. There are other
-   algorithms intended for calculating pixels from image and image from pixels. 
+   e.g. operation between ``PixelDataMemory`` (pixels) and ``dnd`` object (image) is undefined. 
 
-Only ``sqw`` objects contain both pixels and image information and this information is consistent
-(image is calculated from pixels). They may participate in operations with any objects.
+``sqw`` objects contain both pixels and image information and this information is consistent. 
+(See `Tips and Tricks`_ on more about this)  As top priority Horace object, ``sqw`` object may participate in operations with any other primary Horace object.
 
 For two objects to be able to participate in binary operation their image size and shape and ``pixel`` size (number of elements)
-must be equal or some information (pixel or image) being missed. Scalar numbers and arrays is the only exception from this rule.
+must be equal. Other possibility is that some information (pixel or image) is missing. 
+Scalar number is the only exception from this rule, as operation with this is applied to every element of object's data.
 
 .. note::
    When you perform operation between numeric arrays and ``sqw`` object, the array modifies image first. 
    This means that shape and size of the array have to be consistent with shape and size of image. 
-   Pixels in ``sqw`` object are modifies to maintain consistency with modified image.
+   Wen operation with array is performed, pixels in ``sqw`` object are modified to maintain consistency with
+   modified image.
 
-The more information object have, the higher priority it has, 
+The more information object have, the higher priority it has in operation, 
 e.g. if you want to add ``sqw`` (Pixel + image information) and ``IX_dataset`` information, 
 the result would be ``sqw`` object as it has both pixel and image information. The resulting ``sqw`` object 
 pixel information is calculated from the images resulting in operation to maintain image-pixels consistency. 
 Alternatively, the result of ``sqw`` and ``PixelData`` operation would be ``sqw`` object with image calculated 
-from 
+from pixels changed by operation.
 
 Often used and most useful binary operations are described in more details below.
 
@@ -196,9 +200,9 @@ of each.
 
 
 List of operations and their equivalent code
---------------------------------------------
+============================================
 
-The arithmetic operations above correspond to equivalent Matlab functions. You
+The arithmetic operations above correspond to equivalent MATLAB functions. You
 should never need to use these, but for reference the corresponding functions
 are:
 
@@ -216,7 +220,7 @@ are:
 
    The matrix operations ``*``, ``/``, ``\`` and ``^`` (``mtimes``,
    ``mrdivide``, ``mldivide`` and ``mpower``) are performed
-   element-by-element. So the equivalent Matlab routines would be ``.*``,
+   element-by-element. So the equivalent MATLAB routines would be ``.*``,
    ``./``, ``.\`` and ``.^`` respectively.
 
 ..
@@ -230,3 +234,29 @@ are:
 	errors are accumulated for each operation so:
 	
 	``w1.data.e<w1_out.data.e`` and ``w1.pix.variance<w1_out.pix.variance``
+
+
+Tips and Tricks
+===============
+
+``sqw`` objects contain both pixels and image information and this information is consistent, i.e. 
+image is calculated from pixels and pixels are sorted within ``PixelData`` array in such a way that the block of
+pixels contributed into image bin(cell) is located in specific position of ``PixelData`` array and this position can be
+identified from image. The position :math:`i_1` of the first pixel contributing into image bin(cell) number :math:`n` is defined by
+formula: :math:`i_1 = cumsum(sqw.data.npix(1:n-1))+1` and the last by: :math:`i_{end} = i_1+sqw.data.npix(n)-1` where 
+:math:`sqw.data.npix` refers to ``npix`` array of ``dnd`` object. Particular pixels positions between :math:`i_1` and :math:`i_{end}`
+are random. 
+
+When you perform binary operation between two objects containing pixels, the pixels have to be sorted within the bin to ensure
+the operation performed between correspondent pixels. In many cases, user may be sure that the operation is performed between two 
+objects with pixels ordered in the same way. For example, you calculate foreground and background on the same ``sqw`` object and now want 
+to add them together. In this case, you may decrease time of your operation avoiding sorting as follows:
+
+.. code-block:: matlab
+
+	my_cut = read_sqw(file_with_sqw);
+	w_fg   = sqw_eval(my_cut,@my_foreground,foreground_parameters);
+	w_bg   = sqw_eval(my_cut,@my_background,background_parameters);	
+	w_sum  = binary_op_manager(w_fg,w_bg,@plus,true);
+	
+Last parameter of ``binary_op_manager`` set to ``true`` disables sorting pixels in bins while performing binary operations.
