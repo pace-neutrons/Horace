@@ -10,7 +10,7 @@ Horace. You can either use the symbolic form (``+``, ``-`` , ``*``, ``/``,
 ``\``), or you can use the explicit function names (``plus, minus, mtimes,
 mrdivide``, ``mldivide``, etc.).
 
-Main from binary operation point of view Horace data objects have binary operations defined between them
+Main Horace data objects (main from this chapter point of view) have binary operations defined between them
 excluding some special cases below.
 Here we call "main" the objects which are related to results of experiment and contain arrays of data
 obtained from experiment. These objects in order of their priority are:
@@ -50,7 +50,7 @@ Scalar number is the only exception from this rule, as operation with this is ap
    Wen operation with array is performed, pixels in ``sqw`` object are modified to maintain consistency with
    modified image.
 
-The more information object have, the higher priority it has in operation, 
+The more information an object has, the higher priority it has in operation,
 e.g. if you want to add ``sqw`` (Pixel + image information) and ``IX_dataset`` information, 
 the result would be ``sqw`` object as it has both pixel and image information. The resulting ``sqw`` object 
 pixel information is calculated from the images resulting in operation to maintain image-pixels consistency. 
