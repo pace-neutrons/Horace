@@ -47,8 +47,9 @@ Scalar number is the only exception from this rule, as operation with this is ap
 .. note::
    When you perform operation between numeric arrays and ``sqw`` object, the array modifies image first. 
    This means that shape and size of the array have to be consistent with shape and size of image. 
-   Wen operation with array is performed, pixels in ``sqw`` object are modified to maintain consistency with
-   modified image.
+   When operation with array is performed, pixels in ``sqw`` object are modified to maintain consistency with
+   modified image. Similar rules are applicable for operations between ``sqw`` object and other objects containing
+   image i.e. ``dnd``,``IX_dataset`` and ``sigvar`` objects.
 
 The more information an object has, the higher priority it has in operation,
 e.g. if you want to add ``sqw`` (Pixel + image information) and ``IX_dataset`` information, 
@@ -207,9 +208,8 @@ Tips and Tricks
 List of operations and their equivalent code
 --------------------------------------------
 
-The arithmetic operations above correspond to equivalent MATLAB functions. You
-should never need to use these, but for reference the corresponding functions
-are:
+The arithmetic operations above correspond to equivalent MATLAB functions. For reference,
+the corresponding functions are:
 
 ::
 
@@ -252,9 +252,9 @@ formula: :math:`i_1 = cumsum(sqw.data.npix(1:n-1))+1` and the last by: :math:`i_
 are random. 
 
 When you perform binary operation between two objects containing pixels, the pixels have to be sorted within the bin to ensure
-the operation performed between correspondent pixels. In many cases, user may be sure that the operation is performed between two 
+the operation is performed between correspondent pixels. In many cases, user may be sure that the operation is performed between two 
 objects with pixels ordered in the same way. For example, you calculate foreground and background on the same ``sqw`` object and now want 
-to add them together. In this case, you may decrease time of your operation by avoiding sorting pixels within the bins as follows:
+to add them together. In this case, you may decrease time of your ``plus`` operation by avoiding sorting pixels within the bins as follows:
 
 .. code-block:: matlab
 
@@ -264,3 +264,8 @@ to add them together. In this case, you may decrease time of your operation by a
 	w_sum  = binary_op_manager(w_fg,w_bg,@plus,true);
 	
 Last parameter of ``binary_op_manager`` set to ``true`` disables sorting pixels in bins while performing binary operations.
+
+.. warning::
+
+	Use this option carefully. If you do binary operation between two objects with pixels sorted differently, the first result would look correct. 
+	Unfortunately, any future operations on the result of such operation may produce completely unexpected results.
