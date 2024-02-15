@@ -8,7 +8,7 @@ function [fig_handle, axes_handle, plot_handle] = pp(w,varargin)
 %                                   % or figure with given figure number or handle
 %
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = pp(w,...) 
+%   >> [fig_handle, axes_handle, plot_handle] = pp(w,...)
 
 
 % Check input arguments

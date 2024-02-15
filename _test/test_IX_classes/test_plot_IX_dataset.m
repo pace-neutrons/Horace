@@ -58,8 +58,10 @@ classdef test_plot_IX_dataset < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(IXd3d_obj);
+                [objh,axh,plh]  = meth(IXd3d_obj);
                 assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isstruct(plh));
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
                 end
@@ -96,8 +98,11 @@ classdef test_plot_IX_dataset < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(IXd2d_obj);
+                [objh,axh,plh] = meth(IXd2d_obj);
                 assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
                 end
@@ -130,8 +135,10 @@ classdef test_plot_IX_dataset < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(IX1d_obj);
+                [objh,axh,plh] = meth(IX1d_obj);
                 assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
                 end
@@ -141,8 +148,12 @@ classdef test_plot_IX_dataset < TestCase
             for i=1:numel(opl_methods)
                 meth = opl_methods{i};
 
-                oboh = meth(IX1d_obj);
+                [oboh,axh,plh] = meth(IX1d_obj);
                 assertEqual(oboh,objh)
+                assertTrue(numel(plh)>1);
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
             end
             close(oboh);
         end

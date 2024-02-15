@@ -10,7 +10,7 @@ function [fig_handle, axes_handle, plot_handle] = da(w,varargin)
 %   >> da(w,...,'name',fig_name)        % draw with name = fig_name
 %
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = da(w,...) 
+%   >> [fig_handle, axes_handle, plot_handle] = da(w,...)
 
 
 % Check input arguments

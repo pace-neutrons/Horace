@@ -9,7 +9,7 @@ function [fig_handle, axes_handle, plot_handle] = dd(w,varargin)
 %   >> dd(w,...,'name',fig_name)        % draw with name = fig_name
 %
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = dd(w,...) 
+%   >> [fig_handle, axes_handle, plot_handle] = dd(w,...)
 
 
 % Check input arguments

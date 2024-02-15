@@ -1,4 +1,4 @@
-function sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis,clim,isoflag)
+function d=sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis,clim,isoflag)
 % SLICEOMATIC - Slice and isosurface volume exploration GUI
 %
 % Using the GUI:
@@ -770,8 +770,8 @@ else
                 if strcmp(d.defalpha,'flat') || strcmp(d.defalpha,'interp')
                     d.defalpha='texture';
                 end
-%             case	'defaultinterp'
-%                 d.defcolor='none';
+                %             case	'defaultinterp'
+                %                 d.defcolor='none';
             case	'defaulttransnone'
                 d.defalpha='none';
             case	'defaulttransflat'
