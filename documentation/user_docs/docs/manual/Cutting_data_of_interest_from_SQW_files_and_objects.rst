@@ -429,7 +429,7 @@ The projection defines spherical coordinates system, where :math:`\theta` angle 
 measured from z-axis directed along :math:`e_z` vector of the 
 projection and changes from :math:`0` to :math:`180^o`. :math:`\phi` angle is measured
 from :math:`r_x` vector of the projection and changes from :math:`-180^o` to :math:`180^o`. 
-Spherical projection :math:`r_x` vector corresponds with ``shphere_proj`` class :math:`e_x` vector
+Spherical projection :math:`r_x` vector corresponds to ``sphere_proj`` class :math:`e_x` vector
 for orthogonal reciprocal lattice. If reciprocal lattice is non-orthogonal, the :math:`e_x`-vector
 of spherical projection defines the :math:`z-x` plane of spherical coordinate system and :math:`r_x` 
 vector is build in this plane but orthogonal to :math:`e_z` vector.
