@@ -58,9 +58,6 @@ classdef test_plot_sqw < TestCase
                 if ~isempty(fh)
                     close(fh);
                 end
-
-
-
             end
         end
 
@@ -109,16 +106,22 @@ classdef test_plot_sqw < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                [objh,axh,texh]=meth(sqw3d_ar);
+                [objh,axh,plh] = meth(sqw3d_ar);
+
+                assertEqual(numel(objh),2)
                 assertTrue(isa(objh,'matlab.ui.Figure'));
                 assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                assertTrue(isa(texh,'matlab.graphics.primitive.Text'));
+                assertTrue(isstruct(plh));
+
                 if ~isempty(prev_h) && any(prev_h ~= objh)
-                    close(prev_h)
+                    close(prev_h);
                 end
                 prev_h = objh;
             end
-            close(objh);
+            try
+                close(objh);
+            catch
+            end
         end
 
         %
@@ -131,8 +134,12 @@ classdef test_plot_sqw < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(sqw3d_obj);
+                [objh,axh,plh] = meth(sqw3d_obj);
+
                 assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isstruct(plh));
+
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
                 end
@@ -173,16 +180,11 @@ classdef test_plot_sqw < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                [objh,axh,texh] = meth(sqw2d_arr);
+                [objh,axh,plh] = meth(sqw2d_arr);
+
                 assertTrue(isa(objh,'matlab.ui.Figure'));
                 assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                if iscell(texh)
-                    assertTrue(isa(texh{1},'matlab.graphics.primitive.Patch')||...
-                        isa(texh{1},'matlab.graphics.primitive.Surface'));
-                else
-                    assertTrue(isa(texh,'matlab.graphics.primitive.Patch')||...
-                        isa(texh,'matlab.graphics.primitive.Surface'));
-                end
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
 
                 if ~isempty(prev_h) && any(prev_h ~= objh)
                     close(prev_h)
@@ -201,8 +203,12 @@ classdef test_plot_sqw < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(sqw2d_obj);
+                [objh,axh,plh] = meth(sqw2d_obj);
+
                 assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
                 end
@@ -235,16 +241,13 @@ classdef test_plot_sqw < TestCase
                 else
                     fh = [];
                 end
-
                 assertExceptionThrown(@()thrower(sqw1d_obj,other_methods{i}), ...
                     errors_list{err_ind(i)} );
 
                 if ~isempty(fh)
                     close(fh);
                 end
-
             end
-
         end
         function test_sqw1d_plot1D_methods_work_on_array(obj)
             sqw1d_obj = obj.sqw_obj{1};
@@ -256,16 +259,12 @@ classdef test_plot_sqw < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                [objh,axh,texh] = meth(sqw1d_arr);
+                [objh,axh,plh] = meth(sqw1d_arr);
+
                 assertTrue(isa(objh,'matlab.ui.Figure'));
                 assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                if iscell(texh)
-                    assertTrue(isa(texh{1},'matlab.graphics.chart.primitive.ErrorBar')||...
-                        isa(texh{1},'matlab.graphics.chart.primitive.Line'));
-                else
-                    assertTrue(isa(texh,'matlab.graphics.chart.primitive.ErrorBar')||...
-                        isa(texh,'matlab.graphics.chart.primitive.Line'));
-                end
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
                 if ~isempty(prev_h) && all(prev_h ~= objh)
                     close(prev_h)
                 end
@@ -290,8 +289,11 @@ classdef test_plot_sqw < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(sqw1d_obj);
+                [objh,axh,plh] = meth(sqw1d_obj);
                 assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
                 end
@@ -302,7 +304,12 @@ classdef test_plot_sqw < TestCase
                 meth = opl_methods{i};
 
                 oboh = meth(sqw1d_obj);
+                [objh,axh,plh] = meth(sqw1d_obj);
+
                 assertEqual(oboh,objh)
+                assertTrue(numel(plh)>1);
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
             end
             close(oboh);
         end
