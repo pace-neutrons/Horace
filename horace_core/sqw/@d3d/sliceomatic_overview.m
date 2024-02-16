@@ -1,4 +1,4 @@
-function [figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargin)
+function varargout = sliceomatic_overview(w,varargin)
 % Plots 3D sqw object using sliceomatic with view straight down one of the axes
 %
 %   >> sliceomatic_overview (w)         % down third (vertical) axis
@@ -70,6 +70,6 @@ end
 set(gca,'CameraPosition',camposvec);
 
 % Output only if requested
-if nargout>=1, figureHandle=figureHandle_; end
-if nargout>=2, axesHandle=axesHandle_; end
-if nargout>=3, plotHandle=plotHandle_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,figureHandle_, axesHandle_, plotHandle_);
+end

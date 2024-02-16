@@ -1,4 +1,4 @@
-function [figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin)
+function varargout = sliceomatic(w, varargin)
 % Plots 3D sqw object using sliceomatic
 %
 %   >> sliceomatic (w)
@@ -61,6 +61,6 @@ if adjust_aspect || opt_adjust
 end
 
 % Output only if requested
-if nargout>=1, figureHandle=figureHandle_; end
-if nargout>=2, axesHandle=axesHandle_; end
-if nargout>=3, plotHandle=plotHandle_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,figureHandle_, axesHandle_, plotHandle_);
+end
