@@ -452,21 +452,33 @@ as viewed from sample position, one needs to make cut along [0,1,0],[0,0,1] dire
 <p>In order to construct a spherical projection, i.e. a projection in
 <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span>, <span class="math notranslate nohighlight">\(\theta\)</span> (scattering angle), <span class="math notranslate nohighlight">\(\phi\)</span> (azimuthal angle), <span class="math notranslate nohighlight">\(E\)</span>, we define the
 projection in a similar way to other projections, but instead use <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> class:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sp_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">();</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sp_pr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">()</span>
+<span class="n">sp_pr</span><span class="w"> </span><span class="p">=</span>
+<span class="w">   </span><span class="n">sphere_proj</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="nb">properties</span><span class="p">:</span>
+<span class="w">         </span><span class="n">ez</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">         </span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">       </span><span class="nb">type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;add&#39;</span>
+<span class="w">      </span><span class="n">alatt</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">     </span><span class="n">angdeg</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">     </span><span class="n">offset</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">      </span><span class="n">label</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;|Q|&#39;</span><span class="w">  </span><span class="s">&#39;\theta&#39;</span><span class="w">  </span><span class="s">&#39;\phi&#39;</span><span class="w">  </span><span class="s">&#39;En&#39;</span><span class="p">}</span>
+<span class="w">      </span><span class="nb">title</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
 </pre></div>
 </div>
+<p>Projection’s lattice parameters (<code class="docutils literal notranslate"><span class="pre">alatt</span></code> and <code class="docutils literal notranslate"><span class="pre">angdeg</span></code>) are taken within the <code class="docutils literal notranslate"><span class="pre">cut</span></code> from source <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.
+You need to set them up manually only if you intend to use the projection separately in your custom code.</p>
 <p>The projection defines spherical coordinates system, where <span class="math notranslate nohighlight">\(\theta\)</span> angle is
 measured from z-axis directed along <span class="math notranslate nohighlight">\(e_z\)</span> vector of the
 projection and changes from <span class="math notranslate nohighlight">\(0\)</span> to <span class="math notranslate nohighlight">\(180^o\)</span>. <span class="math notranslate nohighlight">\(\phi\)</span> angle is measured
 from <span class="math notranslate nohighlight">\(r_x\)</span> vector of the projection and changes from <span class="math notranslate nohighlight">\(-180^o\)</span> to <span class="math notranslate nohighlight">\(180^o\)</span>.
-Spherical projection <span class="math notranslate nohighlight">\(r_x\)</span> vector corresponds with <code class="docutils literal notranslate"><span class="pre">shphere_proj</span></code> class <span class="math notranslate nohighlight">\(e_x\)</span> vector
+Spherical projection <span class="math notranslate nohighlight">\(r_x\)</span> vector corresponds to <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> class <span class="math notranslate nohighlight">\(e_x\)</span> vector
 for orthogonal reciprocal lattice. If reciprocal lattice is non-orthogonal, the <span class="math notranslate nohighlight">\(e_x\)</span>-vector
 of spherical projection defines the <span class="math notranslate nohighlight">\(z-x\)</span> plane of spherical coordinate system and <span class="math notranslate nohighlight">\(r_x\)</span>
 vector is build in this plane but orthogonal to <span class="math notranslate nohighlight">\(e_z\)</span> vector.</p>
 <figure class="align-center" id="id4">
-<a class="reference internal image-reference" href="../_images/spher_coordinates.png"><img alt="spherical coordinate system." src="../_images/spher_coordinates.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="../_images/spher_coordinates.png"><img alt="spherical coordinate system." src="../_images/spher_coordinates.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">Spherical coordinate system used by <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code></span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+<p><span class="caption-text">Spherical coordinate system used by <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> in case of orthogonal and non-orthogonal reciprocal lattice. In latter case vectors <span class="math notranslate nohighlight">\(e_x,e_z\)</span> define the plane where orthogonal to <span class="math notranslate nohighlight">\(e_z\)</span> x-axis (<span class="math notranslate nohighlight">\(r_x\)</span> on the picture) of spherical coordinate system lies.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <div class="admonition note">
@@ -654,7 +666,7 @@ the range. The resulting image range will be <code class="docutils literal notra
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Feb 16, 2024, 10:13:27 AM.
+      <span class="lastupdated">Last updated on Feb 16, 2024, 10:14:52 AM.
       </span></p>
   </div>
 
