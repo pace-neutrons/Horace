@@ -18,6 +18,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -61,15 +62,20 @@
 <li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">12. Binary operations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#sqw-objects">12.1. sqw objects</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#single-sqw-object">12.1.1. Single sqw object</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#array-of-sqw-objects">12.1.2. Array of sqw objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">12.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sqw-objects">12.2. sqw objects</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#single-sqw-object">12.2.1. Single sqw object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#array-of-sqw-objects">12.2.2. Array of sqw objects</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#dnd-objects">12.2. dnd objects</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#single-dnd-object">12.2.1. Single dnd object</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#array-of-dnd-objects">12.2.2. Array of dnd objects</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#list-of-operations-and-their-equivalent-code">12.2.3. List of operations and their equivalent code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dnd-objects">12.3. dnd objects</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#single-dnd-object">12.3.1. Single dnd object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#array-of-dnd-objects">12.3.2. Array of dnd objects</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tips-and-tricks">12.4. Tips and Tricks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#list-of-operations-and-their-equivalent-code">12.4.1. List of operations and their equivalent code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#binary-operations-manager">12.4.2. Binary operations manager</a></li>
 </ul>
 </li>
 </ul>
@@ -120,14 +126,16 @@
              
   <section id="binary-operations">
 <h1><span class="section-number">12. </span>Binary operations<a class="headerlink" href="#binary-operations" title="Permalink to this heading"></a></h1>
+<section id="introduction">
+<h2><span class="section-number">12.1. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
 <p>Binary operations between two objects can be applied in a variety of ways in
 Horace. You can either use the symbolic form (<code class="docutils literal notranslate"><span class="pre">+</span></code>, <code class="docutils literal notranslate"><span class="pre">-</span></code> , <code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">/</span></code>,
 <code class="docutils literal notranslate"><span class="pre">\</span></code>), or you can use the explicit function names (<code class="docutils literal notranslate"><span class="pre">plus,</span> <span class="pre">minus,</span> <span class="pre">mtimes,</span>
 <span class="pre">mrdivide</span></code>, <code class="docutils literal notranslate"><span class="pre">mldivide</span></code>, etc.).</p>
-<p>Main Horace data objects (main from binary operation point of view) have binary operations defined between them
+<p>Main Horace data objects (main from this chapter point of view) have binary operations defined between them
 excluding some special cases below.
 Here we call “main” the objects which are related to results of experiment and contain arrays of data
-obtained in experiment. These objects in order of their priority are:</p>
+obtained from experiment. These objects in order of their priority are:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="s">&#39;sqw&#39;</span><span class="p">,</span><span class="s">&#39;PixelDataBase&#39;</span><span class="p">,</span><span class="s">&#39;DnDBase&#39;</span><span class="p">,</span><span class="s">&#39;IX_dataset&#39;</span><span class="p">,</span><span class="s">&#39;sigvar&#39;</span><span class="p">,</span><span class="s">&#39;numbers and arrays of numbers&#39;</span>
 </pre></div>
 </div>
@@ -142,28 +150,32 @@ into each image cell, so its priority in operations is higher then <code class="
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The binary operations are undefined between the objects which contain only pixels and only image information
-e.g. operation between <code class="docutils literal notranslate"><span class="pre">PixelDataMemory</span></code> (pixels) and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object (image) is undefined. There are other
-algorithms intended for calculating pixels from image and image from pixels.</p>
+e.g. operation between <code class="docutils literal notranslate"><span class="pre">PixelDataMemory</span></code> (pixels) and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object (image) is undefined.</p>
 </div>
-<p>Only <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects contain both pixels and image information and this information is consistent
-(image is calculated from pixels). They may participate in operations with any objects.</p>
+<p><code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects contain both pixels and image information and this information is consistent.
+(See <a class="reference internal" href="#binary-operations-manager">Binary operations manager</a> on more about this)  As top priority Horace object,
+<code class="docutils literal notranslate"><span class="pre">sqw</span></code> object may participate in operations with any other primary Horace object.</p>
 <p>For two objects to be able to participate in binary operation their image size and shape and <code class="docutils literal notranslate"><span class="pre">pixel</span></code> size (number of elements)
-must be equal or some information (pixel or image) being missed. Scalar numbers and arrays is the only exception from this rule.</p>
+must be equal. Other possibility is that some information (pixel or image) is missing.
+Scalar number is the only exception from this rule, as operation with this is applied to every element of object’s data.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>When you perform operation between numeric arrays and <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, the array modifies image first.
 This means that shape and size of the array have to be consistent with shape and size of image.
-Pixels in <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object are modifies to maintain consistency with modified image.</p>
+When operation with array is performed, pixels in <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object are modified to maintain consistency with
+modified image. Similar rules are applicable for operations between <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object and other objects containing
+image i.e. <code class="docutils literal notranslate"><span class="pre">dnd</span></code>,``IX_dataset`` and <code class="docutils literal notranslate"><span class="pre">sigvar</span></code> objects.</p>
 </div>
-<p>The more information object have, the higher priority it has,
+<p>The more information an object has, the higher priority it has in operation,
 e.g. if you want to add <code class="docutils literal notranslate"><span class="pre">sqw</span></code> (Pixel + image information) and <code class="docutils literal notranslate"><span class="pre">IX_dataset</span></code> information,
 the result would be <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object as it has both pixel and image information. The resulting <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object
 pixel information is calculated from the images resulting in operation to maintain image-pixels consistency.
 Alternatively, the result of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">PixelData</span></code> operation would be <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object with image calculated
-from</p>
+from pixels changed by operation.</p>
 <p>Often used and most useful binary operations are described in more details below.</p>
+</section>
 <section id="sqw-objects">
-<h2><span class="section-number">12.1. </span>sqw objects<a class="headerlink" href="#sqw-objects" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">12.2. </span>sqw objects<a class="headerlink" href="#sqw-objects" title="Permalink to this heading"></a></h2>
 <p>Let us take for our example the addition operator <code class="docutils literal notranslate"><span class="pre">+</span></code>. Our initial <code class="docutils literal notranslate"><span class="pre">sqw</span></code>
 object is called <code class="docutils literal notranslate"><span class="pre">w2</span></code> and has an attached <code class="docutils literal notranslate"><span class="pre">pix</span></code> array.</p>
 <div class="admonition note">
@@ -172,7 +184,7 @@ object is called <code class="docutils literal notranslate"><span class="pre">w2
 and <code class="docutils literal notranslate"><span class="pre">variance</span></code> elements of the pixel data.</p>
 </div>
 <section id="single-sqw-object">
-<h3><span class="section-number">12.1.1. </span>Single sqw object<a class="headerlink" href="#single-sqw-object" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">12.2.1. </span>Single sqw object<a class="headerlink" href="#single-sqw-object" title="Permalink to this heading"></a></h3>
 <p>You operate on <code class="docutils literal notranslate"><span class="pre">w2</span></code> with the following types:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object with a pix array of identical size to the pix
@@ -206,7 +218,7 @@ exactly onto the real dataset, and needs to be subtracted.</p>
 </ul>
 </section>
 <section id="array-of-sqw-objects">
-<h3><span class="section-number">12.1.2. </span>Array of sqw objects<a class="headerlink" href="#array-of-sqw-objects" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">12.2.2. </span>Array of sqw objects<a class="headerlink" href="#array-of-sqw-objects" title="Permalink to this heading"></a></h3>
 <p>You can use the same binary operation syntax as for single sqw objects, with the
 following conditions</p>
 <ul class="simple">
@@ -223,7 +235,7 @@ sqw objects.</p></li>
 </section>
 </section>
 <section id="dnd-objects">
-<h2><span class="section-number">12.2. </span>dnd objects<a class="headerlink" href="#dnd-objects" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">12.3. </span>dnd objects<a class="headerlink" href="#dnd-objects" title="Permalink to this heading"></a></h2>
 <p>Let us again take for our example the addition operator <code class="docutils literal notranslate"><span class="pre">+</span></code>, with our initial
 <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object called <code class="docutils literal notranslate"><span class="pre">w2</span></code> .</p>
 <div class="admonition note">
@@ -232,7 +244,7 @@ sqw objects.</p></li>
 <code class="docutils literal notranslate"><span class="pre">e</span></code> matrices</p>
 </div>
 <section id="single-dnd-object">
-<h3><span class="section-number">12.2.1. </span>Single dnd object<a class="headerlink" href="#single-dnd-object" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">12.3.1. </span>Single dnd object<a class="headerlink" href="#single-dnd-object" title="Permalink to this heading"></a></h3>
 <p>You can add values to <code class="docutils literal notranslate"><span class="pre">w2</span></code> in the following ways:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object with a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> (in <code class="docutils literal notranslate"><span class="pre">data</span></code>) of identical size to
@@ -259,17 +271,19 @@ sqw objects.</p></li>
 </ul>
 </section>
 <section id="array-of-dnd-objects">
-<h3><span class="section-number">12.2.2. </span>Array of dnd objects<a class="headerlink" href="#array-of-dnd-objects" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">12.3.2. </span>Array of dnd objects<a class="headerlink" href="#array-of-dnd-objects" title="Permalink to this heading"></a></h3>
 <p>Similar to arrays of sqw objects.</p>
 <p>As for sqw objects, arrays have to be the same size as the array of dnd objects
 with respectively commensurate array sizes, or a scalar object as the same size
 of each.</p>
 </section>
+</section>
+<section id="tips-and-tricks">
+<h2><span class="section-number">12.4. </span>Tips and Tricks<a class="headerlink" href="#tips-and-tricks" title="Permalink to this heading"></a></h2>
 <section id="list-of-operations-and-their-equivalent-code">
-<h3><span class="section-number">12.2.3. </span>List of operations and their equivalent code<a class="headerlink" href="#list-of-operations-and-their-equivalent-code" title="Permalink to this heading"></a></h3>
-<p>The arithmetic operations above correspond to equivalent Matlab functions. You
-should never need to use these, but for reference the corresponding functions
-are:</p>
+<h3><span class="section-number">12.4.1. </span>List of operations and their equivalent code<a class="headerlink" href="#list-of-operations-and-their-equivalent-code" title="Permalink to this heading"></a></h3>
+<p>The arithmetic operations above correspond to equivalent MATLAB functions. For reference,
+the corresponding functions are:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">plus</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">);</span>
 <span class="n">w1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">minus</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">);</span>
 <span class="n">w1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mtimes</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">);</span>
@@ -282,7 +296,7 @@ are:</p>
 <p class="admonition-title">Warning</p>
 <p>The matrix operations <code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">/</span></code>, <code class="docutils literal notranslate"><span class="pre">\</span></code> and <code class="docutils literal notranslate"><span class="pre">^</span></code> (<code class="docutils literal notranslate"><span class="pre">mtimes</span></code>,
 <code class="docutils literal notranslate"><span class="pre">mrdivide</span></code>, <code class="docutils literal notranslate"><span class="pre">mldivide</span></code> and <code class="docutils literal notranslate"><span class="pre">mpower</span></code>) are performed
-element-by-element. So the equivalent Matlab routines would be <code class="docutils literal notranslate"><span class="pre">.*</span></code>,
+element-by-element. So the equivalent MATLAB routines would be <code class="docutils literal notranslate"><span class="pre">.*</span></code>,
 <code class="docutils literal notranslate"><span class="pre">./</span></code>, <code class="docutils literal notranslate"><span class="pre">.\</span></code> and <code class="docutils literal notranslate"><span class="pre">.^</span></code> respectively.</p>
 </div>
 <div class="admonition warning">
@@ -290,8 +304,34 @@ element-by-element. So the equivalent Matlab routines would be <code class="docu
 <p>Binary operations between Horace objects, unlike arithmetic operations are not fully invertible.
 If you do <code class="docutils literal notranslate"><span class="pre">w_out</span> <span class="pre">=</span> <span class="pre">w1+w2</span></code> and <code class="docutils literal notranslate"><span class="pre">w1_out</span> <span class="pre">=</span> <span class="pre">w_out-w2</span></code> <code class="docutils literal notranslate"><span class="pre">w1_out</span> <span class="pre">~=</span> <span class="pre">w1</span></code>.</p>
 <p>Actually <code class="docutils literal notranslate"><span class="pre">w1.data.s==w1_out.data.s</span></code> and <code class="docutils literal notranslate"><span class="pre">w1.pix.signal==w1_out.pix.signal</span></code> but
-errors are accumulated for each operation so:</p>
+errors are accumulated in each operation so:</p>
 <p><code class="docutils literal notranslate"><span class="pre">w1.data.e&lt;w1_out.data.e</span></code> and <code class="docutils literal notranslate"><span class="pre">w1.pix.variance&lt;w1_out.pix.variance</span></code></p>
+</div>
+</section>
+<section id="binary-operations-manager">
+<h3><span class="section-number">12.4.2. </span>Binary operations manager<a class="headerlink" href="#binary-operations-manager" title="Permalink to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects contain both pixels and image information and this information is consistent, i.e.
+image is calculated from pixels and pixels are sorted within <code class="docutils literal notranslate"><span class="pre">PixelData</span></code> array in such a way that the block of
+pixels contributed into image bin(cell) is located in specific position of <code class="docutils literal notranslate"><span class="pre">PixelData</span></code> array and this position can be
+identified from image. The position <span class="math notranslate nohighlight">\(i_1\)</span> of the first pixel contributing into image bin(cell) number <span class="math notranslate nohighlight">\(n\)</span> is defined by
+formula: <span class="math notranslate nohighlight">\(i_1 = cumsum(sqw.data.npix(1:n-1))+1\)</span> and the last by: <span class="math notranslate nohighlight">\(i_{end} = i_1+sqw.data.npix(n)-1\)</span> where
+<span class="math notranslate nohighlight">\(sqw.data.npix\)</span> refers to <code class="docutils literal notranslate"><span class="pre">npix</span></code> array of <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object. Particular pixels positions between <span class="math notranslate nohighlight">\(i_1\)</span> and <span class="math notranslate nohighlight">\(i_{end}\)</span>
+are random.</p>
+<p>When you perform binary operation between two objects containing pixels, the pixels have to be sorted within the bin to ensure
+the operation is performed between correspondent pixels. In many cases, user may be sure that the operation is performed between two
+objects with pixels ordered in the same way. For example, you calculate foreground and background on the same <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object and now want
+to add them together. In this case, you may decrease time of your <code class="docutils literal notranslate"><span class="pre">plus</span></code> operation by avoiding sorting pixels within the bins as follows:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">my_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_sqw</span><span class="p">(</span><span class="n">file_with_sqw</span><span class="p">);</span>
+<span class="n">w_fg</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">my_cut</span><span class="p">,@</span><span class="n">my_foreground</span><span class="p">,</span><span class="n">foreground_parameters</span><span class="p">);</span>
+<span class="n">w_bg</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">my_cut</span><span class="p">,@</span><span class="n">my_background</span><span class="p">,</span><span class="n">background_parameters</span><span class="p">);</span>
+<span class="n">w_sum</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">binary_op_manager</span><span class="p">(</span><span class="n">w_fg</span><span class="p">,</span><span class="n">w_bg</span><span class="p">,@</span><span class="nb">plus</span><span class="p">,</span><span class="nb">true</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Last parameter of <code class="docutils literal notranslate"><span class="pre">binary_op_manager</span></code> set to <code class="docutils literal notranslate"><span class="pre">true</span></code> disables sorting pixels in bins while performing binary operations.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use this option carefully. If you do binary operation between two objects with pixels sorted differently, the first result would look correct.
+Unfortunately, any future operations on the result of such operation may produce completely unexpected results.</p>
 </div>
 </section>
 </section>
@@ -309,7 +349,7 @@ errors are accumulated for each operation so:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Feb 15, 2024, 11:28:57 AM.
+      <span class="lastupdated">Last updated on Feb 16, 2024, 10:13:27 AM.
       </span></p>
   </div>
 
