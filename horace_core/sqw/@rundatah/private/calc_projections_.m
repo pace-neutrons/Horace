@@ -83,7 +83,7 @@ if use_mex
             % ensure the detpar struct is in row order for the
             % calc_projections_c call below
             det  = obj.get_det_par_rows();
-             efix  = obj.efix;
+            efix  = obj.efix;
             emode = obj.emode;
             %proj_mode = 2;
             %nThreads = 1;

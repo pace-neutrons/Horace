@@ -153,7 +153,7 @@ classdef test_experiment_loadsave < TestCase
              % into a .mat file
              save('a.mat','mysqw');
              zzz = load('a.mat');
-             % compare the experiment_info and detpar struct for the
+             % compare the experiment_info and detpar (equivalent to the detector_arrays in experiment_info) for the
              % original and reloaded sqws
              assertEqualToTol(zzz.mysqw.experiment_info, mysqw.experiment_info,0.0,'ignore_str',true);
              assertEqualToTol(zzz.mysqw.detpar, mysqw.detpar,0.0,'ignore_str',true);

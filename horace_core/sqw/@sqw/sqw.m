@@ -65,7 +65,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % The class providing brief description of a whole sqw file.
         main_header_ = main_header_cl();
 
-        experiment_info_ = Experiment();
+        experiment_info_ = []; %Experiment() now at start of constructor;
         % detectors array
         detpar_  = struct([]);
 
@@ -286,11 +286,12 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
-
+            obj.experiment_info = Experiment();
             if nargin==0 % various serializers need empty constructor
                 obj.data_ = d0d();
                 return;
             end
+            
             obj = obj.init(varargin{:});
         end
         % initialization of empty sqw object or main part of constructor
@@ -403,6 +404,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         function npix = get.num_pixels(obj)
             npix = obj.pix_.num_pixels;
         end
+        % if sqw object has actual pixels or pixelles object
+        has = has_pixels(w);
     end
     %======================================================================
     % REDUNDANT and compatibility methods
@@ -565,6 +568,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             % NB combined if-expression is in parentheses to help visually
             % locate it - just useful cosmetic
 
+            %{
             if (~isempty(obj.detpar)                             && ...
                     IX_detector_array.check_detpar_parms(obj.detpar) && ...
                     ~isempty(obj.detpar.group)                       && ...
@@ -579,6 +583,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
                 %end
                 obj.experiment_info.detector_arrays = updated_detectors;
             end
+            %}
         end
     end
 

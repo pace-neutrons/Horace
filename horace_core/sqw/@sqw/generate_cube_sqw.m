@@ -117,8 +117,8 @@ detpar_struct.filepath='/fake';
 
 
 
-samples = out.experiment_info.samples.add(samp);
-instruments = out.experiment_info.instruments.add(IX_null_inst());
+samples = samp; %out.experiment_info.samples.add(samp);
+instruments = IX_null_inst(); %out.experiment_info.instruments.add(IX_null_inst());
 detector_arrays = IX_detector_array(detpar_struct);
 expdata = IX_experiment(expdata);
 

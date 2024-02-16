@@ -88,7 +88,7 @@ if ~(opts.head||opts.his)
                   'detpar input is not a struct as per this file format');
         end
    else
-        % there was no detpar info in the file; currently do nothing
+        ; % there was no detpar info in the file; currently do nothing
    end
 end
 

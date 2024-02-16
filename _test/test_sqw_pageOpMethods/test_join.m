@@ -116,8 +116,6 @@ classdef test_join < TestCase
 
             %
             assertEqual(obj.sample_obj.detpar,reformed_obj.detpar)
-            % This is bug Re #1432 no longer needed
-            %reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
 
             assertEqualToTol(sobj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
             % clear configuration to avoid memory warnings

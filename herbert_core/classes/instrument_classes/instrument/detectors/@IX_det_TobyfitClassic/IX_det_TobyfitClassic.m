@@ -27,6 +27,7 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
         % Other dependent properties required by abstract template:
         ndet        % Number of detectors (get access only) (scalar)
     end
+    
 
     methods
         %------------------------------------------------------------------

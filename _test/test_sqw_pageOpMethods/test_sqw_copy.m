@@ -53,7 +53,7 @@ classdef test_sqw_copy < TestCase
             % confirm selected other data is copied
             assertEqual(sqw_copy.main_header.title, sqw_obj.main_header.title);
             assertEqualToTol(sqw_copy.experiment_info, sqw_obj.experiment_info);
-            %assertEqualToTol(sqw_copy.detpar(), sqw_obj.detpar());
+            assertEqualToTol(sqw_copy.detpar, sqw_obj.detpar);
         end
     end
 end

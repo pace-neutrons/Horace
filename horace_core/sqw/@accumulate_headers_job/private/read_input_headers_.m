@@ -38,7 +38,7 @@ for i=1:nfiles
 	        detector = IX_detector_array(det_tmp);
 	        exp_info{i}.detector_arrays = exp_info{i}.detector_arrays.add(detector);
 	    elseif isa(det_tmp,'unique_references_container')
-	        exp_info{i}.detector_arrays = det_tmp
+	        exp_info{i}.detector_arrays = det_tmp;
         end
     end
     % no checks on equality of detpars any more

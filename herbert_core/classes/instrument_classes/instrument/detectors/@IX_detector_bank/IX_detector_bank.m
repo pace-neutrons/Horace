@@ -57,6 +57,7 @@ classdef IX_detector_bank < serializable
         ndet
     end
     
+    
     methods
         %------------------------------------------------------------------
         % Constructor

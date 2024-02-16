@@ -128,6 +128,14 @@ if opts.legacy
     else
         sqw_object   = sqw_skel.main_header;
         varargout{1} = sqw_skel.experiment_info;
+        % (1) no tests for this block found, so cannot ascertain what the
+        % output arguments should be
+        % (2) although detpar has a meaning for proper sqw objects
+        % (dependent variable access to detector_arrays) it has no meaning
+        % in the context of a skeleton struct mirroring an sqw. The
+        % assignment of an empty value attempts to check this in the hope
+        % that something will eventually fail as a result.
+        % CM
         varargout{2} = [];
         varargout{3} = sqw_skel.data;
         if isfield(sqw_skel,'pix')

@@ -541,7 +541,9 @@ classdef IX_detector_array < serializable
                 val = obj.det_bank_.ndet;
             end
         end
-        
+    end
+    
+    methods    
         function val = get_detpar_representation(obj)
             %GET_DETPAR convert first detector bank into detpar struct
             % intended for use initialising from a *default* ix_detector_array

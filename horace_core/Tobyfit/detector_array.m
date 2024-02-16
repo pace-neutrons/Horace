@@ -31,9 +31,11 @@ function detectors = detector_array (wtmp, use_tubes)
 % detpar = wtmp.detpar;   % just get a pointer
 det = wtmp.experiment_info.detector_arrays;
 if isempty(det) || det.n_runs == 0
-    % no detector info was available when the sqw was populated, so
-    % continue with the old detector initialisation from detpar
-    error('trying to make detectors from a detpar but it doesnt exist any more');
+    % no detector info was available when the sqw was populated; as detpar
+    % is no longer available this is an error
+    error('HORACE:tobyfit-detector_array:invalid_argument', ...
+          'trying to make detectors from a detpar but it doesnt exist any more');
+      %{
     if use_tubes
         detectors = IX_detector_array (detpar.group, detpar.x2(:), ...
             detpar.phi(:), detpar.azim(:),...
@@ -41,7 +43,9 @@ if isempty(det) || det.n_runs == 0
     else
         detectors = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
             IX_det_TobyfitClassic (detpar.width, detpar.height));
+          
     end
+          %}
 else
     % make a new detector object based on value of use_tubes and insert
     % it into the detector_array info extracted from the sqw
