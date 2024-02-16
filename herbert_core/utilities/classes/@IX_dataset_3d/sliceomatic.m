@@ -38,7 +38,8 @@ flags={'isonormals'};
 % Check input arguments
 % ---------------------
 if ~isempty(par)
-    error('Check arguments')
+    error('HERBERT:IX_dataset_3d:invalid_argument', ...
+        'Invalid sliceomatic arguments:\n %s',disp2str(par))
 end
 
 if numel(w)~=1
@@ -98,7 +99,7 @@ set(0,'DefaultFigureRenderer','zbuffer');
 
 % Plot data
 plot_ = sliceomatic(ux, uy, uz, signal, keyword.x_axis, keyword.y_axis, keyword.z_axis,...
-    xlabel, ylabel, zlabel, clim, keyword.isonormals);
+    xlabel, ylabel, zlabel, clim, keyword.isonormals,fig_name);
 
 % ----- Return rendering mode
 set(0, 'DefaultFigureRendererMode', mode);

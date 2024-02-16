@@ -13,14 +13,20 @@ function appdata=sliceomaticfigure(d)
 % === with:
 
 % If existing Sliceomatic figure, reset; otherwise create a new figure
-fig=findobj('name','Sliceomatic','type','figure');
+if isfield(d,'name')
+    name = d.name;
+else
+    name = 'Sliceomatic';
+end
+fig=findobj('name',name,'type','figure');
 if ~isempty(fig)
     cm = colormap;
     clf(fig,'reset')
     colormap(cm);
+    fig.Name = name;
+    set(0,'CurrentFigure',fig);
 else
-    %    fig=figure('name','Sliceomatic');
-    fig=figure('Position',[5, 30, 800, 600],'name','Sliceomatic');
+    fig=figure('Position',[5, 30, 800, 600],'name',name);
 end
 %------------------------------------------------------------------------------
 
@@ -56,7 +62,7 @@ end
 %                  'alim',lim);
 %Modified by sri
 if verLessThan('matlab','8.4')
-    d.axmain = axes('units','normal','pos',[.1  .1 .8 .8],'box','on',...
+    d.axmain = axes(fig,'units','normal','pos',[.1  .1 .8 .8],'box','on',...
         'ylim',d.ylim,...
         'xlim',d.xlim,...
         'zlim',d.zlim,...
@@ -67,14 +73,15 @@ if verLessThan('matlab','8.4')
     hold on;
     grid on;
 else
-    d.axmain = axes('units','normal','Position',[.1  .1 .8 .8],'box','on',...
+    d.axmain = axes(fig,'units','normal','Position',[.1  .1 .8 .8],'box','on',...
         'CLim',d.clim,...
         'ALim',lim);
+
     view(3);
-    axis tight vis3d;
+    axis(d.axmain,'tight','vis3d');
     hold on;
     grid on;
-    axis([d.xlim(:);d.ylim(:);d.zlim(:)])
+    axis(d.axmain,[d.xlim(:);d.ylim(:);d.zlim(:)])
     aspect=[max(d.xlim)-min(d.xlim),max(d.ylim)-min(d.ylim),max(d.zlim)-min(d.zlim)];
     daspect(aspect);
 end
