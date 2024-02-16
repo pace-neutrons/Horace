@@ -7,17 +7,10 @@ function varargout = paoc(w)
 %   >> [fig_handle, axes_handle, plot_handle] = paoc(w) 
 
 
-% Check input arguments
+
 opt=struct('newplot',false,'over_curr',true);
-[args,lims,fig]=genie_figure_parse_plot_args(opt);
-
-% Perform plot
-type='area';
-[fig_,axes_,plot_]=plot_twod (w,opt.newplot,type,fig);
-
-
+[fig_,axes_,plot_] = plot_2d_nd_(w,nargout,'area',opt);
 % Output only if requested
 if nargout>0
     varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
 end
-

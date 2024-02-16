@@ -1,9 +1,8 @@
-function [fig_,axes_,plot_] = plot_1d_nd_(w,nout,type,varargin)
-%plot_1d_nd_ Plot one or array of 1D datasets on separate plots
-%
+function [fig_,axes_,plot_] = plot_2d_nd_oc_(w,nout,type,opt,varargin)
+%plot_2d_nd_ Plot one or array of 2D datasets on separate plots
 %
 % Inputs:
-% w     -- one or array of 1D datasets
+% w     -- one or array of 2D datasets
 % nout  -- number of output arguements requested by the calling routine
 %          This defines the form output arguments of this routine will
 %          have.
@@ -17,11 +16,13 @@ function [fig_,axes_,plot_] = plot_1d_nd_(w,nout,type,varargin)
 % axes_  -- array or cellarray of handles for axis of each figure
 % plot_  -- array or cellarray of handles for plots placed on each figure
 
-
-
-% check input arguments
-opt=struct('newplot',true,'lims_type','xy');
-[~,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
+% Check input arguments
+[~,nw,lims,fig]=genie_figure_parse_plot_args2(opt,w,varargin{:});
+if nw==2
+    scaler = IX_dataset_2d(varargin{1});
+else
+    scaler  = [];
+end
 
 n_plots = numel(w);
 fig_ = cell(n_plots,1);
@@ -29,12 +30,21 @@ axes_ = cell(n_plots,1);
 plot_ = cell(n_plots,1);
 
 % perform plot
-[fig_{1},axes_{1},plot_{1}]=plot_oned (w(1),opt.newplot,type,fig,lims{:});
+if nw == 2
+    [fig_{1},axes_{1},plot_{1}]=plot_twod ({w(1),scaler},opt.newplot,type,fig,lims{:});
+else
+    [fig_{1},axes_{1},plot_{1}]=plot_twod (w(1),opt.newplot,type,fig,lims{:});
+end
 opt.newplot = false;
+opt.over_curr=false;
 for i=2:n_plots
     fig = figure;
     % perform another plot
-    [fig_{i},axes_{i},plot_{i}]=plot_oned (w(i),opt.newplot,type,fig,lims{:});
+    if nw == 2
+        [fig_{i},axes_{i},plot_{i}]=plot_twod ({w(i),scaler},opt.newplot,type,fig,lims{:});
+    else
+        [fig_{i},axes_{i},plot_{i}]=plot_twod (w(i),opt.newplot,type,fig,lims{:});
+    end
 end
 
 % if output requested, combine output in array of graphical objects

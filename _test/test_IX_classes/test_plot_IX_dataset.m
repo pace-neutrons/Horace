@@ -89,6 +89,30 @@ classdef test_plot_IX_dataset < TestCase
             end
         end
         %
+        function test_IXd2d_plot2D_methods_work_on_array(obj)
+            IXd2d_arr = [obj.IX_data{2},obj.IX_data{2}];
+            tstd = obj.interface_tester;
+            pl_methods = [tstd.dnd_methods(:);tstd.d2d_methods(:)];
+            need_fig = [false(numel(tstd.dnd_methods),1);tstd.overplot_requested(:)];
+
+            for i=1:numel(pl_methods)
+                meth = pl_methods{i};
+
+                if need_fig(i)
+                    figure;
+                end
+                [objh,axh,plh] = meth(IXd2d_arr);
+
+                assertEqual(numel(objh),2)
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
+                close(objh);
+            end
+
+        end
+
         function test_IXd2d_plot2D_methods_work(obj)
             IXd2d_obj = obj.IX_data{2};
             tstd = obj.interface_tester;

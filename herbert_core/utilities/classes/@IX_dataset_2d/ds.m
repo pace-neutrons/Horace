@@ -12,17 +12,8 @@ function varargout = ds(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ds(w,...) 
 
-
-% Check input arguments
 opt=struct('newplot',true,'lims_type','xyz');
-[args,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
-
-
-% Perform plot
-type='surface';
-[fig_,axes_,plot_]=plot_twod (w,opt.newplot,type,fig,lims{:});
-
-
+[fig_,axes_,plot_] = plot_2d_nd_(w,nargout,'surface',opt,varargin{:});
 % Output only if requested
 if nargout>0
     varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);

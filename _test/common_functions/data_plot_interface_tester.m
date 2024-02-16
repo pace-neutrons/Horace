@@ -17,6 +17,8 @@ classdef data_plot_interface_tester < data_plot_interface
         d1d_mthods_oveplot = { @pdoc,@peoc,@phoc,@ploc,@pmoc,@ppoc}
         d2d_methods = {@da,@ds,@ds2,...
             @pa,@paoc,@ps,@ps2,@ps2oc,@psoc};
+        overplot_requested = [false,false,false,...
+            false,true,false,false,true,true];
         d3d_methods = {@sliceomatic,@sliceomatic_overview};
     end
     properties

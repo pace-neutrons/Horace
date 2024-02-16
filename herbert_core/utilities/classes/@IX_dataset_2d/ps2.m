@@ -25,21 +25,8 @@ function varargout = ps2(w,varargin)
 
 
 % Check input arguments (must allow for the two cases of one or two plotting input arguments)
-
 opt=struct('newplot',false);
-%args,nw,lims,fig_out
-[args,nw,lims,fig]=genie_figure_parse_plot_args2(opt,w,varargin{:});
-if nw==2
-    data={w,IX_dataset_2d(varargin{1})};
-else
-    data=w;
-end
-
-% Perform plot
-type='surface2';
-[fig_,axes_,plot_]=plot_twod (data,opt.newplot,type,fig);
-
-
+[fig_,axes_,plot_] = plot_2d_nd_oc_(w,nargout,'surface2',opt,varargin{:});
 % Output only if requested
 if nargout>0
     varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
