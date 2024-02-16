@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = ds(w,varargin)
+function varargout = ds(w,varargin)
 % Draw a surface plot of an IX_dataset_2d or array of IX_dataset_2d
 %
 %   >> ds(w)
@@ -22,7 +22,8 @@ opt=struct('newplot',true,'lims_type','xyz');
 type='surface';
 [fig_,axes_,plot_]=plot_twod (w,opt.newplot,type,fig,lims{:});
 
+
 % Output only if requested
-if nargout>=1, fig_handle=fig_; end
-if nargout>=2, axes_handle=axes_; end
-if nargout>=3, plot_handle=plot_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+end

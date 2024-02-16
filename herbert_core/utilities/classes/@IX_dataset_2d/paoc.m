@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = paoc(w)
+function varargout = paoc(w)
 % Overplot an area plot of an IX_dataset_2d or array of IX_dataset_2d on the current plot
 %
 %   >> paoc(w)
@@ -15,7 +15,9 @@ opt=struct('newplot',false,'over_curr',true);
 type='area';
 [fig_,axes_,plot_]=plot_twod (w,opt.newplot,type,fig);
 
+
 % Output only if requested
-if nargout>=1, fig_handle=fig_; end
-if nargout>=2, axes_handle=axes_; end
-if nargout>=3, plot_handle=plot_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+end
+

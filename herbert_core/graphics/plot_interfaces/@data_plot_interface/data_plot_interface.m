@@ -10,7 +10,7 @@ classdef (Abstract=true) data_plot_interface
         % verify if user wants to change aspect of a 2D plot
         [adjust,present]=adjust_aspect_option(args_in)
     end
-    
+
 
     methods
         %------------------------------------------------------------------
@@ -198,4 +198,14 @@ classdef (Abstract=true) data_plot_interface
                 w,'sliceomatic_overview',varargin{:});
         end
     end
+    methods(Static,Access=protected)
+        function out = set_argout(nout,fig_,axes_,plot_)
+            % set output arguments depending on number of output arguments
+            % requested
+            if nout >=1, out{1} =fig_; end
+            if nout >=2, out{2} =axes_; end
+            if nout >=3, out{3} =plot_; end
+        end
+    end
+
 end

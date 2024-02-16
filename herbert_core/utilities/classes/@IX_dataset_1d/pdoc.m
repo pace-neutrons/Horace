@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = pdoc(w)
+function [fig_handle, axes_handle, plot_handle] = pdoc(w,varargin)
 % Overplot markers, error bars and lines for a spectrum or array of spectra on the current plot
 %
 %   >> pdoc(w)
@@ -9,7 +9,7 @@ function [fig_handle, axes_handle, plot_handle] = pdoc(w)
 
 % Check input arguments
 opt=struct('newplot',false,'over_curr',true);
-[args,lims,fig]=genie_figure_parse_plot_args(opt);
+[args,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
 
 % Perform plot
 type='d';

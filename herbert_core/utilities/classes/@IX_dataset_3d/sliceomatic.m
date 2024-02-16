@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = sliceomatic(w, varargin)
+function varargout = sliceomatic(w, varargin)
 % Plots IX_dataset_3d object using sliceomatic
 %
 %   >> sliceomatic (w)
@@ -119,6 +119,6 @@ set(gca,'Position',[0.2,0.2,0.6,0.6]);
 axis normal
 
 % Output only if requested
-if nargout>=1, fig_handle=fig_; end
-if nargout>=2, axes_handle=axes_; end
-if nargout>=3, plot_handle=plot_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+end

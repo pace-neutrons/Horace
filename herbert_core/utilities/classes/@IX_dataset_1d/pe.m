@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = pe(w,varargin)
+function varargout= pe(w,varargin)
 % Overplot error bars for a spectrum or array of spectra on an existing plot
 %
 %   >> pe(w)
@@ -21,6 +21,6 @@ type='e';
 
 
 % Output only if requested
-if nargout>=1, fig_handle=fig_; end
-if nargout>=2, axes_handle=axes_; end
-if nargout>=3, plot_handle=plot_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+end

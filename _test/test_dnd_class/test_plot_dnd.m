@@ -35,7 +35,6 @@ classdef test_plot_dnd < TestCase
             errors_list = {'HORACE:DnDBase:not_implemented',...
                 'HERBERT:graphics:invalid_argument','HORACE:d4d:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(26) = 2;
             err_ind(28) = 3;
             err_ind(29) = 3;
             function thrower(obx,fmethod)
@@ -60,7 +59,6 @@ classdef test_plot_dnd < TestCase
             errors_list = {'HORACE:DnDBase:not_implemented',...
                 'HERBERT:graphics:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(26) = 2;
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
@@ -147,7 +145,6 @@ classdef test_plot_dnd < TestCase
             errors_list = {'HORACE:DnDBase:not_implemented',...
                 'HERBERT:graphics:invalid_argument','HORACE:d1d:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(8) = 2;
             err_ind(10) = 3;
             err_ind(11) = 3;
             function thrower(obx,fmethod)
@@ -187,7 +184,7 @@ classdef test_plot_dnd < TestCase
             for i=1:numel(opl_methods)
                 meth = opl_methods{i};
 
-                oboh = meth(d1d_obj);
+                [oboh,axh,plh] = meth(d1d_obj);
                 assertEqual(oboh,objh)
                 assertTrue(numel(plh)>1);
                 assertTrue(isa(objh,'matlab.ui.Figure'));
