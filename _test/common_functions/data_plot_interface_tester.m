@@ -8,9 +8,13 @@ classdef data_plot_interface_tester < data_plot_interface
 
     properties(Constant)
         dnd_methods = {@plot,@plotover}
+        dnd_overlpot = [false,true];
         d1d_methods = {@dd,@de,@dh,@dl,@dm,@dp,...
-            @pd,@pe,@ph,@pl,@pm,@pp}
-        d1d_mthods_oveplot = {@pdoc,@peoc,@phoc,@ploc,@pmoc,@ppoc}
+            @pd,@pe,@pl,@ph,@pm,@pp}
+        d1d_overlpot = [false(6,1),true(6,1)];
+
+        % overlpot only methods
+        d1d_mthods_oveplot = { @pdoc,@peoc,@phoc,@ploc,@pmoc,@ppoc}
         d2d_methods = {@da,@ds,@ds2,...
             @pa,@paoc,@ps,@ps2,@ps2oc,@psoc};
         d3d_methods = {@sliceomatic,@sliceomatic_overview};

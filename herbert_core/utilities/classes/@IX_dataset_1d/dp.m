@@ -12,14 +12,7 @@ function varargout = dp(w,varargin)
 %   >> [fig_handle, axes_handle, plot_handle] = dp(w,...)
 
 
-% Check input arguments
-opt=struct('newplot',true,'lims_type','xy');
-[~,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
-
-% Perform plot
-type='p';
-[fig_,axes_,plot_]=plot_oned (w,opt.newplot,type,fig,lims{:});
-
+[fig_,axes_,plot_] = plot_1d_nd_(w,nargout,'p',varargin{:});
 
 % Output only if requested
 if nargout>0

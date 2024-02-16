@@ -124,7 +124,57 @@ classdef test_plot_IX_dataset < TestCase
                     sprintf('error for method N%d: %s',i, ...
                     func2str(other_methods{i})));
             end
+        end
 
+        function test_IX1d_overplot1D_methods_work_on_array(obj)
+            IX1d_arr = [obj.IX_data{1},obj.IX_data{1}];
+            tstd = obj.interface_tester;
+
+
+            opl_methods = tstd.d1d_mthods_oveplot;
+            for i=1:numel(opl_methods)
+                figure;
+                meth = opl_methods{i};
+
+                [objh,axh,plh] = meth(IX1d_arr);
+
+                assertEqual(numel(objh),1);
+                assertEqual(numel(axh),1);
+                assertEqual(numel(plh),2);
+
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
+                close(objh);
+            end
+
+        end
+
+        function test_IX1d_plot1D_methods_work_on_array(obj)
+            IX1d_arr = [obj.IX_data{1},obj.IX_data{1}];
+            tstd = obj.interface_tester;
+            pl_methods = [tstd.dnd_methods(:);tstd.d1d_methods(:)];
+            is_overplot = [tstd.dnd_overlpot(:);tstd.d1d_overlpot(:)];
+
+            for i=1:numel(pl_methods)
+                meth = pl_methods{i};
+
+                [objh,axh,plh] = meth(IX1d_arr);
+                if is_overplot(i)
+                    assertEqual(numel(objh),1);
+                    assertEqual(numel(axh),1);
+                    assertEqual(numel(plh),2);
+                else
+                    assertEqual(numel(objh),2);
+                    assertFalse(isequal(objh(1),objh(2)))
+                end
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
+                close(objh);
+            end
         end
         function test_IX1d_plot1D_methods_work(obj)
             IX1d_obj = obj.IX_data{1};
