@@ -175,23 +175,22 @@ classdef test_plot_sqw < TestCase
             sqw2d_arr = [sqw2d_obj,sqw2d_obj];
             tstd = obj.interface_tester;
             pl_methods = [tstd.dnd_methods(:);tstd.d2d_methods(:)];
+            need_overplot = [false;false;tstd.overplot_requested(:)];
 
-            prev_h = [];
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
+                if need_overplot(i)
+                    fig = figure;
+                end
 
                 [objh,axh,plh] = meth(sqw2d_arr);
 
                 assertTrue(isa(objh,'matlab.ui.Figure'));
                 assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
-
-                if ~isempty(prev_h) && any(prev_h ~= objh)
-                    close(prev_h)
-                end
-                prev_h = objh;
+                close(objh);
             end
-            close(objh);
+
         end
 
         function test_sqw2d_plot2D_methods_work(obj)
