@@ -81,8 +81,11 @@ classdef test_plot_dnd < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(d3d_obj);
+                [objh,axh,plh]  = meth(d3d_obj);
                 assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isstruct(plh));
+
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
                 end
@@ -124,8 +127,11 @@ classdef test_plot_dnd < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(d2d_obj);
+                [objh,axh,plh] = meth(d2d_obj);
                 assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
                 end
@@ -166,7 +172,11 @@ classdef test_plot_dnd < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(d1d_obj);
+                [objh,axh,plh] = meth(d1d_obj);
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
                 assertTrue(isa(objh,'matlab.ui.Figure'));
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
@@ -179,6 +189,10 @@ classdef test_plot_dnd < TestCase
 
                 oboh = meth(d1d_obj);
                 assertEqual(oboh,objh)
+                assertTrue(numel(plh)>1);
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
             end
             close(oboh);
         end

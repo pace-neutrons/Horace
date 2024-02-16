@@ -6,7 +6,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
         % 1d Plotting functions
         %------------------------------------------------------------------
         % PLOT
-        function [figureHandle, axesHandle, plotHandle] = dd(w,varargin)
+        function varargout = dd(w,varargin)
             % Draws a plot of markers, error bars and lines of a 1D sqw
             % or dnd object or array of objects
             %
@@ -28,6 +28,9 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
 
             [figureHandle, axesHandle, plotHandle] = delegate_to_herbert_1d_( ...
                 IX_dataset_1d(w),nargout,'dd',class(w),opt,varargin{:});
+            if nargout>0
+                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
+            end
         end
         function [figureHandle, axesHandle, plotHandle] = de(w,varargin)
             % Draws a plot of error bars of a 1D sqw or dnd object or array of objects
@@ -361,7 +364,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
         % 2d Plotting functions
         %------------------------------------------------------------------
         % PLOT
-        function [figureHandle, axesHandle, plotHandle] = da(w,varargin)
+        function varargout = da(w,varargin)
             % Draw an area plot of a 2D sqw dataset or array of datasets
             %
             %   >> da(w)
@@ -393,9 +396,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             if opt_adjust
                 adjust_aspect_2d_(w)
             end
+            if nargout>0
+                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
+            end
 
         end
-        function [figureHandle, axesHandle, plotHandle] = ds(w,varargin)
+        function varargout = ds(w,varargin)
             % Draw a surface plot of a 2D sqw dataset
             % or array of datasets
             %
@@ -427,9 +433,11 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             if opt_adjust
                 adjust_aspect_2d_(w)
             end
-
+            if nargout>0
+                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
+            end
         end
-        function [figureHandle, axesHandle, plotHandle] = ds2(w,varargin)
+        function varargout= ds2(w,varargin)
             % Draw a surface plot of a 2D sqw dataset or array of datasets
             %
             %   >> ds2(w)       % Use error bars to set colour scale
@@ -472,10 +480,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             if opt_adjust
                 adjust_aspect_2d_(w)
             end
+            if nargout>0
+                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
+            end
         end
         %------------------------------------------------------------------
         % OVERPLOT
-        function [figureHandle, axesHandle, plotHandle] = pa(w,varargin)
+        function varargout = pa(w,varargin)
             % Overplot an area plot of a 2D sqw dataset or array of datasets
             %
             %   >> pa(w)
@@ -493,8 +504,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
 
             [figureHandle, axesHandle, plotHandle] = delegate_to_herbert_2d_( ...
                 IX_dataset_2d(w),nargout,'pa',class(w),opt,varargin{:});
+            if nargout>0
+                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
+            end
+
         end
-        function [figureHandle, axesHandle, plotHandle] = paoc(w,varargin)
+        function varargout = paoc(w,varargin)
             % Overplot an area plot of a 2D sqw dataset or
             % array of datasets on the current figure
             %
@@ -509,8 +524,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
 
             [figureHandle, axesHandle, plotHandle] = delegate_to_herbert_2d_( ...
                 IX_dataset_2d(w),nargout,'paoc',class(w),opt,varargin{:});
+            if nargout>0
+                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
+            end
+
         end
-        function [figureHandle, axesHandle, plotHandle] = ps(w,varargin)
+        function varargout = ps(w,varargin)
             % Overplot a surface plot of a 2D sqw dataset or array of datasets
             %
             %   >> ps(w)
@@ -529,8 +548,11 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
 
             [figureHandle, axesHandle, plotHandle] = delegate_to_herbert_2d_( ...
                 IX_dataset_2d(w),nargout,'ps',class(w),opt,varargin{:});
+            if nargout>0
+                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
+            end
         end
-        function [figureHandle, axesHandle, plotHandle] = ps2(w,varargin)
+        function varargout = ps2(w,varargin)
             % Overplot a surface plot of a 2D sqw dataset
             % or array of datasets
             %
@@ -549,8 +571,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
 
             [figureHandle, axesHandle, plotHandle] = delegate_to_herbert_2d_2p_( ...
                 w,nargout,'ps2',class(w),opt,varargin{:});
+
+            if nargout>0
+                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
+            end
         end
-        function [figureHandle, axesHandle, plotHandle] = ps2oc(w,varargin)
+        function varargout = ps2oc(w,varargin)
             % Overplot a surface plot of a 2D sqw dataset or
             % array of datasets on the current figure
             %
@@ -580,8 +606,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
 
             [figureHandle, axesHandle, plotHandle] = delegate_to_herbert_2d_2p_( ...
                 w,nargout,'ps2oc',class(w),opt,varargin{:});
+            if nargout>0
+                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
+            end
+
         end
-        function [figureHandle, axesHandle, plotHandle] = psoc(w,varargin)
+        function varargout = psoc(w,varargin)
             % Overplot a surface plot of a 2D sqw dataset or array of
             % datasets on the current figure
             %
@@ -597,6 +627,10 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
 
             [figureHandle, axesHandle, plotHandle] = delegate_to_herbert_2d_( ...
                 IX_dataset_2d(w),nargout,'psoc',class(w),opt,varargin{:});
+            if nargout>0
+                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
+            end
+
         end
         %------------------------------------------------------------------
     end
