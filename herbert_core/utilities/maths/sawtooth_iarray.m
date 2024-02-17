@@ -27,7 +27,7 @@ if any(n<0) || any(round(n)~=n)
 end
 
 if isempty(n)
-    % No values of n: empty column vector output
+    % No values of n: empty column vector output required
     ivout = zeros(0,1);
     
 elseif isscalar(n)
