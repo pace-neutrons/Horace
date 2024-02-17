@@ -65,7 +65,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % The class providing brief description of a whole sqw file.
         main_header_ = main_header_cl();
 
-        experiment_info_ = []; %Experiment() now at start of constructor;
+        experiment_info_ = []; %Experiment(); now at start of constructor;
         % detectors array
         detpar_  = struct([]);
 
@@ -286,7 +286,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
-            obj.experiment_info = Experiment();
+            obj.experiment_info_ = Experiment();
             if nargin==0 % various serializers need empty constructor
                 obj.data_ = d0d();
                 return;
