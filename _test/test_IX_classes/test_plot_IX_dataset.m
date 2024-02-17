@@ -25,6 +25,7 @@ classdef test_plot_IX_dataset < TestCase
             obj.IX_data{1} = obj.IX_data{1}.IX_dataset_1d();
             obj.IX_data{2} = obj.IX_data{2}.IX_dataset_2d();
             obj.IX_data{3} = obj.IX_data{3}.IX_dataset_3d();
+            close all;
         end
         %------------------------------------------------------------------
         function test_IXd3d_other_plot_methods_throw(obj)
@@ -149,6 +150,119 @@ classdef test_plot_IX_dataset < TestCase
                     func2str(other_methods{i})));
             end
         end
+        function test_IX2d_overplot_methods_work_together(obj)
+            IX2d_obj = obj.IX_data{2};
+            tstd = obj.interface_tester;
+
+            opl_methods  = tstd.d2d_methods(tstd.d2d_ovelplot);
+            fh = da(IX2d_obj);
+            for i=1:numel(opl_methods(1:2))
+
+                meth = opl_methods{i};
+
+                [objh,axh,plh] = meth(IX2d_obj);
+
+                assertEqual(numel(objh),1);
+                assertEqual(numel(axh),1);
+                assertTrue(numel(plh)==i+1);
+
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+            end
+            assertTrue(isequal(fh,objh));
+            close(objh);
+
+            for i=1:numel(opl_methods(3:end))
+
+                meth = opl_methods{2+i};
+
+                [objh,axh,plh] = meth(IX2d_obj);
+
+                assertEqual(numel(objh),1);
+                assertEqual(numel(axh),1);
+                assertTrue(numel(plh)==i);
+
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+            end
+            close(objh);
+
+        end
+        function test_IX1d_overplot2_work_with_overlpot1(obj)
+            IX1d_arr = [obj.IX_data{1},obj.IX_data{1}];
+
+            [objh,axh,plh] = pl(IX1d_arr);
+            assertTrue(isa(objh,'matlab.ui.Figure'));
+            assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+            assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
+            [objh,axh,plh] = pd(obj.IX_data{1});
+            assertEqual(numel(objh),1);
+            assertEqual(numel(axh),1);
+            assertEqual(numel(plh),3);
+            close(objh);
+        end
+
+
+        function test_IX1d_all_methods_work_together_on_array(obj)
+            IX1d_arr = [obj.IX_data{1},obj.IX_data{1}];
+            tstd = obj.interface_tester;
+
+            pl_methods    = tstd.d1d_methods;
+            is_plot       = ~tstd.d1d_overlpot;
+
+            for i=1:numel(pl_methods)
+
+                meth = pl_methods{i};
+
+                [objh,axh,plh] = meth(IX1d_arr);
+
+                if is_plot(i)
+                    assertEqual(numel(objh),2);
+                    assertEqual(numel(axh),2);
+                    assertTrue(numel(plh)==2);
+                else
+                    assertEqual(numel(axh),1);
+                    assertEqual(numel(objh),1);
+                end
+                if is_plot(i)
+                    close(objh(2));
+                end
+
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+            end
+            close(objh);
+        end
+
+        function test_IX1d_overplot_methods_work_together(obj)
+            IX1d_obj = obj.IX_data{1};
+            tstd = obj.interface_tester;
+
+            opl_base    = tstd.d1d_methods(tstd.d1d_overlpot);
+            opl_methods = [opl_base(:);tstd.d1d_mthods_oveplot(:)];
+            fh = dd(IX1d_obj);
+            for i=1:numel(opl_methods)
+
+                meth = opl_methods{i};
+
+                [objh,axh,plh] = meth(IX1d_obj);
+
+                assertEqual(numel(objh),1);
+                assertEqual(numel(axh),1);
+                assertTrue(numel(plh)==i+1);
+
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+            end
+            assertTrue(isequal(fh,objh));
+            close(objh);
+        end
+
 
         function test_IX1d_overplot1D_methods_work_on_array(obj)
             IX1d_arr = [obj.IX_data{1},obj.IX_data{1}];

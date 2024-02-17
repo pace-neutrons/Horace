@@ -11,7 +11,7 @@ classdef data_plot_interface_tester < data_plot_interface
         dnd_overlpot = [false,true];
         d1d_methods = {@dd,@de,@dh,@dl,@dm,@dp,...
             @pd,@pe,@pl,@ph,@pm,@pp}
-        d1d_overlpot = [false(6,1),true(6,1)];
+        d1d_overlpot = [false(1,6),true(1,6)];
 
         % overlpot only methods
         d1d_mthods_oveplot = { @pdoc,@peoc,@phoc,@ploc,@pmoc,@ppoc}
@@ -19,6 +19,7 @@ classdef data_plot_interface_tester < data_plot_interface
             @pa,@paoc,@ps,@ps2,@ps2oc,@psoc};
         overplot_requested = [false,false,false,...
             false,true,false,false,true,true];
+        d2d_ovelplot = [false(1,3),true(1,6)];
         d3d_methods = {@sliceomatic,@sliceomatic_overview};
     end
     properties

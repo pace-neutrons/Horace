@@ -11,14 +11,7 @@ function varargout = pl(w,varargin)
 %   >> [fig_handle, axes_handle, plot_handle] = pl(w,...) 
 
 
-% Check input arguments
-opt=struct('newplot',false);
-[args,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
-
-% Perform plot
-type='l';
-[fig_,axes_,plot_]=plot_oned (w,opt.newplot,type,fig);
-
+[fig_,axes_,plot_] = overplot_1d_nd_(w,'l',varargin{:});
 % Output only if requested
 if nargout>0
     varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
