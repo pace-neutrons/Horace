@@ -589,7 +589,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
                 end
             else
                 argi = varargin;
-                adjust = false;
+                adjust = true;
             end
 
             is_name = cellfun(@(x)strcmp(char(x),'name'),argi);
