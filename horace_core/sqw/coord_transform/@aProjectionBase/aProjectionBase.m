@@ -626,7 +626,7 @@ classdef aProjectionBase < serializable
             pix_img = obj.transform_pix_to_img(obj.bmatrix() * pix_hkl);
         end
 
-        function pix_hkl = tansform_img_to_hkl(obj,img_coord,varargin)
+        function pix_hkl = transform_img_to_hkl(obj,img_coord,varargin)
             % Converts from image coordinate system to hkl coordinate
             % system
             %

@@ -62,6 +62,21 @@ classdef test_binary_ops < TestCase
             assertTrue(isa(res,'sqw'));
             assertElementsAlmostEqual(res.data.s,zeros(size(res.data.s)));
         end
+        
+        function test_subtracting_dnd_from_sqw(obj)
+            res = obj.sqw_obj-obj.dnd_obj;
+
+            sz = size(res.data.s);
+            assertEqualToTol(res.data.s,zeros(sz),1.e-9);
+            test_obj = recompute_bin_data(res);
+            assertEqualToTol(res,test_obj,1.e-9);
+
+            % Errors are accumulated in operations, not extracted, so 
+            % reverse operation reverses signal but increases the errors
+            rec = obj.dnd_obj + res;
+            assertEqualToTol(rec.data.s,obj.sqw_obj.data.s,1.e-9);
+            assertEqualToTol(rec.pix.signal,obj.sqw_obj.pix.signal,1.e-9);            
+        end
 
         function test_adding_sqw_and_dnd_objects_1st_operand_is_sqw_returns_sqw(obj)
             out = obj.sqw_obj + obj.dnd_obj;
