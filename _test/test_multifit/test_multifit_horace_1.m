@@ -24,6 +24,9 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
     methods
         function this = test_multifit_horace_1(name)
+            if nargin == 0
+                name = 'test_multifit_horace_1';
+            end
             % Construct object
             output_file = 'test_multifit_horace_1_output.mat';
             this = this@TestCaseWithSave(name, output_file);

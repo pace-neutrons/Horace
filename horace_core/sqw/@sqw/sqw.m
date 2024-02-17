@@ -286,7 +286,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
+            
             obj.experiment_info_ = Experiment();
+
             if nargin==0 % various serializers need empty constructor
                 obj.data_ = d0d();
                 return;
