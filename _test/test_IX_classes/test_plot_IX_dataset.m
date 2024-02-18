@@ -91,7 +91,7 @@ classdef test_plot_IX_dataset < TestCase
         end
         %
         function test_IXd2d_plot2D_methods_work_on_array(obj)
-            IXd2d_arr = [obj.IX_data{2},obj.IX_data{2}];
+            IXd2d_arr = [obj.IX_data{2},2*obj.IX_data{2}];
             tstd = obj.interface_tester;
             pl_methods = [tstd.dnd_methods(:);tstd.d2d_methods(:)];
             need_fig = [false(numel(tstd.dnd_methods),1);tstd.overplot_requested(:)];
@@ -191,14 +191,14 @@ classdef test_plot_IX_dataset < TestCase
 
         end
         function test_IX1d_overplot2_work_with_overlpot1(obj)
-            IX1d_arr = [obj.IX_data{1},obj.IX_data{1}];
+            IX1d_arr = [obj.IX_data{1},2*obj.IX_data{1}];
 
             [objh,axh,plh] = pl(IX1d_arr);
             assertTrue(isa(objh,'matlab.ui.Figure'));
             assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
             assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
 
-            [objh,axh,plh] = pd(obj.IX_data{1});
+            [objh,axh,plh] = pd(3*obj.IX_data{1});
             assertEqual(numel(objh),1);
             assertEqual(numel(axh),1);
             assertEqual(numel(plh),3);
@@ -207,7 +207,7 @@ classdef test_plot_IX_dataset < TestCase
 
 
         function test_IX1d_all_methods_work_together_on_array(obj)
-            IX1d_arr = [obj.IX_data{1},obj.IX_data{1}];
+            IX1d_arr = [obj.IX_data{1},2*obj.IX_data{1}];
             tstd = obj.interface_tester;
 
             pl_methods    = tstd.d1d_methods;
@@ -265,7 +265,7 @@ classdef test_plot_IX_dataset < TestCase
 
 
         function test_IX1d_overplot1D_methods_work_on_array(obj)
-            IX1d_arr = [obj.IX_data{1},obj.IX_data{1}];
+            IX1d_arr = [obj.IX_data{1},2*obj.IX_data{1}];
             tstd = obj.interface_tester;
 
 
@@ -290,7 +290,7 @@ classdef test_plot_IX_dataset < TestCase
         end
 
         function test_IX1d_plot1D_methods_work_on_array(obj)
-            IX1d_arr = [obj.IX_data{1},obj.IX_data{1}];
+            IX1d_arr = [obj.IX_data{1},2*obj.IX_data{1}];
             tstd = obj.interface_tester;
             pl_methods = [tstd.dnd_methods(:);tstd.d1d_methods(:)];
             is_overplot = [tstd.dnd_overlpot(:);tstd.d1d_overlpot(:)];

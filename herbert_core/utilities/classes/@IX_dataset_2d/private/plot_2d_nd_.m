@@ -27,8 +27,8 @@ plot_ = cell(n_plots,1);
 
 % perform plot
 [fig_{1},axes_{1},plot_{1}]=plot_twod (w(1),opt.newplot,type,fig,lims{:});
-opt.newplot = false;
-opt.over_curr=false;
+opt.newplot = true;
+opt.over_curr=true;
 for i=2:n_plots
     fig = figure;
     % perform another plot
