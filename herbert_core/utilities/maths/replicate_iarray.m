@@ -1,7 +1,16 @@
-function vout = replicate_iarray (iv, n)
+function ivout = replicate_iarray (iv, n)
 % Replicate integer array elements according to list of repeat indicies
 %
 %   >> ivout = replicate_iarray (iv, n)
+%
+% This is a legacy function retained for backwards compatibility. The same
+% behaviour is accomplished with the Matlab intrinsic function repelem which was
+% introduced in release R2015a:
+%  Instead of:
+%   >> ivout = replicate_iarray (iv, n)
+%  use:
+%   >> ivout = repelem (iv(:), n(:))
+%
 %
 % Input:
 % ------
@@ -11,28 +20,16 @@ function vout = replicate_iarray (iv, n)
 % Output:
 % -------
 %   ivout   Output array: column vector
-%               ivout=[iv(1)*ones(1:n(1)), iv(2)*ones(1:n(2), ...)]'
+%               ivout = [repmat(iv(1),[n(1),1]); repmat(iv(2),[n(2),1]); ...]
 %
-% NOTE: This is designed for integer arrays only, as it assumes that
-%       there are no rounding errors on addition.
-
-
-% Original author: T.G.Perring
+%           Note: In the case of vout being empty, this means that the output
+%           has size [0,1]
 
 
 if numel(n)==numel(iv)
-    if ~isempty(n)
-        % Start and end indices for each range to replicate
-        nend=cumsum(n(:));
-        nbeg=nend-n(:)+1;    % nbeg(i)=nend(i)+1 if npix(i)==0, but that's OK below
-        % Set up array of values to accumulate
-        ok=(n~=0);
-        dv=diff(iv(ok));
-        vout=zeros(nend(end),1);
-        vout(nbeg(ok))=[iv(find(ok,1));dv(:)];
-        vout=cumsum(vout);
-    else
-        vout=zeros(0,1);
+    ivout = repelem(iv(:), n(:));
+    if isrow(ivout)
+        ivout = ivout(:);
     end
 else
     error('HERBERT:replicate_iarray:invalid_argument',...
