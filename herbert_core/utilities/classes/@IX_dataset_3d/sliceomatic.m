@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = sliceomatic(w, varargin)
+function varargout = sliceomatic(w, varargin)
 % Plots IX_dataset_3d object using sliceomatic
 %
 %   >> sliceomatic (w)
@@ -38,11 +38,13 @@ flags={'isonormals'};
 % Check input arguments
 % ---------------------
 if ~isempty(par)
-    error('Check arguments')
+    error('HERBERT:IX_dataset_3d:invalid_argument', ...
+        'Invalid sliceomatic arguments:\n %s',disp2str(par))
 end
 
 if numel(w)~=1
-    error('Sliceomatic only works for a single 3D dataset')
+    error('HERBERT:IX_dataset_3d:invalid_argument', ...
+        'Sliceomatic only works for a single 3D dataset')
 end
 
 % Get figure name: if not given, use appropriate default sliceomatic plot name
@@ -53,7 +55,8 @@ if is_string(keyword.name)
         fig_name=get_global_var('genieplot','name_sliceomatic');
     end
 else
-    error('Figure name must be a character string')
+    error('HERBERT:IX_dataset_3d:invalid_argument', ...
+        'Figure name must be a character string')
 end
 
 % Plot data
@@ -82,8 +85,8 @@ signal = permute(w.signal,[2,1,3]);
 [xlabel,ylabel,zlabel]=make_label(w);
 clim = [min(w.signal(:)) max(w.signal(:))];
 if clim(2) == clim(1)
-    clim(1) = clim(1)-1;    
-    clim(2) = clim(2)+1;    
+    clim(1) = clim(1)-1;
+    clim(2) = clim(2)+1;
 end
 
 % ------ Fixes problem on dual monitor systems. Need checks about negative side
@@ -95,8 +98,8 @@ set(0,'DefaultFigureRenderer','zbuffer');
 % ------
 
 % Plot data
-sliceomatic(ux, uy, uz, signal, keyword.x_axis, keyword.y_axis, keyword.z_axis,...
-    xlabel, ylabel, zlabel, clim, keyword.isonormals);
+plot_ = sliceomatic(ux, uy, uz, signal, keyword.x_axis, keyword.y_axis, keyword.z_axis,...
+    xlabel, ylabel, zlabel, clim, keyword.isonormals,fig_name);
 
 % ----- Return rendering mode
 set(0, 'DefaultFigureRendererMode', mode);
@@ -105,7 +108,7 @@ set(0,'DefaultFigureRenderer',rend );
 
 %title(w.title,'FontWeight','normal','FontSize',10);
 title(w.title,'FontWeight','normal');
-[fig_, axes_, plot_] = genie_figure_all_handles (gcf);
+[fig_, axes_] = genie_figure_all_handles (gcf);
 
 % Because we are not going through the usual genie_figure_create route, set some of
 % the options that function sets
@@ -117,6 +120,6 @@ set(gca,'Position',[0.2,0.2,0.6,0.6]);
 axis normal
 
 % Output only if requested
-if nargout>=1, fig_handle=fig_; end
-if nargout>=2, axes_handle=axes_; end
-if nargout>=3, plot_handle=plot_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+end

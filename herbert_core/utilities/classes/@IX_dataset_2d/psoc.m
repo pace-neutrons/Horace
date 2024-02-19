@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = psoc(w)
+function varargout = psoc(w)
 % Overplot a surface plot of an IX_dataset_2d or array of IX_dataset_2d on the current plot
 %
 %   >> ps(w)
@@ -7,16 +7,9 @@ function [fig_handle, axes_handle, plot_handle] = psoc(w)
 %   >> [fig_handle, axes_handle, plot_handle] = ps(w) 
 
 
-% Check input arguments
 opt=struct('newplot',false,'over_curr',true);
-[args,lims,fig]=genie_figure_parse_plot_args(opt);
-
-% Perform plot
-type='surface';
-[fig_,axes_,plot_]=plot_twod (w,opt.newplot,type,fig);
-
-
+[fig_,axes_,plot_] = plot_2d_nd_(w,nargout,'surface',opt);
 % Output only if requested
-if nargout>=1, fig_handle=fig_; end
-if nargout>=2, axes_handle=axes_; end
-if nargout>=3, plot_handle=plot_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+end

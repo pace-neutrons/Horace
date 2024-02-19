@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = ph(w,varargin)
+function varargout = ph(w,varargin)
 % Overplot histogram for a spectrum or array of spectra on an existing plot
 %
 %   >> ph(w)
@@ -11,15 +11,8 @@ function [fig_handle, axes_handle, plot_handle] = ph(w,varargin)
 %   >> [fig_handle, axes_handle, plot_handle] = ph(w,...) 
 
 
-% Check input arguments
-opt=struct('newplot',false);
-[args,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
-
-% Perform plot
-type='h';
-[fig_,axes_,plot_]=plot_oned (w,opt.newplot,type,fig);
-
+[fig_,axes_,plot_] = overplot_1d_nd_(w,'h',varargin{:});
 % Output only if requested
-if nargout>=1, fig_handle=fig_; end
-if nargout>=2, axes_handle=axes_; end
-if nargout>=3, plot_handle=plot_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+end

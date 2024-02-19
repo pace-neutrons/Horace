@@ -1,4 +1,4 @@
-function plot_markers_errors (w)
+function plot_handle = plot_markers_errors (w)
 % Plot markers and errorbars
 
 line_width=get_global_var('genieplot','line_width');
@@ -21,7 +21,7 @@ for i=1:nw
     else
         temp=0.5*(x(2:nx) + x(1:nx-1));
     end
-    custom_errorbars(temp,w(i).signal_,w(i).error_,color{icol(i)},...
+    plot_handle = custom_errorbars(temp,w(i).signal_,w(i).error_,color{icol(i)},...
         'none',line_width(iwid(i)),marker_type{ityp(i)},marker_size(isiz(i)));
 end
 

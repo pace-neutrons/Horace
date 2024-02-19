@@ -42,14 +42,21 @@ elseif is_string(fig) || (iscellstr(fig) && isscalar(fig) && is_string(fig))
     else
         fig_name=strtrim(fig{1});
     end
+elseif isa(fig,'matlab.ui.Figure')
+    if isempty(fig.Name)
+        fig.Name = default_fig_name;
+    end
 end
 
 % Now determine action to be performed and return fig_out
+ok=true;
+mess='';
+
 if newplot
     if exist('fig_name', 'var')  % function was passed something we think is a name
         fig_out=fig_name;
-        ok=true;
-        mess='';
+    elseif isa(fig,'matlab.ui.Figure')
+        fig_out = fig;
     else
         fig_out=[];
         ok=false;
