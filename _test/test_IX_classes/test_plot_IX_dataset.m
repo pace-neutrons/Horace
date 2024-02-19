@@ -154,7 +154,7 @@ classdef test_plot_IX_dataset < TestCase
             IX2d_obj = obj.IX_data{2};
             tstd = obj.interface_tester;
 
-            opl_methods  = tstd.d2d_methods(tstd.d2d_ovelplot);
+            opl_methods  = tstd.d2d_methods(tstd.d2d_overplot);
             fh = da(IX2d_obj);
             for i=1:numel(opl_methods(1:2))
 
@@ -211,7 +211,7 @@ classdef test_plot_IX_dataset < TestCase
             tstd = obj.interface_tester;
 
             pl_methods    = tstd.d1d_methods;
-            is_plot       = ~tstd.d1d_overlpot;
+            is_plot       = ~tstd.d1d_overplot;
 
             for i=1:numel(pl_methods)
 
@@ -242,7 +242,7 @@ classdef test_plot_IX_dataset < TestCase
             IX1d_obj = obj.IX_data{1};
             tstd = obj.interface_tester;
 
-            opl_base    = tstd.d1d_methods(tstd.d1d_overlpot);
+            opl_base    = tstd.d1d_methods(tstd.d1d_overplot);
             opl_methods = [opl_base(:);tstd.d1d_mthods_oveplot(:)];
             fh = dd(IX1d_obj);
             for i=1:numel(opl_methods)
@@ -293,7 +293,7 @@ classdef test_plot_IX_dataset < TestCase
             IX1d_arr = [obj.IX_data{1},2*obj.IX_data{1}];
             tstd = obj.interface_tester;
             pl_methods = [tstd.dnd_methods(:);tstd.d1d_methods(:)];
-            is_overplot = [tstd.dnd_overlpot(:);tstd.d1d_overlpot(:)];
+            is_overplot = [tstd.dnd_overplot(:);tstd.d1d_overplot(:)];
 
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};

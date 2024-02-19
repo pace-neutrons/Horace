@@ -1,5 +1,7 @@
 function varargout = ds2(w,varargin)
 % Draw a surface plot of an IX_dataset_2d or array of IX_dataset_2d
+% with possibility of providing second dataset as the source of image
+% scales.
 %
 %   >> ds2(w)       % Use error bars to set colour scale
 %   >> ds2(w,wc)    % Signal in wc sets colour scale

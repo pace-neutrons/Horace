@@ -67,6 +67,7 @@ classdef (Abstract=true) data_plot_interface
         function varargout = pdoc(w,varargin)
             % Overplot markers, error bars and lines for a 1D sqw or dnd object
             % or array of objects on the current plot
+            % Fails if dataset to overplot is missing
             varargout = throw_unavailable_( ...
                 w,'pdoc',varargin{:});
         end
@@ -79,6 +80,7 @@ classdef (Abstract=true) data_plot_interface
         function varargout = peoc(w,varargin)
             % Overplot error bars for a 1D sqw or dnd object or array of objects
             % on the current plot
+            % Fails if dataset to overplot is missing
             varargout = throw_unavailable_( ...
                 w,'peoc',varargin{:});
         end
@@ -91,6 +93,7 @@ classdef (Abstract=true) data_plot_interface
         function varargout = phoc(w,varargin)
             % Overplot histogram for a 1D sqw or dnd object or array of objects
             % on the current plot
+            % Fails if dataset to overplot is missing
             varargout = throw_unavailable_( ...
                 w,'phoc',varargin{:});
         end
@@ -103,6 +106,7 @@ classdef (Abstract=true) data_plot_interface
         function varargout = ploc(w,varargin)
             % Overplot line for a 1D sqw or dnd object or array of objects
             % on the current plot
+            % Fails if dataset to overplot is missing
             varargout = throw_unavailable_( ...
                 w,'ploc',varargin{:});
         end
@@ -114,6 +118,7 @@ classdef (Abstract=true) data_plot_interface
         function varargout = pmoc(w,varargin)
             % Overplot markers for a 1D sqw or dnd object or array of objects
             % on the current plot
+            % Fails if dataset to overplot is missing
             varargout = throw_unavailable_( ...
                 w,'pmoc',varargin{:});
         end
@@ -124,7 +129,9 @@ classdef (Abstract=true) data_plot_interface
                 w,'pp',varargin{:});
         end
         function varargout = ppoc(w,varargin)
-            % Overplot markers and error bars for a 1D sqw or dnd object or array of objects on the current plot
+            % Overplot markers and error bars for a 1D sqw or dnd object
+            % or array of objects on the current plot
+            % Fails if dataset to overplot is missing
             varargout = throw_unavailable_( ...
                 w,'ppoc',varargin{:});
         end
@@ -158,7 +165,8 @@ classdef (Abstract=true) data_plot_interface
         end
         function varargout = paoc(w,varargin)
             % Overplot an area plot of a 2D sqw dataset or
-            % array of datasets on the current figure
+            % array of datasets on the current figure. Fails if dataset to
+            % overplot is missing
             varargout = throw_unavailable_( ...
                 w,'paoc',varargin{:});
         end
@@ -169,12 +177,17 @@ classdef (Abstract=true) data_plot_interface
         end
         function varargout = ps2(w,varargin)
             % Overplot a surface plot of a 2D sqw dataset or array of datasets
+            % with possibility of providing second dataset as source of
+            % image colour scale
             varargout = throw_unavailable_( ...
                 w,'ps2',varargin{:});
         end
         function varargout = ps2oc(w,varargin)
             % Overplot a surface plot of a 2D sqw dataset or
             % array of datasets on the current figure
+            % with possibility of providing second dataset as source of
+            % image colour scale.
+            % Fails if dataset to overplot is missing
             varargout = throw_unavailable_( ...
                 w,'sp2oc',varargin{:});
         end

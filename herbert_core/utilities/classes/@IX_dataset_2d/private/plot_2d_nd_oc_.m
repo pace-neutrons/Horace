@@ -1,8 +1,13 @@
 function [fig_,axes_,plot_] = plot_2d_nd_oc_(w,nout,type,opt,varargin)
-%plot_2d_nd_ Plot one or array of 2D datasets on separate plots
+%plot_2d_nd_oc_ Overplot one or array of 2D datasets on separate plots.
+%               Use additional dataset if avaliable as the scaler to
+%               provide axis scale.
+%               Fails if first dataset to overplot is missing
 %
 % Inputs:
-% w     -- one or array of 2D datasets
+% w     -- one or array of 2D datasets or
+%          cellarray containing one or array of 2D datasets and dataset-scaler
+%          to draw axis scale
 % nout  -- number of output arguements requested by the calling routine
 %          This defines the form output arguments of this routine will
 %          have.
