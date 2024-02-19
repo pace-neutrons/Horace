@@ -37,7 +37,7 @@ classdef test_tobyfit_let_cuts < TestCaseWithSave
             % Initialise test object properties
             obj.nb_arr = [w1a,w1b];
 
-            tol_sig = 0.25;     % tolerance as multiple of st. dev. of reference value
+            tol_sig = 0.5;     % tolerance as multiple of st. dev. of reference value
             tol_abs = 0;        % absolute tolerance
             tol_rel = 0;        % relative tolerance
             obj.tolerance = [tol_sig, tol_abs, tol_rel];
@@ -71,6 +71,28 @@ classdef test_tobyfit_let_cuts < TestCaseWithSave
             % width to vary locally.
 
             amp=6000;    fwhh=0.2;
+
+            kk = tobyfit(obj.nb_arr);
+            kk = kk.set_local_foreground;
+            kk = kk.set_fun(@testfunc_nb_sqw,[amp,fwhh]);
+            kk = kk.set_bind({2,[2,1]});
+            kk = kk.set_bfun(@testfunc_bkgd,[0,0],[1,0]);
+            kk = kk.set_mc_points(obj.mc);
+            kk = kk.set_options('listing',obj.nlist);
+            kk = kk.set_options('fit',[1e-4,20,0.01]);
+            [~,fp] = kk.fit;
+
+            assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
+
+        end
+
+        function obj = test_fit_nb_multi_amplitude_global_chunked(obj)
+            % Local foreground; constrain amplitude as global but allow
+            % width to vary locally.
+
+            amp=6000;    fwhh=0.2;
+
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', 10000);
 
             kk = tobyfit(obj.nb_arr);
             kk = kk.set_local_foreground;

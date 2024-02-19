@@ -1,4 +1,4 @@
-function del_memmapfile_files(filelist)
+function del_memmapfile_files(varargin)
 % Delete files which are unlocked but were accessed using memmapfile
 %
 % Deals with Maltab bug which exists on Windows, at least with  Matlab 2022b
@@ -11,8 +11,13 @@ function del_memmapfile_files(filelist)
 % filelist -- name of file or cellarray of filenames to delete
 %
 %
-if istext(filelist)
-    filelist = cellstr(filelist);
+if nargin > 1
+    filelist = varargin;
+else
+    filelist  = varargin{1};
+    if istext(filelist)
+        filelist = cellstr(filelist);
+    end
 end
 ws = warning('off','MATLAB:DELETE:Permission');
 for i=1:numel(filelist)

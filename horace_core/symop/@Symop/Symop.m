@@ -226,7 +226,9 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     %                 offset_new(1:3) = obj.transform_vec(offset_new(1:3));
                     %
                     %                 proj.offset = offset_new;
-
+                case 'spher_proj'
+                    warning('HORACE:deprecated_function',...
+                        'spher_proj is deprecated. Use sphere_proj instead')
                 otherwise
 
                     error('HORACE:Symop:not_implemented', ...

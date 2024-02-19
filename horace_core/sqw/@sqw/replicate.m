@@ -2,17 +2,17 @@ function wout = replicate (win,wref,varargin)
 % Make a higher dimensional dataset from a lower dimensional dataset by
 % replicating the data along the extra dimensions of a reference dataset.
 %
-%   >> wout = replicate (win, wref)
+%   >> wout = replicate (win, wref,varargin)
 %
 % Input:
 % ------
 %   win     sqw object or array of sqw objects all with the same dimensionality
-%           to be replicated. The signal and npix array will be
-%           replicated  over the extra dimensions of the reference dataset,
-%           but not the individual pixels.
+%           to be replicated. The signal, error and npix arrays of this
+%           object will be replicated over the extra dimensions of the
+%           reference dataset and win pixels values are just ignored.
 %
 %   wref    Reference dataset structure to use as template for expanding the
-%           input straucture. Can be a dnd or sqw dataset.
+%           input structure. Can be a dnd or sqw dataset.
 %           - The plot axes of win must also be plot axes of wref, and the number
 %           of points along these common axes must be the same, although the
 %           numerical values of the coordinates need not be the same.
@@ -21,17 +21,21 @@ function wout = replicate (win,wref,varargin)
 %           - The annotations etc. are taken from the reference dataset.
 % Optional:
 % '-set_pix'
-%           -- if provided, return full sqw object with pixels providing the
-%              wref impage insead of just dnd object with the same
-%              dimensionality as wref.
+%        -- if provided, wref object should be sqw objects with pixels.
+%           In this case result would be sqw object(s) with pixels set
+%           to reproduce replicated image, defined by dnd part of input sqw
+%           object.
 %
 % Output:
 % -------
-%   wout    Output dataset object (or array of objects). It is dnd
-%           object with the same dimensionality as wref. If '-set_pix'
-%           key is provided it also has the same pixels as wref if wref has
-%           pixels, but pixels signal and error are set to form the replicated
-%           image
+%   wout    Output dataset object (or array of objects). Depending on wref
+%           object type (dnd, pixelles sqw or sqw) it is dnd,dnd or sqw
+%           object with the same dimensionality as wref and win image(s)
+%           replicated to additional dimensions.
+%           If '-set_pix' key is provided it is sqw object (wref must be
+%           sqw object with pixels) which also has the same pixels as
+%           wref. The pixels signal and error in this case are set to form
+%           the replicated image.
 %
 % Original author: T.G.Perring
 %
@@ -70,7 +74,7 @@ end
 
 % Perform replication
 % -------------------
-if set_pix
+if set_pix && wref.has_pixels()
     wout = repmat(wref,size(win));
 else
     wout = repmat(wref_dnd_type,size(win));  % wout will be a dnd-type sqw object
@@ -79,13 +83,25 @@ end
 for i=1:numel(win)
     dnd_obj = dnd(win(i));
     rep_obj = replicate(dnd_obj,wref_dnd_type);
-    if has_pixels(wref) && set_pix
-        wout(i).data.s = rep_obj.s;
-        wout(i).data.e = rep_obj.e;
-        page_op = PageOp_sigvar_set();
-        page_op.in_replicate = true;
-        page_op = page_op.init( wout(i));
-        wout(i)       = sqw.apply_op( wout(i),page_op);
+    if set_pix
+        if has_pixels(wref)
+            wout(i).data.s = rep_obj.s;
+            wout(i).data.e = rep_obj.e;
+            page_op = PageOp_sigvar_set();
+            page_op.in_replicate = true;
+            page_op = page_op.init( wout(i));
+            wout(i)       = sqw.apply_op( wout(i),page_op);
+        else
+            if isa(wref,'DnDBase')
+                explanation ='sqw_ref_object is a dnd object';
+            else
+                explanation ='sqw_ref_object is sqw object without pixels';
+            end
+            warning('HORACE:invalid_argument', ...
+                '-set_pix key is provided as input of replicate(sqw_rep,sqw_ref_object,"-set_pix"), but %s', ...
+                explanation)
+            wout(i) = rep_obj;
+        end
     else
         wout(i) = rep_obj;
     end

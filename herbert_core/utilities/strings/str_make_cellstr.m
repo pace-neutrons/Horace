@@ -1,54 +1,63 @@
-function [ok,cout]=str_make_cellstr(varargin)
-% Take a set of arguments and try to make a cellstr of strings from the contents
+function [ok, cstr] = str_make_cellstr (varargin)
+% Make a cellstr of character vectors from a set of input arguments
 %
-%   >> [ok,cout] = str_make_cellstr(c1,c2,c3,...)
+%   >> [ok, cstr] = str_make_cellstr (c1, c2, c3,...)
+%
+% Differs from str_make_cellstr_trim, which in addition trims leading and
+% trailing whitespace and also removes empty entries.
+%
+% See also str_make_cellstr_trim
+%
 %
 % Input:
 % ------
-%   c1,c2,c3,...    Two-dimensional character arrays or cell arrays of strings
+%   c1,c2,c3,...    Input text: each can be one of:
+%                   - Character vector (i.e. row vector of characters length >= 0
+%                     or the empty character array, '')
+%                   - Two-dimensional character array
+%                   - Cell array of character vectors
+%                   - strings or string array (Matlab release R2017a onwards)
 %
 % Output:
 % -------
-%   ok              =true if valid input (could all be empty)
-%   cout            Column vector cellstr
-%                  Trailing whitespace is removed from all strings
-%                 (This is for consistency with what cellstr(str) does
+%   ok              Logical scalar:
+%                   - true if all input arguments were convertible to a cell
+%                     array of character vectors
+%                   - false if conversion not possible
+%
+%   cstr            Column vector cell array of character vectors.
+%                   Uses the Matlab function cellstr to perform the conversion
+%                   on each input argument.
+%                   Trailing whitespace is removed from character vectors and
+%                   character vectors created from 2D character arrays, but not
+%                   from Matlab string objects.
+%
+%                   If ok is false (i.e. conversion of all input arguments to
+%                   character vectors was not possible), then false.
 
 
-narg=numel(varargin);
-
-% Get number of strings
-n=zeros(narg,1);
-for i=1:narg
-    if iscellstr(varargin{i})
-        n(i)=numel(varargin{i});
-    elseif ischar(varargin{i}) && numel(size(varargin{i}))==2
-        if ~isempty(varargin{i})
-            n(i)=size(varargin{i},1);
-        else
-            n(i)=numel(cellstr(varargin{i}));   % so the empty string is stored
-        end
-    else
-        ok=false;
-        cout=cell(0,1);
-        return
-    end
+% Use Matlab cellstr to convert to each input argument to a cell array of
+% character vectors, if possible.
+% If not possible, retain the long-standing behaviour of str_make_cellstr
+% snd return a status flag of false, and do *NOT* throw an error
+try
+    cstr_arr = cellfun(@cellstr, varargin, 'UniformOutput', false);
+catch
+    ok = false;
+    cstr = cell(0,1);
+    return
 end
 
-% Fill up output cellstr
-nend=cumsum(n);
-nbeg=nend-n+1;
-if nend(end)>0
-    cout=cell(nend(end),1);
-    for i=1:narg
-        if iscellstr(varargin{i})
-            cout(nbeg(i):nend(i))=deblank(varargin{i});
-        else
-            cout(nbeg(i):nend(i))=cellstr(varargin{i});
-        end
-    end
+% There are cases that cellstr returns but which are not a cell array of
+% character vectors. An example is var = {['Pete';'Bob ']}; this results in
+% cellstr(var) == var, but var is not a valid character vector. Catch any
+% such cases with a call to str_is_cellstr
+ok_arr = cellfun(@str_is_cellstr, cstr_arr);
+if all(ok_arr(:))
+    ok = true;
+    cstr_arr = cellfun(@make_column, cstr_arr, 'UniformOutput', false);
+    cstr = cat(1, cstr_arr{:});
 else
-    cout=cell(0,1);
+    ok = false;
+    cstr = cell(0,1);
 end
-
-ok=true;

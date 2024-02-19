@@ -352,10 +352,12 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         end
         %
         function val = get.img_offset(obj)
-            val = obj.proj.img_offset;
+            offset_ = obj.proj.offset;
+            val = obj.proj.transform_hkl_to_img(offset_(1:3)');
+            val = [val;offset_(4)]';
         end
         function val = get.uoffset(obj)
-            val = obj.proj.img_offset;
+            val = obj.proj.offset;
         end
     end
     %======================================================================

@@ -65,7 +65,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % The class providing brief description of a whole sqw file.
         main_header_ = main_header_cl();
 
-        experiment_info_ = Experiment();
+        experiment_info_ = []; %Experiment();
         % detectors array
         detpar_  = struct([]);
 
@@ -286,6 +286,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
+            
+            obj.experiment_info_ = Experiment();
 
             if nargin==0 % various serializers need empty constructor
                 obj.data_ = d0d();
@@ -390,6 +392,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         function npix = get.num_pixels(obj)
             npix = obj.pix_.num_pixels;
         end
+        % if sqw object has actual pixels or pixelles object
+        has = has_pixels(w);
     end
     %======================================================================
     % REDUNDANT and compatibility methods
@@ -409,7 +413,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         %----------------------------------
         new_sqw = copy(obj, varargin)
-        wh  = get_write_handle(obj, outfile)
+        wh  = get_write_handle(obj, outfile,varargin)
         obj = finish_dump(obj,page_op);
         %
     end

@@ -6,7 +6,7 @@ function y = func_undocified (x)
 y = sub_func(x);
 
 function y = sub_func (x)
-% <#doc_beg:>
+% <#doc_beg:> 
 %   Main function documentation
 % <#doc_end:>
 

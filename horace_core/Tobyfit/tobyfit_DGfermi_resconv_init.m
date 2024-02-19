@@ -95,9 +95,9 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %       Cell array of widths of energy bins, one array per dataset
 %           dt          Time widths for each pixel (s), size [npix,1]
 %
-%       Cell arrays of q,w and transformation arrays, one array per dataset
-%           qw          Cell array size [1,4] with components of momentum (in rlu) and energy
-%                       for each pixel [Columns of length npix]
+%       Cell array of energy bin centres, one array per dataset
+%           en          Vector of size [1,npix] with components of energy
+%                       for each pixel
 %
 %       Constants:
 %           k_to_e      Constant in E(mev)=k_to_e*(k(Ang^-1))^2
@@ -186,7 +186,7 @@ angdeg=cell(nw,1);      % element size [1,3]
 is_mosaic=cell(nw,1);   % element size [1,1]
 detectors=cell(nw,1);   % element size [nrun,1]
 dt=cell(nw,1);          % element size [npix,1]
-qw=cell(nw,1);          % element is cell array size [1,4], each element size [npix,1]
+en=cell(nw,1);          % element size [npix,1]
 
 
 % Get detector information for the entire collection of sqw objects as an
@@ -199,10 +199,10 @@ for iw=1:nw
     else
         wtmp = win(iw);
     end
-    
+
     % Get number of runs in the sqw object
     n_runs(iw) = wtmp.experiment_info.n_runs;
-    
+
     % Get IX_detector_array for the sqw object
     detectors{iw} = detector_array (wtmp, use_tubes);
 end
@@ -222,8 +222,8 @@ for iw=1:nw
     else
         wtmp = win(iw);
     end
-    
-    % Get the indices to the runs in the experiment information block, the 
+
+    % Get the indices to the runs in the experiment information block, the
     % detector indicies and the energy bin indices
     if all_pixels
         % For all pixels in the sqw object
@@ -236,47 +236,44 @@ for iw=1:nw
         [irun, idet, ien] = parse_pixel_indices(wtmp, ipix);
     end
     npix(iw) = numel(irun);
-    
+
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
-    %  pixels have been shifted, so recalculate)   
+    %  pixels have been shifted, so recalculate)
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
-    
+
     if ne>1
         eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
     else
         eps=eps_lo;     % only one bin, so ne=1 eps_lo=eps_hi, and the above line fails
     end
-    
+
     % Get instrument information
     [ei{iw},x0{iw},xa{iw},x1{iw},thetam{iw},angvel{iw},...
         moderator{iw},aperture{iw},chopper{iw}] = instpars_DGfermi(wtmp.experiment_info);
-    
+
     % Compute ki and kf
     ki{iw}=sqrt(ei{iw}/k_to_e);
     kf{iw}=sqrt((ei{iw}(irun)-eps)/k_to_e);
-    
+
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
     [sample{iw},s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
         sample_coords_to_spec_to_rlu(wtmp.experiment_info);
-    
+
     % Get array of mosaic spreads for the runs, and determine if any of them
     % have other than the default of no spread
     mosaic = arrayfun (@(x)(x.eta), sample{iw});
-    is_mosaic{iw} = any(mosaic_crystal(mosaic));   
-    
+    is_mosaic{iw} = any(mosaic_crystal(mosaic));
+
     % Get detector information for each pixel in the sqw object
     % size(x2) = [npix,1], size(d_mat) = [3,3,npix]
     [x2, detdcn] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
-    
+
     % Time width corresponding to energy bins for each pixel
     dt{iw} = deps_to_dt*(x2.*deps(irun)./kf{iw}.^3);
-    
-    % Calculate h,k,l (symmetrised objects will not have true pixel coordinates)
-    qw{iw} = cell(1,4);
-    qw{iw}(1:3) = calculate_q (ki{iw}(irun), kf{iw}, detdcn, spec_to_rlu{iw}(:,:,irun));
-    qw{iw}{4} = eps;
-    
+
+    en{iw} = eps;
+
 end
 
 % Package output
@@ -308,7 +305,7 @@ lookup.alatt=alatt;
 lookup.angdeg=angdeg;
 lookup.is_mosaic=is_mosaic;
 lookup.dt=dt;
-lookup.qw=qw;
+lookup.en=en;
 lookup.k_to_v=k_to_v;
 lookup.k_to_e=k_to_e;
 

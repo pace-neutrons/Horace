@@ -409,6 +409,32 @@ classdef line_proj<aProjectionBase
             pix_cc = transform_img_to_pix_(obj,pix_hkl);
         end
         %
+        function [pix_hkl,en] = transform_pix_to_hkl(obj,pix_coord,varargin)
+            % Converts from pixel coordinate system (Crystal Cartesian)
+            % to hkl coordinate system.
+            %
+            % Overloaded generic method to support legacy alignment
+            % appropriate for line_proj only.
+            %
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in.
+            %
+            % pix_coord -- 4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the coordinate system, defined by
+            %              this projection
+            %
+            % Output:
+            % pix_hkl  -- 4xNpix or 3xNpix array of pixel coordinates in
+            %             hkl (physical) coordinate system (4-th
+            %             coordinate, if requested, is the energy transfer)
+            [pix_hkl,en] = transform_pix_to_hkl_(obj,pix_coord,varargin{:});
+            if nargout == 1
+                pix_hkl = [pix_hkl;en];
+            end
+        end
+        %
         %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
             % Converts from current to target projection coordinate system.

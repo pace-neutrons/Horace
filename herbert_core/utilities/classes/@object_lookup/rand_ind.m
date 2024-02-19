@@ -11,7 +11,7 @@ function varargout = rand_ind (obj, iarray, varargin)
 % generating and returning the samples for a large number of indexed occurences
 % into a compressed representation of the object array as an object_lookup
 % object.
-% 
+%
 % There are two forms:
 %   - The indexed occurences are to objects in an object array:
 %       >> [X1, X2,...] = rand_ind (obj, iarray, ind, randfunc, ...)
@@ -39,15 +39,15 @@ function varargout = rand_ind (obj, iarray, varargin)
 %   [X1, X2,...] = randfunc (object)               % generate a single random sample
 %   [X1, X2,...] = randfunc (object, sz)           % array of random samples size sz
 %   [X1, X2,...] = randfunc (..., p1, p2, ...)     % with further optional arguments
-%   
+%
 %   where the argument object is one element of the array of objects (as
 %   selected by obj and iarray), and X1, X2,... are random samples, for
-%   example random scalars, vectors or any other object, or any mixture of 
+%   example random scalars, vectors or any other object, or any mixture of
 %   object types.
 %
 %   If there are optional arguments p1, p2,..., it is required that the
 %   method can internally resolve any ambiguities between p1 and sz. The
-%   optional parameters p1, p2,... apply to all elements, 
+%   optional parameters p1, p2,... apply to all elements,
 %
 %   The other conventional forms for the syntax of the Matlab intrinsic
 %   random number generator rand are acceptable so long as the method can
@@ -59,7 +59,7 @@ function varargout = rand_ind (obj, iarray, varargin)
 %
 % Case 2: Indexed occurences are to objects that are themselves arrays
 % --------------------------------------------------------------------
-% If elements of the object array defined by obj and iarray have themselves 
+% If elements of the object array defined by obj and iarray have themselves
 % internal indexing, then random samples from individual elements within
 % the elements of the array can be output by two index arrays ind and
 % ielmts (both of the same shape and size) that together act as a double
@@ -111,12 +111,21 @@ function varargout = rand_ind (obj, iarray, varargin)
 %       [X1, X2,...] = randfunc (object, ielmts, p1, p2, ...)
 %
 % Optionally:
-%   p1, p2...   Parameters to be passed to the random sampling function
+%   p1, p2...   Array, vector or scalar parameters of size [n, ...]
+%                to be passed to the random sampling function
+%                If 'split' (see below) is present must be size [n, ..., numel(ind)]
 %
 %   'split'     Interpret each parameter p1, p2,... to be split into a stack
 %              of arrays, the outer dimensions matching the dimensions of
 %              ind (and ielmts if present), and the inner dimensions as those
 %              of a parameter for a particular value of ind (and ielmts)
+%
+%               If present and p1, p2,... are arrays, they are treated such that
+%              each member of p1, p2, ... corresponds to each member of ind (and ielmts).
+%              i.e. for i=1:n, x = randfunc(p1(:, ..., i), p2(:, ..., i), ..., ind(i))
+%
+%              If not present, the whole arrays p1, p2, ... are replicated for each element of ind.
+%              i.e. for i=1:n, x = randfunc(p1, p2, ..., ind(i))
 %
 %   'split', iargs  Split only those argument p1, p2, p3... that are indicated
 %                  by the integers in argument iargs. The others are assumed

@@ -1,4 +1,4 @@
-function wout = binary_op_manager_single(w1, w2, binary_op)
+function wout = binary_op_manager_single(w1, w2, binary_op,varargin)
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
@@ -22,7 +22,7 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 %   <#file:> <doc_file_sigvar_notes>
 % <#doc_end:>
 % -----------------------------------------------------------------------------
-
+% varargin -- not used and provided to adhere to common binary_op_manager interface
 
 
 % One or both of w1, w2 is an instance of the class for which this a method

@@ -317,6 +317,21 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
             end
             pix_copy.page_num = 1;
         end
+        %
+        function   sz = get_pix_byte_size(obj,keep_precision)
+            % Return the size of single pixel expressed in bytes.
+            %
+            % If keep_percision is true, return this size as defined in
+            % pixel data file
+            if nargin<2
+                keep_precision = obj.keep_precision;
+            end
+            if keep_precision
+                sz = obj.DEFAULT_NUM_PIX_FIELDS*4;
+            else
+                sz = obj.DEFAULT_NUM_PIX_FIELDS*8;
+            end
+        end
     end
     %======================================================================
     methods(Static)
@@ -328,14 +343,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
-        function   sz = get_pix_byte_size(obj)
-            if obj.keep_precision
-                sz = obj.DEFAULT_NUM_PIX_FIELDS*4;
-            else
-                sz = obj.DEFAULT_NUM_PIX_FIELDS*8;
-            end
-        end
-
         function is = get_is_tmp_obj(obj)
             is = ~isempty(obj.tmp_file_holder_);
         end
@@ -347,6 +354,12 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
                 full_filename = obj.tmp_file_holder_.file_name;
             end
         end
+        function obj =  set_metadata(obj,val)
+            % main part of set from metadata setter
+            obj = set_metadata@PixelDataBase(obj,val);
+            obj.num_pixels_ = val.npix;
+        end
+
 
         function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
             % Overloaded part of get_raw_pix operation.
