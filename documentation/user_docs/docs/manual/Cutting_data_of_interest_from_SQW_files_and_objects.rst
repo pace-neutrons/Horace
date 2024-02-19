@@ -409,24 +409,37 @@ In order to construct a spherical projection, i.e. a projection in
 projection in a similar way to other projections, but instead use ``sphere_proj`` class:
 
 .. code-block:: matlab
+ 
+    sp_pr = sphere_proj()
+    sp_pr =      
+       sphere_proj with properties:   
+             ez: [1 0 0]
+             ex: [0 1 0]
+           type: 'add'
+          alatt: []
+         angdeg: []
+         offset: [0 0 0 0]
+          label: {'|Q|'  '\theta'  '\phi'  'En'}
+          title: ''
 
-   sp_proj = sphere_proj();
+Projection's lattice parameters (``alatt`` and ``angdeg``) are taken within the ``cut`` from source ``sqw`` object. 
+You need to set them up manually only if you intend to use the projection separately in your custom code.
 
 The projection defines spherical coordinates system, where :math:`\theta` angle is 
 measured from z-axis directed along :math:`e_z` vector of the 
 projection and changes from :math:`0` to :math:`180^o`. :math:`\phi` angle is measured
 from :math:`r_x` vector of the projection and changes from :math:`-180^o` to :math:`180^o`. 
-Spherical projection :math:`r_x` vector corresponds with ``shphere_proj`` class :math:`e_x` vector
+Spherical projection :math:`r_x` vector corresponds to ``sphere_proj`` class :math:`e_x` vector
 for orthogonal reciprocal lattice. If reciprocal lattice is non-orthogonal, the :math:`e_x`-vector
 of spherical projection defines the :math:`z-x` plane of spherical coordinate system and :math:`r_x` 
 vector is build in this plane but orthogonal to :math:`e_z` vector.
 
 .. figure:: ../images/spher_coordinates.png 
    :align: center
-   :width: 500px
-   :alt: spherical coordinate system.
+   :width: 800px
+   :alt: spherical coordinate system. 
 
-   Spherical coordinate system used by ``sphere_proj``
+   Spherical coordinate system used by ``sphere_proj`` in case of orthogonal and non-orthogonal reciprocal lattice. In latter case vectors :math:`e_x,e_z` define the plane where orthogonal to :math:`e_z` x-axis (:math:`r_x` on the picture) of spherical coordinate system lies.
 
 
 .. note::
