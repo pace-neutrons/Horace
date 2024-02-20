@@ -30,7 +30,6 @@ if nargin<4
     end
 end
 
-
 if ~cell_output && all(same_type)
     out = [out_to_convert{:}];
 else

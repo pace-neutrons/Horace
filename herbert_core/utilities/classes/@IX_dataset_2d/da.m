@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = da(w,varargin)
+function varargout = da(w,varargin)
 % Draw an area plot of an IX_dataset_2d or array of IX_dataset_2d
 %
 %   >> da(w)
@@ -10,19 +10,11 @@ function [fig_handle, axes_handle, plot_handle] = da(w,varargin)
 %   >> da(w,...,'name',fig_name)        % draw with name = fig_name
 %
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = da(w,...) 
+%   >> [fig_handle, axes_handle, plot_handle] = da(w,...)
 
-
-% Check input arguments
 opt=struct('newplot',true,'lims_type','xyz');
-[~,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
-
-% Perform plot
-type='area';
-[fig_,axes_,plot_]=plot_twod (w,opt.newplot,type,fig,lims{:});
-
-
+[fig_,axes_,plot_] = plot_2d_nd_(w,nargout,'area',opt,varargin{:});
 % Output only if requested
-if nargout>=1, fig_handle=fig_; end
-if nargout>=2, axes_handle=axes_; end
-if nargout>=3, plot_handle=plot_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+end

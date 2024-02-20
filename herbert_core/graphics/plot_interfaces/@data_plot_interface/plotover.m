@@ -15,7 +15,7 @@ function varargout = plotover(w,varargin)
 % as appropriate
 
 
-nd=w.dimensions();
+nd=w(1).dimensions();
 if nd<1 || nd>2
     error('HORACE:SqwDnDPlotInterface:runtime_error', ...
         'Can overplot plot one or two-dimensional sqw or dnd objects')
@@ -28,6 +28,6 @@ else
 end
 
 % Output only if requested
-if nargout>=1, varargout{1} =figureHandle_; end
-if nargout>=2, varargout{2} =axesHandle_; end
-if nargout>=3, varargout{3} =plotHandle_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,figureHandle_, axesHandle_, plotHandle_);
+end
