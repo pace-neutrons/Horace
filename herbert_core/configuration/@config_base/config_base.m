@@ -64,6 +64,7 @@ classdef config_base
         % similarly to serializable, allows disabling the check for
         % interdependent properties until they all have been set up.
         do_check_combo_arg
+
     end
     properties(Dependent,Hidden)
         % defines the list of properties, which never stored on HDD and
@@ -79,6 +80,7 @@ classdef config_base
         % certain properties are set to a new, potentially invalid value.
         % Default -- false.
         disable_setup_warnings
+
     end
 
     properties(Access=protected)
@@ -107,21 +109,18 @@ classdef config_base
         %function fields = get_storage_field_names(class_instance)
         %   fields  = {stored_poperty};
         %end
-
-        value = get_default_value(obj,field_name);
-        % function value = get_default_value(obj,field_name)
-        %     % method returns default property value idefined by config
-        %     % class instance ignoring current value, stored in common
-        %     % configuration and returned by usual get.property method.
-        %     %
-        %     % Default protected field names, corresponding to property names
-        %     % normaly nave the form:
-        %     % protected_prop_name = [public_prop_name,'_']
-        %     % so default implementation of this function have the form:
-        %     %
-        %     value = obj.([field_name,'_']);
+        value = get_default_value(obj,field_name)
+        %function value = get_default_value(obj,field_name)
+        % method gets default value of any public configuration
+        % property.
+        %
+        % Relies on assumption, that each public
+        % field has a private field with name different by underscore
+        %
+        % Have to be implemented by each child class to give access to
+        % private or protected property values
+        % value = obj.([field_name,'_']);
         % end
-
     end
     methods
         function obj=config_base(class_name)
@@ -214,7 +213,6 @@ classdef config_base
         function isit = is_field_configured(obj,field_name)
             isit = config_store.instance().is_field_configured(obj,field_name);
         end
-
         %------------------------------------------------------------------
         function value =get_or_restore_field(obj,field_name)
             % method to restore value from config_store if available or

@@ -24,8 +24,6 @@ op_name = page_op.op_name;
 % divide all data into pages to process
 [npix_chunks, npix_idx,page_op] = page_op.split_into_pages(npix, mem_chunk_size);
 
-log_split = page_op.split_log_ratio;
-
 n_chunks = numel(npix_chunks);
 
 % check if warning about data range is necessary.
@@ -47,7 +45,8 @@ if issue_range_warning
 end
 %
 if ll>0
-    t0 = tic;
+    lc = log_config();
+    lc = lc.init_adaptive_logging();
 end
 %==========================================================================
 % Run paging
@@ -57,16 +56,14 @@ for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix
     page_op = page_op.common_page_op();
     % and each chunk after this split refers to mem_chunk_size pixels
     % located subsequently
-    if ll > 0 && mod(i, log_split) == 1
-        tc = toc(t0);
-        fprintf('*** Finished %dof#%d chunks in %d sec performing %s\n', ...
-            i,n_chunks,tc,op_name);
+    if ll > 0
+        lc = print_progress_log(i,n_chunks,op_name,lc);
     end
 end
 obj_out = page_op.finish_op(obj_in);
 %
 if ll > 0
-    te = toc(t0);
+    [~,te] = lc.adapt_logging(n_chunks);
     fprintf('*** Completed %s using %d pages in %d sec.\n', ...
         op_name,n_chunks,te);
     if page_op.inform_about_target_file
@@ -76,4 +73,27 @@ end
 if issue_range_warning
     old_file_format = ~was_misaligned;
     page_op.print_range_warning(original_file,old_file_format);
+end
+
+function log_control = print_progress_log(n_step,nsteps_total,op_name,log_control)
+% function is called each loop iteration and prints progress report
+% in the form:
+% "."    -- per each loop iteration
+% "number of steps passed"
+%        -- after passing time interval defined in log_config class,
+%           field info_log_print_time
+% Inputs:
+% n_step        -- number of current step to print log for
+% nsteps_total  -- total number of steps the run will go
+% op_name       -- name of page_op the loop runs
+% log_control   -- instance lof log_config class, which defines when print
+%                  progress report in more details (i.e.
+%                  number_of_steps_passed)
+fprintf('.')
+[log_control,run_time] = log_control.adapt_logging(n_step);
+log_split = log_control.info_log_split_ratio;
+if mod(n_step, log_split) < eps('single')
+    fprintf('.\n')
+    fprintf('*** Finished %dof#%d chunks in %d sec performing %s\n', ...
+        n_step,nsteps_total,run_time,op_name);
 end
