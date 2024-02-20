@@ -2,6 +2,12 @@
 Planning a Horace scan
 ######################
 
+.. warning::
+
+   While Horace includes its own planner it is potentially less feature complete
+   than the [MANTID DGS
+   planner](https://docs.mantidproject.org/v3.8.0/interfaces/DGSPlanner.html)
+
 
 horace_planner: a simple scan planner
 -------------------------------------
