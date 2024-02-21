@@ -401,10 +401,10 @@ classdef PageOpBase
         end
         %
         function does = get.split_log_ratio(obj)
-            does = get_alive_split_log_ratio(obj);
+            does = get_info_split_log_ratio(obj);
         end
         function obj = set.split_log_ratio(obj,val)
-            obj = set_alive_split_log_ratio(obj,val);
+            obj = set_info_split_log_ratio(obj,val);
         end
         %
         function do = get.exp_modified(obj)
