@@ -433,6 +433,17 @@ classdef rundata < serializable
         function det=get.det_par(this)
             det = get_loader_field_(this,'det_par');
         end
+        function det=get_det_par_rows(this)
+        %GET_DET_PAR_ROWS return detpar structure with fields in row order
+            det = get_loader_field_(this,'det_par');
+            det.group = det.group(:)';
+            det.x2 = det.x2(:)';
+            det.phi = det.phi(:)';
+            det.azim = det.azim(:)';
+            det.width = det.width(:)';
+            det.height = det.height(:)';
+        end
+
         function this = set.det_par(this,val)
             this=set_loader_field(this,'det_par',val);
         end

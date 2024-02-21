@@ -65,7 +65,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % The class providing brief description of a whole sqw file.
         main_header_ = main_header_cl();
 
-        experiment_info_ = []; %Experiment();
+        experiment_info_ = []; %Experiment(); now at start of constructor;
         % detectors array
         detpar_  = struct([]);
 
@@ -293,6 +293,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
                 obj.data_ = d0d();
                 return;
             end
+            
             obj = obj.init(varargin{:});
         end
         % initialization of empty sqw object or main part of constructor
@@ -328,11 +329,24 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         end
         %
         function val = get.detpar(obj)
-            val = obj.detpar_;
+            val = obj.experiment_info.detector_arrays;
         end
         function obj = set.detpar(obj,val)
             %TODO: implement checks for validity
-            obj.detpar_ = val;
+            if isa(val,'unique_references_container')
+                obj.experiment_info_.detector_arrays = val;
+             elseif isstruct(val)
+                detector = IX_detector_array(val);
+                if obj.experiment_info_.detector_arrays.n_runs == 0
+                    obj.experiment_info_.detector_arrays = ...
+                        obj.experiment_info_.detector_arrays.add_copies_( ...
+                                          detector,obj.experiment_info_.n_runs);
+                end
+            elseif isempty(val) && obj.experiment_info_.detector_arrays.n_runs > 0
+                ; % pass, do nothing, info already in experiment_info
+            else
+                error('HORACE:sqw-set.detpar:invalid_argument','incorrect type');
+            end
         end
         %
         function val = get.main_header(obj)
@@ -556,6 +570,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             % NB combined if-expression is in parentheses to help visually
             % locate it - just useful cosmetic
 
+            %{
             if (~isempty(obj.detpar)                             && ...
                     IX_detector_array.check_detpar_parms(obj.detpar) && ...
                     ~isempty(obj.detpar.group)                       && ...
@@ -570,6 +585,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
                 %end
                 obj.experiment_info.detector_arrays = updated_detectors;
             end
+            %}
         end
     end
 
