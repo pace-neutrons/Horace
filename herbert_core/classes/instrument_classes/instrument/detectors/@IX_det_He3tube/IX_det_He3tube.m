@@ -25,7 +25,7 @@ classdef IX_det_He3tube < IX_det_abstractType
         height      % height (m) (column vector)
         wall        % Wall thickness (m) (column vector)
         atms        % 3He partial pressure (atmospheres) (column vector)
-        width       % same as dia for uniform interface
+        width       % alias of dia for uniform interface
 
         % Other dependent properties:
         inner_rad   % Inner radius of tube (get access only) (m)

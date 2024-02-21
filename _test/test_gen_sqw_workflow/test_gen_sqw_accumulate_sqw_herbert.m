@@ -176,6 +176,11 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             end
             assertElementsAlmostEqual(res.data_range,data_range);
             
+            % may wish to resurrect this as a test later but for the moment
+            % det is no longer an output of the read_input_headers call at
+            % line 169. When we have worked out how to extract this data
+            % from what is now available we may wish to resume testing for
+            % the number of detectors
             %assertEqual(numel(det.group),96);
             
             

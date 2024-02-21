@@ -74,7 +74,7 @@ if ~(opts.head || opts.his)
         sqw_skel.experiment_info.samples,sqw_skel.experiment_info.expdata);
     
     % detpar inputs
-    detpar = sqw_skel.detpar; % $DET
+    detpar = sqw_skel.detpar; 
     if ~isempty(detpar)
         if isstruct(detpar) && ~isempty(detpar.group)
             detpar = IX_detector_array(detpar);

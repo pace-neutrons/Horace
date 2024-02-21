@@ -31,7 +31,7 @@ for i=1:nfiles
     det_tmp        = ldrs{i}.get_detpar();
     if ~isempty(det_tmp)
         % gets old-style detpar struct 
-        if (isstruct(det_tmp)                              && ...
+        if (isstruct(det_tmp)                             && ...
             IX_detector_array.check_detpar_parms(det_tmp) && ... % proper detpar struct
             exp_info{i}.detector_arrays.n_runs == 0            ) % no detectors populated yet
             
@@ -41,7 +41,8 @@ for i=1:nfiles
 	        exp_info{i}.detector_arrays = det_tmp;
         end
     end
-    % no checks on equality of detpars any more
+    % previous checks on equality of detpars between loaded nxspe files no
+    % longer used as detectors may now differ between runs
     
     clear det_tmp       % save memory on what could be a large variable
 

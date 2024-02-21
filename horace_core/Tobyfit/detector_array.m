@@ -35,17 +35,6 @@ if isempty(det) || det.n_runs == 0
     % is no longer available this is an error
     error('HORACE:tobyfit-detector_array:invalid_argument', ...
           'trying to make detectors from a detpar but it doesnt exist any more');
-      %{
-    if use_tubes
-        detectors = IX_detector_array (detpar.group, detpar.x2(:), ...
-            detpar.phi(:), detpar.azim(:),...
-            IX_det_He3tube (detpar.width, detpar.height, 6.35e-4, 10));   % 10atms, wall thickness=0.635mm
-    else
-        detectors = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
-            IX_det_TobyfitClassic (detpar.width, detpar.height));
-          
-    end
-          %}
 else
     % make a new detector object based on value of use_tubes and insert
     % it into the detector_array info extracted from the sqw

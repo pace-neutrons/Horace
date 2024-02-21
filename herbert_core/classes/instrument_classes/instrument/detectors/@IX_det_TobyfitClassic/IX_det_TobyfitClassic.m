@@ -22,7 +22,7 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
         % Mirrors of private properties; these define object state:
         dia         % Outer diameter of tube (m) (column vector)
         height      % Height (m) (column vector)
-        width       % clone of dia to provide uniform interfact across detector types
+        width       % alias of dia to provide uniform interface across detector types
         
         % Other dependent properties required by abstract template:
         ndet        % Number of detectors (get access only) (scalar)
