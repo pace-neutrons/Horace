@@ -214,6 +214,14 @@ classdef PageOp_mask < PageOpBase
             % Experiment if set to true
             is = obj.old_file_format_||obj.check_runid;
         end
-    end
-
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','mask_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.mask_split_ratio = val;
+        end
+    end        
 end

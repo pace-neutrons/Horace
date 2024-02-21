@@ -161,5 +161,15 @@ classdef PageOp_cat_pix < PageOpBase
             % usual PageOp
             does = true;
         end
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','cat_pix_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.cat_pix_split_ratio = val;
+        end
+        
     end
 end

@@ -113,7 +113,7 @@ classdef PageOpBase
         %
         outfile_   = '';
         op_name_ = '';
-        split_log_ratio_ = [];
+        split_log_ratio_ = 1;
 
         % caches for some frequently used indices, defined in PixelDataBase,
         % and used to extract appropriate fields from PixelData
@@ -551,12 +551,7 @@ classdef PageOpBase
         % Log frequency
         %------------------------------------------------------------------
         function rat = get_info_split_log_ratio(obj)
-            if isempty(obj.split_log_ratio_)
-                rat = config_store.instance().get_value( ...
-                    'hor_config', 'fb_scale_factor');
-            else
-                rat = obj.split_log_ratio_;
-            end
+            rat = obj.split_log_ratio_;            
         end
         function obj = set_info_split_log_ratio(obj,val)
             if ~isnumeric(val)

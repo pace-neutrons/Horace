@@ -28,5 +28,14 @@ classdef PageOp_func_eval < PageOpBase
             % usual PageOp
             does = true;
         end
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','func_eval_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.func_eval_split_ratio = val;
+        end
     end
 end

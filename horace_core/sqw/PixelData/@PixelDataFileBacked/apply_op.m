@@ -57,7 +57,7 @@ for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix
     % and each chunk after this split refers to mem_chunk_size pixels
     % located subsequently
     if ll > 0
-        lc = print_progress_log(i,n_chunks,op_name,lc);
+        [lc,page_op] = print_progress_log(page_op,i,n_chunks,op_name,lc);
     end
 end
 obj_out = page_op.finish_op(obj_in);
@@ -75,7 +75,7 @@ if issue_range_warning
     page_op.print_range_warning(original_file,old_file_format);
 end
 
-function log_control = print_progress_log(n_step,nsteps_total,op_name,log_control)
+function [log_control,page_op] = print_progress_log(page_op,n_step,nsteps_total,op_name,log_control)
 % function is called each loop iteration and prints progress report
 % in the form:
 % "."    -- per each loop iteration
@@ -83,17 +83,25 @@ function log_control = print_progress_log(n_step,nsteps_total,op_name,log_contro
 %        -- after passing time interval defined in log_config class,
 %           field info_log_print_time
 % Inputs:
+% page_op       -- the pageOp class containing information about log
+%                  splitting ratio (how often per this function call log
+%                  should be printed)
 % n_step        -- number of current step to print log for
 % nsteps_total  -- total number of steps the run will go
 % op_name       -- name of page_op the loop runs
 % log_control   -- instance lof log_config class, which defines when print
 %                  progress report in more details (i.e.
 %                  number_of_steps_passed)
-fprintf('.')
-[log_control,run_time] = log_control.adapt_logging(n_step);
-log_split = log_control.info_log_split_ratio;
+
+log_split = page_op.split_log_ratio;
 if mod(n_step, log_split) < eps('single')
-    fprintf('.\n')
+    if n_step>1
+        fprintf('.\n');
+    end
+    [log_control,run_time]   = log_control.adapt_logging(n_step);
+    page_op.split_log_ratio  = log_control.info_log_split_ratio;
     fprintf('*** Finished %dof#%d chunks in %d sec performing %s\n', ...
         n_step,nsteps_total,run_time,op_name);
+else
+    fprintf('.');
 end

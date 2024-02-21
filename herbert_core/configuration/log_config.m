@@ -29,16 +29,52 @@ classdef log_config < config_base
         % from info_log_print_time ant time spent on doing every step of
         % the algorithm.
         info_log_split_ratio;
+        %------------------------------------------------------------------
+        % PAGEOP SPECIFIC SETTINGS
+        % store logging ratios for various logging algorithms;
+        recompute_bins_split_ratio;
+        apply_split_ratio;
+        sqw_binary_double_split_ratio;
+        sqw_binary_img_split_ratio;
+        sqw_binary_sqw_split_ratio;
+        cat_pix_split_ratio;
+        coord_calc_split_ratio;
+        func_eval_split_ratio;
+        join_sqw_split_ratio;
+        mask_split_ratio;
+        noisify_split_ratio;
+        section_split_ratio;
+        sigvar_set_split_ratio;
+        split_sqw_split_ratio;
+        sqw_eval_split_ratio;
+        unary_op_split_ratio;
     end
 
     properties(Access=protected, Hidden=true)
         info_log_print_time_ = 30 % normally info log should be printed
         %                         % every 30 secodd
+
+        recompute_bins_split_ratio_    = 1;
+        apply_split_ratio_             = 1;
+        sqw_binary_double_split_ratio_ = 1;
+        sqw_binary_img_split_ratio_    = 1;
+        sqw_binary_sqw_split_ratio_    = 1;
+        cat_pix_split_ratio_           = 1;
+        coord_calc_split_ratio_        = 1;
+        func_eval_split_ratio_         = 1;
+        join_sqw_split_ratio_          = 1;
+        mask_split_ratio_              = 1;
+        noisify_split_ratio_           = 1;
+        section_split_ratio_           = 1;
+        sigvar_set_split_ratio_        = 1;
+        split_sqw_split_ratio_         = 1;
+        sqw_eval_split_ratio_          = 1;
+        unary_op_split_ratio_          = 1;
     end
     properties(Access=private)
         % The variable used to identify how often log should be performed
         % to
-        info_log_split_ratio_ = [];
+        info_log_split_ratio_ = 1;
         log_time_holder_;
     end
 
@@ -68,7 +104,10 @@ classdef log_config < config_base
             %           this function.
             pass_time = toc(obj.log_time_holder_);
             time_per_step = pass_time/n_step;
-            obj.info_log_split_ratio = round(obj.info_log_print_time/time_per_step);
+            split_ratio = obj.info_log_print_time/time_per_step;
+            obj.info_log_split_ratio_ = ...
+                log_config.check_integer_larger_then_one( ...
+                split_ratio,'info_log_split_ratio',false);
         end
 
         %-----------------------------------------------------------------
@@ -77,14 +116,7 @@ classdef log_config < config_base
     % GETTETS, SETTERS
     methods
         function mcs = get.info_log_split_ratio(obj)
-            if isempty(obj.info_log_split_ratio_)
-                mcs = config_store.instance().get_value('hor_config','fb_scale_factor');
-            else
-                mcs = obj.info_log_split_ratio_;
-            end
-        end
-        function obj = set.info_log_split_ratio(obj,val)
-            obj.info_log_split_ratio_ = log_config.check_larger_then_one(val,'info_log_split_ratio',false);
+            mcs = obj.info_log_split_ratio_;
         end
         %
         function mcs = get.info_log_print_time(obj)
@@ -96,18 +128,155 @@ classdef log_config < config_base
             end
             config_store.instance().store_config(obj,'info_log_print_time',val);
         end
+        %==================================================================
+        function rat = get.recompute_bins_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','recompute_bins_split_ratio');
+        end
+        function obj = set.recompute_bins_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'recompute_bins_split_ratio',true);
+            config_store.instance().store_config(obj,'recompute_bins_split_ratio',val);
+        end
+        %
+        function rat = get.apply_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','apply_split_ratio');
+        end
+        function obj = set.apply_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'apply_split_ratio',true);
+            config_store.instance().store_config(obj,'apply_split_ratio',val(1));
+        end
+        %
+        function rat = get.sqw_binary_double_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','sqw_binary_double_split_ratio');
+        end
+        function obj = set.sqw_binary_double_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'sqw_binary_double_split_ratio',true);
+            config_store.instance().store_config(obj,'sqw_binary_double_split_ratio',val);
+        end
+        %
+        function rat = get.sqw_binary_img_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','sqw_binary_img_split_ratio');
+        end
+        function obj = set.sqw_binary_img_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'sqw_binary_img_split_ratio',true);
+            config_store.instance().store_config(obj,'sqw_binary_img_split_ratio',val);
+        end
+        %
+        function rat = get.sqw_binary_sqw_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','sqw_binary_sqw_split_ratio');
+        end
+        function obj = set.sqw_binary_sqw_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'sqw_binary_sqw_split_ratio',true);
+            config_store.instance().store_config(obj,'sqw_binary_sqw_split_ratio',val);
+        end
+        %
+        function rat = get.cat_pix_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','cat_pix_split_ratio');
+        end
+        function obj = set.cat_pix_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'cat_pix_split_ratio',true);
+            config_store.instance().store_config(obj,'cat_pix_split_ratio',val);
+        end
+        %
+        function rat = get.coord_calc_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','coord_calc_split_ratio');
+        end
+        function obj = set.coord_calc_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'coord_calc_split_ratio',true);
+            config_store.instance().store_config(obj,'coord_calc_split_ratio',val);
+        end
+        %
+        function rat = get.func_eval_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','func_eval_split_ratio');
+        end
+        function obj = set.func_eval_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'func_eval_split_ratio',true);
+            config_store.instance().store_config(obj,'func_eval_split_ratio',val);
+        end
+        %
+        function rat = get.join_sqw_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','join_sqw_split_ratio');
+        end
+        function obj = set.join_sqw_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'join_sqw_split_ratio',true);
+            config_store.instance().store_config(obj,'join_sqw_split_ratio',val);
+        end
+        %
+        function rat = get.mask_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','mask_split_ratio');
+        end
+        function obj = set.mask_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'mask_split_ratio',true);
+            config_store.instance().store_config(obj,'mask_split_ratio',val);
+        end
+        %
+        function rat = get.noisify_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','noisify_split_ratio');
+        end
+        function obj = set.noisify_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'noisify_split_ratio',true);
+            config_store.instance().store_config(obj,'noisify_split_ratio',val);
+        end
+        %
+        function rat = get.section_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','section_split_ratio');
+        end
+        function obj = set.section_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'section_split_ratio',true);
+            config_store.instance().store_config(obj,'section_split_ratio',val);
+        end
+        %
+        function rat = get.sigvar_set_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','sigvar_set_split_ratio');
+        end
+        function obj = set.sigvar_set_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'sigvar_set_split_ratio',true);
+            config_store.instance().store_config(obj,'sigvar_set_split_ratio',val);
+        end
+        %
+        function rat = get.split_sqw_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','split_sqw_split_ratio');
+        end
+        function obj = set.split_sqw_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'split_sqw_split_ratio',true);
+            config_store.instance().store_config(obj,'split_sqw_split_ratio',val);
+        end
+        %
+        function rat = get.sqw_eval_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','sqw_eval_split_ratio');
+        end
+        function obj = set.sqw_eval_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'sqw_eval_split_ratio',true);
+            config_store.instance().store_config(obj,'sqw_eval_split_ratio',val);
+        end
+        %
+        function rat = get.unary_op_split_ratio(~)
+            rat = config_store.instance().get_value('log_config','unary_op_split_ratio');
+        end
+        function obj = set.unary_op_split_ratio(obj,val)
+            val = log_config.check_integer_larger_then_one(val,'unary_op_split_ratio',true);
+            config_store.instance().store_config(obj,'unary_op_split_ratio',val);
+        end
     end
     methods(Static,Access=private)
-        function val = check_larger_then_one(val,method_name,warn_user)
-            if val < 1
-                if warn_user
-                    warning('LOG_CONFIG:finalize_alignment_alive_split_ratio',...
-                        [' Attempt to set logging %s logging ratio to be less then 1\n', ...
-                        'This is impossible so 1 is selected. Think about decreasing calculations chunk size'], ...
-                        method_name);
-                end
-                val  = 1;
+        function val = check_integer_larger_then_one(val,method_name,warn_user)
+            if ~isnumeric(val)
+                error('HERBERT:Log_config:invalid_argument', ...
+                    'Only numeric value allowed for %s. Provided: %s', ...
+                    method_name,class(val))
             end
+            if numel(val)>1
+                error('HERBERT:Log_config:invalid_argument', ...
+                    'Input for property %s can be scalar only. Attempt to set value with %d elements', ...
+                    method_name,numel(val));
+            end
+            if val < 1 && warn_user
+                warning('LOG_CONFIG:setting_log_split_ratio',[...
+                    '*** Attempt to set %s to be smaller then 1\n', ...
+                    '    Changed to be 1. Think about decreasing calculations chunk size\n',...
+                    '    as time of calculating single chunk exceeds info_log_print_time'], ...
+                    method_name);
+            end
+            val  = max(1,round(val));
         end
     end
     %======================================================================
@@ -119,7 +288,22 @@ classdef log_config < config_base
             % which should be saved
             fields = {...
                 'info_log_print_time',  ...
-                'info_log_split_ratio', ...
+                'recompute_bins_split_ratio',...
+                'apply_split_ratio',...
+                'sqw_binary_double_split_ratio',...
+                'sqw_binary_img_split_ratio',...
+                'sqw_binary_sqw_split_ratio',...
+                'cat_pix_split_ratio',...
+                'coord_calc_split_ratio',...
+                'func_eval_split_ratio',...
+                'join_sqw_split_ratio',...
+                'mask_split_ratio',...
+                'noisify_split_ratio',...
+                'section_split_ratio',...
+                'sigvar_set_split_ratio',...
+                'split_sqw_split_ratio',...
+                'sqw_eval_split_ratio',...
+                'unary_op_split_ratio'...
                 };
         end
 
@@ -133,5 +317,4 @@ classdef log_config < config_base
             value = obj.([field_name,'_']);
         end
     end
-
 end
