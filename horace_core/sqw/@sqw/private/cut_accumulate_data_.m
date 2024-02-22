@@ -241,7 +241,7 @@ for iter = 1:num_chunks
         % PageOp_sqw_join operation.
         pix_comb_info = cut_data_from_file_job.accumulate_pix(pix_comb_info, false, ...
             pix_ok, pix_indx, npix, ...
-            buf_size);
+            buf_size,ll);
         if ll>=2
             time_to_accum(iter) = toc;
             tic;

@@ -238,6 +238,11 @@ classdef cut_data_from_file_job < JobExecutor
             % npix             The npix array associated with this chunk of pixels
             % max_buf_size     The maximum buffer size for reading/writing
             % npix_retained     Number of pixels retained in this chunk of the cut
+            % Optional:
+            % log_level        verbosity of the accumulate algorithm as
+            %                  defined in hor_config.log_level. If absent, 
+            %                  hor_config.log_level will be used to
+            %                  estimate the verbosity
             %
             pix_comb_info = accumulate_pix_(varargin{:});
         end
