@@ -80,12 +80,20 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
         obj(i).pix = tmp_pix{i};
         obj(i).data.do_check_combo_arg = false;
         obj(i).data.npix = zeros(size(sqw_in.data.npix));
-        obj(i).data.npix(merge_data(i).range(1):merge_data(i).range(2)) = npix{i};
+
+        lim = merge_data(i).range;
+        if i ~= nWorkers && ~merge_data(i+1).nomerge
+            lim(2) = lim(2) + 1;
+        end
+        if i ~= 1 && ~merge_data(i).nomerge
+            lim(1) = lim(1) - 1;
+        end
+
+        obj(i).data.npix(lim(1):lim(2)) = npix{i};
         [obj(i).data.s, obj(i).data.e] = obj(i).pix.compute_bin_data(obj(i).data.npix);
         obj(i).data.do_check_combo_arg = true;
         obj(i).data.check_combo_arg();
-        merge_data(i).nelem = [obj(i).data.npix(1), ...
-                               obj(i).data.npix(end)]; % Pixels at split end-bins to recombine
+        merge_data(i).nelem = [npix{i}(1), npix{i}(end)]; % Pixels at split end-bins to recombine
         merge_data(i).pix_range = [points(i)+1, points(i)+num_pixels(i)];
 
     end
