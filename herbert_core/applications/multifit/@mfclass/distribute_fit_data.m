@@ -54,12 +54,9 @@ if exist('tobyfit', 'var')
             for j = 1:numel(tobyfit{k}.kf)
 
                 pr = merge_data(j,i).pix_range;
-                loop_data{i}.tobyfit_data{k}.kf{j}     = tobyfit{k}.kf{j}(pr(1):pr(2));
-                loop_data{i}.tobyfit_data{k}.dt{j}     = tobyfit{k}.dt{j}(pr(1):pr(2));
-                loop_data{i}.tobyfit_data{k}.dq_mat{j} = tobyfit{k}.dq_mat{j}(:,:,pr(1):pr(2));
-                for l=1:4
-                    loop_data{i}.tobyfit_data{k}.qw{j}{l} = tobyfit{k}.qw{j}{l}(pr(1):pr(2));
-                end
+                loop_data{i}.tobyfit_data{k}.kf{j} = tobyfit{k}.kf{j}(pr(1):pr(2));
+                loop_data{i}.tobyfit_data{k}.dt{j} = tobyfit{k}.dt{j}(pr(1):pr(2));
+                loop_data{i}.tobyfit_data{k}.en{j} = tobyfit{k}.en{j}(pr(1):pr(2));
             end
         end
     end
