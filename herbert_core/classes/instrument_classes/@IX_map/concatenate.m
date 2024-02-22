@@ -1,14 +1,20 @@
-function obj_out = combine (varargin)
-% Combine several IX_map objects to form a single IX_map
+function obj_out = concatenate (varargin)
+% Concatenate several IX_map objects to form a single IX_map
 %
-%   >> obj_out = combine (obj1, obj2, obj3, ...)
+%   >> obj_out = concatenate (obj1, obj2, obj3, ...)
 %
-% The spectra for workspaces with the same workspace numbers but in different
-% IX_map objects are collected into a single workspace in the out IX_map.
+% The workspaces in a collection of IX_map objects are used to make a single
+% IX_map object with those workspaces placed in sequence; the number of
+% workspaces in the output is equal to the sum of number of workspaces in each
+% of the input IX_map objects. The workspace numbers of all but the first IX_map
+% are increased by the workspace number of the imeediately preceding IX_map, so
+% that the workspace numbers remain unique.
 %
-% This method differs from IX_map method concatenate which 
+% This compares with the IX_map method called combine in which workspaces with
+% the same workspace numbers but in different IX_map objects are collected into
+% a single workspace in the out IX_map.
 %
-% See also: concatenate
+% See also: combine
 %
 % EXAMPLE
 %  Suppose map1 consists of
@@ -19,8 +25,9 @@ function obj_out = combine (varargin)
 %       workspace 7: spectra [71,72]
 % then the output workspace consists of
 %       workspace 1: spectra [11,12]
-%       workspace 5: spectra [51,52,53,54,55]
-%       workspace 7: spectra [71,72]
+%       workspace 5: spectra [51,52]
+%       workspace 6: spectra [53,54,55]     % workspace number increased
+%       workspace 8: spectra [71,72]        % workspace number increased
 %
 % Input:
 % ------
@@ -60,9 +67,15 @@ islo = ishi - nstot + 1;
 wkno = NaN(1, iwhi(end));
 ns = NaN(1, iwhi(end));
 s = NaN(1, ishi(end));
+wkno_max_prev = 0;
 for i=1:numel(map)
     if nwkno(i) > 0    % no work to do if no workspaces
-        wkno(iwlo(i):iwhi(i)) = map(i).wkno;
+        % If the smallest workspace number is less than or equal to the largest
+        % from the processed previous map, then the workspace numbers for the 
+        % present map must be adjusted by adding an offset so that the smallest
+        % workspace number becomes one greater than the largest in previous map
+        wkno(iwlo(i):iwhi(i)) = map(i).wkno + max(0, (wkno_max_prev - map(i).wkno(1) + 1));
+        wkno_max_prev = wkno(iwhi(i));  % update the previous maximum for the next loop
         ns(iwlo(i):iwhi(i)) = map(i).ns;
         s(islo(i):ishi(i)) = map(i).s;
     end
