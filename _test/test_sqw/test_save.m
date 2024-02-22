@@ -5,7 +5,9 @@ classdef test_save < TestCase
         out_dir = tmp_dir();
         tests_dir;
         sqw_file_res = 'test_sqw_main_save_sqw.sqw'
+        sqw_array_file = 'test_tobyfit_cuts_data.mat'
         sqw_obj;
+        sqw_array  = 'test_tobyfit_cuts_data.mat'
     end
 
     methods
@@ -42,9 +44,53 @@ classdef test_save < TestCase
                 u, v, psi, omega, dpsi, gl, gs,...
                 [10,5,5,5]);
             obj.sqw_obj = obj.sqw_obj{1};
-
+            hp = horace_paths;
+            sqw_array_file = fullfile(hp.test,'test_TF_components',obj.sqw_array_file);
+            ld = load(sqw_array_file);
+            obj.sqw_array =ld.fe_arr;
         end
+        %------------------------------------------------------------------
+        function test_save_array_names_template_provided(obj)
+            files_to_save = {
+                fullfile(tmp_dir,'fe_1.sqw'),...
+                fullfile(tmp_dir,'fe_2.sqw'),...
+                fullfile(tmp_dir,'fe_3.sqw')};
+            clOb = onCleanup(@()del_memmapfile_files(files_to_save ));
+            obj.sqw_array.save( fullfile(tmp_dir,'fe.sqw'));
+            assertTrue(isfile(files_to_save{1}))
+            assertTrue(isfile(files_to_save{2}))
+            assertTrue(isfile(files_to_save{3}))
+        end
+
+        function test_save_array_names_provided(obj)
+            files_to_save = {
+                fullfile(tmp_dir,'fe1.sqw'),...
+                fullfile(tmp_dir,'fe2.sqw'),...
+                fullfile(tmp_dir,'fe3.sqw')};
+
+            clOb = onCleanup(@()del_memmapfile_files(files_to_save ));
+            obj.sqw_array.save(files_to_save{:});
+            assertTrue(isfile(files_to_save{1}))
+            assertTrue(isfile(files_to_save{2}))
+            assertTrue(isfile(files_to_save{3}))
+        end
+
         function test_save_simple_two(obj)
+            [~,fn,fe] = fileparts(obj.sqw_file_res);
+            file1 = fullfile(tmp_dir,[fn,'_1_',fe]);
+            file2 = fullfile(tmp_dir,[fn,'_2_',fe]);
+            clOb = onCleanup(@()del_memmapfile_files(file1,file2));
+
+            data = repmat(obj.sqw_obj,2,1);
+            rec = data.save(file1,file2);
+
+            assertTrue(isfile(file1));
+            assertTrue(isfile(file2));
+
+            assertEqualToTol(data,rec,'tol',[4*eps('single'),4*eps('single')], ...
+                'ignore_str',true);
+        end
+        function test_save_simple_cellarray_two(obj)
             [~,fn,fe] = fileparts(obj.sqw_file_res);
             file1 = fullfile(tmp_dir,[fn,'_1_',fe]);
             file2 = fullfile(tmp_dir,[fn,'_2_',fe]);
@@ -59,6 +105,7 @@ classdef test_save < TestCase
             assertEqualToTol(data,rec,'tol',[4*eps('single'),4*eps('single')], ...
                 'ignore_str',true);
         end
+        
         %------------------------------------------------------------------
         function test_save_make_tmp(obj)
             targ_file = fullfile(tmp_dir,'testfile_save_make_tmp.sqw');
@@ -202,7 +249,6 @@ classdef test_save < TestCase
                 assertEqual(ME.identifier,'MATLAB:memmapfile:mapfile:cannotStatFile');
             end
         end
-
 
         function test_save_move_tmp_leaves_tmp_broken(obj)
             % test shows tmp object gets broken.
@@ -379,34 +425,25 @@ classdef test_save < TestCase
             % multiple object saving request multiple filenames provided
             assertTrue(strncmp(ME1.message,'No target filenames provided to save method',35));
 
-            ME2 = assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
-                targ_file),'HORACE:sqw:invalid_argument');
-            assertTrue(strncmp(ME2.message,'No target filenames provided to save method',35));
-
             ME3 = assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
                 {'file1','file2'},'-make_temp'),'HORACE:sqw:invalid_argument');
             assertTrue(strncmp(ME3.message, ...
                 'If you use "-make_temporary" option, you need to return output object(s)',35));
 
             ME4 = assertExceptionThrown(@()save(obj.sqw_obj, ...
-                'file1','bla=bla'),'HORACE:sqw:invalid_argument');
+                'file1.sqw','bla=bla.sqw'),'HORACE:sqw:invalid_argument');
             assertTrue(strncmp(ME4.message, ...
                 'More then one input ({''file1''}    {''bla=bla''}) can be interpreted as filename',20));
 
             ME5 = assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
                 {'file1','file2'},'bla=bla'),'HORACE:sqw:invalid_argument');
             assertTrue(strncmp(ME5.message, ...
-                'Unable to use class "char" as faccess-or for sqw data',35));
-
-            ME6 = assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
-                {'file1',ldr}),'HORACE:sqw:invalid_argument');
-            assertTrue(strncmp(ME6.message, ...
-                'Not all members of filenames cellarray (Argument N1 ) are the text strings',35));
+                'Not every file-accessor provided as input',35));
 
             ME7 = assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
                 {'fule1','file2'},{ldr,'file1'}),'HORACE:sqw:invalid_argument');
             assertTrue(strncmp(ME7.message, ...
-                'Not every file-accessor provided as input (Argument N2) is child of horace_binfile_interface (faccess loader)',35));
+                'Can not interpet any input as filename',35));
         end
 
         function test_save_simple_filebacked(obj)
@@ -471,6 +508,5 @@ classdef test_save < TestCase
             % clear output object to release targ_file for deletion
             clear wout;
         end
-
     end
 end
