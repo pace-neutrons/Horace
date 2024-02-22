@@ -59,7 +59,7 @@ for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix
     % located subsequently
     if ll > 0 && mod(i, log_split) == 1
         tc = toc(t0);
-        fprintf('*** Finished %dof#%d chunks in %d sec performing %s\n', ...
+        fprintf('*** Finished %dof#%d chunks in %4.1d sec performing %s\n', ...
             i,n_chunks,tc,op_name);
     end
 end
@@ -67,7 +67,7 @@ obj_out = page_op.finish_op(obj_in);
 %
 if ll > 0
     te = toc(t0);
-    fprintf('*** Completed %s using %d pages in %d sec.\n', ...
+    fprintf('*** Completed %s using %d pages in %4.1d sec.\n', ...
         op_name,n_chunks,te);
     if page_op.inform_about_target_file
         page_op.report_on_target_files(obj_out);
