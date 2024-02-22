@@ -27,4 +27,4 @@ function wout=correct_mag_ff(self,win)
 %
 sqw_magFF = self.calc_mag_ff(win);
 %
-wout=mrdivide(win,sqw_magFF);
+wout=binary_op_manager(win,sqw_magFF,@mrdivide,true);
