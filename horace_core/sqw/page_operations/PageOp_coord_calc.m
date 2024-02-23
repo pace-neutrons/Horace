@@ -27,7 +27,7 @@ classdef PageOp_coord_calc < PageOpBase
         function obj = PageOp_coord_calc(varargin)
             obj = obj@PageOpBase(varargin{:});
             %
-            obj.split_at_bin_edges = true;            
+            obj.split_at_bin_edges = true;
         end
 
         function obj = init(obj,in_obj,ind)
@@ -107,7 +107,17 @@ classdef PageOp_coord_calc < PageOpBase
             end
             % update image accumulators (overloaded here):
             obj = update_img_accumulators(obj,npix_block,npix_idx,signal);
-
+        end
+    end
+    methods(Access=protected)
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','coord_calc_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.coord_calc_split_ratio = val;
         end
     end
 end
