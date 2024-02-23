@@ -31,7 +31,8 @@ classdef log_config < config_base
         info_log_split_ratio;
         %------------------------------------------------------------------
         % PAGEOP SPECIFIC SETTINGS
-        % store logging ratios for various algorithms which ise apply_op;
+        % store logging ratios for various algorithms which use apply_op on
+        % paging operations
         recompute_bins_split_ratio;
         apply_split_ratio;
         sqw_binary_double_split_ratio;
@@ -52,7 +53,7 @@ classdef log_config < config_base
     properties(Hidden)
         % helper property which helps organize consisten logging in
         % apply_op routine. It set to true when log algorithm have
-        % printed alive-log dot and to false when other logging have been 
+        % printed alive-log dot and to false when other logging have been
         % performed. Introduced to simplify log prints in transitions
         % between different parts of apply_op routine
         dot_printed = false;
