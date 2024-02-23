@@ -1,5 +1,5 @@
 classdef test_save < TestCase
-    % Series of tests to check work of mex files against Matlab files
+    % Series of tests to validate save operations
 
     properties
         out_dir = tmp_dir();
