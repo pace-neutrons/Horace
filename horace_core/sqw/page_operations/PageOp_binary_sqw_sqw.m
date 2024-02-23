@@ -89,4 +89,16 @@ classdef PageOp_binary_sqw_sqw < PageOp_bin_Base
             obj = update_img_accumulators(obj,npix_block,npix_idx,res.s,res.e);
         end
     end
+    methods(Access=protected)
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','sqw_binary_sqw_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.sqw_binary_sqw_split_ratio = val;
+        end
+    end
+    
 end

@@ -68,10 +68,10 @@ classdef PageOpBase
 
         % caches for some indices, defined in PixelDataBase, and used to
         % extract appropriate fields from PixelData. Often used.
-        signal_idx;
-        var_idx;
-        run_idx;
-        coord_idx;
+        signal_idx
+        var_idx
+        run_idx
+        coord_idx
         % Exposes is_range_valid method of the pix_ field
         is_range_valid
         % if true, page operations should validate run_id and
@@ -113,7 +113,7 @@ classdef PageOpBase
         %
         outfile_   = '';
         op_name_ = '';
-        split_log_ratio_ = [];
+        split_log_ratio_ = 1;
 
         % caches for some frequently used indices, defined in PixelDataBase,
         % and used to extract appropriate fields from PixelData
@@ -401,21 +401,12 @@ classdef PageOpBase
         end
         %
         function does = get.split_log_ratio(obj)
-            if isempty(obj.split_log_ratio_)
-                does = config_store.instance().get_value( ...
-                    'hor_config', 'fb_scale_factor');
-            else
-                does = obj.split_log_ratio_;
-            end
+            does = get_info_split_log_ratio(obj);
         end
         function obj = set.split_log_ratio(obj,val)
-            if ~isnumeric(val)
-                error('HORACE:PageOpBase:invalid_argument', ...
-                    'log_split_ratio can have only numeric value. Provided: %s', ...
-                    class(val))
-            end
-            obj.split_log_ratio_ = max(1,round(abs(val)));
+            obj = set_info_split_log_ratio(obj,val);
         end
+        %
         function do = get.exp_modified(obj)
             do = get_exp_modified(obj);
         end
@@ -557,6 +548,18 @@ classdef PageOpBase
                 '*** >> fb_out = finalize_alignment(''%s'')\n'],...
                 infile_name);
         end
-
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(obj)
+            rat = obj.split_log_ratio_;            
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            if ~isnumeric(val)
+                error('HORACE:PageOpBase:invalid_argument', ...
+                    'log_split_ratio can have only numeric value. Provided: %s', ...
+                    class(val))
+            end
+            obj.split_log_ratio_ = max(1,round(abs(val)));
+        end
     end
 end

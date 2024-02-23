@@ -352,12 +352,12 @@ classdef hor_config < config_base
             % the classical unit tests.
             process_unit_test_path(true,'set_path');
         end
-
-        %--------------------------------------------------------------------
-
         %------------------------------------------------------------------
-        % ABSTACT INTERFACE DEFINED
-        %------------------------------------------------------------------
+    end
+    %======================================================================
+    % ABSTACT INTERFACE DEFINED
+    %======================================================================
+    methods
         function fields = get_storage_field_names(obj)
             % helper function returns the list of the public names of the fields,
             % which should be saved
@@ -369,8 +369,9 @@ classdef hor_config < config_base
             % methods interface.
             % Relies on assumption, that each public
             % field has a private field with name different by underscore
+            %
+            % implemented here to get access to protected properties values
             value = obj.([field_name,'_']);
         end
-
     end
 end
