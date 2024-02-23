@@ -64,7 +64,7 @@ elseif nd==2
 end
 
 function [pr,nd] = parse_inputs(obj,varargin)
-% 
+%
 % shorten input file name to the minimal useful abbreviations
 short_par = {'ax','col','test_parser'};
 argi = cellfun(@(x)shorten_kw(x,short_par),varargin,'UniformOutput',false);
@@ -92,8 +92,8 @@ end
 nd=dimensions(obj);
 if nd<1 || nd>2
     error('HORACE:run_inspector:invalid_argument',[...
-        '***  Input dataset must be an sqw object with 1d or 2d image.\n' ...
-        '     The image of the provided object have: %d dimensions.'], ...
+        '***  Input dataset must be an sqw object with 1 or 2-dimensions image.\n' ...
+        '     The image of the provided object has: %d-dimensions.'], ...
         nd);
 end
 function kw = shorten_kw(x,short_names)

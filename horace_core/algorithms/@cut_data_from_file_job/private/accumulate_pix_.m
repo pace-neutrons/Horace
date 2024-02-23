@@ -1,5 +1,29 @@
 function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size,log_level)
-% Function to handle case of keep_pixels. Nested so that variables are shared with main function to optimise memory use
+% Accumulate pixel data into memory and if memory full, to
+% temporary files and return a pixfile_combine_info
+% object that manages the files.
+%
+% The pixfile_combine_info object, when saved, will re-combine the temporary
+% files into a single sqw object.
+%
+% Inputs:
+% -------
+% pix_comb_info    A pixfile_combine_info object
+% finish_accum     Boolean flag, set to true to finish accumulation
+% v                PixelData object containing pixel chunk
+% ix_add           The indices of retained pixels in the order they
+%                  appear in output file (used for sorting)
+% npix             The npix array associated with this chunk of pixels
+% max_buf_size     The maximum buffer size for reading/writing
+% npix_retained    Number of pixels retained in this chunk of the cut
+% Optional:
+% log_level        verbosity of the accumulate algorithm as
+%                  defined in hor_config.log_level. If absent,
+%                  hor_config.log_level will be used to
+%                  define the verbosity.
+%
+% Internal function Nested so that variables are shared with main function
+% to optimise memory use. (Is this too old to care these days?)
 
 
 persistent n_writ_files; % written files counter
