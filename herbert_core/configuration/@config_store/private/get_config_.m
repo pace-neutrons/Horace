@@ -24,7 +24,7 @@ function [config_data,got_from_file]=get_config_(obj,class_to_restore,use_defaul
 %
 % Additionally, it class instance was not in memory, it loaded in memory
 % and keeps it there for further usage, if use_default_for_missing is true.
-%           
+%
 %
 %
 
@@ -47,15 +47,17 @@ else
 
     if result ~= 1
         % problems with loading
-        if result == 0 % outdated configuration.
-            warning('HERBERT:config_store:outdated_configuration',...
-                'Stored configuration for class: %s is outdated\n The configuration has been reset to defaults ',class_name);
-        elseif use_defaults_for_missing % -1
-            warning('HERBERT:config_store:default_configuration',...
-                ['Custom configuration for class: %s does not exist\n',...
-                ' The configuration has been set to defaults. Type:\n',...
-                '>>%s\n   to check if defaults are correct'],...
-                class_name,class_name);
+        if class_to_restore.warn_if_missing_config
+            if result == 0 % outdated configuration.
+                warning('HERBERT:config_store:outdated_configuration',...
+                    'Stored configuration for class: %s is outdated\n The configuration has been reset to defaults ',class_name);
+            elseif use_defaults_for_missing % -1
+                warning('HERBERT:config_store:default_configuration',...
+                    ['Custom configuration for class: %s does not exist\n',...
+                    ' The configuration has been set to defaults. Type:\n',...
+                    '>>%s\n   to check if defaults are correct'],...
+                    class_name,class_name);
+            end
         end
         if is_file(filename)
             delete(filename);

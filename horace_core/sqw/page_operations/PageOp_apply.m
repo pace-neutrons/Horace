@@ -89,5 +89,14 @@ classdef PageOp_apply < PageOp_sqw_eval
         function obj = set_changes_pix_only(obj,val)
             obj.change_pix_only_ = logical(val);
         end
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','apply_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.apply_split_ratio = val;
+        end
     end
 end

@@ -43,10 +43,19 @@ classdef PageOp_sigvar_set < PageOpBase
     end
     methods(Access=protected)
         function  does = get_changes_pix_only(obj)
-            % sigvar_set sets the pixels using known image, 
+            % sigvar_set sets the pixels using known image,
             % but when replicate is deployed, image
             % is recalculated from pixels.
             does = ~obj.in_replicate;
+        end
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','sigvar_set_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.sigvar_set_split_ratio = val;
         end
     end
 end

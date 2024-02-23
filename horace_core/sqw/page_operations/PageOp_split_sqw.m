@@ -244,7 +244,7 @@ classdef PageOp_split_sqw < PageOpBase
             for i=1:n_obj
                 % Set single split object as the result of page operation
                 if ~obj.img_filebacked_
-                    split_img         = obj.out_img{i};                    
+                    split_img         = obj.out_img{i};
                     obj.npix          = split_img.npix;
                     obj.sig_acc_      = split_img.s;
                     obj.var_acc_      = split_img.e;
@@ -443,6 +443,17 @@ classdef PageOp_split_sqw < PageOpBase
                     obj.write_handles{i}.is_tmp_file = obj.results_are_tmp_files_;
                 end
             end
+        end
+    end
+    methods(Access=protected)
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','split_sqw_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.split_sqw_split_ratio = val;
         end
     end
 end

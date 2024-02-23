@@ -163,4 +163,15 @@ classdef PageOp_binary_sqw_img < PageOp_bin_Base
             [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
         end
     end
+    methods(Access=protected)
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','sqw_binary_img_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.sqw_binary_img_split_ratio = val;
+        end
+    end    
 end

@@ -251,7 +251,15 @@ classdef PageOp_join_sqw < PageOpBase
                 outfile = fullfile(wkdir,[fb,'.sqw']);
             end
         end
-        %
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','join_sqw_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.join_sqw_split_ratio = val;
+        end
     end
 end
 function idx = fill_idx(bin_start,page_bin_distr)
