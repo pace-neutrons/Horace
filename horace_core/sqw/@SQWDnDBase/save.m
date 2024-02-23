@@ -12,13 +12,13 @@ function wout = save(w, varargin)
 %   w        -- sqw or dnd object or array of such objects.
 % Optional:
 %  filename  -- Filename for output. If none given, then prompted for
-%               a filename to save. If w is array you should either:
-%          single string with "filename.sqw" (.sqw must be present) should
-%               be provided. Then numel(w) files will be wirtten with the names
+%               a filename to save. If w is an array you should provide:
+%    either:    single string with "filename.sqw" (.sqw must be present)
+%               Then numel(w) files will be wirtten with the names
 %               filename_1.sqw,filename_2.sqw ... filename_n.sqw where
 %               n==numel(w)
-%          n arguments with filenames must be provided, one filename per
-%               each object in array.
+%        or:    n arguments with filenames, one filename per each object 
+%               in array.
 %  loader    -- instance of registered faccess loader (see
 %               sqw_formats_factory) to use to save data.
 %               if w is an array, array or cellarray of loaders have to be
@@ -225,9 +225,9 @@ function [filenames,ldw] = parse_additional_args(w,num_to_save,update,varargin)
 % parse inputs for filenames and loaders provided as input of save method.
 % fill default or ask user if some are missing.
 %
-% varargin here may be empty or contain either single filename for single
-% file or filename template for array of files or list of filenames one
-% nape per file to save.
+% varargin here may either be empty or else contain either single filename
+% for a single file or filename template for array of files or list of
+% filenames one per file to save.
 
 if numel(varargin) == 0
     if update %
@@ -399,20 +399,23 @@ for i=1:numel(w)
 end
 
 function [filenames,n_found,is_fname] = extract_filenames_from_inputs(num_to_save,varargin)
-% analyse input which should contain filenames or filename only and
+% analyse varargin which should contain one or more filenames and
 % build/extract filename information from this input.
 %
 % Inputs:
-% num_to_save  -- number of objects to save which define number of
+% num_to_save  -- number of objects to save which defines the number of
 %                 filenames to extract
-% varargin     -- arguments to process as filename requested. The filenames
-%                 are either text with number of components equal to number
-%                 of objects to save or single text with extension .sqw
+% varargin     -- arguments to process as filenames requested. The filenames
+%                 are either text, with number of components equal to number
+%                 of objects to save or else a single text value ending with
+%                 substring ".sqw", which will be used by suffixing numbers
+%                 to make up the required number of filenames.
 % Outputs:
 % filenames    -- cellarray of names of files to save
 % n_found      -- how many arguments have been identified as filenames
-% is_fname     -- logical arraym numel(varargin) containing true in places
-%                 where filename is identified
+% is_fname     -- logical array of size numel(varargin) containing true in
+%                 places where a filename argument has been
+%                 identified.
 
 is_fname = cellfun(@istext,varargin);
 n_found  = sum(is_fname);
@@ -422,7 +425,7 @@ if n_found == 0 % may be filenames are provided as cellarray
         fnames = varargin(may_be_fnames);
         if numel(fnames) > 1
             error('HORACE:sqw:invalid_argument', ...
-                'Can not interpet any input as filename %s', ...
+                'Can not interpret any input as filename %s', ...
                 disp2str(varargin));
         end
         prov_filenames = fnames{1};

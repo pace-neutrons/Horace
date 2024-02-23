@@ -56,7 +56,9 @@ classdef test_save < TestCase
                 fullfile(tmp_dir,'fe_2.sqw'),...
                 fullfile(tmp_dir,'fe_3.sqw')};
             clOb = onCleanup(@()del_memmapfile_files(files_to_save ));
+
             obj.sqw_array.save( fullfile(tmp_dir,'fe.sqw'));
+
             assertTrue(isfile(files_to_save{1}))
             assertTrue(isfile(files_to_save{2}))
             assertTrue(isfile(files_to_save{3}))
@@ -64,12 +66,14 @@ classdef test_save < TestCase
 
         function test_save_array_names_provided(obj)
             files_to_save = {
-                fullfile(tmp_dir,'fe1.sqw'),...
-                fullfile(tmp_dir,'fe2.sqw'),...
-                fullfile(tmp_dir,'fe3.sqw')};
+                fullfile(tmp_dir,'feA.sqw'),...
+                fullfile(tmp_dir,'feB.sqw'),...
+                fullfile(tmp_dir,'feC.sqw')};
 
             clOb = onCleanup(@()del_memmapfile_files(files_to_save ));
+
             obj.sqw_array.save(files_to_save{:});
+
             assertTrue(isfile(files_to_save{1}))
             assertTrue(isfile(files_to_save{2}))
             assertTrue(isfile(files_to_save{3}))
@@ -105,7 +109,7 @@ classdef test_save < TestCase
             assertEqualToTol(data,rec,'tol',[4*eps('single'),4*eps('single')], ...
                 'ignore_str',true);
         end
-        
+
         %------------------------------------------------------------------
         function test_save_make_tmp(obj)
             targ_file = fullfile(tmp_dir,'testfile_save_make_tmp.sqw');
@@ -441,9 +445,9 @@ classdef test_save < TestCase
                 'Not every file-accessor provided as input',35));
 
             ME7 = assertExceptionThrown(@()save([obj.sqw_obj,obj.sqw_obj], ...
-                {'fule1','file2'},{ldr,'file1'}),'HORACE:sqw:invalid_argument');
+                {'file1','file2'},{ldr,'file1'}),'HORACE:sqw:invalid_argument');
             assertTrue(strncmp(ME7.message, ...
-                'Can not interpet any input as filename',35));
+                'Can not interpret any input as filename',35));
         end
 
         function test_save_simple_filebacked(obj)
