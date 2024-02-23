@@ -64,7 +64,7 @@ obj_out = page_op.finish_op(obj_in);
 %
 if ll > 0
     [~,te] = lc.adapt_logging(n_chunks);
-    if lc.pritned_dot; fprintf('\n'); lc.pritned_dot = false; end
+    if lc.dot_printed; fprintf('\n'); lc.dot_printed = false; end
     fprintf('*** Completed %s using %d pages in %4.1d sec.\n', ...
         op_name,n_chunks,te);
     if page_op.inform_about_target_file
