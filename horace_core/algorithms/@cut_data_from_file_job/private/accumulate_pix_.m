@@ -1,5 +1,29 @@
-function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size)
-% Function to handle case of keep_pixels. Nested so that variables are shared with main function to optimise memory use
+function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size,log_level)
+% Accumulate pixel data into memory and if memory full, to
+% temporary files and return a pixfile_combine_info
+% object that manages the files.
+%
+% The pixfile_combine_info object, when saved, will re-combine the temporary
+% files into a single sqw object.
+%
+% Inputs:
+% -------
+% pix_comb_info    A pixfile_combine_info object
+% finish_accum     Boolean flag, set to true to finish accumulation
+% v                PixelData object containing pixel chunk
+% ix_add           The indices of retained pixels in the order they
+%                  appear in output file (used for sorting)
+% npix             The npix array associated with this chunk of pixels
+% max_buf_size     The maximum buffer size for reading/writing
+% npix_retained    Number of pixels retained in this chunk of the cut
+% Optional:
+% log_level        verbosity of the accumulate algorithm as
+%                  defined in hor_config.log_level. If absent,
+%                  hor_config.log_level will be used to
+%                  define the verbosity.
+%
+% Internal function Nested so that variables are shared with main function
+% to optimise memory use. (Is this too old to care these days?)
 
 
 persistent n_writ_files; % written files counter
@@ -17,9 +41,12 @@ if ischar(pix_comb_info) && strcmp(pix_comb_info,'cleanup')
     clear_memory();
     return
 end
+if nargin<7
+    log_level = config_store.instance().get_value('hor_config','log_level');
+end
 
 if finish_accum && nargin == 2
-    pix_comb_info = finalize_accum(pix_comb_info);
+    pix_comb_info = finalize_accum(pix_comb_info,log_level);
     return
 end
 
@@ -45,16 +72,16 @@ if v.num_pixels > 0
 end
 
 if finish_accum
-    pix_comb_info = finalize_accum(pix_comb_info);
+    pix_comb_info = finalize_accum(pix_comb_info,log_level);
     return
 end
 
 
 if n_pix_in_memory> max_buf_size % flush pixels in file
-    pix_comb_info= save_pixels_to_file(pix_comb_info);
+    pix_comb_info= save_pixels_to_file(pix_comb_info,log_level);
 end
 
-    function pix_comb_info = finalize_accum(pix_comb_info)
+    function pix_comb_info = finalize_accum(pix_comb_info,log_level)
         % finish accumulation and depending on the previous state return
         % either:
         % pifile_combine_info class instance, describing data written to
@@ -63,7 +90,7 @@ end
         % PixelDataMemory class, which contains pixels, sorted by bins if
         % any pixels were held in memory.
         if n_writ_files > 0
-            pix_comb_info= save_pixels_to_file(pix_comb_info);
+            pix_comb_info= save_pixels_to_file(pix_comb_info,log_level);
             if exist('npix','var')
                 pix_comb_info.npix_cumsum = cumsum(npix(:));
             end
@@ -87,13 +114,16 @@ end
     end
 
 
-    function pix_comb_info= save_pixels_to_file(pix_comb_info)
+    function pix_comb_info= save_pixels_to_file(pix_comb_info,log_level)
         if n_mem_blocks == 0
             return
         end
         npix_in_mem = npix_now - npix_prev;
         npix_prev   = npix_now;
         clear npix_now;
+        if log_level>1
+            fprintf('*** Sorting selected pixels by the processed  block of image bins:\n')
+        end
         % keep sorted pixels precision as they came from file and go to
         % file
         pix_2write = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
@@ -104,6 +134,11 @@ end
 
         n_writ_files  = n_writ_files+1;
         file_name = pix_comb_info.infiles{n_writ_files};
+        if log_level>0
+            fprintf('*** Storing sorted pixels to partial sqw file for combining: %s\n', ...
+                file_name);
+        end
+
         [mess,position] = put_sqw_data_npix_and_pix_to_file_(file_name,npix_in_mem,pix_2write);
         if ~isempty(mess)
             error('HORACE:cut_data_from_file_job:io_error',...

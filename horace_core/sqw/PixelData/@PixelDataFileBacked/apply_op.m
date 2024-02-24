@@ -64,7 +64,8 @@ obj_out = page_op.finish_op(obj_in);
 %
 if ll > 0
     [~,te] = lc.adapt_logging(n_chunks);
-    fprintf('*** Completed %s using %d pages in %d sec.\n', ...
+    if lc.dot_printed; fprintf('\n'); lc.dot_printed = false; end
+    fprintf('*** Completed %s using %d pages in %4.1d sec.\n', ...
         op_name,n_chunks,te);
     if page_op.inform_about_target_file
         page_op.report_on_target_files(obj_out);
@@ -85,11 +86,12 @@ function [log_control,page_op] = print_progress_log(page_op,n_step,nsteps_total,
 % Inputs:
 % page_op       -- the pageOp class containing information about log
 %                  splitting ratio (how often per this function call log
-%                  should be printed)
+%                  should be printed). This is actually taken from
+%                  appropriate log_control field.
 % n_step        -- number of current step to print log for
 % nsteps_total  -- total number of steps the run will go
-% op_name       -- name of page_op the loop runs
-% log_control   -- instance lof log_config class, which defines when print
+% op_name       -- name of page_op the loop runs used in logging.
+% log_control   -- instance of log_config class, which defines when print
 %                  progress report in more details (i.e.
 %                  number_of_steps_passed)
 
@@ -102,6 +104,8 @@ if mod(n_step, log_split) < eps('single')
     page_op.split_log_ratio  = log_control.info_log_split_ratio;
     fprintf('*** Finished %dof#%d chunks in %d sec performing %s\n', ...
         n_step,nsteps_total,run_time,op_name);
+    log_control.dot_printed = false;
 else
     fprintf('.');
+    log_control.dot_printed = true;
 end

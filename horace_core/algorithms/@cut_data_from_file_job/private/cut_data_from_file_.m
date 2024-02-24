@@ -186,7 +186,7 @@ try
     end
 catch ME
     if pix_tmpfile_ok
-        accumulate_pix_to_file_(pix,true,pix_data,ok,ix_add,npix,pmax,del_npix_retain)
+        accumulate_pix_to_file_(pix,true,pix_data,ok,ix_add,npix,pmax,del_npix_retain,hor_log_level)
         for j=1:pix.nfiles
             if exist(pix.infiles{j},'file')==2
                 delete(pix.infiles{j});
