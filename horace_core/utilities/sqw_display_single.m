@@ -51,7 +51,10 @@ disp(' ')
 disp([' ',num2str(ndim),'-dimensional object:'])
 disp(' -------------------------')
 if isa(din,'sqw')
+    is_filebacked = din.pix.is_filebacked;
     din = din.data;
+else
+    is_filebacked  = [];
 end
 
 
@@ -103,16 +106,23 @@ if ndim~=0
     for i=1:ndim
         disp(['         ',display_pax{i}])
     end
-    disp(' ')
+
 end
 if ndim~=4
     disp( '     Integration axes:')
     for i=1:4-ndim
         disp(['         ',display_iax{i}])
     end
-    disp(' ')
 end
-
+if  ~isempty(is_filebacked)
+    if is_filebacked
+        pixels_location = 'filebacked';
+    else
+        pixels_location = 'memory based';
+    end
+    fprintf(' Object is %s\n',pixels_location);
+end
+disp(' ')
 % Print warning if no data in the cut, if full cut has been passed
 if npixtot < 0.5   % in case so huge that can no longer hold integer with full precision
     fprintf(2,' WARNING: The dataset contains no counts\n')

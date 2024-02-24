@@ -64,14 +64,14 @@ elseif nd==2
 end
 
 function [pr,nd] = parse_inputs(obj,varargin)
-% 
+%
 % shorten input file name to the minimal useful abbreviations
 short_par = {'ax','col','test_parser'};
 argi = cellfun(@(x)shorten_kw(x,short_par),varargin,'UniformOutput',false);
 
 
 pm = inputParser;
-val_obj = @(x)(isa(x,'sqw')&&numel(x)==1&&~x.pix.is_filebacked());
+val_obj = @(x)(isa(x,'sqw')&&numel(x)==1);
 pm.addRequired('obj',val_obj)
 pm.addParameter('col',[],@(x)(isnumeric(x)&&numel(x)==2&&x(1)<x(2)))
 pm.addParameter('ax',[],@(x)(isnumeric(x)&&numel(x)==4&&x(1)<x(2)&&x(3)<x(4)))
@@ -91,8 +91,10 @@ catch ME
 end
 nd=dimensions(obj);
 if nd<1 || nd>2
-    error('HORACE:run_inspector:invalid_argument',...
-        'Input dataset must be an sqw object that is 2d or 1d');
+    error('HORACE:run_inspector:invalid_argument',[...
+        '***  Input dataset must be an sqw object with 1 or 2-dimensions image.\n' ...
+        '     The image of the provided object has: %d-dimensions.'], ...
+        nd);
 end
 function kw = shorten_kw(x,short_names)
 kw = x;
