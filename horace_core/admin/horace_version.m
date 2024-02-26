@@ -40,7 +40,8 @@ if nargout <= 1 && ~return_numeric
     return;
 end
 
-version_numbers = split(VERSION, '.');
+VERSION = split(VERSION);
+version_numbers = split(VERSION{1}, '.');
 if nargout > numel(version_numbers)
     error("Too many output arguments requested.") ;
 end
@@ -54,7 +55,7 @@ if return_numeric
     num_patch_digits = numel(version_numbers{3});
     varargout{1} = 100*str2double(version_numbers{1})+...
         str2double(version_numbers{2})+...
-        0.1^num_patch_digits*str2double(version_numbers{3});   
+        0.1^num_patch_digits*str2double(version_numbers{3});
 end
 
 

@@ -85,6 +85,7 @@ if use_mex
             %nThreads = 1;
             [pix_range,pix] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             if proj_mode==2
+                pix(5,:) = obj.run_id;
                 pix = PixelData(pix);
             end
         catch  ERR % use Matlab routine
