@@ -12,8 +12,13 @@ function wout = save(w, varargin)
 %   w        -- sqw or dnd object or array of such objects.
 % Optional:
 %  filename  -- Filename for output. If none given, then prompted for
-%               a filename to save. If w is array, cellarray of file names
-%               must be provided here, one filename per each input object.
+%               a filename to save. If w is an array you should provide:
+%    either:    single string with "filename.sqw" (.sqw must be present)
+%               Then numel(w) files will be wirtten with the names
+%               filename_1.sqw,filename_2.sqw ... filename_n.sqw where
+%               n==numel(w)
+%        or:    n arguments with filenames, one filename per each object 
+%               in array.
 %  loader    -- instance of registered faccess loader (see
 %               sqw_formats_factory) to use to save data.
 %               if w is an array, array or cellarray of loaders have to be
@@ -102,17 +107,16 @@ num_to_save = numel(w);
 [filenames,ldw]  = parse_additional_args(w,num_to_save,update,argi{:});
 
 
-if num_to_save > 1
-    if return_result
-        wout = repmat(w(1),size(w));
-    else
-        wout = zeros(size(w));
-    end
+if return_result
+    wout = cell(size(w));
     for i=1:num_to_save
-        wout(i) = save_one(w(i),filenames{i},assume_updated,return_result,clear_source,make_tmp,ldw{i});
+        wout{i} = save_one(w(i),filenames{i},assume_updated,return_result,clear_source,make_tmp,ldw{i});
     end
+    wout = reshape([wout{:}],size(w));
 else
-    wout = save_one(w,filenames{1},assume_updated,return_result,clear_source,make_tmp,ldw{1});
+    for i=1:num_to_save
+        save_one(w(i),filenames{i},assume_updated,return_result,clear_source,make_tmp,ldw{i});
+    end
 end
 %==========================================================================
 function wout = save_one(w,filename,assume_updated,return_result,clear_source,make_tmp,ldw,varargin)
@@ -221,6 +225,9 @@ function [filenames,ldw] = parse_additional_args(w,num_to_save,update,varargin)
 % parse inputs for filenames and loaders provided as input of save method.
 % fill default or ask user if some are missing.
 %
+% varargin here may either be empty or else contain either single filename
+% for a single file or filename template for array of files or list of
+% filenames one per file to save.
 
 if numel(varargin) == 0
     if update %
@@ -231,18 +238,7 @@ if numel(varargin) == 0
     end
     argi = {};
 else % numel(varargin) > 0
-    if num_to_save == 1
-        is_fn = cellfun(@istext,varargin);
-    else
-        is_fn = cellfun(@(x)iscell(x)&&istext(x{1}),varargin);
-    end
-    n_found = sum(is_fn);
-    if n_found > 1
-        fn_like = varargin(is_fn);
-        error('HORACE:sqw:invalid_argument', ...
-            'More then one input (%s) can be interpreted as filename', ...
-            disp2str(fn_like));
-    end
+    [filenames,n_found,is_fname] = extract_filenames_from_inputs(num_to_save,varargin{:});
     if n_found == 0
         if update %
             filenames = extract_filenames_for_update(w,num_to_save);
@@ -250,14 +246,13 @@ else % numel(varargin) > 0
             filenames = ask_for_filename_if_possible(num_to_save);
         end
         argi = varargin;
-    else % found one
-        filenames      = varargin{is_fn};
-        n_filename_arg = find(is_fn);
+    else % found some
+        n_filename_arg = find(is_fname);
         filenames = check_filenames_provided(num_to_save,n_filename_arg,filenames);
         if update
             filenames = extract_filenames_for_update(w,num_to_save,filenames);
         end
-        argi      = varargin(~is_fn);
+        argi      = varargin(~is_fname);
     end
 end
 %=== find loaders/savers for filenames:
@@ -279,7 +274,7 @@ if isa(ldw,'horace_binfile_interface') % specific loader provided
 elseif iscell(ldw)
     is_faccesor = cellfun(@(x)isa(x,'horace_binfile_interface'),ldw);
     if ~all(is_faccesor)
-        n_arg = find(~is_fn);
+        n_arg = find(~is_fname);
         error('HORACE:sqw:invalid_argument', ...
             ['Not every file-accessor provided as input (Argument N%d) is ' ...
             'child of horace_binfile_interface (faccess loader).' ...
@@ -401,4 +396,70 @@ for i=1:numel(w)
             filenames{i} = optional_filenames{i};
         end
     end
+end
+
+function [filenames,n_found,is_fname] = extract_filenames_from_inputs(num_to_save,varargin)
+% analyse varargin which should contain one or more filenames and
+% build/extract filename information from this input.
+%
+% Inputs:
+% num_to_save  -- number of objects to save which defines the number of
+%                 filenames to extract
+% varargin     -- arguments to process as filenames requested. The filenames
+%                 are either text, with number of components equal to number
+%                 of objects to save or else a single text value ending with
+%                 substring ".sqw", which will be used by suffixing numbers
+%                 to make up the required number of filenames.
+% Outputs:
+% filenames    -- cellarray of names of files to save
+% n_found      -- how many arguments have been identified as filenames
+% is_fname     -- logical array of size numel(varargin) containing true in
+%                 places where a filename argument has been
+%                 identified.
+
+is_fname = cellfun(@istext,varargin);
+n_found  = sum(is_fname);
+if n_found == 0 % may be filenames are provided as cellarray
+    may_be_fnames = cellfun(@iscell,varargin);
+    if any(may_be_fnames)
+        fnames = varargin(may_be_fnames);
+        if numel(fnames) > 1
+            error('HORACE:sqw:invalid_argument', ...
+                'Can not interpret any input as filename %s', ...
+                disp2str(varargin));
+        end
+        prov_filenames = fnames{1};
+        [filenames,n_found] = extract_filenames_from_inputs(num_to_save,prov_filenames{:});
+        is_fname = may_be_fnames;
+        return;
+    end
+end
+if num_to_save ==  n_found
+    filenames = varargin(is_fname);
+else
+    if n_found>1 && num_to_save == 1
+        is_fname = cellfun(@(x)~isempty(regexp(x,'.sqw$','once')),varargin(is_fname));
+        n_found = sum(is_fname);
+    end
+    if n_found == 0
+        error('HORACE:sqw:invalid_argument', ...
+            ['Single parameter provided for saving array of files have' ...
+            ' to have form "filename.sqw".\nIt is: %s '], ...
+            disp2str(varargin{1}));
+    end
+    if n_found == 1 && num_to_save>1
+        % generate multiple filenames from filename template
+        [fp,fb] = fileparts(varargin{is_fname});
+        file_id = 1:num_to_save;
+        filenames = arrayfun(@(nf)(fullfile(fp,sprintf('%s_%d.sqw',fb,nf))), ...
+            file_id,'UniformOutput',false);
+        n_found = num_to_save;
+    else
+        filenames = varargin(is_fname);
+    end
+end
+if n_found ~= num_to_save
+    error('HORACE:sqw:invalid_argument', ...
+        'More then one input (%s) can be interpreted as filename', ...
+        disp2str(filenames));
 end
