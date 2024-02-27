@@ -20,6 +20,7 @@ classdef test_hdf_pix_group < TestCase
             else
                 obj.skip_tests = false;
             end
+        end
         function close_fid(obj,fid,file_h,group_id)
             H5G.close(group_id);
             if ~isempty(file_h)
@@ -33,7 +34,7 @@ classdef test_hdf_pix_group < TestCase
 
         function test_read_write(obj)
             if obj.skip_tests
-               skipTest(' The test is currently disabled for high matlab versions #809' )
+                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
             f_name = [tempname,'.nxsqw'];
             clob2 = onCleanup(@()delete(f_name));
@@ -102,9 +103,9 @@ classdef test_hdf_pix_group < TestCase
         %
         function test_missing_file(obj)
             if obj.skip_tests
-               skipTest(' The test is currently disabled for high matlab versions #809' )
+                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
-            
+
             f_name = [tempname,'.nxsqw'];
 
 
@@ -118,9 +119,9 @@ classdef test_hdf_pix_group < TestCase
         %
         function test_multiblock_read(obj)
             if obj.skip_tests
-               skipTest(' The test is currently disabled for high matlab versions #809' )
+                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
-            
+
             f_name = [tempname,'.nxsqw'];
 
             clob2 = onCleanup(@()delete(f_name));
@@ -171,9 +172,9 @@ classdef test_hdf_pix_group < TestCase
         %
         function  test_mex_reader(obj)
             if obj.skip_tests
-               skipTest(' The test is currently disabled for high matlab versions #809' )
+                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
-            
+
             if isempty(which('hdf_mex_reader'))
                 skipTest('The hdf mex reader was not found in the Matlab path.');
             end
@@ -344,7 +345,7 @@ classdef test_hdf_pix_group < TestCase
         %
         function  test_matlab_multiblock_reader(obj)
             if obj.skip_tests
-               skipTest(' The test is currently disabled for high matlab versions #809' )
+                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
 
             f_name = [tempname,'.nxsqw'];
@@ -513,9 +514,9 @@ classdef test_hdf_pix_group < TestCase
 
         function test_pix_ranges(obj)
             if obj.skip_tests
-               skipTest(' The test is currently disabled for high matlab versions #809' )
+                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
-            
+
             f_name = [tempname,'.nxsqw'];
 
             clob2 = onCleanup(@()delete(f_name));
