@@ -87,7 +87,8 @@ pipeline {
 
   environment {
     MATLAB_VERSION = utilities.get_param('MATLAB_VERSION', pli.matlab_release)
-    CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', '3.19')
+    MATLAB_MODULE = utilities.get_param('MATLAB_VERSION', pli.matlab_release.minus('R'))
+    CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', 'latest')
     GCC_VERSION = utilities.get_param('GCC_VERSION', '6.3.0')
     VS_VERSION = utilities.get_param('VS_VERSION', "${env.AGENT == 'icdpacewin' ? '2019' : '2017'}")
     CPPCHECK_VERSION = utilities.get_param('CPPCHECK_VERSION', '1.77')
@@ -155,7 +156,7 @@ pipeline {
             if (isUnix()) {
               sh """
                 module load cmake/\$CMAKE_VERSION &&
-                module load matlab/\$MATLAB_VERSION &&
+                module load matlab/\$MATLAB_MODULE &&
                 module load gcc/\$GCC_VERSION &&
                 ./tools/bash/clone_herbert_branch.sh\
                   --branch ${herbert_ref}\
@@ -202,7 +203,7 @@ pipeline {
               module load python/3.6 &&
               export PATH=${PATH}:~/.local/bin &&
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
               ./tools/build_config/build.sh \
@@ -228,7 +229,7 @@ pipeline {
           if (isUnix()) {
             sh '''
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
               ./tools/build_config/build.sh --analyze
@@ -254,7 +255,7 @@ pipeline {
           if (isUnix()) {
             sh '''
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               ./tools/build_config/build.sh --build
              '''
@@ -312,7 +313,7 @@ pipeline {
           if (isUnix()) {
             sh '''
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               ./tools/build_config/build.sh --test
             '''
