@@ -345,7 +345,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             elseif isempty(val) && obj.experiment_info_.detector_arrays.n_runs > 0
                 ; % pass, do nothing, info already in experiment_info
             else
-                error('HORACE:sqw-set.detpar:invalid_argument','incorrect type');
+                error('HORACE:sqw_set_detpar:invalid_argument','incorrect type');
             end
         end
         %
