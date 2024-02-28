@@ -347,7 +347,7 @@ you define, even if they are not orthogonal in the crystal lattice basis.
    treating non-orthogonal bases this way.
 
 Figure below shows the difference between options ``nonorthogonal`` ``false`` and ``true`` for plotting
-"Bragg" reflections in a reciprocal lattice ``alatt=[2,2,4]``, ``andgeg=[90,90,70]`` where the 
+"Bragg" reflections from a lattice ``alatt=[2,2,4]``, ``andgeg=[90,90,70]`` where the 
 reflections occur in the :math:`(r.l.u.)` points where ``hkl`` coordinates are integers.
 These images are produced by  the demo-code:
 
