@@ -27,5 +27,3 @@ wout = copy(win);
 for n = 1:numel(win)
     wout(n).data = win(n).data.compact();
 end
-
-end

@@ -42,8 +42,6 @@ classdef test_line_proj_transf_nonorth<TestCase
         end
 
         function test_getset_nonortho_proj_ppp_100(~)
-            % this test does not work. Should it? With current
-            % nonorthogonal lattice definition, such recovery is impossible
 
             prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
@@ -75,9 +73,7 @@ classdef test_line_proj_transf_nonorth<TestCase
 
 
         function test_getset_nonortho_proj_rrr_100(~)
-            % this test does not work. Should it? With current
-            % nonorthogonal lattice definition, such recovery is impossible
-
+ 
             prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','rrr','u',[1,0,0],'v',[0,1,0],'w',[1,1,1]);

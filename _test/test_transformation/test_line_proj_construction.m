@@ -50,7 +50,7 @@ classdef test_line_proj_construction<TestCase
             assertEqual(proj.v,[0,1,0]);
             assertEqual(proj.w,[0,0,1]);
             assertEqual(proj.alatt,[2,3,4]);
-            assertEqual(proj.angdeg,[90,90,90]);
+            assertTrue(isempty(proj.angdeg));
             assertEqual(proj.type,'aaa');
             assertEqual(proj.nonorthogonal,true);
         end
@@ -62,7 +62,7 @@ classdef test_line_proj_construction<TestCase
             assertEqual(proj.v,[0,1,0]);
             assertEqual(proj.w,[0,0,1]);
             assertEqual(proj.alatt,[2,3,4]);
-            assertEqual(proj.angdeg,[90,90,90]);
+            assertTrue(isempty(proj.angdeg));
             assertEqual(proj.type,'aaa');
         end
 
