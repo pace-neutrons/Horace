@@ -373,7 +373,8 @@ These images are produced by  the demo-code:
    end
 
 which plots 2D function exponentially decaying from points where ``h,k,l`` coordinates are integers.
-Note that ``line_proj`` here is build using positional form of constructor.
+Note that ``line_proj`` here is build using positional form of constructor and because we are building
+fake sqw object, the projection needs the lattice to be defined.
  
  .. figure:: ../images/orthogonal_vs_nonorthogonal_proj.png
    :align: center
@@ -401,7 +402,8 @@ as viewed from sample position, one needs to make cut along [0,1,0],[0,0,1] dire
     w2    = cut(data_source,proj,[-4.5,0.1,14.5],[-5,0.1,5],[-0.1,0.1],[-10,10]);
     plot(w2);
 
-The code produces: 
+Note that you do not need to provide lattice for projection as ``cut`` will take lattice parameters 
+from the ``sqw`` object to cut. The code produces: 
 
 .. figure:: ../images/iv_hkl.png 
    :align: center
