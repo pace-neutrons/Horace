@@ -14,6 +14,32 @@ classdef test_line_proj_transf_nonorth<TestCase
             end
             this=this@TestCase(name);
         end
+        function w = hkl_bragg(~,h,k,l,e,p)
+            grid_h = round(h);
+            grid_k = round(k);
+            grid_l = round(l);
+            w = p(1)*exp(-((h-grid_h).^2+(k-grid_k).^2+(l-grid_l).^2)/p(2));
+        end
+        function test_nonortho_cut_image(obj)
+            proj = line_proj([1,0,0],[0,1,0],[],false,'rrr',[2,2,4],[90,90,70]);
+            ax   = line_axes('nbins_all_dims',[200,200,1,1],'img_range',[-4,-3,-0.1,-5;4,3,0.1,5]);
+            tsqw = sqw.generate_cube_sqw(ax,proj);
+            tsqw = sqw_eval(tsqw,@(h,k,l,e,p)(hkl_bragg(obj,h,k,l,e,p)),[1,0.01]);
+
+            % Ugly comparison of image
+            bp1 = [-3.3,-2.0]; % location of the first "bragg" peak not on the edge
+            ij_pos = round((bp1-[-4,-3]).*[200,200]./[8,6])+1;
+            assertTrue(tsqw.data.s(ij_pos(1),ij_pos(2))>0.5)
+
+            proj_n = line_proj([1,0,0],[0,1,0],[],true,'rrr',[2,2,4],[90,90,70]);
+            tso  = sqw.generate_cube_sqw(ax,proj_n);
+            tso = sqw_eval(tso,@(h,k,l,e,p)(hkl_bragg(obj,h,k,l,e,p)),[1,0.01]);
+
+            % Ugly comparison of image
+            bp1 = [-3.,-2.0]; % location of the first "bragg" peak not on the edge
+            ij_pos = round((bp1-[-4,-3]).*[200,200]./[8,6])+1;
+            assertTrue(tso.data.s(ij_pos(1),ij_pos(2))>0.5)
+        end
 
         function test_getset_nonortho_proj_ppp_100(~)
             % this test does not work. Should it? With current
@@ -43,7 +69,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % and the matrices are correct!
             assertTrue(prj_or.nonorthogonal);
             assertTrue(prj_rec.nonorthogonal);
-  
+
             assertEqualToTol(prj_or,prj_rec,1.e-9);
         end
 
@@ -78,7 +104,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertTrue(prj_rec.nonorthogonal);
 
 
-            assertEqualToTol(prj_or,prj_rec,1.e-9);            
+            assertEqualToTol(prj_or,prj_rec,1.e-9);
         end
         %
         function test_getset_nonortho_proj_ppp_110(~)
