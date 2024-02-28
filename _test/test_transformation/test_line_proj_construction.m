@@ -434,5 +434,16 @@ classdef test_line_proj_construction<TestCase
             tpixr = projr.transform_pix_to_img(pix_cc);
             assertElementsAlmostEqual(tpixo,tpixr);
         end
+
+        function test_default_param_constructor(~)
+            param_list = {'u','v','w','nonorthogonal','type','alatt','angdeg',...
+                           'offset','label','title'};
+            param_values = {[1,0,0],[0,1,0],[0,0,1],true,'aaa',[1,2,3],...
+                [80,70,120],[1,0,0,1],{'xx','yy','zz','ee'},'Some custom title'};
+            lp = line_proj(param_values{:});
+            for i=1:numel(param_list)
+                assertEqual(lp.(param_list{i}),param_values{i});
+            end
+        end
     end
 end
