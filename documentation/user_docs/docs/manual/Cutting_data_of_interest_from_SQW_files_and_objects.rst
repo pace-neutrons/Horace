@@ -347,7 +347,7 @@ you define, even if they are not orthogonal in the crystal lattice basis.
    treating non-orthogonal bases this way.
 
 Figure below shows the difference between options ``nonorthogonal`` ``false`` and ``true`` for plotting
-"Bragg" reflections in a reciprocal lattice ``alatt=[2,2,4]``, ``andgeg=[90,90,75]`` where the 
+"Bragg" reflections in a reciprocal lattice ``alatt=[2,2,4]``, ``andgeg=[90,90,70]`` where the 
 reflections occur in the :math:`(r.l.u.)` points where ``hkl`` coordinates are integers.
 These images are produced by  the demo-code:
 
@@ -360,15 +360,15 @@ These images are produced by  the demo-code:
         w = p(1)*exp(-((h-grid_h).^2+(k-grid_k).^2+(l-grid_l).^2)/p(2));  
    end
    function plot_cuts()
-        proj = line_proj([1,0,0],[0,1,0],[],false,'rrr',[2,2,4],[90,90,45]);
+        proj = line_proj([1,0,0],[0,1,0],[],false,'rrr',[2,2,4],[90,90,70]);
         ax   = line_axes('nbins_all_dims',[200,200,1,1],'img_range',[-4,-3,-0.1,-5;4,3,0.1,5]);
         tsqw = sqw.generate_cube_sqw(ax,proj);
         tsqw = sqw_eval(tsqw,@reflection,[1,0.01]);
         plot(tsqw)
         keep_figure
-        proj = line_proj([1,0,0],[0,1,0],[],true,'rrr',[2,2,4],[90,90,45]);
+        proj = line_proj([1,0,0],[0,1,0],[],true,'rrr',[2,2,4],[90,90,70]);
         tso  = sqw.generate_cube_sqw(ax,proj);
-        tso  = sqw_eval(tso,@(h,k,l,e,p)(hkl_bragg(obj,h,k,l,e,p)),[1,0.01]);
+        tso  = sqw_eval(tso,@reflection,[1,0.01]);
         plot(tso)        
    end
 
