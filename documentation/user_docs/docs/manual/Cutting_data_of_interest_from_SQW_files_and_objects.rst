@@ -639,23 +639,18 @@ projection or binning widths from the original.
 
 The parameters of section are as follows:
 
-* ``w``
+* ``w``       --  ``sqw`` object(s) to be sectioned as an array of 1 or more elements.
 
-  ``sqw`` object(s) to be sectioned as an array (of 1 or more elements)
+* ``pN_bin``  --  Range of bins specified as bin edges to extract from ``w``.
 
-* ``pN_bin``
+There are three valid forms for any ``pN_bin``:
 
-  Range of bins specified as bin edges to extract from ``w``.
+  * ``[]``, ``[0]``  -- Use entire original binning axis.                        
 
-  There are three valid forms for any ``pN_bin``:
-
-  * ``[]``, ``[0]``
-
-    Use entire original binning axis.
-
-  * ``[lo, hi]``
-
-    Range containing bin centres to extract from ``w``
+  * ``[lo, hi]``     -- take section of original axis which lies between ``low`` and ``hi`` values.
+                         The range of the resulting image in this case is the range 
+                         between left edge of image bin containing ``low``  value 
+                         and right edge of bin containing ``hi`` value.
 
 
 .. note::
@@ -666,7 +661,7 @@ The parameters of section are as follows:
 .. note::
 
    These parameters are specified by inclusive edge limits. Any ranges beyond
-   the the ``sqw`` object's ``img_range`` will be reduced to only capture extant
+   the the ``sqw`` object's ``img_range`` will be reduced to only capture existing
    bins.
 
 .. warning::
@@ -686,5 +681,5 @@ In order to extract bins whose centres lie in the range ``[-5 5]`` from a 4-D
 
 .. code-block:: matlab
 
-   w2 = section(w1, [-5 5], [], [], [])
+   w4_red = section(w4, [-5 5], [], [], [])
 
