@@ -118,10 +118,6 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             % And now fit
             [wfit_1, fitpar_1] = mss.fit();
-            disp('*** FITPAR1:');
-            disp(fitpar_1);
-            disp('*** FITPAR1.corr:');            
-            disp(fitpar_1.corr);            
 
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths
