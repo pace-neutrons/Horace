@@ -2,7 +2,9 @@ function obj = sqw_eval_pix(obj, sqwfunc, ave_pix, pars, outfile)
 %==================================================================================================
 % SQW_EVAL_PIX
 %
-% Helper function for sqw eval executed on a fill sqw object.
+% Helper function for sqw_eval executed on a full sqw object containing
+% pixels
+%
 % Called by `sqw_eval` defined in sqw/DnDBase
 %
 % Input:
@@ -13,7 +15,7 @@ function obj = sqw_eval_pix(obj, sqwfunc, ave_pix, pars, outfile)
 %   sqwfunc    Handle to function that calculates S(Q,w)
 %   ave_pix    Boolean flag wither to apply function to averaged bin data
 %   pars       Arguments needed by the function.
-%   outfile    The file used for outputing filebacked result
+%   outfile    The file used for outputting filebacked result
 %
 %==================================================================================================
 
@@ -22,6 +24,6 @@ eval_op = PageOp_sqw_eval();
 if ~isempty(outfile)
     eval_op.outfile = outfile;
 end
-[eval_op,obj] = eval_op.init(obj,sqwfunc,pars,ave_pix);
+eval_op = eval_op.init(obj,sqwfunc,pars,ave_pix);
 
-obj = obj.apply_c(eval_op);
+obj = sqw.apply_op(obj,eval_op);

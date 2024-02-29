@@ -283,11 +283,11 @@ classdef test_main_mex < TestCase
             profile on
             % test sorting parameters and matlab sorting
             t1=tic();
-            pix1 = sort_pix(pix0,ix0,npix,'-force_mex','-keep_type');
+            pix1 = sort_pix(pix0,ix0,npix,'-force_mex','-keep_precision');
             t2=toc(t1);
-            pix1 = sort_pix(pix,ix,npix,'-force_mex','-keep_type');
+            pix1 = sort_pix(pix,ix,npix,'-force_mex','-keep_precision');
             t3=toc(t2);
-            pix1 = sort_pix(pix0,ix0,npix,'-nomex','-keep_type');
+            pix1 = sort_pix(pix0,ix0,npix,'-nomex','-keep_precision');
             t4=toc(t3);
 
             profile off

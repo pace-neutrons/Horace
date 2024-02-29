@@ -595,6 +595,27 @@ classdef object_lookup < serializable
     
     
     %======================================================================
+    % Interface to test private functions
+    %======================================================================
+    % Private functions and methods are not accesible to testing without a
+    % public interface. Instead, these protected methods access private methods
+    % and functions which in turn can be called by a dummy class that
+    % inherits object_lookup. The dummy class can be placed in a test folder so
+    % is not accesible unless the test folder is placed on the Matlab path.
+    % Thereby users of object_lookup will not have access to these protected
+    % methods
+    
+    methods (Access=protected)
+        function [ind, ielmts, func, args, split] = test_parse_eval_method (~, varargin)
+            [ind, ielmts, func, args, split] = parse_eval_method (varargin{:});
+        end
+        
+        function split = test_parse_split (~, varargin)
+            split = parse_split (varargin{:});
+        end
+    end
+    
+    %======================================================================
     % SERIALIZABLE INTERFACE
     %======================================================================
     

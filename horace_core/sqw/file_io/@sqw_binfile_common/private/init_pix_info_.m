@@ -8,7 +8,7 @@ pix  = obj.sqw_holder_.pix;
 %
 pix_form = obj.get_pix_form();
 pos = obj.dnd_eof_pos_;
-if isa(pix,'pix_combine_info') % data contains not pixels themselves but input for
+if isa(pix,'MultipixBase') % data contains not pixels themselves but input for
     % combining pixels from multiple files together.
     pix_form = rmfield(pix_form,'pix_block');
     dat = obj.sqw_holder_.data;
@@ -19,7 +19,7 @@ if isa(pix,'pix_combine_info') % data contains not pixels themselves but input f
     [pix_info_pos,pos]=obj.sqw_serializer_.calculate_positions(pix_form,dat,pos);
     pix_info_pos.pix_block_pos_ = pos;
     npix = pix.num_pixels;
-    % Calculate the size of the combined pixels array from knowlege of the
+    % Calculate the size of the combined pixels array from knowledge of the
     % number of pixels in every file
     % start of npix pos + npix+ pix info size (single precision array of
     % 8 x npix)

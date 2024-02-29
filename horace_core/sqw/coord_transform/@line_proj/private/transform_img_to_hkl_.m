@@ -17,7 +17,7 @@ if ndim == 4
 else
     bmat = obj.bmatrix();
 end
-hkl_to_img = bmat*q_to_img;
+hkl_to_img = q_to_img*bmat;
 offset = bmat\offset_cc;
 %
 pix_hkl= (bsxfun(@plus,hkl_to_img\img_data,offset(:)));

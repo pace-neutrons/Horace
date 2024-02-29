@@ -34,7 +34,7 @@ classdef pix_metadata < serializable
                 return;
             end
             if nargin == 1
-                if isa(varargin{1},'PixelDataBase') || isa(varargin{1},'pix_combine_info')
+                if isa(varargin{1},'PixelDataBase') || isa(varargin{1},'MultipixBase')
                     inputs = varargin{1};
                     remains = {};
                     obj.npix          = inputs.num_pixels;

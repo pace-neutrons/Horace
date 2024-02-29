@@ -15,7 +15,7 @@ exper = Experiment();
 exper.do_check_combo_arg = false; % avoid checking combo arguments for this sqw. 
 % such sqw is invalid
 exper.expdata = heads;
-sq = sq.change_header(exper);
+sq.experiment_info = exper;
 
 
 function hd= gen_head(head,x)

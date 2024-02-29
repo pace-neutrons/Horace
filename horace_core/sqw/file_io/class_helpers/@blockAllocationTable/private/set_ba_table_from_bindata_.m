@@ -6,12 +6,12 @@ if ~isa(bindata,'uint8')
         'bat_table setter accepts only uint8 array of elements, containing serialized BlockAllocationTable. The input class is: %s',...
         class(bindata));
 end
-obj.bat_bin_size_ = numel(bindata);
-pos = 5;
+obj.bat_blocks_size_ = numel(bindata); % this is block list serialization
+pos = 5;                               % first 4 bytes -- number of blocks in BAT
 n_bl = typecast(bindata(1:4),'uint32');
 cl_table = cell(1,n_bl);
 ic = 1;
-while pos<obj.bat_bin_size_
+while pos<numel(bindata)
     [cl_table{ic},pos]= data_block.deserialize_bat_record(bindata,pos);
     ic = ic+1;
 end

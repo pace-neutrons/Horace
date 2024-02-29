@@ -12,7 +12,7 @@ function sqw_display_single(din,npixtot,nfiles,type)
 %   npixtot         total number of pixels if sqw type
 %   nfiles          number of contributing files
 %   type            data type: 'a' or 'b+'
-%                  
+%
 %   If the optional parameters are given, then only the header information
 %   part of data needs to be passed, namely the fields:
 %      uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,pix_range]
@@ -51,7 +51,10 @@ disp(' ')
 disp([' ',num2str(ndim),'-dimensional object:'])
 disp(' -------------------------')
 if isa(din,'sqw')
+    is_filebacked = din.pix.is_filebacked;
     din = din.data;
+else
+    is_filebacked  = [];
 end
 
 
@@ -84,14 +87,18 @@ if sqw_type || exist('nfiles','var') && isnumeric(nfiles)
     disp(' ')
 end
 
-[title_main, title_pax, title_iax, display_pax, display_iax] = din.data_plot_titles;
+[~, ~, ~, display_pax, display_iax] = din.data_plot_titles;
 if ndim~=0
     sz = din.nbins;
-    npchar = '[';
-    for i=1:ndim
-        npchar = [npchar,num2str(sz(din.dax(i))),'x'];   % size along each of the display axes
+    if ~isempty(sz)
+        npchar = '[';
+        for i=1:ndim
+            npchar = [npchar,num2str(sz(din.dax(i))),'x'];   % size along each of the display axes
+        end
+        npchar(end)=']';
+    else
+        npchar = '[ ]';
     end
-    npchar(end)=']';
     disp([' Size of ',num2str(ndim),'-dimensional dataset: ',npchar])
 end
 if ndim~=0
@@ -99,16 +106,23 @@ if ndim~=0
     for i=1:ndim
         disp(['         ',display_pax{i}])
     end
-    disp(' ')
+
 end
 if ndim~=4
     disp( '     Integration axes:')
     for i=1:4-ndim
         disp(['         ',display_iax{i}])
     end
-    disp(' ')
 end
-
+if  ~isempty(is_filebacked)
+    if is_filebacked
+        pixels_location = 'filebacked';
+    else
+        pixels_location = 'memory based';
+    end
+    fprintf(' Object is %s\n',pixels_location);
+end
+disp(' ')
 % Print warning if no data in the cut, if full cut has been passed
 if npixtot < 0.5   % in case so huge that can no longer hold integer with full precision
     fprintf(2,' WARNING: The dataset contains no counts\n')

@@ -29,12 +29,12 @@ function wout=multifit_func_eval(w,xye,func,bfunc,plist,bplist,...
 %   bplist      Array of valid parameter lists, one list per background function.
 %
 %   f_pass_caller_info  Keep internal state of foreground function evaluation e.g. seed of random
-%              number generator. Dictates the format of the fit fuction argument list.
+%              number generator. Dictates the format of the fit function argument list.
 %              Nothing is actually kept, however; it is just used to call the function
 %              with the correct syntax.
 %
 %   bf_pass_caller_info Keep internal state of background function evaluation e.g. seed of random
-%               number generator. Dictates the format of the fit fuction argument list.
+%               number generator. Dictates the format of the fit function argument list.
 %              Nothing is actually kept, however; it is just used to call the function
 %              with the correct syntax.
 %
@@ -59,8 +59,6 @@ function wout=multifit_func_eval(w,xye,func,bfunc,plist,bplist,...
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-
 
 % Determine what calculated signal to return
 fore=false; back=false; calc_sum=false;
@@ -86,7 +84,6 @@ fstate_store={[]};
 bfstate_store={[]};
 store_fore=[];
 store_back=[];
-
 % Foreground function calculations
 if eval_fore
     wfore=cell(size(w));
@@ -225,6 +222,11 @@ if fore
 elseif back
     wout = wback;
 else
+    % disable pixels sorting in binary operations as foreground and
+    % background were calculated on the same pixels.
+    hpcc = hpc_config;
+    hpcc.sort_pix_in_binary_op = false;
+
     wsum=cell(size(w));
     for i=1:numel(wsum)
         if xye(i)
@@ -242,6 +244,8 @@ else
         wout.fore = wfore;
         wout.back = wback;
     end
+    % return binary op to initial state
+    hpcc.sort_pix_in_binary_op = true;
 end
 
 

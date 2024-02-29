@@ -27,6 +27,6 @@ sample_properties('proj') = line_proj('alatt',4,'angdeg',90);
 sample_properties('dax') = 1:numel(box_size);
 
 dependent_properties = {'iint','iax','p','pax','img_range','nbins'};
-const_prop = {'border_size','creation_date','offset','img_offset'};
+const_prop = {'border_size','creation_date','offset','img_offset','is_filebacked'};
 % all except border_size are not constant but we do not care here. You can
 % not set them up from dnd object

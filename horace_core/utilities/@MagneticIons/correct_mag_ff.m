@@ -23,12 +23,8 @@ function wout=correct_mag_ff(self,win)
 % * Subsequent appliations of correct_mag_ff and apply_mag_ff should return
 %   initial dataset (within the round-off errors caused by division and then
 %   multiplication by the same (often large or small) numbers.
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
-
 
 %
 sqw_magFF = self.calc_mag_ff(win);
 %
-wout=mrdivide(win,sqw_magFF);
+wout=binary_op_manager(win,sqw_magFF,@mrdivide,true);

@@ -22,8 +22,8 @@ for i=1:obj.n_blocks
         obj.blocks_list_{i}.position + pos_shift;
 end
 % modify the positions of the free spaces on hdd
-for i=1:size(obj.free_space_pos_and_size_,2)
-    obj.free_space_pos_and_size_(1,i) = obj.free_space_pos_and_size_(1,i) + pos_shift;
+for i=1:size(obj.free_spaces_and_size_,2)
+    obj.free_spaces_and_size_(1,i) = obj.free_spaces_and_size_(1,i) + pos_shift;
 end
 
 

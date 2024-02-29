@@ -1,7 +1,7 @@
 function obj = recompute_bin_data(obj,out_file)
 % Given sqw_type object, recompute w.data.s and w.data.e from the contents
 % of pix array.
-% In addition, recaclulates pixels data_range and applies alignment to pixels if
+% In addition, recalculates pixels data_range and applies alignment to pixels if
 % initial pixels are misaligned.
 %
 %
@@ -32,10 +32,10 @@ if nargin > 1
     pix_op.outfile = out_file;
 end
 
-[pix_op,obj] = pix_op.init(obj);
+pix_op = pix_op.init(obj);
 % Re #1319 -- to be implemented
 % if ~obj.pix.is_misaligned
 %     pix_op.inplace = true;
 % end
 
-obj    = obj.apply_c(pix_op);
+obj    = sqw.apply_op(obj,pix_op);

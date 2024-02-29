@@ -1,8 +1,8 @@
-#!/usr/bin/python
-#
+#!/usr/bin/env python3
 import multiprocessing
 import time
 import sys
+import os
 import argparse
 #Read file using multiple threads to place file into CEPH cache.
 
@@ -82,22 +82,20 @@ def read_chunk(filename,start,size,buf_size,progress,n_workers):
     if progress:
         prog_rep = progress_rep(size,n_workers)
         
-    fh = open(filename,'rb')
-    if fh<0:
-        raise ValueError("Can not open file: "+filename)
+    fh = open(filename,'rb',buffering=0)
     fh.seek(start,0)
     block = buf_size
     got   = 0
-    with open(filename, "rb") as f:
+    with fh as f:
         while got < size:
-            bl = fh.read(block)
-            got = got+block
+            bl = f.read(block)
+            got += block
             if got+block> size:
                 block = size-got
             if progress:
                 prog_rep.check_progress(got)
     if progress:
-       print ""
+       print("")
     success=True
     return success
 
@@ -116,13 +114,9 @@ def process_file(argi):
     buf_size = argi['buffer']
 
     # Estimate the file size
-    fh = open(filename,'rb')
-    if fh<0:
-        raise ValueError("Can not open file: "+filename)
-    fh.seek(0,2);
-    file_size = fh.tell()
-    #print 'File size=',nbytes
-    fh.close()
+    file_size = os.path.getsize(filename)
+    print ('File size={0:.0f}GB'.format(file_size/(1024*1024*1024)))
+
 
     # Evaluate the parameters of the file reading jobs.
     block_size = int(file_size/n_threads)+1
@@ -132,10 +126,10 @@ def process_file(argi):
     end_ch   = block_size
     if buf_size == 0:
         buf_size = block_size
-    if buf_size > sys.maxint/1024:
-        buf_size = sys.maxint/1024
+    if buf_size > sys.maxsize//1024:
+        buf_size = sys.maxsize//1024
 
-    for i in xrange(0,n_threads):
+    for i in range(0,n_threads):
         if end_ch > file_size:
             block_size = file_size-start_ch
         chunk_size.append(block_size)
@@ -146,7 +140,7 @@ def process_file(argi):
     # Start parallel jobs:
     job_list = [];
     #read_chunk(filename,chunk_beg[0],chunk_size[0],buf_size,True,n_threads)
-    for nthr in xrange(n_threads):
+    for nthr in range(n_threads):
         if nthr == 0:
             log=True
         else:
@@ -162,10 +156,11 @@ def process_file(argi):
 if __name__ == '__main__':
     """Read file using multiple threads to place file into CEPH cache"""
 
-    parser = argparse.ArgumentParser(add_help=True, version='0.1',description='Read file using multiple threads to place file into CEPH cache')
-    parser.add_argument('filename',action='store', type=str,default="",help='file to read to cache')
-    parser.add_argument('-n',action='store', dest='nthreads',type=int,default=16,help='number of threads to process file. Default is 16 threads')
-    parser.add_argument('-b',action='store', dest='buffer',type=int,default=4096,help='Buffer size to read each chunk of data. Default is 4096 bytes.')
+    parser = argparse.ArgumentParser(add_help=True,description='Read file using multiple threads to place file into CEPH cache')
+    parser.add_argument('filename',action='store', type=str,default="",help='file to read for caching in CEPHS')
+    parser.add_argument('--nthreads','-n',action='store', dest='nthreads',type=int,default=16,help='number of threads to process file. Default is 16 threads')
+    parser.add_argument('--buffer','-b',action='store', dest='buffer',type=int,default=4096,help='Buffer size to read each chunk of data. Default is 4096 bytes.')
+    parser.add_argument('-version',action = 'version',version = '0.1')
 
     args = vars(parser.parse_args())
     process_file(args)

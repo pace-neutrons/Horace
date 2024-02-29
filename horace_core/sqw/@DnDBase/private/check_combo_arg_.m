@@ -8,7 +8,7 @@ function obj = check_combo_arg_(obj,varargin)
 % 'no_proj_copy' -- if this parameter is present (any additional parameter
 %                    is present), copying parameters from projection to
 %                    axes does not happen
-%               
+%
 % ------------------------
 
 if obj.NUM_DIMS ~= obj.axes_.dimensions
@@ -36,7 +36,12 @@ if any(sz ~= size(obj.npix_))
         'size of npix array: [%s] different from sizes of signal and error array: [%s]', ...
         num2str(sz),num2str(size(obj.npix_)))
 end
-
+if numel(sz) ~= numel(obj.axes.dims_as_ssize)
+    error('HORACE:DnDBase:invalid_argument', ...
+        ['Number of elements in data arrays (size=[%s]) different from the ' ...
+        'number of elements of the grid, defined by axes: (size =[%s])'], ...
+        num2str(sz),num2str(obj.axes.dims_as_ssize) )
+end
 if any(sz ~=obj.axes.dims_as_ssize)
     error('HORACE:DnDBase:invalid_argument', ...
         'size of data arrays: [%s] different from the size of the grid, defined by axes: [%s]', ...

@@ -129,7 +129,7 @@ classdef test_func_eval < TestCase & common_state_holder
         function test_func_eval_on_array_of_sqw_objs_with_cell_arr_of_outfiles(obj)
             sqws_in = [obj.sqw_2d_obj_fb, obj.sqw_2d_obj_fb];
             outfiles = {gen_tmp_file_path('1'), gen_tmp_file_path('2')};
-            tmp_file_cleanup = onCleanup(@() cellfun(@(x) file_delete(x), outfiles));
+            tmp_file_cleanup = onCleanup(@() cellfun(@(x) del_memmapfile_files(x), outfiles));
 
             sqws_out = func_eval(sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfiles);
 
@@ -145,6 +145,7 @@ classdef test_func_eval < TestCase & common_state_holder
 
                 obj.validate_func_eval_sqw_output(obj.sqw_2d_obj_fb, sqws_out(i));
             end
+            clear sqws_out
         end
 
         function test_applying_func_eval_to_an_sqw_file_returns_correct_sqw_data(obj)
@@ -168,7 +169,7 @@ classdef test_func_eval < TestCase & common_state_holder
                 'outfile', outfile ...
                 );
 
-            tmp_file_cleanup = onCleanup(@() clean_up_file(outfile));
+            tmp_file_cleanup = onCleanup(@() del_memmapfile_files(outfile));
 
             assertEqual(sqw_out.pix.full_filename, outfile)
             assertTrue(is_file(outfile));
@@ -240,6 +241,7 @@ classdef test_func_eval < TestCase & common_state_holder
             config_cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', mem_chunk_size);
 
             sqw_out = func_eval(obj.sqw_2d_obj_fb, obj.quadratic, obj.quadratic_params);
+            out_file = sqw_out.full_filename;
 
             assertTrue(sqw_out.pix.is_filebacked)
 
@@ -249,6 +251,8 @@ classdef test_func_eval < TestCase & common_state_holder
                 'relative', obj.FLOAT_TOL ...
                 );
             obj.validate_func_eval_sqw_output(obj.sqw_2d_obj_fb, sqw_out);
+            clear sqw_out
+            assertFalse(is_file(out_file));
         end
 
         %% DnD tests

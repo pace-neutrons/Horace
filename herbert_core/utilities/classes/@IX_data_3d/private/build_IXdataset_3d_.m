@@ -40,8 +40,9 @@ if nargin==2 && isa(varargin{1},'IX_dataset_3d')  % if already IX_dataset_3d obj
     obj=varargin{1};
     return
 end
+obj.do_check_combo_arg_ = false;
 if  isstruct(varargin{1})   % structure input
-    obj = obj.init_from_structure(in);
+    obj = obj.loadobj(in);
 elseif nargin>=4 && nargin<=6
     obj.xyz_{1} = obj.check_xyz(varargin{1});
     obj.xyz_{2} = obj.check_xyz(varargin{2});
@@ -63,7 +64,7 @@ elseif nargin ==9
     obj.xyz_{2}        =  obj.check_xyz(varargin{3});
     obj = check_and_set_sig_err_(obj,'signal',varargin{4});
     obj = check_and_set_sig_err_(obj,'error',varargin{5});
-    
+
     obj.xyz_distribution_(1)= logical(varargin{6});
     obj.xyz_distribution_(2)= logical(varargin{7});
     obj.xyz_distribution_(3)= logical(varargin{8});
@@ -71,50 +72,43 @@ elseif nargin==11 || (nargin==14 && isnumeric(varargin{1}))
     obj.xyz_{1} = obj.check_xyz(varargin{1});
     obj.xyz_{2} = obj.check_xyz(varargin{2});
     obj.xyz_{3} = obj.check_xyz(varargin{3});
-    
+
     obj.title=varargin{6};
     obj.x_axis=varargin{7};
     obj.y_axis=varargin{8};
     obj.z_axis=varargin{9};
     obj.s_axis=varargin{10};
-    
+
     obj = check_and_set_sig_err(obj,'signal',varargin{4});
     obj = check_and_set_sig_err(obj,'error',varargin{5});
-    
+
     if nargin==14
         obj.xyz_distribution_ = ...
             [logical(varargin{11});logical(varargin{12});logical(varargin{13})];
     else
         obj.xyz_distribution_=true(3,1);
     end
-    
+
 elseif nargin==14
     obj.title=varargin{1};
-    
+
     obj.xyz_{1} = obj.check_xyz(varargin{5});
     obj.xyz_{2} = obj.check_xyz(varargin{8});
     obj.xyz_{3} = obj.check_xyz(varargin{11});
-    
+
     obj.s_axis=varargin{4};
     obj.x_axis=varargin{6};
     obj.y_axis=varargin{9};
     obj.z_axis=varargin{12};
-    
-    
+
+
     obj = check_and_set_sig_err(obj,'signal',varargin{2});
     obj = check_and_set_sig_err(obj,'error',varargin{3});
     obj.xyz_distribution_ = ...
         [logical(varargin{7});logical(varargin{10});logical(varargin{13})];
 else
-    error('IX_data_3d:invalid_argument',...
-        'Check number and type of arguments')
+    error('HERBERT:IX_data_3d:invalid_argument',...
+        'Incorrect number and type of arguments')
 end
-
-[ok,mess]=check_joint_fields_(obj);
-if ok
-    obj.valid_  = true;
-else
-    error('IX_dataset_3d:invalid_argument',mess);
-end
-
-
+obj.do_check_combo_arg_ = true;
+obj = check_combo_arg (obj);

@@ -30,9 +30,10 @@ field_names = saveableFields (obj(1));
 % Recursively turn serializable fields into structures
 cell_dat = cell (numel(field_names), numel(obj));
 for j = 1:numel(obj)
+    obj_tmp = obj(j);   % get pointer to jth object to save expensive indexing
     for i = 1:numel(field_names)
         field_name = field_names{i};
-        val = obj(j).(field_name);
+        val = obj_tmp.(field_name);
         if isa(val,'serializable')
             % Recursively convert serializable objects to a structure
             % Serializer will handle non-serializable objects by its own

@@ -36,12 +36,9 @@ if ~isfield(S,'version') || S.version<4
         if isfield(ss,'experiment_info') && isstruct(ss.experiment_info)
             ss.experiment_info = Experiment.loadobj(ss.experiment_info);
         end
-        if isfield(ss,'detpar') && ~isempty(ss.detpar)
-            detector = IX_detector_array(ss.detpar);
-            ss.experiment_info.detector_arrays = ...
-                ss.experiment_info.detector_arrays.add_copies_(detector, ...
-                                                               ss.experiment_info.n_runs);
-        end
+        % the detpar value will be put in further down in from_bare_struct.
+        % NB reminder that this will require experiment_info having an empty 
+        % detector_arrays rather than being preconstructed
         if isfield(ss,'data_')
             ss.data = ss.data_;
             ss = rmfield(ss,'data_');

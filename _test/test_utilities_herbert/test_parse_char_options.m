@@ -19,7 +19,7 @@ classdef test_parse_char_options< TestCase
            arguments = {'aaa','bbb','-opt1','ccc','-dddd'};
            [ok,mess,true1,false2]=parse_char_options(arguments,opt);
            assertTrue(~ok);
-           assertTrue(strcmp('Invalid input key: ''aaa''',mess));
+           assertTrue(strcmp('Invalid input key: "aaa"',mess));
 
            [ok,mess,true1,false2,left]=parse_char_options(arguments,opt);
            assertTrue(ok);

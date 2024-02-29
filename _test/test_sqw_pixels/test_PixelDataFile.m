@@ -14,6 +14,54 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
             obj.sample_dir = pths.test_common;
             obj.sample_file  = fullfile(obj.sample_dir,'w2d_qe_sqw.sqw');
         end
+        function test_activate_deactivate_new_place(~)
+            test_data = rand(9,100);
+            pix = PixelDataFileBacked(test_data);
+            pix.keep_precision = true;
+            test_file = pix.full_filename;
+
+            pix = pix.deactivate();
+            assertTrue(is_file(test_file))
+            assertTrue(isempty(pix.u1));
+
+            other_file = fullfile(tmp_dir,'testPixelDataFile_activate.bin');
+            movefile(test_file,other_file,'f');
+            pix = pix.activate(other_file);
+            assertEqual(single(test_data),pix.data);
+            assertFalse(pix.is_tmp_obj);
+            assertEqual(pix.full_filename,other_file);
+
+            pix = pix.deactivate();
+            assertTrue(isempty(pix.u2));
+
+            test_file  = other_file;
+            other_file = build_tmp_file_name(test_file);
+            movefile(test_file,other_file,'f');
+            pix = pix.activate(other_file);
+
+            assertEqual(single(test_data),pix.data);
+            assertTrue(pix.is_tmp_obj);
+            clear pix;
+            assertFalse(is_file(other_file));
+        end
+        function test_activate_deactivate_itself(~)
+            test_data = rand(9,100);
+            pix = PixelDataFileBacked(test_data);
+            pix.keep_precision = true;            
+            test_file = pix.full_filename;
+
+            pix = pix.deactivate();
+            assertTrue(is_file(test_file))
+            assertTrue(isempty(pix.u1));
+
+            pix = pix.activate();
+
+            assertEqual(single(test_data),pix.data);
+            assertTrue(pix.is_tmp_obj);
+            clear pix;
+            assertFalse(is_file(test_file));
+        end
+        
 
         function test_get_raw_pix(obj)
             clOb = set_temporary_warning('off','HORACE:old_file_format');

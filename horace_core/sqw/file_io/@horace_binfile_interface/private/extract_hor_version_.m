@@ -19,6 +19,10 @@ mess = [];
 
 n = typecast(data_stream(1:4),'int32');
 if n>0 && n<1024   % allow up to 1024 characters in filename if bytes are from
+    if numel(data_stream)<4+n
+        mess='is not recognized as Horace binary file';
+        return;        
+    end
     % Horace version 0;
     name = char(data_stream(4+1:4+n))'; % for modern Hor versions it will be 'Horace'
     % Need to try to catch case of e.g. text file where n is read as a stupidly high number

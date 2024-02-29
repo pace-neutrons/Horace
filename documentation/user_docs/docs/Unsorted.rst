@@ -6,12 +6,11 @@ and may not be needed in the new documentation.
 
 .. toctree::
 
+   manual/Advanced_Multifit
    manual/Changing_object_type
-   manual/Developer_information
-   manual/Horace_command_line
-   manual/Read_or_write_to_disk
-   manual/Remote_data_analysis
-   manual/Run_inspector
+
+
+.. Referenced in User_guide
    manual/Script_for_correcting_sample_misalignment
    manual/Script_for_data_treatment
    manual/Script_for_fitting
@@ -20,5 +19,5 @@ and may not be needed in the new documentation.
    manual/Script_for_making_publication_quality_figures
    manual/Script_for_making_simulations
    manual/Script_for_planning_an_experiment
-   manual/s_new
+   user_guide/Example_scripts
    new_page

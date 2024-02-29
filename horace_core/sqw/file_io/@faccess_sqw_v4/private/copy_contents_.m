@@ -52,10 +52,10 @@ obj.num_contrib_files_ = sqw_obj.main_header.nfiles;
 
 if upgrade_range
     % clear disk location of all data blocks except the locked
-    obj.bat_ = obj.bat_.clear();
+    obj.bat_ = obj.bat_.clear_unlocked_blocks();
 end
 % as pix data block position already allocated,
-obj.bat_ = obj.bat_.init_obj_info(sqw_obj,'-insert');
+obj.bat_ = obj.bat_.place_undocked_blocks(sqw_obj,true);
 
 obj.sqw_holder_ = sqw_obj;
 missinig_fields = 'data_in_memory_write_result';

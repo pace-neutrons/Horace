@@ -67,28 +67,29 @@ end
 % -----------------------
 if ~(opts.head||opts.his)
     detpar = obj.get_detpar();
-    if (~isempty(detpar)                             && ...
-        IX_detector_array.check_detpar_parms(detpar)    ...
-       )
-        detector = IX_detector_array(detpar);
-        det_arrays = exp_info.detector_arrays;
-        if exp_info.detector_arrays.n_runs == 0       
-            %for i=1:exp_info.n_runs
+    if ~isempty(detpar)
+        if  isstruct(detpar) && IX_detector_array.check_detpar_parms(detpar)
+	        detector = IX_detector_array(detpar);
+	        det_arrays = exp_info.detector_arrays;
+        	if exp_info.detector_arrays.n_runs == 0       
                 det_arrays = det_arrays.add_copies_(detector, exp_info.n_runs);
-            %end
-            exp_info.detector_arrays = det_arrays;
-        elseif exp_info.detector_arrays.n_runs == exp_info.n_runs
-            %for i=1:exp_info.n_runs
+                exp_info.detector_arrays = det_arrays;
+
+            elseif exp_info.detector_arrays.n_runs == exp_info.n_runs
                 exp_info.detector_arrays = exp_info.detector_arrays.replace_all(detector);
-            %end
+            else
+	            error('HORACE:get_sqw:invalid_data', ...
+	                  ['the detector arrays input with exp_info are neither zero length',...
+	                   'nor as long as the number of runs in exp_info.\n', ...
+	                   'the formation of exp_info upstream may be faulty.']);
+        	end
         else
             error('HORACE:get_sqw:invalid_data', ...
-                  ['the detector arrays input with exp_info are neither zero length',...
-                   'nor as long as the number of runs in exp_info.\n', ...
-                   'the formation of exp_info upstream may be faulty.']);
+                  'detpar input is not a struct as per this file format');
         end
-    end
-    sqw_struc.detpar = detpar;
+   else
+        ; % there was no detpar info in the file; currently do nothing, not an error state
+   end
 end
 
 % Get data

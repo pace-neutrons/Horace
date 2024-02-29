@@ -1,4 +1,4 @@
-classdef PixelDataMemory < PixelDataBase
+classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < PixelDataBase
     % PixelDataMemory Provides an interface for access to memory-backed pixel data
     %
     %   This class provides getters and setters for each data column in an SQW
@@ -54,11 +54,6 @@ classdef PixelDataMemory < PixelDataBase
     %======================================================================
     % Implementing abstract PixelDataBase interface
     methods
-        pix_out     = append(obj, pix);
-        % apply function represented by handle to every pixel of the dataset
-        % and calculate appropriate averages if requested
-        [obj, data] = apply(obj, func_handle, args, data, compute_variance);
-
         %
         function data =  get_raw_data(obj,field_id)
             % main part of get.data accessor
@@ -70,9 +65,6 @@ classdef PixelDataMemory < PixelDataBase
             end
         end
         pix     = set_raw_data(obj,pix);
-
-        pix_out = do_binary_op(obj, operand, binary_op, varargin);
-        [pix_out, data] = do_unary_op(obj, unary_op, data);
     end
 
     methods
@@ -112,15 +104,29 @@ classdef PixelDataMemory < PixelDataBase
         end
     end
     %======================================================================
-    % File handling/migration. Does nothing on membased
+    % File handling/migration. Does nothing on membased except dump_data
+    % which resets raw data with input.
     methods
-        function obj = prepare_dump(obj)
-            % does nothing on Mem-based
+        function obj = deactivate(obj)
+            % close all open file handles to allow file movements to new
+            % file/new location.
+            % Does nothing on memory based
         end
-        function obj = get_new_handle(obj, varargin)
-            % does nothing on Mem-based
+        function [obj,varargout] = activate(obj,varargin)
+            % open file access for file, previously closed by deactivate
+            % operation, possibly using new file name
+            % Does nothing on memory based
+            if nargout>1
+                varargout{1} = false;
+            end
         end
-        function obj = format_dump_data(obj,page_data)
+
+        function wh = get_write_handle(~, varargin)
+            % does nothing on Mem-based
+            wh = [];
+        end
+
+        function obj = store_page_data(obj,page_data,varargin)
             % sets the internal pixel data to new values.
             %
             % Invalidates object coherency. (data_ranges are not recalculated
@@ -132,14 +138,8 @@ classdef PixelDataMemory < PixelDataBase
         function obj = finish_dump(obj,varargin)
             % does nothing
         end
-        function [wh,fh,obj] = get_write_info(obj,varargin)
-            % Return information containing the write handle and
-            % tmp file holder, used in IO operation
-            wh = [];
-            fh = [];
+        function obj =set_as_tmp_obj(obj,varargin)
         end
-
-
         %
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
             pix_idx_start = 1;
@@ -153,7 +153,13 @@ classdef PixelDataMemory < PixelDataBase
             %  is only none page
             %
         end
-        function obj = copy(obj)
+        function obj_out = copy(obj)
+            obj_out = obj;
+        end
+        %
+        function   sz = get_pix_byte_size(obj,varargin)
+            % Return the size of single pixel expressed in bytes.
+            sz = obj.DEFAULT_NUM_PIX_FIELDS*8;
         end
     end
 
@@ -189,60 +195,11 @@ classdef PixelDataMemory < PixelDataBase
                 obj.detector_idx(selected) = abs(obj.detector_idx(selected));
             end
         end
-
     end
 
     methods(Static)
         % apply page operation(s) to the object with memory-backed pixels
-        sqw_out = apply_c(sqw_in,page_op);
-
-        function obj = cat(varargin)
-            % Concatenate the given PixelData objects' pixels. This function performs
-            % a straight-forward data concatenation.
-            %
-            %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
-            %
-            % Input:
-            % ------
-            %   varargin    A cell array of PixelData objects
-            %
-            % Output:
-            % -------
-            %   obj         A PixelData object containing all the pixels in the inputted
-            %               PixelData objects
-
-            if isempty(varargin)
-                obj = PixelDataMemory();
-                return;
-            elseif numel(varargin) == 1
-                if isa(varargin{1}, 'PixelDataFileBacked')
-                    obj = PixelDataMemory(varargin{1});
-                elseif isa(varargin{1}, 'PixelDataMemory')
-                    obj = varargin{1};
-                end
-                return;
-            end
-
-            is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
-            if any(is_ldr)
-                obj = PixelDataFileBacked(varargin);
-                return
-            end
-
-            obj = PixelDataMemory();
-
-            obj.data_range_ = PixelDataBase.EMPTY_RANGE;
-            for i = 1:numel(varargin)
-                curr_pix = varargin{i};
-                for page = 1:curr_pix.num_pages
-                    curr_pix.page_num = page;
-                    data = curr_pix.data;
-                    obj.data_range = ...
-                        obj.pix_minmax_ranges(data, obj.data_range_);
-                    obj.data = [obj.data, data];
-                end
-            end
-        end
+        obj_out = apply_op(obj_in,page_op);
     end
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
@@ -348,6 +305,9 @@ classdef PixelDataMemory < PixelDataBase
             obj.data_ = val.data;
         end
         %------------------------------------------------------------------
+        function is = get_is_tmp_obj(~)
+            is = false;
+        end
     end
     %----------------------------------------------------------------------
     % PAGING

@@ -26,32 +26,30 @@ function obj = build_IXdataset_1d_(obj,varargin)
 % 	x_distribution      logical         Distribution data flag (true is a distribution; false otherwise)
 
 
-
+obj.do_check_combo_arg_ = false;
 % Various input options
 if nargin==2
+
     if isa(varargin{1},'IX_data_1d')  % if already IX_dataset_1d object, return
         obj=varargin{1};
         return
     end
     if isa(varargin{1},'IX_data_2d')
         obj = build_from_IX_data_2d_(obj,varargin{1});
+        obj.do_check_combo_arg_= true;
+        obj = check_combo_arg (obj);
         return
     end
     if isa(varargin{1},'IX_data_3d')
         obj = build_from_IX_data_3d_(obj,varargin{1});
-        return        
+        obj.do_check_combo_arg_ = true;
+        obj = check_combo_arg (obj);
+        return
     end
+
     in = varargin{1};
     if isstruct(in)   % structure input
         obj = obj.init_from_structure(in);
-        %     elseif iscell(in) % does not work with cellarray
-        %         tob = cell(numel(in),1);
-        %         in1d = reshape(in,numel(in),1);
-        %         for i=1:numel(in)
-        %             tob{i} = IX_dataset_1d(in1d{i});
-        %         end
-        %         obj = reshape(tob,size(in));
-        %         return;
     elseif isnumeric(in)
         if size(in,1) == 3 && size(in,2) > 1
             obj.xyz_{1} = obj.check_xyz(in(1,:));
@@ -63,7 +61,7 @@ if nargin==2
             obj = check_and_set_sig_err_(obj,'error',zeros(size(in)));
         end
     end
-    
+
 elseif nargin<=4
     obj.xyz_{1} = obj.check_xyz(varargin{1});
     if nargin==3
@@ -75,15 +73,15 @@ elseif nargin<=4
         obj = check_and_set_sig_err_(obj,'error',varargin{3});
     end
 elseif nargin == 5
-    obj.xyz_{1} = obj.check_xyz(varargin{1});    
+    obj.xyz_{1} = obj.check_xyz(varargin{1});
     obj = check_and_set_sig_err_(obj,'signal',varargin{2});
     obj = check_and_set_sig_err_(obj,'error',varargin{3});
-    obj.xyz_distribution_=logical(varargin{4});
+    obj.x_distribution=varargin{4};
 elseif nargin==7 || (nargin==8 && isnumeric(varargin{1}))
     obj.xyz_{1} = obj.check_xyz(varargin{1});
     obj = check_and_set_sig_err_(obj,'signal',varargin{2});
     obj = check_and_set_sig_err_(obj,'error',varargin{3});
-    
+
     obj.title=varargin{4};
     obj.s_axis=varargin{6};
     obj.x_axis=varargin{5};
@@ -96,20 +94,16 @@ elseif nargin==8
     obj.title=varargin{1};
     obj.s_axis=varargin{4};
     obj.x_axis=varargin{6};
-    
+
     obj.xyz_{1} = obj.check_xyz(varargin{5});
     obj = check_and_set_sig_err_(obj,'signal',varargin{2});
     obj = check_and_set_sig_err_(obj,'error',varargin{3});
-    
+
     obj.x_distribution=varargin{7};
 else
-    error('IX_dataset_1d:invalid_argument','Wrong number of arguments');
+    error('HERBERT:IX_dataset_1d:invalid_argument', ...
+        'Wrong number of arguments');
 end
 %
-[ok,mess]=check_joint_fields_(obj);
-if ok
-    obj.valid_  = true;
-else
-    error('IX_dataset_1d:invalid_argument',mess);
-end
-
+obj.do_check_combo_arg_ = true;
+obj = check_combo_arg (obj);

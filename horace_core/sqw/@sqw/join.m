@@ -1,14 +1,37 @@
-function wout = join(w,wi)
-% Join an array of sqw objects into an single sqw object
-% This is intended only as the reverse of split
+function wout = join(w,varargin)
+% Join an array or cellarray of sqw objects or sqw files into an single sqw
+% object.
 %
-%   >> wout = join(w,wi)
-%   >> wout = join(w)
+% The objects must have common image shape, like objects produced by split
+% or files produced by gen_sqw(___) using '-tmp_only' option.
+%
+%   >> wout = join(w,wi,varargin)
+%   >> wout = join(w,varargin)
 %
 % Input:
 % ------
-%   w       array of sqw objects, each one made from a single spe data file
+%   w       array or cellarray of sqw objects or cellarray of names of sqw
+%           files, each one have the same image shape, i.e. size(sqw.data.s)
+%           have to be the same for all contributing images.
+% Optional:
 %   wi      initial pre-split sqw object (optional, recommended).
+% outfile   if provided and input objects are filebacked, makes resulting
+%           combined object filebacked regardless of the fact that it may
+%           fit memory.
+%           Normally resulting object is filebacked or memory-based
+%           depending on its size and hor_config mem_chunk_size and 
+%           fb_scale_factor settings.
+% modifiers:
+% '-allow_equal_headers'
+%         -- if two objects of files from the list of input files contain
+%            the same information join fail. If this option is provided, 
+%            such objects allowed.
+% '-recalc_runid'
+%         -- if provided, recalculate existing run-id(s) stored in pixels
+%            and headers (Experiment.exp
+%            in such way that pixels run-ids correspond to number of header
+%            (IX_experiment) this run describes in the array of
+%            Experiment.expdata headers (IX_experiments).
 %
 % Output:
 % -------
@@ -16,123 +39,127 @@ function wout = join(w,wi)
 
 % Original author: G.S.Tucker
 % 2015-01-20
+% Fully rewritten for PACE project on 31/12/2023
 
-nfiles = length(w);
-
+nfiles = numel(w);
 % Catch case of single contributing spe dataset
 if nfiles == 1
     wout = w;
+    if istext(wout)
+        wout = sqw(wout);
+    end
     return
 end
+if nargin>1 && isa(varargin{1},'sqw')
+    wi = varargin{1};
+    argi = varargin(2:end);
+else
+    argi = varargin;
+end
+initflag = exist('wi','var') && wi.main_header.nfiles == nfiles;
+opts = {'-allow_equal_headers','-recalc_runid'};
+[ok,mess,allow_equal_headers,recalc_runid,argi] = parse_char_options(argi,opts);
+if ~ok
+    error('HORACE:join:invalid_argument',mess);
+end
+if ~isempty(argi) && istext(argi{1})
+    outfile = argi{1};
+else
+    outfile = '';
+end
 
-initflag = exist('wi', 'var') && ~isempty(wi) && isa(wi, 'sqw') ...
-    && wi.main_header.nfiles == nfiles;
 
 % Default output
 if initflag
     wout = sqw(wi);
-    main_header = wi.main_header;
-    detpar0 = wi.detpar;
+    if isa(w,'sqw')
+        w = num2cell(w);
+    end
+    % check if input data and the input sqw can indeed be combined together.
+    [~,ldrs] = check_img_consistency([{wout};w(:)]);
+    if ~isempty(ldrs{1})
+        ldrs{1} = ldrs{1}.delete(); % close loader for reference file
+    end
+    ldrs = ldrs(2:end); % remove loader for reference object if any
+
+    membased = cellfun(@isempty,ldrs);
+    if all(membased )
+        % build info for sqw combining
+        [pix_list,npix_list] = cellfun(@extract_info, w,'UniformOutput',false);
+        wout.pix = pixobj_combine_info(pix_list,npix_list);
+        if recalc_runid
+            wout.experiment_info.runid_map = 1:numel(w);
+        end
+    else
+        if any(membased)
+            close_lrds(ldrs);
+            error('HORACE:sqw:not_implemented', ...
+                'join combines either input files or input objects. Possibility to mix them is not implemented');
+        end
+        if recalc_runid
+            run_label = 1:numel(w);
+        else
+            run_label = 'nochange';
+        end
+        [npixtot,pos_npixstart,pos_pixstart] = cellfun(@extract_info_from_ldrs, ldrs);
+        pix = pixfile_combine_info(w,numel(wout.data.npix),npixtot, ...
+            pos_npixstart,pos_pixstart,run_label);
+        pix.data_range = wout.pix.data_range;
+        wout.pix = pix;
+        close_lrds(ldrs);
+    end
 else
-    wout = sqw();
-    main_header = w(1).main_header;
-    main_header.nfiles = 1;
-    detpar0 = w(1).detpar;
+    if allow_equal_headers
+        argi = {'-allow_equal_headers'};
+    else
+        argi = {};
+    end
+    if ~recalc_runid
+        argi = [argi(:),'-keep_runid'];
+    end
+    wout = collect_sqw_metadata(w,argi{:});
 end
 
-for i = 1:nfiles
-    wi_main_header = w(i).main_header;
-    wi_main_header.nfiles = 1;
-    [ok, mess] = equal_to_tol(wi_main_header, main_header);
-    if ~ok
-        error('HORACE:join:invalid_argument', mess)
+hpc = hpc_config;
+hc = hor_config;
+use_mex = hc.use_mex && strncmp(hpc.combine_sqw_using,'mex',3);
+
+page_op         = PageOp_join_sqw;
+page_op.outfile = outfile;
+%
+if recalc_runid
+    run_id = wout.runid_map.keys();
+    run_id = [run_id{:}];
+else
+    run_id = [];
+end
+
+[page_op,wout]  = page_op.init(wout,run_id,use_mex);
+wout            = sqw.apply_op(wout,page_op);
+if isempty(wout.full_filename)
+    % this may happen if combined from memory without reference object
+    wout.full_filename = page_op.outfile;
+end
+
+end
+%
+function [pix,npix] = extract_info(in_sqw)
+pix = in_sqw.pix;
+npix = in_sqw.data.npix(:);
+end
+%
+function [npixtot,pos_npixstart,pos_pixstart]=extract_info_from_ldrs(ldr)
+pos_npixstart=ldr.npix_position;  % start of npix field
+pos_pixstart =ldr.pix_position;   % start of pix field
+npixtot      =ldr.npixels;
+end
+
+function ldrs = close_lrds(ldrs)
+% close loader handles in case of error
+for i=1:numel(ldrs)
+    if ~isempty(ldrs{i})
+        ldrs{i} = ldrs{i}.delete();
+        ldrs{i} = [];
     end
 end
-clear main_header;
-clear wi_main_header;
-
-% Start pulling in data
-experiment = cell(size(w));
-detpar = cell(size(w));
-data = cell(size(w));
-pix = cell(size(w));
-for i = 1:nfiles
-    experiment{i} = w(i).experiment_info; % Will be used as is
-    detpar{i} = w(i).detpar; % Needs to be reduced to only a single struct
-    data{i} = w(i).data;     % Needs to be combined
-    pix{i} = w(i).pix;
-end
-
-for i = 1:nfiles
-    detpar_t = w(i).detpar;
-    [ok, mess] = equal_to_tol(detpar_t, detpar0);
-    if ~ok
-        error('HORACE:join:invalid_argument', mess)
-    end
-end
-
-% Check which sqw objects in the input structure contributed to the
-% pre-split sqw object.
-run_contributes = (cellfun(@(x) ...
-                           any(x.s, 'all') || ...
-                           any(x.e, 'all') || ...
-                           any(x.npix, 'all'), data) ...
-                   | ...
-                   cellfun(@(x) ...
-                           any(~isnan(x.pix_range), 'all') || ...
-                           any(x.data, 'all'), pix));
-
-main_header.nfiles = sum(run_contributes); % For the output structure
-
-data = data(run_contributes);
-pix = pix(run_contributes);
-experiment = experiment(run_contributes);
-
-for i = 1:numel(pix)
-    pix{i}.run_idx = i; % repopulate individual run numbers
-end
-
-wout.main_header = main_header;
- % This should be a cell array of the individual headers
-wout.experiment_info = Experiment.combine_experiments(experiment, false, true);
-wout.detpar = detpar0;
-
-wout.data = data{1};
-
-sz = size(wout.data.npix); % size of contributing signal, variance, and npix arrays
-wout.data.s = zeros(sz);
-wout.data.e = zeros(sz);
-wout.data.npix = zeros(sz);
-
-for i = 1:numel(data)
-    wout.data.s = wout.data.s + (data{i}.s .* data{i}.npix);
-    wout.data.e = wout.data.e + (data{i}.e .* (data{i}.npix .^ 2));
-    wout.data.npix = wout.data.npix + data{i}.npix;
-end
-
-[wout.data.s, wout.data.e] = normalize_signal(wout.data.s, wout.data.e, wout.data.npix);
-
-ind = zeros(sz);
-num_pix = sum(wout.data.npix, 'all');
-wout.pix = PixelDataMemory(num_pix);
-
-for i = 1:numel(pix)
-    curr_pix = 1;
-    local_npix_ind = 1;
-    for j = 1:numel(wout.data.npix)
-        curr_npix = data{i}.npix(j);
-%         if curr_npix == 0
-%             local_npix_ind = local_npix_ind + wout.data.npix(j);
-%             continue
-%         end
-        local_ind = local_npix_ind+ind(j);
-
-        wout.pix.data(:, local_ind:local_ind+curr_npix-1) = ...
-            pix{i}.data(:, curr_pix:curr_pix+curr_npix-1);
-        curr_pix = curr_pix + curr_npix;
-        ind(j) = ind(j) + curr_npix;
-        local_npix_ind = local_npix_ind + wout.data.npix(j);
-    end
-end
-
 end

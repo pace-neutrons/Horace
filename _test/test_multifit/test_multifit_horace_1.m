@@ -24,6 +24,9 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
     methods
         function this = test_multifit_horace_1(name)
+            if nargin == 0
+                name = 'test_multifit_horace_1';
+            end
             % Construct object
             output_file = 'test_multifit_horace_1_output.mat';
             this = this@TestCaseWithSave(name, output_file);
@@ -64,6 +67,39 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
             assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
             assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+        end
+
+        function obj = test_fit_one_dataset_fb(obj)
+            % Example of fitting one sqw object
+
+            clWarn = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', ...
+                obj.w1data.pix.num_pixels/4);
+            w1data_fb = obj.w1data;
+            w1data_fb.pix = PixelDataFileBacked(obj.w1data.pix);
+
+            mss = multifit_sqw_sqw([w1data_fb]);
+            mss = mss.set_fun(@sqw_bcc_hfm,  [5,5,0,10,0]);  % set foreground function(s)
+            mss = mss.set_free([1,1,0,0,0]); % set which parameters are floating
+            mss = mss.set_bfun(@sqw_bcc_hfm, {[5,5,1.2,10,0]}); % set background function(s)
+            mss = mss.set_bfree([1,1,1,1,1]);    % set which parameters are floating
+            mss = mss.set_bbind({1,[1,-1],1},{2,[2,-1],1});
+
+            tol = [3e-5,3e-5];
+            % Simulate at the initial parameter values
+            wsim_1 = mss.simulate();
+
+            % And now fit
+            [wfit_1, fitpar_1] = mss.fit();
+            % Test against saved or store to save later; ignore string
+            % changes - these are filepaths
+            ref_fitpar = getReferenceDataset(obj, 'test_fit_one_dataset', 'fitpar_1');
+            ref_wfit = getReferenceDataset(obj, 'test_fit_one_dataset', 'wfit_1');
+            ref_wsim = getReferenceDataset(obj, 'test_fit_one_dataset', 'wsim_1');
+
+            assertEqualToTol(wsim_1, ref_wsim, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            assertTrue(is_same_fit(fitpar_1, ref_fitpar, [1 0 0]))
+            assertTrue(is_same_fit(wfit_1, ref_wfit, [1 0 0]))
         end
 
         % ------------------------------------------------------------------------------------------------

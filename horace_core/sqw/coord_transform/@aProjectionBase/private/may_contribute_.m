@@ -8,7 +8,8 @@ function  [may_contributeND,may_contribute_dE] = may_contribute_(source_proj,...
 % values on TCS and zero values outside of TCS.
 %
 
-% build bin edges for the target grid and bin centres for reference grid
+% build grid with points at bin edges for the target grid and bin centres
+% for reference grid
 if source_proj.do_3D_transformation_
     [targ_nodes,dEnodes] = targ_axes_block.get_bin_nodes('-3D','-ngrid','-halo');
     [source_grid,baseEdges]  = source_axes_block.get_bin_nodes('-bin_centre','-3D');

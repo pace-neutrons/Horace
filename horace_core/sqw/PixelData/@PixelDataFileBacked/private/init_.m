@@ -10,7 +10,8 @@ is_bool = cellfun(@islogical,varargin);
 log_par = [varargin{is_bool} false(1,2)]; % Pad with false
 update  = log_par(1);
 norange = log_par(2);
-argi = varargin(~is_bool);
+argi    = varargin(~is_bool);
+obj.old_file_format_ = false;
 
 if isscalar(argi)
     init_data = argi{1};
@@ -59,8 +60,8 @@ elseif isa(init_data, 'sqw_file_interface')
     obj = init_from_file_accessor_(obj,init_data,update,norange);
 elseif isa(init_data,'memmapfile')
     obj.f_accessor_    = init_data;
-    % should this all be rewired through?
-    obj.full_filename_ = init_data.Filename;
+    % should this all be rewired thoroughly?
+    obj.full_filename  = init_data.Filename;
     obj.num_pixels_    = obj.f_accessor_.Format{2}(2);
     obj.offset_        = init_data.Offset;
 elseif isnumeric(init_data)

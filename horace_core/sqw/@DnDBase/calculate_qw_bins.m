@@ -54,7 +54,7 @@ if do_3D
 end
 
 nodes = win.axes.get_bin_nodes(argi{:});
-proj = win.proj;
+proj  = win.proj;
 pix_hkl = proj.transform_img_to_hkl(nodes);
 % package as cell array of column vectors for convenience with fitting routines etc.
 if do_3D

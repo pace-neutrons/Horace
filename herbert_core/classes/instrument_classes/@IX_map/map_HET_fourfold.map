@@ -1,0 +1,106 @@
+! Ancient map file for the ISIS HET instrument
+
+! Lines beginning with '!' or '%' are comment lines
+! Blank lines are ignored
+
+! Trailing comments on a line can be added after '!' or '%'
+
+! Number of workspaces:
+          32
+
+           1    ! Workspace number 1
+           2    ! Number of spectra in the workspace
+         101         229
+           2    ! Workspace number 2
+           2    ! Number of spectra in the workspace
+         102         230
+           3
+           2
+         103         231
+           4
+           2
+         104         232
+           5
+           2
+         105         233
+           6
+           2
+         106         234
+           7
+           2
+         107         235
+           8
+           2
+         108         236
+           9
+           2
+         109         237
+          10
+           2
+         110         238
+          11
+           2
+         111         239
+          12
+           2
+         112         240
+          13
+           2
+         113         241
+          14
+           2
+         114         242
+          15
+           2
+         115         243
+          16
+           2
+         116         244
+          17
+           2
+         117         245
+          18
+           2
+         118         246
+          19
+           2
+         119         247
+          20
+           2
+         120         248
+          21
+           2
+         121         249
+          22
+           2
+         122         250
+          23
+           2
+         123         251
+          24
+           2
+         124         252
+          25
+           2
+         125         253
+          26
+           2
+         126         254
+          27
+           2
+         127         255
+          28
+           2
+         128         256
+          29
+           2
+         129         257
+          30
+           2
+         130         258
+          31
+           2
+         131         259
+          32
+           2
+         132         260

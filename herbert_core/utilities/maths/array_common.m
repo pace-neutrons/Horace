@@ -28,7 +28,7 @@ function [c1joint,c1unique,c2unique]=array_common(c1,c2,opt)
 %              [Column array]
 %
 %   c1unique    Unique elements of first array in the order they appeared
-%              in the original arrays according to first or last occurence
+%              in the original arrays according to first or last occurrence
 %              determined by input argument opt (see above)
 %              [Column array]
 %

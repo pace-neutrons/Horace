@@ -1,7 +1,7 @@
 function [is,mess] = eq_(obj,other_obj,narg_out,names,varargin)
 % Check equality of two ortho projections or two arrays of
 % line_projections comparting the projection transformation
-% instrad of  all projection properties
+% instead of  all projection properties
 %
 % Different projection property values may define the same
 % transformation, so the projections, which define the same

@@ -68,18 +68,32 @@ end
 [obj,sqw_skel] = obj.get_all_blocks(sqw_skel,'ignore_blocks',skip_blocks);
 
 if ~(opts.head || opts.his)
-    detpar = sqw_skel.detpar;
-    if ~isempty(detpar) && ~isempty(detpar.group)
-        detpar = IX_detector_array(detpar);
-    else
-        detpar = IX_detector_array();
-    end
-    %detpar = repmat(detpar,numel(sqw_skel.experiment_info.expdata),1);
+    % detpar-independent inputs
     sqw_skel.data = DnDBase.dnd(sqw_skel.data.metadata,sqw_skel.data.nd_data);
     sqw_skel.experiment_info = Experiment([],sqw_skel.experiment_info.instruments, ...
         sqw_skel.experiment_info.samples,sqw_skel.experiment_info.expdata);
-    sqw_skel.experiment_info.detector_arrays = ...
-        sqw_skel.experiment_info.detector_arrays.add_copies_(detpar, numel(sqw_skel.experiment_info.expdata));
+    
+    % detpar inputs
+    detpar = sqw_skel.detpar; 
+    if ~isempty(detpar)
+        if isstruct(detpar) && ~isempty(detpar.group)
+            detpar = IX_detector_array(detpar);
+            sqw_skel.experiment_info.detector_arrays = ...
+                sqw_skel.experiment_info.detector_arrays.add_copies_( ...
+                                     detpar, numel(sqw_skel.experiment_info.expdata));
+            % the detpar field has now been used so don't leave it around to be spuriously
+            % copied any further
+            sqw_skel = rmfield(sqw_skel,'detpar');
+        elseif isa(detpar,'unique_references_container')
+            sqw_skel.experiment_info.detector_arrays = detpar;
+        else
+            error('HORACE:faccess_v4-get_sqw:invalid_argument', ...
+                  'detpar from file is neither detpar struct or detector arrays');
+        end
+    else
+		% detpar is empty, do nothing (see above for field removal)
+        sqw_skel = rmfield(sqw_skel,'detpar');
+    end
 end
 
 
@@ -114,7 +128,15 @@ if opts.legacy
     else
         sqw_object   = sqw_skel.main_header;
         varargout{1} = sqw_skel.experiment_info;
-        varargout{2} = sqw_skel.detpar;
+        % (1) no tests for this block found, so cannot ascertain what the
+        % output arguments should be
+        % (2) although detpar has a meaning for proper sqw objects
+        % (dependent variable access to detector_arrays) it has no meaning
+        % in the context of a skeleton struct mirroring an sqw. The
+        % assignment of an empty value attempts to check this in the hope
+        % that something will eventually fail as a result.
+        % CM
+        varargout{2} = [];
         varargout{3} = sqw_skel.data;
         if isfield(sqw_skel,'pix')
             varargout{4} = sqw_skel.pix;

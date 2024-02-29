@@ -1,7 +1,4 @@
 classdef test_fix_magnetic_ff< TestCase
-    %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
-    %
 
     properties
         tests_folder = fileparts(fileparts(mfilename('fullpath')));
@@ -21,7 +18,7 @@ classdef test_fix_magnetic_ff< TestCase
             en = -1:1:50;
             par_file = fullfile(this.tests_folder,'common_data','gen_sqw_96dets.nxspe');
             fsqw = dummy_sqw (en, par_file, '', 51, 1,[2.8,3.86,4.86], [120,80,90],...
-                             [1,0,0],[0,1,0], 10, 1.,0.1, -0.1, 0.1, [50,50,50,50]);
+                [1,0,0],[0,1,0], 10, 1.,0.1, -0.1, 0.1, [50,50,50,50]);
             this.sample_sqw_const = copy(fsqw{1});
         end
         %
@@ -30,6 +27,18 @@ classdef test_fix_magnetic_ff< TestCase
         end
 
         % tests themself
+        function test_MagFF_with_sphere(obj)
+            sph_cut = cut(obj.sample_sqw,sphere_proj,[],[0,180],[-180,180],[]);
+            valid = sph_cut.data.s(:)~=0;
+            assertEqual(min(sph_cut.data.s(valid)),10)
+            assertEqual(max(sph_cut.data.s(valid)),10)
+
+            mff = MagneticIons('Fe1');
+            ff = mff.correct_mag_ff(sph_cut);
+            assertEqualToTol(min(ff.data.s(valid)),11.1731,'tol',[0.001,0.001])
+            assertEqualToTol(max(ff.data.s(valid)),68.7170,'tol',[0.001,0.001])
+        end
+
         function test_magnetic_Ions(~)
             mi = MagneticIons();
             [J0,J2,J4,J6] = mi.getInterpolant('Fe0');
@@ -110,8 +119,5 @@ classdef test_fix_magnetic_ff< TestCase
             assertEqualToTol(cut1,cut2,'tol',[0.01,0.01])
 
         end
-
-
     end
 end
-

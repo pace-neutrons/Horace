@@ -1,19 +1,21 @@
-function w = cosh (w1)
+function w = cosh(w1)
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
+%   doc_file_header = fullfile(doc_dir,'doc_sigvar_unary_single.m')
 %
-%   doc_file_header = fullfile(doc_dir,'doc_unary_header.m')
-%   doc_file_IO = fullfile(doc_dir,'doc_unary_general_args_IO_description.m')
-%
-%   list_operator_arg = 0
 %   func_name = 'cosh'
 % -----------------------------------------------------------------------------
 % <#doc_beg:> binary_and_unary_ops
 %   <#file:> <doc_file_header>
-%
-%   <#file:> <doc_file_IO> <list_operator_arg>
 % <#doc_end:>
 % -----------------------------------------------------------------------------
 
-w = unary_op_manager (w1, @cosh_single);
+s = cosh(w1.signal_);
+if ~isempty(w1.variance_)
+    e = abs(s.^2-1).*w1.variance_;     % ensure positive
+else
+    e = [];
+end
+
+w = sigvar(s,e);

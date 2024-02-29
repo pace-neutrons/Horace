@@ -19,10 +19,13 @@ classdef const_blocks_map
             'pix',...
             'instr_head','instrument',...
             'sample_head','sample'}
+           % blocks starts at field cpecified by first cellarray block and
+           % ends at position, specified by the last field. Two fields specify second order structure 
+           % in the form struc.field1.field2
         block_positions_ = {...
             {{'main_head_pos_info_','nfiles_pos_'},'header_pos_'},... %main header
             {{'header_pos_info_','efix_pos_'},'detpar_pos_'},...      % the only one or last header
-            {{'header_pos_info_','filename_pos_'},{'header_pos_info_','efix_pos_'}},...  % n-header
+            {{'header_pos_info_','start_pos_'},{'header_pos_info_','efix_pos_'}},...  % n-header
             {{'detpar_pos_info_','ndet_pos_'},'data_pos_'},...      % detpar
             {{'data_fields_locations_','alatt_pos_'},'s_pos_'},...  % metadata block positions
             {'s_pos_','dnd_eof_pos_'},...                           % data block positions

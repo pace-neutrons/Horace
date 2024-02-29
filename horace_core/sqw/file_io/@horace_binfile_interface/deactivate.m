@@ -5,6 +5,6 @@ function obj = deactivate(obj)
 % To use for MPI transfers between workers when open file can
 % not be transferred between workers but everything else can
 if ~isempty(obj.file_closer_)
-    obj.file_closer_ = [];
+    obj.file_closer_.delete();
 end
-obj = obj.fclose();
+obj.file_id_ = -1;

@@ -68,6 +68,6 @@ obj.filepath_ = [fp,filesep];
 obj.file_id_ = sqw_fopen(file,mode);
 
 if isempty(obj.file_closer_)
-    %obj.file_closer_ = onCleanup(@()obj.fclose());
+    obj.file_closer_ = fcloser(obj.file_id_ );
 end
 

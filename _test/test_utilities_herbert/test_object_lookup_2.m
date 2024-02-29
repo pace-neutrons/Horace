@@ -549,7 +549,7 @@ classdef test_object_lookup_2 < TestCase
         % Multiple boxArray objects, multiple points, with shifts
         %------------------------------------------------------------------
         function test_rand_ind_multiBoxArray_arrInd_ielmts_someSplitArgs (obj)
-            % Test two boxArray, two boxes, multiple points, single shift
+            % Test two boxArray, two boxes, multiple points, some split shifts
             % iarray 2, index 5: this is boxArray 3
             %    - ielmts 4 & 6 are boxes 2 & 8
             % iarray 2, index 3: this is boxArray 4
@@ -594,7 +594,7 @@ classdef test_object_lookup_2 < TestCase
         %------------------------------------------------------------------
         % Test func_eval_ind
         %------------------------------------------------------------------
-        function test_func_eval_ind_1box_1ind_1funcEval (obj)
+        function test_func_eval_ind_1box_1ind (obj)
             % Single function evaluation
             % array 2, index 5: this is box 4
             iarray = 2;
@@ -612,8 +612,30 @@ classdef test_object_lookup_2 < TestCase
             assertEqual (r12, r12_ref);
         end
         
-        function test_func_eval_ind_1box_arrInd_1funcEval (obj)
-            % Multiple function evaluations but on single box; single shift
+        function test_func_eval_ind_1box_1ind_split (obj)
+            % Single function evaluation
+            % Split arguments. There is only one function evaluation to be performed, so the 
+            % 'split' option should have no effect. Checks an edge case of any
+            % internal workings.
+            % array 2, index 5: this is box 4
+            iarray = 2;
+            ind = 5;
+            shift1c = [5,50,500];
+            shift1r = [-5,-50,-500];
+            shift12 = [0,5,100];
+            [r1col, r1row, r12] = func_eval_ind (obj.blook, iarray, ind, 'split', @range, ...
+                shift1c, shift1r, shift12);
+            
+            % Validate:
+            [r1col_ref, r1row_ref, r12_ref] = range (obj.b4, shift1c, shift1r, shift12);
+            assertEqual (r1col, r1col_ref);
+            assertEqual (r1row, r1row_ref);
+            assertEqual (r12, r12_ref);
+        end
+        
+        function test_func_eval_ind_1box_arrInd (obj)
+            % Apparent multiple function evaluations but on single box with single shift
+            % Just needs to perform the evaulation once, and repmat results
             % array 2, index 5: this is box 4
             iarray = 2;
             ind = 5*ones(2,5);
@@ -636,15 +658,41 @@ classdef test_object_lookup_2 < TestCase
             assertEqual (r12, r12_ref);
         end
         
-        function test_func_eval_ind_multiBox_arrInd_arrFuncEval (obj)
+        function test_func_eval_ind_1box_arrInd_split (obj)
+            % Apparent multiple function evaluations but on single box; one of the
+            % arguments is split, so in fact does need to perform multiple evaluations
+            % array 2, index 5: this is box 4
+            iarray = 2;
+            sz = [2,5];
+            ind = 5*ones(sz);
+            yshift_only = false;
+            [shift1c, ~, shift12] = shifts_boxes_no_overlaps (sz, yshift_only);
+            shift1r = [-5,-50,-500];
+            [r1col, r1row, r12] = func_eval_ind (obj.blook, iarray, ind, ...
+                'split', [1,3], @range, shift1c, shift1r, shift12);
+
+            % Check sizes of return arguments
+            assertEqual (size(r1col), [3,2,2,5]);
+            assertEqual (size(r1row), [3,2,2,5]);
+            assertEqual (size(r12), [3,2,2,2,5]);
+            
+            % Validate:
+            [r1col_ref, r1row_ref, r12_ref] = range (obj.b4, size(ind), ...
+                shift1c, shift1r, shift12);
+            assertEqual (r1col, r1col_ref);
+            assertEqual (r1row, r1row_ref);
+            assertEqual (r12, r12_ref);
+        end
+        
+        function test_func_eval_ind_multiBox_arrInd (obj)
             % Multiple function evaluations across multiple boxes; single shift
             % array 2, index 5: this is box 4
             % array 2, index 3: this is box 2
             % Handcraft the validation - it acts as a buttress to the
-            % validity of the function validate_boxClass_rand_ind defined
-            % in this test class file
+            % validity of the array expansion capability of the range method
+            % used in the validation
             iarray = 2;
-            ind = [5,3,3,5,3; 3,5,5,5,3];     % has size [2,5]
+            ind = [5,3,3,5,3; 3,5,3,5,3];     % has size [2,5]
             shift1c = [5,50,500];
             shift1r = [-5,-50,-500];
             shift12 = [0,5,100];
@@ -663,12 +711,12 @@ classdef test_object_lookup_2 < TestCase
             r12_ref = NaN (3,2,2,10);
             [r1col_4, r1row_4, r12_4] = range (obj.b4, shift1c, shift1r, shift12); % box 4
             [r1col_2, r1row_2, r12_2] = range (obj.b2, shift1c, shift1r, shift12); % box 2
-            for i=[1,4,6,7,8]  % indices==5, correspond to box 4
+            for i=[1,4,7,8]  % indices==5, correspond to box 4
                 r1col_ref(:,:,i) = r1col_4;
                 r1row_ref(:,:,i) = r1row_4;
                 r12_ref(:,:,:,i) = r12_4;
             end
-            for i=[2,3,5,9,10]  % indices==3, correspond to box 2
+            for i=[2,3,5,6,9,10]  % indices==3, correspond to box 2
                 r1col_ref(:,:,i) = r1col_2;
                 r1row_ref(:,:,i) = r1row_2;
                 r12_ref(:,:,:,i) = r12_2;
@@ -676,6 +724,176 @@ classdef test_object_lookup_2 < TestCase
             r1col_ref = reshape (r1col_ref, [3,2,2,5]);
             r1row_ref = reshape (r1row_ref, [3,2,2,5]);
             r12_ref = reshape (r12_ref, [3,2,2,2,5]);
+            assertEqual (r1col, r1col_ref);
+            assertEqual (r1row, r1row_ref);
+            assertEqual (r12, r12_ref);
+        end
+                
+        function test_func_eval_ind_multiBox_arrInd_split (obj)
+            % Multiple function evaluations across multiple boxes; single shift
+            % array 2, index 5: this is box 4
+            % array 2, index 3: this is box 2
+            % Handcraft the validation - it acts as a buttress to the
+            % validity of the array expansion capability of the range method
+            % used in the validation
+            iarray = 2;
+            ind = [5,3,3,5,3; 3,5,3,5,3];     % has size [2,5]
+            sz = [2,5];
+            yshift_only = false;
+            [shift1c, ~, shift12] = shifts_boxes_no_overlaps (sz, yshift_only);
+            shift1r = [-5,-50,-500];
+
+            [r1col, r1row, r12] = func_eval_ind (obj.blook, iarray, ind, ...
+                'split', [1,3], @range, shift1c, shift1r, shift12);
+
+            % Check sizes of return arguments
+            assertEqual (size(r1col), [3,2,2,5]);
+            assertEqual (size(r1row), [3,2,2,5]);
+            assertEqual (size(r12), [3,2,2,2,5]);
+            
+            % Validate:
+            % Handcraft the output
+            r1col_ref = NaN (3,2,10);
+            r1row_ref = NaN (3,2,10);
+            r12_ref = NaN (3,2,2,10);
+            shift1c_tmp = reshape(shift1c, [3,10]);
+            shift12_tmp = reshape(shift12, [3,10]);
+
+            iout = [1,4,7,8];       % indices==5, correspond to box 4
+            [r1col_ref(:,:,iout), r1row_ref(:,:,iout), r12_ref(:,:,:,iout)] = ...
+                range (obj.b4, size(iout), shift1c_tmp(:,iout), shift1r, shift12_tmp(:,iout));
+            iout = [2,3,5,6,9,10];  % indices==3, correspond to box 2
+            [r1col_ref(:,:,iout), r1row_ref(:,:,iout), r12_ref(:,:,:,iout)] = ...
+                range (obj.b2, size(iout), shift1c_tmp(:,iout), shift1r, shift12_tmp(:,iout));
+            r1col_ref = reshape (r1col_ref, [3,2,2,5]);
+            r1row_ref = reshape (r1row_ref, [3,2,2,5]);
+            r12_ref = reshape (r12_ref, [3,2,2,2,5]);
+            
+            assertEqual (r1col, r1col_ref);
+            assertEqual (r1row, r1row_ref);
+            assertEqual (r12, r12_ref);
+        end
+
+        function test_func_eval_ind_multiBoxArray_arrInd_ielmts (obj)
+            % Test two boxArray, two boxes, multiple points, some split shifts
+            % iarray 2, index 5: this is boxArray 3
+            %    - ielmts 4 & 6 are boxes 2 & 8
+            % iarray 2, index 3: this is boxArray 4
+            %    - ielmts 1 & 2 are box 2, ielmt 4 is box 6
+            % With these values for iarray, ind and ielmts we get
+            % a horrible mix of indices across the boxArrays, which
+            % func_eval_ind has to cope with. Makes this a good test.
+
+            iarray = 2;
+            ind = [5,3,3,5,3; 5,5,5,3,3];
+            ielmts = [4,4,1,6,2; 4,4,6,2,4];
+            shift1c = [5,50,500];
+            shift1r = [-5,-50,-500];
+            shift12 = [0,5,100];
+            
+            [r1col, r1row, r12] = func_eval_ind (obj.bAlook, iarray, ind, ielmts, ...
+                @range_elmts, shift1c, shift1r, shift12);
+            
+            % To validate random points are in the correct boxes, construct
+            % an array of boxClass objects such that ind and ielmts together 
+            % index to the correct boxes.
+            % Wasteful but readable construction
+            boxClass_array = repmat(boxClass, [5,6]);  % size [numel(ind), numel(ielmts)]
+            boxClass_array(5,4) = obj.b(2);
+            boxClass_array(5,6) = obj.b(8);
+            boxClass_array(3,[1,2]) = obj.b(2);
+            boxClass_array(3,4) = obj.b(6);
+            indtmp = sub2ind ([5,6], ind, ielmts);
+            
+            r1col_ref = NaN (3,2,10);
+            r1row_ref = NaN (3,2,10);
+            r12_ref = NaN (3,2,2,10);
+            for iout=1:numel(ind)
+                [r1col_ref(:,:,iout), r1row_ref(:,:,iout), r12_ref(:,:,:,iout)] = ...
+                    range (boxClass_array(indtmp(iout)), shift1c, shift1r, shift12);
+            end
+            r1col_ref = reshape (r1col_ref, [3,2,2,5]);
+            r1row_ref = reshape (r1row_ref, [3,2,2,5]);
+            r12_ref = reshape (r12_ref, [3,2,2,2,5]);
+            
+            assertEqual (r1col, r1col_ref);
+            assertEqual (r1row, r1row_ref);
+            assertEqual (r12, r12_ref);
+        end
+                
+        function test_func_eval_ind_multiBoxArray_arrInd_ielmts_split_ERR (obj)
+            % Test two boxArray, two boxes, multiple points, some split shifts
+            % iarray 2, index 5: this is boxArray 3
+            %    - ielmts 4 & 6 are boxes 2 & 8
+            % iarray 2, index 3: this is boxArray 4
+            %    - ielmts 1 & 2 are box 2, ielmt 4 is box 6
+            % With these values for iarray, ind and ielmts we get
+            % a horrible mix of indices across the boxArrays, which
+            % func_eval_ind has to cope with. Makes this a good test.
+            %
+            % Tests incorrect use of func_eval_ind: should cause a failure
+            % as need to use the 'split' option for both shift1c and shift12 i.e
+            % have ...'split',[1,3]
+            
+            iarray = 2;
+            ind = [5,3,3,5,3; 5,5,5,3,3];
+            ielmts = [4,4,1,6,2; 4,4,6,2,4];
+            yshift_only = false;
+            [shift1c, ~, shift12] = shifts_boxes_no_overlaps (size(ind), yshift_only);
+            shift1r = [3,0,23];
+            
+            f = @()func_eval_ind (obj.bAlook, iarray, ind, ielmts, ...
+                'split', 1, @range_elmts, shift1c, shift1r, shift12);
+            assertExceptionThrown (f, 'HERBERT:boxArrayClass:invalid_argument');
+            
+        end
+        
+        function test_func_eval_ind_multiBoxArray_arrInd_ielmts_split (obj)
+            % Test two boxArray, two boxes, multiple points, some split shifts
+            % iarray 2, index 5: this is boxArray 3
+            %    - ielmts 4 & 6 are boxes 2 & 8
+            % iarray 2, index 3: this is boxArray 4
+            %    - ielmts 1 & 2 are box 2, ielmt 4 is box 6
+            % With these values for iarray, ind and ielmts we get
+            % a horrible mix of indices across the boxArrays, which
+            % func_eval_ind has to cope with. Makes this a good test.
+
+            iarray = 2;
+            ind = [5,3,3,5,3; 5,5,5,3,3];
+            ielmts = [4,4,1,6,2; 4,4,6,2,4];
+            yshift_only = false;
+            [shift1c, ~, shift12] = shifts_boxes_no_overlaps (size(ind), yshift_only);
+            shift1r = [3,0,23];
+            
+            % Correct use of func_eval_ind
+            [r1col, r1row, r12] = func_eval_ind (obj.bAlook, iarray, ind, ielmts, ...
+                'split', [1,3], @range_elmts, shift1c, shift1r, shift12);
+            
+            % To validate random points are in the correct boxes, construct
+            % an array of boxClass objects such that ind and ielmts together 
+            % index to the correct boxes.
+            % Wasteful but readable construction
+            boxClass_array = repmat(boxClass, [5,6]);  % size [numel(ind), numel(ielmts)]
+            boxClass_array(5,4) = obj.b(2);
+            boxClass_array(5,6) = obj.b(8);
+            boxClass_array(3,[1,2]) = obj.b(2);
+            boxClass_array(3,4) = obj.b(6);
+            indtmp = sub2ind ([5,6], ind, ielmts);
+            
+            r1col_ref = NaN (3,2,10);
+            r1row_ref = NaN (3,2,10);
+            r12_ref = NaN (3,2,2,10);
+            shift1c_tmp = reshape(shift1c, [3,10]);
+            shift12_tmp = reshape(shift12, [3,10]);
+            for iout=1:numel(ind)
+                [r1col_ref(:,:,iout), r1row_ref(:,:,iout), r12_ref(:,:,:,iout)] = ...
+                    range (boxClass_array(indtmp(iout)), shift1c_tmp(:,iout), ...
+                    shift1r, shift12_tmp(:,iout));
+            end
+            r1col_ref = reshape (r1col_ref, [3,2,2,5]);
+            r1row_ref = reshape (r1row_ref, [3,2,2,5]);
+            r12_ref = reshape (r12_ref, [3,2,2,2,5]);
+            
             assertEqual (r1col, r1col_ref);
             assertEqual (r1row, r1row_ref);
             assertEqual (r12, r12_ref);

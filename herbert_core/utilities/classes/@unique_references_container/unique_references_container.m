@@ -14,6 +14,10 @@ classdef unique_references_container < serializable
     % global_container implements this global container. The class
     % unique_objects_container is used to implement this storage.
     %
+    % The adaptation of the standard Matlab singleton pattern to the
+    % present code where several singletons, one per data type, are stored
+    % in the same class, is documented in SMG-22.
+    %
     % The global container does not persist between sessions, and containers
     % written out to file are represented by separate
     % unique_objects_containers, one for each owner of the container
@@ -123,7 +127,7 @@ classdef unique_references_container < serializable
     properties (Constant, Access=private) % serializable interface
         fields_to_save_ = { ...
             'stored_baseclass', ...
-            'global_name', ... 5 must come before unique_objects
+            'global_name', ... % must come before unique_objects
             'unique_objects', ...
             };
     end
@@ -165,7 +169,7 @@ classdef unique_references_container < serializable
 
         function val = get.idx(self)
             %GET.IDX - list of indices into the global container
-            % Not recommended for normal use.
+            % Not recommended for normal use outside of saving.
             val = self.idx_;
         end
 
@@ -342,6 +346,14 @@ classdef unique_references_container < serializable
     methods % overloaded indexers, subsets, find functions
         
         function field_vals = get_unique_field(self, field)
+        %GET_UNIQUE_FIELD each of the unique objects referred to by self
+        % should have a property named 'field'. The code below takes each of the
+        % referred objects in turn, extracts the object referred to by
+        % 'field' and stores it in the unique_OBJECTS_container field_vals
+        % created here. field_vals will then contain unique copies of all
+        % the values of 'field' within the objects referred to in self, indexed
+        % in the same way as the original referred objects.
+
             s1 = self.get(1);
             v = s1.(field);
             field_vals = unique_objects_container(class(v));
@@ -486,15 +498,10 @@ classdef unique_references_container < serializable
                 error('HERBERT:unique_references_container:incomplete_setup', ...
                     'global name unset');
             end
-            [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(inobj);
+            [glindex, hash] = self.global_container('value',self.global_name_).find_in_container(inobj);
             if isempty(glindex)
                 glcont = self.global_container('value',self.global_name_);
-                [glcont,glindex] = glcont.add(inobj);
-                if glindex == 0
-                    % object was not added
-                    nuix = 0;
-                    return
-                end
+                [glcont,glindex] = glcont.add_single_(inobj,[],hash);
                 self.global_container('reset',self.global_name_,glcont);
             end
             self.idx_ = [ self.idx(:)', glindex ];

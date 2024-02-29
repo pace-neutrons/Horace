@@ -7,7 +7,7 @@ classdef test_disp2str< TestCase
         function test_cell(~)
             pat = {1,2,3};
             out = disp2str(pat);
-            if verLessThan('Matlab','9.10')
+            if verLessThan('Matlab','9.9')
                 assertEqual(out,'[1]    [2]    [3]');
             else
                 assertEqual(out,'{[1]}    {[2]}    {[3]}');

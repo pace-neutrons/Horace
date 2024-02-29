@@ -34,10 +34,11 @@ classdef sqw_file_interface
     % put_samples       -  store sample's information
     %
     properties(Access=protected)
-        % holdef for the number of contributing files contributed into sqw
+        % holder for the number of contributing files contributed into sqw
         % file. Not necessary for modern file formats but was used in old
         % file formats to recover headers
         num_contrib_files_= 'undefined'
+        eof_pos_cache_ = [];
     end
     %
     properties(Dependent)
@@ -87,7 +88,7 @@ classdef sqw_file_interface
             end
             if ~(isnumeric(val)&&isscalar(val)&&val > 0)
                 error('HORACE:sqw_file_inteface:invalid_argument', ...
-                    'number of contriburing files have to be a single positive number. It is: %s',...
+                    'number of contributing files have to be a single positive number. It is: %s',...
                     disp2str(val))
             end
             obj.num_contrib_files_ = round(val);
@@ -102,13 +103,18 @@ classdef sqw_file_interface
         end
         %
         function pos = get.eof_position(obj)
-            if isempty(obj.file_id) || obj.file_id <1
-                pos = [];
+            if isempty(obj.file_closer) || obj.file_id <1
+                pos = obj.eof_pos_cache_;
             else
                 fseek(obj.file_id,0,'eof');
                 pos  = ftell(obj.file_id);
             end
+            pos = uint64(pos);
         end
+        function obj = set.eof_position(obj,val)
+            obj.eof_pos_cache_ = val;
+        end
+        %
         function pos = get.pixel_data_end(obj)
             if ischar(obj.pix_position) ||isempty(obj.pix_position) || ...
                     ischar(obj.npixels)||isempty(obj.npixels)
@@ -119,12 +125,12 @@ classdef sqw_file_interface
         end
         %-------------------------
         function obj = delete(obj)
-            % destructor, which is not fully functioning
-            % operation for normal(non-handle) Matlab classes.
-            % Usually needs the class on lhs of delete expression or
-            % understanding when this can be omitted
-            %
-            obj.num_contrib_files_ = 'undefined';
+           % Close files and invalidate object to prevent further use.
+		   %
+ 		   % Not true destructor as is not automatically called on 
+		   % object destruction.
+           %
+           obj.num_contrib_files_ = 'undefined';
         end
         %
     end
@@ -168,15 +174,6 @@ classdef sqw_file_interface
         obj = update_sqw_keep_pix(obj)
     end
     methods(Access=protected)
-        function obj = put_sqw_data_pix_from_file(obj, pix_comb_info,jobDispatcher)
-            % Write pixel information to file, reading that pixel information from a collection of other files
-            %
-            %   >> obj = put_sqw_data_pix_from_file (obj, pix_comb_info,jobDispatcher)
-            %
-
-            obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher);
-        end
-
         function pix_size = get_filepix_size(~)
             % 4 bytes x 9 columns -- default pixel size in bytes when
             % stored on hdd
@@ -208,12 +205,9 @@ classdef sqw_file_interface
                 data_val  = {};
             end
             sqw_val = {obj.num_contrib_files,obj.npixels,...
-                   obj.get_data_range(),obj.creation_date};
+                obj.get_data_range(),obj.creation_date};
             all_val = [dnd_val(1:end-1);sqw_val(:);data_val(:)];
             head_struc = cell2struct(all_val,fields_req);
-
         end
-
     end
 end
-

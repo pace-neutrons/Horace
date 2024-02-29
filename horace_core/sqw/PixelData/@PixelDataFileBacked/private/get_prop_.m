@@ -11,7 +11,8 @@ function  prp = get_prop_(obj,fld)
 
 [pix_idx_start, pix_idx_end] = obj.get_page_idx_(obj.page_num_);
 
-if isempty(obj.f_accessor_)
+if isempty(obj.f_accessor_)|| ...
+        (isstruct(obj.f_accessor_) && isfield(obj.f_accessor_,'memmapfile_struct'))
     prp = zeros(obj.get_field_count(fld), 0);
 else
     idx = obj.FIELD_INDEX_MAP_(fld);

@@ -1,5 +1,5 @@
 function qw=calculate_qw_pixels2(win)
-% Calculate qh, qk, ql, en for the pixels in an sqw dataset from the headers
+% Calculate qh, qk, ql, en for the pixels in an sqw dataset from the experiment information
 %
 %   >> qw = calculate_qw_pixels2(win)
 %

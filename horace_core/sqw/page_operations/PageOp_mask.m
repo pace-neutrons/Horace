@@ -4,10 +4,9 @@ classdef PageOp_mask < PageOpBase
     % methos
     %
     properties
-        % the object containing information on what
+        % the object containing information on what to keep
         keep_info_obj;
         %
-
         % property, which is true if keep_info provided defiles to bins
         % or false, if it defines pixels to keep
         mask_by_obj;
@@ -15,6 +14,9 @@ classdef PageOp_mask < PageOpBase
         mask_by_num;
         % accumulator for reduced number of pixels
         npix_acc;
+        % as this method modifies pixels, it may remove some run_id-s
+        % we need to check unique runid (see parent for exp_modified property)
+        check_runid
     end
     properties(Dependent)
         % number of pixels in the masked dataset
@@ -29,8 +31,8 @@ classdef PageOp_mask < PageOpBase
             obj.op_name_ = 'masking';
         end
 
-        function [obj,in_obj] = init(obj,in_obj,keep_info)
-            [obj,in_obj] = init@PageOpBase(obj,in_obj);
+        function obj = init(obj,in_obj,keep_info)
+            obj = init@PageOpBase(obj,in_obj);
 
             if isa(keep_info,'SQWDnDBase')
                 obj.keep_info_obj   = keep_info.pix;
@@ -41,6 +43,12 @@ classdef PageOp_mask < PageOpBase
             if ~isempty(obj.img_)
                 obj.var_acc_ = zeros(numel(obj.img_.npix),1);
                 obj.npix_acc = zeros(numel(obj.img_.npix),1);
+                obj.check_runid = true;
+            else
+                % we may want to check for unique run_id to remove
+                % unnecessary experiments, but if it is only pixels -- no
+                % point.
+                obj.check_runid = false;
             end
             % Mask validity and its compartibility with masked object have
             % been verified earlier
@@ -48,11 +56,13 @@ classdef PageOp_mask < PageOpBase
                 obj.mask_by_obj  = true;
                 obj.mask_by_bins = false;
                 obj.mask_by_num  = false;
+                obj.split_at_bin_edges = false;
             elseif isnumeric(keep_info) || islogical(keep_info)
                 if isscalar(keep_info)
                     obj.mask_by_obj  = false;
                     obj.mask_by_bins = false;
                     obj.mask_by_num  = true;
+                    obj.split_at_bin_edges = false;
                     if obj.pix_.num_pages> 1 % each page should contain
                         % share of the requested number of pixels
                         obj.keep_info_obj = obj.calc_page_share( ...
@@ -63,8 +73,10 @@ classdef PageOp_mask < PageOpBase
                     obj.mask_by_num  = false;
                     if obj.num_bins == numel(keep_info)
                         obj.mask_by_bins = true;
+                        obj.split_at_bin_edges = true;
                     elseif obj.num_pix_original == numel(keep_info)
                         obj.mask_by_bins = false;
+                        obj.split_at_bin_edges = false;
                     else
                         error('HORACE:PageOp_mask:invalid_argument', ...
                             'Number of masking elements in array must be equal to number of pixels (%d) or number of bins (%d). It is %d',...
@@ -120,18 +132,32 @@ classdef PageOp_mask < PageOpBase
             signal = obj.page_data_(obj.signal_idx,:);
             error  = obj.page_data_(obj.var_idx,:);
             % update image accumulators:
-            [s_ar, e_ar] = compute_bin_data(npix_block,signal,error,true);
+            obj = obj.update_img_accumulators(npix_block,npix_idx, ...
+                signal,error);
             obj.npix_acc(npix_idx(1):npix_idx(2))    = ...
-                obj.npix_acc(npix_idx(1):npix_idx(2)) + npix_block(:);
-            obj.sig_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.sig_acc_(npix_idx(1):npix_idx(2)) + s_ar(:);
-            obj.var_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.var_acc_(npix_idx(1):npix_idx(2)) + e_ar(:);
+                obj.npix_acc(npix_idx(1):npix_idx(2))  + npix_block(:);
         end
         %
-        function [out_obj,obj] = finish_op(obj,in_obj)
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc);
-            [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
+        function [out_obj,obj] = finish_op(obj,out_obj)
+            % update npix with accumulator, accounting for change in
+            % npix due to masked pixels
+            obj.npix = obj.npix_acc;
+            if ~obj.changes_pix_only
+                %
+                if numel(obj.unique_run_id_) == out_obj.experiment_info.n_runs
+                    obj.check_runid = false; % this will not write experiment info
+                    % again as it has not changed
+                else
+                    % it always have to be less or equal, but some tests do not
+                    % have consistent Experiment
+                    if numel(obj.unique_run_id_) < out_obj.experiment_info.n_runs
+                        out_obj.experiment_info = ...
+                            out_obj.experiment_info.get_subobj(obj.unique_run_id_);
+                    end
+                end
+            end
+            [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
+
         end
         %------------------------------------------------------------------
         function np = get.num_pix_original(obj)
@@ -180,8 +206,22 @@ classdef PageOp_mask < PageOpBase
                 end
                 ic = ic-1;
             end
-
         end
-
     end
+    methods(Access=protected)
+        function is = get_exp_modified(obj)
+            % getter for exp_modified property, which saves modified
+            % Experiment if set to true
+            is = obj.old_file_format_||obj.check_runid;
+        end
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','mask_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.mask_split_ratio = val;
+        end
+    end        
 end

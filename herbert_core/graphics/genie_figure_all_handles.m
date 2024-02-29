@@ -40,14 +40,14 @@ end
 
 % Axes handle
 axes_h=get(fig_handle,'CurrentAxes');
-    
+
 % Plot handle(s)
 % We return plot handles to particular graphics objects that correspond to
 % line, patch, surface and hhgroup (created by errorbar function, and used
 % as of 2015-01-20, following G.S.Tucker)
 h_children=get(axes_h,'children');
 type_children=get(h_children,'type');
-ok_plot_types={'line','patch','surface','hggroup'}; % hggroup == errorbar plot, added 2015-01-20, G.S.Tucker
+ok_plot_types={'line','patch','surface','hggroup','errorbar'}; % hggroup == errorbar plot, added 2015-01-20, G.S.Tucker
 isplot_h=false(size(h_children));
 plot_type=cell(size(h_children));
 for i=1:numel(ok_plot_types)

@@ -42,6 +42,9 @@ sampl{1}   = exp_cellarray{1}.samples{1};
 det{1}     = exp_cellarray{1}.detector_arrays{1};
 expinfo    = repmat(IX_experiment(),1,n_tot);
 expinfo(1) = exp_cellarray{1}.expdata(1);
+if ~keep_runid
+    expinfo(1).run_id = 1;
+end
 if ~allow_equal_headers
     neq_hashes = cell(1,n_tot);
     neq_hashes{1} = expinfo(1).get_neq_hash();

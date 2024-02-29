@@ -189,7 +189,7 @@
          <parallel_cluster>parpool</parallel_cluster>
          <threads>8</threads>
          <parallel_workers_number>10</parallel_workers_number>
-         <cluster_config>local</cluster_config>
+         <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>

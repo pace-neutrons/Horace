@@ -78,7 +78,7 @@ classdef test_tobyfit_lookup < TestCase
             samplesXYZ = {samplesX samplesY samplesZ};
             lookupXYZ = object_lookup(samplesXYZ);
             
-            % put the unique_object_containers into a cell and make an
+            % put the unique_object_containers into an array and make an
             % object_lookup from it
             samplesABC = [samplesA samplesB samplesC];
             lookupABC = object_lookup(samplesABC);

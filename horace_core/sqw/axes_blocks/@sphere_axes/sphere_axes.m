@@ -25,11 +25,11 @@ classdef sphere_axes < AxesBlockBase
     properties(Constant,Access = private)
         % What units each possible dimension type of the spherical projection
         % have:  Currently momentum, angle, and energy transfer may be
-        % expressed in Anstrom, radian, degree, mEv. The key is the type
+        % expressed in Anstrom, radian, degree, meV. The key is the type
         % letter present in sphere_projection and the value is the unit
         % caption.
         capt_units = containers.Map({'a','r','d','e'}, ...
-            {[char(197),'^{-1}'],'rad','^{o}','mEv'})
+            {[char(197),'^{-1}'],'rad','^{o}','meV'})
         default_img_range_ =[ ...
             0,   0, -180,0;...  % the range, a object defined with dimensions
             1 ,180,  180,1];    % only would have

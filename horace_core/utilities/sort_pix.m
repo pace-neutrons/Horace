@@ -1,13 +1,25 @@
 function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
 % function sorts pixels according to their indices in n-D array npix
 %
+% It may be renamed sort_pixels_by_bins as the pix_ix_retained are the
+% sorting pixels according to array of indices which specify pixel location
+% in image bins and the indices of the pixels which place them into
+% appropriate bins were processed externally.
+%
+% This is explicitly memory-only operation which is applied to
+% block of pixels pixel in memory or to the part of such image.
+%
 %input:
-% pix_retained   PixelData object, which is to be sorted or a cell array
+% pix_retained --  PixelData object, which is to be sorted or a cell array
 %       containing arrays of PixelData objects
 %
-% ix    indices of these pixels in n-D array or cell array of such indices
-% npix  auxiliary array, containing numbers of pixels in each cell of
-%       n-D array
+% pix_ix_retained
+%              -- indices of these pixels in n-D array or cell array of
+%                 such indices
+% npix         -- auxiliary array, containing numbers of pixels in each
+%                 cell of n-D array. Used by mex sorting only to simplify
+%                 memory allocation and allow to lock particular cells in
+%                 case of MPI sorting.
 % Optional input:
 %  pix_range -- if provided, prohibits pix range recalculation in pix
 %               constructor. The range  provided will be used instead
@@ -17,22 +29,20 @@ function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
 %
 % '-force_mex' -- use only mex code and fail if mex is not available
 %                (usually for testing)
-% '-force_double'
-%              -- if provided, the routine changes type of pixels
-%                 it get on input, into double. if not, output pixels will
-%                 keep their initial type
+% '-keep_precision'
+%              -- if provided, the routine keeps type of pixels
+%                 received on input. If not, pixels converted into double.
 %
-% these two options can not be used together.
-%
+% '-nomex' and '-force_mex' options can not be used together.
 
 %Output:
 %pix  array of pixels sorted into 1D array according to indices provided
 %
 
 %  Process inputs
-options = {'-nomex','-force_mex','-force_double'};
+options = {'-nomex','-force_mex','-keep_precision'};
 %[ok,mess,nomex,force_mex,missing]=parse_char_options(varargin,options);
-[ok, mess, nomex, force_mex, force_double, argi] = ...
+[ok, mess, nomex, force_mex, keep_precision, argi] = ...
     parse_char_options(varargin,options);
 
 if ~ok
@@ -73,16 +83,7 @@ end
 
 use_mex = false;
 
-% use_mex = ~pix_retained{1}.is_filebacked && ...
-%           force_mex || ...
-%           (exist('npix', 'var') && ...
-%            ~isempty(npix) && ...
-%            ~nomex && ...
-%            get(hor_config, 'use_mex'));
-
-%
 % Do the job -- sort pixels
-%
 if use_mex
     try
         % TODO: make "keep type" a default behaviour!
@@ -90,7 +91,7 @@ if use_mex
         % so returns double or single resolution pixels depending on this
         %IMPORTANT: use double type as mex code asks for double type, not
         %logical.
-        keep_type = double(force_double);
+        keep_type = double(keep_precision);
 
         raw_pix = cellfun(@(pix_data) pix_data.data, pix_retained, ...
             'UniformOutput', false);
@@ -98,14 +99,14 @@ if use_mex
         if use_given_pix_range
             raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
-            pix = pix.set_raw_data(raw_pix);
-            pix = pix.set_data_range(data_range);
         else
             [raw_pix,data_range_l] = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
-            pix = pix.set_raw_data(raw_pix);
-            pix = pix.set_data_range(data_range_l);
+            data_range = data_range_l;
         end
+        pix = pix.set_raw_data(raw_pix);
+        pix = pix.set_data_range(data_range);
+
         clear pix_retained pix_ix_retained;  % clear big arrays
 
     catch ME
@@ -123,14 +124,14 @@ if use_mex
 end
 
 if ~use_mex
-    % maintain type of pix
-    pix = pix_retained{1}.cat(pix_retained{:});
+    % combine pixels together. Type may be lost? Should not but form allows. Should we enforce it?
+    pix = PixelDataBase.cat(pix_retained{:},'-force_membased');
+    pix.keep_precision = keep_precision;
     clear pix_retained;
     if isempty(pix)  % return early if no pixels
         pix = PixelDataMemory();
         return;
     end
-
     ix = cat(1, pix_ix_retained{:});
 
     clear pix_ix_retained;
@@ -139,28 +140,12 @@ if ~use_mex
         return;
     end
 
-    [~,ind] = sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-    clear ix;          % clear big arrays so that final output variable pix is not way up the stack
+    [~,ind] = sort(ix);  % returns ind as the indexing array into pix
+    %                      that puts the elements of pix in increasing
+    %                      single bin index
+    clear ix;      % clear big arrays so that final output variable pix
+    %                is not way up the stack
 
-
-    if pix.is_filebacked
-        mch_sz = get(hor_config, 'mem_chunk_size');
-
-        pix = pix.get_new_handle();
-
-        for i = 1:mch_sz:numel(ind)
-            end_idx = min(i+mch_sz-1, numel(ind));
-            slice = ind(i:end_idx);
-            data = pix.data(:, slice);
-            pix = pix.format_dump_data(data);
-        end
-
-        pix = pix.finish_dump();
-
-    else
-        pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
-    end
+    pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
     clear ind;
-end
-
 end

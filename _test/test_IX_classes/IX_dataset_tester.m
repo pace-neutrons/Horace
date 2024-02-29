@@ -42,11 +42,6 @@ classdef IX_dataset_tester < IX_dataset
     %======================================================================
     methods(Access=protected)
         % Generic checks:
-        % Check if various interdependent fields of a class are consistent
-        % between each other.
-        function  [ok,mess] = check_joint_fields(obj)
-            error('IX_dataset_tester:not_implemented','check_joint_fields not implemented')
-        end
         % verify and set signal or error arrays
         function obj = check_and_set_sig_err(obj,field_name,value)
             error('IX_dataset_tester:not_implemented','check_and_set_sig_err not implemented')

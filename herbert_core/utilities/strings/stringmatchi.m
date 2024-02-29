@@ -1,39 +1,40 @@
-function ind = stringmatchi (str, strcell)
-% Index of match(es) or unambiguous abbreviations in a cell array of strings
+function ind = stringmatchi (varargin)
+% Find matches of a character vector to initial substrings of strings, ignoring case
 %
-%   >> ind = stringmatchi (string,strcell)
+% Returns an index array of exact matches of a character vector to a cell array
+% of strings, if there are any.
+% If there are no exact matches, then returns an index array where the 
+% character vector is an abbreviation of the contents of the cell array.
+%
+%   >> ind = stringmatchi (str, strcell)
+%   >> ind = stringmatchi (str, strcell, exact)      % option: logical 0 or 1
+%   >> ind = stringmatchi (str, strcell, '-exact')   % option: character string
+% 
+% Differs from stringmatchiLog, which returns a logical array matches, not an
+% index array.
+%
+% See also stringmatchi
+%
 %
 % Input:
 % ------
-%   string  Test string
-%   strcell Cell array of strings
+%   str         Character vector (i.e. row vector of characters, or the empty
+%              character, '')
+%   strcell     Cell array of strings (as accepted by Matlab function strcmpi)
+%
+% Optional:
+%   exact       Logical flag
+%                   true: exact match required
+%                   false [default]: exact matches not required
+% *OR*
+%   'exact'     If present, output only for exact matches
 %
 % Output:
 % -------
-%   ind     Index of str in strcell if str is an exact match or unambiguous
-%          abbreviation of one of the elements of cellst.
-%           If str is an exact match for one or more elements of strcell,
-%          only these indicies are returned even if it is also an abbreviation
-%          of other element
+%   ind         Indices of elements in strcell to which str is an exact match.
+%               If there are no exact matches then the indices are to elements
+%              in strcell to which str is an abbreviation
 
 
-if ~is_string(str)
-    error('HERBERT:stringmatchi:invalid_argument',...
-        'First argument must be a string')
-end
-
-nch=numel(str);
-ind=find(strncmpi(str,strcell,nch));
-
-% If string and cellstr and more than one match, look for equality
-if numel(ind)>1
-    ix=false(size(ind));
-    for i=1:numel(ind(:))
-        if numel(strcell{ind(i)})==nch
-            ix(i)=true;
-        end
-    end
-    if any(ix(:))
-        ind=ind(ix);
-    end
-end
+status = stringmatchi_log(varargin{:});
+ind = find(status);

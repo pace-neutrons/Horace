@@ -15,9 +15,9 @@ function msln_files_list = upgrade_file_format(filenames,varargin)
 % angdeg    -- 3-component vector of original lattice angles, originaly
 %              present in legacy aligned file and modified later or
 %              cellarray of such vectors with vector for each file
-% 
-% '-upgrade_range' 
-%           -- if the pixel data range is not defined, recalculate 
+%
+% '-upgrade_range'
+%           -- if the pixel data range is not defined, recalculate
 %               and store this range with new file format
 % Result:
 % The file format of the provided files is updated to version 4
@@ -62,7 +62,7 @@ for i=1:n_inputs
     if is_sqw(i)
         ld = sqw_formats_factory.instance().get_loader(filenames{i});
         if isa(ld,'faccess_sqw_v4') %
-            apply_alignment(ld);   % Will do nothing if the file is not aligned
+            finalize_alignment(ld);   % Will do nothing if the file is not aligned
         else
             exp = ld.get_exp_info(1);
             hav = exp.header_average;
@@ -71,20 +71,20 @@ for i=1:n_inputs
                     ld = ld.upgrade_file_format(upgrade_arg{:});
                     ld = upgrade_legacy_alignment(ld,alatt{i},angdeg{i});
                     ld = ld{1};
-                    apply_alignment(ld);
+                    finalize_alignment(ld);
                     continue
                 else
                     msln_files_list{end+1} = filenames{i};
                     warning('HORACE:legacy_alignment', ...
                         ['file %s contains legacy-aligned data.\n' ...
                         ' Realign them using "upgrade_legacy_alignment" routine first\n' ...
-                        ' or provide original lattice to this function for realigning during pugrade'], ...
+                        ' or provide original lattice to this function for realigning during upgrade'], ...
                         filenames{i});
                     ld.delete();
                     continue;
                 end
             end
-            ld_new = ld.upgrade_file_format(upgrade_arg{:});            
+            ld_new = ld.upgrade_file_format(upgrade_arg{:});
 
             ld_new.delete();
         end
