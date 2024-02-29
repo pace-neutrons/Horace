@@ -1,15 +1,17 @@
-function [u,v,w,type,nonortho]=uv_from_rlu_mat_(obj,u_to_img,ulen,varargin)
+function [u,v,w,type,nonortho]=uv_from_transf_mat_(obj,q_to_img,ulen,varargin)uv_from_data_rot
 % Extract initial u/v vectors, defining the plane in hkl from
 % lattice parameters and the matrix converting vectors in
-% crystal Cartesian coordinate system into rlu.
+% crystal Cartesian coordinate system into image coordinate system.
 %
 % partially inverting projaxes_to_rlu function of line_proj class
 % as only orthogonal to u part of the v-vector can be recovered
 %
 % Inputs:
-% u_rot_mat -- matrix used for conversion from pixel coordinate
-%          system to the image coordinate system (normally
-%          expressed in rlu)
+% q_to_img -- matrix used for conversion from pixel coordinate
+%            system to the image coordinate system divided by B-matrix
+%          If it is orthogonal coordinate system, the matrix is rotation
+%          matrix but if it does not -- it is 
+%
 % ulen  -- length of the unit vectors of the reciprocal lattice
 %          units, the Horace image is expressed in
 % Outputs:
@@ -30,8 +32,8 @@ end
 %u_rot_mat = b_mat\u_rot_mat; % old style transformation matrix need this
 % to define the transformation
 
-%umat = (u_to_img.*ulen(:)')'; %Recover umat, umat vectors arranged in rows
-transf_mat = (u_to_img.*ulen(:)); %Recover umat, umat vectors arranged in rows
+%umat = (q_to_img.*ulen(:)')'; %Recover umat, umat vectors arranged in rows
+transf_mat = (q_to_img.*ulen(:)); %Recover umat, umat vectors arranged in rows
 err = 1.e-8;
 cross_proj = [transf_mat(1,:)*transf_mat(2,:)',transf_mat(1,:)*transf_mat(3,:)',transf_mat(2,:)*transf_mat(3,:)'];
 if any(abs(cross_proj) > err)
@@ -107,7 +109,7 @@ else
     scale_r = sqrt(ulen/veclen/max(abs(vec)));
     if abs(veclen*scale_r - ulen)<4*eps("single")
         scale = scale_r;
-        type = 'r';        
+        type = 'r';
     else
         scale = scale_p;
         type = 'p';
