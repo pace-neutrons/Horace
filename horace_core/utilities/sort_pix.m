@@ -1,13 +1,25 @@
-function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
-% function sorts pixels according to their indexes in n-D array npix
+function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
+% function sorts pixels according to their indices in n-D array npix
+%
+% It may be renamed sort_pixels_by_bins as the pix_ix_retained are the
+% sorting pixels according to array of indices which specify pixel location
+% in image bins and the indices of the pixels which place them into
+% appropriate bins were processed externally.
+%
+% This is explicitly memory-only operation which is applied to
+% block of pixels pixel in memory or to the part of such image.
 %
 %input:
-% pix_retained   PixelData object, which is to be sorted or a cell array
+% pix_retained --  PixelData object, which is to be sorted or a cell array
 %       containing arrays of PixelData objects
 %
-% ix    indexes of these pixels in n-D array or cell array of such indexes
-% npix  auxiliary array, containing numbers of pixels in each cell of
-%       n-D array
+% pix_ix_retained
+%              -- indices of these pixels in n-D array or cell array of
+%                 such indices
+% npix         -- auxiliary array, containing numbers of pixels in each
+%                 cell of n-D array. Used by mex sorting only to simplify
+%                 memory allocation and allow to lock particular cells in
+%                 case of MPI sorting.
 % Optional input:
 %  pix_range -- if provided, prohibits pix range recalculation in pix
 %               constructor. The range  provided will be used instead
@@ -17,39 +29,40 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 %
 % '-force_mex' -- use only mex code and fail if mex is not available
 %                (usually for testing)
-% '-keep_type' -- if provided, the routine will retain type of pixels
-%                 it get on input, if not, output pixels will be converted
-%                 to double
+% '-keep_precision'
+%              -- if provided, the routine keeps type of pixels
+%                 received on input. If not, pixels converted into double.
 %
-% these two options can not be used together.
-%
+% '-nomex' and '-force_mex' options can not be used together.
 
 %Output:
-%pix  array of pixels sorted into 1D array according to indexes provided
-%
-%
-%
+%pix  array of pixels sorted into 1D array according to indices provided
 %
 
 %  Process inputs
-options = {'-nomex','-force_mex','-keep_type'};
+options = {'-nomex','-force_mex','-keep_precision'};
 %[ok,mess,nomex,force_mex,missing]=parse_char_options(varargin,options);
-[ok,mess,nomex,force_mex,keep_type,argi]=parse_char_options(varargin,options);
+[ok, mess, nomex, force_mex, keep_precision, argi] = ...
+    parse_char_options(varargin,options);
+
 if ~ok
-    error('HORACE:utilities:invalid_argument',['sort_pixels: invalid argument',mess])
+    error('HORACE:utilities:invalid_argument', ...
+        ['sort_pixels: invalid argument',mess])
 end
+
 if nomex && force_mex
-    error('HORACE:utilities:invalid_argument','sort_pixels: invalid argument -- nomex and force mex options can not be used together' )
+    error('HORACE:utilities:invalid_argument', ...
+        'sort_pixels: invalid argument -- nomex and force mex options can not be used together' )
 end
-if isempty(argi)
-    use_given_pix_range = false;
-else
-    use_given_pix_range =true;
-    pix_range = argi{:};
-    if any(size(pix_range) ~= [2,4])
-        error('HORACE:utilities:invalid_argument',...
-            'if pix_range is provided, it has to be 2x4 array. Actually its size is: %',...
-            evalc('disp(size(pix_range))'))
+
+use_given_pix_range = ~isempty(argi);
+
+if use_given_pix_range
+    data_range = argi{:};
+    if ~isequal(size(data_range), [2,9])
+        error('HORACE:sort_pix:invalid_argument',...
+            'if data_range is provided, it has to be 2x9 array. Actually its size is: %s',...
+            disp2str(size(data_range)))
     end
 end
 
@@ -59,78 +72,80 @@ end
 if ~iscell(pix_ix_retained)
     pix_ix_retained = {pix_ix_retained};
 end
-if nomex
-    use_mex = false;
-else
-    use_mex=get(hor_config,'use_mex');
-end
-if ~exist('npix','var') || isempty(npix)
-    use_mex=false;
-end
-if force_mex
-    use_mex = true;
-end
-%
+
+% Don't use mex with file-backed
+% TODO Make mex available to file-backed
+% Mex disabled see issue #1018
+% Consider refactor of
+% _LowLevelCode/cpp/sort_pixels_by_bins/sort_pixels_by_bins.{h,cpp}
+% to fix MEX for sort_pix by replacing reinterpret_cast & case with
+% function signature dispatch
+
+use_mex = false;
+
 % Do the job -- sort pixels
-%
 if use_mex
     try
         % TODO: make "keep type" a default behaviour!
         % function retrieves keep_type variable value from this file
         % so returns double or single resolution pixels depending on this
+        %IMPORTANT: use double type as mex code asks for double type, not
+        %logical.
+        keep_type = double(keep_precision);
+
         raw_pix = cellfun(@(pix_data) pix_data.data, pix_retained, ...
             'UniformOutput', false);
-        raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, npix);
+        pix = PixelDataBase.create();
         if use_given_pix_range
-            pix = PixelData();
-            set_data(pix,'all',raw_pix);
-            pix.set_range(pix_range);
+            raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
+                npix,keep_type);
         else
-            pix = PixelData(raw_pix);
+            [raw_pix,data_range_l] = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
+                npix,keep_type);
+            data_range = data_range_l;
         end
+        pix = pix.set_raw_data(raw_pix);
+        pix = pix.set_data_range(data_range);
+
         clear pix_retained pix_ix_retained;  % clear big arrays
+
     catch ME
         use_mex=false;
         if get(hor_config,'log_level')>=1
             message=ME.message;
-            warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n trying Matlab',message)
+            warning('HORACE:mex_code_problem', ...
+                ' C-routines returned error: %s, details: %s \n Trying MATLAB', ...
+                ME.identifier,message)
             if force_mex
-                error('SORT_PIXELS:c_code_fail','sort_pixels: can not use mex code but force mex requested, Error %s',...
-                    message)
+                rethrow(ME);
             end
         end
     end
 end
+
 if ~use_mex
-    if numel(pix_ix_retained) == 1
-        ix = pix_ix_retained{1};
-    else
-        ix = cat(1,pix_ix_retained{:});
-    end
-    clear pix_ix_retained;
-    [~,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-    clear ix ;          % clear big arrays so that final output variable pix is not way up the stack
-    if numel(pix_retained) == 1
-        pix = pix_retained{1};
-    else
-        pix = PixelData.cat(pix_retained{:});
-    end
+    % combine pixels together. Type may be lost? Should not but form allows. Should we enforce it?
+    pix = PixelDataBase.cat(pix_retained{:},'-force_membased');
+    pix.keep_precision = keep_precision;
     clear pix_retained;
     if isempty(pix)  % return early if no pixels
-        pix = PixelData();
+        pix = PixelDataMemory();
         return;
     end
-    
-    pix=pix.get_pixels(ind);     % reorders pix
-    clear ind;
-    % TODO: make "keep type" a default behaviour!
-    if ~keep_type
-        if ~isa(pix.data,'double')
-            pix = PixelData(double(pix.data));
-        end
+    ix = cat(1, pix_ix_retained{:});
+
+    clear pix_ix_retained;
+
+    if issorted(ix)
+        return;
     end
-    
+
+    [~,ind] = sort(ix);  % returns ind as the indexing array into pix
+    %                      that puts the elements of pix in increasing
+    %                      single bin index
+    clear ix;      % clear big arrays so that final output variable pix
+    %                is not way up the stack
+
+    pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
+    clear ind;
 end
-
-
-
