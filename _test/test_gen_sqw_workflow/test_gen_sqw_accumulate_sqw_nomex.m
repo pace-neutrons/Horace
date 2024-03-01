@@ -97,8 +97,59 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
                 ok=true;
                 assertEqual(ME.identifier,'GEN_SQW:invalid_argument');
             end
-            assertTrue(ok,'Should have failed because of repeated spe file name');
-            
+            assertTrue(ok,'Should have failed because of repeated spe file name');            
         end
+        function test_cut_with_uoffset(obj,varargin)
+            %-------------------------------------------------------------
+            if nargin> 1
+                % running in single test method mode.
+                obj.setUp();
+                co1 = onCleanup(@()obj.tearDown());
+            end
+            %-------------------------------------------------------------
+            
+            
+            % build test files if they have not been build
+            obj=build_test_files(obj);
+            % generate the names of the output sqw files
+            
+            sqw_file=cell(1,obj.nfiles_max);
+            file_pref = obj.test_pref;
+            wkdir = obj.working_dir;
+            for i=1:obj.nfiles_max
+                sqw_file{i}=fullfile(wkdir ,['test_gen_sqw_',file_pref ,num2str(i),'.sqw']);    % output sqw file
+            end
+            
+            sqw_file_123456=fullfile(wkdir ,['sqw_123456_',file_pref,'.sqw']);                 % output sqw file
+            if ~obj.save_output
+                cleanup_obj1=onCleanup(@()obj.delete_files(sqw_file_123456,sqw_file{:}));
+            end
+            % ---------------------------------------
+            % Test gen_sqw ---------------------------------------
+            
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            %hc.threads = 1;
+            
+            
+             gen_sqw (obj.spe_file, '', ...
+                sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            
+            % Make some cuts: ---------------
+            proj = struct();
+            proj.u=[1,0,0];
+            proj.v=[0,1,0];
+            
+            
+            w2 = cut_sqw(sqw_file_123456,proj,[-1.5,0.025,0],[-1.5,0.025,0],[-0.5,0.5],[10,30]);
+            
+            % Test against saved or store to save later
+            obj.assertEqualToTolWithSave(w2,'ignore_str',true,'tol',1.e-7);
+            
+            
+            w1a=cut_sqw(sqw_file_123456,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            % Test against saved or store to save later
+            obj.assertEqualToTolWithSave(w1a,'ignore_str',true,'tol',1.e-7);
+        end
+        
     end
 end
