@@ -467,6 +467,7 @@ function test_replace_unique_same_number_works(~)
             assertEqual(lw,'HERBERT:unique_references_container:incomplete_setup');
             assertEqual(lwn, 'baseclass not initialised, using first assigned type');
             clear cl4b;
+            lastwarn('');
 
             % setup container of char
             unique_references_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS2');
@@ -483,6 +484,7 @@ function test_replace_unique_same_number_works(~)
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
             assertEqual(urc2.n_objects,1); % warning was issued and object was not added
             clear cl2b;
+            lastwarn('');
 
             % fail inserting with wrong type
             cl3b = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');            
