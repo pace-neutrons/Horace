@@ -5,6 +5,7 @@
 //
 void nsqw_pix_reader::run_read_job() {
     int log_level = param.log_level;
+    // Use this statement for debugging different timing intervals between IO jobs
     //std::this_thread::sleep_for(std::chrono::seconds(2));
 
     size_t start_bin = param.nBin2read;

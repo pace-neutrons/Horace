@@ -18,9 +18,9 @@ enum eMode
 // the enum identifies the formats, output data (second output of the calc_projections function) can have
 enum urangeModes
 {
-    noUrange,  // do not return any coordinates, output, if present will be empty
-    urangeCoord,    // the the output will contain the array of 4d coordinates (4xnPixels array of transformed coordinates)
-    urangePixels     // the the output will contain the array of pixels (9xnPixels array of pixels, including
+    noUrange,     // do not return any coordinates, output, if present will be empty
+    urangeCoord,  // the the output will contain the array of 4d coordinates (4xnPixels array of transformed coordinates)
+    urangePixels  // the the output will contain the array of pixels (9xnPixels array of pixels, including
                // where each 9-element row contains 4 transformed coordinates, experiment ID (1 here),
                // detector group number, energy bin number, pixels signal, pixels error squared)
 };

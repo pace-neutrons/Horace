@@ -43,18 +43,7 @@ enum inPar {
 //<
 //============================================================================================
 
-//* Possible prototype for a generic function
-double getMatlabScalar(const mxArray *pPar, const char * const fieldName) {
-    if (pPar == NULL) {
-        mexErrMsgIdAndTxt("MEX:invalid_argument", " The parameter has to be defined");
-    }
-    if (mxGetM(pPar) != 1 || mxGetN(pPar) != 1) {
-        std::stringstream buf;
-        buf << *fieldName << " has to be a scalar\n";
-        mexErrMsgIdAndTxt("MEX:invalid_argument", buf.str().c_str());
-    }
-    return (double)*mxGetPr(pPar);
-};
+
 void getMatlabVector(const mxArray *pPar, double *&pValue, size_t &NComponents, const char * const fieldName) {
     if (pPar == NULL) {
         std::stringstream buf;
@@ -82,7 +71,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     size_t nDataPoints(0), nEnShed(0), nEfixed(0);
     mwSize nDetectors, nEnergies;
     double *pEfix(nullptr), k_to_e;
-    urangeModes uRange_mode;
+    urangeModes uRange_mode(urangeModes::noUrange);
 
     if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
 #ifdef _OPENMP
@@ -96,7 +85,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     if (nrhs < NUM_IN_args - 1) {
         if (nrhs == NUM_IN_args - 2) { // uRangeMode is not specified; default urange mode, return pixel information
-            uRange_mode = urangePixels;
+            uRange_mode = urangeModes::urangePixels;
         }
         else {
             std::stringstream buf;
@@ -108,7 +97,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     bool forceNoUrange(false);
     if (nlhs != 2) {
         if (nlhs == 1) {
-            uRange_mode = noUrange;
+            uRange_mode = urangeModes::noUrange;
             forceNoUrange = true; // no urange is forced if no place for output array is provided. No point of allocating it then.
         }
         else {
@@ -141,8 +130,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
     getMatlabVector(prhs[nEfix], pEfix, nEfixed, "efix");
-    k_to_e = getMatlabScalar(prhs[nK_to_e], "variable k_to_e");
-    int ieMode = (int)getMatlabScalar(prhs[nEmode], "variable eMode");
+    k_to_e = getMatlabScalar<double>(prhs[nK_to_e], "k_to_e");
+    int ieMode =(int)getMatlabScalar<double>(prhs[nEmode], "eMode");
     if (ieMode < 0 || ieMode > 2) {
         mexErrMsgIdAndTxt("MEX:invalid_argument", 
             "only modes 0-2 (Elastic,Direct,Indirect) are currently supported");
@@ -153,28 +142,28 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         nThreads = 1;
     }
     else {
-        nThreads = (int)getMatlabScalar(prhs[nNThreads], "variable nThreads");
+        nThreads = (int)getMatlabScalar<double>(prhs[nNThreads], "nThreads");
     }
     if (nThreads < 1)nThreads = 1;
     if (nThreads > 64)nThreads = 64;
     //
     if (nrhs == NUM_IN_args) {
-        int iMode = (int)getMatlabScalar(prhs[uRangeMode], "variable proj_mode");
+        int iMode = (int)getMatlabScalar<double>(prhs[uRangeMode], "proj_mode");
         if (iMode > -1 && iMode < 3) {
             uRange_mode = static_cast<urangeModes>(iMode);
         }
         else {
-            uRange_mode = urangePixels;
+            uRange_mode = urangeModes::urangePixels;
         }
-        if (forceNoUrange)uRange_mode = noUrange;
+        if (forceNoUrange)uRange_mode = urangeModes::noUrange;
     }
 
     if (mxGetM(prhs[Spec_to_proj]) != 3 || mxGetN(prhs[Spec_to_proj]) != 3) {
-        mexErrMsgIdAndTxt("MEX:invalid_argument", 
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument", 
             "first argument (projection matrix) has to be 3x3 matrix");
     }
     if (pEnergy == NULL) {
-        mexErrMsgIdAndTxt("MEX:invalid_argument", 
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument", 
             "experimental data can not be empty");
     }
 
@@ -227,7 +216,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
 
-    mwSize dims[2], nEnPoints;
+    mwSize nEnPoints;
     double *pEnPoints;
     if (nEnergies == nEnShed) {     // energy is calculated on edges of energy bins
         nEnPoints = nEnergies;
@@ -261,45 +250,47 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         if (clearTmpDet) delete[] pDetGroup;
         mexErrMsgTxt("Energies in data spectrum and in energy spectrum are not consistent");
     }
-    dims[0] = 2;
-    dims[1] = 4;
-    plhs[0] = mxCreateNumericArray(2, dims, mxDOUBLE_CLASS, mxREAL);
-    if (!plhs[0]) {
-        if (clearTmpDet) delete[] pDetGroup;
 
-        mexErrMsgTxt("Can not allocate memory for output data");
-    }
 
     // Allocate output array of pixels if requested by urangeMode
+    mwSize range_dims[2], pix_dims[2];
+    range_dims[0] = 2;
+    range_dims[1] = pix_fields::PIX_WIDTH;
     switch (uRange_mode)
     {
     case noUrange:
     {
         if (!forceNoUrange)
         {
-            dims[0] = 9;
-            dims[1] = 0;
-            plhs[1] = mxCreateNumericArray(2, dims, mxDOUBLE_CLASS, mxREAL);
+            pix_dims[0] = 9;
+            pix_dims[1] = 0;
+            plhs[1] = mxCreateNumericArray(2, pix_dims, mxDOUBLE_CLASS, mxREAL);
         }
         break;
     }
     case urangeCoord:
     {
-        dims[0] = 4;
-        dims[1] = nDetectors * nEnPoints;
-        plhs[1] = mxCreateNumericArray(2, dims, mxDOUBLE_CLASS, mxREAL);
+        pix_dims[0] = 4;
+        pix_dims[1] = nDetectors * nEnPoints;
+        plhs[1] = mxCreateNumericArray(2, pix_dims, mxDOUBLE_CLASS, mxREAL);
         break;
     }
     case urangePixels:
     {
-        dims[0] = 9;
-        dims[1] = nDetectors * nEnPoints;
-        plhs[1] = mxCreateNumericArray(2, dims, mxDOUBLE_CLASS, mxREAL);
+        pix_dims[0] = pix_fields::PIX_WIDTH;
+        pix_dims[1] = nDetectors * nEnPoints;
+        plhs[1] = mxCreateNumericArray(2, pix_dims, mxDOUBLE_CLASS, mxREAL);
 
     }
     default:
         break;
     }
+    plhs[0] = mxCreateNumericArray(2, range_dims, mxDOUBLE_CLASS, mxREAL);
+    if (!plhs[0]) {
+        if (clearTmpDet) delete[] pDetGroup;
+        mexErrMsgTxt("Can not allocate memory for output data");
+    }
+
     //
     if (!plhs[1] && !forceNoUrange) {
         if (clearTmpDet) delete[] pDetGroup;
@@ -352,7 +343,7 @@ void calc_projections_emode(double * const pMinMax,
     */
 
 
-    double ki, *pKf(nullptr);
+    double ki(NAN), *pKf(nullptr);
     bool singleEfixed(true);
     if (nEfixed == 1) {
         double efix = *pEfix;
@@ -390,9 +381,19 @@ void calc_projections_emode(double * const pMinMax,
     }
 
     omp_set_num_threads(nThreads);
+    std::vector<double> qe_min, qe_max;
+    qe_min.assign(pix_fields::PIX_WIDTH * nThreads, FLT_MAX);
+    qe_max.assign(pix_fields::PIX_WIDTH * nThreads, -FLT_MAX);
 
-    std::vector<double> qe_min(4 * nThreads, FLT_MAX);
-    std::vector<double> qe_max(4 * nThreads, -FLT_MAX);
+    mwSize pix_width;
+    switch (urange_mode) {
+    case (urangePixels):
+    {
+        pix_width = 9;
+    }default: {
+        pix_width = 4;
+    }
+    }
 #pragma omp parallel default(none)  \
     shared(pKf,qe_min,qe_max) \
     firstprivate(nDetectors,nEnergies,ki,urange_mode,emode,singleEfixed, \
@@ -401,11 +402,11 @@ void calc_projections_emode(double * const pMinMax,
     //reduction(min: q1_min,q2_min,q3_min,e_min; max: q1_max,q2_max,q3_max,e_max)
     {
 #pragma omp for
-        for (long ii = 0; ii < nDetectors; ii++)
+        for (long i_det = 0; i_det < nDetectors; i_det++)
         {
             //	detdcn=[cosd(det.phi); sind(det.phi).*cosd(det.azim); sind(det.phi).*sind(det.azim)];   % [3 x ndet]
-            double phi = pDetPhi[ii] * grad2rad;
-            double psi = pDetPsi[ii] * grad2rad;
+            double phi = pDetPhi[i_det] * grad2rad;
+            double psi = pDetPsi[i_det] * grad2rad;
             double sPhi = sin(phi);
             double ex = cos(phi);
             double ey = sPhi * cos(psi);
@@ -414,28 +415,28 @@ void calc_projections_emode(double * const pMinMax,
             if (singleEfixed)
                 k_f = ki; // Used in indirect mode only
             else
-                k_f = sqrt(pEfix[ii] / k_to_e);
+                k_f = sqrt(pEfix[i_det] / k_to_e);
 
             //    q(1:3,:) = repmat([ki;0;0],[1,ne*ndet]) - ...
             //        repmat(kf',[3,ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
-            size_t i0 = ii * nEnergies;
-            for (size_t j = 0; j < nEnergies; j++)
+            size_t idet_rbase = i_det * nEnergies;
+            for (size_t j_transf = 0; j_transf < nEnergies; j_transf++)
             {
                 double q1, q2, q3, qe[4];
                 switch (emode) {
                 case Direct:
                 {
-                    q1 = ki - ex * pKf[j];
-                    q2 = -ey * pKf[j];
-                    q3 = -ez * pKf[j];
+                    q1 = ki - ex * pKf[j_transf];
+                    q2 = -ey * pKf[j_transf];
+                    q3 = -ez * pKf[j_transf];
                     break;
                 }
                 case Indirect:
                 {
                     if (singleEfixed)
-                        q1 = pKf[j] - ex * k_f;
+                        q1 = pKf[j_transf] - ex * k_f;
                     else {
-                        double k_i = sqrt((pEfix[ii] + pEnergies[j]) / k_to_e);
+                        double k_i = sqrt((pEfix[i_det] + pEnergies[j_transf]) / k_to_e);
                         q1 = k_i - ex * k_f;
                     }
                     q2 = -ey * k_f;
@@ -445,9 +446,9 @@ void calc_projections_emode(double * const pMinMax,
                 }
                 case Elastic:
                 {
-                    q1 = (1 - ex) * pKf[j];
-                    q2 = -ey * pKf[j];
-                    q3 = -ez * pKf[j];
+                    q1 = (1 - ex) * pKf[j_transf];
+                    q2 = -ey * pKf[j_transf];
+                    q3 = -ez * pKf[j_transf];
                     break;
                 }
                 }
@@ -459,12 +460,12 @@ void calc_projections_emode(double * const pMinMax,
                 qe[1] = pMatrix[1] * q1 + pMatrix[4] * q2 + pMatrix[7] * q3;
                 qe[2] = pMatrix[2] * q1 + pMatrix[5] * q2 + pMatrix[8] * q3;
                 //q(4,:)=repmat(eps',1,ndet);
-                qe[3] = pEnergies[j];
+                qe[3] = pEnergies[j_transf];
+                int n_cur = pix_fields::PIX_WIDTH * omp_get_thread_num();
                 switch (urange_mode)
                 {
                 case noUrange:
                 {
-                    int n_cur = 4 * omp_get_thread_num();
                     for (int ike = 0; ike < 4; ike++)
                     {
                         // min-max values;
@@ -475,8 +476,7 @@ void calc_projections_emode(double * const pMinMax,
                 }
                 case urangeCoord:
                 {
-                    size_t j0 = 4 * (i0 + j);
-                    int n_cur = 4 * omp_get_thread_num();
+                    size_t j0 = 4 * (idet_rbase + j_transf);
                     for (int ike = 0; ike < 4; ike++)
                     {
                         // min-max values;
@@ -490,45 +490,45 @@ void calc_projections_emode(double * const pMinMax,
                 case urangePixels:
                 {
 
-                    size_t j0 = 9 * (i0 + j);
-                    int n_cur = 4 * omp_get_thread_num();
+                    size_t j0 = pix_fields::PIX_WIDTH  * (idet_rbase + j_transf);
                     for (int ike = 0; ike < 4; ike++)
                     {
-                        // min-max values;
-                        if (qe[ike] < qe_min[n_cur + ike])qe_min[n_cur + ike] = qe[ike];
-                        if (qe[ike] > qe_max[n_cur + ike])qe_max[n_cur + ike] = qe[ike];
                         pTransfDetectors[j0 + ike] = qe[ike];
                     }
 
-                    // to be consistent with MATLAB; should be ii+1 to be correct
+                    // to be consistent with MATLAB; should be i_det+1 to be correct
                     pTransfDetectors[j0 + 4] = runID;
                     // pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
-                    pTransfDetectors[j0 + 5] = pDetGroup[ii];
+                    pTransfDetectors[j0 + 5] = pDetGroup[i_det];
                     //pix(7,:)=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
-                    pTransfDetectors[j0 + 6] = double(j) + 1;
+                    pTransfDetectors[j0 + 6] = double(j_transf) + 1;
                     //pix(8,:)=data.S(:)';
-                    pTransfDetectors[j0 + 7] = pSignal[i0 + j];
+                    pTransfDetectors[j0 + 7] = pSignal[idet_rbase + j_transf];
                     //pix(9,:)=((data.ERR(:)).^2)';
-                    pTransfDetectors[j0 + 8] = pError[i0 + j] * pError[i0 + j];
+                    pTransfDetectors[j0 + 8] = pError[idet_rbase + j_transf] * pError[idet_rbase + j_transf];
+                    // min-max values;
+                    for (int ike = 0; ike < pix_fields::PIX_WIDTH; ike++) {
+                        if (pTransfDetectors[j0 + ike] < qe_min[n_cur + ike])qe_min[n_cur + ike] = pTransfDetectors[j0 + ike];
+                        if (pTransfDetectors[j0 + ike] > qe_max[n_cur + ike])qe_max[n_cur + ike] = pTransfDetectors[j0 + ike];
+                    }
+
                 }
                 }
-
-
             }
         } // end omp for
 
     }  // end parallel block
     if (pKf)mxFree(pKf);
     // mvs do not support reduction min/max Shame! Calculate single threaded here
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < pix_fields::PIX_WIDTH; i++) {
         pMinMax[2 * i + 0] = 1.e+38;
         pMinMax[2 * i + 1] = -1.e+38;
     }
 
     for (int ii = 0; ii < nThreads; ii++) {
-        for (int ike = 0; ike < 4; ike++) {
-            if (qe_min[4 * ii + ike] < pMinMax[2 * ike + 0])pMinMax[2 * ike + 0] = qe_min[4 * ii + ike];
-            if (qe_max[4 * ii + ike] > pMinMax[2 * ike + 1])pMinMax[2 * ike + 1] = qe_max[4 * ii + ike];
+        for (int ike = 0; ike < pix_fields::PIX_WIDTH; ike++) {
+            if (qe_min[pix_fields::PIX_WIDTH * ii + ike] < pMinMax[2 * ike + 0])pMinMax[2 * ike + 0] = qe_min[pix_fields::PIX_WIDTH * ii + ike];
+            if (qe_max[pix_fields::PIX_WIDTH * ii + ike] > pMinMax[2 * ike + 1])pMinMax[2 * ike + 1] = qe_max[pix_fields::PIX_WIDTH * ii + ike];
         }
     }
 

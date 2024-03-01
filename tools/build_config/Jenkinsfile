@@ -37,25 +37,25 @@ properties([
       trim: true
     ),
     string(
-      defaultValue: '3.19',
+      defaultValue: 'latest',
       description: 'The version of CMake to run the build with. Affects Linux builds only.',
       name: 'CMAKE_VERSION',
       trim: true
     ),
     string(
-      defaultValue: '6.3.0',
+      defaultValue: '8',
       description: 'The version of GCC to build with. Affects Linux builds only.',
       name: 'GCC_VERSION',
       trim: true
     ),
     string(
-      defaultValue: '2017',
+      defaultValue: '2019',
       description: 'The year of the version of Visual Studio to build with.  Affects Windows builds only.',
       name: 'VS_VERSION',
       trim: true
     ),
     string(
-      defaultValue: '',
+      defaultValue: 'latest',
       description: 'The version of CppCheck tooling to load to provide the code-style checks. Affects Linux builds only.',
       name: 'CPPCHECK_VERSION',
       trim: true
@@ -89,7 +89,7 @@ pipeline {
     MATLAB_VERSION = utilities.get_param('MATLAB_VERSION', pli.matlab_release)
     MATLAB_MODULE = utilities.get_param('MATLAB_VERSION', pli.matlab_release.minus('R'))
     CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', 'latest')
-    GCC_VERSION = utilities.get_param('GCC_VERSION', '6.3.0')
+    GCC_VERSION = utilities.get_param('GCC_VERSION', '8.0')
     VS_VERSION = utilities.get_param('VS_VERSION', "${env.AGENT == 'icdpacewin' ? '2019' : '2017'}")
     CPPCHECK_VERSION = utilities.get_param('CPPCHECK_VERSION', '1.77')
     BUILD_DOCS = utilities.get_param('BUILD_DOCS', 'true')
