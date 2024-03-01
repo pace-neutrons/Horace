@@ -24,7 +24,6 @@ classdef test_sort_pix_mex_nomex < TestCase
                 skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
             end
             % prepare pixels to sort
-            cleanup_obj_pc = set_temporary_config_options(parallel_config, 'threads', 8);
 
             %xs = 9.6:-1:0.6;
             %xp = 0.1:0.5:10;
@@ -46,7 +45,6 @@ classdef test_sort_pix_mex_nomex < TestCase
                 'log_level', -1, ...
                 'use_mex', false ...
                 );
-            cleanup_obj_pc = set_temporary_config_options(parallel_config, 'threads', 8);
 
             %xs = 9.6:-1:0.6;
             %xp = 0.1:0.5:10;
@@ -82,29 +80,12 @@ classdef test_sort_pix_mex_nomex < TestCase
 
             assertTrue(isa(pix1.data,'double'))
 
-            pix0 = PixelDataBase.create(single(pix.data));
+            pix0 = PixelData(single(pix.data));
             ix0  = int64(ix);
             pix0a = sort_pix(pix0,ix0,npix,'-force_mex','-keep_precision');
             assertTrue(isa(pix0a.data,'single'))
             assertElementsAlmostEqual(pix0a.data, pix1.data,'absolute',1.e-6);
         end
-
-        function test_mex_changes_precision(obj)
-            [pix,ix,npix] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
-            % test mex
-            pix1 = sort_pix(pix,ix,npix,'-force_mex');
-
-            assertTrue(isa(pix1.data,'double'))
-
-            pix0 = PixelDataBase.create(single(pix.data));
-            ix0  = int64(ix);
-            pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
-
-            assertTrue(isa(pix0a.data,'double'))
-            assertElementsAlmostEqual(pix0a.data, pix1.data,'absolute',1.e-6);
-
-        end
-
 
         function profile_sort_pix(obj)
             xs = 9.99:-0.1:0.01;
@@ -151,7 +132,7 @@ classdef test_sort_pix_mex_nomex < TestCase
             pix(3,:) = uz(:);
             pix(4,:) = et(:);
             pix(7,:) = 1:NumPix;
-            pix = PixelDataBase.create(pix);
+            pix = PixelData(pix);
 
             ix = ceil(pix.u1);
             iy = ceil(pix.u2);
