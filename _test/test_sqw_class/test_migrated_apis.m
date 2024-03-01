@@ -86,19 +86,6 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             qw=calculate_qw_pixels(sqw_obj);
             assertEqualToTolWithSave(obj,qw,'tol',2.e-7);
         end
-        %        function test_calculate_qw_pixels2(obj)
-        %            % tested as part of calc_qsqr_w_pixels
-        %        end
-        %        function test_calculate_uproj_pixels(obj)
-        %            % tested as part of test_get_nearest_pixels
-        %        end
-
-
-        %% Compact/slim
-        function test_compact(obj)
-        end
-        function test_slim(obj)
-        end
 
         %% Cut
         function test_cut_sym(obj)
@@ -324,14 +311,14 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
 
         %% shifts
         function test_shift_energy_bins(obj)
-            skipTest("Incorrect test data for shift");
+            skipTest("Re #1360  Shift is broken ");
             params = {'scale', 14};
             sqw_4d_obj = sqw(obj.test_sqw_1d_fullpath);
             wout = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.disp_rln, params);
         end
 
         function test_shift_pixels(obj)
-            skipTest("Incorrect test data for shift");
+            skipTest("Re #1360  Shift is broken ");
             params = {}; % no parameters required by test shift_rln function
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
             wout = shift_pixels(sqw_4d_obj, @test_migrated_apis.shift_rln, params);

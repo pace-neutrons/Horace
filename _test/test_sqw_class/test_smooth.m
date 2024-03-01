@@ -34,6 +34,7 @@ classdef test_smooth < TestCase
 
             d = s.smooth(10, 'hat');
             assertTrue(isa(d, 'sqw'));
+            skipTest('Re #1583 applying smooth to sqw object is questionable')
         end
 
         function test_smooth_no_args(obj)
@@ -45,6 +46,7 @@ classdef test_smooth < TestCase
             % TODO: assert data matches expected...
             %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
             %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
+            skipTest('Re #1583 applying smooth to sqw object is questionable')
         end
 
         function test_smooth_scalar_width_arg(obj)
@@ -56,6 +58,7 @@ classdef test_smooth < TestCase
             % TODO: assert data matches expected...
             %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
             %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
+            skipTest('Re #1583 applying smooth to sqw object is questionable')
         end
 
         function test_smooth_array_width_arg(obj)
@@ -67,6 +70,7 @@ classdef test_smooth < TestCase
             % TODO: assert data matches expected...
             %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
             %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
+            skipTest('Re #1583 applying smooth to sqw object is questionable')
         end
 
         function test_smooth_resolution_shape_arg(obj)
@@ -90,6 +94,7 @@ classdef test_smooth < TestCase
             % TODO: assert data matches expected...
             %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
             %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
+            skipTest('Re #1583 applying smooth to sqw object is questionable')
         end
 
         function test_smooth_gaussian_shape_arg(obj)
@@ -101,6 +106,7 @@ classdef test_smooth < TestCase
             % TODO: assert data matches expected...
             %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
             %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
+            skipTest('Re #1583 applying smooth to sqw object is questionable')
         end
 
         function test_smooth_raises_error_with_invalid_shape_arg(obj)
