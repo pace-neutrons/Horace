@@ -268,7 +268,10 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     //--------------------------------------------------------
     std::vector<sqw_reader> fileReader(n_files);
     for (size_t i = 0; i < n_files; i++) {
-        fileReader[i].init(fileParam[i], change_fileno, fileno_provided, read_buf_size, read_files_multitreaded);
+        if (change_fileno && !fileno_provided) { // renumbering pixel id-s with file number
+            fileParam[i].file_id = int(i + 1); // file numbers in Matlab start from 1 so adhere to this convention
+        }
+        fileReader[i].init(fileParam[i], change_fileno,read_buf_size, read_files_multitreaded);
     }
     size_t n_buf_pixels(0), n_bins_processed(0);
 

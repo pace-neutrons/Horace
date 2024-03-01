@@ -16,7 +16,7 @@ class sqw_reader
 public:
     sqw_reader();
     ~sqw_reader();
-    void init(const fileParameters &fpar, bool changefileno, bool fileno_provided, size_t working_buf_size = 4096, int use_multithreading = 0);
+    void init(const fileParameters &fpar, bool changefileno, size_t working_buf_size = 4096, int use_multithreading = 0);
     /* return pixel information for the pixels stored in the bin */
     void get_pix_for_bin(size_t bin_number, float *const pix_info, size_t cur_buf_position,
         size_t &pix_start_num, size_t &num_bin_pix, bool position_is_defined = false);
