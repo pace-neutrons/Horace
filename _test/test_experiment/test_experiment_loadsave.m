@@ -151,6 +151,7 @@ classdef test_experiment_loadsave < TestCase
              
              % save, load and compare the experiment info and detpar struct
              % into a .mat file
+             cl0b_file = onCleanup(@()delete('a.mat','mysqw.sqw'));
              save('a.mat','mysqw');
              zzz = load('a.mat');
              % compare the experiment_info and detpar (equivalent to the detector_arrays in experiment_info) for the

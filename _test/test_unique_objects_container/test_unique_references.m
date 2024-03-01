@@ -223,6 +223,7 @@ classdef test_unique_references < TestCase
             urc = urc.add(0.222);
             urc = urc.add(0.333);
             urc = urc.add(0.222);
+            clOb_file = onCleanup(@()delete('test_unique_references_container_save_load_1.mat'));
             save('test_unique_references_container_save_load_1.mat','urc');
             zzz = load('test_unique_references_container_save_load_1.mat');
             assertEqual(zzz.urc, urc);
