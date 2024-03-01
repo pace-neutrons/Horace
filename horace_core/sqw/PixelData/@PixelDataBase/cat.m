@@ -9,7 +9,8 @@ function pix_out = cat(varargin)
 %   varargin    A cell array of PixelData objects to concatenate
 % Optional:
 %  '-force_membased'
-%           -- if present, try to cat pixels in memory regardless of 
+%           -- if present, try to cat pixels in memory regardless of their
+%              initial location.
 % 
 %
 % Output:
