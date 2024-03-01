@@ -77,7 +77,6 @@ classdef test_main_mex < TestCase
             skipTest('Only pixel sorting is currently mexed')
         end
 
-
         function obj=test_accum_cut(obj)
             if obj.no_mex
                 skipTest('Can not use and test mex code to accumulate_cut');
@@ -253,18 +252,38 @@ classdef test_main_mex < TestCase
             if obj.no_mex
                 skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
             end
+        end
 
+        function test_mex_keeps_precision(obj)
+            [pix,ix,npix] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
             % test mex
             pix1 = sort_pix(pix,ix,npix,'-force_mex');
-            assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
-            assertElementsAlmostEqual(pix1.data, pix2.data);
+
+            assertTrue(isa(pix1.data,'double'))
+
+            pix0 = PixelDataBase.create(single(pix.data));
+            ix0  = int64(ix);
+            pix0a = sort_pix(pix0,ix0,npix,'-force_mex','-keep_precision');
+            assertTrue(isa(pix0a.data,'single'))
+            assertElementsAlmostEqual(pix0a.data, pix1.data,'absolute',1.e-6);
+        end
+
+        function test_mex_changes_precision(obj)
+            [pix,ix,npix] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
+            % test mex
+            pix1 = sort_pix(pix,ix,npix,'-force_mex');
+
+            assertTrue(isa(pix1.data,'double'))
 
             pix0 = PixelDataBase.create(single(pix.data));
             ix0  = int64(ix);
             pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
-            assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);
+
+            assertTrue(isa(pix0a.data,'double'))
+            assertElementsAlmostEqual(pix0a.data, pix1.data,'absolute',1.e-6);
 
         end
+
 
         function profile_sort_pix(obj)
             xs = 9.99:-0.1:0.01;
