@@ -30,14 +30,14 @@ classdef test_shift_pixels < TestCase
 
             %% shifts
         function test_shift_energy_bins(obj)
-            skipTest("Incorrect test data for shift");
+            skipTest("Re #1360 shift_pixels algorithm is currently broken");
             params = {'scale', 14};
             sqw_4d_obj = sqw(obj.test_sqw_1d_fullpath);
             wout = sqw_4d_obj.shift_energy_bins(@test_shift_pixels.disp_rln, params);
         end
 
         function test_shift_pixels_1(obj)
-            skipTest("Incorrect test data for shift");
+            skipTest("Re #1360 shift_pixels algorithm is currently broken");
             params = {}; % no parameters required by test shift_rln function
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
             wout = shift_pixels(sqw_4d_obj, @test_shift_pixels.shift_rln, params);
