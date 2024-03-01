@@ -1,4 +1,4 @@
-function [u,v,w,type,nonortho]=uv_from_transf_mat_(obj,q_to_img,ulen,varargin)uv_from_data_rot
+function [u,v,w,type,nonortho]=uv_from_transf_mat_(obj,q_to_img,ulen,varargin)
 % Extract initial u/v vectors, defining the plane in hkl from
 % lattice parameters and the matrix converting vectors in
 % crystal Cartesian coordinate system into image coordinate system.

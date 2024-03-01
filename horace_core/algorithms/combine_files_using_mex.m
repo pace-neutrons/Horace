@@ -9,9 +9,9 @@ function  [mess,infiles] = combine_files_using_mex(fout_name,n_bin,pix_out_posit
 % pix_out_position
 %            -- the position to start writing pixels at
 % infiles    -- cellarray of full names of the input files to combine
-% npixstart  -- array (size of numel(infiles) defining physical postitions
+% npixstart  -- array (size of numel(infiles) defining physical positions
 %               of npix data in each input file to combine.
-% pixstart   -- array (size of numel(infiles) defining physical postitions
+% pixstart   -- array (size of numel(infiles) defining physical positions
 %               of pix data in each input file to combine.
 %
 % runlabel,change_fileno,relabel_with_fnum
