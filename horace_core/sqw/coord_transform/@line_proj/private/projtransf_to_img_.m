@@ -1,11 +1,12 @@
 function [q_to_img,ulen,b_mat,obj] = projtransf_to_img_(obj)
-% Determine matrices to convert rlu <=> projection axes, and the scaler
+% Determine matrices to convert betwen Crystal Cartesian and Image
+% coordinate systems.
 %
 %
 %   >> [q_to_img,ulen,b_mat,obj] = projaxes_to_rlu_(proj)
 %
 % The projection axes are three vectors that may or may not be orthogonal
-% which are used to create the bins in an sqw object. The bin sizes are in ustep
+% which are used to create the bins in an sqw object.
 %
 % Input:
 % ------

@@ -86,19 +86,6 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             qw=calculate_qw_pixels(sqw_obj);
             assertEqualToTolWithSave(obj,qw,'tol',2.e-7);
         end
-        %        function test_calculate_qw_pixels2(obj)
-        %            % tested as part of calc_qsqr_w_pixels
-        %        end
-        %        function test_calculate_uproj_pixels(obj)
-        %            % tested as part of test_get_nearest_pixels
-        %        end
-
-
-        %% Compact/slim
-        function test_compact(obj)
-        end
-        function test_slim(obj)
-        end
 
         %% Cut
         function test_cut_sym(obj)

@@ -20,7 +20,11 @@ classdef line_axes < AxesBlockBase
     %        fields are returned by saveableFields function.
     %5) ab = line_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
     %    -- particularly frequent case of building axes block (case 4)
-    %       from the image range and number of bins in all directions.
+    %       from the image range and number of bins in all directions. E.g:
+    %    ab = line_axes('img_range',[-4,-4,-0.1,-5;4,4,0.1,5],'nbins_all_dims',[100,100,1,1]);
+    %    -- defines 2D cut along first two dimensions (the meaning of the
+    %    dimensions is defined by aProjection class)
+    %
     properties(Dependent)
         % the matrix which describes the directions of the each axis in
         % hkl-dE coordinate system. Each column provides vector of the

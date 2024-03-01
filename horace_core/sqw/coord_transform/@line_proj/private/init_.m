@@ -32,7 +32,7 @@ function obj = init_by_input_parameters_(obj,varargin)
 %
 
 
-opt =  [line_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
+opt =  [line_proj.fields_to_save_(1:end-2);aProjectionBase.init_params(:)];
 % check if the type is defined explicitly
 n_type = find(ismember(opt,'type'));
 text_in = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false); 
