@@ -158,7 +158,7 @@ classdef rundatah < rundata
                 proj_mode = 2;
             end
             % Calculate projections            
-            [u_to_rlu,pix_range,pix] = obj.calc_projections_(obj.detdcn_cache,[],proj_mode);
+            [u_to_rlu,pix_range,pix] = calc_projections_(obj,obj.detdcn_cache,[],proj_mode);
         end
     end
     
