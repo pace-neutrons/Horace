@@ -92,7 +92,7 @@ classdef PageOp_section < PageOpBase
             % usual PageOp
             does = true;
         end
-        
+
     end
     methods(Static)
         function [block_starts,block_sizes] = find_section(npix,ind_range)
@@ -123,6 +123,17 @@ classdef PageOp_section < PageOpBase
             block_sizes  = block_ends-block_starts;
             % Matlab starts counting from 1
             block_starts = block_starts+1;
+        end
+    end
+    methods(Access=protected)
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','section_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.section_split_ratio = val;
         end
     end
 end

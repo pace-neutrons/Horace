@@ -49,8 +49,9 @@ classdef MagneticIons
         % handles to functions calculating magnetic momentums of
         % appropriate order for current ion.
         J0_ff_;J2_ff_;J4_ff_;J6_ff_;
-        % matrix of coefficients used to convert hkl coordinates into A^(-1)
-        hkl_to_Qmat_ = eye(3);
+        % 
+        proj_ % the instance of the projection which converts hkl values into 
+        % Crystal Cartesian coordinate system
     end
 
     methods

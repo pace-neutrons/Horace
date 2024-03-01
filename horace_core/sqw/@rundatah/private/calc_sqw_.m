@@ -56,8 +56,21 @@ data_range = pix.data_range; % the range pixels have
 w=sqw();
 w.main_header.nfiles = 1;
 w.main_header.creation_date = datetime('now');
-w.detpar = det0;
+% w.detpar = det0; % detpar of w now removed
+det = IX_detector_array(det0);
+if exp_info.detector_arrays.n_runs ~= 0
+    % detectors already populated, ignore
+    ;
+else
+    exp_info.detector_arrays = exp_info.detector_arrays.add(det);
+end
 w.experiment_info = exp_info;
+% at this point we are expecting that experiment_info will contain data for exactly one run
+% described by the current rundatah.
+
+% detpar has been inserted into experiment_info in calc_sqw_data_and_header
+% above so there is no need to insert it again here
+
 w.data = data;
 w.pix=pix;
 % move detector data from detpar into the experiment info detector arrays

@@ -1,4 +1,4 @@
-function sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis,clim,isoflag)
+function d=sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis,clim,isoflag,name)
 % SLICEOMATIC - Slice and isosurface volume exploration GUI
 %
 % Using the GUI:
@@ -99,6 +99,8 @@ function sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis,clim,isof
 %   clim    Intensity limits
 %   isoflag TRUE if isonormals are to be plotted later on. FALSE (or simply
 %           omitted) if not. Isonormals take longer to calculate.
+%   name    if provided, the name of the figure to contain sliseomatic. If absent, 
+%           the name will be Sliceomatic
 
 
 colordef white  % to avoid screw-up that earlier 'colordef none' produces
@@ -106,6 +108,9 @@ colordef white  % to avoid screw-up that earlier 'colordef none' produces
 if nargin==0
     help sliceomatic
     return
+end
+if nargin < 13
+    name = 'Sliceomatic';
 end
 
 if ~exist('isoflag', 'var')
@@ -151,6 +156,8 @@ if isa(U1,'double')
     d.xlim = d.xlim + [-deltax/2,deltax/2];
     d.ylim = d.ylim + [-deltay/2,deltay/2];
     d.zlim = d.zlim + [-deltaz/2,deltaz/2];
+
+    d.name = name;
     d = sliceomaticfigure(d);
     d = sliceomaticsetdata(d,isoflag);
 
@@ -770,8 +777,8 @@ else
                 if strcmp(d.defalpha,'flat') || strcmp(d.defalpha,'interp')
                     d.defalpha='texture';
                 end
-%             case	'defaultinterp'
-%                 d.defcolor='none';
+                %             case	'defaultinterp'
+                %                 d.defcolor='none';
             case	'defaulttransnone'
                 d.defalpha='none';
             case	'defaulttransflat'

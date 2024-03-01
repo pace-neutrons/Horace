@@ -221,7 +221,7 @@ classdef cut_data_from_file_job < JobExecutor
         end
 
         function pix_comb_info = accumulate_pix(varargin)
-            % Accumulate pixel data into memory and if memory full, to 
+            % Accumulate pixel data into memory and if memory full, to
             % temporary files and return a pixfile_combine_info
             % object that manages the files.
             %
@@ -238,6 +238,11 @@ classdef cut_data_from_file_job < JobExecutor
             % npix             The npix array associated with this chunk of pixels
             % max_buf_size     The maximum buffer size for reading/writing
             % npix_retained     Number of pixels retained in this chunk of the cut
+            % Optional:
+            % log_level        verbosity of the accumulate algorithm as
+            %                  defined in hor_config.log_level. If absent,
+            %                  hor_config.log_level will be used to
+            %                  define the verbosity.
             %
             pix_comb_info = accumulate_pix_(varargin{:});
         end

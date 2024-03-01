@@ -111,7 +111,7 @@ classdef accumulate_headers_job < JobExecutor
                 mess_completion
             end
         end
-        function [main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+        function [main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,ldrs] = ...
                 read_input_headers(infiles)
             % function prepares input headers data for write_nswq_to_sqw
             % procedure.
@@ -137,7 +137,7 @@ classdef accumulate_headers_job < JobExecutor
             % ldrs          -- cellarray of correspondent loaders, to read data from
             %                  each infile. The loaders are initalized i.e.
             %                  associated with correspondedn infile
-            [main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+            [main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,ldrs] = ...
                 read_input_headers_(infiles);
         end
         

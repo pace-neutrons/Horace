@@ -1,5 +1,5 @@
 function [sqw_obj,al_info] = finalize_alignment(filename,varargin)
-%APPLY_ALIGNMEMT Utility takes aligned file and apply alignment information
+%FINALIZE_ALIGNMEMT Utility takes aligned file and apply alignment information
 %stored in it to pixels and image so the object becomes realigned as from
 % the beginning and the aligment information is not necessary any more.
 %
@@ -49,5 +49,3 @@ end
 [sqw_obj,al_info] = sqw_obj.finalize_alignment(argi{:});
 % TODO: Re #1320 -- add save(obj, file, '-no_update') if called without
 % output arguments
-
-

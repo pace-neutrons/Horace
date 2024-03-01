@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = ps2(w,varargin)
+function varargout = ps2(w,varargin)
 % Overplot a surface plot of an IX_dataset_2d or array of IX_dataset_2d
 %
 %   >> ps2(w)       % Use error bars to set colour scale
@@ -25,21 +25,9 @@ function [fig_handle, axes_handle, plot_handle] = ps2(w,varargin)
 
 
 % Check input arguments (must allow for the two cases of one or two plotting input arguments)
-
 opt=struct('newplot',false);
-%args,nw,lims,fig_out
-[args,nw,lims,fig]=genie_figure_parse_plot_args2(opt,w,varargin{:});
-if nw==2
-    data={w,IX_dataset_2d(varargin{1})};
-else
-    data=w;
-end
-
-% Perform plot
-type='surface2';
-[fig_,axes_,plot_]=plot_twod (data,opt.newplot,type,fig);
-
+[fig_,axes_,plot_] = plot_2d_nd_oc_(w,nargout,'surface2',opt,varargin{:});
 % Output only if requested
-if nargout>=1, fig_handle=fig_; end
-if nargout>=2, axes_handle=axes_; end
-if nargout>=3, plot_handle=plot_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+end

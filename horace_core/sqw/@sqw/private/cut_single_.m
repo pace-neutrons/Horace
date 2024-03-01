@@ -51,7 +51,8 @@ data_out = compile_sqw_data(...
 if opt.keep_pix
     wout = sqw();
     wout.main_header = w.main_header;
-    wout.detpar = w.detpar;
+    % NB detpar is no longer copied as detpar just exposes the detector_arrays 
+    % already in experiment_info
     wout.data   = data_out.data;
     wout.pix  = data_out.pix;
 

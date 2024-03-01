@@ -541,7 +541,9 @@ classdef IX_detector_array < serializable
                 val = obj.det_bank_.ndet;
             end
         end
-        
+    end
+    
+    methods    
         function val = get_detpar_representation(obj)
             %GET_DETPAR_REPRESENTATION convert first detector bank into detpar struct
             % intended for use initialising from a *default* IX_detector_array
@@ -551,10 +553,10 @@ classdef IX_detector_array < serializable
             val.x2       = obj.det_bank_(1).x2;
             val.phi      = obj.det_bank_(1).phi;
             val.azim     = obj.det_bank_(1).azim;
-            val.width    = 0; % TODO populate as per resconv_init calls
-            val.height   = 0; % TODO ditto
+            val.width    = obj.det_bank_(1).width; 
+            val.height   = obj.det_bank_(1).height; 
             val.filename = obj.filename_;
-            val.filepath = obj.filepath_;
+            val.filepath = obj.filepath_;        
         end
     end
     

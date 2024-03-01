@@ -166,7 +166,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             % Accumulate headers job. Test components.
             %write_nsqw_to_sqw(infiles,'test_sqw_file.sqw');
             %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
-            [~,~,~,~,~,~,det,ldrs] = accumulate_headers_job.read_input_headers(tmp_files);
+            [~,~,~,~,~,~,ldrs] = accumulate_headers_job.read_input_headers(tmp_files);
             %
             data_range = PixelDataBase.EMPTY_RANGE;
             for i=1:numel(tmp_files)
@@ -176,7 +176,12 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             end
             assertElementsAlmostEqual(res.data_range,data_range);
             
-            assertEqual(numel(det.group),96);
+            % may wish to resurrect this as a test later but for the moment
+            % det is no longer an output of the read_input_headers call at
+            % line 169. When we have worked out how to extract this data
+            % from what is now available we may wish to resume testing for
+            % the number of detectors
+            %assertEqual(numel(det.group),96);
             
             
             [common_par,loop_par] = accumulate_headers_job.pack_job_pars(ldrs);

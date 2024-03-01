@@ -57,5 +57,14 @@ classdef PageOp_noisify < PageOpBase
             % calculated by other algorithm.
             do  = false;
         end
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','noisify_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.noisify_split_ratio = val;
+        end
     end
 end
