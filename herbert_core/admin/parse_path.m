@@ -3,7 +3,7 @@ function my_path=parse_path(in_path)
 %
 %   >> my_path=parse_path(in_path)
 %
-% Recall that './' refers to current directoy, and '../' to parent directory.
+% Recall that './' refers to current directory, and '../' to parent directory.
 %
 % If in_path starts with ./ or ../ the function appends in_path to the current
 % working directory to the path specified as input argument.
@@ -26,9 +26,6 @@ function my_path=parse_path(in_path)
 %       adds working directory path to it.
 %
 
-% Written by: Alex Buts 27/08/2009
-
-
 dirs = regexp(in_path,'[\/\\]','split');
 
 if( size(dirs)==0)
@@ -50,7 +47,8 @@ for i=1:length(dirs)
     elseif(strcmp(dirs{i},'..'))
         path_length=path_length-1;
         if(path_length<=0)
-            error(' parse_path => wrong path; path %s points above the root folder',in_path)
+            error('HERBERT:admin:invalid_argument', ...
+                ' parse_path => wrong path; path %s points above the root folder',in_path)
         end
         continue
     else
@@ -60,24 +58,10 @@ for i=1:length(dirs)
 end
 
 
-my_path = join(filesep,dirs,path_length);
+my_path = join(dirs,filesep);
 if(~strncmp(computer,'PC',2)) % linux root folder -- separate treatment
     if(my_path(1)~='/')
         my_path=['/',my_path];
     end
 end
-
-
-end
-
-%-----------------------------------------------------------------------------------------------
-function joined=join(sep,array,length)
-% functions glues array into a string with separator sep between words
-% should work similarly to Perl join
-
-joined = array{1};
-for i=2:length
-    joined=[joined sep array{i}];
-end
-
 end

@@ -60,7 +60,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
                 sqw_obj.experiment_info.samples{1};
             end
             assertExceptionThrown( @throwsamp,'HERBERT:unique_references_container:invalid_subscript');
-            assertEqual(sqw_obj.detpar, struct([]));
+            assertEqual(sqw_obj.experiment_info.detector_arrays.n_runs, 0);
             assertEqual(sqw_obj.pix, PixelDataBase.create());
             assertEqual(numel(sqw_obj.data.pax), 0);
         end
@@ -74,7 +74,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertEqual(numel(sqw_obj.experiment_info.expdata), 14)
             assertEqual(sqw_obj.experiment_info.instruments.n_runs, 14)
             assertEqual(sqw_obj.experiment_info.samples.n_runs, 14)
-            assertEqual(numel(sqw_obj.detpar.group), 36864);
+            assertEqual(numel(sqw_obj.experiment_info.detector_arrays{1}.group), 36864);
             assertEqual(numel(sqw_obj.data.pax), 1);
             assertEqual(sqw_obj.pix.num_pixels, obj.data_npix);
         end
@@ -122,7 +122,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             ids = sqw_obj.experiment_info.expdata.get_run_ids();
             assertEqual(keys,ids);
 
-            pix_ids = unique(sqw_obj.pix.get_fields('run_idx', 'all'));
+            pix_ids = unique(sqw_obj.pix.run_idx);
             assertEqual(ids,pix_ids)
 
             save(tmp_filename, 'sqw_obj');

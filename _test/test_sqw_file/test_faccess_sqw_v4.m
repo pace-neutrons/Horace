@@ -4,8 +4,6 @@ classdef test_faccess_sqw_v4< TestCase
     %
     %
     %
-
-
     properties
         old_origin
         sample_dir;
@@ -29,10 +27,6 @@ classdef test_faccess_sqw_v4< TestCase
             hp = horace_paths;
 
             obj.old_origin = fullfile(hp.test_common,'sqw_1d_2.sqw');
-            obj.old_ws = warning('off','HORACE:old_file_format');
-        end
-        function delete(obj)
-            warning(obj.old_ws);
         end
         %------------------------------------------------------------------
         % tests
@@ -110,6 +104,7 @@ classdef test_faccess_sqw_v4< TestCase
             clear res_sqw; % try to delete memmapfile to be able to delete
             % test file
         end
+
         function obj = test_save_load_sqwV4_crossbuf(obj)
             clob1 = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
 
@@ -126,7 +121,7 @@ classdef test_faccess_sqw_v4< TestCase
             inst1=create_test_instrument(95,250,'s');
             hdr = sqw_ob.experiment_info;
             hdr.instruments{1} = inst1;
-            sqw_ob = sqw_ob.change_header(hdr);
+            sqw_ob.experiment_info = hdr;
 
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()file_delete(tf));
@@ -150,7 +145,53 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date','ignore_str',true);
         end
 
-        function test_upgrdate_v2_to_v4_filebacked(obj)
+        function test_upgrade_v4_to_v4_calc_range(obj)
+            tf = fullfile(tmp_dir,'test_upgrade_v4tov4_range.sqw');
+            clObF = onCleanup(@()file_delete(tf));
+            copyfile(obj.old_origin,tf,'f');
+            clobW = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+
+            % 4324 pixels, let's ensure pixels in file are treated as filebacked
+            clobConf = set_temporary_config_options(hor_config, 'mem_chunk_size', 500, 'fb_scale_factor', 3);
+            assertTrue(PixelDataBase.do_filebacked(4324));
+            %------------ Now the test setting and test
+
+            ldr = sqw_formats_factory.instance().get_loader(tf);
+            fac = ldr.upgrade_file_format(tf);
+            ldr.delete();
+
+            assertEqual(fac.faccess_version,4.0)
+            assertEqual(fac.npixels,uint64(4324))
+            assertEqual(fac.num_contrib_files,186);
+
+            w_no_range = fac.get_sqw('-ver');
+            fac.delete();
+            assertFalse(w_no_range.pix.is_range_valid);
+
+            facu = sqw_formats_factory.instance().get_loader(tf);
+            assertEqual(facu.faccess_version,4.0)
+            facu = facu.upgrade_file_format(tf,'-upgrade_range');
+            assertEqual(facu.faccess_version,4.0)
+            assertEqual(facu.npixels,uint64(4324))
+            assertEqual(facu.num_contrib_files,109);
+
+
+            w_with_range = facu.get_sqw('-ver');
+            assertTrue(w_with_range.pix.is_range_valid);
+
+            % Cut projection is recovered correctly
+            eq_cut = w_with_range.cut(w_no_range.data.proj,[],[],[],[]);
+            assertEqualToTol(eq_cut,w_with_range,1.e-7,'-ignore_date', 'ignore_str', true);
+            % do clean-up as pixels hold access to the file, which can not
+            % be deleted as memmapfile holds it
+            w_no_range.pix = [];
+            w_with_range.pix = [];
+            clear w_no_range;
+            clear w_with_range;
+        end
+
+        %
+        function test_upgrade_v2_to_v4_filebacked_upgrade_range(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
             clObF = onCleanup(@()file_delete(tf));
             copyfile(obj.old_origin,tf,'f');
@@ -165,7 +206,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             assertTrue(PixelDataBase.do_filebacked(4324));
 
-            fac = ldr.upgrade_file_format(tf);
+            fac = ldr.upgrade_file_format(tf,'-upgrade_range');
             ldr.delete();
 
             assertEqual(fac.faccess_version,4.0)
@@ -174,6 +215,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             w_new = fac.get_sqw('-ver');
             fac.delete();
+            assertTrue(w_new.pix.is_range_valid);
 
             assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date','ignore_str',true)
 
@@ -185,6 +227,57 @@ classdef test_faccess_sqw_v4< TestCase
             % Cut projection is recovered correctly
             eq_cut = w_new_new.cut(w_new_new.data.proj,[],[],[],[]);
             assertEqualToTol(eq_cut,w_new_new,1.e-7,'-ignore_date', 'ignore_str', true);
+            % do clean-up as pixels hold access to the file, which can not
+            % be deleted as memmapfile holds it
+            w_new.pix = [];
+            w_new_new.pix = [];
+            clear w_new;
+            clear w_new_new;
+        end
+
+        function test_upgrade_v2_to_v4_filebacked_no_range(obj)
+            tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
+            clObF = onCleanup(@()file_delete(tf));
+            copyfile(obj.old_origin,tf,'f');
+            clobW = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+
+            % 4324 pixels, let's ensure pixels in file are treated as filebacked
+            clobConf = set_temporary_config_options(hor_config, 'mem_chunk_size', 500, 'fb_scale_factor', 3);
+
+            ldr = sqw_formats_factory.instance().get_loader(tf);
+            w_old = ldr.get_sqw('-ver');
+            %------------ Now the test setting and test
+
+
+            assertTrue(PixelDataBase.do_filebacked(4324));
+
+            fac = ldr.upgrade_file_format(tf);
+            ldr.delete();
+
+            assertEqual(fac.faccess_version,4.0)
+            assertEqual(fac.npixels,uint64(4324))
+            assertEqual(fac.num_contrib_files,186);
+
+
+            w_new = fac.get_sqw('-ver');
+            fac.delete();
+            assertFalse(w_new.pix.is_range_valid);
+
+            assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date','ignore_str',true)
+
+            fac1 = sqw_formats_factory.instance().get_loader(tf);
+            assertEqual(fac1.faccess_version,4.0)
+            w_new_new = fac1.get_sqw('-ver');
+            fac1.delete();
+            assertEqualToTol(w_new,w_new_new)
+            % Cut projection is recovered correctly
+            eq_cut = w_new_new.cut(w_new_new.data.proj,[],[],[],[]);
+            % cut, descpite not removing any pixels, recalculates range and
+            % contrubuted files, so range is defined and not all initial
+            % runts contribute
+            assertTrue(eq_cut.pix.is_range_valid);
+            assertEqual(eq_cut.main_header.nfiles,109);
+
             % do clean-up as pixels hold access to the file, which can not
             % be deleted as memmapfile holds it
             w_new.pix = [];
@@ -219,6 +312,7 @@ classdef test_faccess_sqw_v4< TestCase
             fac1.delete();
             assertEqualToTol(w_new,w_new_new)
         end
+        %
         function test_init_and_get(obj)
             to = faccess_sqw_v4();
 
@@ -302,7 +396,7 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqual(exi.instruments(1),inst1);
             assertEqual(exi.samples(1),sam1);
         end
-
+        %
         function obj = test_get_inst_or_sample(obj)
             to = faccess_sqw_v4();
             to = to.init(obj.sample_file);
@@ -314,7 +408,6 @@ classdef test_faccess_sqw_v4< TestCase
             inst1 = to.get_instrument(1);
             assertEqual(inst{1},inst1);
         end
-
         %
         function test_read_sqwV2_save_sqwV4(obj)
             samp_f = fullfile(obj.sample_dir,...
@@ -333,7 +426,7 @@ classdef test_faccess_sqw_v4< TestCase
             sqw_ob.experiment_info.instruments = inst1;
             hdr = sqw_ob.experiment_info;
             hdr.samples{1} = sam1;
-            sqw_ob = sqw_ob.change_header(hdr);
+            sqw_ob.experiment_info = hdr;
 
             tob = faccess_sqw_v4();
             tob = tob.init(sqw_ob);
@@ -350,7 +443,6 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqual(tob.faccess_version,4);
             tob.delete();
         end
-
         %
         function test_serialize_deserialize_faccess(obj)
             fo = faccess_sqw_v4();
@@ -612,7 +704,6 @@ classdef test_faccess_sqw_v4< TestCase
         %
         %             assertEqualToTol(sample,rdd)
         %         end
-
         function test_read_correct(obj)
             sample = read_sqw(obj.old_origin);
 
@@ -659,6 +750,67 @@ classdef test_faccess_sqw_v4< TestCase
             assertTrue(initobj.file_id>0);
 
         end
+    end
+    % Test put_new_blocks_values
+    methods
+        function test_put_all_ignore_changes_does_nothing(obj)
+            test_file = fullfile(tmp_dir,'test_put_new_block_values_unchanged.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(test_file));
+            copyfile(obj.sample_file,test_file,'f');
 
+            ldr = sqw_formats_factory.instance().get_loader(test_file);
+            sqw_data = ldr.get_sqw();
+
+            dnd_old = sqw_data.data;
+            pix_old = sqw_data.pix;
+            sqw_data.data.title = 'Some_title';
+            sqw_data.data.s(1)  = 0;
+            sqw_data.data.e(1)  = 0;
+            sqw_data.data.npix(1)  = 0;
+            sqw_data.pix.signal = 0;
+            ldr = ldr.put_new_blocks_values(sqw_data,'exclude', ...
+                {'bl_data_metadata','bl_data_nd_data'});
+
+            dnd_rec = ldr.get_dnd('-verbatim');
+            assertEqual(dnd_old,dnd_rec);
+            pix_rec = ldr.get_pix();
+            assertEqual(pix_old,pix_rec);
+            ldr.delete();
+        end
+
+        function test_put_new_block_values_changes_data_in_file(obj)
+            test_file = fullfile(tmp_dir,'test_put_new_block_values.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(test_file));
+            copyfile(obj.sample_file,test_file,'f');
+
+            ldr = sqw_formats_factory.instance().get_loader(test_file);
+            dnd_data = ldr.get_dnd();
+
+            dnd_data.title = 'Some_title';
+            dnd_data.s(1)  = 0;
+            dnd_data.e(1)  = 0;
+            dnd_data.npix(1)  = 0;
+            ldr = ldr.put_new_blocks_values(dnd_data,'update', ...
+                {'bl_data_metadata','bl_data_nd_data'});
+
+            dnd_rec = ldr.get_dnd();
+            assertEqual(dnd_data,dnd_rec);
+            ldr.delete();
+        end
+
+        function test_wrong_input_throw(obj)
+            ldr = sqw_formats_factory.instance().get_loader(obj.sample_file);
+            dnd_data = ldr.get_dnd('-verbatim');
+
+            ME1 = assertExceptionThrown(@()put_new_blocks_values(ldr, ...
+                dnd_data,'exclude','pix_data','update','something_else'), ...
+                'HORACE:file_io:invalid_argument');
+            assertEqual(ME1.message,'"excluded" and "update" keywords can not be specified together');
+
+            ME2 = assertExceptionThrown(@()put_new_blocks_values(ldr, ...
+                dnd_data,'exclude','pix_data'), ...
+                'HORACE:file_io:invalid_argument');
+            assertTrue(strncmp(ME2.message,'The block name(s): "{''pix_data''}" are not familiar to faccessor faccess_sqw_v4',19));
+        end
     end
 end

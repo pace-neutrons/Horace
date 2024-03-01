@@ -13,7 +13,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             obj.stored_config = hc.get_data_to_store();
         end
 
-        function test_apply_alignment_filebacked(~)
+        function test_finalize_alignment_filebacked(~)
             clW = set_temporary_warning('off', 'HOR_CONFIG:set_mem_chunk_size');
             clCf = set_temporary_config_options(hor_config, 'mem_chunk_size', 10);
             pix_data = rand(9, 30);
@@ -33,13 +33,13 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             ref_range = [min(ref_data, [], 2), max(ref_data, [], 2)]';
 
-            pdm = pdm.apply_alignment();
+            pdm = pdm.finalize_alignment();
 
             assertFalse(pdm.is_misaligned);
             assertEqualToTol(pdm, ref_pix, 'tol', 1e-6);
         end
 
-        function test_apply_alignment_membacked(~)
+        function test_finalize_alignment_membacked(~)
             pix_data = rand(9, 10);
 
             pdm = PixelDataMemory(pix_data);
@@ -55,7 +55,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             ref_range = [min(ref_data, [], 2), max(ref_data, [], 2)]';
 
-            pdm = pdm.apply_alignment();
+            pdm = pdm.finalize_alignment();
 
             assertFalse(pdm.is_misaligned);
             assertElementsAlmostEqual(pdm.data, ref_data);
@@ -97,6 +97,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             % coordinate change
             pdf.alignment_matr = al_matr ;
             assertTrue(pdf.is_misaligned);
+            assertFalse(pdf.is_range_valid)
 
             ref_al_data = al_matr*pix_data(1:3, :);
             ref_data = pix_data;
@@ -107,15 +108,11 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             raw_data = pdf.get_raw_data();
             assertElementsAlmostEqual(raw_data, pix_data);
-            % now the range is calculated on request
-            clWarn = set_temporary_warning('off', 'HORACE:old_file_format');
+            % now the range is not calculated on request
             al_range = pdf.data_range;
-            [~, lw] = lastwarn; % data range have been recalculated on request with
-            % warning
-            assertEqual(lw, 'HORACE:old_file_format');
-            assertFalse(all(initial_range(:) == al_range(:)));
-            % range is still invalid as int is calculated on request
-            assertFalse(pdf.is_range_valid);
+            inf_range = isinf(al_range(:,1:3));
+            assertTrue(all(inf_range(:)));
+            assertEqual(al_range(:,4:end),initial_range(:,4:end))
 
             assertElementsAlmostEqual(aligned_data(1:3, 1:3), al_matr);
         end

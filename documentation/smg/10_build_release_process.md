@@ -80,7 +80,7 @@ These services provide users with pool of virtual (iDaaaS) or real
 
 By agreement, each machine of the pool has folder `/usr/locam/mprogs/`
 containing number of symbolic links to  `Horace`, `Herbert`, `Horace_bugfix`
-and `Herbert_bugfix` clones of the github repositories of the appropriate
+and `Herbert_bugfix` clones of the GitHub repositories of the appropriate
 packages.
 In addition to that, it contains also reference  `/usr/local/mprogs/User`
 pointing to the folder containing Horace,

@@ -139,6 +139,25 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
             assertTrue(isstruct(data_dnd));
             assertEqual(data_dnd.filename,'ei140.sqw');
         end
+        function test_get_npix_block(obj)
+            spath = fileparts(obj.sample_file);
+            sample  = fullfile(spath,'w3d_d3d.sqw');
+
+            ldr = faccess_dnd_v2(sample);
+
+            dat = ldr.get_dnd();
+            npix = dat.npix;
+            np = numel(npix);
+            np1 = floor(np/2);
+            npix1 = ldr.get_npix_block(1,np1);
+
+            assertEqual(npix(1:np1),npix1');
+            npix2 = ldr.get_npix_block(np1+1,np);
+            ldr.delete(); % avoid problem with file-deleteon, when clOb
+            % clears up before ldr in automatic clean-up
+            assertEqual(npix(np1+1:np),npix2');
+        end
+
 
         function obj = test_get_sqw(obj)
             spath = fileparts(obj.sample_file);
@@ -195,5 +214,3 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
         end
     end
 end
-
-

@@ -1,5 +1,5 @@
 function obj = init_(obj, varargin)
-%INIT_ Main part of the initialiation algorithm, usually performed by
+%INIT_ Main part of the initialisation algorithm, usually performed by
 % constructor, but may be applied to existing object (normally empty) fully
 % deleting its old contents and replacing it with initialization information
 %
@@ -10,7 +10,8 @@ is_bool = cellfun(@islogical,varargin);
 log_par = [varargin{is_bool} false(1,2)]; % Pad with false
 update  = log_par(1);
 norange = log_par(2);
-argi = varargin(~is_bool);
+argi    = varargin(~is_bool);
+obj.old_file_format_ = false;
 
 if isscalar(argi)
     init_data = argi{1};
@@ -31,17 +32,19 @@ elseif isa(init_data, 'PixelDataFileBacked')
     obj.full_filename = init_data.full_filename;
     obj.num_pixels_   = init_data.num_pixels;
     obj.data_range    = init_data.data_range;
-    obj.tmp_pix_obj   = init_data.tmp_pix_obj;
+    obj.tmp_file_holder_ = ...
+        init_data.tmp_file_holder_;
     obj.f_accessor_   = memmapfile(obj.full_filename, ...
         'Format', init_data.get_memmap_format(), ...
         'Repeat', 1, ...
         'Writable', update, ...
         'Offset'  , obj.offset_ );
 elseif isa(init_data, 'PixelDataMemory')
+
+    obj.metadata = init_data.metadata;
     if isempty(obj.full_filename_)
         obj.full_filename = 'from_mem';
     end
-
     obj = set_raw_data_(obj,init_data.data);
 
 elseif istext(init_data)
@@ -55,7 +58,12 @@ elseif istext(init_data)
     ldr.delete();
 elseif isa(init_data, 'sqw_file_interface')
     obj = init_from_file_accessor_(obj,init_data,update,norange);
-
+elseif isa(init_data,'memmapfile')
+    obj.f_accessor_    = init_data;
+    % should this all be rewired thoroughly?
+    obj.full_filename  = init_data.Filename;
+    obj.num_pixels_    = obj.f_accessor_.Format{2}(2);
+    obj.offset_        = init_data.Offset;
 elseif isnumeric(init_data)
     % this is usually option for testing filebacked operations
     if isscalar(init_data)
@@ -65,8 +73,9 @@ elseif isnumeric(init_data)
     if isempty(obj.full_filename_)
         obj.full_filename = 'from_mem';
     end
-
     obj = set_raw_data_(obj,init_data);
+    range = obj.pix_minmax_ranges(init_data);
+    obj = obj.set_data_range(range);
 else
     error('HORACE:PixelDataFileBacked:invalid_argument', ...
         'Cannot construct PixelDataFileBacked from class (%s)', class(init_data))

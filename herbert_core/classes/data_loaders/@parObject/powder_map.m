@@ -111,5 +111,5 @@ if squeeze
     tmp.width=tmp.width(keep);
     tmp.height=tmp.height(keep);
 end
-powmap=IX_map(map);
+powmap=IX_map(map.s, 'ns', map.ns);
 powpar=parObject(tmp);

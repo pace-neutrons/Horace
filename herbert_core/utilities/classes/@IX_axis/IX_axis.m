@@ -1,4 +1,4 @@
-classdef IX_axis
+classdef IX_axis < serializable
     %  IX_axis object contains the elements below.
     %  The elements can be set from constructor and also
     %  accessed/modified from the object properties:
@@ -17,8 +17,6 @@ classdef IX_axis
     %                               positions    tick positions (numeric array)
     %                               labels       cell array of tick labels
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     properties(Dependent)
         caption
         units
@@ -31,17 +29,6 @@ classdef IX_axis
         code_ = '';
         ticks_ = struct('positions',[],'labels',{{}});
     end
-    methods(Static)
-       function obj = loadobj(data)
-            % function to support loading of outdated versions of the class
-            % from mat files on hdd
-            if isa(data,'IX_axis')
-                obj = data;
-            else
-                obj = IX_axis();
-                obj = obj.init_from_structure(data);
-            end
-        end    end
     methods
         function axis = IX_axis(varargin)
             % Create IX_axis object
@@ -53,7 +40,7 @@ classdef IX_axis
             % Setting custom tick positions and labels
             %   >> w = IX_axis (...,vals)           % positions
             %   >> w = IX_axis (...,vals,labels)    % positions and labels
-            %   >> w = IX_axis (...,ticks)          % strucutre with position and tick labels
+            %   >> w = IX_axis (...,ticks)          % structure with position and tick labels
             %
             if nargin > 0
                 axis = buildIX_axis_(axis,varargin{:});
@@ -100,4 +87,23 @@ classdef IX_axis
         end
         %------------------------------------------------------------------
     end
+    %======================================================================
+    methods
+        function  ver  = classVersion(~)
+            % serializable fields version
+            ver = 1;
+        end
+        function flds = saveableFields(~)
+            flds = {'caption','units','code','ticks'};
+        end
+    end
+    methods(Static)
+        function obj = loadobj(S)
+            % function to support loading of outdated versions of the class
+            % from mat files on hdd
+            obj = IX_axis();
+            obj = loadobj@serializable(S,obj);
+        end
+    end
+
 end

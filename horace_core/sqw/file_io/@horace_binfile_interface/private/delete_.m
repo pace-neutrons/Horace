@@ -4,8 +4,8 @@ function obj = delete_(obj)
 % structure of the file from memory.
 
 if ~isempty(obj.file_closer_)
-    obj.file_closer_ = [];
+    obj.file_closer_.delete();
 end
-obj = obj.fclose();
 obj.sqw_holder_ = [];
+obj.file_id_ = -1;
 obj.num_dim_ = 'undefined';

@@ -1,21 +1,51 @@
-function varargout = func_eval_ind (obj, varargin)
+function varargout = func_eval_ind (obj, iarray, varargin)
 % Evaluate a function or method for indexed occurences in an object lookup table
 %
-%   >> [X1, X2,...] = func_eval_ind (obj, iarray, ind, funchandle, p1, p2,...)
+% The purpose is to efficiently evaluate a user function over a set of objects by
+% identifying references to the same unique objects in the object_lookup so as
+% to make a single call to the user function for all cases with the same values for
+% the input arguments. The method is therefore inappropriate for generating
+% random points as the output is expected to be different for 
+% succesive calls to the function: in this case use the object_lookup method
+% rand_ind instead.
+% 
+% There are two forms:
+%   - The indexed occurences are to objects in an object array:
+%       >> [X1, X2,...] = func_eval_ind (obj, iarray, ind, funchandle, p1, p2,...)
+%     (the object array is defined by arguments obj and iarray)
 %
-% Very similar to arrayfun. The purpose is to evaluate functions of the form:
-%       [X1, X2, X3...] = my_function (object, p1, p2,...)
+%   - The indexed occurences are to objects that themselves have internal indexing:
+%       >> [X1, X2,...] = func_eval_ind (obj, iarray, ind, elmts, funchandle, p1, p2,...)
 %
-% for a set of objects defined by index arguments iarray and ind, where
-% the output arguments are deterministic (a situation that excludes random
-% points as return arguments, for example).
 %
-% The function uses the internal identification of identical objects in the
-% object lookup to minimise the actual number of calls to my_function to
-% just once for each unique element in the input argument index array, ind.
-% This is why the method is inappropriate for generating random points that
-% are different for succesive calls to my_function.
+% Case 1: Indexed occurences are to objects in an object array
+% ------------------------------------------------------------
+% To evaluate on elements of the object array pointed to by scalar argument
+% iarray, the elements within the array indicated by the array ind:
 %
+%   >> [X1, X2,...] = func_eval_ind (obj, iarray, ind, func)
+%   >> [X1, X2,...] = func_eval_ind (..., func, p1, p2, ...)
+%   >> [X1, X2,...] = func_eval_ind (..., 'split', func, p1, p2, ...)
+%   >> [X1, X2,...] = func_eval_ind (..., 'split', iargs, func, p1, p2, ...)
+%
+% Here func is handle to the function to be evaluated:
+%       [X1, X2, X3...] = func (object, p1, p2,...)
+%
+%
+% Case 2: Indexed occurences are to objects that are themselves arrays
+% --------------------------------------------------------------------
+% If elements of the object array defined above by obj, iarray and ind have
+% themselves internal indexing, then the function can be evaluated on a subset
+% of elements within the elements of the array by specifying a further index
+% array ielmts. The syntax is otherwise the same:
+%
+%   >> [X1, X2,...] = rand_ind (obj, iarray, ind, ielmts, randfunc)
+%   >> [X1, X2,...] = rand_ind (..., randfunc, p1, p2, ...)
+%   >> [X1, X2,...] = rand_ind (..., 'split', randfunc, p1, p2, ...)
+%   >> [X1, X2,...] = rand_ind (..., 'split', iargs, randfunc, p1, p2, ...)
+%
+%
+% Full detials of the input and output arguments are given below:
 %
 % Input:
 % ------
@@ -24,8 +54,6 @@ function varargout = func_eval_ind (obj, varargin)
 %   iarray      Scalar index of the original object array from the
 %              cell array of object arrays from which the object lookup
 %              was created.
-%               If there was only one object array, then iarray is not
-%              necessary (as it assumed iarray=1)
 %
 %   ind         Array containing the indices objects in the original
 %              object array referred to by iarray, for which the function is
@@ -74,69 +102,14 @@ if ~obj.filled
 end
 
 % Parse the input arguments
-narg = numel(varargin);
-if narg>=3 && isa(varargin{3},'function_handle')
-    iarray = varargin{1};
-    if ~isscalar(iarray)
-        error('Index to original object array, ''iarray'', must be a scalar')
-    end
-    ind = varargin{2};
-    funchandle = varargin{3};
-    arg = varargin(4:end);
-else
-    error('Insufficient number of input arguments')
-end
+[ind, ielmts, funchandle, args, split] = parse_eval_method (varargin{:});
 
 % Create an array of indicies to the unique objects stored in obj,
 % corresponding to the input index array ind
 ind_unique_obj = reshape (obj.indx_{iarray}(ind), size(ind));   % retain shape of ind
 
-% Call a private function that evaluates only once per unique object instance
-[varargout{1:nargout}] = func_eval_ind_private (obj.object_store_, ...
-    ind_unique_obj, funchandle, arg);
-
-
-%------------------------------------------------------------------
-function varargout = func_eval_ind_private (obj, ind, funchandle, arg)
-
-% Find unique occurences of ind
-% In principle, ind could be a large array (e.g. the 10^7 pixels in a large cut
-% from Horace). We only want to evaluate the function for distinct objects in the
-% lookup array, as the function could be expensive to evaluate.
-N = max(ind(:));
-ind_present = logical(accumarray(ind(:),1,[N,1]));
-ix = 1:N;
-indu = ix(ind_present);     % unique occurences of ind
-
-% Evaluate the function for the distinct instances
-nout = nargout;
-[Xtmp{1:nout}] = funchandle (obj(indu(1)), arg{:}); % get outputs from first call
-sz = cellfun(@size, Xtmp, 'UniformOutput', false);  % sizes of outputs from first call
-
-if numel(indu)>1
-    % Fill cell array with output from unique objects
-    X = cellfun (@(x)(NaN([prod(x),numel(ind)])), sz, 'UniformOutput', false);
-    for i=1:numel(indu)
-        if i>1
-            [Xtmp{1:nout}] = funchandle (obj(indu(i)), arg{:});
-        end
-        for j=1:nout
-            X{j}(:,i) = Xtmp{j}(:);
-        end
-    end
-    
-    % Expand according to the repetitions in indx
-    ix = zeros(1,N);
-    ix(indu) = 1:numel(indu);
-    indu_expand = ix(ind);
-    X = cellfun (@(x,y)(x(:,indu_expand)), X, 'UniformOutput', false);
-    
-    % Reshape output
-    varargout = cellfun (@(x,y)(reshape(x, size_array_stack(y, size(ind)))),...
-        X, sz, 'UniformOutput', false);
-    
-else
-    % Only one unique object; simply repmat the output arguments and reshape
-    varargout = cellfun (@(x,y)(reshape(repmat(x(:),[1,numel(ind)]),...
-        size_array_stack(y, size(ind)))), Xtmp, sz, 'UniformOutput', false);
-end
+% Call a private function that efficiently evaluates the function over the
+% objects
+israndfunc = false;
+[varargout{1:nargout}] = call_eval_method (obj.object_store_, ...
+    ind_unique_obj, ielmts, israndfunc, funchandle, args, split);

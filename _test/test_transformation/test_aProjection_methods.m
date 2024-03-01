@@ -37,6 +37,17 @@ classdef test_aProjection_methods <TestCase
             assertEqual(ap.offset ,[1,0,0,0]);
             assertEqual(extra_par,{'extra','blabla','extra1_no_value'});
         end
+        
+        function test_transform_img_to_hkl_generic(~)
+            ap = aProjectionTester();
+            ap.alatt = 2.8;
+            ap.angdeg = 90;
+            res = ap.transform_img_to_hkl(eye(4));
+
+            sample = eye(4)*(1.4/pi);
+            sample(4,4) = 1;
+            assertElementsAlmostEqual(res,sample)
+        end
 
         function test_constructor_some_fields_and_extra(~)
             par = {'offset', [1,0,0,0],'lab2','b','extra','blabla','extra1','cryacrya'};

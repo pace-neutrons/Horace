@@ -135,10 +135,12 @@ function wout = calc_shift_memory(win, dispreln, ave_pix, pars)
 end
 
 function wout = calc_shift_filebacked(win, dispreln, ave_pix, pars)
+    error('HORACE:sqw:not_implemented', ...
+        'Shift_pixels filebacked is not currently implemented. Re #962')
     wout = win;
     wout = wout.get_new_handle();
 
-    e_ind = wout.pix.check_pixel_fields('dE');
+    e_ind = wout.pix.field_index('dE');
 
     pg_size = get(hor_config, 'mem_chunk_size');
 

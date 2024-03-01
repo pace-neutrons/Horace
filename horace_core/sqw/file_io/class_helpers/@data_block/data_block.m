@@ -6,6 +6,12 @@ classdef data_block < serializable
     % binary file (stored in BAT) and the ways of extracting these data
     % from sqw/dnd object of interest or place this information into
     % sqw/dnd object
+    %
+    % The information, contained in particular data_block occupies
+    % constant size within the block allocation table
+    %
+    % The blocks also knows how to retrieve its contents from
+    % sqw object provied
 
     properties(Dependent)
         % unique name of the data_block, identifying this block in BAT.
@@ -23,6 +29,10 @@ classdef data_block < serializable
         position;
         % size (in bytes) of the serialized block would occupy on hdd
         size;
+        % True if BAT operations should not move this block from its place
+        % on HDD (normally used for PixelData(Filebacked), which are big and
+        % should not be moved into new place if object is modified.
+        locked
     end
     properties(Dependent,Hidden)
         % return class name -- property, used for serialization into BAT
@@ -32,12 +42,12 @@ classdef data_block < serializable
         bat_format;
         % size (in bytes) this BAT record would occupy on hdd
         bat_record_size;
-        % return array of bytes, necessary to store and/or recover initilaized
+        % return array of bytes, necessary to store and/or recover initialized
         % data block class from blockAllocationTable.
         bat_record;
-        % true if block size was initialized, i.e. its file position
-        % have been set
-        initialized
+        % true if block position was initialized, i.e. its file position
+        % have been set and size is known
+        allocated
     end
     properties(Access=protected)
         sqw_prop_name_ ='';
@@ -47,7 +57,7 @@ classdef data_block < serializable
         % The cache containing serialized object after estimating its size
         serialized_obj_cache_ = [];
         %
-        initialized_ = false;
+        locked_ = false;
     end
     %======================================================================
     methods
@@ -72,65 +82,66 @@ classdef data_block < serializable
             end
         end
         %
-        function obj = put_sqw_block(obj,fid,sqw_obj)
+        function obj = put_sqw_block(obj,fid,sqw_obj,check_size)
             % extract sub-block information from sqw or dnd object and write
             % this information on HDD
-            if exist('sqw_obj','var')
-                obj = obj.calc_obj_size(sqw_obj);
-            else
-                if isempty(obj.serialized_obj_cache_)
-                    error('HORACE:data_block:runtime_error',...
-                        ['put_data_block is called sqw object argument, ', ...
-                        'but the size of the object has not been set ', ...
-                        'and object cache is empty']);
-                end
-            end
-            bindata = obj.serialized_obj_cache_;
-            if isa(bindata,'uint8')
-                if (numel(bindata) > obj.size)
-                    error('HORACE:data_block:runtime_error',...
-                        'Pre-calculated block size %d differs from obtained block size %d. Binary file will be probably corrupted',...
-                        obj.block_size,numel(bindata))
-                else
-                    obj.size_=uint64(numel(bindata));
-                end
-            end
-            obj = obj.put_bindata_in_file(fid,bindata);
-            if nargout>0
-                obj.serialized_obj_cache_ = [];
-            end
-        end
-        function obj = calc_obj_size(obj,sqw_obj,nocache)
-            % calculate size of the serialized object and put the
-            % serialized object into data cache for subsequent put
-            % operation(s)
-            % If the "nocache" variable is provided and is true
-            % do not serialize object for evaluating its size
-            % and placing it into the cache for further usage
-            % but use serializable.serial_size method to find
-            % the object size
-            if exist('nocache','var')
-                if ~(islogical(nocache))
-                    nocache = logical(nocache);
-                end
-            else
-                nocache = false;
-            end
+            % Inputs:
+            % obj     -- initialized instance of data_block
+            % fid     -- handle for binary file opened for write access
+            % Optional:
+            % sqw_obj -- if present, the data to save should be taken from
+            %            the object provided.
+            % check_size
+            %         -- if present and true, expect that the object size
+            %            has been precalculated earlier and now we want to
+            %            ectract binary data from the input object. Does
+            %            check if the size of binary data in the object
+            %            still equal to size precalculated earlier. Throws
+            %            if this does not happen
             %
-            subobj = obj.get_subobj(sqw_obj);
-            is_serial = isa(subobj,'serializable');
-            if nocache && is_serial
-                obj.size_ = subobj.serial_size();
-            else
-                if is_serial
-                    bindata = subobj.serialize();
-                else
-                    bindata = serialize(subobj);
-                end
-                obj.size_ = numel(bindata);
-                if nocache; return; end
-                obj.serialized_obj_cache_ = bindata;
+            if nargin<3
+                sqw_obj = [];
             end
+            if nargin<4
+                check_size = false;
+            else
+                check_size = logical(check_size);
+            end
+            obj = put_sqw_block_(obj,fid,sqw_obj,check_size);
+        end
+        function obj = calc_obj_size(obj,sqw_obj,nocache,check_size)
+            % calculate size of the serialized sqw/dnd sub-object and put
+            % the serialized sub-object into data cache for subsequent put
+            % operation(s)
+            %
+            % Inputs:
+            % obj     -- instance of data block class
+            % sqw_obj -- sqw/dnd object - source of data for this
+            %            data_block
+            % nocache  -- if present and true do not serialize subobject for
+            %             evaluating its size and placing serialized array
+            %             into cache but use serializable.serial_size
+            %             method to find the object size.
+            % check_size
+            %          -- if present and true, assumes that the size and
+            %             position of the object was identified before
+            %             (e.g. using nocache option) and are all known.
+            %             Сhecks serialized size of the object against the
+            %             size of the array calculated while serializing
+            %             to ensure that precaclulatrions were performed
+            %             correctly.
+            %
+            if nargin < 3 % nocache input is missing
+                nocache = false;
+            else
+                nocache = logical(nocache);
+            end
+            if nargin <4
+                check_size  = false;
+            else
+                check_size = logical(check_size);
+            end
+            obj = calc_obj_size_(obj,sqw_obj,nocache,check_size);
         end
         %------------------------------------------------------------------
         function subobj = get_subobj(obj,sqw_dnd_obj)
@@ -257,9 +268,6 @@ classdef data_block < serializable
                     disp2str(val));
             end
             obj.position_ = uint64(val);
-            if obj.position_ > 0
-                obj.initialized_ = true;
-            end
         end
         %
         function size = get.size(obj)
@@ -268,9 +276,18 @@ classdef data_block < serializable
         function obj = set.size(obj,val)
             obj = set_size(obj,val);
         end
-        function is = get.initialized(obj)
-            is = obj.initialized_;
+        function is = get.allocated(obj)
+            is = obj.position_ > 0 && obj.size > 0;
+            % note call to public size to allow overloading
         end
+        %
+        function is = get.locked(obj)
+            is = obj.locked_;
+        end
+        function obj = set.locked(obj,val)
+            obj.locked_ = logical(val);
+        end
+
     end
     methods(Access=protected)
         function move_to_position(obj,fid,pos)

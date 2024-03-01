@@ -37,10 +37,15 @@ classdef blockAllocationTable < serializable
         ba_table;
     end
     properties(Access=protected)
+        % the position in bytes from the beginning of binary file where the
+        % BAT is stored (C numeration, starts with 0).
         position_=0;
-        % the size of empty BAT. recalculated as block list is assigned to
-        % block_list property.
-        bat_bin_size_ = 4;
+        %
+        % the base size of empty BAT stored in file. Recalculated as block
+        % list is assigned to block_list property.
+        % first 4 bytes of BAT binary representation is number of
+        % records in the BAT and this is accounted for in get.bat_bin_size
+        bat_blocks_size_ = 0;
         % if the BAT is initialized with particular object or its image on
         % hdd
         initialized_ = false;
@@ -48,7 +53,7 @@ classdef blockAllocationTable < serializable
         blocks_list_ = {};
         block_names_ = {};
         % location and sizes of free spaces within binary data, described by BAT
-        free_space_pos_and_size_ =zeros(2,0);
+        free_spaces_and_size_ =uint64(zeros(2,0));
         end_of_file_pos_ = 0;
     end
     %======================================================================
@@ -73,7 +78,7 @@ classdef blockAllocationTable < serializable
         end
         %------------------------------------------------------------------
         function size = get.bat_bin_size(obj)
-            size = obj.bat_bin_size_;
+            size = uint64(obj.bat_blocks_size_+4);
         end
         function nb = get.n_blocks(obj)
             nb = numel(obj.blocks_list_);
@@ -130,11 +135,11 @@ classdef blockAllocationTable < serializable
             % the data blocks start after BAT position
             % BAT size includes 4 bytes describing BAT binary block size,
             % + BAT binary representation itself, which include sum of
-            % record sizes + 4 first bytes defining number of recors
-            pos = uint64(obj.position + 4 + obj.bat_bin_size);
+            % record sizes + 4 first bytes defining number of records
+            pos = uint64(obj.position + obj.bat_bin_size);
         end
         function fsp = get.free_spaces_and_size(obj)
-            fsp = obj.free_space_pos_and_size_;
+            fsp = obj.free_spaces_and_size_;
         end
         function pos = get.end_of_file_pos(obj)
             pos = uint64(obj.end_of_file_pos_);
@@ -236,14 +241,9 @@ classdef blockAllocationTable < serializable
             %                   written on hdd, and the method will just
             %                   calculate sizes and future locations
             %                   of the blocks.
-            % '-insertion'   -- if present, calculate sizes of blocks only
-            %                   if they have not been calculated before,
-            %                   and insert these blocks in free BAT space
-            %                   assuming that other blocks have already
-            %                   been allocated.
             % '-test_mode'   -- do not validate the size of the sub-objects
-            %                   of the initial object agains the size of
-            %                   these objects preallocated earlier. Should
+            %                   of the initial object against the size of
+            %                   these objects pre-allocated earlier. Should
             %                   be used in tests only.
             %  Used for upgrade of the old sqw files into new file format
             %  leaving pixels array in their place
@@ -261,7 +261,10 @@ classdef blockAllocationTable < serializable
             if ~ok
                 error('HORACE:blockAllocationTable:invalid_argument', mess);
             end
-            obj = init_obj_info_(obj,obj_to_analyze,nocache,insertion,test_mode);
+			if insertion
+				error('HORACE:blockAllocationTable:not_implemented','insertion mode is not implemented' )
+			end
+            obj = init_obj_info_(obj,obj_to_analyze,nocache,test_mode);
         end
         function pos = get_block_pos(obj,block_name_or_class)
             % return the position of block defined by current BAT
@@ -280,6 +283,36 @@ classdef blockAllocationTable < serializable
             % HORACE:blockAllocationTable:runtime_error if the table have
             %       not been initialized
             pos = get_block_pos_(obj,block_name_or_class);
+        end
+        function obj = place_undocked_blocks(obj,obj_to_write,nocache)
+            % replace contents of blocks which have not been already placed
+            % (position = 0) with the contents taken from the input object
+            % and found places of these blocks within the BAT.
+            %
+            % Should work after clear_unlocked_blocks was called, 
+            % as clear_unlocked_blocks calculates free spaces left after
+            % old blocks were removed.
+            %
+            % Inputs:
+            % obj           -- initialized instance of BAT.
+            % obj_to_write  -- input object, source of information about
+            %                  new block contents
+            % nocache       -- logical variable, defining if serialized
+            %                  data from the obj_to_write should be cached
+            %                  within the data blocks for storing them
+            %                  later. If this variable is true, the
+            %                  serialized data used to calculate block size
+            %                  are ignored and recalated again when block
+            %                  is prepared for writing to disk. Takes longer
+            %                  but saves memory.
+            % Output:
+            % obj           -- modified instance of BAT, containing
+            %                  information on where to store modified
+            %                  object's blocks.
+            if nargin<3
+                nocache = true;
+            end
+            obj = place_undocked_blocks_(obj,obj_to_write,nocache);
         end
         %
         function bindata = get.ba_table(obj)
@@ -308,6 +341,27 @@ classdef blockAllocationTable < serializable
                 position = obj.position;
             end
             obj = restore_bat_(obj,fid,position);
+        end
+        %
+        function obj = clear(obj)
+            % nullify the positions of data blocks for all blocks
+            %
+            % Used to reposition all movable blocks in different places.
+            for i=1:obj.n_blocks
+                obj.blocks_list_{i}.position = 0;
+            end
+            obj.initialized_         = false;
+            obj.free_spaces_and_size_ = uint64(zeros(2,0));
+            obj.end_of_file_pos_     = obj.position+obj.bat_bin_size;
+        end
+        function obj = clear_unlocked_blocks(obj)
+            % method clears up information about positions of all
+            % blocks which are not locked. The space these blocks were
+            % occupied within the file is added to the free space
+            % (free_spaces_and_size array). end_of_file_pos is moved
+            % to the end of the last locked block to free the space occupied
+            % by unlocked blocks at the end of the file.
+            obj = clear_unlocked_blocks_(obj);
         end
     end
     %======================================================================

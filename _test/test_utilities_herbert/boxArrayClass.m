@@ -76,7 +76,8 @@ classdef boxArrayClass
         %------------------------------------------------------------------
         function [x1col, x1row, x12] = rand_elmts_position (obj, ielmts, ...
                 shift1col, shift1row, shift12)
-            % Return random points from a single box, optionally further shifted
+            % Return random points from a set of boxes within a boxArrayClass
+            % object, those boxes having been optionally further shifted.
             %
             %   >> [x1col, x1row, x12] = rand_elmts_position (obj, ielmts)
             %
@@ -154,6 +155,96 @@ classdef boxArrayClass
             x1col = reshape (x1col, size_array_stack ([3,1], sz));
             x1row = reshape (x1row, size_array_stack ([1,3], sz));
             x12 = reshape (x12, size_array_stack ([3,2], sz));
+        end
+        
+        %------------------------------------------------------------------
+        function [r1col, r1row, r12] = range_elmts (obj, ielmts, ...
+                shift1col, shift1row, shift12)
+            % Return ranges of a set of boxes within a boxArrayClass
+            % object, those boxes having been optionally further shifted.
+            %
+            %   >> [r1col, r1row, r12] = range_elmts (obj, ielmts)
+            %
+            %   >> [r1col, r1row, r12] = range_elmts (obj, ielmts, ...
+            %                               shift1col, shift1row, shift12)
+            %
+            % Returns one random point for each of the internal boxes
+            % indicated by the index array elmts.
+            %
+            % Input:
+            % ------
+            %   obj     Single instance of a boxArrayClass object
+            %
+            %   ielmts  Indices of internal elements of the object
+            %
+            % Optional shifts (give either none or all three):
+            %
+            %   shift1col   Shift added to random points held in x1col
+            %               below
+            %               - a single 3-vector:
+            %               - a stack of 3-vectors, stacked with size==size(ielmts)
+            %
+            %   shift1row   Shift added to random points held in x1row
+            %               below (3-vector)
+            %               - a single 3-vector:
+            %               - a stack of 3-vectors, stacked with size==size(ielmts)
+            %
+            %   shift12     Shift added to random points held in x12
+            %               below (3-vector)
+            %               - a single 3-vector:
+            %               - a stack of 3-vectors, stacked with size==size(ielmts)
+            %
+            % Output:
+            % -------
+            %   r1col   Range of the x values along each axis for shift1col
+            %           size = [3,2] where r1col(i,:) gives lower and upper
+            %           limits along ith axis.
+            %           Arrays size [3,2] for each shift are then stacked
+            %           with size = size(ielmts).
+            %
+            %   r1row   Range when shift1row; same format and size==[3,2]
+            %           Arrays size [3,2] for each shift are then stacked
+            %           with size = size(ielmts).
+            %
+            %   r12     Array size(3,2,2), where r12(:,:,1) and r12(:,:,2)
+            %           are respectively the lower and upper limits for the
+            %           case of the box as given (r12(:,1,:)) and a box of
+            %           half the extent along each axis (r12(:,2,:)).
+            %           Arrays size [3,2,2] for each shift are then stacked
+            %           with size = size(ielmts).
+            
+            if ~isscalar(obj)
+                error('HERBERT:boxArrayClass:invalid_argument', ...
+                    'Must be a scalar instance of boxArrayClass')
+            end
+            
+            if nargin==2
+                shift1col = [0;0;0];
+                shift1row = [0;0;0];
+                shift12 = [0;0;0];
+                
+            elseif nargin~=5
+                error('HERBERT:boxArrayClass:invalid_argument', ...
+                    'Check number of shift arguments')
+            end
+            
+            npnt = numel(ielmts);
+            sz = size(ielmts);
+            
+            s1col = shift_reshape (shift1col, sz);
+            s1row = shift_reshape (shift1row, sz);
+            s12 = shift_reshape (shift12, sz);
+            
+            r1col = NaN(3,2,npnt);
+            r1row = NaN(3,2,npnt);
+            r12 = NaN(3,2,2,npnt);
+            for i=1:npnt
+                [r1col(:,:,i), r1row(:,:,i), r12(:,:,:,i)] = ...
+                    obj.box(ielmts(i)).range ([1,1], s1col(:,i), s1row(:,i), s12(:,i));
+            end
+            r1col = reshape (r1col, size_array_stack ([3,2], sz));
+            r1row = reshape (r1row, size_array_stack ([3,2], sz));
+            r12 = reshape (r12, size_array_stack ([3,2,2], sz));
         end
         
         %--------------------------------------------------------------------------

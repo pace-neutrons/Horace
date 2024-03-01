@@ -48,6 +48,10 @@ classdef ClusterWrapper
         % cluster. Property used in debugging to change default framework
         pool_exchange_frmwk_name
     end
+    properties(Dependent,Hidden)
+        % return enviromental variables used by cluster. Normally for testing
+        common_env_var
+    end
 
     properties(Access = protected)
         % The default name of the function or function handle of the function
@@ -222,27 +226,83 @@ classdef ClusterWrapper
                 obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR') = obj.matlab_starter_;
             end
 
-            % additional Matlab m-files search path to be available to
-            % workers
-            existing_addpath = getenv('MATLABPATH');
-            possible_addpath = fileparts(which(pc.worker));
-
-            if  contains(existing_addpath,possible_addpath)
-                obj.common_env_var_('MATLABPATH') = existing_addpath;
-            else
-                if isempty(existing_addpath)
-                    obj.common_env_var_('MATLABPATH') = possible_addpath;
-                else
-                    obj.common_env_var_('MATLABPATH') = ...
-                        [possible_addpath,pathsep,existing_addpath];
-                end
-            end
+            % Modify MATLABPATH to add path to user code, which user
+            % may want to use in parallel script
+            obj = obj.add_user_path(pc);
 
             if obj.DEBUG_REMOTE
                 obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'true';
             else
                 obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'false';
             end
+        end
+        %
+        function obj = add_user_path(obj,pc)
+            % Method adds user script path to the path-es available to
+            % parallel workers.
+            %
+            % The scripts should not be within Horace
+            % root folder as there files should already be on path or used
+            % in tests only.
+            %
+            % WARNING!!!
+            % It assumed that user view on the filesystem is the same as
+            % the view from parallel nodes. This probably should be
+            % changed in a future.
+            % Re #1393 -- ticket to investigate this.
+            %
+            % Inputs:
+            % obj  -- instance of ClusterWrapper getting initialized
+            % pc   -- instance of parallel config class. Transmitted for
+            %         efficiency.
+            %
+            % Returns:
+            % obj  -- instance of ClusterWrapper containing modified
+            %         common_env_var_ property with the key MATLABPATH
+            %         containing user path.
+            %
+
+            % additional Matlab m-files search path to be available to
+            % workers
+            existing_addpath  = getenv('MATLABPATH');
+            necessary_addpath = fileparts(which(pc.worker));
+            if contains(existing_addpath,necessary_addpath)
+                existing_addpath = split(existing_addpath, pathsep);
+                there = ismember(existing_addpath,necessary_addpath);
+                existing_addpath = existing_addpath(~there);
+                if ~isempty(existing_addpath)
+                    existing_addpath = strjoin(existing_addpath,pathsep);
+                end
+            end
+            %
+            % Split path into cell of paths
+            curr_path = split(path, pathsep);
+            % Filter array for user-added paths
+            %
+            % Horace path to remove:
+            hor = fullfile(horace_root,'horace_core');
+            her = fullfile(horace_root,'herbert_core');
+            adm = fullfile(horace_root,'admin');
+            to_remove = {matlabroot,hor,her,adm,necessary_addpath};
+            for i=1:numel(to_remove)
+                curr_path = curr_path(~startsWith(curr_path,to_remove{i}));
+            end
+            if isempty(existing_addpath)
+                user_path = curr_path;
+            else
+                user_path = curr_path(~startsWith(curr_path,existing_addpath));
+            end
+            % Build user path
+
+            if isempty(existing_addpath)
+                add2path = {necessary_addpath};
+            else
+                add2path = {necessary_addpath,existing_addpath};
+            end
+
+            % Form necessary path
+            obj.common_env_var_('MATLABPATH') = ...
+                strjoin([add2path(:);user_path(:)],pathsep);
 
         end
 
@@ -366,7 +426,6 @@ classdef ClusterWrapper
                 {'-batch'},{matlab_command}];
         end
 
-
         function [obj,ok]=wait_started_and_report(obj,check_time,varargin)
             % check for 'ready' message and report cluster ready to user.
             %
@@ -406,7 +465,8 @@ classdef ClusterWrapper
                     paused  = false;
                     running = false;
                     failedC = true;
-                    messC   = FailedMessage('Job Initialization process have failed or has not been started');
+                    messC   = FailedMessage( ...
+                        'Job Initialization process have failed or has not been started');
                 end
             else
                 paused = false;
@@ -545,10 +605,11 @@ classdef ClusterWrapper
             % default configuration.
             config = {obj.cluster_config_};
         end
-
-        %------------------------------------------------------------------
-        % SETTERS, GETTERS:
-        %------------------------------------------------------------------
+    end
+    %======================================================================
+    % SETTERS, GETTERS:
+    %----------------------------------------------------------------------
+    methods
         function isit = get.status_changed(obj)
             isit = obj.status_changed_;
         end
@@ -624,8 +685,11 @@ classdef ClusterWrapper
             % Part of check_progress method. Exposed for testing purposes
             [completed,failed,mess] = check_progress_from_messages_(obj,varargin{:});
         end
+        function val = get.common_env_var(obj)
+            val = containers.Map(obj.common_env_var_.keys,obj.common_env_var_.values);
+        end
     end
-
+    %
     methods(Access=protected)
         function env = set_env(obj,env)
             % helper function to set enviroment for a java process.
@@ -785,7 +849,7 @@ classdef ClusterWrapper
             end
         end
     end
-
+    %
     methods(Static)
         function mpi_exec = get_mpiexec()
             % Get the appropriate mpiexec program for running MPI jobs

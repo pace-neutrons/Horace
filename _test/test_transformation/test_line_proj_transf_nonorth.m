@@ -687,7 +687,10 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(imgn_coord,imgo_coord);
 
             assertElementsAlmostEqual(imgn_coord,eye(3));
-
+        end
+        function test_w_is_column(~)
+            pr = line_proj('nonorthogonal',true,'alatt',3,'angdeg',90);
+            assertEqual(size(pr.w),[1,3])
         end
     end
 end

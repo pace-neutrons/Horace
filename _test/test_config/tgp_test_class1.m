@@ -23,13 +23,13 @@ classdef tgp_test_class1<tgp_test_class
             % get/set methods interface
             fields = get_storage_field_names@tgp_test_class(this);
         end
-        function value = get_internal_field(this,field_name)
+        function value = get_default_value(this,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface
             if ismember(field_name,{'v3','v4'})
                 value = this.(field_name);
             else
-                value = get_internal_field@tgp_test_class(this,field_name);
+                value = get_default_value@tgp_test_class(this,field_name);
             end
         end
         

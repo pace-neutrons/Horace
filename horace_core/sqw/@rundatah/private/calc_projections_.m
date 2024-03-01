@@ -80,7 +80,9 @@ if use_mex
             k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
 
             data = struct('S',obj.S,'ERR',obj.ERR,'en',obj.en,'run_id',obj.run_id);
-            det  = obj.det_par;
+            % ensure the detpar struct is in row order for the
+            % calc_projections_c call below
+            det  = obj.get_det_par_rows();
             efix  = obj.efix;
             emode = obj.emode;
             %proj_mode = 2;
@@ -126,7 +128,10 @@ if ~use_mex
         case 2
             % Fill in pixel data object
             if ~qspec_provided
-                det = obj.det_par;
+                % ensure the detpar structure is in row order. This is probably unnecessary 
+                % (the test_sqw suite works with and without) but change made for consistency
+                % with the use_mex section above
+                det = obj.get_det_par_rows();
                 if isfield(det,'group')
                     detector_idx=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
                 else

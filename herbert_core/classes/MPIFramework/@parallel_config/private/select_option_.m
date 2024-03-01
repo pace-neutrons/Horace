@@ -25,6 +25,7 @@ elseif ~(ischar(arg) && size(arg,1)==1 && ~isempty(arg))
     error('HERBERT:parallel_config:invalid_argument',...
         'The selected framework should be defined by the name of the framework or its number in the framework list');
 end
+
 ind=find(strncmpi(arg,opt,numel(arg)));
 if isempty(ind)
     if numel(opt) == 1

@@ -27,15 +27,11 @@ function [vals_av, vals_var, vals_devsqr] = average_bin_data(npix, vals)
 
 stddev_request = nargout >= 2;
 
+nbin    = numel(npix);
+npixtot = sum(npix(:));
 % Get the bin index for each pixel
-nend=cumsum(npix(:));
-nbeg=nend-npix(:)+1;
-nbin=numel(npix);
-npixtot=nend(end);
-ind=zeros(npixtot,1);
-for i=1:nbin
-    ind(nbeg(i):nend(i))=i;
-end
+ind = repelem(1:numel(npix), npix(:))';
+
 
 % Check size(s) of input array(s)
 if iscell(vals) && any(cellfun(@numel, vals) ~= npixtot)

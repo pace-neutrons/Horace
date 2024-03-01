@@ -200,8 +200,8 @@ if numel(par) < npbin_expected
 
 elseif numel(par) > npbin_expected
     error('HORACE:cut:invalid_argument',...
-          'Unrecognised additional input(s): "%s" were provided to cut',...
-          disp2str(par(npbin_expected+1:end)));
+        'Unrecognised additional input(s): "%s" were provided to cut',...
+        disp2str(par(npbin_expected+1:end)));
 end
 
 pbin = par(1:npbin_expected);
@@ -209,13 +209,13 @@ pbin = par(1:npbin_expected);
 pbin_ok = cellfun(@(x) isempty(x) || isnumeric(x), pbin);
 if ~all(pbin_ok)
     error('HORACE:cut:invalid_argument',...
-          'Binning arguments must all be numeric, but arguments: %s are not',...
-          disp2str(find(~pbin_ok)));
+        'Binning arguments must all be numeric, but arguments: %s are not',...
+        disp2str(find(~pbin_ok)));
 end
 
 pbin_expanded = false(size(pbin)); % if some of the binning parameters have
-                                   % 4 elements, this means that the binning parameters describe multiple
-                                   % cuts
+% 4 elements, this means that the binning parameters describe multiple
+% cuts
 for i=1:npbin_expected
     if isempty(pbin{i})
         pbin{i} = [];
@@ -237,8 +237,8 @@ if opt.proj_given
     end
 
 else % it may be fewer parameters then actual dimensions and
-     % if no projection is given, we would like to append missing binning
-     % parameters with their default values.
+    % if no projection is given, we would like to append missing binning
+    % parameters with their default values.
     pbin_tmp = pbin;
     pbin = cell(4,1);
     % run checks on given pbin, and if given pbin is empty, take pbin from
@@ -276,7 +276,7 @@ end
 if ~save_to_file && ~return_cut
     % Check work needs to be done (*** might want to make this case prompt to save to file)
     error('HORACE:cut:invalid_argument', ...
-          'Neither output cut object nor output file requested - routine is not being asked to do anything');
+        'Neither output cut object nor output file requested - routine is not being asked to do anything');
 end
 
 if save_to_file
@@ -286,8 +286,8 @@ if save_to_file
         [~,~,out_ext]=fileparts(outfile);
         if length(out_ext) <= 1    % no extension or just a dot
             error('HORACE:cut:invalid_argument',...
-                  'Output filename  ''%s'' has no extension - check optional arguments',...
-                  outfile);
+                'Output filename  ''%s'' has no extension - check optional arguments',...
+                outfile);
         end
     else
 
@@ -300,7 +300,7 @@ if save_to_file
 
         if isempty(outfile)
             error('HORACE:cut:invalid_argument',...
-                  'No output file name given');
+                'No output file name given');
         end
     end
 
@@ -310,7 +310,7 @@ if save_to_file
     fout = fopen (outfile, 'wb');   % this command also clears contents of existing file
     if (fout < 0)
         error('HORACE:cut:invalid_argument', ...
-              'Cannot open output file %s',outfile)
+            'Cannot open output file %s',outfile)
     end
     fclose(fout);
     delete(outfile);
@@ -382,14 +382,28 @@ function pbin = select_pbin(pbin_given,paxis)
 
 if isempty(pbin_given)
     bin_width = paxis(2) - paxis(1);
-    pbin = [paxis(1),bin_width,paxis(end)];
+    bin_centers = 0.5*(paxis(1:end-1)+paxis(2:end));
+    pbin = [bin_centers(1),bin_width,bin_centers(end)];
 
 elseif numel(pbin_given) == 1
-    pbin = [paxis(1),pbin_given,paxis(end)];
+    if abs(pbin_given) < eps('single')
+        new_axis = paxis;
+    else
+        n_steps = floor((paxis(end)-paxis(1))/pbin_given);
+        err = rem(paxis(end)-paxis(1),pbin_given);
+        if err > 4*eps('single')
+            n_steps = n_steps+1;
+        end
+        paxis_end = paxis(1)+pbin_given*n_steps;
+        new_axis = linspace(paxis(1),paxis_end,n_steps+1);
+    end
+    bin_centers = 0.5*(new_axis(1:end-1)+new_axis(2:end));
+    pbins =  new_axis(2:end)-new_axis(1:end-1);
+    pbin = sum(pbins)/numel(pbins);
+    pbin = [bin_centers(1),pbin,bin_centers(end)];
 
 elseif size(pbin_given,1) > 1
     pbin = pbin_given';
-
 else
     pbin = pbin_given;
 end
@@ -431,11 +445,11 @@ for i=1:numel(sym)
     sym{i} = make_row(sym{i});
     if ~isempty(sym{i}) && ~isa(sym{i}, 'Symop')
         error('HORACE:cut:invalid_argument', ...
-              'Symmetry descriptor must be an symop object or array of symop objects, or a cell of those');
+            'Symmetry descriptor must be an symop object or array of symop objects, or a cell of those');
     end
 
     keep(i) = ~isempty(sym{i}) && ...
-              ~all(arrayfun(@(x) isa(x, 'SymopIdentity'), sym{i}));
+        ~all(arrayfun(@(x) isa(x, 'SymopIdentity'), sym{i}));
 end
 
 %Always add identity in addition to other kept symops

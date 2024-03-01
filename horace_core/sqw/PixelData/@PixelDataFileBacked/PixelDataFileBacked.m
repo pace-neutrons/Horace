@@ -1,46 +1,38 @@
-classdef PixelDataFileBacked < PixelDataBase
-    % PixelDataFileBacked Provides an interface for access to file-backed pixel data
+classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked < PixelDataBase
+    % PixelDataFileBacked Provides an interface for access to file-backed pixel data.
+    % Each pixel is representation of neutron event, i.e. neutron or group of neutron
+    % recorded in inelastic neutron experiment
     %
-    %   This class provides getters and setters for each data column in an SQW
-    %   pixel array. You can access the data using the attributes listed below,
-    %   using the get_data() method (to retrieve column data) or using the
-    %   get_pixels() method (retrieve row data).
+    % This class provides getters and setters for each data column in an SQW
+    % pixel array. You can access the data using the attributes listed below,
+    % using the get_data() method (to retrieve column data) or using the
+    % get_pixels() method (retrieve row data).
     %
-    %   Construct this class with an 9 x N array, a file path to an SQW object or
-    %   an instance of sqw_binfile_common.
+    % Construct this class with an 9 x N array, a file path to an SQW object or
+    % an instance of sqw_binfile_common.
     %
-    %   >> pix_data = PixelDataFileBacked(data);
-    %   >> pix_data = PixelDataFileBacked('/path/to/sqw.sqw');
-    %   >> pix_data = PixelDataFileBacked(faccess_obj);
+    % >> pix_data = PixelDataFileBacked(data);
+    % >> pix_data = PixelDataFileBacked('/path/to/sqw.sqw');
+    % >> pix_data = PixelDataFileBacked(faccess_obj);
     %
-    %   No pixel data will be loaded from the file on construction.
-    %   Data will be loaded when a getter is called e.g. pix_data.signal. Data will
-    %   be loaded in pages such that the data held in memory will not exceed `mem_chunk_size`
+    % No pixel data will be loaded from the file on construction.
+    % Data will be loaded when a getter is called e.g. pix_data.signal. Data will
+    % be loaded in pages such that the data held in memory will not exceed `mem_chunk_size`
     %
-    %   The file-backed operations work by loading "pages" of data into memory as
-    %   required. If editing pixels, to avoid losing changes, if a page has been
-    %   edited and the next page is then loaded, the "dirty" page will be written
-    %   to a tmp file. This class's getters will then retrieve data from the tmp
-    %   file if that data is requested from the "dirty" page. Note that "dirty"
-    %   pages are written to tmp files as floats, but stored in memory as double.
-    %   This means data is truncated when moving pages, hence pixel data should not
-    %   be relied upon being accurate to double precision.
+    % The file-backed operations work by loading "pages" of data into memory as
+    % required. If editing pixels, to avoid losing changes, if a page has been
+    % edited and the next page is then loaded, the "dirty" page will be written
+    % to a tmp file. This class's getters will then retrieve data from the tmp
+    % file if that data is requested from the "dirty" page. Note that "dirty"
+    % pages are written to tmp files as floats, but stored in memory as double.
+    % This means data is truncated when moving pages, hence pixel data should not
+    % be relied upon being accurate to double precision.
     %
     % Usage:
     %
     %   >> pix_data = PixelDataFileBacked(data)
     %   >> signal = pix_data.signal;
     %
-    %  or equivalently:
-    %
-    %   >> pix_data = PixelDataFileBacked();
-    %   >> pix_data.data = data;
-    %   >> signal = pix_data.get_fields('signal');
-    %
-    %  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
-    %
-    %   >> pix_data = PixelDataFileBacked(data);
-    %   >> signal = pix_data.get_fields({'run_idx', 'energy_idx'}, 1:10);
     %
     %  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
     %
@@ -59,10 +51,10 @@ classdef PixelDataFileBacked < PixelDataBase
     %
     % Properties:
     %   u1, u2, u3     - The 1st, 2nd and 3rd dimensions of the Crystal
-    %                    Cartesian coordinates in projection axes, units are per Angstrom (1 x n arrays)
-    %   dE             - The energy transfer value for each pixel in meV (1 x n array)
-    %   coordinates    - The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
-    %   q_coordinates  - The spacial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
+    %                    Cartesian coordinates of neutron events described by pixels. Units are per Angstrom (1 x n arrays)
+    %   dE             - The energy transfer value for each event in meV (1 x n array)
+    %   coordinates    - Four coordinates of the pixel data [u1, u2, u3, dE] (4 x n array)
+    %   q_coordinates  - Three Q-space coordinates of the pixel data [u1, u2, u3] (3 x n array)
     %   run_idx        - The run index the pixel originated from (1 x n array)
     %   detector_idx   - The detector group number in the detector listing for the pixels (1 x n array)
     %   energy_idx     - The energy bin numbers (1 x n array)
@@ -80,24 +72,25 @@ classdef PixelDataFileBacked < PixelDataBase
     properties (Access=private)
         num_pixels_ = 0;  % number of pixels, stored in the data file
         f_accessor_ = []; % instance of object to access pixel data from file
-        page_num_   = 1;  % the index of the currently loaded page
+        page_num_   = 1;  % the index of the currently referenced page
+
+        % shift (in Bytes) from the beginning of the binary file containing
+        % the pixels to the first byte of pixels to access. Also used
+        % by `distribute` to send file portions to workers
         offset_ = 0;
-        file_handle_ = [];
-        tmp_pix_obj = [];
+
+        % Place for handle-class holding tmp pixel file produced by filebacked
+        % operations with pixels only (no sqw object). If all referring
+        % classes go out of scope the file gets deleted. See similar
+        % property on SQW object for operations with full sqw object.
+        tmp_file_holder_ = [];
     end
 
-    properties(Dependent)
+    properties(Dependent,Hidden)
+        % defines offset from the beginning of the pixels in the binary file
+        % accessed through memmapfile.
         offset;
     end
-
-    properties(Dependent, Hidden)
-        has_open_file_handle;
-    end
-
-    properties (Hidden, Access=private)
-        pix_written = 0;
-    end
-
     properties (Constant)
         is_filebacked = true;
     end
@@ -105,29 +98,21 @@ classdef PixelDataFileBacked < PixelDataBase
     % =====================================================================
     % Overloaded operations interface
     methods
-        function obj = append(~, ~)
-            error('HORACE:PixelDataFileBacked:not_implemented',...
-                'append does not work on file-based pixels')
-        end
-
         function obj = set_raw_data(obj,pix)
+            %SET_RAW_DATA set internal data array without comprehensive checks for
+            % data integrity and data ranges.
+            %
+            % Performance method, which invalidates object integrity,
+            % so further operations are necessary to keep object intact.
+            % Invalidates data ranges which need recalculation/settings
+            % separately
+            %
             if obj.read_only
                 error('HORACE:PixelDataFileBacked:runtime_error',...
-                    'File %s is opened in read-only mode', obj.full_filename);
+                    'File %s is opened in read-only mode.', obj.full_filename);
             end
             obj = set_raw_data_(obj,pix);
         end
-
-        obj=set_raw_fields(obj, data, fields, varargin)
-        [mean_signal, mean_variance] = compute_bin_data(obj, npix);
-
-        [pix_out, data] = do_unary_op(obj, unary_op, data);
-        pix_out = do_binary_op(obj, operand, binary_op, varargin);
-
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);
-        pix_out = get_fields(obj, fields, abs_pix_indices);
-        pix_out = mask(obj, mask_array, varargin);
-
     end
 
     methods
@@ -163,9 +148,9 @@ classdef PixelDataFileBacked < PixelDataBase
             % 2: struct   -- the structure obtained from serializable
             %                to_struct method, saveobj method or previous
             %                versions of these methods.
-            % 3: pixel_data_wrap -- class-wrapper around pixel data informaion,
+            % 3: pixel_data_wrap -- class-wrapper around pixel data information,
             %                       obtained from obj.data_wrap property
-            %    pixel_metadata  -- class-wrapper aroung pixel metadata
+            %    pixel_metadata  -- class-wrapper around pixel metadata
             %                       information obtained from obj.metadata
             %                       property
             % 4: other_PixelDataFileBacked
@@ -179,20 +164,14 @@ classdef PixelDataFileBacked < PixelDataBase
             %                 file loader
             % 7: number   -- initialized single-paged data class with the
             %                  provided number of empty pixels
-            % 8: 3xNpix array
+            % 8: memmapfile
+            %             -- instance of memmapfile, initialized to access
+            %                pixel data
+            % 9: 3xNpix array
             %             -- initialize filebacked class from array of
             %                data provided as input
 
-            % process possible update parameter
             obj = init_(obj,varargin{:});
-        end
-
-        function obj = move_to_first_page(obj)
-            % Reset the object to point to the first page of pixel data in the file
-            % and clear the current cache
-            %  This function does nothing if pixels are not file-backed.
-            %
-            obj.page_num_ = 1;
         end
 
         function [obj,unique_pix_id] = recalc_data_range(obj, fld)
@@ -204,10 +183,10 @@ classdef PixelDataFileBacked < PixelDataBase
             % returns obj for compatibility with recalc_pix_range method of
             % combine_pixel_info class, which may be used instead of PixelData
             % for the same purpose.
-            % recalc_data_range is a normal Matlab value object (not a handle object),
+            % recalc_data_range is a normal MATLAB value object (not a handle object),
             % returning its changes in LHS
 
-            if ~exist('fld', 'var')
+            if nargin == 1
                 fld = 'all';
             end
 
@@ -223,10 +202,10 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
 
                 if nargout > 1
-                    [obj,unique_id] = obj.reset_changed_coord_range(fld);
+                    [obj,unique_id] = obj.calc_page_range(fld);
                     unique_pix_id = unique([unique_pix_id,unique_id]);
                 else
-                    obj = obj.reset_changed_coord_range(fld);
+                    obj = obj.calc_page_range(fld);
                 end
             end
         end
@@ -235,7 +214,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = delete(obj)
             % method tries to clear up the class instance to allow
             % class file being deleted when this class goes out of scope.
-            % Depending on Matlab version, it may not work.
+            % Depending on MATLAB version, it may not work.
             mmf = obj.f_accessor_;
             clear mmf;
             obj.f_accessor_ = [];
@@ -245,6 +224,73 @@ classdef PixelDataFileBacked < PixelDataBase
         function saveobj(~)
             error('HORACE:PixelData:runtime_error',...
                 'Can not save filebacked PixelData object');
+        end
+
+        % public getter for unmodified page data
+        data =  get_raw_data(obj,varargin)
+
+        function offset = get.offset(obj)
+            offset = obj.offset_;
+        end
+    end
+
+    %======================================================================
+    % File handling/migration
+    methods
+        function obj = deactivate(obj)
+            % close all open file handles to allow file movements to new
+            % file/new location.
+            obj = deactivate_(obj);
+        end
+        function [obj,is_tmp] = activate(obj,filename,varargin)
+            % open file access for file, previously closed by deactivate
+            % operation, possibly using new file name
+            %
+            % Optional:
+            % no_tmp_file  -- if present and true, do not set file with
+            %                 extension .tmp_ as temporary file
+            if nargin == 1 || isempty(filename)
+                filename = obj.f_accessor_.full_filename;
+            end
+            [obj,is_tmp] = activate_(obj,filename,varargin{:});
+        end
+
+        function wh = get_write_handle(obj,varargin)
+            targ_fn = PixelDataBase.build_op_filename(obj.full_filename,varargin{:});
+            wh = pix_write_handle(targ_fn);
+        end
+        %
+        function obj = store_page_data(obj,data,wh)
+            wh.save_data(data);
+        end
+        function obj =set_as_tmp_obj(obj,filename)
+            % mark object's file for deletion when this class goes out of
+            % scope
+            obj = set_as_tmp_obj_(obj,filename);
+        end
+        %
+        function obj = finish_dump(obj,page_op)
+            % complete pixel write operation, close writing to the target
+            %  file and open pixel dataset for access operations.
+            obj = finish_dump_(obj,page_op);
+        end
+
+        function format = get_memmap_format(obj, tail,new)
+            if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile') || ...
+                    (nargin==3 && new)
+                if nargin == 1
+                    tail = 0;
+                end
+                format = PixelDataBase.get_memmap_format(obj.num_pixels_,tail);
+            else
+                format = obj.f_accessor_.Format;
+            end
+        end
+
+        function obj = move_to_first_page(obj)
+            % Reset the object to point to the first page of pixel data in the file
+            % and clear the current cache
+            obj.page_num_ = 1;
         end
 
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, page_number)
@@ -264,225 +310,91 @@ classdef PixelDataFileBacked < PixelDataBase
             % Get the index of the final pixel to read given the maximum page size
             pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
         end
-
-
-        function [obj,unique_idx] = reset_changed_coord_range(obj,field_name)
-            % Recalculate and set appropriate range of pixel coordinates.
-            % The coordinates are defined by the selected field
+        function pix_copy = copy(obj)
+            pix_copy = obj;
+            if ~isempty(obj.tmp_file_holder_)
+                obj.tmp_file_holder_.copy();
+            end
+            pix_copy.page_num = 1;
+        end
+        %
+        function   sz = get_pix_byte_size(obj,keep_precision)
+            % Return the size of single pixel expressed in bytes.
             %
-            % Sets up the property page_range defining the range of block
-            % of pixels changed at current iteration.
-
-            %NOTE:  This range calculations are incorrect unless
-            %       performed in a loop over all pix pages where initial
-            %       range is set to empty!
-            %
-            ind = obj.check_pixel_fields(field_name);
-
-            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:), ...
-                obj.data_range_(:,ind));
-            if nargout > 1
-                unique_idx = unique(obj.run_idx);
+            % If keep_percision is true, return this size as defined in
+            % pixel data file
+            if nargin<2
+                keep_precision = obj.keep_precision;
             end
-        end
-        % public getter for unmodified page data
-        data =  get_raw_data(obj,varargin)
-
-        function offset = get.offset(obj)
-            offset = obj.offset_;
-        end
-
-        function has = get.has_open_file_handle(obj)
-            has = ~isempty(obj.file_handle_);
-        end
-    end
-
-    %======================================================================
-    % File handling/migration
-    methods
-        function obj = prepare_dump(obj)
-            % Get new handle iff not already opened by sqw
-            if ~obj.has_open_file_handle
-                obj = obj.get_new_handle();
-            end
-        end
-
-        function obj = get_new_handle(obj, f_accessor)
-            % Always create a new PixTmpFile object
-            % If others point to it, file will be kept
-            % otherwise file will be cleared
-
-            if exist('f_accessor', 'var') && ~isempty(f_accessor)
-                obj.file_handle_ = f_accessor;
-                obj.full_filename = f_accessor.full_filename;
+            if keep_precision
+                sz = obj.DEFAULT_NUM_PIX_FIELDS*4;
             else
-                if isempty(obj.full_filename)
-                    obj.full_filename = 'in_mem';
-                end
-                obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
-
-                obj.file_handle_ = sqw_fopen(obj.tmp_pix_obj.file_name, 'wb+');
-            end
-            obj.pix_written = 0;
-        end
-
-        function obj = format_dump_data(obj, data)
-            if ~obj.has_open_file_handle
-                error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'Cannot dump data, object does not have open filehandle')
-            end
-
-            if isa(obj.file_handle_, 'sqw_file_interface')
-                obj.file_handle_.put_raw_pix(data, obj.pix_written+1);
-            else
-                fwrite(obj.file_handle_, single(data), 'single');
-            end
-            obj.pix_written = obj.pix_written + size(data, 2);
-        end
-
-        function obj = finish_dump(obj)
-            if ~obj.has_open_file_handle
-                error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'Cannot finish dump writing, object does not have open filehandle')
-            end
-
-            obj.num_pixels_ = obj.pix_written;
-
-            if isa(obj.file_handle_, 'sqw_file_interface')
-                obj.full_filename = obj.file_handle_.full_filename;
-                obj.file_handle_ = obj.file_handle_.put_pix_metadata(obj);
-                % Force pixel update
-                obj.file_handle_ = obj.file_handle_.put_num_pixels(obj.num_pixels);
-
-                obj = obj.init_from_file_accessor_(obj.file_handle_, false, true);
-                obj.file_handle_.delete();
-                obj.file_handle_ = [];
-
-            else
-                fclose(obj.file_handle_);
-                if obj.num_pixels_ == 0
-                    obj = PixelDataMemory();
-                    return;
-                end
-
-                obj.file_handle_ = [];
-                obj.f_accessor_ = [];
-                obj.offset_ = 0;
-                obj.full_filename = obj.tmp_pix_obj.file_name;
-                obj.f_accessor_ = memmapfile(obj.full_filename, ...
-                    'format', obj.get_memmap_format(), ...
-                    'Repeat', 1, ...
-                    'Writable', true, ...
-                    'offset', obj.offset_);
-            end
-        end
-
-        function format = get_memmap_format(obj, tail)
-            if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile')
-                if nargin == 1
-                    tail = 0;
-                end
-                data_size = double([PixelDataBase.DEFAULT_NUM_PIX_FIELDS, obj.num_pixels_]);
-                if tail>0
-                    format = {'single',data_size,'data';'uint8',double(tail),'tail'};
-                else
-                    format = {'single',data_size,'data'};
-                end
-            else
-                format = obj.f_accessor_.Format;
+                sz = obj.DEFAULT_NUM_PIX_FIELDS*8;
             end
         end
     end
     %======================================================================
     methods(Static)
-        function obj = cat(varargin)
-            % Concatenate the given PixelData objects' pixels. This function performs
-            % a straight-forward data concatenation.
-            %
-            %   >> joined_pix = PixelDataBase.cat(pix_data1, pix_data2);
-            %
-            % Input:
-            % ------
-            %   varargin    A cell array of PixelData objects
-            %
-            % Output:
-            % -------
-            %   obj         A PixelData object containing all the pixels in the inputted
-            %               PixelData objects
-
-            if isempty(varargin)
-                obj = PixelDataFileBacked();
-                return;
-            elseif numel(varargin) == 1
-                if isa(varargin{1}, 'PixelDataMemory')
-                    obj = PixelDataFileBacked(varargin{1});
-                elseif isa(varargin{1}, 'PixelDataFileBacked')
-                    obj = varargin{1};
-                end
-                return;
-            end
-
-            is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
-            if any(is_ldr)
-                ldr = varargin{is_ldr};
-                varargin = varargin(~is_ldr);
-            else
-                ldr = [];
-            end
-
-            obj = PixelDataFileBacked();
-
-            obj.num_pixels_ = sum(cellfun(@(x) x.num_pixels, varargin));
-
-            obj = obj.get_new_handle(ldr);
-
-            start_idx = 1;
-            obj.data_range = PixelDataBase.EMPTY_RANGE;
-            for i = 1:numel(varargin)
-                curr_pix = varargin{i};
-                num_pages= curr_pix .num_pages;
-                for page = 1:num_pages
-                    curr_pix.page_num = i;
-                    data = curr_pix.data;
-                    obj = obj.format_dump_data(data);
-                    obj.data_range = ...
-                        obj.pix_minmax_ranges(data, obj.data_range);
-                    start_idx = start_idx + size(data,2);
-                end
-            end
-            obj = obj.finish_dump();
-        end
+        % apply page operation(s) to the object with File-backed pixels
+        obj_out = apply_op(obj_in,page_op);
+        %
     end
 
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
+        function is = get_is_tmp_obj(obj)
+            is = ~isempty(obj.tmp_file_holder_);
+        end
+
+        function full_filename = get_full_filename(obj)
+            if isempty(obj.tmp_file_holder_)
+                full_filename = obj.full_filename_;
+            else
+                full_filename = obj.tmp_file_holder_.file_name;
+            end
+        end
+        function obj =  set_metadata(obj,val)
+            % main part of set from metadata setter
+            obj = set_metadata@PixelDataBase(obj,val);
+            obj.num_pixels_ = val.npix;
+        end
+
+
+        function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
+            % Overloaded part of get_raw_pix operation.
+            %
+            % return unmodified pixel data according to the input indexes
+            % provided.
+            % Inputs:
+            % obj         -- initialized pixel data memory object
+            % row_pix_idx -- indices of pixels to return
+            % col_pix_idx -- if not empty, the indices of the pixel field
+            %                to return, if empty, all pixels fields
+            % Output:
+            % pix_data    -- [9,numel(row_pix_idx)] array of pixel data
+            mmf = obj.f_accessor_;
+            if isempty(mmf)
+                pix_data = obj.EMPTY_PIXELS;
+                return
+            end
+
+            % Return raw pixels
+            if isempty(col_pix_idx)
+                pix_data = mmf.Data.data(:,row_pix_idx);
+            else
+                pix_data = mmf.Data.data(col_pix_idx,row_pix_idx);
+            end
+
+        end
+
         function data_range = get_data_range(obj,varargin)
             % overloadable data range getter
             if nargin == 1
                 data_range = obj.data_range_;
-                undefined = data_range == PixelDataBase.EMPTY_RANGE;
             else
-                data_range = obj.data_range_(:,varargin{1});
-                undefined = data_range == PixelDataBase.EMPTY_RANGE(:,varargin{1});
-            end
-
-            if any(undefined(:))
-                warning('HORACE:old_file_format',[...
-                    '*** Pixels data range requested but pixels in this object\n', ...
-                    '*** do not contain correct ranges\n' ...
-                    '*** Either sqw object is from old format sqw file without pixel data averages.\n', ...
-                    '*** or pixel data have been realigned\n',...
-                    '*** Update file format of your sqw objects not to ' ...
-                    'recalculate these averages each time you are accessing them\n' ...
-                    '*** Run upgrade_file_format(filename) from horace_core/admin folder to upgrade file format\n' ...
-                    '*** or apply_alignment(filename) for realigned files\n'])
-                obj = obj.recalc_data_range();
-                if nargin == 1
-                    data_range = obj.data_range_;
-                else
-                    data_range = obj.data_range_(:,varargin{1});
-                end
+                idx = obj.field_index(varargin{1});
+                data_range = obj.data_range_(:,idx);
             end
         end
 
@@ -582,7 +494,6 @@ classdef PixelDataFileBacked < PixelDataBase
             else
                 obj = loadobj@PixelDataBase(S);
             end
-
         end
     end
 

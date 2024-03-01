@@ -6,13 +6,62 @@ Running Horace in Parallel
 Controlling MPI
 ===============
 
-Certain operations in Horace are parallelised with an MPI algorithm. These can be enabled in one go using:
+Certain operations in Horace have parallelised variants which can be used to
+speed up large operations.
+
+.. warning::
+
+   Be aware that for small jobs or some combinations of parameters, parallel
+   calculation may, in fact, be slower than serial execution due to startup
+   times and message sending. In future we hope to bring these times down and
+   efficiencies up.
+
+Enabling Locally
+----------------
+
+To run a particular function in parallel there is a function called
+``parallel_call`` in Horace which runs a single task in parallel. Currently,
+``parallel_call`` is available for:
+
+- ``fit``
+
+- ``cut``
+
+- ``func_eval``
+
+- ``sqw_eval``
+
+The syntax for using ``parallel_call`` is as follows:
+
+.. code-block:: matlab
+
+   result = parallel_call(@function, {argument, arguments})
+
+   % Equivalent to
+
+   result = function(argument, arguments)
+
+   % E.g.
+
+   proj = line_proj([1, 0, 0], [0, 1, 0]);
+   w_out = parallel_call(@cut, {w_in, proj, [], [1 0.2 4], [0 1], [10 20]});
+
+
+In order to use ``parallel_call`` you must ensure MPI has been `configured
+correctly <mpi_schemes_>`_.
+
+Enabling Globally
+-----------------
+
+Parallel operations can be enabled globally using:
 
 ::
 
    hpc('on')
 
-Alternatively different parallel components can be enabled/disabled separately through ``hpc_config``
+Alternatively different parallel components can be enabled/disabled separately
+through ``hpc_config`` (see: :ref:`changing Horace settings
+<manual/Changing_Horace_settings:Changing Horace settings>`)
 
 ::
 
@@ -35,11 +84,13 @@ Alternatively different parallel components can be enabled/disabled separately t
 
 In particular, the parallel enabling options are:
 
-- ``parallel_multifit`` : Enable parallel fitting for ``multifit`` and ``tobyfit``
-- ``build_sqw_in_parallel`` : Enable building sqw objects in parallel, i.e. ``gen_sqw``, ``combine_sqw``
+- ``parallel_multifit`` : Enable parallel fitting for ``multifit`` and
+  ``tobyfit``
+- ``build_sqw_in_parallel`` : Enable building sqw objects in parallel,
+  i.e. ``gen_sqw``, ``combine_sqw``
 
-The ``parallel_config`` contains most of the information to manage parallelism, though some is stored in ``hpc_config``
-(described above):
+The ``parallel_config`` contains most of the information to manage parallelism,
+though some is stored in ``hpc_config`` (described above):
 
 ::
 
@@ -61,47 +112,52 @@ The ``parallel_config`` contains most of the information to manage parallelism, 
                returns_defaults: 0
                   config_folder: '/home/jacob/.matlab/mprogs_config'
 
+.. _mpi_schemes:
+
 MPI Schemes
 ===========
 
-Horace can be run in parallel with a number of different schemes, all controlled through the ``parallel_config``.
+Horace can be run in parallel with a number of different schemes, all controlled
+through the ``parallel_config``.
 
 The five currently implemented parallel schemes are:
 
-1. ``herbert`` (Poor-man's MPI) - Data messages are sent through files written to the hard drive and read by each
-process. This is the slowest MPI scheme, but also the one with the fewest requirements.
+1. ``herbert`` (Poor-man's MPI) - Data messages are sent through files written
+to the hard drive and read by each process. This is the slowest MPI scheme, but
+also the one with the fewest requirements.
 
-2. ``parpool`` (Matlab Parallel Toolbox MPI) - Parpool uses Matlab's parallel toolbox parallelism to send messages and
-therefore requires the parallel toolbox to be used.
+2. ``parpool`` (Matlab Parallel Toolbox MPI) - Parpool uses Matlab's parallel
+toolbox parallelism to send messages and therefore requires the parallel toolbox
+to be used.
 
-3. ``mpiexec_mpi`` (C++ MPI) - Data messages are sent using C++ wrapping OpenMPI. This requires the MEX files to be
-built in order to be used.
+3. ``mpiexec_mpi`` (C++ MPI) - Data messages are sent using C++ wrapping
+OpenMPI. This requires the MEX files to be built in order to be used.
 
-4. ``slurm_mpi`` (Slurm MPI) - Data messages are sent using C++ wrapping OpenMPI, but are submitted to a running Slurm
-instance by Horace upon starting the job. This requires the MEX files to be built in order to be used.
+4. ``slurm_mpi`` (Slurm MPI) - Data messages are sent using C++ wrapping
+OpenMPI, but are submitted to a running Slurm instance by Horace upon starting
+the job. This requires the MEX files to be built in order to be used.
 
-5. ``dummy`` (Dummy MPI) - Dummy MPI is not MPI, but simply a dummy system for debugging and testing MPI algorithms on
-one process in serial.
+5. ``dummy`` (Dummy MPI) - Dummy MPI is not MPI, but simply a dummy system for
+debugging and testing MPI algorithms on one process in serial.
 
 Managing parallel jobs
 ======================
 
-Running jobs in parallel is as simple as selecting the appropriate MPI scheme, setting an appropriate
-``parallel_workers_number`` and enabling the appropriate flags through the ``hpc_config`` and ``parallel_config``.
-
-**N.B.** Be aware that for small jobs or some combinations of parameters, parallel calculation may, in fact, be slower
-than serial execution due to startup times and message sending. In future we hope to bring these times down and
-efficiencies up.
+Running jobs in parallel is as simple as selecting the appropriate MPI scheme,
+setting an appropriate ``parallel_workers_number`` and enabling the appropriate
+flags through the ``hpc_config`` and ``parallel_config``.
 
 Slurm Jobs
 ==========
 
-When running on Slurm-managed clusters, it is possible to automatically submit jobs to the Slurm queue to be run in
-parallel across the cluster. This will attempt to request the number of nodes required to run the selected number of
-parallel workers and associated threads, however, if you are using a cluster which requires non-standard options such as
-billing accounts and or non-default queues specifying, it is possible to issue extra commands through the
-``slurm_commands`` variable accessible via the ``parallel_config`` object. This is a ``containers.Map`` object, and will
-only store the latest set commands.
+When running on Slurm-managed clusters, it is possible to automatically submit
+jobs to the Slurm queue to be run in parallel across the cluster. This will
+attempt to request the number of nodes required to run the selected number of
+parallel workers and associated threads, however, if you are using a cluster
+which requires non-standard options such as billing accounts and or non-default
+queues specifying, it is possible to issue extra commands through the
+``slurm_commands`` variable accessible via the ``parallel_config`` object. This
+is a ``containers.Map`` object, and will only store the latest set commands.
 
 ::
 
@@ -115,7 +171,10 @@ only store the latest set commands.
    pc.update_slurm_commands('-A account -p=partition', false)    % Using update_slurm_commands setting append to false
    pc.update_slurm_commands(new_commands)                        % Using update_slurm_commands omitting append
 
-**N.B.** Setting ``slurm_commands`` by any of the above methods will remove all existing ``slurm_commands`` and set the new ones.
+.. note::
+
+   Setting ``slurm_commands`` by any of the above methods will remove all
+   existing ``slurm_commands`` and set the new ones.
 
 ::
 
@@ -123,15 +182,20 @@ only store the latest set commands.
    pc.update_slurm_commands('-A account -p=partition', true);                            % Set through update_slurm_commands
    pc.update_slurm_commands(containers.Map({'-A' '-p'}, {'account', 'partition'}), true)
 
-**N.B.** Setting ``slurm_commands`` by any of the above methods will simply overwrite any existing ``slurm_commands``.
+.. note::
 
-It is possible to set the ``slurm_commands`` variable by loading the appropriate commands from a file if that is what
-your cluster team provides. This is done by using the following command:
+   Setting ``slurm_commands`` by any of the above methods will simply overwrite
+   any existing ``slurm_commands``.
+
+It is possible to set the ``slurm_commands`` variable by loading the appropriate
+commands from a file if that is what your cluster team provides. This is done by
+using the following command:
 
 ::
 
    pc = parallel_config();
    pc = pc.load_slurm_commands_from_file(<filename>, <append>);
 
-Where ``filename`` is the path of the file to load the commands from, and ``append`` specifies whether the commands are
-meant to be added to the existing commands or replace them entirely.
+Where ``filename`` is the path of the file to load the commands from, and
+``append`` specifies whether the commands are meant to be added to the existing
+commands or replace them entirely.

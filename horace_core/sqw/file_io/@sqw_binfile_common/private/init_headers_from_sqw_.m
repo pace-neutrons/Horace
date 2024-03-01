@@ -41,7 +41,8 @@ for i=2:n_files
 end
 obj.detpar_pos_ = pos;
 
-detpar = sqw_obj.detpar;
+% convert to old detpar representation for old file format
+detpar = sqw_obj.detpar{1}.get_detpar_representation();
 detpar_form = obj.get_detpar_form();
 [detpar_pos,pos]=obj.sqw_serializer_.calculate_positions(detpar_form,detpar,pos);
 obj.detpar_pos_info_ = detpar_pos;

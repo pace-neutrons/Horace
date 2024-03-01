@@ -69,7 +69,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(numel(mheader.title),0);
             assertEqual(mheader.filename,'test_sqw_file_read_write_v3.sqw');
             assertEqual(mheader.filepath,...
-                'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file\');
+                'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file');
 
             exp_info = file_accessor.get_exp_info();
             %exp_info = header.get_exp_info();
@@ -141,14 +141,14 @@ classdef test_faccess_sqw_v3_3< TestCase
 
             assertTrue(isa(sqw_obj,'sqw'));
             assertEqual(sqw_obj.main_header.filename,fo.filename)
-            assertEqual(sqw_obj.main_header.filepath,[fo.filepath,filesep])
+            assertEqual(sqw_obj.main_header.filepath,fo.filepath)
 
             sqw_obj1 = fo.get_sqw('-hverbatim');
 
             assertTrue(isa(sqw_obj1,'sqw'));
             assertEqual(sqw_obj1.main_header.filename,'test_sqw_file_read_write_v3.sqw')
             assertEqual(sqw_obj1.main_header.filepath,...
-                'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file\')
+                'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file')
         end
         %
         function test_save_sqw2to3_3(obj)
@@ -170,7 +170,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             %sqw_ob.header(1).instrument = inst1;
             hdr = sqw_ob.experiment_info;
             hdr.samples{1} = sam1;
-            sqw_ob = sqw_ob.change_header(hdr);
+            sqw_ob.experiment_info = hdr;
 
             tob = faccess_sqw_v3_3();
             tob = tob.init(sqw_ob);
@@ -212,7 +212,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             inst1=create_test_instrument(95,250,'s');
             hdr = sqw_ob.experiment_info;
             hdr.instruments{1} = inst1;
-            sqw_ob = sqw_ob.change_header(hdr);
+            sqw_ob.experiment_info = hdr;
 
             tf = fullfile(tmp_dir,'test_save_load_sqwV3_3.sqw');
             clob = onCleanup(@()delete(tf));

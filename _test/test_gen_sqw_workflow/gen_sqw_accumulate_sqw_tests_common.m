@@ -357,9 +357,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
 
             hpc_config_cleanup = set_temporary_config_options(hpc_config, ...
-                                                              'build_sqw_in_parallel', false, ...
-                                                              'combine_sqw_using', 'mex_code' ...
-                                                             );
+                'build_sqw_in_parallel', false, ...
+                'combine_sqw_using', 'mex_code' ...
+                );
             hc_config_cleanup = set_temporary_config_options(hor_config, 'delete_tmp', true);
 
             % Test symmetrisation ---------------------------------------
@@ -381,8 +381,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertEqual(w_inm.pix.num_pixels,w_mem_sym.pix.num_pixels)
 
             gen_sqw(obj.spe_file, '', sqw_file_sym,...
-                    efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
-                    'transform_sqw',@(x)symmetrise_sqw(x,sym));
+                efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
+                'transform_sqw',@(x)symmetrise_sqw(x,sym));
 
 
             loc_proj=struct('u',u,'v',v);
@@ -390,10 +390,10 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             w1_inf_sym = cut(sqw_file_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             w1_inm_sym = cut(w_mem_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             % Uncomment to see the cut shapes
-%             acolor('r')
-%             plot(w1_inf_sym)
-%             acolor('k')
-%             pd(w1_inm_sym)
+            %             acolor('r')
+            %             plot(w1_inf_sym)
+            %             acolor('k')
+            %             pd(w1_inm_sym)
 
             assertEqualToTol(w1_inf_sym,w1_inm_sym,'ignore_str',true,'tol',1.e-6)
 
@@ -511,9 +511,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % Allow nan-s and inf-s to keep masked pixels, to ensure
             % consistency of estimated and actual pix_ranges
             co5 = set_temporary_config_options(hor_config, ...
-                                               'ignore_nan', false, ...
-                                               'ignore_inf', false ...
-                                               );
+                'ignore_nan', false, ...
+                'ignore_inf', false ...
+                );
 
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
@@ -621,7 +621,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             data_range = ldr.get_data_range();
             clear ldr;
             img_db_range1 = dat.img_range;
-            assertEqual(pix_range1456,data_range);
+            assertElementsAlmostEqual(data_range,pix_range1456,'relative',4*eps('single'));
             assertElementsAlmostEqual(data_range(:,1:4),img_db_range1,'relative',1.e-4);
 
 
@@ -634,7 +634,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
             dat = ldr.get_data();
             data_range = ldr.get_data_range();
-            assertEqual(acc_pix_range1456,data_range);
+            assertElementsAlmostEqual(data_range,acc_pix_range1456,'relative',4*eps('single'));            
             clear ldr;
             img_db_range2 = dat.img_range;
             % img_db_range in second case is wider then in the first, as
@@ -737,7 +737,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
             [~,grid_size,pix_range]=accumulate_sqw (spe_accum, '', sqw_file_accum,...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
-            assertEqual(pix_range,pix_range2);
+            assertElementsAlmostEqual(pix_range,pix_range2,'relative',4*eps('single'));
             assertEqual(grid_size,grid_size1);
 
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,...

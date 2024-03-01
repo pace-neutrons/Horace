@@ -13,24 +13,22 @@ if ~isa(val,'double')||~isvector(val)
     if isnumeric(val) && isvector(val)
         val = double(val);
     else
-        error('IX_dataset:invalid_argument',...
+        error('HERBERT:IX_dataset:invalid_argument',...
             'axis values array must be a numeric vector');
     end
 end
 
 if ~all(isfinite(val))
-    error('IX_dataset:invalid_argument',...
+    error('HERBERT:IX_dataset:invalid_argument',...
         'axis values must all be finite (i.e. no Inf or NaN)');
 end
 if any(diff(val)<0)
-    error('IX_dataset:invalid_argument',...
+    error('HERBERT:IX_dataset:invalid_argument',...
         'axis values or Histogram bin boundaries along x-axis must be strictly monotonically increasing');
-    
+
 end
 
-if size(val,2)==1
-    val = val';
-end     % make row vector
+val = val(:)';  % make it row vector
 
 %TODO: Disabled to accomodate some oddity with 2D rebinning. Should it be
 % enabled?

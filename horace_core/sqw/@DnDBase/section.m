@@ -1,4 +1,4 @@
-function [wout, new_axis_block] = section (win,varargin)
+function [wout, irange] = section (win,varargin)
 % Takes a section out of an sqw object
 %
 % If an array of DnDs is provided, this will return a cell array
@@ -41,15 +41,16 @@ end
 % Dimension of input data structures
 ndim=dimensions(win(1));
 if ndim==0  % no sectioning possible
-    error('HORACE:sqw:invalid_argument', 'Cannot section a zero dimensional object')
+    error('HORACE:DnDBase:invalid_argument', ...
+        'Cannot section a zero dimensional object')
 end
 
 if numel(win) > 1 && any(arrayfun(@dimensions, win(2:end)) ~= ndim)
-    error('HORACE:sqw:invalid_argument', 'All objects must have same dimensionality for sectioning to work')
+    error('HORACE:DnDBase:invalid_argument', 'All objects must have same dimensionality for sectioning to work')
 end
 
 if length(varargin) ~= ndim
-    error('HORACE:sqw:invalid_argument', 'Check number of arguments')
+    error('HORACE:DnDBase:invalid_argument', 'Need  number of arguments')
 end
 
 % Initialise output argument
@@ -84,7 +85,7 @@ for n=1:numel(win)
         curr_range = varargin{i};
         pax = win(n).dax(i);
 
-        if isempty(curr_range) || isequal(curr_range, [0])
+        if isempty(curr_range) || isequal(curr_range, 0)
 
             irange(1,pax) = 1;
             irange(2,pax) = sz(pax);

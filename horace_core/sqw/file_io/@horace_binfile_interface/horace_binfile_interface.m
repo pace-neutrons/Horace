@@ -91,6 +91,8 @@ classdef horace_binfile_interface < serializable
         io_mode % is opened in. Empty if the file is not opened
         % access to the file_id of the f-accessor
         file_id
+        % property, which gives read-only access to file-closer
+        file_closer;
     end
 
     properties(Access=protected)
@@ -123,7 +125,7 @@ classdef horace_binfile_interface < serializable
         % binary sqw/dnd file to identify this file for clients
         app_header_form_ = struct('appname','horace','version',double(1),...
             'sqw_type',uint32(1),'num_dim',uint32(1));
-        % the size of the horace version definition tape, the tape occupies
+        % the size of the Horace version definition tape, the tape occupies
         % on the disk.
         max_header_size_ = 4+6+8+4+4;
     end
@@ -136,6 +138,18 @@ classdef horace_binfile_interface < serializable
         [header,fid] = get_file_header(file,varargin)
         %
     end
+    methods(Static,Hidden) % defined by this class
+        function sqw_data = update_projection(sqw_data)
+            % Check if the projection attached to dnd class is related to
+            % the cut (the cut image range is in hkl) or to the initial
+            % generated sqw file (image range equal to the pixel range)
+            % and modify dnd projection accordingly
+            %
+            % Used in upgrade_file_format, and does nothing for the same
+            % file formats
+        end
+    end
+
     % Main class methods & constructor
     methods
         function obj = horace_binfile_interface(varargin)
@@ -191,8 +205,7 @@ classdef horace_binfile_interface < serializable
         is = is_activated(obj, read_or_write);
         %----------------
         function obj = delete(obj)
-            % close associated file (if open) and remove all information
-            % about internal file structure from memory.
+            % close associated file
             obj = delete_(obj);
         end
         function obj = init_input_stream(obj,objinit)
@@ -337,6 +350,9 @@ classdef horace_binfile_interface < serializable
         function id = get.file_id(obj)
             id = obj.file_id_;
         end
+        function fc = get.file_closer(obj)
+            fc = obj.file_closer_;
+        end
         %
         function obj = fclose(obj)
             % Close existing file header if it has been opened
@@ -410,7 +426,7 @@ classdef horace_binfile_interface < serializable
             %
             move_to_position_(fid,pos);
         end
-        function check_write_error(fid)
+        function check_write_error(fid,add_info)
             % check if write operation have completed successfully.
             %
             % Inputs:
@@ -419,9 +435,12 @@ classdef horace_binfile_interface < serializable
             %
             % If add_info is not empty, it added to the error message and
             % used for clarification of the error location.
-            check_io_error_(fid,'writing');
+            if nargin<2
+                add_info = '';
+            end
+            check_io_error_(fid,'writing',add_info);
         end
-        function check_read_error(fid)
+        function check_read_error(fid,add_info)
             % check if read operation have completed successfully.
             %
             % Inputs:
@@ -431,7 +450,10 @@ classdef horace_binfile_interface < serializable
             %
             % If add_info is not empty, it added to the error message and
             % used for clarification of the error location.
-            check_io_error_(fid,'reading');
+            if nargin<2
+                add_info = '';
+            end
+            check_io_error_(fid,'reading',add_info);
         end
     end
     %======================================================================

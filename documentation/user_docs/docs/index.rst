@@ -21,11 +21,12 @@ and somebody will come back and try to help you answering your question.
    Introduction
    User_guide
    Horace_manual
+   Example_scripts
    Citing
    Developers
 
    Contributing
-   API_Reference
+
 
    General_disclaimer
-   Privacy_policy
+   Previous_versions

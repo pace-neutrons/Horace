@@ -7,6 +7,7 @@ if ~faccessor.sqw_type
 end
 
 obj.offset_   = faccessor.pix_position;
+
 obj.page_num_ = 1;
 obj.num_pixels_ = double(faccessor.npixels);
 tail = faccessor.eof_position-faccessor.pixel_data_end;
@@ -21,20 +22,32 @@ obj.f_accessor_ = memmapfile(faccessor.full_filename, ...
 meta = faccessor.get_pix_metadata();
 % Metadata filename may differ from current filename; update filename here
 obj.metadata = meta;
+% Let's force PixelFildBacked always have filenane of the file, it was
+% loaded from
+obj.full_filename = faccessor.full_filename;
+
+ver = faccessor.faccess_version;
+if ver< sqw_formats_factory.instance().last_version()
+    obj.old_file_format_ = true;
+else
+    obj.old_file_format_ = false;
+end
 
 if norange
     return;
 end
 
 if ~obj.is_range_valid()
-    warning('HORACE:old_file_format', ...
-            ['\n', ...
-             '*** SQW file does not contain pixel data averages.\n', ...
-             '*** This may be because is is an old-format file or realigned file.\n', ...
-             '*** Averages will be calculated when needed which may take substantial time for large files\n', ...
-             '*** Upgrade your saved sqw object to not have to recalculate these each time you load this file\n', ...
-             '*** To upgrade this file run\n>> upgrade_file_format(''%s'')'], ...
+    ll = config_store.instance().get_value('hor_config','log_level');
+    if ll<2
+        return;
+    end
+    fprintf(2,[ '\n', ...
+        '*** SQW file does not contain correct pixel data ranges.\n', ...
+        '*** This may be because file quickly upgraded from old-format file or it is sqw quick-realigned file.\n', ...
+        '*** Averages will be calculated when needed which may take substantial time for large files\n', ...
+        '*** Upgrade your saved sqw object to not have to recalculate these each time you ask for data averages\n', ...
+        '*** To upgrade this file run:\n' ...
+        '*** >> upgrade_file_format(''%s'',"-upgrade_range")\n'], ...
         obj.full_filename);
-end
-
 end

@@ -33,7 +33,7 @@ n = zeros(2,ndim);
 for i=1:ndim
     lis = find(s{i}~=0);
 
-    if isempty(lis);
+    if isempty(lis)
         val=[];
         n=[];
         return;
