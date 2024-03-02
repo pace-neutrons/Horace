@@ -155,7 +155,7 @@ else
     end
     % mex code, if deployed below, needs pixels collected during this
     % particular accumulation.    
-    npix = cut_data_from_file_job.calc_npix_distribution(pix_indx,npix);
+    [npix,npix1] = cut_data_from_file_job.calc_npix_distribution(pix_indx,npix);
 end
 
 if nout<3
@@ -194,7 +194,7 @@ if ndims == 0
     end
 else
     for i=1:ndata
-        out{i} = out{i}+accumarray(pix_indx,bin_values{i}(ok),n_bins);
+        out{i} = out{i}+accumarray(pix_indx,bin_values{i}(ok),size(npix));
     end
 end
 

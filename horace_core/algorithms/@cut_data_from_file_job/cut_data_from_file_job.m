@@ -73,7 +73,7 @@ classdef cut_data_from_file_job < JobExecutor
         end
     end
     methods(Static)
-        function npix = calc_npix_distribution(pix_indx,npix)
+        function [npix,npix1] = calc_npix_distribution(pix_indx,npix)
             % calculate how many indices belongs to every image bin
             %
             % Inputs:
@@ -87,7 +87,7 @@ classdef cut_data_from_file_job < JobExecutor
             %
             n_bins = size(npix);
             npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
-            % do we need to do this or it is always column array?
+            % do we need to do this or it is always a column array in 1D?
             npix = npix+ reshape(npix1,n_bins);
         end
         function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = ...
