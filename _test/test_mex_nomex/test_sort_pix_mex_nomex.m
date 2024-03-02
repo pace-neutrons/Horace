@@ -18,6 +18,25 @@ classdef test_sort_pix_mex_nomex < TestCase
             obj.no_mex = n_errors > 0;
             % addpath(obj.this_folder);
         end
+        function test_sort_pix_handles_empty_pages(obj)
+            % prepare pixels to sort
+            %xs = 9.6:-1:0.6;
+            %xp = 0.1:0.5:10;
+            [pix1,ix1,npix1] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
+
+
+            npix = npix1+npix1;
+            % test nomex
+            pix_sn = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''},npix,'-nomex');
+            if obj.no_mex
+                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
+            end
+            % test mex
+            pix_sm = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''},npix,'-force_mex');
+
+            assertEqualToTol(pix_sn, pix_sm);
+        end
+
 
         function test_sort_pix_2_pages(obj)
             if obj.no_mex
@@ -72,7 +91,7 @@ classdef test_sort_pix_mex_nomex < TestCase
             pix0 = PixelData(single(pix.data));
             ix0  = int64(ix);
             pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
-            assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);            
+            assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);
         end
 
         function test_mex_keeps_precision(obj)
@@ -134,7 +153,6 @@ classdef test_sort_pix_mex_nomex < TestCase
 
             profile off
             profview;
-
         end
 
     end
