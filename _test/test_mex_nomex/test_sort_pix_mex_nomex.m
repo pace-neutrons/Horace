@@ -1,5 +1,5 @@
 classdef test_sort_pix_mex_nomex < TestCase
-    % Series of tests to check work of mex files against Matlab files
+    % Tests validate sort_pixels and how mex code works against Matlab.
 
     properties
         no_mex;
@@ -18,6 +18,23 @@ classdef test_sort_pix_mex_nomex < TestCase
             obj.no_mex = n_errors > 0;
             % addpath(obj.this_folder);
         end
+        function test_sort_pix_handles_no_distr(obj)
+            % prepare pixels to sort
+            %xs = 9.6:-1:0.6;
+            %xp = 0.1:0.5:10;
+            [pix1,ix1] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
+
+            % test nomex
+            pix_sn = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''},'-nomex');
+            if obj.no_mex
+                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
+            end
+            % test mex
+            pix_sm = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''},'-force_mex');
+
+            assertEqualToTol(pix_sn, pix_sm);
+        end
+        
         function test_sort_pix_handles_empty_pages(obj)
             % prepare pixels to sort
             %xs = 9.6:-1:0.6;

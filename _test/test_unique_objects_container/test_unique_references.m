@@ -756,7 +756,7 @@ function test_replace_unique_same_number_works(~)
             assertEqual(urc,urc_rec);
         end
         %-----------------------------------------------------------------
-        function test_property_reset_issues(obj)
+        function test_property_reset_issues(~)
             urc = unique_references_container('Joby','double');
             urc = urc.add([3,4,5]);
             function throw()
@@ -774,7 +774,7 @@ function test_replace_unique_same_number_works(~)
             urc4 = unique_references_container('Biby','IX_inst');
         end
         %-----------------------------------------------------------------
-        function test_use_properties(obj)
+        function test_use_properties(~)
             urc = unique_references_container('global_thingies','thingy');
             urc{1} = thingy(111);
             assertEqual(urc{1}, thingy(111));
@@ -790,7 +790,7 @@ function test_replace_unique_same_number_works(~)
             'when adding to the end of a container, additionally setting properties is not permitted'));
         end
         %-----------------------------------------------------------------
-        function test_arrays_of_containers(obj)
+        function test_arrays_of_containers(~)
             urc1 = unique_references_container('global_test_doubles','double');
             urc1 = urc1.add([6 7]);
             urc2 = unique_references_container('global_test_doubles','double');

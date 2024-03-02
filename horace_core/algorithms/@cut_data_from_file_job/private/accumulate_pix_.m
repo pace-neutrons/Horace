@@ -1,4 +1,4 @@
-function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size,log_level)
+function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size,log_level,use_mex)
 % Accumulate pixel data into memory and if memory full, to
 % temporary files and return a pixfile_combine_info
 % object that manages the files.
@@ -41,12 +41,17 @@ if ischar(pix_comb_info) && strcmp(pix_comb_info,'cleanup')
     clear_memory();
     return
 end
-if nargin<7
-    log_level = config_store.instance().get_value('hor_config','log_level');
+if nargin<8
+    [log_level,use_mex] = config_store.instance().get_value('hor_config','log_level','use_mex');
 end
 
-if finish_accum && nargin == 2
-    pix_comb_info = finalize_accum(pix_comb_info,log_level);
+if finish_accum && (nargin == 2 || isempty(v))
+    if use_mex
+        npix_current = npix - npix_prev;
+    else
+        npix_current  = [];
+    end    
+    pix_comb_info = finalize_accum(pix_comb_info,npix_current,log_level);
     return
 end
 
@@ -72,7 +77,12 @@ if v.num_pixels > 0
 end
 
 if finish_accum
-    pix_comb_info = finalize_accum(pix_comb_info,log_level);
+    if use_mex
+        npix_current = npix_now-npix_prev;
+    else
+        npix_current  = [];
+    end
+    pix_comb_info = finalize_accum(pix_comb_info,npix_current,log_level);
     return
 end
 
@@ -81,7 +91,7 @@ if n_pix_in_memory> max_buf_size % flush pixels in file
     pix_comb_info= save_pixels_to_file(pix_comb_info,log_level);
 end
 
-    function pix_comb_info = finalize_accum(pix_comb_info,log_level)
+    function pix_comb_info = finalize_accum(pix_comb_info,npix_current,log_level)
         % finish accumulation and depending on the previous state return
         % either:
         % pifile_combine_info class instance, describing data written to
@@ -102,7 +112,7 @@ end
             else
                 % not keeping precision here as this will be memory-based result
                 pix_comb_info  = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
-                    n_pix_in_memory,pix_comb_info.data_range);
+                    npix_current,pix_comb_info.data_range);
             end
         end
         clear_memory();
