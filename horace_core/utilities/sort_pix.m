@@ -164,8 +164,7 @@ for i = 1:numel(bin_idx)
     npix = cut_data_from_file_job.calc_npix_distribution(bin_idx{i},npix);
 end
 
-
-
+%
 function data = get_pix_page_data(pix,keep_precision)
 % get current pixel data page keeping pixels precision on request
 pix.keep_precision = keep_precision;
@@ -213,5 +212,3 @@ if use_given_pix_range
 else
     data_range = [];
 end
-
-
