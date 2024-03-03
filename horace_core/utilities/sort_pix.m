@@ -159,7 +159,7 @@ function npix = calc_npix_distribution(bin_idx)
 %
 max_cell_idx = cellfun(@max,bin_idx);
 num_bins     = max(max_cell_idx);
-npix         = zeros(1,num_bins);
+npix         = zeros(num_bins,1);
 for i = 1:numel(bin_idx)
     npix = cut_data_from_file_job.calc_npix_distribution(bin_idx{i},npix);
 end

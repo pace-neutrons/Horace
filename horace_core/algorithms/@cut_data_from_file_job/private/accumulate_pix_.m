@@ -79,6 +79,7 @@ end
 if finish_accum
     if use_mex
         npix_current = npix_now-npix_prev;
+        npix_prev    = npix_now;
     else
         npix_current  = [];
     end

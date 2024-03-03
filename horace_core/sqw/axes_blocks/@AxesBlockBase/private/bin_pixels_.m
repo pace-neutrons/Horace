@@ -133,7 +133,9 @@ coord = coord(:,ok);
 n_bins  = bin_array_size(pax);
 
 if ndims == 0
-    npix = npix + sum(ok);
+    npix1= sum(ok);
+    npix = npix + npix1;
+    pix_indx = ones(npix1,1);
 else
     r1 = r1(pax);
     r2 = r2(pax);

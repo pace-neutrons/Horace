@@ -14,16 +14,16 @@ classdef cut_data_from_file_job < JobExecutor
     properties(Access=protected)
         is_finished_ = false;
     end
-    
+
     methods
         function obj = cut_data_from_file_job()
             obj = obj@JobExecutor();
         end
-        
+
         function obj=do_job(obj)
             % Run main accumulation for a worker.
             %
-            
+
             % unpack input data transferred though MPI channels for
             % runfiles_to_sqw to understand.
             %common_par = this.common_data_;
@@ -31,10 +31,10 @@ classdef cut_data_from_file_job < JobExecutor
             for i=1:numel(sqw_loaders)
                 sqw_loaders{i} = sqw_loaders{i}.activate();
             end
-            
+
             % Do accumulation
             [obj.s_accum,obj.e_accum,obj.npix_accum] = obj.accumulate_headers(sqw_loaders);
-            
+
         end
         function  obj=reduce_data(obj)
             % method to summarize all particular data from all workers.
@@ -43,7 +43,7 @@ classdef cut_data_from_file_job < JobExecutor
                 error('ACCUMULATE_HEADERS_JOB:runtime_error',...
                     'MPI framework is not initialized');
             end
-            
+
             if mf.labIndex == 1
                 all_messages = mf.receive_all('all','data');
                 for i=1:numel(all_messages)
@@ -59,7 +59,7 @@ classdef cut_data_from_file_job < JobExecutor
                 the_mess = aMessage('data');
                 the_mess.payload = struct('s',obj.s_accum,...
                     'e',obj.e_accum,'npix',obj.npix_accum);
-                
+
                 [ok,err]=mf.send_message(1,the_mess);
                 if ok ~= MESS_CODES.ok
                     error('ACCUMULATE_HEADERS_JOB:runtime_error',err);
@@ -86,7 +86,11 @@ classdef cut_data_from_file_job < JobExecutor
             %             each bin number of indices belonging to this bin
             %
             n_bins = size(npix);
-            npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
+            if size(pix_indx,2)==1 && numel(n_bins) == 2 && size(n_bins,1) == 1
+                npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), fliplr(n_bins));
+            else
+                npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
+            end
             % do we need to do this or it is always a column array in 1D?
             npix = npix+ reshape(npix1,n_bins);
         end
@@ -139,13 +143,13 @@ classdef cut_data_from_file_job < JobExecutor
             % Note:
             % - Redundant input variables in that pix_range_step(2,pax)=nbin in implementation of 19 July 2007
             % - Aim to take advantage of in-place working within accumulate_cut
-            
+
             % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
             %
             [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = ...
                 cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
                 proj,pax, nbin);
-            
+
         end
         function [npix,varargout] = bin_pixels(proj, ...
                 axes,pix_cand,varargin)
@@ -209,7 +213,7 @@ classdef cut_data_from_file_job < JobExecutor
             %           follow up sorting of data by the bins is expected
             %
             [npix,s,e,argi] = normalize_bin_pixels_inputs_(axes,varargin{:});
-            
+
             switch(nargout)
                 case(1)
                     npix=proj.bin_pixels(axes,pix_cand,...
@@ -234,9 +238,9 @@ classdef cut_data_from_file_job < JobExecutor
                     error('HORACE:cut_data_from_file_job:invalid_argument',...
                         'This function requests 1,3,4,5 or 6 output arguments');
             end
-            
+
         end
-        
+
         function pix_comb_info = accumulate_pix(varargin)
             % Accumulate pixel data into memory and if memory full, to
             % temporary files and return a pixfile_combine_info
@@ -264,7 +268,7 @@ classdef cut_data_from_file_job < JobExecutor
             %
             pix_comb_info = accumulate_pix_(varargin{:});
         end
-        
+
         function [common_par,loop_par] = pack_job_pars(sqw_loaders)
             % Pack the the job parameters into the form, suitable
             % for division between workers and MPI transfer.
