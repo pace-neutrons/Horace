@@ -73,6 +73,27 @@ classdef cut_data_from_file_job < JobExecutor
         end
     end
     methods(Static)
+        function [npix,npix1] = calc_npix_distribution(pix_indx,npix)
+            % calculate how many indices belongs to every image bin
+            %
+            % Inputs:
+            % pix_idx  -- array containing bin numbers
+            % npix     -- array containing initial numbers of indices in
+            %             bins. May be zeros.
+            %
+            % Returns:
+            % npix     -- array of bins with numbers modified by adding to
+            %             each bin number of indices belonging to this bin
+            %
+            n_bins = size(npix);
+            if size(pix_indx,2)==1 && numel(n_bins) == 2 && n_bins(1) == 1
+                npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), fliplr(n_bins));
+            else
+                npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
+            end
+            % do we need to do this or it is always a column array in 1D?
+            npix = npix+ reshape(npix1,n_bins);
+        end
         function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = ...
                 cut_data_from_file(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
                 proj,pax, nbin)

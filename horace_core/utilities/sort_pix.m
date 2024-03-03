@@ -1,4 +1,4 @@
-function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
+function pix = sort_pix(pix_retained, pix_ix_retained, varargin)
 % function sorts pixels according to their indices in n-D array npix
 %
 % To do that, it has to load all pixels in memory, so filebacked pixels are
@@ -23,7 +23,7 @@ function pix = sort_pix(pix_retained, pix_ix_retained, npix, varargin)
 % npix         -- auxiliary array, containing numbers of pixels in each
 %                 cell of n-D array. Used by mex sorting only to simplify
 %                 memory allocation and allow to lock particular cells in
-%                 case of MPI sorting.
+%                 case of OMP sorting.
 % Optional input:
 %  pix_range -- if provided, prohibits pix range recalculation in pix
 %               constructor. The range  provided will be used instead
@@ -49,7 +49,7 @@ options = {'-nomex','-force_mex','-keep_precision'};
 [ok, mess, nomex, force_mex, keep_precision, argi] = ...
     parse_char_options(varargin,options);
 
-[use_mex,use_given_pix_range,data_range] = check_and_parse_additional_args( ...
+[npix,use_mex,use_given_pix_range,data_range] = check_and_parse_additional_args( ...
     ok,mess,nomex,force_mex,argi{:});
 
 if ~iscell(pix_retained)
@@ -58,6 +58,13 @@ end
 if ~iscell(pix_ix_retained)
     pix_ix_retained = {pix_ix_retained};
 end
+% drop empty cells if any
+is_empty = cellfun(@isempty,pix_retained);
+pix_retained= pix_retained(~is_empty);
+if numel(pix_retained) ~= numel(pix_ix_retained)
+    pix_ix_retained = pix_ix_retained(~is_empty);
+end
+
 
 % Do the job -- sort pixels according to their bin indices.
 if use_mex
@@ -81,6 +88,10 @@ if use_mex
                     ' Invalid data block numbers out of %d blocks are: %s'],...
                     numel(pix_ix_retained),disp2str(fail_idx));
             end
+        end
+        if isempty(npix)
+            % calculate npix distribution to be able to run mex code
+            npix = calc_npix_distribution(pix_ix_retained);
         end
 
         pix = PixelDataBase.create();
@@ -135,13 +146,30 @@ if ~use_mex
     pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
     clear ind;
 end
+%
+function npix = calc_npix_distribution(bin_idx)
+% calculate distribution of pixels over bins to be able to run mex code
+%
+% Inputs:
+% bin_idx -- cellarray containing indices of pixels in bins
+% Returns:
+% npix    -- 1D array containing distribution of input indices over the
+%            bins
+%
+max_cell_idx = cellfun(@max,bin_idx);
+num_bins     = max(max_cell_idx);
+npix         = zeros(num_bins,1);
+for i = 1:numel(bin_idx)
+    npix = cut_data_from_file_job.calc_npix_distribution(bin_idx{i},npix);
+end
 
+%
 function data = get_pix_page_data(pix,keep_precision)
 % get current pixel data page keeping pixels precision on request
 pix.keep_precision = keep_precision;
 data = pix.data;
 
-function [use_mex,use_given_pix_range,data_range] = check_and_parse_additional_args(ok,mess,nomex,force_mex,varargin)
+function [npix,use_mex,use_given_pix_range,data_range] = check_and_parse_additional_args(ok,mess,nomex,force_mex,varargin)
 % checks validity of additional arguments and if data_range is provided as
 % additional parameter.
 
@@ -153,6 +181,7 @@ if nomex && force_mex
     error('HORACE:utilities:invalid_argument', ...
         'sort_pixels: invalid argument -- nomex and force mex options can not be used together' )
 end
+
 if nomex || force_mex % explicit request
     if nomex
         use_mex = false;
@@ -162,11 +191,18 @@ if nomex || force_mex % explicit request
 else
     use_mex = config_store.instance().get_value('hor_config','use_mex');
 end
+if isempty(varargin)
+    npix = [];
+    argi = {};
+else
+    npix = varargin{1};
+    argi = varargin(2:end);
+end
 
-use_given_pix_range = ~isempty(varargin);
+use_given_pix_range = ~isempty(argi);
 
 if use_given_pix_range
-    data_range = varargin{:};
+    data_range = argi{:};
     if ~isequal(size(data_range), [2,9])
         error('HORACE:sort_pix:invalid_argument',...
             'if data_range is provided, it has to be 2x9 array. Actually its size is: %s',...
