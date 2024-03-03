@@ -10,12 +10,8 @@ classdef crystal_alignment_info < serializable
     % describe modified lattice and 3-element rotvect, which defines
     % 3-D rotations (rotation matrix) necessary to align the crystal.
     %
-    % It also contans and may be redefined using the following class
+    % It also contans and may be set using the following class
     % properties:
-    %
-    %   rlu_corr       Conversion matrix to relate notional rlu to true rlu, accounting for the the
-    %                  refined crystal lattice parameters and orientation
-    %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
     %
     %   alatt           Refined lattice parameters [a,b,c] (Angstroms)
     %
@@ -30,6 +26,14 @@ classdef crystal_alignment_info < serializable
     %
     %   rotangle       Angle of rotation corresponding to rotmat (to give a measure
     %                  of the misorientation) (degrees)
+    %
+    % Important output parameter related to legacy alignment and hkl_mode
+    % property can be retrieved using get_corr_mat method.
+    %
+    %   rlu_corr       Conversion matrix to relate notional rlu to true rlu,
+    %                  accounting for the the refined crystal lattice
+    %                  parameters and orientation.
+    %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
     %
     properties(Dependent)
         alatt  % Refined lattice parameters [a,b,c] (Angstroms)
@@ -220,7 +224,9 @@ classdef crystal_alignment_info < serializable
                 hkle_mode_ = true;
             else
                 error('HORACE:lattice_functions:invalid_argument', ...
-                    'Method accepts either line_proj class instance, or two-element initial lattice parameters vector.\n Provided: %s', ...
+                    ['Method accepts either line_proj class instance, ' ...
+                    'or two-element initial lattice parameters vector.\n' ...
+                    'Provided: %s'], ...
                     disp2str(varargin));
             end
 

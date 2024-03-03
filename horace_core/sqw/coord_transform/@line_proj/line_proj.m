@@ -292,7 +292,7 @@ classdef line_proj<aProjectionBase
     % ---------------------------------------------------------------------
     methods
         function obj = set_from_data_mat(obj,u_to_img,ulen)
-            % build correct projection from input u_to_img transformation
+            % build correct projection from input matrix which tran transformation
             % and ulen matrices.
             %
             [ur,vr,wr,tpe,nonortho]=obj.uv_from_data_rot(u_to_img(1:3,1:3),ulen(1:3));
@@ -610,9 +610,10 @@ classdef line_proj<aProjectionBase
             % as only orthogonal to u part of the v-vector can be recovered
             %
             % Inputs:
-            % u_rot_mat -- matrix forming the part of the conversion from pixel coordinate
-            %          system to the image coordinate system (normally
-            %          expressed in rlu), defined in old data_sqw_dnd classes
+            % u_rot_mat 
+            %       -- matrix forming the part of the conversion from
+            %          pixel coordinate system to the image coordinate 
+            %          system divided by B-matrix.
             % ulen  -- length of the unit vectors of the reciprocal lattice
             %          units, the Horace image is expressed in
             % Outputs:
@@ -626,7 +627,7 @@ classdef line_proj<aProjectionBase
             %          describing lattice cell size. (In A-units)
             % angdeg-- vector 3 angles describing the angles between lattice cell.
             %          Expressed in degree
-            [u,v,w,type,nonortho] = uv_from_rlu_mat_(obj,u_rot_mat,ulen);
+            [u,v,w,type,nonortho] = uv_from_transf_mat_(obj,u_rot_mat,ulen);
         end
     end
     methods(Static)
