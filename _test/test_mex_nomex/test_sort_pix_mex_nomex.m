@@ -18,6 +18,18 @@ classdef test_sort_pix_mex_nomex < TestCase
             obj.no_mex = n_errors > 0;
             % addpath(obj.this_folder);
         end
+
+        function test_sort_pix_handles_emtpy_inputs(~)
+            % test nomex
+            pix_sn = sort_pix({[],''},{[],''},'-nomex');
+            % test mex
+            pix_sm = sort_pix({[],''},{[],''},'-force_mex');
+
+            assertEqualToTol(pix_sn, pix_sm);
+            assertEqual(pix_sm.num_pixels,0);
+        end
+
+
         function test_sort_pix_handles_no_distr(obj)
             % prepare pixels to sort
             %xs = 9.6:-1:0.6;
@@ -34,7 +46,7 @@ classdef test_sort_pix_mex_nomex < TestCase
 
             assertEqualToTol(pix_sn, pix_sm);
         end
-        
+
         function test_sort_pix_handles_empty_pages(obj)
             % prepare pixels to sort
             %xs = 9.6:-1:0.6;

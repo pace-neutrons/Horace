@@ -61,6 +61,10 @@ end
 % drop empty cells if any
 is_empty = cellfun(@isempty,pix_retained);
 pix_retained= pix_retained(~is_empty);
+if isempty(pix_retained)
+    pix = PixelDataMemory();
+    return;
+end
 if numel(pix_retained) ~= numel(pix_ix_retained)
     pix_ix_retained = pix_ix_retained(~is_empty);
 end
