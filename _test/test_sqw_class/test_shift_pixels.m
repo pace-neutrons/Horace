@@ -19,13 +19,12 @@ classdef test_shift_pixels < TestCase
                 name = varargin{1};
             end
 
-            obj = obj@TestCase(name,ref_data);
+            obj = obj@TestCase(name);
             pths = horace_paths;
 
             obj.test_sqw_1d_fullpath = fullfile(pths.test_common, obj.sqw_file_1d_name);
             obj.test_sqw_2d_fullpath = fullfile(pths.test_common, obj.sqw_file_2d_name);
             obj.test_sqw_4d_fullpath = fullfile(pths.test_common, obj.sqw_file_4d_name);
-            obj.save();
         end
 
             %% shifts
