@@ -86,7 +86,7 @@ classdef cut_data_from_file_job < JobExecutor
             %             each bin number of indices belonging to this bin
             %
             n_bins = size(npix);
-            if size(pix_indx,2)==1 && numel(n_bins) == 2 && size(n_bins,1) == 1
+            if size(pix_indx,2)==1 && numel(n_bins) == 2 && n_bins(1) == 1
                 npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), fliplr(n_bins));
             else
                 npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
