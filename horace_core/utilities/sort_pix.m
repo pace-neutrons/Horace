@@ -33,9 +33,6 @@ function pix = sort_pix(pix_retained, pix_ix_retained, varargin)
 %
 % '-force_mex' -- use only mex code and fail if mex is not available
 %                (usually for testing)
-% '-keep_precision'
-%              -- if provided, the routine keeps type of pixels
-%                 received on input. If not, pixels converted into double.
 %
 % '-nomex' and '-force_mex' options can not be used together.
 
@@ -49,7 +46,7 @@ options = {'-nomex','-force_mex','-keep_precision'};
 [ok, mess, nomex, force_mex, keep_precision, argi] = ...
     parse_char_options(varargin,options);
 
-[npix,use_mex,use_given_pix_range,data_range] = check_and_parse_additional_args( ...
+[npix,use_mex,use_given_pix_range,pix_range] = check_and_parse_additional_args( ...
     ok,mess,nomex,force_mex,argi{:});
 
 if ~iscell(pix_retained)
@@ -61,10 +58,13 @@ end
 % drop empty cells if any
 is_empty = cellfun(@isempty,pix_retained);
 pix_retained= pix_retained(~is_empty);
+if isempty(pix_retained)
+    pix = PixelData();
+    return;
+end
 if numel(pix_retained) ~= numel(pix_ix_retained)
     pix_ix_retained = pix_ix_retained(~is_empty);
 end
-
 
 % Do the job -- sort pixels according to their bin indices.
 if use_mex
@@ -72,7 +72,7 @@ if use_mex
         %IMPORTANT: use double type as mex code asks for double type, not
         %logical.
         keep_type = double(keep_precision);
-
+        
         raw_pix = cellfun(@(x)get_pix_page_data(x,keep_precision), pix_retained, ...
             'UniformOutput', false);
         in_memory = cellfun(@(pix)~pix.is_filebacked, pix_retained);
@@ -93,21 +93,21 @@ if use_mex
             % calculate npix distribution to be able to run mex code
             npix = calc_npix_distribution(pix_ix_retained);
         end
-
-        pix = PixelDataBase.create();
+        pix = PixelData();
         if use_given_pix_range
             raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
         else
             [raw_pix,data_range_l] = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
-            data_range = data_range_l;
+            pix_range = data_range_l(:,1:4);
         end
-        pix = pix.set_raw_data(raw_pix);
-        pix = pix.set_data_range(data_range);
-
+        set_data(pix,'all',raw_pix);
+        pix.set_range(pix_range);
+        
+        
         clear pix_retained pix_ix_retained;  % clear big arrays
-
+        
     catch ME
         use_mex=false;
         if get(hor_config,'log_level')>=1
@@ -124,25 +124,25 @@ end
 
 if ~use_mex
     % combine pixels together. Type may be lost? Should not but form allows. Should we enforce it?
-    pix = PixelData.cat(pix_retained{:});    
+    pix = PixelData.cat(pix_retained{:});
     clear pix_retained;
     if isempty(pix)  % return early if no pixels
         pix = PixelDataMemory();
         return;
     end
     ix = cat(1, pix_ix_retained{:});
-
+    
     clear pix_ix_retained;
     if issorted(ix)
         return;
     end
-
+    
     [~,ind] = sort(ix);  % returns ind as the indexing array into pix
     %                      that puts the elements of pix in increasing
     %                      single bin index
     clear ix;      % clear big arrays so that final output variable pix
     %                is not way up the stack
-
+    
     pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
     clear ind;
 end
@@ -166,7 +166,7 @@ end
 %
 function data = get_pix_page_data(pix,keep_precision)
 % get current pixel data page keeping pixels precision on request
-pix.keep_precision = keep_precision;
+%pix.keep_precision = keep_precision;
 data = pix.data;
 
 function [npix,use_mex,use_given_pix_range,data_range] = check_and_parse_additional_args(ok,mess,nomex,force_mex,varargin)
@@ -203,9 +203,9 @@ use_given_pix_range = ~isempty(argi);
 
 if use_given_pix_range
     data_range = argi{:};
-    if ~isequal(size(data_range), [2,9])
+    if ~isequal(size(data_range), [2,4])
         error('HORACE:sort_pix:invalid_argument',...
-            'if data_range is provided, it has to be 2x9 array. Actually its size is: %s',...
+            'if data_range is provided, it has to be 2x4 array. Actually its size is: %s',...
             disp2str(size(data_range)))
     end
 else
