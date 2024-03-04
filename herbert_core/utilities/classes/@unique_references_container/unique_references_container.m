@@ -729,7 +729,7 @@ classdef unique_references_container < serializable
             [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(obj);
             if numel(glindex)>1
                 % unlikely error state but catching just in case
-                error('HORACE:unique_references_container-replace:invalid_state', ...
+                error('HORACE:unique_references_container___replace:invalid_state', ...
                       'more than one location index found');
             end
             if isempty(glindex)
@@ -737,7 +737,7 @@ classdef unique_references_container < serializable
                     self.global_container('value',self.global_name_).add_single_(obj);
                 if numel(glindex)>1
                     % again, unlikely error, but just in case
-	                error('HORACE:unique_references_container-replace:invalid_state', ...
+	                error('HORACE:unique_references_container___replace:invalid_state', ...
 	                      'more than one location index found');
                 end
                 if glindex == 0

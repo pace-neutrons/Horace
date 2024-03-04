@@ -97,7 +97,7 @@ classdef test_unique_objects_2 < TestCase
                 elseif obj.idx(ii)==3
                     assertEqual(name,'999');
                 else
-                    error('HORACE:test_unique_objects_2:bad test construction', ...
+                    error('HORACE:test_unique_objects_2:bad_test_construction', ...
                           'myfield name should be 333 666 or 999');
                 end
             end
