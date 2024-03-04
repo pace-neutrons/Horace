@@ -1,7 +1,8 @@
 function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size,log_level)
-% Accumulate pixel data into memory and if memory full, to
-% temporary files and return a pixfile_combine_info
-% object that manages the files.
+% Accumulate pixel data into memory and when memory is full dump memory
+% to temporary files. Return a pixfile_combine_info object that manages
+% temporary files or PixelDataMemory containing all accumulated data if
+% they were in memory.
 %
 % The pixfile_combine_info object, when saved, will re-combine the temporary
 % files into a single sqw object.
@@ -11,10 +12,11 @@ function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix
 % pix_comb_info    A pixfile_combine_info object
 % finish_accum     Boolean flag, set to true to finish accumulation
 % v                PixelData object containing pixel chunk
-% ix_add           The indices of retained pixels in the order they
-%                  appear in output file (used for sorting)
-% npix             The npix array containing pixel distribution over bin
-%                  accumulated during whole pixel accumulation process
+% ix_add           The indices of retained pixels in npix array in the order
+%                  they appear in output file (used for sorting)
+% npix             The cumilative npix array containing pixel distribution
+%                  over bin accumulated during whole pixel accumulation
+%                  process
 % max_buf_size     The maximum buffer size for reading/writing
 % npix_retained    Number of pixels retained in this chunk of the cut
 % Optional:
@@ -25,7 +27,8 @@ function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix
 % Returns:
 %
 % pix_comb_info -- either class-helper pix_combine_info, containing
-%                  information about saved tmp files or
+%                  information about saved tmp files or PixelDataMemory
+%                  class if all accomulated data were fitted memory
 %
 % Internal function Nested so that variables are shared with main function
 % to optimise memory use. (Is this too old to care these days?)
@@ -64,7 +67,6 @@ end
 
 if finish_accum
     npix_distr_in_mem = npix - npix_prev; % distribution of pixels currently in memory
-    npix_prev         = npix;             % distribution of pixels already stored in memory
     %
     pix_comb_info = finalize_accum(pix_comb_info,npix,npix_distr_in_mem,log_level);
 
@@ -81,8 +83,9 @@ end
 
 if n_pix_in_memory> max_buf_size % flush pixels in file
 
-    npix_distr_in_mem = npix_now-npix_prev;
-    npix_prev    = npix_now;
+    npix_distr_in_mem = npix-npix_prev; % distribution of pixels currently in memory
+    npix_prev         = npix;           % distribution of pixels prevously stored in memory and
+    % dumped on disk
     pix_comb_info= save_pixels_to_file(pix_comb_info,npix_distr_in_mem,log_level);
 end
 %--------------------------------------------------------------------------
@@ -150,7 +153,7 @@ end
         clear pix_2write;
         pix_comb_info.pos_npixstart(n_writ_files) = position.npix;
         pix_comb_info.pos_pixstart(n_writ_files)  = position.pix;
-        pix_comb_info.npix_each_file(n_writ_files) = n_pix_in_memory;
+        pix_comb_info.npix_each_file(n_writ_files)= n_pix_in_memory;
         % clear too.
         n_pix_in_memory = 0;
     end
