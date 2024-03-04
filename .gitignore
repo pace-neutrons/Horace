@@ -5,6 +5,7 @@
 
 ### Files/Directories ###
 build/*
+build_2019/*
 # CMake generated file
 _LowLevelCode/cpp/utility/version.h
 horace_core/admin/horace_get_build_version.m
