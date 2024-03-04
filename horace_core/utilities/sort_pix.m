@@ -2,7 +2,7 @@ function pix = sort_pix(pix_retained, pix_ix_retained, varargin)
 % function sorts pixels according to their indices in n-D array npix
 %
 % To do that, it has to load all pixels in memory, so filebacked pixels are
-% acceptable as soon as they all can be loaded in memory. This is
+% acceptable as long as they all can be loaded in memory. This is
 % relatively weak restriction as pixel indices are already in memory.
 %
 % It may be renamed sort_pixels_by_bins as the pix_ix_retained are the
@@ -15,13 +15,17 @@ function pix = sort_pix(pix_retained, pix_ix_retained, varargin)
 %
 %input:
 % pix_retained --  PixelData object, which is to be sorted or a cell array
-%       containing arrays of PixelData objects
+%       containing PixelData objects
 %
 % pix_ix_retained
 %              -- indices of these pixels in n-D array or cell array of
-%                 such indices
+%                 such indices. Number of elements in these arrays have to
+%                 coincide with number of pixels in pix_retained cellarray,
+%                 and each block of sellarray needs to contain as many
+%                 elements as number of pixels in appropriate element of
+%                 pix_retained cellarray.
 % npix         -- auxiliary array, containing numbers of pixels in each
-%                 cell of n-D array. Used by mex sorting only to simplify
+%                 cell of n-D array. Used only by mex sorting to simplify
 %                 memory allocation and allow to lock particular cells in
 %                 case of OMP sorting.
 % Optional input:
@@ -88,7 +92,7 @@ if use_mex
                 fail_idx = find(~req_part_loaded);
                 error('HORACE:sort_pix:invalid_argument',...
                     ['not all requested pixel pages loaded in memory' ...
-                    ' as number of pixels do not correspont to number of indices to sort\n' ...
+                    ' as number of pixels do not correspond to number of indices to sort\n' ...
                     ' Invalid data block numbers out of %d blocks are: %s'],...
                     numel(pix_ix_retained),disp2str(fail_idx));
             end

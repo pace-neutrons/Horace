@@ -1,4 +1,4 @@
-function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size,log_level,use_mex)
+function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix,max_buf_size,log_level)
 % Accumulate pixel data into memory and if memory full, to
 % temporary files and return a pixfile_combine_info
 % object that manages the files.
@@ -13,7 +13,8 @@ function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix
 % v                PixelData object containing pixel chunk
 % ix_add           The indices of retained pixels in the order they
 %                  appear in output file (used for sorting)
-% npix             The npix array associated with this chunk of pixels
+% npix             The npix array containing pixel distribution over bin
+%                  accumulated during whole pixel accumulation process
 % max_buf_size     The maximum buffer size for reading/writing
 % npix_retained    Number of pixels retained in this chunk of the cut
 % Optional:
@@ -21,6 +22,10 @@ function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix
 %                  defined in hor_config.log_level. If absent,
 %                  hor_config.log_level will be used to
 %                  define the verbosity.
+% Returns:
+%
+% pix_comb_info -- either class-helper pix_combine_info, containing
+%                  information about saved tmp files or
 %
 % Internal function Nested so that variables are shared with main function
 % to optimise memory use. (Is this too old to care these days?)
@@ -28,8 +33,7 @@ function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix
 
 persistent n_writ_files; % written files counter
 % npix buffer
-persistent npix_prev;      % npix at previous flush info
-persistent npix_now;       % npix at current cut into
+persistent npix_prev;      % npix at previous flush step
 
 % data buffer:
 persistent n_mem_blocks;   % number of data blocks retained in memory
@@ -41,18 +45,8 @@ if ischar(pix_comb_info) && strcmp(pix_comb_info,'cleanup')
     clear_memory();
     return
 end
-if nargin<8
-    [log_level,use_mex] = config_store.instance().get_value('hor_config','log_level','use_mex');
-end
-
-if finish_accum && (nargin == 2 || isempty(v))
-    if use_mex
-        npix_current = npix - npix_prev;
-    else
-        npix_current  = [];
-    end    
-    pix_comb_info = finalize_accum(pix_comb_info,npix_current,log_level);
-    return
+if nargin<7
+    log_level = config_store.instance().get_value('hor_config','log_level');
 end
 
 if isempty(npix_prev)
@@ -63,10 +57,19 @@ if isempty(npix_prev)
     n_mem_blocks = 0;
     n_writ_files = 0;
 else
-    n_pix_in_memory  = n_pix_in_memory + v.num_pixels;
+    if nargin>3 && ~isempty(v)
+        n_pix_in_memory  = n_pix_in_memory + v.num_pixels;
+    end
 end
 
-npix_now = npix; % npix is accumulated by outer routines (bin_pixels)
+if finish_accum
+    npix_distr_in_mem = npix - npix_prev; % distribution of pixels currently in memory
+    npix_prev         = npix;             % distribution of pixels already stored in memory
+    %
+    pix_comb_info = finalize_accum(pix_comb_info,npix,npix_distr_in_mem,log_level);
+
+    return
+end
 
 if v.num_pixels > 0
     n_mem_blocks = n_mem_blocks + 1;
@@ -76,23 +79,14 @@ if v.num_pixels > 0
     pix_comb_info.data_range = minmax_ranges(pix_comb_info.data_range,pix_mem_retained{n_mem_blocks}.data_range);
 end
 
-if finish_accum
-    if use_mex
-        npix_current = npix_now-npix_prev;
-        npix_prev    = npix_now;
-    else
-        npix_current  = [];
-    end
-    pix_comb_info = finalize_accum(pix_comb_info,npix_current,log_level);
-    return
-end
-
-
 if n_pix_in_memory> max_buf_size % flush pixels in file
-    pix_comb_info= save_pixels_to_file(pix_comb_info,log_level);
-end
 
-    function pix_comb_info = finalize_accum(pix_comb_info,npix_current,log_level)
+    npix_distr_in_mem = npix_now-npix_prev;
+    npix_prev    = npix_now;
+    pix_comb_info= save_pixels_to_file(pix_comb_info,npix_distr_in_mem,log_level);
+end
+%--------------------------------------------------------------------------
+    function pix_comb_info = finalize_accum(pix_comb_info,npix,npix_in_mem,log_level)
         % finish accumulation and depending on the previous state return
         % either:
         % pifile_combine_info class instance, describing data written to
@@ -100,45 +94,43 @@ end
         % or:
         % PixelDataMemory class, which contains pixels, sorted by bins if
         % any pixels were held in memory.
-        if n_writ_files > 0
-            pix_comb_info= save_pixels_to_file(pix_comb_info,log_level);
-            if exist('npix','var')
-                pix_comb_info.npix_cumsum = cumsum(npix(:));
-            end
-
+        %
+        %
+        if n_writ_files > 0 % if files were written, do write what left in memory
+            % into additional file and return pix_combine_info object
+            pix_comb_info  = save_pixels_to_file(pix_comb_info,npix_in_mem,log_level);
             pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
-        else
+            pix_comb_info.npix_cumsum = cumsum(npix(:));
+        else % number of chunks stored in memory and their size in memory
+            % allows to build memory-based object. Return PixelDataMemory
             if n_pix_in_memory == 0
                 pix_comb_info = PixelDataMemory();
             else
                 % not keeping precision here as this will be memory-based result
                 pix_comb_info  = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
-                    npix_current,pix_comb_info.data_range);
+                    npix_in_mem,pix_comb_info.data_range);
+                % pix_comb_info in this case are memory-based pixels
+                % themselves.
             end
         end
         clear_memory();
-
     end
-
+%
     function clear_memory()
         clear npix_prev pix_mem_retained pix_mem_ix_retained n_pix_in_memory;
     end
-
-
-    function pix_comb_info= save_pixels_to_file(pix_comb_info,log_level)
+%
+    function pix_comb_info= save_pixels_to_file(pix_comb_info,npix_distr_in_mem,log_level)
         if n_mem_blocks == 0
             return
         end
-        npix_in_mem = npix_now - npix_prev;
-        npix_prev   = npix_now;
-        clear npix_now;
         if log_level>1
             fprintf('*** Sorting selected pixels by the processed  block of image bins:\n')
         end
         % keep sorted pixels precision as they came from file and go to
         % file
         pix_2write = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
-            npix_in_mem,pix_comb_info.data_range,'-keep_precision');
+            npix_distr_in_mem,pix_comb_info.data_range,'-keep_precision');
         % clear current memory buffer state;
         n_mem_blocks = 0;
         clear pix_mem_retained pix_mem_ix_retained;
@@ -150,7 +142,7 @@ end
                 file_name);
         end
 
-        [mess,position] = put_sqw_data_npix_and_pix_to_file_(file_name,npix_in_mem,pix_2write);
+        [mess,position] = put_sqw_data_npix_and_pix_to_file_(file_name,npix_distr_in_mem,pix_2write);
         if ~isempty(mess)
             error('HORACE:cut_data_from_file_job:io_error',...
                 'put_sqw_data_npix_and_pix_to_file:: Error: %s',mess);
@@ -162,4 +154,5 @@ end
         % clear too.
         n_pix_in_memory = 0;
     end
+%--------------------------------------------------------------------------
 end
