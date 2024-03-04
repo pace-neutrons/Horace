@@ -50,7 +50,7 @@ classdef test_sort_pix_mex_nomex < TestCase
             pci = cut_data_from_file_job.accumulate_pix(pci,true,[],[],4*npix1);
 
             assertTrue(isa(pci,'pixfile_combine_info'));
-            assertEqual(pci.num_pixels,4*numel(ix1));
+            assertEqual(pci.num_pixels,uint64(4*numel(ix1)));
             assertTrue(isfile(tmp_file_names{1}))
             assertTrue(isfile(tmp_file_names{2}))
 
