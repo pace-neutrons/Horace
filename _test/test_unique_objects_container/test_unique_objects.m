@@ -136,7 +136,7 @@ classdef test_unique_objects < TestCase
             uoc(2) = 'bbbb';
             uoc(3) = 'bbbb';
             assertTrue(uoc.do_check_combo_arg);
-            cl0b-file = onCleanup(@()delete('unique_objects_container_test_save_load_1.mat');
+            cl0b_file = onCleanup(@()delete('unique_objects_container_test_save_load_1.mat'));
             save('unique_objects_container_test_save_load_1.mat','uoc');
             zzz = load('unique_objects_container_test_save_load_1.mat');
             assertEqual(zzz.uoc{3},'bbbb');

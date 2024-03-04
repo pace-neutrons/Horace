@@ -106,7 +106,7 @@ classdef test_unique_objects_2 < TestCase
         %------------------------------------------------------------------
         function test_get_unique_field_references(obj)
             % test props of u2
-            u2 = obj.u2
+            u2 = obj.u2;
             assertTrue( strcmp(u2.stored_baseclass,'unique_fields_example_class') );
             
             % get unique_field myfield from u2
@@ -121,7 +121,7 @@ classdef test_unique_objects_2 < TestCase
             % repeat with u3 where the objects in u3 are different between
             % the 333 and 999 mydisc objects but their myfield values are
             % the same for these values
-            u3 = obj.u3
+            u3 = obj.u3;
             assertTrue( strcmp(u3.stored_baseclass,'unique_fields_example_class') );
             ufld3 = u3.get_unique_field('myfield');
             assertTrue( strcmp(ufld.stored_baseclass,'IX_inst') );
