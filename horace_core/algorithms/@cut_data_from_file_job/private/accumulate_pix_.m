@@ -81,10 +81,10 @@ if v.num_pixels > 0
     pix_comb_info.data_range = minmax_ranges(pix_comb_info.data_range,pix_mem_retained{n_mem_blocks}.data_range);
 end
 
-if n_pix_in_memory> max_buf_size % flush pixels in file
+if n_pix_in_memory>= max_buf_size % flush pixels in file
 
-    npix_distr_in_mem = npix-npix_prev; % distribution of pixels currently in memory
-    npix_prev         = npix;           % distribution of pixels prevously stored in memory and
+    npix_distr_in_mem = npix-npix_prev; % bin distribution of pixels currently in memory
+    npix_prev         = npix;           % bin distribution of pixels prevously stored in memory and
     % dumped on disk
     pix_comb_info= save_pixels_to_file(pix_comb_info,npix_distr_in_mem,log_level);
 end

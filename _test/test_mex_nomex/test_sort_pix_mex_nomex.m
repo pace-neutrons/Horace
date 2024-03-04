@@ -18,7 +18,101 @@ classdef test_sort_pix_mex_nomex < TestCase
             obj.no_mex = n_errors > 0;
             % addpath(obj.this_folder);
         end
+        function test_accumulate_pix_mex_nomex_with_pages(obj)
+            if obj.no_mex
+                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
+            end
 
+
+            [pix1,ix1,npix1] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
+
+            clConf = set_temporary_config_options('hor_config','use_mex',true);
+            clWarn = set_temporary_warning('off','HORACE:test_warning','HORACE:mex_code_problem');
+
+            warning('HORACE:test_warning','warning issued to ensure that no other warnings are received')
+            buf_size = 2*numel(ix1);
+            %
+            tmp_file_names = cell(1,4);
+            filebase = fullfile(tmp_dir,'test_accumulate_pix_mex_nomex_with_pages_N');
+            for i=1:4
+                tmp_file_names{i} = sprintf('%s_%d.sqw',filebase,i);
+            end
+            clFiles = onCleanup(@()del_memmapfile_files(tmp_file_names));
+
+            pci = pixfile_combine_info(tmp_file_names, numel(npix1));
+
+            clOb = onCleanup(@()cut_data_from_file_job.accumulate_pix('cleanup'));
+
+            for i=1:4
+                pci = cut_data_from_file_job.accumulate_pix(pci,false,pix1,ix1,i*npix1,buf_size);
+                assertTrue(isa(pci,'pixfile_combine_info'));
+            end
+            pci = cut_data_from_file_job.accumulate_pix(pci,true,[],[],4*npix1);
+
+            assertTrue(isa(pci,'pixfile_combine_info'));
+            assertEqual(pci.num_pixels,4*numel(ix1));
+            assertTrue(isfile(tmp_file_names{1}))
+            assertTrue(isfile(tmp_file_names{2}))
+
+            pos_pix_start = 8*numel(npix1)+8; % 8 first bytes -- 
+            % number of bytes for number of elements in stored npix field
+            assertEqual(pci.pos_npixstart,[0,0])
+            assertEqual(pci.pos_pixstart,[pos_pix_start,pos_pix_start]);
+
+            % ensure no other warnings have been issued
+            [~,lvid] = lastwarn();
+            assertEqual(lvid,'HORACE:test_warning')
+
+        end
+
+
+        function test_accumulate_pix_mex_nomex(obj)
+
+            [pix1,ix1,npix1] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
+
+            clConf = set_temporary_config_options('hor_config','use_mex',false);
+            clWarn = set_temporary_warning('off','HORACE:test_warning','HORACE:mex_code_problem');
+
+            warning('HORACE:test_warning','warning issued to ensure no other warnings are received')
+            buf_size = 4*numel(ix1);
+            tmp_file_names = {'no_file1.tmp','no_file2.tmp','no_file3.tmp','no_file4.tmp'};
+            pci = pixfile_combine_info(tmp_file_names, numel(npix1));
+
+            clOb = onCleanup(@()cut_data_from_file_job.accumulate_pix('cleanup'));
+            for i=1:2
+                pci = cut_data_from_file_job.accumulate_pix(pci,false,pix1,ix1,i*npix1,buf_size);
+                assertTrue(isa(pci,'pixfile_combine_info'));
+            end
+            pc_no_mex = cut_data_from_file_job.accumulate_pix(pci,true,[],[],2*npix1);
+
+            assertTrue(isa(pc_no_mex,'PixelDataMemory'));
+            assertEqual(pc_no_mex.num_pixels,2*numel(ix1));
+
+            if obj.no_mex
+                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
+            end
+            clear clOb;
+            clear clConf;
+            pci = pixfile_combine_info(tmp_file_names, numel(npix1));
+
+            clConf = set_temporary_config_options('hor_config','use_mex',true);
+            clOb = onCleanup(@()cut_data_from_file_job.accumulate_pix('cleanup'));
+
+            for i=1:2
+                pci = cut_data_from_file_job.accumulate_pix(pci,false,pix1,ix1,i*npix1,buf_size);
+                assertTrue(isa(pci,'pixfile_combine_info'));
+            end
+            pc_mex = cut_data_from_file_job.accumulate_pix(pci,true,[],[],2*npix1);
+
+            assertTrue(isa(pc_mex,'PixelDataMemory'));
+            assertEqual(pc_mex.num_pixels,2*numel(ix1));
+            % ensure no other warnings have been issued
+            [~,lvid] = lastwarn();
+            assertEqual(lvid,'HORACE:test_warning')
+
+            assertEqual(pc_mex,pc_no_mex);
+        end
+        %==================================================================
         function test_sort_pix_handles_emtpy_inputs(~)
             % test nomex
             pix_sn = sort_pix({[],''},{[],''},'-nomex');
@@ -28,7 +122,6 @@ classdef test_sort_pix_mex_nomex < TestCase
             assertEqualToTol(pix_sn, pix_sm);
             assertEqual(pix_sm.num_pixels,0);
         end
-
 
         function test_sort_pix_handles_no_distr(obj)
             % prepare pixels to sort
