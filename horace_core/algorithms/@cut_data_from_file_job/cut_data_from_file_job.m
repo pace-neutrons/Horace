@@ -6,6 +6,7 @@ classdef cut_data_from_file_job < JobExecutor
     % fashion.
     %
     %
+    %
     properties
         s_accum;
         e_accum;
@@ -74,7 +75,8 @@ classdef cut_data_from_file_job < JobExecutor
     end
     methods(Static)
         function [npix,npix1] = calc_npix_distribution(pix_indx,npix)
-            % calculate how many indices belongs to every image bin
+            % Calculate how many indices belongs to every image bin
+            %
             %
             % Inputs:
             % pix_idx  -- array containing bin numbers
@@ -84,6 +86,7 @@ classdef cut_data_from_file_job < JobExecutor
             % Returns:
             % npix     -- array of bins with numbers modified by adding to
             %             each bin number of indices belonging to this bin
+            % npix1    -- the array of bins accumulated on this iteration.
             %
             n_bins = size(npix);
             if size(pix_indx,2)==1 && numel(n_bins) == 2 && n_bins(1) == 1
