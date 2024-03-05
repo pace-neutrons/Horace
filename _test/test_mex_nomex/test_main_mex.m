@@ -77,7 +77,6 @@ classdef test_main_mex < TestCase
             skipTest('Only pixel sorting is currently mexed')
         end
 
-
         function obj=test_accum_cut(obj)
             if obj.no_mex
                 skipTest('Can not use and test mex code to accumulate_cut');
@@ -166,9 +165,9 @@ classdef test_main_mex < TestCase
             hc = hor_config;
             pc = parallel_config;
             cleanup_obj_hc = set_temporary_config_options(hor_config, ...
-                                                          'log_level', -1, ...
-                                                          'use_mex', false ...
-                                                         );
+                'log_level', -1, ...
+                'use_mex', false ...
+                );
             cleanup_obj_pc = set_temporary_config_options(parallel_config, 'threads', 8);
 
             test_sqw = sqw();
@@ -205,93 +204,6 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(new_sqw2.data.s,s)
 
             assertElementsAlmostEqual(new_sqw2.data.e,e)
-
-        end
-
-        function test_sort_pix(obj)
-            % prepare pixels to sort
-            cleanup_obj_hc = set_temporary_config_options(hor_config, ...
-                                                          'log_level', -1, ...
-                                                          'use_mex', false ...
-                                                         );
-            cleanup_obj_pc = set_temporary_config_options(parallel_config, 'threads', 8);
-
-            pix=ones(9,40000);
-            xs = 9.6:-1:0.6;
-            xp = 0.1:0.5:10;
-            [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
-            pix(1,:) = ux(:);
-            pix(2,:) = uy(:);
-            pix(3,:) = uz(:);
-            pix(4,:) = et(:);
-            pix(7,:) = 1:size(pix,2);
-            pix = PixelDataBase.create(pix);
-            npix = 4*ones(10,10,10,10);
-            ix = ceil(pix.u1);
-            iy = ceil(pix.u2);
-            iz = ceil(pix.u3);
-            ie = ceil(pix.dE);
-            ix = sub2ind(size(npix), ix,iy,iz,ie);
-
-            % test sorting parameters and matlab sorting
-            pix1 = sort_pix(pix,ix,[]);
-            assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
-            assertElementsAlmostEqual(pix1.energy_idx(5:8),[1809,1819,3809,3819]);
-            assertElementsAlmostEqual(pix1.energy_idx(end-3:end),[36181,36191,38181,38191]);
-
-            pix2 = sort_pix(pix,ix,npix,'-nomex');
-            assertElementsAlmostEqual(pix1.data,pix2.data);
-
-            if obj.no_mex
-                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
-            end
-
-            % test mex
-            pix1 = sort_pix(pix,ix,npix,'-force_mex');
-            assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
-            assertElementsAlmostEqual(pix1.data, pix2.data);
-
-            pix0 = PixelDataBase.create(single(pix.data));
-            ix0  = int64(ix);
-            pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
-            assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);
-
-        end
-
-        function profile_sort_pix(~)
-            xs = 9.99:-0.1:0.01;
-            xp = 0.01:0.1:9.99;
-            [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
-            NumPix = numel(ux);
-            pix=ones(9,NumPix);
-            pix(1,:) = ux(:);
-            pix(2,:) = uy(:);
-            pix(3,:) = uz(:);
-            pix(4,:) = et(:);
-            pix(7,:) = 1:NumPix;
-            npix = ones(10,10,10,10)*(NumPix/10000);
-            ix = ceil(pix(1,:));
-            iy = ceil(pix(2,:));
-            iz = ceil(pix(3,:));
-            ie = ceil(pix(4,:));
-            ix = sub2ind(size(npix), ix,iy,iz,ie);
-            pix0 = single(pix);
-            ix0 = int64(ix);
-            clear iy iz ie ux uy uz et
-
-            disp('Profile started')
-            profile on
-            % test sorting parameters and matlab sorting
-            t1=tic();
-            pix1 = sort_pix(pix0,ix0,npix,'-force_mex','-keep_precision');
-            t2=toc(t1);
-            pix1 = sort_pix(pix,ix,npix,'-force_mex','-keep_precision');
-            t3=toc(t2);
-            pix1 = sort_pix(pix0,ix0,npix,'-nomex','-keep_precision');
-            t4=toc(t3);
-
-            profile off
-            profview;
 
         end
 
@@ -350,6 +262,29 @@ classdef test_main_mex < TestCase
             vv(4,:)=repmat(en,1,obj.nDet);
 
             pix = PixelDataBase.create(vv);
+        end
+    end
+    methods(Access=protected)
+        function [pix,ix,npix] = build_pix_page_for_sorting(~,xs,xp)
+            % pix=ones(9,40000);
+            [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
+            NumPix = numel(ux);
+            pix=ones(9,NumPix);
+            npix = ones(10,10,10,10)*(NumPix/10000);
+
+            pix(1,:) = ux(:);
+            pix(2,:) = uy(:);
+            pix(3,:) = uz(:);
+            pix(4,:) = et(:);
+            pix(7,:) = 1:NumPix;
+            pix = PixelDataBase.create(pix);
+
+            ix = ceil(pix.u1);
+            iy = ceil(pix.u2);
+            iz = ceil(pix.u3);
+            ie = ceil(pix.dE);
+            ix = sub2ind(size(npix), ix,iy,iz,ie);
+            ix = ix(:);
         end
     end
 end

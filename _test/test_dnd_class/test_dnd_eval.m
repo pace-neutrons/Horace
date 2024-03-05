@@ -1,4 +1,4 @@
-classdef test_eval < TestCase
+classdef test_dnd_eval < TestCase
     % Series of tests to check the call to user functions always obey the
     % same interface
 
@@ -10,7 +10,7 @@ classdef test_eval < TestCase
     end
 
     methods
-        function obj=test_eval(varargin)
+        function obj=test_dnd_eval(varargin)
             obj = obj@TestCase('test_eval');
             hp = horace_paths();
             obj.d1d_obj = read_dnd(fullfile(hp.test_common,'sqw_1d_2.sqw'));
@@ -24,7 +24,7 @@ classdef test_eval < TestCase
             err_message = '';
             try
                 ds = disp2sqw_eval(obj.sqw2d_obj, ...
-                    @test_eval.disp2sqw_eval_tester2D, [], 1.0, '-all');
+                    @test_dnd_eval.disp2sqw_eval_tester2D, [], 1.0, '-all');
                 failed = false;
             catch ME
                 failed = true;
@@ -36,7 +36,7 @@ classdef test_eval < TestCase
             err_message = '';
             try
                 ds = disp2sqw_eval(obj.d2d_obj, ...
-                    @test_eval.disp2sqw_eval_tester2D, [], 1.0, '-all');
+                    @test_dnd_eval.disp2sqw_eval_tester2D, [], 1.0, '-all');
                 failed = false;
             catch ME
                 failed = true;
@@ -50,7 +50,7 @@ classdef test_eval < TestCase
             err_message = '';
            try
                 ds = func_eval(obj.d2d_obj, ...
-                    @test_eval.funceval_tester2D, []);
+                    @test_dnd_eval.funceval_tester2D, []);
                 failed = false;
            catch ME
                failed = true;
@@ -68,7 +68,7 @@ classdef test_eval < TestCase
             err_message = '';
             try
                 ds = sqw_eval(obj.sqw2d_obj, ...
-                    @test_eval.sqw_eval_tester, []);
+                    @test_dnd_eval.sqw_eval_tester, []);
                 failed = false;
             catch ME
                 failed = true;
@@ -88,7 +88,7 @@ classdef test_eval < TestCase
             err_message = '';
             try
                 ds = sqw_eval(obj.d2d_obj, ...
-                    @test_eval.sqw_eval_tester, []);
+                    @test_dnd_eval.sqw_eval_tester, []);
                 failed = false;
             catch ME
                 failed = true;

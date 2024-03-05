@@ -20,7 +20,7 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, double *
     ppInd[0] = 0;
     for (size_t i = 1; i < distribution_size; i++) {   // calculate the ranges of the cell arrays
         ppInd[i] = ppInd[i - 1] + (size_t)pCellDens[i - 1]; // the next cell starts from the the previous one
-    };                                      // plus the number of pixels in the cell previous cell
+    };                                      // plus the number of pixels in the previous cell
     if (ppInd[distribution_size - 1] + (size_t)pCellDens[distribution_size - 1] != nPixelsSorted) {
         throw("Sort_pixels_by_bins: pixels data and their cell distributions are inconsistent ");
     }

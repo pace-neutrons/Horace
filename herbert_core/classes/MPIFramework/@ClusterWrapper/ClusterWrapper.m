@@ -481,7 +481,7 @@ classdef ClusterWrapper
             if paused
                 completed = false;
                 failed    = false;
-                mess = 'paused';
+                mess = 'pending';
             else
                 [completed,failed,mess] = check_progress_from_messages_(obj,varargin{:});
             end
