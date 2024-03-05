@@ -80,6 +80,7 @@ classdef test_sort_pix_mex_nomex < TestCase
 
             clOb = onCleanup(@()cut_data_from_file_job.accumulate_pix('cleanup'));
             for i=1:2
+                pix1.signal = i;
                 pci = cut_data_from_file_job.accumulate_pix(pci,false,pix1,ix1,i*npix1,buf_size);
                 assertTrue(isa(pci,'pixfile_combine_info'));
             end
@@ -99,6 +100,7 @@ classdef test_sort_pix_mex_nomex < TestCase
             clOb = onCleanup(@()cut_data_from_file_job.accumulate_pix('cleanup'));
 
             for i=1:2
+                pix1.signal = i;                
                 pci = cut_data_from_file_job.accumulate_pix(pci,false,pix1,ix1,i*npix1,buf_size);
                 assertTrue(isa(pci,'pixfile_combine_info'));
             end
