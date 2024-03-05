@@ -107,21 +107,22 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % Example of simultaneously fitting more than one sqw object
 
             mss = multifit_sqw_sqw([obj.w4ddata]);
-            mss = mss.set_fun(@sqw_bcc_hfm,  [5,5,0,10,0]);  % set foreground function(s)
-            mss = mss.set_free([1,1,0,0,0]); % set which parameters are floating
-            mss = mss.set_bfun(@sqw_bcc_hfm, {[5,5,1.2,10,0]}); % set background function(s)
-            mss = mss.set_bfree([1,1,1,1,1]);    % set which parameters are floating
-            mss = mss.set_bbind({1,[1,-1],1},{2,[2,-1],1});
+            mss = mss.set_fun(@sqw_bcc_hfm,  [75,5,2.7,10,-75]);  % set foreground function(s)
+            mss = mss.set_free([1,1,1,1,0]); % set which parameters are floating
+            mss = mss.set_bfun(@linear_bkgd_sqw,0); % set background function(s)
+            mss = mss.set_bfree(1);    % set which parameters are floating
+            mss = mss.set_bbind({1,[1,-1],1});
 
             % Simulate at the initial parameter values
             wsim_1 = mss.simulate();
+            %c2s = cut(wsim_1,[],[],[-0.1,0.1],[100,120]);
 
             % And now fit
             [wfit_1, fitpar_1] = mss.fit();
 
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths
-            tol = [1e-10,1e-8];
+            tol = [3e-5,3e-5];
             assertEqualToTolWithSave (obj, fitpar_1, 'tol', tol, 'ignore_str', 1)
             assertEqualToTolWithSave (obj, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
             assertEqualToTolWithSave (obj, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')

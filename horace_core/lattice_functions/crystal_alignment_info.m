@@ -5,17 +5,13 @@ classdef crystal_alignment_info < serializable
     % Created to support common interface between legacy alignment,
     % applicable for orthonormal or triclinic coordinate systems only and
     % generic alignment, applicable for any projections
-    % 
+    %
     % by default class is defined by lattice parameters and angles which
-    % describe modified lattice and 3-element rotvect, which defines 
+    % describe modified lattice and 3-element rotvect, which defines
     % 3-D rotations (rotation matrix) necessary to align the crystal.
     %
-    % It also contans and may be redefined using the following class
+    % It also contans and may be set using the following class
     % properties:
-    %
-    %   rlu_corr       Conversion matrix to relate notional rlu to true rlu, accounting for the the
-    %                  refined crystal lattice parameters and orientation
-    %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
     %
     %   alatt           Refined lattice parameters [a,b,c] (Angstroms)
     %
@@ -30,6 +26,14 @@ classdef crystal_alignment_info < serializable
     %
     %   rotangle       Angle of rotation corresponding to rotmat (to give a measure
     %                  of the misorientation) (degrees)
+    %
+    % Important output parameter related to legacy alignment and hkl_mode
+    % property can be retrieved using get_corr_mat method.
+    %
+    %   rlu_corr       Conversion matrix to relate notional rlu to true rlu,
+    %                  accounting for the the refined crystal lattice
+    %                  parameters and orientation.
+    %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
     %
     properties(Dependent)
         alatt  % Refined lattice parameters [a,b,c] (Angstroms)
@@ -47,14 +51,14 @@ classdef crystal_alignment_info < serializable
         rotangle %  Angle of rotation corresponding to rotmat (to give a
         %           measure of the misorientation) (degrees)
 
-        % True or false specifies if one wants to get corrections for image 
-        % or for pixel, where if true changes involve B-matrix together with 
+        % True or false specifies if one wants to get corrections for image
+        % or for pixel, where if true changes involve B-matrix together with
         % U matrix, wehere false retunrs only corrections to U-matrix
         hkl_mode;
-        
+
     end
     properties(Dependent, Hidden)
-        legacy_mode % == hkl_mode; legacy corrections were perfomed in hkl 
+        legacy_mode % == hkl_mode; legacy corrections were perfomed in hkl
         % mode only
     end
     properties(Access = protected)
@@ -66,7 +70,7 @@ classdef crystal_alignment_info < serializable
         %          argument rlu, in the refined crystal lattice. (Ang^-1)
         rotvec_ =  zeros(3,1)% Angle of rotation corresponding to rotmat
         %          (to give a measure of the misorientation) (radia)
-        hkl_mode_ = false;        
+        hkl_mode_ = false;
     end
 
 
@@ -76,6 +80,19 @@ classdef crystal_alignment_info < serializable
             % crystal_alignent_info class using default serializable
             % constructor, assigning values to all properties in order of
             % saveableFields or as 'field_name',field_value pairs.
+            %
+            % Inputs:
+            % alatt   -- new (aligned) lattice parameters
+            % angdeg  -- new (aligned) lattice angles
+            % rotvec  -- 3-component vector which defines
+            %            rotation from misaligned to aligned Crystal Cartesian coordinate
+            %            system
+            % Optional:
+            % distance -- the vector which contains distances between
+            %             ideal Bragg positions in aligned lattice and
+            %             actually measured Bragg positions. This parameter
+            %             describes quality of alignment.
+            %
             if nargin == 0
                 return;
             end
@@ -162,7 +179,7 @@ classdef crystal_alignment_info < serializable
         end
         function obj = set.legacy_mode(obj,val)
             obj.hkl_mode = val;
-        end       
+        end
         %======================================================================
         function corr_mat = get_corr_mat(obj,varargin)
             % Return corrections, necessary for modifying sqw object
@@ -189,7 +206,7 @@ classdef crystal_alignment_info < serializable
             %  hkl_mode == true -> corr_mat == rlu_corr
             %
             %   rlu_corr   Conversion matrix to relate notional rlu to true
-            %              rlu, accounting for the the refined crystal 
+            %              rlu, accounting for the the refined crystal
             %              lattice parameters and orientation
             %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
             % b)
@@ -207,7 +224,9 @@ classdef crystal_alignment_info < serializable
                 hkle_mode_ = true;
             else
                 error('HORACE:lattice_functions:invalid_argument', ...
-                    'Method accepts either line_proj class instance, or two-element initial lattice parameters vector.\n Provided: %s', ...
+                    ['Method accepts either line_proj class instance, ' ...
+                    'or two-element initial lattice parameters vector.\n' ...
+                    'Provided: %s'], ...
                     disp2str(varargin));
             end
 

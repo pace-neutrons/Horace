@@ -458,9 +458,9 @@ else
 
         [~,s,v]=svd(jac,0);
         % constrain possible conditionality number and nullify small
-        % elements to inprove resulting fit comparison in case of
-        % poorly defined matrix
-        max_sv = max(abs(s));
+        % elements to inprove resulting fit comparison in tests in 
+        % case of poorly defined matrix
+        max_sv = max(abs(s(:)));
         degraded = abs(s/max_sv)<eps('single');
         s(degraded) = 0;
         %

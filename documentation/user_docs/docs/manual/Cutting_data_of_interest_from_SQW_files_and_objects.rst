@@ -212,24 +212,24 @@ Where:
 
 .. code-block:: matlab
 
-	'u' --  % reciprocal vector for first viewing axis.	
-	'v' --  % reciprocal vector for second viewing axis.
-	'w' --  % optional reciprocal vector of third axis.	
-	        % See more information about these vectors below. 
-	'nonorthogonal' -- true of false % defines treatment of the lattice vectors.	
-	'type'   -- % the type of the projection normalization i.e. `aaa`, `rrr`, `ppp` 
-	            % or the combinations of these letters.
-	'alatt'  -- % three components of lattice parameters.	
-	'angdeg' -- % three components of lattice angles. 	
-	%           %  One do not need to define these vectors for cut unless he wants 
-	%           %  to use projection class separately.
-	%           %  The vectors will be taken from lattice defined in 
-	%           %   ``sqw`` object.
-	'offset' -- % centre of the projection coordinate system in (h,k,l,dE) coordinate system. 	
-	'label'  -- % 4-element cellarray containing captions for axes of target ``sqw`` object.	
-	'title'  -- % the string to place as the title of the plot you would
-	%           % make from the ``sqw`` or ``dnd`` object resulting from cut.	
-	'lab1-n' -- % separate components of the projection label.
+    'u' --  % reciprocal vector for first viewing axis. 
+    'v' --  % reciprocal vector for second viewing axis.
+    'w' --  % optional reciprocal vector of third axis. 
+            % See more information about these vectors below. 
+    'nonorthogonal' -- true of false % defines treatment of the lattice vectors.    
+    'type'   -- % the type of the projection normalization i.e. `aaa`, `rrr`, `ppp` 
+                % or the combinations of these letters.
+    'alatt'  -- % three components of lattice parameters.   
+    'angdeg' -- % three components of lattice angles.   
+    %           %  One do not need to define these vectors for cut unless he wants 
+    %           %  to use projection class separately.
+    %           %  The vectors will be taken from lattice defined in 
+    %           %   ``sqw`` object.
+    'offset' -- % centre of the projection coordinate system in (h,k,l,dE) coordinate system.   
+    'label'  -- % 4-element cellarray containing captions for axes of target ``sqw`` object.    
+    'title'  -- % the string to place as the title of the plot you would
+    %           % make from the ``sqw`` or ``dnd`` object resulting from cut.   
+    'lab1-n' -- % separate components of the projection label.
 
 Empty ``line_proj`` constructor builds ``line_proj`` with ``u=[1,0,0]`` and ``v=[0,1,0]``.
 Like the majority of Horace objects, you may build ``line_proj`` providing some positional parameters in
@@ -345,9 +345,49 @@ you define, even if they are not orthogonal in the crystal lattice basis.
    The benefit to this is that it makes reading the location of a feature in a
    two-dimensional **Q**-**Q** plot straightforward. This is the main reason for
    treating non-orthogonal bases this way.
+
+Figure below shows the difference between options ``nonorthogonal`` ``false`` and ``true`` for plotting
+"Bragg" reflections from a lattice ``alatt=[2,2,4]``, ``andgeg=[90,90,70]`` where the 
+reflections occur in the :math:`(r.l.u.)` points where ``hkl`` coordinates are integers.
+These images are produced by  the demo-code:
+
+.. code-block:: matlab
+
+   function w = reflection(h,k,l,e,p)
+        grid_h = round(h);
+        grid_k = round(k);            
+        grid_l = round(l);
+        w = p(1)*exp(-((h-grid_h).^2+(k-grid_k).^2+(l-grid_l).^2)/p(2));  
+   end
+   function plot_cuts()
+        proj = line_proj([1,0,0],[0,1,0],[],false,'rrr',[2,2,4],[90,90,70]);
+        ax   = line_axes('nbins_all_dims',[200,200,1,1],'img_range',[-4,-3,-0.1,-5;4,3,0.1,5]);
+        tsqw = sqw.generate_cube_sqw(ax,proj);
+        tsqw = sqw_eval(tsqw,@reflection,[1,0.01]);
+        plot(tsqw)
+        keep_figure
+        proj = line_proj([1,0,0],[0,1,0],[],true,'rrr',[2,2,4],[90,90,70]);
+        tso  = sqw.generate_cube_sqw(ax,proj);
+        tso  = sqw_eval(tso,@reflection,[1,0.01]);
+        plot(tso)        
+   end
+
+which plots 2D function exponentially decaying from points where ``h,k,l`` coordinates are integers.
+Note that ``line_proj`` here is build using positional form of constructor and because we are building
+fake sqw object, the projection needs the lattice to be defined.
+ 
+ .. figure:: ../images/orthogonal_vs_nonorthogonal_proj.png
+   :align: center
+   :width: 800px
+   :alt: 2d cuts ortho and non-ortho.
+
+   Sample plot for case where projection is a) orthogonal and b) non-orthogonal. 
+
+One can see that for orthogonal case the reciprocal lattice maintains its actual symmetry 
+but non-orthogonal image produces nice axes but skewed image. 
    
-``line_proj`` 2D cut example:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``line_proj`` 2D cut examples:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Let's have a look at scattering function of iron dataset. The reduced part of this dataset
 is provided as demonstration dataset in Horace demo folder available on Github. The 
@@ -356,13 +396,14 @@ as viewed from sample position, one needs to make cut along [0,1,0],[0,0,1] dire
 
 .. code-block::matlab
 
-	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
-	proj  = line_proj([0,1,0],[0,0,1]);
-	proj.type = 'aaa';
-	w2    = cut(data_source,proj,[-4.5,0.1,14.5],[-5,0.1,5],[-0.1,0.1],[-10,10]);
-	plot(w2);
+    data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+    proj  = line_proj([0,1,0],[0,0,1]);
+    proj.type = 'aaa';
+    w2    = cut(data_source,proj,[-4.5,0.1,14.5],[-5,0.1,5],[-0.1,0.1],[-10,10]);
+    plot(w2);
 
-The code produces: 
+Note that you do not need to provide lattice for projection as ``cut`` will take lattice parameters 
+from the ``sqw`` object to cut. The code produces: 
 
 .. figure:: ../images/iv_hkl.png 
    :align: center
@@ -388,10 +429,10 @@ The sample cut along the direction :math:`[1,1,0]` i.e. the diagonal of the figu
 
 .. code-block::matlab
 
-	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
-	proj  = line_proj([1,1,0],[-1,1,0],'offset',[-1,1,0]);
-	w1    = cut(data_source,proj,[-5,0.1,5],[-0.1,0.1],[-0.1,0.1],[-50,60]);
-	plot(w1);
+    data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+    proj  = line_proj([1,1,0],[-1,1,0],'offset',[-1,1,0]);
+    w1    = cut(data_source,proj,[-5,0.1,5],[-0.1,0.1],[-0.1,0.1],[-50,60]);
+    plot(w1);
 
 .. figure:: ../images/Fe_cut1D.png  
    :align: center
@@ -474,10 +515,10 @@ are in degrees.
 
 .. code-block:: matlab
 
-	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
-	sp_proj  = sphere_proj();
-	s2    = cut(data_source,sp_proj,[0,0.1,14],[0,180],[-180,180],[-10,4,400]);
-	plot(s2);
+    data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+    sp_proj  = sphere_proj();
+    s2    = cut(data_source,sp_proj,[0,0.1,14],[0,180],[-180,180],[-10,4,400]);
+    plot(s2);
 
 The default constructor builds spherical projection with ``sp_proj.ez == [1,0,0]``, ``sp_proj.ex == [0,1,0]``
 and ``sp_proj.offset == [0,0,0,0]``  Cut produces:
@@ -497,11 +538,11 @@ the objects produced using linear projection above, i.e. around the scattering p
 
 .. code-block:: matlab
 
-	data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
-	sp_proj  = sphere_proj();
-	sp_proj.offset  = [0,-1,1];	
-	s2    = cut(data_source,sp_proj,[0,0.1,2],[80,90],[-180,4,180],[50,60]);
-	plot(s2);
+    data_source = fullfile(fileparts(fileparts(which(horace_init))),'demo','Fe_ei401.sqw');
+    sp_proj  = sphere_proj();
+    sp_proj.offset  = [0,-1,1]; 
+    s2    = cut(data_source,sp_proj,[0,0.1,2],[80,90],[-180,4,180],[50,60]);
+    plot(s2);
 
 The unwrapping of the intensity of the spin-wave located around :math:`[0,-1,1]` Bragg peak shows:
 
@@ -517,7 +558,7 @@ Visible gap caused by missing detectors is obvious in :math:`[-50^o:+50^o]` angl
 
 .. code-block:: matlab
 
-	s2    = cut(data_source,sp_proj,[0,0.1,2],[0,180],[-180,4,180],[50,60]);
+    s2    = cut(data_source,sp_proj,[0,0.1,2],[0,180],[-180,4,180],[50,60]);
 
 .. figure:: ../images/spin_w_theta_av.png
    :align: center
@@ -530,7 +571,7 @@ and finally, 1D cut provides the intensity distribution as function of |Q|-dista
 
 .. code-block:: matlab
 
-	s2    = cut(data_source,sp_proj,[0,0.1,2],[0,180],[-180,180],[50,60]);
+    s2    = cut(data_source,sp_proj,[0,0.1,2],[0,180],[-180,180],[50,60]);
 
 .. figure:: ../images/spin_w_intensity_1D.png
    :align: center
@@ -598,23 +639,18 @@ projection or binning widths from the original.
 
 The parameters of section are as follows:
 
-* ``w``
+* ``w``       --  ``sqw`` object(s) to be sectioned as an array of 1 or more elements.
 
-  ``sqw`` object(s) to be sectioned as an array (of 1 or more elements)
+* ``pN_bin``  --  Range of bins specified as bin edges to extract from ``w``.
 
-* ``pN_bin``
+There are three valid forms for any ``pN_bin``:
 
-  Range of bins specified as bin edges to extract from ``w``.
+  * ``[]``, ``[0]``  -- Use entire original binning axis.                        
 
-  There are three valid forms for any ``pN_bin``:
-
-  * ``[]``, ``[0]``
-
-    Use entire original binning axis.
-
-  * ``[lo, hi]``
-
-    Range containing bin centres to extract from ``w``
+  * ``[lo, hi]``     -- take section of original axis which lies between ``low`` and ``hi`` values.
+                         The range of the resulting image in this case is the range 
+                         between left edge of image bin containing ``low``  value 
+                         and right edge of bin containing ``hi`` value.
 
 
 .. note::
@@ -625,7 +661,7 @@ The parameters of section are as follows:
 .. note::
 
    These parameters are specified by inclusive edge limits. Any ranges beyond
-   the the ``sqw`` object's ``img_range`` will be reduced to only capture extant
+   the the ``sqw`` object's ``img_range`` will be reduced to only capture existing
    bins.
 
 .. warning::
@@ -645,5 +681,5 @@ In order to extract bins whose centres lie in the range ``[-5 5]`` from a 4-D
 
 .. code-block:: matlab
 
-   w2 = section(w1, [-5 5], [], [], [])
+   w4_red = section(w4, [-5 5], [], [], [])
 

@@ -30,14 +30,9 @@ end
 % do not bother calculating real transformation if lattice is undefined
 % more important for debugging than anything else, as you do not debug
 % empty constructor
-calc_transformation = true;
-if ~obj.alatt_defined
-    obj.alatt_ = 2*[pi,pi,pi];
-    calc_transformation  = false;
-end
-if ~obj.angdeg_defined
-    obj.angdeg_ = 90*ones(1,3);
-    calc_transformation  = false;
+calc_transformation  = false;
+if obj.alatt_defined && obj.angdeg_defined
+    calc_transformation = true;
 end
 
 if calc_transformation

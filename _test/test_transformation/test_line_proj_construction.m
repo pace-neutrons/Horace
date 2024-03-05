@@ -50,7 +50,7 @@ classdef test_line_proj_construction<TestCase
             assertEqual(proj.v,[0,1,0]);
             assertEqual(proj.w,[0,0,1]);
             assertEqual(proj.alatt,[2,3,4]);
-            assertEqual(proj.angdeg,[90,90,90]);
+            assertTrue(isempty(proj.angdeg));
             assertEqual(proj.type,'aaa');
             assertEqual(proj.nonorthogonal,true);
         end
@@ -62,7 +62,7 @@ classdef test_line_proj_construction<TestCase
             assertEqual(proj.v,[0,1,0]);
             assertEqual(proj.w,[0,0,1]);
             assertEqual(proj.alatt,[2,3,4]);
-            assertEqual(proj.angdeg,[90,90,90]);
+            assertTrue(isempty(proj.angdeg));
             assertEqual(proj.type,'aaa');
         end
 
@@ -433,6 +433,17 @@ classdef test_line_proj_construction<TestCase
             tpixo = proj0.transform_pix_to_img(pix_cc);
             tpixr = projr.transform_pix_to_img(pix_cc);
             assertElementsAlmostEqual(tpixo,tpixr);
+        end
+
+        function test_default_param_constructor(~)
+            param_list = {'u','v','w','nonorthogonal','type','alatt','angdeg',...
+                           'offset','label','title'};
+            param_values = {[1,0,0],[0,1,0],[0,0,1],true,'aaa',[1,2,3],...
+                [80,70,120],[1,0,0,1],{'xx','yy','zz','ee'},'Some custom title'};
+            lp = line_proj(param_values{:});
+            for i=1:numel(param_list)
+                assertEqual(lp.(param_list{i}),param_values{i});
+            end
         end
     end
 end

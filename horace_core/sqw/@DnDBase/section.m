@@ -82,18 +82,18 @@ for n=1:numel(win)
 
     for i=1:ndim
 
-        curr_range = varargin{i};
+        req_cut_range = varargin{i};
         pax = win(n).dax(i);
 
-        if isempty(curr_range) || isequal(curr_range, 0)
+        if isempty(req_cut_range) || isequal(req_cut_range, 0)
 
             irange(1,pax) = 1;
             irange(2,pax) = sz(pax);
             array_section{pax} = irange(1,pax):irange(2,pax);
 
-        elseif numel(curr_range) == 2
+        elseif numel(req_cut_range) == 2
 
-            if curr_range(1) > curr_range(2)
+            if req_cut_range(1) > req_cut_range(2)
                 error ('HORACE:section:invalid_argument', ...
                        'Lower limit larger than upper limit for axis %d',i)
             end
@@ -102,12 +102,12 @@ for n=1:numel(win)
             pcent = 0.5*(p{pax}(2:end)+p{pax}(1:end-1));
 
             % index of bins whose centres lie in the sectioning range
-            lis=find(pcent >= (curr_range(1)-tol) & pcent <= (curr_range(2)+tol));
+            lis=find(pcent >= (req_cut_range(1)-tol) & pcent <= (req_cut_range(2)+tol));
 
             if isempty(lis)
                 error ('HORACE:section:invalid_argument', ...
                        'No data along axis %d in the range [%g, %g]', ...
-                       i, curr_range(1), curr_range(2))
+                       i, req_cut_range(1), req_cut_range(2))
             end
 
             irange(1,pax) = lis(1);
@@ -125,7 +125,9 @@ for n=1:numel(win)
 
         else
             error ('HORACE:section:invalid_argument', ...
-                   'Limits for axis %d must be [], [0] or [min max]', i)
+                   ['Limits for axis %d must be [], [0] or [min max]\n' ...
+                   'where at least min or max belong to existing image range  [%g, %g]'], ...
+                   i,req_cut_range(1), req_cut_range(2))
         end
     end
 
