@@ -62,7 +62,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#filebacked-and-memory-based-cuts">5.1.4. Filebacked and memory based cuts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#projection-in-more-details">5.1.5. Projection in more details</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#lattice-based-projections-line-proj">5.1.5.1. Lattice based projections (<code class="docutils literal notranslate"><span class="pre">line_proj</span></code>)</a></li>
-<li class="toctree-l5"><a class="reference internal" href="#line-proj-2d-cut-example">5.1.5.2. <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> 2D cut example:</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#line-proj-2d-cut-examples">5.1.5.2. <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> 2D cut examples:</a></li>
 <li class="toctree-l5"><a class="reference internal" href="#line-proj-1d-cut-example">5.1.5.3. <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> 1D cut example:</a></li>
 <li class="toctree-l5"><a class="reference internal" href="#spherical-projections">5.1.5.4. Spherical Projections</a></li>
 <li class="toctree-l5"><a class="reference internal" href="#sphere-proj-2d-and-1d-cuts-samples">5.1.5.5. <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> 2D and 1D cuts samples:</a></li>
@@ -414,36 +414,74 @@ basis vectors are orthogonal, so features may be skewed.</p>
 two-dimensional <strong>Q</strong>-<strong>Q</strong> plot straightforward. This is the main reason for
 treating non-orthogonal bases this way.</p>
 </div>
+<p>Figure below shows the difference between options <code class="docutils literal notranslate"><span class="pre">nonorthogonal</span></code> <code class="docutils literal notranslate"><span class="pre">false</span></code> and <code class="docutils literal notranslate"><span class="pre">true</span></code> for plotting
+“Bragg” reflections from a lattice <code class="docutils literal notranslate"><span class="pre">alatt=[2,2,4]</span></code>, <code class="docutils literal notranslate"><span class="pre">andgeg=[90,90,70]</span></code> where the
+reflections occur in the <span class="math notranslate nohighlight">\((r.l.u.)\)</span> points where <code class="docutils literal notranslate"><span class="pre">hkl</span></code> coordinates are integers.
+These images are produced by  the demo-code:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>w<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">reflection</span><span class="p">(</span>h,k,l,e,p<span class="p">)</span>
+<span class="w">     </span><span class="n">grid_h</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">h</span><span class="p">);</span>
+<span class="w">     </span><span class="n">grid_k</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">k</span><span class="p">);</span>
+<span class="w">     </span><span class="n">grid_l</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">l</span><span class="p">);</span>
+<span class="w">     </span><span class="n">w</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">p</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">exp</span><span class="p">(</span><span class="o">-</span><span class="p">((</span><span class="n">h</span><span class="o">-</span><span class="n">grid_h</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="n">grid_k</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">l</span><span class="o">-</span><span class="n">grid_l</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">p</span><span class="p">(</span><span class="mi">2</span><span class="p">));</span>
+<span class="k">end</span>
+<span class="k">function</span><span class="w"> </span><span class="nf">plot_cuts</span><span class="p">()</span>
+<span class="w">     </span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[],</span><span class="nb">false</span><span class="p">,</span><span class="s">&#39;rrr&#39;</span><span class="p">,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">70</span><span class="p">]);</span>
+<span class="w">     </span><span class="n">ax</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">line_axes</span><span class="p">(</span><span class="s">&#39;nbins_all_dims&#39;</span><span class="p">,[</span><span class="mi">200</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;img_range&#39;</span><span class="p">,[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="o">-</span><span class="mi">5</span><span class="p">;</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">5</span><span class="p">]);</span>
+<span class="w">     </span><span class="n">tsqw</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">.</span><span class="n">generate_cube_sqw</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">proj</span><span class="p">);</span>
+<span class="w">     </span><span class="n">tsqw</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">tsqw</span><span class="p">,@</span><span class="n">reflection</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">]);</span>
+<span class="w">     </span><span class="nb">plot</span><span class="p">(</span><span class="n">tsqw</span><span class="p">)</span>
+<span class="w">     </span><span class="n">keep_figure</span>
+<span class="w">     </span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[],</span><span class="nb">true</span><span class="p">,</span><span class="s">&#39;rrr&#39;</span><span class="p">,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">70</span><span class="p">]);</span>
+<span class="w">     </span><span class="n">tso</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">.</span><span class="n">generate_cube_sqw</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">proj</span><span class="p">);</span>
+<span class="w">     </span><span class="n">tso</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">tso</span><span class="p">,@</span><span class="n">reflection</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">]);</span>
+<span class="w">     </span><span class="nb">plot</span><span class="p">(</span><span class="n">tso</span><span class="p">)</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>which plots 2D function exponentially decaying from points where <code class="docutils literal notranslate"><span class="pre">h,k,l</span></code> coordinates are integers.
+Note that <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> here is build using positional form of constructor and because we are building
+fake sqw object, the projection needs the lattice to be defined.</p>
+<blockquote>
+<div><figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/orthogonal_vs_nonorthogonal_proj.png"><img alt="2d cuts ortho and non-ortho." src="../_images/orthogonal_vs_nonorthogonal_proj.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Sample plot for case where projection is a) orthogonal and b) non-orthogonal.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</div></blockquote>
+<p>One can see that for orthogonal case the reciprocal lattice maintains its actual symmetry
+but non-orthogonal image produces nice axes but skewed image.</p>
 </section>
-<section id="line-proj-2d-cut-example">
-<h4><span class="section-number">5.1.5.2. </span><code class="docutils literal notranslate"><span class="pre">line_proj</span></code> 2D cut example:<a class="headerlink" href="#line-proj-2d-cut-example" title="Permalink to this heading"></a></h4>
+<section id="line-proj-2d-cut-examples">
+<h4><span class="section-number">5.1.5.2. </span><code class="docutils literal notranslate"><span class="pre">line_proj</span></code> 2D cut examples:<a class="headerlink" href="#line-proj-2d-cut-examples" title="Permalink to this heading"></a></h4>
 <p>Let’s have a look at scattering function of iron dataset. The reduced part of this dataset
 is provided as demonstration dataset in Horace demo folder available on Github. The
 iron crystal has been aligned along [1,0,0] axis, so to see the part of the reciprocal space
 as viewed from sample position, one needs to make cut along [0,1,0],[0,0,1] directions:</p>
-<p>The code produces:</p>
-<figure class="align-center" id="id1">
+<p>Note that you do not need to provide lattice for projection as <code class="docutils literal notranslate"><span class="pre">cut</span></code> will take lattice parameters
+from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object to cut. The code produces:</p>
+<figure class="align-center" id="id2">
 <a class="reference internal image-reference" href="../_images/iv_hkl.png"><img alt="2d cut" src="../_images/iv_hkl.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS; slice of reciprocal space covered by the instrument for iron dataset with input neutron energy 401meV. Elastic line.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+<p><span class="caption-text">MAPS; slice of reciprocal space covered by the instrument for iron dataset with input neutron energy 401meV. Elastic line.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>The cut with the same parameters as above at higher energy transfer
 (<code class="code highlight matlab docutils literal highlight-matlab"><span class="n">w2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">proj</span><span class="p">,[</span><span class="o">-</span><span class="mf">4.5</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">14.5</span><span class="p">],[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],[</span><span class="mi">50</span><span class="p">,</span><span class="mi">60</span><span class="p">]);</span></code>) shows clear spin waves:</p>
-<figure class="align-center" id="id2">
+<figure class="align-center" id="id3">
 <a class="reference internal image-reference" href="../_images/iv_hkl_dE.png"><img alt="2d cut instrument view energy transfer." src="../_images/iv_hkl_dE.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS; slice of reciprocal space covered by the instrument for iron dataset with input neutron energy 401meV. Energy transfer [50-60]meV.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+<p><span class="caption-text">MAPS; slice of reciprocal space covered by the instrument for iron dataset with input neutron energy 401meV. Energy transfer [50-60]meV.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="line-proj-1d-cut-example">
 <h4><span class="section-number">5.1.5.3. </span><code class="docutils literal notranslate"><span class="pre">line_proj</span></code> 1D cut example:<a class="headerlink" href="#line-proj-1d-cut-example" title="Permalink to this heading"></a></h4>
 <p>The sample cut along the direction <span class="math notranslate nohighlight">\([1,1,0]\)</span> i.e. the diagonal of the figure above shows the intensity of the spin wave:</p>
-<figure class="align-center" id="id3">
+<figure class="align-center" id="id4">
 <a class="reference internal image-reference" href="../_images/Fe_cut1D.png"><img alt="1d cut along diagonal." src="../_images/Fe_cut1D.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS; 1D cut along the the diagonal of 2D image above.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+<p><span class="caption-text">MAPS; 1D cut along the the diagonal of 2D image above.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -475,10 +513,10 @@ Spherical projection <span class="math notranslate nohighlight">\(r_x\)</span> v
 for orthogonal reciprocal lattice. If reciprocal lattice is non-orthogonal, the <span class="math notranslate nohighlight">\(e_x\)</span>-vector
 of spherical projection defines the <span class="math notranslate nohighlight">\(z-x\)</span> plane of spherical coordinate system and <span class="math notranslate nohighlight">\(r_x\)</span>
 vector is build in this plane but orthogonal to <span class="math notranslate nohighlight">\(e_z\)</span> vector.</p>
-<figure class="align-center" id="id4">
+<figure class="align-center" id="id5">
 <a class="reference internal image-reference" href="../_images/spher_coordinates.png"><img alt="spherical coordinate system." src="../_images/spher_coordinates.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">Spherical coordinate system used by <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> in case of orthogonal and non-orthogonal reciprocal lattice. In latter case vectors <span class="math notranslate nohighlight">\(e_x,e_z\)</span> define the plane where orthogonal to <span class="math notranslate nohighlight">\(e_z\)</span> x-axis (<span class="math notranslate nohighlight">\(r_x\)</span> on the picture) of spherical coordinate system lies.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+<p><span class="caption-text">Spherical coordinate system used by <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> in case of orthogonal and non-orthogonal reciprocal lattice. In latter case vectors <span class="math notranslate nohighlight">\(e_x,e_z\)</span> define the plane where orthogonal to <span class="math notranslate nohighlight">\(e_z\)</span> x-axis (<span class="math notranslate nohighlight">\(r_x\)</span> on the picture) of spherical coordinate system lies.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <div class="admonition note">
@@ -514,10 +552,10 @@ are in degrees.</p>
 </div>
 <p>The default constructor builds spherical projection with <code class="docutils literal notranslate"><span class="pre">sp_proj.ez</span> <span class="pre">==</span> <span class="pre">[1,0,0]</span></code>, <code class="docutils literal notranslate"><span class="pre">sp_proj.ex</span> <span class="pre">==</span> <span class="pre">[0,1,0]</span></code>
 and <code class="docutils literal notranslate"><span class="pre">sp_proj.offset</span> <span class="pre">==</span> <span class="pre">[0,0,0,0]</span></code>  Cut produces:</p>
-<figure class="align-center" id="id5">
+<figure class="align-center" id="id6">
 <a class="reference internal image-reference" href="../_images/powder_avrg.png"><img alt="|Q|-dE cut." src="../_images/powder_avrg.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS; Scattering from iron at 400meV.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
+<p><span class="caption-text">MAPS; Scattering from iron at 400meV.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>To the experts in the field this picture shows that the energies of phonons excitations are located under 50meV, some magnetic
@@ -532,10 +570,10 @@ the objects produced using linear projection above, i.e. around the scattering p
 </pre></div>
 </div>
 <p>The unwrapping of the intensity of the spin-wave located around <span class="math notranslate nohighlight">\([0,-1,1]\)</span> Bragg peak shows:</p>
-<figure class="align-center" id="id6">
+<figure class="align-center" id="id7">
 <a class="reference internal image-reference" href="../_images/spin_w_tiny.png"><img alt="Q-phi cut" src="../_images/spin_w_tiny.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">Spin-wave scattering intensity around <span class="math notranslate nohighlight">\([0,-1,1]\)</span> point, expressed in spherical coordinate system.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
+<p><span class="caption-text">Spin-wave scattering intensity around <span class="math notranslate nohighlight">\([0,-1,1]\)</span> point, expressed in spherical coordinate system.</span><a class="headerlink" href="#id7" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>Visible gap caused by missing detectors is obvious in <span class="math notranslate nohighlight">\([-50^o:+50^o]\)</span> angles range. Averaging over all
@@ -543,20 +581,20 @@ the objects produced using linear projection above, i.e. around the scattering p
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">s2</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">sp_proj</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">180</span><span class="p">],[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">180</span><span class="p">],[</span><span class="mi">50</span><span class="p">,</span><span class="mi">60</span><span class="p">]);</span>
 </pre></div>
 </div>
-<figure class="align-center" id="id7">
+<figure class="align-center" id="id8">
 <a class="reference internal image-reference" href="../_images/spin_w_theta_av.png"><img alt="Q-phi cut theta-averages" src="../_images/spin_w_theta_av.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text"><span class="math notranslate nohighlight">\(\theta\)</span>-averaged spin-wave scattering intensity around <span class="math notranslate nohighlight">\([0,-1,1]\)</span> point.</span><a class="headerlink" href="#id7" title="Permalink to this image"></a></p>
+<p><span class="caption-text"><span class="math notranslate nohighlight">\(\theta\)</span>-averaged spin-wave scattering intensity around <span class="math notranslate nohighlight">\([0,-1,1]\)</span> point.</span><a class="headerlink" href="#id8" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>and finally, 1D cut provides the intensity distribution as function of <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span>-distance from the spin-wave centre:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">s2</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">sp_proj</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">180</span><span class="p">],[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="mi">180</span><span class="p">],[</span><span class="mi">50</span><span class="p">,</span><span class="mi">60</span><span class="p">]);</span>
 </pre></div>
 </div>
-<figure class="align-center" id="id8">
+<figure class="align-center" id="id9">
 <a class="reference internal image-reference" href="../_images/spin_w_intensity_1D.png"><img alt="intensity vs Q." src="../_images/spin_w_intensity_1D.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">Spin-wave intensity as function of distance from the scattering centre at <span class="math notranslate nohighlight">\([0,-1,1]\)</span>.</span><a class="headerlink" href="#id8" title="Permalink to this image"></a></p>
+<p><span class="caption-text">Spin-wave intensity as function of distance from the scattering centre at <span class="math notranslate nohighlight">\([0,-1,1]\)</span>.</span><a class="headerlink" href="#id9" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -607,23 +645,23 @@ recompute any statistics related to the object itself and is therefore faster
 and more efficient. However, it has the limitation that it cannot alter the
 projection or binning widths from the original.</p>
 <p>The parameters of section are as follows:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code></p>
-<p><code class="docutils literal notranslate"><span class="pre">sqw</span></code> object(s) to be sectioned as an array (of 1 or more elements)</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pN_bin</span></code></p>
-<p>Range of bins specified as bin edges to extract from <code class="docutils literal notranslate"><span class="pre">w</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code>       –  <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object(s) to be sectioned as an array of 1 or more elements.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pN_bin</span></code>  –  Range of bins specified as bin edges to extract from <code class="docutils literal notranslate"><span class="pre">w</span></code>.</p></li>
+</ul>
 <p>There are three valid forms for any <code class="docutils literal notranslate"><span class="pre">pN_bin</span></code>:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code>, <code class="docutils literal notranslate"><span class="pre">[0]</span></code></p>
-<p>Use entire original binning axis.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">[lo,</span> <span class="pre">hi]</span></code></p>
-<p>Range containing bin centres to extract from <code class="docutils literal notranslate"><span class="pre">w</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code>, <code class="docutils literal notranslate"><span class="pre">[0]</span></code>  – Use entire original binning axis.</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">[lo,</span> <span class="pre">hi]</span></code>     – take section of original axis which lies between <code class="docutils literal notranslate"><span class="pre">low</span></code> and <code class="docutils literal notranslate"><span class="pre">hi</span></code> values.</dt><dd><p>The range of the resulting image in this case is the range
+between left edge of image bin containing <code class="docutils literal notranslate"><span class="pre">low</span></code>  value
+and right edge of bin containing <code class="docutils literal notranslate"><span class="pre">hi</span></code> value.</p>
+</dd>
+</dl>
 </li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The number of <code class="docutils literal notranslate"><span class="pre">pN_bin</span></code> specified must match the dimensionality of the
@@ -632,7 +670,7 @@ underlying <code class="docutils literal notranslate"><span class="pre">dnd</spa
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>These parameters are specified by inclusive edge limits. Any ranges beyond
-the the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object’s <code class="docutils literal notranslate"><span class="pre">img_range</span></code> will be reduced to only capture extant
+the the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object’s <code class="docutils literal notranslate"><span class="pre">img_range</span></code> will be reduced to only capture existing
 bins.</p>
 </div>
 <div class="admonition warning">
@@ -648,7 +686,7 @@ the range. The resulting image range will be <code class="docutils literal notra
 </div>
 <p>In order to extract bins whose centres lie in the range <code class="docutils literal notranslate"><span class="pre">[-5</span> <span class="pre">5]</span></code> from a 4-D
 <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">section</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="w"> </span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[])</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w4_red</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">section</span><span class="p">(</span><span class="n">w4</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="w"> </span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[])</span>
 </pre></div>
 </div>
 </section>
@@ -666,7 +704,7 @@ the range. The resulting image range will be <code class="docutils literal notra
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Mar 3, 2024, 7:28:27 PM.
+      <span class="lastupdated">Last updated on Mar 5, 2024, 10:41:54 AM.
       </span></p>
   </div>
 
