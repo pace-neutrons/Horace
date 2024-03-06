@@ -438,7 +438,7 @@ addParameter(p, 'prefix_req', true, @islognumscalar);
 addParameter(p, 'flags_noneg', false, @islognumscalar)
 addParameter(p, 'flags_noval', false, @islognumscalar)
 addParameter(p, 'keys_exact', false, @islognumscalar)
-addParameter(p, 'keys_at_end', false, @islognumscalar)
+addParameter(p, 'keys_at_end', true, @islognumscalar)
 addParameter(p, 'keys_once', true, @islognumscalar)
 addParameter(p, 'noffset', 0, @(x) validateattributes({'numeric'}, {'nonnegative'}))
 
