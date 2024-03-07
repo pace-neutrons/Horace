@@ -223,14 +223,14 @@ end
 
 jd = JobDispatcher('ParallelMF');
 
-% Allow splitting of bins if not averaged or dnd
 pars = arrayfun(@(x) x.plist, pin, 'UniformOutput', false);
 while any(cellfun(@iscell,pars)) % Flatten pars
     pars = [pars{cellfun(@iscell,pars)} pars(~cellfun(@iscell,pars))];
 end
 
-split_bins = any(cellfun(@(x) strcmp(x, '-ave'), pars)) || ...
-    any(cellfun(@(x) isa(x, 'dndbase'), w));
+% Allow splitting of bins if not averaged or dnd
+split_bins = ~any(cellfun(@(x) strcmp(x, '-ave'), pars)) && ...
+    ~any(cellfun(@(x) isa(x, 'dndbase'), w));
 
 % Potential issues follow if parallelism is used
 % Special casing for Tobyfit where arguments need to be distributed

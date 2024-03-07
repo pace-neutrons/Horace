@@ -125,7 +125,6 @@ classdef MFParallel_Job < JobExecutor
                 obj.Store , ...
                 0);
 
-
             f = obj.merge_section(f);
             resid=obj.wt.*(obj.yval-f);
 
@@ -460,7 +459,7 @@ classdef MFParallel_Job < JobExecutor
             nw = numel(data);
 
             for iw = 1:nw
-                if merge(1, iw)
+                if merge(1, iw) % any to merge
                     for currID = obj.numLabs:-1:2
                         if merge(currID, iw)
                             if currID == obj.labIndex  % I am merging down
@@ -471,15 +470,18 @@ classdef MFParallel_Job < JobExecutor
                                 end
                                 data{iw} = data{iw}(2:end); % Drop merged element
 
-                            elseif currID == obj.labIndex+1 % I am being merged onto
+                            elseif currID-1 == obj.labIndex % I am being merged onto
                                 [ok, err_mess, in_data] = obj.mess_framework.receive_message(currID, 'data');
                                 if ~ok
                                     error('HORACE:MFParallel_Job:receive_error', err_mess)
                                 end
-                                adat = merge_data(obj.labIndex, iw).nelem(2);
-                                bdat = merge_data(currID, iw).nelem(1);
-                                data{iw}(end) = data{iw}(end)*adat + ...
-                                    in_data.payload*bdat / (adat + bdat);
+
+                                adat = merge_data(iw, currID-1).nelem(2); % Top of my data
+                                bdat = merge_data(iw, currID).nelem(1); % Bottom of theirs
+
+                                data{iw}(end) = (data{iw}(end)*adat + ...
+                                                 in_data.payload*bdat) /...
+                                                 (adat + bdat);
                             end
                         end
                     end
