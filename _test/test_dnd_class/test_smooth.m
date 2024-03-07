@@ -84,8 +84,8 @@ classdef test_smooth < TestCaseWithSave
         end
 
         function test_smooth_resolution_shape_arg(obj)
-            skipTest('No valid agruments allowed for ''resolution'' shape call bug #628');
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            %skipTest('No valid agruments allowed for ''resolution'' shape call bug #628');
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
             d = d2d_obj.smooth([100, 201, 301], 'resolution');
 
