@@ -410,7 +410,7 @@ classdef unique_objects_container < serializable
             end
         end
 
-        function hash = hashify(self,obj)
+        function hash = hashify(self,obj,reset_count)
             % makes a hash from the argument object
             % which will be unique to any identical object
             %
@@ -420,6 +420,21 @@ classdef unique_objects_container < serializable
             % - hash : the resulting has, a row vector of uint8's
             %
             persistent Engine;
+            %{
+            % monitor for use of hashing. As this issue may continue, leaving it in the code
+            persistent count;
+            if nargin>2
+                count=0;
+                hash = []; % unused null value for this case
+                return;
+            end
+            if isempty(count)
+                count=0;
+            end
+            count=count+1;
+            count
+            disp(class(obj));
+            %}
             if isempty(Engine)
                 Engine = java.security.MessageDigest.getInstance('MD5');
             end
@@ -748,14 +763,42 @@ classdef unique_objects_container < serializable
         end
         
         function field_vals = get_unique_field(self, field)
+            % determine type of unique_objects_container to make from the
+            % object feld type, and construct the container
             s1 = self.get(1);
             v = s1.(field);
             field_vals = unique_objects_container(class(v));
+            
+            % make container of possible field values from the unique contents of self
+            % this will do the minimal hashing of the field values
+            poss_field_vals = unique_objects_container(class(v));
+            uix = unique( self.idx_, 'stable' );
+            for ii=1:numel(uix)
+                sii = self.get( uix(ii) );
+                v = sii.(field);
+                poss_field_vals = poss_field_vals.add_single_(v);
+            end
+            
+            % make a container for the fields in order of the objects in self using the hash
+            % info previously put into poss_field_vaues
             for ii=1:self.n_runs
                 sii = self.get(ii);
                 v = sii.(field);
-                field_vals = field_vals.add(v);
+                index = self.idx_(ii);
+                [~,loc] = ismember(index,uix);
+                hash = poss_field_vals.hash(loc);
+                [~,hashloc] = ismember(hash,field_vals.stored_hashes_);
+                if hashloc>0
+                    field_vals = field_vals.add_single_(v,hashloc,hash);
+                else
+                    field_vals = field_vals.add_single_(v,[],hash);
+                end
             end
+        end
+        
+        function val = hash(self,index)
+        % accessor for the stored hashes
+            val = self.stored_hashes_{ self.idx_(index) };
         end
 
 
@@ -858,14 +901,24 @@ classdef unique_objects_container < serializable
                     out = objs{1};
                     for ii=2:numel(objs)
                         for jj=1:objs{ii}.n_runs
-                            out = out.add( objs{ii}.get(jj) );
+                            out_obj = objs{ii}.get(jj);
+                            out_hsh = objs{ii}.hash(jj);
+                            [~,index] = ismember(out_hsh, out.stored_hashes_);
+                            if index==0, index = []; end;
+                            out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
                         end
                     end
                 else
                     out = objs(1);
                     for ii=2:numel(objs)
                         for jj=1:objs(ii).n_runs
-                            out = out.add( objs(ii).get(jj) );
+                            out_obj = objs(ii).get(jj);
+                            out_hsh = objs(ii).hash(jj);
+                            [~,index] = ismember(out_hsh, out.stored_hashes_);
+                            if index==0, index = [], end;
+                            out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
+                            
+                            %out = out.add( objs(ii).get(jj) );
                         end
                     end
                 end

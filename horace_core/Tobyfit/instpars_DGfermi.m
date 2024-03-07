@@ -70,9 +70,9 @@ if ~use_unique_objects
 	
 else
 	
-	moderator=instruments.get_unique_field('moderator');
-	aperture=instruments.get_unique_field('aperture');
-	chopper=instruments.get_unique_field('fermi_chopper');
+	moderator=instruments.get_unique_field('moderator').unique_objects;
+	aperture=instruments.get_unique_field('aperture').unique_objects;
+	chopper=instruments.get_unique_field('fermi_chopper').unique_objects;
 	
 	for i=1:nrun
 	    x1(i)=abs(chopper{i}.distance);

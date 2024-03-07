@@ -256,8 +256,12 @@ classdef unique_references_container < serializable
 
             uoc = unique_objects_container('baseclass', self.stored_baseclass);
             glc = self.global_container('value', self.global_name_);
-            for i=1:self.n_objects
-                uoc = uoc.add( glc{ self.idx_(i) } );
+            for ii=1:self.n_objects
+                obj   = self.get(ii);
+                hash  = self.hash(ii);
+                [~,index] = ismember(hash,uoc.stored_hashes_);
+                if index==0, index=[]; end;
+                uoc = uoc.add_single_(obj,index,hash);
             end
         end
 
@@ -354,13 +358,55 @@ classdef unique_references_container < serializable
         % the values of 'field' within the objects referred to in self, indexed
         % in the same way as the original referred objects.
 
-            s1 = self.get(1);
+            % determine type of unique_references_container to make from the
+            % object field type
+            s1 = self.get(1); 
             v = s1.(field);
-            field_vals = unique_objects_container(class(v));
-            for ii=1:self.n_runs
-                sii = self.get(ii);
+            
+            % initialise the final output container (a unique_references_container)
+            % to hold the unique field value objects from objects in this container
+            % which are of type class(v).
+            global_name = ['GLOBAL_NAME_FIELD_',class(v)];
+            field_vals = unique_references_container(global_name,class(v));
+            
+            %
+            % get a list without duplicates of indices to the objects in self
+            % these are the indices into the global container
+            uix = unique( self.idx_, 'stable');
+            % get the global container (a unique_objects_container)
+            glc = self.global_container('value',self.global_name_);
+            % get the unique field objects out of it, and their hashes
+            % by placing them in another temporary unique_references_container
+            % this minimises the number of times the field object has to be hashed
+            poss_field_vals = unique_references_container(global_name,class(v));
+            for ii=1:numel(uix)
+                sii = glc{ uix(ii) };
                 v = sii.(field);
-                field_vals = field_vals.add(v);
+                poss_field_vals = poss_field_vals.add_single_(v);
+            end
+            
+            % now we construct the main unique_references_container `field_vals` of
+            % all the field values within objects in self
+            for ii=1:self.n_objects
+                sii = self.get(ii); % get the object
+                v = sii.(field);    % get its field
+                index = self.idx_(ii); % get its global index
+                [~,loc] = ismember(index,uix); % find where it is in the list of
+                                               % unique indices for objects
+                hash = poss_field_vals.hash(loc); % find the hash at that location
+                % find if that hash is in the hashes already in field
+                % values and if so where it is
+                glc = field_vals.global_container('value',global_name);
+                [~,loc]=ismember(hash,glc.stored_hashes_);
+                % if we already have it, add the field object via that
+                % location
+                if loc>0
+                    field_vals = field_vals.add_single_(v,loc,hash);
+                 % if we don't , add it without a location (it will go at
+                 % the end as a new object/hash
+                else
+                    field_vals = field_vals.add_single_(v,[],hash);
+                end
             end
         end
         
@@ -379,7 +425,7 @@ classdef unique_references_container < serializable
                     if any(b>numel(self.idx_))
                         if numel(self.idx_)>0
                             error('HERBERT:unique_references_container:invalid_subscript',...
-                                'subscript must be less than %d',numel(self.idx_));
+                                'subscript must be less than %d',numel(self.idx_)+1);
                         else
                             error('HERBERT:unique_references_container:invalid_subscript',...
                               'container is empty and cannot take a subscript');
@@ -425,6 +471,10 @@ classdef unique_references_container < serializable
                     self.stored_baseclass = class(val);
                     warning('HERBERT:unique_references_container:incomplete_setup', ...
                         'baseclass not initialised, using first assigned type');
+                end
+                if ~isa(val,self.stored_baseclass)
+                    %error('HERBERT:unique_references_container:invalid_argument', ...
+                    %      'assigning object with wrong baseclass');
                 end
                 nuix = idxstr(1).subs{:};
                 if nuix<1 || nuix>self.n_objects+1
@@ -480,10 +530,18 @@ classdef unique_references_container < serializable
             glc = self.global_container('value',self.global_name_);
             val = glc{ self.idx(index) };
         end
-
+        
+        function val = hash(self,index)
+        %HASH - for a given `index` into the container, return the associated hash
+        % this prevents the calling code from having to recalculate the hash since it is already known
+            glc = self.global_container('value',self.global_name_);
+            val = glc.stored_hashes_{ self.idx(index) } ;
+        end
         %
-        function [self, nuix] = add_single_(self,inobj)
+        function [self, nuix] = add_single_(self,inobj,glindex,hash)
             %ADD_SINGLE - add a single object obj at the end of the container
+            % if the existing location of inobj in the global container (`inobj`) is known together
+            % with its associated `hash` then these are used instead of recalculating the hash
             if isempty(self.stored_baseclass_)
                 error('HERBERT:unique_references_container:incomplete_setup', ...
                     'stored baseclass unset');
@@ -498,7 +556,16 @@ classdef unique_references_container < serializable
                 error('HERBERT:unique_references_container:incomplete_setup', ...
                     'global name unset');
             end
-            [glindex, hash] = self.global_container('value',self.global_name_).find_in_container(inobj);
+            
+            if nargin<=2
+                % have to recalculate the hash and the position of `inobj` in the global container as
+                % this info is not in the additional arguments
+                [glindex, hash] = self.global_container('value',self.global_name_).find_in_container(inobj);
+                if numel(glindex)>1
+                    error('HORACE:unique_references_container-add-single:invalid_state', ...
+                          'there should only be one index returned');
+                end
+            end
             if isempty(glindex)
                 glcont = self.global_container('value',self.global_name_);
                 [glcont,glindex] = glcont.add_single_(inobj,[],hash);
@@ -507,7 +574,7 @@ classdef unique_references_container < serializable
             self.idx_ = [ self.idx(:)', glindex ];
             nuix = numel(self.idx_);
         end
-
+        
         function [self, nuix] = add_copies_(self,obj,n)
             %ADD_COPIES - add a single object obj at the end of the container
             % multiple times
@@ -649,7 +716,7 @@ classdef unique_references_container < serializable
         % substitute object obj at position nuix in container
         function [self] = replace(self,obj,nuix)
             %REPLACE - substitute object obj at position nuix in container
-            % Equivalent to self{nuix}=1 (which would not work inside the
+            % Equivalent to self{nuix}=obj (which would not work inside the
             % container) and used to implement it.
             %
             % Input
@@ -660,9 +727,19 @@ classdef unique_references_container < serializable
             % The old value is overwritten.
 
             [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(obj);
+            if numel(glindex)>1
+                % unlikely error state but catching just in case
+                error('HORACE:unique_references_container___replace:invalid_state', ...
+                      'more than one location index found');
+            end
             if isempty(glindex)
                 [glcont,glindex] = ...
-                    self.global_container('value',self.global_name_).add(obj);
+                    self.global_container('value',self.global_name_).add_single_(obj);
+                if numel(glindex)>1
+                    % again, unlikely error, but just in case
+	                error('HORACE:unique_references_container___replace:invalid_state', ...
+	                      'more than one location index found');
+                end
                 if glindex == 0
                     % object was not replaced
                     return
