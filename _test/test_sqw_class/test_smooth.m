@@ -1,10 +1,9 @@
-classdef test_smooth < TestCase
+classdef test_smooth < TestCaseWithSave
 
     properties
         sqw_file_1d_name = 'sqw_1d_1.sqw';
         sqw_file_2d_name = 'sqw_2d_1.sqw';
         sqw_file_4d_name = 'sqw_4d.sqw';
-        sqw_files_path = '../common_data/';
 
         test_sqw_1d_fullpath = '';
         test_sqw_2d_fullpath = '';
@@ -13,161 +12,115 @@ classdef test_smooth < TestCase
 
 
     methods
-        function obj = test_smooth(~)
-            obj = obj@TestCase('test_smooth');
-            obj.test_sqw_1d_fullpath = obj.build_fullpath(obj.sqw_file_1d_name);
-            obj.test_sqw_2d_fullpath = obj.build_fullpath(obj.sqw_file_2d_name);
-            obj.test_sqw_4d_fullpath = obj.build_fullpath(obj.sqw_file_4d_name);
+        function obj = test_smooth(varargin)
+            if nargin == 0
+                argi = {'test_smooth'};
+            else
+                argi = {varargin{1}, 'test_smooth'};
+            end
+            obj = obj@TestCaseWithSave(argi{:});
+
+            pths = horace_paths();
+
+            obj.test_sqw_1d_fullpath = fullfile(pths.test_common, obj.sqw_file_1d_name);
+            obj.test_sqw_2d_fullpath = fullfile(pths.test_common, obj.sqw_file_2d_name);
+            obj.test_sqw_4d_fullpath = fullfile(pths.test_common, obj.sqw_file_4d_name);
+            obj.save();
         end
-
-
-        function fullpath = build_fullpath(obj, testfile_name)
-            test_file = java.io.File(pwd(), fullfile(obj.sqw_files_path, testfile_name));
-            fullpath = char(test_file.getCanonicalPath());
-        end
-
 
         %% SMOOTH
-        function test_smooth_returns_sqw_object(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s.pix = PixelDataBase.create();
+        function test_smooth_returns_dnd_object(obj)
+            sqw_in = sqw(obj.test_sqw_2d_fullpath);
+            sqw_in.pix = PixelDataBase.create();
 
-            d = s.smooth(10, 'hat');
-            assertTrue(isa(d, 'sqw'));
-            skipTest('Re #1583 applying smooth to sqw object is questionable')
+            result = sqw_in.smooth(10, 'hat');
+            assertTrue(isa(result, 'DnDBase'));
         end
 
         function test_smooth_no_args(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s.pix = PixelDataBase.create();
+            sqw_in = sqw(obj.test_sqw_2d_fullpath);
+            sqw_in.pix = PixelDataBase.create();
 
-            d = s.smooth();
+            result = sqw_in.smooth();
 
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-            skipTest('Re #1583 applying smooth to sqw object is questionable')
+            assertEqualToTolWithSave(obj, result, 'ignore_str', true, 'tol', 1e-6)
         end
 
         function test_smooth_scalar_width_arg(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s.pix = PixelDataBase.create();
+            sqw_in = sqw(obj.test_sqw_2d_fullpath);
+            sqw_in.pix = PixelDataBase.create();
 
-            d = s.smooth(100, 'gaussian');
+            result = sqw_in.smooth(100, 'gaussian');
 
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-            skipTest('Re #1583 applying smooth to sqw object is questionable')
+            assertEqualToTolWithSave(obj, result, 'ignore_str', true, 'tol', 1e-6)
         end
 
         function test_smooth_array_width_arg(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s.pix = PixelDataBase.create();
+            sqw_in = sqw(obj.test_sqw_2d_fullpath);
+            sqw_in.pix = PixelDataBase.create();
 
-            d = s.smooth([100, 25], 'gaussian');
+            result = sqw_in.smooth([100, 25], 'gaussian');
 
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-            skipTest('Re #1583 applying smooth to sqw object is questionable')
+            assertEqualToTolWithSave(obj, result, 'ignore_str', true, 'tol', 1e-6)
         end
 
         function test_smooth_resolution_shape_arg(obj)
             skipTest('No valid agruments allowed for ''resolution'' shape call bug #628');
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s.pix = PixelDataBase.create();
+            sqw_in = sqw(obj.test_sqw_2d_fullpath);
+            sqw_in.pix = PixelDataBase.create();
 
-            d = s.smooth([100, 201, 301], 'resolution');
+            result = sqw_in.smooth([100, 201, 301], 'resolution');
 
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
+            assertEqualToTolWithSave(obj, result, 'ignore_str', true, 'tol', 1e-6)
         end
 
         function test_smooth_hat_shape_arg(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s.pix = PixelDataBase.create();
+            sqw_in = sqw(obj.test_sqw_2d_fullpath);
+            sqw_in.pix = PixelDataBase.create();
 
-            d = s.smooth(100, 'hat');
+            result = sqw_in.smooth(100, 'hat');
 
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-            skipTest('Re #1583 applying smooth to sqw object is questionable')
+            assertEqualToTolWithSave(obj, result, 'ignore_str', true, 'tol', 1e-6)
         end
 
         function test_smooth_gaussian_shape_arg(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s.pix = PixelDataBase.create();
+            sqw_in = sqw(obj.test_sqw_2d_fullpath);
+            sqw_in.pix = PixelDataBase.create();
 
-            d = s.smooth(100, 'gaussian');
+            result = sqw_in.smooth(100, 'gaussian');
 
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-            skipTest('Re #1583 applying smooth to sqw object is questionable')
+            assertEqualToTolWithSave(obj, result, 'ignore_str', true, 'tol', 1e-6)
         end
 
         function test_smooth_raises_error_with_invalid_shape_arg(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s.pix = PixelDataBase.create();
+            sqw_in = sqw(obj.test_sqw_2d_fullpath);
+            sqw_in.pix = PixelDataBase.create();
 
             actual = assertExceptionThrown( ...
-                @() s.smooth(100, 'invalid_shape'), ...
+                @() sqw_in.smooth(100, 'invalid_shape'), ...
                 'HORACE:DnDBase:invalid_argument');
             assertTrue(contains(actual.message, '''invalid_shape'' is not recognised'));
         end
 
         function test_smooth_raises_error_with_incorrect_dimension_width_arg(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s.pix = PixelDataBase.create();
+            sqw_in = sqw(obj.test_sqw_2d_fullpath);
+            sqw_in.pix = PixelDataBase.create();
 
             actual = assertExceptionThrown( ...
-                @() s.smooth([100,200,300,400,500], 'hat'), ...
+                @() sqw_in.smooth([100,200,300,400,500], 'hat'), ...
                 'HORACE:DnDBase:invalid_argument');
             assertTrue(contains(actual.message, 'length equal to the dimensions of the dataset'));
-        end
-
-        function test_smooth_raises_error_with_sqw_containing_pixel_data(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-
-            actual = assertExceptionThrown(@()s.smooth(10), ...
-                'HORACE:sqw:invalid_argument');
-            assertTrue(contains(actual.message, 'No smoothing of sqw data'))
-        end
-
-        function test_smooth_raises_error_if_any_sqw_has_pixel_data_array_call(obj)
-            % array-case of previvious test
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s_nopix = copy(s);
-            s_nopix.pix = PixelDataBase.create();
-
-            actual = assertExceptionThrown(@() smooth([s_nopix, s, s_nopix], 10), ...
-                'HORACE:sqw:invalid_argument');
-            assertTrue(contains(actual.message, 'No smoothing of sqw data'))
         end
 
         function test_smooth_raises_error_with_wrong_dimension_width_arg(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s_nopix = copy(s);
-            s_nopix.pix = PixelDataBase.create();
+            sqw_in = sqw(obj.test_sqw_2d_fullpath);
+            sqw_in_nopix = copy(sqw_in);
+            sqw_in_nopix.pix = PixelDataBase.create();
 
             actual = assertExceptionThrown( ...
-                @() s_nopix.smooth([100, 123, 454], 'hat'), ...
+                @() sqw_in_nopix.smooth([100, 123, 454], 'hat'), ...
                 'HORACE:DnDBase:invalid_argument');
             assertTrue(contains(actual.message, 'length equal to the dimensions of the dataset'));
-        end
-
-        function test_smooth_raises_error_if_any_sqw_has_pixel_data(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-            s_nopix = copy(s);
-            s_nopix.pix = PixelDataBase.create();
-
-            actual = assertExceptionThrown( ...
-                @() smooth([s_nopix, s, s_nopix], 10), ...
-                'HORACE:sqw:invalid_argument');
-            assertTrue(contains(actual.message, 'No smoothing of sqw data'));
         end
     end
 end
