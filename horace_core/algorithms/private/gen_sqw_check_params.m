@@ -60,6 +60,19 @@ if ~isempty(nfile)
         mess='Number of spe data sets must be a positive integer >= 1';
         return
     end
+    % if the lattice has been provided as a single lattice although there
+    % are more than one files, replicate it to give one lattice per file
+    if nfile>numel(lattice)
+        if numel(lattice)==1
+            lattice = repmat(lattice,nfile,1);
+        else
+            error('HORACE:gen_sqw_check_parms:invalid_argument', ...
+                  ['more than one lattice has been provided, ', ...
+                   'but their number differs from the number of files']);
+        end
+        % if the number of files is less than the number of lattices, we
+        % just assume that the excess lattices can be ignored
+    end
 else
     % Get nfile from the sizes of the input arguments themselves
     nfile = numel(lattice);
