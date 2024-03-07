@@ -1,9 +1,9 @@
 classdef ubmat_proj<aProjectionBase
-    %  Class defines coordinate transformations necessary to make Horace cuts
-    %  in crystal coordinate system (orthogonal or non-orthogonal)
+    %  Class defines coordinate transformations necessary to support legacy
+    %  Horace cuts in crystal coordinate system (orthogonal or non-orthogonal)
     %
     %  Defines coordinate transformations, used by cut_sqw when making
-    %  Horace cuts
+    %  Horace cuts defined by rotation matrix
     %
     %  Object that defines the ortholinear projection operations
     %
@@ -17,36 +17,34 @@ classdef ubmat_proj<aProjectionBase
     % positional and key-value parameters, which constitute its properties
     %
     % Argument input:
-    %   >> proj = line_proj(u,v)
-    %   >> proj = line_proj(u,v,w)
+    %   >> proj = ubmat_proj(u_to_rlu)
+    %   >> proj = ubmat_proj(u_to_rlu,scale)
     %
     %   Full positional arguments input (can be truncated at any argument
     %   leaving other arguments default):
-    %   >> proj = line_proj(u,v,w,nonorthogonal,type,alatt,angdeg,...
-    %                        offset,label,title,lab1,lab2,lab3,lab4)
+    %   >> proj = ubmat_proj(u_to_rlu,scale,alatt,angdeg,offset,...
+    %                        label,title,lab1,lab2,lab3,lab4)
     %
     %   plus any of other arguments, provided as key-value pair e.g.:
     %
-    %   >> proj = ubmat_proj(...,'nonorthogonal',nonorthogonal,..)
-    %   >> proj = ubmat_proj(...,'type',type,...)
     %   >> proj = ubmat_proj(...,'offset',offset,...)
     %   >> proj = ubmat_proj(...,'label',labelcellstr,...)
     %   >> proj = ubmat_proj(...,'lab1',labelstr,...)
     %                   :
-    %   >> proj = line_proj(...,'lab4',labelstr,...)
+    %   >> proj = ubmat_proj(...,'lab4',labelstr,...)
     %
     % Minimal fully functional form:
-    %   >> proj =  line_proj(u,v,'alatt',lat_param,'angdeg',lattice_angles_in_degrees);
+    %   >> proj =  ubmat_proj(u_to_rlu,'alatt',latice_parameters,'angdeg',lattice_angles_in_degrees);
     %
     %IMPORTANT:
-    % if you want to use line_proj as input for the cut algorithm, it needs
-    % at least two input parameters u and v, (or their default values) as
+    % if you want to use ubmat_proj as input for the cut algorithm, it needs
+    % at least one input parameter u_to_rlu, (or its default value) as
     % the lattice parameters for cut will be taken from sqw object
     % if not provided with projection.
     %
-    % For independent usage u,v and lattice parameters (minimal fully functional
-    % form) needs to be specified. Any other parameters have their reasonable
-    % defaults and need to change only if change in their default values
+    % For independent usage u_to_rlu and lattice parameters (minimal fully
+    % functional form) needs to be specified. Any other parameters have 
+    % their reasonable defaults and need to change only if change in their default values
     % is required.
     %
     % Input:
@@ -57,36 +55,8 @@ classdef ubmat_proj<aProjectionBase
     % the arguments below, or alternatively the arguments
     %
     % Required arguments:
-    %   u    [1x3] Vector of first axis  (r.l.u.) defining cut plane and projection axes
-    %   v    [1x3] Vector of second axis (r.l.u.) defining cut plane and projection axes
+    %   u_to_rlu
     %
-    % Optional arguments:
-    %   w           [1x3] Vector of third axis (r.l.u.) - only needed if the third
-    %               character of argument 'type' is 'p'. Will otherwise be ignored.
-    %
-    %   nonorthogonal  Indicates if non-orthogonal axes are permitted
-    %               If false (default): construct orthogonal axes u1,u2,u3 from u,v
-    %               by defining: u1 || u; u2 in plane of u and v but perpendicular
-    %               to u with positive component along v; u3 || u x v
-    %
-    %               If true: use u,v (and w, if given) as non-orthogonal projection
-    %               axes: u1 || u, u2 || v, u3 || w if given, or u3 || u x v if not.
-    %
-    %   type        [1x3] Character string defining normalisation. Each character
-    %               indicates how u1, u2, u3 are normalised, as follows:
-    %               - if 'a': projection axis unit length is one inverse Angstrom
-    %               - if 'r': then if ui=(h,k,l) in r.l.u., is normalised so
-    %                         max(abs(h,k,l))=1
-    %               - if 'p': if orthogonal projection axes:
-    %                               |u1|=|u|, (u x u2)=(u x v), (u x u3)=(u x w)
-    %                           i.e. the projections of u,v,w along u1,u2,u3 match
-    %                           the lengths of u1,u2,u3
-    %
-    %                         if non-orthogonal axes:
-    %                               u1=u;  u2=v;  u3=w
-    %               Default:
-    %                   'ppr'  if w not given
-    %                   'ppp'  if w is given
     %
     % Also accepts these and aProjectionBase properties as set of key-values
     % pairs following standard serializable class constructor agreements.
@@ -96,20 +66,25 @@ classdef ubmat_proj<aProjectionBase
     % in the list of saveable properties.
     %
     properties(Dependent)
+        % Matrix to convert from image coordinate system to hklE coordinate
+        % system (in rlu or hkle -- both are the same, two different
+        % name schemes are used). Should be rotation matrix
+        u_to_rlu
+        % scaling factors used in transformation from pix to image
+        % coordinate system.
+        img_scales % 
+                %
         u; %[1x3] Vector of first axis (r.l.u.)
         v; %[1x3] Vector of second axis (r.l.u.)
         w; %[1x3] Vector of third axis (r.l.u.) - used only if third character of type is 'p'
-        type;  % Character string length 3 defining normalisation. each character being 'a','r' or 'p' e.g. 'rrp'
-        nonorthogonal; % Indicates if non-orthogonal axes are permitted (if true)
+        type;  % Character string which defines normalization and left
+        % for compartibility with line_proj
+        nonorthogonal; % Indicates if non-orthogonal axes are used (if true)
         %
     end
     properties(Dependent,Hidden)
         % Old confusing u_to_rlu matrix value
         %
-        % Matrix to convert from image coordinate system to hklE coordinate
-        % system (in rlu or hkle -- both are the same, two different
-        % name schemes are used)
-        u_to_rlu
 
         % Three properties below are responsible for support of old binary
         % file format and legacy alignment
@@ -119,24 +94,10 @@ classdef ubmat_proj<aProjectionBase
         % additional input to data_sqw_dnd constructor
         compat_struct;
 
-        % LEGACY PROPERTY:
-        % inverted B matrix, obtained from headers and set on
-        % projection when loading realigned data from file in the new code
-        % as old aligned files modify it and there are no way
-        % of identifying if the file was aligned or not. Modern code
-        % calculates this matrix on request using alignment matrix attached
-        % to pixels
-        ub_inv_legacy
-        %
-        u_to_rlu_legacy; % old u_to_rlu transformation matrix,
-        % calculated by original Toby algorithm.
-
+ 
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
         unit_cell;
-        % scaling factors used in transformation from pix to image
-        % coordinate system. Defined by type property
-        img_scales % new interface
         ulen       % old interface
     end
     properties(Hidden)
@@ -144,21 +105,10 @@ classdef ubmat_proj<aProjectionBase
         % ortho-ortho transformation to identify cells which may contribute
         % to a cut. Correct value is chosen on basis of performance analysis
         convert_targ_to_source=true;
-        % property used by bragg_positions routine for realigning already
-        %  aligned old version sqw files. If set to true, existing legacy
-        %  alignment matrix is ignored and cut is performed from
-        %  misaligned source file
-        ignore_legacy_alignment = false;
     end
 
     properties(Access=protected)
-        u_ = [1,0,0]
-        v_ = [0,1,0]
-        w_ = []
-        nonorthogonal_=false
-        type_='ppr'
-        % if requested type has been set directly or has default values
-        type_is_defined_explicitly_ = false;
+        u_to_rlu_ = eye(3);
         %
         % The properties used to optimize from_current_to_targ method
         % transformation, if both current and target projections are
@@ -166,22 +116,13 @@ classdef ubmat_proj<aProjectionBase
         ortho_ortho_transf_mat_;
         ortho_ortho_offset_;
 
-        % inverted ub matrix, used to support alignment as in Horace 3.xxx
-        % as real ub matrix is multiplied by alignment matrix there and
-        % there are no way of identifying if this happened or not.
-        ub_inv_legacy_ = [];
-
         % Caches, containing main matrices, used in the transformation
         % this projection defines
         q_to_img_cache_ = [];
         q_offset_cache_ = [];
         ulen_cache_     = [];
-        % Internal property, which specifies if alignment algorithm has
-        % been applied to pixels. These two transformations are
-        % equivalent, so if it was, pix_to_img transformation
-        % should use proj alignment rather then pix alignment provided to
-        % transformation
-        proj_aligned_ = false;
+        %
+        uvw_cache_      = eye(3);
     end
     %======================================================================
     methods
@@ -195,7 +136,7 @@ classdef ubmat_proj<aProjectionBase
             obj.do_generic = false;
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
-                obj = obj.init([1,0,0],[0,1,0],[],'type','ppr');
+                obj = obj.init(eye(4));
             else
                 obj = obj.init(varargin{:});
             end
@@ -215,24 +156,11 @@ classdef ubmat_proj<aProjectionBase
         %-----------------------------------------------------------------
         %-----------------------------------------------------------------
         function u = get.u(obj)
-            u = obj.u_;
-        end
-        function obj = set.u(obj,val)
-            obj.u_ = obj.check_and_brush3vector(val);
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
+            u = obj.uvw_cache_();
         end
         %
         function v = get.v(obj)
             v = obj.v_;
-        end
-        function obj = set.v(obj,val)
-            obj.v_ = obj.check_and_brush3vector(val);
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-
         end
         %
         function w = get.w(obj)
@@ -279,70 +207,10 @@ classdef ubmat_proj<aProjectionBase
                 ul = obj.ulen_cache_;
             end
         end
-        function ul = get.ulen(obj)
-            ul = obj.img_scales;
-        end
         %------------------------------------------------------------------
         % set u,v & w simultaneously
         obj = set_axes (obj, u, v, w, offset)
         %------------------------------------------------------------------
-    end
-    %======================================================================
-    % OLD sqw object interface compatibility functions
-    % ---------------------------------------------------------------------
-    methods
-        function obj = set_from_data_mat(obj,u_to_img,ulen)
-            % build correct projection from input u_to_img transformation
-            % and ulen matrices.
-            %
-            [ur,vr,wr,tpe,nonortho]=obj.uv_from_data_rot(u_to_img(1:3,1:3),ulen(1:3));
-            check = obj.do_check_combo_arg;
-            obj.do_check_combo_arg = false;
-            obj.u = ur;
-            obj.v = vr;
-            obj.w = wr;
-            obj.type = tpe;
-            obj.nonorthogonal = nonortho;
-            obj.do_check_combo_arg = check;
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg_(obj);
-            end
-        end
-        %
-        function ub_inv = get.ub_inv_legacy(obj)
-            ub_inv = obj.ub_inv_legacy_;
-        end
-        function u2rlu_leg = get.u_to_rlu_legacy(obj)
-            % U_to_rlu legacy is the matrix, returned by appropriate
-            % operation in Horace version < 4.0
-            [~,u2rlu_leg] = projaxes_to_rlu_legacy_(obj,[1,1,1]);
-            u2rlu_leg = [[u2rlu_leg,zeros(3,1)];[0,0,0,1]];
-        end
-        function obj = set.ub_inv_legacy(obj,val)
-            % no comprehensive checks performed here.  It is compatibility
-            % with old file format. The method should be used
-            % by saveobj/loadobj only. Use set_ub_inv_compat, which does all
-            % necessary checks in any other case.
-            obj.ub_inv_legacy_ = val;
-        end
-        function obj = set_ub_inv_compat(obj,u_to_rlu)
-            % Set up inverted ub matrix, used to support alignment as in
-            % Horace 3.xxx where the real inverted ub matrix is multiplied
-            % by alignment matrix.
-            if any(size(u_to_rlu)>3)
-                u_to_rlu = u_to_rlu(1:3,1:3);
-            end
-            obj.ub_inv_legacy_ = u_to_rlu;
-        end
-        %------------------------------------------------------------------
-        function str= get.compat_struct(obj)
-            str = struct();
-            flds = obj.data_sqw_dnd_export_list;
-            for i=1:numel(flds)
-                str.(flds{i}) = obj.(flds{i});
-            end
-        end
-        %
     end
     %======================================================================
     % TRANSFORMATIONS:
@@ -624,7 +492,7 @@ classdef ubmat_proj<aProjectionBase
         end
         function  flds = saveableFields(obj)
             flds = saveableFields@aProjectionBase(obj);
-            flds = [flds(:);obj.fields_to_save_(:)];
+            flds = [obj.fields_to_save_(:);flds(:)];
         end
         %------------------------------------------------------------------
         % check interdependent projection arguments

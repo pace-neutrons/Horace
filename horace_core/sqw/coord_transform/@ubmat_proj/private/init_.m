@@ -32,15 +32,9 @@ function obj = init_by_input_parameters_(obj,varargin)
 %
 
 
-opt =  [line_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
+opt =  [ubmat_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
 % check if the type is defined explicitly
-n_type = find(ismember(opt,'type'));
-text_in = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false); 
 
-if ismember('type',text_in) || ... % defined as key-value pair
-        (numel(varargin)>n_type && ischar(varargin{n_type}) && numel(varargin{n_type}) == 3) % defined as positional parameter
-    obj.type_is_defined_explicitly_ = true;
-end
 is_uoffset = ismember(text_in,'uoffset');
 if any(is_uoffset)
     uoffset_provided = true;

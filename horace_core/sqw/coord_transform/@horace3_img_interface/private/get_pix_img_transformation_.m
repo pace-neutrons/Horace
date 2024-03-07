@@ -30,12 +30,11 @@ end
 
 if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
     pix = varargin{1};
-    if pix.is_misaligned
+    if pix.is_misaligned 
         alignment_needed = true;
-        alignment_mat = pix.alignment_matr; % NEED CLARIFICATION:
-        if obj.proj_aligned_ % double rotate pixels to maintain consistency
-            % between pixels and image. Single rotation makes pixels
-            % aligned ????
+        alignment_mat = pix.alignment_matr;
+        if obj.proj_aligned_ % double rotate pixels as projection rotated 
+            % in opposite direction to pixels
             alignment_mat = alignment_mat*alignment_mat;
         end
     else
@@ -44,7 +43,7 @@ if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pi
 else
     alignment_needed = false;
 end
-if ~isempty(obj.q_to_img_cache_)
+if ~isempty(obj.q_to_img_cache_) && isempty(obj.ub_inv_legacy)
     q_to_img   = obj.q_to_img_cache_(1:ndim,1:ndim);
     shift      = obj.q_offset_cache_(1:ndim);
     img_scales = obj.ulen_cache_(1:ndim);
@@ -54,12 +53,18 @@ if ~isempty(obj.q_to_img_cache_)
     return;
 end
 %
-
-[q_to_img,img_scales,rlu_to_q,obj] = projtransf_to_img_(obj);
-% Modern alignment with rotation matrix attached to pixel
-% coordinate system
-if alignment_needed
-    q_to_img  = q_to_img*alignment_mat;
+if isempty(obj.ub_inv_legacy)
+    [q_to_img,img_scales,rlu_to_q,obj] = projtransf_to_img_(obj);
+    % Modern alignment with rotation matrix attached to pixel
+    % coordinate system
+    if alignment_needed
+        q_to_img  = q_to_img*alignment_mat;
+    end
+else% Legacy alignment, with multiplication of rotation matrix
+    [rlu_to_u,~,img_scales]  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
+    u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
+    q_to_img  = (rlu_to_u*u_to_rlu_);
+    rlu_to_q  = inv(u_to_rlu_);
 end
 %
 if ndim==4
