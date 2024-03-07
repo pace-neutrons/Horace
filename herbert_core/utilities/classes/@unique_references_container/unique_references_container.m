@@ -359,13 +359,13 @@ classdef unique_references_container < serializable
         % in the same way as the original referred objects.
 
             % determine type of unique_references_container to make from the
-            % object feld type
+            % object field type
             s1 = self.get(1); 
             v = s1.(field);
             
             % initialise the final output container (a unique_references_container)
             % to hold the unique field value objects from objects in this container
-            % which are of type `class(v).
+            % which are of type class(v).
             global_name = ['GLOBAL_NAME_FIELD_',class(v)];
             field_vals = unique_references_container(global_name,class(v));
             
@@ -385,7 +385,7 @@ classdef unique_references_container < serializable
                 poss_field_vals = poss_field_vals.add_single_(v);
             end
             
-            % now we construct the main unique_references_container `fiel_vals` of
+            % now we construct the main unique_references_container `field_vals` of
             % all the field values within objects in self
             for ii=1:self.n_objects
                 sii = self.get(ii); % get the object
