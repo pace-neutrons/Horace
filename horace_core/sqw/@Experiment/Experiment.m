@@ -126,8 +126,17 @@ classdef Experiment < serializable
                     % add to default compressed container
                     % this must be of the right size to define number of
                     % runs for the experiment - the other fields can handle
-                    % adding duplicates once they know this numberval,
-                    obj.expdata_ = expdata;
+                    % adding duplicates once they know this number
+                    %
+                    % expdata is assigned to the dependent rather than the 
+                    % private property to call the check function which also
+                    % populates the runid map. The check combo arg is turned
+                    % off here as the rest of th checks will not work until
+                    % the rest of the fields have been assigned
+                    tmp_check = obj.do_check_combo_arg;
+                    obj.do_check_combo_arg = false;
+                    obj.expdata = expdata;
+                    obj.do_check_combo_arg = tmp_check;
                 elseif isempty(expdata)
                     % do nothing, leave default array container empty
                 else
@@ -141,7 +150,7 @@ classdef Experiment < serializable
 
                 obj = obj.add_input_with_checks(samples,         'IX_samp');
 
-
+                return;
             elseif nargin == 1
                 arg = varargin{1};
                 if ~iscell(arg)
@@ -164,6 +173,8 @@ classdef Experiment < serializable
                     'so catching them here until we can do them ',...
                     'properly']);
             end
+            % NB call can now be put inside the nargin==1 branch
+            % as the other branches return
             obj = init_(obj,varargin{:});
         end
 
