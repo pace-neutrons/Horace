@@ -1,4 +1,4 @@
-classdef line_proj<aProjectionBase
+classdef line_proj < line_proj_interface
     %  Class defines coordinate transformations necessary to make Horace cuts
     %  in crystal coordinate system (orthogonal or non-orthogonal)
     %
@@ -101,8 +101,6 @@ classdef line_proj<aProjectionBase
         w; %[1x3] Vector of third axis (r.l.u.) - used only if third character of type is 'p'
         type;  % Character string length 3 defining normalisation. each character being 'a','r' or 'p' e.g. 'rrp'
         nonorthogonal; % Indicates if non-orthogonal axes are permitted (if true)
-        %
-        img_scales % new interface
     end
     properties(Hidden)
         % return set of vectors, which define primary lattice cell if
@@ -129,16 +127,10 @@ classdef line_proj<aProjectionBase
         % if requested type has been set directly or has default values
         type_is_defined_explicitly_ = false;
         %
-        % The properties used to optimize from_current_to_targ method
-        % transformation, if both current and target projections are
-        % line_proj
-        ortho_ortho_transf_mat_;
-        ortho_ortho_offset_;
         % Caches, containing main matrices, used in the transformation
         % this projection defines
         q_to_img_cache_ = [];
         q_offset_cache_ = [];
-        ulen_cache_     = [];
         % Internal property, which specifies if alignment algorithm has
         % been applied to pixels. These two transformations are
         % equivalent, so if it was, pix_to_img transformation
@@ -151,7 +143,7 @@ classdef line_proj<aProjectionBase
         %------------------------------------------------------------------
         % Interfaces:
         function obj=line_proj(varargin)
-            obj = obj@aProjectionBase();
+            obj = obj@line_proj_interface();
             obj.label = {'\zeta','\xi','\eta','E'};
             % try to use specific range-range identification algorithm,
             % suitable for ortho-ortho transformation
@@ -235,17 +227,12 @@ classdef line_proj<aProjectionBase
             end
         end
         %
-        function ul = get.img_scales(obj)
-            if isempty(obj.ulen_cache_)
-                ul = ones(1,4);
-            else
-                ul = obj.ulen_cache_;
-            end
-        end
         %------------------------------------------------------------------
         % set u,v & w simultaneously
-        obj = set_axes (obj, u, v, w, offset)
+        obj = set_directions(obj, u, v, w, offset)
         %------------------------------------------------------------------
+        % return ubmat_proj which is siter projection to line_proj
+        proj = get_ubmat_proj(obj);
     end
     methods
         %
@@ -257,89 +244,6 @@ classdef line_proj<aProjectionBase
         % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
         %------------------------------------------------------------------
-        function pix_hkl = transform_img_to_hkl(obj,img_coord,varargin)
-            % Converts from image coordinate system to hkl coordinate
-            % system
-            %
-            % Should be overloaded to optimize for a particular case to
-            % improve efficiency.
-            % Inputs:
-            % obj       -- current projection, describing the system of
-            %              coordinates where the input pixels vector is
-            %              expressed in. The target projection has to be
-            %              set up
-            %
-            % pix_origin   4xNpix or 3xNpix vector of pixels coordinates
-            %              expressed in the coordinate system, defined by
-            %              this projection
-            % Ouput:
-            % pix_targ -- 4xNpix or 3xNpix array of pixel coordinates in
-            %             hkl (physical) coordinate system (4-th
-            %             coordinate, if requested, is the energy transfer)
-            if obj.disable_srce_to_targ_optimization
-                pix_hkl = transform_img_to_hkl@aProjectionBase(obj,img_coord,varargin{:});
-            else
-                pix_hkl = transform_img_to_hkl_(obj,img_coord,varargin{:});
-            end
-        end
-
-        function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
-            % Transform pixels expressed in crystal Cartesian coordinate systems
-            % into image coordinate system
-            %
-            % Input:
-            % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
-            %             expressed in crystal Cartesian coordinate system
-            %             or instance of PixelDatBase class containing this
-            %             information.
-            % Returns:
-            % pix_transformed -- the pixels transformed into coordinate
-            %             system, related to image. (hkl system here)
-            %
-            %
-            pix_transformed = transform_pix_to_img_(obj,pix_data);
-        end
-        %
-        function pix_cc = transform_img_to_pix(obj,pix_hkl,varargin)
-
-            % Transform pixels expressed in image coordinate coordinate systems
-            % into crystal Cartesian coordinate system
-            %
-            % Input:
-            % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
-            %             expressed in crystal Cartesian coordinate system
-            % Returns
-            % pix_cc --  pixels expressed in Crystal Cartesian coordinate
-            %            system
-            %
-            pix_cc = transform_img_to_pix_(obj,pix_hkl);
-        end
-        %
-        function [pix_hkl,en] = transform_pix_to_hkl(obj,pix_coord,varargin)
-            % Converts from pixel coordinate system (Crystal Cartesian)
-            % to hkl coordinate system.
-            %
-            % Overloaded generic method to support legacy alignment
-            % appropriate for line_proj only.
-            %
-            % Inputs:
-            % obj       -- current projection, describing the system of
-            %              coordinates where the input pixels vector is
-            %              expressed in.
-            %
-            % pix_coord -- 4xNpix or 3xNpix vector of pixels coordinates
-            %              expressed in the coordinate system, defined by
-            %              this projection
-            %
-            % Output:
-            % pix_hkl  -- 4xNpix or 3xNpix array of pixel coordinates in
-            %             hkl (physical) coordinate system (4-th
-            %             coordinate, if requested, is the energy transfer)
-            [pix_hkl,en] = transform_pix_to_hkl_(obj,pix_coord,varargin{:});
-            if nargout == 1
-                pix_hkl = [pix_hkl;en];
-            end
-        end
         %
         %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
@@ -442,6 +346,10 @@ classdef line_proj<aProjectionBase
         function obj = set_proj_aligned(obj,val)
             obj.proj_aligned_ = logical(val);
         end
+        function obj = set_img_scales(varargin)
+            error('HORACE:line_proj:invalid_argument', ...
+                'line_proj scaling is defined by specifying values for "type" property')
+        end
         %------------------------------------------------------------------
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)
@@ -486,41 +394,14 @@ classdef line_proj<aProjectionBase
             end
         end
         %
-        function [u,v,w,type,nonortho]=uv_from_data_rot(obj,u_rot_mat,ulen)
-            % Extract initial u/v vectors, defining the plane in hkl from
-            % lattice parameters and the matrix converting vectors
-            % used by data_sqw_dnd class.
-            %
-            % partially inverting u_to_rlu matrix provided as input
-            % as only orthogonal to u part of the v-vector can be recovered
-            %
-            % Inputs:
-            % u_rot_mat
-            %       -- matrix forming the part of the conversion from
-            %          pixel coordinate system to the image coordinate
-            %          system divided by B-matrix.
-            % ulen  -- length of the unit vectors of the reciprocal lattice
-            %          units, the Horace image is expressed in
-            % Outputs:
-            % u     -- [1x3] vector expressed in rlu and defining the cut
-            %          direction
-            % v     -- [1x3] vector expressed in rlu, and together with u
-            %          defining the cut plain
-
-            %Uses class properties:
-            % alatt -- lattice parameters. [1x3]-vector of positive numbers
-            %          describing lattice cell size. (In A-units)
-            % angdeg-- vector 3 angles describing the angles between lattice cell.
-            %          Expressed in degree
-            [u,v,w,type,nonortho] = uv_from_transf_mat_(obj,u_rot_mat,ulen);
-        end
     end
     %=====================================================================
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
     properties(Constant, Access=private)
         fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';
-            'proj_aligned';'ub_inv_legacy'}
+            'proj_aligned'}
+        % still need to recover if received 'ub_inv_legacy'
     end
     methods
         function ver  = classVersion(~)
@@ -548,60 +429,6 @@ classdef line_proj<aProjectionBase
             % defined)
             wout = check_combo_arg@aProjectionBase(wout);
         end
-        function [is,mess] = eq(obj,other_obj,varargin)
-            % Overloaded equality operator comparing the projection
-            % transformation rather then all projection properties
-            %
-            % Different projection property values may define the same
-            % transformation, so the projections, which define the same
-            % transformation should be considered the equal.
-            %
-            % Inputs:
-            % other_obj -- the object or array of objects to compare with
-            %               current object
-            % Optional:
-            % any set of parameters equal_to_tol function would accept, as
-            % eq uses equal_to_tol function internally
-            %
-            % Returns:
-            % True if the objects define the sample pixel transformation and
-            %      false if not.
-            % Optional:
-            % message, describing in more details where non-equality
-            % occurs (used in unit tests to indicate the details of
-            % inequality)
-
-            if nargout == 2
-                if nargin>2
-                    names = line_proj.extract_eq_neq_names(varargin{:});
-                else
-                    names = cell(2,1);
-                    names{1} = inputname(1);
-                    names{2} = inputname(2);
-                end
-                [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
-            else
-                is = eq_(obj,other_obj,nargout,cell(2,1),varargin{:});
-            end
-        end
-        %
-        function [nis,mess] = ne(obj,other_obj,varargin)
-            % Non-equality operator expressed through equality operator
-            %
-            if nargout == 2
-                if nargin > 2
-                    names = line_proj.extract_eq_neq_names(varargin{:});
-                else
-                    names{1} = inputname(1);
-                    names{2} = inputname(2);
-                end
-                [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
-            else
-                is = eq_(obj,other_obj,nargout,cell(2,1),varargin{:});
-            end
-            nis = ~is;
-        end
-
     end
     %----------------------------------------------------------------------
     methods(Static)
@@ -644,25 +471,5 @@ classdef line_proj<aProjectionBase
             obj = build_from_old_data_struct_(obj,inputs,header_av);
         end
 
-    end
-    methods(Static,Access=private)
-        function names = extract_eq_neq_names(varargin)
-            % function helps to parse inputs of eq/neq functions in case
-            % when it called within the chain of other functions containing
-            % input parameters
-            % if varargin contains
-            names = cell(2,1);
-            argi = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false);
-            is = ismember(argi,'name_a');
-            if any(is)
-                ind = find(is);
-                names{1} = varargin{ind+1};
-            end
-            is = ismember(argi,'name_b');
-            if any(is)
-                ind = find(is);
-                names{2} = varargin{ind+1};
-            end
-        end
     end
 end

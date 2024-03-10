@@ -20,11 +20,11 @@ if isa(pix_input,'PixelDataBase')
 
     shift_ei = obj.offset(4) ~=0;
 
-    [pix_to_img, offset] = obj.get_pix_img_transformation(3, pix_input);
+    [pix_to_img, offset_cc] = obj.get_pix_img_transformation(3, pix_input);
 
     % transposed pix_to_image transformation, as the transformation is defined
     % as column vectors and pixel_data here are also column vectors.
-    pix_transf = pix_to_img*(pix_cc - offset(:));
+    pix_transf = pix_to_img*(pix_cc - offset_cc(:));
 
     if shift_ei
         ei = pix_input.dE - obj.offset(4);
@@ -39,11 +39,11 @@ else
     % anyway
     ndim = size(pix_input, 1);
 
-    [pix_to_img,offset] = obj.get_pix_img_transformation(ndim,pix_input);
+    [pix_to_img,offset_cc] = obj.get_pix_img_transformation(ndim,pix_input);
 
     % transposed pix_to_image transformation, as the transformation is defined
     % as column vectors and pixel_data here are also column vectors.
-    pix_transf= pix_to_img*(pix_input - offset(:));
+    pix_transf= pix_to_img*(pix_input - offset_cc(:));
 
 end
 

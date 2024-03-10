@@ -1,4 +1,4 @@
-classdef ubmat_proj<aProjectionBase
+classdef ubmat_proj < line_proj_interface
     %  Class defines coordinate transformations necessary to support legacy
     %  Horace cuts in crystal coordinate system (orthogonal or non-orthogonal)
     %
@@ -43,7 +43,7 @@ classdef ubmat_proj<aProjectionBase
     % if not provided with projection.
     %
     % For independent usage u_to_rlu and lattice parameters (minimal fully
-    % functional form) needs to be specified. Any other parameters have 
+    % functional form) needs to be specified. Any other parameters have
     % their reasonable defaults and need to change only if change in their default values
     % is required.
     %
@@ -66,14 +66,8 @@ classdef ubmat_proj<aProjectionBase
     % in the list of saveable properties.
     %
     properties(Dependent)
-        % Matrix to convert from image coordinate system to hklE coordinate
-        % system (in rlu or hkle -- both are the same, two different
-        % name schemes are used). Should be rotation matrix
-        u_to_rlu
-        % scaling factors used in transformation from pix to image
-        % coordinate system.
-        img_scales % 
-                %
+        %-----------------------------------------------------------------
+        % DERIVED PROPERTIES:
         u; %[1x3] Vector of first axis (r.l.u.)
         v; %[1x3] Vector of second axis (r.l.u.)
         w; %[1x3] Vector of third axis (r.l.u.) - used only if third character of type is 'p'
@@ -81,24 +75,14 @@ classdef ubmat_proj<aProjectionBase
         % for compartibility with line_proj
         nonorthogonal; % Indicates if non-orthogonal axes are used (if true)
         %
+        %
+        uoffset    % offset expressed in image coordinate system. Old interface to img_offset
+        % which is under construction
     end
     properties(Dependent,Hidden)
-        % Old confusing u_to_rlu matrix value
-        %
-
-        % Three properties below are responsible for support of old binary
-        % file format and legacy alignment
-        %
-        % LEGACY PROPERTY: (used for saving data in old file format)
-        % Return the compatibility structure, which may be used as
-        % additional input to data_sqw_dnd constructor
-        compat_struct;
-
- 
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
         unit_cell;
-        ulen       % old interface
     end
     properties(Hidden)
         % Developers option. Use old (v3 and below) sub-algorithm in
@@ -108,36 +92,24 @@ classdef ubmat_proj<aProjectionBase
     end
 
     properties(Access=protected)
-        u_to_rlu_ = eye(3);
+        % Cached properties value, calculated from input u_to_rlu matrix
+        type_  = 'aaa';
+        nonorthogonal_ = false;
+        uvw_cache_     = eye(4);
         %
-        % The properties used to optimize from_current_to_targ method
-        % transformation, if both current and target projections are
-        % line_proj
-        ortho_ortho_transf_mat_;
-        ortho_ortho_offset_;
-
-        % Caches, containing main matrices, used in the transformation
-        % this projection defines
-        q_to_img_cache_ = [];
-        q_offset_cache_ = [];
-        ulen_cache_     = [];
-        %
-        uvw_cache_      = eye(3);
+        uoffset_  = zeros(1,4);
     end
     %======================================================================
     methods
         %------------------------------------------------------------------
         % Interfaces:
         function obj=ubmat_proj(varargin)
-            obj = obj@aProjectionBase();
+            obj = obj@line_proj_interface();
             obj.label = {'\zeta','\xi','\eta','E'};
             % try to use specific range-range identification algorithm,
             % suitable for ortho-ortho transformation
             obj.do_generic = false;
-            if nargin==0 % return defaults, which describe unit transformation from
-                % Crystal Cartesian (pixels) to Crystal Cartesian (image)
-                obj = obj.init(eye(4));
-            else
+            if nargin>0
                 obj = obj.init(varargin{:});
             end
         end
@@ -156,61 +128,37 @@ classdef ubmat_proj<aProjectionBase
         %-----------------------------------------------------------------
         %-----------------------------------------------------------------
         function u = get.u(obj)
-            u = obj.uvw_cache_();
+            u = obj.uvw_cache_(:,1)';
         end
         %
         function v = get.v(obj)
-            v = obj.v_;
+            v = obj.uvw_cache_(:,2)';
         end
         %
         function w = get.w(obj)
-            w = obj.w_;
-        end
-        function obj = set.w(obj,val)
-            if isempty(val)
-                obj.w_ = [];
-                return;
-            end
-            obj.w_ = obj.check_and_brush3vector(val);
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
+            w = obj.uvw_cache_(:,3)';
         end
         function cell = get.unit_cell(obj)
-            cell = get_unit_cell_(obj);
+            cell = [obj.uvw_cache_,[0;0;0];[0,0,0,1]];
         end
         %
         function no=get.nonorthogonal(obj)
             no = obj.nonorthogonal_;
         end
-        function obj=set.nonorthogonal(obj,val)
-            obj = check_and_set_nonorthogonal_(obj,val);
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-        end
         %
         function typ=get.type(obj)
             typ = obj.type_;
         end
-        function obj=set.type(obj,type)
-            obj = check_and_set_type_(obj,type);
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-        end
         %
-        function ul = get.img_scales(obj)
-            if isempty(obj.ulen_cache_)
-                ul = ones(1,4);
-            else
-                ul = obj.ulen_cache_;
-            end
+        function uoff = get.uoffset(obj)
+            uoff = obj.uoffset_;
         end
-        %------------------------------------------------------------------
-        % set u,v & w simultaneously
-        obj = set_axes (obj, u, v, w, offset)
-        %------------------------------------------------------------------
+        function obj = set.uoffset(obj,val)
+            obj = obj.set_uoffset(val);
+        end
+
+        % return line_proj which is siter projection to ubmat_proj
+        proj = get_line_proj(obj);
     end
     %======================================================================
     % TRANSFORMATIONS:
@@ -219,90 +167,6 @@ classdef ubmat_proj<aProjectionBase
         % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
         %------------------------------------------------------------------
-        function pix_hkl = transform_img_to_hkl(obj,img_coord,varargin)
-            % Converts from image coordinate system to hkl coordinate
-            % system
-            %
-            % Should be overloaded to optimize for a particular case to
-            % improve efficiency.
-            % Inputs:
-            % obj       -- current projection, describing the system of
-            %              coordinates where the input pixels vector is
-            %              expressed in. The target projection has to be
-            %              set up
-            %
-            % pix_origin   4xNpix or 3xNpix vector of pixels coordinates
-            %              expressed in the coordinate system, defined by
-            %              this projection
-            % Ouput:
-            % pix_targ -- 4xNpix or 3xNpix array of pixel coordinates in
-            %             hkl (physical) coordinate system (4-th
-            %             coordinate, if requested, is the energy transfer)
-            if obj.disable_srce_to_targ_optimization
-                pix_hkl = transform_img_to_hkl@aProjectionBase(obj,img_coord,varargin{:});
-            else
-                pix_hkl = transform_img_to_hkl_(obj,img_coord,varargin{:});
-            end
-        end
-
-        function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
-            % Transform pixels expressed in crystal Cartesian coordinate systems
-            % into image coordinate system
-            %
-            % Input:
-            % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
-            %             expressed in crystal Cartesian coordinate system
-            %             or instance of PixelDatBase class containing this
-            %             information.
-            % Returns:
-            % pix_transformed -- the pixels transformed into coordinate
-            %             system, related to image. (hkl system here)
-            %
-            %
-            pix_transformed = transform_pix_to_img_(obj,pix_data);
-        end
-        %
-        function pix_cc = transform_img_to_pix(obj,pix_hkl,varargin)
-
-            % Transform pixels expressed in image coordinate coordinate systems
-            % into crystal Cartesian coordinate system
-            %
-            % Input:
-            % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
-            %             expressed in crystal Cartesian coordinate system
-            % Returns
-            % pix_cc --  pixels expressed in Crystal Cartesian coordinate
-            %            system
-            %
-            pix_cc = transform_img_to_pix_(obj,pix_hkl);
-        end
-        %
-        function [pix_hkl,en] = transform_pix_to_hkl(obj,pix_coord,varargin)
-            % Converts from pixel coordinate system (Crystal Cartesian)
-            % to hkl coordinate system.
-            %
-            % Overloaded generic method to support legacy alignment
-            % appropriate for line_proj only.
-            %
-            % Inputs:
-            % obj       -- current projection, describing the system of
-            %              coordinates where the input pixels vector is
-            %              expressed in.
-            %
-            % pix_coord -- 4xNpix or 3xNpix vector of pixels coordinates
-            %              expressed in the coordinate system, defined by
-            %              this projection
-            %
-            % Output:
-            % pix_hkl  -- 4xNpix or 3xNpix array of pixel coordinates in
-            %             hkl (physical) coordinate system (4-th
-            %             coordinate, if requested, is the energy transfer)
-            [pix_hkl,en] = transform_pix_to_hkl_(obj,pix_coord,varargin{:});
-            if nargout == 1
-                pix_hkl = [pix_hkl;en];
-            end
-        end
-        %
         %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
             % Converts from current to target projection coordinate system.
@@ -395,19 +259,6 @@ classdef ubmat_proj<aProjectionBase
             [obj,axes] = align_proj@aProjectionBase(obj,alignment_info,axes);
             obj.proj_aligned_ = true;
         end
-
-        %------------------------------------------------------------------
-        function mat = get.u_to_rlu(obj)
-            % get old u_to_rlu transformation matrix from current
-            % transformation matrix. Used in legacy code and axes captions
-            %
-            %
-            % u_to_rlu defines the transformation from coordinates in
-            % image coordinate system to pixels in hkl(dE) (rlu) coordinate
-            % system
-            %
-            mat = get_u_to_rlu_mat(obj);
-        end
     end
     %======================================================================
     methods(Access = protected)
@@ -417,13 +268,28 @@ classdef ubmat_proj<aProjectionBase
         function obj = set_proj_aligned(obj,val)
             obj.proj_aligned_ = logical(val);
         end
-
-        function  mat = get_u_to_rlu_mat(obj)
-            % u_to_rlu defines the transformation from coordinates in
-            % image coordinate system to coordinates in hkl(dE) (rlu) coordinate
-            % system
-            %
-            mat = inv(obj.get_pix_img_transformation(4)*obj.bmatrix(4));
+        function obj = set_u_to_rlu(obj,val)
+            obj = set_u_to_rlu@line_proj_interface(obj,val);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+        function obj = set_img_scales(obj,val)
+            obj = set_img_scales@line_proj_interface(obj,val);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+        function obj = set_uoffset(obj,val)
+            if ~isnumeric(val) || numel(val)~=4
+                error('HORACE:horace3_proj_interface:invalid_argument', ...
+                    'uoffset has to be 4-components numeric vector. It is %s', ...
+                    disp2str(val));
+            end
+            obj.uoffset_ = val(:)';
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
         %------------------------------------------------------------------
         function   contrib_ind= get_contrib_cell_ind(obj,...
@@ -450,12 +316,12 @@ classdef ubmat_proj<aProjectionBase
             % if both projections are line_proj
             %
             obj = check_and_set_targ_proj@aProjectionBase(obj,val);
-            if isa(obj.targ_proj_,'line_proj') && ~obj.disable_srce_to_targ_optimization
-                obj = set_ortho_ortho_transf_(obj);
-            else
-                obj.ortho_ortho_transf_mat_ = [];
-                obj.ortho_ortho_offset_ = [];
-            end
+            % if isa(obj.targ_proj_,'line_proj') && ~obj.disable_srce_to_targ_optimization
+            %     obj = set_ortho_ortho_transf_(obj);
+            % else
+            obj.ortho_ortho_transf_mat_ = [];
+            obj.ortho_ortho_offset_ = [];
+            % end
         end
         %
         function obj = check_and_set_do_generic(obj,val)
@@ -470,29 +336,18 @@ classdef ubmat_proj<aProjectionBase
         end
         %
     end
-    methods(Static)
-        function lst = data_sqw_dnd_export_list()
-            % Method, which define the values to be extracted from projection
-            % to convert to old style data_sqw_dnd class.
-            % New data_sqw_dnd class (rather dnd class) contains the whole
-            % projection, so this method is left for compatibility with
-            % old Horace
-            lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
-        end
-    end
     %=====================================================================
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
-    properties(Constant, Access=private)
-        fields_to_save_ = {'u_to_rlu'}
-    end
     methods
         function ver  = classVersion(~)
             ver = 1;
         end
         function  flds = saveableFields(obj)
-            flds = saveableFields@aProjectionBase(obj);
-            flds = [obj.fields_to_save_(:);flds(:)];
+            %
+            aproj_flds = saveableFields@aProjectionBase(obj);
+            comp_fils  = saveableFields@line_proj_interface(obj);
+            flds = [comp_fils(:);aproj_flds(:)];
         end
         %------------------------------------------------------------------
         % check interdependent projection arguments

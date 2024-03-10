@@ -32,27 +32,14 @@ function obj = init_by_input_parameters_(obj,varargin)
 %
 
 
-opt =  [ubmat_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
+opt =  obj.saveableFields();
 % check if the type is defined explicitly
 
-is_uoffset = ismember(text_in,'uoffset');
-if any(is_uoffset)
-    uoffset_provided = true;
-    uoffset_nval = find(is_uoffset)+1;
-    is_uoffset(uoffset_nval) = true;
-    argi = varargin(~is_uoffset);    
-else
-    uoffset_provided = false;
-    argi = varargin;
-end
 [obj,remains] = ...
     set_positional_and_key_val_arguments(obj,...
-    opt,false,argi{:});
+    opt,false,varargin{:});
 if ~isempty(remains)
-    error('HORACE:line_proj:invalid_argument',...
+    error('HORACE:umat_proj:invalid_argument',...
         'The parameters %s provided as input to line_proj initialization have not been recognized',...
         disp2str(remains));
-end
-if uoffset_provided
-    obj.offset = varargin{uoffset_nval};
 end

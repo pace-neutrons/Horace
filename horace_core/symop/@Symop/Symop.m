@@ -211,9 +211,9 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     offset_new(1:3) = obj.transform_vec(offset_new(1:3));
                     if ~isempty(proj.w)
                         w_new = obj.R * proj.w(:);
-                        proj = proj.set_axes(u_new, v_new, [], offset_new);
+                        proj = proj.set_directions(u_new, v_new, [], offset_new);
                     else
-                        proj = proj.set_axes(u_new, v_new, [], offset_new);
+                        proj = proj.set_directions(u_new, v_new, [], offset_new);
                     end
 
                 case 'sphere_proj'

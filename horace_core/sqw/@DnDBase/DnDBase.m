@@ -1,4 +1,4 @@
-classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
+classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
 
@@ -49,14 +49,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         creation_date;
     end
     properties(Dependent,Hidden)
-        % legacy operations, necessary for saving dnd object in the old sqw
-        % data format. May be removed if old sqw format saving is not used
-        % any more.
-        u_to_rlu % Matrix (4x4) of projection axes in hkle representation
-        %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        ulen;
-        u_to_rlu_legacy % old legacy u_to_rlu produced by Toby's code.
-        % used in tests and loading old format files
         %
         creation_date_defined; % True, if creation date is known and written with file
         %------------------------------------------------------------------
@@ -71,7 +63,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         %------------------------------------------------------------------
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
-        uoffset % old interface to img_offset
     end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == line_axes.dims_as_ssize)
@@ -305,20 +296,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         %             obj.proj_.offset = val;
         %         end
 
-        function val = get.u_to_rlu(obj)
-            val = obj.proj.u_to_rlu;
-        end
-        function val = get.u_to_rlu_legacy(obj)
-            val = obj.proj.u_to_rlu_legacy;
-        end
-
-        %
-        function val = get.ulen(obj)
-            val = obj.axes.img_scales;
-        end
-        function obj = set.ulen(obj, ulen)
-            obj.axes.img_scales = ulen;
-        end
         %
         function val = get.label(obj)
             val = obj.axes_.label;
@@ -355,9 +332,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             offset_ = obj.proj.offset;
             val = obj.proj.transform_hkl_to_img(offset_(1:3)');
             val = [val;offset_(4)]';
-        end
-        function val = get.uoffset(obj)
-            val = obj.proj.offset;
         end
     end
     %======================================================================
@@ -632,6 +606,26 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             is = false;
         end
 
+    end
+    %======================================================================
+    % HORACE3 dnd interrace
+    methods(Access=protected)
+        function val = get_u_to_rlu(obj)
+            val = obj.proj.u_to_rlu;
+        end
+        function val = get_u_to_rlu_legacy(obj)
+            val = obj.proj.u_to_rlu_legacy;
+        end
+        function val = get_ulen(obj)
+            val = obj.axes.img_scales;
+        end
+        function val = get_uoffset(obj)
+            val = obj.proj.offset;
+        end
+        %
+        function  obj = set_ulen(obj,ulen)
+            obj.axes.img_scales = ulen;
+        end
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

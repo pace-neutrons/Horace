@@ -62,13 +62,13 @@ function [iseq,mess] = eq_single(obj1,obj2,name_a_val,name_b_val,varargin)
 % compare single pair of line_proj checking the transformation itself
 %
 if obj1.alatt_defined && obj1.angdeg_defined
-    [u_to_img_1,shift_1,ulen1] = obj1.get_pix_img_transformation(4);
+    [q_to_img_1,shift_1,ulen1] = obj1.get_pix_img_transformation(4);
     obj1_undefined = false;
 else
     obj1_undefined = true;
 end
 if obj2.alatt_defined && obj2.angdeg_defined
-    [u_to_img_2,shift_2,ulen2] = obj2.get_pix_img_transformation(4);
+    [q_to_img_2,shift_2,ulen2] = obj2.get_pix_img_transformation(4);
     obj2_undefined = false;
 else
     obj2_undefined = true;
@@ -92,8 +92,8 @@ elseif ~obj1_undefined && obj2_undefined
 end
 % both defined to compare them properly
 
-[mat_eq,mess1] = equal_to_tol(u_to_img_1,u_to_img_2, ...
-    'name_a',[name_a_val,'.u_to_img'],'name_b',[name_b_val,'.u_to_img'],varargin{:});
+[mat_eq,mess1] = equal_to_tol(q_to_img_1,q_to_img_2, ...
+    'name_a',[name_a_val,'.q_to_img'],'name_b',[name_b_val,'.q_to_img'],varargin{:});
 if ~mat_eq
     mess1 = sprintf('Q_to_img: %s\n',mess1);
 end

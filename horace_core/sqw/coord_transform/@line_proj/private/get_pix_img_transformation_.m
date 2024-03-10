@@ -47,7 +47,7 @@ end
 if ~isempty(obj.q_to_img_cache_)
     q_to_img   = obj.q_to_img_cache_(1:ndim,1:ndim);
     shift      = obj.q_offset_cache_(1:ndim);
-    img_scales = obj.ulen_cache_(1:ndim);
+    img_scales = obj.img_scales_(1:ndim);
     if alignment_needed
         q_to_img  = q_to_img*alignment_mat;
     end

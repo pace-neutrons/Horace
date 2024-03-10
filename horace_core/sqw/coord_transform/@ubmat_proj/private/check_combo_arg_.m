@@ -3,31 +3,15 @@ function obj = check_combo_arg_(obj)
 %
 %
 %
-% Check u and v
-% do not bother calculating real transformation if lattice is undefined
-% more important for debugging than anything else, as you do not debug
-% empty constructor
-calc_transformation = true;
-if ~obj.alatt_defined
-    obj.alatt_ = 2*[pi,pi,pi];
-    calc_transformation  = false;
-end
-if ~obj.angdeg_defined
-    obj.angdeg_ = 90*ones(1,3);
-    calc_transformation  = false;
-end
-
-if calc_transformation
-    obj.q_to_img_cache_ = [];
-    obj.q_offset_cache_ = [];
-    obj.ulen_cache_     = [];
-    [q_to_img_cache,q_offset_cache,img_scales,obj] = ...
-        obj.get_pix_img_transformation(4);
-    obj.q_to_img_cache_ = q_to_img_cache;
-    obj.q_offset_cache_ = q_offset_cache;
-    obj.ulen_cache_     = img_scales;
-else
-    obj.q_to_img_cache_ = eye(4);
-    obj.q_offset_cache_ = zeros(4,1);
-    obj.ulen_cache_     = ones(1,4);
+if obj.alatt_defined && obj.angdeg_defined
+    [u,v,w,type,nonortho]=obj.uv_from_u_to_rlu_legacy(obj.u_to_rlu,obj.img_scales);
+    u = obj.check_and_brush3vector(u);
+    v = obj.check_and_brush3vector(v);
+    w = obj.check_and_brush3vector(w);
+    obj.uvw_cache_ = [u(:),v(:),w(:)];
+    obj.type_ = type;
+    obj.nonorthogonal_ = nonortho;
+    if any(abs(obj.uoffset_))> 4*eps('single')
+        obj.offset = obj.transform_img_to_hkl(obj.uoffset);
+    end
 end

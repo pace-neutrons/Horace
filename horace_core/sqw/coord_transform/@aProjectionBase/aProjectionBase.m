@@ -90,10 +90,6 @@ classdef aProjectionBase < serializable
         alatt_defined
         % returns true if lattice angles have been set up
         angdeg_defined
-        % old interface to img_offset for old data containing a
-        % structure with the value of this property, or old user scripts
-        % which define structure with this value.
-        uoffset
         % Helper property, which specifies the name of the axes class,
         % which corresponds to this projection
         axes_name
@@ -340,13 +336,6 @@ classdef aProjectionBase < serializable
         end
         function def = get.angdeg_defined(obj)
             def = obj.lattice_defined_(2);
-        end
-        % OLD sqw object creation interface.
-        function off = get.uoffset(obj)
-            off = obj.offset;
-        end
-        function obj = set.uoffset(obj,val)
-            obj.offset = val;
         end
         function name = get.axes_name(obj)
             name = get_axes_name(obj);
