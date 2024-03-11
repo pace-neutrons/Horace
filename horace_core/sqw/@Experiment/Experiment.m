@@ -111,7 +111,7 @@ classdef Experiment < serializable
                 % no components in initialising arguments
                 % so finish
                 return;
-
+%{
             elseif nargin == 4
                 % arguments are the component arrays,
                 % initialise them
@@ -172,6 +172,7 @@ classdef Experiment < serializable
                     ['the other cases do not yet have examples ',...
                     'so catching them here until we can do them ',...
                     'properly']);
+                %}
             end
             % NB call can now be put inside the nargin==1 branch
             % as the other branches return

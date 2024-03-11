@@ -31,6 +31,7 @@ if narg  == 1
 % this should already have been dealt with by the Experiment constructor for the
 % case narg==4, and for the case narg~=1 or 4 (remains not empty) it should have been caught
 % there as well
+    %}
 else
     % define the order of possible positional parameters
     positinal_param_names_list = {'detector_arrays','instruments','samples',...
@@ -48,6 +49,6 @@ else
             'Extra input parameters %s for Experiment constructor',...
             evalc('disp(remains)'));
     end
-%}
+%--%}
 end
 
