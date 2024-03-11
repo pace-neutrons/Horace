@@ -297,7 +297,11 @@ classdef unique_objects_container < serializable
                         if isempty(self.unique_objects_)
                             varargout{1} = self.unique_objects_;
                         else
+                            try
                             c = self.unique_objects_{self.idx_(b)};
+                            catch ME
+                                disp('');
+                            end
                             if numel(idxstr)==1
                                 varargout{1} = c;
                             else
@@ -491,7 +495,11 @@ classdef unique_objects_container < serializable
                 % get intersection of array stored_hashes_ with (single) array
                 % hash from hashify. Calculates the index of the hash in
                 % stored_hashes.
-                ix = find(ismember(self.stored_hashes_,hash));
+                %ix = find(ismember(self.stored_hashes_,hash));
+                [~,ix] = ismember( hash, self.stored_hashes_ );
+                if ix<1
+                    ix = [];
+                end
             end
         end
     end
