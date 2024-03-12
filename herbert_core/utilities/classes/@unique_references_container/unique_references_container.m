@@ -288,9 +288,10 @@ classdef unique_references_container < serializable
                     'set unique objects with wrong stored baseclass');
             end
 			
-			% get global container and reinitialise indices as empty
-			% to purge this container
+			% get global container 
             glc = self.global_container('value',self.global_name);
+            % reinitialise the indices of this container as empty
+			% to purge this container of existing contents
             self.idx_ = zeros(1,0);
             
             % repopulate container with contents of val
