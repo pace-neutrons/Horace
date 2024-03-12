@@ -34,23 +34,24 @@ function obj = init_by_input_parameters_(obj,varargin)
 
 opt =  [line_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
 % check if the type is defined explicitly
-% n_type = find(ismember(opt,'type'));
-% text_in = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false); 
-% 
-% if ismember('type',text_in) || ... % defined as key-value pair
-%         (numel(varargin)>n_type && ischar(varargin{n_type}) && numel(varargin{n_type}) == 3) % defined as positional parameter
-%     obj.type_is_defined_explicitly_ = true;
-% end
-% is_uoffset = ismember(text_in,'uoffset');
-% if any(is_uoffset)
-%     uoffset_provided = true;
-%     uoffset_nval = find(is_uoffset)+1;
-%     is_uoffset(uoffset_nval) = true;
-%     argi = varargin(~is_uoffset);    
-% else
+n_type = find(ismember(opt,'type'));
+% convert all inputs into text to be able to use ismember function
+text_in = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false); 
+
+if ismember('type',text_in) || ... % defined as key-value pair
+        (numel(varargin)>n_type && ischar(varargin{n_type}) && numel(varargin{n_type}) == 3) % defined as positional parameter
+    obj.type_is_defined_explicitly_ = true;
+end
+is_uoffset = ismember(text_in,'uoffset');
+if any(is_uoffset)
+    uoffset_provided = true;
+    uoffset_nval = find(is_uoffset)+1;
+    is_uoffset(uoffset_nval) = true;
+    argi = varargin(~is_uoffset);    
+else
     uoffset_provided = false;
     argi = varargin;
-%end
+end
 [obj,remains] = ...
     set_positional_and_key_val_arguments(obj,...
     opt,false,argi{:});
@@ -59,6 +60,21 @@ if ~isempty(remains)
         'The parameters %s provided as input to line_proj initialization have not been recognized',...
         disp2str(remains));
 end
-% if uoffset_provided
-%     obj.offset = varargin{uoffset_nval};
-% end
+if uoffset_provided
+    uoffset = varargin{uoffset_nval};
+    try
+        offset = obj.transform_img_to_hkl(uoffset(:));
+    catch ME
+        if strcmp(ME.identifier,'HORACE:line_proj:runtime_error')
+            warning('HORACE:invalid_argument', ...
+                ['attempt to use old interface "uoffset" ' ...
+                'which should define offset in image coordinate system but the projection lattice is undefined\n' ...
+                'Using uoffset = %s assuming it is offset in hkle coordinate system'], ...
+                disp2str(uoffset(:)'));
+            offset = uoffset(:)';
+        else
+            retrhow(ME);
+        end
+    end
+    obj.offset = offset;
+end

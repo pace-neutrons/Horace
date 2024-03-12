@@ -76,8 +76,10 @@ classdef ubmat_proj < line_proj_interface
         nonorthogonal; % Indicates if non-orthogonal axes are used (if true)
         %
         %
-        uoffset    % offset expressed in image coordinate system. Old interface to img_offset
-        % which is under construction
+        uoffset  % offset expressed in image coordinate system. Old interface to img_offset
+        % which is under construction. Transient property used to process
+        % input parameters which converted to offset and nullified after
+        % that.
     end
     properties(Dependent,Hidden)
         % return set of vectors, which define primary lattice cell if
@@ -228,15 +230,6 @@ classdef ubmat_proj < line_proj_interface
     %======================================================================
     % Related Axes and Alignment
     methods
-        function axes_bl = copy_proj_defined_properties_to_axes(obj,axes_bl)
-            % copy the properties, which are normally defined on projection
-            % into the axes block provided as input
-            axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
-            [~,~,scales]  = obj.get_pix_img_transformation(3);
-            axes_bl.img_scales  = scales;
-            axes_bl.hkle_axes_directions = obj.u_to_rlu;
-            %
-        end
         %
         function [obj,axes] = align_proj(obj,alignment_info,varargin)
             % Apply crystal alignment information to the projection
@@ -370,6 +363,12 @@ classdef ubmat_proj < line_proj_interface
     end
     %----------------------------------------------------------------------
     methods(Static)
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = ubmat_proj();
+            obj = loadobj@serializable(S,obj);
+        end
         %
         function proj = get_from_old_data(data_struct,header_av)
             % construct line_proj from old style data structure
@@ -380,27 +379,6 @@ classdef ubmat_proj < line_proj_interface
                 header_av = [];
             end
             proj = proj.from_old_struct(data_struct,header_av);
-        end
-    end
-    methods(Access=protected)
-        function obj = from_old_struct(obj,inputs,header_av)
-            % Restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain a version or the version, stored
-            % in the structure does not correspond to the current version
-            % of the class.
-            if ~exist('header_av', 'var')
-                header_av = [];
-            end
-            if isfield(inputs,'version') && inputs.version<7
-                if strcmp(inputs.serial_name,'ortho_proj')
-                    obj = ubmat_proj();
-                    inputs.serial_name = 'line_proj';
-                end
-            end
-            obj = build_from_old_data_struct_(obj,inputs,header_av);
         end
     end
 end

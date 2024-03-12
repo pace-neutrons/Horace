@@ -13,5 +13,6 @@ if obj.alatt_defined && obj.angdeg_defined
     obj.nonorthogonal_ = nonortho;
     if any(abs(obj.uoffset_))> 4*eps('single')
         obj.offset = obj.transform_img_to_hkl(obj.uoffset);
+        obj.uoffset_ = [0,0,0,0];
     end
 end

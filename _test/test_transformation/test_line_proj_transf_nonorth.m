@@ -73,7 +73,7 @@ classdef test_line_proj_transf_nonorth<TestCase
 
 
         function test_getset_nonortho_proj_rrr_100(~)
- 
+
             prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','rrr','u',[1,0,0],'v',[0,1,0],'w',[1,1,1]);
@@ -314,8 +314,6 @@ classdef test_line_proj_transf_nonorth<TestCase
         %
         %------------------------------------------------------------------
         function test_uv_to_rot_and_vv_complex_nonorth_with_rrr_nonortho(~)
-            % this test does not work. Should it? With current
-            % nonorthogonal lattice definition, such recovery is impossible
 
             u = [1,1,0];
             v = [0,-0.5,1];
@@ -324,20 +322,13 @@ classdef test_line_proj_transf_nonorth<TestCase
             pra = line_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg, ...
                 'nonortho',true);
             %
-            %TODO: This option does not currently work.
-            %pra.nonorthogonal = true;
-            % Is it necessary to make it to work?
+            [~,u_to_rlu,ulen]= pra.projaxes_to_rlu_public;
             %
-            [u_to_img,~,ulen]= pra.get_pix_img_transformation(3);
-            %
-            [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_img,ulen);
+            pru = ubmat_proj(u_to_rlu,ulen,'alatt',alatt,'angdeg',angdeg);
 
-            pra = line_projTester(u_par,v_par,w, ...
-                'alatt',alatt,'angdeg',angdeg,'type',type, 'nonortho',true);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_img,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
+            pc = pra.transform_pix_to_img([eye(4),ones(4,1)]);
+            pcu = pru.transform_pix_to_img([eye(4),ones(4,1)]);
+            assertElementsAlmostEqual(pc,pcu);
 
         end
         %
@@ -351,14 +342,11 @@ classdef test_line_proj_transf_nonorth<TestCase
 
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
-            [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu, ulen);
+            pru = ubmat_proj(u_to_rlu,ulen,'alatt',alatt,'angdeg',angdeg);
 
-            pra = line_projTester(u_par,v_par,w,'alatt',alatt, ...
-                'angdeg',angdeg,'type',typ, 'nonortho',true);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
+            pc = pra.transform_pix_to_img([eye(4),ones(4,1)]);
+            pcu = pru.transform_pix_to_img([eye(4),ones(4,1)]);
+            assertElementsAlmostEqual(pc,pcu);
 
         end
         %
@@ -373,19 +361,11 @@ classdef test_line_proj_transf_nonorth<TestCase
                 'nonortho',true);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
-            [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-            %            assertElementsAlmostEqual(u',u_par);
-            %assertElementsAlmostEqual(w',[0,1,0]);
+            pru = ubmat_proj(u_to_rlu,ulen,'alatt',alatt,'angdeg',angdeg);
 
-            % find part of the v vector, orthogonal to u
-
-            pra = line_projTester(u_par,v_par,w,'alatt',alatt, ...
-                'angdeg',angdeg,'type',typ, 'nonortho',true);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-
+            pc = pra.transform_pix_to_img([eye(4),ones(4,1)]);
+            pcu = pru.transform_pix_to_img([eye(4),ones(4,1)]);
+            assertElementsAlmostEqual(pc,pcu);
 
         end
         %
@@ -397,13 +377,13 @@ classdef test_line_proj_transf_nonorth<TestCase
             angdeg = [90,90,90];
             pro = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg, ...
                 'nonortho',true);
-            [~, q_to_rlu, ulen] = pro.projaxes_to_rlu_public();
+            [~, u_to_rlu, ulen] = pro.projaxes_to_rlu_public();
 
-            [u_par,v_par,w,type] = pro.uv_from_data_rot_public(q_to_rlu,ulen);
+            pru = ubmat_proj(u_to_rlu,ulen,'alatt',alatt,'angdeg',angdeg);
 
-            prr = line_projTester(u_par,v_par,w,'alatt',alatt, ...
-                'angdeg',angdeg,'type',type, 'nonortho',true);
-            assertEqualToTol(pro,prr,1.e-12)
+            pc = pro.transform_pix_to_img([eye(4),ones(4,1)]);
+            pcu = pru.transform_pix_to_img([eye(4),ones(4,1)]);
+            assertElementsAlmostEqual(pc,pcu);
         end
         %
         function test_uv_to_rot_and_back_simple_ortho_lattice(~)
@@ -416,18 +396,11 @@ classdef test_line_proj_transf_nonorth<TestCase
                 'nonortho',true);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
-            [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
+            pru = ubmat_proj(u_to_rlu,ulen,'alatt',alatt,'angdeg',angdeg);
 
-            prb = line_projTester(u_par,v_par,w,'alatt',alatt,'angdeg', ...
-                angdeg,'type',tpe,'nonortho',true);
-            [~, ~, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            pix_cc = [eye(3),ones(3,1)];
-            img_or = pra.transform_pix_to_img(pix_cc);
-            img_rc = prb.transform_pix_to_img(pix_cc);
-
-            assertElementsAlmostEqual(img_or ,img_rc);
-            assertElementsAlmostEqual(ulen,ulen_rec);
+            pc = pra.transform_pix_to_img([eye(4),ones(4,1)]);
+            pcu = pru.transform_pix_to_img([eye(4),ones(4,1)]);
+            assertElementsAlmostEqual(pc,pcu);
         end
         %------------------------------------------------------------------
         %

@@ -134,34 +134,18 @@ return_cut = nargout > 0;
     obj.data,return_cut, varargin{:});
 
 
-% verify if source projection is line_projection as
-% it may contain legacy alignment, we do not want transfer to other
-% projections. (TODO: need to be converted into recent alignment)
-source_is_line_proj = isa(obj.data.proj,'line_proj');
-% nasty legacy alignment business. TODO: deal with it
-target_is_line_proj = isa(targ_proj,'line_proj');
-% if we are realigning old format file, legacy alignment matrix should be
-% ignored
-if source_is_line_proj && target_is_line_proj && targ_proj.ignore_legacy_alignment
-    obj.data.proj.ub_inv_legacy = [];
-end
+% % verify if source projection is line_projection as
+% % it may contain legacy alignment, we do not want transfer to other
+% % projections. (TODO: need to be converted into recent alignment)
+% source_is_line_proj = isa(obj.data.proj,'line_proj');
+% % nasty legacy alignment business. TODO: deal with it
+% target_is_line_proj = isa(targ_proj,'line_proj');
+% % if we are realigning old format file, legacy alignment matrix should be
+% % ignored
+% % if source_is_line_proj && target_is_line_proj && targ_proj.ignore_legacy_alignment
+% %     obj.data.proj.ub_inv_legacy = [];
+% % end
 
-% old file format alignment. Only line_proj is supported
-if  source_is_line_proj && ~isempty(obj.data.proj.ub_inv_legacy)
-    if target_is_line_proj % transfer legacy alignment matrix to
-        % new projection to keep legacy alignment
-        targ_proj = targ_proj.set_ub_inv_compat(obj.data.proj.ub_inv_legacy);
-    else
-        pn = class(targ_proj); 
-        warning('HORACE:old_file_format', ...
-            ['\n %s are fully supported by version 4.0 and higher Horace sqw objects only.\n', ...
-            ' If you use aligned sqw object produced by old Horace version,\n', ...
-            ' the resulting cut with %s will be performed on misaligned data\n', ...
-            ' Convert old misaligned data into new file-format and realign these data again to use cuts with %s.'], ...
-            pn,pn,pn);
-    end
-end
-%
 sz = size(pbin);
 
 % This loop enables multi-cuts

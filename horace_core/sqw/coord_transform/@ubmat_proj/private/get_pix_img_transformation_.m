@@ -44,11 +44,11 @@ bmat = obj.bmatrix(ndim);
 if ndim==4
     shift      = obj.offset;
     img_scales = obj.img_scales;
-    q_to_img   = bmat*obj.u_to_rlu;
+    q_to_img   = inv(obj.u_to_rlu)/bmat;
 elseif ndim == 3
     shift      = obj.offset(1:3);
     img_scales = obj.img_scales(1:3);
-    q_to_img   = bmat*obj.u_to_rlu(1:3,1:3);
+    q_to_img   = inv(obj.u_to_rlu(1:3,1:3))/bmat;
 else
     error('HORACE:orhto_proj:invalid_argument',...
         'The ndim input may be 3 or 4  actually it is: %s',...

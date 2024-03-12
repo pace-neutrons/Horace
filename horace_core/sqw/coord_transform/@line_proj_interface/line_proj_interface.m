@@ -107,12 +107,6 @@ classdef line_proj_interface < aProjectionBase
             % necessary checks in any other case.
             obj = obj.set_u_to_rlu(val);
         end
-        function obj = set_ub_inv_compat(obj,u_to_rlu)
-            % Set up inverted ub matrix, used to support alignment as in
-            % Horace 3.xxx where the real inverted ub matrix is multiplied
-            % by alignment matrix.
-            obj = obj.set_u_to_rlu(u_to_rlu);
-        end
         %------------------------------------------------------------------
         function str= get.compat_struct(obj)
             str = struct();
@@ -121,6 +115,19 @@ classdef line_proj_interface < aProjectionBase
                 str.(flds{i}) = obj.(flds{i});
             end
         end
+    end
+    %======================================================================
+    methods
+        function axes_bl = copy_proj_defined_properties_to_axes(obj,axes_bl)
+            % copy the properties, which are normally defined on projection
+            % into the axes block provided as input
+            axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
+            [~,~,scales]  = obj.get_pix_img_transformation(3);
+            axes_bl.img_scales  = scales;
+            axes_bl.hkle_axes_directions = obj.u_to_rlu;
+            %
+        end
+        
         function  [rlu_to_u, u_to_rlu, ulen] = u_to_rlu_legacy_from_uvw(obj,u,v,w,type,nonortho)
             % Method returns transformation matrices used for pixel-image
             % and image pixel transformation in Horace-3. Horace-3 was
@@ -398,6 +405,12 @@ classdef line_proj_interface < aProjectionBase
                 obj.img_scales_ = val(:)';
             end
         end
+        function name = get_axes_name(~)
+            % return the name of the axes class, which corresponds to this
+            % projection
+            name = 'line_axes';
+        end
+        
     end
     methods(Static,Access=private)
         function names = extract_eq_neq_names(varargin)
@@ -417,6 +430,27 @@ classdef line_proj_interface < aProjectionBase
                 ind = find(is);
                 names{2} = varargin{ind+1};
             end
+        end
+    end    
+    methods(Access=protected)
+        function obj = from_old_struct(obj,inputs,header_av)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain a version or the version, stored
+            % in the structure does not correspond to the current version
+            % of the class.
+            if ~exist('header_av', 'var')
+                header_av = [];
+            end
+            if isfield(inputs,'version') && inputs.version<7
+                if strcmp(inputs.serial_name,'ortho_proj')
+                    obj = ubmat_proj();
+                    inputs.serial_name = 'ubmat_proj';
+                end
+            end
+            obj = build_from_old_data_struct_(obj,inputs,header_av);
         end
     end
     
