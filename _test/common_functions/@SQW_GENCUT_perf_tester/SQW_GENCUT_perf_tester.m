@@ -42,6 +42,10 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
     properties
         % if true, generate source nxspe files
         generate_nxspe_files  = true;
+        % if true, delete resulting test sqw file after completeon
+        delete_resulting_sqw_file = true;
+        % delete nxspe files used for generation after gen_sqw is completed
+        delete_generated_nxspe_files = true;
 
         % if true, when number of test files changes, (n_files_to_use)
         % build sqw file directly, writing and combining tmp files,
@@ -121,8 +125,10 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             % dependent properties to work with them.
             obj.n_files_to_use = obj.n_files_to_use_;
             % add target sqw files to cleanList to delete it after test is
-            % completed.
-            obj.add_to_files_cleanList(obj.sqw_file);
+            % completed if the file is not requested any more
+            if obj.delete_resulting_sqw_file
+                obj.add_to_files_cleanList(obj.sqw_file);
+            end
         end
 
         %------------------------------------------------------------------
@@ -203,10 +209,13 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             if obj.generate_nxspe_files
                 [filelist,smpl_data_size] = obj.generate_source_test_files();
                 obj.sample_data_size_ = smpl_data_size;
-                % delete generated files after the test completed.
-                obj.add_to_files_cleanList(filelist);
+
                 obj.test_source_files_list_ = filelist;
-            else % use default sample data size
+                if obj.delete_generated_nxspe_files
+                    % delete generated files after the test completed.
+                    obj.add_to_files_cleanList(filelist);
+                end
+            else % use existing nxspe files and default sample data size
                 obj.test_source_files_list_ = obj.generate_source_file_names();
                 smpl_data_size = obj.sample_data_size_;
             end
@@ -303,7 +312,9 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
                 obj.sqw_file = targ_file;
             end
 
-            %obj.add_to_files_cleanList(obj.sqw_file)
+            if obj.delete_resulting_sqw_file
+                obj.add_to_files_cleanList(obj.sqw_file)
+            end
             if tests_to_run(1) || tests_to_run(2)
                 perf_res=obj.gen_sqw_task_performance(field_names_map,~(tests_to_run(2)&&tests_to_run(1)));
             end
