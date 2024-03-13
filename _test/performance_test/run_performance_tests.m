@@ -1,4 +1,5 @@
 function [perf_res,hor_tes] = run_performance_tests(varargin)
+%{
 % function to run performance test on a given pc or cluster
 %
 % Usage:
@@ -18,7 +19,7 @@ function [perf_res,hor_tes] = run_performance_tests(varargin)
 % test_SQW_GENCUT_perf  class overwriting previous values for the same
 % machine if such values were present
 %
-
+%}
 perf_res = struct('small_ds_perf',[],'medium_ds_perf',[],'large_ds_perf',[]);
 
 
@@ -36,10 +37,19 @@ else
 end
 if nargin == 2
     selected_tests = varargin{2};
+    if ~iscell(selected_tests)
+        selected_tests = {selected_tests};
+    end
 else
-    selected_tests = [];
+    selected_tests = {};
+end
+if isempty(selected_tests) || ismember('gen_sqw',selected_tests)
+    hor_tes.generate_nxspe_files = true;
+else
+    hor_tes.generate_nxspe_files = false;
 end
 
+%{
 %--------------------------------------------------------------------------
 % run performance tests for small sqw file (default file)
 hor_tes.n_files_to_use = 10;
@@ -55,8 +65,9 @@ hor_tes.n_files_to_use = 50;
 % to test file combine operations separately.
 hc = hor_config;
 % get the data one needs to restore
-clob_tmp = set_temporary_config_options(hor_config, 'delete_tmp', false);
-
+hcd = hc.get_data_to_store;
+clob_tmp = onCleanup(@()set(hc,hcd));
+hc.delete_tmp = 0;
 %--------------------------------------------------------------------------
 % run performance tests for medium size file
 medium_perf = hor_tes.workflow_performance(n_workers,selected_tests);
@@ -71,12 +82,15 @@ medium_perf = hor_tes.combine_task_performance(n_workers);
 perf_res.medium_ds_perf = medium_perf;
 %--------------------------------------------------------------------------
 clear clob_tmp; % reset configuration not to keep tmp files any more
-
+%}
 %
 % prepare performance tests for large dataset
-hor_tes.n_files_to_use = 250;
+hor_tes.n_files_to_use = 170;
+
 large_perf = hor_tes.workflow_performance(n_workers,selected_tests);
 perf_res.large_ds_perf = large_perf;
 %
 hor_tes.save_performance();
 hor_tes.save_to_csv();
+
+

@@ -40,6 +40,9 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
     end
 
     properties
+        % if true, generate source nxspe files
+        generate_nxspe_files  = true;
+
         % if true, when number of test files changes, (n_files_to_use)
         % build sqw file directly, writing and combining tmp files,
         % not building contributing nxspe files for testing gen_sqw performance
@@ -101,7 +104,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             obj = obj@TestPerformance(argi{:});
             %
             % define the list of the tests available to run
-            obj.tests_available_ = {'gen_sqw','small_cut',...
+            obj.tests_available_ = {'gen_sqw','combine_sqw','small_cut',...
                 'big_cut_nopix','big_cut_filebased'};
             %
             obj.source_data_dir = pwd();
@@ -125,7 +128,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         %------------------------------------------------------------------
         % Interface defining existing perfornance tests
         %
-        [perf,varargout]=gen_sqw_task_performance(obj,field_names_map)
+        [perf,varargout]=gen_sqw_task_performance(obj,field_names_map,combine_only)
         [perf,varargout]=small_cut_task_performance(obj,field_names_map);
         [perf,varargout]=large_cut_nopix_task_performance(obj,field_names_map);
         [perf,varargout]=large_cut_pix_fbased_task_perfornance(obj,field_names_map);
@@ -197,12 +200,17 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             obj.sqw_file = fullfile(obj.source_data_dir,sprintf('%s.%dFiles.sqw',fb,obj.n_files_to_use_));
 
             %
-            [filelist,smpl_data_size] = obj.generate_source_test_files();
-            obj.sample_data_size_ = smpl_data_size;
+            if obj.generate_nxspe_files
+                [filelist,smpl_data_size] = obj.generate_source_test_files();
+                obj.sample_data_size_ = smpl_data_size;
+                % delete generated files after the test completed.
+                obj.add_to_files_cleanList(filelist);
+                obj.test_source_files_list_ = filelist;
+            else % use default sample data size
+                obj.test_source_files_list_ = obj.generate_source_file_names();
+                smpl_data_size = obj.sample_data_size_;
+            end
             %
-            % delete generated files after the test completed.
-            obj.add_to_files_cleanList(filelist);
-            obj.test_source_files_list_ = filelist;
 
             obj.data_size_ = obj.n_files_to_use_*smpl_data_size*(4*9)/ ... %numWords*word_size = bytes
                 (1024*1024*1024); %Convert to GB
@@ -221,6 +229,16 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             comb_meth_name = combine_method_name_(obj,varargin{:});
         end
         %--------------------------------------------------------------------------
+        function filelist = generate_source_file_names(obj,file_name_form)
+            n_files = obj.n_files_to_use;
+            if nargin<2
+                file_name_form = [obj.template_name_form_,'.nxspe'];
+            end
+            filelist = cell(n_files,1);
+            for i=1:n_files
+                filelist{i} = sprintf(file_name_form,i);
+            end
+        end
         function [filelist,smpl_data_size] = generate_source_test_files(obj,varargin)
             % create source files, used for generation of sqw files or
             % directly build sqw file
@@ -285,21 +303,21 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
                 obj.sqw_file = targ_file;
             end
 
-            obj.add_to_files_cleanList(obj.sqw_file)
-            if tests_to_run(1)
-                perf_res=obj.gen_sqw_task_performance(field_names_map);
+            %obj.add_to_files_cleanList(obj.sqw_file)
+            if tests_to_run(1) || tests_to_run(2)
+                perf_res=obj.gen_sqw_task_performance(field_names_map,~(tests_to_run(2)&&tests_to_run(1)));
             end
 
-            if tests_to_run(2)
+            if tests_to_run(3)
                 perf_res = obj.small_cut_task_performance(field_names_map);
             end
 
             % check nopix performance -- read and integrate the whole file from the HDD
-            if tests_to_run(3)
+            if tests_to_run(4)
                 perf_res = obj.large_cut_nopix_task_performance(field_names_map);
             end
 
-            if tests_to_run(4)
+            if tests_to_run(5)
                 perf_res = obj.large_cut_pix_fbased_task_perfornance(field_names_map);
             end
 
