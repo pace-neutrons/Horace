@@ -287,9 +287,27 @@ classdef unique_references_container < serializable
                 error('HERBERT:unique_references_container:invalid_argument', ...
                     'set unique objects with wrong stored baseclass');
             end
-            for i=1:val.n_objects
-                v = val{i};
-                self = self.local_assign_(v,i); % self{i}=v does not work inside class
+			
+			% get global container 
+            glc = self.global_container('value',self.global_name);
+            % reinitialise the indices of this container as empty
+			% to purge this container of existing contents
+            self.idx_ = zeros(1,0);
+            
+            % repopulate container with contents of val
+            for ii = 1:val.n_objects
+                obj = val.get(ii);
+                hash = val.hash(ii);
+                [~,loc] = ismember( hash, glc.stored_hashes_ );
+                if loc == 0 || isempty(loc)
+                    self = self.add_single_( obj, [], hash );
+                else
+                    self = self.add_single_( obj, loc, hash );
+                end
+            end
+            if val.n_objects ~= self.n_objects
+                error('HORACE:unique_references_container___set.unique_objects:process_error', ...
+                'number of objects added does not match');
             end
         end
 

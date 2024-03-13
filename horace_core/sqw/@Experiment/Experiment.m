@@ -112,57 +112,7 @@ classdef Experiment < serializable
                 % so finish
                 return;
 
-            elseif nargin == 4
-                % arguments are the component arrays,
-                % initialise them
-                detector_arrays = varargin{1};
-                instruments     = varargin{2};
-                samples         = varargin{3};
-                expdata         = varargin{4};
-
-                % define expdata first, as the size of this determines the
-                % number of runs which obj will hold
-                if isa(expdata, 'IX_experiment')
-                    % add to default compressed container
-                    % this must be of the right size to define number of
-                    % runs for the experiment - the other fields can handle
-                    % adding duplicates once they know this numberval,
-                    obj.expdata_ = expdata;
-                elseif isempty(expdata)
-                    % do nothing, leave default array container empty
-                else
-                    error('HORACE:Experiment:invalid_argument', ...
-                        'input is not empty or IX_experiment');
-                end
-
-                obj = obj.add_input_with_checks(detector_arrays, 'IX_detector_array');
-
-                obj = obj.add_input_with_checks(instruments,     'IX_inst');
-
-                obj = obj.add_input_with_checks(samples,         'IX_samp');
-
-
-            elseif nargin == 1
-                arg = varargin{1};
-                if ~iscell(arg)
-                    % make arg a cell so that it is a cell array regardless
-                    % of whether it is a single header struct or a cell
-                    % array of header structs
-                    arg = { arg };
-                end
-                if ~obj.isoldheader(arg{1})
-                    error('HORACE:Experiment:invalid_argument', ...
-                        ['single argument is not an oldstyle header struct', ...
-                        ' or cell of such structs']);
-                end
-                % now have cell array of headers, init_ will process
-                varargin{1} = arg;
-
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    ['the other cases do not yet have examples ',...
-                    'so catching them here until we can do them ',...
-                    'properly']);
+                % all other nargin values are now processed in init_()
             end
             obj = init_(obj,varargin{:});
         end
