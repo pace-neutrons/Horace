@@ -363,9 +363,10 @@ classdef test_ubmat_proj_transf<TestCase
             assertEqual(proj.u,[1,0,0])
             assertEqual(proj.v,[0,1,0])
             assertEqual(proj.w,[0,0,1])
+            assertTrue(proj.nonorthogonal)            
 
             proj = proj.get_ubmat_proj();            
-            assertTrue(proj.nonorthogonal)
+            assertFalse(proj.nonorthogonal)
 
             img_coord = proj.transform_pix_to_img(eye(3));
 

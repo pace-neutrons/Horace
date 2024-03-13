@@ -106,7 +106,6 @@ classdef test_ubmat_proj_construction<TestCase
                 0.7008    0.7133    0.0126    1.4267;...
                 -0.6857    0.6855   -0.2448   -0.2449;...
                 -0.1831    0.1628    0.9695    0.9492];
-            proj = proj.set_ub_inv_compat(inv(bmatrix(data.alatt,data.angdeg)));
             pc = proj.transform_pix_to_img([eye(3),[1;1;1]]);
 
             assertElementsAlmostEqual(pc_ref,pc,'absolute',1.e-4);
