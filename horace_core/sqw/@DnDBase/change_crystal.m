@@ -41,8 +41,6 @@ for i=1:numel(obj)
             ' Object N%d coordinates defined by: %s projection'], ...
             i,class(wout(i).proj))
     end
-
-
     if legacy_mode
         this_alignment.hkl_mode  = true;
         proj = proj.get_ubmat_proj();

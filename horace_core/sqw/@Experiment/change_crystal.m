@@ -3,6 +3,7 @@ function obj=change_crystal(obj,alignment_info,proj)
 %  lattice parameters and orientation
 %
 %   >> obj=change_crystal(obj,alignment_info)
+%   >> obj=change_crystal(obj,alignment_info,dealign)
 %
 % obj            -- initialized instance of Experiment object
 %
@@ -14,7 +15,6 @@ function obj=change_crystal(obj,alignment_info,proj)
 %                   from
 
 % Change fields of Experiment as required
-
 %
 sam = obj.samples;
 exper = obj.expdata;
@@ -24,6 +24,7 @@ compat_mode = alignment_info.hkl_mode;
 if compat_mode
     rlu_corr = alignment_info.get_corr_mat(proj);
 end
+
 for i=1:obj.n_runs
     s = sam{i};
     alatt0 = s.alatt;
@@ -49,6 +50,7 @@ for i=1:obj.n_runs
         exper(i).gl   = gl_deg;
         exper(i).gs   = gs_deg;
         exper(i).angular_units = 'rad';
+        exper(i).u_to_rlu = [];
     end
 end
 obj.samples = sam;

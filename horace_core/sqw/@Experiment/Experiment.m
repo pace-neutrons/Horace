@@ -116,12 +116,13 @@ classdef Experiment < serializable
             end
             obj = init_(obj,varargin{:});
         end
-
         %
         function obj = init(obj,varargin)
             % initialize Experiment object using various possible forms of inputs,
             % provided to Experiment constructor.
-            error('Why are we here?');
+            %
+            % Called if empty Experiment (i.e. array of experiments produced by e.g. repmat)
+            % needs to be initialized.
             if nargin == 1
                 return;
             end
@@ -218,6 +219,9 @@ classdef Experiment < serializable
             %
             obj.runid_recalculated_ = logical(val);
         end
+        % Alignment
+        obj = upgrade_legacy_alignment(obj,dealignment_info,alatt,angdeg);
+        obj = change_crystal(obj,alignment_info,varargin)
     end
     %----------------------------------------------------------------------
     % legacy instrument methods interface
@@ -361,7 +365,7 @@ classdef Experiment < serializable
             end
             subexper = get_subobj_(obj,runids_to_keep,indexes_provided);
         end
-        
+
         function expt_idx = get_experiment_idx (obj, run_idx, varargin)
             % Get the experiment indices for an array of run indices in the pixel data
             %
@@ -389,7 +393,7 @@ classdef Experiment < serializable
             %                   The size of expt_idx is the same as that of run_idx.
             expt_idx = get_experiment_idx_ (obj, run_idx, varargin{:});
         end
-            
+
         %
         % GEN_SQW interface
         %------------------------------------------------------------------

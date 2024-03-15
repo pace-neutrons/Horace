@@ -502,17 +502,18 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 [5.0191 4.9903 5.0121], ...
                 [90.1793 90.9652 89.9250], ...
                 [-0.0530 0.0519 0.0345]);
-            proj = test_obj.data.proj;
-            proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
+            corrections.legacy_mode = true;
+            %proj = test_obj.data.proj.get_ubmat_proj();
 
             wout_legacy = test_obj;
-            wout_legacy.data.proj = proj;
+            %wout_legacy.data.proj = proj;
             % get the crystal aligned according to legacy algorithm.
             wout_legacy = change_crystal (wout_legacy, corrections);
 
             [obj_realigned, deal_info] = upgrade_legacy_alignment(wout_legacy, ...
                 alatt0, angdeg0);
 
+            corrections.legacy_mode = false;
             wout_modern = change_crystal (test_obj, corrections);
 
             assertEqualToTol(deal_info.rotvec, -corrections.rotvec, 'tol', 1.e-9)
