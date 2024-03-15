@@ -138,17 +138,6 @@ if ~opts.nopix && (sqw_struc.pix.num_pixels > 0) && old_file
     % try to update pixels run id-s
     sqw_struc = update_pixels_run_id(sqw_struc);
 end
-% needed to support  legacy alignment, where u_to_rlu matrix is multiplied
-% by alignment rotation matrix
-header_av = exp_info.header_average;
-if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
-    u_to_rlu  = header_av.u_to_rlu(1:3,1:3);
-    if any(abs(subdiag_elements(u_to_rlu))>4*eps('single')) % if all 0, its inverted B-matrix so certainly
-        proj = sqw_struc.data.proj;         % no alignment (lattice may have changed
-        % but this is reflected elsewhere), otherwise legacy alignment.
-        sqw_struc.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu);
-    end
-end
 %
 if opts.legacy
     if nargout == 1

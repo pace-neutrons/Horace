@@ -41,24 +41,22 @@ else
     angdeg0          = obj.angdeg;
     lattice_modified = false;
 end
-ub_inv_legacy = obj.proj.ub_inv_legacy;
-if isempty(ub_inv_legacy)
+if ~isa(obj.proj,'ubmat_proj')
     error('HORACE:DnDBase:invalid_argument', ...
-        'Object does not contain legacy alignment matrix. Nothing to do');
+        'Object does not contain legacy data. Nothing to do');    
 end
-
-if all(abs(subdiag_elements(ub_inv_legacy))<4*eps('single')) && ~lattice_modified
+u_to_rlu = obj.proj.u_to_rlu;
+if all(abs(subdiag_elements(u_to_rlu))<4*eps('single')) && ~lattice_modified
     % nothing to do, object has not been aligned
     error('HORACE:DnDBase:invalid_argument', ...
         'Object has not been legacy-aligned. Nothing to do');
 end
-
-rotmat = obj.proj.bmatrix(3)*ub_inv_legacy;
+% Re #1591 TODO:
+% THIS IS CORRECT ONLY IF proj == line_proj([1,0,0],[0,1,0],'type','aaa')
+rotmat = obj.proj.bmatrix(4)*u_to_rlu;
 % get rotation parameters, which correspond to 
-rot_vec   = rotmat_to_rotvec2(rotmat');
+rot_vec   = rotmat_to_rotvec2(rotmat(1:3,1:3)');
 deal_info = crystal_alignment_info(alatt0,angdeg0,rot_vec);
-% clear legacy alignment matrix
-obj.proj.ub_inv_legacy = [];
 if lattice_modified
     obj.proj.alatt  = alatt0;
     obj.proj.angdeg = angdeg0;
