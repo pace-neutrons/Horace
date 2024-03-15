@@ -253,7 +253,7 @@ end  % loop over pixel blocks
 % were written or collect together data stored in memory.
 % return pix_out which is either pixfile_combine_info or PixelDataMemory
 % depending on how many pixels were extracted.
-pix_out = cut_data_from_file_job.accumulate_pix(pix_comb_info, true);
+pix_out = cut_data_from_file_job.accumulate_pix(pix_comb_info, true,[],[],npix);
 if ll>=2
     accum_time = toc;
     total_proj_time = toc(t_proj_start);

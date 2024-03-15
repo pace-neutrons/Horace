@@ -41,7 +41,7 @@ else
     if exist(outfile,'file') == 2
         delete(outfile);
     end
-    fid=sqw_fopen(outfile,'A');    % no automatic flushing: can be faster
+    fid=sqw_fopen(outfile,'W');    % no automatic flushing: can be faster
     close_file = true;
 end
 
