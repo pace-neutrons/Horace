@@ -37,7 +37,7 @@ if ~isfield(S,'version') || S.version<4
             ss.experiment_info = Experiment.loadobj(ss.experiment_info);
         end
         % the detpar value will be put in further down in from_bare_struct.
-        % NB reminder that this will require experiment_info having an empty 
+        % NB reminder that this will require experiment_info having an empty
         % detector_arrays rather than being preconstructed
         if isfield(ss,'data_')
             ss.data = ss.data_;
@@ -52,7 +52,6 @@ if ~isfield(S,'version') || S.version<4
                 ss.data = data_sqw_dnd.loadobj(ss.data);
             end
             if isa(ss.data,'data_sqw_dnd')
-                hav = header_average(ss.experiment_info);
                 if ss.experiment_info.samples.n_runs == 0
                     sam = IX_samp('alatt',ss.data.alatt,'angdeg',ss.data.angdeg);
                     ss.experiment_info.samples{1} = sam;
@@ -80,23 +79,19 @@ if ~isfield(S,'version') || S.version<4
                 if isa(ss.data.pix,'PixelData')
                     ss.data.pix = PixelDataMemory(ss.data.pix.data);
                 end
+                [al_info,proj] = align_data(ss.data,hav);
                 ss.pix = ss.data.pix;
                 ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
+                if isempty(al_info)
+                    ss.data.proj = ss.data.proj.get_line_proj();
+                else
+                    ss.data = ss.data.change_crystal(al_info);
+                    ss.pix.alignment_matr = al_info.rotmat;
+                end
             end
         else
             error('HORACE:sqw:invalid_argument', ...
                 'Can not load old sqw object which does not contain "data" field')
-        end
-        % we need compatibility matrix as can not distinguish between
-        % old=style aligned and non-aligned data
-        proj = ss.data.proj;
-        header_av = ss.experiment_info.header_average();
-        if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
-            u_to_rlu = header_av.u_to_rlu(1:3,1:3);
-            if any(abs(subdiag_elements(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
-                % no alignment, otherwise, be cautions
-                ss.data.proj = proj.set_ub_inv_compat(u_to_rlu);
-            end
         end
 
         % guard against old data formats, which may or may not contain
@@ -120,14 +115,27 @@ else
 end
 if S.version == 4
     % may contain legacy alignment not stored in projection. Deal with this here
-    proj = obj.data.proj;
-    header_av = obj.experiment_info.header_average();
-    if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
-        u_to_rlu = header_av.u_to_rlu(1:3,1:3);
-        if any(abs(subdiag_elements(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
-            % no alignment, otherwise, be cautions
-            obj.data.proj = proj.set_ub_inv_compat(u_to_rlu);
-        end
+    hav = obj.experiment_info.header_average();
+    al_info = align_data(obj.data,hav);
+    if isempty(al_info)
+        obj.data.proj = obj.data.proj.get_line_proj();
+    else
+        obj.data = obj.data.change_crystal(al_info);
+        obj.pix.alignment_matrix = al_info.rotmat;
     end
+
 end
+function [al_info,proj] = align_data(dnd_data,hav)
+% align dnd object using alignment info provided
+proj = dnd_data.proj;
+alignment_matrix = hav.u_to_rlu*proj.bmatrix(4);
+if any(abs(subdiag_elements(alignment_matrix))>4*eps('single'))
+    % legacy files do not have correct aligned projection
+    rotvec = rotmat_to_rotvec2(alignment_matrix(1:3,1:3));
+    al_info = crystal_alignment_info(dnd_data.alatt,dnd_data.angdeg,rotvec);
+else
+    proj = proj.get_line_proj();
+    al_info = [];
+end
+
 
