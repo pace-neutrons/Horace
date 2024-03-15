@@ -59,8 +59,9 @@ if ~all(f_exist)
 end
 
 combine_method = obj.combine_method_name(addinfo);
-
-obj.add_to_files_cleanList(obj.sqw_file)
+if obj.delete_resulting_sqw_file
+    obj.add_to_files_cleanList(obj.sqw_file)
+end
 test_name = ['combine_tmp_using_',combine_method];
 
 ts = tic();
