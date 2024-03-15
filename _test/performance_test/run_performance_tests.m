@@ -18,11 +18,14 @@ function [perf_res,hor_tes] = run_performance_tests(varargin)
 %              available test.
 % NOTE:
 %         gen_sqw test should run first to generate sqw file which will
-%         be tested later
+%         be tested later. See delete_generated_nxspe_files and delete_resulting_sqw_file
+%         options of SQW_GENCUT_TESTSER for more details (rows 60-66 of
+%         this file)
+%
 % NOTE:
 %         Multiple tests to run needs to be placed in cellarray of test
 %         names e.g.
-% >> perf_results = run_performance_tests(6,{'combine_sqw','cmall_cut','big_cut_nopix'})
+% >> perf_results = run_performance_tests(6,{'combine_sqw','small_cut','big_cut_nopix'})
 %
 % returns:
 % perf_results  -- the structure containing the performance results for
@@ -56,10 +59,12 @@ if nargin == 2
 else
     selected_tests = {};
 end
-% chanve to false if intended to run this test multiple times. Manual deleteon is necessary when finished
+% Change to false if intended to run this test multiple times.
+% Manual deleteon of nxspe is necessary when finished with tests.
 hor_tes.delete_generated_nxspe_files = true;
-% delete tesulting sqw file, change to false if indend to run other than
-% gen_sqw tests multiple times. Manual deleteon is necessary when finished.
+% delete resulting sqw file, change to false if intended to run other than
+% gen_sqw tests multiple times. Manual deleteon is necessary when finished
+% with tests and false is selected.
 hor_tes.delete_resulting_sqw_file = true;
 if isempty(selected_tests) || ismember('gen_sqw',selected_tests)
     hor_tes.generate_nxspe_files = true;
@@ -101,7 +106,7 @@ medium_perf = hor_tes.combine_task_performance(n_workers);
 perf_res.medium_ds_perf = medium_perf;
 %--------------------------------------------------------------------------
 clear clob_tmp; % reset configuration not to keep tmp files any more
-%}
+
 %
 % prepare performance tests for large dataset
 hor_tes.n_files_to_use = 170;
