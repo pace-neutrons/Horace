@@ -1,4 +1,4 @@
-function wout = smooth(win, varargin)
+function wout_dnd = smooth(win, varargin)
 % Smooth method - gataway to dnd object smoothing only.
 %
 % Only applies to SQW datasets without pixels at the moment.
@@ -14,8 +14,6 @@ end
 
 % return cellarray of corresponding dnd objects
 wout_dnd = dnd(win,'-cell');
-wout = copy(win);
+wout_dnd = cellfun(@(x) smooth(x, varargin{:}), wout_dnd);
 
-for i=1:numel(win)
-    wout(i).data = smooth(wout_dnd{i}, varargin{:});
 end
