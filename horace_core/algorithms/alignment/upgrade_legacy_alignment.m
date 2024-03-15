@@ -55,7 +55,24 @@ for i=1:numel(in_data)
         data    = ld.get_dnd();
         alatt_al  = data.proj.alatt;
         angdeg_al = data.proj.angdeg;
-        [data,deal_info,no_alignment_found] = upgrade_legacy_alignment(data,alatt0,angdeg0);
+        if ld.sqw_type
+            exp_info= ld.get_exp_info('-all');
+            u_to_rlu_instr =exp_info.expdata(1).u_to_rlu;
+            if isempty(u_to_rlu_instr) % file is not aligned
+                u_to_rlu_instr = inv(bmatrix(alatt_al,angdeg_al));
+            end
+        else  % dnd file. At the moment we need experiment to upgrade legacy alignment
+            % works only for special projection types. We should not align non-sqw file
+            %u_to_rlu_instr = data.proj.u_to_rlu;
+            ld.delete();
+            if ll>0
+                warning('HORACE:algorithms:invalid_argument', ...
+                    'file %s is not sqw file. File ignored',in_data{i});
+            end
+            continue;
+        end
+
+        [data,deal_info,no_alignment_found] = upgrade_legacy_alignment(data,u_to_rlu_instr,alatt0,angdeg0);
         if no_alignment_found
             ld.delete();
             if ll>0
@@ -65,10 +82,7 @@ for i=1:numel(in_data)
             continue;
         end
         ld = ld.set_file_to_update();
-
-        ld = ld.put_dnd_metadata(data);
         if ld.sqw_type
-            exp_info= ld.get_exp_info('-all');
             exp_info = exp_info.upgrade_legacy_alignment(deal_info,alatt_al,angdeg_al);
 
             ld= ld.put_headers(exp_info,'-no_sampinst');
@@ -79,6 +93,10 @@ for i=1:numel(in_data)
             pix_info.alignment_matr = deal_info.rotmat';
             ld = ld.put_pix_metadata(pix_info);
         end
+
+
+
+        ld = ld.put_dnd_metadata(data);
 
         if input_is_file
             ld.delete();

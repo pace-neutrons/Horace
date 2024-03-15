@@ -38,7 +38,7 @@ obj.do_check_combo_arg = false;
 alignment_info.hkl_mode = true;
 rlu_corr = alignment_info.get_corr_mat(obj);
 
-if ~any(abs(obj.offset_(1:3)-zeros(1,3))>4*eps('single'))
+if any(abs(obj.offset_(1:3)-zeros(1,3))>4*eps('single'))
     obj.offset_(1:3) = (rlu_corr*obj.offset_(1:3)')';
 end
 obj.u_to_rlu = rlu_corr*obj.u_to_rlu(1:3,1:3);

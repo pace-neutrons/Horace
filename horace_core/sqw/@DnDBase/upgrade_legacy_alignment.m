@@ -1,4 +1,4 @@
-function [obj,deal_info,no_alignment] = upgrade_legacy_alignment(obj,varargin)
+function [obj,deal_info,no_alignment] = upgrade_legacy_alignment(obj,u_to_rlu_instr,varargin)
 %UPDATE_LEGACY_ALIGNMENT:  modify crystal lattice and orientation matrix
 % to remove legacy alignment applied to the crystal earlier and place
 % changes related to current alignment instead
@@ -6,6 +6,9 @@ function [obj,deal_info,no_alignment] = upgrade_legacy_alignment(obj,varargin)
 % Inputs:
 % obj    -- legacy realigned dnd object. Algorithm does nothing if the
 %           object has not been aligned using legacy algorithm.
+% u_to_rlu_instr
+%        -- u_to_rlu stored with IX_experiment. It is recovered only if
+%           it is rotmat*inv(b_matrix), i.e. it has any under-diagonal elements;
 % Optional
 % alatt   -- lattice parameters with old values for lattice. (before alignment)
 % angdeg  -- lattice angles with old values for lattice angles (before alignment).
@@ -27,9 +30,14 @@ function [obj,deal_info,no_alignment] = upgrade_legacy_alignment(obj,varargin)
 %
 alatt_al     = obj.alatt;
 angdeg_al    = obj.angdeg;
+if isempty(u_to_rlu_instr)
+    no_alignment  = true;
+    deal_info = crystal_alignment_info(alatt_al,angdeg_al,zeros(1,3));
+    return;
+end
 no_alignment = false;
 try
-    [obj,deal_info] = remove_legacy_alignment(obj,varargin{:});
+    [obj,deal_info] = remove_legacy_alignment(obj,u_to_rlu_instr,varargin{:});
 catch ME
     if strcmp(ME.identifier,'HORACE:DnDBase:invalid_argument') && ...
             contains(ME.message,'Nothing to do')
@@ -42,3 +50,4 @@ end
 
 al_info = crystal_alignment_info(alatt_al,angdeg_al,-deal_info.rotvec);
 obj = obj.change_crystal(al_info);
+obj.proj = obj.proj.get_line_proj();

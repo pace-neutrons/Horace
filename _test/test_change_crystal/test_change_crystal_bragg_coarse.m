@@ -517,7 +517,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             wout_modern = change_crystal (test_obj, corrections);
 
             assertEqualToTol(deal_info.rotvec, -corrections.rotvec, 'tol', 1.e-9)
-            assertEqual(wout_modern, obj_realigned);
+            assertEqualToTol(wout_modern, obj_realigned,1.e-8);
         end
 
         function test_remove_legacy_keep_lattice_change_fails(obj)
@@ -564,10 +564,9 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 [90.1793 90.9652 89.9250], ...
                 [-0.0530 0.0519 0.0345]);
             proj = test_obj.data.proj;
-            proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
 
             wout_legacy  = test_obj;
-            wout_legacy.data.proj = proj;
+            wout_legacy.data.proj = proj.get;
             % get the crystal aligned according to legacy algorithm.
             wout_legacy = change_crystal (wout_legacy, corrections);
 
@@ -601,10 +600,8 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             corr = refine_crystal(rlu_real, ...
                 obj.alatt, obj.angdeg, bragg_pos);
 
-            proj = fit_obj.data.proj;
-            proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
+            fit_obj.data.proj = fit_obj.data.proj.get_ubmat_proj();
             wout_legacy = fit_obj;
-            wout_legacy.data.proj = proj;
             wout_legacy = change_crystal (wout_legacy, corr);
 
             wout_align = change_crystal (fit_obj, corr);

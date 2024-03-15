@@ -25,7 +25,12 @@ function [obj,deal_info] = upgrade_legacy_alignment(obj,varargin)
 for i=1:numel(obj)
     alatt_al  = obj.data.proj.alatt;
     angdeg_al = obj.data.proj.angdeg;
-    [data,deal_info,no_alignment_found] = upgrade_legacy_alignment(obj(i).data,varargin{:});
+    u_to_rlu_instr = obj(i).experiment_info.expdata(1).u_to_rlu;
+    if isempty(u_to_rlu_instr) % no alignment as without alignment it is inv(b_matrix) 
+        % which is not asigned to exper currently
+       return; 
+    end
+    [data,deal_info,no_alignment_found] = upgrade_legacy_alignment(obj(i).data,u_to_rlu_instr,varargin{:});
     if no_alignment_found
         continue;
     end

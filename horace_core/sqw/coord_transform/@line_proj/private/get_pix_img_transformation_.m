@@ -33,11 +33,11 @@ if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pi
     if pix.is_misaligned
         alignment_needed = true;
         alignment_mat = pix.alignment_matr; % NEED CLARIFICATION:
-        if obj.proj_aligned_ % double rotate pixels to maintain consistency
-            % between pixels and image. Single rotation makes pixels
-            % aligned ????
-            alignment_mat = alignment_mat*alignment_mat;
-        end
+        % if obj.proj_aligned_ % double rotate pixels to maintain consistency
+        %     % between pixels and image. Single rotation makes pixels
+        %     % aligned ????
+        %     alignment_mat = alignment_mat*alignment_mat;
+        % end
     else
         alignment_needed = false;
     end

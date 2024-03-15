@@ -133,12 +133,6 @@ classdef line_proj < line_proj_interface
         % this projection defines
         q_to_img_cache_ = [];
         q_offset_cache_ = [];
-        % Internal property, which specifies if alignment algorithm has
-        % been applied to pixels. These two transformations are
-        % equivalent, so if it was, pix_to_img transformation
-        % should use proj alignment rather then pix alignment provided to
-        % transformation
-        proj_aligned_ = false;
     end
     %======================================================================
     methods
@@ -331,17 +325,10 @@ classdef line_proj < line_proj_interface
             %         realigned projection.
             [obj,axes] = align_proj_(obj,alignment_info,varargin{:});
             [obj,axes] = align_proj@aProjectionBase(obj,alignment_info,axes);
-            obj.proj_aligned_ = true;
         end
     end
     %======================================================================
     methods(Access = protected)
-        function is = get_proj_aligned(obj)
-            is = obj.proj_aligned_;
-        end
-        function obj = set_proj_aligned(obj,val)
-            obj.proj_aligned_ = logical(val);
-        end
         function obj = set_img_scales(varargin)
             error('HORACE:line_proj:invalid_argument', ...
                 'line_proj scaling is defined by specifying values for "type" property')
@@ -395,8 +382,7 @@ classdef line_proj < line_proj_interface
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
     properties(Constant, Access=private)
-        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';
-            'proj_aligned'}
+        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type'}
         % still need to recover if received 'ub_inv_legacy'
     end
     methods

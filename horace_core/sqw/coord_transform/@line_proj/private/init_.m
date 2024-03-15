@@ -32,7 +32,7 @@ function obj = init_by_input_parameters_(obj,varargin)
 %
 
 
-opt =  [line_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
+opt =  [line_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
 % check if the type is defined explicitly
 n_type = find(ismember(opt,'type'));
 % convert all inputs into text to be able to use ismember function

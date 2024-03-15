@@ -2,8 +2,8 @@ function obj=change_crystal(obj,alignment_info,proj)
 %  Change fields in the experiment with correction related to change crystal
 %  lattice parameters and orientation
 %
-%   >> obj=change_crystal(obj,alignment_info)
-%   >> obj=change_crystal(obj,alignment_info,dealign)
+%   >> obj =change_crystal(obj,alignment_info)
+%   >> obj=change_crystal(obj,alignment_info,proj)
 %
 % obj            -- initialized instance of Experiment object
 %
@@ -13,6 +13,8 @@ function obj=change_crystal(obj,alignment_info,proj)
 %                  >> help refine_crystal  for more details.
 % proj            -- the instance of the projection, which converts pixels
 %                   from
+% Returns:
+% obj             -- realigned experiment data;
 
 % Change fields of Experiment as required
 %
@@ -39,7 +41,7 @@ for i=1:obj.n_runs
         exper(i).cv=(rlu_corr*exper(i).cv')';
         off = exper(i).uoffset(1:3);
         exper(i).uoffset(1:3)=rlu_corr*off(:);
-        exper(i).u_to_rlu(1:3,1:3)=rlu_corr/(bmatrix(alatt0,angdeg0));
+        exper(i).u_to_rlu = rlu_corr/(bmatrix(alatt0,angdeg0));
     else
         exper(i).angular_units = 'deg';
         [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_pars_correct(...
