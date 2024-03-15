@@ -30,32 +30,22 @@ end
 
 wout = obj;
 
-alatt  = alignment_info.alatt;
-angdeg = alignment_info.angdeg;
 for i=1:numel(obj)
     legacy_mode = alignment_info.hkl_mode;
     this_alignment = alignment_info;
+    if isa(wout(i).proj,'line_proj_interface')
+        proj = wout(i).proj;
+    else
+        error('HORACE:DnDBase:invalid_argument',...
+            ['Alignment is possible for objects with coordinate systems defined line_proj only.\n' ...
+            ' Object N%d coordinates defined by: %s projection'], ...
+            i,class(wout(i).proj))
+    end
+
 
     if legacy_mode
         this_alignment.hkl_mode  = true;
-        rlu_corr = this_alignment.get_corr_mat(obj.proj);
-        rlu_to_u = wout(i).proj.bmatrix();
-        proj = wout(i).proj;
-        % img_offset is not the property of the projection but if it was: 
-        %proj.img_offset(1:3)=rlu_corr*wout(i).img_offset(1:3)';
-        % here we apply modifications to image_offset converting it into 
-        % offset (hkle)
-        proj.offset = 0;
-        proj.alatt  = alatt;
-        proj.angdeg = angdeg;
-        img_offset     = wout(i).img_offset;        
-        new_img_offset = rlu_corr*img_offset(1:3)';
-        proj           = proj.set_ub_inv_compat(rlu_corr/rlu_to_u);
-        offset = proj.transform_img_to_hkl(new_img_offset(:));
-        proj.offset    = [offset;img_offset(4)];
-        %
-        wout(i).proj = proj;        
-    else
-        [wout(i).proj,wout(i).axes] = wout(i).proj.align_proj(alignment_info,wout(i).axes);
+        proj = proj.get_ubmat_proj();
     end
+    [wout(i).proj,wout(i).axes] = proj.align_proj(alignment_info,wout(i).axes);
 end

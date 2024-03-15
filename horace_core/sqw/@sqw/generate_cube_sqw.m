@@ -126,7 +126,9 @@ expinfo = Experiment(detector_arrays, instruments, samples, expdata);
 out.experiment_info = expinfo;
 
 
+% initially, put all pixels into single image bin.
 ax0  = line_axes('img_range',img_range,'nbins_all_dims',ones(1,4));
+ax0  = proj.copy_proj_defined_properties_to_axes(ax0);
 out.data = DnDBase.dnd(ax0,proj,npix,npix,npix);
 
 % evaluate signal on the sqw object if this is requested

@@ -158,9 +158,13 @@ classdef ubmat_proj < line_proj_interface
         function obj = set.uoffset(obj,val)
             obj = obj.set_uoffset(val);
         end
-
+        %------------------------------------------------------------------
         % return line_proj which is siter projection to ubmat_proj
         proj = get_line_proj(obj);
+        function proj = get_ubmat_proj(obj)
+            % return themselves            
+            proj = obj;
+        end
     end
     %======================================================================
     % TRANSFORMATIONS:
@@ -250,7 +254,6 @@ classdef ubmat_proj < line_proj_interface
             %         realigned projection.
             [obj,axes] = align_proj_(obj,alignment_info,varargin{:});
             [obj,axes] = align_proj@aProjectionBase(obj,alignment_info,axes);
-            obj.proj_aligned_ = true;
         end
     end
     %======================================================================

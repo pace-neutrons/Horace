@@ -23,7 +23,7 @@ classdef line_proj_interface < aProjectionBase
         % scaling factors used in transformation from pix to image
         % coordinate system. Defined by type property
         ulen;       % old interface providing access to image scales
-        
+
         % Three properties below are responsible for support of old binary
         % file format and legacy alignment
         %
@@ -32,8 +32,8 @@ classdef line_proj_interface < aProjectionBase
         % additional input to data_sqw_dnd constructor
         compat_struct;
 
-        % PROPERTIES superseeded by u_to_rlu and not used any more but written         
-        % on some stages on disk so left here for loading 
+        % PROPERTIES superseeded by u_to_rlu and not used any more but written
+        % on some stages on disk so left here for loading
         %
         % LEGACY PROPERTY:
         % inverted B matrix, obtained from headers and set on
@@ -60,7 +60,11 @@ classdef line_proj_interface < aProjectionBase
         % transformation, if both current and target projections are
         % line_proj_interface children classes
         ortho_ortho_transf_mat_;
-        ortho_ortho_offset_;        
+        ortho_ortho_offset_;
+    end
+    methods(Abstract)
+        proj = get_ubmat_proj(obj);
+        proj = get_line_proj(obj);
     end
 
     methods
@@ -85,6 +89,9 @@ classdef line_proj_interface < aProjectionBase
         end
         function ul = get.ulen(obj)
             ul = get_img_scales(obj);
+        end
+        function obj = set.img_scales(obj,val)
+            obj = obj.set_img_scales(val);
         end
         function obj = set.ulen(obj,val)
             obj = obj.set_img_scales(val);
@@ -127,7 +134,7 @@ classdef line_proj_interface < aProjectionBase
             axes_bl.hkle_axes_directions = obj.u_to_rlu;
             %
         end
-        
+
         function  [rlu_to_u, u_to_rlu, ulen] = u_to_rlu_legacy_from_uvw(obj,u,v,w,type,nonortho)
             % Method returns transformation matrices used for pixel-image
             % and image pixel transformation in Horace-3. Horace-3 was
@@ -137,7 +144,7 @@ classdef line_proj_interface < aProjectionBase
             % Levy
             %
             % Not used in production code and left for testing and
-            % refererence purposes            
+            % refererence purposes
             b_mat = obj.bmatrix(3);
             [rlu_to_u, u_to_rlu, ulen] = projaxes_to_rlu_legacy_(b_mat,type,nonortho,u,v,w);
         end
@@ -179,9 +186,6 @@ classdef line_proj_interface < aProjectionBase
             [u,v,w,type,nonortho]=uv_from_u_to_rlu_(obj,u_to_rlu,ulen,varargin{:});
         end
         %
-        function  flds = saveableFields(~)
-            flds = {'u_to_rlu','ulen'};
-        end
     end
     %======================================================================
     % TRANSFORMATIONS:
@@ -340,7 +344,7 @@ classdef line_proj_interface < aProjectionBase
                 is = eq_(obj,other_obj,nargout,cell(2,1),varargin{:});
             end
         end
-        %
+
         function [nis,mess] = ne(obj,other_obj,varargin)
             % Non-equality operator expressed through equality operator
             %
@@ -356,7 +360,11 @@ classdef line_proj_interface < aProjectionBase
                 is = eq_(obj,other_obj,nargout,cell(2,1),varargin{:});
             end
             nis = ~is;
-        end        
+        end
+        %
+        function  flds = saveableFields(~)
+            flds = {'u_to_rlu','img_scales'};
+        end
     end
     %
     methods(Static)
@@ -410,7 +418,7 @@ classdef line_proj_interface < aProjectionBase
             % projection
             name = 'line_axes';
         end
-        
+
     end
     methods(Static,Access=private)
         function names = extract_eq_neq_names(varargin)
@@ -431,7 +439,7 @@ classdef line_proj_interface < aProjectionBase
                 names{2} = varargin{ind+1};
             end
         end
-    end    
+    end
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs,header_av)
             % Restore object from the old structure, which describes the
@@ -453,5 +461,5 @@ classdef line_proj_interface < aProjectionBase
             obj = build_from_old_data_struct_(obj,inputs,header_av);
         end
     end
-    
+
 end

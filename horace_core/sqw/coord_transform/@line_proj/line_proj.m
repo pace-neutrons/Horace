@@ -235,6 +235,9 @@ classdef line_proj < line_proj_interface
         %------------------------------------------------------------------
         % return ubmat_proj which is siter projection to line_proj
         proj = get_ubmat_proj(obj);
+        function proj = get_line_proj(obj)
+            proj = obj;
+        end
     end
     methods
         %
