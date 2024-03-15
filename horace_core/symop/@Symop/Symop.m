@@ -215,7 +215,14 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     else
                         proj = proj.set_directions(u_new, v_new, [], offset_new);
                     end
-
+                case 'ubmat_proj'
+                    % TODO: Re #1591 Check this against alignment
+                    lp = proj.get_line_proj();
+                    u_new = obj.R * proj.u(:);
+                    v_new = obj.R * proj.v(:);
+                    offset_new = proj.offset(:);
+                    proj = lp.set_directions(u_new, v_new, [], offset_new);
+                    %
                 case 'sphere_proj'
 
                     %% TODO non-aligned ez/ey not supported

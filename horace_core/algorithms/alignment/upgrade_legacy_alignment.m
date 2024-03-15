@@ -82,22 +82,20 @@ for i=1:numel(in_data)
             continue;
         end
         ld = ld.set_file_to_update();
-        if ld.sqw_type
-            exp_info = exp_info.upgrade_legacy_alignment(deal_info,alatt_al,angdeg_al);
+        %if ld.sqw_type This currently disabled, only sqw type can come
+        %here. May be enabled back in a future
+        exp_info = exp_info.upgrade_legacy_alignment(deal_info,alatt_al,angdeg_al);
 
-            ld= ld.put_headers(exp_info,'-no_sampinst');
-            ld= ld.put_samples(exp_info.samples);
-            %
-            pix_info = ld.get_pix_metadata();
-            % alignment matrix is inverse of dealignment matrix
-            pix_info.alignment_matr = deal_info.rotmat';
-            ld = ld.put_pix_metadata(pix_info);
-        end
-
-
+        ld= ld.put_headers(exp_info,'-no_sampinst');
+        ld= ld.put_samples(exp_info.samples);
+        %
+        pix_info = ld.get_pix_metadata();
+        % alignment matrix is inverse of dealignment matrix
+        pix_info.alignment_matr = deal_info.rotmat';
+        ld = ld.put_pix_metadata(pix_info);
+        %end
 
         ld = ld.put_dnd_metadata(data);
-
         if input_is_file
             ld.delete();
             clear ld;

@@ -21,9 +21,14 @@ function [obj,deal_info] = remove_legacy_alignment(obj,varargin)
 % Perform operations
 % ------------------
 for i=1:numel(obj)
-    [data,deal_info] = remove_legacy_alignment(obj(i).data,varargin{:});
-    obj(i).data = data;
     exper = obj(i).experiment_info;
+    u_to_rlu_exper = exper.expdata(1).u_to_rlu;
+    if isempty(u_to_rlu_exper) % no alignment
+        continue
+    end
+    [data,deal_info] = remove_legacy_alignment(obj(i).data,u_to_rlu_exper,varargin{:});
+    obj(i).data = data;
+
     exper = exper.remove_legacy_alignment(deal_info);
     obj(i).experiment_info = exper;
 end

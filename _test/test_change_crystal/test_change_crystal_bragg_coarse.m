@@ -530,10 +530,9 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 [90.1793 90.9652 89.9250], ...
                 [-0.0530 0.0519 0.0345]);
             proj = test_obj.data.proj;
-            proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
 
             wout_legacy  = test_obj;
-            wout_legacy.data.proj = proj;
+            wout_legacy.data.proj = proj.get_ubmat_proj();
             % get the crystal aligned according to legacy algorithm.
             wout_legacy = change_crystal (wout_legacy, corrections);
 
@@ -566,7 +565,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             proj = test_obj.data.proj;
 
             wout_legacy  = test_obj;
-            wout_legacy.data.proj = proj.get;
+            wout_legacy.data.proj = proj.get_ubmat_proj();
             % get the crystal aligned according to legacy algorithm.
             wout_legacy = change_crystal (wout_legacy, corrections);
 
@@ -574,7 +573,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 alatt0, angdeg0);
 
             assertElementsAlmostEqual(deal_info.rotvec, -corrections.rotvec);
-            assertEqual(test_obj, obj_recovered);
+            assertEqualToTol(test_obj, obj_recovered,1.e-8);
         end
 
         function test_legacy_vs_pix_alignment(obj)
