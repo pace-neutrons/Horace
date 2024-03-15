@@ -67,6 +67,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             exp(3).filename = 'a3';
             detectors = repmat(IX_detector_array(),1,numel(exp));
 
+            lastwarn('');
             exper= Experiment(detectors,instruments,samples,exp);
             % at this point the samples have not been given lattice
             % definitions so a warning will be issued
@@ -75,6 +76,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
                 'Samples in experiment are defined but their lattice is undefined');
             assertEqual(b, ...
                 'HORACE:Experiment:lattice_undefined');
+            lastwarn('');
             
             % now add lattice definitions and clear the last warning
             lastwarn('nothing warned','HORACE:Experiment:set_no_previous_warnings');            

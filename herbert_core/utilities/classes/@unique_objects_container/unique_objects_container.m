@@ -491,7 +491,10 @@ classdef unique_objects_container < serializable
                 % get intersection of array stored_hashes_ with (single) array
                 % hash from hashify. Calculates the index of the hash in
                 % stored_hashes.
-                ix = find(ismember(self.stored_hashes_,hash));
+                [~,ix] = ismember( hash, self.stored_hashes_ );
+                if ix<1
+                    ix = []; % ismember returns 0 in this case, not []
+                end
             end
         end
     end
