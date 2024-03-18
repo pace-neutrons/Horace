@@ -35,6 +35,10 @@ data(1:nWorkers) = obj; % struct('obj', cell(nWorkers,1));
 merge_data = struct('nomerge', true, 'nelem', num2cell(nPer));
 
 for i = 1:nWorkers
+    data(i).do_check_combo_arg = false;
+end
+
+for i = 1:nWorkers
     data(i).x = obj.x(points(i)+1:points(i+1));
     data(i).signal = obj.signal(points(i)+1:points(i+1));
     data(i).error = obj.error(points(i)+1:points(i+1));
@@ -51,6 +55,11 @@ if dims > 2
     for i = 1:nWorkers
         data(i).z = obj.z(points(i)+1:points(i+1));
     end
+end
+
+for i = 1:nWorkers
+    data(i).do_check_combo_arg = true;
+    data(i).check_combo_arg();
 end
 
 
