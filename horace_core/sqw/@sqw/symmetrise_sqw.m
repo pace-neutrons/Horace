@@ -264,7 +264,7 @@ function [sym, fold] = validate_sym(sym)
 
         elseif all(cellfun(@(x) isa(x, 'SymopReflection') || ...
                                 isa(x, 'SymopIdentity'), sym))
-            sym = cell2mat(sym);
+            sym = cat(1, sym{:});
             fold = numel(sym);
         else
             error('HORACE:symmetrise_sqw:not_implemented', ...
