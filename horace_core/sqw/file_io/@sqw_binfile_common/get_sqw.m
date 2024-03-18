@@ -108,7 +108,10 @@ end
 
 data_opt= [opt1, opt2];
 sqw_struc.data = obj.get_data(data_opt{:});
-
+%
+hav = exp_info.header_average();
+sqw_struc.data = align_dnd_data(sqw_struc.data,hav);
+%
 if ~opts.nopix && obj.npixels>0
     if opts.noupgrade || opts.norange
         argi = {'-norange'};

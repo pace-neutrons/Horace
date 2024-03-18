@@ -24,22 +24,6 @@ function [q_to_img,shift,img_scales,obj]=get_pix_img_transformation_(obj,ndim,va
 %             in the transformation
 
 
-% if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
-%     pix = varargin{1};
-%     if pix.is_misaligned
-%         alignment_needed = true;
-%         alignment_mat = pix.alignment_matr;
-%         if obj.proj_aligned_ % double rotate pixels as projection rotated
-%             % in opposite direction to pixels
-%             alignment_mat = alignment_mat*alignment_mat;
-%         end
-%     else
-%         alignment_needed = false;
-%     end
-% else
-%     alignment_needed = false;
-% end
-
 bmat = obj.bmatrix(ndim);
 if ndim==4
     shift      = obj.offset;
