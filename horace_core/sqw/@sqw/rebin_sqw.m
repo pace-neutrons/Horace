@@ -75,9 +75,11 @@ if use_template_object
     %e.g. a 2d object could be rebinned from (1,0,0)/(0,1,0) to
     %(1,1,0)/(-1,1,0)
 
-    if data.proj ~= data2.proj
+    [ok,mess] = equal_to_tol(data.proj,data2.proj,1.e-6);
+    if ~ok
         error('HORACE:rebin_sqw:invalid_argument', ...
-            'input sqw and template object projections misaligned');
+            'input sqw and template object projections misaligned. Difference %s', ...
+            mess);
     end
 
     ax = data.axes;

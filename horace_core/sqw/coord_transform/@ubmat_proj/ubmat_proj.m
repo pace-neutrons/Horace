@@ -13,7 +13,7 @@ classdef ubmat_proj < LineProjBase
     %             structure, containing any fields, with names, equal any
     %             public fields of the line_proj class.
     %
-    % As a standard serializable class, class line_proj accepts full set of
+    % As a standard serializable class, class ubmat_proj accepts full set of
     % positional and key-value parameters, which constitute its properties
     %
     % Argument input:
@@ -33,7 +33,7 @@ classdef ubmat_proj < LineProjBase
     %                   :
     %   >> proj = ubmat_proj(...,'lab4',labelstr,...)
     %
-    % Minimal fully functional form:
+    % Minimal fully functional form which has reasonable defaults:
     %   >> proj =  ubmat_proj(u_to_rlu,'alatt',latice_parameters,'angdeg',lattice_angles_in_degrees);
     %
     %IMPORTANT:
@@ -76,23 +76,22 @@ classdef ubmat_proj < LineProjBase
         nonorthogonal; % Indicates if non-orthogonal axes are used (if true)
         %
         %
+    end
+    properties(Dependent,Hidden)
+        % Legacy problematic property, The problem is that if cut has
+        % defines uoffset, it is offset in source image coorinate system
+        % and not target coordinate system which is defined by the
+        % projection. Left for compartibility with old data. Use offset
+        % instead.
         uoffset  % offset expressed in image coordinate system. Old interface to img_offset
         % which is under construction. Transient property used to process
         % input parameters which converted to offset and nullified after
         % that.
-    end
-    properties(Dependent,Hidden)
+
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
         unit_cell;
     end
-    properties(Hidden)
-        % Developers option. Use old (v3 and below) sub-algorithm in
-        % ortho-ortho transformation to identify cells which may contribute
-        % to a cut. Correct value is chosen on basis of performance analysis
-        convert_targ_to_source=true;
-    end
-
     properties(Access=protected)
         % Cached properties value, calculated from input u_to_rlu matrix
         type_  = 'rrr';
@@ -101,7 +100,7 @@ classdef ubmat_proj < LineProjBase
         % holder for matrix to convert from image coordinate system to
         % hklE coordinate system (in rlu or hkle -- both are the same, two
         % different name schemes are used)
-        u_to_rlu_ = eye(4);        
+        u_to_rlu_ = eye(4);
     end
     %======================================================================
     methods
@@ -161,7 +160,7 @@ classdef ubmat_proj < LineProjBase
         % return line_proj which is sister projection to ubmat_proj
         proj = get_line_proj(obj);
         function proj = get_ubmat_proj(obj)
-            % return themselves            
+            % return themselves
             proj = obj;
         end
     end
@@ -234,7 +233,7 @@ classdef ubmat_proj < LineProjBase
             % system
             %
             mat = obj.u_to_rlu_;
-        end        
+        end
         function obj = set_u_to_rlu(obj,val)
             %
             if all(size(val) == [3,3])
@@ -248,9 +247,9 @@ classdef ubmat_proj < LineProjBase
             end
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
-            end            
+            end
         end
-        
+
         function is = get_proj_aligned(obj)
             is = obj.proj_aligned_;
         end
@@ -285,7 +284,7 @@ classdef ubmat_proj < LineProjBase
         function  flds = saveableFields(obj)
             %
             aproj_flds = saveableFields@aProjectionBase(obj);
-            comp_fils = {'u_to_rlu','img_scales'};            
+            comp_fils = {'u_to_rlu','img_scales'};
             flds = [comp_fils(:);aproj_flds(:)];
         end
         %------------------------------------------------------------------

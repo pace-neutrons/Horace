@@ -24,6 +24,7 @@ for i=1:numel(obj)
     exper = obj(i).experiment_info;
     u_to_rlu_exper = exper.expdata(1).u_to_rlu;
     if isempty(u_to_rlu_exper) % no alignment
+        deal_info = [];
         continue
     end
     [data,deal_info] = remove_legacy_alignment(obj(i).data,u_to_rlu_exper,varargin{:});

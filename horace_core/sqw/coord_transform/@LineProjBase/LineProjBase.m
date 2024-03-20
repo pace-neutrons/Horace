@@ -50,6 +50,13 @@ classdef LineProjBase < aProjectionBase
         % calculated by original Toby algorithm.
 
     end
+    properties(Hidden)
+        % Developers option. Use old (v3 and below) sub-algorithm in
+        % ortho-ortho transformation to identify cells which may contribute
+        % to a cut. Correct value is chosen on basis of performance analysis
+        convert_targ_to_source=true;
+    end
+    
     properties(Access=protected)
         % Holder for image scales
         img_scales_     = ones(1,4);

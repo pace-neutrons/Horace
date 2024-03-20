@@ -107,10 +107,6 @@ classdef line_proj < LineProjBase
         % coordinate transformation is non-orthogonal
         unit_cell;
 
-        % Developers option. Use old (v3 and below) sub-algorithm in
-        % ortho-ortho transformation to identify cells which may contribute
-        % to a cut. Correct value is chosen on basis of performance analysis
-        convert_targ_to_source=true;
         % property used by bragg_positions routine for realigning already
         %  aligned old version sqw files. If set to true, existing legacy
         %  alignment matrix is ignored and cut is performed from
