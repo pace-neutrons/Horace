@@ -215,7 +215,7 @@ classdef crystal_alignment_info < serializable
             %                  to Crystal Cartesian coordinate system
             %
             %  qframe_corr  rotation matrix to
-            if isa(varargin{1},'line_proj_interface')
+            if isa(varargin{1},'LineProjBase')
                 b0 = varargin{1}.bmatrix();
                 hkle_mode_ = obj.hkl_mode;
                 proj = varargin{1};

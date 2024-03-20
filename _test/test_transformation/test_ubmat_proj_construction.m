@@ -71,6 +71,7 @@ classdef test_ubmat_proj_construction<TestCase
             data.iint=[1;30];
             data.p={1:10;1:20;1:40};
             ax = line_axes.get_from_old_data(data);
+            data.warn_on_legacy_data = false;
             proj = ubmat_proj(data);
 
             do = DnDBase.dnd(ax,proj);
@@ -79,7 +80,7 @@ classdef test_ubmat_proj_construction<TestCase
             pp = proj1.transform_pix_to_img([eye(3),[1;1;1]]);
             p_ref =[...
                 0.2274   -0.2274    0.0000    0.0000
-                0.7072    0.7072    0.0000    1.4144
+                -2.4023   -2.4023   -3.1095   -1.6951
                 0         0    0.9999    0.9999];
             assertElementsAlmostEqual(pp,p_ref,'absolute',1.e-4);
             opt = line_projTester(proj1);

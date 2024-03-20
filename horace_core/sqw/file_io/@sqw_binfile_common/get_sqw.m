@@ -69,27 +69,27 @@ if ~(opts.head||opts.his)
     detpar = obj.get_detpar();
     if ~isempty(detpar)
         if  isstruct(detpar) && IX_detector_array.check_detpar_parms(detpar)
-	        detector = IX_detector_array(detpar);
-	        det_arrays = exp_info.detector_arrays;
-        	if exp_info.detector_arrays.n_runs == 0       
+            detector = IX_detector_array(detpar);
+            det_arrays = exp_info.detector_arrays;
+            if exp_info.detector_arrays.n_runs == 0
                 det_arrays = det_arrays.add_copies_(detector, exp_info.n_runs);
                 exp_info.detector_arrays = det_arrays;
 
             elseif exp_info.detector_arrays.n_runs == exp_info.n_runs
                 exp_info.detector_arrays = exp_info.detector_arrays.replace_all(detector);
             else
-	            error('HORACE:get_sqw:invalid_data', ...
-	                  ['the detector arrays input with exp_info are neither zero length',...
-	                   'nor as long as the number of runs in exp_info.\n', ...
-	                   'the formation of exp_info upstream may be faulty.']);
-        	end
+                error('HORACE:get_sqw:invalid_data', ...
+                    ['the detector arrays input with exp_info are neither zero length',...
+                    'nor as long as the number of runs in exp_info.\n', ...
+                    'the formation of exp_info upstream may be faulty.']);
+            end
         else
             error('HORACE:get_sqw:invalid_data', ...
-                  'detpar input is not a struct as per this file format');
+                'detpar input is not a struct as per this file format');
         end
-   else
+    else
         ; % there was no detpar info in the file; currently do nothing, not an error state
-   end
+    end
 end
 
 % Get data
@@ -110,7 +110,7 @@ data_opt= [opt1, opt2];
 sqw_struc.data = obj.get_data(data_opt{:});
 %
 hav = exp_info.header_average();
-sqw_struc.data = align_dnd_data(sqw_struc.data,hav);
+[sqw_struc.data,al_info] = align_dnd_data(sqw_struc.data,hav);
 %
 if ~opts.nopix && obj.npixels>0
     if opts.noupgrade || opts.norange
@@ -131,6 +131,10 @@ if ~opts.nopix && obj.npixels>0
         sqw_struc.pix = PixelDataBase.create(obj,argi{:});
     end
 end
+if ~isempty(al_info)
+    sqw_struc.pix.alignment_matr = al_info.rotmat;
+end
+
 
 sqw_struc.experiment_info = exp_info;
 old_file = ~sqw_struc.main_header.creation_date_defined;

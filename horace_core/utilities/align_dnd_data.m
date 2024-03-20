@@ -4,7 +4,7 @@ function [dnd_obj,al_info] = align_dnd_data(dnd_obj,hav)
 % Inputs:
 % dnd_obj -- dnd object to align
 % hav     -- representative instance of IX_experiment or srtucture retrieved
-%            from IX_experiment, in particular in particular by using
+%            from IX_experiment, in particular by using
 %            Experiment.header_average
 % Returns:
 % dnd_obj -- aligned dnd object
@@ -24,6 +24,6 @@ if any(abs(subdiag_elements(alignment_matrix))>4*eps('single'))
     al_info = crystal_alignment_info(dnd_obj.alatt,dnd_obj.angdeg,rotvec);
     dnd_obj = dnd_obj.change_crystal(al_info);
 else
-    dnd_obj.proj = proj.get_line_proj();
+    %dnd_obj.proj = proj.get_line_proj();
     al_info = [];
 end

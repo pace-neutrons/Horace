@@ -451,8 +451,9 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',angdeg);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -476,8 +477,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',angdeg);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -501,8 +502,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',angdeg);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -526,8 +527,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -550,8 +551,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -574,8 +575,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -599,8 +600,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -623,8 +624,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -647,8 +648,9 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);

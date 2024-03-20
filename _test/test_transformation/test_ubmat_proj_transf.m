@@ -158,7 +158,7 @@ classdef test_ubmat_proj_transf<TestCase
             [~,~,ulen_n]=proj.get_pix_img_transformation(3);
 
             % enable legacy mode
-            proj.ub_inv_legacy = inv(bm);
+            proj = ubmat_proj(proj.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',angdeg);
             pix_hkl2 = proj.transform_pix_to_img(pix_cc);
             [~,~,ulen_l]=proj.get_pix_img_transformation(3);
 
@@ -180,7 +180,7 @@ classdef test_ubmat_proj_transf<TestCase
             pix_hkl_n = proj.transform_pix_to_img(pix_cc);
 
             % enable legacy mode
-            proj1 = proj.get_ubmat_proj();            
+            proj1 = proj.get_ubmat_proj();
             pix_hkl_l = proj1.transform_pix_to_img(pix_cc);
 
             assertElementsAlmostEqual(pix_hkl_n ,pix_hkl_l);
@@ -201,7 +201,7 @@ classdef test_ubmat_proj_transf<TestCase
             pix_hkl_n = proj.transform_pix_to_img(pix_cc);
 
             % enable legacy mode
-            proj1 = proj.get_ubmat_proj();                        
+            proj1 = proj.get_ubmat_proj();
             pix_hkl_l = proj1.transform_pix_to_img(pix_cc);
 
             assertElementsAlmostEqual(pix_hkl_n ,pix_hkl_l);
@@ -218,7 +218,7 @@ classdef test_ubmat_proj_transf<TestCase
 
             proj = line_proj('alatt',lat_par,'angdeg',angdeg,'w',[0,0,1], ...
                 'type','ppp');
-            proj1 = proj.get_ubmat_proj();            
+            proj1 = proj.get_ubmat_proj();
 
             pix_hkl1 = proj.transform_pix_to_img(pix_cc);
             pix_hkl2 = proj1.transform_pix_to_img(pix_cc);
@@ -239,7 +239,7 @@ classdef test_ubmat_proj_transf<TestCase
             assertEqual(proj.type,'rrr')
             assertEqual(proj.u,[-1,1,1])
             assertEqual(proj.v,[1,0,0])
-            proj = proj.get_ubmat_proj();            
+            proj = proj.get_ubmat_proj();
 
             assertFalse(proj.nonorthogonal)
 
@@ -264,7 +264,7 @@ classdef test_ubmat_proj_transf<TestCase
             assertEqual(proj.type,'rrr')
             assertEqual(proj.u,[-1,1,1])
             assertEqual(proj.v,[1,0,0])
-            proj = proj.get_ubmat_proj();            
+            proj = proj.get_ubmat_proj();
 
             assertFalse(proj.nonorthogonal)
 
@@ -321,7 +321,7 @@ classdef test_ubmat_proj_transf<TestCase
             assertEqual(proj.v,[0,1,0])
             assertEqual(proj.w,[0,0,1])
 
-            proj = proj.get_ubmat_proj();            
+            proj = proj.get_ubmat_proj();
             assertFalse(proj.nonorthogonal)
 
             len = (2*pi)./lat_par;
@@ -343,7 +343,7 @@ classdef test_ubmat_proj_transf<TestCase
             assertEqual(proj.v,[0,0,1])
             assertEqual(proj.w,[0,-1,0])
 
-            proj = proj.get_ubmat_proj();            
+            proj = proj.get_ubmat_proj();
             assertFalse(proj.nonorthogonal)
 
             u_to_rlu = proj.u_to_rlu;
@@ -363,9 +363,9 @@ classdef test_ubmat_proj_transf<TestCase
             assertEqual(proj.u,[1,0,0])
             assertEqual(proj.v,[0,1,0])
             assertEqual(proj.w,[0,0,1])
-            assertTrue(proj.nonorthogonal)            
+            assertTrue(proj.nonorthogonal)
 
-            proj = proj.get_ubmat_proj();            
+            proj = proj.get_ubmat_proj();
             assertFalse(proj.nonorthogonal)
 
             img_coord = proj.transform_pix_to_img(eye(3));
@@ -383,7 +383,7 @@ classdef test_ubmat_proj_transf<TestCase
             assertEqual(proj.type,'ppp')
             assertEqual(proj.u,[-1,1,1])
             assertEqual(proj.v,[1,0,0])
-            proj = proj.get_ubmat_proj();            
+            proj = proj.get_ubmat_proj();
 
             assertFalse(proj.nonorthogonal)
 
@@ -407,7 +407,7 @@ classdef test_ubmat_proj_transf<TestCase
             assertEqual(proj.v,[1,1,0])
 
             assertFalse(proj.nonorthogonal)
-            proj = proj.get_ubmat_proj();            
+            proj = proj.get_ubmat_proj();
 
 
             img_coord = proj.transform_pix_to_img(eye(3));
@@ -435,7 +435,7 @@ classdef test_ubmat_proj_transf<TestCase
             assertEqual(proj.v,[1,1,0])
             assertEqual(proj.w,[0,0,-1])
             assertFalse(proj.nonorthogonal)
-            proj = proj.get_ubmat_proj();            
+            proj = proj.get_ubmat_proj();
 
 
             pix_coord = [eye(3).*len,eye(3).*len];
@@ -483,7 +483,7 @@ classdef test_ubmat_proj_transf<TestCase
             assertEqual(proj.v,[0,1,0])
             assertEqual(proj.w,[0,0,1])
             assertFalse(proj.nonorthogonal)
-            proj = proj.get_ubmat_proj();            
+            proj = proj.get_ubmat_proj();
 
             len = (2*pi)./lat_par;
             rlu_exp = [eye(3),ones(3,1)];

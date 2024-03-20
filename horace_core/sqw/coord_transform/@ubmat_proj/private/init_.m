@@ -9,7 +9,7 @@ if narg == 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjectionBase'))
     if isstruct(varargin{1}) && isfield(varargin{1},'serial_name')
         obj = serializable.loadobj(varargin{1});
     else
-        obj = obj.from_bare_struct(varargin{1});
+        obj = obj.from_old_struct(varargin{1});
     end
 else
     obj = init_by_input_parameters_(obj,varargin{:});

@@ -203,9 +203,10 @@ classdef test_line_proj_transf_orth<TestCase
             [~,~,ulen_n]=proj.get_pix_img_transformation(3);
 
             % enable legacy mode
-            proj.ub_inv_legacy = inv(bm);
-            pix_hkl_l = proj.transform_pix_to_img(pix_cc);
-            [~,~,ulen_l]=proj.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(proj.u_to_rlu,proj.img_scales, ...
+                'alatt',lat_par,'angdeg',angdeg);
+            pix_hkl_l = proj_l.transform_pix_to_img(pix_cc);
+            [~,~,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(pix_hkl_n ,pix_hkl_l);
             assertElementsAlmostEqual(ulen_n ,ulen_l);
@@ -226,9 +227,10 @@ classdef test_line_proj_transf_orth<TestCase
             [~,~,ulen_n]=proj.get_pix_img_transformation(3);
 
             % enable legacy mode
-            proj.ub_inv_legacy = inv(bm);
-            pix_hkl2 = proj.transform_pix_to_img(pix_cc);
-            [~,~,ulen_l]=proj.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(proj.u_to_rlu,proj.img_scales, ...
+                'alatt',lat_par,'angdeg',angdeg);
+            pix_hkl2 = proj_l.transform_pix_to_img(pix_cc);
+            [~,~,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(pix_hkl1 ,pix_hkl2);
             assertElementsAlmostEqual(ulen_n ,ulen_l);
@@ -248,8 +250,9 @@ classdef test_line_proj_transf_orth<TestCase
             pix_hkl_n = proj.transform_pix_to_img(pix_cc);
 
             % enable legacy mode
-            proj.ub_inv_legacy = inv(bm);
-            pix_hkl_l = proj.transform_pix_to_img(pix_cc);
+            proj_l = ubmat_proj(proj.u_to_rlu,proj.img_scales, ...
+                'alatt',lat_par,'angdeg',angdeg);
+            pix_hkl_l = proj_l.transform_pix_to_img(pix_cc);
 
             assertElementsAlmostEqual(pix_hkl_n ,pix_hkl_l);
         end
@@ -269,8 +272,9 @@ classdef test_line_proj_transf_orth<TestCase
             pix_hkl_n = proj.transform_pix_to_img(pix_cc);
 
             % enable legacy mode
-            proj.ub_inv_legacy = inv(bm);
-            pix_hkl_l = proj.transform_pix_to_img(pix_cc);
+            proj_l = ubmat_proj(proj.u_to_rlu,proj.img_scales, ...
+                'alatt',lat_par,'angdeg',angdeg);
+            pix_hkl_l = proj_l.transform_pix_to_img(pix_cc);
 
             assertElementsAlmostEqual(pix_hkl_n ,pix_hkl_l);
         end
@@ -290,8 +294,9 @@ classdef test_line_proj_transf_orth<TestCase
             pix_hkl1 = proj.transform_pix_to_img(pix_cc);
 
             % enable legacy mode
-            proj.ub_inv_legacy = inv(bm);
-            pix_hkl2 = proj.transform_pix_to_img(pix_cc);
+            proj_l = ubmat_proj(proj.u_to_rlu,proj.img_scales, ...
+                'alatt',lat_par,'angdeg',angdeg);
+            pix_hkl2 = proj_l.transform_pix_to_img(pix_cc);
 
             assertElementsAlmostEqual(pix_hkl1 ,pix_hkl2);
         end

@@ -119,4 +119,3 @@ else                                        % V_c = U*B*V_hkl -- defining U
     % so umat (one inversion looks missing? or what?. This gives previous Horace result)
     q_to_img = (umat./(ulen(:)));
 end
-obj.u_to_rlu = inv(q_to_img*b_mat);

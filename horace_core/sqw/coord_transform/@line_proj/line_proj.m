@@ -1,4 +1,4 @@
-classdef line_proj < line_proj_interface
+classdef line_proj < LineProjBase
     %  Class defines coordinate transformations necessary to make Horace cuts
     %  in crystal coordinate system (orthogonal or non-orthogonal)
     %
@@ -125,7 +125,7 @@ classdef line_proj < line_proj_interface
         nonorthogonal_=false
         type_='ppr'
         % if requested type has been set directly or has default values.
-        % used to determinr last letter of type if w is not defined and
+        % used to determine last letter of type if w is not defined and
         % needs to be constructed from u/v
         type_is_defined_explicitly_ = false;
         %
@@ -139,11 +139,8 @@ classdef line_proj < line_proj_interface
         %------------------------------------------------------------------
         % Interfaces:
         function obj=line_proj(varargin)
-            obj = obj@line_proj_interface();
+            obj = obj@LineProjBase();
             obj.label = {'\zeta','\xi','\eta','E'};
-            % try to use specific range-range identification algorithm,
-            % suitable for ortho-ortho transformation
-            obj.do_generic = false;
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
                 obj = obj.init([1,0,0],[0,1,0],[],'type','ppr');
@@ -227,7 +224,7 @@ classdef line_proj < line_proj_interface
         % set u,v & w simultaneously
         obj = set_directions(obj, u, v, w, offset)
         %------------------------------------------------------------------
-        % return ubmat_proj which is siter projection to line_proj
+        % return ubmat_proj which is sister projection to line_proj
         proj = get_ubmat_proj(obj);
         function proj = get_line_proj(obj)
             proj = obj;
@@ -243,36 +240,6 @@ classdef line_proj < line_proj_interface
         % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
         %------------------------------------------------------------------
-        %
-        %
-        function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
-            % Converts from current to target projection coordinate system.
-            %
-            % Overloaded to optimize a line_proj to line_proj
-            % transformation.
-            %
-            % Inputs:
-            % obj       -- current projection, describing the system of
-            %              coordinates where the input pixels vector is
-            %              expressed in. The target projection property value
-            %              has to be set up on this object
-            % pix_origin   4xNpix vector of pixels coordinates expressed in
-            %              the coordinate system, defined by current
-            %              projection
-            %Outputs:
-            % pix_target -- 4xNpix vector of the pixels coordinates in the
-            %               coordinate system, defined by the target
-            %               projection.
-            %
-            if isempty(obj.ortho_ortho_transf_mat_)
-                % use generic projection transformation
-                pix_target = from_this_to_targ_coord@aProjectionBase(...
-                    obj,pix_origin,varargin{:});
-            else
-                pix_target = do_ortho_ortho_transformation_(...
-                    obj,pix_origin,varargin{:});
-            end
-        end
         %
         function [q_to_img,shift,img_scales,obj]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
@@ -329,52 +296,21 @@ classdef line_proj < line_proj_interface
     end
     %======================================================================
     methods(Access = protected)
+        function  u_to_rlu = get_u_to_rlu(obj)
+            % u_to_rlu defines the transformation from coordinates in
+            % image coordinate system to coordinates in hkl(dE) (rlu) coordinate
+            % system
+            %
+            mat = obj.get_pix_img_transformation(4)*obj.bmatrix(4);
+            u_to_rlu = inv(mat);
+        end
+        function obj = set_u_to_rlu(varargin)
+            error('HORACE:line_proj:invalid_argument', ...
+                'u_to_rlu is dependent property for line_proj')
+        end
         function obj = set_img_scales(varargin)
             error('HORACE:line_proj:invalid_argument', ...
                 'line_proj scaling is defined by specifying values for "type" property')
-        end
-        %------------------------------------------------------------------
-        function   contrib_ind= get_contrib_cell_ind(obj,...
-                cur_axes_block,targ_proj,targ_axes_block)
-            % get indexes of cells which may contributing into the cut.
-            %
-            if obj.convert_targ_to_source && isa(targ_proj,class(obj))
-                contrib_ind= get_contrib_orthocell_ind_(obj,...
-                    cur_axes_block,targ_axes_block);
-            else
-                contrib_ind= get_contrib_cell_ind@aProjectionBase(obj,...
-                    cur_axes_block,targ_proj,targ_axes_block);
-            end
-        end
-        %
-        function obj = check_and_set_targ_proj(obj,val)
-            % overloaded setter for target proj.
-            % Input:
-            % val -- target projection
-            %
-            % sets up target projection as the parent method.
-            % In addition:
-            % sets up matrices, necessary for optimized transformations
-            % if both projections are line_proj
-            %
-            obj = check_and_set_targ_proj@aProjectionBase(obj,val);
-            if isa(obj.targ_proj_,'line_proj') && ~obj.disable_srce_to_targ_optimization
-                obj = set_ortho_ortho_transf_(obj);
-            else
-                obj.ortho_ortho_transf_mat_ = [];
-                obj.ortho_ortho_offset_ = [];
-            end
-        end
-        %
-        function obj = check_and_set_do_generic(obj,val)
-            % Overloaded internal setter for do_generic method.
-            % Clears specific transformation matrices if do_generic
-            % is false.
-            obj = check_and_set_do_generic@aProjectionBase(obj,val);
-            if obj.do_generic_
-                obj.ortho_ortho_transf_mat_ = [];
-                obj.ortho_ortho_offset_ = [];
-            end
         end
         %
     end
@@ -418,6 +354,9 @@ classdef line_proj < line_proj_interface
             % boilerplate loadobj method, calling generic method of
             % saveable class
             obj = line_proj();
+            % Regardless if we actually loading legacy data or not,
+            % set this property to true, not to warn if
+            S.warn_on_legacy_data = false;
             obj = loadobj@serializable(S,obj);
         end
         %

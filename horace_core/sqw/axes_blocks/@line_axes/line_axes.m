@@ -236,7 +236,12 @@ classdef line_axes < AxesBlockBase
                 inputs.seral_name = 'line_axes';
                 obj = line_axes();
             end
-
+            if isfield(inputs,'ulen')
+                obj.img_scales = inputs.ulen;
+            end
+            if isfield(inputs,'img_scales')
+                obj.img_scales = inputs.img_scales;
+            end
 
             if isfield(inputs,'array_dat')
                 obj = obj.from_bare_struct(inputs.array_dat);

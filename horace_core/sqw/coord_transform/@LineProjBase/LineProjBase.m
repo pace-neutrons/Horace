@@ -1,12 +1,12 @@
-classdef line_proj_interface < aProjectionBase
-    %LINE_PROJ_INTERFACE
+classdef LineProjBase < aProjectionBase
+    %LINE_PROJ_BASE
     % is the parent for line_proj and ubmat_proj and also contains
     % properties, common for these two projections
     %
     % class is also responsible for providing methods for
     %converting aProjection data into HORACE3 dnd structures (data_sqw_dnd)
-    %to save these data in Horace3 file format and maintan compartibility
-    %with the algorithms which stil have not been updated from this
+    %to save these data in Horace3 file format and maintain compatibility
+    %with the algorithms which still have not been updated from this
     %interface. Also helps to load old data into new class structure
     %
     %
@@ -16,11 +16,13 @@ classdef line_proj_interface < aProjectionBase
         img_scales % the scaling factor (in A^-1)
     end
     properties(Dependent,Hidden)
-        % Matrix to convert from image coordinate system (linear only) to
+        % Matrix to convert from image coordinate system to scaled. The
+        % scale is defined by ulen
         % hklE coordinate system (in rlu or hkle -- both are the same, two
         % different name schemes are used)
         u_to_rlu
-        % scaling factors used in transformation from pix to image
+        % length of image coordinate system vectors expressed in hkle as
+        % above)
         % coordinate system. Defined by type property
         ulen;       % old interface providing access to image scales
 
@@ -32,7 +34,7 @@ classdef line_proj_interface < aProjectionBase
         % additional input to data_sqw_dnd constructor
         compat_struct;
 
-        % PROPERTIES superseeded by u_to_rlu and not used any more but written
+        % PROPERTIES superseded by u_to_rlu and not used any more but written
         % on some stages on disk so left here for loading
         %
         % LEGACY PROPERTY:
@@ -41,7 +43,7 @@ classdef line_proj_interface < aProjectionBase
         % as old aligned files modify it and there are no way
         % of identifying if the file was aligned or not. Modern code
         % calculates this matrix on request using alignment matrix attached
-        % to pixels
+        % to pixels.
         ub_inv_legacy;
         %
         u_to_rlu_legacy; % old u_to_rlu transformation matrix,
@@ -49,10 +51,6 @@ classdef line_proj_interface < aProjectionBase
 
     end
     properties(Access=protected)
-        % inverted ub matrix, used to support alignment as in Horace 3.xxx
-        % as real ub matrix is multiplied by alignment matrix there and
-        % there are no way of identifying if this happened or not.
-        u_to_rlu_ = eye(4);
         % Holder for image scales
         img_scales_     = ones(1,4);
 
@@ -65,6 +63,11 @@ classdef line_proj_interface < aProjectionBase
     methods(Abstract)
         proj = get_ubmat_proj(obj);
         proj = get_line_proj(obj);
+
+    end
+    methods(Abstract,Access= protected)
+        u_to_rlu = get_u_to_rlu(obj)
+        obj = set_u_to_rlu(obj,u_to_rlu)
     end
 
     methods
@@ -78,7 +81,7 @@ classdef line_proj_interface < aProjectionBase
             % image coordinate system to pixels in hkl(dE) (rlu) coordinate
             % system
             %
-            mat = get_u_to_rlu_mat(obj);
+            mat = get_u_to_rlu(obj);
         end
         function obj = set.u_to_rlu(obj,val)
             obj = obj.set_u_to_rlu(val);
@@ -88,23 +91,23 @@ classdef line_proj_interface < aProjectionBase
             ul = get_img_scales(obj);
         end
         function ul = get.ulen(obj)
-            ul = get_img_scales(obj);
+            ul = get_ulen(obj);
         end
         function obj = set.img_scales(obj,val)
             obj = obj.set_img_scales(val);
         end
-        function obj = set.ulen(obj,val)
-            obj = obj.set_img_scales(val);
-        end
+        % function obj = set.ulen(obj,val)
+        %     obj = obj.set_img_scales(val);
+        % end
         % OTHER NAMES
         %------------------------------------------------------------------
         function ub_inv = get.ub_inv_legacy(obj)
-            ub_inv = obj.u_to_rlu_;
+            ub_inv = get_u_to_rlu(obj);
         end
         function u2rlu_leg = get.u_to_rlu_legacy(obj)
             % U_to_rlu legacy is the matrix, returned by appropriate
             % operation in Horace version < 4.0
-            u2rlu_leg   = obj.u_to_rlu_;
+            u2rlu_leg   = get_u_to_rlu(obj);
         end
 
         function obj = set.ub_inv_legacy(obj,val)
@@ -144,7 +147,7 @@ classdef line_proj_interface < aProjectionBase
             % Levy
             %
             % Not used in production code and left for testing and
-            % refererence purposes
+            % reference purposes
             b_mat = obj.bmatrix(3);
             [rlu_to_u, u_to_rlu, ulen] = projaxes_to_rlu_legacy_(b_mat,type,nonortho,u,v,w);
         end
@@ -174,7 +177,7 @@ classdef line_proj_interface < aProjectionBase
             %          empty
             % type --  3-letter projection type as defined by line_proj
             % Optional:
-            % b-matrix  Busing and Levy B-matrix which defines thransformation between
+            % b-matrix  Busing and Levy B-matrix which defines transformation between
             %           hkle and Crystal Cartesian coordinate systems.
             %
             % Returns:
@@ -219,7 +222,7 @@ classdef line_proj_interface < aProjectionBase
                 pix_hkl = transform_img_to_hkl_(obj,img_coord,varargin{:});
             end
         end
-
+        %
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in crystal Cartesian coordinate systems
             % into image coordinate system
@@ -333,7 +336,7 @@ classdef line_proj_interface < aProjectionBase
 
             if nargout == 2
                 if nargin>2
-                    names = line_proj_interface.extract_eq_neq_names(varargin{:});
+                    names = LineProjBase.extract_eq_neq_names(varargin{:});
                 else
                     names = cell(2,1);
                     names{1} = inputname(1);
@@ -362,9 +365,6 @@ classdef line_proj_interface < aProjectionBase
             nis = ~is;
         end
         %
-        function  flds = saveableFields(~)
-            flds = {'u_to_rlu','img_scales'};
-        end
     end
     %
     methods(Static)
@@ -379,28 +379,14 @@ classdef line_proj_interface < aProjectionBase
     end
     %======================================================================
     methods(Access=protected)
-        function  mat = get_u_to_rlu_mat(obj)
-            % u_to_rlu defines the transformation from coordinates in
-            % image coordinate system to coordinates in hkl(dE) (rlu) coordinate
-            % system
-            %
-            mat = obj.u_to_rlu_;
-        end
-        function obj = set_u_to_rlu(obj,val)
-            %
-            if all(size(val) == [3,3])
-                obj.u_to_rlu_ = [val,zeros(3,1);[0,0,0,1]];
-            elseif all(size(val) == [4,4])
-                obj.u_to_rlu_ = val;
-            else
-                error('HORACE:horace3_proj_interface:invalid_argument', ...
-                    'u_to_rlu matrix must be 3x3 or 4x4 matrix. Actually its size is %s', ...
-                    disp2str(size(val)));
-            end
-        end
         function scales = get_img_scales(obj)
             scales = obj.img_scales_;
         end
+        function ulen = get_ulen(obj)
+            ulen = obj.img_scales_;
+            %ulen = obj.transform_img_to_hkl(scales(:));
+        end
+
         function obj = set_img_scales(obj,val)
             if ~isnumeric(val)||(numel(val)<3) || numel(val)>4
                 error('HORACE:horace3_proj_interface:invalid_argument', ...
@@ -418,7 +404,50 @@ classdef line_proj_interface < aProjectionBase
             % projection
             name = 'line_axes';
         end
-
+        %==================================================================
+        % Transformation
+        function obj = check_and_set_targ_proj(obj,val)
+            % overloaded setter for target proj.
+            % Input:
+            % val -- target projection
+            %
+            % sets up target projection as the parent method.
+            % In addition:
+            % sets up matrices, necessary for optimized transformations
+            % if both projections are line_proj
+            %
+            obj = check_and_set_targ_proj@aProjectionBase(obj,val);
+            if isa(obj.targ_proj_,'LineProjBase') && ~obj.disable_srce_to_targ_optimization
+                obj = set_ortho_ortho_transf_(obj);
+            else
+                obj.ortho_ortho_transf_mat_ = [];
+                obj.ortho_ortho_offset_ = [];
+            end
+        end
+        %
+        function   contrib_ind= get_contrib_cell_ind(obj,...
+                cur_axes_block,targ_proj,targ_axes_block)
+            % get indexes of cells which may contributing into the cut.
+            %
+            if obj.convert_targ_to_source && isa(targ_proj,class(obj))
+                contrib_ind= get_contrib_orthocell_ind_(obj,...
+                    cur_axes_block,targ_axes_block);
+            else
+                contrib_ind= get_contrib_cell_ind@aProjectionBase(obj,...
+                    cur_axes_block,targ_proj,targ_axes_block);
+            end
+        end
+        function obj = check_and_set_do_generic(obj,val)
+            % Overloaded internal setter for do_generic method.
+            % Clears specific transformation matrices if do_generic
+            % is false.
+            obj = check_and_set_do_generic@aProjectionBase(obj,val);
+            if obj.do_generic_
+                obj.ortho_ortho_transf_mat_ = [];
+                obj.ortho_ortho_offset_ = [];
+            end
+        end
+        %
     end
     methods(Static,Access=private)
         function names = extract_eq_neq_names(varargin)
@@ -454,12 +483,11 @@ classdef line_proj_interface < aProjectionBase
             end
             if isfield(inputs,'version') && inputs.version<7
                 if strcmp(inputs.serial_name,'ortho_proj')
-                    obj = ubmat_proj();
-                    inputs.serial_name = 'ubmat_proj';
+                    obj = line_proj();
+                    inputs.serial_name = 'line_proj';
                 end
             end
             obj = build_from_old_data_struct_(obj,inputs,header_av);
         end
     end
-
 end

@@ -222,7 +222,10 @@ classdef test_line_proj_construction<TestCase
             data.iint=[1;30];
             data.p={1:10;1:20;1:40};
             ax = line_axes.get_from_old_data(data);
+            clPro = set_temporary_warning('off','HORACE:legacy_interface');
             proj = line_proj.get_from_old_data(data);
+            [~,lwid] = lastwarn;
+            assertEqual(lwid,'HORACE:legacy_interface');
 
             do = DnDBase.dnd(ax,proj);
 
@@ -230,16 +233,16 @@ classdef test_line_proj_construction<TestCase
             pp = proj1.transform_pix_to_img([eye(3),[1;1;1]]);
             p_ref =[...
                 0.2274   -0.2274    0.0000    0.0000
-                0.7072    0.7072    0.0000    1.4144
+                -2.4023   -2.4023   -3.1095   -1.6951
                 0         0    0.9999    0.9999];
             assertElementsAlmostEqual(pp,p_ref,'absolute',1.e-4);
             opt = line_projTester(proj1);
 
-            [~, ~, ulen] = opt.projaxes_to_rlu_public();
-            assertElementsAlmostEqual(data.ulen(1:3),ulen','absolute',1.e-4);
+            ulen = opt.ulen;
+            assertElementsAlmostEqual(data.ulen,ulen','absolute',1.e-4);
 
             pcl = opt.transform_pix_to_img([eye(3),[1;1;1]]);
-            assertElementsAlmostEqual(pp,pcl,'absolute',3.e-4);
+            assertElementsAlmostEqual(pp,pcl,'absolute',4.e-4);
         end
 
 

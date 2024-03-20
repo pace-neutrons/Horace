@@ -1,4 +1,4 @@
-classdef ubmat_proj < line_proj_interface
+classdef ubmat_proj < LineProjBase
     %  Class defines coordinate transformations necessary to support legacy
     %  Horace cuts in crystal coordinate system (orthogonal or non-orthogonal)
     %
@@ -72,7 +72,7 @@ classdef ubmat_proj < line_proj_interface
         v; %[1x3] Vector of second axis (r.l.u.)
         w; %[1x3] Vector of third axis (r.l.u.) - used only if third character of type is 'p'
         type;  % Character string which defines normalization and left
-        % for compartibility with line_proj
+        % for compatibility with line_proj
         nonorthogonal; % Indicates if non-orthogonal axes are used (if true)
         %
         %
@@ -95,22 +95,21 @@ classdef ubmat_proj < line_proj_interface
 
     properties(Access=protected)
         % Cached properties value, calculated from input u_to_rlu matrix
-        type_  = 'aaa';
+        type_  = 'rrr';
         nonorthogonal_ = false;
         uvw_cache_     = eye(4);
-        %
-        uoffset_  = zeros(1,4);
+        % holder for matrix to convert from image coordinate system to
+        % hklE coordinate system (in rlu or hkle -- both are the same, two
+        % different name schemes are used)
+        u_to_rlu_ = eye(4);        
     end
     %======================================================================
     methods
         %------------------------------------------------------------------
         % Interfaces:
         function obj=ubmat_proj(varargin)
-            obj = obj@line_proj_interface();
+            obj = obj@LineProjBase();
             obj.label = {'\zeta','\xi','\eta','E'};
-            % try to use specific range-range identification algorithm,
-            % suitable for ortho-ortho transformation
-            obj.do_generic = false;
             if nargin>0
                 obj = obj.init(varargin{:});
             end
@@ -159,7 +158,7 @@ classdef ubmat_proj < line_proj_interface
             obj = obj.set_uoffset(val);
         end
         %------------------------------------------------------------------
-        % return line_proj which is siter projection to ubmat_proj
+        % return line_proj which is sister projection to ubmat_proj
         proj = get_line_proj(obj);
         function proj = get_ubmat_proj(obj)
             % return themselves            
@@ -173,35 +172,6 @@ classdef ubmat_proj < line_proj_interface
         % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
         %------------------------------------------------------------------
-        %
-        function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
-            % Converts from current to target projection coordinate system.
-            %
-            % Overloaded to optimize a line_proj to line_proj
-            % transformation.
-            %
-            % Inputs:
-            % obj       -- current projection, describing the system of
-            %              coordinates where the input pixels vector is
-            %              expressed in. The target projection property value
-            %              has to be set up on this object
-            % pix_origin   4xNpix vector of pixels coordinates expressed in
-            %              the coordinate system, defined by current
-            %              projection
-            %Outputs:
-            % pix_target -- 4xNpix vector of the pixels coordinates in the
-            %               coordinate system, defined by the target
-            %               projection.
-            %
-            if isempty(obj.ortho_ortho_transf_mat_)
-                % use generic projection transformation
-                pix_target = from_this_to_targ_coord@aProjectionBase(...
-                    obj,pix_origin,varargin{:});
-            else
-                pix_target = do_ortho_ortho_transformation_(...
-                    obj,pix_origin,varargin{:});
-            end
-        end
         %
         function [q_to_img,shift,img_scales,obj]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
@@ -258,20 +228,37 @@ classdef ubmat_proj < line_proj_interface
     end
     %======================================================================
     methods(Access = protected)
+        function  mat = get_u_to_rlu(obj)
+            % u_to_rlu defines the transformation from coordinates in
+            % image coordinate system to coordinates in hkl(dE) (rlu) coordinate
+            % system
+            %
+            mat = obj.u_to_rlu_;
+        end        
+        function obj = set_u_to_rlu(obj,val)
+            %
+            if all(size(val) == [3,3])
+                obj.u_to_rlu_ = [val,zeros(3,1);[0,0,0,1]];
+            elseif all(size(val) == [4,4])
+                obj.u_to_rlu_ = val;
+            else
+                error('HORACE:horace3_proj_interface:invalid_argument', ...
+                    'u_to_rlu matrix must be 3x3 or 4x4 matrix. Actually its size is %s', ...
+                    disp2str(size(val)));
+            end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end            
+        end
+        
         function is = get_proj_aligned(obj)
             is = obj.proj_aligned_;
         end
         function obj = set_proj_aligned(obj,val)
             obj.proj_aligned_ = logical(val);
         end
-        function obj = set_u_to_rlu(obj,val)
-            obj = set_u_to_rlu@line_proj_interface(obj,val);
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
-        end
         function obj = set_img_scales(obj,val)
-            obj = set_img_scales@line_proj_interface(obj,val);
+            obj = set_img_scales@LineProjBase(obj,val);
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -287,50 +274,6 @@ classdef ubmat_proj < line_proj_interface
                 obj = obj.check_combo_arg();
             end
         end
-        %------------------------------------------------------------------
-        function   contrib_ind= get_contrib_cell_ind(obj,...
-                cur_axes_block,targ_proj,targ_axes_block)
-            % get indexes of cells which may contributing into the cut.
-            %
-            if obj.convert_targ_to_source && isa(targ_proj,class(obj))
-                contrib_ind= get_contrib_orthocell_ind_(obj,...
-                    cur_axes_block,targ_axes_block);
-            else
-                contrib_ind= get_contrib_cell_ind@aProjectionBase(obj,...
-                    cur_axes_block,targ_proj,targ_axes_block);
-            end
-        end
-        %
-        function obj = check_and_set_targ_proj(obj,val)
-            % overloaded setter for target proj.
-            % Input:
-            % val -- target projection
-            %
-            % sets up target projection as the parent method.
-            % In addition:
-            % sets up matrices, necessary for optimized transformations
-            % if both projections are line_proj
-            %
-            obj = check_and_set_targ_proj@aProjectionBase(obj,val);
-            % if isa(obj.targ_proj_,'line_proj') && ~obj.disable_srce_to_targ_optimization
-            %     obj = set_ortho_ortho_transf_(obj);
-            % else
-            obj.ortho_ortho_transf_mat_ = [];
-            obj.ortho_ortho_offset_ = [];
-            % end
-        end
-        %
-        function obj = check_and_set_do_generic(obj,val)
-            % Overloaded internal setter for do_generic method.
-            % Clears specific transformation matrices if do_generic
-            % is false.
-            obj = check_and_set_do_generic@aProjectionBase(obj,val);
-            if obj.do_generic_
-                obj.ortho_ortho_transf_mat_ = [];
-                obj.ortho_ortho_offset_ = [];
-            end
-        end
-        %
     end
     %=====================================================================
     % SERIALIZABLE INTERFACE
@@ -342,7 +285,7 @@ classdef ubmat_proj < line_proj_interface
         function  flds = saveableFields(obj)
             %
             aproj_flds = saveableFields@aProjectionBase(obj);
-            comp_fils  = saveableFields@line_proj_interface(obj);
+            comp_fils = {'u_to_rlu','img_scales'};            
             flds = [comp_fils(:);aproj_flds(:)];
         end
         %------------------------------------------------------------------

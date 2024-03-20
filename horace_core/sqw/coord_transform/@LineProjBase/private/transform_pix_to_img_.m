@@ -46,5 +46,3 @@ else
     pix_transf= pix_to_img*(pix_input - offset_cc(:));
 
 end
-
-end

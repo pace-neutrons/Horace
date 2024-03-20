@@ -33,8 +33,9 @@ ub_inv = u_to_rlu./ulen(:)'; % every column divided by proper ulen;
 %u_rot_mat = b_mat\u_rot_mat; % old style transformation matrix need this
 % to define the transformation
 
-umat = (b_mat*ub_inv(1:3,1:3))';%Recover umat, umat vectors arranged in rows and it
-% should be rotation matrix for orthogonal coordinate system
+umat = inv(b_mat*ub_inv(1:3,1:3));%Recover umat, umat vectors arranged in rows and it
+% should be rotation matrix for orthogonal coordinate system. Inv equal
+% to ' for rotaion matrix but not for non-orthogonal transformation
 err = 1.e-8;
 cross_proj = [umat(1,:)*umat(2,:)',umat(1,:)*umat(3,:)',umat(2,:)*umat(3,:)'];
 if any(abs(cross_proj) > err)
@@ -78,7 +79,7 @@ if ortho
 
     type = [lt{:}];
 else % non-ortho
-    transf_cc = umat'; % that's nonorthogonal transformation (row 85 in projtransf_to_img)
+    transf_cc = inv(umat); % that's nonorthogonal transformation (row 85 in projtransf_to_img)
     uvw  = b_mat\transf_cc;
     uvw_orth = transf_cc;
 
