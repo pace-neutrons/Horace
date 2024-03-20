@@ -342,3 +342,4 @@ classdef test_ubmat_proj_construction<TestCase
         end
     end
 end
+

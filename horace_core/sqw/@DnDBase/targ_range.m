@@ -31,13 +31,6 @@ else
     if ~targ_proj.angdeg_defined
         targ_proj.angdeg = source_proj.angdeg;
     end
-    % if ~isa(targ_proj,'line_proj') && (isa(source_proj,'ubmat_proj') && ~isempty(source_proj.ub_inv_legacy))
-    %     warning('HORACE:old_file_format', ...
-    %         ['\n Non-line projections are fully supported by version 4.0 and higher Horace sqw objects only.\n', ...
-    %         ' If you use aligned sqw object produced by old Horace version,\n', ...
-    %         ' the resulting cut with non-line projection will be performed on misaligned data\n', ...
-    %         ' Convert old misaligned data into new file-format and realign these data again to use cuts with not-line projections.']);
-    % end
     %
     % cross-assign appropriate projections to enable possible optimizations
     source_proj.targ_proj = targ_proj;

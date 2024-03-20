@@ -19,41 +19,41 @@ classdef test_line_proj_transf_orth<TestCase
             v = [0,0,1];
             alatt = [2.83,2,4];
             angdeg = [95,75,80];
-            pra = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg,'type','aaa');            
+            pra = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg,'type','aaa');
             source = [eye(4),ones(4,1)];
 
             tp_img = pra.transform_pix_to_img(source);
-            tp_hkl_base = pra.transform_img_to_hkl(tp_img);            
+            tp_hkl_base = pra.transform_img_to_hkl(tp_img);
             types = {'ppa','rrr','ppr','apr'};
             for i=1:numel(types)
                 pr_tp = line_proj(u,v,'alatt',alatt,'angdeg',angdeg,'type',types{i});
-                tp_img = pr_tp.transform_pix_to_img(source);           
-                tp_hkl = pr_tp.transform_img_to_hkl(tp_img);                            
+                tp_img = pr_tp.transform_pix_to_img(source);
+                tp_hkl = pr_tp.transform_img_to_hkl(tp_img);
 
                 assertElementsAlmostEqual(tp_hkl,tp_hkl_base);
             end
         end
-        
+
         function test_transf_to_hkl_type_irrelevant_ortho_ortho(~)
             u = [1,0,0];
             v = [0,0,1];
             alatt = 2.83;
             angdeg = 90;
-            pra = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg,'type','aaa');            
+            pra = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg,'type','aaa');
             source = [eye(4),ones(4,1)];
 
             tp_img = pra.transform_pix_to_img(source);
-            tp_hkl_base = pra.transform_img_to_hkl(tp_img);            
+            tp_hkl_base = pra.transform_img_to_hkl(tp_img);
             types = {'ppa','rrr','ppr','apr'};
             for i=1:numel(types)
                 pr_tp = line_proj(u,v,'alatt',alatt,'angdeg',angdeg,'type',types{i});
-                tp_img = pr_tp.transform_pix_to_img(source);           
-                tp_hkl = pr_tp.transform_img_to_hkl(tp_img);                            
+                tp_img = pr_tp.transform_pix_to_img(source);
+                tp_hkl = pr_tp.transform_img_to_hkl(tp_img);
 
                 assertElementsAlmostEqual(tp_hkl,tp_hkl_base);
             end
         end
-        
+
         %------------------------------------------------------------------
         %
         %------------------------------------------------------------------
