@@ -42,9 +42,6 @@ wout = obj;
 alignment_mat = alignment_info.rotmat;
 for i=1:numel(obj)
     proj = obj(i).data.proj;    % unmodified projection to change
-    if isa(proj,'ubmat_proj')
-        alignment_info.legacy_mode = true;
-    end
     wout(i).data = obj(i).data.change_crystal(alignment_info);
     wout(i).experiment_info = obj(i).experiment_info.change_crystal(alignment_info,proj);
     %

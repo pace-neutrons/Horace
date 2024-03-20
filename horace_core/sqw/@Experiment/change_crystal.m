@@ -12,7 +12,10 @@ function obj=change_crystal(obj,alignment_info,proj)
 %                   routine. Type:
 %                  >> help refine_crystal  for more details.
 % proj            -- the instance of the projection, which converts pixels
-%                   from
+%                   from pixel to image coordinate system. Used to
+%                   calculate corrections to uoffset in legacy mode.
+%                   As this offset is always 0, its unclear if using this
+%                   in any way bebeficial.
 % Returns:
 % obj             -- realigned experiment data;
 
