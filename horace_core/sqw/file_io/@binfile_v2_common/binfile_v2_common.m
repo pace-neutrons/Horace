@@ -395,9 +395,11 @@ classdef binfile_v2_common < horace_binfile_interface
             flds = flds(~cdi);
             hd = struct();
 
-            % HACK. This should be dealt with some day. u_to_rlu should go
             if ~isfield(data,'u_to_rlu') && isfield(data,'u_to_rlu_legacy')
                 data.u_to_rlu = data.u_to_rlu_legacy;
+            end
+            if ~isfield(data,'offset') && isfield(data,'uoffset')
+                data.offset = data.uoffset;
             end
 
             for i=1:numel(flds)
