@@ -93,7 +93,7 @@ classdef ubmat_proj < LineProjBase
         % Cached properties value, calculated from input u_to_rlu matrix
         type_  = 'rrr';
         nonorthogonal_ = false;
-        uvw_cache_     = eye(4);
+        uvw_cache_     = eye(3);
         % holder for matrix to convert from image coordinate system to
         % hklE coordinate system (in rlu or hkle -- both are the same, two
         % different name schemes are used)
