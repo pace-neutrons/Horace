@@ -459,7 +459,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             cut_al = cut(wout_aligned, proj, cut_range{:});
             assertEqualToTol(cut_cor, cut_al, 'tol', 1.e-9);
         end
-
+        %
         function test_legacy_vs_pix_alignment(obj)
             % theoretical Bragg points positions
             bragg_pos=[...
@@ -530,8 +530,8 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             corr.legacy_mode = false;
             wout_align = change_crystal (test_obj, corr);
-            
-            
+
+
             % Legacy aligned data are converted to modern aligned data at
             % save/load operations:
             ss = wout_legacy.to_struct();
