@@ -1,4 +1,4 @@
-function msln_files_list = upgrade_file_format(filenames,varargin)
+function sqw_list = upgrade_file_format(filenames,varargin)
 % Helper function to update sqw file(s) into new file format version,
 % calculating all necessary averages present in the new file format.
 %
@@ -15,9 +15,7 @@ function msln_files_list = upgrade_file_format(filenames,varargin)
 % Result:
 % The file format of the provided files is updated to version 4
 % (currently recent)
-% Returns:
-% msln_files_list -- cellarray of files, which are legacy aligned and
-%                    should be realigned first
+% If requested, returns list of processed sqw objects (may be filebacked)
 
 [ok,mess,upgrade_ranges,argi] = parse_char_options(varargin,'-upgrade_range');
 if ~ok
@@ -28,18 +26,10 @@ if upgrade_ranges
 else
     upgrade_arg = {};
 end
-msln_files_list = {};
 
 if istext(filenames)
     filenames = cellstr(filenames);
 end
-if numel(argi)>0
-    [alatt,angdeg] = prepare_lattice(argi{1},argi{2},numel(filenames));
-else
-    alatt = {};
-    angdeg = {};
-end
-
 n_inputs = numel(filenames);
 is_file = cellfun(@isfile,filenames);
 if ~all(is_file)
@@ -50,16 +40,26 @@ if ~all(is_file)
 end
 is_sqw = cellfun(@is_sqw_extension,filenames);
 %
-
+if nargout > 0
+    sqw_list = cell(1,n_inputs);
+end
 for i=1:n_inputs
     if is_sqw(i)
         ld = sqw_formats_factory.instance().get_loader(filenames{i});
-        if isa(ld,'faccess_sqw_v4') %
-            finalize_alignment(ld);   % Will do nothing if the file is not aligned
+        if isa(ld,'faccess_sqw_v4') && upgrade_ranges %
+            if nargout > 1
+                sqw_list{i} = finalize_alignment(ld);
+            else
+                finalize_alignment(ld);   % Will do nothing if the file is not aligned
+            end
         else
             ld_new = ld.upgrade_file_format(upgrade_arg{:});
+            if nargout > 0
+                sqw_list{i} = sqw(ld_new,'file_backed',true);
+            end
             ld_new.delete();
         end
+        ld.delete();
     else
         try
             ld = load(filenames{i});
@@ -68,26 +68,12 @@ for i=1:n_inputs
                 'Can not load file: %s\n Reason: %s',ME.message);
         end
         save(filenames{i},'-struct','ld');
+        if nargout>0
+            sqw_list{i} = ld;
+        end
+        
     end
 end
-
-function  [alatt,angdeg] = prepare_lattice(alatt,angdeg,nfiles)
-if iscell(alatt)
-    if numel(alatt) == nfiles &&  iscell(angdeg)&& numel(angdeg) == nfiles
-        return;
-    else
-        error('HORACE:admin:upgrade_file_format', ...
-            'if you provide lattice parameters in the form of cellarray, the number of elements in this celarray have to be equal to the number of files to upgrade')
-    end
-end
-if ~(isnumeric(alatt) && isvector(alatt)&&numel(alatt)==3) ...
-        || ~(isnumeric(angdeg) && isvector(angdeg)&&numel(angdeg)==3)
-    error('HORACE:admin:upgrade_file_format', ...
-        'single alatt and angdeg have to be 3-element vectors');
-end
-ii = 1:nfiles;
-alatt = arrayfun(@(x)(alatt),ii,'UniformOutput',false);
-angdeg = arrayfun(@(x)(angdeg),ii,'UniformOutput',false);
 
 function is = is_sqw_extension(fn)
 [~,~,fe] = fileparts(fn);
