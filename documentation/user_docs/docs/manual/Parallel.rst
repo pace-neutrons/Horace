@@ -11,6 +11,12 @@ speed up large operations.
 
 .. warning::
 
+   Due to the nature of parallelism, some parallel operations require extra
+   memory which may be up to twice the size of the ``sqw`` objects you're
+   operating on.
+
+.. warning::
+
    Be aware that for small jobs or some combinations of parameters, parallel
    calculation may, in fact, be slower than serial execution due to startup
    times and message sending. In future we hope to bring these times down and
