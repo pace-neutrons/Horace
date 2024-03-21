@@ -46,7 +46,7 @@ That is, for each detector-energy element it determines :math:`N` deviations
 By default :math:`N=10` is used because often there are many detector-energy elements 
 (``pixel`` in Horace syntax) which contribute to a single bin (histogram),
 so there is already some broadening included.
-This means, though, that resolution calculations takes :math:`N` times longer
+This means, though, that resolution-convolved calculations takes :math:`N` times longer
 than non-resolution convolved calculations.
 The value of :math:`N` is set using the ``set_mc_points`` method of the :ref:`tobyfit class <manual/Tobyfit:Tobyfit>`.
 
@@ -62,7 +62,7 @@ Horace considers 11 variables which contribute to the resolution broadening, ran
   so it was assumed that the neutron beam's angular divergences :math:`(\gamma_y, \gamma_z)`
   can be determined simply by the size of the aperture / viewport onto the moderator.
   (Horace uses a laboratory coordinate system where :math:`x` is the beam direction,
-  :math:`y` is horizontal perpendicular to the beam and :math:`z` is vertical).
+  :math:`y` is the horizontal direction perpendicular to the beam and :math:`z` is vertical).
   Modern neutron guides are accommodated in this formulism by pre-calculating the 
   (incident energy dependent) divergences using a neutron ray-tracing code 
   (`McStas <http://mcstas.org/>`__ in this case) and using look-up tables in the code.
@@ -176,7 +176,7 @@ geometry spectrometers which can measure single crystals:
     + ``1`` - LET until autumn 2016 (with the original double funnel snout at Chopper 5).
     + ``2`` - LET since autumn 2016 (with a single focusing final guide section).
 
-In addition to the above parameters all instruments also take a optional ``'mod_value'``
+In addition to the above parameters all instruments also take a optional ``'moderator'``
 argument specifying the type of moderator pulse model to use.
 At present, only two options are available:
 
@@ -263,7 +263,7 @@ We have chosen the simpler model here so it can fit into a Matlab anonymous func
 .. code-block:: matlab
 
    % Make cut
-   proj = ortho_proj([1,1,0], [-1,1,0], 'type', 'rrr');
+   proj = line_proj([1,1,0], [-1,1,0], 'type', 'rrr');
    w1 = cut_sqw('fe_cut.sqw', proj, 0.05, [-1.05,-0.95], [-0.1,0.1], [80, 100])
    
    % Define the instrument and sample information on the cut
@@ -315,8 +315,8 @@ Finally, Horace can also plot a resolution ellipsoid over a *2D* plot
 
 .. code-block:: matlab
 
-   proj = ortho_proj([1,1,0], [-1,1,0], 'type', 'rrr');
-   w1 = cut_sqw('fe_cut.sqw', proj, 0.05, [-1.1,-0.9], [-0.1, 0.1], [50,5,120]);
+   proj = line_proj([1,1,0], [-1,1,0], 'type', 'rrr');
+   w1 = cut_sqw('fe_cut.sqw', proj, [-0.1,0.05,1.7], [-1.1,-0.9], [-0.1, 0.1], [30,5,120]);
    xdir = [1,0,0]; ydir = [0,1,0]; ei = 401; freq = 600; chop_type = 's';
    w1 = set_sample(w1, IX_sample(xdir, ydir, 'cuboid', [0.03,0.03,0.03]));
    w1 = set_instrument(w1, maps_instrument(ei, freq, chop_type));
