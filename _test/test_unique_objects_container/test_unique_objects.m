@@ -131,6 +131,8 @@ classdef test_unique_objects < TestCase
         end
 
         function test_save_load(~)
+            % tests that containers saved in the current version are
+            % correctly reloaded
             uoc = unique_objects_container();
             uoc(1) = 'aaaaa';
             uoc(2) = 'bbbb';
@@ -140,6 +142,27 @@ classdef test_unique_objects < TestCase
             save('unique_objects_container_test_save_load_1.mat','uoc');
             zzz = load('unique_objects_container_test_save_load_1.mat');
             assertEqual(zzz.uoc{3},'bbbb');
+            assertEqual(zzz.uoc.hash(1),'d699c81f3eb55215b494c95842d3769b');
+            assertEqual(zzz.uoc.hash(2),'c08555295302d43cea7e472fc9a82608');
+            assertEqual(zzz.uoc.hash(3),'c08555295302d43cea7e472fc9a82608');
+        end
+
+        function test_save_load_old(~)
+            % tests that containers saved in previous version are correctly
+            % loaded. The file loaded to zzz is the same file saved in
+            % test_save_load using version 1 of unique_objects_container.
+            % the object uoc is initialised in the same way as for
+            % test_save_load.
+            zzz = load('unique_objects_container_test_save_load_2.mat');
+            uoc = unique_objects_container();
+            uoc(1) = 'aaaaa';
+            uoc(2) = 'bbbb';
+            uoc(3) = 'bbbb';
+            assertTrue(uoc.do_check_combo_arg);
+            assertEqual(zzz.uoc{3},'bbbb');
+            assertEqual(zzz.uoc.hash(1),'d699c81f3eb55215b494c95842d3769b');
+            assertEqual(zzz.uoc.hash(2),'c08555295302d43cea7e472fc9a82608');
+            assertEqual(zzz.uoc.hash(3),'c08555295302d43cea7e472fc9a82608');            
         end
 
         function test_replace_unique_same_number_works(~)
