@@ -223,17 +223,9 @@ classdef line_proj < LineProjBase
             proj = obj;
         end
     end
-    methods
-        %
-    end
     %======================================================================
-    % TRANSFORMATIONS:
+    % TRANSFORMATIONS and Alignment:
     methods
-        %------------------------------------------------------------------
-        % Particular implementation of aProjectionBase abstract interface
-        % and overloads for specific methods
-        %------------------------------------------------------------------
-        %
         function [q_to_img,shift,img_scales,obj]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
             % to image coordinate system and vice-versa.
@@ -261,10 +253,6 @@ classdef line_proj < LineProjBase
             %
             [q_to_img,shift,img_scales,obj]=get_pix_img_transformation_(obj,ndim,varargin{:});
         end
-    end
-    %======================================================================
-    % Related Axes and Alignment
-    methods
         %
         function [obj,axes] = align_proj(obj,alignment_info,varargin)
             % Apply crystal alignment information to the projection
@@ -296,6 +284,9 @@ classdef line_proj < LineProjBase
             %
             mat = obj.get_pix_img_transformation(4)*obj.bmatrix(4);
             u_to_rlu = inv(mat);
+        end
+        function img_scales = get_img_scales(obj)
+            [~,~,img_scales]=obj.get_pix_img_transformation(4);
         end
         function obj = set_u_to_rlu(varargin)
             error('HORACE:line_proj:invalid_argument', ...

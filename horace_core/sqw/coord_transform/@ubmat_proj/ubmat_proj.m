@@ -162,13 +162,8 @@ classdef ubmat_proj < LineProjBase
         end
     end
     %======================================================================
-    % TRANSFORMATIONS:
+    % TRANSFORMATIONS and Alignment:
     methods
-        %------------------------------------------------------------------
-        % Particular implementation of aProjectionBase abstract interface
-        % and overloads for specific methods
-        %------------------------------------------------------------------
-        %
         function [q_to_img,shift,img_scales,obj]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
             % to image coordinate system and vice-versa.
@@ -196,10 +191,6 @@ classdef ubmat_proj < LineProjBase
             %
             [q_to_img,shift,img_scales,obj]=get_pix_img_transformation_(obj,ndim,varargin{:});
         end
-    end
-    %======================================================================
-    % Related Axes and Alignment
-    methods
         %
         function [obj,axes] = align_proj(obj,alignment_info,varargin)
             % Apply crystal alignment information to the projection
@@ -246,18 +237,31 @@ classdef ubmat_proj < LineProjBase
                 obj = obj.check_combo_arg();
             end
         end
-
+        function scales = get_img_scales(obj)
+            scales = obj.img_scales_;
+        end
+        %
+        function obj = set_img_scales(obj,val)
+            if ~isnumeric(val)||(numel(val)<3) || numel(val)>4
+                error('HORACE:horace3_proj_interface:invalid_argument', ...
+                    'ulen has to be 3 or 4-components numeric vector. It is %s', ...
+                    disp2str(val));
+            end
+            if numel(val) == 3
+                obj.img_scales_ = [val(:)',1];
+            elseif numel(val)== 4
+                obj.img_scales_ = val(:)';
+            end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+        %
         function is = get_proj_aligned(obj)
             is = obj.proj_aligned_;
         end
         function obj = set_proj_aligned(obj,val)
             obj.proj_aligned_ = logical(val);
-        end
-        function obj = set_img_scales(obj,val)
-            obj = set_img_scales@LineProjBase(obj,val);
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
         end
         function obj = set_uoffset(obj,val)
             if ~isnumeric(val) || numel(val)~=4

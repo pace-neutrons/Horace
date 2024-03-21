@@ -23,6 +23,20 @@ function [q_to_img,shift,img_scales,obj]=get_pix_img_transformation_(obj,ndim,va
 %          -- [1 x ndim] array of scales along the image axes used
 %             in the transformation
 
+% Optimization, necessary to combine pix_to_img transformation matrix and
+% aligment matrix into single transformation matrix
+if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
+    pix = varargin{1};
+    if pix.is_misaligned
+        alignment_needed = true;
+        alignment_mat = pix.alignment_matr;
+    else
+        alignment_needed = false;
+    end
+else
+    alignment_needed = false;
+end
+
 
 bmat = obj.bmatrix(ndim);
 if ndim==4
@@ -37,6 +51,9 @@ else
     error('HORACE:orhto_proj:invalid_argument',...
         'The ndim input may be 3 or 4  actually it is: %s',...
         evalc('disp(ndim)'));
+end
+if alignment_needed
+    q_to_img(1:3,1:3) = q_to_img(1:3,1:3)*alignment_mat;
 end
 if nargout > 1
     % convert shift, expressed in hkl into crystal Cartesian coordinate

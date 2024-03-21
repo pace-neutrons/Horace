@@ -28,16 +28,13 @@ if ~obj.alatt_defined||~obj.angdeg_defined
         'Attempt to use coordinate transformations before lattice is defined. Define lattice parameters first')
 end
 
+% Optimization, necessary to combine pix_to_img transformation matrix and
+% aligment matrix into single transformation matrix
 if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
     pix = varargin{1};
     if pix.is_misaligned
         alignment_needed = true;
-        alignment_mat = pix.alignment_matr; % NEED CLARIFICATION:
-        % if obj.proj_aligned_ % double rotate pixels to maintain consistency
-        %     % between pixels and image. Single rotation makes pixels
-        %     % aligned ????
-        %     alignment_mat = alignment_mat*alignment_mat;
-        % end
+        alignment_mat = pix.alignment_matr;
     else
         alignment_needed = false;
     end
@@ -49,7 +46,7 @@ if ~isempty(obj.q_to_img_cache_)
     shift      = obj.q_offset_cache_(1:ndim);
     img_scales = obj.img_scales_(1:ndim);
     if alignment_needed
-        q_to_img  = q_to_img*alignment_mat;
+        q_to_img(1:3,1:3)  = q_to_img(1:3,1:3)*alignment_mat;
     end
     return;
 end

@@ -10,42 +10,30 @@ classdef LineProjBase < aProjectionBase
     %interface. Also helps to load old data into new class structure
     %
     %
-    properties(Dependent)
-        % scaling factors used in transformation from pix to image
-        % coordinate system.
-        img_scales % the scaling factor (in A^-1)
-    end
     properties(Dependent,Hidden)
+        % scaling factors used in transformation from pix to image
+        % coordinate system. Property of ubmat_proj but calculated in
+        % line_proj
+        img_scales % the scaling factor (in A^-1)
         % Matrix to convert from image coordinate system to scaled. The
         % scale is defined by ulen
         % hklE coordinate system (in rlu or hkle -- both are the same, two
         % different name schemes are used)
         u_to_rlu
-        % length of image coordinate system vectors expressed in hkle as
-        % above)
-        % coordinate system. Defined by type property
-        ulen;       % old interface providing access to image scales
-
-        % Three properties below are responsible for support of old binary
-        % file format and legacy alignment
-        %
-        % LEGACY PROPERTY: (used for saving data in old file format)
-        % Return the compatibility structure, which may be used as
-        % additional input to data_sqw_dnd constructor
-        compat_struct;
 
         % PROPERTIES superseded by u_to_rlu and not used any more but written
         % on some stages on disk so left here for loading
         %
+        % Three properties below are responsible for support of old binary
+        % file format and legacy alignment
+        % length of image coordinate system vectors expressed in hkle as
+        % above) coordinate system.
+        ulen;   % old interface to access to image_scales properties
+        % LEGACY PROPERTY: (used for saving data in old file format)
+        % Return the compatibility structure, which may be used as
+        % additional input to data_sqw_dnd constructor
+        compat_struct;
         % LEGACY PROPERTY:
-        % inverted B matrix, obtained from headers and set on
-        % projection when loading realigned data from file in the new code
-        % as old aligned files modify it and there are no way
-        % of identifying if the file was aligned or not. Modern code
-        % calculates this matrix on request using alignment matrix attached
-        % to pixels.
-        ub_inv_legacy;
-        %
         u_to_rlu_legacy; % old u_to_rlu transformation matrix,
         % calculated by original Toby algorithm.
 
@@ -56,29 +44,30 @@ classdef LineProjBase < aProjectionBase
         % to a cut. Correct value is chosen on basis of performance analysis
         convert_targ_to_source=true;
     end
-    
-    properties(Access=protected)
-        % Holder for image scales
-        img_scales_     = ones(1,4);
 
+    properties(Access=protected)
         % The properties used to optimize from_current_to_targ method
         % transformation, if both current and target projections are
-        % line_proj_interface children classes
+        % LineProjBase children classes
         ortho_ortho_transf_mat_;
         ortho_ortho_offset_;
+        % Holder for image scales (common for ubmat proj and line proj
+        % though it is property for ubmat_proj and cache for line_proj)
+        img_scales_     = ones(1,4);
     end
     methods(Abstract)
         proj = get_ubmat_proj(obj);
         proj = get_line_proj(obj);
-
     end
     methods(Abstract,Access= protected)
         u_to_rlu = get_u_to_rlu(obj)
         obj = set_u_to_rlu(obj,u_to_rlu)
+        scales   = get_img_scales(obj);
+        obj      = set_img_scales(obj,val);
     end
-
+    %======================================================================
+    % Accessors
     methods
-        %------------------------------------------------------------------
         function mat = get.u_to_rlu(obj)
             % get old u_to_rlu transformation matrix from current
             % transformation matrix. Used in legacy code and axes captions
@@ -98,7 +87,7 @@ classdef LineProjBase < aProjectionBase
             ul = get_img_scales(obj);
         end
         function ul = get.ulen(obj)
-            ul = get_ulen(obj);
+            ul = get_img_scales(obj);
         end
         function obj = set.img_scales(obj,val)
             obj = obj.set_img_scales(val);
@@ -108,21 +97,10 @@ classdef LineProjBase < aProjectionBase
         % end
         % OTHER NAMES
         %------------------------------------------------------------------
-        function ub_inv = get.ub_inv_legacy(obj)
-            ub_inv = get_u_to_rlu(obj);
-        end
         function u2rlu_leg = get.u_to_rlu_legacy(obj)
             % U_to_rlu legacy is the matrix, returned by appropriate
             % operation in Horace version < 4.0
             u2rlu_leg   = get_u_to_rlu(obj);
-        end
-
-        function obj = set.ub_inv_legacy(obj,val)
-            % no comprehensive checks performed here.  It is compatibility
-            % with old file format. The method should be used
-            % by saveobj/loadobj only. Use set_ub_inv_compat, which does all
-            % necessary checks in any other case.
-            obj = obj.set_u_to_rlu(val);
         end
         %------------------------------------------------------------------
         function str= get.compat_struct(obj)
@@ -386,26 +364,6 @@ classdef LineProjBase < aProjectionBase
     end
     %======================================================================
     methods(Access=protected)
-        function scales = get_img_scales(obj)
-            scales = obj.img_scales_;
-        end
-        function ulen = get_ulen(obj)
-            ulen = obj.img_scales_;
-            %ulen = obj.transform_img_to_hkl(scales(:));
-        end
-
-        function obj = set_img_scales(obj,val)
-            if ~isnumeric(val)||(numel(val)<3) || numel(val)>4
-                error('HORACE:horace3_proj_interface:invalid_argument', ...
-                    'ulen has to be 3 or 4-components numeric vector. It is %s', ...
-                    disp2str(val));
-            end
-            if numel(val) == 3
-                obj.img_scales_ = [val(:)',1];
-            elseif numel(val)== 4
-                obj.img_scales_ = val(:)';
-            end
-        end
         function name = get_axes_name(~)
             % return the name of the axes class, which corresponds to this
             % projection
@@ -454,7 +412,45 @@ classdef LineProjBase < aProjectionBase
                 obj.ortho_ortho_offset_ = [];
             end
         end
-        %
+        %------------------------------------------------------------------
+        % Axes aligmnent
+        function [range_in_cc,closest_nodes] = get_axes_cc_range(obj,ax_block)
+            % convert axes range from image coordinate system to Crystal
+            % Cartesian coordinate system.
+
+            % Modified offset is accounted for within the img->pix transformation.
+            img_range = ax_block.img_range;
+            [full_range,perm] = expand_box(img_range(1,1:3),img_range(2,1:3));
+            % Transfer ranges into Crystal Cartesian coordinate system
+            range_in_cc  = obj.transform_img_to_pix(full_range); % axes_block sizes
+
+            %Identify nodes nearest to node 1:
+            perm_dist = perm - perm(:,1);
+            closest_nodes = sum(perm_dist,1)==1;
+        end
+        function ax_block = align_axes(obj,ax_block,range_in_cc,closest_nodes)
+            % Align axes using modified projection and initial axes range
+            % expressed in Crystal Cartesian coordinate system
+            %
+            % Inputs:
+            % obj          -- projection modified to account for alignment
+            % ax_block     -- the axes block to align
+            % range_in_cc  -- range_in_cc -- full projection range (all
+            %                 range points) expressed in Crystal Cartesian
+            %                 coordinate system
+            % closest_nodes-- set of indices which identify order of nodes
+            %                 in range_in_cc with respect to notional first
+            %                 node. Used to identify correct image range
+            %
+            full_range_corr = obj.transform_pix_to_img(range_in_cc);
+            corr_range = [min(full_range_corr,[],2),max(full_range_corr,[],2)];
+            centre = 0.5*(corr_range(:,1)+corr_range(:,2));
+            %sizes of the modified box in the image coordinate system
+            size = vecnorm(full_range_corr(:,closest_nodes)-full_range_corr(:,1));
+
+            new_range = [centre-0.5*size(:),centre+0.5*size(:)]';
+            ax_block.img_range(:,1:3) = new_range;
+        end
     end
     methods(Static,Access=private)
         function names = extract_eq_neq_names(varargin)
