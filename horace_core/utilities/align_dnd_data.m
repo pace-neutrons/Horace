@@ -13,7 +13,7 @@ function [dnd_obj,al_info] = align_dnd_data(dnd_obj,hav)
 %
 proj = dnd_obj.proj;
 if (isfield(hav,'u_to_rlu')||isprop(hav,'u_to_rlu')) && ~isempty(hav.u_to_rlu)
-    alignment_matrix = hav.u_to_rlu*proj.bmatrix(4);
+    alignment_matrix = proj.bmatrix(4)*hav.u_to_rlu;
 else
     alignment_matrix= eye(2);
 end

@@ -7,7 +7,7 @@ classdef Experiment < serializable
         instruments_ = 'initialised in constructor';
         detector_arrays_ = 'initialised in constructor';
         samples_ = 'initialised in constructor';
-        samples_set_ = false; % Two prperties used to harmonize lattice
+        samples_set_ = false; % Two properties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata
         %holder to store old sample lattice if the new lattice is set
         old_lattice_holder_ = [];
@@ -214,13 +214,12 @@ classdef Experiment < serializable
             % Inputs:
             % logical value, if true, says that run_id were recalculated by
             % external (test) procedure. Normally the property is modified
-            % during loading old files and set-up internaly in loadobj
+            % during loading old files and set-up internally in loadobj
             % from_old_struct.
             %
             obj.runid_recalculated_ = logical(val);
         end
         % Alignment
-        obj = upgrade_legacy_alignment(obj,dealignment_info,alatt,angdeg);
         obj = change_crystal(obj,alignment_info,varargin)
     end
     %----------------------------------------------------------------------

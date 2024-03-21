@@ -188,12 +188,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
         % Change the crystal lattice and orientation of dnd object or
         % array of objects
         wout = change_crystal(win,al_info,varargin);
-        % modify crystal lattice and orientation matrix to remove legacy
-        % alignment.
-        [wout,al_info,alatt0,angdeg0] = remove_legacy_alignment(obj,varargin)
-        % remove legacy alignment and put modern alignment instead
-        [wout,al_info,no_alignment,alatt0,angdeg0] = upgrade_legacy_alignment(obj,varargin)
-        %------------------------------------------------------------------
+          %------------------------------------------------------------------
         %
         function varargout = IX_dataset_1d(obj)
             error('HORACE:DnDBase:not_implemented', ...

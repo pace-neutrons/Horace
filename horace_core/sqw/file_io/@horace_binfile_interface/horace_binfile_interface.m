@@ -154,8 +154,8 @@ classdef horace_binfile_interface < serializable
         % applications and adds some information about stored sqw/dnd
         % object and binary file version
         % The binary header should be readable by all Horace versions
-        % including binary versions, so its implemenataion is moved to top
-        % faccessors level
+        % including binary versions, so its implementation is moved to top
+        % f-accessors level
         app_header = build_app_header(obj,varargin)
         % store application header which describes the sqw binary file
         obj = put_app_header(obj,varargin);

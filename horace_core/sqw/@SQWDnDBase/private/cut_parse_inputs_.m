@@ -226,15 +226,18 @@ for i=1:npbin_expected
 end
 
 if opt.proj_given
-    % check if the projection has no lattice defined and define the
-    % lattice for cut
+    % There are currently no situations where we want to define lattice in
+    % projection. so always take lattice from the source object
     source_proj = obj.proj;
-    if ~proj.alatt_defined
-        proj.alatt = source_proj.alatt;
-    end
-    if ~proj.angdeg_defined
-        proj.angdeg = source_proj.angdeg;
-    end
+    %if ~proj.alatt_defined
+    proj.do_check_combo_arg = false;
+    proj.alatt = source_proj.alatt;
+    %end
+    %if ~proj.angdeg_defined
+    proj.angdeg = source_proj.angdeg;
+    proj.do_check_combo_arg = true;    
+    proj = proj.check_combo_arg();
+    %end
 
 else % it may be fewer parameters then actual dimensions and
     % if no projection is given, we would like to append missing binning
