@@ -91,9 +91,6 @@ classdef line_proj < LineProjBase
     % Also accepts these and aProjectionBase properties as set of key-values
     % pairs following standard serializable class constructor agreements.
     %
-    % NOTE:
-    % constructor does not accept legacy ub_inv_legacy matrix, even if it is specified
-    % in the list of saveable properties.
     %
     properties(Dependent)
         u; %[1x3] Vector of first axis (r.l.u.)
@@ -315,7 +312,6 @@ classdef line_proj < LineProjBase
     %----------------------------------------------------------------------
     properties(Constant, Access=private)
         fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type'}
-        % still need to recover if received 'ub_inv_legacy'
     end
     methods
         function ver  = classVersion(~)

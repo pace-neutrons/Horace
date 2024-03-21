@@ -170,7 +170,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
         %                             % dispersion function on the dnd object
         wout = func_eval(win, func_handle, pars, varargin);  % calculate the
         %                             % function, provided as input on the
-        %                             % bin centers of the image axes
+        %                             % bin centres of the image axes
         %------------------------------------------------------------------
         %
         varargout = head(obj,vararin);
@@ -249,12 +249,12 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
         end
         function npix = get_npix_block(obj,block_start,block_size)
             % return specified chunk of npix array which describes pixel
-            % destribution over block bins.
+            % distribution over block bins.
             % Inputs:
-            % obj         -- initalized DnDBase object.
+            % obj         -- initialized DnDBase object.
             % block_start -- initial location of the block within the npix
-            %                array. To be compartible with file interface, the
-            %                position starts from 0, unlike Matlab arrays,
+            %                array. To be compatible with file interface, the
+            %                position starts from 0, unlike MATLAB arrays,
             %                which start from 1.
             % block_size  -- number of npix elements to return.
             % Returns:
@@ -371,7 +371,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             %           dimensionality and binning.
             % creation_data
             %        -- the date when this object should be recorded
-            %           created. The format is Matlab datetime class format
+            %           created. The format is MATLAB datetime class format
             %           If missing, the creation time will be set to the
             %           first time the object was stored on HDD.
             %

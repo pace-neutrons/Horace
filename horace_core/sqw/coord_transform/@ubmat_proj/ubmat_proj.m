@@ -61,9 +61,6 @@ classdef ubmat_proj < LineProjBase
     % Also accepts these and aProjectionBase properties as set of key-values
     % pairs following standard serializable class constructor agreements.
     %
-    % NOTE:
-    % constructor does not accept legacy ub_inv_legacy matrix, even if it is specified
-    % in the list of saveable properties.
     %
     properties(Dependent)
         %-----------------------------------------------------------------

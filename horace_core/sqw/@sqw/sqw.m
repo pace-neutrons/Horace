@@ -547,8 +547,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             % number
             ver = 5;
             % version 5 -- support for loading previous version
-            % data and setting ub_inv_legacy matrix in case if the data
-            % were realigned
+            % data in case if the data were realigned
         end
 
         function flds = saveableFields(~)

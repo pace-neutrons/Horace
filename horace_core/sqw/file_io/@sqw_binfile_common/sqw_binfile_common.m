@@ -329,30 +329,6 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             % calculating fields positions while upgrading file format
             sq = make_pseudo_sqw_(nfiles);
         end
-        function sqw_data = update_projection(sqw_data)
-            % Check if the projection attached to dnd class is related to
-            % the cut (the cut image range is in hkl) or to the initial
-            % generated sqw file (image range equal to the pixel range)
-            % and modify dnd projection accordingly
-            img_range = sqw_data.data.img_range;
-            pix_range = sqw_data.pix.pix_range;
-            difr = img_range(:,1:3)-pix_range(:,1:3);
-            proj = sqw_data.data.proj;
-            if ~any(abs(difr(:))>1.e-4)
-                % this is original gen_sqw, which have pixels binned into Crystal Cartesian
-                % coordinate system. It should be correct projection recovered anyway,
-                % Just in case:
-                proj = line_proj([1,0,0],[0,1,0],[0,0,1],'alatt',proj.alatt,...
-                    'angdeg',proj.angdeg,'type','aaa');
-                if ~isempty(sqw_data.data.proj.ub_inv_legacy)
-                    proj = proj.set_ub_inv_compat(sqw_data.data.proj.ub_inv_legacy);
-                end
-                sqw_data.data.proj = proj;
-            else % this is cut, where the pixels are binned on some projection
-                % pix ranges can not be processed from image ranges anyway
-            end
-
-        end
     end
     %======================================================================
     methods(Access = protected)
