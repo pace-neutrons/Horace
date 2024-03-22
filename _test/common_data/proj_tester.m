@@ -2,7 +2,15 @@ function proj_tester(filename)
 disp('******************************************************************')
 disp('******************************************************************')
 disp('******************************************************************')
-w = read_sqw(filename);
+if ischar(filename)
+    w = read_sqw(filename);
+elseif isa(filename,'sqw')
+    w = filename;
+else
+    error('HORACE:proj_tester:invalid_argument', ...
+        'function accepts only sqw object or name of the file containing sqw object')
+end
+
 
 dp = w.data.proj;
 lp = dp.get_line_proj();
