@@ -1,14 +1,31 @@
 function [perf_res,hor_tes] = run_performance_tests(varargin)
+%
 % function to run performance test on a given pc or cluster
 %
 % Usage:
-% perf_results = run_performance_tests([n_workers],[the_test])
+% perf_results = run_performance_tests([[n_workers],the_test])
 %
 % optional variables:
 % n_workers --  tries to run performance tests with number of
 %               workers, specified as input.
 % the_test  -- run only the test(s) specified as input. More then one test
 %              name should be specified in a cellarray of names
+%              The tests available to run are defined by SQW_GENCUT_perf_tester
+%              and described in property:
+%              obj.tests_available = {'gen_sqw','combine_sqw','small_cut',...
+%                   'big_cut_nopix','big_cut_filebased'};
+%              Any name from the list of these names is the name of
+%              available test.
+% NOTE:
+%         gen_sqw test should run first to generate sqw file which will
+%         be tested later. See delete_generated_nxspe_files and delete_resulting_sqw_file
+%         options of SQW_GENCUT_TESTSER for more details (rows 60-66 of
+%         this file)
+%
+% NOTE:
+%         Multiple tests to run needs to be placed in cellarray of test
+%         names e.g.
+% >> perf_results = run_performance_tests(6,{'combine_sqw','small_cut','big_cut_nopix'})
 %
 % returns:
 % perf_results  -- the structure containing the performance results for
@@ -18,7 +35,7 @@ function [perf_res,hor_tes] = run_performance_tests(varargin)
 % test_SQW_GENCUT_perf  class overwriting previous values for the same
 % machine if such values were present
 %
-
+%
 perf_res = struct('small_ds_perf',[],'medium_ds_perf',[],'large_ds_perf',[]);
 
 
@@ -36,9 +53,26 @@ else
 end
 if nargin == 2
     selected_tests = varargin{2};
+    if ~iscell(selected_tests)
+        selected_tests = {selected_tests};
+    end
 else
-    selected_tests = [];
+    selected_tests = {};
 end
+% Change to false if intended to run this test multiple times.
+% Manual deleteon of nxspe is necessary when finished with tests.
+hor_tes.delete_generated_nxspe_files = true;
+% delete resulting sqw file, change to false if intended to run other than
+% gen_sqw tests multiple times. Manual deleteon is necessary when finished
+% with tests and false is selected.
+hor_tes.delete_resulting_sqw_file = true;
+if isempty(selected_tests) || ismember('gen_sqw',selected_tests)
+    hor_tes.generate_nxspe_files = true;
+else
+    hor_tes.generate_nxspe_files = false;
+    hor_tes.delete_resulting_sqw_file = false;
+end
+
 
 %--------------------------------------------------------------------------
 % run performance tests for small sqw file (default file)
@@ -55,8 +89,9 @@ hor_tes.n_files_to_use = 50;
 % to test file combine operations separately.
 hc = hor_config;
 % get the data one needs to restore
-clob_tmp = set_temporary_config_options(hor_config, 'delete_tmp', false);
-
+hcd = hc.get_data_to_store;
+clob_tmp = onCleanup(@()set(hc,hcd));
+hc.delete_tmp = 0;
 %--------------------------------------------------------------------------
 % run performance tests for medium size file
 medium_perf = hor_tes.workflow_performance(n_workers,selected_tests);
@@ -74,9 +109,12 @@ clear clob_tmp; % reset configuration not to keep tmp files any more
 
 %
 % prepare performance tests for large dataset
-hor_tes.n_files_to_use = 250;
+hor_tes.n_files_to_use = 170;
+
 large_perf = hor_tes.workflow_performance(n_workers,selected_tests);
 perf_res.large_ds_perf = large_perf;
 %
 hor_tes.save_performance();
 hor_tes.save_to_csv();
+
+
