@@ -94,7 +94,7 @@ classdef test_split< TestCase
 
             hc = hor_config;
             wkdir = hc.working_directory;
-            [~,fb] = fileparts(obj.source_sqw4D.full_filename);
+            [~,fb] = fileparts(obj.source_sqw4D.data.filename);
             tf = cell(1,23);
             for i=1:23
                 tf{i} = fullfile(wkdir,sprintf('%s_runID%07d.sqw',fb,91+i));
