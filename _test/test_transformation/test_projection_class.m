@@ -9,7 +9,7 @@ classdef test_projection_class<TestCase
             [1.02,0.99,0.02],[0.025,-0.01,1.04],...
             90,10.5,0.2,3-1/6,2.4+1/7};
     end
-    
+
     methods
         function this=test_projection_class(varargin)
             if nargin == 0
@@ -20,7 +20,7 @@ classdef test_projection_class<TestCase
             this=this@TestCase(name);
             this.tests_folder = fileparts(fileparts(mfilename('fullpath')));
             this.par_file=fullfile( this.tests_folder,'common_data','gen_sqw_96dets.nxspe');
-            
+
             efix = this.fake_sqw_par{4};
             en = 0.05*efix:0.2+1/50:0.95*efix;
             this.fake_sqw_par{1} = en;
@@ -33,15 +33,15 @@ classdef test_projection_class<TestCase
             assertElementsAlmostEqual(proj.uoffset,[0;0;0;0])
             assertEqual(proj.type,'aaa')
             assertTrue(isempty(proj.w))
-            
+
             f = @()projection([0,1,0]);
             assertExceptionThrown(f,'PROJAXES:invalid_argument');
-            
+
             proj = projection([0,1,0],[1,0,0]);
             assertElementsAlmostEqual(proj.u,[0,1,0])
             assertElementsAlmostEqual(proj.v,[1,0,0])
             assertTrue(isempty(proj.w))
-            
+
             prja = projaxes([1,0,0],[0,1,1],[0,-1,1]);
             proj = projection(prja);
             assertElementsAlmostEqual(proj.u,[1,0,0])
@@ -64,8 +64,8 @@ classdef test_projection_class<TestCase
             data.pax=[1,2,3,4];
             data.iint=[];
             data.p={1:10;1:20;1:30;1:40};
-            
-            
+
+
             proj=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
         end
         function test_set_can_mex_keep(this)
@@ -106,13 +106,13 @@ classdef test_projection_class<TestCase
             eu = eu_cc/norm(eu_cc);
             % convert to crystal Cartesian
             v_cc = b_mat*v';
-            
+
             v_along =eu*(eu'*v_cc);
             v_tr = (b_mat\(v_cc-v_along))';
             % this part should be recovered from the u_to_rlu matrix
             assertElementsAlmostEqual(v_tr,v_par);
         end
-        
+
         %
         function test_uv_to_rlu_and_vv_complex_nonorthogonal(~)
             u = [1,1,0];
@@ -122,7 +122,7 @@ classdef test_projection_class<TestCase
             pra = projaxes(u,v);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
                 alatt,angdeg);
-            
+
             [u_par,v_par] = projection.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
             % find part of the v vector, orthogonal to u
@@ -145,23 +145,23 @@ classdef test_projection_class<TestCase
             pra = projaxes(u,v);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
                 alatt,angdeg);
-            
+
             [u_par,v_par] = projection.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
-            
+
             % find part of the v vector, orthogonal to u
             b_mat = bmatrix(alatt,angdeg);
             eu_cc = b_mat*u';
             eu = eu_cc/norm(eu_cc);
             % convert to crystal Cartesian
             v_cc = b_mat*v';
-            
+
             v_along =eu*(eu'*v_cc);
             v_tr = (b_mat\(v_cc-v_along))';
-            
+
             % this part should be recovered from the u_to_rlu matrix
             assertElementsAlmostEqual(v_tr,v_par);
-            
+
         end
         %
         function test_uv_to_rlu_and_vv_complex(~)
@@ -172,24 +172,24 @@ classdef test_projection_class<TestCase
             pra = projaxes(u,v);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
                 alatt,angdeg);
-            
+
             [u_par,v_par] = projection.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
-            
+
             assertElementsAlmostEqual(u,u_par);
             % find part of the v vector, orthogonal to u
             eu =  u/norm(u);
             v_along =eu*(eu*v');
             v_tr = v-v_along;
-            
+
             % this part should be recovered from the u_to_rlu matrix
             assertElementsAlmostEqual(v_tr,sign(v_tr).*abs(v_par));
-            
+
             pra = projaxes(u_par,v_par);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu(alatt,angdeg);
-            
+
             assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
             assertElementsAlmostEqual(ulen,ulen_rec);
-            
+
         end
         %
         function test_uv_to_rlu_and_vv_simple(~)
@@ -200,14 +200,14 @@ classdef test_projection_class<TestCase
             pra = projaxes(u,v);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
                 alatt,angdeg);
-            
+
             [u_par,v_par] = projection.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
             assertElementsAlmostEqual(v,v_par);
-            
+
             pra = projaxes(u_par,v_par);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu(alatt,angdeg);
-            
+
             assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
             assertElementsAlmostEqual(ulen,ulen_rec);
         end
@@ -217,19 +217,19 @@ classdef test_projection_class<TestCase
             proj.alatt = [3;4;5];
             assertEqual(proj.alatt,[3,4,5]);
         end
-        
+
         function test_alatt_row_gives_row(~)
             proj = projection();
             proj.alatt = [3,4,5];
             assertEqual(proj.alatt,[3,4,5]);
         end
-        
+
         function test_alatt_single_gives3(~)
             proj = projection();
             proj.alatt = 3;
             assertEqual(proj.alatt,[3,3,3]);
         end
-        
+
         function test_alatt_invalid_throw(~)
             proj = projection();
             pass = false;
@@ -246,19 +246,19 @@ classdef test_projection_class<TestCase
             proj.angdeg = [90;95;80];
             assertEqual(proj.angdeg,[90,95,80]);
         end
-        
+
         function test_angdeg_row_gives_row(~)
             proj = projection();
             proj.angdeg = [90,95,80];
             assertEqual(proj.angdeg,[90,95,80]);
         end
-        
+
         function test_angdeg_single_gives3(~)
             proj = projection();
             proj.angdeg = 30;
             assertEqual(proj.angdeg,[30,30,30]);
         end
-        
+
         function test_angdeg_invalid_length_throw(~)
             proj = projection();
             pass = false;
@@ -298,7 +298,7 @@ classdef test_projection_class<TestCase
             proj = projection(pra);
             proj.alatt = 3;
             proj.angdeg = 90;
-            
+
             pix_transf = proj.transform_pix_to_img(pix);
             assertEqual(size(pix_transf),[3,5]);
             pix_rec = proj.transform_img_to_pix(pix_transf);
@@ -311,7 +311,7 @@ classdef test_projection_class<TestCase
             proj = projection(pra);
             proj.alatt = 3;
             proj.angdeg = 90;
-            
+
             pix_transf = proj.transform_pix_to_img(pix);
             assertEqual(size(pix_transf),[4,5]);
             pix_rec = proj.transform_img_to_pix(pix_transf);
@@ -324,11 +324,25 @@ classdef test_projection_class<TestCase
             proj = projection(pra);
             proj.alatt = [3,4,7];
             proj.angdeg = [95,70,85];
-            
+
             pix_transf = proj.transform_pix_to_img(pix);
             assertEqual(size(pix_transf),[4,5]);
             pix_rec = proj.transform_img_to_pix(pix_transf);
             assertElementsAlmostEqual(pix_rec,pix);
-        end        
+        end
+        function test_projaxes_invalid_fields_throw(~)
+            pr = struct('u',[1,0,0],'v',[0,1,0],'invalid_field',[1;0;0;0],'random_field',1);
+            ME = assertExceptionThrown(@()projaxes(pr),'PROJAXES:invalid_argument');
+            assertTrue(strncmp(ME.message, ...
+                'Unrecognised field(s): "invalid_field; random_field;" passed in projection description',22))
+        end
+
+        function test_projaxes_with_offset(~)
+            pr = struct('u',[1,0,0],'v',[0,1,0],'offset',[1;0;0;0]);
+            pra = projaxes(pr);
+            assertEqual(pra.u,pr.u);
+            assertEqual(pra.v,pr.v);
+            assertEqual(pra.uoffset,pr.offset);
+        end
     end
 end

@@ -25,8 +25,16 @@ function [message, obj] = check_and_set_opt_fields_(obj,p)
 % Original author: T.G.Perring
 
 message = '';
-if ~all(ismember(fieldnames(p),[fieldnames(default_proj);{'lab1';'lab2';'lab3';'lab4'}]))
-    message='One or more unrecognised fields passed in projection description';
+if isfield(p,'offset')
+    p.uoffset = p.offset;
+    p = rmfield(p,'offset');
+end
+fnms = fieldnames(p);
+is_known = ismember(fnms,[fieldnames(default_proj);{'lab1';'lab2';'lab3';'lab4'}]);
+if ~all(is_known)
+    unknown_flds = strjoin(fnms(~is_known),'; ');
+    message=sprintf('Unrecognised field(s): "%s;" passed in projection description', ...
+        unknown_flds);
     return
 end
 if isfield(p,'u')
