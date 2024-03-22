@@ -7,14 +7,8 @@ end
 if isfield(data_struct,'u_to_rlu_legacy')
     data_struct.u_to_rlu  = data_struct.u_to_rlu_legacy;
 end
-% if isfield(data_struct,'u_to_rlu')
-%     disp('*** U_to_rlu stored:')
-%     disp(data_struct.u_to_rlu )
-% end
 
 if isfield(data_struct,'ulen')
-    % disp('*** ulen stored:')
-    % disp(data_struct.ulen)
     data_struct.img_scales = data_struct.ulen;
 end
 if isfield(data_struct,'uoffset')
@@ -42,8 +36,3 @@ if use_u_to_rlu_transitional
     proj = ubmat_proj();
 end
 proj = proj.from_bare_struct(data_struct);
-% disp(proj)
-% if proj.alatt_defined && proj.angdeg_defined
-%     disp('*** proj.transform_pix_to_img(eye(3)):')    
-%     proj.transform_pix_to_img(eye(3))
-% end

@@ -80,7 +80,7 @@ if ~isfield(S,'version') || S.version<4
                     ss.pix = PixelDataMemory(ss.data.pix.data);
                 end
                 ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
-                [ss.data,al_info] = align_dnd_data(ss.data,hav);
+                al_info = dnd_data_alignment(ss.data,hav);
                 if ~isempty(al_info) && isfield(ss,'pix')
                     ss.pix.alignment_matr = al_info.rotmat;
                 end
@@ -111,8 +111,8 @@ else
 end
 if S.version == 4
     % may contain legacy alignment not stored in projection. Deal with this here
-    hav = obj.experiment_info.header_average();
-    [obj.data,al_info] = align_dnd_data(obj.data,hav);
+    hav  = obj.experiment_info.header_average();
+    al_info = dnd_data_alignment(obj.data,hav);
     if ~isempty(al_info)
         obj.pix.alignment_matr = al_info.rotmat;
     end

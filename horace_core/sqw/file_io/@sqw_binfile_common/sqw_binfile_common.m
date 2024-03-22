@@ -130,11 +130,12 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         [sqw_obj,varargout] = get_sqw(obj,varargin);
         function [dnd_obj,obj] = get_dnd(obj,varargin)
             [dnd_obj,obj] = get_dnd@binfile_v2_common(obj,varargin{:});
+            % May be it is not needed?
             % needed to support  legacy alignment, where u_to_rlu matrix is multiplied
             % by alignment matrix
-            [exp_info,~]  = obj.get_exp_info(1);
-            header_av = exp_info.header_average;
-            dnd_obj = align_dnd_data(dnd_obj,header_av);
+            %[exp_info,~]  = obj.get_exp_info(1);
+            %header_av = exp_info.header_average;
+            %[~,dnd_obj] = dnd_data_alignment(dnd_obj,header_av);
         end
 
         % ---------   File Mutators:

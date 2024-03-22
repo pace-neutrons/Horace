@@ -535,14 +535,9 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % Legacy aligned data are converted to modern aligned data at
             % save/load operations:
             ss = wout_legacy.to_struct();
-            % legacy data are stored in old structure with image not aligned
-            % with pixels. Let's make it old
-            % structure
+            % Let's make it old structure
             ss.version = 4;
-            ss.data = test_obj.data.to_struct();
-            ss.data.proj.alatt = corr.alatt;
-            ss.data.proj.angdeg = corr.angdeg;
-            % recover old structure
+            % recover old structure usling loadobj
             wout_leg_rec = sqw.loadobj(ss);
             %
             % Error in axes.img_range is high due to errors in recovering
