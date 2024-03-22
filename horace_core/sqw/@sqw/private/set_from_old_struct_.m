@@ -83,6 +83,7 @@ if ~isfield(S,'version') || S.version<4
                 al_info = dnd_data_alignment(ss.data,hav);
                 if ~isempty(al_info) && isfield(ss,'pix')
                     ss.pix.alignment_matr = al_info.rotmat;
+                    ss.pix = ss.pix.invalidate_range('q_coordinates');
                 end
             end
         else
@@ -115,6 +116,11 @@ if S.version == 4
     al_info = dnd_data_alignment(obj.data,hav);
     if ~isempty(al_info)
         obj.pix.alignment_matr = al_info.rotmat;
+        if obj.pix.is_filebacked
+            obj.pix = obj.pix.invalidate_range('q_coordinates');
+        else
+            obj = obj.recompute_bin_data();
+        end
     end
 
 end
