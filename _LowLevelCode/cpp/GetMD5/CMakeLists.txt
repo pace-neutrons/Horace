@@ -12,7 +12,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(LIBS "${OpenMP_CXX_FLAGS}")
 endif()
 
-set(MEX_NAME "get_md5")
+set(MEX_NAME "GetMD5")
 pace_add_mex(
     NAME "${MEX_NAME}"
     SRC "${SRC_FILES}" "${HDR_FILES}"
