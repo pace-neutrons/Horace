@@ -443,7 +443,7 @@ classdef LineProjBase < aProjectionBase
             %                 node. Used to identify correct image range
             %
             full_range_corr = obj.transform_pix_to_img(range_in_cc);
-            corr_range = minmax(full_range_corr);
+            corr_range = min_max(full_range_corr);
             centre = 0.5*(corr_range(:,1)+corr_range(:,2));
             %sizes of the modified box in the image coordinate system
             size = vecnorm(full_range_corr(:,closest_nodes)-full_range_corr(:,1));

@@ -274,7 +274,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             %  '-filebacked' -- if present, request filebacked data (does
             %                   not work currently work with array of data)
             %  '-upgrade'    -- if present, alow write access to filebased
-            %  '-writable'      data (properties are synonimous)
+            %  '-writable'      data (properties are synonymous)
             %  '-norange'    -- if present, do not calculate the range of
             %                   pix data if this range is missing. Should
             %                   be selected during file-format upgrade, as

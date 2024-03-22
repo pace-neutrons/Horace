@@ -12,7 +12,7 @@ assertEqualToTol(dp,lp,1.e-5);
 pix_range = w.pix.pix_range
 
 img_range = w.data.img_range;
-pix_to_img_range = minmax(dp.transform_pix_to_img(w.pix.coordinates));
+pix_to_img_range = min_max(dp.transform_pix_to_img(w.pix.coordinates));
 
 ll_right = img_range(1,:)'<=pix_to_img_range(:,1);
 rl_right = pix_to_img_range(:,2)<=img_range(2,:)';
