@@ -94,9 +94,10 @@ classdef test_split< TestCase
 
             hc = hor_config;
             wkdir = hc.working_directory;
+            [~,fb] = fileparts(obj.source_sqw4D.full_filename);
             tf = cell(1,23);
             for i=1:23
-                tf{i} = fullfile(wkdir,sprintf('sqw_4d_runID%07d.sqw',91+i));
+                tf{i} = fullfile(wkdir,sprintf('%s_runID%07d.sqw',fb,91+i));
             end
             clOuF = onCleanup(@()delete_subfiles(obj,tf));
 
