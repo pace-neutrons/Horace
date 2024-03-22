@@ -8,6 +8,7 @@ else()
 endif()
 
 set(MEX_FUNCTIONS
+    "get_md5"
     "cpp_communicator"
     "get_ascii_file"
     "serialiser"
