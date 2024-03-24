@@ -34,8 +34,8 @@ classdef test_multifit_horace_2 < TestCaseWithSave
             this.w2data = sqw(fullfile(data_dir,'w2data.sqw'));
             this.win=[this.w1data,this.w2data];     % combine the two cuts into an array of sqw objects and fit
 
-            % Save output, if requrested
-            %this.save();
+            % Save output, if requrested. Will do nothing if not requested
+            this.save();
         end
 
         % ------------------------------------------------------------------------------------------------
