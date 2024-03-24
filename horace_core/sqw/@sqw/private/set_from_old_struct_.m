@@ -82,7 +82,7 @@ if ~isfield(S,'version') || S.version<4
                 ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
                 al_info = dnd_data_alignment(ss.data,hav);
                 if ~isempty(al_info) && isfield(ss,'pix')
-                    ss.pix = ss.pix.set_alignment_matrix(al_info.rotmat);
+                    ss.pix.alignment_matr = al_info.rotmat;
                 end
             else
                 error('HORACE:sqw:invalid_argument', ...
@@ -113,7 +113,7 @@ if ~isfield(S,'version') || S.version<4
         hav  = obj.experiment_info.header_average();
         al_info = dnd_data_alignment(obj.data,hav);
         if ~isempty(al_info)
-            obj.pix = obj.pix.set_alignment_matrix(al_info.rotmat);
+            obj.pix.alignment_matr = al_info.rotmat;
         end
-
     end
+end
