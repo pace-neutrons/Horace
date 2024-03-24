@@ -290,8 +290,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         function loc_range = pix_minmax_ranges(data, current)
             % Compute the minmax ranges in data in the appropriate format for
             % PixelData objects
-            loc_range = [min(data,[],2),...
-                max(data,[],2)]';
+            loc_range = min_max(data)';
             if exist('current', 'var')
                 loc_range = minmax_ranges(current,loc_range);
             end

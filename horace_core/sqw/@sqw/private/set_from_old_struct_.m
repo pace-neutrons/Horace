@@ -80,40 +80,42 @@ if ~isfield(S,'version') || S.version<4
                     ss.pix = PixelDataMemory(ss.data.pix.data);
                 end
                 ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
-                al_info = dnd_data_alignment(ss.data,hav);
-                if ~isempty(al_info) && isfield(ss,'pix')
-                    ss.pix.alignment_matr = al_info.rotmat;
-                end
-            else
-                error('HORACE:sqw:invalid_argument', ...
-                    'Can not load old sqw object which does not contain "data" field')
-            end
-
-            % guard against old data formats, which may or may not contain
-            % runid map and the map may or may not correspond to
-            % pixel_id
-            if ~ss.main_header.creation_date_defined
-                if isfield(ss,'data') && ...
-                        ss.pix.num_pixels>0 && ~ss.pix.is_filebacked()
-                    ss = update_pixels_run_id(ss);
-                end
-            end
-
-            obj(i) = obj(i).from_bare_struct(ss);
+            end % data_sqw_dnd present
+        else % data field absent
+            error('HORACE:sqw:invalid_argument', ...
+                'Can not load old sqw object which does not contain "data" field')
         end
-        return
-    end
-    if isfield(S,'array_dat')
-        obj = obj.from_bare_struct(S.array_dat);
-    else
-        obj = obj.from_bare_struct(S);
-    end
-    if S.version == 4
-        % may contain legacy alignment not stored in projection. Deal with this here
-        hav  = obj.experiment_info.header_average();
-        al_info = dnd_data_alignment(obj.data,hav);
-        if ~isempty(al_info)
-            obj.pix.alignment_matr = al_info.rotmat;
+        % check legacy alignment and convert it into modern alignment
+        hav= ss.experiment_info.header_average();
+        al_info = dnd_data_alignment(ss.data,hav);
+        if ~isempty(al_info) && isfield(ss,'pix')
+            ss.pix.alignment_matr = al_info.rotmat;
         end
+
+        % guard against old data formats, which may or may not contain
+        % runid map and the map may or may not correspond to
+        % pixel_id
+        if ~ss.main_header.creation_date_defined
+            if isfield(ss,'data') && ...
+                    ss.pix.num_pixels>0 && ~ss.pix.is_filebacked()
+                ss = update_pixels_run_id(ss);
+            end
+        end
+
+        obj(i) = obj(i).from_bare_struct(ss);
+    end
+    return
+end
+if isfield(S,'array_dat')
+    obj = obj.from_bare_struct(S.array_dat);
+else
+    obj = obj.from_bare_struct(S);
+end
+if S.version == 4
+    % may contain legacy alignment not stored in projection. Deal with this here
+    hav  = obj.experiment_info.header_average();
+    al_info = dnd_data_alignment(obj.data,hav);
+    if ~isempty(al_info)
+        obj.pix.alignment_matr = al_info.rotmat;
     end
 end
