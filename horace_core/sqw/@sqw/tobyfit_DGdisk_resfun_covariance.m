@@ -117,7 +117,7 @@ for iw = 1:numel(win)
 
     % Compute wavevector-energy covariance matrix in different dimensions
     %TODO: Re #1040 this code is not consistent with generic projections
-    if ~isa(win(iw).data.proj,,'LineProjBase')
+    if ~isa(win(iw).data.proj,'LineProjBase')
         error('HORACE:sqw:not_implemented', ...
             'resolution cannot currently be calculated for any projection except linear projection')
     end
