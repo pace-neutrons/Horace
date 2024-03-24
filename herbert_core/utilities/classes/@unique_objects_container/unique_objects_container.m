@@ -112,6 +112,7 @@ classdef unique_objects_container < serializable
         baseclass;
         idx;
         unique_objects;
+        stored_hashes;
 
         n_duplicates;
     end
@@ -129,7 +130,7 @@ classdef unique_objects_container < serializable
         convert_to_stream_f;
         % property containing list of stored hashes for unique objects for
         % comparison with other objects
-        stored_hashes;
+        %stored_hashes;
     end
     %----------------------------------------------------------------------
     % Dependent properties set/get functions and subsrefs/subsassign
@@ -201,6 +202,12 @@ classdef unique_objects_container < serializable
             %GET.STORED_HASHES - list the hashes corresponding to the unique
             % objects. Only really useful for debugging.
             x = self.stored_hashes_;
+        end
+        %
+        function self = set.stored_hashes(self,hashes)
+            %GET.STORED_HASHES - list the hashes corresponding to the unique
+            % objects. Only really useful for debugging.
+            self.stored_hashes_ = hashes;
         end
         %
         function x = get.idx(self)
@@ -419,7 +426,14 @@ classdef unique_objects_container < serializable
             % Output:
             % - hash : the resulting has, a row vector of uint8's
             %
+
+            % In case the java engine is going to be used, initialise it as
+            % a persistent object
             persistent Engine;
+            if isempty(Engine)
+                Engine = java.security.MessageDigest.getInstance('MD5');
+            end
+
             %{
             % monitor for use of hashing. As this issue may continue, leaving it in the code
             persistent count;
@@ -435,18 +449,17 @@ classdef unique_objects_container < serializable
             count
             disp(class(obj));
             %}
-            if isempty(Engine)
-                Engine = java.security.MessageDigest.getInstance('MD5');
-            end
-            if isa(obj,'serializable') && ~self.non_default_f_conversion_set_
-                % use default serializer, build up by us for serializable objects
-                Engine.update(obj.serialize());
+
+            if isa(obj,'serializable') 
+                bytestream = (obj.serialize());
             else
-                %convert_to_stream_f_ = @getByteStreamFromArray;
-                Engine.update(self.convert_to_stream_f_(obj));
+                bytestream = serialize(obj);
             end
+            %{
             hash = typecast(Engine.digest,'uint8');
             hash = char(hash');
+            %}
+            hash = GetMD5(bytestream);
         end
 
         function self = rehashify_all(self,with_checks)
@@ -509,7 +522,7 @@ classdef unique_objects_container < serializable
             %                               conversion for hashify
 
             flds = self.saveableFields();
-            flds = [flds(:);'convert_to_stream_f']; % convert_to_stream
+            %flds = [flds(:);'convert_to_stream_f']; % convert_to_stream
             % function is not present in saveable properties but may be present
             % as input too.
             % standard serializable constructor
@@ -812,8 +825,9 @@ classdef unique_objects_container < serializable
         fields_to_save_ = {
             'baseclass',     ...
             'unique_objects',...
-            'idx',           ...
-            'conv_func_string'};
+            'stored_hashes', ...
+            'idx'            
+            };
     end
 
     methods
@@ -822,17 +836,13 @@ classdef unique_objects_container < serializable
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 1;
+            ver = 2;
         end
 
         function flds = saveableFields(obj)
             % get independent fields, which fully define the state of the
             % serializable object.
-            if obj.non_default_f_conversion_set_
-                flds = unique_objects_container.fields_to_save_;
-            else % do not store conversion function
-                flds = unique_objects_container.fields_to_save_(1:end-1);
-            end
+            flds = unique_objects_container.fields_to_save_;
         end
 
         function obj = check_combo_arg(obj,do_rehashify,with_checks)
@@ -849,7 +859,7 @@ classdef unique_objects_container < serializable
             %                 unique_objects to check that new objects are
             %                 indeed unique. The default is false.
             if nargin == 1
-                do_rehashify = true;
+                do_rehashify = false;
                 with_checks  = false;
             elseif nargin == 2
                 with_checks  = false;

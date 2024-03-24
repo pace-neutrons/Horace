@@ -164,6 +164,8 @@ classdef test_unique_references < TestCase
 
             ld = load(sample_file);
             assertEqual(ld.ex,ex);
+            yyy = load('test_save_load_add_to_experiment_2.mat');
+            assertEqual(yyy.ex,ex);
         end
         %
         %------------------------------------------------------------------
@@ -621,7 +623,7 @@ function test_replace_unique_same_number_works(~)
             hlc = vrc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2');
 
             ie = isequal( hlc.stored_hashes(1,:), glc.stored_hashes(1,:) );
-            assertFalse(ie);
+            assertTrue(ie);
             ie = isequal( glc.convert_to_stream_f, hlc.convert_to_stream_f);
             assertFalse(ie);
             %{
