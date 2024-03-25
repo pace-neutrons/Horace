@@ -112,6 +112,7 @@ if metadata.is_misaligned
         obj.bat_ = bat;
     end
 else
+    obj = obj.put_sqw_block('bl_pix_metadata',metadata);    
     % get block responsible for writing pix_data
     pdb = obj.bat_.blocks_list{end};
 end
