@@ -175,7 +175,7 @@ classdef binfile_v4_common < horace_binfile_interface
             [obj,set_obj]  = get_sqw_block_(obj,block_name_or_class);
         end
         %
-        function obj = put_sqw_block(obj,block_name_or_class,varargin)
+        function [obj,block_instance] = put_sqw_block(obj,block_name_or_class,varargin)
             % store modified particular sqw sub-object data block within the
             % sqw object binary records on hdd
             % Inputs:
@@ -200,6 +200,16 @@ classdef binfile_v4_common < horace_binfile_interface
             % '-noinit'    -- do not initialize file accessor, even if it
             %                 is possible
             %
+            % Output:
+            % obj          -- faccess object with modified BAT, containing position of
+            %                 the block in file.
+            %                 The block contents have been written in the file and
+            %                 modified BAT have been written to file too.
+            % Optional:
+            % the_data_block
+            %              --  instance of the data_block just written to the disk
+            %                  (copy of the value, stored in BAT)
+
             if nargin>2 % otherwise have to assume that the object is initialized
                 [ok,mess,no_initialization,argi] = parse_char_options(varargin,{'-noinit'});
                 if ~ok
@@ -210,9 +220,9 @@ classdef binfile_v4_common < horace_binfile_interface
                     obj  = put_sqw_block_(obj,block_name_or_class);
                     return;
                 end
-                obj  = put_sqw_block_(obj,block_name_or_class,argi{:});
+                [obj,block_instance]  = put_sqw_block_(obj,block_name_or_class,argi{:});
             else
-                obj  = put_sqw_block_(obj,block_name_or_class);
+                [obj,block_instance]  = put_sqw_block_(obj,block_name_or_class);
             end
         end
         %

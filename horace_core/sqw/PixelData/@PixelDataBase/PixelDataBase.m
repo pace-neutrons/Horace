@@ -842,7 +842,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     % Helper methods.
     methods(Access=protected)
-        function obj = set_alignment(obj,val,pix_average_treatment_function)
+        function [obj,alignment_changed] = set_alignment(obj,val,pix_treatment_function)
             % set non-unary alignment matrix and recalculate or invalidate
             % pix averages.
             % Part of alignment_mart setter
@@ -850,10 +850,11 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             % obj    -- initial object
             % val    -- 3x3 alignment matrix or empty value if matrix
             %           invalidation is requested
-            % pix_average_treatment_function
-            %        -- the function used for recalculation or invalidation
-            %           of pixel averages
-            obj = set_alignment_matr_(obj,val,pix_average_treatment_function);
+            % pix_treatment_function
+            %        -- the function to apply to the PixelDataBase object
+            %           after aligment changes e.g. for recalculation or
+            %            invalidation of pixel averages.
+            [obj,alignment_changed] = set_alignment_matr_(obj,val,pix_treatment_function);
         end
         %------------------------------------------------------------------
         function [abs_pix_indices,pix_col_idx,ignore_range,raw_data,keep_precision,align] = ...
