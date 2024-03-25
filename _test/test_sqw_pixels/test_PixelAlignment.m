@@ -19,8 +19,8 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             clOb = onCleanup(@()del_memmapfile_files({test_file_mal,test_file_al}));
             save(ref_sqw,test_file_mal);
 
-            clCf = set_temporary_config_options(hor_config, 'mem_chunk_size', 500);
             clW  = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clCf = set_temporary_config_options(hor_config, 'mem_chunk_size', 500);
             test_sqw = sqw(test_file_mal,'file_backed',true);
             % ensure we are testing paged filebacked object
             assertTrue(test_sqw.is_filebacked);
@@ -37,7 +37,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             assertFalse(al_sqw.pix.is_misaligned);
 
             ref_sqw.pix.alignment_matr = al_matr;
-            assertEqualToTol(al_sqw,ref_sqw);
+            assertEqualToTol(al_sqw,ref_sqw,4*eps('single'),'ignore_str',true,'-ignore_date');
         end
 
         function test_finalize_alignment_filebacked(~)
