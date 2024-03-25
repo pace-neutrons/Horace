@@ -1,19 +1,24 @@
 function [al_info,dnd_obj] = dnd_data_alignment(dnd_obj,hav)
-% Get alignment information from dnd object and IX_experiment. 
-% if requested, realign dnd object using this information.
+% Get  alignment information from dnd object and IX_experiment -- Horace-3
+% implementation. If requested, realign dnd object using this information.
+%
+% It is assumed that IX_experiment contains legacy alignment information
+% and the routine extracts this information and converts it into modern
+% alighnment format.
 %
 % Inputs:
 % dnd_obj -- dnd object to align
-% hav     -- representative instance of IX_experiment or structure retrieved
-%            from IX_experiment, in particular by using
-%            Experiment.header_average
+% hav     -- representative instance of IX_experiment as used in Horace-3
+%            or structure retrieved from IX_experiment, in particular by
+%            using Experiment.header_average.
 % Returns:
-% dnd_obj -- aligned dnd object
 % al_info -- instance of crystal_alignment_info class containing rotation
 %            matrix used in dnd object alignment
+% Optional:
+% dnd_obj -- aligned dnd object
 %
 if (isfield(hav,'u_to_rlu')||isprop(hav,'u_to_rlu')) && ~isempty(hav.u_to_rlu)
-    proj = dnd_obj.proj;    
+    proj = dnd_obj.proj;
     alignment_matrix = proj.bmatrix(4)*hav.u_to_rlu;
 else
     alignment_matrix= eye(2);

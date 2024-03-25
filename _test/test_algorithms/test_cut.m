@@ -1,4 +1,4 @@
-classdef test_cut < TestCase & common_state_holder
+classdef test_cut < TestCase
     % Testing cuts and comparing the results against the reference cuts.
     %
     % This is a non-standard test class, as it compares cut
@@ -553,8 +553,9 @@ classdef test_cut < TestCase & common_state_holder
 
         function test_cut_nopix_to_file(obj)
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
-            cut(obj.sqw_file, obj.ref_params{:}, outfile, '-nopix')
             cleanup = onCleanup(@() clean_up_file(outfile));
+
+            cut(obj.sqw_file, obj.ref_params{:}, outfile, '-nopix')
 
             assertTrue(logical(exist(outfile, 'file')));
             ldr = sqw_formats_factory.instance().get_loader(outfile);
