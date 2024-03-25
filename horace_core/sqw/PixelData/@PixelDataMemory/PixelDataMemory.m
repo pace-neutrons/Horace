@@ -204,6 +204,13 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods(Access=protected)
+        function obj = align_pixels(obj,varargin)
+            % apply alignment for pixels located in memory
+            q_aligned = obj.alignment_matr_*obj.data_(1:3,:);
+            pix_range = min_max(q_aligned);
+            obj.data_(1:3,:) = q_aligned;
+            obj.data_range_(:,1:3) = pix_range';
+        end
         function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
             % Overloaded part of get_raw_pix operation.
             %
@@ -252,7 +259,12 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
         function obj = set_alignment_matrix(obj,val)
             % set new alignment matrix and recalculate new pixel ranges
             % if alignment changes
-            obj = obj.set_alignment(val,@calc_page_range);
+            [obj,alignment_changed] = obj.set_alignment(val,@align_pixels);
+            if alignment_changed % we changed matrix, aligned pixels and
+                %  returned them back. now pixels are aligned
+                obj.alignment_matr_ = eye(3);
+                obj.is_misaligned_  = false;
+            end
         end
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
