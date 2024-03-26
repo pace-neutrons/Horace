@@ -21,7 +21,7 @@ function   obj = put_pix(obj,varargin)
 [ok,mess,~,nopix,reserve,hold_pix_place,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve','-hold_pix_place'});
 if ~ok
     error('HORACE:faccess_sqw_v4:invalid_argument',...
-        'SQW_BINFILE_COMMON::put_pix: %s',mess);
+        'faccess_sqw_v4-put_pix: %s',mess);
 end
 
 if ~obj.is_activated('write')
@@ -80,12 +80,15 @@ end
 metadata = input_obj.metadata;
 if metadata.is_misaligned
     % Data will be written aligned so metadata should also state that
-    % data are aligned
+    % data are aligned. metadata can not grow here, as it will try to place
+    % them behind pixels which have not been written yet. And they should
+    % not grow.
     metadata.alignment_matr = eye(3);
     obj = obj.put_sqw_block('bl_pix_metadata',metadata);
     % Get pixel data block position to place the block in new place
     % as pixel_metadata probably have changed their size
-    % MATLAB SPECIFIC issue, as it can not write after end of file
+    % MATLAB SPECIFIC issue, as it can not write behind end of file unless
+    % you start writing at the last +1 byte position.
     bat = obj.bat_;
     pdb = bat.blocks_list{end};
     fseek(obj.file_id_,0,'eof');
@@ -108,11 +111,11 @@ if metadata.is_misaligned
         pdb = bat.blocks_list{end};
         % lock pixel data block in-place not to move it in a future
         pdb.locked = true;
-        bat.blocks_list{end} = pdb;        
+        bat.blocks_list{end} = pdb;
         obj.bat_ = bat;
     end
 else
-    obj = obj.put_sqw_block('bl_pix_metadata',metadata);    
+    obj = obj.put_sqw_block('bl_pix_metadata',metadata);
     % get block responsible for writing pix_data
     pdb = obj.bat_.blocks_list{end};
 end
