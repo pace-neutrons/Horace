@@ -19,7 +19,7 @@ if isfield(data_struct,'uoffset')
     % just to remove this piece of code and do conversion on different
     % level.
     if ~isfield(data_struct,'warn_on_legacy_data') || data_struct.warn_on_legacy_data
-        if any(abs(data_struct.offset)>4*eps('single'))
+        if any(abs(data_struct.uoffset)>4*eps('single'))
             warning('HORACE:legacy_interface',['\n'...
                 '***********************************************************************\n' ...
                 '*** using old interface for offset by setting uoffset property.     ***\n' ...
@@ -32,8 +32,7 @@ if isfield(data_struct,'uoffset')
 else
     uoffset_profided = false;
 end
-use_u_to_rlu_transitional =  isfield(data_struct,'u_to_rlu');
-if use_u_to_rlu_transitional
+if  isfield(data_struct,'u_to_rlu')
     proj = ubmat_proj();
     if uoffset_profided
         proj.do_check_combo_arg = false;
