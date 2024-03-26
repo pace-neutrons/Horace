@@ -31,7 +31,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             this_path = fileparts(mfilename('fullpath'));
             obj.data_source = fullfile(this_path,'test_cut_sqw_sym.sqw');
             obj.data = read_horace(obj.data_source);
-            obj.data = obj.data.recompute_bin_data();
 
             % Cut projection and ranges etc
             s100 = SymopReflection([1,0,0],[0,0,1],[1,1,0]);
@@ -158,5 +157,4 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         % - handcraft a symmetrised cut, using the private combine
         %------------------------------------------------------------------------
     end
-
 end
