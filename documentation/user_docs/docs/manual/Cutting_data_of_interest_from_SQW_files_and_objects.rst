@@ -13,18 +13,21 @@ experiment.
 
 Horace also creates a 4-dimensional histogram (binned) of these "pixels"
 represented in reciprocal space (``hkl-dE``) which we call the "image". This
-carries only limited information about to the original data, mostly only the
-averages of data in the bins.
+carries only limited information about the original data, mostly only the
+averaged intensity over the bins remains.
 
 .. note::
 
    For the differences between ``dnd`` and ``sqw`` objects see: :ref:`here
    <manual/FAQ:What is the difference between sqw and dnd objects>`
 
-The entire dataset is often too large to fit in the memory of most
-computers. Generally, rather than attempting to deal with the full experimental
+Generally, rather than attempting to deal with the full experimental
 data, a user works with smaller objects, extracted from the full dataset using
-``cut``.
+``cut``. This is for multiple reasons including:
+
+- The 4-dimensional dataset is impossible to visualise, so only 3-d (through
+  slice-o-matic), 2-d and 1-d cuts can be easily represented.
+- The entire dataset is often too large to fit in the memory of most computers.
 
 
 cut
@@ -32,9 +35,10 @@ cut
 
 ``cut`` takes a (or multiple) section(s) of data from an ``sqw`` or ``dnd``
 object or file, discards the pixels which lie outside of the binning regions
-(described `below <#binning-arguments>`_) and accumulates them into a histogram
-(the "image" or ``dnd``). It can return an object or file depending on the parameters
-given.
+(described `below <#binning-arguments>`_) from an ``sqw`` and accumulates them
+into a histogram (the "image" or ``dnd``, which may be independent if requested
+or attached to the parent ``sqw``). It can return an object or file depending on
+the parameters given.
 
 ``cut`` can produce objects of the same or reduced size and dimensions. The
 result of a cut is itself an ``sqw`` or ``dnd`` object which can be further
@@ -116,6 +120,16 @@ The projection defines the coordinate system and thus the meaning of the
 
 ``proj`` should be a projection type such as ``line_proj``, ``sphere_proj``,
 etc. which contains information about the coordinate system representation.
+
+.. note::
+
+   To take a cut from an existing ``sqw`` or ``dnd`` object while retaining the
+   existing projection, provide an empty ``proj`` argument:
+
+   .. code-block:: matlab
+
+      w1 = cut(w, [], [lo1, hi1], [lo2, hi2], ...)
+
 
 Different projections are covered in the `Projection in more detail`_ section below.
 
@@ -225,7 +239,7 @@ Each can independently have one of four different forms below.
 File- and memory-backed cuts
 ----------------------------
 
-``cut`` generally returns its result in memory, however, if the resulting object
+``cut`` generally returns its result in memory. However, if the resulting object
 is sufficiently large (the threshold for which is determined by the
 configuration parameters below, see also:
 :ref:`manual/Changing_Horace_settings:HPC Config`).
@@ -260,10 +274,11 @@ system of the histogrammed image.
 
 .. warning::
 
-   Horace, prior to 4.0.0, used a structure with fields ``u``, ``v``, ... or
-   ``projaxes`` to define the image coordinate system. This has been replaced by
-   the ``line_proj``. You can still call ``cut`` with these structures, however,
-   it will issue a warning and construct a ``line_proj`` internally.
+   Horace, prior to version 4.0.0, used a structure with fields ``u``,
+   ``v``, ... or ``projaxes`` to define the image coordinate
+   system. This has been replaced by the ``line_proj``. You can still
+   call ``cut`` with these structures, however, it will issue a
+   warning and construct a ``line_proj`` internally.
 
 
 Lattice based projections (``line_proj``)
@@ -305,7 +320,7 @@ Where:
    The third viewing axes is by default defined as the cross product of the first
    two.
 
-   The fourth viewing axis is always energy and cannot be specified.
+   The fourth viewing axis is always energy and cannot be modified.
 
 .. note::
 
@@ -400,12 +415,6 @@ Where:
   the origin of all your plots :math:`[2,1,0]`, in which case set ``offset
   = [2,1,0]``.
 
-.. warning::
-
-   Prior to Horace 4.0.0 a similar (mis-named) property ``uoffset`` was
-   used. This will be ignored in Horace 4.0.0, so ensure that your scripts have
-   been updated.
-
 
 .. _plotargs:
 
@@ -499,11 +508,11 @@ reflections occur in the r.l.u. points where ``hkl`` coordinates are integers.
    :width: 800px
    :alt: 2d cuts ortho and non-ortho.
 
-   Sample plot for case where projection is a) orthogonal and b) non-orthogonal.
+   Sample plot for cases where projection is a) orthogonal and b) non-orthogonal.
 
-We can see that for the ``orthogonal=true`` case the reciprocal lattice
-maintains its symmetry, but the ``orthogonal=false`` image produces nice axes but
-a skewed image.
+We can see that for the ``nonorthogonal=true`` case the reciprocal lattice
+maintains its symmetry, but the ``nonorthogonal=false`` image produces precise
+axis-labels but a skewed image.
 
 .. note::
 
@@ -597,9 +606,10 @@ shows clear spin waves:
 ``line_proj`` 1D cut example
 ____________________________
 
-The sample cut along the direction :math:`[1,1,0]` (note the projection's ``u``,
-``v``), i.e. the diagonal of the figure above. This shows the intensity of the spin
-wave:
+It is simple to take a 1-d cut by integrating over all but one axis. The example
+cut generated by the code below shows a cut along the :math:`[1,1,0]` direction
+(note the projection's ``u`` & ``v``), i.e. the diagonal of the figure
+above.
 
 .. code-block:: matlab
 
@@ -607,6 +617,8 @@ wave:
     proj = line_proj([1, 1, 0], [-1, 1, 0], 'offset', [-1, 1, 0]);
     w1 = cut(data_source, proj, [-5, 0.1, 5], [-0.1, 0.1], [-0.1, 0.1], [-50, 60]);
     plot(w1);
+
+This shows the intensity of the spin wave:
 
 .. figure:: ../images/Fe_cut1D.png
    :align: center
@@ -661,21 +673,21 @@ where:
   Three character string denoting the the projection normalization of each
   dimension, one character for each, e.g. ``'add'``, ``'rrr'``, ``'pdr'``.
 
-  There are 3 possible options for the first (length) component of ``type``,
-  which are the same as those for ``line_proj``:
+  There is only one possible option for the first (length) component of ``type``:
 
   1. ``'a'``
 
      Inverse angstroms
 
-  2. ``'r'``
+  ..
+     2. ``'r'``
 
-     Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
-     :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
+        Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
+        :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
 
-  3. ``'p'``
+     3. ``'p'``
 
-     Preserve the values of ``u`` and ``v``
+        Preserve the values of ``u`` and ``v``
 
   There are 2 possible options for the second and third (angular) components of
   type:
@@ -807,7 +819,8 @@ where:
 .. note::
 
    A spherical projection currently does not have the ability to be
-   rescaled to |Q|.
+   rescaled in |Q| relative to the magnitude of :math:`e_x` or
+   :math:`e_z`.
 
 When it comes to cutting and plotting, we can use a ``sphere_proj`` in
 exactly the same way as we would a ``line_proj``, but with one key
@@ -866,13 +879,12 @@ This script produces the following plot:
 
    MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.
 
-This figure shows that the energies of phonon excitations are located
-under 50meV, some magnetic scattering is present at |Q| < 5 and spin
-waves follow the magnetic form factor.
+This figure shows that the energies of phonon excitations are located under
+50meV, some magnetic scattering is present at |Q| < 5 and spin waves follow the
+magnetic form factor.
 
-A spherical projection allows us to investigate the details of a
-particular spin wave, e.g. around the scattering point
-:math:`[0,-1,1]`.
+A spherical projection allows us to investigate the details of a particular spin
+wave, e.g. around the scattering point :math:`[0,-1,1]`.
 
 .. code-block:: matlab
 
@@ -882,7 +894,8 @@ particular spin wave, e.g. around the scattering point
     s2 = cut(data_source, sp_proj, [0, 0.1, 2], [80, 90], [-180, 4, 180], [50, 60]);
     plot(s2);
 
-The unwrapping of the intensity of the spin-wave located around :math:`[0,-1,1]` Bragg peak shows:
+The unwrapping of the intensity of the spin-wave located around :math:`[0,-1,1]`
+Bragg peak shows:
 
 .. figure:: ../images/spin_w_tiny.png
    :align: center
@@ -893,11 +906,11 @@ The unwrapping of the intensity of the spin-wave located around :math:`[0,-1,1]`
    about the :math:`[0,-1,1]` Bragg peak. A visible gap caused by
    missing detectors is obvious in the :math:`\phi`-axis range
    :math:`[-50^\circ:+50^\circ]`.
-   Inset: Linear projection of the same region, the red lines show the
+   Inset: Linear projection of the same region; the red lines show the
    approximate mapping from the linear to spherical projections.
 
-Integrating over all :math:`\theta` and thus including other detectors
-substantially improves statistics, this is done by setting the
+Integrating over the whole :math:`\theta` range and thus including other
+detectors substantially improves statistics; this is done by setting the
 :math:`\theta` parameter to ``[0, 180]``:
 
 .. code-block:: matlab
@@ -913,9 +926,9 @@ substantially improves statistics, this is done by setting the
    spin-wave with the origin centred at the :math:`[0,-1,1]` Bragg
    peak.
 
-The 1D cut below, generated by integrating over the :math:`\phi`-axis,
-shows the intensity distribution as a function of |Q|, i.e.  distance
-from the spin-wave centre:
+The 1D cut below, generated by further integrating over the :math:`\phi`-axis,
+shows the intensity distribution as a function of |Q|, i.e. the distance from
+the spin-wave centre:
 
 .. code-block:: matlab
 
@@ -939,12 +952,6 @@ TBD
 Further Examples
 ----------------
 
-To take a cut from an existing ``sqw`` or ``dnd`` object retaining the existing
-projection, omit the ``proj`` argument:
-
-.. code-block:: matlab
-
-   w1 = cut(w, [], [lo1, hi1], [lo2, hi2], ...)
 
 .. note::
 
