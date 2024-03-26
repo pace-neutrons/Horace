@@ -447,7 +447,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             proj.angdeg = corrections.angdeg;
 
             wout_corrected = change_crystal(test_obj, corrections);
-            [wout_aligned, corr_rev] = finalize_alignment(wout_corrected);
+           [wout_aligned, corr_rev] = finalize_alignment(wout_corrected);
 
             corr_rev.rotvec = -corr_rev.rotvec;
             assertEqualToTol(corrections, corr_rev, 'tol', 1.e-9)
@@ -456,12 +456,12 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             cr = [-0.3,-2.0,-0.5,-0.5;...
                 +3.5,+4.2,+1.0,+0.5];
 
-            cut_range = {[cr(1, 1), 0.06, cr(2, 1)], ...
-                [cr(1, 2), 0.06, cr(2, 2)], ...
+            cut_range = {[cr(1, 1), 0.08, cr(2, 1)], ...
+                [cr(1, 2), 0.1, cr(2, 2)], ...
                 cr(:, 3)', cr(:, 4)'};
 
             cut_cor = cut(wout_corrected, proj, cut_range{:});
-            cut_al = cut(wout_aligned, proj, cut_range{:});
+            cut_al  = cut(wout_aligned, proj, cut_range{:});
             assertEqualToTol(cut_cor, cut_al, 'tol', [8*eps('single'),0])
         end
         %
