@@ -15,7 +15,11 @@ classdef LineProjBase < aProjectionBase
         % coordinate system. Property of ubmat_proj but calculated in
         % line_proj
         img_scales % the scaling factor (in A^-1)
-        % Matrix to convert from image coordinate system to scaled. The
+
+        % Left for compartibility with old data. Use offset instead.
+        uoffset  % Old interface to offset
+
+        % Matrix to convert from image coordinate system to rlu. The
         % scale is defined by ulen
         % hklE coordinate system (in rlu or hkle -- both are the same, two
         % different name schemes are used)
@@ -109,6 +113,12 @@ classdef LineProjBase < aProjectionBase
             for i=1:numel(flds)
                 str.(flds{i}) = obj.(flds{i});
             end
+        end
+        function uoff = get.uoffset(obj)
+            uoff = obj.offset_;
+        end
+        function obj = set.uoffset(obj,val)
+            obj = set_offset(obj,val);
         end
     end
     %======================================================================
@@ -394,7 +404,10 @@ classdef LineProjBase < aProjectionBase
                 cur_axes_block,targ_proj,targ_axes_block)
             % get indexes of cells which may contributing into the cut.
             %
-            if obj.convert_targ_to_source && isa(targ_proj,class(obj))
+            if obj.convert_targ_to_source && ...
+                    (isa(targ_proj,class(obj)) ||...
+                    (isa(targ_proj,'LineProjBase') && isa(obj,'LineProjBase')) ...
+                    )
                 contrib_ind= get_contrib_orthocell_ind_(obj,...
                     cur_axes_block,targ_axes_block);
             else
@@ -443,7 +456,7 @@ classdef LineProjBase < aProjectionBase
             %                 node. Used to identify correct image range
             %
             full_range_corr = obj.transform_pix_to_img(range_in_cc);
-            corr_range = minmax(full_range_corr);
+            corr_range = min_max(full_range_corr);
             centre = 0.5*(corr_range(:,1)+corr_range(:,2));
             %sizes of the modified box in the image coordinate system
             size = vecnorm(full_range_corr(:,closest_nodes)-full_range_corr(:,1));

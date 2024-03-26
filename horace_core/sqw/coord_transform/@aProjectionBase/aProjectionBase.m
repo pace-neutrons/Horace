@@ -111,7 +111,7 @@ classdef aProjectionBase < serializable
         lattice_defined_= [false,false];
         %------------------------------------
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        offset_  = [0,0,0,0] %Offset of origin of projection axes in 
+        offset_  = [0,0,0,0] %Offset of origin of projection axes in
         % r.l.u. and energy [h; k; l; en] [row vector]
         %
         label_  = {'Q_h','Q_k','Q_l','En'};
@@ -239,12 +239,7 @@ classdef aProjectionBase < serializable
             offset = obj.offset_;
         end
         function obj = set.offset(obj,val)
-            obj.offset_ = check_offset_(obj,val);
-            % one and then another but reconciliation have not happened yet
-            if obj.do_check_combo_arg_ % does nothing here, but
-                % will recalculate caches in children
-                obj = obj.check_combo_arg();
-            end
+            obj = set_offset(obj,val);
         end
         %
         function tl = get.title(obj)
@@ -829,6 +824,15 @@ classdef aProjectionBase < serializable
                     'you may set do_generic property into true or false state only');
             end
             obj.do_generic_ = logical(val);
+        end
+
+        function obj = set_offset(obj,val)
+            obj.offset_ = check_offset_(obj,val);
+            % one and then another but reconciliation have not happened yet
+            if obj.do_check_combo_arg_ % does nothing here, but
+                % will recalculate caches in children
+                obj = obj.check_combo_arg();
+            end
         end
     end
     %

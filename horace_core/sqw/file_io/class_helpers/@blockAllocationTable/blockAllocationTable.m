@@ -72,7 +72,7 @@ classdef blockAllocationTable < serializable
             % location in file
             %
             % Inputs:
-            % location -- the position of the
+            % location -- the position where bat is written
             obj.position     = location;
             obj.blocks_list  = block_list;
         end

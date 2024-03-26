@@ -134,18 +134,6 @@ return_cut = nargout > 0;
     obj.data,return_cut, varargin{:});
 
 
-% % verify if source projection is line_projection as
-% % it may contain legacy alignment, we do not want transfer to other
-% % projections. (TODO: need to be converted into recent alignment)
-% source_is_line_proj = isa(obj.data.proj,'line_proj');
-% % nasty legacy alignment business. TODO: deal with it
-% target_is_line_proj = isa(targ_proj,'line_proj');
-% % if we are realigning old format file, legacy alignment matrix should be
-% % ignored
-% % if source_is_line_proj && target_is_line_proj && targ_proj.ignore_legacy_alignment
-% %     obj.data.proj.ub_inv_legacy = [];
-% % end
-
 sz = size(pbin);
 
 % This loop enables multi-cuts

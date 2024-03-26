@@ -86,14 +86,14 @@ if use_template_object
     ax2 = data2.axes;
 
     %have parallel axes, so can proceed
-    minmax = minmax_ranges(ax.img_range, ...
+    minmax_rg = minmax_ranges(ax.img_range, ...
         ax2.img_range);
 
     bins = cell(ndims, 1);
     step = ax2.step;
 
     for i = 1:ndims
-        bins{i} = [minmax(1, data.pax(i)), step(i), minmax(2, data.pax(i))];
+        bins{i} = [minmax_rg(1, data.pax(i)), step(i), minmax_rg(2, data.pax(i))];
     end
 
 else
