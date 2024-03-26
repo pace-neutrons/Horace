@@ -393,8 +393,8 @@ elseif numel(pbin_given) == 1
         new_axis = paxis;
     else
         n_steps = floor((paxis(end)-paxis(1))/pbin_given);
-        err = rem(paxis(end)-paxis(1),pbin_given);
-        if err > 4*eps('single')
+        paxis_end = paxis(1)+pbin_given*n_steps;        
+        if paxis(end)-paxis_end  > 4*eps('single')
             n_steps = n_steps+1;
         end
         paxis_end = paxis(1)+pbin_given*n_steps;
