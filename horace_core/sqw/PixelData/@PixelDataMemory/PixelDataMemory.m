@@ -61,10 +61,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
             if nargin>1
                 idx = obj.field_index(field_id);
                 data = data(idx,:);
-
             end
         end
-        pix     = set_raw_data(obj,pix);
     end
 
     methods

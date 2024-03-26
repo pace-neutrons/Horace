@@ -108,12 +108,6 @@ classdef test_cut < TestCase
 
             ref_sqw = read_sqw(obj.ref_cut_file);
 
-            cut_instr = sqw_cut.experiment_info.instruments;
-            sqw_cut.experiment_info.instruments = cut_instr;
-
-            ref_instr = ref_sqw.experiment_info.instruments;
-            ref_sqw.experiment_info.instruments = ref_instr;
-
             assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date');
 
@@ -337,7 +331,7 @@ classdef test_cut < TestCase
 
             % test filebased cut
             outfile = fullfile(obj.working_dir, 'nomex_combine_cut_from_file_to_file.sqw');
-            cut(obj.sqw_file, obj.ref_params{:}, outfile);
+            w3_t = cut(obj.sqw_file, obj.ref_params{:}, outfile);
             cleanup = onCleanup(@()del_memmapfile_files(outfile));
 
             loaded_cut = sqw(outfile);

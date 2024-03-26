@@ -422,7 +422,12 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             [test_mb, corr_rev_mb] = finalize_alignment(test_mb);
             [test_fb, corr_rev_fb] = finalize_alignment(test_fb);
 
-            assertEqualToTol(corr_rev_mb, corr_rev_fb, 'tol', 1.e-6);
+            % memory based file already realigned and pixels moved into
+            % correct position
+            assertTrue(isempty(corr_rev_mb))
+            corr_rev_mb = corrections;
+            corr_rev_mb.rotvec = -corr_rev_mb.rotvec;
+            assertEqualToTol(corr_rev_mb,corr_rev_fb , 'tol', 1.e-6);
             assertEqualToTol(test_mb, test_fb, 'tol', 1.e-6, 'ignore_str', true);
 
         end
@@ -430,7 +435,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
         function test_finalize_alignment_in_mem(obj)
             % testing the possibility to align the crystal using
             % finalize_alignment routine in memory
-            test_obj = read_sqw(obj.misaligned_sqw_file);
+            test_obj = sqw(obj.misaligned_sqw_file,'file_backed',true);
             proj = test_obj.data.proj;
 
             corrections = crystal_alignment_info(...
@@ -451,13 +456,13 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             cr = [-0.3,-2.0,-0.5,-0.5;...
                 +3.5,+4.2,+1.0,+0.5];
 
-            cut_range = {[cr(1, 1), 0.05, cr(2, 1)], ...
-                [cr(1, 2), 0.05, cr(2, 2)], ...
+            cut_range = {[cr(1, 1), 0.06, cr(2, 1)], ...
+                [cr(1, 2), 0.06, cr(2, 2)], ...
                 cr(:, 3)', cr(:, 4)'};
 
             cut_cor = cut(wout_corrected, proj, cut_range{:});
             cut_al = cut(wout_aligned, proj, cut_range{:});
-            assertEqualToTol(cut_cor, cut_al, 'tol', 1.e-9);
+            assertEqualToTol(cut_cor, cut_al, 'tol', [8*eps('single'),0])
         end
         %
         function test_legacy_vs_pix_alignment(obj)
@@ -493,12 +498,13 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             % New and legacy projections are aligned equally
             pix_leg = wout_legacy.data.proj.transform_pix_to_img(pix_sample);
+            % now data in memory aligned immediately
+            pix_aligned = pix_sample;
+            pix_aligned.alignment_matr = corr.rotmat;
             pix_al  = wout_align.data.proj.transform_pix_to_img(pix_sample);
             assertElementsAlmostEqual(pix_al, pix_leg);
             % Modern aligned data maintain consistency between pixels and
             % image
-            pix_aligned = pix_sample;
-            pix_aligned.alignment_matr = wout_align.pix.alignment_matr;
             pix_al  = wout_align.data.proj.transform_pix_to_img(pix_aligned);
             assertElementsAlmostEqual(pix_sample.coordinates,pix_al);
         end

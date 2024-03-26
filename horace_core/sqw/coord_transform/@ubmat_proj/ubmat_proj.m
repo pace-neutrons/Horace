@@ -75,16 +75,6 @@ classdef ubmat_proj < LineProjBase
         %
     end
     properties(Dependent,Hidden)
-        % Legacy problematic property, The problem is that if cut has
-        % defines uoffset, it is offset in source image coorinate system
-        % and not target coordinate system which is defined by the
-        % projection. Left for compartibility with old data. Use offset
-        % instead.
-        uoffset  % offset expressed in image coordinate system. Old interface to img_offset
-        % which is under construction. Transient property used to process
-        % input parameters which converted to offset and nullified after
-        % that.
-
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
         unit_cell;
@@ -145,13 +135,6 @@ classdef ubmat_proj < LineProjBase
         %
         function typ=get.type(obj)
             typ = obj.type_;
-        end
-        %
-        function uoff = get.uoffset(obj)
-            uoff = obj.uoffset_;
-        end
-        function obj = set.uoffset(obj,val)
-            obj = obj.set_uoffset(val);
         end
         %------------------------------------------------------------------
         % return line_proj which is sister projection to ubmat_proj
@@ -262,17 +245,6 @@ classdef ubmat_proj < LineProjBase
         end
         function obj = set_proj_aligned(obj,val)
             obj.proj_aligned_ = logical(val);
-        end
-        function obj = set_uoffset(obj,val)
-            if ~isnumeric(val) || numel(val)~=4
-                error('HORACE:horace3_proj_interface:invalid_argument', ...
-                    'uoffset has to be 4-components numeric vector. It is %s', ...
-                    disp2str(val));
-            end
-            obj.uoffset_ = val(:)';
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
         end
     end
     %=====================================================================

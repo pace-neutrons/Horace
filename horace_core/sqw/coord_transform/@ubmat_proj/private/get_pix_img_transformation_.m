@@ -59,5 +59,9 @@ if nargout > 1
     % convert shift, expressed in hkl into crystal Cartesian coordinate
     % system
     shift = bmat*shift(:);
+    if alignment_needed
+        % Note inversion! It is correct -- see how it used in transformation
+        shift(1:3) = alignment_mat'*shift(1:3);
+    end
 else % do not convert anything
 end

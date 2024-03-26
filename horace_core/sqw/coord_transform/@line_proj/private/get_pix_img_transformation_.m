@@ -47,6 +47,8 @@ if ~isempty(obj.q_to_img_cache_)
     img_scales = obj.img_scales_(1:ndim);
     if alignment_needed
         q_to_img(1:3,1:3)  = q_to_img(1:3,1:3)*alignment_mat;
+        % Note inversion! It is correct -- see how it used in transformation
+        shift(1:3)         = alignment_mat'*shift(1:3);
     end
     return;
 end
@@ -74,5 +76,9 @@ end
 if nargout > 1
     % convert shift, expressed in hkl into crystal Cartesian
     shift = rlu_to_q *shift(:);
+    if alignment_needed
+        % Note inversion! It is correct -- see how it used in transformation
+        shift = alignment_mat'*shift(:);
+    end
 else % do not convert anything
 end
