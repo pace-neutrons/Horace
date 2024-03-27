@@ -15,24 +15,21 @@ classdef LineProjBase < aProjectionBase
         % coordinate system. Property of ubmat_proj but calculated in
         % line_proj
         img_scales % the scaling factor (in A^-1)
-
-        % Left for compartibility with old data. Use offset instead.
-        uoffset  % Old interface to offset
-
+        %------------------------------------------------------------------
+        % Properties left for compartibility with old data:
+        %
+        uoffset  % Old interface to offset.
+        %
         % Matrix to convert from image coordinate system to rlu. The
         % scale is defined by ulen
         % hklE coordinate system (in rlu or hkle -- both are the same, two
         % different name schemes are used)
         u_to_rlu
-
-        % PROPERTIES superseded by u_to_rlu and not used any more but written
-        % on some stages on disk so left here for loading
         %
-        % Three properties below are responsible for support of old binary
-        % file format and legacy alignment
         % length of image coordinate system vectors expressed in hkle as
         % above) coordinate system.
         ulen;   % old interface to access to image_scales properties
+        %
         % LEGACY PROPERTY: (used for saving data in old file format)
         % Return the compatibility structure, which may be used as
         % additional input to data_sqw_dnd constructor
@@ -40,7 +37,6 @@ classdef LineProjBase < aProjectionBase
         % LEGACY PROPERTY:
         u_to_rlu_legacy; % old u_to_rlu transformation matrix,
         % calculated by original Toby algorithm.
-
     end
     properties(Hidden)
         % Developers option. Use old (v3 and below) sub-algorithm in
@@ -52,7 +48,7 @@ classdef LineProjBase < aProjectionBase
     properties(Access=protected)
         % The properties used to optimize from_current_to_targ method
         % transformation, if both current and target projections are
-        % LineProjBase children classes
+        % LineProjBase classes
         ortho_ortho_transf_mat_;
         ortho_ortho_offset_;
         % Holder for image scales (common for ubmat proj and line proj
@@ -64,8 +60,9 @@ classdef LineProjBase < aProjectionBase
         proj = get_line_proj(obj);
     end
     methods(Abstract,Access= protected)
+        % behave differently for ubmat_proj and line_proj
         u_to_rlu = get_u_to_rlu(obj)
-        obj = set_u_to_rlu(obj,u_to_rlu)
+        obj      = set_u_to_rlu(obj,u_to_rlu)
         scales   = get_img_scales(obj);
         obj      = set_img_scales(obj,val);
     end
@@ -90,15 +87,9 @@ classdef LineProjBase < aProjectionBase
         function ul = get.img_scales(obj)
             ul = get_img_scales(obj);
         end
-        function ul = get.ulen(obj)
-            ul = get_img_scales(obj);
-        end
         function obj = set.img_scales(obj,val)
             obj = obj.set_img_scales(val);
         end
-        % function obj = set.ulen(obj,val)
-        %     obj = obj.set_img_scales(val);
-        % end
         % OTHER NAMES
         %------------------------------------------------------------------
         function u2rlu_leg = get.u_to_rlu_legacy(obj)
@@ -119,6 +110,10 @@ classdef LineProjBase < aProjectionBase
         end
         function obj = set.uoffset(obj,val)
             obj = set_offset(obj,val);
+        end
+        %
+        function ul = get.ulen(obj)
+            ul = get_img_scales(obj);
         end
     end
     %======================================================================
