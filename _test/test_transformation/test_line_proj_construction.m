@@ -221,11 +221,8 @@ classdef test_line_proj_construction<TestCase
             data.pax=[1,2,4];
             data.iint=[1;30];
             data.p={1:10;1:20;1:40};
-            ax = line_axes.get_from_old_data(data);
-            clPro = set_temporary_warning('off','HORACE:legacy_interface');
+            ax   = line_axes.get_from_old_data(data);
             proj = line_proj.get_from_old_data(data);
-            [~,lwid] = lastwarn;
-            assertEqual(lwid,'HORACE:legacy_interface');
 
             do = DnDBase.dnd(ax,proj);
 
