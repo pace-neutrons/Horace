@@ -30,17 +30,8 @@ end
 
 % Optimization, necessary to combine pix_to_img transformation matrix and
 % aligment matrix into single transformation matrix
-if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
-    pix = varargin{1};
-    if pix.is_misaligned
-        alignment_needed = true;
-        alignment_mat = pix.alignment_matr;
-    else
-        alignment_needed = false;
-    end
-else
-    alignment_needed = false;
-end
+[alignment_needed,alignment_mat] = aProjectionBase.check_alignment_needed(varargin{:});
+
 if ~isempty(obj.q_to_img_cache_)
     q_to_img   = obj.q_to_img_cache_(1:ndim,1:ndim);
     shift      = obj.q_offset_cache_(1:ndim);

@@ -1,4 +1,4 @@
-function [rot_to_img,offset_cc,theta_to_ang,phi_to_ang,offset_present]= ...
+function [rot_to_img,offset_cc,img_scales,offset_present,obj]= ...
     get_pix_img_transformation_(obj,ndim,varargin)
 % Return the constants and parameters used for transformation
 % from Crystal Cartesian to spherical coordinate system and
@@ -14,29 +14,30 @@ function [rot_to_img,offset_cc,theta_to_ang,phi_to_ang,offset_present]= ...
 %      -- 3x3 or 4x4 rotation matrix, which orients spherical
 %         coordinate system and transforms momentum and energy
 %         in Crystal Cartesian coordinates into oriented
-%         spherical coordinate system where angular coordinates
-%         are calculated
+%         Crystal Cartesian coordinate system used for calculateing angular
+%         coordinates
 % offset_cc
 %     -- the centre of spherical coordinate system in Crystal
 %        Cartesian coordinates.
-% theta_to_ang
-%     -- depending on the projection type, the constant used to
-%        convert Theta angles in radians to Theta angles in
-%        degrees or vice versa.
-% phi_to_ang
-%     -- depending on the projection type, the constant used to
-%        convert Phi angles in radians to Phi angles in
-%        degrees or vice versa.
-
+% img_scales
+%     -- depending on the projection type, the 3-vectors
+%        containing the scales used on image.
+%        depending on the projection type, elements 2,3
+%        (d/r) elements 2,3 of scales contain constand used to convert
+%        angles from degrees to radians or vice versa
 %
 % TODO: #954 NEEDS verification:
 rot_to_img = obj.pix_to_matlab_transf_;
 offset_hkl = obj.offset(:);
 offset_present = any(abs(offset_hkl)>4*eps("single"));
 
+[alignment_needed,alignment_mat] = aProjectionBase.check_alignment_needed(varargin{:});
 
 if ndim == 3
     rot_to_img = rot_to_img(1:3,1:3);
+    if alignment_needed
+        rot_to_img  = alignment_mat*rot_to_img;
+    end
 elseif ndim ~= 4
     error('HORACE:sphere_proj:invalid_argument', ...
         'ndims can only be 3 and 4. Provided: %s', ...
@@ -45,32 +46,22 @@ end
 
 if offset_present
     offset_cc   = (obj.bmatrix(ndim)*offset_hkl(1:ndim))';
+    if alignment_needed
+        % Note inversion! It is correct -- see how it used in transformation
+        offset_cc = alignment_mat'*offset_cc(:);
+    end
 else
     offset_cc = zeros(1,ndim);
 end
 
 
-if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
-    pix = varargin{1};
-    if pix.is_misaligned
-        if ndim == 3
-            alignment_mat = pix.alignment_matr;
-        else
-            alignment_mat = eye(4);
-            alignment_mat(1:3,1:3) = pix.alignment_matr;
-        end
-        rot_to_img = rot_to_img*alignment_mat;
-    end
-end
-
-
-if obj.type_(2) == 'r'
-    theta_to_ang = 1;
+if obj.type_(2) == 'r' % theta_to_ang
+    img_scales(2) = 1;
 else
-    theta_to_ang = 180/pi;
+    img_scales(2) = 180/pi;
 end
-if obj.type_(3) == 'r'
-    phi_to_ang = 1;
+if obj.type_(3) == 'r' % phi_to_ang
+    img_scales(3) = 1;
 else
-    phi_to_ang = 180/pi;
+    img_scales(3) = 180/pi;
 end

@@ -28,7 +28,7 @@ else % if pix_input is 4-d, this will use 4-D matrix and shift
     input_is_obj = false;
 end
 
-[rot_mat,offset_cc,theta_to_ang,phi_to_ang,offset_present] = ...
+[rot_mat,offset_cc,scales,offset_present,obj] = ...
     obj.get_pix_img_transformation(ndim,pix_input);
 
 %
@@ -40,9 +40,9 @@ end
 [azimuth,elevation,r] = cart2sph(pix_transf(1,:),pix_transf(2,:),pix_transf(3,:));
 
 if ndim == 4
-    pix_transf = [r; theta_to_ang*(pi/2-elevation); azimuth*phi_to_ang; pix_transf(4,:)];
+    pix_transf = [r*scales(1); scales(2)*(pi/2-elevation); azimuth*scales(3); pix_transf(4,:)];
 else
-    pix_transf = [r; theta_to_ang*(pi/2-elevation); azimuth*phi_to_ang];
+    pix_transf = [r*scales(1); scales(2)*(pi/2-elevation); azimuth*scales(3)];
 end
 if input_is_obj
     if shift_ei

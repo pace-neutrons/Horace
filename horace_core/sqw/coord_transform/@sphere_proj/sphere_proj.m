@@ -155,7 +155,7 @@ classdef sphere_proj<aProjectionBase
         function obj = set.type(obj,val)
             obj = check_and_set_type_(obj,val);
         end
-        function [rot_to_img,offset,theta_to_ang,phi_to_ang,offset_present]=...
+        function [rot_to_img,offset,scales,offset_present,obj]=...
                 get_pix_img_transformation(obj,ndim,varargin)
             % Return the constants and parameters used for transformation
             % from Crystal Cartezian to spherical coordinate system and
@@ -189,7 +189,7 @@ classdef sphere_proj<aProjectionBase
             %        if all offsets are zero
 
             %
-            [rot_to_img,offset,theta_to_ang,phi_to_ang,offset_present] = ...
+            [rot_to_img,offset,scales,offset_present,obj] = ...
                 get_pix_img_transformation_(obj,ndim,varargin{:});
 
         end
