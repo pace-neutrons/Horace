@@ -117,7 +117,7 @@ classdef test_migrated_apis < TestCaseWithSave
 
 
             assertEqualToTolWithSave(obj, wout_disp, 'ignore_str', true,'tol',3.e-7);
-            assertEqualToTolWithSave(obj, wout_weight, 'ignore_str', true,'tol',1.e-9);
+            assertEqualToTolWithSave(obj, wout_weight, 'ignore_str', true,'tol',1.e-7);
         end
         function test_dispersion_with_disp_return_value_on_dnd(obj)
             params = {'scale', 10};

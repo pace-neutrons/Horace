@@ -16,9 +16,9 @@ function [ix,npix,p,grid_size,ibin]=sort_pixels_by_bins(u,pix_range,grid_size_in
 %   ix(npix,1)      Index array by which the pixels have been reordered
 %                  i.e. u1(ix) gives the reordered values of u1
 %   npix(nbin,1)    Number of contributing pixels to the bins in the Cartesian grid
-%                  as a column vector. Bin indicies of reshaped Cartesian grid
+%                  as a column vector. Bin indices of reshaped Cartesian grid
 %                  are numbered in the same sequence as would be returned by the
-%                  matlab intrinsic sub2ind)
+%                  MATLAB intrinsic sub2ind)
 %   p               Cell array [1 x nd] of column vectors of bin boundaries
 %                  in Cartesian grid
 %   grid_size       Scalar or row vector (1xnd) of number of actual bins along each axis
@@ -52,9 +52,9 @@ end
 
 % Sort into increasing bin number and return indexing array
 % (treat only the contributing pixels: if the the grid is much smaller than the extent of the data this will be faster)
-ix=find(ok);                % Pixel indicies that are included in the grid
+ix=find(ok);                % Pixel indices that are included in the grid
 [ibin,ind]=sort(ibin(ok));  % ordered bin numbers of the included pixels with index array into the original list of bin numbers of included pixels
-ix=ix(ind)';                % Indicies of included pixels corresponding to ordered list; convert to column vector
+ix=ix(ind)';                % Indices of included pixels corresponding to ordered list; convert to column vector
 
 ibin=ibin';
 npix=accumarray(ibin,1,[prod(grid_size),1]);

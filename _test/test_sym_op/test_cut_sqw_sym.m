@@ -157,5 +157,4 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         % - handcraft a symmetrised cut, using the private combine
         %------------------------------------------------------------------------
     end
-
 end

@@ -25,7 +25,7 @@ classdef fudge_proj < line_proj
         
     end
     methods(Access = protected)
-        function  mat = get_u_to_rlu_mat(obj)
+        function  mat = get_u_to_rlu(obj)
             % u_to_rlu defines the transformation from coodrinates in
             % image coordinate system to pixels in hkl(dE) (rlu) coordinate
             % system

@@ -33,6 +33,5 @@ end
 if ~file_exist
     return
 end
-
 new_obj = obj.do_class_dependent_updates(new_obj,upgrade_range,argi{:});
 %

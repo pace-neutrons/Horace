@@ -26,7 +26,7 @@ classdef test_proj_alignment<TestCase
             % sqrt(2)
             al_inf = crystal_alignment_info();
             al_inf.rotvec  = [0,0,pi/4];
-            al_inf.alatt   = w2.data.alatt/sqrt(2);            
+            al_inf.alatt   = w2.data.alatt/sqrt(2);
             w2 = w2.change_crystal(al_inf);
             % now we do normal cut and should find the peak in the
             % [1,0,0] position
@@ -93,7 +93,7 @@ classdef test_proj_alignment<TestCase
             %
             % Check data correctntess numerically
             w1_l = cut_sqw(w2,targ_proj,[-5*sqrt(2),0.1,5*sqrt(2)], ...
-                [-0.5,0.5],[-2,2],[-2,2]);            
+                [-0.5,0.5],[-2,2],[-2,2]);
             kk1 = multifit (w1_l);
             kk1 = kk1.set_fun(@gauss);
             kk1 = kk1.set_pin ([1,2,10]);
@@ -111,13 +111,14 @@ classdef test_proj_alignment<TestCase
             fit_params.p(3) = abs(fit_params.p(3));
             assertElementsAlmostEqual(fit_params.p, ...
                 [1,0,sqrt(obj.sigmaSq/2)],'absolute',1.e-2)
-            
-        end
 
+        end
 
         function test_align_simple_lattice_latt_no_change(obj)
             %
             ax = line_axes('img_range',[-5,-5,-2,-2;5,5,2,2],'nbins_all_dims',[100,100,1,1]);
+            %proj = line_proj([1,0,0],[0,1,0],[0,0,1],'type','ppp','alatt',2.8,'angdeg',90);
+            % w2 = sqw.generate_cube_sqw(ax,proj,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
             w2 = sqw.generate_cube_sqw(ax,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
 
             % this alignment moves the peak into actual [1,0,0] position where
@@ -162,6 +163,50 @@ classdef test_proj_alignment<TestCase
                 [1,0,sqrt(obj.sigmaSq/2)],'absolute',1.e-2)
 
         end
+        function test_align_legacy_lattice_keeps_sqw_consistency(obj)
+            %
+            ax = line_axes('img_range',[-5,-5,-2,-2;5,5,2,2],'nbins_all_dims',[100,100,1,1]);
+            w2 = sqw.generate_cube_sqw(ax,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
+            w2.data.proj = w2.data.proj.get_ubmat_proj();
+
+            % this alignment moves the peak into actual [1,0,0] position where
+            % lattice parameters is previous lattice parameter divided by
+            % sqrt(2)
+            al_inf = crystal_alignment_info();
+            al_inf.rotvec  = [0,0,pi/4];
+            w2 = w2.change_crystal(al_inf);
+            % now we do normal cut and should find the peak in the
+            % [1,0,0] position
+            w2_upd = w2.recompute_bin_data();
+
+            assertElementsAlmostEqual(w2.data.s,w2_upd.data.s)
+            assertElementsAlmostEqual(w2.data.e,w2_upd.data.e)
+            assertElementsAlmostEqual(w2.data.npix,w2_upd.data.npix)
+        end
+
+
+        function test_align_simple_lattice_keeps_sqw_consistency(obj)
+            %
+            ax = line_axes('img_range',[-5,-5,-2,-2;5,5,2,2],'nbins_all_dims',[100,100,1,1]);
+            proj = line_proj([1,0,0],[0,1,0],[0,0,1],'type','ppp','alatt',2.8,'angdeg',90);
+            w2 = sqw.generate_cube_sqw(ax,proj,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
+
+            % this alignment moves the peak into actual [1,0,0] position where
+            % lattice parameters is previous lattice parameter divided by
+            % sqrt(2)
+            al_inf = crystal_alignment_info();
+            al_inf.rotvec  = [0,0,pi/4];
+            w2 = w2.change_crystal(al_inf);
+            % now we do normal cut and should find the peak in the
+            % [1,0,0] position
+            w2_upd = w2.recompute_bin_data();
+
+            assertElementsAlmostEqual(w2.data.s,w2_upd.data.s)
+            assertElementsAlmostEqual(w2.data.e,w2_upd.data.e)
+            assertElementsAlmostEqual(w2.data.npix,w2_upd.data.npix)
+        end
+    end
+    methods(Access=protected)
 
         function f=sample_gaus(obj,h,k,l,en,varargin)
             % bragg peak in notional 110 position.

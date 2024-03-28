@@ -3,11 +3,11 @@ function min_max = minmax_ranges(range1,range2)
 % values, and returns common min/max of these two ranges
 %
 % Input:
-% range1     -- 2xN martix with each column containing [min1;max1] value
-% range1     -- another 2xN martix with each column containing [min2;max2] value
+% range1     -- 2xN matrix with each column containing [min1;max1] value
+% range1     -- another 2xN matrix with each column containing [min2;max2] value
 %
 % Returns:
-% min_max   -- 2xN matrix with each colum containing
+% min_max   -- 2xN matrix with each column containing
 % [min(min1,min2);max(max1,max2)];
 if isempty(range1)
     min_max = range2;

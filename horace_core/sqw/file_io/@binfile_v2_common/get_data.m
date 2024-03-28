@@ -161,8 +161,11 @@ if header_only || noclass
     return;
 end
 %
+
+data_str.warn_on_legacy_data = false;
 proj = line_proj.get_from_old_data(data_str);
 ax   = line_axes.get_from_old_data(data_str);
+
 % really old file format does not contain lattice
 % in real life we will probably never face this file format
 if ~proj.alatt_defined

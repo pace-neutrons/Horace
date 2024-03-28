@@ -133,8 +133,8 @@ else
     cc_exist_range = cc_ranges; % Keep old range
 end
 
-img_box_points = proj.transform_pix_to_img(cc_exist_range);
-img_db_range_minmax = [min(img_box_points,[],2),max(img_box_points,[],2)]';
+img_box_points      = proj.transform_pix_to_img(cc_exist_range);
+img_db_range_minmax = min_max(img_box_points)';
 
 % add fourth dimension to the range
 all_sym_range = [img_db_range_minmax,existing_range(:,4)];

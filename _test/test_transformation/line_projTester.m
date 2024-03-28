@@ -11,9 +11,8 @@ classdef line_projTester < line_proj
             obj = obj@line_proj(varargin{:});
         end
         %
-        function [img_to_u, q_to_img, ulen]=projaxes_to_rlu_public(obj,varargin)
-            [q_to_img,~,ulen]=obj.get_pix_img_transformation(3);
-            img_to_u = inv(q_to_img);
+        function [rlu_to_u, u_to_rlu, ulen]=projaxes_to_rlu_public(obj,varargin)
+            [rlu_to_u, u_to_rlu, ulen] = u_to_rlu_legacy_from_uvw(obj,obj.u,obj.v,obj.w,obj.type,obj.nonorthogonal);
         end
         %
         function [u,v,w,type]=uv_from_data_rot_public(obj,u_to_rlu,ustep)
