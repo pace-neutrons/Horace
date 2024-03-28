@@ -1,5 +1,5 @@
 function obj = check_and_set_type_(obj,type)
-% Verify if type argument set to projaxes class is correct
+% Verify if type argument set to line_proj class is correct
 % and set type variable if it does
 
 if isempty(type)

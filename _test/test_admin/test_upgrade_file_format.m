@@ -23,15 +23,15 @@ classdef test_upgrade_file_format< TestCase
         end
         function test_upgrade_legacy_alignment_with_lattice(obj)
             source = fullfile(obj.test_common,'sqw_4d.sqw');
-            [clFile,test_fl] = obj.copy_my_file(source);            
+            [clFile,test_fl] = obj.copy_my_file(source);
 
-            alatt = [2.858,2.858,2.858];
-            angdeg = [90,90,90];
-            
-            fl = upgrade_file_format(test_fl,alatt,angdeg);
-            assertTrue(isempty(fl));
+
+            fl = upgrade_file_format(test_fl);
+            assertTrue(isa(fl{1},'sqw'));
+            assertTrue(fl{1}.is_filebacked);
+
             skipTest('Re #1195 This routine needs more tests')
-            
+
         end
         function test_no_upgrade_for_legacy_alignment(obj)
             % legacy aligned file. Does nut upgraded as need larrice to be
@@ -39,7 +39,8 @@ classdef test_upgrade_file_format< TestCase
             laf = fullfile(obj.test_common,'sqw_4d.sqw');
             clWarn = set_temporary_warning('off', 'HORACE:legacy_alignment');
             fl = upgrade_file_format(laf);
-            assertEqual(fl{1},laf);
+            assertTrue(isa(fl{1},'sqw'));
+            assertTrue(fl{1}.is_filebacked);
         end
         function test_upgrade_single_sqw_filebacked_noupgrade_range_warning(obj)
             [clFile,targ_f] = obj.copy_my_file(obj.ff_source_sqw);
@@ -49,7 +50,7 @@ classdef test_upgrade_file_format< TestCase
             warning('TESTS:my_warning','This should become the last warning as no other waning were issued on the way');
 
             upgrade_file_format(targ_f);
-            w2  = sqw(targ_f{1});            
+            w2  = sqw(targ_f{1});
 
             [~,e] = lastwarn;
             assertEqual(e,'TESTS:my_warning');

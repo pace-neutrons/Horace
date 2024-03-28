@@ -1,4 +1,4 @@
-function [u,v,w,type,nonortho]=uv_from_transf_mat_(obj,q_to_img,ulen,varargin)
+function [u,v,w,type,nonortho]=uv_from_u_to_rlu_(obj,u_to_rlu,ulen,varargin)
 % Extract initial u/v vectors, defining the plane in hkl from
 % lattice parameters and the matrix converting vectors in
 % crystal Cartesian coordinate system into image coordinate system.
@@ -10,7 +10,7 @@ function [u,v,w,type,nonortho]=uv_from_transf_mat_(obj,q_to_img,ulen,varargin)
 % q_to_img -- matrix used for conversion from pixel coordinate
 %            system to the image coordinate system divided by B-matrix
 %          If it is orthogonal coordinate system, the matrix is rotation
-%          matrix but if it does not -- it is 
+%          matrix but if it does not -- it is
 %
 % ulen  -- length of the unit vectors of the reciprocal lattice
 %          units, the Horace image is expressed in
@@ -29,13 +29,15 @@ if ~isempty(varargin)
 else
     b_mat = bmatrix(obj.alatt,obj.angdeg); % converts hkl to Crystal Cartesian
 end
+ub_inv = u_to_rlu./ulen(:)'; % every column divided by proper ulen;
 %u_rot_mat = b_mat\u_rot_mat; % old style transformation matrix need this
 % to define the transformation
 
-%umat = (q_to_img.*ulen(:)')'; %Recover umat, umat vectors arranged in rows
-transf_mat = (q_to_img.*ulen(:)); %Recover umat, umat vectors arranged in rows
+umat = inv(b_mat*ub_inv(1:3,1:3));%Recover umat, umat vectors arranged in rows and it
+% should be rotation matrix for orthogonal coordinate system. Inv equal
+% to ' for rotaion matrix but not for non-orthogonal transformation
 err = 1.e-8;
-cross_proj = [transf_mat(1,:)*transf_mat(2,:)',transf_mat(1,:)*transf_mat(3,:)',transf_mat(2,:)*transf_mat(3,:)'];
+cross_proj = [umat(1,:)*umat(2,:)',umat(1,:)*umat(3,:)',umat(2,:)*umat(3,:)'];
 if any(abs(cross_proj) > err)
     ortho = false;
 else
@@ -43,15 +45,15 @@ else
 end
 nonortho = ~ortho;
 if ortho
-    ubmat = transf_mat*b_mat; % correctly recovered ubmatrix; ulen matrix extracted
+    ubmat = umat*b_mat; % correctly recovered ubmatrix; ulen matrix extracted
     ubmatinv = inv(ubmat);
 
-
+    % DOES NOT LOOK LIKE THIS CORRECT on 08/03/2024 Does not recovers line_proj from ubmat_proj:
     % orthogonolize to suppress round-off errors
-    transf_mat(2,:) = transf_mat(2,:)- (transf_mat(1,:)*cross_proj(1)+transf_mat(3,:)*cross_proj(2));
-    transf_mat(3,:) = transf_mat(3,:)- (transf_mat(1,:)*cross_proj(2)+transf_mat(2,:)*(transf_mat(2,:)*transf_mat(3,:)'));
+    %umat(2,:) = umat(2,:)- (umat(1,:)*cross_proj(1)+umat(3,:)*umat(2));
+    %umat(3,:) = umat(3,:)- (umat(1,:)*cross_proj(2)+umat(2,:)*(umat(2,:)*umat(3,:)'));
 
-    uvw_orth_hkl = (b_mat\transf_mat');   % orthogonal part of u,v,w
+    uvw_orth_hkl = (b_mat\umat');   % orthogonal part of u,v,w
     %  in hkl frame defined by u and v
 
     %
@@ -77,12 +79,9 @@ if ortho
 
     type = [lt{:}];
 else % non-ortho
-    uvw_cc = inv(transf_mat); % that's uvw in CC
-    u_cc = uvw_cc(:,1);
-    v_cc = uvw_cc(:,2);
-    uvw  = b_mat\uvw_cc;
-    ubmat = ubmatrix(u_cc,v_cc,b_mat);
-    uvw_orth = ubmat*uvw;
+    transf_cc = inv(umat); % that's nonorthogonal transformation (row 85 in projtransf_to_img)
+    uvw  = b_mat\transf_cc;
+    uvw_orth = transf_cc;
 
     type = cell(3,1);
     for i=1:3

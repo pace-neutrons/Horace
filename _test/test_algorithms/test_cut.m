@@ -1,4 +1,4 @@
-classdef test_cut < TestCase & common_state_holder
+classdef test_cut < TestCase
     % Testing cuts and comparing the results against the reference cuts.
     %
     % This is a non-standard test class, as it compares cut
@@ -107,12 +107,6 @@ classdef test_cut < TestCase & common_state_holder
             assertElementsAlmostEqual(sqw_cut.data.offset,obj.ref_params{1}.offset);
 
             ref_sqw = read_sqw(obj.ref_cut_file);
-
-            cut_instr = sqw_cut.experiment_info.instruments;
-            sqw_cut.experiment_info.instruments = cut_instr;
-
-            ref_instr = ref_sqw.experiment_info.instruments;
-            ref_sqw.experiment_info.instruments = ref_instr;
 
             assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date');
@@ -337,7 +331,7 @@ classdef test_cut < TestCase & common_state_holder
 
             % test filebased cut
             outfile = fullfile(obj.working_dir, 'nomex_combine_cut_from_file_to_file.sqw');
-            cut(obj.sqw_file, obj.ref_params{:}, outfile);
+            w3_t = cut(obj.sqw_file, obj.ref_params{:}, outfile);
             cleanup = onCleanup(@()del_memmapfile_files(outfile));
 
             loaded_cut = sqw(outfile);
@@ -553,8 +547,9 @@ classdef test_cut < TestCase & common_state_holder
 
         function test_cut_nopix_to_file(obj)
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
-            cut(obj.sqw_file, obj.ref_params{:}, outfile, '-nopix')
             cleanup = onCleanup(@() clean_up_file(outfile));
+
+            cut(obj.sqw_file, obj.ref_params{:}, outfile, '-nopix')
 
             assertTrue(logical(exist(outfile, 'file')));
             ldr = sqw_formats_factory.instance().get_loader(outfile);

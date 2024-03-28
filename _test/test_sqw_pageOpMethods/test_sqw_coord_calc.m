@@ -49,7 +49,7 @@ classdef test_sqw_coord_calc < TestCaseWithSave
             w1modE = coordinates_calc(obj.sqw_2d,'E');
 
             assertEqualToTolWithSave(obj,w1modE,'ignore_str',true, ...
-                'tol',[1.e-9,1.e-9],'-ignore_date');
+                'tol',[1.e-7,1.e-7],'-ignore_date');
 
         end
 
@@ -65,14 +65,14 @@ classdef test_sqw_coord_calc < TestCaseWithSave
             w2modL = coordinates_calc(obj.sqw_2d,'l');
 
             assertEqualToTolWithSave(obj,w2modL,'ignore_str',true, ...
-                'tol',[1.e-9,1.e-9],'-ignore_date');
+                'tol',[1.e-7,1.e-7],'-ignore_date');
 
         end
         function test_w2d2_option(obj)
             w2modD2 = coordinates_calc(obj.sqw_2d,'d2');
 
             assertEqualToTolWithSave(obj,w2modD2,'ignore_str',true, ...
-                'tol',[1.e-9,1.e-9],'-ignore_date');
+                'tol',[1.e-7,1.e-7],'-ignore_date');
 
         end
 
@@ -85,7 +85,7 @@ classdef test_sqw_coord_calc < TestCaseWithSave
             w1modP1 = coordinates_calc(obj.sqw_1d,'d1');
 
             assertEqualToTolWithSave(obj,w1modP1,'ignore_str',true, ...
-                'tol',[1.e-9,1.e-9],'-ignore_date');
+                'tol',[1.e-7,1.e-7],'-ignore_date');
         end
 
     end

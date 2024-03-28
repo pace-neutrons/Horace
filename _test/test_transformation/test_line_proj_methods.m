@@ -356,7 +356,7 @@ classdef test_line_proj_methods<TestCase
             % resurfaces.
             %ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
             %clob0 = onCleanup(@()warning(ws));
-            [a,b]=lastwarn
+
             hc = hor_config();
             cur_mex = hc.use_mex;
             hc.use_mex = 0;

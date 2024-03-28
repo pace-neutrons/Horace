@@ -62,7 +62,7 @@ k_to_v = lookup.k_to_v;
 k_to_e = lookup.k_to_e;
 
 
-% Get covariance matricies
+% Get covariance matrices
 % ------------------------
 cov_proj = cell(size(win));
 cov_spec = cell(size(win));
@@ -117,7 +117,7 @@ for iw = 1:numel(win)
 
     % Compute wavevector-energy covariance matrix in different dimensions
     %TODO: Re #1040 this code is not consistent with generic projections
-    if ~isa(win(iw).data.proj,'line_proj')
+    if ~isa(win(iw).data.proj,'LineProjBase')
         error('HORACE:sqw:not_implemented', ...
             'resolution cannot currently be calculated for any projection except linear projection')
     end
@@ -148,7 +148,7 @@ function Cout = transform_matrix (C,B)
 szC = size(C);
 szB = size(B);
 if numel(szC)==2 && numel(szB)==2
-    % Just do straightforward Matlab matrix multiplication
+    % Just do straightforward MATLAB matrix multiplication
     Cout = B * C * B';
 else
     if numel(szB)==2
@@ -162,12 +162,12 @@ end
 
 %=============================================================================
 function Cinv = invert_matrix (C)
-% Compute the inverse of an array of square matricies, taking additional
+% Compute the inverse of an array of square matrices, taking additional
 % dimensions as the matrix array dimensions
 
 szC = size(C);
 if numel(szC)==2
-    % Just do straighforward matlab inversion
+    % Just do straightforward MATLAB inversion
     Cinv = inv(C);
 else
     Cinv = zeros(size(C));

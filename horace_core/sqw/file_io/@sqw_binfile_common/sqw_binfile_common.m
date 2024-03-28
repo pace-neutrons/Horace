@@ -130,18 +130,12 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         [sqw_obj,varargout] = get_sqw(obj,varargin);
         function [dnd_obj,obj] = get_dnd(obj,varargin)
             [dnd_obj,obj] = get_dnd@binfile_v2_common(obj,varargin{:});
+            % May be it is not needed?
             % needed to support  legacy alignment, where u_to_rlu matrix is multiplied
             % by alignment matrix
-            [exp_info,~]  = obj.get_exp_info(1);
-            header_av = exp_info.header_average;
-            if isfield(header_av,'u_to_rlu')
-                u_to_rlu  = header_av.u_to_rlu(1:3,1:3);
-                if any(abs(subdiag_elements(u_to_rlu))>4*eps('single')) % if all 0, its B-matrix so certainly
-                    proj = dnd_obj.proj; % no alignment; otherwise, may be aligned.
-                    % be cautious.
-                    dnd_obj.proj = proj.set_ub_inv_compat(u_to_rlu);
-                end
-            end
+            %[exp_info,~]  = obj.get_exp_info(1);
+            %header_av = exp_info.header_average;
+            %[~,dnd_obj] = dnd_data_alignment(dnd_obj,header_av);
         end
 
         % ---------   File Mutators:
@@ -335,30 +329,6 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             % generate pseudo-contents for sqw file, for purpose of
             % calculating fields positions while upgrading file format
             sq = make_pseudo_sqw_(nfiles);
-        end
-        function sqw_data = update_projection(sqw_data)
-            % Check if the projection attached to dnd class is related to
-            % the cut (the cut image range is in hkl) or to the initial
-            % generated sqw file (image range equal to the pixel range)
-            % and modify dnd projection accordingly
-            img_range = sqw_data.data.img_range;
-            pix_range = sqw_data.pix.pix_range;
-            difr = img_range(:,1:3)-pix_range(:,1:3);
-            proj = sqw_data.data.proj;
-            if ~any(abs(difr(:))>1.e-4)
-                % this is original gen_sqw, which have pixels binned into Crystal Cartesian
-                % coordinate system. It should be correct projection recovered anyway,
-                % Just in case:
-                proj = line_proj([1,0,0],[0,1,0],[0,0,1],'alatt',proj.alatt,...
-    				'angdeg',proj.angdeg,'type','aaa');
-                if ~isempty(sqw_data.data.proj.ub_inv_legacy)
-                    proj = proj.set_ub_inv_compat(sqw_data.data.proj.ub_inv_legacy);
-                end
-                sqw_data.data.proj = proj;
-            else % this is cut, where the pixels are binned on some projection
-    			% pix ranges can not be processed from image ranges anyway
-            end
-
         end
     end
     %======================================================================

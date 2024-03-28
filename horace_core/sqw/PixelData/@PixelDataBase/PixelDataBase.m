@@ -274,7 +274,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             %  '-filebacked' -- if present, request filebacked data (does
             %                   not work currently work with array of data)
             %  '-upgrade'    -- if present, alow write access to filebased
-            %  '-writable'      data (properties are synonimous)
+            %  '-writable'      data (properties are synonymous)
             %  '-norange'    -- if present, do not calculate the range of
             %                   pix data if this range is missing. Should
             %                   be selected during file-format upgrade, as
@@ -290,8 +290,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         function loc_range = pix_minmax_ranges(data, current)
             % Compute the minmax ranges in data in the appropriate format for
             % PixelData objects
-            loc_range = [min(data,[],2),...
-                max(data,[],2)]';
+            loc_range = min_max(data)';
             if exist('current', 'var')
                 loc_range = minmax_ranges(current,loc_range);
             end
@@ -843,7 +842,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     % Helper methods.
     methods(Access=protected)
-        function obj = set_alignment(obj,val,pix_average_treatment_function)
+        function [obj,alignment_changed] = set_alignment(obj,val,pix_treatment_function)
             % set non-unary alignment matrix and recalculate or invalidate
             % pix averages.
             % Part of alignment_mart setter
@@ -851,10 +850,11 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             % obj    -- initial object
             % val    -- 3x3 alignment matrix or empty value if matrix
             %           invalidation is requested
-            % pix_average_treatment_function
-            %        -- the function used for recalculation or invalidation
-            %           of pixel averages
-            obj = set_alignment_matr_(obj,val,pix_average_treatment_function);
+            % pix_treatment_function
+            %        -- the function to apply to the PixelDataBase object
+            %           after aligment changes e.g. for recalculation or
+            %            invalidation of pixel averages.
+            [obj,alignment_changed] = set_alignment_matr_(obj,val,pix_treatment_function);
         end
         %------------------------------------------------------------------
         function [abs_pix_indices,pix_col_idx,ignore_range,raw_data,keep_precision,align] = ...

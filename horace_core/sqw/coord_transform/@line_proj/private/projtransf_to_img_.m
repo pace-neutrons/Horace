@@ -32,8 +32,7 @@ function [q_to_img,ulen,b_mat,obj] = projtransf_to_img_(obj)
 % Substantially changed in 2023 for Horace 4.0;
 
 
-[b_mat,rlu_vec_len] = bmatrix(obj.alatt, obj.angdeg);
-b_vec_directions = b_mat./rlu_vec_len;
+b_mat = bmatrix(obj.alatt, obj.angdeg);
 u=obj.u;
 v=obj.v;
 [ubmat,umat] = ubmatrix(u,v,b_mat);  % get UB matrix normalized by rlu vector length
@@ -49,12 +48,12 @@ if isempty(obj.w) %
         %
         % Above is the idea, have not been implemented. Just make w-vector
         % orthogonal to u,v plain
-        u_ortho = b_mat*u(:);
-        v_ortho = b_mat*v(:);
-        uv_ortho = [u_ortho(:)/norm(u_ortho),v_ortho(:)/norm(v_ortho)];
-        w = cross(uv_ortho(:,1),uv_ortho(:,2));  % this is w orthogonal to u,v
-        w = w/norm(w);                           % in Crystal Cartesian
-        w = b_vec_directions\w; % this is unit-length vector w in hkl-aligned system;
+        u_cc = b_mat*u(:);
+        v_cc = b_mat*v(:);
+        uv_ortho = [u_cc(:)/norm(u_cc),v_cc(:)/norm(v_cc)];
+        w_cc = cross(uv_ortho(:,1),uv_ortho(:,2));  % this is w orthogonal to u,v
+        w_cc = w_cc/norm(w_cc);                           % in Crystal Cartesian
+        w = b_mat\w_cc; % this is vector w in hkl-aligned system;
         obj.w_ = w(:)';
     else
         % w it is not used in orthogonal case, just provided for convenience.
@@ -120,3 +119,4 @@ else                                        % V_c = U*B*V_hkl -- defining U
     % so umat (one inversion looks missing? or what?. This gives previous Horace result)
     q_to_img = (umat./(ulen(:)));
 end
+

@@ -90,17 +90,9 @@ classdef aProjectionBase < serializable
         alatt_defined
         % returns true if lattice angles have been set up
         angdeg_defined
-        % old interface to img_offset for old data containing a
-        % structure with the value of this property, or old user scripts
-        % which define structure with this value.
-        uoffset
         % Helper property, which specifies the name of the axes class,
         % which corresponds to this projection
         axes_name
-        % The property specifies if the projection is aligned. Depending on
-        % the value of this property, pix to img transformation calculated
-        % differently
-        proj_aligned
     end
 
     properties(Constant, Hidden)
@@ -119,7 +111,7 @@ classdef aProjectionBase < serializable
         lattice_defined_= [false,false];
         %------------------------------------
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        offset_  = [0,0,0,0] %Offset of origin of projection axes in 
+        offset_  = [0,0,0,0] %Offset of origin of projection axes in
         % r.l.u. and energy [h; k; l; en] [row vector]
         %
         label_  = {'Q_h','Q_k','Q_l','En'};
@@ -247,12 +239,7 @@ classdef aProjectionBase < serializable
             offset = obj.offset_;
         end
         function obj = set.offset(obj,val)
-            obj.offset_ = check_offset_(obj,val);
-            % one and then another but reconciliation have not happened yet
-            if obj.do_check_combo_arg_ % does nothing here, but
-                % will recalculate caches in children
-                obj = obj.check_combo_arg();
-            end
+            obj = set_offset(obj,val);
         end
         %
         function tl = get.title(obj)
@@ -341,23 +328,9 @@ classdef aProjectionBase < serializable
         function def = get.angdeg_defined(obj)
             def = obj.lattice_defined_(2);
         end
-        % OLD sqw object creation interface.
-        function off = get.uoffset(obj)
-            off = obj.offset;
-        end
-        function obj = set.uoffset(obj,val)
-            obj.offset = val;
-        end
         function name = get.axes_name(obj)
             name = get_axes_name(obj);
         end
-        function is = get.proj_aligned(obj)
-            is = get_proj_aligned(obj);
-        end
-        function obj = set.proj_aligned(obj,val)
-            obj = obj.set_proj_aligned(val);
-        end
-
     end
 
     %======================================================================
@@ -778,13 +751,6 @@ classdef aProjectionBase < serializable
     end
     %======================================================================
     methods(Access = protected)
-        function is = get_proj_aligned(~)
-            is = false;
-        end
-        function obj = set_proj_aligned(obj,varargin)
-            % do nothing -- have not implemented alignment on generic
-            % projection
-        end
         function name = get_axes_name(obj)
             % return the name of the axes class, which corresponds to this
             % projection
@@ -858,6 +824,15 @@ classdef aProjectionBase < serializable
                     'you may set do_generic property into true or false state only');
             end
             obj.do_generic_ = logical(val);
+        end
+
+        function obj = set_offset(obj,val)
+            obj.offset_ = check_offset_(obj,val);
+            % one and then another but reconciliation have not happened yet
+            if obj.do_check_combo_arg_ % does nothing here, but
+                % will recalculate caches in children
+                obj = obj.check_combo_arg();
+            end
         end
     end
     %

@@ -15,6 +15,9 @@ classdef test_tobyfit_mosaic < TestCaseWithSave
     methods
         function obj = test_tobyfit_mosaic (name)
             % Initialise object properties and pre-load test cuts for faster tests
+            if nargin==0
+                name = 'test_tobyfit_mosaic';
+            end
             
             % Note: in the (hopefully) extremely rare case of needing to
             % regenerate the data, use the static method generate_data (see
