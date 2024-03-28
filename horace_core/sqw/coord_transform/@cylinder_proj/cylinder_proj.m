@@ -3,39 +3,38 @@ classdef cylinder_proj<aProjectionBase
     % to make cylindical cuts.
     %
     % Default angular coordinates names and meanings are chosen as follows:
-    % z       -- coordinate 1 is the component of the momentum Q, directed along 
-    %            the selected e_z axis. As in Horace default beam direction
-    %            is along axis [1,0,0], default crystalographic direction
-    %            of e_z axis is [1,0,0]
-    % rho     -- coordinate 2, the angle between the beam direction (k_i)
-    %            and the direction of the Q,
-    % phi     -- coordinate 3 is the angle between the projection of the
-    %            scattering vector to the instrument plane (perpendicular
-    %            to k_i) and the crystal rotation plane.
+    % Q_tr    -- coordinate 1  is the module of the component of the momentum 
+    %            transfer orthogonal to the direction, selected by property
+    %            e_z  of this class. e_z property is expressed in hkl and
+    %            defines direction of e_z axis of cylindrical coordinate 
+    %            system. Horace has default beam direction along axis 
+    %            [1,0,0] so default crystalographic direction of e_z axis is 
+    %            [1,0,0] because the secondary symmetry of the instrument
+    %            image would be cylindrical symmetry around beam direction
+    % phi     -- coordinate 2 is the angle between x-axis of the cylindrical 
+    %            coordinate system and the projection of the momentum transfer
+    %            (Q_tr) to the xy plain of the cylindircal coordinate
+    %            system
+    % Q_||    -- coordinate 3 is the component of the momentum Q, (Q_||)
+    %            directed along the selected e_z axis. 
     % dE      -- coordinate 4 the energy transfer direction
     %
     %
     properties(Dependent)
         ez;  % [1x3] unit vector specifying crystallographic direction of
-        % spherical coordinates Z-axis within the reciprocal lattice.
-        % Z-axis of spherical coordinate system is the axis where the
-        % elevation angle (MATLAB convention) is counted from.
-        % In Horace/Mantid convention this angle is named theta = pi/2-elevation.
+        % cylindical coordinates Z-axis within the reciprocal lattice.
+        % Z-axis of cylindrical coordinate system is the axis where the
+        % elevation (MATLAB convention) is counted from.
         % Default direction is [1,0,0]
 
         ex; %[1x3] lattice vector together with z-axis defining the crystal
-        % rotation plane. Matlab names this angle azimuth and it is phi
+        % rotation plane. Matlab names this angle theta and it is phi
         % angle in Horace/Mantid convention
         %
-        % if z-axis of spherical coordinate system is directed along the beam
-        % ez,ex vectors of spherical projection coincide with u,v vectors
-        % used during sqw file generation
-        %
-        type;  % units of the projection. Default add -- inverse Angstrom, degree, degree
-        %      % possible options: arr where two letters r describe radian
-        %      e.g. adr is  allowed combinations of letters, indicating
-        %      that the phi angle is calculated in radian and theta -- in
-        %      degrees.
+        type;  % units of the projection. Default ada -- inverse Angstrom, 
+        %      degree, inverse Angstrom.
+        %      % possible options: ara where letter r describes radian
+        %      ie phi angle is calculated in radians
         %
     end
     properties(Access=private)
@@ -43,15 +42,12 @@ classdef cylinder_proj<aProjectionBase
         ez_ = [1,0,0]
         ex_ = [0,1,0]
         %
-        type_ = 'add' % A^{-1}, degree, degree
+        type_ = 'ada' % A^{-1}, degree, A^{-1}
         %------------------------------------
-        % For the future. See if we want spherical projection in hkl,
-        % non-orthogonal
-        %orhtonormal_ = true;
         hor2matlab_transf_ = [...
             0, 1, 0, 0;... % The transformation from
             0, 0, 1, 0;... % Horace pixel coordinate system to the axes coordinates
-            1, 0, 0, 0;... % to allow using MATLAB sph2cart/cart2sph functions.
+            1, 0, 0, 0;... % to allow using MATLAB pol2cart/cart2pol functions.
             0, 0, 0, 1];
 
         pix_to_matlab_transf_ ; % the transformation used for conversion
@@ -74,7 +70,7 @@ classdef cylinder_proj<aProjectionBase
             %
             obj = obj@aProjectionBase();
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
-            obj.label = {'|Q|','\theta','\phi','En'};
+            obj.label = {'Q_{tr}','\phi','\Q_{||}','En'};
 
             obj = obj.init(varargin{:});
         end
@@ -156,7 +152,7 @@ classdef cylinder_proj<aProjectionBase
         function obj = set.type(obj,val)
             obj = check_and_set_type_(obj,val);
         end
-        function [rot_to_img,offset,theta_to_ang,phi_to_ang,offset_present]=...
+        function [rot_to_img,offset,img_scales,offset_present,obj]=...
                 get_pix_img_transformation(obj,ndim,varargin)
             % Return the constants and parameters used for transformation
             % from Crystal Cartezian to spherical coordinate system and
@@ -177,20 +173,18 @@ classdef cylinder_proj<aProjectionBase
             % offset
             %     -- the centre of spherical coordinate system in Crystal
             %        Cartesian coordinates.
-            % theta_to_ang
-            %     -- depending on the projection type, the constant used to
-            %        convert Theta angles in radians to Theta angles in
-            %        degrees or vice versa.
-            % phi_to_ang
-            %     -- depending on the projection type, the constant used to
-            %        convert Phi angles in radians to Phi angles in
+            % img_scales
+            %     -- depending on the projection type, the 3-vectors
+            %        containing the scales used on image.
+            %        currently only one scale (element 2) is used --
+            %        Depending on type letter 2 (r or dconvert Phi angles in radians to Phi angles in
             %        degrees or vice versa.
             % offset_present
             %     -- boolean true if any offset is not equal to 0 and false
             %        if all offsets are zero
 
             %
-            [rot_to_img,offset,theta_to_ang,phi_to_ang,offset_present] = ...
+            [rot_to_img,offset,img_scales,offset_present,obj] = ...
                 get_pix_img_transformation_(obj,ndim,varargin{:});
 
         end
@@ -201,9 +195,9 @@ classdef cylinder_proj<aProjectionBase
             % copy the properties, which are normally defined on projection
             % into the axes block provided as input
             axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
-            axes_bl.axes_units = obj.type;
+            axes_bl.axes_units  = obj.type;
             %
-            axes_bl.ulen  = [1,1,1,1];
+            axes_bl.img_scales  = obj.img_scales;
         end
 
 
@@ -223,7 +217,7 @@ classdef cylinder_proj<aProjectionBase
             %            transformed into spherical coordinate system
             %            defined by object properties
             %
-            pix_transformed = transform_pix_to_spher_(obj,pix_data);
+            pix_transformed = transform_pix_to_cylinder_(obj,pix_data);
         end
         function pix_cc = transform_img_to_pix(obj,pix_transformed,varargin)
             % Transform pixels in image (spherical) coordinate system

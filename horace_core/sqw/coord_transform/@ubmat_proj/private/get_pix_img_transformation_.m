@@ -21,22 +21,11 @@ function [q_to_img,shift,img_scales,obj]=get_pix_img_transformation_(obj,ndim,va
 %              expressed in Crystal Cartesian coordinate system
 % img_scales
 %          -- [1 x ndim] array of scales along the image axes used
-%             in the transformation
+%             in the transformation and plotting
 
 % Optimization, necessary to combine pix_to_img transformation matrix and
 % aligment matrix into single transformation matrix
-if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
-    pix = varargin{1};
-    if pix.is_misaligned
-        alignment_needed = true;
-        alignment_mat = pix.alignment_matr;
-    else
-        alignment_needed = false;
-    end
-else
-    alignment_needed = false;
-end
-
+[alignment_needed,alignment_mat] = aProjectionBase.check_alignment_needed(varargin{:});
 
 bmat = obj.bmatrix(ndim);
 if ndim==4

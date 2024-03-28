@@ -650,7 +650,7 @@ classdef aProjectionBase < serializable
                 error('HORACE:aProjectionBase:runtime_error',...
                     'Target projection property has to be set up to convert to target coordinate system')
             end
-            pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
+            pic_cc      = obj.transform_img_to_pix(pix_origin,varargin{:});
             pix_target  = targproj.transform_pix_to_img(pic_cc,varargin{:});
         end
         %
@@ -837,6 +837,33 @@ classdef aProjectionBase < serializable
     end
     %
     methods(Static,Access=protected)
+        function [alignment_needed,alignment_mat] = check_alignment_needed(pixData)
+            % verify if input argumnet contain alignment information and
+            % return this information if it is available.
+            %
+            % Inputs:
+            % pixData -- any instance of the PixelDataBase or pix_metadata class
+            %            containing information about alignment
+            % Returns:
+            % alignment_needed -- true if input contains non-unary alignment
+            %                     info
+            %
+            % alignment_mat    -- if alignment_needed is true, matrix which
+            %                     describes pixels misalignment
+            %                     if false, empty argument
+            alignment_mat    =  [];
+            if nargin>0 && (isa(pixData,'PixelDataBase')|| isa(pixData,'pix_metadata'))
+                if pixData.is_misaligned
+                    alignment_needed = true;
+                    alignment_mat = pix.alignment_matr;
+                else
+                    alignment_needed = false;
+                end
+            else
+                alignment_needed = false;
+            end
+        end
+
         %
         function [bl_start,bl_size]=convert_contrib_cell_into_pix_indexes(...
                 cell_ind,npix)
