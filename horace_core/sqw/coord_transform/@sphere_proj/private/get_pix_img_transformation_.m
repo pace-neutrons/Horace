@@ -54,7 +54,7 @@ else
     offset_cc = zeros(1,ndim);
 end
 
-
+img_scales = ones(1,3);
 if obj.type_(2) == 'r' % theta_to_ang
     img_scales(2) = 1;
 else
