@@ -75,15 +75,15 @@ classdef test_sphere_proj<TestCase
                 proj.type = val;
             end
             assertExceptionThrown(@()type_setter(proj,'a'),...
-                'HORACE:sphere_proj:invalid_argument');
+                'HORACE:CurveProjBase:invalid_argument');
             assertExceptionThrown(@()type_setter(proj,20),...
-                'HORACE:sphere_proj:invalid_argument');
+                'HORACE:CurveProjBase:invalid_argument');
 
             assertExceptionThrown(@()type_setter(proj,'abb'),...
-                'HORACE:sphere_proj:invalid_argument');
+                'HORACE:CurveProjBase:invalid_argument');
 
             assertExceptionThrown(@()type_setter(proj,'xrr'),...
-                'HORACE:sphere_proj:invalid_argument');
+                'HORACE:CurveProjBase:invalid_argument');
         end
 
         function test_coord_sphere_ranged_rad(~)

@@ -40,9 +40,9 @@ end
 [phi,rho,z] = cart2pol(pix_transf(1,:),pix_transf(2,:),pix_transf(3,:));
 
 if ndim == 4
-    pix_transf = [scales(1)*rho; scales(2)*phi; scales(3)*z; pix_transf(4,:)];
+    pix_transf = [scales(1)*rho; scales(2)*z; scales(3)*phi;  pix_transf(4,:)];
 else
-    pix_transf = [scales(1)*rho; scales(2)*phi; scales(3)*z; azimuth*phi_to_ang];
+    pix_transf = [scales(1)*rho; scales(2)*z; scales(3)*phi];
 end
 if input_is_obj
     if shift_ei

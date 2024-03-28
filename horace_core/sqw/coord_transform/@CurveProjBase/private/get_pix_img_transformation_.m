@@ -53,15 +53,4 @@ if offset_present
 else
     offset_cc = zeros(1,ndim);
 end
-
-img_scales = ones(1,3);
-if obj.type_(2) == 'r' % theta_to_ang
-    img_scales(2) = 1;
-else
-    img_scales(2) = 180/pi;
-end
-if obj.type_(3) == 'r' % phi_to_ang
-    img_scales(3) = 1;
-else
-    img_scales(3) = 180/pi;
-end
+[img_scales,obj] = get_img_scales(obj);

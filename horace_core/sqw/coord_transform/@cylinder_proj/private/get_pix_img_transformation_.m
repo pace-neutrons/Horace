@@ -32,7 +32,6 @@ function [rot_to_img,offset_cc,scales,offset_present,obj]= ...
 rot_to_img = obj.pix_to_matlab_transf_;
 offset_hkl = obj.offset(:);
 offset_present = any(abs(offset_hkl)>4*eps("single"));
-scales = ones(1,3);
 %
 [alignment_needed,alignment_mat] = aProjectionBase.check_alignment_needed(varargin{:});
 
@@ -57,10 +56,4 @@ if offset_present
 else
     offset_cc = zeros(1,ndim);
 end
-
-
-if obj.type_(2) == 'r'
-    scales(2) = 1;
-else
-    scales(2) = 180/pi;
-end
+[scales,obj] = get_image_scales(obj);

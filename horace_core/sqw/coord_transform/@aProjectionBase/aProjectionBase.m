@@ -47,6 +47,11 @@ classdef aProjectionBase < serializable
         %
     end
     properties(Dependent,Hidden)
+        % scaling factors used in transformation from pix to image
+        % coordinate system. Property of ubmat_proj but calculated in
+        % line_proj, sphere_proj or cylinder_proj
+        img_scales % the scaling factor (in A^-1)
+
         % Internal properties, used by algorithms and better not to be
         % exposed to users
         %
@@ -226,6 +231,13 @@ classdef aProjectionBase < serializable
             % All angles are in degrees.
             %
             obj = check_and_set_andgdeg(obj,val);
+        end
+        %
+        function ul = get.img_scales(obj)
+            ul = get_img_scales(obj);
+        end
+        function obj = set.img_scales(obj,val)
+            obj = set_img_scales(obj,val);
         end
         %
         function lab=get.label(obj)
@@ -720,7 +732,8 @@ classdef aProjectionBase < serializable
             if ~isempty(obj.title)
                 axes_bl.title = obj.title;
             end
-            axes_bl.offset = obj.offset;
+            axes_bl.offset      = obj.offset;
+            axes_bl.img_scales  = obj.img_scales;
         end
         %
         function [obj,axes] = align_proj(obj,alignment_info,axes)
@@ -975,6 +988,10 @@ classdef aProjectionBase < serializable
         % return parameters of transformation used for conversion from pixels
         % to image coordinate system
         varargout = get_pix_img_transformation(obj,ndim,varargin);
+    end
+    methods(Abstract,Access=protected)
+        scales   = get_img_scales(obj);
+        obj      = set_img_scales(obj,val);
     end
     %======================================================================
     % Serializable interface

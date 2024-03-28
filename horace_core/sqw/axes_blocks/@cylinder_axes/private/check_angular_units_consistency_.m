@@ -1,5 +1,5 @@
 function  obj = check_angular_units_consistency_(obj)
-% Verify if the spherical axes ranges consistent with the limits of the 
+% Verify if the spherical axes ranges consistent with the limits of the
 % axes block and convert the limits into appropriate units if the limits
 % have changed the units.
 
@@ -19,7 +19,7 @@ check_angular_range(range(:,2),obj.angular_unit_is_rad_(1),[0 ,pi]);
 check_angular_range(range(:,3),obj.angular_unit_is_rad_(2),[-pi,pi]);
 
 % reset range_set and old_angular_units in c
-obj.img_range_set_ = false;
+obj.img_range_set_           = false;
 obj.old_angular_unit_is_rad_ = [];
 
 

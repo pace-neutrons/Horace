@@ -11,7 +11,7 @@ classdef cylinder_axes < AxesBlockBase
             0,-180,-1,0;...  % the range, a object defined with dimensions
             1  180, 1,1];    % only would have
         % what symbols axes_units can have
-        types_available_ = {'a',{'d','r'},'a','e'};
+        types_available_ = {'a','a',{'d','r'},'e'};
 
     end
     properties(Dependent)
@@ -29,7 +29,7 @@ classdef cylinder_axes < AxesBlockBase
     properties(Access = protected)
         % if angular dimensions of the axes are expressed in radians or degrees
         angular_unit_is_rad_ = [false];
-        axes_units_ = 'adae';
+        axes_units_ = 'aade';
     end
     properties(Access=private)
         % helper properties used in setting angular units image range and
@@ -57,12 +57,12 @@ classdef cylinder_axes < AxesBlockBase
             %
 
             obj.max_img_range_ = [...
-                0  ,-180,-inf, -inf;...
-                inf, 180, inf,  inf];
+                0  ,-inf,-180, -inf;...
+                inf, inf, 180,  inf];
             % empty spherical range:
             obj.img_range_ = [obj.max_img_range_(2,:);obj.max_img_range_(1,:)];
 
-            obj.label = {'Q_{tr}','\phi','\Q_{||}','En'};
+            obj.label = {'Q_{tr}','\Q_{||}','\phi','En'};
             obj.changes_aspect_ratio_ = false;
             if nargin == 0
                 return;

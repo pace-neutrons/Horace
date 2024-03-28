@@ -76,7 +76,7 @@ classdef AxesBlockBase < serializable
         % axes block describes
         img_range;
         %
-        img_scales   %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        img_scales   %Length of projection axes vectors in Ang^-1, meV or rad/deg [row vector]
         %
         dimensions;  % Number of AxesBlockBase object dimensions
 
@@ -127,7 +127,7 @@ classdef AxesBlockBase < serializable
         filepath_=''   % Path to sqw file that is being read, including terminating file separator.
         %               Used in titles
         label_  = {'Q_h','Q_k','Q_l','En'}; %Labels of the projection axes [1x4 cell array of character strings]
-        img_scales_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        img_scales_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1, meV or rad/deg [row vector]
         img_range_      = ... % 2x4 vector of min/max values in 4-dimensions
             PixelDataBase.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf]
 

@@ -14,7 +14,7 @@ ndim = size(pix_data,1);
 
 %Original arrangement :  
 % [phi,rho,z] = cart2pol(pix_transf(1,:),pix_transf(2,:),pix_transf(3,:))
-% pix_transf = [scales(1)*rho; scales(2)*phi; scales(3)*z; pix_transf(4,:)]
+% pix_transf = [phi,rho,z] = cart2pol(pix_transf(1,:),pix_transf(2,:),pix_transf(3,:))
 %Requested arrangement:  [x,y,z] = pol2cart(phi,rho,z);
 [x,y,z] = pol2cart(pix_data(2,:)/scales(2),pix_data(1,:)/scales(1),pix_data(3,:)/scales(3));
 
