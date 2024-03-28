@@ -168,6 +168,10 @@ function [npix, s, e, pix_out, unique_runid] = cut_with_pixels(pix, block_starts
     targ_proj, targ_axes, npix, s, e, ll, ...
     keep_precision, pixel_contrib_name)
 
+if numel(targ_proj) > 1
+    error('HORACE:cut:not_implemented', 'Cannot cut sym and return pixels')
+end
+
 hc = hor_config;
 chunk_size = hc.mem_chunk_size;
 fb_size    = hc.fb_scale_factor;
