@@ -712,16 +712,18 @@ classdef AxesBlockBase < serializable
         obj = check_and_set_img_range(obj,val);
         % defines bins used when default constructor with dimensions only is called.
         pbin = default_pbin(obj,ndim)
-        % takes binning parameters converts it into axis binning for the
-        % given axes
-        [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
         % calculate bin volume from the  axes of the axes block or input
         % axis organized in cellarray of 4 axis.
-
         volume = calc_bin_volume(obj,axis_cell)
     end
     %======================================================================
     methods(Access=protected)
+        function  [range,nbin,ok,mess]=pbin_parse(obj,p,p_defines_bin_centers,range_limits)
+            % take binning parameters and converts them into axes bin ranges
+            % and number of bins defining this axes block
+            [range,nbin,ok,mess]=pbin_parse_(obj,p,p_defines_bin_centers,range_limits);
+        end
+
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various

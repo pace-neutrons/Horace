@@ -3,13 +3,13 @@ classdef cylinder_axes < AxesBlockBase
         % What units each possible dimension type of the spherical projection
         % have:  Currently momentum, angle, and energy transfer may be
         % expressed in Anstrom, radian, degree, meV. The key is the type
-        % letter present in sphere_projection and the value is the unit
+        % letter present in cylinder_projection and the value is the unit
         % caption.
         capt_units = containers.Map({'a','r','d','e'}, ...
             {[char(197),'^{-1}'],'rad','^{o}','meV'})
         default_img_range_ =[ ...
-            0,-180,-1,0;...  % the range, a object defined with dimensions
-            1  180, 1,1];    % only would have
+            0,-1,-180,-1;...  % the range, a object defined with dimensions
+            1  1, 180, 1];    % only would have
         % what symbols axes_units can have
         types_available_ = {'a','a',{'d','r'},'e'};
 
@@ -22,13 +22,13 @@ classdef cylinder_axes < AxesBlockBase
 
     end
     properties(Dependent,Hidden)
-        % if angular dimensions of the axes are expressed in radians or degrees
+        % the range used for cylinder_axes by default
         default_img_range
     end
 
     properties(Access = protected)
         % if angular dimensions of the axes are expressed in radians or degrees
-        angular_unit_is_rad_ = [false];
+        angular_unit_is_rad_ = false;
         axes_units_ = 'aade';
     end
     properties(Access=private)
@@ -39,20 +39,20 @@ classdef cylinder_axes < AxesBlockBase
         % If only angular_unit_is_rad have changed, the image range have to
         % be recalculated from degree to radians of v.v..
         old_angular_unit_is_rad_  = [];
-        img_range_set_        = false;
+        img_range_set_            = false;
     end
 
     methods
         %
-        function obj = sphere_axes(varargin)
+        function obj = cylinder_axes(varargin)
             % constructor
             %
-            %>>obj = sphere_axes() % return empty axis block
-            %>>obj = sphere_axes(ndim) % return unit block with ndim
+            %>>obj = cylinder_axes() % return empty axis block
+            %>>obj = cylinder_axes(ndim) % return unit block with ndim
             %                           dimensions
-            %>>obj = sphere_axes(p1,p2,p3,p4) % build axis block from axis
+            %>>obj = cylinder_axes(p1,p2,p3,p4) % build axis block from axis
             %                                  arrays
-            %>>obj = sphere_axes(pbin1,pbin2,pbin3,pbin4) % build axis block
+            %>>obj = cylinder_axes(pbin1,pbin2,pbin3,pbin4) % build axis block
             %                                       from binning parameters
             %
 
@@ -60,7 +60,7 @@ classdef cylinder_axes < AxesBlockBase
                 0  ,-inf,-180, -inf;...
                 inf, inf, 180,  inf];
             % empty spherical range:
-            obj.img_range_ = [obj.max_img_range_(2,:);obj.max_img_range_(1,:)];
+            obj.img_range_ = obj.default_img_range_;
 
             obj.label = {'Q_{tr}','\Q_{||}','\phi','En'};
             obj.changes_aspect_ratio_ = false;
@@ -125,10 +125,8 @@ classdef cylinder_axes < AxesBlockBase
         %
         function range = get.default_img_range(obj)
             range  = obj.default_img_range_;
-            for i=1:2
-                if obj.angular_unit_is_rad_(i)
-                    range(:,1+i) = deg2rad(range(:,1+i));
-                end
+            if obj.angular_unit_is_rad_
+                range(:,3) = deg2rad(range(:,3));
             end
         end
     end
@@ -153,11 +151,6 @@ classdef cylinder_axes < AxesBlockBase
             % and defines default empty binning for dimension-only
             % construction
             pbin = default_pbin_(obj,ndim);
-        end
-        function  [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
-            % take binning parameters and converts them into axes bin ranges
-            % and number of bins defining this axes block
-            [range,nbin]=pbin_parse_(obj,p,p_defines_bin_centers,i);
         end
     end
     %======================================================================
@@ -205,11 +198,8 @@ classdef cylinder_axes < AxesBlockBase
             % in the structure does not correspond to the current version
             % of the class.
             if isfield(inputs,'angular_unit_is_rad')
-                ax_unit = {'a','d','d','e'};
-                if inputs.angular_unit_is_rad(1)
-                    ax_unit{2} = 'r';
-                end
-                if inputs.angular_unit_is_rad(2)
+                ax_unit = {'a','a','d','e'};
+                if inputs.angular_unit_is_rad
                     ax_unit{3} = 'r';
                 end
                 inputs.axes_units = [ax_unit{:}];

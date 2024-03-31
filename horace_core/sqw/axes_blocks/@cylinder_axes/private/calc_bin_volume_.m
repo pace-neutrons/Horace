@@ -6,8 +6,9 @@ function volume = calc_bin_volume_(obj,ax_in_cell)
 % 1D array of size of total number of bins in the lattice if some cell
 % volumes differ.
 %
+
 if ~iscell(ax_in_cell) || numel(ax_in_cell) ~=4
-    error('HORACE:sphere_axes:invalid_argument', ...
+    error('HORACE:cylinder_axes:invalid_argument', ...
         'Input for calc_bin_volume function should be cellarray containing 4 axis. It is: %s', ...
         disp2str(ax_in_cell));
 end
@@ -18,39 +19,29 @@ grid_sizes = cellfun(@(ax)(ax(2:end)-ax(1:end-1)),ax_in_cell, ...
 
 dE_regular = true;
 if abs(min(grid_sizes{4}) - max(grid_sizes{4})) > eps('single') && ...
-   abs(min(grid_sizes{3}) - max(grid_sizes{3})) > eps('single') 
+        abs(min(grid_sizes{3}) - max(grid_sizes{3})) > eps('single')
     dE_regular = false;
 end
-% dR = r_2^3-r_1^3 = (r_2-r_1)*(r_1^2+r_1*r_2+r_2^2);
+% dR = r_2^2-r_1^2 = (r_2-r_1)*(r_1+r_2);
 ax_r = ax_in_cell{1};
 nr = 1:numel(ax_r)-1;
 dr = grid_sizes{1};
-dR = arrayfun(@(i)abs((ax_r(i)*ax_r(i) + ax_r(i)*ax_r(i+1)+ax_r(i+1)*ax_r(i+1))*dr(i)/3), ...
+dR = arrayfun(@(i)abs((ax_r(i)+ax_r(i+1))*dr(i)/2), ...
     nr);
 grid_sizes{1} = dR;
-
-% dTheta = cos(Theta_2)-cos(Theta_1) = -2*sin((Theta_1+Theta_2)/2)*sin((Theta_2-Theta_1)/2);
-if obj.angular_unit_is_rad(1)
-    ax_th = ax_in_cell{2};
-else
-    ax_th = deg2rad(ax_in_cell{2});
-    grid_sizes{2}= deg2rad(grid_sizes{2});
-end
-nth = 1:numel(ax_th)-1;
-dth = grid_sizes{2};
-dThet = arrayfun(@(i)abs(2*sin((ax_th(i)+ax_th(i+1))/2)*sin(dth(i)/2)), nth);
-grid_sizes{2} = dThet;
+%
+%grid_sizes{2} = dQ_|| -- linear axes;
 
 % dPhi
-if obj.angular_unit_is_rad(2)
+if obj.angular_unit_is_rad(1)
     dPhi = grid_sizes{3};
 else
     dPhi = deg2rad(grid_sizes{3});
     grid_sizes{3} = dPhi;
 end
 
-if numel(dR)==1 && numel(dThet) == 1 && dE_regular
-    volume = dR(1)*dThet(1)*dPhi(1)*grid_sizes{4}(1);
+if numel(dR)==1 && numel(dPhi) == 1 && dE_regular
+    volume = dR(1)*grid_sizes{2}(1)*dPhi(1)*grid_sizes{4}(1);
 else
     volume = grid_sizes{1}(:)';
     for i=2:4

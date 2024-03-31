@@ -8,8 +8,8 @@ function obj = set_angles_in_rad_(obj,val)
 %
 obj.old_angular_unit_is_rad_ = obj.angular_unit_is_rad_;
 if isempty(val)
-    obj.angular_unit_is_rad_ = [false,false];
-    obj.axes_units_(2:3) = 'dd';
+    obj.angular_unit_is_rad_ = false;
+    obj.axes_units_(3) = 'd';
     return;
 end
 if isstring(val)
@@ -18,22 +18,18 @@ end
 if isnumeric(val)
     val = logical(val);
 end
-if numel(val)>2||numel(val)<1
-    error('HORACE:sphere_axes:invalid_argument',...
-        'Angular units in rad property value should contain one or two elements defining angular units in radians or degrees.\n Attempt to set: %d elements', ...
+if numel(val)~=1
+    error('HORACE:cylinder_axes:invalid_argument',...
+        'Angular units in rad property value should contain one element defining angular units in radians or degrees.\n Attempt to set: %d elements', ...
         numel(val))
 end
 if ischar(val)
-    i=1:numel(val);
-    val = arrayfun(@(i)convert_val_to_bool(val(i)),i);
-end
-if numel(val)== 1
-    val = [val,val];
+    val = convert_val_to_bool(val);
 end
 %
 obj.angular_unit_is_rad_ = val;
 %
-obj.axes_units_(2:3) = arrayfun(@convert_bool_to_val,val(1:2));
+obj.axes_units_(3) = convert_bool_to_val(val);
 %
 
 function ch = convert_bool_to_val(val)

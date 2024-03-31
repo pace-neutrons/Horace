@@ -14,8 +14,9 @@ function  new_axes_block = build_from_input_binning(...
 % axes_class_name -- name of the axes block class to build
 % cur_img_range_and_steps
 %          --   4-elements cellarray of the ranges and steps of source
-%               image, expressed in the target coordinates and
-%               used as source of default ranges.
+%               image, expressed in the target coordinate system (the system 
+%               the new axes block is build for) and used as source of
+%               default ranges.
 %               if these ranges are not specified by pbin
 % pbin     --   4-elements cellarray of input binning parameters, which define
 %               target image binning.

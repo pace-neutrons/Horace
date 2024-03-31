@@ -149,7 +149,7 @@ classdef test_sphere_axes < TestCase
             assertEqual(block.iint,[0;1])
             assertEqual(block.pax,[2,3,4])
             assertEqual(block.dax,[1,2,3])
-            assertElementsAlmostEqual(block.p{1},   0:45.5/45:45.5,'absolute',1.e-12);
+            assertElementsAlmostEqual(block.p{1},   0:(45.5/45):45.5,'absolute',1.e-12);
             assertElementsAlmostEqual(block.p{2},-180:1:180,'absolute',1.e-12)
             assertElementsAlmostEqual(block.p{3},-0.05:0.1:10.05,'absolute',1.e-12)
         end
@@ -219,17 +219,17 @@ classdef test_sphere_axes < TestCase
             ab = sphere_axes(4);
             assertEqual(ab.dimensions,4);
             assertEqual(ab.angular_unit_is_rad,[false,false]);
-            assertEqual(ab.img_range,[0,0,-180,0;1,180,180,1])
+            assertEqual(ab.img_range,[0,0,-180,-1;1,180,180,1])
             ab.angular_unit_is_rad = 'rd';
             assertEqual(ab.angular_unit_is_rad,[true,false]);
-            assertEqual(ab.img_range,[0,0,-180,0;1,pi,180,1])
+            assertEqual(ab.img_range,[0,0,-180,-1;1,pi,180,1])
             ab.angular_unit_is_rad = "dr";
             assertEqual(ab.angular_unit_is_rad,[false,true]);
-            assertEqual(ab.img_range,[0,0,-pi,0;1,180,pi,1])
+            assertEqual(ab.img_range,[0,0,-pi,-1;1,180,pi,1])
             ab.angular_unit_is_rad = 'rr';
-            assertEqual(ab.img_range,[0,0,-pi,0;1,pi,pi,1])
+            assertEqual(ab.img_range,[0,0,-pi,-1;1,pi,pi,1])
             ab.angular_unit_is_rad = "dd";
-            assertEqual(ab.img_range,[0,0,-180,0;1,180,180,1])
+            assertEqual(ab.img_range,[0,0,-180,-1;1,180,180,1])
 
         end
 
@@ -237,15 +237,15 @@ classdef test_sphere_axes < TestCase
             ab = sphere_axes(4);
             assertEqual(ab.dimensions,4);
             assertEqual(ab.angular_unit_is_rad,[false,false]);
-            assertEqual(ab.img_range,[0,0,-180,0;1,180,180,1])
+            assertEqual(ab.img_range,[0,0,-180,-1;1,180,180,1])
             ab.angular_unit_is_rad = [true,false];
             assertEqual(ab.angular_unit_is_rad,[true,false]);
-            assertEqual(ab.img_range,[0,0,-180,0;1,pi,180,1])
+            assertEqual(ab.img_range,[0,0,-180,-1;1,pi,180,1])
             ab.angular_unit_is_rad = [false,true];
             assertEqual(ab.angular_unit_is_rad,[false,true]);
-            assertEqual(ab.img_range,[0,0,-pi,0;1,180,pi,1])
+            assertEqual(ab.img_range,[0,0,-pi,-1;1,180,pi,1])
             ab.angular_unit_is_rad = [true,true];
-            assertEqual(ab.img_range,[0,0,-pi,0;1,pi,pi,1])
+            assertEqual(ab.img_range,[0,0,-pi,-1;1,pi,pi,1])
         end
 
         function test_sphere_axes_change_angular_range(~)
@@ -309,7 +309,7 @@ classdef test_sphere_axes < TestCase
             assertEqual(ab.nbins_all_dims,ones(1,4))
             assertEqual(ab.single_bin_defines_iax,false(1,4))
             assertEqual(ab.angular_unit_is_rad,[false,false]);
-            assertEqual(ab.img_range,[0,0,-180,0; 1,180,180,1])
+            assertEqual(ab.img_range,[0,0,-180,-1; 1,180,180,1])
 
         end
         %

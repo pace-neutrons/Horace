@@ -31,8 +31,8 @@ classdef sphere_axes < AxesBlockBase
         capt_units = containers.Map({'a','r','d','e'}, ...
             {[char(197),'^{-1}'],'rad','^{o}','meV'})
         default_img_range_ =[ ...
-            0,   0, -180,0;...  % the range, a object defined with dimensions
-            1 ,180,  180,1];    % only would have
+            0,   0, -180, -1;...  % the range, a object defined with dimensions
+            1 ,180,  180,  1];    % only would have
         % what symbols axes_units can have
         types_available_ = {'a',{'d','r'},{'d','r'},'e'};
 
@@ -45,7 +45,7 @@ classdef sphere_axes < AxesBlockBase
 
     end
     properties(Dependent,Hidden)
-        % if angular dimensions of the axes are expressed in radians or degrees
+        % the range used for cylinder_axes by default
         default_img_range
     end
 
@@ -78,13 +78,13 @@ classdef sphere_axes < AxesBlockBase
             %>>obj = sphere_axes(pbin1,pbin2,pbin3,pbin4) % build axis block
             %                                       from binning parameters
             %
-
+            % Maximal possible img_range to check against:
             obj.max_img_range_ = [...
                 0  ,  0, -180, -inf;...
                 inf,180,  180,  inf];
-            % empty spherical range:
-            obj.img_range_ = [obj.max_img_range_(2,:);obj.max_img_range_(1,:)];
-
+            %
+            obj.img_range_ = obj.default_img_range_;
+            %
             obj.label = {'|Q|','\theta','\phi','En'};
             obj.changes_aspect_ratio_ = false;
             if nargin == 0
@@ -176,11 +176,6 @@ classdef sphere_axes < AxesBlockBase
             % and defines default empty binning for dimension-only
             % construction
             pbin = default_pbin_(obj,ndim);
-        end
-        function  [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
-            % take binning parameters and converts them into axes bin ranges
-            % and number of bins defining this axes block
-            [range,nbin]=pbin_parse_(obj,p,p_defines_bin_centers,i);
         end
     end
     %======================================================================
