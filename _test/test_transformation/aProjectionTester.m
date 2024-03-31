@@ -39,6 +39,13 @@ classdef aProjectionTester < aProjectionBase
 
     end
     methods(Access = protected)
+        function img_scales = get_img_scales(~)
+            img_scales = ones(1,4);
+        end
+        function obj = set_img_scales(varargin)
+            error('HORACE:aProjectionTester:invalid_argument', ...
+                'aProjectionTester scaling is always 1')
+        end
     end
 
     methods(Static)
