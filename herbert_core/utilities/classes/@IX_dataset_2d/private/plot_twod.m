@@ -191,6 +191,7 @@ elseif strcmpi(plot_type,'contour') % contour plot
 end
 hold off    % release plot
 
+
 % Create/change title if a new plot
 if (newplot)
     if ~iscell(w)
@@ -206,6 +207,8 @@ if (newplot)
         yticks=w{1}(1).y_axis.ticks;
         zticks=w{1}(1).s_axis.ticks;
     end
+    % Need in this may be MATLAB version specific:
+    % tt = convertCharsToStrings(tt);
     % Change titles:
     if any(contains(tt,'$'))
         inter= 'latex';

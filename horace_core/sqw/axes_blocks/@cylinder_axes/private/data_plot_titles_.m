@@ -110,7 +110,7 @@ if ~isempty(title)
     title_main{iline}=title;
     iline = iline + 1;
 end
-title_main{iline}=sprintf('Spherical projection at centre: %s(hklE)',mat2str(offset));
+title_main{iline}=sprintf('Cylindrical projection at centre: %s(hklE)',mat2str(offset));
 iline = iline + 1;    
 
 if ~isempty(iax)
