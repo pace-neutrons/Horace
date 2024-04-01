@@ -20,9 +20,10 @@ for i= 1:3
     end
     val(i) = let;
 end
-
-obj.type_             = val;
-obj.img_scales_cache_ = [];
+if ~isequal(obj.type_,val)
+    obj.type_             = val;
+    obj.img_scales_cache_ = [];
+end
 if obj.do_check_combo_arg
     obj = obj.check_combo_arg();
 end

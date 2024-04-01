@@ -127,6 +127,39 @@ classdef CurveProjBase <aProjectionBase
         function obj = set.type(obj,val)
             obj = check_and_set_type_(obj,val);
         end
+        %
+        function ax_bl = get_proj_axes_block(obj,def_bin_ranges,req_bin_ranges)
+            % Construct the axes block, corresponding to this projection class
+            % Returns generic AxesBlockBase, built from the block ranges or the
+            % binning ranges.
+            %
+            % Usually overloaded for specific projection and specific axes
+            % block to return the particular AxesBlockBase specific for the
+            % projection class.
+            %
+            % Inputs:
+            % def_bin_ranges --
+            %           cellarray of the binning ranges used as defaults
+            %           if requested binning ranges are undefined or
+            %           infinite. Usually it is the range of the existing
+            %           axes block, transformed into the system
+            %           coordinates, defined by cut projection using
+            %           dnd.targ_range(targ_proj) method.
+            % req_bin_ranges --
+            %           cellarray of cut bin ranges, requested by user.
+            %
+            % Returns:
+            % ax_bl -- initialized, i.e. containing defined ranges and
+            %          numbers of  bins in each direction, AxesBlockBase
+            %          corresponding to the projection
+            ax_name = obj.axes_name;
+            ax_class = feval(ax_name);
+            ax_class.axes_units = obj.type;
+            ax_bl = AxesBlockBase.build_from_input_binning(...
+                ax_class,def_bin_ranges,req_bin_ranges);
+            ax_bl = obj.copy_proj_defined_properties_to_axes(ax_bl);
+        end
+        
         %------------------------------------------------------------------
         % Particular implementation of aProjectionBase abstract interface
         %------------------------------------------------------------------
