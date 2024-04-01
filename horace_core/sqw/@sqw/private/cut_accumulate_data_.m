@@ -1,5 +1,5 @@
 function [s, e, npix, pix_out, unique_runid] = ...
-    cut_accumulate_data_(obj, targ_proj, targ_axes, keep_pixels, log_level)
+    cut_accumulate_data_(obj, targ_proj, targ_axes, keep_pixels, log_level, sym)
 %%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
 % Input:
@@ -74,7 +74,7 @@ pixel_contrib_name = report_cut_type(obj, log_level, filebacked_cut, keep_pixels
 
 if keep_pixels
     [npix, s, e, pix_out, unique_runid] = cut_with_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
-        targ_axes, npix, s, e, log_level,keep_precision, pixel_contrib_name);
+        targ_axes, npix, s, e, log_level,keep_precision, pixel_contrib_name, sym);
 else
     [npix, s, e, pix_out, unique_runid] = cut_no_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
         targ_axes, npix, s, e, log_level, pixel_contrib_name);
@@ -166,11 +166,7 @@ end
 
 function [npix, s, e, pix_out, unique_runid] = cut_with_pixels(pix, block_starts, block_sizes, ...
     targ_proj, targ_axes, npix, s, e, ll, ...
-    keep_precision, pixel_contrib_name)
-
-if numel(targ_proj) > 1
-    error('HORACE:cut:not_implemented', 'Cannot cut sym and return pixels')
-end
+    keep_precision, pixel_contrib_name, sym)
 
 hc = hor_config;
 chunk_size = hc.mem_chunk_size;
@@ -225,6 +221,7 @@ for iter = 1:num_chunks
         [npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
             targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
 
+        candidate_pix = sym{i}.transform_pix(candidate_pix, {}, selected);
         candidate_pix = candidate_pix.tag(selected);
 
         npix_step_retained = pix_ok.num_pixels; % just for logging the progress
