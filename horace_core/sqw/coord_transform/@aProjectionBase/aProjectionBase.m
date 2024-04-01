@@ -868,7 +868,7 @@ classdef aProjectionBase < serializable
             if nargin>0 && (isa(pixData,'PixelDataBase')|| isa(pixData,'pix_metadata'))
                 if pixData.is_misaligned
                     alignment_needed = true;
-                    alignment_mat = pix.alignment_matr;
+                    alignment_mat = pixData.alignment_matr;
                 else
                     alignment_needed = false;
                 end
