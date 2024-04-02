@@ -222,24 +222,20 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     offset_new = proj.offset(:);
                     proj = lp.set_directions(u_new, v_new, [], offset_new);
                     %
-                case {'sphere_proj','cylinder_proj'}
+                case {'sphere_proj','cylinder_proj','spher_proj'}
+                    if ~isa(obj,'SymopIdentity')
+                        error('HORACE:Symop:not_implemented', ...
+                            'Symmetry operation %s is not yet implemented for %s', ...
+                            class(obj),class(proj));
+                    end
+                    if isa(proj,'spher_proj')
+                        warning('HORACE:deprecated_function',...
+                            'spher_proj is deprecated. Use sphere_proj instead')
 
-                    %% TODO non-aligned ez/ey not supported
-                    % ez_new = obj.R * proj.ez(:);
-                    % ey_new = obj.R * proj.ey(:);
-
-                    %                 offset_new = proj.offset(:);
-                    %                 offset_new(1:3) = obj.transform_vec(offset_new(1:3));
-                    %
-                    %                 proj.offset = offset_new;
-                case 'spher_proj'
-                    warning('HORACE:deprecated_function',...
-                        'spher_proj is deprecated. Use sphere_proj instead')
+                    end
                 otherwise
-
                     error('HORACE:Symop:not_implemented', ...
                         'Cannot transform projection class "%s"', class(proj));
-
             end
 
         end
