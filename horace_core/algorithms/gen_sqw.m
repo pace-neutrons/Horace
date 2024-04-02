@@ -91,10 +91,12 @@ function [tmp_file,grid_size,data_range,varargout] = gen_sqw (spe_file, par_file
 %                  constisting of 4 first elements of pixel coordinates
 %                   (min/max coordinates in crystal cartesian)
 %                   and 5 elements of min/max values of pixel signal/error/etc.
+%   wout            If requested, instance of filebacked generated sqw
+%                   file. If 'tmp_only' option is provided so no tmp file
+%                   is generated, it will be 2x4 array of image_ranges,
+%                   where the pixels are rebin on.
 %
-%  parallel_cluster if job is executed in parallel and nargout >3, this
-%                  variable would return the initialized instance of the
-%                  job dispatcher, running a parallel job to continue
+
 
 % T.G.Perring  14 August 2007
 % T.G.Perring  19 March 2013   Massively updated, also includes functionality of accumulate_sqw
@@ -121,6 +123,8 @@ if ~opt.accumulate
         error('HORACE:gen_sqw:invalid_argument', ...
             'Invalid option ''time'' unless also have option ''accumulate'' and/or a date-time vector following')
     end
+else
+    opt.clean = true;
 end
 
 if present.transform_sqw
@@ -137,10 +141,6 @@ if present.transform_sqw
             ' In fact have %d files and %d transformations defined.'],...
             numel(opt.transform_sqw),numel(psi))
     end
-end
-
-if nargout>3
-    varargout{1} = [];
 end
 
 %If we are to run in 'time' mode, where execution waits for some period,
@@ -194,9 +194,9 @@ n_all_spe_files=numel(spe_file);
 
 % Set the status of flags for the three cases we must handle
 % (One and only of the three cases below will be true, the others false.)
-accumulate_old_sqw=false;   % true if want to accumulate spe data to an existing sqw file (not all spe data files need to exist)
-accumulate_new_sqw=false;   % true if want to accumulate spe data to a new sqw file (not all spe data files need exist)
-use_partial_tmp = false;    % true to generate a combined sqw file during accumulate sqw using tmp files calculated at
+accumulate_old_sqw= false;   % true if want to accumulate spe data to an existing sqw file (not all spe data files need to exist)
+accumulate_new_sqw= false;   % true if want to accumulate spe data to a new sqw file (not all spe data files need exist)
+return_result     = nargout > 3; % uf nargout> 3 return result whatever it may be.
 % previous accumulation steps
 [delete_tmp, log_level] = get(hor_config,'delete_tmp', 'log_level');
 combine_algorithm = get(hpc_config,'combine_sqw_using');
@@ -209,7 +209,6 @@ if opt.accumulate
     end
     if ~strcmpi(combine_algorithm,'mpi_code') % use tmp rather than sqw file as source of
         opt.clean = true;                   % input data (works faster as parallel jobs are better balanced)
-        use_partial_tmp = true;
     end
 end
 
@@ -236,87 +235,8 @@ end
 
 % Check the input parameters define unique data sets
 if accumulate_old_sqw    % combine with existing sqw file
-    if use_partial_tmp
-        all_tmp_files=gen_tmp_filenames(spe_file,sqw_file);
-        % get pseudo-combined header from list of tmp files
-        if log_level>0
-            disp(' Analysing headers of existing tmp files:')
-        end
-        [header_sqw,grid_size_sqw,pix_db_range_sqw,data_range_present_sqw,...
-            ind_tmp_files_present,update_runid] = get_tmp_file_headers(all_tmp_files);
-        if sum(ind_tmp_files_present) == 0
-            accumulate_old_sqw = false;
-            if log_level>0
-                disp(' No existing tmp files to accumulate found.')
-            end
-        else
-            if log_level>0
-                fprintf(' Reusing %d existing tmp files.\n',sum(ind_tmp_files_present))
-            end
-        end
-
-    else
-        % Check that the sqw file has the correct type to which to accumulate
-        [header_sqw,grid_size_sqw,pix_db_range_sqw,data_range_present_sqw]=...
-            gen_sqw_check_sqwfile_valid(sqw_file);
-        % Check that the input spe data are distinct
-        % It is expected that one would not run replicate and accumulate
-        % together and add replicated files without run_id changes after
-        % first accumulation because the files with identical run-ids will
-        % contribute into pixels but headers (experiment info)
-        % will be added for each file
-        %
-        % Assume:
-        % the file has been calculated and run_id-s are stored in the file
-        % All its run-id-s are unique, as doing opposite,
-        % will be too expensive. Ideally run_id should be stored with
-        % headers (experiment_info). The possible issue may occur, if
-        % filenames are non-standard, run_id can not extracted from file
-        % name and has not been recalculated but additional files will for
-        % some reason obtain a run_id, equal to the one, already stored in
-        % the file.
-        update_runid = false;
-    end
-    %
-    [spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode,...
-        lattice, instrument, sample, opt.replicate, header_sqw);
-    if any(head_only) && log_level>-1
-        disp('********************************************************************************')
-        disp('***  WARNING: The sqw file contains at least one data set that does not      ***')
-        disp('***           appear in the list of input spe data sets                      ***')
-        disp('********************************************************************************')
-        disp(' ')
-    end
-    if ~any(spe_exist & spe_only)
-        if use_partial_tmp
-            tmp_file = all_tmp_files(ind_tmp_files_present);
-            if log_level>-1
-                disp('Creating output sqw file:')
-            end
-            if update_runid
-                wnsq_argi = {};
-            else
-                wnsq_argi = {'-keep_runid'};
-            end
-            % will recaluclate pixel_range
-            [~,data_range]=write_nsqw_to_sqw (tmp_file, sqw_file,data_range_present_sqw,wnsq_argi{:});
-
-            if numel(tmp_file) == numel(all_tmp_files)
-                tmpf_clob = onCleanup(@()delete_tmp_files(tmp_file,log_level));
-                tmp_file={};
-            end
-        else
-            if  log_level>-1  % no work to do
-                report_nothing_to_do(spe_only,spe_exist);
-            end
-            tmp_file={};
-            data_range=data_range_present_sqw;
-        end
-        grid_size=grid_size_sqw;
-
-        return
-    end
-    ix=(spe_exist & spe_only);    % the spe data that needs to be processed
+    error('HORACE:gen_sqw:not_implemented', ...
+        'Old sqw file accumulation is not yet implemented')
 else
     gen_sqw_check_distinct_input (spe_file, efix, emode,...
         lattice, instrument, sample, opt.replicate);
@@ -343,28 +263,25 @@ else
     rundata_par = {};
 end
 
-if accumulate_old_sqw % build only runfiles to process
-    run_files = rundatah.gen_runfiles(spe_file(ix),par_file(ix),efix(ix),emode(ix),...
-        lattice(ix),instrument(ix),sample(ix),rundata_par{:});
-else % build all runfiles, including missing runfiles. TODO: Lost generality, assume detectors are all equvalent
-    empty_par_files = cellfun(@isempty,par_file);
-    if any(empty_par_files) && sum(spe_exist) ~= n_all_spe_files % missing rf may need to use different
-                                                                 % par file (what is currently there) from what will be there later 
-                               % NB might be easier to do any(spe_exist==0)
-        empty_par_files = find(empty_par_files);
+% build all runfiles, including missing runfiles. TODO: Lost generality, assume detectors are all equvalent
+empty_par_files = cellfun(@isempty,par_file);
+if any(empty_par_files) && sum(spe_exist) ~= n_all_spe_files % missing rf may need to use different
+    % par file (what is currently there) from what will be there later
+    % NB might be easier to do any(spe_exist==0)
+    empty_par_files = find(empty_par_files);
 
-        % Get detector parameters from a known spe
-        iex1 = indx(1);
-        rf1 = rundatah.gen_runfiles(spe_file{iex1},par_file(iex1),efix(1),emode(1),...
-            lattice(iex1),instrument(iex1),sample(iex1),rundata_par{:});
-        rf1_pfile = get_par(rf1{1}); %CM:get_par(
-        par_file(empty_par_files) = {rf1_pfile};
-    end
-
-    % build all runfiles, including missing runfiles
-    run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice, ...
-        instrument,sample,'-allow_missing',rundata_par{:});
+    % Get detector parameters from a known spe
+    iex1 = indx(1);
+    rf1 = rundatah.gen_runfiles(spe_file{iex1},par_file(iex1),efix(1),emode(1),...
+        lattice(iex1),instrument(iex1),sample(iex1),rundata_par{:});
+    rf1_pfile = get_par(rf1{1}); %CM:get_par(
+    par_file(empty_par_files) = {rf1_pfile};
 end
+
+% build all runfiles, including missing runfiles
+run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice, ...
+    instrument,sample,'-allow_missing',rundata_par{:});
+
 % check runfiles correctness
 if emode ~= 0
     for i=1:numel(run_files)
@@ -384,39 +301,31 @@ if emode ~= 0
     end
 end
 % If grid not given, make default size
-if ~accumulate_old_sqw && isempty(grid_size_in)
+if isempty(grid_size_in)
     if n_all_spe_files==1
         grid_size_in=[1,1,1,1];     % for a single spe file, don't sort
     else
         grid_size_in=[50,50,50,50]; % multiple spe files, 50^4 grid
     end
-elseif accumulate_old_sqw
-    grid_size_in=grid_size_sqw;
 end
 
 % If no input data range provided, calculate it from the files
-if ~accumulate_old_sqw
-    %NOTE: because of && numel(run_files)>1, Masked detectors would be removed
-    % from the range of a single converted run file.
-    if isempty(pix_db_range) && numel(run_files)>1
-        if numel(run_files)==1
-            pix_db_range =[];
-            pix_range_est = [];
-        else
-            [pix_db_range,pix_range_est] = find_pix_range(run_files,efix,emode,ix,indx,log_level); %calculate pix_range from all runfiles
-        end
-    else
+
+%NOTE: because of && numel(run_files)>1, Masked detectors would be removed
+% from the range of a single converted run file.
+if isempty(pix_db_range) && numel(run_files)>1
+    if numel(run_files)==1
+        pix_db_range =[];
         pix_range_est = [];
+    else
+        [pix_db_range,pix_range_est] = find_pix_range(run_files,efix,emode,ix,indx,log_level); %calculate pix_range from all runfiles
     end
-    run_files = run_files(ix); % select only existing runfiles for further processing
-elseif accumulate_old_sqw
-    pix_db_range=pix_db_range_sqw;
-    pix_range_est = [];
+else
+    pix_range_est = pix_db_range;
 end
-
-
+run_files = run_files(ix); % select only existing runfiles for further processing
 % Construct output sqw file
-if ~accumulate_old_sqw && nindx==1
+if nindx==1
     % Create sqw file in one step: no need to create an intermediate file as just one input spe file to convert
     if log_level>-1
         disp('--------------------------------------------------------------------------------')
@@ -455,23 +364,8 @@ else
         verify_pix_range_est(data_range(:,1:4),pix_range_est,log_level);
     end
 
-    if keep_par_cl_running
-        varargout{1} = parallel_job_dispatcher;
-    end
-
-    if use_partial_tmp
+    if opt.accumulate
         delete_tmp = false;
-    end
-
-    if accumulate_old_sqw
-
-        if use_partial_tmp  % if necessary, add already generated and present tmp files
-            tmp_file = {all_tmp_files{ind_tmp_files_present},tmp_file{:}}';
-
-            delete_tmp = numel(tmp_file) == n_all_spe_files; % final step in combining tmp files, all tmp files will be generated;
-
-        end
-        data_range = minmax_ranges(data_range,data_range_present_sqw);
     end
 
     % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)
@@ -488,24 +382,16 @@ else
         if ~update_runid
             wsqw_arg = [wsqw_arg(:);'-keep_runid'];
         end
-        if ~accumulate_old_sqw || use_partial_tmp
-            if log_level>-1
-                disp('Creating output sqw file:')
-            end
-            write_nsqw_to_sqw (tmp_file, sqw_file,data_range,wsqw_arg{:});
-        else
-            if log_level>-1
-                disp('Accumulating in temporary output sqw file:')
-            end
-            sqw_file_tmp = [sqw_file,'.tmp'];
-            write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp,data_range,wsqw_arg{:});
-            if log_level>-1
-                disp(' ')
-                disp(['Renaming sqw file to ',sqw_file])
-            end
-            rename_file (sqw_file_tmp, sqw_file)
-        end
 
+        if log_level>-1
+            disp('Creating output sqw file:')
+        end
+        if return_result
+            [~,data_range,wout]=write_nsqw_to_sqw (tmp_file, sqw_file,data_range,wsqw_arg{:});
+            varargout{1} = wout;
+        else
+            write_nsqw_to_sqw (tmp_file, sqw_file,data_range,wsqw_arg{:});
+        end
         if log_level>-1
             disp('--------------------------------------------------------------------------------')
         end
@@ -518,12 +404,15 @@ end
 if delete_tmp  %if requested
     delete_tmp_files(tmp_file,log_level);
 end
+if return_result && opt.tmp_only
+    varargout{1} = pix_db_range;
+end
 
 
 % Clear output arguments if nargout==0 to have a silent return
 % ------------------------------------------------------------
 if nargout==0
-    clear tmp_file grid_size pix_db_range
+    clear tmp_file grid_size
 end
 
 end
@@ -649,7 +538,6 @@ if numel(unique_id)== numel(run_ids)
 else
     update_runid = true;
 end
-
 end
 
 %-------------------------------------------------------------------------
@@ -713,20 +601,6 @@ end
 
 end
 
-function report_nothing_to_do(spe_only,spe_exist)
-disp('--------------------------------------------------------------------------------')
-if ~any(spe_only)
-    disp('  All the input spe data are already included in the sqw file. No work to do.')
-elseif ~any(spe_exist)
-    disp('  None of the input spe data currently exist. No work to do.')
-else
-    disp('  All the input spe data are already included in the sqw file, or do not')
-    disp('  currently exist. No work to do.')
-end
-disp('--------------------------------------------------------------------------------')
-
-end
-
 %---------------------------------------------------------------------------------------
 
 function  [grid_size,data_range,update_runids,tmp_generated,jd]=convert_to_tmp_files(run_files,sqw_file,...
@@ -741,33 +615,30 @@ num_matlab_sessions = get(parallel_config,'parallel_workers_number');
 % build names for tmp files to generate
 spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
     'UniformOutput',false);
-tmp_file=gen_tmp_filenames(spe_file,sqw_file);
-tmp_generated = tmp_file;
-if gen_tmp_files_only
-    [f_valid_exist,pix_ranges,data_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,pix_db_range,grid_size_in)),...
-        tmp_file,'UniformOutput',false);
-    f_valid_exist = [f_valid_exist{:}];
-    if any(f_valid_exist)
-        if log_level >0
-            warning([' some tmp files exist while generating tmp files only.'...
-                ' Generating only new tmp files.'...
-                ' Delete all existing tmp files to avoid this'])
-        end
-        run_files  = run_files(~f_valid_exist);
-        tmp_file  = tmp_file(~f_valid_exist);
-        data_ranges = data_ranges(f_valid_exist);
-        data_range = data_ranges{1};
-        for i=2:numel(pix_ranges)
-            data_range = minmax_ranges(data_range,data_ranges{i});
-        end
-        if isempty(run_files)
-            grid_size = grid_size_in;
-            update_runids= false;
-            jd = [];
-            return;
-        end
-    else
-        data_range = [];
+tmp_files=gen_tmp_filenames(spe_file,sqw_file);
+tmp_generated = tmp_files;
+
+[f_valid_exist,~,data_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,pix_db_range,grid_size_in)),...
+    tmp_files,'UniformOutput',false);
+f_valid_exist = [f_valid_exist{:}];
+if any(f_valid_exist)
+    warning('HORACE:valid_tmp_files_exist', ...
+        ['There are %d previously generated tmp files present while generating %d tmp files for sqw file: %s.\n'...
+        ' Producing only new tmp files.\n'...
+        ' Delete all existing tmp files to avoid this.\n'], ...
+        sum(f_valid_exist),numel(tmp_files),sqw_file)
+    run_files  = run_files(~f_valid_exist);
+    tmp_files  = tmp_files(~f_valid_exist);
+    data_ranges = data_ranges(f_valid_exist);
+    data_range = data_ranges{1};
+    for i=2:numel(data_ranges)
+        data_range = minmax_ranges(data_range,data_ranges{i});
+    end
+    if isempty(run_files)
+        grid_size = grid_size_in;
+        update_runids= false;
+        jd = [];
+        return;
     end
 else
     data_range = [];
@@ -790,7 +661,7 @@ if use_separate_matlab
 
     % aggregate the conversion parameters into array of structures,
     % suitable for splitting jobs between workers
-    [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_file,...
+    [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_files,...
         grid_size_in,pix_db_range);
     %
     [outputs,n_failed,~,jd] = jd.start_job('gen_sqw_files_job',...
@@ -819,7 +690,7 @@ else
     % effective but much easier to identify problem with
     % failing parallel job
 
-    [grid_size,data_range1,update_runids]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
+    [grid_size,data_range1,update_runids]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_files,...
         grid_size_in,pix_db_range,true);
     %---------------------------------------------------------------------
 end
@@ -870,7 +741,7 @@ tol = 4*eps(single(pix_db_range)); % double of difference between single and dou
 
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
 
-img_md  = ldr.get_dnd_metadata();
+img_md    = ldr.get_dnd_metadata();
 img_range = img_md.img_range;
 
 err =  abs(img_range-pix_db_range)>tol;
@@ -885,3 +756,4 @@ present_and_valid = ~any(err(:));
 data_range = ldr.get_data_range();
 
 end
+%
