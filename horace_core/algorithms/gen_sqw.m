@@ -444,101 +444,6 @@ end
 
 end
 
-function is = empty_or_missing(fname)
-is = isempty(fname) || ~is_file(fname);
-
-end
-
-%------------------------------------------------------------------------------------------------
-
-function [exp_info,grid_size_sqw,pix_data_range_sqw,data_range,tmp_present,update_runid] = get_tmp_file_headers(tmp_file_names)
-% get sqw header for prospective sqw file from range of tmp files
-%
-% Input:
-% tmp_file_names -- list of tmp file names with internal sqw format
-%
-% Output:
-% header_sqw -- list of partial tmp files headers combined in the form,
-%               used by sqw file
-% grid_size_sqw -- tmp files binning (has to be equal for all input files)
-% img_db_range_sqw -- range of input tmp files image (has to be equal for all existing files)
-% tmp_present  -- logical array containing true for all tmp_file_names
-%                 found on hdd and false otherwise
-%
-tmp_present = ~cellfun(@empty_or_missing,tmp_file_names,...
-    'UniformOutput',true);
-files_to_check = tmp_file_names(tmp_present);
-exp_info = cell(numel(files_to_check),1);
-
-grid_size_sqw      = [];
-data_range         = PixelDataBase.EMPTY_RANGE;
-pix_data_range_sqw = [];
-
-run_ids = zeros(1,numel(files_to_check));
-for i=1:numel(files_to_check)
-    try
-        ldr = sqw_formats_factory.instance().get_loader(files_to_check{i});
-        sqw_type = ldr.sqw_type;
-        ndims = ldr.num_dim;
-        mess = [];
-    catch ME
-        mess = ME.message;
-    end
-    if ~isempty(mess) || ~sqw_type || ndims~=4
-        tmp_present(i) = false;
-        continue;
-    end
-
-
-    % Get header information to check other fields
-    % --------------------------------------------
-    exp_info{i} = ldr.get_exp_info('-all');
-    data        = ldr.get_dnd_metadata();
-
-
-    pix_data_range_l = ldr.get_data_range();
-    run_ids(i) = pix_data_range_l(1,5);
-    data_range =minmax_ranges(data_range,pix_data_range_l);
-
-    img_db_range_l = data.img_range;
-    grid_size_l    = data.axes.nbins_all_dims;
-
-    if isempty(pix_data_range_sqw)
-        pix_data_range_sqw = img_db_range_l;
-        grid_size_sqw = grid_size_l;
-        data_ref = data;
-    else
-
-        tol=2e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
-        % TGP (15/5/2015) I am not sure if this is necessary: both the header and data sections are saved as float32, so
-        % should be rounded identically.
-        if ~equal_to_relerr(pix_data_range_sqw, img_db_range_l, tol, 1)
-            error('HORACE:gen_sqw:invalid_argument',...
-                'the tmp file to combine: %s does not have the same range as first tmp file',...
-                ldr.filename)
-        end
-        if ~equal_to_relerr(grid_size_sqw, grid_size_l, tol, 1)
-            error('HORACE:gen_sqw:invalid_argument',...
-                'the tmp file to combine: %s does not have the same binning as first tmp file',...
-                ldr.filename)
-        end
-
-        [ok,mess] =equal_to_tol(data_ref,data,'tol',tol,'ignore_str',true);
-        if ~ok
-            error('HORACE:algorithms:invalid_argument',...
-                'the tmp file to combine: %s does not have the the projections for operations. Reason %s',...
-                ldr.filename,mess)
-        end
-
-    end
-end
-unique_id = unique(run_ids);
-if numel(unique_id)== numel(run_ids)
-    update_runid = false;
-else
-    update_runid = true;
-end
-end
 
 %-------------------------------------------------------------------------
 function  [pix_db_range,pix_range] = find_pix_range(run_files,efix,emode,ief,indx,log_level)
@@ -622,10 +527,10 @@ tmp_generated = tmp_files;
     tmp_files,'UniformOutput',false);
 f_valid_exist = [f_valid_exist{:}];
 if any(f_valid_exist)
-    warning('HORACE:valid_tmp_files_exist', ...
-        ['There are %d previously generated tmp files present while generating %d tmp files for sqw file: %s.\n'...
-        ' Producing only new tmp files.\n'...
-        ' Delete all existing tmp files to avoid this.\n'], ...
+    warning('HORACE:valid_tmp_files_exist',['\n', ...
+        '*** There are %d previously generated tmp files present while generating %d tmp files for sqw file: %s.\n'...
+        '    Producing only new tmp files.\n'...
+        '    Delete all existing tmp files to avoid reusing them.\n'], ...
         sum(f_valid_exist),numel(tmp_files),sqw_file)
     run_files  = run_files(~f_valid_exist);
     tmp_files  = tmp_files(~f_valid_exist);
