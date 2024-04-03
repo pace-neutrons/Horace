@@ -1,4 +1,4 @@
-function [exper_info,grid_size,img_db_range,data_range]=gen_sqw_check_sqwfile_valid(sqw_file)
+function [exper_info,grid_size,img_db_range,pix_data_range]=gen_sqw_check_sqwfile_valid(sqw_file)
 % Check that the sqw file has the correct attributes to which to accumulate, and return useful information
 %
 %   >> [ok,mess,grid_size,img_db_range]=gen_sqw_check_sqwfile_valid(sqw_file)
@@ -60,5 +60,5 @@ end
 grid_size =data.axes.nbins_all_dims;
 
 img_db_range=data.img_range;
-data_range = ldr.get_data_range();
+pix_data_range = ldr.get_data_range();
 
