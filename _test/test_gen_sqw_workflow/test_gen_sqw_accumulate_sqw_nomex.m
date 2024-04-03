@@ -79,7 +79,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
                 dpsi([1,2,3,4]), gl([1,2,3,4]), gs([1,2,3,4]),grid_size,pix_db_range);
             [w_mess,warn_id] = lastwarn;
             assertEqual(warn_id,'HORACE:valid_tmp_files_exist')
-            assertTrue(strncmp(w_mess,'There are 3 previously generated tmp files',23))
+            assertTrue(strncmp(w_mess(2:end),'*** There are 3 previously generated tmp files present',23))
             assertEqual(numel(tmp_files),4);
             for i=1:numel(tmp_files)
                 % all tmp were deleted when sqw was generated

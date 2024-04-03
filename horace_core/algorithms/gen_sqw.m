@@ -356,7 +356,7 @@ else
 
     % Generate unique temporary sqw files, one for each of the spe files
     [grid_size,data_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
-        pix_db_range,grid_size_in,opt.tmp_only,keep_par_cl_running);
+        pix_db_range,grid_size_in,opt.accumulate,keep_par_cl_running);
     if numel(ix) == numel(indx) % if all files are present, check if
         % estimated pixel range is equal to the actual range of all
         % contributing runfiles. Give warning about possibility to lose
@@ -509,7 +509,7 @@ end
 %---------------------------------------------------------------------------------------
 
 function  [grid_size,data_range,update_runids,tmp_generated,jd]=convert_to_tmp_files(run_files,sqw_file,...
-    pix_db_range,grid_size_in,gen_tmp_files_only,keep_parallel_pool_running)
+    pix_db_range,grid_size_in,accumulate_tmp,keep_parallel_pool_running)
 % if further operations are necessary to perform with generated tmp files,
 % keep parallel pool running to save time on restarting it.
 
@@ -523,30 +523,40 @@ spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
 tmp_files=gen_tmp_filenames(spe_file,sqw_file);
 tmp_generated = tmp_files;
 
-[f_valid_exist,~,data_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,pix_db_range,grid_size_in)),...
+data_range = [];
+[f_valid_exist,img_ranges,data_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,grid_size_in)),...
     tmp_files,'UniformOutput',false);
 f_valid_exist = [f_valid_exist{:}];
 if any(f_valid_exist)
-    warning('HORACE:valid_tmp_files_exist',['\n', ...
-        '*** There are %d previously generated tmp files present while generating %d tmp files for sqw file: %s.\n'...
-        '    Producing only new tmp files.\n'...
-        '    Delete all existing tmp files to avoid reusing them.\n'], ...
-        sum(f_valid_exist),numel(tmp_files),sqw_file)
-    run_files  = run_files(~f_valid_exist);
-    tmp_files  = tmp_files(~f_valid_exist);
-    data_ranges = data_ranges(f_valid_exist);
-    data_range = data_ranges{1};
-    for i=2:numel(data_ranges)
-        data_range = minmax_ranges(data_range,data_ranges{i});
+    img_ranges = img_ranges(f_valid_exist);
+    data_ranges= data_ranges(f_valid_exist);
+    file_ranges_equal = cellfun(@(x)(all(abs(x(:)-img_ranges{1}(:)))<eps('double')),img_ranges);
+    if all(file_ranges_equal) % use existing tmp files.
+        if is_range_wider(img_ranges{1},pix_db_range)
+            if ~accumulate_tmp
+                warning('HORACE:valid_tmp_files_exist',['\n', ...
+                    '*** There are %d previously generated tmp files present while generating %d tmp files for sqw file: %s.\n'...
+                    '    Producing only new tmp files.\n'...
+                    '    Delete all existing tmp files to avoid reusing them.\n'], ...
+                    sum(f_valid_exist),numel(tmp_files),sqw_file)
+            end
+            % Change existing binning range to coincide with range found in
+            % tmp files
+            pix_db_range = img_ranges{1};
+            data_range = data_ranges{1};
+            for i=2:numel(data_ranges)
+                data_range = minmax_ranges(data_range,data_ranges{i});
+            end
+            run_files  = run_files(~f_valid_exist);
+            tmp_files  = tmp_files(~f_valid_exist);
+            if isempty(run_files)
+                grid_size = grid_size_in;
+                update_runids= false;
+                jd = [];
+                return;
+            end
+        end
     end
-    if isempty(run_files)
-        grid_size = grid_size_in;
-        update_runids= false;
-        jd = [];
-        return;
-    end
-else
-    data_range = [];
 end
 
 nt=bigtic();
@@ -632,7 +642,7 @@ end
 
 end
 
-function [present_and_valid,img_range,data_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
+function [present_and_valid,img_range,data_range] = check_tmp_files_range(tmp_file,grid_size_in)
 % Verify if the tmp files are present and their binning ranges are the same
 % as requested by input parameters
 if ~is_file(tmp_file)
@@ -642,23 +652,19 @@ if ~is_file(tmp_file)
     return;
 end
 
-tol = 4*eps(single(pix_db_range)); % double of difference between single and double precision
 
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
 
 img_md    = ldr.get_dnd_metadata();
-img_range = img_md.img_range;
-
-err =  abs(img_range-pix_db_range)>tol;
-present_and_valid = ~any(err(:));
-if ~present_and_valid
-    data_range = [];
-    return
-end
 grid_size = img_md.axes.nbins_all_dims;
-err = abs(grid_size-grid_size_in)>tol;
+err = abs(grid_size-grid_size_in)>eps('single');
 present_and_valid = ~any(err(:));
-data_range = ldr.get_data_range();
-
+if present_and_valid
+    img_range = img_md.img_range;
+    data_range = ldr.get_data_range();
+else
+    data_range = [];
+    img_range  = [];
+end
 end
 %
