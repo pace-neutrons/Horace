@@ -115,7 +115,15 @@ classdef aMessage
         %------------------------------------------------------------------
         function not = ne(obj,b)
             % implementation of operator ~= for aMessage class
-            not = ~equal_to_tol(obj,b);
+            if ~isa(b,class(obj))
+                not = true;
+                return;
+            end
+            if ~isequal(obj.mess_name_,b.mess_name_)
+                not = true;
+                return
+            end
+            not = ~equal_to_tol(obj.payload_,b.payload_);
         end
     end
     %
