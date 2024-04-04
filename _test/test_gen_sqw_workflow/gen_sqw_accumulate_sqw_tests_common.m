@@ -644,7 +644,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % Now use accumulate sqw ----------------------
 
             spe_accum={obj.spe_file{1},'','',obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
-            [tmp_fls_t,~,acc_pix_range1456]=...
+            [tmp_fls_t,~,acc_pix_range1456,all_sqw]=...
                 accumulate_sqw (spe_accum, '', sqw_file_accum,efix,...
                 emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             clFls = onCleanup(@()obj.delete_files(tmp_fls_t));
@@ -652,13 +652,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 assertTrue(is_file(tmp_fls_t{i}));
             end
 
-
-            ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
-            dat = ldr.get_data();
-            data_range = ldr.get_data_range();
-            assertElementsAlmostEqual(data_range,acc_pix_range1456,'relative',4*eps('single'));
-            clear ldr;
-            img_db_range2 = dat.img_range;
+            assertElementsAlmostEqual(all_sqw.pix.data_range,acc_pix_range1456,'relative',4*eps('single'));
+ 
+            img_db_range2 = all_sqw.data.img_range;
             % img_db_range in second case is wider then in the first, as
             % additional ranges were added from missing files
             assertTrue(all(img_db_range1(1,:)>=img_db_range2(1,:)));
@@ -671,6 +667,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 proj_o,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             %
+            clear all_sqw;
             clear co2;
             % Test against saved or store to save later
             obj.assertEqualToTolWithSave(w2_1456,'ignore_str',true,'tol',1.e-7);
@@ -718,7 +715,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 'replicate');
             assertEqual(exist(sqw_file_11456,'file'),2)
             for i=1:numel(tmp_files)
-                assertTrue(is_file(tmp_files{i}));
+                assertFalse(is_file(tmp_files{i}));
             end
 
 
@@ -734,7 +731,13 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi,...
                 omega, dpsi, gl, gs,...
                 'replicate'); %grid_size1,pix_range1,
-            clobT = onCleanup(@()obj.delete_files(tmp_fls));
+            % Not all provided spe files were present so tmp are not deleted
+            % after sqw file was generated
+            clTmpDel = onCleanup(@()obj.delete_files(tmp_fls));
+            for i=1:numel(tmp_files)
+                assertTrue(is_file(tmp_fls{i}));
+            end
+
 
             assertEqualToTol(pix_range1,pix_range2,[2.e-7,2.e-7]);
             % Estimated ranges the pixels rebinned onto are different but
@@ -772,7 +775,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',...
                 mess]);
             clear cleanup_obj1;
-            clear clobT;
+            clear clTmpDel;
         end
         %
     end

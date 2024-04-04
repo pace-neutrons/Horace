@@ -61,10 +61,11 @@ if any(f_valid_exist)
     file_ranges_equal = cellfun(@(x)(all(abs(x(:)-img_ranges{1}(:)))<eps('double')),img_ranges);
     if all(file_ranges_equal) % use existing tmp files.
         if is_range_wider(img_ranges{1},pix_db_range)
-            if ~accumulate_tmp
+            if ~accumulate_tmp && log_level > 1
                 warning('HORACE:valid_tmp_files_exist',['\n', ...
-                    '*** There are %d previously generated tmp files present while generating %d tmp files for sqw file: %s.\n'...
-                    '    Producing only new tmp files.\n'...
+                    '*** There are %d previously generated tmp files present while generating %d tmp files for sqw file:\n', ...
+                    '    %s.\n',...
+                    '    Producing only new tmp files.\n',...
                     '    Delete all existing tmp files to avoid reusing them.\n'], ...
                     sum(f_valid_exist),numel(tmp_files),sqw_file)
             end
@@ -81,6 +82,9 @@ if any(f_valid_exist)
                 grid_size = grid_size_in;
                 update_runids= false;
                 jd = [];
+                if log_level > 0
+                    report_nothing_to_do(numel(f_valid_exist));
+                end
                 return;
             end
         end
@@ -147,8 +151,8 @@ if log_level>-1
     % Create single sqw file combining all intermediate sqw files
     disp('--------------------------------------------------------------------------------')
 end
-
 end
+
 %--------------------------------------------------------------------------
 function [present_and_valid,img_range,data_range] = check_tmp_files_range(tmp_file,grid_size_in)
 % Verify if the tmp files are present and their binning ranges are the same
@@ -174,4 +178,13 @@ else
     data_range = [];
     img_range  = [];
 end
+end
+
+function report_nothing_to_do(n_files)
+sep = '*** **********************************************************************';
+fprintf(['%s\n', ...
+    '*** All %d input spe files have already been converted to valid tmp files *\n', ...
+    '    Nothing to do                                                         *\n',...
+    '%s\n'], ...
+    sep,n_files,sep)
 end

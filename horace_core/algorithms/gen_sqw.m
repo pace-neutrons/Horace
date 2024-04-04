@@ -248,6 +248,7 @@ else
     end
     ix=spe_exist;  % the spe data that needs to be processed
 end
+all_spe_present = all(ix); % are there missing spe files?
 indx=find(ix);
 nindx=numel(indx);
 
@@ -297,7 +298,6 @@ if emode ~= 0
             error('HORACE:gen_sqw:invalid_argument',...
                 'file: %s, N%d, has incorrect efixed: %s',[dfn,dfe],i,efix_tst);
         end
-
     end
 end
 % If grid not given, make default size
@@ -365,10 +365,6 @@ else
         verify_pix_range_est(data_range(:,1:4),pix_range_est,log_level);
     end
 
-    if opt.accumulate
-        delete_tmp = false;
-    end
-
     % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)
     if ~opt.tmp_only
         if isempty(parallel_job_dispatcher)
@@ -396,13 +392,16 @@ else
         if log_level>-1
             disp('--------------------------------------------------------------------------------')
         end
+        % if not all spe are provided, do not delete tmp to be able to
+        % continue later
+        delete_tmp = delete_tmp && all_spe_present;
     else
         delete_tmp = false;
     end
 
 end
 % Delete temporary files at the end, if necessary
-if delete_tmp  %if requested
+if delete_tmp %if requested
     delete_tmp_files(tmp_file,log_level);
 end
 if return_result && opt.tmp_only
@@ -416,6 +415,8 @@ if nargout==0
     clear tmp_file grid_size
 end
 end
+%==========================================================================
+% USED ROUTINES:
 %==========================================================================
 function delete_tmp_files(file_list,hor_log_level)
 delete_error=false;
@@ -433,7 +434,6 @@ for i=1:numel(file_list)
     end
     warning(ws);
 end
-
 end
 
 function check_transf_input(input, i)
@@ -441,10 +441,7 @@ if ~isa(input,'function_handle')
     error('HORACE:gen_sqw:invalid_argument', ...
         'transform_sqw param N %d \n Error: expecting function handle as value for transform_sqw', i)
 end
-
 end
-
-
 %-------------------------------------------------------------------------
 function  [pix_db_range,pix_range] = find_pix_range(run_files,efix,emode,ief,indx,log_level)
 % Calculate ranges of all runfiles provided including missing files
