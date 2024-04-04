@@ -98,7 +98,7 @@ classdef ClusterWrapper
         %------------------------------------------------------------------
         % properties, indicating changes in the pool status and used by
         % display_progress to build nuce progress logs
-        current_status_ = struct('mess_name','undefined');  %  message, describing the current status
+        current_status_ = [];  %  message, describing the current status
         status_changed_ = false; % if the current_status_ differs from prev_status_
         % messages to display if corresponding cluster is starting.
         starting_info_message_ ='';

@@ -34,7 +34,7 @@ end
 
 prev_status = obj.current_status_;
 obj.current_status_ = stat_mess;
-if ~isequal(prev_status.mess_name,obj.current_status_.mess_name)
+if prev_status ~= obj.current_status_
     obj.status_changed_ = true;
 else
     obj.status_changed_ = false;
