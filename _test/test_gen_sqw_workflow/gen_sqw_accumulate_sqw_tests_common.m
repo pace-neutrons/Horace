@@ -653,7 +653,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             end
 
             assertElementsAlmostEqual(all_sqw.pix.data_range,acc_pix_range1456,'relative',4*eps('single'));
- 
+
             img_db_range2 = all_sqw.data.img_range;
             % img_db_range in second case is wider then in the first, as
             % additional ranges were added from missing files
@@ -713,12 +713,16 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 emode, alatt, angdeg, u, v, psi([1,3,4,5,6]),...
                 omega([1,3,4,5,6]), dpsi([1,3,4,5,6]), gl([1,3,4,5,6]), gs([1,3,4,5,6]),...
                 'replicate');
+            clTmpDel = onCleanup(@()obj.delete_files(tmp_files));
             assertEqual(exist(sqw_file_11456,'file'),2)
             for i=1:numel(tmp_files)
-                assertFalse(is_file(tmp_files{i}));
+                % files left because delete_tmp is true
+                assertTrue(is_file(tmp_files{i}));
             end
 
-
+            clear co2;
+            co2 = set_temporary_config_options(hor_config, 'delete_tmp', true,'log_level',1);
+            clWarn = set_temporary_warning('off','HORACE:push_warning','HORACE:valid_tmp_files_exist');
             % Now use accumulate sqw ----------------------
             obj.proj.u=u;
             obj.proj.v=v;
@@ -726,14 +730,17 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % Repeat a file with 'replicate'
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},...
                 obj.spe_file{5},obj.spe_file{6}};
-
+            warning('HORACE:push_warning','push warning issued to ensure correct warning will appear below');
             [tmp_fls,~,pix_range2]=accumulate_sqw (spe_accum, '',...
                 sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi,...
                 omega, dpsi, gl, gs,...
                 'replicate'); %grid_size1,pix_range1,
+            % these files have different files range so existing tmp will not be reused
+            [~,warn_id] = lastwarn;
+            assertEqual(warn_id,'HORACE:push_warning')
+
             % Not all provided spe files were present so tmp are not deleted
             % after sqw file was generated
-            clTmpDel = onCleanup(@()obj.delete_files(tmp_fls));
             for i=1:numel(tmp_files)
                 assertTrue(is_file(tmp_fls{i}));
             end
@@ -762,10 +769,12 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             if obj.save_output
                 return;
             end
-            % Accumulate nothing, all files already accumulated.
+            % Accumulate nothing, all files already accumulated. No warning
+            % as this is accumulate_sqw mode
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
             [~,grid_size,pix_range]=accumulate_sqw (spe_accum, '', sqw_file_accum,...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
+
             assertElementsAlmostEqual(pix_range,pix_range2,'relative',4*eps('single'));
             assertEqual(grid_size,grid_size1);
 
