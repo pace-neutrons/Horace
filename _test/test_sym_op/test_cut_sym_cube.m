@@ -28,13 +28,13 @@ classdef test_cut_sym_cube < TestCase
             tsqw = sqw.generate_cube_sqw(10);
 
             res_sqw = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
-                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5]);
+                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], '-nopix');
             res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                            [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
-                           {SymopIdentity()});
+                           {SymopIdentity()}, '-nopix');
             res_sqw3 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                            [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
-                           SymopIdentity());
+                           SymopIdentity(), '-nopix');
 
             assertEqual(res_sqw, res_sqw2)
             assertEqual(res_sqw, res_sqw3)
@@ -52,12 +52,12 @@ classdef test_cut_sym_cube < TestCase
             tsqw = sqw.generate_cube_sqw(10);
 
             res_sqw = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
-                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5]);
+                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], '-nopix');
             res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                            [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
-                           {id});
+                           {id}, '-nopix');
 
-            assertEqual(res_sqw.data, res_sqw2.data)
+            assertEqual(res_sqw, res_sqw2)
 
         end
 
@@ -70,11 +70,11 @@ classdef test_cut_sym_cube < TestCase
             all_data = {[-5 5] [-5 5] [-5 5]};
 
             wtmp = symmetrise_sqw(data, obj.ref_x{:}, obj.nil);
-            w1sym = cut(wtmp, proj, ubin_half, all_data{:});
+            w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
 
-            w2sym = cut(data, proj, ubin_half, all_data{:}, obj.ref_x_op);
+            w2sym = cut(data, proj, ubin_half, all_data{:}, obj.ref_x_op, '-nopix');
 
-            assertEqualToTol(w1sym.data, w2sym.data);
+            assertEqualToTol(w1sym, w2sym);
         end
 
         function test_cut_sym_reflect_xy(obj)
@@ -88,10 +88,10 @@ classdef test_cut_sym_cube < TestCase
 
             wtmp = symmetrise_sqw(data, obj.ref_xy{:}, obj.nil);
 
-            w1sym = cut(wtmp, proj, ubin_half, all_data{:});
-            w2sym = cut(data, proj, ubin_half, all_data{:}, obj.ref_xy_op);
+            w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
+            w2sym = cut(data, proj, ubin_half, all_data{:}, obj.ref_xy_op, '-nopix');
 
-            assertEqualToTol(w1sym.data, w2sym.data);
+            assertEqualToTol(w1sym, w2sym);
         end
 
         function test_cut_sym_reflect_offset(obj)
@@ -104,13 +104,13 @@ classdef test_cut_sym_cube < TestCase
             offset = [0.5 0 0];
 
             wtmp = symmetrise_sqw(data, obj.ref_x{:}, offset);
-            w1sym = cut(wtmp, proj, ubin_half, all_data{:});
+            w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
 
             op = obj.ref_x_op;
             op.offset = offset;
-            w2sym = cut(data, proj, ubin_half, all_data{:}, op);
+            w2sym = cut(data, proj, ubin_half, all_data{:}, op, '-nopix');
 
-            assertEqualToTol(w1sym.data, w2sym.data);
+            assertEqualToTol(w1sym, w2sym);
 
         end
 
@@ -123,13 +123,13 @@ classdef test_cut_sym_cube < TestCase
 
             wtmp = symmetrise_sqw(data, obj.ref_x{:}, obj.nil);
             wtmp = symmetrise_sqw(wtmp, obj.ref_y{:}, obj.nil);
-            w1sym = cut(wtmp, proj, ubin_half, all_data{:});
+            w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
 
 
             op = {obj.ref_x_op, obj.ref_y_op, [obj.ref_x_op, obj.ref_y_op]};
-            w2sym = cut(data, proj, ubin_half, all_data{:}, op);
+            w2sym = cut(data, proj, ubin_half, all_data{:}, op, '-nopix');
 
-            assertEqualToTol(w1sym.data, w2sym.data);
+            assertEqualToTol(w1sym, w2sym);
 
         end
 
