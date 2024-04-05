@@ -737,7 +737,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 'replicate'); %grid_size1,pix_range1,
             % these files have different files range so existing tmp will not be reused
             [~,warn_id] = lastwarn;
-            assertEqual(warn_id,'HORACE:push_warning')
+            % Check on no warning on reusing existing files as this warning
+            % should not be issues in accumulate mode.
+            assertFalse(isequal(warn_id,'HORACE:valid_tmp_files_exist'))
 
             % Not all provided spe files were present so tmp are not deleted
             % after sqw file was generated
