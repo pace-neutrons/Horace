@@ -7,7 +7,7 @@ function out = generate_cube_sqw(shape,varargin)
 %>> test_sqw = sqw.generate_cube_sqw(axes_block_instance)
 % Optional:
 %>> test_sqw = sqw.generate_cube_sqw(___,proj_instance)
-%>> test_sqw = sqw.generate_cube_sqw(___,func_handle)
+%>> test_sqw = sqw.generate_cube_sqw(___,func_handle,func_parames)
 %
 % Where:
 % shape -- the number, defining the size of the cube of the generated
@@ -28,6 +28,8 @@ function out = generate_cube_sqw(shape,varargin)
 %     and accept no external parameters. (all parameters are inside the
 %     function)
 %     If no handle is provided the signal will be initialised to `1`
+% func_param
+% -- array of parameters to transfer to the function, described by handle
 %
 % NOTE:
 % numeric shape used for TESTING CUT/SYMMETRISE
@@ -123,7 +125,7 @@ out.data = DnDBase.dnd(ax0,proj,npix,npix,npix);
 
 % evaluate signal on the sqw object if this is requested
 if numel(argi) > 0  && isa(argi{1},'function_handle')
-    out = sqw_eval(out,argi{1},[]);
+    out = sqw_eval(out,argi{:});
     out_err = sqw_eval(out,@(h,k,l,e,p)ones(numel(h),1),[]);
     out.pix.variance = out_err.pix.signal;
     out.data.e = out_err.data.s;
