@@ -59,7 +59,9 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
                 co1 = onCleanup(@()obj.tearDown());
             end
             sqw_file_1234=fullfile(tmp_dir,['sqw_1234_',obj.test_pref,'.sqw']);  % output sqw file which should never be created
+            clFile = onCleanup(@()obj.delete_files(sqw_file_1234));
             clWarn = set_temporary_warning('off','HORACE:push_warning','HORACE:valid_tmp_files_exist');
+            clConf = set_temporary_config_options('hor_config','delete_tmp',true,'log_level',1);
 
             [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             spe_files1 = obj.spe_file([1,2,3,4]);
@@ -72,17 +74,17 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
             for i=1:numel(tmp_files)
                 assertTrue(isfile(tmp_files{i}))
             end
-
             warning('HORACE:push_warning','push warning issued to ensure correct warning will appear below');
             [tmp_files,~,~,wout_sqw] =gen_sqw (spe_files2, '', sqw_file_1234, efix([1,2,3,4]),...
                 emode, alatt, angdeg, u, v, psi([1,2,3,4]), omega([1,2,3,4]),...
                 dpsi([1,2,3,4]), gl([1,2,3,4]), gs([1,2,3,4]),grid_size,pix_db_range);
             [w_mess,warn_id] = lastwarn;
             assertEqual(warn_id,'HORACE:valid_tmp_files_exist')
-            assertTrue(strncmp(w_mess(2:end),'*** There are 3 previously generated tmp files present',23))
+            assertTrue(strncmp(w_mess(2:end),'*** There are 3 previously generated tmp files present',23))            
             assertEqual(numel(tmp_files),4);
             for i=1:numel(tmp_files)
-                % all tmp were deleted when sqw was generated
+                % all tmp were deleted when sqw was successfully generated
+                % or just gen_sqw deletes files when finishes
                 assertFalse(isfile(tmp_files{i}))
             end
 
