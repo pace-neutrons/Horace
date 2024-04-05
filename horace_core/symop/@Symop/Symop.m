@@ -115,7 +115,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function pix = transform_pix(obj, pix, proj)
+        function pix = transform_pix(obj, pix, proj, selected)
             % Transform pixel coordinates into symmetry related coordinates
             %
             % The transformation converts the components of a vector which is
@@ -138,12 +138,16 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %
             %   pix         PixelData object
             %
+            %   selected    Pixels to transform
             % Output:
             % -------
             %   pix         Transformed PixelData object
 
             if ~exist('proj', 'var')
                 proj = {};
+            end
+            if ~exist('selected', 'var')
+                selected = 1:pix.num_pixels;
             end
 
             % Check input
@@ -156,6 +160,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             if isa(pix, 'PixelDataMemory')
                 for i = numel(obj):-1:1
                     sel = obj(i).in_irreducible(pix.q_coordinates, proj{:});
+                    sel(~selected) = false;
                     pix.q_coordinates(:, ~sel) = obj(i).transform_vec(pix.q_coordinates(:, ~sel));
                 end
             else
