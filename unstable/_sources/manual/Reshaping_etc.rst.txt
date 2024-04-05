@@ -269,6 +269,22 @@ The inputs are:
 - ``xremove`` is the range of display axes to remove. Follows the same format as
   ``xkeep``.
 
+.. warning::
+
+   It should be noted that masking through the ``xkeep`` and ``xremove``
+   arguments will mask data based on the bin-centres and not through any
+   intersection of any bin-edges. This means that for a 1-D case where:
+
+   .. code-block:: matlab
+
+      bins = [1 2 3 4] % <- Defines bin-centres at: [1.5, 2.5, 3.5]
+      mask_points(w, 'keep', [1.7, 3.51])
+
+   will remove the first bin because even though ``1.7`` lies within the first
+   bin, the range does not contain the bin-centre. ``3.51``, however, just
+   barely captures the last bin and so this will not be removed.
+
+
 - ``mask_array`` is an array of booleans with the same number of elements as the
   data array, with corresponding ``true`` to keep and ``false`` to remove.
 

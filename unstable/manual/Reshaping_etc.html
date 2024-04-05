@@ -327,6 +327,21 @@ dataset.</p>
 specified for each dimension by writing <code class="docutils literal notranslate"><span class="pre">[range_1;</span> <span class="pre">range_2;...]</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">xremove</span></code> is the range of display axes to remove. Follows the same format as
 <code class="docutils literal notranslate"><span class="pre">xkeep</span></code>.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It should be noted that masking through the <code class="docutils literal notranslate"><span class="pre">xkeep</span></code> and <code class="docutils literal notranslate"><span class="pre">xremove</span></code>
+arguments will mask data based on the bin-centres and not through any
+intersection of any bin-edges. This means that for a 1-D case where:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">bins</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="c">% &lt;- Defines bin-centres at: [1.5, 2.5, 3.5]</span>
+<span class="n">mask_points</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">1.7</span><span class="p">,</span><span class="w"> </span><span class="mf">3.51</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>will remove the first bin because even though <code class="docutils literal notranslate"><span class="pre">1.7</span></code> lies within the first
+bin, the range does not contain the bin-centre. <code class="docutils literal notranslate"><span class="pre">3.51</span></code>, however, just
+barely captures the last bin and so this will not be removed.</p>
+</div>
+<ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">mask_array</span></code> is an array of booleans with the same number of elements as the
 data array, with corresponding <code class="docutils literal notranslate"><span class="pre">true</span></code> to keep and <code class="docutils literal notranslate"><span class="pre">false</span></code> to remove.</p></li>
 </ul>
@@ -380,7 +395,7 @@ masked.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 5, 2024, 9:46:20 AM.
+      <span class="lastupdated">Last updated on Apr 5, 2024, 10:57:41 AM.
       </span></p>
   </div>
 
