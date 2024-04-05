@@ -6,6 +6,8 @@ J. Wilkins 8-9-2023
 
 import sys
 import re
+from typing import Iterator
+
 
 ARG_TYPE = ("fun", "pin", "free", "bind")
 OLD_OPT_TO_NEW = {'fit': 'fit_control_parameters',
@@ -14,10 +16,53 @@ OLD_OPT_TO_NEW = {'fit': 'fit_control_parameters',
 
 USAGE = f'{sys.argv[0]} "<original legacy multifit string>"'
 
-DELIM = ["'", '"', r"\[", r"\(",  r"\{"]
-CLDELIM = ["'", '"', r"\]", r"\)",  r"\}"]
-RE_MATCH = "|".join(f"{ope}[^{clos}]+{clos}"
-                    for ope, clos in zip(DELIM, CLDELIM))
+DELIM = "[({"
+CLDELIM = "])}"
+STRDELIM = "'\""
+
+
+def get_args(string: str) -> Iterator[str]:
+    """ Get arguments from argument list using rudimentary delim counting """
+    stack = []
+
+    accum = ""
+    str_mode = False
+
+    for ind, char in enumerate(string):
+        if char in STRDELIM:
+            if not str_mode:
+                stack.append(char)
+                str_mode = True
+
+            elif stack[-1] == char:  # Only leave string mode if matching quote
+                stack.pop()
+                str_mode = False
+
+        elif str_mode:
+            pass
+
+        elif char in DELIM:
+            stack.append(CLDELIM[DELIM.index(char)])
+
+        elif char in CLDELIM:
+            if not stack:
+                raise ValueError(f"Unmatched delim at char {ind} in: \n{string}\n{' '*ind+'^'}\n"
+                                 f"Got {char}")
+            tmp = stack.pop()
+            if tmp != char:
+                raise ValueError(f"Unmatched delim at char {ind} in: \n{string}\n{' '*ind+'^'}\n"
+                                 f"Expected {tmp} got {char}")
+
+        elif char == "," and not stack:
+            yield accum.strip(" \t\n,")
+            accum = ""
+
+        accum += char
+
+    if stack:
+        raise ValueError(f"Unexpected end in {string}, perhaps an unmatched delimiter?")
+
+    yield accum.strip(" \t\n,")
 
 
 def convert_legacy_multifit(string: str) -> str:
@@ -33,15 +78,16 @@ def convert_legacy_multifit(string: str) -> str:
         ret = "[wfit, fit_data]"
 
     args = string[string.index('(')+1:string.rindex(')')]
-    strargs = re.finditer(RE_MATCH, args)
+
+    strargs = get_args(args)
 
     typ = re.search("fit((?:_sqw){0,2})", string)
 
     # Temporary substitution with format-spec to avoid commas
     strlist = []
     for i, strarg in enumerate(strargs):
-        args = args.replace(strarg.group(0), f"{{strlist[{i}]}}", 1)
-        strlist.append(strarg.group(0))
+        args = args.replace(strarg, f"{{strlist[{i}]}}", 1)
+        strlist.append(strarg)
 
     # Restore args to their correct places and remove whitespace
     args = map(lambda x: x.strip(), args.split(","))
