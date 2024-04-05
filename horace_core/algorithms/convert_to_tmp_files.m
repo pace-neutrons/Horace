@@ -5,10 +5,12 @@ function  [tmp_generated,data_range,update_runids,grid_size,jd]=...
 % into tmp files, intended to be combined into single sqw file.
 %
 % Reuses existing tmp files if found them as target and identified them as
-% acceptable:
+% acceptable.
+%
 % Inputs:
 % run_files -- cellarray of rundata classes to be converted into tmp files
-%              (tmp files are sqw files, build from single nxspe file)
+%              (tmp files are sqw files, build from single nxspe file with
+%              extension .tmp)
 % sqw_file  -- the name of the final sqw file the tmp files are intended to
 %              combine into. Used in reporting errors and warning only.
 % pix_db_range
@@ -21,16 +23,20 @@ function  [tmp_generated,data_range,update_runids,grid_size,jd]=...
 % accumulate_tmp
 %           -- true or false depending on if the routine is used for
 %              accumulation or generation. If true and existing tmp files
-%              are found in generation mode, warning about these files is
-%              issues.
+%              are found in generation mode, warns about using these files.
+%
 % keep_parallel_pool
 %           -- if true and tmp files generation is done in parallel, return
-%              parallel pool for further usage.
+%              parallel pool for further usage. Redundant, to be removed.
 % Outputs:
 % tmp_generated
-%           -- cellarray of names of generated or exisging tmp files.
+%           -- cellarray of names of produced .tmp files. The files may be
+%              generated or accepted if were present and found suitable.
+%              Inform "nothing to do" if all input rundata files had their
+%              tmp files already generated.
 % data_range-- Array of actual pixel ranges (2x9 at the moment), containing
-%              actual min/max ranges of PixedlData values.
+%              actual min/max ranges of PixedlData values stored in .tmp
+%              and common for all generated files.
 % grid_size -- Actual grid size used to bin pixels for tmp files. Always
 %              equal to grid_size_in?
 % jd        -- if keep_parallel_pool is true and tmp files were generated
@@ -92,7 +98,6 @@ if any(f_valid_exist)
 end
 
 nt=bigtic();
-%write_banner=true;
 
 if use_separate_matlab
     %
@@ -145,7 +150,7 @@ end
 data_range = minmax_ranges(data_range,data_range1);
 
 
-if log_level>-1
+if log_level> 0
     disp('--------------------------------------------------------------------------------')
     bigtoc(nt,'Time to create all temporary sqw files:',log_level);
     % Create single sqw file combining all intermediate sqw files
