@@ -122,7 +122,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
 
         function test_cut_sym_with_pix(obj)
         % Test symmetrisation, keeping pixels
-            skipTest('Cut with pix disabled')
             clOb = set_temporary_config_options(hor_config, 'log_level', -1);
             w2sym = cut(obj.data, obj.proj, obj.bin,...
                 obj.width, obj.width, obj.ebins, obj.sym);
