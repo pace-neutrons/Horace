@@ -99,177 +99,214 @@ classdef test_cylindrical_cuts < TestCaseWithSave
         % function obj = test_cyl_cut_2D_QdE_fineEqCoarse(obj)
         %     % Create sqw files, combine and check results
         %     % -------------------------------------------
-        % 
+        %
         %     spp = cylinder_proj;
         %     spp.type = 'aad';
-        % 
+        %
         %     sqw_f = read_sqw(obj.sqw_file_fine);
         %     sqw_c = read_sqw(obj.sqw_file_coarse);
-        % 
+        %
         %     w2_fine  = cut_sqw(sqw_f,spp,[0,0.05,6],[-2,2],[-180,180],[-10,95]);
         %     w2_coars = cut_sqw(sqw_c,spp,[0,0.05,6],[-2,2],[-180,180],[-10,95]);
-        % 
+        %
         %     assertEqualToTol(w2_fine,w2_coars,1.e-8,'ignore_str',true);
         % end
-        % 
+        %
         % function obj = test_cyl_cut_2D_ThetaPhi_fineEqCoarse(obj)
         %     % Create sqw files, combine and check results
         %     % -------------------------------------------
-        % 
+        %
         %     spp = cylinder_proj;
         %     spp.type = 'aad';
-        % 
+        %
         %     sqw_f = read_sqw(obj.sqw_file_fine);
         %     sqw_c = read_sqw(obj.sqw_file_coarse);
-        % 
+        %
         %     w2_fine  = cut(sqw_f, spp,[0,6],[-2,0.05,2],[-180,4,180],[-10,90]);
         %     w2_coars = cut(sqw_c, spp,[0,6],[-2,0.05,2],[-180,4,180],[-10,90]);
-        % 
+        %
         %     assertEqualToTol(w2_fine,w2_coars,'ignore_str',true);
         % end
-        % 
-        % 
+        %
+        %
         % function obj = test_cyl_cut_fine_grid_2D_ThetaPhi(obj)
         %     % Create sqw files, combine and check results
         %     % -------------------------------------------
-        % 
+        %
         %     spp = cylinder_proj;
         %     spp.type = 'aad';
-        % 
+        %
         %     sqw_f = read_sqw(obj.sqw_file_fine);
-        % 
+        %
         %     w2_tot = cut_sqw(sqw_f,spp,[0,6],[-2,0.1,2],[-180,1,180],[-10,90],'-nopix');
-        % 
+        %
         %     obj.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
         %         'tol',[1.e-7,1.e-5])
-        % 
+        %
         %     %--------------------------------------------------------------
         %     % acolor b
         %     % plh = da(w2_tot);
         %     % close(plh);
         % end
-        % 
+        %
         % function obj = test_cyl_cut_fine_grid_2D_QdE(obj)
         %     % Create sqw files, combine and check results
         %     % -------------------------------------------
-        % 
+        %
         %     spp = cylinder_proj;
         %     spp.type = 'aad';
-        % 
+        %
         %     sqw_f = read_sqw(obj.sqw_file_fine);
         %     w2_tot = cut_sqw(sqw_f,spp,[0,0.05,6],[-2,2],[-180,180],1,'-nopix');
-        % 
+        %
         %     obj.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
         %         'tol',[1.e-7,1.e-5])
-        % 
+        %
         %     %--------------------------------------------------------------
         %     % acolor b
         %     % plh = da(w2_tot);
         %     % close(plh);
         % end
-        % 
+        %
         % function obj = test_cyl_cut_fine_grid_1d_Phi(obj)
         %     % Create sqw files, combine and check results
         %     % -------------------------------------------
-        % 
+        %
         %     spp = cylinder_proj;
         %     spp.type = 'aad';
-        % 
+        %
         %     sqw_f = read_sqw(obj.sqw_file_fine);
         %     w1_tot = cut_sqw(sqw_f,spp,[0,3],[-2,2],[-180,1,180],[40,50],'-nopix');
-        % 
+        %
         %     obj.assertEqualToTolWithSave(w1_tot,'ignore_str',true, ...
         %         'tol',[1.e-7,1.e-5])
-        % 
+        %
         %     %--------------------------------------------------------------
         %     % Visually inspect
         %     % acolor k
         %     % plh=dd(w1_tot);
         %     % close(plh);
         % end
-        % 
+        %
         % function obj = test_cyl_cut_fine_grid_1d_Q(obj)
         %     % Create sqw files, combine and check results
         %     % -------------------------------------------
-        % 
+        %
         %     spp = cylinder_proj;
         %     spp.type = 'aad';
-        % 
+        %
         %     sqw_f = read_sqw(obj.sqw_file_fine);
-        % 
+        %
         %     w1_tot = cut_sqw(sqw_f,spp,[0,0.05,3],[-2,2],[-180,180],[40,50],'-nopix');
-        % 
+        %
         %     obj.assertEqualToTolWithSave(w1_tot,'ignore_str',true, ...
         %         'tol',[1.e-7,1.e-5])
-        % 
+        %
         %     %--------------------------------------------------------------
         %     % Visually inspect
         %     % acolor k
         %     % plh=dd(w1_tot);
         %     % close(plh);
         % end
-        % 
+        %
         % function test_cyl_cut_coarse_grid_1d_Theta(obj)
         %     spp = cylinder_proj;
         %     spp.type = 'aar';
-        % 
+        %
         %     sqw_c = read_sqw(obj.sqw_file_coarse);
-        % 
+        %
         %     w1_1 = cut_sqw(sqw_c,spp,[0,3],[-1,0.1,1],[-pi,pi],[40,50],'-nopix');
-        % 
+        %
         %     obj.assertEqualToTolWithSave(w1_1,'ignore_str',true, ...
         %         'tol',[1.e-7,1.e-5])
-        % 
+        %
         %     % plh = plot(w1_1);
         %     % close(plh);
         % end
-        % 
+        %
         % function test_cyl_cut_coarse_grid_2D_ThetaPhi(obj)
         %     spp = cylinder_proj;
         %     spp.type = 'aar';
-        % 
+        %
         %     sqw_c = read_sqw(obj.sqw_file_coarse);
-        % 
+        %
         %     w2_1 = cut_sqw(sqw_c,spp,[0,6],[-2,0.1,2],[-pi,0.1,pi],[-10,90],'-nopix');
-        % 
+        %
         %     obj.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
         %         'tol',[1.e-7,1.e-5])
-        % 
+        %
         %     % plh=plot(w2_1);
         %     % close(plh);
         % end
-        % 
+        %
         % function test_cyl_cut_coarse_grid_2D_qdE(obj)
         %     spp = cylinder_proj;
         %     spp.type = 'aar';
-        % 
+        %
         %     sqw_c = read_sqw(obj.sqw_file_coarse);
-        % 
+        %
         %     w2_1 = cut_sqw(sqw_c,spp,[0,0.05,6],[-2,2],[-pi,pi],1,'-nopix');
-        % 
+        %
         %     obj.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
         %         'tol',[1.e-7,1.e-5])
-        % 
+        %
         %     % plh=plot(w2_1);
         %     % close(plh);
         % end
-        % 
+        %
         % function test_cyl_cut_coarse_grid_1d_Q(obj)
         %     spp = cylinder_proj;
         %     spp.type = 'aar';
-        % 
+        %
         %     sqw_c = read_sqw(obj.sqw_file_coarse);
-        % 
+        %
         %     w1_1 = cut_sqw(sqw_c,spp,[0,0.05,3],[-0.1,0.1],[-pi,pi],[40,50]);
-        % 
+        %
         %     plh=plot(w1_1);
-        % 
-        % 
+        %
+        %
         %     obj.assertEqualToTolWithSave(w1_1,'ignore_str',true, ...
         %         'tol',[1.e-7,1.e-5])
         %     close(plh);
         % end
         %
+        function test_cyl_cut_qube_2D_zPhi(obj)
+            ax = line_axes('img_range',[-5,-5,-5,0;5,5,5,10],'nbins_all_dims',[50,50,50,10]);
+            pr = line_proj;
+            sq_cyl = sqw.generate_cube_sqw(ax,pr,@sqw_lin_cylinder,[2,1]);
+            w1e = cut(sq_cyl,pr,[-1,1],[-5,0.2,5],[-5,0.2,5],[0,10]);
+            plc = plot(w1e);
+
+            prc = cylinder_proj;
+            prc.type = 'aad';
+            w1cyl = cut(sq_cyl,prc,[0,0.2,4.8],[-1,1],[-180,4,180],[0,10]);
+
+            phc = plot(w1cyl);
+            obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7]);
+            obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7]);
+            close(phc);
+            close(plc);
+        end
+
+        function test_cyl_cut_qube_2D_qr(obj)
+            ax = line_axes('img_range',[-5,-5,-5,0;5,5,5,10],'nbins_all_dims',[50,50,50,10]);
+            pr = line_proj([0,1,0],[1,0,0]);
+            sq_cyl = sqw.generate_cube_sqw(ax,pr,@sqw_lin_cylinder,[2,1]);
+            w1e = cut(sq_cyl,pr,[0,0.2, 5],[0,0.2,5],[-0.1,0.1],[0,10]);
+            phl = plot(w1e);
+
+            % similarly looking cuts.
+            prc = cylinder_proj;
+            prc.type = 'aar';
+            w1cyl = cut(sq_cyl,prc,[0,0.2,5],[0,0.2, 5],[0,1],[0,10]);
+            phc = plot(w1cyl);
+            obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7]);
+            obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7]);
+            close(phl);
+            close(phc);
+        end
+
+
         function test_cyl_cut_qube_1D_ez(obj)
             ax = line_axes('img_range',[-5,-5,-5,0;5,5,5,10],'nbins_all_dims',[50,50,50,10]);
             pr = line_proj;

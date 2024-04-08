@@ -78,17 +78,18 @@ for j=1:4
     in_totvector{j} =  [' in ',obj.capt_units(ax_type)];
     if ismember(j,pax) % pax
         ipax = find(j==pax(dax));
-        if abs(img_scales(j)-1) > small
+        if abs(img_scales(j)-1) > small && j~=3
             title_pax{ipax} = [label{j},' in ',num2str(img_scales(j)),' ',obj.capt_units(ax_type)];
         else
             if ax_type == 'd'
-                title_pax{ipax} = [label{j},obj.capt_units(ax_type)];                
+                title_pax{ipax} = [label{j},obj.capt_units(ax_type)];
             else
                 title_pax{ipax} = [label{j},' (',obj.capt_units(ax_type),')'];
             end
         end
-        title_main_pax{ipax} = [label{j},'=',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
-        display_pax{ipax} = [label{j},' = ',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
+        title_main_pax{ipax} = sprintf('%s = %.3g:%.3g:%.3g%s', ...
+            label{j},plot_bin_centers(1:3,ipax),in_totvector{j});
+        display_pax{ipax} = title_main_pax{ipax};
     else               % iax
         iiax = find(j==iax);
         title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_totvector{j}];
@@ -111,7 +112,7 @@ if ~isempty(title)
     iline = iline + 1;
 end
 title_main{iline}=sprintf('Cylindrical projection at centre: %s(hklE)',mat2str(offset));
-iline = iline + 1;    
+iline = iline + 1;
 
 if ~isempty(iax)
     title_main{iline}=title_main_iax{1};
