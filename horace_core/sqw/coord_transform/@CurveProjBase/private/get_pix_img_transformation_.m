@@ -1,30 +1,30 @@
 function [rot_to_img,offset_cc,img_scales,offset_present,obj]= ...
     get_pix_img_transformation_(obj,ndim,varargin)
 % Return the constants and parameters used for transformation
-% from Crystal Cartesian to spherical coordinate system and
-% back
+% from Crystal Cartesian to Curvilinear coordinate system and
+% back.
 %
 % Inputs:
-% obj  -- initialized instance of the sphere_proj class
+% obj  -- initialized instance of the Curvilinear class
 % ndim -- number 3 or 4 -- depending on what kind of
 %         transformation (3D -- momentum only or
 %         4D -- momentum and energy) are requested
 % Output:
 % rot_to_img
-%      -- 3x3 or 4x4 rotation matrix, which orients spherical
+%      -- 3x3 or 4x4 rotation matrix, which orients Curvilinear
 %         coordinate system and transforms momentum and energy
 %         in Crystal Cartesian coordinates into oriented
-%         Crystal Cartesian coordinate system used for calculateing angular
-%         coordinates
+%         Crystal Cartesian coordinate system used for calculating angular
+%         coordinates.
 % offset_cc
-%     -- the centre of spherical coordinate system in Crystal
+%     -- the centre of Curvilinear coordinate system in Crystal
 %        Cartesian coordinates.
 % img_scales
 %     -- depending on the projection type, the 3-vectors
 %        containing the scales used on image.
-%        depending on the projection type, elements 2,3
-%        (d/r) elements 2,3 of scales contain constand used to convert
-%        angles from degrees to radians or vice versa
+%        depending on the projection type. The elements which corresponding
+%        to angular coordinates (d/r elements in type array)define the 
+%        constants, used to convert angles from degrees to radians.
 %
 % TODO: #954 NEEDS verification:
 rot_to_img = obj.pix_to_matlab_transf_;

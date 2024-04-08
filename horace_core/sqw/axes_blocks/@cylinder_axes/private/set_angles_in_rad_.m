@@ -2,10 +2,10 @@ function obj = set_angles_in_rad_(obj,val)
 %SET_ANGLES_IN_RAD main setter for angular_unit_is_rad property.
 %
 % verify if inputs is acceptable and converts any acceptable form of input
-% in two component logical vector, which defines if axis in angular direction
-% is expressed in angular units or radians.
+% in logical variable, which defines if axis in phi direction
+% is expressed in degrees or radians.
 %
-%
+
 obj.old_angular_unit_is_rad_ = obj.angular_unit_is_rad_;
 if isempty(val)
     obj.angular_unit_is_rad_ = false;

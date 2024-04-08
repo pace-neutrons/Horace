@@ -15,7 +15,7 @@ classdef cylinder_proj<CurveProjBase
     %            directed along the selected e_z axis.
     % phi     -- coordinate 3 is the angle between x-axis of the cylindrical
     %            coordinate system and the projection of the momentum transfer
-    %            (Q_tr) to the xy plain of the cylindircal coordinate
+    %            (Q_tr) to the xy plane of the cylindircal coordinate
     %            system
     % dE      -- coordinate 4 the energy transfer direction
     %
@@ -47,24 +47,24 @@ classdef cylinder_proj<CurveProjBase
         %------------------------------------------------------------------
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in crystal Cartesian coordinate systems
-            % into spherical coordinate system defined by the object
+            % into cylindrical coordinate system defined by the object
             % properties
             %
             % Input:
             % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
-            %             expressed in crystal Cartesian coordinate system
+            %             expressed in Crystal Cartesian coordinate system
             %             or instance of PixelDatBase class containing this
             %             information.
             % Returns:
-            % pix_out -- [3xNpix or [4xNpix]Array the pixels coordinates
-            %            transformed into spherical coordinate system
-            %            defined by object properties
+            % pix_out -- [3xNpix or [4xNpix] array of the pixels coordinates
+            %            transformed into cylindrical coordinate system
+            %            defined by the object properties
             %
             pix_transformed = transform_pix_to_cylinder_(obj,pix_data);
         end
         function pix_cc = transform_img_to_pix(obj,pix_transformed,varargin)
-            % Transform pixels in image (spherical) coordinate system
-            % into crystal Cartesian system of pixels
+            % Transform pixels in image (cylindrical) coordinate system
+            % into Crystal Cartesian system of pixels
             pix_cc = transform_cylinder_to_pix_(obj,pix_transformed,varargin{:});
         end
     end
@@ -74,7 +74,7 @@ classdef cylinder_proj<CurveProjBase
                 img_scales = ones(1,3);
                 if obj.type_(3) == 'r'
                     img_scales(3) = 1;
-                else
+                else             % phi_to_ang
                     img_scales(3) = 180/pi;
                 end
                 obj.img_scales_cache_ = img_scales;
@@ -88,7 +88,7 @@ classdef cylinder_proj<CurveProjBase
     %----------------------------------------------------------------------
     methods
         function ver  = classVersion(~)
-            ver = 1;
+            ver = 2;
         end
     end
     methods(Static)

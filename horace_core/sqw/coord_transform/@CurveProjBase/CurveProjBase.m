@@ -1,47 +1,57 @@
 classdef CurveProjBase <aProjectionBase
-    % Class defines common properties and method used by cuvelinear
+    % Class defines common properties and methods used by curvilinear
     % projections. Currently (01/04/2024) spherical and cylindrical
-    % to make spherical cuts.
+    % projections to make spherical/cylindrical cuts.
     %
     properties(Dependent)
-        ez;  % [1x3] unit vector specifying crystallographic direction of
-        % spherical coordinates Z-axis within the reciprocal lattice.
-        % Z-axis of spherical coordinate system is the axis where the
-        % elevation angle (MATLAB convention) is counted from.
+        u;  % [1x3]lattice vector specifying crystallographic direction of
+        % Z-axis  of spherical/cylindrical coordinate system within the
+        % reciprocal lattice.
+        % Z-axis of curvilinear coordinate system is the axis where the
+        % polar angle is is counted from. In MATLAB convention polar angle
+        % is  pi/2-elevation angle.
         % In Horace/Mantid convention this angle is named theta = pi/2-elevation.
         % Default direction is [1,0,0]
 
-        ex; %[1x3] lattice vector together with z-axis defining the crystal
-        % rotation plane. Matlab names this angle azimuth and it is phi
-        % angle in Horace/Mantid convention
+        v; %[1x3] lattice vector together with z-axis defining the crystal
+        % rotation plane. The r_x vector, which lies in this plane and
+        % orthogonal to e_z axis defines the axis, where phi angle is
+        % calculated from. MATLAB names this angle azimuth and it is phi
+        % angle in Horace/Mantid convention.
         %
-        % if z-axis of spherical coordinate system is directed along the beam
-        % ez,ex vectors of spherical projection coincide with u,v vectors
+        % If z-axis of spherical coordinate system is directed along the beam
+        % u,v vectors of spherical projection coincide with u,v vectors
         % used during sqw file generation
         %
-        type;  % units of the projection. Default add -- inverse Angstrom, degree, degree
-        %      % possible options: arr where two letters r describe radian
-        %      e.g. adr is  allowed combinations of letters, indicating
-        %      that the phi angle is calculated in radian and theta -- in
-        %      degrees.
+        type;  % units of the projection. Default is add --
+        %      inverse Angstrom, degree, degree.
+        %  possible options: arr where two letters r describe radian
+        %  e.g. adr is  allowed combinations of letters, indicating
+        %  that the phi angle is calculated in radian and theta -- in
+        %  degrees.
         %
+    end
+    properties(Dependent,Hidden)
+        % old interface to spherical/cylindrical projections
+        ez; % equivalent to u
+        ex; % equivalent to v
     end
     properties(Access=protected)
         %
-        ez_ = [1,0,0]
-        ex_ = [0,1,0]
+        u_ = [1,0,0]
+        v_ = [0,1,0]
         %
         type_ = 'add' % A^{-1}, degree, degree
         %------------------------------------
         hor2matlab_transf_ = [...
             0, 1, 0, 0;... % The transformation from
             0, 0, 1, 0;... % Horace pixel coordinate system to the axes coordinates
-            1, 0, 0, 0;... % to allow using MATLAB sph2cart/cart2sph functions.
-            0, 0, 0, 1];
+            1, 0, 0, 0;... % to allow using MATLAB sph2cart/cart2sph or pol2cart/cart2pol
+            0, 0, 0, 1];   % functions.
 
         pix_to_matlab_transf_ ; % the transformation used for conversion
         % from pix coordinate system to spherical coordinate system
-        % if unit vectors are the default, it equal to hor2matlab_transf_.
+        % if direction vectors u,v have default values, it equal to hor2matlab_transf_.
         % If not, multiplied by rotation from default to the selected
         % coordinate system.
         %
@@ -55,22 +65,25 @@ classdef CurveProjBase <aProjectionBase
             % projection class.
             %
             % Optional list of positional parameters
-            % ez  -- hkl direction of z-axis of the spherical coordinate
-            %        system this projection defines. The axis to calculate
-            %        theta angle from, notmally beam direction.
-            % ex  -- hkl direction of x-axis of the spherical coordinate
-            %        system. The axis to calculate Phi angle from. By
-            %        default, [ez,ex] defines Horace rotation plane.
-            % type-- 3-letter symbol, defining the spherical coordinate
-            %        system units (see type property)
+            % u  -- hkl direction of z-axis of the spherical/cylindrical
+            %        coordinate system this projection defines.
+            %        The axis to calculate theta angle from or just z-axis
+            %        of cylindrical projection.
+            % v  -- hkl direction of x-axis of the spherical/cylindrical
+            %        coordinate system. The axis to calculate Phi angle from.
+            %        If u directed along the beam, [u,v] defines Horace
+            %        rotation plane.
+            % type-- 3-letter symbol, defining the spherical/cylindrical
+            %        coordinate system units (see type property)
             % alatt-- 3-vector of lattice parameters
             % angdeg- 3-vector of lattice angles
-            % offset- 4-vector, defining hkldE value of sentre of
-            %          coordinate of the spherical coordinate system.
-            % label - 4-element celarray, which defines axes lables
+            % offset- 4-vector, defining hkldE value of centre of
+            %         coordinates of the spherical/cylindrical coordinate
+            %         system.
+            % label - 4-element cellarray, which defines axes labels
             % title - character string to title the plots of cuts, obtained
             %         using this projection.
-            %
+
             if nargin == 1
                 obj = obj.check_combo_arg();
                 return
@@ -98,27 +111,18 @@ classdef CurveProjBase <aProjectionBase
             end
         end
         %
-        function v = get.ez(obj)
-            v=obj.ez_;
+        function u = get.u(obj)
+            u=obj.u_;
         end
-        function obj = set.ez(obj,val)
-            val = aProjectionBase.check_and_brush3vector(val);
-            obj.ez_ = val;
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
+        function obj = set.u(obj,val)
+            obj = set_u(obj,val);
         end
         %
-        function u = get.ex(obj)
-            u = obj.ex_;
+        function v = get.v(obj)
+            v = obj.v_;
         end
-        function obj = set.ex(obj,val)
-            val = aProjectionBase.check_and_brush3vector(val);
-
-            obj.ex_ = val;
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
+        function obj = set.v(obj,val)
+            obj = set_v(obj,val);
         end
         %
         function type = get.type(obj)
@@ -159,7 +163,7 @@ classdef CurveProjBase <aProjectionBase
                 ax_class,def_bin_ranges,req_bin_ranges);
             ax_bl = obj.copy_proj_defined_properties_to_axes(ax_bl);
         end
-        
+
         %------------------------------------------------------------------
         % Particular implementation of aProjectionBase abstract interface
         %------------------------------------------------------------------
@@ -207,6 +211,22 @@ classdef CurveProjBase <aProjectionBase
         end
     end
     methods(Access = protected)
+        function obj = set_u(obj,val)
+            % main setter for u-property
+            val = aProjectionBase.check_and_brush3vector(val);
+            obj.u_ = val;
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+        function obj = set_v(obj,val)
+             % main setter for v-property
+            val = aProjectionBase.check_and_brush3vector(val);
+            obj.v_ = val;
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
         function obj = set_img_scales(obj,varargin)
             error('HORACE:CurveProjBase:invalid_argument', ...
                 'You can not set image scales directly. Use projection type instead')
@@ -216,16 +236,39 @@ classdef CurveProjBase <aProjectionBase
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
     properties(Constant, Access=private)
-        fields_to_save_ = {'ez','ex','type'}
+        fields_to_save_ = {'u','v','type'}
+    end
+    methods(Access=protected)
+        function [S,obj] = convert_old_struct (obj, S, ver)
+            % modify old versions of the curvilinear projection
+            if ver == 1
+                S.u = S.ez;
+                S.v = S.ex;
+            end
+        end
     end
     methods
+        % Old ez,ex interface:
+        function u = get.ez(obj)
+            u=obj.u_;
+        end
+        function obj = set.ez(obj,val)
+            obj = set_u(obj,val);
+        end
+        function v = get.ex(obj)
+            v = obj.v_;
+        end
+        function obj = set.ex(obj,val)
+            obj = set_v(obj,val);
+        end
+        %------------------------------------------------------------------
         % check interdependent projection arguments
         function obj = check_combo_arg (obj)
             % Check validity of interdependent fields
             %
             %   >> obj = check_combo_arg(w)
             %
-            % Throws HORACE:sphere_proj:invalid_argument with the message
+            % Throws HORACE:CurveProjBase:invalid_argument with the message
             % suggesting the reason for failure if the inputs are incorrect
             % w.r.t. each other.
             %

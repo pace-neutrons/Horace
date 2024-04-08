@@ -1,4 +1,31 @@
 classdef cylinder_axes < AxesBlockBase
+    % The class contains information about axes and scales used for
+    % displaying sqw/dnd object and provides scales for neutron image data
+    % when the data are analysed in cylindrical coordinate system
+    %
+    % It also contains main methods, used to produce physical image of the
+    % sqw/dnd object
+    %
+    % Construction:
+    %1) ab = cylinder_axes(num) where num belongs to [0,1,2,3,4];
+    %2) ab = cylinder_axes([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
+    %                                          parameters
+    %        or
+    %   ab = cylinder_axes([min1,max1],...,[min4,max4]); - 4 binning
+    %                                          parameters
+    %        or any combination of ranges [min,step,max] or [min,max]
+    %3) ab = cylinder_axes(structure) where structure contains any fields
+    %                              returned by savebleFields method
+    %4) ab = cylinder_axes(param1,param2,param3,'key1',value1,'key2',value2....)
+    %        where param(1-n) are the values of the fields in the order
+    %        fields are returned by saveableFields function.
+    %5) ab = cylinder_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
+    %    -- particularly frequent case of building axes block (case 4)
+    %       from the image range and number of bins in all directions.
+    %Note: 
+    %       Unlike line_axes, the img_range in the case of
+    %       cylindrical axes should lie within alowed limits (0-inf for rho
+    %       and [-pi, pi] for phi.
     properties(Constant,Access = private)
         % What units each possible dimension type of the spherical projection
         % have:  Currently momentum, angle, and energy transfer may be
@@ -98,7 +125,7 @@ classdef cylinder_axes < AxesBlockBase
         function [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
                 data_plot_titles(obj)
             % Get titling and caption information for the sqw data
-            % structure containing spherical projection
+            % structure containing cylindrical projection
             [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
                 data_plot_titles_(obj);
         end

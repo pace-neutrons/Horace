@@ -1,5 +1,5 @@
 function  obj = check_angular_units_consistency_(obj)
-% Verify if the spherical axes ranges consistent with the limits of the
+% Verify if the cylindical axes ranges consistent with the limits of the
 % axes block and convert the limits into appropriate units if the limits
 % have changed the units.
 
@@ -31,7 +31,7 @@ end
 
 function obj = convert_angular_ranges(obj,old_angles_in_rad,new_angles_in_rad)
 % convert angular ranges from degree to radian or v.v. in case of
-% the unit meaning have changed
+% the unit meaning have changed.
 if old_angles_in_rad
     if ~new_angles_in_rad
         obj.img_range_(:,3)     = rad2deg(obj.img_range_(:,3));
@@ -39,7 +39,7 @@ if old_angles_in_rad
     end
 else
     if new_angles_in_rad
-        obj.img_range_(:,3)     = deg2rad(obj.img_range_(:,3));        
+        obj.img_range_(:,3)     = deg2rad(obj.img_range_(:,3));
         obj.max_img_range_(:,3) = deg2rad(obj.max_img_range_(:,3));
     end
 end
