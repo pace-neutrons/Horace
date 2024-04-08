@@ -17,7 +17,7 @@ classdef test_cylinder_axes < TestCase
         end
         %
         %------------------------------------------------------------------
-        function test_bin_voulume_array(~)
+        function test_bin_volume_array(~)
             dbr =[...
                 0.5, 45,  0, 0;...
                 1.5, 46, 90, 10];

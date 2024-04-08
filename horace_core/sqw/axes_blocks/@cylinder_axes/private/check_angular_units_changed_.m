@@ -16,9 +16,8 @@ if is_present
     new_value= possible_key{key_pos+1};
     return;
 end
-% whatever unlikely, 'angles_in_rad' may be provided as positional
+% hovewer unlikely, 'angles_in_rad' may be provided as positional
 % parameter. We still need to check this
-
 keys = obj.saveableFields(); %angles_in_rad is the last positional parameter
 if numel(varargin)< numel(keys)
     return;

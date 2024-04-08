@@ -66,14 +66,14 @@ classdef sphere_proj<CurveProjBase
             % Calculate image scales using projection type
             if isempty(obj.img_scales_cache_)
                 img_scales = ones(1,3);
-                if obj.type_(2) == 'r' % theta_to_ang
+                if obj.type_(2) == 'r' 
                     img_scales(2) = 1;
-                else
+                else                  % theta_to_ang
                     img_scales(2) = 180/pi;
                 end
-                if obj.type_(3) == 'r' % phi_to_ang
+                if obj.type_(3) == 'r'
                     img_scales(3) = 1;
-                else
+                else                  % phi_to_ang
                     img_scales(3) = 180/pi;
                 end
                 obj.img_scales_cache_ = img_scales;

@@ -1,30 +1,37 @@
 classdef CurveProjBase <aProjectionBase
     % Class defines common properties and method used by cuvelinear
     % projections. Currently (01/04/2024) spherical and cylindrical
-    % to make spherical cuts.
+    % to make spherical/cylindrical cuts.
     %
     properties(Dependent)
         ez;  % [1x3] unit vector specifying crystallographic direction of
         % spherical coordinates Z-axis within the reciprocal lattice.
         % Z-axis of spherical coordinate system is the axis where the
-        % elevation angle (MATLAB convention) is counted from.
+        % polar angle is is counted from. In MATLAB convention polar anlge
+        % is  pi/2-elevation angle.
         % In Horace/Mantid convention this angle is named theta = pi/2-elevation.
         % Default direction is [1,0,0]
 
         ex; %[1x3] lattice vector together with z-axis defining the crystal
-        % rotation plane. Matlab names this angle azimuth and it is phi
-        % angle in Horace/Mantid convention
+        % rotation plane. The r_x vector, which lies in this plane and
+        % orthogonal to e_z axis defines the axis, where phi angle is
+        % calculated from. Matlab names this angle azimuth and it is phi
+        % angle in Horace/Mantid convention.
         %
-        % if z-axis of spherical coordinate system is directed along the beam
+        % If z-axis of spherical coordinate system is directed along the beam
         % ez,ex vectors of spherical projection coincide with u,v vectors
         % used during sqw file generation
         %
-        type;  % units of the projection. Default add -- inverse Angstrom, degree, degree
-        %      % possible options: arr where two letters r describe radian
-        %      e.g. adr is  allowed combinations of letters, indicating
-        %      that the phi angle is calculated in radian and theta -- in
-        %      degrees.
+        type;  % units of the projection. Default is add -- 
+        %      inverse Angstrom, degree, degree.
+        %  possible options: arr where two letters r describe radian
+        %  e.g. adr is  allowed combinations of letters, indicating
+        %  that the phi angle is calculated in radian and theta -- in
+        %  degrees.
         %
+    end
+    properties(Dependent,Hidden)
+        % old interface to spherical/cylindrical projections
     end
     properties(Access=protected)
         %
@@ -55,22 +62,25 @@ classdef CurveProjBase <aProjectionBase
             % projection class.
             %
             % Optional list of positional parameters
-            % ez  -- hkl direction of z-axis of the spherical coordinate
-            %        system this projection defines. The axis to calculate
-            %        theta angle from, notmally beam direction.
-            % ex  -- hkl direction of x-axis of the spherical coordinate
-            %        system. The axis to calculate Phi angle from. By
-            %        default, [ez,ex] defines Horace rotation plane.
-            % type-- 3-letter symbol, defining the spherical coordinate
-            %        system units (see type property)
+            % ez  -- hkl direction of z-axis of the spherical/cylindrical
+            %        coordinate system this projection defines. 
+            %        The axis to calculate theta angle from or just z-axis 
+            %        of cylindrical projefction.
+            % ex  -- hkl direction of x-axis of the spherical/cylindrical
+            %        coordinate system. The axis to calculate Phi angle from. 
+            %        If ez directed along the beam, [ez,ex] defines Horace
+            %        rotation plane.
+            % type-- 3-letter symbol, defining the spherical/cylindrical
+            %        coordinate system units (see type property)
             % alatt-- 3-vector of lattice parameters
             % angdeg- 3-vector of lattice angles
-            % offset- 4-vector, defining hkldE value of sentre of
-            %          coordinate of the spherical coordinate system.
+            % offset- 4-vector, defining hkldE value of centre of
+            %         coordinates of the spherical/cylindrical coordinate
+            %         system.
             % label - 4-element celarray, which defines axes lables
             % title - character string to title the plots of cuts, obtained
             %         using this projection.
-            %
+
             if nargin == 1
                 obj = obj.check_combo_arg();
                 return

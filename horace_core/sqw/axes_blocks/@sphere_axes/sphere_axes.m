@@ -22,6 +22,10 @@ classdef sphere_axes < AxesBlockBase
     %5) ab = sphere_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
+    %Note: 
+    %       Unlike line_axes, the img_range in the case of
+    %       cylindrical axes should lie within alowed limits (0-inf for rho
+    %       [0,pi] for theta and [-pi, pi] for phi.    
     properties(Constant,Access = private)
         % What units each possible dimension type of the spherical projection
         % have:  Currently momentum, angle, and energy transfer may be
