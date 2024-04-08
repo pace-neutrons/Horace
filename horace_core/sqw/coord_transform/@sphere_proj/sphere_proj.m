@@ -88,7 +88,7 @@ classdef sphere_proj<CurveProjBase
     methods
         %------------------------------------------------------------------
         function ver  = classVersion(~)
-            ver = 1;
+            ver = 2;
         end
     end
     methods(Static)

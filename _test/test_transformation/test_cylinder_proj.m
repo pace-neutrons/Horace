@@ -137,8 +137,8 @@ classdef test_cylinder_proj<TestCase
         %
         % function test_set_direction_110_cub(~)
         %     proj = cylinder_proj([1,-1,0],[1,1,0],'alatt',2*pi,'angdeg',90);
-        %     assertEqual(proj.ez,[1,-1,0])
-        %     assertEqual(proj.ex,[1, 1,0])
+        %     assertEqual(proj.u,[1,-1,0])
+        %     assertEqual(proj.v,[1, 1,0])
         %     ref_vec = [...
         %         1. ,   1.,    1.; ... R
         %         45 , 135.,   90.; ... Theta
@@ -155,8 +155,8 @@ classdef test_cylinder_proj<TestCase
         %
         % function test_set_direction_010(~)
         %     proj = cylinder_proj([0,1,0],[1,0,0]);
-        %     assertEqual(proj.ez,[0,1,0])
-        %     assertEqual(proj.ex,[1,0,0])
+        %     assertEqual(proj.u,[0,1,0])
+        %     assertEqual(proj.v,[1,0,0])
         %     ref_vec = [...
         %         1. ,   1.,    1.; ... R
         %         90 ,   0.,   90.; ... Theta
@@ -170,8 +170,8 @@ classdef test_cylinder_proj<TestCase
         %
         function test_set_direction_001(~)
             proj = cylinder_proj([0,0,1],[1,0,0]);
-            assertEqual(proj.ez,[0,0,1])
-            assertEqual(proj.ex,[1,0,0])
+            assertEqual(proj.u,[0,0,1])
+            assertEqual(proj.v,[1,0,0])
             ref_vec = [...
                 1,  1., 0.; ... Q_tr
                 0,  0., 1.; ... Q_||
@@ -184,8 +184,8 @@ classdef test_cylinder_proj<TestCase
 
         function test_empty_constructor(~)
             proj = cylinder_proj();
-            assertEqual(proj.ez,[1,0,0]);
-            assertEqual(proj.ex,[0,1,0])
+            assertEqual(proj.u,[1,0,0]);
+            assertEqual(proj.v,[0,1,0])
 
             ref_vec = [...
                 0,  1., 1.; ... Q_tr
