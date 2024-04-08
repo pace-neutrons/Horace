@@ -26,10 +26,10 @@ function [rot_to_img,offset_cc,img_scales,offset_present,obj]= ...
 %        to angular coordinates (d/r elements in type array)define the 
 %        constants, used to convert angles from degrees to radians.
 %
-% TODO: #954 NEEDS verification:
+
 rot_to_img = obj.pix_to_matlab_transf_;
 offset_hkl = obj.offset(:);
-offset_present = any(abs(offset_hkl)>4*eps("single"));
+offset_present = any(abs(offset_hkl)>4*eps('single'));
 
 [alignment_needed,alignment_mat] = aProjectionBase.check_alignment_needed(varargin{:});
 

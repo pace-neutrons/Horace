@@ -124,7 +124,7 @@ classdef test_cylinder_axes < TestCase
         %------------------------------------------------------------------
         function test_angular_is_rad_in_constructor(~)
             dbr = [...
-                 0, -1, -pi,-10;
+                0, -1, -pi,-10;
                 10,  2,  pi, 50];
             bin0 = {[dbr(1,1),0.05,dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
@@ -263,7 +263,6 @@ classdef test_cylinder_axes < TestCase
             assertEqual(ab.single_bin_defines_iax,iiax)
             assertEqual(ab.angular_unit_is_rad,false);
             assertEqual(ab.img_range,[0,-1,0,0;1,1,0,0])
-
         end
         %
         function test_cylinder_axes_3D_explicit(~)
@@ -285,9 +284,7 @@ classdef test_cylinder_axes < TestCase
             assertEqual(ab.single_bin_defines_iax,false(1,4))
             assertEqual(ab.angular_unit_is_rad,false);
             assertEqual(ab.img_range,[0,-1,-180,-1; 1,1,180,1])
-
         end
         %
-
     end
 end

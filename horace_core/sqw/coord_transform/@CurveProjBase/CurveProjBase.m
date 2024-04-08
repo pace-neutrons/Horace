@@ -41,7 +41,7 @@ classdef CurveProjBase <aProjectionBase
         u_ = [1,0,0]
         v_ = [0,1,0]
         %
-        type_ = 'add' % A^{-1}, degree, degree
+        type_ = 'add' % A^{-1}, degree, degree; projections overload defaults
         %------------------------------------
         hor2matlab_transf_ = [...
             0, 1, 0, 0;... % The transformation from
