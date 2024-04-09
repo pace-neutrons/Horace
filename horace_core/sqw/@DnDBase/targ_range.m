@@ -84,7 +84,7 @@ if do_binning_range
 end
 
 function bin_range = build_binning(min_range,max_range,nsteps)
-% simple procedure which convert range into binning parameters
+% simple procedure to convert img_range into binning parameters
 if isinf(min_range)
     bin_range = [];
     return;
