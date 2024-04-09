@@ -41,7 +41,7 @@ classdef test_proj_alignment<TestCase
 
             w2m = cut_sqw(w2,targ_proj,[-5,0.1,5],[-5,0.1,5],[-2,2],[-2,2]);
             assertEqual(w2m.npixels,w2.npixels)
-            % Check data correctntess numerically
+            % Check data correctness numerically
             w1_l = cut_sqw(w2,targ_proj,[-5,0.1,5], ...
                 [-0.5,0.5],[-2,2],[-2,2]);
             kk1 = multifit (w1_l);
@@ -91,7 +91,7 @@ classdef test_proj_alignment<TestCase
                 [-5*sqrt(2),0.1,5*sqrt(2)],[-2,2],[-2,2]);
             assertEqual(w2m.npixels,w2.npixels)
             %
-            % Check data correctntess numerically
+            % Check data correctness numerically
             w1_l = cut_sqw(w2,targ_proj,[-5*sqrt(2),0.1,5*sqrt(2)], ...
                 [-0.5,0.5],[-2,2],[-2,2]);
             kk1 = multifit (w1_l);
@@ -141,7 +141,7 @@ classdef test_proj_alignment<TestCase
             w2m = cut_sqw(w2,targ_proj,[-5*sqrt(2),0.1,5*sqrt(2)], ...
                 [-5*sqrt(2),0.1,5*sqrt(2)],[-2,2],[-2,2]);
             assertEqual(w2m.npixels,w2.npixels)
-            % Check data correctntess numerically
+            % Check data correctness numerically
             w1_l = cut_sqw(w2,targ_proj,[-5*sqrt(2),0.1,5*sqrt(2)], ...
                 [-0.5,0.5],[-2,2],[-2,2]);
             kk1 = multifit (w1_l);

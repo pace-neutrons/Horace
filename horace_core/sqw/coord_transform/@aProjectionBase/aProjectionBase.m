@@ -47,6 +47,11 @@ classdef aProjectionBase < serializable
         %
     end
     properties(Dependent,Hidden)
+        % scaling factors used in transformation from pix to image
+        % coordinate system. Property of ubmat_proj but calculated in
+        % line_proj, sphere_proj or cylinder_proj
+        img_scales % the scaling factor (in A^-1)
+
         % Internal properties, used by algorithms and better not to be
         % exposed to users
         %
@@ -226,6 +231,13 @@ classdef aProjectionBase < serializable
             % All angles are in degrees.
             %
             obj = check_and_set_andgdeg(obj,val);
+        end
+        %
+        function ul = get.img_scales(obj)
+            ul = get_img_scales(obj);
+        end
+        function obj = set.img_scales(obj,val)
+            obj = set_img_scales(obj,val);
         end
         %
         function lab=get.label(obj)
@@ -650,7 +662,7 @@ classdef aProjectionBase < serializable
                 error('HORACE:aProjectionBase:runtime_error',...
                     'Target projection property has to be set up to convert to target coordinate system')
             end
-            pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
+            pic_cc      = obj.transform_img_to_pix(pix_origin,varargin{:});
             pix_target  = targproj.transform_pix_to_img(pic_cc,varargin{:});
         end
         %
@@ -720,7 +732,8 @@ classdef aProjectionBase < serializable
             if ~isempty(obj.title)
                 axes_bl.title = obj.title;
             end
-            axes_bl.offset = obj.offset;
+            axes_bl.offset      = obj.offset;
+            axes_bl.img_scales  = obj.img_scales;
         end
         %
         function [obj,axes] = align_proj(obj,alignment_info,axes)
@@ -837,6 +850,33 @@ classdef aProjectionBase < serializable
     end
     %
     methods(Static,Access=protected)
+        function [alignment_needed,alignment_mat] = check_alignment_needed(pixData)
+            % verify if input argumnet contain alignment information and
+            % return this information if it is available.
+            %
+            % Inputs:
+            % pixData -- any instance of the PixelDataBase or pix_metadata class
+            %            containing information about alignment
+            % Returns:
+            % alignment_needed -- true if input contains non-unary alignment
+            %                     info
+            %
+            % alignment_mat    -- if alignment_needed is true, matrix which
+            %                     describes pixels misalignment
+            %                     if false, empty argument
+            alignment_mat    =  [];
+            if nargin>0 && (isa(pixData,'PixelDataBase')|| isa(pixData,'pix_metadata'))
+                if pixData.is_misaligned
+                    alignment_needed = true;
+                    alignment_mat = pixData.alignment_matr;
+                else
+                    alignment_needed = false;
+                end
+            else
+                alignment_needed = false;
+            end
+        end
+
         %
         function [bl_start,bl_size]=convert_contrib_cell_into_pix_indexes(...
                 cell_ind,npix)
@@ -948,6 +988,10 @@ classdef aProjectionBase < serializable
         % return parameters of transformation used for conversion from pixels
         % to image coordinate system
         varargout = get_pix_img_transformation(obj,ndim,varargin);
+    end
+    methods(Abstract,Access=protected)
+        scales   = get_img_scales(obj);
+        obj      = set_img_scales(obj,val);
     end
     %======================================================================
     % Serializable interface

@@ -4,7 +4,7 @@ function [al_info,dnd_obj] = dnd_data_alignment(dnd_obj,hav)
 %
 % It is assumed that IX_experiment contains legacy alignment information
 % and the routine extracts this information and converts it into modern
-% alighnment format.
+% alignment format.
 %
 % Inputs:
 % dnd_obj -- dnd object to align

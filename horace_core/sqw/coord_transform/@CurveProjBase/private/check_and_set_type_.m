@@ -3,7 +3,7 @@ function obj = check_and_set_type_(obj,val)
 % acceptable and set appropriate "type" property value
 
 if ~(istext(val) && strlength(val) ==3)
-    error('HORACE:sphere_proj:invalid_argument',...
+    error('HORACE:CurveProjBase:invalid_argument',...
         'The type parameter has to be a text string with 3 elements. It is: "%s", type: %s',...
         disp2str(val),class(val));
 end
@@ -13,12 +13,17 @@ end
 
 for i= 1:3
     let = lower(val(i));
-    if ~ismember(let,obj.types_available_{i})
-        error('HORACE:sphere_proj:invalid_argument',...
+    if ~ismember(let,obj.curve_proj_types_{i})
+        error('HORACE:CurveProjBase:invalid_argument',...
             'letter "%s" does not belong to the available types: ("%s") for axis N_%d',...
-            let,disp2str(obj.types_available_{i}),i);
+            let,disp2str(obj.curve_proj_types_{i}),i);
     end
     val(i) = let;
 end
-
-obj.type_ = val;
+if ~isequal(obj.type_,val)
+    obj.type_             = val;
+    obj.img_scales_cache_ = [];
+end
+if obj.do_check_combo_arg
+    obj = obj.check_combo_arg();
+end

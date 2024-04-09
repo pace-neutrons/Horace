@@ -1,5 +1,5 @@
 function  new_axes_block = build_from_input_binning(...
-    axes_class_name,cur_img_range_and_steps,pbin)
+    axes_class_or_name,cur_img_range_and_steps,pbin)
 % Build new AxesBlockBase object from the binning parameters, provided
 % as input. If some input binning parameters are missing, the
 % defaults are taken from the existing AxesBlockBase object.
@@ -11,11 +11,13 @@ function  new_axes_block = build_from_input_binning(...
 %       with meaning described by cut_sqw or cut_dnd inputs. See below for more details.
 %
 % Inputs:
-% axes_class_name -- name of the axes block class to build
+% axes_class_or_name -- name of the axes block class to build or empty
+%                       instance of this class
 % cur_img_range_and_steps
 %          --   4-elements cellarray of the ranges and steps of source
-%               image, expressed in the target coordinates and
-%               used as source of default ranges.
+%               image, expressed in the target coordinate system (the system
+%               the new axes block is build for) and used as source of
+%               default ranges.
 %               if these ranges are not specified by pbin
 % pbin     --   4-elements cellarray of input binning parameters, which define
 %               target image binning.
@@ -52,7 +54,11 @@ ind = num2cell(idim);
 targ_img_range = cellfun(@(i,bin_rec,bin_def)parse_pbin(i,bin_rec,bin_def),...
     ind,pbin,cur_img_range_and_steps,'UniformOutput',false);
 
-new_axes_block = feval(axes_class_name);
+if isa(axes_class_or_name,'AxesBlockBase')
+    new_axes_block = axes_class_or_name;
+else
+    new_axes_block = feval(axes_class_or_name);
+end
 new_axes_block = new_axes_block.init(targ_img_range{:});
 
 end
@@ -68,61 +74,61 @@ function range = parse_pbin(ind,bin_req,bin_default)
 %        either copied from requested or from default values
 %
 switch numel(bin_req)
-  case 0 % Default
-    range = bin_default;
+    case 0 % Default
+        range = bin_default;
 
-  case 1 % Rebin
-    if bin_req == 0
-        if numel(bin_default) == 2 % this may fail if bin_default is integration axis
-            error('HORACE:build_from_input_binning:invalid_argument', ...
-                  'User has requested auto-rebin (pbin = [0]) across integration axis (%d).', ind);
+    case 1 % Rebin
+        if bin_req == 0
+            if numel(bin_default) == 2 % this may fail if bin_default is integration axis
+                error('HORACE:build_from_input_binning:invalid_argument', ...
+                    'User has requested auto-rebin (pbin = [0]) across integration axis (%d).', ind);
+            end
+            bin_req = bin_default(2);
         end
-        bin_req = bin_default(2);
-    end
-    range = [bin_default(1),bin_req,bin_default(end)];
+        range = [bin_default(1),bin_req,bin_default(end)];
 
-  case 2 % Integration
+    case 2 % Integration
 
-    range = bin_req;
-    if isinf(range(1))
-        range(1) = bin_default(1);
-    end
-    if isinf(range(end))
-        range(end) = bin_default(end);
-    end
-
-    border = abs(SQWDnDBase.border_size);
-    % we need correct integration range for cut to work but some old file
-    if abs(range(2)-range(1))<2*border  % formats do not store proper
-                                        % img_range and store [centerpoint, centerpoint] for
-                                        % integration ranges. Here we try to mitigate this.
-        av_pt = 0.5*(range(1)+range(2));
-        if abs(av_pt) < border
-            range(1) = -border;
-            range(2) =  border;
-        else
-            range(1) = av_pt*(1 - border);
-            range(2) = av_pt*(1 + border);
+        range = bin_req;
+        if isinf(range(1))
+            range(1) = bin_default(1);
         end
-    end
-
-  case 3 % Projection
-    range = bin_req;
-    if isinf(range(1))
-        range(1) = bin_default(1);
-    end
-    if isinf(range(end))
-        range(end) = bin_default(end);
-    end
-
-    if range(2) == 0
-        if numel(bin_default) == 3
-            range(2) = bin_default(2);
-        else % integrate in ranges, defined by default bin boundaries if step is 0
-             % and the default bin boundaries are integration boundaries
-            range = [range(1),range(3)];
+        if isinf(range(end))
+            range(end) = bin_default(end);
         end
-    end
+
+        border = abs(SQWDnDBase.border_size);
+        % we need correct integration range for cut to work but some old file
+        if abs(range(2)-range(1))<2*border  % formats do not store proper
+            % img_range and store [centerpoint, centerpoint] for
+            % integration ranges. Here we try to mitigate this.
+            av_pt = 0.5*(range(1)+range(2));
+            if abs(av_pt) < border
+                range(1) = -border;
+                range(2) =  border;
+            else
+                range(1) = av_pt*(1 - border);
+                range(2) = av_pt*(1 + border);
+            end
+        end
+
+    case 3 % Projection
+        range = bin_req;
+        if isinf(range(1))
+            range(1) = bin_default(1);
+        end
+        if isinf(range(end))
+            range(end) = bin_default(end);
+        end
+
+        if range(2) == 0
+            if numel(bin_default) == 3
+                range(2) = bin_default(2);
+            else % integrate in ranges, defined by default bin boundaries if step is 0
+                % and the default bin boundaries are integration boundaries
+                range = [range(1),range(3)];
+            end
+        end
 end
 
 % check if number of expected bins < 1, so it is actually integration range
@@ -133,8 +139,8 @@ end
 % check validity of data ranges
 if range(end) < range(1) && ~(numel(range) == 3 && range(2) < 0)
     error('HORACE:AxesBlockBase:invalid_argument',...
-          'Upper limit (%f) smaller then the lower limit (%f) for positive step - check axis N: %d', ...
-          range(end), range(1), ind);
+        'Upper limit (%f) smaller then the lower limit (%f) for positive step - check axis N: %d', ...
+        range(end), range(1), ind);
 end
 
 end

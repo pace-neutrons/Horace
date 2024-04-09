@@ -173,11 +173,6 @@ classdef line_axes < AxesBlockBase
             rest = arrayfun(@(x)zeros(1,0),1:4-ndim,'UniformOutput',false);
             pbin=[repmat({[0,1]},1,ndim),rest];
         end
-        function  [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
-            % take binning parameters and converts them into axes bin ranges
-            % and number of bins defining this axes block
-            [range,nbin]=pbin_parse_(obj,p,p_defines_bin_centers,i);
-        end
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

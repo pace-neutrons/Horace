@@ -11,10 +11,6 @@ classdef LineProjBase < aProjectionBase
     %
     %
     properties(Dependent,Hidden)
-        % scaling factors used in transformation from pix to image
-        % coordinate system. Property of ubmat_proj but calculated in
-        % line_proj
-        img_scales % the scaling factor (in A^-1)
         %------------------------------------------------------------------
         % Properties left for compartibility with old data:
         %
@@ -63,8 +59,6 @@ classdef LineProjBase < aProjectionBase
         % behave differently for ubmat_proj and line_proj
         u_to_rlu = get_u_to_rlu(obj)
         obj      = set_u_to_rlu(obj,u_to_rlu)
-        scales   = get_img_scales(obj);
-        obj      = set_img_scales(obj,val);
     end
     %======================================================================
     % Accessors
@@ -82,13 +76,6 @@ classdef LineProjBase < aProjectionBase
         end
         function obj = set.u_to_rlu(obj,val)
             obj = obj.set_u_to_rlu(val);
-        end
-        %
-        function ul = get.img_scales(obj)
-            ul = get_img_scales(obj);
-        end
-        function obj = set.img_scales(obj,val)
-            obj = obj.set_img_scales(val);
         end
         % OTHER NAMES
         %------------------------------------------------------------------
@@ -122,8 +109,6 @@ classdef LineProjBase < aProjectionBase
             % copy the properties, which are normally defined on projection
             % into the axes block provided as input
             axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
-            [~,~,scales]  = obj.get_pix_img_transformation(3);
-            axes_bl.img_scales  = scales;
             axes_bl.hkle_axes_directions = obj.u_to_rlu;
             %
         end

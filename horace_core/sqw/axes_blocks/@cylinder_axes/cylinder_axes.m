@@ -1,44 +1,44 @@
-classdef sphere_axes < AxesBlockBase
+classdef cylinder_axes < AxesBlockBase
     % The class contains information about axes and scales used for
     % displaying sqw/dnd object and provides scales for neutron image data
-    % when the data are analysed in spherical coordinate system
+    % when the data are analysed in cylindrical coordinate system
     %
     % It also contains main methods, used to produce physical image of the
     % sqw/dnd object
     %
     % Construction:
-    %1) ab = sphere_axes(num) where num belongs to [0,1,2,3,4];
-    %2) ab = sphere_axes([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
+    %1) ab = cylinder_axes(num) where num belongs to [0,1,2,3,4];
+    %2) ab = cylinder_axes([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
     %                                          parameters
     %        or
-    %   ab = sphere_axes([min1,max1],...,[min4,max4]); - 4 binning
+    %   ab = cylinder_axes([min1,max1],...,[min4,max4]); - 4 binning
     %                                          parameters
     %        or any combination of ranges [min,step,max] or [min,max]
-    %3) ab = sphere_axes(structure) where structure contains any fields
+    %3) ab = cylinder_axes(structure) where structure contains any fields
     %                              returned by savebleFields method
-    %4) ab = sphere_axes(param1,param2,param3,'key1',value1,'key2',value2....)
+    %4) ab = cylinder_axes(param1,param2,param3,'key1',value1,'key2',value2....)
     %        where param(1-n) are the values of the fields in the order
     %        fields are returned by saveableFields function.
-    %5) ab = sphere_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
+    %5) ab = cylinder_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     %Note: 
     %       Unlike line_axes, the img_range in the case of
     %       cylindrical axes should lie within alowed limits (0-inf for rho
-    %       [0,pi] for theta and [-pi, pi] for phi.    
+    %       and [-pi, pi] for phi.
     properties(Constant,Access = private)
         % What units each possible dimension type of the spherical projection
         % have:  Currently momentum, angle, and energy transfer may be
         % expressed in Anstrom, radian, degree, meV. The key is the type
-        % letter present in sphere_projection and the value is the unit
+        % letter present in cylinder_projection and the value is the unit
         % caption.
         capt_units = containers.Map({'a','r','d','e'}, ...
             {[char(197),'^{-1}'],'rad','^{o}','meV'})
         default_img_range_ =[ ...
-            0,   0, -180, -1;...  % the range, a object defined with dimensions
-            1 ,180,  180,  1];    % only would have
+            0,-1,-180,-1;...  % the range, a object defined with dimensions
+            1  1, 180, 1];    % only would have
         % what symbols axes_units can have
-        types_available_ = {'a',{'d','r'},{'d','r'},'e'};
+        types_available_ = {'a','a',{'d','r'},'e'};
 
     end
     properties(Dependent)
@@ -55,8 +55,8 @@ classdef sphere_axes < AxesBlockBase
 
     properties(Access = protected)
         % if angular dimensions of the axes are expressed in radians or degrees
-        angular_unit_is_rad_ = [false,false];
-        axes_units_ = 'adde';
+        angular_unit_is_rad_ = false;
+        axes_units_ = 'aade';
     end
     properties(Access=private)
         % helper properties used in setting angular units image range and
@@ -66,30 +66,30 @@ classdef sphere_axes < AxesBlockBase
         % If only angular_unit_is_rad have changed, the image range have to
         % be recalculated from degree to radians of v.v..
         old_angular_unit_is_rad_  = [];
-        img_range_set_        = false;
+        img_range_set_            = false;
     end
 
     methods
         %
-        function obj = sphere_axes(varargin)
+        function obj = cylinder_axes(varargin)
             % constructor
             %
-            %>>obj = sphere_axes() % return empty axis block
-            %>>obj = sphere_axes(ndim) % return unit block with ndim
+            %>>obj = cylinder_axes() % return empty axis block
+            %>>obj = cylinder_axes(ndim) % return unit block with ndim
             %                           dimensions
-            %>>obj = sphere_axes(p1,p2,p3,p4) % build axis block from axis
+            %>>obj = cylinder_axes(p1,p2,p3,p4) % build axis block from axis
             %                                  arrays
-            %>>obj = sphere_axes(pbin1,pbin2,pbin3,pbin4) % build axis block
+            %>>obj = cylinder_axes(pbin1,pbin2,pbin3,pbin4) % build axis block
             %                                       from binning parameters
             %
-            % Maximal possible img_range to check against:
+
             obj.max_img_range_ = [...
-                0  ,  0, -180, -inf;...
-                inf,180,  180,  inf];
-            %
+                0  ,-inf,-180, -inf;...
+                inf, inf, 180,  inf];
+            % empty spherical range:
             obj.img_range_ = obj.default_img_range_;
-            %
-            obj.label = {'|Q|','\theta','\phi','En'};
+
+            obj.label = {'Q_{tr}','Q_{||}','\phi','En'};
             obj.changes_aspect_ratio_ = false;
             if nargin == 0
                 return;
@@ -125,7 +125,7 @@ classdef sphere_axes < AxesBlockBase
         function [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
                 data_plot_titles(obj)
             % Get titling and caption information for the sqw data
-            % structure containing spherical projection
+            % structure containing cylindrical projection
             [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
                 data_plot_titles_(obj);
         end
@@ -152,10 +152,8 @@ classdef sphere_axes < AxesBlockBase
         %
         function range = get.default_img_range(obj)
             range  = obj.default_img_range_;
-            for i=1:2
-                if obj.angular_unit_is_rad_(i)
-                    range(:,1+i) = deg2rad(range(:,1+i));
-                end
+            if obj.angular_unit_is_rad_
+                range(:,3) = deg2rad(range(:,3));
             end
         end
     end
@@ -188,7 +186,7 @@ classdef sphere_axes < AxesBlockBase
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % savable class
-            obj = sphere_axes();
+            obj = cylinder_axes();
             obj = loadobj@serializable(S,obj);
         end
     end
@@ -227,11 +225,8 @@ classdef sphere_axes < AxesBlockBase
             % in the structure does not correspond to the current version
             % of the class.
             if isfield(inputs,'angular_unit_is_rad')
-                ax_unit = {'a','d','d','e'};
-                if inputs.angular_unit_is_rad(1)
-                    ax_unit{2} = 'r';
-                end
-                if inputs.angular_unit_is_rad(2)
+                ax_unit = {'a','a','d','e'};
+                if inputs.angular_unit_is_rad
                     ax_unit{3} = 'r';
                 end
                 inputs.axes_units = [ax_unit{:}];

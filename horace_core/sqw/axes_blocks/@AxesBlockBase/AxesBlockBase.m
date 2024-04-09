@@ -76,7 +76,7 @@ classdef AxesBlockBase < serializable
         % axes block describes
         img_range;
         %
-        img_scales   %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        img_scales   %Length of projection axes vectors in Ang^-1, meV or rad/deg [row vector]
         %
         dimensions;  % Number of AxesBlockBase object dimensions
 
@@ -127,7 +127,7 @@ classdef AxesBlockBase < serializable
         filepath_=''   % Path to sqw file that is being read, including terminating file separator.
         %               Used in titles
         label_  = {'Q_h','Q_k','Q_l','En'}; %Labels of the projection axes [1x4 cell array of character strings]
-        img_scales_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        img_scales_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1, meV or rad/deg [row vector]
         img_range_      = ... % 2x4 vector of min/max values in 4-dimensions
             PixelDataBase.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf]
 
@@ -712,16 +712,18 @@ classdef AxesBlockBase < serializable
         obj = check_and_set_img_range(obj,val);
         % defines bins used when default constructor with dimensions only is called.
         pbin = default_pbin(obj,ndim)
-        % takes binning parameters converts it into axis binning for the
-        % given axes
-        [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
         % calculate bin volume from the  axes of the axes block or input
         % axis organized in cellarray of 4 axis.
-
         volume = calc_bin_volume(obj,axis_cell)
     end
     %======================================================================
     methods(Access=protected)
+        function  [range,nbin,ok,mess]=pbin_parse(obj,p,p_defines_bin_centers,range_limits)
+            % take binning parameters and converts them into axes bin ranges
+            % and number of bins defining this axes block
+            [range,nbin,ok,mess]=pbin_parse_(obj,p,p_defines_bin_centers,range_limits);
+        end
+
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various

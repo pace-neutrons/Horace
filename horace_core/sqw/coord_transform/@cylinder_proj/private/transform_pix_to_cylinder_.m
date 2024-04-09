@@ -1,4 +1,4 @@
-function pix_transf = transform_pix_to_spher_(obj,pix_input,varargin)
+function pix_transf = transform_pix_to_cylinder_(obj,pix_input,varargin)
 % Transform pixels expressed in crystal Cartesian coordinate systems
 % into image coordinate system
 %
@@ -28,7 +28,7 @@ else % if pix_input is 4-d, this will use 4-D matrix and shift
     input_is_obj = false;
 end
 
-[rot_mat,offset_cc,scales,offset_present,obj] = ...
+[rot_mat,offset_cc,scales,offset_present] = ...
     obj.get_pix_img_transformation(ndim,pix_input);
 
 %
@@ -37,12 +37,12 @@ if offset_present
 else
     pix_transf=  rot_mat*pix_cc;
 end
-[azimuth,elevation,r] = cart2sph(pix_transf(1,:),pix_transf(2,:),pix_transf(3,:));
+[phi,rho,z] = cart2pol(pix_transf(1,:),pix_transf(2,:),pix_transf(3,:));
 
 if ndim == 4
-    pix_transf = [r*scales(1); scales(2)*(pi/2-elevation); azimuth*scales(3); pix_transf(4,:)];
+    pix_transf = [scales(1)*rho; scales(2)*z; scales(3)*phi;  pix_transf(4,:)];
 else
-    pix_transf = [r*scales(1); scales(2)*(pi/2-elevation); azimuth*scales(3)];
+    pix_transf = [scales(1)*rho; scales(2)*z; scales(3)*phi];
 end
 if input_is_obj
     if shift_ei
