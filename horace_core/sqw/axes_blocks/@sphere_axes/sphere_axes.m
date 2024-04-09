@@ -24,7 +24,7 @@ classdef sphere_axes < AxesBlockBase
     %       from the image range and number of bins in all directions.
     %Note: 
     %       Unlike line_axes, the img_range in the case of
-    %       cylindrical axes should lie within alowed limits (0-inf for rho
+    %       spherical axes should lie within alowed limits (0-inf for rho
     %       [0,pi] for theta and [-pi, pi] for phi.    
     properties(Constant,Access = private)
         % What units each possible dimension type of the spherical projection
