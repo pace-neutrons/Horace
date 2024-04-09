@@ -37,17 +37,17 @@ targ_grid_present = nullify_edges(targ_grid_present,szn);
 conv_grid = source_proj.from_this_to_targ_coord(source_grid);
 
 % find the presence of the reference grid centres within the target grid
-% cells.
+% cells. If reference grid is present its signal is higher then 0
 if source_proj.do_3D_transformation_
     interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},targ_grid_present,...
         conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)', 'linear',0);
-    targ_nodes = targ_axes_block.get_bin_nodes('-3D','-hull');
+    targ_nodes = targ_axes_block.get_bin_nodes('-3D');
 else
     interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},targ_nodes{4},targ_grid_present,...
         conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)',conv_grid(4,:)', 'linear',0);
-    targ_nodes = targ_axes_block.get_bin_nodes('-hull');
+    targ_nodes = targ_axes_block.get_bin_nodes();
 end
-% verify if hull nodes may contribute to the cut, which may be 
+% verify if target nodes may contribute to the cut, which may be 
 % the case when source cells are larger and fully contain the cut cells
 targ_nodes = target_proj.from_this_to_targ_coord(targ_nodes);
 cell_dist = source_axes_block.bin_pixels(targ_nodes);

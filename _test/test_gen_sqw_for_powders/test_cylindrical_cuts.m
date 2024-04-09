@@ -96,7 +96,7 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             rmpath(obj.test_helpers_path);
         end
         %------------------------------------------------------------------
-        function obj = test_cyl_cut_coarse_eq_file_2D_ThetaPhi(obj)
+        function obj = test_cyl_cut_coarse_eq_fine_2D_ThetaPhi(obj)
             spp = cylinder_proj;
             spp.type = 'aad';
 
@@ -111,8 +111,8 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             spp.type = 'aad';
 
             %w2_tot=cut(sqw_a,0.1,0.1,[40,50],'-nopix');
+            w2_f = cut_sqw(obj.sqw_file_fine,spp,0.1,0.1,[-180,180],[40,50]);            
             w2_c = cut_sqw(obj.sqw_file_coarse,spp,0.1,0.1,[-180,180],[40,50]);
-            w2_f = cut_sqw(obj.sqw_file_fine,spp,0.1,0.1,[-180,180],[40,50]);
 
             plh=plot(w2_c);
             keep_figure;
