@@ -2,15 +2,44 @@ function range = targ_range(obj,targ_proj,varargin)
 %TARG_RANGE calculate the full range of the image to be produced by target
 % projection from the current image,
 %
+% Inputs:
+% obj        -- dnd object - source of image ranges to process
+% targ_proj  -- aProjectionBase class which defines target coordinate
+%               system where the range should be identified.
 % Optional:
+%  ranges_requested 
+%            -- four element logical array, where true states the requested
+%               range to identify. This is used for identifying the ranges
+%               of orthogonal dimensions (i.e. dE so that if only 
+%
 % '-binning' if present, the method returns range as cellarray of binning
 %            parameters, i.e. the parameters which you would provide to cut
 %            to get the target cut in the ranges produced
+% Output:
+% range     -- 2x4 element array of min-max ranges, the ranges of the input
+%              object will occupy in the target coordinate system.
+%              if "-binning" is requested, this range is transformed into 4
+%              element cellarray, where each cell contains binning
+%              parameters in the form which provides initial binning range
+%            
+%             when range_requested for an element of binning range is
+%             false, the range for this element is [-inf;inf] or corresponding
+%             cell in "-binning" mode is empty.
 %
 %
-[ok,mess,do_binning_range] = parse_char_options(varargin,'-binning');
+[ok,mess,do_binning_range,argi] = parse_char_options(varargin,'-binning');
 if ~ok
     error('HORACE:DnDBase:invalid_argument',mess);
+end
+if isempty(argi)
+    ranges_requested = true(1,4);
+else
+    ranges_requested = logical(argi{1});    
+    if numel(ranges_requested) ~= 4
+            error('HORACE:DnDBase:invalid_argument',...
+                'Requested range array needs to 4 elements. Actually, its size is :%s',...
+            disp2str(size(range_requested)));
+    end
 end
 if ~exist('targ_proj','var') || isempty(targ_proj)
     % getting binning range which produced existing DnD object
@@ -46,7 +75,7 @@ else
     else
         % if not, analyse cut hull to understand what ranges can be
         % specified
-        range = search_for_range(obj,source_proj);
+        range = search_for_range(obj,source_proj,ranges_requested);
     end
 end
 if do_binning_range
@@ -56,6 +85,11 @@ end
 
 function bin_range = build_binning(min_range,max_range,nsteps)
 % simple procedure which convert range into binning parameters
+if isinf(min_range)
+    bin_range = [];
+    return;
+end
+
 if nsteps == 1% integration range
     bin_range = [min_range,max_range];
     return
@@ -64,13 +98,20 @@ step = (max_range-min_range)/(nsteps);
 % axis binning parameters
 bin_range = [min_range+step/2,step,max_range-step/2];
 
-function range = search_for_range(obj,source_proj)
+function range = search_for_range(obj,source_proj,ranges_requested)
 % find the maximal range, the current grid occupies in target coordinate
 % system
 %
 % The most primitive and pretty memory expensive search algorithm possible.
 %
+range = repmat([-inf;inf],1,4);
 [range0,dE_range] = transf_range(obj,source_proj,1);
+if source_proj.do_3D_transformation
+    range(:,4) = dE_range;
+end
+if sum(ranges_requested) == 1 && ranges_requested(4)
+    return;
+end
 difr = 1;
 node_mult = 2;
 while difr>1.e-3 && node_mult<33 % node multiplier doubles number of points
@@ -101,7 +142,7 @@ else
     dE_range = [];
 end
 shell_transf = source_proj.from_this_to_targ_coord(shell);
-loc_range = [min(shell_transf,[],2),max(shell_transf,[],2)]';
+loc_range = min_max(shell_transf)';
 
 function difr = calc_difr(range0,range)
 % calculate maximal difference between two ranges

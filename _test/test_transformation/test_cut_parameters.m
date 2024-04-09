@@ -391,6 +391,32 @@ classdef test_cut_parameters < TestCase
             assertTrue(isempty(opt.outfile));
         end
         %
+        function test_get_dE_binning_only(~)
+            ax = line_axes('nbins_all_dims',[40,40,40,100],'img_range',[-2,-2,-2,0;2,2,2,10]);
+            proj = line_proj('alatt',1,'angdeg',90);
+            dnd_obj =  DnDBase.dnd(ax,proj);
+            cp = cylinder_proj();
+
+            requested = [false,false,false,true];
+            img_range = dnd_obj.targ_range(cp,requested,'-binning');
+            ref_range = {[],[],[],[0.05,0.1,9.95]};
+
+            assertEqualToTol(img_range,ref_range);
+        end
+
+        function test_get_dE_range_only(~)
+            ax = line_axes('nbins_all_dims',[40,40,40,100],'img_range',[-2,-2,-2,0;2,2,2,10]);
+            proj = line_proj('alatt',1,'angdeg',90);
+            dnd_obj =  DnDBase.dnd(ax,proj);
+            cp = cylinder_proj();
+
+            requested = [false,false,false,true];
+            img_range = dnd_obj.targ_range(cp,requested);
+            ref_range = [-inf,-inf,-inf,0;inf,inf,inf,10];
+
+            assertElementsAlmostEqual(img_range,ref_range);
+        end
+        %
         function test_unrecognized_extra_par_throw(obj)
             %
             sqw_samp = obj.sample_files{1};
