@@ -33,6 +33,8 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     % i.e. affect all pixels and recalculate image according to changes
     %  in pixels or vise versa.
     methods(Abstract)
+        % calculate function defined on image and return sqw/dnd object
+        % with signal set to values of this function
         wout = func_eval(win, func_handle, pars, varargin);
         %
         [wout,mask_array] = mask(win, mask_array); % mask image data and
@@ -52,6 +54,8 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     %----------------------------------------------------------------------
     % PageOp methods implemented on this level
     methods
+        % calculate function defined on hkle values of sqw obect and return
+        % object with image and pixels containing values of this function.
         wout = sqw_eval(win, sqwfunc, pars, varargin);
     end
     %----------------------------------------------------------------------
