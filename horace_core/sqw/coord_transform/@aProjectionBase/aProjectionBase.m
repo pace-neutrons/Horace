@@ -544,24 +544,6 @@ classdef aProjectionBase < serializable
                         'This function requests 1, 3, 4, 5, 6 or 7 output arguments');
             end
         end
-        function bound_dim_id = get_bound_dimensions(obj,max_img_ranges,selected_dimensions)
-            % return dimensions id, connected with the source dimensions
-            % ID-s by target projection, or in other words, the ID-s of the
-            % dimensions which change when input dimensions change.
-            %
-            % E.g. if source coordinate system is linear system and target
-            % coordinate system is spherical coordinate system, the changes
-            % in dimension 1 (ex) bring changes to |Q| (dim 1) if spherical
-            % projeciton's vector u is directed along [1,0,0] and offset is
-            % [0,0,0,0] or contribute to |Q|-theta dimensions (dim ID-s 1,2)
-            % if offset is [0,1,0,0]
-            %
-            % To use this method target projection have to be set.
-            if nargin<3
-                selected_dimensions = true(1,4);
-            end
-            bound_dim_id = get_bound_dimensions_(obj,max_img_ranges,selected_dimensions);
-        end
     end
     %======================================================================
     % TRANSFORMATIONS

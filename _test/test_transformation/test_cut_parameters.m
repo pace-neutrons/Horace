@@ -428,31 +428,5 @@ classdef test_cut_parameters < TestCase
                 100,200),...
                 'HORACE:cut:invalid_argument');
         end
-        %------------------------------------------------------------------
-        function test_get_bound_dimensions_cyl2lin_default(~)
-            pr = cylinder_proj('alatt',2,'angdeg',90);
-            pr.targ_proj = line_proj();
-            ca = cylinder_axes();
-            bound_dim = pr.get_bound_dimensions(ca.max_img_range);
-            ref_cov = logical([...
-                0,1,1,0;...
-                1,0,0,0;...
-                0,1,1,0;...
-                0,0,0,1]);
-            assertEqual(bound_dim,ref_cov);
-        end
-        
-        function test_get_bound_dimensions_lin_2cyl_default(~)
-            pr = line_proj('alatt',2,'angdeg',90);
-            pr.targ_proj = cylinder_proj();
-            ax = line_axes;
-            bound_dim = pr.get_bound_dimensions(ax.max_img_range);
-            ref_cov = logical([...
-                0,1,1,0;...
-                1,0,0,0;...
-                0,1,1,0;...
-                0,0,0,1]);
-            assertEqual(bound_dim,ref_cov);
-        end
     end
 end
