@@ -120,6 +120,10 @@ classdef AxesBlockBase < serializable
         % hkl-dE coordinate system (in rlu-dE, hkl units, not rotated)
         offset
     end
+    properties(Dependent,Hidden)
+        % maximal range the image can have
+        max_img_range
+    end
 
     properties(Access=protected)
         title_   =''   % Title of sqw data structure
@@ -380,6 +384,9 @@ classdef AxesBlockBase < serializable
             steps = (obj.img_range(2, obj.pax) - obj.img_range(1, obj.pax)) ./ (obj.nbins_all_dims(obj.pax)-1);
         end
 
+        function range = get.max_img_range(obj)
+            range = obj.max_img_range_;
+        end
     end
     %======================================================================
     % Integration, interpolation and binning

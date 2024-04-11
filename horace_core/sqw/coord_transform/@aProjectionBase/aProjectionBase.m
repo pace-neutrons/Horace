@@ -544,7 +544,7 @@ classdef aProjectionBase < serializable
                         'This function requests 1, 3, 4, 5, 6 or 7 output arguments');
             end
         end
-        function bound_dim_id = get_bound_dimensions(obj,source_dim_ids)
+        function bound_dim_id = get_bound_dimensions(obj,max_img_ranges,selected_dimensions)
             % return dimensions id, connected with the source dimensions
             % ID-s by target projection, or in other words, the ID-s of the
             % dimensions which change when input dimensions change.
@@ -557,7 +557,10 @@ classdef aProjectionBase < serializable
             % if offset is [0,1,0,0]
             %
             % To use this method target projection have to be set.
-            bound_dim_id = get_bound_dimensions_(obj,source_dim_ids);
+            if nargin<3
+                selected_dimensions = true(1,4);
+            end
+            bound_dim_id = get_bound_dimensions_(obj,max_img_ranges,selected_dimensions);
         end
     end
     %======================================================================
@@ -825,6 +828,12 @@ classdef aProjectionBase < serializable
                     ' Attempted to use: %s'],...
                     disp2str(val))
             end
+            if ~val.alatt_defined
+                val.alatt = obj.alatt;
+            end
+            if ~val.angdeg_defined
+                val.angdeg = obj.angdeg;
+            end            
             obj.targ_proj_ = val;
             obj.do_3D_transformation_ = val.do_3D_transformation;
         end
@@ -1004,6 +1013,7 @@ classdef aProjectionBase < serializable
         % to image coordinate system
         varargout = get_pix_img_transformation(obj,ndim,varargin);
     end
+    %
     methods(Abstract,Access=protected)
         scales   = get_img_scales(obj);
         obj      = set_img_scales(obj,val);
