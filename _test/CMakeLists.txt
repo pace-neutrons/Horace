@@ -2,8 +2,7 @@
 # ========================================================================
 # ===                                                                  ===
 # ===  Please ensure that any alterations you make to the directories  ===
-# ===  in TEST_DIRECTORIES_HERBERT and TEST_DIRECTORIES_HORACE are     ===
-# ===  also made in validate_horace.m                                  ===
+# ===  in TEST_DIRECTORIES_HORACE are  also made in validate_horace.m  ===
 # ===                                                                  ===
 # ===  This will ensure that they perform the same tests.              ===
 # ===                                                                  ===
@@ -22,11 +21,11 @@ set(TEST_DIRECTORIES_HORACE
     "test_map_mask"
     "test_multifit_herbert"
     "test_utilities_herbert"
+    "test_utilities_herbert_geometry"    
     "test_serializers"
     "test_instrument_classes"
     "test_unique_objects_container"
     "test_docify"
-    "test_geometry"
     "test_xunit_framework"
     "test_mpi_wrappers"
     "test_mpi/test_ParpoolMPI_Framework"
