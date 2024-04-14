@@ -32,6 +32,8 @@ classdef aProjectionBase < serializable
         %
         offset;     % Offset of origin of the projection in r.l.u.
         %           % and energy i.e. [h; k; l; en] [row vector]
+        type;   % Character string length 3 defining normalisation, specific
+        %         to a projection type
         %---------------------------------
         label % the method which allows user to change labels present on a
         %      cut
@@ -96,7 +98,7 @@ classdef aProjectionBase < serializable
         % returns true if lattice angles have been set up
         angdeg_defined
         % Helper property, which specifies the name of the axes class,
-        % which corresponds to this projection
+        % which corresponds to this projection. The class has to be defined
         axes_name
     end
 
@@ -143,6 +145,8 @@ classdef aProjectionBase < serializable
         % algorithmically simpler so actively used in tests.
         do_3D_transformation_ = true;
         %------------------------------------------------------------------
+        %
+        type_ = ''        
     end
     %======================================================================
     % ACCESSORS AND CONSTRUCTION
@@ -265,6 +269,14 @@ classdef aProjectionBase < serializable
             end
             obj.title_ = val;
         end
+        %
+        function typ=get.type(obj)
+            typ = obj.type_;
+        end
+        function obj=set.type(obj,type)
+            obj = check_and_set_type(obj,type);
+        end
+        
         function bm = bmatrix(obj,ndim)
             % Return b-matrix defined on this projection lattice.
             %
@@ -588,7 +600,8 @@ classdef aProjectionBase < serializable
             % pix_img   -- 4xNpix or 3xNpix vector of pixels coordinates
             %              expressed in the coordinate system defined by
             %              this projection
-            pix_img = obj.bmatrix() * pix_hkl;
+            ndim = size(pix_hkl,1);
+            pix_img = obj.bmatrix(ndim) * pix_hkl;
         end
 
         function pix_img = transform_hkl_to_img(obj,pix_hkl,varargin)
@@ -608,7 +621,8 @@ classdef aProjectionBase < serializable
             % pix_img   -- 4xNpix or 3xNpix vector of pixels coordinates
             %              expressed in the coordinate system defined by
             %              this projection
-            pix_img = obj.transform_pix_to_img(obj.bmatrix() * pix_hkl);
+            ndim  = size(pix_hkl,1);
+            pix_img = obj.transform_pix_to_img(obj.bmatrix(ndim) * pix_hkl);
         end
 
         function pix_hkl = transform_img_to_hkl(obj,img_coord,varargin)
@@ -695,24 +709,24 @@ classdef aProjectionBase < serializable
     % Related Axes and Alignment
     methods
         %
-        function ax_bl = get_proj_axes_block(obj,def_bin_ranges,req_bin_ranges)
+        function ax_bl = get_proj_axes_block(obj,default_bin_ranges,requested_bin_ranges)
             % Construct the axes block, corresponding to this projection class
-            % Returns generic AxesBlockBase, built from the block ranges or the
-            % binning ranges.
+            % Returns projection-specific AxesBlockBase class, built from the
+            % block ranges or the binning ranges.
             %
-            % Usually overloaded for specific projection and specific axes
-            % block to return the particular AxesBlockBase specific for the
+            % Usually overloaded for specific projection
+            % to add the particular axes_block properties, specific for the
             % projection class.
             %
             % Inputs:
-            % def_bin_ranges --
+            % default_bin_ranges --
             %           cellarray of the binning ranges used as defaults
             %           if requested binning ranges are undefined or
             %           infinite. Usually it is the range of the existing
             %           axes block, transformed into the system
             %           coordinates, defined by cut projection using
             %           dnd.targ_range(targ_proj) method.
-            % req_bin_ranges --
+            % requested_bin_ranges --
             %           cellarray of cut bin ranges, requested by user.
             %
             % Returns:
@@ -720,8 +734,10 @@ classdef aProjectionBase < serializable
             %          numbers of  bins in each direction, AxesBlockBase
             %          corresponding to the projection
             ax_name = obj.axes_name;
+            ax_class = feval(ax_name);
+            ax_class.axes_units = obj.type;
             ax_bl = AxesBlockBase.build_from_input_binning(...
-                ax_name,def_bin_ranges,req_bin_ranges);
+                ax_class,default_bin_ranges,requested_bin_ranges);
             ax_bl = obj.copy_proj_defined_properties_to_axes(ax_bl);
         end
         %
@@ -815,7 +831,7 @@ classdef aProjectionBase < serializable
             end
             if ~val.angdeg_defined
                 val.angdeg = obj.angdeg;
-            end            
+            end
             obj.targ_proj_ = val;
             obj.do_3D_transformation_ = val.do_3D_transformation;
         end
@@ -999,6 +1015,9 @@ classdef aProjectionBase < serializable
     methods(Abstract,Access=protected)
         scales   = get_img_scales(obj);
         obj      = set_img_scales(obj,val);
+
+        % set projection type, changing the units of angular dimensions if 
+        obj = check_and_set_type(obj,val)% necessary/present
     end
     %======================================================================
     % Serializable interface

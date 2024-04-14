@@ -70,7 +70,7 @@ else
 
     % can we deploy simple case of linear projections or curvelinear
     % projections with the same centre?
-    cur_range = obj.img_range;
+    current_range = obj.img_range;
     offset_diffr = source_proj.offset - targ_proj.offset;
     if targ_proj.do_3D_transformation
         is_zero_off  = any(abs(offset_diffr(1:3))<eps('single'));
@@ -81,16 +81,18 @@ else
     if isa(source_proj,class(targ_proj)) && (is_zero_off || isa(source_proj,'LineProjBase'))
         % if both projections relate to the same type of coordinate system,
         % the min/max range evaluation will be trivial
-        full_range = expand_box(cur_range(1,:),cur_range(2,:));
+        full_range = expand_box(current_range(1,:),current_range(2,:));
         full_targ_range = source_proj.from_this_to_targ_coord(full_range);
         range = min_max(full_targ_range)';
     else
         % if not, analyse cut hull to understand what ranges can be
-        % specified
+        % specified. This else brings together all curvilinear projections
+        % and uses the fact that first coordinate of these coordinate
+        % system changes from 0 to inf.
         targ_center = source_proj.transform_hkl_to_img(targ_proj.offset(:));
-        is_in       = in_range(cut_range,targ_center);
+        is_in       = in_range(current_range,targ_center);
 
-        range = search_for_range(obj,source_proj,is_in,ranges_requested);
+        range = search_for_range(obj,source_proj,targ_proj,is_in,ranges_requested);
     end
     the_range(:,ranges_requested) = range(:,ranges_requested);
 end
@@ -98,6 +100,87 @@ if do_binning_range
     nsteps = obj.axes.nbins_all_dims;
     the_range  = arrayfun(@build_binning,the_range(1,:),the_range(2,:),nsteps,'UniformOutput',false);
 end
+%
+function out_range = search_for_range(obj,source_proj,targ_proj,in_ranges,ranges_requested)
+% find the maximal range, the current grid occupies in target coordinate
+% system
+%
+range_defined  = false(2,4);
+img_range = obj.axes.img_range;
+switch in_ranges
+    case -1
+        nbins_per_dim = ones(1,4);
+        out_range     = repmat([-inf;inf],1,4);
+        max_out_range = out_range;
+    case 0
+        nbins_per_dim = 10*ones(1,4);
+        % caclculations show that only spherical or cylindrical projection
+        % may come here. Bad for some stray projection in a future
+        if isa(targ_proj,'CurveProjBase')
+            max_out_range(1,1) = 0;
+            range_defined(1,1) = true;
+        end
+    case 1 % Center is inside of the hull surrounding the data
+        nbins_per_dim = 10*ones(1,4);
+
+        taxes         = feval(targ_proj.axes_name);
+        taxes.type    = targ_proj.type;
+        max_out_range = taxes.max_img_range;
+        range_defined = ~isinf(max_out_range);
+end
+%
+if source_proj.do_3D_transformation
+    range_defined   = range_defined(:,1:3);
+    out_range(:,4)  = img_range(:,4); % dE range is orthogonal to others and is not transformed
+    img_range       = img_range(:,1:3);
+    nbins_per_dim   = nbins_per_dim(1:3);
+    max_out_range   = max_out_range(:,1:3);
+    ranges_requested= ranges_requested(1:3);
+end
+range_known = all(range_defined,1);
+if ~any(ranges_requested(~range_known))
+    return;
+end
+
+range0 = transf_range(source_proj,img_range,nbins_per_dim,range_defined,max_out_range);
+difr = 1;
+ic   = 1;
+while difr>1.e-3 && ic <= 5 % node multiplier doubles number of points
+    % on each iteration step and goes 2,4,8,16,32. As the number of points increases on the hull,
+    % it is still not too big number so memory requests are acceptable.
+    nbins_per_dim   = nbins_per_dim*2;
+    range = transf_range(source_proj,img_range,nbins_per_dim,range_defined,max_out_range);
+    difr = calc_difr(range0,range);
+    range0 = range;
+    ic = ic+1;
+end
+if ic > 5 && difr>1.e-3
+    warning('HORACE:targ_range', ...
+        ['target range search algorithm have not converged after 5 iterations.\n', ...
+        ' The default range identified for the cut may be inaccurate'])
+end
+%
+if source_proj.do_3D_transformation
+    out_range(:,1:3) = range;
+end
+
+function loc_range = transf_range(source_proj,img_range,nbins_all_dims,range_defined,out_range)
+% transfer axes hull into target coordinate system.
+
+shell = build_hull(img_range,nbins_all_dims);
+
+shell_transf = source_proj.from_this_to_targ_coord(shell);
+
+loc_range = min_max(shell_transf)';
+if any(range_defined(:))
+    loc_range(range_defined) =out_range(range_defined);
+end
+
+function difr = calc_difr(range0,range)
+% calculate maximal difference between two ranges
+min_difr = max(-(range(1,:)-range0(1,:)));
+max_difr = max((range(2,:)-range0(2,:)));
+difr     = max(min_difr,max_difr);
 
 function bin_range = build_binning(min_range,max_range,nsteps)
 % simple procedure to convert img_range into binning parameters
@@ -114,56 +197,3 @@ step = (max_range-min_range)/(nsteps);
 % axis binning parameters
 bin_range = [min_range+step/2,step,max_range-step/2];
 
-function out_range = search_for_range(obj,source_proj,in_ranges,ranges_requested)
-% find the maximal range, the current grid occupies in target coordinate
-% system
-%
-%
-
-out_range = repmat([-inf;inf],1,4);
-nbins_per_dim = 10*ones(1,4);
-img_range = obj.axes.img_range;
-range0 = transf_range(source_proj,img_range,nbins_per_dim);
-if source_proj.do_3D_transformation
-    out_range(:,4) = range0(:,4); % dE range is orthogonal to others and is not transformed
-    img_range = img_range(:,1:3);
-    nbins_per_dim = nbins_per_dim(1:3);
-    range0    = range0(:,1:3);
-end
-if sum(ranges_requested) == 1 && ranges_requested(4)
-    return;
-end
-difr = 1;
-ic   = 1;
-while difr>1.e-3 && ic <= 5 % node multiplier doubles number of points
-    % on each iteration step and goes 2,4,8,16,32. As the number of points increases on the hull,
-    % it is still not too big number so memory requests are acceptable.
-    nbins_per_dim   = nbins_per_dim*2;
-    range = transf_range(source_proj,img_range,nbins_per_dim);
-    difr = calc_difr(range0,range);
-    range0 = range;
-    ic = ic+1;
-end
-if ic > 5 && difr>1.e-3
-    warning('HORACE:targ_range', ...
-        ['target range search algorithm have not converged after 5 iterations.\n', ...
-        ' The default range identified for the cut may be inaccurate'])
-end
-%
-if source_proj.do_3D_transformation
-    out_range(:,1:3) = range;
-end
-
-function loc_range = transf_range(source_proj,img_range,nbins_all_dims)
-% transfer axes hull into target coordinate system.
-
-shell = build_hull(img_range,nbins_all_dims);
-
-shell_transf = source_proj.from_this_to_targ_coord(shell);
-loc_range = min_max(shell_transf)';
-
-function difr = calc_difr(range0,range)
-% calculate maximal difference between two ranges
-min_difr = max(-(range(1,:)-range0(1,:)));
-max_difr = max((range(2,:)-range0(2,:)));
-difr     = max(min_difr,max_difr);

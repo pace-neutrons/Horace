@@ -242,6 +242,11 @@ classdef instr_proj<aProjectionBase
         function proj = get_target_proj(~)
             proj = line_proj();
         end
+        function obj = check_and_set_type(varargin)
+            error('HORACE:instr_proj:not_implemented', ...
+                'instr_proj does not currently accepts "type" property as do not support scaling')
+        end
+        
 
     end
     %=====================================================================

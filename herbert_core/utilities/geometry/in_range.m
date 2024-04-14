@@ -1,4 +1,4 @@
-function [in_details,in] = in_range(min_max_ranges,coord)
+function [in,in_details] = in_range(min_max_ranges,coord)
 %IN_RANGE identifies if the input coordinates lie within the
 %specified data range.
 %
@@ -20,14 +20,16 @@ nDims = size(min_max_ranges,2);
 nVectors = size(coord,2);
 outside  = coord < min_max_ranges(1,:)' | coord >  min_max_ranges(2,:)';
 equal    = coord== min_max_ranges(1,:)' | coord == min_max_ranges(2,:)';
-in_details = ones(nDims,nVectors);
 
-in_details(outside) = -1;
-in_details(equal)   = 0;
+
+in = ones(1,nVectors);
+in(any(outside,1)) = -1;
+in(any(equal,1))   = 0;
+
 if nargout > 1
-    in = ones(1,nVectors);
-    in(any(outside,1)) = -1;
-    in(any(equal,1))   = 0;
+    in_details = ones(nDims,nVectors);
+    in_details(outside) = -1;
+    in_details(equal)   = 0;
 else
-    in = [];
+    in_details = [];
 end

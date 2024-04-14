@@ -22,7 +22,7 @@ classdef test_in_ranges < TestCase
             vec(3,3) = 3;
             vec(:,4) = 5;
 
-            [in_details,in] = in_range(box,vec);
+            [in,in_details] = in_range(box,vec);
 
             assertEqual(in,[1,-1,0,-1]);
             assertEqual(in_details,[1,1,1;-1,1,1;1,1,0;-1,-1,-1]');
@@ -32,7 +32,7 @@ classdef test_in_ranges < TestCase
             box = [-1,-2,-3;1,2,3];
             vec = zeros(3,1);
 
-            [in_details,in] = in_range(box,vec);
+            [in,in_details] = in_range(box,vec);
 
             assertEqual(in,1);
             assertEqual(in_details,ones(3,1));

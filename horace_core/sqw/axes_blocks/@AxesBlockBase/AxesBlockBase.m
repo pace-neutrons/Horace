@@ -1,6 +1,7 @@
 classdef AxesBlockBase < serializable
     % The class contains information about axes and scales used for
-    % displaying sqw/dnd object and provides scales for neutron image data.
+    % displaying sqw/dnd object and provides scales for neutron image data
+    % binned on a grid, defined by this class
     %
     % It also contains main methods, used to produce physical image of the
     % sqw/dnd object
@@ -22,6 +23,7 @@ classdef AxesBlockBase < serializable
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     properties(Dependent)
+        % Legacy projection interface
         % Title of sqw data structure, displayed on plots.
         title;
 
@@ -70,22 +72,30 @@ classdef AxesBlockBase < serializable
         %Cell array containing bin boundaries along the plot axes [column vectors]
         %   e.g. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
         p;
-
+    end
+    % 
+    properties
         %------------------------------------------------------------------
         % The range (in axes coordinate system), the binning is made and the
-        % axes block describes
+        % axes block describes.
         img_range;
-        %
-        img_scales   %Length of projection axes vectors in Ang^-1, meV or rad/deg [row vector]
-        %
-        dimensions;  % Number of AxesBlockBase object dimensions
-
         % binning along each dimension of an object assuming tha
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
         % x-direction would have binning [10,1,1,1] and 1D object with 10
         % bins in dE direction would have binning [1,1,1,10];
         nbins_all_dims;
+        %
+        img_scales   %The units of img_range image-appropriate units,i.e.
+        %             A^{-1} for linear axes, rad/deg for angular and meV
+        %             for energy transfer
+        %
+        dimensions;  % Number of AxesBlockBase object dimensions number of pax)
 
+        % shift between the origin of the axes block and the origin of
+        % hkl-dE coordinate system (in rlu-dE, hkl units, not rotated)
+        offset
+    end
+    properties(Dependent) % Helper properties
         % number of bins for each non-unit dimension. This would be the
         % binning of the data arrays associated with the given AxesBlockBase
         data_nbins;
@@ -107,6 +117,14 @@ classdef AxesBlockBase < serializable
         % is defined, the input binning parameters in this direction
         % are treated as bin edges rather then bin centres.
         single_bin_defines_iax;
+    end
+    properties(Dependent,Hidden)
+        % maximal range the image can have
+        max_img_range
+        %
+        type;  % units of the projection. Not currently used by linear projection
+        %  but may is deployed in curvilinear  projections to convert from
+        % degrees to radians and vice versa
 
         % property defines if appropriate axes block presented on
         % picture changes aspect ratio of a 2D image, so that equal
@@ -114,15 +132,15 @@ classdef AxesBlockBase < serializable
         %
         % May be set up locally on an object but have defaults specific for
         % each axes block
-        changes_aspect_ratio;
+        changes_aspect_ratio;        
+        %------------------------------------------------------------------
+        full_filename % convenience property as fullfile(filepath, filename)
+        % are often used
+        % Old name for img_range left for compartibility with old user code
+        img_db_range;
 
-        % shift between the origin of the axes block and the origin of
-        % hkl-dE coordinate system (in rlu-dE, hkl units, not rotated)
-        offset
-    end
-    properties(Dependent,Hidden)
-        % maximal range the image can have
-        max_img_range
+        %Old interface to img_scales
+        ulen;   % in Ang^-1 or meV [row vector]
     end
 
     properties(Access=protected)
@@ -148,15 +166,8 @@ classdef AxesBlockBase < serializable
         max_img_range_ = [-inf,-inf,-inf,-inf;inf,inf,inf,inf];
         %
         offset_ = [0,0,0,0];
-    end
-    properties(Dependent,Hidden)
-        full_filename % convenience property as fullfile(filepath, filename)
-        % are often used
-        % Old name for img_range left for compartibility with old user code
-        img_db_range;
-
-        %Old interface to Length of projection axes vectors
-        ulen;   % in Ang^-1 or meV [row vector]
+        %
+        type_ = ''
     end
 
     methods
@@ -340,6 +351,12 @@ classdef AxesBlockBase < serializable
                     'single_bin_defines_iax property accepts only 4-element logical vector or vector convertible to logical')
             end
             obj.single_bin_defines_iax_ = logical(val(:)');
+        end
+        function type = get.type(obj)
+            type = obj.type_;
+        end
+        function obj = set.type(obj,val)
+            obj = check_and_set_type(obj,val);
         end
         %------------------------------------------------------------------
         % LEGACY API: historical and convenience getters for dependent properties
@@ -730,7 +747,11 @@ classdef AxesBlockBase < serializable
             % and number of bins defining this axes block
             [range,nbin,ok,mess]=pbin_parse_(obj,p,p_defines_bin_centers,range_limits);
         end
-
+        function    obj = check_and_set_type(obj,val)
+            % not used in generic projections; overloaded in curvilinear.
+            % may be expanded in a future
+            obj.type_ = val;
+        end
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
@@ -857,6 +878,5 @@ classdef AxesBlockBase < serializable
                 inputs.img_scale = inputs.ulen;
             end
         end
-
     end
 end
