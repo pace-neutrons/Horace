@@ -318,9 +318,14 @@ Where:
    and ``v`` and perpendicular to ``u``.
 
    The third viewing axes is by default defined as the cross product of the first
-   two.
+   two. (:math:`u \times{} v`)
 
    The fourth viewing axis is always energy and cannot be modified.
+
+   .. warning::
+
+      None of these vectors can be collinear. An error will be thrown
+      in this case.
 
 .. note::
 
@@ -328,8 +333,7 @@ Where:
    and ``v`` that are specified in :ref:`gen_sqw
    <manual/Generating_SQW_files:gen_sqw>`, which describe how the crystal is
    oriented with respect to the spectrometer and are determined by the physical
-   orientation of your sample. Like the ``u`` and ``v`` vectors used during
-   ``gen_sqw``, these vectors can not be parallel.
+   orientation of your sample.
 
 .. note::
 
@@ -848,9 +852,31 @@ difference. The binning arguments of ``cut`` no longer refer to
 ``sphere_proj`` 2D and 1D cuts examples:
 ________________________________________
 
-By integrating over the angular terms of a spherical projection you
-can obtain the powder average of a sample (excluding certain powder
-effects if done on a single crystal).
+Integrating over the angular terms of a spherical projection of a
+**single crystal** dataset will give an **approximation** of a powder
+average of the sample. Integrating over the angular terms for a
+**powder** sample is a valid powder averaging.
+
+.. note::
+
+   This is because (except for low scattering angles) the detectors do
+   not cover the full :math:`4\pi` solid angular range.  Thus regions
+   without detector coverage will not be sampled by the angular
+   spherical integration.
+
+   In contrast for a true powder sample, there will be crystal grains
+   with the correct orientation to be detected even by the limited
+   detector coverage.
+
+   At low scattering angles (below approximately 30 degrees on LET),
+   the detectors *do* cover the full angular range so the angular
+   integration of a single crystal dataset will give a valid powder
+   average.
+
+   These effects are important to bear in mind when modelling the
+   scattering - e.g. for a single crystal dataset it is best to model
+   it as a single crystal and then let Horace perform the angular
+   integration, rather than treating it as powder data.
 
 .. note::
 
