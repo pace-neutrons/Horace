@@ -78,13 +78,17 @@ for j=1:4
     in_totvector{j} =  [' in ',obj.capt_units(ax_type)];
     if ismember(j,pax) % pax
         ipax = find(j==pax(dax));
-        if abs(ulen(j)-1) > small
-            title_pax{ipax} = [label{j},' in ',num2str(ulen(j)),' ',obj.capt_units(ax_type)];
-        else
+        if ipax == 2 || ipax == 3
             if ax_type == 'd'
-                title_pax{ipax} = [label{j},obj.capt_units(ax_type)];                
+                title_pax{ipax} = [label{j},obj.capt_units(ax_type)];
             else
                 title_pax{ipax} = [label{j},' (',obj.capt_units(ax_type),')'];
+            end
+        else
+            if abs(ulen(j)-1) > small
+                title_pax{ipax} = [label{j},' in ',num2str(ulen(j)),' ',obj.capt_units(ax_type)];
+            else
+                title_pax{ipax} = [label{j},' in ',obj.capt_units(ax_type)];
             end
         end
         title_main_pax{ipax} = [label{j},'=',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
@@ -111,7 +115,7 @@ if ~isempty(title)
     iline = iline + 1;
 end
 title_main{iline}=sprintf('Spherical projection at centre: %s(hklE)',mat2str(offset));
-iline = iline + 1;    
+iline = iline + 1;
 
 if ~isempty(iax)
     title_main{iline}=title_main_iax{1};

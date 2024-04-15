@@ -406,8 +406,8 @@ classdef aProjectionBase < serializable
                 cur_axes_block, targ_proj,targ_axes_block)
             % return logical array of size of the current axes block grid
             % containing true for the cells which may contribute into
-            % into cut, descrined by target projection and target axes
-            % block/
+            % into cut, described by target projection and target axes
+            % block.
             %
             % Part of get_nrange -> get_contrib_cell_ind routines
             % Inputs:

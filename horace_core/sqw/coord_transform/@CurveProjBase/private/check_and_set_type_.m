@@ -24,6 +24,9 @@ if ~isequal(obj.type_,val)
     obj.type_             = val;
     obj.img_scales_cache_ = [];
 end
+if numel(obj.type_) == 3
+    obj.type_ = [obj.type_(:)','e'];
+end
 if obj.do_check_combo_arg
     obj = obj.check_combo_arg();
 end

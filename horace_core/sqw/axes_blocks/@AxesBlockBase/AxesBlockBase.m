@@ -521,6 +521,8 @@ classdef AxesBlockBase < serializable
             % references axes block onto the grid, defined by this axes block.
             %
             % Inputs:
+            % obj      -- axes block defining the lattice for interpolating
+            %             signal on.
             % source_axes
             %           -- axes block -source grid, defining the lattice
             %              where source data are defined on
@@ -760,6 +762,9 @@ classdef AxesBlockBase < serializable
             % not used in generic projections; overloaded in curvilinear.
             % may be expanded in a future
             obj.type_ = val;
+            if numel(obj.type_) == 3
+                obj.type_ = [obj.type_(:)','e'];
+            end
         end
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
