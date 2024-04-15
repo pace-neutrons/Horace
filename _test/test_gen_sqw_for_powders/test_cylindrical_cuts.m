@@ -111,17 +111,17 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             spp.type = 'aad';
 
             %w2_tot=cut(sqw_a,0.1,0.1,[40,50],'-nopix');
-            w2_f = cut_sqw(obj.sqw_file_fine,spp,0.1,0.1,[-180,180],[40,50]);            
-            w2_c = cut_sqw(obj.sqw_file_coarse,spp,0.1,0.1,[-180,180],[40,50]);
+            w2_f = cut_sqw(obj.sqw_file_fine,  spp,[0,0.1,6.5],[-1,0.1,6],[-180,180],[40,50]);
+            w2_c = cut_sqw(obj.sqw_file_coarse,spp,[0,0.1,6.5],[-1,0.1,6],[-180,180],[40,50]);
 
             plh=plot(w2_c);
             keep_figure;
-            plf=plot(w2_f);
+            plot(w2_f);
 
             assertEqualToTol(w2_c,w2_f,'ignore_str',true);
 
             close(plh);
-            close(plf);
+
         end
 
         function test_cyl_cut_coarse_eq_fine_1d_Qtr(obj)
@@ -133,12 +133,11 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             w1_f = cut_sqw(obj.sqw_file_fine,spp,[0,0.1,3],[2.2,2.5],[-pi,pi],[40,50]);
 
             plh=plot(w1_c);
-            plf=pl(w1_f);
+            pl(w1_f);
 
             assertEqualToTol(w1_c,w1_f,'ignore_str',true);
 
             close(plh);
-            close(plf);
         end
 
         function test_cyl_cut_coarse_grid_2D_QtrQl(obj)
@@ -179,10 +178,10 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             prc.type = 'aad';
             w1cyl = cut(sq_cyl,prc,[0,0.2,4.8],[-1,1],[-180,4,180],[0,10]);
 
-            phc = plot(w1cyl);
+            plot(w1cyl);
             obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7]);
             obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7]);
-            close(phc);
+
             close(plc);
         end
 
@@ -197,11 +196,10 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             prc = cylinder_proj;
             prc.type = 'aar';
             w1cyl = cut(sq_cyl,prc,[0,0.2,5],[0,0.2, 5],[0,1],[0,10]);
-            phc = plot(w1cyl);
+            plot(w1cyl);
             obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7]);
             obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7]);
             close(phl);
-            close(phc);
         end
 
         function test_cyl_cut_qube_1D_ez(obj)
