@@ -123,6 +123,12 @@
 speed up large operations.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
+<p>Due to the nature of parallelism, some parallel operations require extra
+memory which may be up to twice the size of the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects you’re
+operating on.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>Be aware that for small jobs or some combinations of parameters, parallel
 calculation may, in fact, be slower than serial execution due to startup
 times and message sending. In future we hope to bring these times down and
@@ -297,7 +303,7 @@ commands or replace them entirely.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 9, 2024, 9:29:36 AM.
+      <span class="lastupdated">Last updated on Apr 15, 2024, 11:00:11 AM.
       </span></p>
   </div>
 
