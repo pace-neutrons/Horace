@@ -125,7 +125,11 @@ out.data = DnDBase.dnd(ax0,proj,npix,npix,npix);
 
 % evaluate signal on the sqw object if this is requested
 if numel(argi) > 0  && isa(argi{1},'function_handle')
-    out = sqw_eval(out,argi{:});
+    if numel(argi)> 1
+        out = sqw_eval(out,argi{:});
+    else
+        out = sqw_eval(out,argi{:},[]);        
+    end
     out_err = sqw_eval(out,@(h,k,l,e,p)ones(numel(h),1),[]);
     out.pix.variance = out_err.pix.signal;
     out.data.e = out_err.data.s;

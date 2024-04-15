@@ -23,7 +23,7 @@ if numel(val) == 3
     val = [val,'e'];
 end
 arrayfun(@(i)check_type(obj,val(i),i),1:4);
-obj.axes_units_ = val;
+obj.type_ = val;
 obj.do_check_combo_arg_ = false;
 obj.angular_unit_is_rad = val(3);
 obj.do_check_combo_arg_ = true;

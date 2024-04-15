@@ -42,8 +42,6 @@ classdef sphere_axes < AxesBlockBase
 
     end
     properties(Dependent)
-        % what each axes units are
-        axes_units
         % if angular dimensions of the axes are expressed in radians or degrees
         angular_unit_is_rad
 
@@ -56,7 +54,6 @@ classdef sphere_axes < AxesBlockBase
     properties(Access = protected)
         % if angular dimensions of the axes are expressed in radians or degrees
         angular_unit_is_rad_ = [false,false];
-        axes_units_ = 'adde';
     end
     properties(Access=private)
         % helper properties used in setting angular units image range and
@@ -90,6 +87,7 @@ classdef sphere_axes < AxesBlockBase
             obj.img_range_ = obj.default_img_range_;
             %
             obj.label = {'|Q|','\theta','\phi','En'};
+            obj.type_ = 'adde';
             obj.changes_aspect_ratio_ = false;
             if nargin == 0
                 return;
@@ -140,15 +138,6 @@ classdef sphere_axes < AxesBlockBase
             end
         end
         %
-        function val = get.axes_units(obj)
-            val = obj.axes_units_;
-        end
-        function obj = set.axes_units(obj,val)
-            obj = set_axes_units_(obj,val);
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
-        end
         %
         function range = get.default_img_range(obj)
             range  = obj.default_img_range_;

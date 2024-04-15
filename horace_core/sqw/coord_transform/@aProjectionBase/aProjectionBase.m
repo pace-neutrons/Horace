@@ -735,7 +735,7 @@ classdef aProjectionBase < serializable
             %          corresponding to the projection
             ax_name = obj.axes_name;
             ax_class = feval(ax_name);
-            ax_class.axes_units = obj.type;
+            ax_class.axes_units = obj.type;                        
             ax_bl = AxesBlockBase.build_from_input_binning(...
                 ax_class,default_bin_ranges,requested_bin_ranges);
             ax_bl = obj.copy_proj_defined_properties_to_axes(ax_bl);

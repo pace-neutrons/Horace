@@ -39,6 +39,9 @@ classdef aProjectionTester < aProjectionBase
 
     end
     methods(Access = protected)
+        function obj = check_and_set_type(obj,val)
+            obj.type_ = val;
+        end
         function img_scales = get_img_scales(~)
             img_scales = ones(1,4);
         end

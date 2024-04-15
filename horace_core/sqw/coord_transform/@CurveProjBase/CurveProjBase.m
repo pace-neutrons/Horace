@@ -29,7 +29,7 @@ classdef CurveProjBase <aProjectionBase
         ez; % equivalent to u
         ex; % equivalent to v
     end
-    
+
     properties(Access=protected)
         %
         u_ = [1,0,0]
@@ -154,20 +154,13 @@ classdef CurveProjBase <aProjectionBase
                 get_pix_img_transformation_(obj,ndim,varargin{:});
         end
         %
-        function axes_bl = copy_proj_defined_properties_to_axes(obj,axes_bl)
-            % copy the properties, which are normally defined on projection
-            % into the axes block provided as input
-            axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
-            axes_bl.axes_units = obj.type;
-        end
     end
     methods(Access = protected)
         function    obj = check_and_set_type(obj,val)
             % set curvilinear projection type, changing the units of the
             % angular dimensions if necessary
             obj = check_and_set_type_(obj,val);
-        end
-
+        end       
         function obj = set_u(obj,val)
             % main setter for u-property
             val = aProjectionBase.check_and_brush3vector(val);

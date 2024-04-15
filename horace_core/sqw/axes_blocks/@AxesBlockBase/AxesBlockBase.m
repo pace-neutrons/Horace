@@ -73,7 +73,7 @@ classdef AxesBlockBase < serializable
         %   e.g. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
         p;
     end
-    % 
+    %
     properties
         %------------------------------------------------------------------
         % The range (in axes coordinate system), the binning is made and the
@@ -91,6 +91,8 @@ classdef AxesBlockBase < serializable
         %
         dimensions;  % Number of AxesBlockBase object dimensions number of pax)
 
+        % what each axes units are. Corresponds to type in projection
+        axes_units
         % shift between the origin of the axes block and the origin of
         % hkl-dE coordinate system (in rlu-dE, hkl units, not rotated)
         offset
@@ -132,7 +134,7 @@ classdef AxesBlockBase < serializable
         %
         % May be set up locally on an object but have defaults specific for
         % each axes block
-        changes_aspect_ratio;        
+        changes_aspect_ratio;
         %------------------------------------------------------------------
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
@@ -355,9 +357,16 @@ classdef AxesBlockBase < serializable
         function type = get.type(obj)
             type = obj.type_;
         end
+        function type = get.axes_units(obj)
+            type = obj.type_;
+        end
         function obj = set.type(obj,val)
             obj = check_and_set_type(obj,val);
         end
+        function obj = set.axes_units(obj,val)
+            obj = check_and_set_type(obj,val);
+        end
+
         %------------------------------------------------------------------
         % LEGACY API: historical and convenience getters for dependent properties
         % which do not have setters

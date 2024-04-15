@@ -22,7 +22,7 @@ classdef cylinder_axes < AxesBlockBase
     %5) ab = cylinder_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
-    %Note: 
+    %Note:
     %       Unlike line_axes, the img_range in the case of
     %       cylindrical axes should lie within alowed limits (0-inf for rho
     %       and [-pi, pi] for phi.
@@ -42,8 +42,6 @@ classdef cylinder_axes < AxesBlockBase
 
     end
     properties(Dependent)
-        % what each axes units are
-        axes_units
         % if angular dimensions of the axes are expressed in radians or degrees
         angular_unit_is_rad
 
@@ -56,7 +54,6 @@ classdef cylinder_axes < AxesBlockBase
     properties(Access = protected)
         % if angular dimensions of the axes are expressed in radians or degrees
         angular_unit_is_rad_ = false;
-        axes_units_ = 'aade';
     end
     properties(Access=private)
         % helper properties used in setting angular units image range and
@@ -90,6 +87,7 @@ classdef cylinder_axes < AxesBlockBase
             obj.img_range_ = obj.default_img_range_;
 
             obj.label = {'Q_{tr}','Q_{||}','\phi','En'};
+            obj.type_ = 'aade';
             obj.changes_aspect_ratio_ = false;
             if nargin == 0
                 return;
@@ -140,16 +138,6 @@ classdef cylinder_axes < AxesBlockBase
             end
         end
         %
-        function val = get.axes_units(obj)
-            val = obj.axes_units_;
-        end
-        function obj = set.axes_units(obj,val)
-            obj = set_axes_units_(obj,val);
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
-        end
-        %
         function range = get.default_img_range(obj)
             range  = obj.default_img_range_;
             if obj.angular_unit_is_rad_
@@ -159,6 +147,14 @@ classdef cylinder_axes < AxesBlockBase
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function    obj = check_and_set_type(obj,val)
+            % set curvilinear projection type, changing the units of the
+            % angular dimensions if necessary
+            obj = set_axes_units_(obj,val);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
         function  volume = calc_bin_volume(obj,axis_cell)
             % calculate bin volume from the  axes of the axes block or input
             % axis organized in cellarray of 4 axis. Will return array of
@@ -198,7 +194,6 @@ classdef cylinder_axes < AxesBlockBase
             %
             obj = check_angular_units_consistency_(obj);
         end
-
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
             % and nxsqw/sqw data format. Each new version would presumably
