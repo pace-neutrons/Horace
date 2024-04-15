@@ -13,6 +13,12 @@ classdef test_disp2str< TestCase
                 assertEqual(out,'{[1]}    {[2]}    {[3]}');
             end
         end
+        function test_matrix(~)
+            mat = [1,2,3;4,5,6];
+            ref = ['1     2     3',newline,'4     5     6'];
+            out = disp2str(mat);
+            assertEqual(out,ref);
+        end
 
         function test_array(~)
             pat = [1,2,3];

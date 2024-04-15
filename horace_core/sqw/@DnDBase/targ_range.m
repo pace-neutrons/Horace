@@ -114,6 +114,8 @@ switch in_ranges
         max_out_range = out_range;
     case 0
         nbins_per_dim = 10*ones(1,4);
+        out_range     = repmat([-inf;inf],1,4);
+        max_out_range = out_range;        
         % caclculations show that only spherical or cylindrical projection
         % may come here. Bad for some stray projection in a future
         if isa(targ_proj,'CurveProjBase')
@@ -155,9 +157,10 @@ while difr>1.e-3 && ic <= 5 % node multiplier doubles number of points
     ic = ic+1;
 end
 if ic > 5 && difr>1.e-3
-    warning('HORACE:targ_range', ...
-        ['target range search algorithm have not converged after 5 iterations.\n', ...
-        ' The default range identified for the cut may be inaccurate'])
+    warning('HORACE:targ_range',[ ...
+        ' target range search algorithm have not converged after 5 iterations.\n', ...
+        ' Search have identified the following default range:\n%s\n',...
+        ' This range may be inaccurate'],disp2str(range))
 end
 %
 if source_proj.do_3D_transformation
