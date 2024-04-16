@@ -218,17 +218,11 @@ classdef test_plot_IX_dataset < TestCase
                 meth = pl_methods{i};
 
                 [objh,axh,plh] = meth(IX1d_arr);
-
+                assertEqual(numel(objh),1);
+                assertEqual(numel(axh),1);
                 if is_plot(i)
-                    assertEqual(numel(objh),2);
-                    assertEqual(numel(axh),2);
                     assertTrue(numel(plh)==2);
                 else
-                    assertEqual(numel(axh),1);
-                    assertEqual(numel(objh),1);
-                end
-                if is_plot(i)
-                    close(objh(2));
                 end
 
                 assertTrue(isa(objh,'matlab.ui.Figure'));
@@ -249,7 +243,7 @@ classdef test_plot_IX_dataset < TestCase
 
                 meth = opl_methods{i};
 
-                [objh,axh,plh] = meth(IX1d_obj);
+                [objh,axh,plh] = meth(IX1d_obj*(1+0.1*i));
 
                 assertEqual(numel(objh),1);
                 assertEqual(numel(axh),1);
@@ -288,25 +282,36 @@ classdef test_plot_IX_dataset < TestCase
             end
 
         end
+        function test_IX1d_plot1D_line_cycles_on_array(obj)
+            % there are 4 line styles defined. 5th line has the same line
+            % style as the first one
+            IX1d_arr = [obj.IX_data{1},1.1*obj.IX_data{1},...
+                1.2*obj.IX_data{1},1.3*obj.IX_data{1},1.4*obj.IX_data{1}];
+            [objh,axh,plh] = pl(IX1d_arr);
+
+            assertEqual(numel(objh),1);
+            assertEqual(numel(axh),1);
+            assertEqual(numel(plh),5);
+            assertTrue(isa(objh,'matlab.ui.Figure'));
+            assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+            assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
+            assertEqual(plh(1).LineStyle,plh(5).LineStyle)
+            close(objh);
+        end
 
         function test_IX1d_plot1D_methods_work_on_array(obj)
             IX1d_arr = [obj.IX_data{1},2*obj.IX_data{1}];
             tstd = obj.interface_tester;
             pl_methods = [tstd.dnd_methods(:);tstd.d1d_methods(:)];
-            is_overplot = [tstd.dnd_overplot(:);tstd.d1d_overplot(:)];
 
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
                 [objh,axh,plh] = meth(IX1d_arr);
-                if is_overplot(i)
-                    assertEqual(numel(objh),1);
-                    assertEqual(numel(axh),1);
-                    assertEqual(numel(plh),2);
-                else
-                    assertEqual(numel(objh),2);
-                    assertFalse(isequal(objh(1),objh(2)))
-                end
+                assertEqual(numel(objh),1);
+                assertEqual(numel(axh),1);
+                assertEqual(numel(plh),2);
                 assertTrue(isa(objh,'matlab.ui.Figure'));
                 assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
