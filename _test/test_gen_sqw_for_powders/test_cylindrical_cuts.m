@@ -179,8 +179,8 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             w1cyl = cut(sq_cyl,prc,[0,0.2,4.8],[-1,1],[-180,4,180],[0,10]);
 
             plot(w1cyl);
-            obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7]);
-            obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7]);
+            obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
+            obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
 
             close(plc);
         end
@@ -197,8 +197,8 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             prc.type = 'aar';
             w1cyl = cut(sq_cyl,prc,[0,0.2,5],[0,0.2, 5],[0,1],[0,10]);
             plot(w1cyl);
-            obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7]);
-            obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7]);
+            obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
+            obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
             close(phl);
         end
 
@@ -213,8 +213,8 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             w1cyl = cut(sq_cyl,prc,[0,0.15],[-5,0.2,5],[-pi,pi],[0,10]);
             plot(w1e);
             phc = pl(w1cyl);
-            obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7]);
-            obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7]);
+            obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
+            obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
             close(phc);
         end
 
@@ -229,8 +229,8 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             w1cyl = cut(sq_cyl,prc,[0,0.1,5],[-0.5,0.5],[0,1],[0,10]);
             plot(w1e);
             phc = pl(w1cyl);
-            obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7]);
-            obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7]);
+            obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
+            obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
             close(phc);
         end
 
