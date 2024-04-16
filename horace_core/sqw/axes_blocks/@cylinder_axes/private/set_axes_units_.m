@@ -20,7 +20,7 @@ if numel(val)<3||numel(val)>4
         disp2str(val));
 end
 if numel(val) == 3
-    val = [val,'e'];
+    val = [val(:)','e'];
 end
 arrayfun(@(i)check_type(obj,val(i),i),1:4);
 obj.type_ = val;

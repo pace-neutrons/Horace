@@ -31,7 +31,7 @@ small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
 file  = obj.full_filename;
 title = obj.title;
 %
-ulen  = obj.ulen;
+img_scales  = obj.img_scales;
 label = obj.label;
 
 
@@ -75,29 +75,32 @@ in_totvector=cell(1,4);
 % Create titling
 for j=1:4
     ax_type = type(j);
-    in_totvector{j} =  [' in ',obj.capt_units(ax_type)];
+    in_totvector{j} =  sprintf('in %s',obj.capt_units(ax_type));
     if ismember(j,pax) % pax
         ipax = find(j==pax(dax));
-        if ipax == 2 || ipax == 3
+        if j == 2 || j == 3
             if ax_type == 'd'
-                title_pax{ipax} = [label{j},obj.capt_units(ax_type)];
+                title_pax{ipax} = sprintf('%s%s',label{j},obj.capt_units(ax_type));
             else
-                title_pax{ipax} = [label{j},' (',obj.capt_units(ax_type),')'];
+                title_pax{ipax} = sprintf('%s (%s)',label{j},obj.capt_units(ax_type));
             end
         else
-            if abs(ulen(j)-1) > small
-                title_pax{ipax} = [label{j},' in ',num2str(ulen(j)),' ',obj.capt_units(ax_type)];
+            if abs(img_scales(j)-1) > small
+                title_pax{ipax} = sprintf('%s in %.3g %s',label{j},img_scales(j),obj.capt_units(ax_type));
             else
-                title_pax{ipax} = [label{j},' in ',obj.capt_units(ax_type)];
+                title_pax{ipax} = sprintf('%s (%s)',label{j},obj.capt_units(ax_type));
             end
         end
-        title_main_pax{ipax} = [label{j},'=',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
-        display_pax{ipax} = [label{j},' = ',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
+        title_main_pax{ipax} = sprintf('%s = %.3g:%.2g:%.3g %s', ...
+            label{j},plot_bin_centers(1:3,ipax),in_totvector{j});
+        display_pax{ipax} = title_main_pax{ipax};
     else               % iax
         iiax = find(j==iax);
-        title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_totvector{j}];
-        title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_totvector{j}];
-        display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',label{j},' =< ',num2str(iint(2,iiax)),in_totvector{j}];
+        title_iax{iiax}      = sprintf('%.3g \\leq %s \\leq %.3g %s', ...
+            iint(1,iiax),label{j},iint(2,iiax),in_totvector{j});
+        title_main_iax{iiax} = title_iax{iiax};
+        display_iax{iiax}    = sprintf('%.3g =< %s =< %.3g %s', ...
+            iint(1,iiax),label{j},iint(2,iiax),in_totvector{j});
     end
 end
 
