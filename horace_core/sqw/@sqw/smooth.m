@@ -17,7 +17,7 @@ function wout_dnd = smooth(win, varargin)
 %           If width is scalar, then the value is applied to all dimensions
 %
 %           e.g. if win.data is a d3d, valid arguments for width might be:
-%                width = [2,4,5]    % 2, 3, 5 along the 1st, 2nd and 3rd dimensions
+%                width = [2,4,5]    % 2, 4, 5 along the 1st, 2nd and 3rd dimensions
 %                width = 4.5        % 4.5 applied to all dimensions
 %           Invalid choices for 3-dimensions are
 %                width = [2,3]      % invalid number of dimensions

@@ -114,7 +114,7 @@ classdef test_smooth < TestCaseWithSave
 
         function test_smooth_raises_error_with_wrong_dimension_width_arg(obj)
             sqw_in = sqw(obj.test_sqw_2d_fullpath);
-            sqw_in_nopix = copy(sqw_in);
+            sqw_in_nopix = copy(sqw_in); % nopix anticipates later depixelation
             sqw_in_nopix.pix = PixelDataBase.create();
 
             actual = assertExceptionThrown( ...
