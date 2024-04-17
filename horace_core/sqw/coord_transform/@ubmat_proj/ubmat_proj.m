@@ -68,8 +68,6 @@ classdef ubmat_proj < LineProjBase
         u; %[1x3] Vector of first axis (r.l.u.)
         v; %[1x3] Vector of second axis (r.l.u.)
         w; %[1x3] Vector of third axis (r.l.u.) - used only if third character of type is 'p'
-        type;  % Character string which defines normalization and left
-        % for compatibility with line_proj
         nonorthogonal; % Indicates if non-orthogonal axes are used (if true)
         %
         %
@@ -81,7 +79,6 @@ classdef ubmat_proj < LineProjBase
     end
     properties(Access=protected)
         % Cached properties value, calculated from input u_to_rlu matrix
-        type_  = 'rrr';
         nonorthogonal_ = false;
         uvw_cache_     = eye(3);
         % holder for matrix to convert from image coordinate system to
@@ -96,6 +93,7 @@ classdef ubmat_proj < LineProjBase
         function obj=ubmat_proj(varargin)
             obj = obj@LineProjBase();
             obj.label = {'\zeta','\xi','\eta','E'};
+            obj.type_ = 'rrr';
             if nargin>0
                 obj = obj.init(varargin{:});
             end
@@ -133,9 +131,6 @@ classdef ubmat_proj < LineProjBase
             no = obj.nonorthogonal_;
         end
         %
-        function typ=get.type(obj)
-            typ = obj.type_;
-        end
         %------------------------------------------------------------------
         % return line_proj which is sister projection to ubmat_proj
         proj = get_line_proj(obj);
@@ -246,6 +241,11 @@ classdef ubmat_proj < LineProjBase
         function obj = set_proj_aligned(obj,val)
             obj.proj_aligned_ = logical(val);
         end
+        function obj = check_and_set_type(varargin)
+            error('HORACE:ubmat_proj:not_implemented', ...
+                'ubmat_proj does not currently accepts "type" property and uses "img_scales" to change coordinate scaling')
+        end
+
     end
     %=====================================================================
     % SERIALIZABLE INTERFACE

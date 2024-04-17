@@ -220,7 +220,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
 
         % calculate the range of the image to be produced by target
         % projection from the current object
-        range = targ_range(obj,targ_proj,varargin)
+        range = targ_range(obj,targ_proj,ranges_requested,varargin)
         %
         % add various noise to signal
         wout = noisify(w,varargin);
@@ -258,8 +258,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             %
             npix = obj.npix_((1+block_start):(block_start+block_size));
         end
-
-
     end
     %======================================================================
     % Redundant and convenience Accessors

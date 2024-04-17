@@ -96,7 +96,6 @@ classdef line_proj < LineProjBase
         u; %[1x3] Vector of first axis (r.l.u.)
         v; %[1x3] Vector of second axis (r.l.u.)
         w; %[1x3] Vector of third axis (r.l.u.) - used only if third character of type is 'p'
-        type;  % Character string length 3 defining normalisation. each character being 'a','r' or 'p' e.g. 'rrp'
         nonorthogonal; % Indicates if non-orthogonal axes are permitted (if true)
     end
     properties(Hidden)
@@ -116,7 +115,7 @@ classdef line_proj < LineProjBase
         v_ = [0,1,0]
         w_ = []
         nonorthogonal_=false
-        type_='ppr'
+
         % if requested type has been set directly or has default values.
         % used to determine last letter of type if w is not defined and
         % needs to be constructed from u/v
@@ -134,6 +133,7 @@ classdef line_proj < LineProjBase
         function obj=line_proj(varargin)
             obj = obj@LineProjBase();
             obj.label = {'\zeta','\xi','\eta','E'};
+            obj.type_ = 'ppr';
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
                 obj = obj.init([1,0,0],[0,1,0],[],'type','ppr');
@@ -203,16 +203,6 @@ classdef line_proj < LineProjBase
             end
         end
         %
-        function typ=get.type(obj)
-            typ = obj.type_;
-        end
-        function obj=set.type(obj,type)
-            obj = check_and_set_type_(obj,type);
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-        end
-        %
         %------------------------------------------------------------------
         % set u,v & w simultaneously
         obj = set_directions(obj, u, v, w, offset)
@@ -255,7 +245,7 @@ classdef line_proj < LineProjBase
         end
         %
         function [obj,axes] = align_proj(obj,alignment_info,varargin)
-            % Apply crystal alignment information to the projection
+            % Apply crystal alignment information to the projectiontype
             % and optionally, to the axes block provided as input
             % Inputs:
             % obj -- initialized instance of the projection info
@@ -295,6 +285,13 @@ classdef line_proj < LineProjBase
         function obj = set_img_scales(varargin)
             error('HORACE:line_proj:invalid_argument', ...
                 'line_proj scaling is defined by specifying values for "type" property')
+        end
+        function obj = check_and_set_type(obj,type)
+            % check and set projection type
+            obj = check_and_set_type_(obj,type);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
         %
     end

@@ -23,25 +23,17 @@ classdef CurveProjBase <aProjectionBase
         % u,v vectors of spherical projection coincide with u,v vectors
         % used during sqw file generation
         %
-        type;  % units of the projection. Default is add --
-        %      inverse Angstrom, degree, degree.
-        %  possible options: arr where two letters r describe radian
-        %  e.g. adr is  allowed combinations of letters, indicating
-        %  that the phi angle is calculated in radian and theta -- in
-        %  degrees.
-        %
     end
     properties(Dependent,Hidden)
         % old interface to spherical/cylindrical projections
         ez; % equivalent to u
         ex; % equivalent to v
     end
+
     properties(Access=protected)
         %
         u_ = [1,0,0]
         v_ = [0,1,0]
-        %
-        type_ = 'add' % A^{-1}, degree, degree
         %------------------------------------
         hor2matlab_transf_ = [...
             0, 1, 0, 0;... % The transformation from
@@ -124,46 +116,6 @@ classdef CurveProjBase <aProjectionBase
         function obj = set.v(obj,val)
             obj = set_v(obj,val);
         end
-        %
-        function type = get.type(obj)
-            type = obj.type_;
-        end
-        function obj = set.type(obj,val)
-            obj = check_and_set_type_(obj,val);
-        end
-        %
-        function ax_bl = get_proj_axes_block(obj,def_bin_ranges,req_bin_ranges)
-            % Construct the axes block, corresponding to this projection class
-            % Returns generic AxesBlockBase, built from the block ranges or the
-            % binning ranges.
-            %
-            % Usually overloaded for specific projection and specific axes
-            % block to return the particular AxesBlockBase specific for the
-            % projection class.
-            %
-            % Inputs:
-            % def_bin_ranges --
-            %           cellarray of the binning ranges used as defaults
-            %           if requested binning ranges are undefined or
-            %           infinite. Usually it is the range of the existing
-            %           axes block, transformed into the system
-            %           coordinates, defined by cut projection using
-            %           dnd.targ_range(targ_proj) method.
-            % req_bin_ranges --
-            %           cellarray of cut bin ranges, requested by user.
-            %
-            % Returns:
-            % ax_bl -- initialized, i.e. containing defined ranges and
-            %          numbers of  bins in each direction, AxesBlockBase
-            %          corresponding to the projection
-            ax_name = obj.axes_name;
-            ax_class = feval(ax_name);
-            ax_class.axes_units = obj.type;
-            ax_bl = AxesBlockBase.build_from_input_binning(...
-                ax_class,def_bin_ranges,req_bin_ranges);
-            ax_bl = obj.copy_proj_defined_properties_to_axes(ax_bl);
-        end
-
         %------------------------------------------------------------------
         % Particular implementation of aProjectionBase abstract interface
         %------------------------------------------------------------------
@@ -197,20 +149,18 @@ classdef CurveProjBase <aProjectionBase
             % offset_present
             %     -- boolean true if any offset is not equal to 0 and false
             %        if all offsets are zero
-
             %
             [rot_to_img,offset,img_scales,offset_present,obj] = ...
                 get_pix_img_transformation_(obj,ndim,varargin{:});
         end
         %
-        function axes_bl = copy_proj_defined_properties_to_axes(obj,axes_bl)
-            % copy the properties, which are normally defined on projection
-            % into the axes block provided as input
-            axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
-            axes_bl.axes_units = obj.type;
-        end
     end
     methods(Access = protected)
+        function    obj = check_and_set_type(obj,val)
+            % set curvilinear projection type, changing the units of the
+            % angular dimensions if necessary
+            obj = check_and_set_type_(obj,val);
+        end       
         function obj = set_u(obj,val)
             % main setter for u-property
             val = aProjectionBase.check_and_brush3vector(val);
@@ -220,7 +170,7 @@ classdef CurveProjBase <aProjectionBase
             end
         end
         function obj = set_v(obj,val)
-             % main setter for v-property
+            % main setter for v-property
             val = aProjectionBase.check_and_brush3vector(val);
             obj.v_ = val;
             if obj.do_check_combo_arg_

@@ -106,6 +106,8 @@ if mod(n_step, log_split) < eps('single')
         n_step,nsteps_total,run_time,op_name);
     log_control.dot_printed = false;
 else
-    fprintf('.');
-    log_control.dot_printed = true;
+    if nsteps_total > 1
+        fprintf('.');
+        log_control.dot_printed = true;
+    end
 end
