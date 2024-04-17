@@ -116,10 +116,11 @@ classdef test_cylindrical_cuts < TestCaseWithSave
 
             plh=plot(w2_c);
             keep_figure;
-            plot(w2_f);
+            plf= plot(w2_f);
 
             assertEqualToTol(w2_c,w2_f,'ignore_str',true);
-
+            
+            close(plf);
             close(plh);
 
         end
@@ -171,12 +172,12 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             ax = line_axes('img_range',[-5,-5,-5,0;5,5,5,10],'nbins_all_dims',[50,50,50,10]);
             pr = line_proj;
             sq_cyl = sqw.generate_cube_sqw(ax,pr,@sqw_lin_cylinder,[2,1]);
-            w1e = cut(sq_cyl,pr,[-1,1],[-5,0.2,5],[-5,0.2,5],[0,10]);
+            w1e = cut(sq_cyl,pr,[-1.01,1.01],[-5.01,0.2,5.01],[-5.01,0.2,5.01],[0,10]);
             plc = plot(w1e);
 
             prc = cylinder_proj;
             prc.type = 'aad';
-            w1cyl = cut(sq_cyl,prc,[0,0.2,4.8],[-1,1],[-180,4,180],[0,10]);
+            w1cyl = cut(sq_cyl,prc,[0,0.2,4.8],[-1.01,1.01],[-180,4,180],[0,10]);
 
             plot(w1cyl);
             obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
@@ -189,13 +190,13 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             ax = line_axes('img_range',[-5,-5,-5,0;5,5,5,10],'nbins_all_dims',[50,50,50,10]);
             pr = line_proj([0,1,0],[1,0,0]);
             sq_cyl = sqw.generate_cube_sqw(ax,pr,@sqw_lin_cylinder,[2,1]);
-            w1e = cut(sq_cyl,pr,[0,0.2, 5],[0,0.2,5],[-0.1,0.1],[0,10]);
+            w1e = cut(sq_cyl,pr,[0.1,0.2, 5.1],[0.1,0.2,5.1],[-0.15,0.15],[0,10]);
             phl = plot(w1e);
 
             % similarly looking cuts.
             prc = cylinder_proj;
             prc.type = 'aar';
-            w1cyl = cut(sq_cyl,prc,[0,0.2,5],[0,0.2, 5],[0,1],[0,10]);
+            w1cyl = cut(sq_cyl,prc,[0.1,0.2,5.1],[0.1,0.2,5.01],[0,1.1],[0,10]);
             plot(w1cyl);
             obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
             obj.assertEqualToTolWithSave(w1cyl,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
@@ -206,11 +207,11 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             ax = line_axes('img_range',[-5,-5,-5,0;5,5,5,10],'nbins_all_dims',[50,50,50,10]);
             pr = line_proj;
             sq_cyl = sqw.generate_cube_sqw(ax,pr,@sqw_lin_cylinder,[2,1]);
-            w1e = cut(sq_cyl,pr,[-5,0.2,5],[-0.1,0.1],[-0.1,0.1],[0,10]);
+            w1e = cut(sq_cyl,pr,[-5,0.4,5],[-0.11,0.11],[-0.11,0.11],[0,10]);
 
             prc = cylinder_proj;
             prc.type = 'aar';
-            w1cyl = cut(sq_cyl,prc,[0,0.15],[-5,0.2,5],[-pi,pi],[0,10]);
+            w1cyl = cut(sq_cyl,prc,[0,0.11*sqrt(2)],[-5,0.4,5],[-pi,pi],[0,10]);
             plot(w1e);
             phc = pl(w1cyl);
             obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
@@ -222,11 +223,11 @@ classdef test_cylindrical_cuts < TestCaseWithSave
             ax = line_axes('img_range',[-5,-5,-5,0;5,5,5,10],'nbins_all_dims',[50,50,50,10]);
             pr = line_proj;
             sq_cyl = sqw.generate_cube_sqw(ax,pr,@sqw_lin_cylinder,[2,1]);
-            w1e = cut(sq_cyl,pr,[-0.5,0.5],[0,0.1,5],[-0.5,0.5],[0,10]);
+            w1e = cut(sq_cyl,pr,[-0.5,0.5],[0,0.1,5],[-0.11,0.11],[0,10]);
 
             prc = cylinder_proj;
             prc.type = 'aar';
-            w1cyl = cut(sq_cyl,prc,[0,0.1,5],[-0.5,0.5],[0,1],[0,10]);
+            w1cyl = cut(sq_cyl,prc,[0,0.1,5],[-0.11,0.11],[0,1],[0,10]);
             plot(w1e);
             phc = pl(w1cyl);
             obj.assertEqualToTolWithSave(w1e,'ignore_str',true,'tol',[1.e-7,1.e-7],'-ignore_date');
