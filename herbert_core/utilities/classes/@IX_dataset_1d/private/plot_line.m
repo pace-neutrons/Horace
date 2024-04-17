@@ -6,8 +6,10 @@ line_style=get_global_var('genieplot','line_style');
 color=get_global_var('genieplot','color');
 
 nw = numel(w);
-icol = mod(0:nw-1,length(color))+1;
-ilin = mod(0:nw-1,length(line_style))+1;
+
+[color,icol]       = types_list_(color,'colors',nw);
+[line_style,ilin]  = types_list_(line_style,'line_styles',nw);
+
 iwid = mod(0:nw-1,length(line_width))+1;
 for i=1:nw
     if i==2; hold on; end   % hold on for array input
