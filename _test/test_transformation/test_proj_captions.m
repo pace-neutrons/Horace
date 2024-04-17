@@ -19,8 +19,8 @@ classdef test_proj_captions<TestCase
             obj_range(2,4) = 20;
             proj  = line_proj('alatt',2,'angdeg',90,'u',[1,1,0],'v',[-1,1,0]);
             ab = line_axes('img_range',obj_range,'nbins_all_dims',[50,1,1,40]);
-            [~,~,ulen]  = proj.get_pix_img_transformation(3);
-            ab.ulen  = ulen;
+            [~,~,scales]  = proj.get_pix_img_transformation(3);
+            ab.img_scales = scales;
 
             this.data= d2d(ab,proj);
         end
@@ -62,7 +62,7 @@ classdef test_proj_captions<TestCase
 
         function test_cyl_proj_description_QdErad(obj)
             dat = obj.data;
-            range = [0,0,-pi,-5;8,pi/2,pi,20];
+            range = [0,0,-pi,-10;8,pi/2,pi,30];
             dat.do_check_combo_arg = false;
             dat.axes = cylinder_axes('img_range',range,'nbins_all_dims',[50,1,1,40], ...
                 'axes_units','aar');
@@ -87,7 +87,7 @@ classdef test_proj_captions<TestCase
 
             assertEqual(numel(display_pax),2);
             assertEqual(display_pax{1},['Q_{tr} = 0.08:0.16:7.92 in ',char(197)','^{-1}']);
-            assertEqual(display_pax{2},'En = -4.69:0.62:19.7 in meV');
+            assertEqual(display_pax{2},'En = -9.5:1:29.5 in meV');
 
             assertEqual(numel(display_iax),2);
             assertEqual(display_iax{1},['0 =< Q_{||} =< 1.57 in ',char(197)','^{-1}']);
@@ -133,7 +133,7 @@ classdef test_proj_captions<TestCase
 
         function test_cyl_proj_description_QdEDeg(obj)
             dat = obj.data;
-            range = [0,0,-180,-5;8,90,180,20];
+            range = [0,0,-180,-10;8,90,180,30];
             dat.do_check_combo_arg = false;
             dat.axes = cylinder_axes('img_range',range,'nbins_all_dims',[50,1,1,40]);
             dat.proj = cylinder_proj();
@@ -157,7 +157,7 @@ classdef test_proj_captions<TestCase
 
             assertEqual(numel(display_pax),2);
             assertEqual(display_pax{1},['Q_{tr} = 0.08:0.16:7.92 in ',char(197),'^{-1}']);
-            assertEqual(display_pax{2},'En = -4.69:0.62:19.7 in meV');
+            assertEqual(display_pax{2},'En = -9.5:1:29.5 in meV');
 
             assertEqual(numel(display_iax),2);
             assertEqual(display_iax{1},['0 =< Q_{||} =< 90 in ',char(197),'^{-1}'])
@@ -165,7 +165,10 @@ classdef test_proj_captions<TestCase
 
             assertEqual(energy_axis,4);
         end
-        %------------------------------------------------------------------
+    end
+    %======================================================================
+    methods % Spherical proj captions
+
         function test_spher_proj_description_ThetaPhiRad(obj)
             dat = obj.data;
             range = [0,0,-pi,-5;8,pi/2,pi,20];
@@ -203,7 +206,7 @@ classdef test_proj_captions<TestCase
 
         function test_spher_proj_description_QdErad(obj)
             dat = obj.data;
-            range = [0,0,-pi,-5;8,pi/2,pi,20];
+            range = [0,0,-pi,-10;8,pi/2,pi,30];
             dat.do_check_combo_arg = false;
             dat.axes = sphere_axes('img_range',range,'nbins_all_dims',[50,1,1,40], ...
                 'axes_units','arr');
@@ -228,7 +231,7 @@ classdef test_proj_captions<TestCase
 
             assertEqual(numel(display_pax),2);
             assertEqual(display_pax{1},['|Q| = 0.08:0.16:7.92 in ',char(197)','^{-1}']);
-            assertEqual(display_pax{2},'En = -4.69:0.62:19.7 in meV');
+            assertEqual(display_pax{2},'En = -9.5:1:29.5 in meV');
 
             assertEqual(numel(display_iax),2);
             assertEqual(display_iax{1},'0 =< \theta =< 1.57 in rad');
@@ -274,7 +277,7 @@ classdef test_proj_captions<TestCase
 
         function test_spher_proj_description_QdEDeg(obj)
             dat = obj.data;
-            range = [0,0,-180,-5;8,90,180,20];
+            range = [0,0,-180,-10;8,90,180,30];
             dat.do_check_combo_arg = false;
             dat.axes = sphere_axes('img_range',range,'nbins_all_dims',[50,1,1,40]);
             dat.proj = sphere_proj();
@@ -298,7 +301,7 @@ classdef test_proj_captions<TestCase
 
             assertEqual(numel(display_pax),2);
             assertEqual(display_pax{1},['|Q| = 0.08:0.16:7.92 in ',char(197)','^{-1}']);
-            assertEqual(display_pax{2},'En = -4.69:0.62:19.7 in meV');
+            assertEqual(display_pax{2},'En = -9.5:1:29.5 in meV');
 
             assertEqual(numel(display_iax),2);
             assertEqual(display_iax{1},'0 =< \theta =< 90 in ^{o}');
@@ -306,7 +309,10 @@ classdef test_proj_captions<TestCase
 
             assertEqual(energy_axis,4);
         end
-        %------------------------------------------------------------------
+    end
+    %======================================================================
+    methods % Linead proj captions
+
         function test_line_proj_description_with_dax_non_default(obj)
 
             dat = obj.data;
