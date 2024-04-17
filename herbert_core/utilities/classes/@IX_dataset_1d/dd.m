@@ -12,7 +12,7 @@ function varargout = dd(w,varargin)
 %   >> [fig_handle, axes_handle, plot_handle] = dd(w,...)
 
 
-[fig_,axes_,plot_] = plot_1d_nd_(w,nargout,'d',varargin{:});
+[fig_,axes_,plot_] = plot_1d_nd_(w,'d',varargin{:});
 
 % Output only if requested
 if nargout>0
