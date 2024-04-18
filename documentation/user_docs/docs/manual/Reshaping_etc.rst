@@ -278,7 +278,7 @@ The inputs are:
 
   .. warning::
 
-     For a given dimensionality of ``sqw`` object, you must provide all ranges.
+     For a given dimensionality of ``sqw`` object, you must provide ranges for all the specified dimensions.
 
   e.g.
 

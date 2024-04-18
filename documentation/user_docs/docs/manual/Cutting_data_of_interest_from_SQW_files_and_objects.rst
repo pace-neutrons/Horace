@@ -7,13 +7,13 @@ Cutting data of interest from SQW files and objects
 .. |Q| replace:: :math:`|\textbf{Q}|`
 
 Horace stores the data produced in a neutron experiment in a 4-D dataset
-containing the full information about an experiment, which are called the
+which are called the
 "pixels". These represent the neutron events measured during an
-experiment.
+experiment. The dataset also contains the rest of the full information about the experiment.
 
 Horace also creates a 4-dimensional histogram (binned) of these "pixels"
 represented in reciprocal space (``hkl-dE``) which we call the "image". This
-carries only limited information about the original data, mostly only the
+carries only limited information about the original data, i.e. only the
 averaged intensity over the bins remains.
 
 .. note::
@@ -25,7 +25,7 @@ Generally, rather than attempting to deal with the full experimental
 data, a user works with smaller objects, extracted from the full dataset using
 ``cut``. This is for multiple reasons including:
 
-- The 4-dimensional dataset is impossible to visualise, so only 3-d (through
+- The 4-dimensional dataset is impossible to visualise, as only 3-d (through
   slice-o-matic), 2-d and 1-d cuts can be easily represented.
 - The entire dataset is often too large to fit in the memory of most computers.
 
@@ -275,7 +275,7 @@ system of the histogrammed image.
 .. warning::
 
    Horace, prior to version 4.0.0, used a structure with fields ``u``,
-   ``v``, ... or ``projaxes`` to define the image coordinate
+   ``v``, ... or else a ``projaxes`` object, to define the image coordinate
    system. This has been replaced by the ``line_proj``. You can still
    call ``cut`` with these structures, however, it will issue a
    warning and construct a ``line_proj`` internally.
@@ -546,7 +546,7 @@ axis-labels but a skewed image.
 
    which plots 2D exponential decay around points where ``h,k,l`` are integers.
 
-   Note that this is not normal usage of a projection. The construction of
+   Note that this is not normal usage of a projection: the construction of
    ``line_proj`` here uses positional arguments and because we are building a
    fake ``sqw`` object, the projection needs the lattice explicitly defined.
 
@@ -727,11 +727,6 @@ where:
   3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
   origin of the projection coordinate system.
 
-.. warning::
-
-   Prior to Horace 4.0.0 a similar (mis-named) property ``uoffset`` was
-   used. This will be ignored in Horace 4.0.0, so ensure that your scripts have
-   been updated.
 
 - ``label``, etc.
 
@@ -838,7 +833,7 @@ difference. The binning arguments of ``cut`` no longer refer to
 .. warning::
 
    The form of the arguments to ``cut`` is still the same (see: `Binning
-   arguments`_), however:
+   arguments`_). However:
 
    - |Q| runs from :math:`[0, \infty)` (attempting to use a |Q| with a minimum
      bound less than :math:`0` will result in unexpected behaviour)
