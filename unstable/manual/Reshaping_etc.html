@@ -146,6 +146,10 @@ is supplied to act as a template.</p>
 <p class="admonition-title">Note</p>
 <p><code class="docutils literal notranslate"><span class="pre">wref</span></code> can be either a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> or an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> type object.</p>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">w_nd</span></code> may be of any dimensionality less than that of <code class="docutils literal notranslate"><span class="pre">wref</span></code></p>
+</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p><code class="docutils literal notranslate"><span class="pre">w_nd</span></code> must be <code class="docutils literal notranslate"><span class="pre">dnd</span></code> and not <code class="docutils literal notranslate"><span class="pre">sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">replicate</span></code> on an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object
@@ -201,7 +205,7 @@ information, including the projection axes, are unchanged.</p>
 <h2><span class="section-number">9.4. </span><code class="docutils literal notranslate"><span class="pre">cut</span></code><a class="headerlink" href="#cut" title="Permalink to this heading"></a></h2>
 <p>Produce a rebinned dataset from a starting dataset. See <a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html#cut"><span class="std std-ref">cut</span></a> for
 more details.</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">ax_1</span><span class="p">,</span><span class="w"> </span><span class="n">ax_2</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">);</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">ax_1</span><span class="p">,</span><span class="w"> </span><span class="n">ax_2</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">);</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">ax_1</span></code> etc. take the form:</p>
@@ -277,6 +281,10 @@ little sense.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">smooth</span><span class="p">(</span><span class="n">win</span><span class="p">[,</span><span class="w"> </span><span class="n">width_vector</span><span class="p">][,</span><span class="w"> </span><span class="k">function</span><span class="p">])</span>
 </pre></div>
 </div>
+<p>e.g.:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">smooth</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;gaussian&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This function is will do nothing if applied to <code class="docutils literal notranslate"><span class="pre">d0d</span></code> objects where it is
@@ -320,11 +328,35 @@ dataset.</p>
 </pre></div>
 </div>
 <p>The inputs are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">win</span></code> is the input dataset</p></li>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">win</span></code> is the input <code class="docutils literal notranslate"><span class="pre">sqw</span></code> dataset</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">xkeep</span></code> is the range of display axes to keep, e.g. <code class="docutils literal notranslate"><span class="pre">[x1_lo,</span> <span class="pre">x1_hi,</span> <span class="pre">x2_lo,</span>
-<span class="pre">x2_hi,</span> <span class="pre">...,</span> <span class="pre">xn_lo,</span> <span class="pre">xn_hi]</span></code>. Note also that more than one range can be
-specified for each dimension by writing <code class="docutils literal notranslate"><span class="pre">[range_1;</span> <span class="pre">range_2;...]</span></code></p></li>
+<span class="pre">x2_hi,</span> <span class="pre">...,</span> <span class="pre">xn_lo,</span> <span class="pre">xn_hi]</span></code>, where <code class="docutils literal notranslate"><span class="pre">n</span></code> is the dimensionality of <code class="docutils literal notranslate"><span class="pre">win</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For a given dimensionality of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, you must provide ranges for all the specified dimensions.</p>
+</div>
+<p>e.g.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Select the points between 50 and 70 in the first display dimension</span>
+<span class="n">sel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">win_1d</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="mi">70</span><span class="p">]);</span>
+<span class="c">% select the points in the rectangle defined by the corners</span>
+<span class="c">% (1, 130), (2, 160)</span>
+<span class="n">sel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">win_2d</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">130</span><span class="p">,</span><span class="mi">160</span><span class="p">]);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>More than one range can be specified for each dimension by writing
+<code class="docutils literal notranslate"><span class="pre">[range_1;</span> <span class="pre">range_2;...]</span></code>, where each <code class="docutils literal notranslate"><span class="pre">range_n</span></code> has the form of an
+<code class="docutils literal notranslate"><span class="pre">xkeep</span></code> specification, e.g.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Select the points in the rectangles defined by the corners</span>
+<span class="c">% (1, 130), (2, 160) and (5, 110), (7, 130)</span>
+<span class="n">sel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">win_2d</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">130</span><span class="p">,</span><span class="w"> </span><span class="mi">160</span><span class="p">;</span><span class="w"> </span><span class="k">...</span>
+<span class="w">                                   </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="mi">110</span><span class="p">,</span><span class="w"> </span><span class="mi">130</span><span class="p">]);</span>
+</pre></div>
+</div>
+</div>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">xremove</span></code> is the range of display axes to remove. Follows the same format as
 <code class="docutils literal notranslate"><span class="pre">xkeep</span></code>.</p></li>
 </ul>
@@ -341,18 +373,39 @@ intersection of any bin-edges. This means that for a 1-D case where:</p>
 bin, the range does not contain the bin-centre. <code class="docutils literal notranslate"><span class="pre">3.51</span></code>, however, just
 barely captures the last bin and so this will not be removed.</p>
 </div>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">mask_array</span></code> is an array of booleans with the same number of elements as the
-data array, with corresponding <code class="docutils literal notranslate"><span class="pre">true</span></code> to keep and <code class="docutils literal notranslate"><span class="pre">false</span></code> to remove.</p></li>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">mask_array</span></code> is an array of booleans with the same number of
+elements as <code class="docutils literal notranslate"><span class="pre">win</span></code>, with corresponding <code class="docutils literal notranslate"><span class="pre">true</span></code> to keep and
+<code class="docutils literal notranslate"><span class="pre">false</span></code> to remove.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The shape of <code class="docutils literal notranslate"><span class="pre">mask_array</span></code> should match the complete stored pixel data, not
+the bins as presented on the plotting axes.</p>
+</div>
+</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This should match the internal stored data, not as presented on the plotting
-axes.</p>
+<p>Should more than one of <code class="docutils literal notranslate"><span class="pre">'keep'</span></code>, <code class="docutils literal notranslate"><span class="pre">'remove'</span></code> or <code class="docutils literal notranslate"><span class="pre">'mask'</span></code> be specified,
+for any given point, all options agree to keep the point for that point to be
+kept.</p>
+<p>That is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Here, keep and remove are arrays of logicals</span>
+<span class="c">% of the same shape as `win`&#39;s data constructed</span>
+<span class="c">% from the ranges specified in `xkeep` and `xremove`</span>
+
+<span class="n">sel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">keep</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="nb">remove</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">mask</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Any unspecified keywords (<code class="docutils literal notranslate"><span class="pre">'keep'</span></code>, <code class="docutils literal notranslate"><span class="pre">'remove'</span></code> or <code class="docutils literal notranslate"><span class="pre">'mask'</span></code>) are
+considered to be <code class="docutils literal notranslate"><span class="pre">keep</span></code> for all points</p>
 </div>
 <p>The outputs are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">sel</span></code> mask array the required size, accounting for all of the input
+<li><p><code class="docutils literal notranslate"><span class="pre">sel</span></code> mask array of the required size, accounting for all of the input
 requirements.</p></li>
 </ul>
 </section>
@@ -372,9 +425,9 @@ masked.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Convention is that run number is the position of the file in the list when the
-<code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file was generated. This value can be determined by inspecting
-<code class="docutils literal notranslate"><span class="pre">win.header</span></code></p>
+<p>The run number <code class="docutils literal notranslate"><span class="pre">runno</span></code> here is not the experimental run number, but is the
+position of the file in the list when the <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file was generated. This
+value can be determined by inspecting <code class="docutils literal notranslate"><span class="pre">win.header</span></code></p>
 </div>
 <p>The output is:</p>
 <ul class="simple">
@@ -395,7 +448,7 @@ masked.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 17, 2024, 9:34:20 PM.
+      <span class="lastupdated">Last updated on Apr 18, 2024, 9:59:44 AM.
       </span></p>
   </div>
 

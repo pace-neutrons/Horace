@@ -122,9 +122,9 @@
 <p>To generate the <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file from which Horace reads <span class="math notranslate nohighlight">\(S(\mathbf{Q}, \omega{})\)</span>, neutron scattering
 data for each individual run needs to be provided in one of two formats:</p>
 <ul class="simple">
+<li><p>the HDF5 (Hierarchical Data Format) <code class="docutils literal notranslate"><span class="pre">.nxspe</span></code> file.</p></li>
 <li><p>the legacy ASCII format <code class="docutils literal notranslate"><span class="pre">.spe</span></code> file, together with an ASCII detector
 parameter file (the <code class="docutils literal notranslate"><span class="pre">.par</span></code> file)</p></li>
-<li><p>their replacements, the HDF5 (Hierarchical Data Format) <code class="docutils literal notranslate"><span class="pre">.nxspe</span></code> file.</p></li>
 </ul>
 <p>Two functions are available as part of Horace to create <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> files from
 these input files:</p>
@@ -150,9 +150,10 @@ information, together with the crystal orientation angle <span class="math notra
 incident neutron energy <span class="math notranslate nohighlight">\(E_i\)</span>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">.nxspe</span></code> file stores the information in a NeXus format file, which is a
-common data exchange format for neutron, X-ray and muon data that is built on
-top of the HDF5 (Hierarchical Data Format) scientific data format.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">.nxspe</span></code> file stores the information in a [NeXus format
+file](<a class="reference external" href="http://www.nexusformat.org/">http://www.nexusformat.org/</a>), which is a common data exchange
+format for neutron, X-ray and muon data that is built on top of the
+HDF5 (Hierarchical Data Format) scientific data format.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -173,7 +174,7 @@ input/output for each algorithm are available at the <a class="reference externa
 <p>More suitable for a ‘quick start’, is if you can read corrected scattering data,
 associated estimated errors, and detector parameters into Matlab arrays. You can
 then use the Horace utility function <code class="docutils literal notranslate"><span class="pre">gen_nxspe</span></code> to create <code class="docutils literal notranslate"><span class="pre">.nxspe</span></code> files.</p>
-<p>This is a flexible to repackage and save <span class="math notranslate nohighlight">\(S(\mathbf{Q}, \omega{})\)</span> and detector information to
+<p>This is a flexible method to repackage and save <span class="math notranslate nohighlight">\(S(\mathbf{Q}, \omega{})\)</span> and detector information to
 file. To write a single <code class="docutils literal notranslate"><span class="pre">.nxspe</span></code> file the syntax is as follows:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">gen_nxspe</span><span class="p">(</span><span class="n">S</span><span class="p">,</span><span class="n">ERR</span><span class="p">,</span><span class="n">en</span><span class="p">,</span><span class="n">par</span><span class="p">,</span><span class="n">nxspefile_name</span><span class="p">,</span><span class="n">efix</span><span class="p">,</span><span class="n">emode</span><span class="p">,</span><span class="nb">psi</span><span class="p">)</span>
 </pre></div>
@@ -202,7 +203,7 @@ direction and a line connecting the sample to the detector.</p></li>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In spherical polar coordinates where the conventional z-axis
-(<span class="math notranslate nohighlight">\(\vec{u}\)</span>) points in the direction of the incident beam and with the
+(<span class="math notranslate nohighlight">\(\vec{u}\)</span>) points along the direction of the incident beam and with the
 conventional y-axis (<span class="math notranslate nohighlight">\(\vec{v}\)</span>) pointing vertically upwards:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">phi</span></code> is the conventional polar angle <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
@@ -278,10 +279,12 @@ that begin with ‘###’. In full:</p>
 <span class="p">:</span>
 <span class="k">...</span><span class="c">  S(ne)</span>
 
-###<span class="w"> </span><span class="n">Errors</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
-<span class="n">ERR</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="w">     </span><span class="n">ERR</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+###<span class="w"> </span><span class="n">Errors</span>
+
+<span class="n">ERR</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">ERR</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
 <span class="p">:</span>
-<span class="k">...</span><span class="c">        ERR(ne)</span>
+<span class="k">...</span><span class="c">  ERR(ne)</span>
 
 ###<span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="n">Phi</span><span class="p">,</span><span class="n">w</span><span class="p">)</span>
 <span class="p">:</span>
@@ -390,7 +393,7 @@ dummy values need to be present in the file.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 17, 2024, 9:34:20 PM.
+      <span class="lastupdated">Last updated on Apr 18, 2024, 9:59:44 AM.
       </span></p>
   </div>
 
