@@ -50,52 +50,27 @@ To update e.g.:
 
    symmetrised = win.symmetrise_sqw([1 0 0], [0 1 0], [1 1 1]);
 
-it simply becomes:
+simply becomes:
 
 .. code-block:: matlab
 
    symmetrised = win.symmetrise_sqw(SymopReflection([1 0 0], [0 1 0], [1 1 1]);
 
-.. note::
+The ``SymopReflection`` can also be constructed earlier and reused:
 
-   The ``SymopReflection`` can also be constructed earlier and reused:
+.. code-block:: matlab
 
-   .. code-block:: matlab
+   sym = SymopReflection([1 0 0], [0 1 0], [1 1 1]);
+   symmetrised = win.symmetrise_sqw(sym);
 
-      sym = SymopReflection([1 0 0], [0 1 0], [1 1 1]);
-      symmetrised = win.symmetrise_sqw(sym);
-
-Passing a pair of vectors will still be accepted and be internally
-transformed into the correct ``Symop``, however, it is still best to
-switch.
 
 Crystal Alignment
 -----------------
 
-Crystal alignment in Horace 4 has changed slightly in that only one
-object is returned from the realignment functions. This object
-contains all the data necessary for the realignment.
-
-.. note::
-
-   The subsequent procedure is identical to the Horace 3 procedure for using
-   ``rlu_corrections``, however the object is not a plain matrix.
-
-To convert files, it is simply a case of removing the use of the extra
-arguments, e.g.:
-
-.. code-block:: matlab
-
-   [rlu_corr,alatt,angdeg] = refine_crystal(rlu0, alatt, angdeg, bp,'fix_angdeg','fix_alatt_ratio');
-
-becomes:
-
-.. code-block:: matlab
-
-   rlu_corr = refine_crystal(rlu0, alatt, angdeg, bp,'fix_angdeg','fix_alatt_ratio');
-
-And simply pass ``rlu_corr`` to all operations as normal.
-
+Crystal alignment in Horace 4 has been changed such that alignment is
+a two-phase process. This is in order to prevent having to rewrite
+large datafiles repeatedly during the course of the realignment
+process.
 
 Multifit
 --------
@@ -121,7 +96,7 @@ looks like:
    kk = kk.set_options('listing', 1);
    [wfit, fitdata] = kk.fit();
 
-While this would be a lot of effort to translate manually, thankfully,
+while this would be a lot of effort to translate manually, thankfully,
 Horace 4.0 comes with a function (``mf_leg_to_new``) to translate the
 legacy tyle to the new format:
 
@@ -139,7 +114,7 @@ legacy tyle to the new format:
       kk = kk.set_options('listing', 1);
       [wfit, fitdata] = kk.fit();
 
-ready to be put into your code.
+Ready to be put into your code.
 
 .. warning::
 
@@ -151,11 +126,6 @@ ready to be put into your code.
 
 Deprecated Functions
 --------------------
-
-.. note::
-
-   All deprecation warning IDs in horace are of the form
-   ``HORACE:function:deprecated``. A complete list is below [1]_
 
 The table below lists functions have been deprecated and their Horace 4 equivalent.
 
@@ -192,40 +162,3 @@ The table below lists functions have been deprecated and their Horace 4 equivale
 +--------------------------+--------------------+
 |``herbert_config``        |``hor_config``      |
 +--------------------------+--------------------+
-
-.. [1] Deprecated warnings are as follows:
-
-  - ``HORACE:tobyfit:deprecated``
-  - ``HORACE:refine_crystal:deprecated``
-  - ``HORACE:fake_sqw:deprecated``
-  - ``HORACE:cut_sym:deprecated``
-  - ``HORACE:cut_sqw_sym:deprecated``
-  - ``HORACE:signal:deprecated``
-  - ``HORACE:symop:deprecated``
-  - ``HORACE:axes_block:deprecated``
-  - ``HORACE:ortho_axes:deprecated``
-  - ``HORACE:ortho_proj:deprecated``
-  - ``HORACE:projaxes:deprecated``
-  - ``HORACE:spher_axes:deprecated``
-  - ``HORACE:spher_proj:deprecated``
-
-  To disable all deprecation warnings use the following:
-
-  .. code-block:: matlab
-
-     warns = ["HORACE:tobyfit:deprecated"
-              "HORACE:refine_crystal:deprecated"
-              "HORACE:fake_sqw:deprecated"
-              "HORACE:cut_sym:deprecated"
-              "HORACE:cut_sqw_sym:deprecated"
-              "HORACE:signal:deprecated"
-              "HORACE:symop:deprecated"
-              "HORACE:axes_block:deprecated"
-              "HORACE:ortho_axes:deprecated"
-              "HORACE:ortho_proj:deprecated"
-              "HORACE:projaxes:deprecated"
-              "HORACE:spher_axes:deprecated"
-              "HORACE:spher_proj:deprecated"];
-     for warn = warns
-        warning('off', warn);
-     end
