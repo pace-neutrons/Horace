@@ -119,7 +119,7 @@ The projection defines the coordinate system and thus the meaning of the
 `Binning arguments`_ and the presentation of the data.
 
 ``proj`` should be a projection type such as ``line_proj``, ``sphere_proj``,
-etc. which contains information about the coordinate system representation.
+etc. which contains information about the target coordinate system representation.
 
 .. note::
 
@@ -146,8 +146,8 @@ Binning arguments
 -----------------
 
 The binning arguments (``p1_bin``, ``p2_bin``, ``p3_bin`` and ``p4_bin``)
-specify the binning / integration ranges for the Q & Energy axes in the target
-projection's coordinate system (c.f. `Projection in more detail`_).
+specify the binning / integration ranges for the Q & Energy axes in **the target
+projection's** coordinate system (c.f. `Projection in more detail`_).
 
 Each can independently have one of four different forms below.
 
@@ -158,24 +158,57 @@ Each can independently have one of four different forms below.
    to ensure your cut is what you expect.
 
 
-* ``[]``
+* ``[]`` Empty brackets indicate that the cut algorithm should identify binning ranges. 
+    The hull which surrounds source image is converted into target coordinate 
+    system and the min/max values of the target hull ranges in every dimension are taken
+    as the new default ranges for the cut. The default ranges are taken for the directions
+    where ``[]`` is used for requested ranges. The number of bins in selected dimension is 
+    taken equal to the number of bins in the source dimension which have the same number as source 
+    dimension. 
+    
+    E.g. if your provided ``[]`` for ``p4_bin`` this identifies ``dE`` ranges (4-th dimension).
+    All current projections do not change energy axis so this will lead to target cut 
+    having the same binning ranges in ``dE`` direction as the source cut. 
+    If you provided ``[]`` for ``p3_bin`` and your source coordinate system is linear (defined by ``linear_proj``) and 
+    target coordinate system is cylindrical (defined by ``cylinder_proj`` see more on :ref:`cylindrical_projection` below) 
+    cut algorithm will try to identify :math:`\phi` range (3-rd coordinate of cylindrical coordinate system)
+    of the source cuboid in the cylindrical coordinate system. The number of bins for the :math:`\phi` range
+    will be equal to the number of bins in ``q-3`` dimension of the source coordinate system. If 
+    ``q-3`` dimension was integrated, the :math:`\phi` dimension of the target cylindrical coordinate system
+    will be also integrated.
+    
 
-  An empty binning range will use the source binning axes in that dimension.
-
-* ``[n]``
-
-  If a single (scalar) number is given then that axis will be a plot axis and the
-  bin width will be the number you specify. The lower and upper limits are the
-  source binning axes in that dimension.
+* ``[step]``  Single (scalar) number defines a plot axis with bin width equal to the number you specify. 
+    The lower and upper limits are calculated by the same algorithm as the binning range in ``[]``-brackets case.  
 
 .. note::
 
-   A value of ``[0]`` is equivalent to ``[]`` and will use the source binning axes.
+   A value of ``[0]`` is equivalent to ``[n]`` using bin size of the source coordinate system. This may lead
+   to strange or incorrect result if target coordinate system is changed significantly as reasonable ``0.01`` 
+   q-step may be used as step size for ``-180:180`` :math:`\phi` binning range of spherical or cylindrical
+   coordinate system, creating 36000 bins in :math:`\phi` direction, which is useless and probably fail.
+   
+.. warning::
+    
+   The algorithm which identifies binning ranges is pretty basic algorithm. It works reliably in simple cases, e.g. 
+   for transformations described by projections of the same kind (e.g. ``line_proj->line_proj``
+   or ``sphere_proj->sphere_proj`` where the offset between two projection is unchanged). In more complex cases,
+   e.g.  ``line_proj->cylinder_proj`` when ``cylinder_proj`` axis is not aligned with ``line_proj`` axes, algorithm
+   do not converge after reasonable number of iterations and returns warning similar to: ::
+   
+     ' target range search algorithm have not converged after 5 iterations.
+       Search have identified the following default range:
+      0        0.0120  -179.9641
+      1.5843   90.0000  179.9641
+      This range may be inaccurate'
 
-* ``[lo,hi]``
+   User should evaluate how acceptable is this result for the purposes of the desired cut and 
+   specify 3 or 2-component binning ranges below to get more accurate binning and extending
+   requested binning ranges if in doubt. More accurate version of the range-calculating algorithm will
+   be developed in a future.
 
-  If you specify a vector with two components then the signal will be integrated
-  over that axis between limits specified by the two components of the vector.
+* ``[lo,hi]`` A vector with two components defines integration axis.
+    The signal will be integrated over that axis between limits specified by the two components of the vector.
 
 .. warning::
 
@@ -183,10 +216,8 @@ Each can independently have one of four different forms below.
    edges. For example, ``[-1 1]`` will capture pixels from ``-1`` to ``1``
    inclusive.
 
-* ``[lower,step,upper]``
-
-  A three-component binning axis specifies an axis is a plot axis with the first
-  ``lower`` and the last ``upper`` components specifying the centres of the
+* ``[lower,step,upper]``  A three-component binning axis specifies plot axis.
+  The first  ``lower`` and the last ``upper`` components specifying the centres of the
   first and the last bins of the data to be cut. The middle component specifies
   the bin width.
 
@@ -252,8 +283,8 @@ instead. If the ``sqw`` backed by this objected is deleted, the file will be too
 
 .. warning::
 
-   A temporary ``sqw`` and its descendents (through subsequent operations) will
-   all be consisdered temporary.
+   A temporary ``sqw`` and its descendants (through subsequent operations) will
+   all be considered temporary.
 
    To ensure an ``sqw`` is kept, you can :ref:`manual/Save_and_load:save` this
    object to file permanently.
@@ -963,6 +994,8 @@ the spin-wave centre:
    Scattering intensity as function of distance from the scattering
    centre at :math:`[0,-1,1]`.
 
+
+.. _cylindrical_projection:
 
 Cylindrical Projections
 ^^^^^^^^^^^^^^^^^^^^^^^
