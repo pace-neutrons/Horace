@@ -682,7 +682,7 @@ where:
 
 - ``u`` The direction of the :math:`z`-axis of the spherical coordinate system. 
     The vector :math:`u` is the reciprocal space vector defining the direction of the :math:`z`-axis 
-    of the target spherical coordinate system.
+    of the target spherical coordinate system.  See :ref:`fig_sphere_coodinates` for details.
 
 - ``v``  The direction of the :math:`x`-axis of the spherical coordinate system. 
     The vector :math:`v` is the reciprocal space vector defining the direction of the :math:`x`-axis 
@@ -985,7 +985,202 @@ the spin-wave centre:
 Cylindrical Projections
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-TBD
+In order to construct a cylindrical projection (i.e. a projection in :math:`\Q_{tr}`,
+:math:`\Q_{||}, :math:`\phi` (azimuthal angle) and :math:`E`) we
+create a projection in an analogous way to the ``line_proj``, but using the
+``cylinder_proj`` function:
+
+The complete signature for ``cylinder_proj`` is similar to ``sphere_proj``:
+
+.. code-block:: matlab
+
+   proj = cylinder_proj([u][, v][, type][, alatt][, angdeg][, offset][, label][, title][, lab1][, lab2][, lab3][, lab4])
+
+where:
+
+- ``u`` The direction of the :math:`z`-axis of the cylindrical coordinate system. 
+    The vector :math:`u` is the reciprocal space vector defining the direction of the :math:`z`-axis 
+    of the target cylindrical coordinate system. See :ref:`fig_cylider_coodinates` for details.
+
+- ``v``  The direction of the :math:`x`-axis of the cylindrical coordinate system. 
+    The vector :math:`v` is the reciprocal space vector defining the direction of the :math:`x`-axis 
+    of the target cylindrical coordinate system. The reciprocal space vectors :math:`u-v` are not
+    always orthogonal so the actual direction of cylindrical coordinate system :math:`x`-axis lies
+    in the plain defined by :math:`u-v` vectors and is orthogonal to :math:`z`-axis. See 
+    :ref:`fig_cylider_coodinates` for details.
+
+.. note::
+
+   The :math:`w` direction is not explicitly defined as part of the
+   ``sphere_proj`` as it is always constructed to be perpendicular to the
+   :math:`u`-:math:`v` plane.
+
+.. note::
+
+   By default a ``sphere_proj`` will define its principal axes
+   :math:`u` and :math:`v` along the :math:`hkl` directions
+   :math:`[1,0,0]` (:math:`u`) and :math:`[0,1,0]` (:math:`v`)
+   respectively.
+
+- ``type`` Spherical axes normalization.
+
+  Three character string denoting the the projection normalization of each
+  dimension, one character for each directions, e.g. ``'add'``, ``'rrr'``, ``'pdr'``.
+
+  At the moment there is only one possible option for the first (length) component of ``type``:
+
+  1. ``'a'``  Inverse angstroms.
+
+  ..
+     2. ``'r'``
+
+        Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
+        :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
+
+     3. ``'p'``
+
+        Preserve the values of ``u`` and ``v``
+
+  There are 2 possible options for the second and third (angular) components of
+  type:
+
+  1. ``'d'``     Degrees
+
+  2. ``'r'``     Radians
+
+  ..
+    For example, if we wanted the **Q**-component to be in r.l.u. and
+    the angles in degrees we would have ``type = 'rdd'``.
+
+- ``alatt``   3-vector of lattice parameters.
+
+- ``angdeg``  3-vector of lattice angles in degrees.
+
+.. note::
+
+   In general, you should not need to define ``alatt`` or ``angdeg``;
+   by default they will be taken from the ``sqw`` object during a
+   ``cut``. However, there are cases where a projection object may
+   need to be reused elsewhere.
+
+- ``offset``
+
+  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
+  origin of the projection coordinate system.
+
+
+- ``label``, etc.
+
+  See `plotargs`_ above
+
+.. note::
+
+   If you do not provide any arguments to ``sphere_proj``, by default
+   it will build a ``sphere_proj`` with ``u=[1,0,0]``, ``v=[0,1,0]``,
+   ``type='add'`` and ``offset=[0,0,0,0]``.
+
+   ..
+      Looks weird, needs clarification
+
+   .. code-block:: matlab
+
+       sp_pr = sphere_proj()
+
+       sp_pr =
+          sphere_proj with properties:
+                 u: [1 0 0]
+                 v: [0 1 0]
+              type: 'add'
+             alatt: []
+            angdeg: []
+            offset: [0 0 0 0]
+             label: {'|Q|'  '\theta'  '\phi'  'En'}
+             title: ''
+
+.. note::
+
+   Like ``line_proj``, ``sphere_proj`` can be `defined using
+   positional or keyword arguments <#poskwarg>`_. However the same
+   recommendation applies that positional should only be used to
+   define ``u`` and ``v``.
+
+``sphere_proj`` defines a spherical coordinate system, where:
+
+* |Q| -- The radius from the ``sphere_proj`` origin (``offset``) in :math:`hkl`
+
+* :math:`\theta`  -- The angle measured from :math:`e_z` to the vector (:math:`\vec{q}`),
+  i.e. :math:`0^{\circ}` is parallel to :math:`e_z` and :math:`90^{\circ}` is
+  perpendicular to :math:`e_z`.   Mathematically this is defined as:
+
+.. math::
+
+   \cos\left(\theta{}\right) = \frac{\vec{q}\cdot\vec{e_z}}{\left|q\right|\cdot\left|e_z\right|}
+
+* :math:`\phi` --  is the angle measured between the :math:`e_x`-:math:`e_z` plane to the vector
+  (:math:`\vec{q}`), i.e. :math:`0^{\circ}` lies in the :math:`e_x`-:math:`e_z`
+  plane and :math:`90^{\circ}` is normal to :math:`e_x`-:math:`e_z` plane
+  (i.e. parallel to :math:`e_y`). Mathematically this is defined as:
+
+.. math::
+
+   \sin\left(\phi{}\right) = \frac{\vec{q}\cdot\vec{e_y}}{\left|q\right|\cdot\left|e_y\right|}
+
+* :math:`E`   is the energy transfer as defined in ``line_proj``
+
+.. note::
+
+   :math:`\theta`  lies in the range between :math:`0^{\circ}` and :math:`180^{\circ}` and :math:`\phi` 
+   is in the range between :math:`-180^{\circ}` and :math:`180^{\circ}`. The ``sphere_proj`` settings
+   allow to change these values to radians so it :math:`0 \leq \theta \leq \pi` and :math:`-\pi \leq \phi \leq \pi`.
+
+
+
+..  _fig_cylider_coodinates`:
+
+.. figure:: ../images/sphere_proj_graph.jpg
+   :align: center
+   :width: 400px
+   :alt: spherical coordinate system.
+
+   Cylindrical coordinate system used by ``cylinder_proj``
+
+Horace uses Matlab methods ``cart2sph`` and ``sph2cart`` to convert array of vectors expressed in Cartesian coordinate
+system to spherical coordinate system and back. The formulas, used by these methods are provided `on Matlab help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_. The difference between formulas provided there and used by Horace is the elevation angle, which for Horace is:
+
+    :math:`\theta = 90-elevation`
+
+Where :math:`elevation` is the ``elevation`` angle used in Matlab ``cart2sph/sph2cart`` functions. Matlab ``azimuth`` angle form 
+`the help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_  is equivalent to Horace :math:`\phi` angle.
+
+.. note::
+
+   A spherical projection currently does not have the ability to be
+   rescaled in |Q| relative to the magnitude of :math:`u` or
+   :math:`v` vectors.
+
+When it comes to cutting and plotting, we can use a ``sphere_proj`` in
+exactly the same way as we would a ``line_proj``, but with one key
+difference. The binning arguments of ``cut`` no longer refer to
+:math:`h,k,l,E`, but to |Q|, :math:`\theta`, :math:`\phi`, :math:`E`.
+
+.. code-block:: matlab
+
+   sp_cut = cut(w, sp_proj, Q, theta, phi, e, ...);
+
+.. warning::
+
+   The form of the arguments to ``cut`` is still the same (see: `Binning
+   arguments`_). However:
+
+   - |Q| runs from :math:`[0, \infty)` -- attempting to use a |Q| with a minimum
+     bound less than :math:`0` will fail.
+   - :math:`\theta` runs between :math:`[0, 180]` -- requesting binning outsize these ranges will fail.
+   - :math:`\phi` runs between :math:`[-180, 180]` -- requesting binning outsize these ranges will fail.
+
+
+``sphere_proj`` 2D and 1D cuts examples:
+________________________________________
+
 
 
 Further Examples
