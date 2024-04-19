@@ -47,9 +47,13 @@ function obj = loadobj (S, obj_template)
 % ------
 %   S               Either (1) an object of the class, or (2) a structure or
 %                   structure array previously obtained by the saveobj method.
-%
+% Optional:
 %   obj_template    The instance of a serializable class to recover from the
 %                   input structure S.
+%                   Normally used by custom loadobj method to allow loading
+%                   object from the structure, not previously converted to
+%                   stucture using serializable to_struct method, so not
+%                   containing metadata, which describe class to recover.
 %
 % Output:
 % -------
@@ -59,13 +63,13 @@ function obj = loadobj (S, obj_template)
 
 
 if isstruct(S)
-    % As S is a structure, attempt to load using from_struct_ (recall
-    % from_struct is a static method so must call private method of serializable
+    % As S is a structure, attempt to load using from_struct (recall
+    % from_struct is a static method which calls private method of serializable
     % from_struc_ directly)
-    if nargin == 1
-        obj = from_struct_ (S);
+    if nargin>1
+        obj = obj_template.from_struct(S,obj_template);
     else
-        obj = from_struct_ (S, obj_template);
+        obj = serializable.from_struct(S);
     end
 else
     % We allow that in the case of S being an object that matches the class of
