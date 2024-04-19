@@ -724,7 +724,7 @@ where:
         Preserve the values of ``u`` and ``v``
 
   There are 2 possible options for the second and third (angular) components of
-  type:
+  ``type``:
 
   1. ``'d'``     Degrees
 
@@ -796,7 +796,7 @@ where:
 
 .. math::
 
-   \cos\left(\theta{}\right) = \frac{\vec{q}\cdot\vec{e_z}}{\left|q\right|\cdot\left|e_z\right|}
+   \cos\left(\theta{}\right) = \frac{\vec{Q}\cdot\vec{e_z}}{\left|Q\right|\cdot\left|e_z\right|}
 
 * :math:`\phi` --  is the angle measured between the :math:`e_x`-:math:`e_z` plane to the vector
   (:math:`\vec{q}`), i.e. :math:`0^{\circ}` lies in the :math:`e_x`-:math:`e_z`
@@ -805,7 +805,7 @@ where:
 
 .. math::
 
-   \sin\left(\phi{}\right) = \frac{\vec{q}\cdot\vec{e_y}}{\left|q\right|\cdot\left|e_y\right|}
+   \sin\left(\phi{}\right) = \frac{\vec{Q}\cdot\vec{e_y}}{\left|Q\right|\cdot\left|e_y\right|}
 
 * :math:`E`   is the energy transfer as defined in ``line_proj``
 
@@ -819,7 +819,7 @@ where:
 
 .. _fig_sphere_coodinates:
 
-.. figure:: ../images/sphere_proj_graph.jpg
+.. figure:: ../images/sphere_proj_coordinates.jpg
    :align: center
    :width: 400px
    :alt: spherical coordinate system.
@@ -983,12 +983,11 @@ the spin-wave centre:
 .. _cylindrical_projection:
 
 Cylindrical Projections
-^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-In order to construct a cylindrical projection (i.e. a projection in :math:`\Q_{tr}`,
-:math:`\Q_{||}, :math:`\phi` (azimuthal angle) and :math:`E`) we
-create a projection in an analogous way to the ``line_proj``, but using the
-``cylinder_proj`` function:
+In order to construct a cylindrical projection (i.e. a projection in :math:`Q_{tr}`, :math:`Q_{||}`,
+:math:`\phi` (azimuthal angle) and :math:`E`) coordinate system we create a projection in a way
+similar to the ``line_proj``, but using the ``cylinder_proj`` class.
 
 The complete signature for ``cylinder_proj`` is similar to ``sphere_proj``:
 
@@ -1000,34 +999,30 @@ where:
 
 - ``u`` The direction of the :math:`z`-axis of the cylindrical coordinate system. 
     The vector :math:`u` is the reciprocal space vector defining the direction of the :math:`z`-axis 
-    of the target cylindrical coordinate system. See :ref:`fig_cylider_coodinates` for details.
+    of the target cylindrical coordinate system. See :ref:`fig_cylinder_coodinates` for details.
 
 - ``v``  The direction of the :math:`x`-axis of the cylindrical coordinate system. 
     The vector :math:`v` is the reciprocal space vector defining the direction of the :math:`x`-axis 
     of the target cylindrical coordinate system. The reciprocal space vectors :math:`u-v` are not
     always orthogonal so the actual direction of cylindrical coordinate system :math:`x`-axis lies
     in the plain defined by :math:`u-v` vectors and is orthogonal to :math:`z`-axis. See 
-    :ref:`fig_cylider_coodinates` for details.
+    :ref:`fig_cylinder_coodinates` for details.
+
 
 .. note::
 
-   The :math:`w` direction is not explicitly defined as part of the
-   ``sphere_proj`` as it is always constructed to be perpendicular to the
-   :math:`u`-:math:`v` plane.
-
-.. note::
-
-   By default a ``sphere_proj`` will define its principal axes
+   By default a ``cylinder_proj`` will define its principal axes
    :math:`u` and :math:`v` along the :math:`hkl` directions
    :math:`[1,0,0]` (:math:`u`) and :math:`[0,1,0]` (:math:`v`)
    respectively.
 
-- ``type`` Spherical axes normalization.
+- ``type`` Cylindrical axes normalization.
 
   Three character string denoting the the projection normalization of each
-  dimension, one character for each directions, e.g. ``'add'``, ``'rrr'``, ``'pdr'``.
+  dimension, one character for each directions, e.g. ``'aad'`` or ``'aar'``.
 
-  At the moment there is only one possible option for the first (length) component of ``type``:
+  At the moment there is only one possible option is implemented for the first (length of :mat:`Q_{tr} vector)
+  and second components of the projections of the :math:`\vec{Q}`-vector to cylindrical coordinate system ``type``:
 
   1. ``'a'``  Inverse angstroms.
 
@@ -1041,8 +1036,8 @@ where:
 
         Preserve the values of ``u`` and ``v``
 
-  There are 2 possible options for the second and third (angular) components of
-  type:
+  There are 2 possible options for the third (angular) components of
+  ``type``:
 
   1. ``'d'``     Degrees
 
@@ -1075,42 +1070,39 @@ where:
 
 .. note::
 
-   If you do not provide any arguments to ``sphere_proj``, by default
-   it will build a ``sphere_proj`` with ``u=[1,0,0]``, ``v=[0,1,0]``,
-   ``type='add'`` and ``offset=[0,0,0,0]``.
-
-   ..
-      Looks weird, needs clarification
+   If you do not provide any arguments to ``cylinder_proj``, by default
+   it will build a ``cylinder_proj`` with ``u=[1,0,0]``, ``v=[0,1,0]``,
+   ``type='aad'`` and ``offset=[0,0,0,0]``.
 
    .. code-block:: matlab
 
-       sp_pr = sphere_proj()
+       sp_pr = cylinder_proj()
 
        sp_pr =
-          sphere_proj with properties:
+          cylinder_proj with properties:
                  u: [1 0 0]
                  v: [0 1 0]
-              type: 'add'
+              type: 'aad'
              alatt: []
             angdeg: []
             offset: [0 0 0 0]
-             label: {'|Q|'  '\theta'  '\phi'  'En'}
+             label: {'\Q_{tr}'  '\Q_{||}'  '\phi'  'En'}
              title: ''
 
 .. note::
 
-   Like ``line_proj``, ``sphere_proj`` can be `defined using
+   Like ``line_proj``, ``cylinder_proj`` can be `defined using
    positional or keyword arguments <#poskwarg>`_. However the same
    recommendation applies that positional should only be used to
    define ``u`` and ``v``.
 
-``sphere_proj`` defines a spherical coordinate system, where:
+``cylinder_proj`` defines a cylindrical coordinate system, where:
 
-* |Q| -- The radius from the ``sphere_proj`` origin (``offset``) in :math:`hkl`
+* :math:`Q_{tr}` -- The length of the projection of the momentum transfer :math:`\vec{Q}` measured from the ``cylinder_proj`` 
+   origin (``offset``) in :math:`hkl` to the plain :mat:`e_x-e_y`. (see `
 
-* :math:`\theta`  -- The angle measured from :math:`e_z` to the vector (:math:`\vec{q}`),
-  i.e. :math:`0^{\circ}` is parallel to :math:`e_z` and :math:`90^{\circ}` is
-  perpendicular to :math:`e_z`.   Mathematically this is defined as:
+* :math:`\Q_{||}`  -- The length of the projection of the momentum transfer :math:`\vec{Q}` measured from the ``cylinder_proj`` 
+   origin (``offset``) in :math:`hkl` to :math:`e_z` axis of the ``cylinder_proj``
 
 .. math::
 
@@ -1135,9 +1127,9 @@ where:
 
 
 
-..  _fig_cylider_coodinates`:
+..  _fig_cylinder_coodinates:
 
-.. figure:: ../images/sphere_proj_graph.jpg
+.. figure:: ../images/cylinder_proj_coordinates.png
    :align: center
    :width: 400px
    :alt: spherical coordinate system.
