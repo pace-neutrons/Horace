@@ -72,34 +72,29 @@ switch.
 Crystal Alignment
 -----------------
 
-Crystal alignment in Horace 4 has been changed such that alignment is
-a two-stage process.
+Crystal alignment in Horace 4 has changed slightly in that only one
+object is returned from the realignment functions. This object
+contains all the data necessary for the realignment.
 
-When you call ``change_crystal`` to an ``sqw``, it will not transform
-the pixels immediately, but most operations will apply the transform
-whenever the pixels are used allowing you to e.g. plot the realigned
-state (c.f. :ref:`manual/Correcting_for_sample_misalignment:Correcting
-for sample misalignment`). Though this can be costly to do repeatedly,
-it is a cheaper than rewriting a file every time and it is for this
-reason the change has been made.
+.. note::
 
-In order to finalise a transformation once you are satisfied with the
-realignment, simply call ``sqw.apply_alignment``.
+   The subsequent procedure is identical to the Horace 3 procedure for using
+   ``rlu_corrections``, however the object is not a plain matrix.
+
+To convert files, it is simply a case of removing the use of the extra
+arguments, e.g.:
 
 .. code-block:: matlab
 
-   w = sqw('my_fav.sqw');
+   [rlu_corr,alatt,angdeg] = refine_crystal(rlu0, alatt, angdeg, bp,'fix_angdeg','fix_alatt_ratio');
 
-   alignment_info = [... realignment process]
+becomes:
 
-   % Change is only temporary
-   w = change_crystal(win, alignment_info);
+.. code-block:: matlab
 
-   % But we can check our data
-   plot(w);
+   rlu_corr = refine_crystal(rlu0, alatt, angdeg, bp,'fix_angdeg','fix_alatt_ratio');
 
-   % And when we're satisfied
-   w = w.apply_alignment();
+And simply pass ``rlu_corr`` to all operations as normal.
 
 
 Multifit
