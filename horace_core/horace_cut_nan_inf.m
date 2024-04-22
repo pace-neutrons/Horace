@@ -14,10 +14,9 @@ function val=horace_cut_nan_inf(ignore_nan,ignore_inf)
 %       >> [val.ignore_nan,val.ignore_inf]=get(hor_config,'ignore_nan','ignore_inf');
 
 
-disp('*** Deprecated function: horace_cut_nan_inf                                  ***')
-disp('*** Please set or get the info level directly from the Horace configuration: ***')
-disp('*** >> set(hor_config,''ignore_nan'',ignore_nan,''ignore_inf'',ignore_inf)       ***')
-disp('*** >> [val.ignore_nan,val.ignore_inf]=get(hor_config,''ignore_nan'',''ignore_inf'')')
+warning('HORACE:horace_cut_nan_inf:deprecated', ...
+        ['horace_cut_nan_inf has been deprecated. \n' ...
+         'Please use "hor_config.ignore_nan" or "hor_config.ignore_inf"']);
 
 if nargin==2
     try

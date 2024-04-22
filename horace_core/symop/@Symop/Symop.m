@@ -237,7 +237,17 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                         warning('HORACE:deprecated_function',...
                             'spher_proj is deprecated. Use sphere_proj instead')
 
-                    end
+                    %% TODO non-aligned ez/ey not supported
+                    % ez_new = obj.R * proj.ez(:);
+                    % ey_new = obj.R * proj.ey(:);
+
+                    %                 offset_new = proj.offset(:);
+                    %                 offset_new(1:3) = obj.transform_vec(offset_new(1:3));
+                    %
+                    %                 proj.offset = offset_new;
+                case 'spher_proj'
+                    warning('HORACE:spher_proj:deprecated',...
+                        'spher_proj is deprecated. Use sphere_proj instead')
                 otherwise
                     error('HORACE:Symop:not_implemented', ...
                         'Cannot transform projection class "%s"', class(proj));
