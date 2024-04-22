@@ -308,26 +308,38 @@ i.e. the limits of the data to be cut lie between <code class="docutils literal 
 </div>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">[lower,</span> <span class="pre">separation,</span> <span class="pre">upper,</span> <span class="pre">cut_width]</span></code></p>
-<p>A four-component binning axis defines <strong>multiple</strong> cuts with <strong>multiple</strong>
-integration limits in the selected direction.  These components are:</p>
+<p>A four-component binning axis defines <strong>multiple</strong> cuts leading to <strong>multiple</strong>
+integration axes in the selected axis direction. These components are:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">lower</span></code></p>
-<p>minimum cut bin-centre</p>
+<p>position of lowest cut bin-centre</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">separation</span></code></p>
 <p>distance between cut bin-centres</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">upper</span></code></p>
-<p>approximate maximum cut bin-centre</p>
+<p>approximate position of highest cut bin-centre</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cut_width</span></code></p>
-<p>half-width of each cut from each bin-centre in both directions</p>
+<p>width of each cut, centred on each bin-centre, thus extending one half-width
+in both directions</p>
 </li>
 </ul>
-<p>The number of cuts produced will be the number of <code class="docutils literal notranslate"><span class="pre">separation</span></code>-sized steps
-between <code class="docutils literal notranslate"><span class="pre">lower</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code>.</p>
+<p>The number of cuts produced will be one more than the number of
+<code class="docutils literal notranslate"><span class="pre">separation</span></code>-sized steps between <code class="docutils literal notranslate"><span class="pre">lower</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code>.</p>
 </li>
 </ul>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../_images/4-element-diag.jpg"><img alt="../_images/4-element-diag.jpg" src="../_images/4-element-diag.jpg" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">Diagram showing the relationship between the 4 binning parameters
+and their meaning in the context of a cut, where: <code class="docutils literal notranslate"><span class="pre">lower</span> <span class="pre">=</span> <span class="pre">1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">upper</span> <span class="pre">=</span> <span class="pre">7</span></code>, <code class="docutils literal notranslate"><span class="pre">separation</span> <span class="pre">=</span> <span class="pre">2</span></code> and <code class="docutils literal notranslate"><span class="pre">cut_width</span> <span class="pre">=</span> <span class="pre">0.6</span></code>, i.e <code class="docutils literal notranslate"><span class="pre">[1,</span>
+<span class="pre">2,</span> <span class="pre">7,</span> <span class="pre">0.6]</span></code>. <span class="math notranslate nohighlight">\(\zeta\)</span> and <span class="math notranslate nohighlight">\(\xi\)</span> are arbitrary axes
+where <span class="math notranslate nohighlight">\(\zeta\)</span> is the specified axis. This will produce 4 cut
+objects.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p><code class="docutils literal notranslate"><span class="pre">upper</span></code> will be automatically increased such that <code class="docutils literal notranslate"><span class="pre">separation</span></code> evenly
@@ -567,10 +579,10 @@ programmatically:</p>
 non-orthogonal lattice (<code class="docutils literal notranslate"><span class="pre">alatt=[2,2,4]</span></code>, <code class="docutils literal notranslate"><span class="pre">angdeg=[90,90,70]</span></code>) where the
 reflections occur in the r.l.u. points where <code class="docutils literal notranslate"><span class="pre">hkl</span></code> coordinates are integers.</p>
 <blockquote>
-<div><figure class="align-center" id="id3">
+<div><figure class="align-center" id="id4">
 <a class="reference internal image-reference" href="../_images/orthogonal_vs_nonorthogonal_proj.png"><img alt="2d cuts ortho and non-ortho." src="../_images/orthogonal_vs_nonorthogonal_proj.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">Sample plot for cases where projection is a) orthogonal and b) non-orthogonal.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+<p><span class="caption-text">Sample plot for cases where projection is a) orthogonal and b) non-orthogonal.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </div></blockquote>
@@ -628,11 +640,11 @@ and <span class="math notranslate nohighlight">\([0,0,1]\)</span> directions:</p
 the lattice parameters from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p>
 </div>
 <p>The code produces:</p>
-<figure class="align-center" id="id4">
+<figure class="align-center" id="id5">
 <a class="reference internal image-reference" href="../_images/iv_hkl.png"><img alt="2d cut" src="../_images/iv_hkl.png" style="width: 800px;" /></a>
 <figcaption>
 <p><span class="caption-text">MAPS Fe data; reciprocal space covered by MAPS for an iron sample
-with incident neutron energy of 401meV.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+with incident neutron energy of 401meV.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>The cut with the same parameters as above at higher energy transfer</p>
@@ -641,11 +653,11 @@ with incident neutron energy of 401meV.</span><a class="headerlink" href="#id4" 
 </pre></div>
 </div>
 <p>shows clear spin waves:</p>
-<figure class="align-center" id="id5">
+<figure class="align-center" id="id6">
 <a class="reference internal image-reference" href="../_images/iv_hkl_dE.png"><img alt="2d cut instrument view energy transfer." src="../_images/iv_hkl_dE.png" style="width: 800px;" /></a>
 <figcaption>
 <p><span class="caption-text">MAPS Fe Data; reciprocal space covered by MAPS for an iron sample
-with incident neutron energy of 401meV. Energies integrated between [50, 60].</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
+with incident neutron energy of 401meV. Energies integrated between [50, 60].</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -662,10 +674,10 @@ above.</p>
 </pre></div>
 </div>
 <p>This shows the intensity of the spin wave:</p>
-<figure class="align-center" id="id6">
+<figure class="align-center" id="id7">
 <a class="reference internal image-reference" href="../_images/Fe_cut1D.png"><img alt="1d cut along diagonal." src="../_images/Fe_cut1D.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS Fe Data; 1D cut along the diagonal of the 2D image above.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
+<p><span class="caption-text">MAPS Fe Data; 1D cut along the diagonal of the 2D image above.</span><a class="headerlink" href="#id7" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -815,10 +827,10 @@ plane and <span class="math notranslate nohighlight">\(90^{\circ}\)</span> is no
 <p>is the energy transfer as defined in <code class="docutils literal notranslate"><span class="pre">line_proj</span></code></p>
 </li>
 </ul>
-<figure class="align-center" id="id7">
+<figure class="align-center" id="id8">
 <a class="reference internal image-reference" href="../_images/sphere_proj_graph.jpg"><img alt="spherical coordinate system." src="../_images/sphere_proj_graph.jpg" style="width: 400px;" /></a>
 <figcaption>
-<p><span class="caption-text">Spherical coordinate system used by <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code>.</span><a class="headerlink" href="#id7" title="Permalink to this image"></a></p>
+<p><span class="caption-text">Spherical coordinate system used by <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code>.</span><a class="headerlink" href="#id8" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <div class="admonition note">
@@ -889,10 +901,10 @@ integration, rather than treating it as powder data.</p>
 </pre></div>
 </div>
 <p>This script produces the following plot:</p>
-<figure class="align-center" id="id8">
+<figure class="align-center" id="id9">
 <a class="reference internal image-reference" href="../_images/powder_avrg.png"><img alt="|Q|-dE cut." src="../_images/powder_avrg.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.</span><a class="headerlink" href="#id8" title="Permalink to this image"></a></p>
+<p><span class="caption-text">MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.</span><a class="headerlink" href="#id9" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>This figure shows that the energies of phonon excitations are located under
@@ -909,7 +921,7 @@ wave, e.g. around the scattering point <span class="math notranslate nohighlight
 </div>
 <p>The unwrapping of the intensity of the spin-wave located around <span class="math notranslate nohighlight">\([0,-1,1]\)</span>
 Bragg peak shows:</p>
-<figure class="align-center" id="id9">
+<figure class="align-center" id="id10">
 <a class="reference internal image-reference" href="../_images/spin_w_tiny.png"><img alt="Q-phi cut" src="../_images/spin_w_tiny.png" style="width: 500px;" /></a>
 <figcaption>
 <p><span class="caption-text">MAPS Fe data; Spin-wave scattering intensity the the origin centred
@@ -917,7 +929,7 @@ about the <span class="math notranslate nohighlight">\([0,-1,1]\)</span> Bragg p
 missing detectors is obvious in the <span class="math notranslate nohighlight">\(\phi\)</span>-axis range
 <span class="math notranslate nohighlight">\([-50^\circ:+50^\circ]\)</span>.
 Inset: Linear projection of the same region; the red lines show the
-approximate mapping from the linear to spherical projections.</span><a class="headerlink" href="#id9" title="Permalink to this image"></a></p>
+approximate mapping from the linear to spherical projections.</span><a class="headerlink" href="#id10" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>Integrating over the whole <span class="math notranslate nohighlight">\(\theta\)</span> range and thus including other
@@ -926,12 +938,12 @@ detectors substantially improves statistics; this is done by setting the
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">s2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
 </pre></div>
 </div>
-<figure class="align-center" id="id10">
+<figure class="align-center" id="id11">
 <a class="reference internal image-reference" href="../_images/spin_w_theta_av.png"><img alt="Q-phi cut theta-averages" src="../_images/spin_w_theta_av.png" style="width: 500px;" /></a>
 <figcaption>
 <p><span class="caption-text">MAPS Fe data; Scattering intensity from cut averaged over all <span class="math notranslate nohighlight">\(\theta\)</span>
 spin-wave with the origin centred at the <span class="math notranslate nohighlight">\([0,-1,1]\)</span> Bragg
-peak.</span><a class="headerlink" href="#id10" title="Permalink to this image"></a></p>
+peak.</span><a class="headerlink" href="#id11" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>The 1D cut below, generated by further integrating over the <span class="math notranslate nohighlight">\(\phi\)</span>-axis,
@@ -940,11 +952,11 @@ the spin-wave centre:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">s2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
 </pre></div>
 </div>
-<figure class="align-center" id="id11">
+<figure class="align-center" id="id12">
 <a class="reference internal image-reference" href="../_images/spin_w_intensity_1D.png"><img alt="intensity vs Q." src="../_images/spin_w_intensity_1D.png" style="width: 500px;" /></a>
 <figcaption>
 <p><span class="caption-text">Scattering intensity as function of distance from the scattering
-centre at <span class="math notranslate nohighlight">\([0,-1,1]\)</span>.</span><a class="headerlink" href="#id11" title="Permalink to this image"></a></p>
+centre at <span class="math notranslate nohighlight">\([0,-1,1]\)</span>.</span><a class="headerlink" href="#id12" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -1056,7 +1068,7 @@ the range. The resulting image range will be <code class="docutils literal notra
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 19, 2024, 1:54:19 PM.
+      <span class="lastupdated">Last updated on Apr 22, 2024, 12:48:58 PM.
       </span></p>
   </div>
 

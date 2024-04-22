@@ -204,13 +204,13 @@ Each can independently have one of four different forms below.
 
 * ``[lower, separation, upper, cut_width]``
 
-  A four-component binning axis defines **multiple** cuts with **multiple**
-  integration limits in the selected direction.  These components are:
+  A four-component binning axis defines **multiple** cuts leading to **multiple**
+  integration axes in the selected axis direction. These components are:
 
 
   * ``lower``
 
-    minimum cut bin-centre
+    position of lowest cut bin-centre
 
   * ``separation``
 
@@ -218,14 +218,26 @@ Each can independently have one of four different forms below.
 
   * ``upper``
 
-    approximate maximum cut bin-centre
+    approximate position of highest cut bin-centre
 
   * ``cut_width``
 
-    half-width of each cut from each bin-centre in both directions
+    width of each cut, centred on each bin-centre, thus extending one half-width
+    in both directions
 
-  The number of cuts produced will be the number of ``separation``-sized steps
-  between ``lower`` and ``upper``.
+  The number of cuts produced will be one more than the number of
+  ``separation``-sized steps between ``lower`` and ``upper``.
+
+.. figure:: ../images/4-element-diag.jpg
+   :align: center
+   :width: 500px
+
+   Diagram showing the relationship between the 4 binning parameters
+   and their meaning in the context of a cut, where: ``lower = 1``,
+   ``upper = 7``, ``separation = 2`` and ``cut_width = 0.6``, i.e ``[1,
+   2, 7, 0.6]``. :math:`\zeta` and :math:`\xi` are arbitrary axes
+   where :math:`\zeta` is the specified axis. This will produce 4 cut
+   objects.
 
 
 .. warning::
