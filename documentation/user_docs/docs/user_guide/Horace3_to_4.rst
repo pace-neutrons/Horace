@@ -80,7 +80,7 @@ the pixels immediately, but most operations will apply the transform
 whenever the pixels are used allowing you to e.g. plot the realigned
 state (c.f. :ref:`manual/Correcting_for_sample_misalignment:Correcting
 for sample misalignment`). Though this can be costly to do repeatedly,
-it is a cheaper than rewriting a file every time and it is for this
+it is cheaper than rewriting a file every time and it is for this
 reason the change has been made.
 
 In order to finalise a transformation once you are satisfied with the
