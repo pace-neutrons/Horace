@@ -291,7 +291,13 @@ This file will not be temporary file.
 
    To ensure an ``sqw`` is kept, you should permanently :ref:`manual/Save_and_load:save`
    this object to a file specified in ``save``.
-
+   
+.. note::
+   
+   Operations with filebacked objects is often substantially slower then with memory based objects.
+   Both because objects themselves are much bigger, and as getting data from file is normally three 
+   order of magnitude slower than accessing data in memory.
+   
 
 Projection in more detail
 -------------------------
@@ -1144,9 +1150,66 @@ difference. The binning arguments of ``cut`` no longer refer to
 ``cylinder_proj`` 2D and 1D cuts examples:
 ________________________________________
 
+Like linear and spherical projections, cylinder projection can be used to obtain cylindrical cuts. 
+Main usage of cylindrical projection is the cuts with axis parallel to the instrument beam as the background
+scattering in inelastic instrument would mainly have cylindrical symmetry. 
 
+Taking `previously used dataset <#datalink>`__ and using the code:
 
-Further Examples
+.. code-block:: matlab
+
+    data_source = 'Fe_ei401.sqw';
+    cyl_proj = cylinder_proj();
+    w2_Qtr_dE = cut(data_source, cyl_proj, [0, 0.1, 14], [-4, 4], [-180, 180], [-10, 4, 400]);
+    plot(w2_Qtr_dE);
+    keep_figure;
+    w2_Qtr_Qll = cut(data_source, cyl_proj, [0, 0.1, 14], [-4,0.1,4], [-180, 180], [50, 60]);    
+    plot(w2_Qtr_Qll);
+    keep_figure;
+    w2_Qtr_phi = cut(data_source, cyl_proj, [0, 0.1, 14], [-4,,4], [-180,2,180], [50, 60]);        
+    plot(w2_Qtr_phi);    
+    
+one can easy obtain various cuts, similar to cuts made using spherical projections above. 
+The image contains 
+various cylindrical projection cuts taken along different coordinate axis:
+
+.. _img_2D_cylindrical_cuts:
+
+.. figure:: ../images/cylindrical_cuts_2D.png
+   :align: center
+   :width: 1200px
+   :alt: 2D cylindrical cuts.
+
+   Cylindrical cuts along different coordinate axes
+   
+One dimensional cylindrical cuts:   
+
+.. code-block:: matlab
+
+    data_source ='Fe_ei401.sqw';
+    cyl_proj = cylinder_proj();
+    n_cuts = 4;
+    w1 = repmat(sqw,1,n_cuts);
+    colors = 'krgb';
+    for i=1:n_cuts
+        cut_center = -4+(i-1)*(8/n_cuts);
+        Qll_range = [cut_center-0.1,cut_center+0.1];
+        w1(i) = cut(data_source, cyl_proj, [0, 0.1, 14], Qll_range, [-180,180], [50,60],'-nopix');
+        acolor(colors(i));
+        pd(w1(i))
+    end
+    legend('Q_{||}=-4','Q_{||}=-2','Q_{||}=0','Q_{||}=2');
+
+Show the behaviour of scattering intensity as function of :math:`Q_{tr}` at different :math:`Q_{||}`:
+
+.. figure:: ../images/cylindrical_cuts_1D.png
+   :align: center
+   :width: 500px
+   :alt: 1D cylindrical cuts.
+
+   Cylindrical cuts along :math:`Q_{tr}`
+
+Additional notes
 ----------------
 
 
