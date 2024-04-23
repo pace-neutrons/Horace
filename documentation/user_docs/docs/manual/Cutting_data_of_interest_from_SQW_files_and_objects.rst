@@ -248,12 +248,22 @@ Each can independently have one of four different forms below.
 
   * ``separation`` --   distance between cut bin-centres
 
-  * ``upper``      --    approximate maximum cut bin-centre
 
   * ``cut_width``  --   half-width of each cut from each bin-centre in both directions
 
-  The number of cuts produced will be the number of ``separation``-sized steps
-  between ``lower`` and ``upper``.
+  The number of cuts produced will be one more than the number of
+  ``separation``-sized steps between ``lower`` and ``upper``.
+
+.. figure:: ../images/4-element-diag.jpg
+   :align: center
+   :width: 500px
+
+   Diagram showing the relationship between the 4 binning parameters
+   and their meaning in the context of a cut, where: ``lower = 1``,
+   ``upper = 7``, ``separation = 2`` and ``cut_width = 0.6``, i.e ``[1,
+   2, 7, 0.6]``. :math:`\zeta` and :math:`\xi` are arbitrary axes
+   where :math:`\zeta` is the specified axis. This will produce 4 cut
+   objects.
 
 
 .. warning::
@@ -290,7 +300,7 @@ This file will not be temporary file.
    (through subsequent operations) will all be temporary.
 
    To ensure an ``sqw`` is kept, you should permanently :ref:`manual/Save_and_load:save`
-   this object to a file specified in ``save``.
+   this object to a file specified as argument of ``save`` function.
    
 .. note::
    

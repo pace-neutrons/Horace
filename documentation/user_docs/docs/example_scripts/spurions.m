@@ -1,4 +1,8 @@
 %% Before running this script, set the data path here
+%
+% Script analyses runs and tries to identify what run contains spurion
+% Then you deal with it masking incorrect areas or dropping incorrect 
+% runs.
 
 global edatc_folder output_data_folder
 
@@ -22,8 +26,8 @@ end
 %% ========================================================================
 %                            Spurious data
 % =========================================================================
-w_sp1 = sqw([edatc_folder '/crystal_datafiles/spurious1.sqw']);
-par_file = [edatc_folder '/crystal_datafiles/4to1_102.par'];
+w_sp1 = sqw(fullfile(edatc_folder 'crystal_datafiles','spurious1.sqw'));
+par_file = fullfile(edatc_folder 'crystal_datafiles','4to1_102.par'];
 
 cut1_sp1 = cut(w_sp1, [], [-0.1 0.1], []);
 plot(cut1_sp1)
@@ -54,7 +58,7 @@ run_inspector(cut1_sp1)
 % because the peaks are so intense.
 
 %% The second dataset
-w_sp2 = read_sqw([edatc_folder '/crystal_datafiles/spurious2.sqw'])
+w_sp2 = read_sqw(fullfile(edatc_folder 'crystal_datafiles','spurious2.sqw'))
 plot(w_sp2)
 
 % You should see that there are Bragg peaks but they don’t seem to have the
