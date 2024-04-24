@@ -186,17 +186,17 @@ end
 
 qbin = opt.qbin;
 qwidth = opt.qwidth;
+szq = numel(qwidth(:));
 
-switch size(opt.qwidth)
-  case [1, 1]                 % "Square" for all segments
-    qwidth = repmat(opt.qwidth, 2, nseg);
-  case {[1, 2], [2, 1]}       % Rectangular for all segments
+if szq == 1 % "Square" for all segments
+    qwidth = repmat(opt.qwidth, 2, nseg);  
+elseif szq == 2 % Rectangular for all segments
     qwidth = repmat(opt.qwidth(:)', 1, nseg);
-  case {[nseg, 1], [1, nseg]} % "Square" for each segment
+elseif szq == nseg  % "Square" for each segment
     qwidth = repmat(opt.qwidth(:), 2, 1);
-  case [2, nseg]              % Rectangular for each segments
+elseif szq == 2*nseg % Rectangular for each segments
     qwidth = reshape(opt.qwidth, 2, nseg);
-  otherwise
+else
     error('HORACE:spaghetti_plot:invalid_argument', ...
           ['qwidth size must be one of: [1, 1], [2, 1], [1, nseg], or [2, nseg].\n' ...
            'Received: %s'], disp2str(opt.qwidth))
