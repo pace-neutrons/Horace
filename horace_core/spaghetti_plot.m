@@ -191,7 +191,7 @@ szq = numel(qwidth(:));
 if szq == 1 % "Square" for all segments
     qwidth = repmat(opt.qwidth, 2, nseg);  
 elseif szq == 2 % Rectangular for all segments
-    qwidth = repmat(opt.qwidth(:)', 1, nseg);
+    qwidth = repmat(opt.qwidth(:), 1, nseg);
 elseif szq == nseg  % "Square" for each segment
     qwidth = repmat(opt.qwidth(:), 2, 1);
 elseif szq == 2*nseg % Rectangular for each segments
