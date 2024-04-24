@@ -138,7 +138,7 @@ flags = {'noplot', 'logscale', 'withpix'};
 if numel(args) == 1 && (isa(args{1}(1), 'd2d') || isa(args{1}(1), 'IX_dataset_2d'))
     plot_dispersion(args{1}, opt);
     return
-elseif isa(args{2}(1), 'd2d')
+elseif numel(args) > 1 && isa(args{2}(1), 'd2d')
     plot_dispersion(args{2}, opt);
     return
 end
@@ -155,8 +155,8 @@ sqw_in = args{2};
 
 if size(rlp, 2) ~= 3 || num_rlp < 2
     error('HORACE:spaghetti_plot:invalid_argument', ...
-          'It should be at least 2 rlp arranged in array [Nx3] (N >= 2) but size of the rlp array is: [%d, %d];', ...
-          size(rlp))
+          'Array should contain at least 2 rlp arranged in an [Nx3] array, received size: %s;', ...
+          disp2str(size(rlp)))
 end
 
 if present.cuts_plot_size
@@ -186,17 +186,19 @@ end
 
 qbin = opt.qbin;
 qwidth = opt.qwidth;
+siz = size(opt.qwidth);
 
-switch size(opt.qwidth)
-  case [1, 1]                 % "Square" for all segments
+if isequal(siz, [1, 1])                % "Square" for all segments
     qwidth = repmat(opt.qwidth, 2, nseg);
-  case {[1, 2], [2, 1]}       % Rectangular for all segments
-    qwidth = repmat(opt.qwidth(:)', 1, nseg);
-  case {[nseg, 1], [1, nseg]} % "Square" for each segment
-    qwidth = repmat(opt.qwidth(:), 2, 1);
-  case [2, nseg]              % Rectangular for each segments
+elseif isequal(siz,  [1, 2]) || ...    % Rectangular for all segments
+        isequal(siz, [2, 1])
+    qwidth = repmat(opt.qwidth(:), 1, nseg);
+elseif isequal(siz,  [nseg, 1]) || ... % "Square" for each segment
+        isequal(siz, [1, nseg])
+    qwidth = repmat(opt.qwidth(:)', 2, 1);
+elseif isequal(siz,  [2, nseg])        % Rectangular for each segments
     qwidth = reshape(opt.qwidth, 2, nseg);
-  otherwise
+else
     error('HORACE:spaghetti_plot:invalid_argument', ...
           ['qwidth size must be one of: [1, 1], [2, 1], [1, nseg], or [2, nseg].\n' ...
            'Received: %s'], disp2str(opt.qwidth))
