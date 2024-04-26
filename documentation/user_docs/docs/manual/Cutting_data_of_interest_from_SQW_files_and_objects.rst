@@ -120,7 +120,7 @@ The projection defines the coordinate system and thus the meaning of the
 `Binning arguments`_ and the presentation of the data.
 
 ``proj`` should be a projection type such as ``line_proj``, ``sphere_proj``,
-etc. which contains information about the target coordinate system representation.
+etc. which contains information about the desired coordinate system representation.
 
 .. note::
 
@@ -160,24 +160,11 @@ Each can independently have one of four different forms below.
 
 
 * ``[]`` Automatic binning calculations. 
-    Empty brackets indicate that the cut algorithm should identify binning ranges. 
-    The hull which surrounds source image is converted into target coordinate 
-    system and the min/max values of the target hull ranges in every dimension are taken
-    as the new default ranges for the cut. The default ranges are taken for the directions
-    where ``[]`` is used for requested ranges. The number of bins in selected dimension is 
-    taken equal to the number of bins in the source dimension which have the same number as source 
-    dimension. 
-    
-    E.g. if your provided ``[]`` for ``p4_bin`` this identifies ``dE`` ranges (4-th dimension).
-    All current projections do not change energy axis so this will lead to target cut 
-    having the same binning ranges in ``dE`` direction as the source cut. 
-    If you provided ``[]`` for ``p3_bin`` and your source coordinate system is linear (defined by ``linear_proj``) and 
-    target coordinate system is cylindrical (defined by ``cylinder_proj`` see more on :ref:`cylindrical_projection` below) 
-    cut algorithm will try to identify :math:`\phi` range (3-rd coordinate of cylindrical coordinate system)
-    of the source cuboid in the cylindrical coordinate system. The number of bins for the :math:`\phi` range
-    will be equal to the number of bins in ``q-3`` dimension of the source coordinate system. If 
-    ``q-3`` dimension was integrated, the :math:`\phi` dimension of the target cylindrical coordinate system
-    will be also integrated.
+    Empty brackets indicate that the cut algorithm should identify binning ranges itself.
+    The step size of the target binning is taken equal to the step size of the binning 
+    currently present in the source image in the direction with the same 
+    number as the number of binning argument ``[]``. In more details auto-binning algorithm is described
+    :ref:`below <bin_ranges_calculations>`.
     
 
 * ``[step]`` Automatic binning calculations with binning step size.
@@ -186,30 +173,11 @@ Each can independently have one of four different forms below.
 
 .. note::
 
-   A value of ``[0]`` is equivalent to ``[n]`` using bin size of the source coordinate system. This may lead
-   to strange or incorrect result if target coordinate system is changed significantly as reasonable ``0.01`` 
+   A value of ``[0]`` is equivalent to ``[step]`` using bin size of the source coordinate system. This may lead
+   to strange or incorrect result if target coordinate system is changed significantly so reasonable ``0.01`` 
    q-step may be used as step size for ``-180:180`` :math:`\phi` binning range of spherical or cylindrical
    coordinate system, creating 36000 bins in :math:`\phi` direction, which is useless and probably fail.
    
-.. warning::
-    
-   The algorithm which identifies binning ranges is pretty basic algorithm. It works reliably in simple cases, e.g. 
-   for transformations described by projections of the same kind (e.g. ``line_proj->line_proj``
-   or ``sphere_proj->sphere_proj`` where the offset between two projection is unchanged). In more complex cases,
-   e.g.  ``line_proj->cylinder_proj`` when ``cylinder_proj`` axis is not aligned with ``line_proj`` axes, algorithm
-   do not converge after reasonable number of iterations and returns warning similar to: ::
-   
-     ' target range search algorithm have not converged after 5 iterations.
-       Search have identified the following default range:
-      0        0.0120  -179.9641
-      1.5843   90.0000  179.9641
-      This range may be inaccurate'
-
-   User should evaluate how acceptable is this result for the purposes of the desired cut and 
-   specify 3 or 2-component binning ranges below to get more accurate binning and extending
-   requested binning ranges if in doubt. More accurate version of the range-calculating algorithm will
-   be developed in a future.
-
 * ``[lo,hi]`` Integration axis in binning direction. 
     A vector with two components defines integration axis.
     The signal will be integrated over that axis between limits specified by the two components of the vector.
@@ -244,10 +212,11 @@ Each can independently have one of four different forms below.
     These components are:
 
 
-  * ``lower``      --   minimum cut bin-centre
+  * ``lower``      --   bin-centre of the first cut
 
   * ``separation`` --   distance between cut bin-centres
 
+  * ``upper``      --   bin-centre of the last cut  
 
   * ``cut_width``  --   half-width of each cut from each bin-centre in both directions
 
@@ -263,7 +232,7 @@ Each can independently have one of four different forms below.
    ``upper = 7``, ``separation = 2`` and ``cut_width = 0.6``, i.e ``[1,
    2, 7, 0.6]``. :math:`\zeta` and :math:`\xi` are arbitrary axes
    where :math:`\zeta` is the specified axis. This will produce 4 cut
-   objects.
+   objects around ``1,3,5`` and ``7``.
 
 
 .. warning::
@@ -287,8 +256,8 @@ in the result exceeds  the value of the product ``mem_chunk_size*fb_scale_factor
 See :ref:`manual/Changing_Horace_settings:Changing Horace settings` for more
 information about configuring Horace.
 
-Temporary file means that the backing file will be destroyed when the ``sqw`` object,
-which is backed by this file goes out of scope. 
+Temporary file means that the backing file will be deleted when the ``sqw`` object,
+which is backed by this file is deleted. 
 
 If the ``filename`` argument is provided, the object will always saved to the file
 with this name and the returned object will be backed by this file.
@@ -569,8 +538,8 @@ axis-labels but a skewed image.
    which plots 2D exponential decay around points where ``h,k,l`` are integers.
 
    Note that this usage of a projection different from its usage in `cut <#cut>`_:
-   The construction of ``line_proj`` here uses positional arguments and because we are building a
-   fake ``sqw`` object, the projection needs the lattice to be explicitly defined.
+   the construction of ``line_proj`` here uses positional arguments and because we are building an
+   artificial ``sqw`` object, the projection needs the lattice to be explicitly defined.
 
 
 ``line_proj`` 2D cut examples: Fe Scattering Function
@@ -676,9 +645,9 @@ where:
 
 - ``v``  The direction of the :math:`x`-axis of the spherical coordinate system. 
     The vector :math:`v` is the reciprocal space vector defining the direction of the :math:`x`-axis 
-    of the target spherical coordinate system. The reciprocal space vectors :math:`u-v` are not
+    of the target spherical coordinate system. The reciprocal space vectors :math:`u`-:math:`v` are not
     always orthogonal so the actual direction of spherical coordinate system :math:`x`-axis lies
-    in the plain defined by :math:`u-v` vectors and is orthogonal to :math:`z`-axis. See 
+    in the plane defined by :math:`u`-:math:`v` vectors and is orthogonal to :math:`z`-axis. See 
     :ref:`fig_sphere_coodinates` for details.
 
 .. note::
@@ -697,7 +666,7 @@ where:
 - ``type`` Spherical axes normalization.
 
   Three character string denoting the the projection normalization of each
-  dimension, one character for each directions, e.g. ``'add'``, ``'rrr'``, ``'pdr'``.
+  dimension, one character for each directions, e.g. ``'add'``, ``'arr'``, ``'adr'``.
 
   At the moment there is only one possible option for the first (length) component of ``type``:
 
@@ -844,10 +813,10 @@ difference. The binning arguments of ``cut`` no longer refer to
    The form of the arguments to ``cut`` is still the same (see: `Binning
    arguments`_). However:
 
-   - |Q| runs from :math:`[0, \infty)` -- attempting to use a |Q| with a minimum
-     bound less than :math:`0` will fail.
-   - :math:`\theta` runs between :math:`[0, 180]` -- requesting binning outsize these ranges will fail.
-   - :math:`\phi` runs between :math:`[-180, 180]` -- requesting binning outsize these ranges will fail.
+   - |Q| runs in range :math:`[0, \infty)`
+   - :math:`\theta` runs between :math:`[0, 180]`
+   - :math:`\phi` runs between :math:`[-180, 180]`
+   Attempt to specify binning outside of these ranges will fail.
 
 
 ``sphere_proj`` 2D and 1D cuts examples:
@@ -885,8 +854,8 @@ average of the sample. Integrating over the angular terms for a
 
 .. note::
 
-   Energy transfer by default is expressed in meV, momentum transfer :math:`\left|Q\right|` 
-   -- in inverse Angstroms  (:math:`Å^{-1}`) and angles in degrees (:math:`^\circ`).
+   Energy transfer by default is expressed in meV, momentum transfer :math:`\left|Q\right|`
+   in inverse Angstroms  (:math:`Å^{-1}`) and angles in degrees (:math:`^\circ`).
 
 The following is an example using the `same data as above <#datalink>`__.
 
@@ -976,8 +945,8 @@ Cylindrical Projections
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 In order to construct a cylindrical projection (i.e. a projection in :math:`Q_{tr}`, :math:`Q_{||}`,
-:math:`\phi` (azimuthal angle) and :math:`E`) coordinate system we create a projection in a way
-similar to the ``line_proj``, but using the ``cylinder_proj`` class.
+:math:`\phi` (azimuthal angle) and :math:`E`) coordinate system we create a projection in a similar way
+to the ``line_proj``, but use the ``cylinder_proj`` class.
 
 The complete signature for ``cylinder_proj`` is similar to ``sphere_proj``:
 
@@ -993,9 +962,9 @@ where:
 
 - ``v``  The direction of the :math:`x`-axis of the cylindrical coordinate system. 
     The vector :math:`v` is the reciprocal space vector defining the direction of the :math:`x`-axis 
-    of the target cylindrical coordinate system. The reciprocal space vectors :math:`u-v` are not
+    of the target cylindrical coordinate system. The reciprocal space vectors :math:`u`-:math:`v` are not
     always orthogonal so the actual direction of cylindrical coordinate system :math:`x`-axis lies
-    in the plain defined by :math:`u-v` vectors and is orthogonal to :math:`z`-axis. See 
+    in the plain defined by :math:`u`-:math:`v` vectors and is orthogonal to :math:`z`-axis. See 
     :ref:`fig_cylinder_coodinates` for details.
 
 
@@ -1046,7 +1015,7 @@ where:
    In general, you should not need to define ``alatt`` or ``angdeg``;
    by default they will be taken from the ``sqw`` object during a
    ``cut``. However, there are cases where a projection object may
-   need to be reused elsewhere.
+   need to be reused elsewhere, e.g. if constructing dummy ``sqw`` object.
 
 - ``offset`` -- 3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
   origin of the projection coordinate system.
@@ -1087,7 +1056,7 @@ where:
 ``cylinder_proj`` defines a cylindrical coordinate system, where:
 
 * :math:`Q_{tr}` -- The length of the projection of the momentum transfer :math:`\vec{Q}` measured from the ``cylinder_proj`` 
-  origin (``offset``) in :math:`hkl` to the plain :math:`e_x-e_y`. (see :ref:`fig_cylinder_coodinates` below)
+  origin (``offset``) in :math:`hkl` to the plain :math:`e_x`-:math:`e_y`. (see :ref:`fig_cylinder_coodinates` below)
   
 .. math::
 
@@ -1158,7 +1127,7 @@ difference. The binning arguments of ``cut`` no longer refer to
 
 
 ``cylinder_proj`` 2D and 1D cuts examples:
-________________________________________
+__________________________________________
 
 Like linear and spherical projections, cylinder projection can be used to obtain cylindrical cuts. 
 Main usage of cylindrical projection is the cuts with axis parallel to the instrument beam as the background
@@ -1210,7 +1179,7 @@ One dimensional cylindrical cuts:
     end
     legend('Q_{||}=-4','Q_{||}=-2','Q_{||}=0','Q_{||}=2');
 
-Show the behaviour of scattering intensity as function of :math:`Q_{tr}` at different :math:`Q_{||}`:
+show the behaviour of scattering intensity as function of :math:`Q_{tr}` at different :math:`Q_{||}`:
 
 .. figure:: ../images/cylindrical_cuts_1D.png
    :align: center
@@ -1234,6 +1203,51 @@ Additional notes
    integration ranges, and have to use ``[]`` for the plot axis. The only option
    you have is to change the range of the plot axis by specifying
    ``[lo1,0,hi1]`` instead of ``[]`` (the '0' means 'use existing bin size').
+
+
+.. _bin_ranges_calculations:   
+   
+Automatic bin ranges calculations   
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    Target bin ranges for the case of empty brackets indicate that the cut algorithm 
+    should identify binning ranges itself.
+
+    The hull which surrounds the source image is converted into the target coordinate 
+    system and the min/max values of the target hull ranges in every dimension are taken
+    as the new default ranges for the cut. The default ranges are taken for the directions
+    where ``[]`` is used for requested ranges. The number of bins in selected dimension is 
+    taken equal to the number of bins in the source dimension which have the same number as source 
+    dimension. 
+    
+    E.g. if your provide ``[]`` for ``p4_bin`` you specify ``dE`` ranges for 4-th dimension.
+    No projections currently change the energy axis, so this will lead to target cut 
+    having the same binning ranges in ``dE`` direction as the source cut. 
+    If you provide ``[]`` for ``p3_bin`` and your source coordinate system is linear (defined by ``linear_proj``) and 
+    target coordinate system is cylindrical (defined by ``cylinder_proj`` see more on :ref:`cylindrical_projection`) 
+    cut algorithm will try to identify :math:`\phi` range (3-rd coordinate of cylindrical coordinate system)
+    of the source cuboid in the cylindrical coordinate system. The number of bins for the :math:`\phi` range
+    will be equal to the number of bins in ``q-3`` dimension of the source coordinate system. If 
+    ``q-3`` dimension was integrated, the :math:`\phi` dimension of the target cylindrical coordinate system
+    will be also integrated.
+
+.. warning::
+    
+   The algorithm which identifies binning ranges is pretty basic algorithm. It works reliably in simple cases, e.g. 
+   for transformations described by projections of the same kind (e.g. ``line_proj->line_proj``
+   or ``sphere_proj->sphere_proj`` where the offset between two projection is unchanged). In more complex cases,
+   e.g.  ``line_proj->cylinder_proj`` when ``cylinder_proj`` axes are not aligned with ``line_proj`` axes, algorithm
+   do not converge after reasonable number of iterations and returns warning similar to:
+   
+     ' target range search algorithm have not converged after 5 iterations.
+       Search have identified the following default range:
+      0        0.0120  -179.9641
+      1.5843   90.0000  179.9641
+      This range may be inaccurate'
+
+   User should evaluate how acceptable is this result for the purposes of the desired cut and 
+   specify 3 or 2-component binning ranges below to get more accurate binning and extending
+   requested binning ranges if in doubt. 
 
 
 Legacy calls to ``cut``: ``cut_sqw`` and ``cut_dnd``
