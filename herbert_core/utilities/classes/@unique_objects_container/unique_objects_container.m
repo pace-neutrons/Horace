@@ -409,7 +409,7 @@ classdef unique_objects_container < serializable
                 newself = newself.add(item);
             end
         end
-
+        
         function hash = hashify(self,obj,reset_count)
             % makes a hash from the argument object
             % which will be unique to any identical object
@@ -419,7 +419,37 @@ classdef unique_objects_container < serializable
             % Output:
             % - hash : the resulting has, a row vector of uint8's
             %
+            % this method started out as an instance method but now
+            % contains no references to self. For simplicity, keeping the
+            % original method (this one) as a wrapper to the static method
+            % now used => no other code changes
+            if nargin<=2
+                hash = self.hashify_obj(obj);
+            else
+                hash = self.hashify_obj(obj,reset_count);
+            end
+        end
+    end
+    
+    methods(Static)
+
+        function hash = hashify_obj(obj,reset_count)
+            % makes a hash from the argument object
+            % which will be unique to any identical object
+            %
+            % Input:
+            % - obj : object to be hashed
+            % Output:
+            % - hash : the resulting has, a row vector of uint8's
+            %
+
+            % In case the java engine is going to be used, initialise it as
+            % a persistent object
             persistent Engine;
+            if isempty(Engine)
+                Engine = java.security.MessageDigest.getInstance('MD5');
+            end
+
             %{
             % monitor for use of hashing. As this issue may continue, leaving it in the code
             persistent count;
@@ -435,19 +465,34 @@ classdef unique_objects_container < serializable
             count
             disp(class(obj));
             %}
-            if isempty(Engine)
-                Engine = java.security.MessageDigest.getInstance('MD5');
-            end
-            if isa(obj,'serializable') && ~self.non_default_f_conversion_set_
-                % use default serializer, build up by us for serializable objects
-                Engine.update(obj.serialize());
+
+            if isa(obj,'serializable') 
+                bytestream = (obj.serialize());
             else
-                %convert_to_stream_f_ = @getByteStreamFromArray;
-                Engine.update(self.convert_to_stream_f_(obj));
+                bytestream = serialize(obj);
             end
+            %{
             hash = typecast(Engine.digest,'uint8');
             hash = char(hash');
+            %}
+            hhc = hor_config;
+            if hhc.use_mex
+                % mex version to be used, use it
+                hash = GetMD5(bytestream);
+            else
+                % mex version not to be used, manually construct from the
+                % Java engine
+                Engine.update(bytestream);
+                hash1 = Engine.digest;
+                hash2 = dec2hex(hash1);
+                hash3 = cellstr(hash2);
+                hash4 = horzcat(hash3{:});
+                hash = lower(hash4);
+            end
         end
+    end
+    
+    methods
 
         function self = rehashify_all(self,with_checks)
             % recalculate hashes of all objects, stored in the container
