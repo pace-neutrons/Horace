@@ -425,8 +425,10 @@ if is_ix_dataset
     wdisp = wdisp_in;
 elseif opt.smooth > 0  % smooth does not work for IX_datasets.
     wdisp = arrayfun(@(x) IX_dataset_2d(smooth(x, opt.smooth, opt.smooth_shape)), wdisp_in);
+    out{2}= wdisp_in;
 else
     wdisp = arrayfun(@IX_dataset_2d, wdisp_in);
+    out{2}= wdisp_in;
 end
 if nout>0
     out{1} = wdisp;
@@ -434,7 +436,7 @@ end
 if is_ix_dataset
     labels = cell(1,length(wdisp_in));
 else
-    labels = cell(1,length(wdisp_in)+1);    
+    labels = cell(1,length(wdisp_in)+1);
 end
 
 for i=1:length(wdisp_in)
@@ -532,7 +534,7 @@ if nout>2
     [fig_,axes_,plots_]=plot(wdisp);
     out{3} = fig_;
     out{4} = axes_;
-    out{5} = plots_;    
+    out{5} = plots_;
 else
     plot(wdisp);
 end
