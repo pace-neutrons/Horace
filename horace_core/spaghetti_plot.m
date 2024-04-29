@@ -20,6 +20,9 @@ function varargout = spaghetti_plot(varargin)
 %
 %   >> [wdisp,cuts] = spaghetti_plot(...)                    % generates a set of 1D cuts
 %   >> [wdisp, cuts] = spaghetti_plot(...,'withpix')         % return cuts as sqw rather than d1ds
+%   >> [...,fig,axes,plots] = spaghetti_plot(...,'withpix')  % in addition
+%                         to previous outputs, return handle to the image,
+%                         axes and all plots displayed by spaghetti plot.
 %
 % Input:
 % ------
@@ -119,16 +122,16 @@ function varargout = spaghetti_plot(varargin)
 % Set defaults
 % ------------
 arglist = struct('qbin', 0.05, ...
-                 'qwidth', 0.1, ...
-                 'ebin', [], ...
-                 'labels', '', ...
-                 'noplot', false, ...
-                 'smooth', 0, ...
-                 'smooth_shape', 'hat',...
-                 'logscale', false, ...
-                 'clim', [NaN NaN], ...
-                 'cuts_plot_size', [], ...
-                 'withpix', false);
+    'qwidth', 0.1, ...
+    'ebin', [], ...
+    'labels', '', ...
+    'noplot', false, ...
+    'smooth', 0, ...
+    'smooth_shape', 'hat',...
+    'logscale', false, ...
+    'clim', [NaN NaN], ...
+    'cuts_plot_size', [], ...
+    'withpix', false);
 flags = {'noplot', 'logscale', 'withpix'};
 
 % Parse the arguments:
@@ -136,16 +139,22 @@ flags = {'noplot', 'logscale', 'withpix'};
 [args, opt, present] = parse_arguments(varargin, arglist, flags);
 
 if numel(args) == 1 && (isa(args{1}(1), 'd2d') || isa(args{1}(1), 'IX_dataset_2d'))
-    plot_dispersion(args{1}, opt);
+    out = plot_dispersion(args{1}, opt,nargout);
+    if nargout>0
+        varargout = data_plot_interface.set_argout(nargout,out{:});
+    end
     return
 elseif isa(args{2}(1), 'd2d')
-    plot_dispersion(args{2}, opt);
+    out = plot_dispersion(args{2}, opt,nargout);
+    if nargout>0
+        varargout = data_plot_interface.set_argout(nargout,out{:});
+    end
     return
 end
 
 if numel(args) ~= 2
     error('HORACE:spaghetti_plot:invalid_argument', ...
-          'Invalid number of arguments')
+        'Invalid number of arguments')
 end
 
 rlp = args{1};
@@ -155,23 +164,23 @@ sqw_in = args{2};
 
 if size(rlp, 2) ~= 3 || num_rlp < 2
     error('HORACE:spaghetti_plot:invalid_argument', ...
-          'It should be at least 2 rlp arranged in array [Nx3] (N >= 2) but size of the rlp array is: [%d, %d];', ...
-          size(rlp))
+        'It should be at least 2 rlp arranged in array [Nx3] (N >= 2) but size of the rlp array is: [%d, %d];', ...
+        size(rlp))
 end
 
 if present.cuts_plot_size
     if nseg ~= numel(opt.cuts_plot_size)
         error('HORACE:spaghetti_plot:invalid_argument', ...
-              [' the size of the cut_plot_dist array should be one less than the number of rlp points.'...
-               ' In fact the number of rlp is %d and the number of distances is %d'], ...
-              num_rlp, numel(opt.cuts_plot_size));
+            [' the size of the cut_plot_dist array should be one less than the number of rlp points.'...
+            ' In fact the number of rlp is %d and the number of distances is %d'], ...
+            num_rlp, numel(opt.cuts_plot_size));
     end
 
     invalid = opt.cuts_plot_size <= 0;
     if any(invalid)
         error('HORACE:spaghetti_plot:invalid_argument', ...
-              'the plot sizes should be positive numbers but some of them are: %g; %g; %g; %g; %g', ...
-              opt.cuts_plot_size(invalid));
+            'the plot sizes should be positive numbers but some of them are: %g; %g; %g; %g; %g', ...
+            opt.cuts_plot_size(invalid));
     end
 end
 
@@ -181,7 +190,7 @@ elseif istext(sqw_in) && is_file(sqw_in)
     sqw_in = sqw(sqw_in);
 else
     error('HORACE:spaghetti_plot:invalid_argument', ...
-          'Check argument giving data source. Must be an sqw object or sqw file')
+        'Check argument giving data source. Must be an sqw object or sqw file')
 end
 
 qbin = opt.qbin;
@@ -189,7 +198,7 @@ qwidth = opt.qwidth;
 szq = numel(qwidth(:));
 
 if szq == 1 % "Square" for all segments
-    qwidth = repmat(opt.qwidth, 2, nseg);  
+    qwidth = repmat(opt.qwidth, 2, nseg);
 elseif szq == 2 % Rectangular for all segments
     qwidth = repmat(opt.qwidth(:), 1, nseg);
 elseif szq == nseg  % "Square" for each segment
@@ -198,8 +207,8 @@ elseif szq == 2*nseg % Rectangular for each segments
     qwidth = reshape(opt.qwidth, 2, nseg);
 else
     error('HORACE:spaghetti_plot:invalid_argument', ...
-          ['qwidth size must be one of: [1, 1], [2, 1], [1, nseg], or [2, nseg].\n' ...
-           'Received: %s'], disp2str(opt.qwidth))
+        ['qwidth size must be one of: [1, 1], [2, 1], [1, nseg], or [2, nseg].\n' ...
+        'Received: %s'], disp2str(opt.qwidth))
 end
 
 ebin = opt.ebin;
@@ -254,7 +263,7 @@ end
 
 if ~isempty(plane_normal)
     fprintf('spaghetti_plot: rlp found to lie in the plane perpendicular to (%g %g %g)\n', ...
-            sqw_proj.transform_img_to_hkl(plane_normal'));
+        sqw_proj.transform_img_to_hkl(plane_normal'));
 end
 
 
@@ -301,9 +310,9 @@ for i = 1:nseg
     dqw_rs = dqw_frac .* ulen(2);
 
     proj = line_proj(q_dir_rs, ...
-                     dqv_rs, ...
-                     dqw_rs, ...
-                     'type', 'rrr');
+        dqv_rs, ...
+        dqw_rs, ...
+        'type', 'rrr');
 
     % determines the bin size in the desired q-direction in r.l.u.
     u1bin = qbin / ulen(1);
@@ -315,8 +324,8 @@ for i = 1:nseg
     u20 = dot(q_start_abs, dqv_abs) / ulen(2);
     u30 = dot(q_start_abs, dqw_abs) / ulen(3);
     u1 = [dot(q_start_abs, q_dir_abs) / ulen(1), ...
-          u1bin, ...
-          dot(q_end_abs, q_dir_abs) / ulen(1)];
+        u1bin, ...
+        dot(q_end_abs, q_dir_abs) / ulen(1)];
 
     % Radu Coldea on 19/12/2018: adjust qbin size to have an exact
     % integer number of bins between the start and end points
@@ -351,10 +360,10 @@ for i = 1:nseg
 
     if present.labels
         titlestr = sprintf('Segment from "%s" (%f %f %f) to "%s" (%f %f %f)', ...
-                           opt.labels{i}, rlp(i, :), opt.labels{i+1}, rlp(i+1, :));
+            opt.labels{i}, rlp(i, :), opt.labels{i+1}, rlp(i+1, :));
     else
         titlestr = sprintf('Segment from (%f %f %f) to (%f %f %f)', ...
-                           rlp(i, :), rlp(i+1, :));
+            rlp(i, :), rlp(i+1, :));
     end
 
     if i > 1
@@ -369,8 +378,6 @@ for i = 1:nseg
                 '^{-1} in qv and %f ', char(197), '^{-1} in qw\n%s\n%s'], qwidth(:, i), binstr, titlestr);
         end
     end
-
-
 end
 
 if nargout > 0
@@ -386,10 +393,12 @@ end
 end
 
 %========================================================================================================
-function plot_dispersion(wdisp_in,opt)
+function out = plot_dispersion(wdisp_in,opt,nout)
 % Plots the dispersion in the structure wdisp
 
+out = cell(1,nout);
 if opt.noplot
+    out{1} = wdisp_in;
     return
 end
 
@@ -418,6 +427,14 @@ elseif opt.smooth > 0  % smooth does not work for IX_datasets.
     wdisp = arrayfun(@(x) IX_dataset_2d(smooth(x, opt.smooth, opt.smooth_shape)), wdisp_in);
 else
     wdisp = arrayfun(@IX_dataset_2d, wdisp_in);
+end
+if nout>0
+    out{1} = wdisp;
+end
+if is_ix_dataset
+    labels = cell(1,length(wdisp_in));
+else
+    labels = cell(1,length(wdisp_in)+1);    
 end
 
 for i=1:length(wdisp_in)
@@ -468,7 +485,7 @@ for i=1:length(wdisp_in)
         bra = strfind(title, '(');
         ket = strfind(title, ')');
         hkls = [sscanf(title(bra(1):ket(1)), '(%f %f %f)');
-                sscanf(title(bra(2):ket(2)), '(%f %f %f)')];
+            sscanf(title(bra(2):ket(2)), '(%f %f %f)')];
         quotes = strfind(title, '"');
 
         % hkl points for segments previous and current do not match'
@@ -494,12 +511,11 @@ for i=1:length(wdisp_in)
         inthkl = kron(wdisp_in(i).iint', wdisp_in(i).u_to_rlu(:, wdisp_in(i).iax));
         hklcen = sum([mean(inthkl(1:3, [1 3]), 2), mean(inthkl(5:7, [2 4]), 2)], 2);
         hkls = [wdisp_in(i).p{1}(1) * hkldir + hklcen; ...
-                wdisp_in(i).p{1}(end) * hkldir + hklcen];
+            wdisp_in(i).p{1}(end) * hkldir + hklcen];
         labels{i} = ['[', str_compress(num2str(hkls(1:3)'), ', '), ']'];
         labels{i+1} = ['[', str_compress(num2str(hkls(4:6)'), ', '), ']'];
 
     end
-
     hkl0 = hkls;
 end
 
@@ -512,8 +528,14 @@ if opt.logscale
 end
 
 wdisp(1).title = title1(1:lnbrk);
-
-plot(wdisp);
+if nout>2
+    [fig_,axes_,plots_]=plot(wdisp);
+    out{3} = fig_;
+    out{4} = axes_;
+    out{5} = plots_;    
+else
+    plot(wdisp);
+end
 hold on;
 
 xrlp = zeros(length(wdisp) + 1, 1);
@@ -522,14 +544,13 @@ for i=1:length(wdisp)
     xrlp(i+1) = wdisp(i).x(end);
     plot([1 1] * xrlp(i+1), get(gca,'YLim'), '-k');
 end
-
 hold off;
 
 if ~isempty(opt.labels)
     if ~iscellstr(opt.labels) || numel(opt.labels) ~= length(wdisp)+1
         warning('HORACE:bad_labels', ...
-                ['Not using user-supplied labels. They are either not a cell array of' ...
-                 'strings or not enough for all segments']);
+            ['Not using user-supplied labels. They are either not a cell array of' ...
+            'strings or not enough for all segments']);
     end
 
     labels = opt.labels;
@@ -550,7 +571,6 @@ if sum(isnan(opt.clim)) ~= 2
 end
 
 if opt.logscale
-
     if sum(isnan(opt.clim))~=2
         clim = opt.clim;
     else
@@ -591,11 +611,11 @@ if opt.logscale
     for i=0:numel(majorticks)-2
         unit = 10^majorticks(i+1);
         tick_index = tick_index + step;
-        minorticks(tick_index:tick_index + step) = [unit:unit:step*unit];
+        minorticks(tick_index:tick_index + step) = unit:unit:step*unit;
         ticklabels{tick_index} = num2str(unit);
     end
 
-    tick_index = tick_index + step
+    tick_index = tick_index + step;
 
     minorticks(tick_index:end) = ticksafter;
     ticklabels{tick_index} = num2str(10^majorticks(end));
@@ -603,7 +623,6 @@ if opt.logscale
     set(hc, 'Ticks', log10(minorticks));
     set(hc, 'TickLabels', ticklabels);
 end
-
 end
 
 function plot_labels(labels,xvals)
