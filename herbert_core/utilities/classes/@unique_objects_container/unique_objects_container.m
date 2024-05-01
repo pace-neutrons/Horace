@@ -428,7 +428,7 @@ classdef unique_objects_container < serializable
             if nargin<=2
                 hash = Hashing.hashify_obj(obj);
             else
-                hash = Hashify.hashify_obj(obj,reset_count);
+                hash = Hashing.hashify_obj(obj,reset_count);
             end
         end
 
