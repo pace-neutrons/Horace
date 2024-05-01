@@ -757,7 +757,7 @@ void ToHex(const uchar_T digest[16], char *output, int LowerCase)
   char *outputEnd, *Fmt;
   const uchar_T *s = digest;
   
-  Fmt = LowerCase ? "%02x" : "%02X";
+  Fmt = (char*)(LowerCase ? "%02x" : "%02X");
   
   for (outputEnd = output + 32; output < outputEnd; output += 2) {
      sprintf(output, Fmt, *(s++));
