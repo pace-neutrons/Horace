@@ -1,6 +1,6 @@
 set(
     SRC_FILES
-    "GetMD5.c"
+    "GetMD5.cpp"
 )
 
 set(
