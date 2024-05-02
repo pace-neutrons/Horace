@@ -47,7 +47,7 @@ if isstruct(argi) % presumably structure which have been already processed
     end
     opts = kwargs;
 else
-    parser_opts = struct('prefix', '-', 'prefix_req', false);
+    parser_opts = struct('prefix_req', false);
     [~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwargs, flags, ...
         parser_opts);
 

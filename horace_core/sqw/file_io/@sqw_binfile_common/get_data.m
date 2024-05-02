@@ -146,7 +146,7 @@ kwargs = struct('pixel_page_size', page_size);
 for flag_idx = 1:numel(flags)
     kwargs.(flags{flag_idx}) = false;
 end
-parser_opts = struct('prefix', '-', 'prefix_req', false);
+parser_opts = struct('prefix_req', false);
 [~, opts, ~, ~, ok, mess] = parse_arguments(varargin, kwargs, flags, ...
     parser_opts);
 if ~ok

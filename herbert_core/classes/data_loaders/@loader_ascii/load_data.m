@@ -33,9 +33,9 @@ if use_mex
     try
         [S,ERR,en] = get_ascii_file(file_name ,'spe');
     catch err
-        force_mex = get(hor_config,'force_mex_if_use_mex');
+        [force_mex,ll]=config_store.instance().get_value('hor_config','force_mex_if_use_mex','log_level');
         if ~force_mex
-            if get(hor_config,'log_level')>-1
+            if ll > -1
                 warning('HERBERT:loader_ascii:runtime_error',' Cannot read data using C++ routines -- reverted to Matlab\n Reason: %s',err.message);
             end
             use_mex=false;

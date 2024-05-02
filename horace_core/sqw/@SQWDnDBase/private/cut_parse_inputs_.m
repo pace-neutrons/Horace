@@ -133,7 +133,7 @@ opt = struct();
 keyval_def = struct('pix',true,'parallel',false,'save',false);
 flags = {'pix','parallel','save'};
 
-parse_opt = struct('prefix','-','keys_at_end',false);
+parse_opt = struct('keys_at_end',false);
 [par, keyval, present, ~, ok, mess] = parse_arguments(varargin, keyval_def, flags, parse_opt);
 if ~ok
     error('HORACE:cut:invalid_argument', mess)

@@ -251,7 +251,7 @@ function varargout=docify(varargin)
 % ------------
 keyval_def = struct('recursive',false,'all',false','key',{{}},'list',1,'display',true);
 flagnames = {'recursive','display','all'};
-opt=struct('prefix','-','prefix_req',true);
+opt=struct('prefix_req',true);
 [pars,keyval,present] = parse_arguments (varargin, keyval_def, flagnames, opt);
 
 % Determine if spans directory or just a single file
