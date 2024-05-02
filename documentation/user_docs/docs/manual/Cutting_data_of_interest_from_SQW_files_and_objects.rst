@@ -29,7 +29,6 @@ data, a user works with smaller objects, extracted from the full dataset using
   slice-o-matic), 2-d and 1-d cuts can be easily represented.
 - The entire dataset is often too large to fit in the memory of most computers.
 
-:: _cut:
 
 cut
 ===
@@ -148,7 +147,8 @@ Binning arguments
 
 The binning arguments (``p1_bin``, ``p2_bin``, ``p3_bin`` and ``p4_bin``)
 specify the binning / integration ranges for the Q & Energy axes in **the target
-projection's** coordinate system (c.f. `Projection in more detail`_).
+projection's** coordinate system (c.f. `Projection in more detail`_ and
+`changing projections`_).
 
 Each can independently have one of four different forms below.
 
@@ -159,28 +159,33 @@ Each can independently have one of four different forms below.
    to ensure your cut is what you expect.
 
 
-* ``[]`` Automatic binning calculations. 
-    Empty brackets indicate that the cut algorithm should identify binning ranges itself.
-    The step size of the target binning is taken equal to the step size of the binning 
-    currently present in the source image in the direction with the same 
-    number as the number of binning argument ``[]``. In more details auto-binning algorithm is described
-    :ref:`below <bin_ranges_calculations>`.
-    
+* ``[]``
 
-* ``[step]`` Automatic binning calculations with binning step size.
-    Single (scalar) number defines a plot axis with bin width equal to the number you specify. 
-    The lower and upper limits are calculated by the same algorithm as the binning range in ``[]``-brackets case.  
+  An empty binning range will use the source binning axes in that dimension.
+
+* ``[step]``
+
+  A single (scalar) number defines a plot axis.
+
+  The bin width will be equal to the number you specify. The lower and upper
+  limits will be from the source binning axes in that dimension.
 
 .. note::
 
-   A value of ``[0]`` is equivalent to ``[step]`` using bin size of the source coordinate system. This may lead
-   to strange or incorrect result if target coordinate system is changed significantly so reasonable ``0.01`` 
-   q-step may be used as step size for ``-180:180`` :math:`\phi` binning range of spherical or cylindrical
-   coordinate system, creating 36000 bins in :math:`\phi` direction, which is useless and probably fail.
-   
-* ``[lo,hi]`` Integration axis in binning direction. 
-    A vector with two components defines integration axis.
-    The signal will be integrated over that axis between limits specified by the two components of the vector.
+   A value of ``[0]`` is equivalent to ``[step]`` using bin size of the source
+   coordinate system.
+
+.. warning::
+
+   When changing projections e.g. ``line_proj`` to ``sphere_proj``, using either
+   ``[]`` or ``[step]`` see, `changing projections`_ below.
+
+* ``[lower,upper]``
+
+  A vector with two components defines an integration axis.
+
+  The signal will be integrated over that axis between the limits specified by
+  the two components of the vector.
 
 .. warning::
 
@@ -188,11 +193,13 @@ Each can independently have one of four different forms below.
    edges. For example, ``[-1 1]`` will capture pixels from ``-1`` to ``1``
    inclusive.
 
-* ``[lower,step,upper]`` Plot axis in binning direction.
-    A three-component binning axis specifies plot axis.
-    The first  ``lower`` and the last ``upper`` components specifying the centres of the
-    first and the last bins of the data to be cut. The middle component specifies
-    the bin width.
+* ``[lower,step,upper]``
+
+    A vector with three components defines a plot axis.
+
+    The first ``lower`` and the last ``upper`` components specifying the centres
+    of the first and the last bins of the data to be cut. The middle component
+    specifies the bin width.
 
 .. note ::
 
@@ -206,24 +213,34 @@ Each can independently have one of four different forms below.
    1]`` will capture pixels from ``-1.5`` to ``1.5`` inclusive.
 
 
-* ``[lower, separation, upper, cut_width]``  Multiple cuts.
-    A four-component binning axis defines
-    **multiple** cuts with **multiple**  integration limits in the selected direction.
-    These components are:
+* ``[lower, separation, upper, cut_width]``
 
+  A vector with four components defines **multiple** integration axes with
+  **multiple** integration limits in the selected direction.
 
-  * ``lower``      --   bin-centre of the first cut
+  These components are:
 
-  * ``separation`` --   distance between cut bin-centres
+  * ``lower``
 
-  * ``upper``      --   bin-centre of the last cut  
+    Position of the lowest cut bin-centre.
 
-  * ``cut_width``  --   half-width of each cut from each bin-centre in both directions
+  * ``separation``
+
+    Distance between cut bin-centres.
+
+  * ``upper``
+
+    Approximate (see :ref:`below <separation_warn>`) position of highest cut bin-centre
+
+  * ``cut_width``
+
+    Width of each cut, centred on each bin-centre, thus extending one half-width
+    in both directions
 
   The number of cuts produced will be one more than the number of
   ``separation``-sized steps between ``lower`` and ``upper``.
 
-.. figure:: ../images/4-element-diag.jpg
+.. figure:: ../images/4-element-diag.png
    :align: center
    :width: 500px
 
@@ -232,8 +249,9 @@ Each can independently have one of four different forms below.
    ``upper = 7``, ``separation = 2`` and ``cut_width = 0.6``, i.e ``[1,
    2, 7, 0.6]``. :math:`\zeta` and :math:`\xi` are arbitrary axes
    where :math:`\zeta` is the specified axis. This will produce 4 cut
-   objects around ``1,3,5`` and ``7``.
+   objects around ``1``, ``3``, ``5`` and ``7``.
 
+.. _separation_warn:
 
 .. warning::
 
@@ -246,37 +264,38 @@ Each can independently have one of four different forms below.
 File- and memory-backed cuts
 ----------------------------
 
-``cut`` generally tries to return its result in memory. 
-However, if the resulting object
-is sufficiently large with the threshold determined by the
-configuration parameters ``mem_chunk_size`` and ``fb_scale_factor`` defined
-in :ref:`Horace config <manual/Changing_Horace_settings:Horace Config>` class, the object is 
-placed in temporary file and becomes filebacked. This happens if the number of pixels 
-in the result exceeds  the value of the product ``mem_chunk_size*fb_scale_factor``. 
-See :ref:`manual/Changing_Horace_settings:Changing Horace settings` for more
-information about configuring Horace.
+``cut`` generally tries to return its result in memory. However, if the
+resulting object is sufficiently large (the threshold of which is the product of
+``mem_chunk_size`` and ``fb_scale_factor`` defined in the :ref:`Horace config
+<manual/Changing_Horace_settings:Horace Config>`), the object is written to a
+temporary file and will be "file-backed".
 
-Temporary file means that the backing file will be deleted when the ``sqw`` object,
-which is backed by this file is deleted. 
+.. note::
 
-If the ``filename`` argument is provided, the object will always saved to the file
-with this name and the returned object will be backed by this file.
-This file will not be temporary file. 
+   The file being temporary means that it will be deleted when the ``sqw``
+   object backed by this file is deleted.
+
+If the ``filename`` argument is provided to ``cut``, the object will always
+saved to a file with this name and the returned object will be backed by this
+file. This file will not be temporary file.
 
 .. warning::
 
-   If ``sqw`` object is backed by temporary file, the object and its descendants 
-   (through subsequent operations) will all be temporary.
+   If an ``sqw`` object is backed by a temporary file, the object and its
+   descendants (through subsequent operations) will all be temporary.
 
-   To ensure an ``sqw`` is kept, you should permanently :ref:`manual/Save_and_load:save`
-   this object to a file specified as argument of ``save`` function.
-   
+   To ensure an ``sqw`` is kept, you can :ref:`manual/Save_and_load:save` this
+   object to a file permanently.
+
 .. note::
-   
-   Operations with filebacked objects is often substantially slower then with memory based objects.
-   Both because objects themselves are much bigger, and as getting data from file is normally three 
-   order of magnitude slower than accessing data in memory.
-   
+
+   Operations with file-backed objects are substantially slower then
+   memory-backed objects.
+
+   This is because the objects themselves are usually bigger, and because
+   reading data from disc is around three orders of magnitude slower than from
+   memory.
+
 
 Projection in more detail
 -------------------------
@@ -309,11 +328,17 @@ The complete signature for ``line_proj`` is:
 Where:
 
 
-* ``u`` -- 3-vector in reciprocal space :math:`(h,k,l)` specifying first viewing axis.
+* ``u``
 
-* ``v`` -- 3-vector in reciprocal space :math:`(h,k,l)` in the plane of the second viewing axis.
+  3-vector in reciprocal space :math:`(h,k,l)` specifying first viewing axis.
 
-* ``w`` -- 3-vector of in reciprocal space :math:`(h,k,l)` of the third viewing axis.
+* ``v``
+
+  3-vector in reciprocal space :math:`(h,k,l)` in the plane of the second viewing axis.
+
+* ``w``
+
+  3-vector of in reciprocal space :math:`(h,k,l)` of the third viewing axis.
 
 
 .. note::
@@ -324,7 +349,7 @@ Where:
    and ``v`` and perpendicular to ``u``.
 
    The third viewing axes is by default defined as the cross product of the first
-   two. (:math:`u \times{} v`)
+   two (:math:`u \times{} v`).
 
    The fourth viewing axis is always energy and cannot be modified.
 
@@ -366,19 +391,15 @@ Where:
 .. note::
 
   If you don't specify ``nonorthogonal``, or set it to ``false``, you will get
-  orthogonal axes defined by ``u`` and ``v`` normal to ``u`` and ``u`` x
+  orthogonal axes defined by ``u`` and ``v`` normal to ``u`` and ``u`` :math:`\times`
   ``v``. Setting ``nonorthogonal`` to ``true`` forces the axes to be exactly the ones
   you define, even if they are not orthogonal in the crystal lattice basis.
 
   .. warning::
 
      Any plots produced using a non-orthogonal basis will plot them as though
-     the basis vectors are orthogonal, so features may be skewed (see
+     the basis vectors are orthogonal, so features may be distorted (see
      `below <#non-orthogonal-axes>`_) .
-
-     The benefit to this is that it makes reading the location of a feature in a
-     two-dimensional **Q**-**Q** plot straightforward. This is the main reason for
-     treating non-orthogonal bases this way.
 
 * ``type``
 
@@ -388,19 +409,29 @@ Where:
 
   There are 3 possible options for each element of ``type``:
 
-  1. ``'a'`` --  Inverse angstroms
+  1. ``'a'``
 
-  2. ``'r'`` --  Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
+     Inverse angstroms
+
+  2. ``'r'``
+
+     Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
      :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
 
-  3. ``'p'`` --  Preserve the values of ``u`` and ``v``
+  3. ``'p'``
+
+     Preserve the values of ``u`` and ``v``
 
   For example, if we wanted the first two **Q**-components to be in r.l.u. and
   the third to be in inverse Angstroms we would have ``type = 'rra'``.
 
-* ``alatt``  -- 3-vector of lattice parameters.
+* ``alatt``
 
-* ``angdeg`` -- 3-vector of lattice angles in degrees.
+  3-vector of lattice parameters.
+
+* ``angdeg``
+
+  3-vector of lattice angles in degrees.
 
 .. note::
 
@@ -409,7 +440,9 @@ Where:
    ``cut``. However, there are cases where a projection object may
    need to be reused elsewhere.
 
-* ``offset`` -- 3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
+* ``offset``
+
+  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
   origin of the projection coordinate system. For example you may wish to make
   the origin of all your plots :math:`[2,1,0]`, in which case set ``offset
   = [2,1,0]``.
@@ -417,11 +450,17 @@ Where:
 
 .. _plotargs:
 
-* ``label`` -- 4-element cell-array of captions for axes of plots.
+* ``label``
 
-* ``title`` --  Plot title for cut result.
+  4-element cell-array of captions for axes of plots.
 
-* ``lab[1-4]`` --  Individual components label (for historical reasons).
+* ``title``
+
+  Plot title for cut result.
+
+* ``lab[1-4]``
+
+  Individual components label (for historical reasons).
 
 .. note::
 
@@ -492,54 +531,27 @@ You may choose to use non-orthogonal axes (c.f. `here <#nonortho>`_), e.g.:
 
    proj = line_proj([1 0 0], [0 1 0], [0 0 1], 'nonorthogonal', true);
 
-The figure below shows the difference between ``nonorthogonal=false`` and
-``nonorthogonal=true`` for plotting fake "Bragg reflections" from a
-non-orthogonal lattice (``alatt=[2,2,4]``, ``angdeg=[90,90,70]``) where the
-reflections occur in the r.l.u. points where ``hkl`` coordinates are integers.
+Below is an example:
 
-
- .. figure:: ../images/orthogonal_vs_nonorthogonal_proj.png
+.. figure:: ../images/orthogonal_vs_nonorthogonal_proj.png
    :align: center
    :width: 800px
-   :alt: 2d cuts ortho and non-ortho.
+   :alt: Plot of Uranium-Palladium-3 for cases where the projection is
+         orthogonal and non-orthogonal.
 
-   Sample plot for cases where projection is a) orthogonal and b) non-orthogonal.
+   Plot to show the difference between ``nonorthogonal=false`` and
+   ``nonorthogonal=true`` with a hexagonal material (:math:`\textrm{UPd}_3`)
+   where ``angdeg=[90,90,120]``.
 
-We can see that for the ``nonorthogonal=false`` case the reciprocal lattice
-maintains its symmetry, but the ``nonorthogonal=true`` image produces precise
-axis-labels but a skewed image.
+We can see that for the ``nonorthogonal=false`` case, the image clearly shows
+the hexagonal symmetry and circular powder rings, but the axes being
+:math:`[\zeta,0,0]` and :math:`[-0.5\xi,\xi,0]` even in this simple case makes
+computing where points lie in :math:`hkl` trickier.
 
-.. note::
-
-   These images are produced by the following code:
-
-   .. code-block:: matlab
-
-      function w = reflection(h, k, l, e, p)
-           grid_h = round(h);
-           grid_k = round(k);
-           grid_l = round(l);
-           w = p(1)*exp(-((h-grid_h).^2+(k-grid_k).^2+(l-grid_l).^2)/p(2));
-      end
-
-      function plot_cuts()
-           proj = line_proj([1, 0, 0], [0, 1, 0], [], false, 'rrr', [2, 2, 4], [90, 90, 70]);
-           ax = line_axes('nbins_all_dims', [200, 200, 1, 1], 'img_range', [-4, -3, -0.1, -5;4, 3, 0.1, 5]);
-           tsqw = sqw.generate_cube_sqw(ax, proj);
-           tsqw = sqw_eval(tsqw, @reflection, [1, 0.01]);
-           plot(tsqw)
-           keep_figure
-           proj = line_proj([1, 0, 0], [0, 1, 0], [], true, 'rrr', [2, 2, 4], [90, 90, 70]);
-           tso = sqw.generate_cube_sqw(ax, proj);
-           tso = sqw_eval(tso, @reflection, [1, 0.01]);
-           plot(tso)
-      end
-
-   which plots 2D exponential decay around points where ``h,k,l`` are integers.
-
-   Note that this usage of a projection different from its usage in `cut <#cut>`_:
-   the construction of ``line_proj`` here uses positional arguments and because we are building an
-   artificial ``sqw`` object, the projection needs the lattice to be explicitly defined.
+Where we have ``nonorthogonal=true``, this makes it easier to calculate the
+location of points in :math:`hkl` (the Bragg peaks align in a square pattern and
+the axes are simply :math:`[\zeta,0,0]` and :math:`[\xi,0,0]`), but distorts the
+image (note the powder rings which should be circular).
 
 
 ``line_proj`` 2D cut examples: Fe Scattering Function
@@ -629,7 +641,7 @@ Spherical Projections
 In order to construct a spherical projection (i.e. a projection in |Q|,
 :math:`\theta` (polar angle), :math:`\phi` (azimuthal angle), :math:`E`) we
 create a projection in an analogous way to the ``line_proj``, but using the
-``sphere_proj`` function:
+``sphere_proj`` function.
 
 The complete signature for ``sphere_proj`` is:
 
@@ -639,16 +651,28 @@ The complete signature for ``sphere_proj`` is:
 
 where:
 
-- ``u`` The direction of the :math:`z`-axis of the spherical coordinate system. 
-    The vector :math:`u` is the reciprocal space vector defining the direction of the :math:`z`-axis 
-    of the target spherical coordinate system.  See :ref:`fig_sphere_coodinates` for details.
+- ``u``
 
-- ``v``  The direction of the :math:`x`-axis of the spherical coordinate system. 
-    The vector :math:`v` is the reciprocal space vector defining the direction of the :math:`x`-axis 
-    of the target spherical coordinate system. The reciprocal space vectors :math:`u`-:math:`v` are not
-    always orthogonal so the actual direction of spherical coordinate system :math:`x`-axis lies
-    in the plane defined by :math:`u`-:math:`v` vectors and is orthogonal to :math:`z`-axis. See 
-    :ref:`fig_sphere_coodinates` for details.
+  The vector :math:`\vec{u}` is the reciprocal space vector defining the
+  polar-axis of the spherical coordinate system from which :math:`\theta` is
+  measured.
+
+  See the :ref:`diagram below <fig_sphere_coodinates>` for details.
+
+- ``v``
+
+  The vector :math:`\vec{v}` is the reciprocal space vector which defines the
+  second component of the :math:`u`-:math:`v` plane from which :math:`\phi` is
+  measured.
+
+  See the :ref:`diagram below <fig_sphere_coodinates>` for details.
+
+.. note::
+
+  The reciprocal space vectors :math:`u`-:math:`v` are not necessarily
+  orthogonal so the actual axis from which :math:`\phi` is measured lies in the
+  plane defined by :math:`u`-:math:`v` vectors, orthogonal to :math:`u`.
+
 
 .. note::
 
@@ -658,19 +682,20 @@ where:
 
 .. note::
 
-   By default a ``sphere_proj`` will define its principal axes
-   :math:`u` and :math:`v` along the :math:`hkl` directions
-   :math:`[1,0,0]` (:math:`u`) and :math:`[0,1,0]` (:math:`v`)
-   respectively.
+   By default a ``sphere_proj`` will define its principal axes :math:`u` and
+   :math:`v` along the :math:`hkl` directions :math:`[1,0,0]` and
+   :math:`[0,1,0]` respectively.
 
-- ``type`` Spherical axes normalization.
+- ``type``
 
   Three character string denoting the the projection normalization of each
   dimension, one character for each directions, e.g. ``'add'``, ``'arr'``, ``'adr'``.
 
   At the moment there is only one possible option for the first (length) component of ``type``:
 
-  1. ``'a'``  Inverse angstroms.
+  1. ``'a'``
+
+     Inverse angstroms.
 
   ..
      2. ``'r'``
@@ -685,41 +710,46 @@ where:
   There are 2 possible options for the second and third (angular) components of
   ``type``:
 
-  1. ``'d'``     Degrees
+  1. ``'d'``
 
-  2. ``'r'``     Radians
+     Degrees
 
-  ..
-    For example, if we wanted the **Q**-component to be in r.l.u. and
-    the angles in degrees we would have ``type = 'rdd'``.
+  2. ``'r'``
 
-- ``alatt``  -- 3-vector of lattice parameters.
+     Radians
 
-- ``angdeg`` -- 3-vector of lattice angles in degrees.
+  For example, if we wanted the |Q|-component to be in inverse angstroms and
+  the angles in degrees we would have ``type = 'add'``.
+
+- ``alatt``
+
+  3-vector of lattice parameters.
+
+- ``angdeg``
+
+  3-vector of lattice angles in degrees.
 
 .. note::
 
-   In general, you should not need to define ``alatt`` or ``angdeg``;
-   by default they will be taken from the ``sqw`` object during a
-   ``cut``. However, there are cases where a projection object may
-   need to be reused elsewhere.
+   In general, you should not need to define ``alatt`` or ``angdeg``; by default
+   they will be taken from the ``sqw`` object during a ``cut``. However, there
+   are cases where a projection object may need to be reused elsewhere.
 
-- ``offset`` --  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
+- ``offset``
+
+  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
   origin of the projection coordinate system.
 
 
 - ``label``, etc.
 
-  See `plotargs`_ above
+  See :ref:`above <plotargs>`.
 
 .. note::
 
    If you do not provide any arguments to ``sphere_proj``, by default
    it will build a ``sphere_proj`` with ``u=[1,0,0]``, ``v=[0,1,0]``,
    ``type='add'`` and ``offset=[0,0,0,0]``.
-
-   ..
-      Looks weird, needs clarification
 
    .. code-block:: matlab
 
@@ -738,66 +768,109 @@ where:
 
 .. note::
 
-   Like ``line_proj``, ``sphere_proj`` can be `defined using
-   positional or keyword arguments <#poskwarg>`_. However the same
-   recommendation applies that positional should only be used to
+   Like ``line_proj``, ``sphere_proj`` can be :ref:`defined using
+   positional or keyword arguments <poskwarg>`. However the same
+   recommendation applies that positionals should only be used to
    define ``u`` and ``v``.
 
 ``sphere_proj`` defines a spherical coordinate system, where:
 
-* |Q| -- The radius from the ``sphere_proj`` origin (``offset``) in :math:`hkl`
+* |Q|
 
-* :math:`\theta`  -- The angle measured from :math:`e_z` to the vector (:math:`\vec{Q}`),
-  i.e. :math:`0^{\circ}` is parallel to :math:`e_z` and :math:`90^{\circ}` is
-  perpendicular to :math:`e_z`.   Mathematically this is defined as:
+  The radius from the origin (``offset``) in :math:`hkl`
 
-.. math::
+* :math:`\theta`
 
-   \cos\left(\theta{}\right) = \frac{\vec{Q}\cdot\vec{e_z}}{\left|Q\right|\cdot\left|e_z\right|}
+  The angle measured from :math:`u` to the vector (:math:`\vec{q}`),
+  i.e. :math:`0^{\circ}` is parallel to :math:`u` and :math:`90^{\circ}` is
+  perpendicular to :math:`u`.
 
-* :math:`\phi` --  is the angle measured between the :math:`e_x`-:math:`e_z` plane to the vector
-  (:math:`\vec{q}`), i.e. :math:`0^{\circ}` lies in the :math:`e_x`-:math:`e_z`
-  plane and :math:`90^{\circ}` is normal to :math:`e_x`-:math:`e_z` plane
-  (i.e. parallel to :math:`e_y`). Mathematically this is defined as:
+  Mathematically this is defined as:
 
-.. math::
+  .. math::
 
-   \sin\left(\phi{}\right) = -\frac{[\vec{Q}\times\vec{e_z}]\cdot\vec{e_x}}{\left|[\vec{Q}\times\vec{e_z}]\right|}
+     \cos\left(\theta{}\right) = \frac{\vec{q}\cdot\vec{u}}{\left|q\right|\cdot\left|u\right|}
 
-* :math:`E`   is the energy transfer as defined in ``line_proj``
+* :math:`\phi`
+
+  The angle measured between the :math:`u`-:math:`v` plane to the vector
+  (:math:`\vec{q}`), i.e. :math:`0^{\circ}` lies in the :math:`u`-:math:`v`
+  plane and :math:`90^{\circ}` is normal to the :math:`u`-:math:`v` plane
+  (i.e. parallel to :math:`w`).
+
+  Mathematically this is defined as:
+
+  .. math::
+
+     \cos\left(\phi{}\right) = \frac{\vec{p} \cdot{} \left(\vec{w} \times{} \vec{u} \right)}
+                                    {\vec{q} \cdot{} \vec{w} \times{} \vec{u}}
+
+  where :math:`\vec{p}` is the projection of :math:`\vec{q}` onto the meridian
+  plane (the dashed line `below <#fig-sphere-coodinates>`_), given by:
+
+  .. math::
+
+     \vec{p} = \frac{\vec{q}\cdot{}\vec{u}}{\left|u\right|^2}\vec{u}
+
+  ..
+     Commented as proof of working not necessary for users
+
+     .. math::
+
+        \cos\left(\phi{}\right) = \frac{\left(\vec{w} \times{} \vec{u} \right) \cdot \vec{p}}
+                                       {\left|w\right|\left|u\right|\left|p\right|}
+
+     Where :math:`\left|p\right| = \left|q\right|`
+
+     .. math::
+
+        \cos\left(\phi{}\right) = \frac{\left(\vec{w} \times{} \vec{u} \right) \cdot \vec{p}}
+                                       {\left|w\right|\left|u\right|\left|q\right|}
+
+* :math:`E`
+
+  The energy transfer as defined in ``line_proj``
 
 .. note::
 
-   :math:`\theta`  lies in the range between :math:`0^{\circ}` and :math:`180^{\circ}` and :math:`\phi` 
-   is in the range between :math:`-180^{\circ}` and :math:`180^{\circ}`. The ``sphere_proj`` settings
-   allow to change these values to radians so it :math:`0 \leq \theta \leq \pi` and :math:`-\pi \leq \phi \leq \pi`.
+   - :math:`\theta` lies in the range between :math:`0^{\circ}` and
+     :math:`180^{\circ}`.
+   - :math:`\phi` lies in the range between :math:`-180^{\circ}` and
+     :math:`180^{\circ}`.
+
+   in radians, that is:
+
+   - :math:`\theta` lies in the range between :math:`0` and :math:`\pi`
+   - :math:`\phi` lies in the range between :math:`-\pi` and :math:`\pi`.
 
 
 
 .. _fig_sphere_coodinates:
 
-.. figure:: ../images/sphere_proj_coordinates.jpg
+.. figure:: ../images/sphere_proj_coordinates.png
    :align: center
    :width: 400px
    :alt: spherical coordinate system.
 
    Spherical coordinate system used by ``sphere_proj``
 
-In practice, Horace uses Matlab methods ``cart2sph`` and ``sph2cart`` to convert array of vectors expressed 
-in Cartesian coordinate system to spherical coordinate system and back.
-The formulas, used by these methods together with the image of the used coordinate system are provided `on Matlab "cart2sph" help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_. 
-Matlab uses ``elevation`` angle which is related to :math:`\theta` angle used by Horace by relation:
+..
+   TODO: Move into relevant developer documentation section
 
-    :math:`\theta = 90-elevation`
+   In practice, Horace uses Matlab methods ``cart2sph`` and ``sph2cart`` to convert array of vectors expressed
+   in Cartesian coordinate system to spherical coordinate system and back.
+   The formulas, used by these methods together with the image of the used coordinate system are provided `on Matlab "cart2sph" help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_.
+   Matlab uses ``elevation`` angle which is related to :math:`\theta` angle used by Horace by relation:
 
-``azimuth`` angle form `Matlab help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_  
-is equivalent to Horace :math:`\phi` angle.
+       :math:`\theta = 90-elevation`
+
+   ``azimuth`` angle form `Matlab help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_
+   is equivalent to Horace :math:`\phi` angle.
 
 .. note::
 
-   A spherical projection currently does not have the ability to be
-   rescaled in |Q| relative to the magnitude of :math:`u` or
-   :math:`v` vectors.
+   A spherical projection currently does not have the ability to be rescaled in
+   |Q| relative to the magnitude of :math:`u` or :math:`v`.
 
 When it comes to cutting and plotting, we can use a ``sphere_proj`` in
 exactly the same way as we would a ``line_proj``, but with one key
@@ -813,10 +886,11 @@ difference. The binning arguments of ``cut`` no longer refer to
    The form of the arguments to ``cut`` is still the same (see: `Binning
    arguments`_). However:
 
-   - |Q| runs in range :math:`[0, \infty)`
+   - |Q| runs between :math:`[0, \infty)`
    - :math:`\theta` runs between :math:`[0, 180]`
    - :math:`\phi` runs between :math:`[-180, 180]`
-   Attempt to specify binning outside of these ranges will fail.
+
+   Attempting to specify binning outside of these ranges will fail.
 
 
 ``sphere_proj`` 2D and 1D cuts examples:
@@ -848,16 +922,7 @@ average of the sample. Integrating over the angular terms for a
    it as a single crystal and then let Horace perform the angular
    integration, rather than treating it as powder data.
 
-.. note::
-
-   Binning ranges are specified in the target coordinate system.
-
-.. note::
-
-   Energy transfer by default is expressed in meV, momentum transfer :math:`\left|Q\right|`
-   in inverse Angstroms  (:math:`Å^{-1}`) and angles in degrees (:math:`^\circ`).
-
-The following is an example using the `same data as above <#datalink>`__.
+The following is an example using the :ref:`same data as above <datalink>`.
 
 .. code-block:: matlab
 
@@ -865,6 +930,10 @@ The following is an example using the `same data as above <#datalink>`__.
     sp_proj = sphere_proj();
     s2 = cut(data_source, sp_proj, [0, 0.1, 14], [0, 180], [-180, 180], [-10, 4, 400]);
     plot(s2);
+
+.. note::
+
+   Binning ranges are specified in the **target** coordinate system.
 
 This script produces the following plot:
 
@@ -874,6 +943,12 @@ This script produces the following plot:
    :alt: |Q|-dE cut.
 
    MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.
+
+.. note::
+
+   By default, energy transfer is expressed in meV, momentum transfer
+   :math:`\left|Q\right|` in inverse Angstroms (:math:`Å^{-1}`) and angles in
+   degrees (:math:`^\circ`).
 
 This figure shows that the energies of phonon excitations are located under
 50meV, some magnetic scattering is present at |Q| < 5 and spin waves follow the
@@ -939,16 +1014,16 @@ the spin-wave centre:
    centre at :math:`[0,-1,1]`.
 
 
-.. _cylindrical_projection:
-
 Cylindrical Projections
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
-In order to construct a cylindrical projection (i.e. a projection in :math:`Q_{tr}`, :math:`Q_{||}`,
-:math:`\phi` (azimuthal angle) and :math:`E`) coordinate system we create a projection in a similar way
-to the ``line_proj``, but use the ``cylinder_proj`` class.
+In order to construct a cylindrical projection (i.e. a projection in
+:math:`\vec{q}_{\perp}` (the radial distance from the polar axis),
+:math:`\vec{q}_{\|}` (distance from origin along the polar axis), :math:`\phi`
+(azimuthal angle) and :math:`E`) coordinate system we create a projection in a
+similar way to the ``line_proj``, but use the ``cylinder_proj`` function.
 
-The complete signature for ``cylinder_proj`` is similar to ``sphere_proj``:
+The complete signature for ``cylinder_proj`` is:
 
 .. code-block:: matlab
 
@@ -956,34 +1031,44 @@ The complete signature for ``cylinder_proj`` is similar to ``sphere_proj``:
 
 where:
 
-- ``u`` The direction of the :math:`z`-axis of the cylindrical coordinate system. 
-    The vector :math:`u` is the reciprocal space vector defining the direction of the :math:`z`-axis 
-    of the target cylindrical coordinate system. See :ref:`fig_cylinder_coodinates` for details.
+- ``u``
 
-- ``v``  The direction of the :math:`x`-axis of the cylindrical coordinate system. 
-    The vector :math:`v` is the reciprocal space vector defining the direction of the :math:`x`-axis 
-    of the target cylindrical coordinate system. The reciprocal space vectors :math:`u`-:math:`v` are not
-    always orthogonal so the actual direction of cylindrical coordinate system :math:`x`-axis lies
-    in the plain defined by :math:`u`-:math:`v` vectors and is orthogonal to :math:`z`-axis. See 
-    :ref:`fig_cylinder_coodinates` for details.
+  The vector :math:`\vec{u}` is the reciprocal space vector defining the
+  polar-axis of the cylindrical coordinate system along which
+  :math:`\vec{q}_{\|}` is measured.
 
+  See the :ref:`diagram below <fig_cylinder_coodinates>` for details.
+
+- ``v``
+
+  The vector :math:`\vec{v}` is the reciprocal space vector which defines the second
+  component of the :math:`u`-:math:`v` plane from which :math:`\phi` is measured.
+
+  See the :ref:`diagram below <fig_cylinder_coodinates>` for details.
 
 .. note::
 
-   By default a ``cylinder_proj`` will define its principal axes
-   :math:`u` and :math:`v` along the :math:`hkl` directions
-   :math:`[1,0,0]` (:math:`u`) and :math:`[0,1,0]` (:math:`v`)
-   respectively.
+  The reciprocal space vectors :math:`u`-:math:`v` are not necessarily
+  orthogonal so the actual axis from which :math:`\phi` is measured lies in the
+  plane defined by :math:`u`-:math:`v` vectors, orthogonal to :math:`u`.
 
-- ``type`` Cylindrical axes normalization.
+.. note::
+
+   By default a ``cylinder_proj`` will define its principal axes :math:`u` and
+   :math:`v` along the :math:`hkl` directions :math:`[1,0,0]` and
+   :math:`[0,1,0]` respectively.
+
+- ``type``
 
   Three character string denoting the the projection normalization of each
   dimension, one character for each directions, e.g. ``'aad'`` or ``'aar'``.
 
-  At the moment there is only one possible option is implemented for the first (length of :math:`Q_{tr}` vector)
-  and second components :math:`Q_{||}` of the projections of the :math:`\vec{Q}`-vector to cylindrical coordinate system ``type``:
+  At the moment there is only one possible option is implemented for the length
+  components (:math:`q_{\perp}` and :math:`q_{\|}`) of ``type``:
 
-  1. ``'a'``  Inverse angstroms.
+  1. ``'a'``
+
+     Inverse angstroms.
 
   ..
      2. ``'r'``
@@ -995,35 +1080,44 @@ where:
 
         Preserve the values of ``u`` and ``v``
 
-  There are 2 possible options for the third (angular) components of
+  There are 2 possible options for the third (angular) component of
   ``type``:
 
-  1. ``'d'``     Degrees
+  1. ``'d'``
 
-  2. ``'r'``     Radians
+     Degrees
 
-  ..
-    For example, if we wanted the **Q**-component to be in r.l.u. and
-    the angles in degrees we would have ``type = 'rdd'``.
+  2. ``'r'``
 
-- ``alatt``   3-vector of lattice parameters.
+     Radians
 
-- ``angdeg``  3-vector of lattice angles in degrees.
+
+  For example, if we wanted the length components to be in inverse angstroms and
+  the angles in degrees we would have ``type = 'aad'``.
+
+- ``alatt``
+
+  3-vector of lattice parameters.
+
+- ``angdeg``
+
+  3-vector of lattice angles in degrees.
 
 .. note::
 
-   In general, you should not need to define ``alatt`` or ``angdeg``;
-   by default they will be taken from the ``sqw`` object during a
-   ``cut``. However, there are cases where a projection object may
-   need to be reused elsewhere, e.g. if constructing dummy ``sqw`` object.
+   In general, you should not need to define ``alatt`` or ``angdeg``; by default
+   they will be taken from the ``sqw`` object during a ``cut``. However, there
+   are cases where a projection object may need to be reused elsewhere.
 
-- ``offset`` -- 3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
+- ``offset``
+
+  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
   origin of the projection coordinate system.
 
 
 - ``label``, etc.
 
-  See `plotargs`_ above
+  See :ref:`above <plotargs>`.
 
 .. note::
 
@@ -1033,9 +1127,9 @@ where:
 
    .. code-block:: matlab
 
-       sp_pr = cylinder_proj()
+       cyl_pr = cylinder_proj()
 
-       sp_pr =
+       cyl_pr =
           cylinder_proj with properties:
                  u: [1 0 0]
                  v: [0 1 0]
@@ -1043,41 +1137,63 @@ where:
              alatt: []
             angdeg: []
             offset: [0 0 0 0]
-             label: {'\Q_{tr}'  '\Q_{||}'  '\phi'  'En'}
+             label: {'\Q_{\perp}'  '\Q_{||}'  '\phi'  'En'}
              title: ''
 
 .. note::
 
-   Like ``line_proj``, ``cylinder_proj`` can be `defined using
-   positional or keyword arguments <#poskwarg>`_. However the same
-   recommendation applies that positional should only be used to
+   Like ``line_proj``, ``cylinder_proj`` can be :ref:`defined using
+   positional or keyword arguments <poskwarg>`. However the same
+   recommendation applies that positionals should only be used to
    define ``u`` and ``v``.
 
 ``cylinder_proj`` defines a cylindrical coordinate system, where:
 
-* :math:`Q_{tr}` -- The length of the projection of the momentum transfer :math:`\vec{Q}` measured from the ``cylinder_proj`` 
-  origin (``offset``) in :math:`hkl` to the plain :math:`e_x`-:math:`e_y`. (see :ref:`fig_cylinder_coodinates` below)
-  
-.. math::
+* :math:`q_{\|}`
 
-   Q_{tr} = \left| \vec{Q} - \vec{e_z}\cdot Q_{||}\right |
-  
+  The length along the polar axis :math:`\vec{u}` to :math:`\vec{q}` relative to
+  the origin (``offset``) in :math:`hkl`
 
-* :math:`Q_{||}`  -- The length of the projection of the momentum transfer :math:`\vec{Q}` measured from the ``cylinder_proj`` 
-  origin (``offset``) in :math:`hkl` to :math:`e_z` axis of the ``cylinder_proj``
+  Mathematically, this is defined as:
 
-.. math::
+  .. math::
 
-   Q_{||} = \vec{Q}\cdot\vec{e_z}
+     \vec{q_{\|}} = \frac{\left(\vec{q} \cdot{} \vec{u}\right)}
+                         {\left|u\right|}
+                    \vec{u}
 
-* :math:`\phi` --  is the angle measured between the :math:`e_x`-:math:`e_z` plane to the vector
-  (:math:`\vec{Q_{tr}}`), i.e. :math:`0^{\circ}` lies in the :math:`e_x`-:math:`e_z`
-  plane and :math:`90^{\circ}` is normal to :math:`e_x`-:math:`e_z` plane
-  (i.e. parallel to :math:`e_y`). Mathematically this is defined as:
+  .. math::
 
-.. math::
+     q_{\|} = \left| \vec{q_{\|}} \right|
 
-   \cos\left(\phi{}\right) = \frac{\vec{Q_{tr}}\cdot\vec{e_x}}{\left|\vec{Q_{tr}}\right|}
+* :math:`q_{\perp}`
+
+  The radial distance from the polar axis :math:`\vec{u}` to :math:`\vec{q}`
+  relative to the origin (``offset``) in :math:`hkl`.
+
+  Mathematically, this is defined as:
+
+  .. math::
+
+     \vec{q_{\perp}} = \vec{q} - \vec{q_{\|}}
+
+  .. math::
+
+     q_{\perp} = \left| \vec{q_{\perp}} \right|
+
+* :math:`\phi`
+
+  The angle measured between the :math:`u`-:math:`v` plane to the vector
+  (:math:`\vec{q}`), i.e. :math:`0^{\circ}` lies in the :math:`u`-:math:`v`
+  plane and :math:`90^{\circ}` is normal to the :math:`u`-:math:`v` plane
+  (i.e. parallel to :math:`\vec{w}`).
+
+  Mathematically this is defined as:
+
+  .. math::
+
+     \cos\left(\phi{}\right) = \frac{\vec{q_{\perp}} \cdot \left(\vec{w} \times \vec{u}\right)}
+                                    {\left|\vec{q_{\perp}}\right|\left|\vec{u}\right|\left|\vec{w}\right|}
 
 * :math:`E`   is the energy transfer as defined in ``line_proj``
 
@@ -1096,61 +1212,77 @@ where:
 
    Cylindrical coordinate system used by ``cylinder_proj``
 
-Similarly to :ref:`fig_sphere_coodinates`, Horace uses Matlab methods ``cart2pol``/``pol2cart`` to convert
-array of vectors expressed in Cartesian coordinate system to cylindrical coordinate system and back.
-The formulas, used by these methods together with the image of the used coordinate system 
-are provided `on Matlab "cart2pol" help pages <https://uk.mathworks.com/help/matlab/ref/cart2pol.html>`_.
+..
+   TODO: Move into relevant developer documentation section
+
+   Similarly to :ref:`fig_sphere_coodinates`, Horace uses Matlab methods
+   ``cart2pol``/``pol2cart`` to convert array of vectors expressed in Cartesian
+   coordinate system to cylindrical coordinate system and back.  The formulas,
+   used by these methods together with the image of the used coordinate system
+   are provided `on Matlab "cart2pol" help pages
+   <https://uk.mathworks.com/help/matlab/ref/cart2pol.html>`_.
 
 .. note::
 
    A cylindrical projection currently does not have the ability to be
-   rescaled in :math:`Q_{tr}`, :math:`Q_{||}` relative to the magnitude 
+   rescaled in :math:`Q_{\perp}` or :math:`Q_{||}` relative to the magnitude
    of :math:`u` or :math:`v` vectors.
 
 When it comes to cutting and plotting, we can use a ``cylinder_proj`` in
 exactly the same way as we would a ``line_proj``, but with one key
 difference. The binning arguments of ``cut`` no longer refer to
-:math:`h,k,l,E`, but to :math:`Q_{tr}`, :math:`Q_{||}`, :math:`\phi`, :math:`E` variables.
+:math:`h,k,l,E`, but to :math:`q_{\perp}`, :math:`q_{\|}`, :math:`\phi`, :math:`E` variables.
 
 .. code-block:: matlab
 
-   sp_cut = cut(w, cylinder_proj, Q_tr, Q_||, phi, e, ...);
+   sp_cut = cut(w, cylinder_proj, Q_\perp, Q_||, phi, e, ...);
 
 .. warning::
 
    The form of the arguments to ``cut`` is still the same (see: `Binning
    arguments`_). However:
 
-   - :math:`Q_{tr}` runs from :math:`[0, \infty)` -- attempt to use :math:`Q_{tr}` with a minimum
-     bound smaller than :math:`0` will fail.
-   - :math:`\phi` runs between :math:`[-180, 180]` -- requesting binning outsize of these ranges will fail.
+   - :math:`q_{\perp}` runs between :math:`[0, \infty)`
+   - :math:`\phi` runs between :math:`[-180, 180]`
+
+   requesting binning outside of these ranges will fail.
 
 
 ``cylinder_proj`` 2D and 1D cuts examples:
 __________________________________________
 
-Like linear and spherical projections, cylinder projection can be used to obtain cylindrical cuts. 
-Main usage of cylindrical projection is the cuts with axis parallel to the instrument beam as the background
-scattering in inelastic instrument would mainly have cylindrical symmetry. 
+Cylindrical projection can be used to obtain cylindrical cuts in a manner
+analogous to linear and spherical projections.
 
-Taking `previously used dataset <#datalink>`__ and using the code:
+The main use of cylindrical projection is for cuts with axis parallel to the
+incident beam as background scattering in inelastic instruments often has
+cylindrical symmetry.
+
+Taking the :ref:`previously used dataset <datalink>` and using the code:
 
 .. code-block:: matlab
 
     data_source = 'Fe_ei401.sqw';
     cyl_proj = cylinder_proj();
+
+    %% A
+
     w2_Qtr_dE = cut(data_source, cyl_proj, [0, 0.1, 14], [-4, 4], [-180, 180], [-10, 4, 400]);
     plot(w2_Qtr_dE);
     keep_figure;
-    w2_Qtr_Qll = cut(data_source, cyl_proj, [0, 0.1, 14], [-4,0.1,4], [-180, 180], [50, 60]);    
+
+    %% B
+
+    w2_Qtr_Qll = cut(data_source, cyl_proj, [0, 0.1, 14], [-4,0.1,4], [-180, 180], [50, 60]);
     plot(w2_Qtr_Qll);
     keep_figure;
-    w2_Qtr_phi = cut(data_source, cyl_proj, [0, 0.1, 14], [-4,,4], [-180,2,180], [50, 60]);        
-    plot(w2_Qtr_phi);    
-    
-one can easy obtain various cuts, similar to cuts made using spherical projections above. 
-The image contains 
-various cylindrical projection cuts taken along different coordinate axis:
+
+    %% C
+
+    w2_Qtr_phi = cut(data_source, cyl_proj, [0, 0.1, 14], [-4,,4], [-180,2,180], [50, 60]);
+    plot(w2_Qtr_phi);
+
+one can easily obtain various cuts taken along different coordinate axes.
 
 .. _img_2D_cylindrical_cuts:
 
@@ -1160,37 +1292,43 @@ various cylindrical projection cuts taken along different coordinate axis:
    :alt: 2D cylindrical cuts.
 
    Cylindrical cuts along different coordinate axes
-   
-One dimensional cylindrical cuts:   
+
+It is also possible to make one dimensional cylindrical cuts. The following code
+creates a plot which shows the behaviour of the scattering intensity as a
+function of :math:`Q_{\perp}` at different :math:`Q_{||}`:
 
 .. code-block:: matlab
 
     data_source ='Fe_ei401.sqw';
     cyl_proj = cylinder_proj();
-    n_cuts = 4;
+    n_cuts = 2;
     w1 = repmat(sqw,1,n_cuts);
     colors = 'krgb';
+    symbols = '.+*x';
     for i=1:n_cuts
         cut_center = -4+(i-1)*(8/n_cuts);
         Qll_range = [cut_center-0.1,cut_center+0.1];
         w1(i) = cut(data_source, cyl_proj, [0, 0.1, 14], Qll_range, [-180,180], [50,60],'-nopix');
         acolor(colors(i));
+        amark(symbols(i));
         pd(w1(i))
     end
     legend('Q_{||}=-4','Q_{||}=-2','Q_{||}=0','Q_{||}=2');
-
-show the behaviour of scattering intensity as function of :math:`Q_{tr}` at different :math:`Q_{||}`:
 
 .. figure:: ../images/cylindrical_cuts_1D.png
    :align: center
    :width: 500px
    :alt: 1D cylindrical cuts.
 
-   Cylindrical cuts along :math:`Q_{tr}`
+   Cylindrical cuts along :math:`Q_{\perp}`
+
+.. note::
+
+   The script above lets you take up to 4 cuts by changing ``n_cuts``, here we
+   present just two for clarify.
 
 Additional notes
 ----------------
-
 
 .. note::
 
@@ -1199,55 +1337,119 @@ Additional notes
 
 .. note::
 
-   You cannot change the binning in a dnd object, i.e. you can only set the
+   You cannot change the binning in a ``dnd`` object, i.e. you can only set the
    integration ranges, and have to use ``[]`` for the plot axis. The only option
    you have is to change the range of the plot axis by specifying
    ``[lo1,0,hi1]`` instead of ``[]`` (the '0' means 'use existing bin size').
 
 
-.. _bin_ranges_calculations:   
-   
-Automatic bin ranges calculations   
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changing Projections
+^^^^^^^^^^^^^^^^^^^^
 
-    Target bin ranges for the case of empty brackets indicate that the cut algorithm 
-    should identify binning ranges itself.
+When a ``cut`` will change projections (i.e. the source projection is different
+to the target projection or the ) there are a few things to be aware of
+particularly when you specify automatic (``[]``, ``[step]``) binning arguments.
 
-    The hull which surrounds the source image is converted into the target coordinate 
-    system and the min/max values of the target hull ranges in every dimension are taken
-    as the new default ranges for the cut. The default ranges are taken for the directions
-    where ``[]`` is used for requested ranges. The number of bins in selected dimension is 
-    taken equal to the number of bins in the source dimension which have the same number as source 
-    dimension. 
-    
-    E.g. if your provide ``[]`` for ``p4_bin`` you specify ``dE`` ranges for 4-th dimension.
-    No projections currently change the energy axis, so this will lead to target cut 
-    having the same binning ranges in ``dE`` direction as the source cut. 
-    If you provide ``[]`` for ``p3_bin`` and your source coordinate system is linear (defined by ``linear_proj``) and 
-    target coordinate system is cylindrical (defined by ``cylinder_proj`` see more on :ref:`cylindrical_projection`) 
-    cut algorithm will try to identify :math:`\phi` range (3-rd coordinate of cylindrical coordinate system)
-    of the source cuboid in the cylindrical coordinate system. The number of bins for the :math:`\phi` range
-    will be equal to the number of bins in ``q-3`` dimension of the source coordinate system. If 
-    ``q-3`` dimension was integrated, the :math:`\phi` dimension of the target cylindrical coordinate system
-    will be also integrated.
+.. rubric:: Binning range meaning
+
+When you specify the binning ranges these are defined in the the "target"
+(desired/provided) coordinate system. E.g. in cutting from a linear to a
+spherical projection, the meanings are:
+
+.. code-block:: matlab
+
+   x = sqw(..) % in linear projection
+   y = cut(x, sphere_proj(), **R**, **THETA**, **PHI**, **E**, ..)
+
+.. rubric:: Automatic Binning Arguments
+
+
+If you provide automatic binning arguments, an algorithm will attempt to
+create the minimum bounding shape in the new projection that entirely
+encapsulates the source projection. The parameters from this bounding shape
+will then be substituted into the places where automatic binning arguments are
+requested.
 
 .. warning::
-    
-   The algorithm which identifies binning ranges is pretty basic algorithm. It works reliably in simple cases, e.g. 
-   for transformations described by projections of the same kind (e.g. ``line_proj->line_proj``
-   or ``sphere_proj->sphere_proj`` where the offset between two projection is unchanged). In more complex cases,
-   e.g.  ``line_proj->cylinder_proj`` when ``cylinder_proj`` axes are not aligned with ``line_proj`` axes, algorithm
-   do not converge after reasonable number of iterations and returns warning similar to:
-   
+
+   This algorithm will not change the number of bins unless the
+   ``[step]`` form is used, but will change the ranges and thus the
+   size of the bins in this instance.
+
+   If you do not specify a step, ensure you have checked that the binning
+   is suitable in the new projection, or you may waste time having to
+   re-cut your dataset.
+
+
+.. figure:: ../images/hull.png
+   :align: center
+   :width: 400px
+   :alt: Example showing a linear projection (target) encapsulating a
+         spherical projection (source).
+
+   Example showing a linear projection (target) encapsulating a spherical
+   projection (source).
+   Here, if we consider a sphere of radius :math:`r`, then the encapsulating
+   cuboid has sidelength (:math:`a`) of size :math:`2r`.
+
+.. rubric:: Example
+
+If:
+
+- you provide an empty binning range (``[]``) as the third
+  `binning argument <#binning-arguments>`_ in your ``cut`` and,
+- your source coordinate system is linear and,
+- the target coordinate system is cylindrical, then:
+
+ the ``cut`` algorithm will try to compute the :math:`\phi` range (the
+ 3\ :sup:`rd` coordinate of the cylindrical projection) which encapsulates the
+ source cuboid in the target (cylindrical) coordinate system.
+
+The number of bins in :math:`\phi` will be equal to the number of bins
+in the 3\ :sup:`rd` dimension (:math:`\vec{w}`) of the source
+projection. If the 3\ :sup:`rd` dimension of the source projection was
+an integration axis, the :math:`\phi` of the target projection will
+also be an integration axis; if it was a plot axis, it will likewise
+remain a plot axis in the target projection, as expected.
+
+.. warning::
+
+   In contrast to cutting without a projection change, when changing
+   projections ``[]`` and ``[0]`` have different meanings.
+
+   - ``[]`` will take the number of bins in the source dimension
+   - ``[0]`` will take the step length in the source dimension
+
+   Cutting with ``[0]`` may lead to strange or incorrect results when
+   changing projections. E.g. a q-step of ``0.01`` may be reasonable in a
+   linear projection, but when transformed to a spherical or cylindrical
+   projection it may be used as the step size for the :math:`\phi` binning
+   range (``-180:180`` ), creating 36000 bins in :math:`\phi` direction,
+   which may be problematic.
+
+.. warning::
+
+   The algorithm which identifies binning ranges is just a simple algorithm.
+
+   While it works reliably in simple cases, e.g. for transformations described
+   by projections of the same kind (e.g. ``sphere_proj->sphere_proj``), where
+   the offset between the two projections is unchanged. In more complex cases
+   (e.g. ``line_proj->cylinder_proj`` or where the polar-axis of the cylindrical
+   projection is not aligned with any of the ``line_proj`` axes), the algorithm
+   may not converge quickly. After a number of failed iterations, it will give up
+   and issue a warning which looks like:
+
+   .. code-block:: matlab
+
      ' target range search algorithm have not converged after 5 iterations.
        Search have identified the following default range:
       0        0.0120  -179.9641
       1.5843   90.0000  179.9641
       This range may be inaccurate'
 
-   User should evaluate how acceptable is this result for the purposes of the desired cut and 
-   specify 3 or 2-component binning ranges below to get more accurate binning and extending
-   requested binning ranges if in doubt. 
+   The user must evaluate how acceptable this result is for the desired cut and
+   if in doubt, specify the binning arguments manually to get their desired
+   binning.
 
 
 Legacy calls to ``cut``: ``cut_sqw`` and ``cut_dnd``

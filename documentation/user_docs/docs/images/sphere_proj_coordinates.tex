@@ -1,28 +1,26 @@
-\documentclass{article}
+\documentclass{standalone}
 \usepackage{tikz}
 
 \begin{document}
 
 \begin{tikzpicture}[x={(-5mm,-3.85mm)},z={(0,1cm)},y={(1cm,-.3cm)}]
-  \draw [fill=blue,text=white] (0,0,0)--(6,0,-2)--(6,0,4)--(0,0,4) node [above, xshift=-1.5cm,yshift=-4cm] {$e_x$-$e_z$ plane};
+  \path [fill=cyan] (0,0,0)--(6,0,-2)--(6,0,4)--(0,0,4) node [above,xshift=-1.5cm,yshift=-4cm] {$u$-$v$ plane};
 
-  \draw [->] (0,0) -- (6,0,-2) node [right] {$v$};
-  \draw [->] (0,0) -- (0,4,0) node [above,xshift=0.cm,yshift=0.3cm] {$e_y = e_x \times e_z$};
-  \draw [->] (0,0) -- (0,0,4) node [right] {$u$,$e_z$};
+  \draw [->] (0,0) -- (6.3,0,-2.1) node [right] {$\vec{v}$};
+  \draw [->] (0,0) -- (0,4,0) node [above,xshift=0.4cm] {$\vec{w} = \vec{u} \times \vec{v}$};
+  \draw [->] (0,0) -- (0,0,4.3) node [right] {$\vec{u}$};
 
-  \draw [->,text=white] (0,0) -- (6,0,0) node [right,xshift=-0.1cm,yshift=0.9cm] {$e_x$ = $e_z \times e_y$};
+  \draw [->] (0,0) -- (6.3,0,0) node [right,xshift=0.2cm] {$\vec{w} \times \vec{}u$};
 
   \draw [dotted] (3,3,3) -- (0,0,2.5);
-  
-  \draw [dotted] (0,3,0)  -- (3,3,0);
-  \draw [dotted] (3,0,0) -- (3,3,0);  
 
-  \draw [line width=2pt,->] (0,0,0) -- (3,3,3) node [above] {$\vec{Q}$};
+  \draw [->,line width=0.75pt] (0,0,0) -- (3,3,3) node [above] {$\vec{q}$};
   \draw [dotted] (3,3,3) -- (3,3,0);
   \draw [dashed,->] (0,0,0) -- (3,3,0);
 
+
   \draw [->] (0,0,0.6) arc [start angle=170,end angle=120,x radius=1.2,y radius=0.9] node [above,yshift=0.3cm] {$\theta{}$};
-  \draw [->] (2.5,0,0) arc [start angle=0,end angle=44,x radius=4,y radius=2] node [below,xshift=-0.8cm,yshift=-0.1cm] {$\phi$};
+  \draw [->] (0.6,0,0) arc [start angle=0,end angle=45,x radius=1,y radius=0.5] node [below,xshift=-0.2cm] {$\phi{}$};
 
 \end{tikzpicture}
 
