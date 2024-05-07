@@ -53,9 +53,13 @@ for i=1:n_inputs
                 finalize_alignment(ld);   % Will do nothing if the file is not aligned && ranges are valid
             end
         else
-            ld_new = ld.upgrade_file_format(upgrade_arg{:});
+            ld_new  = ld.upgrade_file_format(upgrade_arg{:});
+            sqw_tmp = sqw(ld_new);
+            if upgrade_ranges
+                sqw_tmp = sqw_tmp.finalize_alignment();
+            end
             if nargout > 0
-                sqw_list{i} = sqw(ld_new,'file_backed',true);
+                sqw_list{i} = sqw_tmp;
             end
             ld_new.delete();
         end
@@ -71,7 +75,7 @@ for i=1:n_inputs
         if nargout>0
             sqw_list{i} = ld;
         end
-        
+
     end
 end
 
