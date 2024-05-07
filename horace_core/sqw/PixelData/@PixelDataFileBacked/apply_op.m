@@ -96,14 +96,24 @@ function [log_control,page_op] = print_progress_log(page_op,n_step,nsteps_total,
 %                  number_of_steps_passed)
 
 log_split = page_op.split_log_ratio;
-if mod(n_step, log_split) < eps('single')
+if mod(n_step, log_split) < eps('single') || (n_step == 1 && nsteps_total>1)
     if n_step>1
         fprintf('.\n');
     end
     [log_control,run_time]   = log_control.adapt_logging(n_step);
     page_op.split_log_ratio  = log_control.info_log_split_ratio;
-    fprintf('*** Finished %dof#%d chunks in %d sec performing %s\n', ...
-        n_step,nsteps_total,run_time,op_name);
+    if run_time < 999
+        unit = 'sec';        
+    else
+        unit = 'min';
+        run_time = run_time/60;
+        if run_time > 999
+             unit = 'hrs';
+             run_time = run_time/60;
+        end
+    end
+    fprintf('*** Finished %dof#%d chunks in %4.1d %s performing %s\n', ...
+           n_step,nsteps_total,run_time,unit,op_name);    
     log_control.dot_printed = false;
 else
     if nsteps_total > 1
