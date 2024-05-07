@@ -65,7 +65,9 @@ classdef test_upgrade_file_format< TestCase
             w2  = sqw(targ_f{1});
 
             [~,e] = lastwarn;
-            assertEqual(e,'TESTS:my_warning');
+            % second warning comes on windows as memmapfile is locked
+            % despite beeing deleted.
+            assertTrue(isequal(e,'TESTS:my_warning')||isequal(e,'MATLAB:DELETE:Permission'));
             assertTrue(w2.pix.is_range_valid())
         end
 

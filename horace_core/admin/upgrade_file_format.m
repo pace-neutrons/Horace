@@ -41,29 +41,24 @@ end
 for i=1:n_inputs
     if is_sqw(i)
         ld = sqw_formats_factory.instance().get_loader(filenames{i});
-        if isa(ld,'faccess_sqw_v4') && upgrade_ranges %
-            if nargout > 1
-                sqw_list{i} = finalize_alignment(ld);
-            else
-                finalize_alignment(ld);   % Will do nothing if the file is not aligned && ranges are valid
-            end
+        pref_acc = sqw_formats_factory.instance().get_pref_access('sqw');
+        if isa(ld,class(pref_acc))
+            ld_new = ld;
         else
             ld_new  = ld.upgrade_file_format();
-            if upgrade_ranges
-                sqw_tmp = sqw(ld_new,'file_backed',true);
-                sqw_tmp = sqw_tmp.finalize_alignment();
-            else
-                sqw_tmp  = [];
-            end
-            if nargout > 0
-                if isempty(sqw_tmp)
-                    sqw_tmp = sqw(ld_new,'file_backed',true);
-                end
-                sqw_list{i} = sqw_tmp;
-            end
-            ld_new.delete();
+            ld.delete();
         end
-        ld.delete();
+
+        if upgrade_ranges %
+            if nargout > 0
+                sqw_list{i} = finalize_alignment(ld_new);
+            else
+                finalize_alignment(ld_new);   % Will do nothing if the file is not aligned && ranges are valid
+            end
+        elseif nargout>0
+            sqw_list{i} = sqw(ld_new,'file_backed',true);
+        end
+        ld_new.delete();
     else
         try
             ld = load(filenames{i});
