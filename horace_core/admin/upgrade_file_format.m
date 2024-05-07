@@ -17,7 +17,7 @@ function sqw_list = upgrade_file_format(filenames,varargin)
 % (currently recent)
 % If requested, returns list of processed sqw objects (may be filebacked)
 
-[ok,mess,upgrade_ranges,argi] = parse_char_options(varargin,'-upgrade_range');
+[ok,mess,upgrade_ranges] = parse_char_options(varargin,'-upgrade_range');
 if ~ok
     error('HORACE:admin:invalid_argument',mess)
 end
@@ -50,7 +50,7 @@ for i=1:n_inputs
             if nargout > 1
                 sqw_list{i} = finalize_alignment(ld);
             else
-                finalize_alignment(ld);   % Will do nothing if the file is not aligned
+                finalize_alignment(ld);   % Will do nothing if the file is not aligned && ranges are valid
             end
         else
             ld_new = ld.upgrade_file_format(upgrade_arg{:});

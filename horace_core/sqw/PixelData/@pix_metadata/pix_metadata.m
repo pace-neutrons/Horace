@@ -58,6 +58,20 @@ classdef pix_metadata < serializable
             end
 
         end
+        function is = is_range_valid(obj,fld)
+            % check if the range for the appropriate fields, provided as
+            % input is valid, i.e. not equal to empty range;
+            if nargin == 1 % check the whole range
+                idx = PixelDataBase.FIELD_INDEX_MAP('all');
+            elseif iscell(fld)
+                idx = cellfun(@(fl)PixelDataBase.FIELD_INDEX_MAP(fl),fld);
+            else
+                idx = PixelDataBase.FIELD_INDEX_MAP(fld);
+            end
+            invalid = obj.data_range_(:,idx) == PixelDataBase.EMPTY_RANGE(:,idx);
+            is = ~any(invalid(:));
+        end
+        
         %------------------------------------------------------------------
         function fn = get.full_filename(obj)
             % full name of the sqw file been accessed

@@ -68,6 +68,25 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             assertEqualToTol(pdm, ref_pix, 'tol',4*eps('single'));
         end
 
+        function test_finalize_alignment_calcs_range(~)
+            pix_data = rand(9, 10);
+
+            pdm = PixelDataMemory(pix_data);
+            assertFalse(pdm.is_misaligned);
+            assertTrue(pdm.is_range_valid);
+
+            ref_range = pdm.data_range;
+            pdm.data_range = PixelDataBase.EMPTY_RANGE;
+            assertFalse(pdm.is_range_valid);
+
+            pdm = pdm.finalize_alignment();
+
+            assertFalse(pdm.is_misaligned);
+            assertTrue(pdm.is_range_valid);
+            assertElementsAlmostEqual(pdm.data_range, ref_range);
+        end
+
+
         function test_finalize_alignment_membacked(~)
             pix_data = rand(9, 10);
 
