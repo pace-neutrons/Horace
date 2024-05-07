@@ -65,7 +65,7 @@ obj_out = page_op.finish_op(obj_in);
 if ll > 0
     [~,te] = lc.adapt_logging(n_chunks);
     if lc.dot_printed; fprintf('\n'); lc.dot_printed = false; end
-    fprintf('*** Completed %s using %d pages in %4.1d sec.\n', ...
+    fprintf('*** Completed %s using %d pages in %6.5g sec.\n', ...
         op_name,n_chunks,te);
     if page_op.inform_about_target_file
         page_op.report_on_target_files(obj_out);
@@ -112,7 +112,7 @@ if mod(n_step, log_split) < eps('single') || (n_step == 1 && nsteps_total>1)
              run_time = run_time/60;
         end
     end
-    fprintf('*** Finished %dof#%d chunks in %4.1d %s performing %s\n', ...
+    fprintf('*** Finished %dof#%d chunks in %6.5g %s performing %s\n', ...
            n_step,nsteps_total,run_time,unit,op_name);    
     log_control.dot_printed = false;
 else

@@ -39,6 +39,28 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             ref_sqw.pix.alignment_matr = al_matr;
             assertEqualToTol(al_sqw,ref_sqw,4*eps('single'),'ignore_str',true,'-ignore_date');
         end
+        function test_finalize_alignment_calcs_range_filebacked(~)
+            clW = set_temporary_warning('off', 'HOR_CONFIG:set_mem_chunk_size');
+            clCf = set_temporary_config_options(hor_config, 'mem_chunk_size', 10);
+            
+            pix_data = rand(9, 30);
+
+            pdm = PixelDataFileBacked(pix_data);
+            
+            assertFalse(pdm.is_misaligned);
+            assertTrue(pdm.is_range_valid);
+
+            ref_range = pdm.data_range;
+            pdm.data_range = PixelDataBase.EMPTY_RANGE;
+            assertFalse(pdm.is_range_valid);
+
+            pdm = pdm.finalize_alignment();
+
+            assertFalse(pdm.is_misaligned);
+            assertTrue(pdm.is_range_valid);
+            assertElementsAlmostEqual(pdm.data_range, ref_range);
+        end
+        
 
         function test_finalize_alignment_filebacked(~)
             clW = set_temporary_warning('off', 'HOR_CONFIG:set_mem_chunk_size');

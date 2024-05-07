@@ -21,11 +21,6 @@ function sqw_list = upgrade_file_format(filenames,varargin)
 if ~ok
     error('HORACE:admin:invalid_argument',mess)
 end
-if upgrade_ranges
-    upgrade_arg = {'-upgrade_range'};
-else
-    upgrade_arg = {};
-end
 
 if istext(filenames)
     filenames = cellstr(filenames);
@@ -53,12 +48,17 @@ for i=1:n_inputs
                 finalize_alignment(ld);   % Will do nothing if the file is not aligned && ranges are valid
             end
         else
-            ld_new  = ld.upgrade_file_format(upgrade_arg{:});
-            sqw_tmp = sqw(ld_new);
+            ld_new  = ld.upgrade_file_format();
             if upgrade_ranges
+                sqw_tmp = sqw(ld_new,'file_backed',true);
                 sqw_tmp = sqw_tmp.finalize_alignment();
+            else
+                sqw_tmp  = [];
             end
             if nargout > 0
+                if isempty(sqw_tmp)
+                    sqw_tmp = sqw(ld_new,'file_backed',true);
+                end
                 sqw_list{i} = sqw_tmp;
             end
             ld_new.delete();
