@@ -80,7 +80,7 @@ else
     print_progress_log = false;
 end
 if print_progress_log
-    fprintf('*** Constructing %d rundata objects',n_spe_files);
+    fprintf('*** Constructing %d rundata objects\n',n_spe_files);
 end
 
 % Check if second parameter is a par file or list of par files and
@@ -262,18 +262,18 @@ if isempty(par_files)
     for i=1:n_files
         [runfiles{i},file_exist(i)] = init_runfile_no_par(runfiles{i},...
             spe_files{i},dfnd_params(i),allow_missing);
-        dot_string_length = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);
+        [dot_string_length,cr_printed] = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);
     end
 elseif numel(par_files)==1
     [runfiles{1},file_exist(1)]= init_runfile_with_par(runfiles{1},spe_files{1},...
         par_files{1},'',dfnd_params(1),allow_missing,parfile_is_det);
-    dot_string_length = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);
     if file_exist(1) &&  ~runfiles{1}.isvalid
         runfiles{1} = runfiles{1}.check_combo_arg();
         if ~runfiles{1}.isvalid
             error('HERBERT:gen_runfiles:invalid_argument',runfiles{1}.reason_for_invalid)
         end
     end
+    [dot_string_length,cr_printed] = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);    
     % Save time on multiple load of the same par into memory by reading it just once
     %CM:will probably have to get rid of this
     if n_files>1
@@ -288,7 +288,7 @@ elseif numel(par_files)==1
                 error('HERBERT:gen_runfiles:invalid_argument',runfiles{i}.reason_for_invalid)
             end
         end
-        dot_string_length = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);
+        [dot_string_length,cr_printed] = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);
     end
 else   % multiple par and spe files;
     for i=1:n_files
@@ -301,7 +301,7 @@ else   % multiple par and spe files;
                 error('HERBERT:gen_runfiles:invalid_argument',runfiles{i}.reason_for_invalid)
             end
         end
-        dot_string_length = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);
+        [dot_string_length,cr_printed] = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);
     end
 end
 
@@ -321,11 +321,15 @@ if check_validity
     end
 end
 if print_progress_log
-    fprintf('*** Finished generation of %d %s files',n_files,name_of_class);
+    if ~cr_printed
+        fprintf('\n');
+    end
+    fprintf('*** Finished constructuion of %d %s objects\n',n_files,name_of_class);
 end
 
-function log_length = do_print_log(do_print,log_length,max_length)
+function [log_length,cr_printed] = do_print_log(do_print,log_length,max_length)
 % print progress log
+cr_printed = false;
 if ~do_print
     return;
 end
@@ -334,6 +338,7 @@ log_length= log_length + 1;
 if log_length >= max_length
     fprintf('\n');
     log_length  = 0;
+    cr_printed  = true;
 end
 
 function [runfile,file_found] = init_runfile_no_par(runfile,spe_file_name,param,allow_missing)
