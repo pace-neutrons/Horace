@@ -29,23 +29,51 @@ classdef test_head < TestCase
         function tearDown(~)
             warning('on','SQW_FILE_IO:legacy_data');
         end
-
+        function test_display_sample(obj)
+            % redirect output to text string
+            text = evalc('head(obj.files{1})');
+            strings = splitlines(text);
+            ref_text = {' ';'';...
+                '  4-dimensional object:';...
+                ' -------------------------';...
+                ' Original datafile:  path to: test_sqw_file_read_write_v3_1.sqw';...
+                '             Title: <none>';...
+                '';' Lattice parameters (Angstroms and degrees):';...
+                '     a=4              b=5               c=6          ';...
+                ' alpha=91          beta=92          gamma=93         ';...
+                '';' Extent of data:';...
+                ' Number of spe files: 1';...
+                '    Number of pixels: 7680';...
+                '';' Size of 4-dimensional dataset: [5x5x5x5]';...
+                '     Plot axes:';...
+                '          Q_\zeta = -0.81977:0.40721:1.2163 in [Q_\zeta, 0, 0]';...
+                '          Q_\xi = -0.32672:0.32652:1.3059 in [0, Q_\xi, 0]';...
+                '          Q_\eta = -2.5103:0.36311:-0.69474 in [0, 0, Q_\eta]';...
+                '          E = -9.75:7.9:29.75';...
+                ' Object is stored in Horace-3.1 format file';...
+                '';''};
+            assertEqual(numel(strings),numel(ref_text));
+            include = true(1,numel(ref_text));
+            include(5) = false; % exclude filename with path different on different machines
+            is_eq = cellfun(@(x,y)isequal(x,y),strings(include),ref_text(include));
+            assertTrue(all(is_eq));
+        end
 
         function test_head_horace_multiout(obj)
             [out1,out2,out3] = head_horace(obj.files,'-full');
-            assertEqual(numel(fields(out1)),23)
-            assertEqual(numel(fields(out2)),23)
-            assertEqual(numel(fields(out3)),20)
+            assertEqual(numel(fields(out1)),24)
+            assertEqual(numel(fields(out2)),24)
+            assertEqual(numel(fields(out3)),21)
         end
         function test_head_dnd_vs_head_horace(obj)
 
             out = head_dnd(obj.files{3});
             assertTrue(isstruct(out))
-            assertEqual(numel(fields(out)),17)
+            assertEqual(numel(fields(out)),18)
 
             out4 = head_horace(obj.files{3});
             assertTrue(isstruct(out4))
-            assertEqual(numel(fields(out4)),17)
+            assertEqual(numel(fields(out4)),18)
 
             % old files creation date is dynamic so may be different
             out.creation_date = out4.creation_date;
@@ -78,11 +106,11 @@ classdef test_head < TestCase
 
             assertEqual(numel(out),3)
             assertTrue(isstruct(out{1}))
-            assertEqual(numel(fields(out{1})),20)
+            assertEqual(numel(fields(out{1})),21)
             assertTrue(isstruct(out{2}))
-            assertEqual(numel(fields(out{2})),20)
+            assertEqual(numel(fields(out{2})),21)
             assertTrue(isstruct(out{3}))
-            assertEqual(numel(fields(out{3})),17)
+            assertEqual(numel(fields(out{3})),18)
         end
 
     end

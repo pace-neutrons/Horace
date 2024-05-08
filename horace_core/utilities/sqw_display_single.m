@@ -1,4 +1,4 @@
-function sqw_display_single(din,npixtot,nfiles,type)
+function sqw_display_single(din,npixtot,nfiles,filebacked)
 % Display useful information from an sqw object
 %
 % Syntax:
@@ -11,7 +11,7 @@ function sqw_display_single(din,npixtot,nfiles,type)
 % Optionally:
 %   npixtot         total number of pixels if sqw type
 %   nfiles          number of contributing files
-%   type            data type: 'a' or 'b+'
+%   filebacked      if true, object obrained from file. This chanes the way, information is displayed
 %
 %   If the optional parameters are given, then only the header information
 %   part of data needs to be passed, namely the fields:
@@ -45,11 +45,15 @@ if isa(din,'sqw') || isfield(din,'main_header')
 else
     sqw_type=false;
 end
+%
+if nargin<4
+    filebacked = false;
+end
 
 % Display summary information
 disp(' ')
-disp([' ',num2str(ndim),'-dimensional object:'])
-disp(' -------------------------')
+fprintf('\n  %d-dimensional object:\n',ndim);
+fprintf(' -------------------------\n');
 if isa(din,'sqw')
     is_filebacked = din.pix.is_filebacked;
     din = din.data;
@@ -60,31 +64,26 @@ end
 
 if ~isempty(din.filename)
     filename=fullfile(din.filepath,din.filename);
-    disp([' Original datafile: ',filename])
+    fprintf(' Original datafile:  %s\n',filename)
 else
-    disp([' Original datafile: ','<none>'])
+    fprintf(' Original datafile:  <none>\n')
 end
-
 
 if ~isempty(din.title)
-    disp(['             Title: ',din.title])
+    fprintf('             Title: %s',din.title)
 else
-    disp(['             Title: ','<none>'])
+    fprintf('             Title: <none>')
 end
-
-
-disp(' ')
-disp( ' Lattice parameters (Angstroms and degrees):')
-disp(['         a=',sprintf('%-11.4g',din.alatt(1)),    '    b=',sprintf('%-11.4g',din.alatt(2)),   '     c=',sprintf('%-11.4g',din.alatt(3))])
-disp(['     alpha=',sprintf('%-11.4g',din.angdeg(1)),' beta=',sprintf('%-11.4g',din.angdeg(2)),' gamma=',sprintf('%-11.4g',din.angdeg(3))])
-disp(' ')
+fprintf('\n\n')
+fprintf(' Lattice parameters (Angstroms and degrees):\n')
+fprintf('     a=%-11.4g    b=%-11.4g     c=%-11.4g\n',din.alatt)
+fprintf(' alpha=%-11.4g beta=%-11.4g gamma=%-11.4g\n\n',din.angdeg)
 
 
 if sqw_type || exist('nfiles','var') && isnumeric(nfiles)
-    disp( ' Extent of data: ')
-    disp(['     Number of spe files: ',num2str(nfiles)])
-    disp(['        Number of pixels: ',num2str(npixtot)])
-    disp(' ')
+    fprintf(' Extent of data:\n')
+    fprintf(' Number of spe files: %d\n',nfiles)
+    fprintf('    Number of pixels: %d\n\n',npixtot)
 end
 
 [~, ~, ~, display_pax, display_iax] = din.data_plot_titles;
@@ -99,19 +98,18 @@ if ndim~=0
     else
         npchar = '[ ]';
     end
-    disp([' Size of ',num2str(ndim),'-dimensional dataset: ',npchar])
+    fprintf(' Size of %d-dimensional dataset: %s\n',ndim,npchar)
 end
 if ndim~=0
-    disp( '     Plot axes:')
+    fprintf( '     Plot axes:\n');
     for i=1:ndim
-        disp(['         ',display_pax{i}])
+        fprintf('          %s\n',display_pax{i});
     end
-
 end
 if ndim~=4
-    disp( '     Integration axes:')
+    fprintf('     Integration axes:\n');
     for i=1:4-ndim
-        disp(['         ',display_iax{i}])
+        fprintf('          %s\n',display_iax{i});
     end
 end
 if  ~isempty(is_filebacked)
@@ -120,11 +118,13 @@ if  ~isempty(is_filebacked)
     else
         pixels_location = 'memory based';
     end
-    fprintf(' Object is %s\n',pixels_location);
+    fprintf(' Object is: %s\n',pixels_location);
 end
-disp(' ')
 % Print warning if no data in the cut, if full cut has been passed
 if npixtot < 0.5   % in case so huge that can no longer hold integer with full precision
     fprintf(2,' WARNING: The dataset contains no counts\n')
+end
+if ~filebacked
+    fprintf('\n');
 end
 
