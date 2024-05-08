@@ -74,7 +74,7 @@ elseif ~(iscellstr(spe_files)||isstring(spe_files))
 end
 n_spe_files = numel(spe_files);
 ll = config_store.instance().get_value('hor_config','log_level');
-if ll>0 && n_spe_files > 1
+if ll>0 && n_spe_files > 10
     print_progress_log = true;
 else
     print_progress_log = false;
