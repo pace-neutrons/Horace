@@ -73,6 +73,15 @@ elseif ~(iscellstr(spe_files)||isstring(spe_files))
     end
 end
 n_spe_files = numel(spe_files);
+ll = config_store.instance().get_value('hor_config','log_level');
+if ll>0 && n_spe_files > 1
+    print_progress_log = true;
+else
+    print_progress_log = false;
+end
+if print_progress_log
+    fprintf('*** Constructing %d rundata objects',n_spe_files);
+end
 
 % Check if second parameter is a par file or list of par files and
 % remove par_files variable from the list of input parameters;
@@ -87,31 +96,31 @@ if nargin>1
             par_files = params{1};
         else
             error('HERBERT:gen_runfiles:invalid_argument', ...
-                  'number of par_files is not 1 or the number of spe_files');
+                'number of par_files is not 1 or the number of spe_files');
         end
     elseif isempty(params{1})     % empty par file definition provided
         par_files = {};
     else
         par_files = params{1};
         if ~iscell(par_files)
-        	if numel(par_files)==1
-        	    a = repmat({par_files},n_spe_files,1);
-        	    par_files = a;
-        	elseif numel(par_files)==n_spe_files
-        	    par_files = num2cell(par_files);
-        	elseif isa(par_files,'double')
-        	    par_files = repmat({par_files},n_spe_files,1); % array form of detpar - further checks will be done in the isdetpar call below
-        	else
-        	    error('HERBERT:rundata:gen_runfiles', ...
-        	          'number of input par_files not 1 or number of spe files');
-        	end
+            if numel(par_files)==1
+                a = repmat({par_files},n_spe_files,1);
+                par_files = a;
+            elseif numel(par_files)==n_spe_files
+                par_files = num2cell(par_files);
+            elseif isa(par_files,'double')
+                par_files = repmat({par_files},n_spe_files,1); % array form of detpar - further checks will be done in the isdetpar call below
+            else
+                error('HERBERT:rundata:gen_runfiles', ...
+                    'number of input par_files not 1 or number of spe files');
+            end
         else
-        	if numel(par_files)==1
-        	    par_files = repmat({par_files{1}},n_spe_files,1);
-        	elseif numel(par_files)~=n_spe_files
-        	    error('HERBERT:rundata:gen_runfiles', ...
-        	          'number of input par_files not 1 or number of spe files');
-			end        	
+            if numel(par_files)==1
+                par_files = repmat({par_files{1}},n_spe_files,1);
+            elseif numel(par_files)~=n_spe_files
+                error('HERBERT:rundata:gen_runfiles', ...
+                    'number of input par_files not 1 or number of spe files');
+            end
         end
         for ii=1:numel(par_files)
             [is,pfiles] = isdetpar(par_files{ii}); % will throw if array in wrong format
@@ -247,14 +256,18 @@ file_exist = true(n_files,1);
 
 
 % Do we build runfiles from one, multiple or no par files?
+dot_string_length = 0;
+max_dot_string_length = 50;
 if isempty(par_files)
     for i=1:n_files
         [runfiles{i},file_exist(i)] = init_runfile_no_par(runfiles{i},...
             spe_files{i},dfnd_params(i),allow_missing);
+        dot_string_length = print_progress_log(print_progress_log,dot_string_length,max_dot_string_length);
     end
 elseif numel(par_files)==1
     [runfiles{1},file_exist(1)]= init_runfile_with_par(runfiles{1},spe_files{1},...
         par_files{1},'',dfnd_params(1),allow_missing,parfile_is_det);
+    dot_string_length = print_progress_log(print_progress_log,dot_string_length,max_dot_string_length);
     if file_exist(1) &&  ~runfiles{1}.isvalid
         runfiles{1} = runfiles{1}.check_combo_arg();
         if ~runfiles{1}.isvalid
@@ -262,7 +275,7 @@ elseif numel(par_files)==1
         end
     end
     % Save time on multiple load of the same par into memory by reading it just once
-    %CM:will probably have to get rid of this 
+    %CM:will probably have to get rid of this
     if n_files>1
         [par,runfiles{1}] = get_par(runfiles{1}); %CM:get_par()
     end
@@ -275,6 +288,7 @@ elseif numel(par_files)==1
                 error('HERBERT:gen_runfiles:invalid_argument',runfiles{i}.reason_for_invalid)
             end
         end
+        dot_string_length = print_progress_log(print_progress_log,dot_string_length,max_dot_string_length);
     end
 else   % multiple par and spe files;
     for i=1:n_files
@@ -287,7 +301,7 @@ else   % multiple par and spe files;
                 error('HERBERT:gen_runfiles:invalid_argument',runfiles{i}.reason_for_invalid)
             end
         end
-
+        dot_string_length = print_progress_log(print_progress_log,dot_string_length,max_dot_string_length);
     end
 end
 
@@ -305,6 +319,21 @@ if check_validity
             end
         end
     end
+end
+if print_progress_log
+    fprintf('*** Finished generation of %d %s files',n_files,name_of_class);
+end
+
+function log_length = print_progress_log(do_print,log_length,max_length)
+% print progress log
+if ~do_print
+    return;
+end
+fprintf('.');
+log_length= log_length + 1;
+if log_length >= max_length
+    fprintf('\n');
+    log_length  = 0;
 end
 
 function [runfile,file_found] = init_runfile_no_par(runfile,spe_file_name,param,allow_missing)
@@ -366,7 +395,7 @@ end
 
 function [is,input]=isdetpar(input)
 %ISDETPAR for a scalar argument input
-% check if it is a struct. If so and the struct is a detpar, 
+% check if it is a struct. If so and the struct is a detpar,
 % return true for output argument is, else false.
 % If it is not a struct,do the same for a numeric vector which may
 % represent a detpar.
@@ -375,7 +404,7 @@ function [is,input]=isdetpar(input)
 % -----
 % input - scalar which may or may not
 %         be a detpar or a numeric detpar vector
-% 
+%
 % Output
 % ------
 % is    - logical scalar which is true or false according as its
