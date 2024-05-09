@@ -74,9 +74,6 @@ classdef JobDispatcher
         % how often (in seconds) JobDispatcher should query the task status
         task_check_time;
 
-        % Short drop-out time (in seconds) for querying task status
-        task_wait_time;
-
         % Number of times to try action until deciding the action has failed
         fail_limit;
 
@@ -88,9 +85,6 @@ classdef JobDispatcher
     properties(Access=protected, Hidden = true)
         % How often (in seconds) JobDispatcher should display the task status
         task_check_time_ = 4;
-
-        % Short drop-out time (in seconds) for querying task status
-        task_wait_time_ = 0.1;
 
         fail_limit_ = 100; % number of times to try for changes in job status file until
                            % decided the job has failed
@@ -260,17 +254,6 @@ classdef JobDispatcher
             this = reset_fail_limit_(this,this.time_to_fail/val);
         end
 
-        function time = get.task_wait_time(this)
-            time = this.task_wait_time_;
-        end
-
-        function this = set.task_wait_time(this,val)
-            if val<=0
-                error('JOB_DISPATCHER:invalid_argument',...
-                    'time to wait jobs has to be positive');
-            end
-            this.task_wait_time_ =val;
-        end
 
         function time = get.time_to_fail(this)
             time = this.time_to_fail_;
