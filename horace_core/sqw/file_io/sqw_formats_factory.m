@@ -32,9 +32,6 @@ classdef sqw_formats_factory < handle
     %
     %
     properties(Access=private) %
-        % Number (in the registered accessors list) of file accessor
-        % to choose for new binary files
-        preferred_accessor_num_ = 1;
         % List of registered file accessors:
         % Add all new file readers which inherit from sqw_file_interface and horace_binfile_interface
         % to this list in the order of expected frequency of their appearance.
@@ -48,14 +45,21 @@ classdef sqw_formats_factory < handle
             faccess_dnd_v2(), ...
             faccess_sqw_v3_2(), ...
             faccess_sqw_prototype()};
-        %
+        %------------------------------------------------------------------
+        % Loader selection rules:
+        %------------------------------------------------------------------
+        % Number (in the registered accessors list) of file accessor
+        % to choose for new binary files by defaul, when no input object is
+        % provided
+        preferred_accessor_num_ = 1;
         % Rules for saving different classes, defines the preferred loader
-        % for saving the class from the list:
-        % sqw2 corresponds to sqw file in indirect mode with efixed being
-        % array
+        % for saving the class from the list. The same as above but when a
+        % object provided as input.
         written_types_ = {'DnDBase','sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
+        % sqw2 corresponds to sqw file in indirect mode with efixed being
+        % array.
         % number of loader in the list of loaders above to use for saving
-        % correspondent class.
+        % class, defined by written_types_ string.
         access_to_type_ind_ = {2,1,1,2,2,2,2,2,2};
         types_map_ ;
     end
