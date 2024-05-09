@@ -214,7 +214,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             fseek(fh,pix_pos,'bof');
             npix = fread(fh,1,'uint64');
             fclose(fh);
-            assertEqual(npix,unit64(10));
+            assertEqual(npix,10);
         end
         %
         function obj = test_save_load_sqwV3_3(obj)
