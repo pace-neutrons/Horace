@@ -2,7 +2,7 @@
 
 Horace is a suite of programs for the visualisation and analysis of large datasets from time-of-flight neutron inelastic scattering spectrometers.
 
-The documentation on Horace's latest version can be found [here](https://pace-neutrons.github.io/Horace/unstable/). 
+The documentation on Horace's latest development version can be found [here](https://pace-neutrons.github.io/Horace/unstable/). 
 
 The documentation for the latest released version is available [here](https://pace-neutrons.github.io/Horace/).
 
