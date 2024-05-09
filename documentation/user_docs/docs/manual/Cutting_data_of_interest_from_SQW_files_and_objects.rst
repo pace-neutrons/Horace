@@ -277,7 +277,7 @@ temporary file and will be "file-backed".
 
 If the ``filename`` argument is provided to ``cut``, the object will always
 saved to a file with this name and the returned object will be backed by this
-file. This file will not be temporary file.
+file. This file will not be a temporary file.
 
 .. warning::
 
@@ -511,8 +511,8 @@ Where:
     However, it is advised that besides ``u`` and ``v`` arguments are passed as
     key-value pairs.
 
-    Alternatively you may define some parameters initially, and define others
-    programmatically:
+    Alternatively you may define some parameters in the constructor, and define others
+    later by setting their properties:
 
     .. code-block:: matlab
 
@@ -781,9 +781,10 @@ where:
 
 * :math:`\theta`
 
-  The angle measured from :math:`u` to the vector (:math:`\vec{q}`),
-  i.e. :math:`0^{\circ}` is parallel to :math:`u` and :math:`90^{\circ}` is
-  perpendicular to :math:`u`.
+  The angle measured from :math:`\vec{u}` to the vector (:math:`\vec{q}`),
+  which means a :math:`\theta` value of :math:`0^{\circ}` means that :math:`\vec{q}` is parallel 
+  to :math:`\vec{u}`; and a :math:`\theta` value of :math:`90^{\circ}` means that 
+  :math:`\vec{q}` is perpendicular to :math:`\vec{u}`.
 
   Mathematically this is defined as:
 
@@ -794,8 +795,9 @@ where:
 * :math:`\phi`
 
   The angle measured between the :math:`u`-:math:`v` plane to the vector
-  (:math:`\vec{q}`), i.e. :math:`0^{\circ}` lies in the :math:`u`-:math:`v`
-  plane and :math:`90^{\circ}` is normal to the :math:`u`-:math:`v` plane
+  (:math:`\vec{q}`), i.e. :math:`0^{\circ}` means that :math:`\vec{q}` lies in the :math:`u`-:math:`v`
+  plane and :math:`90^{\circ}` means that :math:`\vec{q}` is normal 
+  to the :math:`u`-:math:`v` plane
   (i.e. parallel to :math:`w`).
 
   Mathematically this is defined as:
@@ -838,7 +840,7 @@ where:
    - :math:`\phi` lies in the range between :math:`-180^{\circ}` and
      :math:`180^{\circ}`.
 
-   in radians, that is:
+   In radians, that is:
 
    - :math:`\theta` lies in the range between :math:`0` and :math:`\pi`
    - :math:`\phi` lies in the range between :math:`-\pi` and :math:`\pi`.
@@ -857,7 +859,7 @@ where:
 ..
    TODO: Move into relevant developer documentation section
 
-   In practice, Horace uses Matlab methods ``cart2sph`` and ``sph2cart`` to convert array of vectors expressed
+   In practice, Horace uses Matlab methods ``cart2sph`` and ``sph2cart`` to convert an array of vectors expressed
    in Cartesian coordinate system to spherical coordinate system and back.
    The formulas, used by these methods together with the image of the used coordinate system are provided `on Matlab "cart2sph" help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_.
    Matlab uses ``elevation`` angle which is related to :math:`\theta` angle used by Horace by relation:
@@ -1063,7 +1065,7 @@ where:
   Three character string denoting the the projection normalization of each
   dimension, one character for each directions, e.g. ``'aad'`` or ``'aar'``.
 
-  At the moment there is only one possible option is implemented for the length
+  At the moment there is only one possible option implemented for the length
   components (:math:`q_{\perp}` and :math:`q_{\|}`) of ``type``:
 
   1. ``'a'``
@@ -1346,14 +1348,14 @@ Additional notes
 Changing Projections
 ^^^^^^^^^^^^^^^^^^^^
 
-When a ``cut`` will change projections (i.e. the source projection is different
-to the target projection or the ) there are a few things to be aware of
+When a ``cut`` will change projections (i.e. the source projection type is different 
+or the principal-axes are not orthogonal to the target projection) there are a few things to be aware of,
 particularly when you specify automatic (``[]``, ``[step]``) binning arguments.
 
 .. rubric:: Binning range meaning
 
 When you specify the binning ranges these are defined in the the "target"
-(desired/provided) coordinate system. E.g. in cutting from a linear to a
+(desired) coordinate system. E.g. in cutting from a linear to a
 spherical projection, the meanings are:
 
 .. code-block:: matlab
