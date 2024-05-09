@@ -201,6 +201,8 @@ classdef test_faccess_sqw_v3_3< TestCase
             so = faccess_sqw_v3_3(tf);
             so = so.reopen_to_write();
 
+            % file will be probably broken but actually faccessor recovers
+            % it from metadata (binary reader will not)
             so = so.put_num_pixels(10);
             so.delete();
 
@@ -212,8 +214,8 @@ classdef test_faccess_sqw_v3_3< TestCase
             fseek(fh,pix_pos,'bof');
             npix = fread(fh,1,'uint64');
             fclose(fh);
-           assertEqual(npix,unit64(10));
-        end        
+            assertEqual(npix,unit64(10));
+        end
         %
         function obj = test_save_load_sqwV3_3(obj)
             samp_f = fullfile(obj.sample_dir,...
