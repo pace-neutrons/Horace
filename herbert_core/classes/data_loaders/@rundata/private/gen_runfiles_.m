@@ -74,12 +74,12 @@ elseif ~(iscellstr(spe_files)||isstring(spe_files))
 end
 n_spe_files = numel(spe_files);
 ll = config_store.instance().get_value('hor_config','log_level');
-if ll>0 && n_spe_files > 10
-    print_progress_log = true;
+if ll>0 && n_spe_files > 5
+    print_progress_dots = true;
 else
-    print_progress_log = false;
+    print_progress_dots = false;
 end
-if print_progress_log
+if print_progress_dots
     fprintf('*** Constructing %d rundata objects\n',n_spe_files);
 end
 
@@ -253,16 +253,15 @@ end
 
 file_exist = true(n_files,1);
 
-
-
-% Do we build runfiles from one, multiple or no par files?
+% define parameters for the progress bar displaying the progress of objects construction.
 dot_string_length = 0;
 max_dot_string_length = 50;
+% Do we build runfiles from one, multiple or no par files?
 if isempty(par_files)
     for i=1:n_files
         [runfiles{i},file_exist(i)] = init_runfile_no_par(runfiles{i},...
             spe_files{i},dfnd_params(i),allow_missing);
-        [dot_string_length,cr_printed] = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);
+        dot_string_length = print_progress(print_progress_dots,dot_string_length,max_dot_string_length);
     end
 elseif numel(par_files)==1
     [runfiles{1},file_exist(1)]= init_runfile_with_par(runfiles{1},spe_files{1},...
@@ -273,7 +272,7 @@ elseif numel(par_files)==1
             error('HERBERT:gen_runfiles:invalid_argument',runfiles{1}.reason_for_invalid)
         end
     end
-    [dot_string_length,cr_printed] = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);    
+    dot_string_length = print_progress(print_progress_dots,dot_string_length,max_dot_string_length);
     % Save time on multiple load of the same par into memory by reading it just once
     %CM:will probably have to get rid of this
     if n_files>1
@@ -288,7 +287,7 @@ elseif numel(par_files)==1
                 error('HERBERT:gen_runfiles:invalid_argument',runfiles{i}.reason_for_invalid)
             end
         end
-        [dot_string_length,cr_printed] = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);
+        dot_string_length = print_progress(print_progress_dots,dot_string_length,max_dot_string_length);
     end
 else   % multiple par and spe files;
     for i=1:n_files
@@ -301,7 +300,7 @@ else   % multiple par and spe files;
                 error('HERBERT:gen_runfiles:invalid_argument',runfiles{i}.reason_for_invalid)
             end
         end
-        [dot_string_length,cr_printed] = do_print_log(print_progress_log,dot_string_length,max_dot_string_length);
+        dot_string_length = print_progress(print_progress_dots,dot_string_length,max_dot_string_length);
     end
 end
 
@@ -320,16 +319,26 @@ if check_validity
         end
     end
 end
-if print_progress_log
-    if ~cr_printed
+if print_progress_dots
+    if dot_string_length ~= 0
         fprintf('\n');
     end
     fprintf('*** Finished constructuion of %d %s objects\n',n_files,name_of_class);
 end
 
-function [log_length,cr_printed] = do_print_log(do_print,log_length,max_length)
-% print progress log
-cr_printed = false;
+function log_length = print_progress(do_print,log_length,max_length)
+% print progress log.
+% Inputs:
+% do_print   --  bulean. If true, progress log is printed and if false it
+%                does not
+% log_length --  The lengh of already printed dot string.
+% max_length --  Maximal length of dot string requested. If log_length
+%                reaches this value, CR is send to stdout.
+%
+% Returns:
+% log_length  --  the number of dots printed in current row after routine
+%                 has been called. Either log_length or log_length+1
+%
 if ~do_print
     return;
 end
@@ -338,7 +347,6 @@ log_length= log_length + 1;
 if log_length >= max_length
     fprintf('\n');
     log_length  = 0;
-    cr_printed  = true;
 end
 
 function [runfile,file_found] = init_runfile_no_par(runfile,spe_file_name,param,allow_missing)
