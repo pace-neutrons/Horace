@@ -147,6 +147,19 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         obj = put_det_info(obj,varargin);
         %
         obj = put_pix(obj,varargin);
+        %
+        function obj = put_num_pixels(obj,num_pixels)
+            % store/modify number of pixels.
+            % Horace-4 compartibility function. Should not be used in
+            % Horace-3
+            if ~isnumeric(obj.pix_pos_)
+                error('HORACE:sqw_binfile_common:runtime_error', ...
+                    'Using non-initialized file-accessor')
+            end
+            do_fseek(obj.file_id_,obj.pix_pos_,'bof');
+            fwrite(obj.file_id_,uint64(num_pixels),'uint64');
+            check_error_report_fail_(obj,'Error writing npix value');
+        end
         function obj = put_raw_pix(~,varargin)
             error('HORACE:sqw_binfile_common:not_implemented', ...
                 ['This is the method, available for sqw files version higher then 3 \n', ...
