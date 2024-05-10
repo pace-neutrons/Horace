@@ -330,7 +330,7 @@ function log_length = print_progress(do_print,log_length,max_length)
 % print progress log.
 % Inputs:
 % do_print   --  bulean. If true, progress log is printed and if false it
-%                does not
+%                does not.
 % log_length --  The lengh of already printed dot string.
 % max_length --  Maximal length of dot string requested. If log_length
 %                reaches this value, CR is send to stdout.
