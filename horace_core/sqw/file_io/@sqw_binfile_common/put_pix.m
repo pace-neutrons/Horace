@@ -182,4 +182,3 @@ else
             istart,iend,1,npix_to_write));
     end
 end
-
