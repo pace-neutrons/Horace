@@ -6,12 +6,14 @@ function sqw_display_single(din,npixtot,nfiles,filebacked)
 %   >> sqw_display_single (din)
 %   >> sqw_display_single (din,npixtot,nfiles,type)
 %
-%   din             Structure from sqw object (sqw-type or dnd-type)
+%   din             Structure from sqw object (sqw-type or dnd-type) or
+%                   this obect itself
 %
 % Optionally:
 %   npixtot         total number of pixels if sqw type
 %   nfiles          number of contributing files
-%   filebacked      if true, object obrained from file. This chanes the way, information is displayed
+%   filebacked      if true, object obtained from file. This changes the way,
+%                   information is displayed
 %
 %   If the optional parameters are given, then only the header information
 %   part of data needs to be passed, namely the fields:
@@ -28,16 +30,9 @@ function sqw_display_single(din,npixtot,nfiles,filebacked)
 % Original author: T.G.Perring
 %
 
-
-% NOTE: use sprintf to get fixed formatting of numbers (num2str strips trailing blanks)
-
 % Determine if displaying dnd-type or sqw-type sqw object
 
-
 ndim = din.dimensions;
-if ~exist('npixtot','var') || isempty(npixtot)
-    npixtot = sum(din.data.npix(:));
-end
 
 if isa(din,'sqw') || isfield(din,'main_header')
     sqw_type=true;  % object will be dnd type
@@ -45,6 +40,15 @@ if isa(din,'sqw') || isfield(din,'main_header')
 else
     sqw_type=false;
 end
+
+if ~exist('npixtot','var') || isempty(npixtot)
+    if sqw_type
+        npixtot = sum(din.data.npix(:));
+    else
+        npixtot = sum(din.npix(:));
+    end
+end
+
 %
 if nargin<4
     filebacked = false;
@@ -90,10 +94,8 @@ end
 if ndim~=0
     sz = din.nbins;
     if ~isempty(sz)
-        npchar = '[';
-        for i=1:ndim
-            npchar = [npchar,num2str(sz(din.dax(i))),'x'];   % size along each of the display axes
-        end
+        dims = sz(din.dax);
+        npchar = sprintf('[%dx%dx%dx%dx',dims);
         npchar(end)=']';
     else
         npchar = '[ ]';
