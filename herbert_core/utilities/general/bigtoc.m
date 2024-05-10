@@ -21,7 +21,6 @@ function t = bigtoc(varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 display_time=false;
 % Parse arguments
@@ -65,7 +64,7 @@ end
 % Perform function
 t_tmp=bigtictoc('toc',n);
 if nargout==0
-    if ~isempty(mess); disp(mess); end;
+    if ~isempty(mess); disp(mess); end
     disp(['Elapsed time is ',num2str(t_tmp(1)),' seconds'])
     disp(['    CPU time is ',num2str(t_tmp(2)),' seconds'])
     if display_time
