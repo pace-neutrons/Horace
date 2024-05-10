@@ -24,7 +24,7 @@ obj.check_write_error(fid,'num_pixels');
 if isnumeric(obj_data.data)&&~isempty(obj_data.data)
     block_size = config_store.instance().get_value('hor_config','mem_chunk_size');
     % apparently faster then writing whole large array and does not crash
-    % some FS drivers.
+    % some Linux FS drivers.
     data  = obj_data.data;
     for istart=1:block_size:npix
         iend  = min(istart+block_size-1,npix);
