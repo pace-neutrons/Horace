@@ -31,8 +31,8 @@ classdef test_upgrade_file_format< TestCase
             assertTrue(fl{1}.is_filebacked);
         end
         function test_no_upgrade_for_legacy_alignment(obj)
-            % legacy aligned file. Does not upgraded as need larrice to be
-            % upgraded
+            % legacy aligned file. Does not get upgraded as need
+            % lattice to be upgraded
             laf = fullfile(obj.test_common,'sqw_4d.sqw');
             clWarn = set_temporary_warning('off', 'HORACE:legacy_alignment');
             fl = upgrade_file_format(laf);
@@ -66,7 +66,7 @@ classdef test_upgrade_file_format< TestCase
 
             [~,e] = lastwarn;
             % second warning comes on windows as memmapfile is locked
-            % despite beeing deleted.
+            % despite being freed by MATLAB. Deletion message is issued but file get deleted through OS
             assertTrue(isequal(e,'TESTS:my_warning')||isequal(e,'MATLAB:DELETE:Permission'));
             assertTrue(w2.pix.is_range_valid())
         end

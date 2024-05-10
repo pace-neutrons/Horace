@@ -68,8 +68,8 @@ classdef pix_metadata < serializable
             else
                 idx = PixelDataBase.FIELD_INDEX_MAP(fld);
             end
-            invalid = obj.data_range_(:,idx) == PixelDataBase.EMPTY_RANGE(:,idx);
-            is = ~any(invalid(:));
+            valid = obj.data_range_(:,idx) ~= PixelDataBase.EMPTY_RANGE(:,idx);
+            is = all(valid(:));
         end
         
         %------------------------------------------------------------------
