@@ -32,9 +32,6 @@ classdef sqw_formats_factory < handle
     %
     %
     properties(Access=private) %
-        % Number (in the registered accessors list) of file accessor
-        % to choose for new binary files
-        preferred_accessor_num_ = 1;
         % List of registered file accessors:
         % Add all new file readers which inherit from sqw_file_interface and horace_binfile_interface
         % to this list in the order of expected frequency of their appearance.
@@ -48,14 +45,21 @@ classdef sqw_formats_factory < handle
             faccess_dnd_v2(), ...
             faccess_sqw_v3_2(), ...
             faccess_sqw_prototype()};
-        %
+        %------------------------------------------------------------------
+        % Loader selection rules:
+        %------------------------------------------------------------------
+        % Number (in the registered accessors list) of file accessor
+        % to choose for new binary files by defaul, when no input object is
+        % provided
+        preferred_accessor_num_ = 1;
         % Rules for saving different classes, defines the preferred loader
-        % for saving the class from the list:
-        % sqw2 corresponds to sqw file in indirect mode with efixed being
-        % array
+        % for saving the class from the list. The same as above but when a
+        % object provided as input.
         written_types_ = {'DnDBase','sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
+        % sqw2 corresponds to sqw file in indirect mode with efixed being
+        % array.
         % number of loader in the list of loaders above to use for saving
-        % correspondent class.
+        % class, defined by written_types_ string.
         access_to_type_ind_ = {2,1,1,2,2,2,2,2,2};
         types_map_ ;
     end
@@ -124,68 +128,9 @@ classdef sqw_formats_factory < handle
             %                The errors are usually caused by missing or
             %                not-recognized (non-sqw) input files.
             %
-            if iscell(sqw_file_name) % process range of files
-                loader = cellfun(@(x)(obj.get_loader(x)),sqw_file_name,...
-                    'UniformOutput',false);
-                return;
-            end
-            if ~isnumeric(sqw_file_name)
-                [ok,mess,full_data_name] = check_file_exist(sqw_file_name,'*');
-            else
-                error('HORACE:file_io:runtime_error', 'filename was not numeric');
-            end
-            if ~ok
-                mess = regexprep(mess,'[\\]','/');
-                error('HORACE:file_io:runtime_error','get_loader: %s',mess);
-            end
-            % read initial bytes of binary file and interpret them as Horace headers to identify file format.
-            % Returns header block and open file handle not to open file again
-            [head_struc,fh] = horace_binfile_interface.get_file_header(full_data_name,varargin{:});
-
-            for i=1:numel(obj.supported_accessors_)
-                loader = obj.supported_accessors_{i};
-                % check if loader should load the file. Initiate loaders
-                % with open file handle if loader recognizes the file format
-                % as its own.
-                [ok,objinit] = loader.should_load_stream(head_struc,fh);
-                if ok
-                    % if loader can load, initialize loader to be able
-                    % to read the file.
-                    try
-                        loader=loader.init(objinit,varargin{:});
-                        return
-                    catch ME
-                        if fh>0
-                            try
-                                fclose(fh);
-                            catch
-                            end
-                        end
-                        err = MException('HORACE:file_io:runtime_error',...
-                            ['get_loader: Error initializing selected loader: %s : %s\n',...
-                            'invalid file format or damaged file?'],...
-                            class(loader),ME.message);
-                        err = addCause(ME,err);
-                        rethrow(err);
-                    end
-                end
-            end
-            % no appropriate loader found.
-            fclose(fh);
-            if strcmp(head_struc.name,'horace')
-                error('HORACE:file_io:runtime_error',...
-                    ['get_loader: this Horace package does not support the sqw',...
-                    ' file version %d found in file: %s\n',...
-                    ' Update your Horace installation.'],...
-                    head_struc.version,full_data_name);
-            else
-                error('HORACE:file_io:runtime_error',...
-                    ['get_loader: Existing readers can not understand format of file: %s\n',...
-                    ' Is it a sqw file at all?'],...
-                    full_data_name);
-            end
-
+            loader = get_loader_(obj,sqw_file_name,varargin{:});
         end
+        %
         function ver = last_version(obj)
             % return the version number of file accessor to use for new sqw
             % files.
@@ -213,27 +158,33 @@ classdef sqw_formats_factory < handle
             %            Throws 'SQW_FILE_IO:invalid_argument' if the type
             %            is not among the types specified above.
             %
-            if nargin <2
-                % When it is completed, return most functional accessor.
-                loader = obj.supported_accessors_{obj.preferred_accessor_num_};
-                return
-            end
-            if ischar(varargin{1})
-                the_type = varargin{1};
-            else
-                [the_type,orig_type] = sqw_formats_factory.get_sqw_type(varargin{1});
-                if strcmp(the_type,'none') % assume sqw
-                    the_type = orig_type;
-                end
-            end
-            if obj.types_map_.isKey(the_type)
-                ld_num = obj.types_map_(the_type);
-                loader = obj.supported_accessors_{ld_num};
-            else
-                error('HORACE:file_io:invalid_argument',...
-                    'get_pref_access: input class %s does not have registered accessor',...
-                    the_type)
-            end
+            loader = get_pref_access_(obj,varargin{:});
+        end
+
+        function set_pref_access(obj,type,facc_name)
+            % method allows manually set preferable accessor for specific
+            % object type. New accessor will be used until sqw_formats_factory is
+            % loaded in memory and have not been updated.
+            % Inputs:
+            % obj     --  Instance of sqw_formats_factory
+            % type    --  the class or the name of the class, one wants to
+            %             set accessor for.
+            %             The name of the class needs to be among the
+            %             classes factory know how to save
+            % facc_name
+            %         -- name of file-accessor class to set as saver for
+            %            the type provided or instance of this class.
+            %            The class name have to be among the
+            %            names of the registered accessors (classes present
+            %            in obj.supported_accessors_ list.)
+            % Empty facc_name string resets factory to its default values.
+            %
+            % Returns:
+            % Modified sqw_formats_factory singleton with new file accessor
+            % set as default for input type.
+            % get_pref_access method invoked without parameters would also
+            % return the file accessor, specified as input of this method.
+            set_pref_accessor_(obj,type,facc_name);
         end
         %
         function is_compartible = check_compatibility(~,obj1,obj2)
@@ -269,46 +220,22 @@ classdef sqw_formats_factory < handle
                 is_compartible = true;
             end
         end
-
         %
         function obj_list = get.supported_accessors(obj)
             obj_list = obj.supported_accessors_;
         end
     end
     methods(Static)
-        function [sqw_type,orig_type] = get_sqw_type(sqw_obj)
+        function [in_type,orig_type] = get_sqw_type(in_obj)
             % determine the type of sqw object based on data in the header
             % return value options are:
-            %      sqw_type == 'none' - the header is empty, there is no efix/emode
-            %                           data to determine the type
-            %      sqw_type == 'sqw2' - the header has emode==2 and
-            %                           numel(efix)>1
-            %      sqw_type == 'sqw'  - none of the above so using the
-            %                           class of obj i.e. sqw
-            orig_type = class(sqw_obj);
-            sqw_type = orig_type;
-            if strcmp(orig_type,'sqw')
-                header =sqw_obj.experiment_info;
-                if isa(header, 'Experiment')
-                    if isempty(header.expdata)
-                        sqw_type = 'none';
-                        return;
-                    else
-                        header = header.expdata(1);
-                    end
-                elseif isempty(header)
-                    sqw_type = 'none';
-                    return;
-                end
-                emode = header.emode;
-                if emode == 2
-                    nefix = numel(header.efix);
-                    if nefix>1
-                        sqw_type = 'sqw2';
-                    end
-                end
-            end
+            %      in_type == 'none' - the header is empty, there is no efix/emode
+            %                          data to determine the type
+            %      in_type == 'sqw2' - the header has emode==2 and
+            %                          numel(efix)>1
+            %      in_type == 'sqw'  - none of the above so using the
+            %                          class of obj i.e. sqw
+            [in_type,orig_type] = get_sqw_type_(in_obj);
         end
-
     end
 end
