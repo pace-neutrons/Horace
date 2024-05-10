@@ -90,9 +90,8 @@ end
 run_id = zeros(1,nfiles);
 for i=1:nfiles
     if hor_log_level>-1 && write_banner
-        disp('--------------------------------------------------------------------------------')
-        disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
-        disp(' ')
+        fprintf('--------------------------------------------------------------------------------\n');
+        fprintf('*** Processing input file N:%d of %d:\n',i,nfiles);
     end
     %
     run_id(i) = run_files{i}.run_id;
@@ -113,7 +112,7 @@ for i=1:nfiles
     bigtic
     %save(w,sqw_file{i});
     ldw = sqw_formats_factory.instance().get_pref_faccess(w);
-    if ll>0
+    if hor_log_level > 0
         fprintf('*** Writing to: %s...\n',sqw_file{i});
     end
     ldw = ldw.init(w,sqw_file{i});
