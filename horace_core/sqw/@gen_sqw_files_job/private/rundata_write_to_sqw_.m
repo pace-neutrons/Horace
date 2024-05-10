@@ -111,7 +111,7 @@ for i=1:nfiles
     % ----------------
     bigtic
     %save(w,sqw_file{i});
-    ldw = sqw_formats_factory.instance().get_pref_faccess(w);
+    ldw = sqw_formats_factory.instance().get_pref_access(w);
     if hor_log_level > 0
         fprintf('*** Writing to: %s...\n',sqw_file{i});
     end
