@@ -91,7 +91,7 @@ run_id = zeros(1,nfiles);
 for i=1:nfiles
     if hor_log_level>-1 && write_banner
         fprintf('--------------------------------------------------------------------------------\n');
-        fprintf('*** Processing input file N:%d of %d:\n',i,nfiles);
+        fprintf('*** Processing input file N %d of %d:\n\n',i,nfiles);
     end
     %
     run_id(i) = run_files{i}.run_id;
