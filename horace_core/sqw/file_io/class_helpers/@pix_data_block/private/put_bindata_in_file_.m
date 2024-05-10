@@ -28,7 +28,8 @@ if isnumeric(obj_data.data)&&~isempty(obj_data.data)
     data  = obj_data.data;
     for istart=1:block_size:npix
         iend  = min(istart+block_size-1,npix);
-        fwrite(fid,single(data(:,istart:iend)),'float32');
+        block = single(data(:,istart:iend));
+        fwrite(fid,block,'float32');
     end
     obj.check_write_error(fid,'pixel data');
 end
