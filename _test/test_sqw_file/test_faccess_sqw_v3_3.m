@@ -192,6 +192,30 @@ classdef test_faccess_sqw_v3_3< TestCase
                 'relative',5.e-6) % is this the accuracy of conversion from
             % double to single?
         end
+        function obj = test_put_npix(obj)
+
+            tf = fullfile(tmp_dir,'test_put_npix.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(tf));
+            copyfile(obj.sample_file,tf,'f');
+
+            so = faccess_sqw_v3_3(tf);
+            so = so.reopen_to_write();
+
+            % file will be probably broken but actually faccessor recovers
+            % it from metadata (binary reader will not)
+            so = so.put_num_pixels(10);
+            so.delete();
+
+            ldr = sqw_formats_factory.instance().get_loader(tf);
+            pix_pos = ldr.pix_position;
+            ldr.delete();
+            fh = fopen(tf,'rb');
+            assertTrue(fh>0)
+            fseek(fh,pix_pos,'bof');
+            npix = fread(fh,1,'uint64');
+            fclose(fh);
+            assertEqual(npix,10);
+        end
         %
         function obj = test_save_load_sqwV3_3(obj)
             samp_f = fullfile(obj.sample_dir,...

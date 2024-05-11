@@ -161,6 +161,7 @@ classdef sqw_file_interface
         obj = put_pix(obj,varargin);
         obj = put_pix_metadata(obj,varargin);
         obj = put_raw_pix(obj,pix_data,pix_idx,varargin);
+        obj = put_num_pixels(obj, num_pixels)        
         obj = put_sqw(obj,varargin);
         % extended interface:
         obj = put_instruments(obj,varargin);

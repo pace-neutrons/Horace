@@ -60,8 +60,8 @@ classdef log_config < config_base
     end
 
     properties(Access=protected, Hidden=true)
-        info_log_print_time_ = 30 % normally info log should be printed
-        %                         % every 30 secodd
+        info_log_print_time_ = 300 % normally info log should be printed
+        %                          % every 5 minutes
 
         recompute_bins_split_ratio_    = 1;
         apply_split_ratio_             = 1;

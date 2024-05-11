@@ -12,7 +12,11 @@ function   obj = put_pix(obj,varargin)
 %
 % If update options is selected, file header have to exist. This option keeps
 % existing file information untouched;
-[ok,mess,update,nopix,reserve,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve'});
+%
+% hold_pix_place is here for compatibility with horace4 file format
+% interface. This option is ignored here.
+[ok,mess,update,nopix,reserve,hold_pix_place,argi] = ...
+    parse_char_options(varargin,{'-update','-nopix','-reserve','-hold_pix_place'});
 if ~ok
     error('SQW_FILE_IO:invalid_argument',...
         'SQW_BINFILE_COMMON::put_pix: %s',mess);
@@ -178,4 +182,3 @@ else
             istart,iend,1,npix_to_write));
     end
 end
-

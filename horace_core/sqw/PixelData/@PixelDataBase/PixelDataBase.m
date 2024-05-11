@@ -172,6 +172,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         EMPTY_RANGE = [inf(1,9);-inf(1,9)];
         EMPTY_PIXELS = zeros(9, 0);
         NO_INPUT_INDICES = -1;
+        FIELD_INDEX_MAP = PixelDataBase.FIELD_INDEX_MAP_;
     end
 
     properties(Constant,Access=protected)

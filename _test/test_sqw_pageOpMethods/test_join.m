@@ -175,10 +175,10 @@ classdef test_join < TestCase
             reformed_obj = sqw.join(obj.files_to_join);
             %
             assertEqual(obj.sample_obj.detpar,reformed_obj.detpar)
-            % This is bug Re #1432
+
             reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
-            skipTest("Re #1432 detpar is not wired properly to detector_arrays")
+
         end
         %------------------------------------------------------------------
         function test_join_creates_tmp_filebacked_on_conditions(obj)

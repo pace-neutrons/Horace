@@ -32,7 +32,7 @@ if ~ld.sqw_type % can not realign dnd object
     return;
 end
 pmd = ld.get_pix_metadata();
-if ~pmd.is_misaligned % nothing to do
+if ~pmd.is_misaligned && pmd.is_range_valid % nothing to do
     al_info = [];
     ld.delete();
     return;
@@ -44,7 +44,7 @@ if keep_original
     argi = {};
 else
     % will replace original
-    argi = {ld.full_filename};    
+    argi = {ld.full_filename};
 end
 [sqw_obj,al_info] = sqw_obj.finalize_alignment(argi{:});
 % TODO: Re #1320 -- add save(obj, file, '-no_update') if called without

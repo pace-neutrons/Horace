@@ -51,11 +51,12 @@ nout = nargout;
 nw = numel(obj);
 
 hout = cell(1,nw);
-for i=1:nw
-    hout{i} =obj(i).to_head_struct(hfull,data_only);
-end
-
 if nout>0
+    for i=1:nw
+        hout{i} =obj(i).to_head_struct(hfull,data_only);
+    end
+
+
     if nout == 1
         varargout{1} = [hout{:}];
     else
@@ -65,7 +66,7 @@ if nout>0
     end
 else
     for i=1:nw
-        display(hout{i})
+        sqw_display_single(obj(i))
     end
 end
 

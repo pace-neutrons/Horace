@@ -21,7 +21,14 @@ fwrite(fid,npix,'uint64');
 obj.check_write_error(fid,'num_pixels');
 %
 if isnumeric(obj_data.data)&&~isempty(obj_data.data)
-    fwrite(fid,single(obj_data.data(:)),'single');
-    obj.check_write_error(fid,'pixel data');
+    block_size = config_store.instance().get_value('hor_config','mem_chunk_size');
+    % apparently faster then writing whole large array and should not crash
+    % some Linux FS drivers.
+    data  = obj_data.data;
+    for istart=1:block_size:npix
+        iend  = min(istart+block_size-1,npix);
+        block = single(data(:,istart:iend));
+        fwrite(fid,block(:),'float32');
+    end
+    obj.check_write_error(fid,'writing pixel data block');
 end
-%
