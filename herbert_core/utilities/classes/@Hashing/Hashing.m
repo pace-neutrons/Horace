@@ -65,12 +65,14 @@ classdef Hashing
                 % Java engine
                 Engine.update(bytestream);
                 hash0 = Engine.digest;
-                hash1 = typecast(hash0,'uint8');
-                %using the above typecast to remedy that dec2hex
-                %does not work with negative numbers before Matlab 2020b
+                
+                %using the following typecast to remedy that dec2hex
+                %does not work with negative numbers before Matlab 2020b.
                 %the typecast moves negative numbers to twos-complement
-                %positive representation, as automatically done by the
+                %positive representation, as is automatically done by the
                 %later dec2hex
+                hash1 = typecast(hash0,'uint8');
+
                 hash2 = dec2hex(hash1);
                 hash3 = cellstr(hash2);
                 hash4 = horzcat(hash3{:});
