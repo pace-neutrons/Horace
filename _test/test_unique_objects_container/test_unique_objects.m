@@ -131,6 +131,8 @@ classdef test_unique_objects < TestCase
         end
 
         function test_save_load(~)
+            % tests that containers saved in the current version are
+            % correctly reloaded
             uoc = unique_objects_container();
             uoc(1) = 'aaaaa';
             uoc(2) = 'bbbb';
@@ -140,6 +142,27 @@ classdef test_unique_objects < TestCase
             save('unique_objects_container_test_save_load_1.mat','uoc');
             zzz = load('unique_objects_container_test_save_load_1.mat');
             assertEqual(zzz.uoc{3},'bbbb');
+            assertEqual(zzz.uoc.hash(1),'d699c81f3eb55215b494c95842d3769b');
+            assertEqual(zzz.uoc.hash(2),'c08555295302d43cea7e472fc9a82608');
+            assertEqual(zzz.uoc.hash(3),'c08555295302d43cea7e472fc9a82608');
+        end
+
+        function test_save_load_old(~)
+            % tests that containers saved in previous version are correctly
+            % loaded. The file loaded to zzz is the same file saved in
+            % test_save_load using version 1 of unique_objects_container.
+            % the object uoc is initialised in the same way as for
+            % test_save_load.
+            zzz = load('unique_objects_container_test_save_load_2.mat');
+            uoc = unique_objects_container();
+            uoc(1) = 'aaaaa';
+            uoc(2) = 'bbbb';
+            uoc(3) = 'bbbb';
+            assertTrue(uoc.do_check_combo_arg);
+            assertEqual(zzz.uoc{3},'bbbb');
+            assertEqual(zzz.uoc.hash(1),'d699c81f3eb55215b494c95842d3769b');
+            assertEqual(zzz.uoc.hash(2),'c08555295302d43cea7e472fc9a82608');
+            assertEqual(zzz.uoc.hash(3),'c08555295302d43cea7e472fc9a82608');            
         end
 
         function test_replace_unique_same_number_works(~)
@@ -269,12 +292,13 @@ classdef test_unique_objects < TestCase
         end
         %----------------------------------------------------------------
         function test_change_serializer(obj)
+            skipTest('Change of serializer currently not supported');
             % Test different serializers
             mi2 = merlin_instrument(190, 700, 'g');
             uoc = unique_objects_container();
             uoc = uoc.add(obj.mi1);
             uoc = uoc.add(mi2);
-            voc = unique_objects_container('convert_to_stream_f',@hlp_serialize);
+            voc = unique_objects_container();
             voc = voc.add(obj.mi1);
             voc = voc.add(mi2);
             ie = isequal( voc.stored_hashes(1,:), uoc.stored_hashes(1,:) );
@@ -372,7 +396,7 @@ classdef test_unique_objects < TestCase
             % additional tests for other subscript functions
             % NB horrible syntax but way to put assignments in anonymous
             % functions is worse! Replacements for assertExceptionThrown
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
+            uoc = unique_objects_container('baseclass','IX_inst');
             function set_uoc()
                 uoc{2} = obj.mi1;
             end
@@ -380,7 +404,7 @@ classdef test_unique_objects < TestCase
             assertEqual(ex.message,'index outside legal range')
         end
         function test_subscripting_type_hlp_ser_wrong_subscript_minus(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
+            uoc = unique_objects_container('baseclass','IX_inst');
             function set_uoc()
                 uoc{-1} = obj.mi1;
             end
@@ -401,7 +425,7 @@ classdef test_unique_objects < TestCase
 
         end
         function test_instr_replacement_with_duplicates_round(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
+            uoc = unique_objects_container('baseclass','IX_inst');
             uoc(1) = obj.mi1;
             uoc(2) = IX_null_inst();
             assertEqual( uoc.n_duplicates,[1,1]);
@@ -423,7 +447,7 @@ classdef test_unique_objects < TestCase
         end
 
         function test_instr_replacement_with_duplicates_curly(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
+            uoc = unique_objects_container('baseclass','IX_inst');
             uoc{1} = obj.mi1;
             uoc{2} = IX_null_inst();
             assertEqual( uoc.n_duplicates,[1,1]);

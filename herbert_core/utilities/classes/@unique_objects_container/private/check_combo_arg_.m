@@ -45,6 +45,6 @@ if ~isempty(obj.baseclass_)
             obj.baseclass,disp2str(non_type_ind),class(invalid_obj))
     end
 end
-if do_rehashify
+if do_rehashify || numel(obj.stored_hashes) ~= obj.n_unique
     obj = obj.rehashify_all(with_checks);
 end
