@@ -563,7 +563,7 @@ end
 hold off;
 
 if ~isempty(opt.labels)
-    if ~iscellstr(opt.labels) || numel(opt.labels) ~= length(wdisp)+1
+    if ~iscellstr(opt.labels) || numel(opt.labels) ~= length(wdisp) + 1
         warning('HORACE:bad_labels', ...
             ['Not using user-supplied labels. They are either not a cell array of' ...
             'strings or not enough for all segments']);

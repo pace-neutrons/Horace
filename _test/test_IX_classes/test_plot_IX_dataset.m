@@ -30,7 +30,7 @@ classdef test_plot_IX_dataset < TestCase
         %------------------------------------------------------------------
         function test_spaghetti_noplot(obj)
             tob = [obj.IX_data{2};obj.IX_data{2}*2;obj.IX_data{2}*0.5];
-            [ds,cuts,figh,axh,plh] = spaghetti_plot(tob,'-noplot');
+            [ds,cuts,figh,axh,plh] = spaghetti_plot(tob,'noplot');
             assertEqual(ds,tob);
             assertTrue(isempty(cuts));
             assertTrue(isempty(figh));
@@ -40,7 +40,7 @@ classdef test_plot_IX_dataset < TestCase
 
         function test_spaghetti_set_labels(obj)
             tob = [obj.IX_data{2};obj.IX_data{2}*2;obj.IX_data{2}*0.5];
-            [ds,cuts,figh,axh,plh] = spaghetti_plot(tob,'lab',{'A','B','C'});
+            [ds,cuts,figh,axh,plh] = spaghetti_plot(tob,'lab',{'A','B','C','D'});
             assertEqual(ds,tob);
             assertTrue(isempty(cuts));
             assertTrue(isa(figh,'matlab.ui.Figure'));
@@ -49,7 +49,7 @@ classdef test_plot_IX_dataset < TestCase
             assertEqual(numel(figh),1)
             assertEqual(numel(axh),1)
             assertEqual(numel(plh),3)
-            assertEqual(axh.XTickLabel,{'A';'B';'C'});
+            assertEqual(axh.XTickLabel,{'A';'B';'C';'D'});
             close(figh);
         end
 
