@@ -195,37 +195,48 @@ The table below lists functions have been deprecated and their Horace 4 equivale
 
 .. [1] Deprecated warnings are as follows:
 
-  - ``HORACE:tobyfit:deprecated``
-  - ``HORACE:refine_crystal:deprecated``
-  - ``HORACE:fake_sqw:deprecated``
-  - ``HORACE:cut_sym:deprecated``
-  - ``HORACE:cut_sqw_sym:deprecated``
-  - ``HORACE:signal:deprecated``
-  - ``HORACE:symop:deprecated``
-  - ``HORACE:axes_block:deprecated``
-  - ``HORACE:ortho_axes:deprecated``
-  - ``HORACE:ortho_proj:deprecated``
-  - ``HORACE:projaxes:deprecated``
-  - ``HORACE:spher_axes:deprecated``
-  - ``HORACE:spher_proj:deprecated``
+   - ``HORACE:tobyfit:deprecated``
+   - ``HORACE:refine_crystal:deprecated``
+   - ``HORACE:fake_sqw:deprecated``
+   - ``HORACE:cut_sym:deprecated``
+   - ``HORACE:cut_sqw_sym:deprecated``
+   - ``HORACE:signal:deprecated``
+   - ``HORACE:symop:deprecated``
+   - ``HORACE:axes_block:deprecated``
+   - ``HORACE:ortho_axes:deprecated``
+   - ``HORACE:ortho_proj:deprecated``
+   - ``HORACE:projaxes:deprecated``
+   - ``HORACE:spher_axes:deprecated``
+   - ``HORACE:spher_proj:deprecated``
+   - ``HORACE:serializable:deprecated``
+   - ``HORACE:write_spe_to_sqw:deprecated``
+   - ``HORACE:horace_cut_nan_inf:deprecated``
+   - ``HORACE:horace_info_level:deprecated``
+
 
   To disable all deprecation warnings use the following:
 
   .. code-block:: matlab
 
-     warns = ["HORACE:tobyfit:deprecated"
-              "HORACE:refine_crystal:deprecated"
-              "HORACE:fake_sqw:deprecated"
-              "HORACE:cut_sym:deprecated"
-              "HORACE:cut_sqw_sym:deprecated"
-              "HORACE:signal:deprecated"
-              "HORACE:symop:deprecated"
-              "HORACE:axes_block:deprecated"
-              "HORACE:ortho_axes:deprecated"
-              "HORACE:ortho_proj:deprecated"
-              "HORACE:projaxes:deprecated"
-              "HORACE:spher_axes:deprecated"
-              "HORACE:spher_proj:deprecated"];
-     for warn = warns
-        warning('off', warn);
+     warns = [
+     "HORACE:tobyfit:deprecated"
+     "HORACE:refine_crystal:deprecated"
+     "HORACE:fake_sqw:deprecated"
+     "HORACE:cut_sym:deprecated"
+     "HORACE:cut_sqw_sym:deprecated"
+     "HORACE:signal:deprecated"
+     "HORACE:symop:deprecated"
+     "HORACE:axes_block:deprecated"
+     "HORACE:ortho_axes:deprecated"
+     "HORACE:ortho_proj:deprecated"
+     "HORACE:projaxes:deprecated"
+     "HORACE:spher_axes:deprecated"
+     "HORACE:spher_proj:deprecated"
+     "HORACE:serializable:deprecated"
+     "HORACE:write_spe_to_sqw:deprecated"
+     "HORACE:horace_cut_nan_inf:deprecated"
+     "HORACE:horace_info_level:deprecated"
+     ];
+     for i = 1:numel(warns)
+        warning('off', warns(i));
      end

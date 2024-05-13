@@ -13,7 +13,7 @@ classdef spher_proj < sphere_proj
             if nargin ==0
                 return;
             end
-            warning('HORACE:deprecated:invalid_argument',...
+            warning('HORACE:spher_proj:deprecated',...
                 '"spher_proj" class is deprecated. Use "sphere_proj " class instead')
 
         end
