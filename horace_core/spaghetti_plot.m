@@ -31,8 +31,8 @@ function varargout = spaghetti_plot(varargin)
 %   data_source     Data source: sqw object or filename of a file with sqw-type data
 %                     (character string or cellarray with one character string)
 %
-%   wdisp           Array of d2d or IX_dataset_2d objects containing the
-%                   cuts - e.g. previous generated spaghetti plot.
+%   wdisp           Array of d2d objects containing the cuts - e.g. previous generated
+%                   spaghetti plot.
 %
 % Keyword options (can be abbreviated to single letter):
 %
@@ -63,10 +63,10 @@ function varargout = spaghetti_plot(varargin)
 %   'qbin'          Size of momentum transfer bins in 1/Ang (default = 0.05)
 %
 %   'qwidth'        Integration width for q-directions perpendicular to the desired q
-%                   in 1/Ang. This may either be a scalar which will be applied to
-%                   both perpendicular directions, or a 2-vector [dqv dqw] with dqv
-%                   being the width in v, and dqw the width in w (see below)
-%                   (default = 0.1)
+%                     in 1/Ang. This may either be a scalar which will be applied to
+%                     both perpendicular directions, or a 2-vector [dqv dqw] with dqv
+%                     being the width in v, and dqw the width in w (see below)
+%                     (default = 0.1)
 %
 %                   A qwidth can be specified in either form for each segment, this
 %                   must match the number of segments (nrlp - 1)
@@ -144,7 +144,7 @@ if numel(args) == 1 && (isa(args{1}(1), 'd2d') || isa(args{1}(1), 'IX_dataset_2d
         varargout = data_plot_interface.set_argout(nargout,out{:});
     end
     return
-elseif numel(args) > 1 && isa(args{2}(1), 'd2d')
+elseif isa(args{2}(1), 'd2d')
     out = plot_dispersion(args{2}, opt,nargout);
     if nargout>0
         varargout = data_plot_interface.set_argout(nargout,out{:});
@@ -164,8 +164,8 @@ sqw_in = args{2};
 
 if size(rlp, 2) ~= 3 || num_rlp < 2
     error('HORACE:spaghetti_plot:invalid_argument', ...
-        'Array should contain at least 2 rlp arranged in an [Nx3] array, received size: %s;', ...
-        disp2str(size(rlp)))
+        'It should be at least 2 rlp arranged in array [Nx3] (N >= 2) but size of the rlp array is: [%d, %d];', ...
+        size(rlp))
 end
 
 if present.cuts_plot_size
@@ -194,23 +194,21 @@ else
 end
 
 qbin = opt.qbin;
-
 qwidth = opt.qwidth;
-siz = size(qwidth);
-if isequal(siz, [1, 1])                % "Square" for all segments
-    qwidth = repmat(qwidth, 2, nseg);
-elseif isequal(siz,  [1, 2]) || ...    % Rectangular for all segments
-        isequal(siz, [2, 1])
-    qwidth = repmat(qwidth(:), 1, nseg);
-elseif isequal(siz,  [nseg, 1]) || ... % "Square" for each segment
-        isequal(siz, [1, nseg])
-    qwidth = repmat(qwidth(:)', 2, 1);
-elseif isequal(siz,  [2, nseg])        % Rectangular for each segments
-    qwidth = reshape(qwidth, 2, nseg);
+szq = numel(qwidth(:));
+
+if szq == 1 % "Square" for all segments
+    qwidth = repmat(opt.qwidth, 2, nseg);
+elseif szq == 2 % Rectangular for all segments
+    qwidth = repmat(opt.qwidth(:), 1, nseg);
+elseif szq == nseg  % "Square" for each segment
+    qwidth = repmat(opt.qwidth(:), 2, 1);
+elseif szq == 2*nseg % Rectangular for each segments
+    qwidth = reshape(opt.qwidth, 2, nseg);
 else
     error('HORACE:spaghetti_plot:invalid_argument', ...
-        ['qwidth size must be one of: [1, 1], [2, 1], [1, nseg] or [2, nseg] where nseg = %d\n' ...
-        'Provided:\n%s'],nseg,disp2str(opt.qwidth))
+        ['qwidth size must be one of: [1, 1], [2, 1], [1, nseg], or [2, nseg].\n' ...
+        'Received: %s'], disp2str(opt.qwidth))
 end
 
 ebin = opt.ebin;
@@ -261,8 +259,10 @@ if nseg > 1
 
     end
 end
+
+
 if ~isempty(plane_normal)
-    fprintf(2,'*** spaghetti_plot: rlp found to lie in the plane perpendicular to (%g %g %g)\n', ...
+    fprintf('spaghetti_plot: rlp found to lie in the plane perpendicular to (%g %g %g)\n', ...
         sqw_proj.transform_img_to_hkl(plane_normal'));
 end
 
@@ -277,9 +277,6 @@ bz_norm = bz_norm ./ norm(bz_norm);
 
 bx_norm = sqw_proj.transform_hkl_to_pix([1;0;0]);
 bx_norm = bx_norm ./ norm(bx_norm);
-if nargout>1
-    out_1d_cuts = cell(1,nseg);
-end
 
 for i = 1:nseg
     q_dir_rlu = rlp(i+1, :) - rlp(i, :);
@@ -337,27 +334,28 @@ for i = 1:nseg
     u3 = [u30 - u3bin, u30 + u3bin];
 
     % Make cut, and save to array of d2d
-    wdisp_sqw = cut(sqw_in, proj, u1, u2, u3, ebin);
+
+    wdisp(i) = cut(sqw_in, proj, u1, u2, u3, ebin);
+
     if nargout > 1
+
         u1v = u1(1):u1(2):u1(3);
 
-        if wdisp_sqw.has_pixels()
-            if opt.withpix
-                out_1d_cuts{i} = repmat(sqw,1,numel(u1v)-1);
-            else
-                out_1d_cuts{i} = repmat(d1d,1,numel(u1v)-1);
-            end
+        if wdisp(i).has_pixels()
             for j=1:numel(u1v)-1
-                out_1d_cuts{i}(j) = cut(wdisp_sqw, u1v(j:j+1), []);
+                varargout{2}{i}(j) = cut(wdisp(i), u1v(j:j+1), []);
             end
         else
-            out_1d_cuts{i} = repmat(d1d(), 1, numel(u1v)-1);
+            varargout{2}{i} = repmat(sqw(), 1, numel(u1v)-1);
         end
+
     end
 
-    wdisp(i) = d2d(wdisp_sqw);
-    if ~opt.withpix && nargout > 1
-        out_1d_cuts{i} = arrayfun(@d1d, out_1d_cuts{i});
+    if ~opt.withpix
+        wdisp(i) = d2d(wdisp(i));
+        if nargout > 1
+            varargout{2}{i} = cellfun(@d1d, varargout{2}{i});
+        end
     end
 
     if present.labels
@@ -385,24 +383,13 @@ end
 if nargout > 0
     varargout{1}=wdisp;
 end
-if nargout>1
-    varargout{2}  = out_1d_cuts;
-end
 
 % Plot dispersion
 %----------------
-if nargout == 0 || ~opt.noplot
-    out = plot_dispersion(arrayfun(@d2d,wdisp), opt,nargout);
-    out{1} = varargout{1};
-    out{2} = varargout{2};
-    if nargout>0
-        varargout = data_plot_interface.set_argout(nargout,out{:});
-    end
-else
-    for i=3:nargout
-        varargout{i} = [];
-    end
+if nargout < 1
+    plot_dispersion(arrayfun(@d2d, wdisp),opt)
 end
+
 end
 
 %========================================================================================================
@@ -559,7 +546,6 @@ for i=1:length(wdisp)
     xrlp(i+1) = wdisp(i).x(end);
     plot([1 1] * xrlp(i+1), get(gca,'YLim'), '-k');
 end
-
 hold off;
 
 if ~isempty(opt.labels)
@@ -587,7 +573,6 @@ if sum(isnan(opt.clim)) ~= 2
 end
 
 if opt.logscale
-
     if sum(isnan(opt.clim))~=2
         clim = opt.clim;
     else
@@ -640,7 +625,6 @@ if opt.logscale
     set(hc, 'Ticks', log10(minorticks));
     set(hc, 'TickLabels', ticklabels);
 end
-
 end
 
 function plot_labels(labels,xvals)
