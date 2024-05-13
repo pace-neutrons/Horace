@@ -53,7 +53,7 @@ classdef test_spaghetti_plot_sqw < TestCase
         end
 
         function test_return_1dcuts_withpix(obj)
-            [disp,cuts]=spaghetti_plot(obj.rlp, obj.sqw_obj, '-noplot','-withpix');
+            [disp,cuts]=spaghetti_plot(obj.rlp, obj.sqw_obj, 'noplot','withpix');
             assertEqual(numel(disp),3)
             assertEqual(numel(cuts),3)
             assertTrue(isa(disp,'d2d'))
@@ -63,7 +63,7 @@ classdef test_spaghetti_plot_sqw < TestCase
         end
 
         function test_return_1dcuts_nopix(obj)
-            [disp,cuts]=spaghetti_plot(obj.rlp, obj.sqw_obj, '-noplot');
+            [disp,cuts]=spaghetti_plot(obj.rlp, obj.sqw_obj, 'noplot');
             assertEqual(numel(disp),3)
             assertEqual(numel(cuts),3)
             assertTrue(isa(disp,'d2d'))
@@ -87,7 +87,7 @@ classdef test_spaghetti_plot_sqw < TestCase
                 [0.2,0.4,0.6;0.2,0.4,0.6]                
                 [0.2,0.4,0.6;0.8,1,1.2]};
             for i = 1:numel(qwidths)
-                disp=spaghetti_plot(obj.rlp, obj.sqw_obj, 'qwidth', qwidths{i}, '-noplot');
+                disp=spaghetti_plot(obj.rlp, obj.sqw_obj, 'qwidth', qwidths{i}, 'noplot');
                 assertEqual(numel(disp),3)
                 assertTrue(isa(disp,'d2d'))
                 q_width = qwl{i};                
