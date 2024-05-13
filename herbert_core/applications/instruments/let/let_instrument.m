@@ -70,7 +70,8 @@ function inst = let_instrument(ei, hz5, hz3, slot5_mm, mode, varargin)
 latest_version = 2;
 
 keyval_def =  struct('version',latest_version,'moderator','empirical');
-[par,keyval,present] = parse_arguments (varargin, keyval_def);
+opt.prefix = '-';
+[par,keyval,present] = parse_arguments (varargin, keyval_def, opt);
 
 % Parse to handle older syntax of 4th argument being inst_ver:
 if numel(par)==0
@@ -80,24 +81,21 @@ elseif numel(par)==1 && ~present.version
     inst_ver = par{1};
     moderator_model = keyval.moderator;
 else
-    error('HERBERT:instriments:invalid_argument',[ ...
-        'Check the number and type of input arguments.\n' ...
-        'Unrecognized inputs:\n%s'],disp2str(par))
-
+    error('Check the number and type of input arguments')
 end
 
 
 % Check input arguments are valid
 % -------------------------------
-if ~(isnumeric(ei) && all(ei(:)>0))
+if ~(isnumeric(ei) && all(ei(:))>0)
     error('Incident energy must be greater than zero')
 end
 
-if ~(isnumeric(hz5) && all(hz5(:)>0))
+if ~(isnumeric(hz5) && all(hz5(:))>0)
     error('Chopper 5 frequency must be greater than zero')
 end
 
-if ~(isnumeric(hz3) && all(hz3(:)>0))
+if ~(isnumeric(hz3) && all(hz3(:))>0)
     error('Chopper 3 frequency must be greater than zero')
 end
 

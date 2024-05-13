@@ -47,15 +47,13 @@ function inst = merlin_instrument(ei, hz, chopper, varargin)
 default_version = 1;
 
 keyval_def =  struct('version',default_version,'moderator','empirical');
-[par,keyval] = parse_arguments (varargin, keyval_def);
+opt.prefix = '-';
+[par,keyval] = parse_arguments (varargin, keyval_def, opt);
 if numel(par)==0
     inst_ver = keyval.version;
     moderator_model = keyval.moderator;
 else
-    error('HERBERT:instriments:invalid_argument',[ ...
-        'Check the number and type of input arguments.\n' ...
-        'Unrecognized inputs:\n%s'],disp2str(par))
-
+    error('Check the number and type of input arguments')
 end
 
 
