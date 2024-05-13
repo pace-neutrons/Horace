@@ -282,7 +282,8 @@ parameters should be reported to the developers at <a class="reference external"
 <aside class="footnote brackets" id="id2" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>Deprecated warnings are as follows:</p>
-<ul class="simple">
+<blockquote>
+<div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">HORACE:tobyfit:deprecated</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">HORACE:refine_crystal:deprecated</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">HORACE:fake_sqw:deprecated</span></code></p></li>
@@ -296,23 +297,34 @@ parameters should be reported to the developers at <a class="reference external"
 <li><p><code class="docutils literal notranslate"><span class="pre">HORACE:projaxes:deprecated</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">HORACE:spher_axes:deprecated</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">HORACE:spher_proj:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:serializable:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:write_spe_to_sqw:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:horace_cut_nan_inf:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:horace_info_level:deprecated</span></code></p></li>
 </ul>
+</div></blockquote>
 <p>To disable all deprecation warnings use the following:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">warns</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;HORACE:tobyfit:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:refine_crystal:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:fake_sqw:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:cut_sym:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:cut_sqw_sym:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:signal:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:symop:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:axes_block:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:ortho_axes:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:ortho_proj:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:projaxes:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:spher_axes:deprecated&quot;</span>
-<span class="w">         </span><span class="s">&quot;HORACE:spher_proj:deprecated&quot;</span><span class="p">];</span>
-<span class="k">for</span><span class="w"> </span><span class="n">warn</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">warns</span>
-<span class="w">   </span><span class="nb">warning</span><span class="p">(</span><span class="s">&#39;off&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">warn</span><span class="p">);</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">warns</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span>
+<span class="s">&quot;HORACE:tobyfit:deprecated&quot;</span>
+<span class="s">&quot;HORACE:refine_crystal:deprecated&quot;</span>
+<span class="s">&quot;HORACE:fake_sqw:deprecated&quot;</span>
+<span class="s">&quot;HORACE:cut_sym:deprecated&quot;</span>
+<span class="s">&quot;HORACE:cut_sqw_sym:deprecated&quot;</span>
+<span class="s">&quot;HORACE:signal:deprecated&quot;</span>
+<span class="s">&quot;HORACE:symop:deprecated&quot;</span>
+<span class="s">&quot;HORACE:axes_block:deprecated&quot;</span>
+<span class="s">&quot;HORACE:ortho_axes:deprecated&quot;</span>
+<span class="s">&quot;HORACE:ortho_proj:deprecated&quot;</span>
+<span class="s">&quot;HORACE:projaxes:deprecated&quot;</span>
+<span class="s">&quot;HORACE:spher_axes:deprecated&quot;</span>
+<span class="s">&quot;HORACE:spher_proj:deprecated&quot;</span>
+<span class="s">&quot;HORACE:serializable:deprecated&quot;</span>
+<span class="s">&quot;HORACE:write_spe_to_sqw:deprecated&quot;</span>
+<span class="s">&quot;HORACE:horace_cut_nan_inf:deprecated&quot;</span>
+<span class="s">&quot;HORACE:horace_info_level:deprecated&quot;</span>
+<span class="p">];</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">warns</span><span class="p">)</span>
+<span class="w">   </span><span class="nb">warning</span><span class="p">(</span><span class="s">&#39;off&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">warns</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
 <span class="k">end</span>
 </pre></div>
 </div>
@@ -333,7 +345,7 @@ parameters should be reported to the developers at <a class="reference external"
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on May 13, 2024, 10:48:58 AM.
+      <span class="lastupdated">Last updated on May 13, 2024, 10:52:49 AM.
       </span></p>
   </div>
 
