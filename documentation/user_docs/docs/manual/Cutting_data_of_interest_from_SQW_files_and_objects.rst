@@ -859,15 +859,15 @@ where:
    Spherical coordinate system used by ``sphere_proj``
 
 
-   In practice, Horace uses Matlab methods ``cart2sph`` and ``sph2cart`` to convert an array of vectors expressed
-   in Cartesian coordinate system to spherical coordinate system and back.
-   The formulas, used by these methods together with the image of the used coordinate system are provided `on Matlab "cart2sph" help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_.
-   Matlab uses ``elevation`` angle which is related to :math:`\theta` angle used by Horace by relation:
+In practice, Horace uses Matlab methods ``cart2sph`` and ``sph2cart`` to convert an array of vectors expressed
+in Cartesian coordinate system to spherical coordinate system and back.
+The formulas, used by these methods together with the image of the used coordinate system are provided `on Matlab "cart2sph" help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_.
+Matlab uses ``elevation`` angle which is related to :math:`\theta` angle used by Horace by relation:
 
        :math:`\theta = 90-elevation`
 
-   ``azimuth`` angle form `Matlab help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_
-   is equivalent to Horace :math:`\phi` angle.
+``azimuth`` angle form `Matlab help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_
+is equivalent to Horace :math:`\phi` angle.
 
 .. note::
 
@@ -1214,13 +1214,12 @@ where:
 
    Cylindrical coordinate system used by ``cylinder_proj``
 
-
-   Similarly to :ref:`fig_sphere_coodinates`, Horace uses Matlab methods
-   ``cart2pol``/``pol2cart`` to convert array of vectors expressed in Cartesian
-   coordinate system to cylindrical coordinate system and back.  The formulas,
-   used by these methods together with the image of the used coordinate system
-   are provided `on Matlab "cart2pol" help pages
-   <https://uk.mathworks.com/help/matlab/ref/cart2pol.html>`_.
+Similarly to :ref:`fig_sphere_coodinates`, Horace uses Matlab methods
+``cart2pol``/``pol2cart`` to convert array of vectors expressed in Cartesian
+coordinate system to cylindrical coordinate system and back.  The formulas,
+used by these methods together with the image of the used coordinate system
+are provided `on Matlab "cart2pol" help pages
+<https://uk.mathworks.com/help/matlab/ref/cart2pol.html>`_.
 
 .. note::
 
