@@ -858,8 +858,6 @@ where:
 
    Spherical coordinate system used by ``sphere_proj``
 
-..
-   TODO: Move into relevant developer documentation section
 
    In practice, Horace uses Matlab methods ``cart2sph`` and ``sph2cart`` to convert an array of vectors expressed
    in Cartesian coordinate system to spherical coordinate system and back.
@@ -1216,8 +1214,6 @@ where:
 
    Cylindrical coordinate system used by ``cylinder_proj``
 
-..
-   TODO: Move into relevant developer documentation section
 
    Similarly to :ref:`fig_sphere_coodinates`, Horace uses Matlab methods
    ``cart2pol``/``pol2cart`` to convert array of vectors expressed in Cartesian
