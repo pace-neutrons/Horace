@@ -25,7 +25,7 @@ if mem <=0
 end
 [mchs,fbs] = config_store.instance().get_value( ...
     'hor_config','mem_chunk_size','fb_scale_factor');
-def_size = mchs*fbs*opt_config_manager.DEFAULT_PIX_SIZE;
+def_size = mchs*fbs*PixelDataBase.DEFAULT_PIX_SIZE;
 %
 enable_warning = ~obj.disable_setup_warnings;
 if mem<def_size && enable_warning
