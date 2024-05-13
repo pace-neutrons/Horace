@@ -836,12 +836,7 @@ while i<=narg
             ipos=find(strcmpi(args{i},namchk)); % strings in namchk are unique
             if ~isempty(ipos), iskey=true; end
         else
-            if strncmp(args{i},'-',1)
-                args_i = erase(args{i},'-');
-            else
-                args_i = args{i};
-            end
-            ipos=stringmatchi(args_i,namchk);
+            ipos=stringmatchi(args{i},namchk);
             if ~isempty(ipos)
                 if numel(ipos)==1
                     iskey=true;
