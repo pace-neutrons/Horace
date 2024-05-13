@@ -2,6 +2,8 @@ classdef thingy < serializable
     %THINGY Simple class with public property data
     %   Used for demonstrating ability of unique_objects_container to set a
     %   property of one of its subscripted items.
+    %   now subclassed from serializable to prevent large numbers of
+    %   warnings when it is serialized via the global serializable function
     
     properties
         data
