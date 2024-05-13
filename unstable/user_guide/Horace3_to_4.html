@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Converting from Horace 3 to Horace 4 &mdash; Horace  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Interfacing with other programs" href="Interfacing_with_other_programs.html" />
+    <link rel="prev" title="Resolution Convolution" href="Resolution_convolution.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../User_guide.html">User’s Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Horace_GUI.html">Horace GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Resolution_convolution.html">Resolution Convolution</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Converting from Horace 3 to Horace 4</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#projections">Projections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#symmetrisation">Symmetrisation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#crystal-alignment">Crystal Alignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multifit">Multifit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deprecated-functions">Deprecated Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Interfacing_with_other_programs.html">Interfacing with other programs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../User_guide.html">User’s Guide</a></li>
+      <li class="breadcrumb-item active">Converting from Horace 3 to Horace 4</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user_guide/Horace3_to_4.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="converting-from-horace-3-to-horace-4">
+<h1>Converting from Horace 3 to Horace 4<a class="headerlink" href="#converting-from-horace-3-to-horace-4" title="Permalink to this heading"></a></h1>
+<p>Horace 4 has been a major rewrite and refactoring effort on the code
+from Horace 3. This document outlines the breaking changes between
+versions as well as describing a fast way to convert existing scripts
+from Horace 3 to Horace 4.</p>
+<section id="projections">
+<h2>Projections<a class="headerlink" href="#projections" title="Permalink to this heading"></a></h2>
+<p>In Horace 4, projections have been expanded and reworked to be
+generalised for other shapes of cuts (e.g. spherical, cylindrical). As
+a result, the old-style projections, e.g.:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">struct</span><span class="p">(</span><span class="s">&#39;u&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;v&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">proj2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">projaxes</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">proj3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">ortho_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="n">proj4</span><span class="p">.</span><span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span>
+<span class="n">proj4</span><span class="p">.</span><span class="n">v</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span>
+</pre></div>
+</div>
+<p>have been deprecated and a warning will be issued if they are
+used. For old-style projections the conversion is as simple as
+replacing the <code class="docutils literal notranslate"><span class="pre">struct</span></code>, <code class="docutils literal notranslate"><span class="pre">projaxes</span></code> or <code class="docutils literal notranslate"><span class="pre">ortho_proj</span></code> with <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>
+(c.f. <span class="xref std std-ref">projections</span>).</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">proj2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">proj3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">proj4</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+</pre></div>
+</div>
+</section>
+<section id="symmetrisation">
+<h2>Symmetrisation<a class="headerlink" href="#symmetrisation" title="Permalink to this heading"></a></h2>
+<p>The function <code class="docutils literal notranslate"><span class="pre">sqw.symmetrise_sqw</span></code> has been significantly rewritten
+to generalise it and allow rotational symmetry reduction. As part of
+this rewrite, it now takes <code class="docutils literal notranslate"><span class="pre">Symop</span></code> s as arguments rather than a pair
+of vectors.</p>
+<p>To update e.g.:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">symmetrised</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">win</span><span class="p">.</span><span class="n">symmetrise_sqw</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>it simply becomes:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">symmetrised</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">win</span><span class="p">.</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> can also be constructed earlier and reused:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">symmetrised</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">win</span><span class="p">.</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">sym</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>Passing a pair of vectors will still be accepted and be internally
+transformed into the correct <code class="docutils literal notranslate"><span class="pre">Symop</span></code>, however, it is still best to
+switch.</p>
+</section>
+<section id="crystal-alignment">
+<h2>Crystal Alignment<a class="headerlink" href="#crystal-alignment" title="Permalink to this heading"></a></h2>
+<p>Crystal alignment in Horace 4 has changed slightly in that only one
+object is returned from the realignment functions. This object
+contains all the data necessary for the realignment.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The subsequent procedure is identical to the Horace 3 procedure for using
+<code class="docutils literal notranslate"><span class="pre">rlu_corrections</span></code>, however the object is not a plain matrix.</p>
+</div>
+<p>To convert files, it is simply a case of removing the use of the extra
+arguments, e.g.:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">rlu_corr</span><span class="p">,</span><span class="n">alatt</span><span class="p">,</span><span class="n">angdeg</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">refine_crystal</span><span class="p">(</span><span class="n">rlu0</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="n">bp</span><span class="p">,</span><span class="s">&#39;fix_angdeg&#39;</span><span class="p">,</span><span class="s">&#39;fix_alatt_ratio&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>becomes:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">rlu_corr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">refine_crystal</span><span class="p">(</span><span class="n">rlu0</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="n">bp</span><span class="p">,</span><span class="s">&#39;fix_angdeg&#39;</span><span class="p">,</span><span class="s">&#39;fix_alatt_ratio&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>And simply pass <code class="docutils literal notranslate"><span class="pre">rlu_corr</span></code> to all operations as normal.</p>
+</section>
+<section id="multifit">
+<h2>Multifit<a class="headerlink" href="#multifit" title="Permalink to this heading"></a></h2>
+<p>As of Horace 4, the deprecated legacy multifit syntax (i.e. all in one
+line):</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="w"> </span><span class="n">fitdata</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit_sqw</span><span class="p">(</span><span class="n">my_new_cut</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sr122_xsec</span><span class="p">,</span><span class="w"> </span><span class="n">pars</span><span class="p">,</span><span class="w"> </span><span class="n">pfree</span><span class="p">,</span><span class="w"> </span><span class="n">pbind</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;list&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>has been fully removed. This means that trying to use this syntax will
+result in an error. The modern syntax uses an object-based form which
+looks like:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="p">(</span><span class="n">my_new_cut</span><span class="p">);</span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="p">(@</span><span class="n">sr122_xsec</span><span class="p">);</span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_pin</span><span class="p">(</span><span class="n">pars</span><span class="p">);</span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_free</span><span class="p">(</span><span class="n">pfree</span><span class="p">);</span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bind</span><span class="p">(</span><span class="n">pbind</span><span class="p">);</span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_options</span><span class="p">(</span><span class="s">&#39;listing&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="w"> </span><span class="n">fitdata</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">fit</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>While this would be a lot of effort to translate manually, thankfully,
+Horace 4.0 comes with a function (<code class="docutils literal notranslate"><span class="pre">mf_leg_to_new</span></code>) to translate the
+legacy tyle to the new format:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">mf_leg_to_new</span><span class="p">(</span><span class="s">&quot;[wfit, fitdata] = multifit_sqw(my_new_cut, @sr122_xsec, pars, pfree, pbind, &#39;list&#39;, 1)&quot;</span><span class="p">)</span>
+
+<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
+
+<span class="w">   </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="p">(</span><span class="n">my_new_cut</span><span class="p">);</span>
+<span class="w">   </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="p">(@</span><span class="n">sr122_xsec</span><span class="p">);</span>
+<span class="w">   </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_pin</span><span class="p">(</span><span class="n">pars</span><span class="p">);</span>
+<span class="w">   </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_free</span><span class="p">(</span><span class="n">pfree</span><span class="p">);</span>
+<span class="w">   </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bind</span><span class="p">(</span><span class="n">pbind</span><span class="p">);</span>
+<span class="w">   </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_options</span><span class="p">(</span><span class="s">&#39;listing&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">   </span><span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="w"> </span><span class="n">fitdata</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">fit</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>ready to be put into your code.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The reason for not translating files directly is that this function
+is provided in a <em>caveat emptor</em> state and the parameters should
+be double checked to ensure they are what you expect. Any erroneous
+parameters should be reported to the developers at <a class="reference external" href="mailto:HoraceHelp&#37;&#52;&#48;stfc&#46;ac&#46;uk">Horace Help</a></p>
+</div>
+</section>
+<section id="deprecated-functions">
+<h2>Deprecated Functions<a class="headerlink" href="#deprecated-functions" title="Permalink to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All deprecation warning IDs in horace are of the form
+<code class="docutils literal notranslate"><span class="pre">HORACE:function:deprecated</span></code>. A complete list is below <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+</div>
+<p>The table below lists functions have been deprecated and their Horace 4 equivalent.</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Old</p></td>
+<td><p>New</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">projaxes</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">line_proj</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">refine_crystal_dnd</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">refine_crystal</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">refine_crystal_horace</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">refine_crystal</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">refine_crystal_sqw</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">refine_crystal</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fake_sqw</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dummy_sqw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">fake_data</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dummy_sqw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cut_sqw_sym</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cut</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cut_sym</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cut</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">signal</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">coordinates_calc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">symop</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Symop.create</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">axes_block</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">line_axes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ortho_axes</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">line_axes</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">projaxes</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">line_proj</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ortho_proj</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">line_proj</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">herbert_config</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">hor_config</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Deprecated warnings are as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:tobyfit:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:refine_crystal:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:fake_sqw:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:cut_sym:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:cut_sqw_sym:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:signal:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:symop:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:axes_block:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:ortho_axes:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:ortho_proj:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:projaxes:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:spher_axes:deprecated</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HORACE:spher_proj:deprecated</span></code></p></li>
+</ul>
+<p>To disable all deprecation warnings use the following:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">warns</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;HORACE:tobyfit:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:refine_crystal:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:fake_sqw:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:cut_sym:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:cut_sqw_sym:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:signal:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:symop:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:axes_block:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:ortho_axes:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:ortho_proj:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:projaxes:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:spher_axes:deprecated&quot;</span>
+<span class="w">         </span><span class="s">&quot;HORACE:spher_proj:deprecated&quot;</span><span class="p">];</span>
+<span class="k">for</span><span class="w"> </span><span class="n">warn</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">warns</span>
+<span class="w">   </span><span class="nb">warning</span><span class="p">(</span><span class="s">&#39;off&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">warn</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</aside>
+</aside>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Resolution_convolution.html" class="btn btn-neutral float-left" title="Resolution Convolution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Interfacing_with_other_programs.html" class="btn btn-neutral float-right" title="Interfacing with other programs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on May 13, 2024, 10:48:58 AM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/user_guide/Horace3_to_4.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
