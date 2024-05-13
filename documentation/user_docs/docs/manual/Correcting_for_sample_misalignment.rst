@@ -7,8 +7,9 @@ Correcting for sample misalignment
 
 
 When mounting your sample on a spectrometer, it can often be the case that it is slightly misaligned with respect to the
-'perfect' alignment assumed when generating the SQW file (the ``u`` and ``v`` vectors provided in ``gen_sqw`` and
-``accumulate_sqw``). It is straightforward to correct this misalignment, once enough data have been accumulated, by
+'perfect' alignment assumed when generating the SQW file (the direction of ``u`` and ``v`` vectors provided in ``gen_sqw`` and
+``accumulate_sqw``, where ``u`` is parallel to the beam and ``v`` defines the sample rotation plain).
+It is straightforward to correct this misalignment, once enough data have been accumulated, by
 comparing the positions of Bragg peaks with what they are expected to be.
 
 Alignment correction is a two-step process:
@@ -35,7 +36,7 @@ from the expected values.
 
 ::
 
-   [rlu0, widths, wcut, wpeak] = bragg_positions (sqw, bragg_positions, ...
+   [rlu_actual, widths, wcut, wpeak] = bragg_positions (sqw_obj, bragg_expected, ...
                    radial_cut_length, radial_bin_width, radial_thickness,...
                    trans_cut_length, trans_bin_width, trans_thickness, ...
                    energy_window, <keyword options>)
@@ -43,9 +44,9 @@ from the expected values.
 
 The inputs are:
 
-- ``sqw`` - the uncorrected data
+- ``sqw_obj`` - the uncorrected data
 
-- ``bragg_positions`` - an n-by-3 array specifying the expected Bragg positions
+- ``bragg_expected``   - an n-by-3 array specifying the expected Bragg positions. Usually integer.
 
 - ``radial_cut_length`` - lengths of the various cuts along each of :math:`\{\vec{Q}\}`.
 
@@ -93,7 +94,7 @@ For fitting:
 
 The outputs are:
 
-- ``rlu0`` - the actual peak positions as an n-by-3 matrix in :math:`h,k,l` as indexed with respect to the current
+- ``rlu_actual`` - the actual peak positions as an n-by-3 matrix in :math:`h,k,l` as indexed with respect to the current
   lattice parameters.
 
 - ``widths`` - an n-by-3 array containing the FWHH in Ang^-1 of the peaks along each of the three projection axes
@@ -128,7 +129,7 @@ everything, using outputs from ``bragg_positions`` described above.
    bragg_positions_view(wcut,wpeak)
 
 
-You will be prompted in the Matlab command window as to which plot and fit you wish to view.
+You will be prompted in the MATLAB command window as to which plot and fit you wish to view.
 
 .. note::
 
@@ -152,12 +153,12 @@ misaligned frame to the aligned frame.
 
 ::
 
-   al_info = refine_crystal(rlu0, alatt, angdeg, bragg_peaks, <keyword options>);
+   al_info = refine_crystal(rlu_expected, alatt, angdeg, bragg_pos, <keyword options>);
 
 
 The inputs are:
 
-- ``rlu0`` - the an n-by-3 matrix of actual peak positions as in :math:`h,k,l` as indexed with the current lattice parameters
+- ``rlu_actual`` - the an n-by-3 matrix of actual peak positions as in :math:`h,k,l` as indexed with the current lattice parameters
 
 - ``alatt, angdeg`` - the lattice parameters and angles used in the original sqw file.
 

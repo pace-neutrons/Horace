@@ -1,4 +1,4 @@
-function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
+function [rlu_actual,width,wcut,wpeak]=bragg_positions(w, rlu_expected,...
     radial_cut_length, radial_bin_width, radial_thickness,...
     trans_cut_length, trans_bin_width, trans_thickness, varargin)
 % Get actual Bragg peak positions, given initial estimates of their positions
@@ -12,11 +12,12 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 % Input:
 % ------
 %   w                   Data source (sqw file name or sqw object)
-%   rlu                 Set of Bragg peak indices in (n x 3) matrix:
+%   rlu_expected        Set of Bragg peak indices in (n x 3) matrix:
 %                           h1, k1, l1
 %                           h2, k2, l2
 %                           :   :   :
-%                       These are the indices of the Bragg peaks whose
+%                       These are the expected (If crystal is perfectly aligned) indices
+                        of the Bragg peaks whose
 %                       actual positions will be found by this function
 %                       e.g. [1,0,0; 0,1,0; 1,1,0]
 %
@@ -66,9 +67,9 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 %
 % Output:
 % -------
-%   rlu0            The actual peak positions as (n x 3) matrix of h,k,l as
+%   rlu_actual     The actual peak positions as (n x 3) matrix of h,k,l as
 %                  indexed with the current lattice parameters
-%   widths          Array (size (n x 3)) containing the FWHH in Ang^-1 of the
+%   widths         Array (size (n x 3)) containing the FWHH in Ang^-1 of the
 %                  peaks along each of the three projection axes
 %   wcut            Array of cuts, size (n x 3),  along three orthogonal
 %                  directions through each Bragg point from which the peak
@@ -111,7 +112,7 @@ else
     error('Object must be sqw type')
 end
 
-[opt,eint,absolute_binning,gau] = check_and_parse_inputs( rlu,...
+[opt,eint,absolute_binning,gau] = check_and_parse_inputs( rlu_expected,...
     radial_cut_length, radial_bin_width, radial_thickness,...
     trans_cut_length, trans_bin_width, trans_thickness, varargin{:});
 
@@ -119,8 +120,8 @@ end
 % Fit Peaks
 % ---------
 % Initialise output arguments
-szrlu  = size(rlu);
-rlu0   = zeros(szrlu );
+szrlu  = size(rlu_expected);
+rlu_actual   = zeros(szrlu );
 width  = zeros(szrlu);
 npeaks = szrlu(1);
 wcut=repmat(IX_dataset_1d,npeaks,3);
@@ -133,11 +134,11 @@ u2_rlu = proj.v;
 % Get the matrix to convert rlu to crystal Cartesian coordinates
 B = bmatrix (img.alatt, img.angdeg);
 
-peak_problem=false(size(rlu));
+peak_problem=false(size(rlu_expected));
 
-for i=1:size(rlu,1)
+for i=1:size(rlu_expected,1)
     % Extract Q point through which to get three orthogonal cuts
-    Qrlu = rlu(i,:);
+    Qrlu = rlu_expected(i,:);
     modQ=norm(B*Qrlu(:));   % length of Q vector in Ang^-1
 
     % Create proj for taking three orthogonal cuts
@@ -214,23 +215,23 @@ for i=1:size(rlu,1)
 
     % Convert peak position into r.l.u.
     if all(isfinite(upos0))
-        rlu0(i,:)= proj.transform_img_to_hkl(upos0(:));
+        rlu_actual(i,:)= proj.transform_img_to_hkl(upos0(:));
     else
         peak_problem(i,:)=~isfinite(upos0);
-        rlu0(i,:)=NaN;
+        rlu_actual(i,:)=NaN;
     end
 end
 
 disp('--------------------------------------------------------------------------------')
 if any(peak_problem(:))
     disp('Problems determining peak position for:')
-    for i=1:size(rlu,1)
+    for i=1:size(rlu_expected,1)
         if any(peak_problem(i,:))
             disp(['Peak ',num2str(i),':  [',num2str(Qrlu),']','    scan(s): ',num2str(find(peak_problem(i,:)))])
         end
     end
     disp(' ')
-    disp(['Total number of peaks = ',num2str(size(rlu,1))])
+    disp(['Total number of peaks = ',num2str(size(rlu_expected,1))])
     disp('--------------------------------------------------------------------------------')
 end
 
