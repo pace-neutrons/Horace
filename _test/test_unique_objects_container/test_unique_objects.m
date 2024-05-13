@@ -269,7 +269,7 @@ classdef test_unique_objects < TestCase
         end
         %----------------------------------------------------------------
         function test_change_serializer(obj)
-            skipTest('serialiser function is now fixed and may not be changed');
+            skipTest('serialiser function is now set constant and may not be changed');
             % leaving the test in skipped in case this is reversed
             % Test different serializers
             mi2 = merlin_instrument(190, 700, 'g');
