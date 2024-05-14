@@ -20,10 +20,11 @@ function varargout = spaghetti_plot(varargin)
 %
 %   >> [wdisp,cuts] = spaghetti_plot(...)                    % generates a set of 1D cuts
 %   >> [wdisp, cuts] = spaghetti_plot(...,'withpix')         % return cuts as sqw rather than d1ds
-%   >> [...,fig,axes,plots] = spaghetti_plot(...,'withpix')  % in addition
-%                         to previous outputs, return handle to the image,
-%                         axes and all plots displayed by spaghetti plot.
-%
+%   >> [wdisp,cuts,fig,axes,plots] = spaghetti_plot(...)     % in addition
+%                                    to  1D cuts retun references to the
+%                                    plot objects i.e. figure handle, axes
+%                                    handle and array of hanles to each
+%                                    line plots displayed by spaghetti plot
 % Input:
 % ------
 %   rlp             Array of r.l.p. e.g. [0,0,0; 0,0,1; 1,0,1; 1,0,0];
