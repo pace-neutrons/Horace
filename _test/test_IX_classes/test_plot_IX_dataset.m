@@ -28,6 +28,49 @@ classdef test_plot_IX_dataset < TestCase
             close all;
         end
         %------------------------------------------------------------------
+        function test_spaghetti_noplot(obj)
+            tob = [obj.IX_data{2};obj.IX_data{2}*2;obj.IX_data{2}*0.5];
+            [ds,cuts,figh,axh,plh] = spaghetti_plot(tob,'noplot');
+            assertEqual(ds,tob);
+            assertTrue(isempty(cuts));
+            assertTrue(isempty(figh));
+            assertTrue(isempty(axh));
+            assertTrue(isempty(plh));
+        end
+
+        function test_spaghetti_set_labels(obj)
+            tob = [obj.IX_data{2};obj.IX_data{2}*2;obj.IX_data{2}*0.5];
+            [ds,cuts,figh,axh,plh] = spaghetti_plot(tob,'lab',{'A','B','C','D'});
+            assertEqual(ds,tob);
+            assertTrue(isempty(cuts));
+            assertTrue(isa(figh,'matlab.ui.Figure'));
+            assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+            assertTrue(isa(plh,'matlab.graphics.primitive.Patch'))
+            assertEqual(numel(figh),1)
+            assertEqual(numel(axh),1)
+            assertEqual(numel(plh),3)
+            assertEqual(axh.XTickLabel,{'A';'B';'C';'D'});
+            close(figh);
+        end
+
+        function test_spaghetti_default_labels(obj)
+            tob = [obj.IX_data{2};obj.IX_data{2}*2;obj.IX_data{2}*0.5];
+            [ds,cuts,figh,axh,plh] = spaghetti_plot(tob);
+            assertEqual(ds,tob);
+            assertTrue(isempty(cuts));
+            assertTrue(isa(figh,'matlab.ui.Figure'));
+            assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+            assertTrue(isa(plh,'matlab.graphics.primitive.Patch'))
+            assertEqual(numel(figh),1)
+            assertEqual(numel(axh),1)
+            assertEqual(numel(plh),3)
+            assertEqual(axh.XTickLabel{1},tob(1).title{1});
+            assertEqual(axh.XTickLabel{2},tob(2).title{1});
+            assertEqual(axh.XTickLabel{3},tob(3).title{1});
+            close(figh);
+        end
+
+        %------------------------------------------------------------------
         function test_IXd3d_other_plot_methods_throw(obj)
             IXd3d_obj = obj.IX_data{3};
             tstd = obj.interface_tester;
@@ -91,7 +134,9 @@ classdef test_plot_IX_dataset < TestCase
         end
         %
         function test_IXd2d_plot2D_methods_work_on_array(obj)
-            IXd2d_arr = [obj.IX_data{2},2*obj.IX_data{2}];
+            dat2 = obj.IX_data{2};
+            dat2.x = dat2.x+dat2.x(end);
+            IXd2d_arr = [obj.IX_data{2},2*dat2];
             tstd = obj.interface_tester;
             pl_methods = [tstd.dnd_methods(:);tstd.d2d_methods(:)];
             need_fig = [false(numel(tstd.dnd_methods),1);tstd.overplot_requested(:)];
@@ -104,7 +149,8 @@ classdef test_plot_IX_dataset < TestCase
                 end
                 [objh,axh,plh] = meth(IXd2d_arr);
 
-                assertEqual(numel(objh),2)
+                assertEqual(numel(objh),1)
+                assertEqual(numel(axh),1)
                 assertTrue(isa(objh,'matlab.ui.Figure'));
                 assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
