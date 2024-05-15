@@ -319,11 +319,9 @@ Where:
 
 .. note::
 
-   The first viewing axis is strictly defined to be ``u``
-
+   The first viewing axis is strictly defined to be ``u``.
    The second viewing axis is constructed by default to be in the plane of ``u``
    and ``v`` and perpendicular to ``u``.
-
    The third viewing axes is by default defined as the cross product of the first
    two (:math:`u \times{} v`).
 
@@ -398,9 +396,8 @@ Where:
 .. note::
 
    In general, you should not need to define ``alatt`` or ``angdeg`` when doing a ``cut``.
-   They are taken from the ``sqw`` object during a
-   ``cut`` and your settings will be overridden. However, there are cases where a
-    projection object may need to be reused elsewhere.
+   They are taken from the ``sqw`` object during a ``cut`` and your settings will be overridden. 
+   However, there are cases where a projection object may need to be reused elsewhere.
 
 * ``offset``  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
   origin of the projection coordinate system. For example you may wish to make
@@ -434,8 +431,8 @@ Where:
                       w: []
                    type: 'ppr'
           nonorthogonal: 0
-                  alatt: [6.2832 6.2832 6.2832]
-                 angdeg: [90 90 90]
+                  alatt: []
+                 angdeg: []
                  offset: [0 0 0 0]
                   label: {'\zeta'  '\xi'  '\eta'  'E'}
                   title: ''
@@ -670,7 +667,7 @@ where:
   origin of the projection coordinate system.
 
 
-- ``label``, etc.  See :ref:`above <plotargs>`.
+- ``label``, etc.  See :ref:`description for plot arguments above <plotargs>`.
 
 .. note::
 
@@ -700,73 +697,51 @@ where:
    recommendation applies that positional should only be used to
    define ``u`` and ``v``.
 
-``sphere_proj`` defines a spherical coordinate system, where:
+``sphere_proj`` defines a spherical coordinate system which contains 
+spherical coordinates of momentum transfer vector  :math:`\vec{Q}`.
+Energy transfer coordinate for ``sphere_proj`` remain unchanged. 
+If projection ``offset`` parameter is zero, this vector is the vector
+of momentum transfer from neutron to excitations -- lattice measured
+in scattering experiment. If offset is not zero, :math:`\vec{Q}`
+is the difference between ``offset`` and the measured momentum transfer.
+
+Because reciprocal lattice is often non-orthogonal lattice, we introduce auxiliary 
+orthogonal coordinate system, which vector :math:`\vec{e_z}` being parallel to 
+:math:`\vec{u}` and vector :math:`\vec{e_x}` is orthogonal to :math:`\vec{e_z}`
+and lies in the plane defined by :math:`\vec{u}` - :math:`\vec{v}`. 
+(see :ref:`Sphere coordinates <fig_sphere_coodinates>` below.) When crystal lattice is 
+orthogonal, unit vectors :math:`\vec{e_z}` is aligned with :math:`\vec{u}` and 
+unit vector :math:`\vec{e_x}` is aligned with :math:`\vec{v}`.
+
+Then ``sphere_proj`` coordinates are:
 
 - |Q| The radius from the origin (``offset``) in :math:`hkl`
 
-* :math:`\theta`  The angle measured from :math:`\vec{u}` to the vector (:math:`\vec{q}`),
-  which means a :math:`\theta` value of :math:`0^{\circ}` means that :math:`\vec{q}` is parallel 
-  to :math:`\vec{u}`; and a :math:`\theta` value of :math:`90^{\circ}` means that 
-  :math:`\vec{q}` is perpendicular to :math:`\vec{u}`.
-
-  Mathematically this is defined as:
+- :math:`\theta`  -- The angle measured from :math:`e_z` to the vector (:math:`\vec{Q}`),
+  i.e. :math:`0^{\circ}` is parallel to :math:`e_z` and :math:`90^{\circ}` is
+  perpendicular to :math:`e_z`.   Mathematically this is defined as:
 
   .. math::
 
-     \cos\left(\theta{}\right) = \frac{\vec{q}\cdot\vec{u}}{\left|q\right|\cdot\left|u\right|}
+   \cos\left(\theta{}\right) = \frac{\vec{Q}\cdot\vec{e_z}}{\left|Q\right|\cdot\left|e_z\right|}
 
-* :math:`\phi`
-
-  The angle measured between the :math:`u`-:math:`v` plane to the vector
-  (:math:`\vec{q}`), i.e. :math:`0^{\circ}` means that :math:`\vec{q}` lies in the :math:`u`-:math:`v`
-  plane and :math:`90^{\circ}` means that :math:`\vec{q}` is normal 
-  to the :math:`u`-:math:`v` plane
-  (i.e. parallel to :math:`w`).
-
-  Mathematically this is defined as:
+- :math:`\phi` --  is the angle measured between the :math:`e_x`-:math:`e_z` plane to the vector
+  (:math:`\vec{q}`), i.e. :math:`0^{\circ}` lies in the :math:`e_x`-:math:`e_z`
+  plane and :math:`90^{\circ}` is normal to :math:`e_x`-:math:`e_z` plane
+  (i.e. parallel to :math:`e_y`). Mathematically this is defined as:
 
   .. math::
 
-     \cos\left(\phi{}\right) = \frac{\vec{p} \cdot{} \left(\vec{w} \times{} \vec{u} \right)}
-                                    {\vec{q} \cdot{} \vec{w} \times{} \vec{u}}
+   \sin\left(\phi{}\right) = -\frac{[\vec{Q}\times\vec{e_z}]\cdot\vec{e_x}}{\left|[\vec{Q}\times\vec{e_z}]\right|}
 
-  where :math:`\vec{p}` is the projection of :math:`\vec{q}` onto the meridian
-  plane (the dashed line `below <#fig-sphere-coodinates>`_), given by:
-
-  .. math::
-
-     \vec{p} = \frac{\vec{q}\cdot{}\vec{u}}{\left|u\right|^2}\vec{u}
-
-  ..
-     Commented as proof of working not necessary for users
-
-     .. math::
-
-        \cos\left(\phi{}\right) = \frac{\left(\vec{w} \times{} \vec{u} \right) \cdot \vec{p}}
-                                       {\left|w\right|\left|u\right|\left|p\right|}
-
-     Where :math:`\left|p\right| = \left|q\right|`
-
-     .. math::
-
-        \cos\left(\phi{}\right) = \frac{\left(\vec{w} \times{} \vec{u} \right) \cdot \vec{p}}
-                                       {\left|w\right|\left|u\right|\left|q\right|}
-
-* :math:`E`
-
-  The energy transfer as defined in ``line_proj``
+* :math:`E`   is the energy transfer as defined in ``line_proj``
 
 .. note::
 
-   - :math:`\theta` lies in the range between :math:`0^{\circ}` and
-     :math:`180^{\circ}`.
-   - :math:`\phi` lies in the range between :math:`-180^{\circ}` and
-     :math:`180^{\circ}`.
-
-   In radians, that is:
-
-   - :math:`\theta` lies in the range between :math:`0` and :math:`\pi`
-   - :math:`\phi` lies in the range between :math:`-\pi` and :math:`\pi`.
+   - :math:`\theta` lies in the range between :math:`0^{\circ}` and   :math:`180^{\circ}`.
+   - :math:`\phi` lies in the range between :math:`-180^{\circ}` and  :math:`180^{\circ}`.
+   
+   Alternatively you can set ``sphere_proj`` option ``type`` to define these values in radians.
 
 
 
@@ -780,14 +755,16 @@ where:
    Spherical coordinate system used by ``sphere_proj``
 
 
-In practice, Horace uses Matlab methods ``cart2sph`` and ``sph2cart`` to convert an array of vectors expressed
+Alternative description of spherical coordinate system may be found on MATLAB help pages.
+Horace uses MATLAB methods ``cart2sph`` and ``sph2cart`` to convert an array of vectors expressed
 in Cartesian coordinate system to spherical coordinate system and back.
-The formulas, used by these methods together with the image of the used coordinate system are provided `on Matlab "cart2sph" help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_.
-Matlab uses ``elevation`` angle which is related to :math:`\theta` angle used by Horace by relation:
+The formulas, used by these methods together with the image of the used coordinate system is provided 
+`on MATLAB "cart2sph" help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_.
+MATLAB uses ``elevation`` angle which is related to :math:`\theta` angle used by Horace by relation:
 
        :math:`\theta = 90-elevation`
 
-``azimuth`` angle form `Matlab help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_
+``azimuth`` angle form `MATLAB help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_
 is equivalent to Horace :math:`\phi` angle.
 
 .. note::
@@ -941,10 +918,10 @@ Cylindrical Projections
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 In order to construct a cylindrical projection (i.e. a projection in
-:math:`\vec{q}_{\perp}` (the radial distance from the polar axis),
-:math:`\vec{q}_{\|}` (distance from origin along the polar axis), :math:`\phi`
+:math:`\vec{Q}_{\perp}` (the radial distance from the polar axis),
+:math:`\vec{Q}_{\|}` (distance from origin along the polar axis), :math:`\phi`
 (azimuthal angle) and :math:`E`) coordinate system we create a projection in a
-similar way to the ``line_proj``, but use the ``cylinder_proj`` function.
+similar way to the ``line_proj``, but use the ``cylinder_proj`` class.
 
 The complete signature for ``cylinder_proj`` is:
 
@@ -954,17 +931,13 @@ The complete signature for ``cylinder_proj`` is:
 
 where:
 
-- ``u``
-
-  The vector :math:`\vec{u}` is the reciprocal space vector defining the
+- ``u``  The vector :math:`\vec{u}` is the reciprocal space vector defining the
   polar-axis of the cylindrical coordinate system along which
   :math:`\vec{q}_{\|}` is measured.
 
   See the :ref:`diagram below <fig_cylinder_coodinates>` for details.
 
-- ``v``
-
-  The vector :math:`\vec{v}` is the reciprocal space vector which defines the second
+- ``v``  The vector :math:`\vec{v}` is the reciprocal space vector which defines the second
   component of the :math:`u`-:math:`v` plane from which :math:`\phi` is measured.
 
   See the :ref:`diagram below <fig_cylinder_coodinates>` for details.
@@ -981,17 +954,13 @@ where:
    :math:`v` along the :math:`hkl` directions :math:`[1,0,0]` and
    :math:`[0,1,0]` respectively.
 
-- ``type``
-
-  Three character string denoting the the projection normalization of each
+- ``type``  Three character string denoting the the projection normalization of each
   dimension, one character for each directions, e.g. ``'aad'`` or ``'aar'``.
 
   At the moment there is only one possible option implemented for the length
   components (:math:`q_{\perp}` and :math:`q_{\|}`) of ``type``:
 
-  1. ``'a'``
-
-     Inverse angstroms.
+  1. ``'a'``     Inverse angstroms.
 
   ..
      2. ``'r'``
@@ -1006,25 +975,17 @@ where:
   There are 2 possible options for the third (angular) component of
   ``type``:
 
-  1. ``'d'``
+  1. ``'d'``   Degrees
 
-     Degrees
-
-  2. ``'r'``
-
-     Radians
+  2. ``'r'``   Radians
 
 
   For example, if we wanted the length components to be in inverse angstroms and
   the angles in degrees we would have ``type = 'aad'``.
 
-- ``alatt``
+- ``alatt``   3-vector of lattice parameters.
 
-  3-vector of lattice parameters.
-
-- ``angdeg``
-
-  3-vector of lattice angles in degrees.
+- ``angdeg``  3-vector of lattice angles in degrees.
 
 .. note::
 
@@ -1032,15 +993,13 @@ where:
    they will be taken from the ``sqw`` object during a ``cut``. However, there
    are cases where a projection object may need to be reused elsewhere.
 
-- ``offset``
-
-  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
+- ``offset``  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
   origin of the projection coordinate system.
 
 
 - ``label``, etc.
 
-  See :ref:`above <plotargs>`.
+  See :ref:`other plot arguments above <plotargs>`.
 
 .. note::
 
@@ -1067,63 +1026,41 @@ where:
 
    Like ``line_proj``, ``cylinder_proj`` can be :ref:`defined using
    positional or keyword arguments <poskwarg>`. However the same
-   recommendation applies that positionals should only be used to
+   recommendation applies that positional should only be used to
    define ``u`` and ``v``.
 
 ``cylinder_proj`` defines a cylindrical coordinate system, where:
 
-* :math:`q_{\|}`
-
-  The length along the polar axis :math:`\vec{u}` to :math:`\vec{q}` relative to
-  the origin (``offset``) in :math:`hkl`
-
-  Mathematically, this is defined as:
+- :math:`Q_{\perp}` -- The length of the projection of the momentum transfer :math:`\vec{Q}` measured from the ``cylinder_proj`` 
+  origin (``offset``) in :math:`hkl` to the plain :math:`e_x`-:math:`e_y`. (see :ref:`fig_cylinder_coodinates` below)
 
   .. math::
 
-     \vec{q_{\|}} = \frac{\left(\vec{q} \cdot{} \vec{u}\right)}
-                         {\left|u\right|}
-                    \vec{u}
+   Q_{\perp} = \left| \vec{Q} - \vec{e_z}\cdot Q_{||}\right |
+
+
+- :math:`Q_{||}`  -- The length of the projection of the momentum transfer :math:`\vec{Q}` measured from the ``cylinder_proj`` 
+  origin (``offset``) in :math:`hkl` to :math:`e_z` axis of the ``cylinder_proj``
 
   .. math::
 
-     q_{\|} = \left| \vec{q_{\|}} \right|
+   Q_{||} = \vec{Q}\cdot\vec{e_z}
 
-* :math:`q_{\perp}`
-
-  The radial distance from the polar axis :math:`\vec{u}` to :math:`\vec{q}`
-  relative to the origin (``offset``) in :math:`hkl`.
-
-  Mathematically, this is defined as:
+* :math:`\phi` --  is the angle measured between the :math:`e_x`-:math:`e_z` plane to the vector
+  (:math:`\vec{Q_{\perp}}`), i.e. :math:`0^{\circ}` lies in the :math:`e_x`-:math:`e_z`
+  plane and :math:`90^{\circ}` is normal to :math:`e_x`-:math:`e_z` plane
+  (i.e. parallel to :math:`e_y`). Mathematically this is defined as:
 
   .. math::
 
-     \vec{q_{\perp}} = \vec{q} - \vec{q_{\|}}
-
-  .. math::
-
-     q_{\perp} = \left| \vec{q_{\perp}} \right|
-
-* :math:`\phi`
-
-  The angle measured between the :math:`u`-:math:`v` plane to the vector
-  (:math:`\vec{q}`), i.e. :math:`0^{\circ}` lies in the :math:`u`-:math:`v`
-  plane and :math:`90^{\circ}` is normal to the :math:`u`-:math:`v` plane
-  (i.e. parallel to :math:`\vec{w}`).
-
-  Mathematically this is defined as:
-
-  .. math::
-
-     \cos\left(\phi{}\right) = \frac{\vec{q_{\perp}} \cdot \left(\vec{w} \times \vec{u}\right)}
-                                    {\left|\vec{q_{\perp}}\right|\left|\vec{u}\right|\left|\vec{w}\right|}
+   \cos\left(\phi{}\right) = \frac{\vec{Q_{\perp}}\cdot\vec{e_x}}{\left|\vec{Q_{\perp}}\right|}
 
 * :math:`E`   is the energy transfer as defined in ``line_proj``
 
 .. note::
 
-   :math:`\phi`  lies in the range between :math:`-180^{\circ}` and :math:`180^{\circ}`. The ``cylinder_proj`` settings
-   allow to change these values to radians so :math:`-\pi \leq \phi \leq \pi`.
+   :math:`\phi`  lies in the range between :math:`-180^{\circ}` and :math:`180^{\circ}`. The ``cylinder_proj`` ``type``
+   property allows to change these values to radians so :math:`-\pi \leq \phi \leq \pi`.
 
 
 ..  _fig_cylinder_coodinates:
@@ -1135,38 +1072,34 @@ where:
 
    Cylindrical coordinate system used by ``cylinder_proj``
 
-
-Similarly to :ref:`fig_sphere_coodinates`, Horace uses Matlab methods
-``cart2pol``/``pol2cart`` to convert array of vectors expressed in Cartesian
-coordinate system to cylindrical coordinate system and back.  The formulas,
-used by these methods together with the image of the used coordinate system
-are provided `on Matlab "cart2pol" help pages
-<https://uk.mathworks.com/help/matlab/ref/cart2pol.html>`_.
+Similarly to :ref:`fig_sphere_coodinates`, Horace uses MATLAB methods ``cart2pol``/``pol2cart`` to convert
+array of vectors expressed in Cartesian coordinate system to cylindrical coordinate system and back.
+Detailed description of the cylindrical coordinate system used by Horace together with the image of the used coordinate system 
+are provided `on MATLAB "cart2pol" help pages <https://uk.mathworks.com/help/matlab/ref/cart2pol.html>`_.
 
 .. note::
 
    A cylindrical projection currently does not have the ability to be
-   rescaled in :math:`Q_{\perp}` or :math:`Q_{||}` relative to the magnitude
+   rescaled in :math:`Q_{\perp}` or :math:`Q_{\|}` relative to the magnitude
    of :math:`u` or :math:`v` vectors.
 
 When it comes to cutting and plotting, we can use a ``cylinder_proj`` in
 exactly the same way as we would a ``line_proj``, but with one key
 difference. The binning arguments of ``cut`` no longer refer to
-:math:`h,k,l,E`, but to :math:`q_{\perp}`, :math:`q_{\|}`, :math:`\phi`, :math:`E` variables.
+:math:`h,k,l,E`, but to :math:`Q_{\perp}`, :math:`Q_{\|}`, :math:`\phi`, :math:`E` variables.
 
 .. code-block:: matlab
 
-   sp_cut = cut(w, cylinder_proj, Q_\perp, Q_||, phi, e, ...);
+   sp_cut = cut(w, cylinder_proj, Q_tr, Q_||, phi, e, ...);
 
 .. warning::
 
    The form of the arguments to ``cut`` is still the same (see: `Binning
    arguments`_). However:
 
-   - :math:`q_{\perp}` runs between :math:`[0, \infty)`
-   - :math:`\phi` runs between :math:`[-180, 180]`
-
-   requesting binning outside of these ranges will fail.
+   - :math:`Q_{\perp}` runs from :math:`[0, \infty)` -- attempt to use :math:`Q_{\perp}` with a minimum
+     bound smaller than :math:`0` will fail.
+   - :math:`\phi` runs between :math:`[-180, 180]` -- requesting binning outsize of these ranges will fail.
 
 
 ``cylinder_proj`` 2D and 1D cuts examples:
@@ -1234,7 +1167,7 @@ function of :math:`Q_{\perp}` at different :math:`Q_{||}`:
         amark(symbols(i));
         pd(w1(i))
     end
-    legend('Q_{||}=-4','Q_{||}=-2','Q_{||}=0','Q_{||}=2');
+    legend('Q_{\|}=-4','Q_{\|}=-2');
 
 .. figure:: ../images/cylindrical_cuts_1D.png
    :align: center
