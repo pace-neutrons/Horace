@@ -6,17 +6,15 @@ Cutting data of interest from SQW files and objects
 
 .. |Q| replace:: :math:`|\textbf{Q}|`
 
-Horace stores the data produced in a neutron experiment in a 1-D dataset
-which is called the "pixels". These represent the neutron events measured during an
-experiment. The dataset is the major by size part of ``sqw`` object, which is 
-the main object Horace operates with. This object also contains the rest 
-of the full information about the experiment.
+Horace stores the data produced in a neutron experiment in a 4-D dataset
+which are called the
+"pixels". These represent the neutron events measured during an
+experiment. The dataset also contains the rest of the full information about the experiment.
 
-Second by size part of ``sqw`` object is a 0 to 4-dimensional histogram (binning) 
-of the "pixels"  in reciprocal space (``hkl-dE``) which we call the "image".
-This carries only limited information about the original data, i.e. only the
-averaged intensity over the reciprocal space bins. The "image" is the main part of
-Horace's ``dnd`` object -- the second by importance Horace's object. 
+Horace also creates a 4-dimensional histogram (binned) of these "pixels"
+represented in reciprocal space (``hkl-dE``) which we call the "image". This
+carries only limited information about the original data, i.e. only the
+averaged intensity over the bins remains.
 
 .. note::
 
@@ -858,6 +856,8 @@ where:
 
    Spherical coordinate system used by ``sphere_proj``
 
+..
+   TODO: Move into relevant developer documentation section
 
    In practice, Horace uses Matlab methods ``cart2sph`` and ``sph2cart`` to convert an array of vectors expressed
    in Cartesian coordinate system to spherical coordinate system and back.
@@ -1214,6 +1214,8 @@ where:
 
    Cylindrical coordinate system used by ``cylinder_proj``
 
+..
+   TODO: Move into relevant developer documentation section
 
    Similarly to :ref:`fig_sphere_coodinates`, Horace uses Matlab methods
    ``cart2pol``/``pol2cart`` to convert array of vectors expressed in Cartesian
