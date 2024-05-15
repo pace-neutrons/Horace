@@ -6,16 +6,17 @@ Cutting data of interest from SQW files and objects
 
 .. |Q| replace:: :math:`|\textbf{Q}|`
 
-Horace stores all neutron events registered in a neutron experiment in a 1-D dataset
-which is called the "pixels". The dataset is the major by size part of ``sqw`` object, which is 
-the main object Horace operates with. This object contains
-full information about the results of the neutron experiment.
+Horace ``sqw`` object is the main object Horace operates with. 
+It contains full information about the results of a neutron experiment.
+This information includes information about each neutron "event" registered
+in the experiment which is stored in a 1-D dataset called the "pixels". 
+The dataset is usually the major by size part of ``sqw`` object.
 
-Second by size part of ``sqw`` object is a 0 to 4-dimensional histogram (binning)
+Another part of ``sqw`` object is a 0 to 4-dimensional histogram (binning)
 of the "pixels"  in reciprocal space (``hkl-dE``) which we call the "image".
 This carries only limited information about the original data, i.e. only the
-averaged intensity over the reciprocal space bins. The "image" is the main part of
-Horace's ``dnd`` object -- the second by importance Horace's object.
+averaged neutron intensity contributed into the reciprocal space bins. 
+The "image" is the main part of Horace's ``dnd`` object -- the second by importance Horace's object.
 
 .. note::
 
@@ -30,6 +31,12 @@ data, a user works with smaller objects, extracted from the full dataset using
   slice-o-matic), 2-d and 1-d cuts can be easily represented.
 - The entire dataset is often too large to fit in the memory of most computers.
 
+.. note::
+
+    "pixels" in 1D dataset are arranged in such a way, that simple calculation allows 
+    to identify "pixels" contributing into every bin of a ``sqw`` object's ``image``. 
+    ``cut`` uses this information to extract relevant pixels and maintains 
+    the arrangement between bins and "pixels" for resulting ``sqw`` object.
 
 cut
 ===
@@ -77,20 +84,14 @@ where:
 
 There are also several extra optional arguments which are:
 
-- ``-nopix``
-
-  drop the "pixels" from the resulting object returning just the ``dnd`` binned
+- ``-nopix``  drop the "pixels" from the resulting object returning just the ``dnd`` binned
   data (the "image"). This option is faster and the resulting object requires
   less memory, but is also more restricted in what you can do with the result.
 
-- ``sym``
-
-  cell array of symmetry operations. For a full description of usage, :ref:`see
+- ``sym``  cell array of symmetry operations. For a full description of usage, :ref:`see
   here <manual/Symmetrising_etc:Cutting>`.
 
-- ``filename``
-
-  if provided, uses file-backed algorithms to write the resulting object
+- ``filename`` - if provided, uses file-backed algorithms to write the resulting object
   directly to a file named ``filename`` and return a file-backed ``sqw``.
 
 .. warning::
@@ -160,14 +161,9 @@ Each can independently have one of four different forms below.
    to ensure your cut is what you expect.
 
 
-* ``[]``
+- ``[]``  An empty binning range will use the source binning axes in that dimension.
 
-  An empty binning range will use the source binning axes in that dimension.
-
-* ``[step]``
-
-  A single (scalar) number defines a plot axis.
-
+- ``[step]``  A single (scalar) number defines a plot axis.
   The bin width will be equal to the number you specify. The lower and upper
   limits will be from the source binning axes in that dimension.
 
@@ -181,12 +177,10 @@ Each can independently have one of four different forms below.
    When changing projections e.g. ``line_proj`` to ``sphere_proj``, using either
    ``[]`` or ``[step]`` see, `changing projections`_ below.
 
-* ``[lower,upper]``
+- ``[lower,upper]``  A vector with two components defines an integration axis.
 
-  A vector with two components defines an integration axis.
-
-  The signal will be integrated over that axis between the limits specified by
-  the two components of the vector.
+     The signal will be integrated over that axis between the limits specified by
+     the two components of the vector.
 
 .. warning::
 
@@ -194,13 +188,11 @@ Each can independently have one of four different forms below.
    edges. For example, ``[-1 1]`` will capture pixels from ``-1`` to ``1``
    inclusive.
 
-* ``[lower,step,upper]``
+- ``[lower,step,upper]``  A vector with three components defines a plot axis.
 
-    A vector with three components defines a plot axis.
-
-    The first ``lower`` and the last ``upper`` components specifying the centres
-    of the first and the last bins of the data to be cut. The middle component
-    specifies the bin width.
+      The first ``lower`` and the last ``upper`` components specifying the centres
+      of the first and the last bins of the data to be cut. The middle component
+      specifies the bin width.
 
 .. note ::
 
@@ -214,28 +206,18 @@ Each can independently have one of four different forms below.
    1]`` will capture pixels from ``-1.5`` to ``1.5`` inclusive.
 
 
-* ``[lower, separation, upper, cut_width]``
-
-  A vector with four components defines **multiple** integration axes with
+* ``[lower, separation, upper, cut_width]``  A vector with four components defines **multiple** integration axes with
   **multiple** integration limits in the selected direction.
 
   These components are:
 
-  * ``lower``
+  - ``lower``   Position of the lowest cut bin-centre.
 
-    Position of the lowest cut bin-centre.
+  - ``separation``  Distance between cut bin-centres.
 
-  * ``separation``
+  - ``upper``   Approximate (see :ref:`below <separation_warn>`) position of highest cut bin-centre
 
-    Distance between cut bin-centres.
-
-  * ``upper``
-
-    Approximate (see :ref:`below <separation_warn>`) position of highest cut bin-centre
-
-  * ``cut_width``
-
-    Width of each cut, centred on each bin-centre, thus extending one half-width
+  - ``cut_width``   Width of each cut, centred on each bin-centre, thus extending one half-width
     in both directions
 
   The number of cuts produced will be one more than the number of
@@ -298,8 +280,8 @@ file. This file will not be a temporary file.
    memory.
 
 
-Projection in more detail
--------------------------
+Projection in more details
+--------------------------
 
 As mentioned in `Projection (proj)`_, the ``proj`` argument defines the coordinate
 system of the histogrammed image.
@@ -324,22 +306,15 @@ The complete signature for ``line_proj`` is:
 
 .. code-block:: matlab
 
-   proj = line_proj(u, v[, w][, nonorthogonal][, type][, alatt, angdeg][, offset][, label][, title][, lab1][, lab2][, lab3][, lab4]);
+   proj = line_proj(u, v[,[],w][, nonorthogonal][, type][, alatt, angdeg][, offset][, label][, title][, lab1][, lab2][, lab3][, lab4]);
 
 Where:
 
+- ``u``  3-vector in reciprocal space :math:`(h,k,l)` specifying first viewing axis.
 
-* ``u``
+- ``v``  3-vector in reciprocal space :math:`(h,k,l)` in the plane of the second viewing axis.
 
-  3-vector in reciprocal space :math:`(h,k,l)` specifying first viewing axis.
-
-* ``v``
-
-  3-vector in reciprocal space :math:`(h,k,l)` in the plane of the second viewing axis.
-
-* ``w``
-
-  3-vector of in reciprocal space :math:`(h,k,l)` of the third viewing axis.
+- ``w``  3-vector of in reciprocal space :math:`(h,k,l)` of the third viewing axis.
 
 
 .. note::
@@ -385,9 +360,7 @@ Where:
 
 .. _nonortho:
 
-* ``nonorthogonal``
-
-  Whether lattice vectors are allowed to be non-orthogonal
+- ``nonorthogonal`` Whether lattice vectors are allowed to be non-orthogonal
 
 .. note::
 
@@ -402,48 +375,34 @@ Where:
      the basis vectors are orthogonal, so features may be distorted (see
      `below <#non-orthogonal-axes>`_) .
 
-* ``type``
-
-  Three character string denoting the the projection normalization of each of
+- ``type``  Three character string denoting the the projection normalization of each of
   the three **Q**-axes, one character for each axis, e.g. ``'aaa'``, ``'rrr'``,
   ``'ppp'``.
 
   There are 3 possible options for each element of ``type``:
 
-  1. ``'a'``
+  1. ``'a'`` Inverse angstroms
 
-     Inverse angstroms
-
-  2. ``'r'``
-
-     Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
+  2. ``'r'``  Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
      :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
 
-  3. ``'p'``
-
-     Preserve the values of ``u`` and ``v``
+  3. ``'p'`` Preserve the values of ``u`` and ``v``
 
   For example, if we wanted the first two **Q**-components to be in r.l.u. and
   the third to be in inverse Angstroms we would have ``type = 'rra'``.
 
-* ``alatt``
+- ``alatt``   3-vector of lattice parameters.
 
-  3-vector of lattice parameters.
-
-* ``angdeg``
-
-  3-vector of lattice angles in degrees.
+- ``angdeg``  3-vector of lattice angles in degrees.
 
 .. note::
 
-   In general, you should not need to define ``alatt`` or ``angdeg``;
-   by default they will be taken from the ``sqw`` object during a
-   ``cut``. However, there are cases where a projection object may
-   need to be reused elsewhere.
+   In general, you should not need to define ``alatt`` or ``angdeg`` when doing a ``cut``.
+   They are taken from the ``sqw`` object during a
+   ``cut`` and your settings will be overridden. However, there are cases where a
+    projection object may need to be reused elsewhere.
 
-* ``offset``
-
-  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
+* ``offset``  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
   origin of the projection coordinate system. For example you may wish to make
   the origin of all your plots :math:`[2,1,0]`, in which case set ``offset
   = [2,1,0]``.
@@ -451,17 +410,11 @@ Where:
 
 .. _plotargs:
 
-* ``label``
+* ``label``  4-element cell-array of captions for axes of plots.
 
-  4-element cell-array of captions for axes of plots.
+* ``title``  Plot title for cut result.
 
-* ``title``
-
-  Plot title for cut result.
-
-* ``lab[1-4]``
-
-  Individual components label (for historical reasons).
+* ``lab[1-4]``  Individual components label (for historical reasons).
 
 .. note::
 
@@ -652,17 +605,13 @@ The complete signature for ``sphere_proj`` is:
 
 where:
 
-- ``u``
-
-  The vector :math:`\vec{u}` is the reciprocal space vector defining the
+- ``u``  The vector :math:`\vec{u}` is the reciprocal space vector defining the
   polar-axis of the spherical coordinate system from which :math:`\theta` is
   measured.
 
   See the :ref:`diagram below <fig_sphere_coodinates>` for details.
 
-- ``v``
-
-  The vector :math:`\vec{v}` is the reciprocal space vector which defines the
+- ``v`` The vector :math:`\vec{v}` is the reciprocal space vector which defines the
   second component of the :math:`u`-:math:`v` plane from which :math:`\phi` is
   measured.
 
@@ -671,15 +620,8 @@ where:
 .. note::
 
   The reciprocal space vectors :math:`u`-:math:`v` are not necessarily
-  orthogonal so the actual axis from which :math:`\phi` is measured lies in the
-  plane defined by :math:`u`-:math:`v` vectors, orthogonal to :math:`u`.
-
-
-.. note::
-
-   The :math:`w` direction is not explicitly defined as part of the
-   ``sphere_proj`` as it is always constructed to be perpendicular to the
-   :math:`u`-:math:`v` plane.
+  orthogonal so the actual axis :math:`e_z` from which :math:`\phi` is measured lies in the
+  plane defined by :math:`u`-:math:`v` vectors and is orthogonal to :math:`u`.
 
 .. note::
 
@@ -687,16 +629,12 @@ where:
    :math:`v` along the :math:`hkl` directions :math:`[1,0,0]` and
    :math:`[0,1,0]` respectively.
 
-- ``type``
-
-  Three character string denoting the the projection normalization of each
+- ``type``  Three character string denoting the the projection normalization of each
   dimension, one character for each directions, e.g. ``'add'``, ``'arr'``, ``'adr'``.
 
   At the moment there is only one possible option for the first (length) component of ``type``:
 
-  1. ``'a'``
-
-     Inverse angstroms.
+  1. ``'a'``     Inverse angstroms.
 
   ..
      2. ``'r'``
@@ -711,40 +649,28 @@ where:
   There are 2 possible options for the second and third (angular) components of
   ``type``:
 
-  1. ``'d'``
+  1. ``'d'``     Degrees
 
-     Degrees
-
-  2. ``'r'``
-
-     Radians
+  2. ``'r'``     Radians
 
   For example, if we wanted the |Q|-component to be in inverse angstroms and
   the angles in degrees we would have ``type = 'add'``.
 
-- ``alatt``
+- ``alatt``  3-vector of lattice parameters.
 
-  3-vector of lattice parameters.
-
-- ``angdeg``
-
-  3-vector of lattice angles in degrees.
+- ``angdeg`` 3-vector of lattice angles in degrees.
 
 .. note::
 
-   In general, you should not need to define ``alatt`` or ``angdeg``; by default
-   they will be taken from the ``sqw`` object during a ``cut``. However, there
-   are cases where a projection object may need to be reused elsewhere.
+   when cutting, you should not need to define ``alatt`` or ``angdeg``; by default
+   they will be taken from the ``sqw`` object during a ``cut`` and your setting will be overwritten.
+   However, there are cases where a projection object may need to be reused elsewhere.
 
-- ``offset``
-
-  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
+- ``offset``  3-vector in :math:`(h,k,l)` or 4-vector in :math:`(h,k,l,e)` defining the
   origin of the projection coordinate system.
 
 
-- ``label``, etc.
-
-  See :ref:`above <plotargs>`.
+- ``label``, etc.  See :ref:`above <plotargs>`.
 
 .. note::
 
@@ -771,18 +697,14 @@ where:
 
    Like ``line_proj``, ``sphere_proj`` can be :ref:`defined using
    positional or keyword arguments <poskwarg>`. However the same
-   recommendation applies that positionals should only be used to
+   recommendation applies that positional should only be used to
    define ``u`` and ``v``.
 
 ``sphere_proj`` defines a spherical coordinate system, where:
 
-* |Q|
+- |Q| The radius from the origin (``offset``) in :math:`hkl`
 
-  The radius from the origin (``offset``) in :math:`hkl`
-
-* :math:`\theta`
-
-  The angle measured from :math:`\vec{u}` to the vector (:math:`\vec{q}`),
+* :math:`\theta`  The angle measured from :math:`\vec{u}` to the vector (:math:`\vec{q}`),
   which means a :math:`\theta` value of :math:`0^{\circ}` means that :math:`\vec{q}` is parallel 
   to :math:`\vec{u}`; and a :math:`\theta` value of :math:`90^{\circ}` means that 
   :math:`\vec{q}` is perpendicular to :math:`\vec{u}`.
