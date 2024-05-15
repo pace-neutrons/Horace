@@ -617,7 +617,7 @@ where:
 .. note::
 
   The reciprocal space vectors :math:`u`-:math:`v` are not necessarily
-  orthogonal so the actual axis :math:`e_z` from which :math:`\phi` is measured lies in the
+  orthogonal so the actual axis from which :math:`\phi` is measured lies in the
   plane defined by :math:`u`-:math:`v` vectors and is orthogonal to :math:`u`.
 
 .. note::
@@ -705,34 +705,28 @@ of momentum transfer from neutron to excitations -- lattice measured
 in scattering experiment. If offset is not zero, :math:`\vec{Q}`
 is the difference between ``offset`` and the measured momentum transfer.
 
-Because reciprocal lattice is often non-orthogonal lattice, we introduce auxiliary 
-orthogonal coordinate system, which vector :math:`\vec{e_z}` being parallel to 
-:math:`\vec{u}` and vector :math:`\vec{e_x}` is orthogonal to :math:`\vec{e_z}`
-and lies in the plane defined by :math:`\vec{u}` - :math:`\vec{v}`. 
-(see :ref:`Sphere coordinates <fig_sphere_coodinates>` below.) When crystal lattice is 
-orthogonal, unit vectors :math:`\vec{e_z}` is aligned with :math:`\vec{u}` and 
-unit vector :math:`\vec{e_x}` is aligned with :math:`\vec{v}`.
+..
+  _hidden on Toby's requests:  
+  Because reciprocal lattice is often non-orthogonal lattice, we introduce auxiliary 
+  orthogonal coordinate system, which vector :math:`\vec{e_z}` being parallel to 
+  :math:`\vec{u}` and vector :math:`\vec{e_x}` is orthogonal to :math:`\vec{e_z}`
+  and lies in the plane defined by :math:`\vec{u}` - :math:`\vec{v}`. 
+  (see :ref:`Sphere coordinates <fig_sphere_coodinates>` below.) When crystal lattice is 
+  orthogonal, unit vectors :math:`\vec{e_z}` is aligned with :math:`\vec{u}` and 
+  unit vector :math:`\vec{e_x}` is aligned with :math:`\vec{v}`.
 
 Then ``sphere_proj`` coordinates are:
 
 - |Q| The radius from the origin (``offset``) in :math:`hkl`
 
-- :math:`\theta`  -- The angle measured from :math:`e_z` to the vector (:math:`\vec{Q}`),
-  i.e. :math:`0^{\circ}` is parallel to :math:`e_z` and :math:`90^{\circ}` is
-  perpendicular to :math:`e_z`.   Mathematically this is defined as:
+- :math:`\theta`  -- The angle measured from :math:`\vec{u}` to the vector (:math:`\vec{Q}`),
+  i.e. :math:`0^{\circ}` is parallel to :math:`\vec{u}` and :math:`90^{\circ}` is
+  perpendicular to :math:`\vec{u}`. 
 
-  .. math::
-
-   \cos\left(\theta{}\right) = \frac{\vec{Q}\cdot\vec{e_z}}{\left|Q\right|\cdot\left|e_z\right|}
-
-- :math:`\phi` --  is the angle measured between the :math:`e_x`-:math:`e_z` plane to the vector
-  (:math:`\vec{q}`), i.e. :math:`0^{\circ}` lies in the :math:`e_x`-:math:`e_z`
-  plane and :math:`90^{\circ}` is normal to :math:`e_x`-:math:`e_z` plane
-  (i.e. parallel to :math:`e_y`). Mathematically this is defined as:
-
-  .. math::
-
-   \sin\left(\phi{}\right) = -\frac{[\vec{Q}\times\vec{e_z}]\cdot\vec{e_x}}{\left|[\vec{Q}\times\vec{e_z}]\right|}
+- :math:`\phi` --  is the angle measured between the projection of vector 
+  :math:`\vec{Q_\perp}=\vec{Q}-\frac{\vec{u}}{|u|^2}(\vec{u}\cdot \vec{Q})` to the plane
+  :math:`\vec{u}`-:math:`\vec{v}` , i.e. :math:`0^{\circ}` lies in the :math:`\vec{u}`-:math:`\vec{v}`
+  plane and :math:`90^{\circ}` is normal to :math:`\vec{u}`-:math:`\vec{v}` plane
 
 * :math:`E`   is the energy transfer as defined in ``line_proj``
 
@@ -933,7 +927,7 @@ where:
 
 - ``u``  The vector :math:`\vec{u}` is the reciprocal space vector defining the
   polar-axis of the cylindrical coordinate system along which
-  :math:`\vec{q}_{\|}` is measured.
+  :math:`\vec{Q}_{\|}` is measured.
 
   See the :ref:`diagram below <fig_cylinder_coodinates>` for details.
 
@@ -1031,31 +1025,17 @@ where:
 
 ``cylinder_proj`` defines a cylindrical coordinate system, where:
 
-- :math:`Q_{\perp}` -- The length of the projection of the momentum transfer :math:`\vec{Q}` measured from the ``cylinder_proj`` 
-  origin (``offset``) in :math:`hkl` to the plain :math:`e_x`-:math:`e_y`. (see :ref:`fig_cylinder_coodinates` below)
+- :math:`\vec{Q_\perp}=\vec{Q}-\frac{\vec{u}}{|u|^2}(\vec{u}\cdot \vec{Q})`  -- The length of the orthogonal to axis :math:`\vec{u}` part of the momentum transfer  :math:`\vec{Q}` measured from the ``cylinder_proj``  origin (``offset``) in :math:`hkl`.
 
-  .. math::
+- :math:`Q_{\|}`  -- The length of the projection of the momentum transfer :math:`\vec{Q}` measured from the ``cylinder_proj`` 
+  origin (``offset``) in :math:`hkl` to :math:`\vec{u}` axis of the ``cylinder_proj``
 
-   Q_{\perp} = \left| \vec{Q} - \vec{e_z}\cdot Q_{||}\right |
-
-
-- :math:`Q_{||}`  -- The length of the projection of the momentum transfer :math:`\vec{Q}` measured from the ``cylinder_proj`` 
-  origin (``offset``) in :math:`hkl` to :math:`e_z` axis of the ``cylinder_proj``
-
-  .. math::
-
-   Q_{||} = \vec{Q}\cdot\vec{e_z}
-
-* :math:`\phi` --  is the angle measured between the :math:`e_x`-:math:`e_z` plane to the vector
-  (:math:`\vec{Q_{\perp}}`), i.e. :math:`0^{\circ}` lies in the :math:`e_x`-:math:`e_z`
-  plane and :math:`90^{\circ}` is normal to :math:`e_x`-:math:`e_z` plane
-  (i.e. parallel to :math:`e_y`). Mathematically this is defined as:
-
-  .. math::
-
-   \cos\left(\phi{}\right) = \frac{\vec{Q_{\perp}}\cdot\vec{e_x}}{\left|\vec{Q_{\perp}}\right|}
-
-* :math:`E`   is the energy transfer as defined in ``line_proj``
+- :math:`\phi` --  is the angle measured between the vector :math:`\vec{Q_\perp}` to 
+  the plane :math:`\vec{u}`-:math:`\vec{v}` , i.e. :math:`0^{\circ}` lies in the :math:`\vec{u}`-:math:`\vec{v}`
+  plane and :math:`90^{\circ}` is normal to :math:`\vec{u}`-:math:`\vec{v}` plane
+  (i.e. parallel to :math:`\vec{e_y}`).
+   
+- :math:`E`  is the energy transfer as defined in ``line_proj``
 
 .. note::
 
@@ -1072,10 +1052,9 @@ where:
 
    Cylindrical coordinate system used by ``cylinder_proj``
 
-Similarly to :ref:`fig_sphere_coodinates`, Horace uses MATLAB methods ``cart2pol``/``pol2cart`` to convert
-array of vectors expressed in Cartesian coordinate system to cylindrical coordinate system and back.
-Detailed description of the cylindrical coordinate system used by Horace together with the image of the used coordinate system 
-are provided `on MATLAB "cart2pol" help pages <https://uk.mathworks.com/help/matlab/ref/cart2pol.html>`_.
+Similarly to :ref:`fig_sphere_coodinates`, detailed description of the cylindrical coordinate system used by
+Horace together with the image of the used coordinate system are provided `on MATLAB "cart2pol/pol2cart" help pages <https://uk.mathworks.com/help/matlab/ref/cart2pol.html>`_, as Horace uses these methods to convert array
+of vectors expressed in Cartesian coordinate system to cylindrical coordinate system and backward.
 
 .. note::
 

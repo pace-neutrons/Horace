@@ -4,13 +4,13 @@
 \begin{document}
 
 \begin{tikzpicture}[x={(-5mm,-3.85mm)},z={(0,1cm)},y={(1cm,-.3cm)}]
-  \draw [fill=cyan] (0,0,0)--(6,0,-2)--(6,0,4)--(0,0,4) node [above, xshift=-1.5cm,yshift=-4cm] {$e_x$-$e_z$ plane};
+  \draw [fill=cyan] (0,0,0)--(6,0,-2)--(6,0,4)--(0,0,4) node [above, xshift=-1.5cm,yshift=-4cm] {$\vec{u}$-$\vec{v}$ plane};
 
-  \draw [->] (0,0) -- (6,0,-2) node [right] {$v$};
-  \draw [->] (0,0) -- (0,4,0) node [above,xshift=0.cm,yshift=0.3cm] {$e_y = e_x \times e_z$};
-  \draw [->] (0,0) -- (0,0,4.2) node [right,yshift=-0.2cm] {$u$,$e_z$};
+  \draw [->] (0,0) -- (6,0,-2) node [right] {$\vec{v}$};
+  \draw [->] (0,0) -- (0,4,0) node [above,xshift=0.cm,yshift=0.3cm] {$\vec{e_y} = \frac{\vec{u} \times \vec{v}}{|u|\cdot |v|}$};
+  \draw [->] (0,0) -- (0,0,4.2) node [right,yshift=-0.2cm] {$\vec{u}$};
 
-  \draw [->] (0,0) -- (6,0,0) node [right,xshift=0.1cm,yshift=-0.2cm] {$e_x$ = $e_z \times e_y$};
+  \draw [->] (0,0) -- (6,0,0) node [right,xshift=0.1cm,yshift=-0.1cm] {$\vec{e_y} \times \vec{u}$};
 
   \draw [dotted] (3,3,3) -- (0,0,2.5);
   
