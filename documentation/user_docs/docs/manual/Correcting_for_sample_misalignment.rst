@@ -44,9 +44,9 @@ from the expected values.
 
 The inputs are:
 
-- ``sqw_obj`` - the uncorrected data
+- ``sqw_obj`` - ``sqw`` object with misaligned data
 
-- ``bragg_expected``   - an n-by-3 array specifying the expected Bragg positions. Usually integer.
+- ``bragg_expected``   - an n-by-3 array specifying the Bragg positions expected from aligned crystal.
 
 - ``radial_cut_length`` - lengths of the various cuts along each of :math:`\{\vec{Q}\}`.
 
@@ -148,21 +148,21 @@ You will be prompted in the MATLAB command window as to which plot and fit you w
 Step 3 - calculate the misalignment correction
 ----------------------------------------------
 
-Using the outputs of ``bragg_positions``, you can determine a transformation matrix to go from the original
+Using the outputs of ``bragg_positions``, you can determine a transformation to go from the original
 misaligned frame to the aligned frame.
 
 ::
 
-   al_info = refine_crystal(rlu_expected, alatt, angdeg, bragg_pos, <keyword options>);
+   alignment_info = refine_crystal(rlu_actual, alatt, angdeg, rlu_expected, <keyword options>);
 
 
 The inputs are:
 
-- ``rlu_actual`` - the an n-by-3 matrix of actual peak positions as in :math:`h,k,l` as indexed with the current lattice parameters
+- ``rlu_actual``  - the an n-by-3 matrix of actual peak positions as in :math:`h,k,l` as indexed with the current lattice parameters
 
-- ``alatt, angdeg`` - the lattice parameters and angles used in the original sqw file.
+- ``alatt, angdeg`` - the lattice parameters and angles used in the original (misaligned) sqw file.
 
-- ``bragg_peaks`` - the predicted (integer) Bragg peaks corresponding to ``rlu0``
+- ``rlu_expected`` - the predicted (integer) Bragg peaks corresponding to ``bragg_expected``
 
 The keyword options are:
 
@@ -191,7 +191,9 @@ The keyword options are:
 
    To achieve finer control of the refinement of the lattice parameters, use ``free_alatt`` and ``free_angdeg``
 
-The output is an ``crystal_alignment_info`` object which contains all the relevant data for crystal realignment.
+The output is an ``crystal_alignment_info`` object which contains all the relevant data for crystal realignment, namely
+the rotation matrix which aligns Crystal Cartesian frame into correct position and modified lattice parameters, if
+``refine_crystal`` modified them.
 
 Step 4 - apply the correction to the data
 -----------------------------------------
@@ -204,7 +206,8 @@ There are different to do this, for different circumstances:
 
 - When you have a loaded ``sqw`` object:
 
-  Apply the correction to the object
+  Apply the correction to the object. The object's lattice and pixels orientation will be modified 
+  to aligned values.
 
 - When you are still accumulating data (e.g. on the beamline):
 
@@ -220,15 +223,16 @@ There is a simple routine to apply the changes to an existing file, without the 
 
    change_crystal(win, alignment_info)
 
-where ``alignment_info`` was determined in the steps described above. From this point out the alignment will be applied whenever pixels are loaded or manipulated (e.g. loading, cutting, plotting, etc.).
+where ``alignment_info`` was determined in the steps described above. This procedure modifies lattice parameters and 
+the pixels will be aligned whenever they are loaded or manipulated (e.g. accessing pixel data, cutting, plotting, etc.).
 
 Once you have confirmed that the alignment you have is the correct one, it is possible to fix the alignment to avoid this calculation step.
 
-This is done through the ``apply_alignment`` function:
+This is done through the ``finalize_alignment`` function:
 
 ::
 
-   [wout, rev_corr] = apply_alignment(win, ['-keep_original'])
+   [wout, rev_corr] = finalize_alignment(win, ['-keep_original'])
 
 .. warning::
 
@@ -242,12 +246,16 @@ Where:
 
 .. note::
 
-   If you use ``'-keep_original'`` you may wish to ``save`` your object as the temporary file will be cleared when the object is. (see: file_backed_objects)
+   If you use ``'-keep_original'`` you may wish to ``save`` your object as the temporary file will be cleared when the ``wout`` object is. (see: file_backed_objects)
 
-- ``wout`` - Resulting ``sqw`` object or the filename to which the alignment was applied.
+- ``wout`` - Resulting ``sqw`` object to which the alignment was applied. If input was kept in file or was filebacked, the object will be filebacked.
 
 - ``rev_corr`` - A corresponding ``crystal_alignment_info`` to be able to reverse the application.
 
+.. note::
+   
+   Finalize alignment of large ``sqw`` object may take substantial time. The time may be even bigger than regenerating this file from scratch as parallel 
+   generation is currently possible for ``sqw`` files generation but not yet implemented for ``finalize_alignment``.
 
 Option 2 : calculate goniometer offsets for regeneration of sqw file(s)
 =======================================================================
@@ -256,7 +264,7 @@ In this case there is a single routine to calculate the new goniometer offsets, 
 
 ::
 
-   [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_pars_correct(u, v, alatt0, angdeg0, omega0_deg, dpsi0_deg, gl0_deg, gs0_deg, al_info, <keyword options>)
+   [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_pars_correct(u, v, alatt0, angdeg0, omega0_deg, dpsi0_deg, gl0_deg, gs0_deg, alignment_info, <keyword options>)
 
 
 The inputs are:
@@ -278,7 +286,7 @@ The inputs are:
    :math:`\text{d}\psi`, :math:`g_l` and :math:`g_s` refer to the Euler angles relative to the scattering plane. Naming
    conventions may differ in other notations, e.g. :math:`\theta, \phi, \chi`.
 
-- ``al_info`` - The ``crystal_alignment_info`` object determined above.
+- ``alignment_info`` - The ``crystal_alignment_info`` object determined above.
 
 The keywords options are:
 

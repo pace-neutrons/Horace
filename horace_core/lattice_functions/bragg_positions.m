@@ -17,7 +17,7 @@ function [rlu_actual,width,wcut,wpeak]=bragg_positions(w, rlu_expected,...
 %                           h2, k2, l2
 %                           :   :   :
 %                       These are the expected (If crystal is perfectly aligned) indices
-                        of the Bragg peaks whose
+%                       of the Bragg peaks whose
 %                       actual positions will be found by this function
 %                       e.g. [1,0,0; 0,1,0; 1,1,0]
 %
