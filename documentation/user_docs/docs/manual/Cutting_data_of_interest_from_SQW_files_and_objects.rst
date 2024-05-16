@@ -9,7 +9,7 @@ Cutting data of interest from SQW files and objects
 Horace ``sqw`` object is the main object Horace operates with. 
 It contains full information about the results of a neutron experiment.
 This information includes information about each neutron "event" registered
-in the experiment which is stored in a 1-D dataset called the "pixels". 
+in the experiment. This information is stored in a 1-D dataset called the "pixels". 
 The dataset is usually the major by size part of ``sqw`` object.
 
 Another part of ``sqw`` object is a 0 to 4-dimensional histogram (binning)
