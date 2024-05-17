@@ -38,7 +38,7 @@ data, a user works with smaller objects, extracted from the full dataset using
     ``cut`` uses this information to extract relevant pixels and maintains 
     the arrangement between bins and "pixels" for resulting ``sqw`` object.
 
-:: _cut:
+.. _cut:
 
 cut
 ===
@@ -711,7 +711,8 @@ is the difference between ``offset`` and the measured momentum transfer.
 
 Because reciprocal lattice may be non-orthogonal lattice, following common crystallography 
 practice, we introduce auxiliary 
-orthogonal coordinate system, which unit vector :math:`\vec{e_z}` being parallel to 
+orthogonal coordinate system, which gives the basis for calculating spherical coordinates. 
+Unit vector :math:`\vec{e_z}` of this system is parallel to 
 :math:`\vec{u}` and unit vector :math:`\vec{e_x}` is orthogonal to :math:`\vec{e_z}`
 and lies in the plane defined by :math:`\vec{u}` - :math:`\vec{v}`. 
 (see :ref:`Sphere coordinates <fig_sphere_coodinates>` below.) When crystal lattice is 
@@ -726,10 +727,8 @@ Then ``sphere_proj`` coordinates are:
   i.e. :math:`0^{\circ}` is parallel to :math:`\vec{e_z}` and :math:`90^{\circ}` is
   perpendicular to :math:`\vec{u}`. 
 
-- :math:`\phi` --  is the angle measured between the projection of vector 
-  :math:`\vec{Q_\perp}=\vec{Q}-\vec{e_z}\cdot \vec{Q})` to the plane
-  :math:`\vec{u}`-:math:`\vec{v}`, i.e. :math:`0^{\circ}` lies in the :math:`\vec{u}`-:math:`\vec{v}`
-  plane and :math:`90^{\circ}` is normal to :math:`\vec{u}`-:math:`\vec{v}` plane.
+- :math:`\phi` --  is the angle measured between the vector :math:`\vec{Q_\perp}=\vec{Q}-\vec{e_z}(\vec{e_z}\cdot \vec{Q})`
+  and the plane :math:`\vec{u}`-:math:`\vec{v}`, i.e. vector :math:`\vec{Q_\perp}` with :math:`\phi = 0^{\circ}` lies in the :math:`\vec{u}`-:math:`\vec{v}` plane and vector :math:`\vec{Q_\perp}` with :math:`\phi = 90^{\circ}` is normal to :math:`\vec{u}`-:math:`\vec{v}` plane.
   (parallel to :math:`\vec{e_y}`)
 
 - :math:`E`   is the energy transfer as defined in ``line_proj``
@@ -1028,14 +1027,23 @@ where:
    positional or keyword arguments <poskwarg>`. However the same
    recommendation applies that positional should only be used to
    define ``u`` and ``v``.
+   
+``cylinder_proj`` defines a cylindrical coordinate system with
+cylindrical coordinates of momentum transfer vector  :math:`\vec{Q}`.
+Energy transfer coordinate for ``cylinder_proj`` remain unchanged. 
+If projection ``offset`` parameter is zero, this vector is the vector
+of momentum transfer from neutron to excitations -- lattice measured
+in scattering experiment. If offset is non-zero, :math:`\vec{Q}`
+is the difference between ``offset`` and the measured momentum transfer.
 
 Similarly to :ref:`Spherical projections <Spherical_Projections>`, we introduce auxiliary 
 orthogonal coordinate system, which unit vector :math:`\vec{e_z}` being parallel to 
 :math:`\vec{u}` and unit vector :math:`\vec{e_x}` is orthogonal to :math:`\vec{e_z}`
-and lies in the plane defined by :math:`\vec{u}` - :math:`\vec{v}`. (see :ref:`Cylinder coordinates <fig_cylinder_coodinates>` below.)
+and lies in the plane defined by :math:`\vec{u}` - :math:`\vec{v}`. Cylindrical 
+coordinates of the vectors of interest are calculated in this system. 
+(see :ref:`Cylinder coordinates <fig_cylinder_coodinates>` below.)
 When crystal lattice is orthogonal, vectors :math:`\vec{e_z}` is aligned with :math:`\vec{u}` and 
 vector :math:`\vec{e_x}` is aligned with :math:`\vec{v}`.
-
 
 ``cylinder_proj`` defines a cylindrical coordinate system, where:
 
