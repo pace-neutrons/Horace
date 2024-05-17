@@ -2,7 +2,6 @@ classdef sphere_proj<CurveProjBase
     % Class defines spherical coordinate projection, used by cut_sqw
     % to make spherical cuts.
     %
-    % TODO: #954 NEEDS verification:
     % Default angular coordinates names and meanings are chosen according
     % to the conventions of inelastic spectrometry, i.e.:
     % |Q|     -- coordinate 1 is the module of the scattering momentum,
@@ -13,12 +12,22 @@ classdef sphere_proj<CurveProjBase
     %            to k_i) and the crystal rotation plane.
     % dE      -- coordinate 4 the energy transfer direction
     %
+    % paten class "type" property describes which scales are avaliable for
+    % each direction:
+    % for |Q|:
+    % 'a' -- Angstrom,
+    % 'r' -- max(\vec{u}*\vec{h,k,l}) = 1
+    % 'p' -- |u| = 1
+    % 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
+    % for angular units theta, phi:
+    % 'd' - degree, 'r' -- radians
+    % For energy transfer:
+    % 'e'-energy transfer in meV (no other scaling so may be missing)
     %
     properties(Constant,Access = private)
         % cellarray describing what letters are available to assign for
         % type properties.
-        % 'a' -- Angstrom, 'd' - degree, 'r' -- radians, e-energy transfer in meV;
-        types_available_ = {'a',{'d','r'},{'d','r'}};
+        types_available_ = {{'a','p','h','k','l'},{'d','r'},{'d','r'}};
     end
 
     methods
@@ -65,22 +74,24 @@ classdef sphere_proj<CurveProjBase
     methods(Access=protected)
         function [img_scales,obj] = get_img_scales(obj)
             % Calculate image scales using projection type
-            if isempty(obj.img_scales_cache_)
-                img_scales = ones(1,3);
-                if obj.type_(2) == 'r' 
-                    img_scales(2) = 1;
-                else                  % theta_to_ang
-                    img_scales(2) = 180/pi;
-                end
-                if obj.type_(3) == 'r'
-                    img_scales(3) = 1;
-                else                  % phi_to_ang
-                    img_scales(3) = 180/pi;
-                end
-                obj.img_scales_cache_ = img_scales;
-            else
-                img_scales = obj.img_scales_cache_;
-            end
+            % input:
+            % obj -- initialized sphere_proj object with defined lattice
+            %        and "type" - property containing acceptable 3-letter
+            %        type code.
+            % Returns:
+            % img_scales  -- 1x3 elements array, containing scaling factors
+            %                for every scaled direction, namely:
+            % for |Q|:
+            % 'a' -- Angstrom,
+            % 'r' -- max(\vec{u}*\vec{h,k,l}) = 1
+            % 'p' -- |u| = 1
+            % 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
+            % for angular units theta, phi:
+            % 'd' - degree, 'r' -- radians
+            % For energy transfer:
+            % 'e'-energy transfer in meV (no other scaling so may be missing)
+
+            [img_scales,obj] = get_img_scales_(obj);
         end
     end
     %=====================================================================
