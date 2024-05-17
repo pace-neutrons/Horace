@@ -15,7 +15,7 @@ To return full essential information about Horace objects in memory, one may use
 Majority of Horace objects are ``serializable`` objects, which means they may be converted into linear sequence of 
 bytes and reconstruct from this sequence. 
 ``to_struct`` method is used for converting object into a structure containing information, sufficient for recovering
- ``sqw`` or ``dnd`` object from this information. 
+``sqw`` or ``dnd`` object from this information. 
  
  Number of additional commands exist for extracting information essential for physical problem or some special purposes.
  
@@ -47,6 +47,15 @@ If applied to file, the main use of this function is to determine whether or not
 an ``sqw`` or a ``dnd`` object. It also returns general information about the contents of the
 this object, i.e. data ranges, number of pixels in ``sqw`` file etc., whatever developers decided 
 most important for user to know about correspondent object.
+
+Note, that output from calling ``head(filename);`` and ``res = head(filename)`` differs:
+
+ .. csv-table:: Two different forms of ``head``:  
+   :file: ../images/Head_output_table.csv
+   :widths: 150, 150
+   :header-rows: 1
+
+
 
 legacy equivalents of ``head``
 ------------------------------
