@@ -16,7 +16,8 @@ classdef sphere_proj<CurveProjBase
     % each direction:
     % for |Q|:
     % 'a' -- Angstrom,
-    % 'r' -- max(\vec{u}*\vec{h,k,l}) = 1
+    % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u to
+    %                                       unit vectors in hkl directions
     % 'p' -- |u| = 1
     % 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
     % for angular units theta, phi:
@@ -27,7 +28,7 @@ classdef sphere_proj<CurveProjBase
     properties(Constant,Access = private)
         % cellarray describing what letters are available to assign for
         % type properties.
-        types_available_ = {{'a','p','h','k','l'},{'d','r'},{'d','r'}};
+        types_available_ = {{'a','p','r','h','k','l'},{'d','r'},{'d','r'}};
     end
 
     methods
@@ -83,7 +84,8 @@ classdef sphere_proj<CurveProjBase
             %                for every scaled direction, namely:
             % for |Q|:
             % 'a' -- Angstrom,
-            % 'r' -- max(\vec{u}*\vec{h,k,l}) = 1
+            % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u to
+            %                                         unit vectors in hkl directions
             % 'p' -- |u| = 1
             % 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
             % for angular units theta, phi:

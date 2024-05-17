@@ -24,13 +24,14 @@ if isempty(obj.img_scales_cache_)
         img_scales(1) = 1;
     elseif obj.type(1) == 'p'
         bm = obj.bmatrix(3);
-        proj = bm*eye(3);
-        norm_angstom = arrayfun(@(nd)norm(proj(:,nd)),1:3);
-        img_scales(1) = max(norm_angstom);
+        u_cc = bm*obj.u(:); % u in Crystal Cartesian
+        img_scales(1) = norm(u_cc);        
     elseif obj.type(1) == 'r'
-        bm = obj.bmatrix(3);
-        u_angstrom = bm*obj.u(:);
-        img_scales(1) = norm(u_angstrom);
+        [bm,arlu] = obj.bmatrix(3);
+        hkl_cc    = bm*eye(3)./arlu(:); % unit vectors in hkl direction
+        u_cc      = bm*obj.u(:); % u in Crystal Cartesian
+        proj2hkl  = hkl_cc*u_cc; % projection u_cc to unit vectors in hkl directions
+        img_scales(1) = max(proj2hkl);        
     elseif obj.type(1) == 'h'
         [~,arlu] = obj.bmatrix(3);
         img_scales(1) = arlu(1);

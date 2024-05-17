@@ -11,7 +11,38 @@ classdef test_sphere_proj<TestCase
             end
             this=this@TestCase(name);
         end
-
+        %------------------------------------------------------------------
+        function test_scales_l(~)
+            proj = sphere_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','ldd');
+            % length of c*
+            assertElementsAlmostEqual(proj.img_scales,[2/3,180/pi,180/pi]);
+        end                     
+        function test_scales_k(~)
+            proj = sphere_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','kdd');
+            % length of b*
+            assertElementsAlmostEqual(proj.img_scales,[1,180/pi,180/pi]);
+        end             
+        function test_scales_h(~)
+            proj = sphere_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','hdd');
+            % length of a*
+            assertElementsAlmostEqual(proj.img_scales,[2,180/pi,180/pi]);
+        end     
+        
+        function test_scales_r(~)
+            proj = sphere_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','rdd');
+            % length of max|u*[e_h,e_k,e_l]| == 1
+            assertElementsAlmostEqual(proj.img_scales,[2,180/pi,180/pi]);
+        end        
+        function test_scales_p(~)
+            proj = sphere_proj([1,1,0],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','pdd');
+            % length of |u| == 1
+            assertElementsAlmostEqual(proj.img_scales,[sqrt(2^2+1),180/pi,180/pi]);
+        end
+        function test_scales_a(~)
+            proj = sphere_proj([1,1,0],'angdeg',90,'type','arr');
+            % length of |u| == 1
+            assertElementsAlmostEqual(proj.img_scales,[1,1,1]);
+        end        
         %------------------------------------------------------------------
         function test_coord_transf_PixData_plus_offset(~)
             proj = sphere_proj('alatt',2*pi,'angdeg',90);
