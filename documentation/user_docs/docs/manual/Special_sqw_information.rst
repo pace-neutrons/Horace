@@ -48,7 +48,7 @@ an ``sqw`` or a ``dnd`` object. It also returns general information about the co
 this object, i.e. data ranges, number of pixels in ``sqw`` file etc., whatever developers decided 
 most important for user to know about correspondent object.
 
-Note, that output from calling ``head(filename);`` and ``res = head(filename)`` differs:
+Note, that the outputs from calling ``head(filename);`` and ``res = head(filename)`` differ:
 
 >> ``head(filename);`` **"Scientific" view:**
 
