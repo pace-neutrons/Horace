@@ -50,11 +50,60 @@ most important for user to know about correspondent object.
 
 Note, that output from calling ``head(filename);`` and ``res = head(filename)`` differs:
 
- .. csv-table:: Two different forms of ``head``:  
-   :file: ../images/Head_output_table.csv
-   :widths: 150, 150
-   :header-rows: 1
+>> ``head(filename);`` **"Scientific" view:**
 
+.. code-block:: matlab
+
+    >> head('sqw_1d_2.sqw');
+    1-dimensional object:
+    -------------------------
+    Original datafile:  ...\Horace\_test\common_data\sqw_1d_2.sqw
+                Title: <none>
+
+    Lattice parameters (Angstroms and degrees):
+        a=2.87           b=2.87            c=2.87
+    alpha=90          beta=90          gamma=90
+
+    Extent of data:
+    Number of spe files: 186
+        Number of pixels: 4324
+
+    Size of 1-dimensional dataset: [21]
+        Plot axes:
+            \xi = -0.525:0.05:0.525 in [1, \xi, 0]
+        Integration axes:
+            0.95 =< \zeta =< 1.05 in [\zeta, 0, 0]
+            -0.05 =< \eta =< 0.05 in [0, 0, \eta]
+            150 =< E =< 160
+    Object is stored in Horace-2 format file     % what version of Horace produced this file
+
+>> ``res = head(filename)`` **"Programmer's" view:**
+
+.. code-block:: matlab
+
+    ss = 
+        struct with fields:                                   
+             filename: 'sqw_1d_2.sqw'                          % Name of the file containing the object
+             filepath: '...\Horace\_test\common_data'          % path to the file containing the object
+                title: ''                                      % Title to be displayed when object is plotted
+                alatt: [2.8700 2.8700 2.8700]                  % 3-element array of lattice parameters
+               angdeg: [90 90 90]                              % 3-element array of lattice angles
+               offset: [0 0 0 0]                               % Image offset from point [0,0,0,0] in reciprocal space defined by lattice
+             u_to_rlu: [4×4 double]                            % 4x4 matrix used for conversion from pixel to image coordinate system (for line_proj) 
+                 ulen: [3.0961 3.0961 2.1893 1]                % scales used in conversion from pixel to image coordinate system (axes units)
+                label: {'\zeta'  '\xi'  '\eta'  'E'}           % axes labels
+                  iax: [1 3 4]                                 % what directions of full 4-dimensional dataset are integrated
+                 iint: [2×3 double]                            % [2 x numel(iax)] array of image integration ranges (parts of img_range)
+                  pax: 2                                       % what direction of full 4-dim dataset is binned
+                    p: {[-0.5250 -0.4750  … ] (1×22 double)}   % [1 x numel(pax)] cellarray of  binning ranges for each binned direction
+                  dax: 1                                       % order of displaying axis  among all binned axes
+            img_range: [2×4 double]                            % Ranges of the image dimensions including integrated and binned dimensions
+           dimensions: 1                                       % Number of image dimensions (binned dimensions)
+        creation_date: ''                                      % Date the sqw object was created. Valid for Horace-4 objects only.
+              npixels: 4324                                    % Number of pixels (neutron events) stored in dataset
+    num_contrib_files: 186                                     % Number of source files (runs) contributed into the dataset
+           data_range: [2×9 double]                            % 2x9 array of min/max ranges of Pixel data. Valid for Horace-4 only
+      faccess_version: 2                                       % version of class used to access data. Usually corresponds to Horace version.
 
 
 legacy equivalents of ``head``
