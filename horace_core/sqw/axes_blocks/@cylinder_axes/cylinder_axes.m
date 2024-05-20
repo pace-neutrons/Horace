@@ -32,14 +32,16 @@ classdef cylinder_axes < AxesBlockBase
         % expressed in Anstrom, radian, degree, meV. The key is the type
         % letter present in cylinder_projection and the value is the unit
         % caption.
-        capt_units = containers.Map({'a','r','d','e'}, ...
-            {[char(197),'^{-1}'],'rad','^{o}','meV'})
+        capt_units = containers.Map({'a','p','r','h','k','l','r','d','e'},{...
+            [char(197),'^{-1}'],[char(197),'^{-1}'],[char(197),'^{-1}'], ...
+            [char(197),'^{-1}'],[char(197),'^{-1}'],[char(197),'^{-1}'], ...
+            'rad','^{o}','meV'})
         default_img_range_ =[ ...
             0,-1,-180,-1;...  % the range, a object defined with dimensions
             1  1, 180, 1];    % only would have
         % what symbols axes_units can have
-        types_available_ = {'a','a',{'d','r'},'e'};
-
+        types_available_ = {{'a','p','r','h','k','l'},{'a','p','r','h','k','l'},...
+            {'d','r'},'e'};
     end
     properties(Dependent)
         % if angular dimensions of the axes are expressed in radians or degrees

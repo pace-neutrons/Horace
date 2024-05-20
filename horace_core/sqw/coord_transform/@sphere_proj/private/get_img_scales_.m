@@ -10,9 +10,10 @@ function [img_scales,obj] = get_img_scales_(obj)
 %                for every scaled direction, namely:
 % for |Q|:
 % 'a' -- Angstrom,
-% 'r' -- max(\vec{u}*\vec{h,k,l}) = 1
-% 'p' -- |u| = 1
-% 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
+% 'r' -- scale = max(\vec{u}*\vec{e_h,e_k,e_l}) -- projection of u to
+%                                       unit vectors in hkl directions
+% 'p' -- |u| = 1 -- i.e. scale = |u| (in Crystal Cartesizan)
+% 'h','k' or 'l' -- i.e. scale = (a*,b* or c*);
 % for angular units theta, phi:
 % 'd' - degree, 'r' -- radians
 % For energy transfer:
@@ -25,13 +26,13 @@ if isempty(obj.img_scales_cache_)
     elseif obj.type(1) == 'p'
         bm = obj.bmatrix(3);
         u_cc = bm*obj.u(:); % u in Crystal Cartesian
-        img_scales(1) = norm(u_cc);        
+        img_scales(1) = norm(u_cc);
     elseif obj.type(1) == 'r'
         [bm,arlu] = obj.bmatrix(3);
         hkl_cc    = bm*eye(3)./arlu(:); % unit vectors in hkl direction
         u_cc      = bm*obj.u(:); % u in Crystal Cartesian
         proj2hkl  = hkl_cc*u_cc; % projection u_cc to unit vectors in hkl directions
-        img_scales(1) = max(proj2hkl);        
+        img_scales(1) = max(proj2hkl);
     elseif obj.type(1) == 'h'
         [~,arlu] = obj.bmatrix(3);
         img_scales(1) = arlu(1);

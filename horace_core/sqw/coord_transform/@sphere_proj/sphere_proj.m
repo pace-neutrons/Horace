@@ -12,14 +12,14 @@ classdef sphere_proj<CurveProjBase
     %            to k_i) and the crystal rotation plane.
     % dE      -- coordinate 4 the energy transfer direction
     %
-    % paten class "type" property describes which scales are avaliable for
+    % parent's class "type" property describes which scales are avaliable for
     % each direction:
     % for |Q|:
     % 'a' -- Angstrom,
-    % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u to
+    % 'r' -- scale = max(\vec{u}*\vec{e_h,e_k,e_l}) -- projection of u to
     %                                       unit vectors in hkl directions
-    % 'p' -- |u| = 1
-    % 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
+    % 'p' -- |u| = 1 -- i.e. scale = |u|
+    % 'h','k' or 'l' -- i.e. scale = (a*,b* or c*);
     % for angular units theta, phi:
     % 'd' - degree, 'r' -- radians
     % For energy transfer:
@@ -27,7 +27,7 @@ classdef sphere_proj<CurveProjBase
     %
     properties(Constant,Access = private)
         % cellarray describing what letters are available to assign for
-        % type properties.
+        % projection type property.
         types_available_ = {{'a','p','r','h','k','l'},{'d','r'},{'d','r'}};
     end
 
@@ -84,10 +84,10 @@ classdef sphere_proj<CurveProjBase
             %                for every scaled direction, namely:
             % for |Q|:
             % 'a' -- Angstrom,
-            % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u to
-            %                                         unit vectors in hkl directions
-            % 'p' -- |u| = 1
-            % 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
+            % 'r' -- scale = max(\vec{u}*\vec{e_h,e_k,e_l}) -- projection of u to
+            %                                       unit vectors in hkl directions
+            % 'p' -- |u| = 1 -- i.e. scale = |u|
+            % 'h','k' or 'l' -- i.e. scale = (a*,b* or c*);
             % for angular units theta, phi:
             % 'd' - degree, 'r' -- radians
             % For energy transfer:

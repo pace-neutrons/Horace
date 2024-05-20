@@ -19,12 +19,23 @@ classdef cylinder_proj<CurveProjBase
     %            system
     % dE      -- coordinate 4 the energy transfer direction
     %
+    % parent's class "type" property describes which scales are avaliable for
+    % each direction:
+    % for |Q|:
+    % 'a' -- Angstrom,
+    % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u to
+    %                                       unit vectors in hkl directions
+    % 'p' -- |u| = 1
+    % 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
+    % for angular units theta, phi:
+    % 'd' - degree, 'r' -- radians
+    % For energy transfer:
+    % 'e'-energy transfer in meV (no other scaling so may be missing)
     %
     properties(Constant,Access = private)
         % cellarray describing what letters are available to assign for
-        % type properties.
-        % 'a' -- Angstrom, 'd' - degree, 'r' -- radians, e-energy transfer in meV;
-        types_available_ = {'a','a',{'d','r'}};
+        % projection type property.
+        types_available_ = {{'a','p','r','h','k','l'},{'a','p','r','h','k','l'},{'d','r'}};
     end
 
     methods
@@ -70,17 +81,26 @@ classdef cylinder_proj<CurveProjBase
     end
     methods(Access=protected)
         function [img_scales,obj] = get_img_scales(obj)
-            if isempty(obj.img_scales_cache_)
-                img_scales = ones(1,3);
-                if obj.type_(3) == 'r'
-                    img_scales(3) = 1;
-                else             % phi_to_ang
-                    img_scales(3) = 180/pi;
-                end
-                obj.img_scales_cache_ = img_scales;
-            else
-                img_scales = obj.img_scales_cache_;
-            end
+            % Calculate image scales using projection type
+            % input:
+            % obj -- initialized sphere_proj object with defined lattice
+            %        and "type" - property containing acceptable 3-letter
+            %        type code.
+            % Returns:
+            % img_scales  -- 1x3 elements array, containing scaling factors
+            %                for every scaled direction, namely:
+            % for |Q|:
+            % 'a' -- Angstrom,
+            % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u to
+            %                                         unit vectors in hkl directions
+            % 'p' -- |u| = 1
+            % 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
+            % for angular units theta, phi:
+            % 'd' - degree, 'r' -- radians
+            % For energy transfer:
+            % 'e'-energy transfer in meV (no other scaling so may be missing)
+
+            [img_scales,obj] = get_img_scales_(obj);            
         end
     end
     %=====================================================================
