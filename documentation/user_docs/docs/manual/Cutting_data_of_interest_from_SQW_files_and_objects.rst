@@ -738,7 +738,7 @@ Then ``sphere_proj`` coordinates are:
    - :math:`\theta` lies in the range between :math:`0^{\circ}` and   :math:`180^{\circ}`.
    - :math:`\phi` lies in the range between :math:`-180^{\circ}` and  :math:`180^{\circ}`.
    
-   Alternatively you can set ``sphere_proj`` option ``type`` to define these values in radians.
+   Alternatively you can set ``sphere_proj`` option ``type(2:3)='rr'`` to define these values in radians.
 
 
 
@@ -1063,8 +1063,9 @@ vector :math:`\vec{e_x}` is aligned with :math:`\vec{v}`.
 
 .. note::
 
-   :math:`\phi`  lies in the range between :math:`-180^{\circ}` and :math:`180^{\circ}`. The ``cylinder_proj`` ``type``
-   property allows to change these values to radians so :math:`-\pi \leq \phi \leq \pi`.
+   :math:`\phi`  lies in the range between :math:`-180^{\circ}` and :math:`180^{\circ}`.
+   Changing ``cylinder_proj`` property ``type(3)='r'``
+   allows to change these values to radians so :math:`-\pi \leq \phi \leq \pi`.
 
 
 ..  _fig_cylinder_coodinates:
