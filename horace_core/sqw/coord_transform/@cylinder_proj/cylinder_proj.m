@@ -3,7 +3,7 @@ classdef cylinder_proj<CurveProjBase
     % to make cylindical cuts.
     %
     % Default angular coordinates names and meanings are chosen as follows:
-    % Q_tr    -- coordinate 1  is the module of the component of the momentum
+    % Q_{\perp}    -- coordinate 1  is the module of the component of the momentum
     %            transfer orthogonal to the direction, selected by property
     %            e_z  of this class. e_z property is expressed in hkl and
     %            defines direction of e_z axis of cylindrical coordinate

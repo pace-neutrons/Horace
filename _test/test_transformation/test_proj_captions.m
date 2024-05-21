@@ -46,7 +46,7 @@ classdef test_proj_captions<TestCase
             assertEqual(title_pax{2},'\phi (rad)');
 
             assertEqual(numel(title_iax),2);
-            assertEqual(title_iax{1},['0 \leq Q_{tr} \leq 8 in ',char(197),'^{-1}']);
+            assertEqual(title_iax{1},['0 \leq Q_{\perp} \leq 8 in ',char(197),'^{-1}']);
             assertEqual(title_iax{2},'-5 \leq En \leq 20 in meV');
 
             assertEqual(numel(display_pax),2);
@@ -54,7 +54,7 @@ classdef test_proj_captions<TestCase
             assertEqual(display_pax{2}, '\phi = -3.06:0.16:3.06 in rad');
 
             assertEqual(numel(display_iax),2);
-            assertEqual(display_iax{1},['0 =< Q_{tr} =< 8 in ',char(197),'^{-1}']);
+            assertEqual(display_iax{1},['0 =< Q_{\perp} =< 8 in ',char(197),'^{-1}']);
             assertEqual(display_iax{2}, '-5 =< En =< 20 in meV');
 
             assertEqual(energy_axis,4);
@@ -78,7 +78,7 @@ classdef test_proj_captions<TestCase
             assertTrue(isempty(title_main{1}));
 
             assertEqual(numel(title_pax),2);
-            assertEqual(title_pax{1},['Q_{tr} (',char(197),'^{-1})']);
+            assertEqual(title_pax{1},['Q_{\perp} (',char(197),'^{-1})']);
             assertEqual(title_pax{2},'En (meV)');
 
             assertEqual(numel(title_iax),2);
@@ -86,7 +86,7 @@ classdef test_proj_captions<TestCase
             assertEqual(title_iax{2},'-3.14 \leq \phi \leq 3.14 in rad');
 
             assertEqual(numel(display_pax),2);
-            assertEqual(display_pax{1},['Q_{tr} = 0.08:0.16:7.92 in ',char(197)','^{-1}']);
+            assertEqual(display_pax{1},['Q_{\perp} = 0.08:0.16:7.92 in ',char(197)','^{-1}']);
             assertEqual(display_pax{2},'En = -9.5:1:29.5 in meV');
 
             assertEqual(numel(display_iax),2);
@@ -117,7 +117,7 @@ classdef test_proj_captions<TestCase
             assertEqual(title_pax{2},'\phi^{o}');
 
             assertEqual(numel(title_iax),2);
-            assertEqual(title_iax{1},['0 \leq Q_{tr} \leq 8 in ',char(197),'^{-1}']);
+            assertEqual(title_iax{1},['0 \leq Q_{\perp} \leq 8 in ',char(197),'^{-1}']);
             assertEqual(title_iax{2},'-5 \leq En \leq 20 in meV');
 
             assertEqual(numel(display_pax),2);
@@ -125,7 +125,7 @@ classdef test_proj_captions<TestCase
             assertEqual(display_pax{2}, '\phi = -176:9:176 in ^{o}');
 
             assertEqual(numel(display_iax),2);
-            assertEqual(display_iax{1},['0 =< Q_{tr} =< 8 in ',char(197),'^{-1}']);
+            assertEqual(display_iax{1},['0 =< Q_{\perp} =< 8 in ',char(197),'^{-1}']);
             assertEqual(display_iax{2}, '-5 =< En =< 20 in meV');
 
             assertEqual(energy_axis,4);
@@ -148,7 +148,7 @@ classdef test_proj_captions<TestCase
             assertTrue(isempty(title_main{1}));
 
             assertEqual(numel(title_pax),2);
-            assertEqual(title_pax{1},['Q_{tr} (',char(197),'^{-1})']);
+            assertEqual(title_pax{1},['Q_{\perp} (',char(197),'^{-1})']);
             assertEqual(title_pax{2},'En (meV)');
 
             assertEqual(numel(title_iax),2);
@@ -156,7 +156,7 @@ classdef test_proj_captions<TestCase
             assertEqual(title_iax{2},'-180 \leq \phi \leq 180 in ^{o}');
 
             assertEqual(numel(display_pax),2);
-            assertEqual(display_pax{1},['Q_{tr} = 0.08:0.16:7.92 in ',char(197),'^{-1}']);
+            assertEqual(display_pax{1},['Q_{\perp} = 0.08:0.16:7.92 in ',char(197),'^{-1}']);
             assertEqual(display_pax{2},'En = -9.5:1:29.5 in meV');
 
             assertEqual(numel(display_iax),2);
