@@ -6,16 +6,17 @@ Cutting data of interest from SQW files and objects
 
 .. |Q| replace:: :math:`|\textbf{Q}|`
 
-Horace ``sqw`` object is the main object Horace operates with. 
+The Horace ``sqw`` object is the main object that Horace operates with. 
 It contains full information about the results of a neutron experiment.
 This information includes information about each neutron "event" registered
 in the experiment. This information is stored in a 1-D dataset called the "pixels". 
-The dataset is usually the major by size part of ``sqw`` object.
+This dataset is usually by far the largest part in size part of ``sqw`` object.
 
 Another part of ``sqw`` object is a 0 to 4-dimensional histogram (binning)
-of the "pixels"  in reciprocal space (``hkl-dE``) which we call the "image".
+of the "pixels"  in space of interest, most often the reciprocal space (``hkl-dE``),
+which we call the "image".
 This carries only limited information about the original data, i.e. only the
-averaged neutron intensity contributed into the reciprocal space bins. 
+averaged neutron intensity contributed into the image space bins. 
 The "image" is the main part of Horace's ``dnd`` object -- the second by importance Horace's object.
 
 .. note::
@@ -86,8 +87,8 @@ where:
 
 There are also several extra optional arguments which are:
 
-- ``-nopix``  drop the "pixels" from the resulting object returning just the ``dnd`` binned
-  data (the "image"). This option is faster and the resulting object requires
+- ``-nopix``  remove the "pixels" from the resulting object returning just a ``dnd`` object, 
+  i.e. binned data (the "image"). This option is faster and the resulting object requires
   less memory, but is also more restricted in what you can do with the result.
 
 - ``sym``  cell array of symmetry operations. For a full description of usage, :ref:`see
@@ -135,7 +136,7 @@ etc. which contains information about the desired coordinate system representati
       w1 = cut(w, [], [lo1, hi1], [lo2, hi2], ...)
 
 
-Different projections are covered in the :ref:`Projection in more details <Projection_in_details>` section below.
+Different projections are covered in the :ref:`Projection in more detail <Projection_in_details>` section below.
 
 .. note::
 
@@ -151,7 +152,7 @@ Binning arguments
 
 The binning arguments (``p1_bin``, ``p2_bin``, ``p3_bin`` and ``p4_bin``)
 specify the binning / integration ranges for the Q & Energy axes in **the target
-projection's** coordinate system (c.f. :ref:`Projection in more details <Projection_in_details>` and
+projection's** coordinate system (c.f. :ref:`Projection in more detail <Projection_in_details>` and
 `changing projections`_).
 
 Each can independently have one of four different forms below.
@@ -167,7 +168,7 @@ Each can independently have one of four different forms below.
   Empty brackets indicate that the cut algorithm should identify binning ranges itself.
   The step size of the target binning is taken equal to the step size of the binning 
   currently present in the source image in the direction with the same 
-  number as the number of binning argument ``[]``. In more details auto-binning algorithm is described
+  number as the number of binning argument ``[]``. In more detail auto-binning algorithm is described
   :ref:`below <bin_ranges_calculations>`.
 
 
@@ -281,7 +282,7 @@ file. This file will not be a temporary file.
 
 .. _Projection_in_details:
 
-Projection in more details
+Projection in more detail
 --------------------------
 
 As mentioned in `Projection (proj)`_, the ``proj`` argument defines the coordinate
@@ -315,7 +316,7 @@ Where:
 
 - ``v``  3-vector in reciprocal space :math:`(h,k,l)` in the plane of the second viewing axis.
 
-- ``w``  3-vector of in reciprocal space :math:`(h,k,l)` of the third viewing axis or empty value
+- ``w``  3-vector in reciprocal space :math:`(h,k,l)` of the third viewing axis or empty value
   at its place.
 
 
@@ -702,12 +703,11 @@ where:
 
 ``sphere_proj`` defines a spherical coordinate system which contains 
 spherical coordinates of momentum transfer vector  :math:`\vec{Q}`.
-Energy transfer coordinate for ``sphere_proj`` remain unchanged. 
 If projection ``offset`` parameter is zero, this vector is the vector
-of momentum transfer from neutron to excitations -- lattice measured
+of momentum transfer from neutron to magnetic or phonon excitations measured
 in scattering experiment. If offset is not zero, :math:`\vec{Q}`
 is the difference between ``offset`` and the measured momentum transfer.
-
+Energy transfer coordinate for ``sphere_proj`` remain unchanged. 
 
 Because reciprocal lattice may be non-orthogonal lattice, following common crystallography 
 practice, we introduce auxiliary 
@@ -752,7 +752,7 @@ Then ``sphere_proj`` coordinates are:
    Spherical coordinate system used by ``sphere_proj``
 
 
-Alternative description of spherical coordinate system may be found on MATLAB help pages.
+An alternative description of the spherical coordinate system may be found on MATLAB help pages.
 Horace uses MATLAB methods ``cart2sph`` and ``sph2cart`` to convert an array of vectors expressed
 in Cartesian coordinate system to spherical coordinate system and back.
 The formulas, used by these methods together with the image of the used coordinate system is provided 
