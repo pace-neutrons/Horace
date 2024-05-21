@@ -23,10 +23,11 @@ classdef cylinder_proj<CurveProjBase
     % each direction:
     % for |Q|:
     % 'a' -- Angstrom,
-    % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u to
+    % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u or v to
     %                                       unit vectors in hkl directions
-    % 'p' -- |u| = 1
-    % 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
+    % 'p' -- scale == length of vector u or v
+    %  (depending on settings type(1)== 'p' or type(2)=='p')
+    % 'h','k' or 'l' -- scale in selected direction (1 or 2) == (a*,b* or c*);
     % for angular units theta, phi:
     % 'd' - degree, 'r' -- radians
     % For energy transfer:
@@ -47,7 +48,7 @@ classdef cylinder_proj<CurveProjBase
             % Default projection type: A^{-1}, A^{-1}, degree
             obj.type_ = 'aad';
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
-            obj.label = {'Q_{tr}','Q_{||}','\phi','En'};
+            obj.label = {'Q_{\perp}','Q_{||}','\phi','En'};
             obj.curve_proj_types_ = obj.types_available_;
             if nargin>0
                 obj = obj.init(varargin{:});
@@ -90,17 +91,16 @@ classdef cylinder_proj<CurveProjBase
             % img_scales  -- 1x3 elements array, containing scaling factors
             %                for every scaled direction, namely:
             % for |Q|:
-            % 'a' -- Angstrom,
-            % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u to
-            %                                         unit vectors in hkl directions
-            % 'p' -- |u| = 1
-            % 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
-            % for angular units theta, phi:
+            % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u or v to
+            %                                       unit vectors in hkl directions
+            % 'p' -- scale == length of vector u or v
+            %  (depending on settings type(1)== 'p' or type(2)=='p')
+            % 'h','k' or 'l' -- scale in selected direction (1 or 2) == (a*,b* or c*);
             % 'd' - degree, 'r' -- radians
             % For energy transfer:
             % 'e'-energy transfer in meV (no other scaling so may be missing)
 
-            [img_scales,obj] = get_img_scales_(obj);            
+            [img_scales,obj] = get_img_scales_(obj);
         end
     end
     %=====================================================================

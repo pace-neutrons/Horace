@@ -13,7 +13,7 @@ function [img_scales,obj] = get_img_scales_(obj)
 % 'r' -- scale = max(\vec{u}*\vec{e_h,e_k,e_l}) -- projection of u to
 %                                       unit vectors in hkl directions
 % 'p' -- |u| = 1 -- i.e. scale = |u| (in Crystal Cartesizan)
-% 'h','k' or 'l' -- i.e. scale = (a*,b* or c*);
+% 'h', 'k' or 'l' -- i.e. scale = (a*, b* or c*);
 % for angular units theta, phi:
 % 'd' - degree, 'r' -- radians
 % For energy transfer:

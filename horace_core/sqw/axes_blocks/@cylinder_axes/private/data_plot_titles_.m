@@ -77,12 +77,15 @@ for j=1:4
     ax_type = type(j);
     angular_unit = (j == 3);
     scale_present =  (abs(img_scales(j)-1) > small);
-    
-    in_totvector{j} =  ['in ',obj.capt_units(ax_type)];
+    if scale_present && ~angular_unit
+        in_totvector{j} = sprintf('in %.3g %s',img_scales(j),obj.capt_units(ax_type));            
+    else
+        in_totvector{j} =  ['in ',obj.capt_units(ax_type)];        
+    end
     if ismember(j,pax) % pax
         ipax = find(j==pax(dax));
         if scale_present && ~angular_unit
-            title_pax{ipax} = sprintf('%s in %.3g %s',label{j},img_scales(j),obj.capt_units(ax_type));            
+            title_pax{ipax} = sprintf('%s %s',label{j},in_totvector{j});            
         else
             if ax_type == 'd'
                 title_pax{ipax} = sprintf('%s%s',label{j},obj.capt_units(ax_type));

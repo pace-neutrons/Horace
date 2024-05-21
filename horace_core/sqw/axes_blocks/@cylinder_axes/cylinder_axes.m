@@ -88,7 +88,7 @@ classdef cylinder_axes < AxesBlockBase
             % empty spherical range:
             obj.img_range_ = obj.default_img_range_;
 
-            obj.label = {'Q_{tr}','Q_{||}','\phi','En'};
+            obj.label = {'Q_{\perp}','Q_{||}','\phi','En'};
             obj.type_ = 'aade';
             obj.changes_aspect_ratio_ = false;
             if nargin == 0

@@ -9,10 +9,11 @@ function [img_scales,obj] = get_img_scales_(obj)
 % img_scales  -- 1x3 elements array, containing scaling factors
 %                for every scaled direction, namely:
 % for |Q|:
-% 'a' -- Angstrom,
-% 'r' -- max(\vec{u}*\vec{h,k,l}) = 1
-% 'p' -- |u| = 1
-% 'h','k' or 'l' -- \vec{Q}/(a*,b* or c*) = 1;
+% 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u or v to
+%                                       unit vectors in hkl directions
+% 'p' -- scale == length of vector u or v
+%  (depending on settings type(1)== 'p' or type(2)=='p')
+% 'h','k' or 'l' -- scale in selected direction (1 or 2) == (a*,b* or c*);
 % for angular units theta, phi:
 % 'd' - degree, 'r' -- radians
 % For energy transfer:
@@ -38,13 +39,13 @@ if type == 'a'
     scale  = 1;
 elseif type == 'p'
     bm = obj.bmatrix(3);
-    u_cc = bm*vec; % vec in Crystal Cartesian
-    scale = norm(u_cc);
+    v_cc = bm*vec; % vec in Crystal Cartesian
+    scale = norm(v_cc);
 elseif type == 'r'
     [bm,arlu] = obj.bmatrix(3);
     hkl_cc    = bm*eye(3)./arlu(:); % unit vectors in hkl direction
-    u_cc      = bm*vec; % vec in Crystal Cartesian
-    proj2hkl  = hkl_cc*u_cc; % projection u_cc to unit vectors in hkl directions
+    v_cc      = bm*vec; % vec in Crystal Cartesian
+    proj2hkl  = hkl_cc*v_cc; % projection u_cc to unit vectors in hkl directions
     scale = max(proj2hkl);
 elseif type == 'h'
     [~,arlu] = obj.bmatrix(3);

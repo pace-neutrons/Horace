@@ -12,34 +12,29 @@ classdef test_cylinder_proj<TestCase
             this=this@TestCase(name);
         end
         %------------------------------------------------------------------
-        function test_scales_l(~)
-            proj = cylinder_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','ldd');
-            % length of c*
-            assertElementsAlmostEqual(proj.img_scales,[2/3,180/pi,180/pi]);
+        function test_scales_kl(~)
+            proj = cylinder_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','kld');
+            % length of b*,c*
+            assertElementsAlmostEqual(proj.img_scales,[1,2/3,180/pi]);
         end
-        function test_scales_k(~)
-            proj = cylinder_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','kdd');
-            % length of b*
-            assertElementsAlmostEqual(proj.img_scales,[1,180/pi,180/pi]);
-        end
-        function test_scales_h(~)
-            proj = cylinder_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','hdd');
-            % length of a*
-            assertElementsAlmostEqual(proj.img_scales,[2,180/pi,180/pi]);
+        function test_scales_hk(~)
+            proj = cylinder_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','hkd');
+            % length of a*,b
+            assertElementsAlmostEqual(proj.img_scales,[2,1,180/pi]);
         end
 
         function test_scales_r(~)
-            proj = cylinder_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','rdd');
+            proj = cylinder_proj([1,1,1],[-1,1,0],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','rrd');
             % length of max|u*[e_h,e_k,e_l]| == 1
-            assertElementsAlmostEqual(proj.img_scales,[2,180/pi,180/pi]);
+            assertElementsAlmostEqual(proj.img_scales,[2,1,180/pi]);
         end
         function test_scales_p(~)
-            proj = cylinder_proj([1,1,0],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','pdd');
+            proj = cylinder_proj([1,1,0],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','ppd');
             % length of |u| == 1
-            assertElementsAlmostEqual(proj.img_scales,[sqrt(2^2+1),180/pi,180/pi]);
+            assertElementsAlmostEqual(proj.img_scales,[sqrt(2^2+1),1,180/pi]);
         end
         function test_scales_a(~)
-            proj = cylinder_proj([1,1,0],'angdeg',90,'type','arr');
+            proj = cylinder_proj([1,1,0],'angdeg',90,'type','aar');
             % length of |u| == 1
             assertElementsAlmostEqual(proj.img_scales,[1,1,1]);
         end        
