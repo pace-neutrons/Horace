@@ -46,7 +46,7 @@ cut
 ===
 
 ``cut`` takes a (or multiple) section(s) of data from an ``sqw`` or ``dnd``
-object or file, discards the pixels which lay outside of the binning regions
+object or file, discards the pixels which lie outside of the binning regions
 (described `below <#binning-arguments>`_), extracts contributing pixels and accumulates
 their signal and variance into a histogram (the "image" or ``dnd``, 
 which may be independent if requested
@@ -319,7 +319,7 @@ Where:
 - ``v``  3-vector in reciprocal space :math:`(h,k,l)` in the plane of the second viewing axis.
 
 - ``w``  3-vector in reciprocal space :math:`(h,k,l)` of the third viewing axis or empty value
-  at its place.
+  at its place if you provide further positional parameters.
 
 
 .. note::
