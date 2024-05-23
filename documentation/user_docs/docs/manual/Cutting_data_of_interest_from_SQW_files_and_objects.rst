@@ -9,8 +9,9 @@ Cutting data of interest from SQW files and objects
 The Horace ``sqw`` object is the main object that Horace operates with. 
 It contains full information about the results of a neutron experiment.
 This information includes information about each neutron "event" registered
-in the experiment. This information is stored in a 1-D dataset called the "pixels". 
-This dataset is usually by far the largest part in size part of ``sqw`` object.
+in the experiment. "events" information is stored in a 1-D dataset
+called the "pixels". This dataset is usually by far the largest
+part in size of ``sqw`` object.
 
 Another part of ``sqw`` object is a 0 to 4-dimensional histogram (binning)
 of the "pixels"  in space of interest, most often the reciprocal space (``hkl-dE``),
@@ -45,10 +46,11 @@ cut
 ===
 
 ``cut`` takes a (or multiple) section(s) of data from an ``sqw`` or ``dnd``
-object or file, discards the pixels which lie outside of the binning regions
-(described `below <#binning-arguments>`_) from an ``sqw`` and accumulates them
-into a histogram (the "image" or ``dnd``, which may be independent if requested
-or attached to the parent ``sqw``). It can return an object or file depending on
+object or file, discards the pixels which lay outside of the binning regions
+(described `below <#binning-arguments>`_), extracts contributing pixels and accumulates
+their signal and variance into a histogram (the "image" or ``dnd``, 
+which may be independent if requested
+or be part of the target ``sqw``). It can return an object or file depending on
 the parameters given.
 
 ``cut`` can produce objects of the same or reduced size and dimensions. The
@@ -184,8 +186,8 @@ Each can independently have one of four different forms below.
 .. warning::
 
    A two-component binning axis defines the integration region between bin
-   edges. For example, ``[-1 1]`` will capture pixels from ``-1`` to ``1``
-   inclusive.
+   edges. For example, fourth binning range ``[-1 1]`` will capture pixels with 
+   energy transfer from ``-1`` to ``1`` inclusive.
 
 - ``[lower,step,upper]`` Plot axis in binning direction.
   A three-component binning axis specifies plot axis.
@@ -202,7 +204,7 @@ Each can independently have one of four different forms below.
    A three-component binning axis defines the integration region by bin centres,
    i.e. the limits of the data to be cut lie between ``min = lower-step/2`` and
    ``max = upper+step/2``, including ``min/max`` values. For example, ``[-1 1
-   1]`` will capture pixels from ``-1.5`` to ``1.5`` inclusive.
+   1]`` will define image range from ``-1.5`` to ``1.5`` inclusive.
 
 
 - ``[lower, separation, upper, cut_width]``  A vector with four components defines **multiple** integration axes with
@@ -709,12 +711,12 @@ in scattering experiment. If offset is not zero, :math:`\vec{Q}`
 is the difference between ``offset`` and the measured momentum transfer.
 Energy transfer coordinate for ``sphere_proj`` remain unchanged. 
 
-Because reciprocal lattice may be non-orthogonal lattice, following common crystallography 
-practice, we introduce auxiliary 
-orthogonal coordinate system, which gives the basis for calculating spherical coordinates. 
-Unit vector :math:`\vec{e_z}` of this system is parallel to 
-:math:`\vec{u}` and unit vector :math:`\vec{e_x}` is orthogonal to :math:`\vec{e_z}`
-and lies in the plane defined by :math:`\vec{u}` - :math:`\vec{v}`. 
+Because reciprocal lattice may be non-orthogonal lattice, following common
+crystallography practice, we introduce auxiliary 
+orthogonal coordinate system with zero located at ``offset``. This system gives the basis 
+for calculating spherical coordinates. Unit vector :math:`\vec{e_z}` of this system
+is parallel to :math:`\vec{u}` and unit vector :math:`\vec{e_x}` is orthogonal 
+to :math:`\vec{e_z}` and lies in the plane defined by :math:`\vec{u}` - :math:`\vec{v}`. 
 (see :ref:`Sphere coordinates <fig_sphere_coodinates>` below.) When crystal lattice is 
 orthogonal, vectors :math:`\vec{e_z}` is aligned with :math:`\vec{u}` and 
 vector :math:`\vec{e_x}` is aligned with :math:`\vec{v}`.
@@ -788,8 +790,9 @@ difference. The binning arguments of ``cut`` no longer refer to
    - :math:`\phi` runs between :math:`[-180, 180]`
 
    Attempting to specify binning outside of these ranges will fail. Changing 
-   ``sphere_proj`` ``type`` property from ``add`` to ``arr`` modifies angular ranges
-   into radians.  
+   ``sphere_proj`` ``type(2:3)`` property from ``dd`` to ``rr`` changes 
+   measurement units into radians, so both ranges and image axes will be expressed 
+   in radians.
 
 
 ``sphere_proj`` 2D and 1D cuts examples:
@@ -1032,15 +1035,16 @@ where:
 cylindrical coordinates of momentum transfer vector  :math:`\vec{Q}`.
 Energy transfer coordinate for ``cylinder_proj`` remain unchanged. 
 If projection ``offset`` parameter is zero, this vector is the vector
-of momentum transfer from neutron to excitations -- lattice measured
+of momentum transfer from neutron to magnetic or lattice excitations measured
 in scattering experiment. If offset is non-zero, :math:`\vec{Q}`
 is the difference between ``offset`` and the measured momentum transfer.
 
 Similarly to :ref:`Spherical projections <Spherical_Projections>`, we introduce auxiliary 
-orthogonal coordinate system, which unit vector :math:`\vec{e_z}` being parallel to 
-:math:`\vec{u}` and unit vector :math:`\vec{e_x}` is orthogonal to :math:`\vec{e_z}`
-and lies in the plane defined by :math:`\vec{u}` - :math:`\vec{v}`. Cylindrical 
-coordinates of the vectors of interest are calculated in this system. 
+orthogonal coordinate system with zero at ``offset`` and unit vector :math:`\vec{e_z}`
+being parallel to :math:`\vec{u}` and unit vector :math:`\vec{e_x}` 
+is orthogonal to :math:`\vec{e_z}` and laying in the plane defined by 
+:math:`\vec{u}` - :math:`\vec{v}`. Cylindrical coordinates of the vectors of interest
+are calculated in this system. 
 (see :ref:`Cylinder coordinates <fig_cylinder_coodinates>` below.)
 When crystal lattice is orthogonal, vectors :math:`\vec{e_z}` is aligned with :math:`\vec{u}` and 
 vector :math:`\vec{e_x}` is aligned with :math:`\vec{v}`.
