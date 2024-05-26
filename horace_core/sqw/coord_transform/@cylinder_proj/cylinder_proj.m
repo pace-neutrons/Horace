@@ -46,7 +46,7 @@ classdef cylinder_proj<CurveProjBase
             %
             obj = obj@CurveProjBase();
             % Default projection type: A^{-1}, A^{-1}, degree
-            obj.type_ = 'aad';
+            obj.type_ = 'ppd';
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
             obj.label = {'Q_{\perp}','Q_{||}','\phi','En'};
             obj.curve_proj_types_ = obj.types_available_;

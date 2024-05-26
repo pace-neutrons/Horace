@@ -40,7 +40,7 @@ classdef sphere_proj<CurveProjBase
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
             obj.label = {'|Q|','\theta','\phi','En'};
             obj.curve_proj_types_ = obj.types_available_;
-            obj.type_ = 'add';
+            obj.type_ = 'pdd';
             if nargin>0
                 obj = obj.init(varargin{:});
             end

@@ -31,7 +31,7 @@ classdef test_targ_ranges < TestCase
             clOb = set_temporary_warning('off','HORACE:targ_range','HORACE:push_warning');
 
             img_block = sqw_samp.data;
-            targ_proj = cylinder_proj();
+            targ_proj = cylinder_proj('type','aad');
             warning('HORACE:push_warning','issue warning which pushes ')
             targ_range = img_block.targ_range(targ_proj);
             [~,wid] = lastwarn();
@@ -53,7 +53,7 @@ classdef test_targ_ranges < TestCase
             clOb = set_temporary_warning('off','HORACE:targ_range','HORACE:push_warning');
 
             img_block = sqw_samp.data;
-            targ_proj = sphere_proj();
+            targ_proj = sphere_proj('type','add');
             warning('HORACE:push_warning','issue warning which pushes ')
             targ_range = img_block.targ_range(targ_proj);
             [~,wid] = lastwarn();
@@ -170,7 +170,7 @@ classdef test_targ_ranges < TestCase
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
-            targ_proj = cylinder_proj([1,1,0],[1,-1,0],'offset',[1,0,0]);
+            targ_proj = cylinder_proj([1,1,0],[1,-1,0],'offset',[1,0,0],'type','aad');
 
             range = dnd_obj.targ_range(targ_proj);
             ref_range = [...

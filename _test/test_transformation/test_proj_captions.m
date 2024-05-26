@@ -30,7 +30,7 @@ classdef test_proj_captions<TestCase
             range = [0,0,-pi,-5;8,pi/2,pi,20];
             dat.do_check_combo_arg = false;
             dat.axes = cylinder_axes('img_range',range,'nbins_all_dims',[1,50,40,1],'axes_units','aar');
-            dat.proj = cylinder_proj();
+            dat.proj = cylinder_proj('type','aad');
             dat.do_check_combo_arg = true;
             dat = dat.check_combo_arg();
 
@@ -66,7 +66,7 @@ classdef test_proj_captions<TestCase
             dat.do_check_combo_arg = false;
             dat.axes = cylinder_axes('img_range',range,'nbins_all_dims',[50,1,1,40], ...
                 'axes_units','aar');
-            dat.proj = cylinder_proj();
+            dat.proj = cylinder_proj('type','aar');
             dat.do_check_combo_arg = true;
             dat = dat.check_combo_arg();
 
@@ -101,7 +101,7 @@ classdef test_proj_captions<TestCase
             range = [0,0,-180,-5;8,90,180,20];
             dat.do_check_combo_arg = false;
             dat.axes = cylinder_axes('img_range',range,'nbins_all_dims',[1,50,40,1]);
-            dat.proj = cylinder_proj();
+            dat.proj = cylinder_proj('type','aad');
             dat.do_check_combo_arg = true;
             dat = dat.check_combo_arg();
 
@@ -136,7 +136,7 @@ classdef test_proj_captions<TestCase
             range = [0,0,-180,-10;8,90,180,30];
             dat.do_check_combo_arg = false;
             dat.axes = cylinder_axes('img_range',range,'nbins_all_dims',[50,1,1,40]);
-            dat.proj = cylinder_proj();
+            dat.proj = cylinder_proj('type','aar');
             dat.do_check_combo_arg = true;
             dat = dat.check_combo_arg();
 
@@ -210,7 +210,7 @@ classdef test_proj_captions<TestCase
             dat.do_check_combo_arg = false;
             dat.axes = sphere_axes('img_range',range,'nbins_all_dims',[50,1,1,40], ...
                 'axes_units','arr');
-            dat.proj = sphere_proj();
+            dat.proj = sphere_proj('type','add');
             dat.do_check_combo_arg = true;
             dat = dat.check_combo_arg();
 
@@ -245,7 +245,7 @@ classdef test_proj_captions<TestCase
             range = [0,0,-180,-5;8,90,180,20];
             dat.do_check_combo_arg = false;
             dat.axes = sphere_axes('img_range',range,'nbins_all_dims',[1,50,40,1]);
-            dat.proj = sphere_proj();
+            dat.proj = sphere_proj('type','add');
             dat.do_check_combo_arg = true;
             dat = dat.check_combo_arg();
 
@@ -280,7 +280,7 @@ classdef test_proj_captions<TestCase
             range = [0,0,-180,-10;8,90,180,30];
             dat.do_check_combo_arg = false;
             dat.axes = sphere_axes('img_range',range,'nbins_all_dims',[50,1,1,40]);
-            dat.proj = sphere_proj();
+            dat.proj = sphere_proj('type','add');
             dat.do_check_combo_arg = true;
             dat = dat.check_combo_arg();
 
