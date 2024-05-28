@@ -78,7 +78,7 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="#additional-notes">5.1.6. Additional notes</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#changing-projections">5.1.6.1. Changing Projections</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auto-binning-algorithm">5.1.6.1. Auto-binning algorithm</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="#legacy-calls-to-cut-cut-sqw-and-cut-dnd">5.1.7. Legacy calls to <code class="docutils literal notranslate"><span class="pre">cut</span></code>: <code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">cut_dnd</span></code></a></li>
@@ -140,14 +140,18 @@
              
   <section id="cutting-data-of-interest-from-sqw-files-and-objects">
 <h1><span class="section-number">5. </span>Cutting data of interest from SQW files and objects<a class="headerlink" href="#cutting-data-of-interest-from-sqw-files-and-objects" title="Permalink to this heading"></a></h1>
-<p>Horace stores the data produced in a neutron experiment in a 4-D dataset
-which are called the
-“pixels”. These represent the neutron events measured during an
-experiment. The dataset also contains the rest of the full information about the experiment.</p>
-<p>Horace also creates a 4-dimensional histogram (binned) of these “pixels”
-represented in reciprocal space (<code class="docutils literal notranslate"><span class="pre">hkl-dE</span></code>) which we call the “image”. This
-carries only limited information about the original data, i.e. only the
-averaged intensity over the bins remains.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object is the main object Horace uses.
+It contains complete information about the results of a neutron experiment.
+This includes information about each neutron “event” registered
+in the experiment. We refer to this information as the “pixels”,
+which make up the majority of the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> ‘s memory usage.
+Another key part of the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> is a 0- to 4-dimensional histogram (binning)
+of the “pixels”, which we call the “image”. Most often this binning is done
+in reciprocal space (<code class="docutils literal notranslate"><span class="pre">hkl-dE</span></code>).
+This carries only limited information about the original experiment, i.e. only the
+average neutron intensity in each of the reciprocal space bins.
+The “image” is the main part of Horace’s <code class="docutils literal notranslate"><span class="pre">dnd</span></code> along with some
+meta-information for displaying and analysing it.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For the differences between <code class="docutils literal notranslate"><span class="pre">dnd</span></code> and <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects see: <a class="reference internal" href="FAQ.html#what-is-the-difference-between-sqw-and-dnd-objects"><span class="std std-ref">here</span></a></p>
@@ -160,13 +164,24 @@ data, a user works with smaller objects, extracted from the full dataset using
 slice-o-matic), 2-d and 1-d cuts can be easily represented.</p></li>
 <li><p>The entire dataset is often too large to fit in the memory of most computers.</p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The “pixels” can be mapped from their 4-D spatial coordinates into the “image”
+by a transformation determined by the <a class="reference internal" href="#projection-proj"><span class="std std-ref">projection (below)</span></a>.
+<code class="docutils literal notranslate"><span class="pre">cut</span></code> computes the bin to which “pixel” contributes,
+removing those pixels which do not contribute from the resulting <code class="docutils literal notranslate"><span class="pre">sqw</span></code>.</p>
+<p>It also sorts the pixels according to which bins they are in,
+in accordance with the bin’s grid-index.
+This improves the speed with which they can be processed.</p>
+</div>
 <section id="cut">
 <h2><span class="section-number">5.1. </span>cut<a class="headerlink" href="#cut" title="Permalink to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">cut</span></code> takes a (or multiple) section(s) of data from an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code>
 object or file, discards the pixels which lie outside of the binning regions
-(described <a class="reference external" href="#binning-arguments">below</a>) from an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and accumulates them
-into a histogram (the “image” or <code class="docutils literal notranslate"><span class="pre">dnd</span></code>, which may be independent if requested
-or attached to the parent <code class="docutils literal notranslate"><span class="pre">sqw</span></code>). It can return an object or file depending on
+(described <a class="reference external" href="#binning-arguments">below</a>), extracts contributing pixels and accumulates
+their signal and variance into a histogram (the “image” or <code class="docutils literal notranslate"><span class="pre">dnd</span></code>,
+which may be independent if requested
+or be part of the target <code class="docutils literal notranslate"><span class="pre">sqw</span></code>). It can return an object or file depending on
 the parameters given.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cut</span></code> can produce objects of the same or reduced size and dimensions. The
 result of a cut is itself an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object which can be further
@@ -200,20 +215,14 @@ histogram.</p></li>
 data.</p></li>
 </ul>
 <p>There are also several extra optional arguments which are:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">-nopix</span></code></p>
-<p>drop the “pixels” from the resulting object returning just the <code class="docutils literal notranslate"><span class="pre">dnd</span></code> binned
-data (the “image”). This option is faster and the resulting object requires
-less memory, but is also more restricted in what you can do with the result.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sym</span></code></p>
-<p>cell array of symmetry operations. For a full description of usage, <a class="reference internal" href="Symmetrising_etc.html#cutting"><span class="std std-ref">see
-here</span></a>.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
-<p>if provided, uses file-backed algorithms to write the resulting object
-directly to a file named <code class="docutils literal notranslate"><span class="pre">filename</span></code> and return a file-backed <code class="docutils literal notranslate"><span class="pre">sqw</span></code>.</p>
-</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-nopix</span></code>  remove the “pixels” from the resulting object returning just a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object,
+i.e. binned data (the “image”). This option is faster and the resulting object requires
+less memory, but is also more restricted in what you can do with the result.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sym</span></code>  cell array of symmetry operations. For a full description of usage, <a class="reference internal" href="Symmetrising_etc.html#cutting"><span class="std std-ref">see
+here</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code> - if provided, uses file-backed algorithms to write the resulting object
+directly to a file named <code class="docutils literal notranslate"><span class="pre">filename</span></code> and return a file-backed <code class="docutils literal notranslate"><span class="pre">sqw</span></code>.</p></li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -246,7 +255,7 @@ existing projection, provide an empty <code class="docutils literal notranslate"
 </pre></div>
 </div>
 </div>
-<p>Different projections are covered in the <a class="reference internal" href="#projection-in-more-detail">Projection in more detail</a> section below.</p>
+<p>Different projections are covered in the <a class="reference internal" href="#projection-in-details"><span class="std std-ref">Projection in more detail</span></a> section below.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Changing projection does not change the underlying pixels, merely its
@@ -259,8 +268,8 @@ when making a cut.</p>
 <h3><span class="section-number">5.1.3. </span>Binning arguments<a class="headerlink" href="#binning-arguments" title="Permalink to this heading"></a></h3>
 <p>The binning arguments (<code class="docutils literal notranslate"><span class="pre">p1_bin</span></code>, <code class="docutils literal notranslate"><span class="pre">p2_bin</span></code>, <code class="docutils literal notranslate"><span class="pre">p3_bin</span></code> and <code class="docutils literal notranslate"><span class="pre">p4_bin</span></code>)
 specify the binning / integration ranges for the Q &amp; Energy axes in <strong>the target
-projection’s</strong> coordinate system (c.f. <a class="reference internal" href="#projection-in-more-detail">Projection in more detail</a> and
-<a class="reference internal" href="#changing-projections">changing projections</a>).</p>
+projection’s</strong> coordinate system (c.f. <a class="reference internal" href="#projection-in-details"><span class="std std-ref">Projection in more detail</span></a> and
+<a href="#id18"><span class="problematic" id="id19">`changing projections`_</span></a>).</p>
 <p>Each can independently have one of four different forms below.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -269,47 +278,46 @@ between each form. Ensure that you have the correct value in each component
 to ensure your cut is what you expect.</p>
 </div>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p>
-<p>An empty binning range will use the source binning axes in that dimension.</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code> Automatic binning arguments.
+Empty brackets indicate that the auto-binning algorithm will be
+used by cut to determine the bounds.
+The new axis bounds are calculated such that they encompass the
+maximal extents of the data along the given projection axis.</p>
+<p>The step size is taken to be the step size of the corresponding
+axis in the source image.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The auto-binning algorithm is described in more detail
+<a class="reference internal" href="#bin-ranges-calculations"><span class="std std-ref">below</span></a>.</p>
+</div>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">[step]</span></code></p>
-<p>A single (scalar) number defines a plot axis.</p>
-<p>The bin width will be equal to the number you specify. The lower and upper
-limits will be from the source binning axes in that dimension.</p>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[step]</span></code> Automatic binning calculations with binning step size.
+A single (scalar) number defines a plot axis.
+The bin width will be equal to the number you specify. The lower and upper
+limits will be determined by the auto-binning algorithm, as above.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>A value of <code class="docutils literal notranslate"><span class="pre">[0]</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">[step]</span></code> using bin size of the source
-coordinate system.</p>
+<p>A value of <code class="docutils literal notranslate"><span class="pre">[0]</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">[]</span></code> using the bin size
+of the corresponding axis in the source image.</p>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>When changing projections e.g. <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> to <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code>, using either
-<code class="docutils literal notranslate"><span class="pre">[]</span></code> or <code class="docutils literal notranslate"><span class="pre">[step]</span></code> see, <a class="reference internal" href="#changing-projections">changing projections</a> below.</p>
-</div>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">[lower,upper]</span></code></p>
-<p>A vector with two components defines an integration axis.</p>
-<p>The signal will be integrated over that axis between the limits specified by
-the two components of the vector.</p>
-</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[lo,hi]</span></code> Integration axis in binning direction.
+A vector with two components defines integration axis.
+The signal will be integrated over that axis between limits specified by the two components of the vector.</p></li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>A two-component binning axis defines the integration region between bin
-edges. For example, <code class="docutils literal notranslate"><span class="pre">[-1</span> <span class="pre">1]</span></code> will capture pixels from <code class="docutils literal notranslate"><span class="pre">-1</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code>
-inclusive.</p>
+edges. For example, fourth binning range <code class="docutils literal notranslate"><span class="pre">[-1</span> <span class="pre">1]</span></code> will capture pixels with
+energy transfer from <code class="docutils literal notranslate"><span class="pre">-1</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code> inclusive.</p>
 </div>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">[lower,step,upper]</span></code></p>
-<blockquote>
-<div><p>A vector with three components defines a plot axis.</p>
-<p>The first <code class="docutils literal notranslate"><span class="pre">lower</span></code> and the last <code class="docutils literal notranslate"><span class="pre">upper</span></code> components specifying the centres
-of the first and the last bins of the data to be cut. The middle component
-specifies the bin width.</p>
-</div></blockquote>
-</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[lower,step,upper]</span></code> Plot axis in binning direction.
+A three-component binning axis specifies plot axis.
+The first  <code class="docutils literal notranslate"><span class="pre">lower</span></code> and the last <code class="docutils literal notranslate"><span class="pre">upper</span></code> components specifying the centres of the
+first and the last bins of the data to be cut. The middle component specifies
+the bin width.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -320,27 +328,18 @@ specifies the bin width.</p>
 <p>A three-component binning axis defines the integration region by bin centres,
 i.e. the limits of the data to be cut lie between <code class="docutils literal notranslate"><span class="pre">min</span> <span class="pre">=</span> <span class="pre">lower-step/2</span></code> and
 <code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">=</span> <span class="pre">upper+step/2</span></code>, including <code class="docutils literal notranslate"><span class="pre">min/max</span></code> values. For example, <code class="docutils literal notranslate"><span class="pre">[-1</span> <span class="pre">1</span>
-<span class="pre">1]</span></code> will capture pixels from <code class="docutils literal notranslate"><span class="pre">-1.5</span></code> to <code class="docutils literal notranslate"><span class="pre">1.5</span></code> inclusive.</p>
+<span class="pre">1]</span></code> will define image range from <code class="docutils literal notranslate"><span class="pre">-1.5</span></code> to <code class="docutils literal notranslate"><span class="pre">1.5</span></code> inclusive.</p>
 </div>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">[lower,</span> <span class="pre">separation,</span> <span class="pre">upper,</span> <span class="pre">cut_width]</span></code></p>
-<p>A vector with four components defines <strong>multiple</strong> integration axes with
+<li><p><code class="docutils literal notranslate"><span class="pre">[lower,</span> <span class="pre">separation,</span> <span class="pre">upper,</span> <span class="pre">cut_width]</span></code>  A vector with four components defines <strong>multiple</strong> integration axes with
 <strong>multiple</strong> integration limits in the selected direction.</p>
 <p>These components are:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">lower</span></code></p>
-<p>Position of the lowest cut bin-centre.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">separation</span></code></p>
-<p>Distance between cut bin-centres.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">upper</span></code></p>
-<p>Approximate (see <a class="reference internal" href="#separation-warn"><span class="std std-ref">below</span></a>) position of highest cut bin-centre</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cut_width</span></code></p>
-<p>Width of each cut, centred on each bin-centre, thus extending one half-width
-in both directions</p>
-</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">lower</span></code>   Position of the lowest cut bin-centre.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">separation</span></code>  Distance between cut bin-centres.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upper</span></code>   Approximate (see <a class="reference internal" href="#separation-warn"><span class="std std-ref">below</span></a>) position of highest cut bin-centre</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cut_width</span></code>   Width of each cut, centred on each bin-centre, thus extending one half-width
+in both directions</p></li>
 </ul>
 <p>The number of cuts produced will be one more than the number of
 <code class="docutils literal notranslate"><span class="pre">separation</span></code>-sized steps between <code class="docutils literal notranslate"><span class="pre">lower</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code>.</p>
@@ -369,8 +368,11 @@ integration ranges for three cuts, the first cut integrates the axis over
 <h3><span class="section-number">5.1.4. </span>File- and memory-backed cuts<a class="headerlink" href="#file-and-memory-backed-cuts" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">cut</span></code> generally tries to return its result in memory. However, if the
 resulting object is sufficiently large (the threshold of which is the product of
-<code class="docutils literal notranslate"><span class="pre">mem_chunk_size</span></code> and <code class="docutils literal notranslate"><span class="pre">fb_scale_factor</span></code> defined in the <a class="reference internal" href="Changing_Horace_settings.html#horace-config"><span class="std std-ref">Horace config</span></a>), the object is written to a
+<code class="docutils literal notranslate"><span class="pre">mem_chunk_size</span></code> and <code class="docutils literal notranslate"><span class="pre">fb_scale_factor</span></code> defined in the <code class="docutils literal notranslate"><span class="pre">hor_config</span></code> class), the object is written to a
 temporary file and will be “file-backed”.</p>
+<p>See <a class="reference internal" href="Changing_Horace_settings.html#changing-horace-settings"><span class="std std-ref">Changing Horace settings</span></a>
+for more information about <code class="docutils literal notranslate"><span class="pre">hor_config</span></code>, configuring Horace and changing the limits when object
+may become filebacked.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The file being temporary means that it will be deleted when the <code class="docutils literal notranslate"><span class="pre">sqw</span></code>
@@ -396,7 +398,7 @@ memory.</p>
 </div>
 </section>
 <section id="projection-in-more-detail">
-<h3><span class="section-number">5.1.5. </span>Projection in more detail<a class="headerlink" href="#projection-in-more-detail" title="Permalink to this heading"></a></h3>
+<span id="projection-in-details"></span><h3><span class="section-number">5.1.5. </span>Projection in more detail<a class="headerlink" href="#projection-in-more-detail" title="Permalink to this heading"></a></h3>
 <p>As mentioned in <a class="reference internal" href="#projection-proj">Projection (proj)</a>, the <code class="docutils literal notranslate"><span class="pre">proj</span></code> argument defines the coordinate
 system of the histogrammed image.</p>
 <div class="admonition warning">
@@ -413,27 +415,22 @@ warning and construct a <code class="docutils literal notranslate"><span class="
 <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> which defines a (usually orthogonal, but not necessarily) system
 of linear coordinates from a set of basis vectors.</p>
 <p>The complete signature for <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> is:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">[,</span><span class="w"> </span><span class="n">w</span><span class="p">][,</span><span class="w"> </span><span class="n">nonorthogonal</span><span class="p">][,</span><span class="w"> </span><span class="nb">type</span><span class="p">][,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">][,</span><span class="w"> </span><span class="n">offset</span><span class="p">][,</span><span class="w"> </span><span class="n">label</span><span class="p">][,</span><span class="w"> </span><span class="nb">title</span><span class="p">][,</span><span class="w"> </span><span class="n">lab1</span><span class="p">][,</span><span class="w"> </span><span class="n">lab2</span><span class="p">][,</span><span class="w"> </span><span class="n">lab3</span><span class="p">][,</span><span class="w"> </span><span class="n">lab4</span><span class="p">]);</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">[,[],</span><span class="n">w</span><span class="p">][,</span><span class="w"> </span><span class="n">nonorthogonal</span><span class="p">][,</span><span class="w"> </span><span class="nb">type</span><span class="p">][,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">][,</span><span class="w"> </span><span class="n">offset</span><span class="p">][,</span><span class="w"> </span><span class="n">label</span><span class="p">][,</span><span class="w"> </span><span class="nb">title</span><span class="p">][,</span><span class="w"> </span><span class="n">lab1</span><span class="p">][,</span><span class="w"> </span><span class="n">lab2</span><span class="p">][,</span><span class="w"> </span><span class="n">lab3</span><span class="p">][,</span><span class="w"> </span><span class="n">lab4</span><span class="p">]);</span>
 </pre></div>
 </div>
 <p>Where:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code></p>
-<p>3-vector in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> specifying first viewing axis.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code></p>
-<p>3-vector in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> in the plane of the second viewing axis.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code></p>
-<p>3-vector of in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> of the third viewing axis.</p>
-</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code>  3-vector in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> specifying first viewing axis.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code>  3-vector in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> in the plane of the second viewing axis.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code>  3-vector in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> of the third viewing axis. If left empty
+(<code class="docutils literal notranslate"><span class="pre">[]</span></code>) will default to <span class="math notranslate nohighlight">\(\frac{\vec{u}}{|u|} \times \frac{\vec{v}}{|v|}\)</span>.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The first viewing axis is strictly defined to be <code class="docutils literal notranslate"><span class="pre">u</span></code></p>
-<p>The second viewing axis is constructed by default to be in the plane of <code class="docutils literal notranslate"><span class="pre">u</span></code>
-and <code class="docutils literal notranslate"><span class="pre">v</span></code> and perpendicular to <code class="docutils literal notranslate"><span class="pre">u</span></code>.</p>
-<p>The third viewing axes is by default defined as the cross product of the first
+<p>The first viewing axis is strictly defined to be <code class="docutils literal notranslate"><span class="pre">u</span></code>.
+The second viewing axis is constructed by default to be in the plane of <code class="docutils literal notranslate"><span class="pre">u</span></code>
+and <code class="docutils literal notranslate"><span class="pre">v</span></code> and perpendicular to <code class="docutils literal notranslate"><span class="pre">u</span></code>.
+The third viewing axis is, by default, defined as the cross product of the first
 two (<span class="math notranslate nohighlight">\(u \times{} v\)</span>).</p>
 <p>The fourth viewing axis is always energy and cannot be modified.</p>
 <div class="admonition warning">
@@ -462,10 +459,8 @@ reciprocal space.</p>
 <p>such that <code class="docutils literal notranslate"><span class="pre">u</span></code> = <span class="math notranslate nohighlight">\([1,0,0]\)</span> and <code class="docutils literal notranslate"><span class="pre">v</span></code> = <span class="math notranslate nohighlight">\([0,1,0]\)</span>. The
 reciprocal space projection will actually be skewed according to <code class="docutils literal notranslate"><span class="pre">angdeg</span></code>.</p>
 </div>
-<ul id="nonortho">
-<li><p><code class="docutils literal notranslate"><span class="pre">nonorthogonal</span></code></p>
-<p>Whether lattice vectors are allowed to be non-orthogonal</p>
-</li>
+<ul class="simple" id="nonortho">
+<li><p><code class="docutils literal notranslate"><span class="pre">nonorthogonal</span></code> Whether lattice vectors are allowed to be non-orthogonal</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -481,58 +476,38 @@ the basis vectors are orthogonal, so features may be distorted (see
 </div>
 </div>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p>
-<p>Three character string denoting the the projection normalization of each of
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>  Three character string denoting the the projection normalization of each of
 the three <strong>Q</strong>-axes, one character for each axis, e.g. <code class="docutils literal notranslate"><span class="pre">'aaa'</span></code>, <code class="docutils literal notranslate"><span class="pre">'rrr'</span></code>,
 <code class="docutils literal notranslate"><span class="pre">'ppp'</span></code>.</p>
 <p>There are 3 possible options for each element of <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
-<ol class="arabic">
-<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code></p>
-<p>Inverse angstroms</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code></p>
-<p>Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
-<span class="math notranslate nohighlight">\(|h|\)</span>, <span class="math notranslate nohighlight">\(|k|\)</span> and <span class="math notranslate nohighlight">\(|l|\)</span> is unity.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'p'</span></code></p>
-<p>Preserve the values of <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code></p>
-</li>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code> Inverse angstroms</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code>  Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
+<span class="math notranslate nohighlight">\(|h|\)</span>, <span class="math notranslate nohighlight">\(|k|\)</span> and <span class="math notranslate nohighlight">\(|l|\)</span> is unity.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'p'</span></code> Preserve the values of <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code></p></li>
 </ol>
 <p>For example, if we wanted the first two <strong>Q</strong>-components to be in r.l.u. and
 the third to be in inverse Angstroms we would have <code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">=</span> <span class="pre">'rra'</span></code>.</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">alatt</span></code></p>
-<p>3-vector of lattice parameters.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">angdeg</span></code></p>
-<p>3-vector of lattice angles in degrees.</p>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alatt</span></code>   3-vector of lattice parameters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angdeg</span></code>  3-vector of lattice angles in degrees.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In general, you should not need to define <code class="docutils literal notranslate"><span class="pre">alatt</span></code> or <code class="docutils literal notranslate"><span class="pre">angdeg</span></code>;
-by default they will be taken from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object during a
-<code class="docutils literal notranslate"><span class="pre">cut</span></code>. However, there are cases where a projection object may
-need to be reused elsewhere.</p>
+<p>In general, you should not need to define <code class="docutils literal notranslate"><span class="pre">alatt</span></code> or <code class="docutils literal notranslate"><span class="pre">angdeg</span></code> when doing a <code class="docutils literal notranslate"><span class="pre">cut</span></code>.
+They are taken from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object during a <code class="docutils literal notranslate"><span class="pre">cut</span></code> and your settings will be overridden.
+However, there are cases where a projection object may need to be reused elsewhere.</p>
 </div>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code></p>
-<p>3-vector in <span class="math notranslate nohighlight">\((h,k,l)\)</span> or 4-vector in <span class="math notranslate nohighlight">\((h,k,l,e)\)</span> defining the
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code>  3-vector in <span class="math notranslate nohighlight">\((h,k,l)\)</span> or 4-vector in <span class="math notranslate nohighlight">\((h,k,l,e)\)</span> defining the
 origin of the projection coordinate system. For example you may wish to make
 the origin of all your plots <span class="math notranslate nohighlight">\([2,1,0]\)</span>, in which case set <code class="docutils literal notranslate"><span class="pre">offset</span>
-<span class="pre">=</span> <span class="pre">[2,1,0]</span></code>.</p>
-</li>
+<span class="pre">=</span> <span class="pre">[2,1,0]</span></code>.</p></li>
 </ul>
-<ul id="plotargs">
-<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code></p>
-<p>4-element cell-array of captions for axes of plots.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code></p>
-<p>Plot title for cut result.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">lab[1-4]</span></code></p>
-<p>Individual components label (for historical reasons).</p>
-</li>
+<ul class="simple" id="plotargs">
+<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code>  4-element cell-array of captions for axes of plots.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code>  Plot title for cut result.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lab[1-4]</span></code>  Individual components label (for historical reasons).</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -549,8 +524,8 @@ will build a <code class="docutils literal notranslate"><span class="pre">line_p
 <span class="w">                </span><span class="n">w</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="w">             </span><span class="nb">type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ppr&#39;</span>
 <span class="w">    </span><span class="n">nonorthogonal</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">            </span><span class="n">alatt</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">6.2832</span><span class="w"> </span><span class="mf">6.2832</span><span class="w"> </span><span class="mf">6.2832</span><span class="p">]</span>
-<span class="w">           </span><span class="n">angdeg</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="w"> </span><span class="mi">90</span><span class="w"> </span><span class="mi">90</span><span class="p">]</span>
+<span class="w">            </span><span class="n">alatt</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">           </span><span class="n">angdeg</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="w">           </span><span class="n">offset</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
 <span class="w">            </span><span class="n">label</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;\zeta&#39;</span><span class="w">  </span><span class="s">&#39;\xi&#39;</span><span class="w">  </span><span class="s">&#39;\eta&#39;</span><span class="w">  </span><span class="s">&#39;E&#39;</span><span class="p">}</span>
 <span class="w">            </span><span class="nb">title</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
@@ -675,7 +650,7 @@ above.</p>
 </section>
 </section>
 <section id="spherical-projections">
-<h4><span class="section-number">5.1.5.2. </span>Spherical Projections<a class="headerlink" href="#spherical-projections" title="Permalink to this heading"></a></h4>
+<span id="id3"></span><h4><span class="section-number">5.1.5.2. </span>Spherical Projections<a class="headerlink" href="#spherical-projections" title="Permalink to this heading"></a></h4>
 <p>In order to construct a spherical projection (i.e. a projection in <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span>,
 <span class="math notranslate nohighlight">\(\theta\)</span> (polar angle), <span class="math notranslate nohighlight">\(\phi\)</span> (azimuthal angle), <span class="math notranslate nohighlight">\(E\)</span>) we
 create a projection in an analogous way to the <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, but using the
@@ -686,14 +661,12 @@ create a projection in an analogous way to the <code class="docutils literal not
 </div>
 <p>where:</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code></p>
-<p>The vector <span class="math notranslate nohighlight">\(\vec{u}\)</span> is the reciprocal space vector defining the
-polar-axis of the spherical coordinate system from which <span class="math notranslate nohighlight">\(\theta\)</span> is
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code>  The vector <span class="math notranslate nohighlight">\(\vec{u}\)</span> is the reciprocal space vector defining the
+polar-axis <span class="math notranslate nohighlight">\(\vec{e_z}\)</span> of the spherical coordinate system from which <span class="math notranslate nohighlight">\(\theta\)</span> is
 measured.</p>
 <p>See the <a class="reference internal" href="#fig-sphere-coodinates"><span class="std std-ref">diagram below</span></a> for details.</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code></p>
-<p>The vector <span class="math notranslate nohighlight">\(\vec{v}\)</span> is the reciprocal space vector which defines the
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> The vector <span class="math notranslate nohighlight">\(\vec{v}\)</span> is the reciprocal space vector which defines the
 second component of the <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> plane from which <span class="math notranslate nohighlight">\(\phi\)</span> is
 measured.</p>
 <p>See the <a class="reference internal" href="#fig-sphere-coodinates"><span class="std std-ref">diagram below</span></a> for details.</p>
@@ -702,14 +675,8 @@ measured.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The reciprocal space vectors <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> are not necessarily
-orthogonal so the actual axis from which <span class="math notranslate nohighlight">\(\phi\)</span> is measured lies in the
-plane defined by <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> vectors, orthogonal to <span class="math notranslate nohighlight">\(u\)</span>.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <span class="math notranslate nohighlight">\(w\)</span> direction is not explicitly defined as part of the
-<code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> as it is always constructed to be perpendicular to the
-<span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> plane.</p>
+orthogonal so the actual axis <span class="math notranslate nohighlight">\(\vec{e_x}\)</span> from which <span class="math notranslate nohighlight">\(\phi\)</span> is measured lies in the
+plane defined by <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> vectors and is orthogonal to <span class="math notranslate nohighlight">\(\vec{e_z}\)</span>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -718,49 +685,34 @@ plane defined by <span class="math notranslate nohighlight">\(u\)</span>-<span c
 <span class="math notranslate nohighlight">\([0,1,0]\)</span> respectively.</p>
 </div>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p>
-<p>Three character string denoting the the projection normalization of each
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>  Three character string denoting the the projection normalization of each
 dimension, one character for each directions, e.g. <code class="docutils literal notranslate"><span class="pre">'add'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arr'</span></code>, <code class="docutils literal notranslate"><span class="pre">'adr'</span></code>.</p>
 <p>At the moment there is only one possible option for the first (length) component of <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
-<ol class="arabic">
-<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code></p>
-<p>Inverse angstroms.</p>
-</li>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code>     Inverse angstroms.</p></li>
 </ol>
 <p>There are 2 possible options for the second and third (angular) components of
 <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
-<ol class="arabic">
-<li><p><code class="docutils literal notranslate"><span class="pre">'d'</span></code></p>
-<p>Degrees</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code></p>
-<p>Radians</p>
-</li>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'d'</span></code>     Degrees</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code>     Radians</p></li>
 </ol>
 <p>For example, if we wanted the <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span>-component to be in inverse angstroms and
 the angles in degrees we would have <code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">=</span> <span class="pre">'add'</span></code>.</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">alatt</span></code></p>
-<p>3-vector of lattice parameters.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">angdeg</span></code></p>
-<p>3-vector of lattice angles in degrees.</p>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alatt</span></code>  3-vector of lattice parameters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angdeg</span></code> 3-vector of lattice angles in degrees.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In general, you should not need to define <code class="docutils literal notranslate"><span class="pre">alatt</span></code> or <code class="docutils literal notranslate"><span class="pre">angdeg</span></code>; by default
-they will be taken from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object during a <code class="docutils literal notranslate"><span class="pre">cut</span></code>. However, there
-are cases where a projection object may need to be reused elsewhere.</p>
+<p>when cutting, you should not need to define <code class="docutils literal notranslate"><span class="pre">alatt</span></code> or <code class="docutils literal notranslate"><span class="pre">angdeg</span></code>; by default
+they will be taken from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object during a <code class="docutils literal notranslate"><span class="pre">cut</span></code> and your setting will be overwritten.
+However, there are cases where a projection object may need to be reused elsewhere.</p>
 </div>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code></p>
-<p>3-vector in <span class="math notranslate nohighlight">\((h,k,l)\)</span> or 4-vector in <span class="math notranslate nohighlight">\((h,k,l,e)\)</span> defining the
-origin of the projection coordinate system.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code>, etc.</p>
-<p>See <a class="reference internal" href="#plotargs"><span class="std std-ref">above</span></a>.</p>
-</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code>  3-vector in <span class="math notranslate nohighlight">\((h,k,l)\)</span> or 4-vector in <span class="math notranslate nohighlight">\((h,k,l,e)\)</span> defining the
+origin of the projection coordinate system.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code>, etc.  See <a class="reference internal" href="#plotargs"><span class="std std-ref">description for plot arguments above</span></a>.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -789,52 +741,46 @@ positional or keyword arguments</span></a>. However the same
 recommendation applies that positionals should only be used to
 define <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> defines a spherical coordinate system, where:</p>
-<ul>
-<li><p><span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span></p>
-<p>The radius from the origin (<code class="docutils literal notranslate"><span class="pre">offset</span></code>) in <span class="math notranslate nohighlight">\(hkl\)</span></p>
-</li>
-<li><p><span class="math notranslate nohighlight">\(\theta\)</span></p>
-<p>The angle measured from <span class="math notranslate nohighlight">\(\vec{u}\)</span> to the vector (<span class="math notranslate nohighlight">\(\vec{q}\)</span>),
-which means a <span class="math notranslate nohighlight">\(\theta\)</span> value of <span class="math notranslate nohighlight">\(0^{\circ}\)</span> means that <span class="math notranslate nohighlight">\(\vec{q}\)</span> is parallel
-to <span class="math notranslate nohighlight">\(\vec{u}\)</span>; and a <span class="math notranslate nohighlight">\(\theta\)</span> value of <span class="math notranslate nohighlight">\(90^{\circ}\)</span> means that
-<span class="math notranslate nohighlight">\(\vec{q}\)</span> is perpendicular to <span class="math notranslate nohighlight">\(\vec{u}\)</span>.</p>
-<p>Mathematically this is defined as:</p>
-<div class="math notranslate nohighlight">
-\[\cos\left(\theta{}\right) = \frac{\vec{q}\cdot\vec{u}}{\left|q\right|\cdot\left|u\right|}\]</div>
-</li>
-<li><p><span class="math notranslate nohighlight">\(\phi\)</span></p>
-<p>The angle measured between the <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> plane to the vector
-(<span class="math notranslate nohighlight">\(\vec{q}\)</span>), i.e. <span class="math notranslate nohighlight">\(0^{\circ}\)</span> means that <span class="math notranslate nohighlight">\(\vec{q}\)</span> lies in the <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span>
-plane and <span class="math notranslate nohighlight">\(90^{\circ}\)</span> means that <span class="math notranslate nohighlight">\(\vec{q}\)</span> is normal
-to the <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> plane
-(i.e. parallel to <span class="math notranslate nohighlight">\(w\)</span>).</p>
-<p>Mathematically this is defined as:</p>
-<div class="math notranslate nohighlight">
-\[\cos\left(\phi{}\right) = \frac{\vec{p} \cdot{} \left(\vec{w} \times{} \vec{u} \right)}
-                               {\vec{q} \cdot{} \vec{w} \times{} \vec{u}}\]</div>
-<p>where <span class="math notranslate nohighlight">\(\vec{p}\)</span> is the projection of <span class="math notranslate nohighlight">\(\vec{q}\)</span> onto the meridian
-plane (the dashed line <a class="reference external" href="#fig-sphere-coodinates">below</a>), given by:</p>
-<div class="math notranslate nohighlight">
-\[\vec{p} = \frac{\vec{q}\cdot{}\vec{u}}{\left|u\right|^2}\vec{u}\]</div>
-</li>
-<li><p><span class="math notranslate nohighlight">\(E\)</span></p>
-<p>The energy transfer as defined in <code class="docutils literal notranslate"><span class="pre">line_proj</span></code></p>
-</li>
+<p>A <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> defines a coordinate system which represents
+momentum transfer vector <span class="math notranslate nohighlight">\(\vec{Q}\)</span> in spherical coordinates.
+<code class="docutils literal notranslate"><span class="pre">offset</span></code> defines the zero point of the coordinate system.
+If <code class="docutils literal notranslate"><span class="pre">offset</span></code> is zero, <span class="math notranslate nohighlight">\(\vec{Q}\)</span> is the vector of momentum
+transfer from the neutron to the magnetic or phononic excitations as
+measured in the experiment.
+The energy transfer coordinate for <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> is the same as in
+linear coordinates.</p>
+<p>Because the reciprocal lattice may be non-orthogonal (depending on the
+sample), we follow common crystallography practice and introduce an
+auxiliary orthogonal coordinate system defined below. This serves as
+the basis for calculating spherical coordinates.
+The basis vector <span class="math notranslate nohighlight">\(\vec{e_z}\)</span> is a unit vector parallel to
+<span class="math notranslate nohighlight">\(\vec{u}\)</span>. The basis vector <span class="math notranslate nohighlight">\(\vec{e_x}\)</span> is a unit vector
+orthogonal to <span class="math notranslate nohighlight">\(\vec{e_z}\)</span> which lies in the plane defined by
+<span class="math notranslate nohighlight">\(\vec{u}\)</span> and <span class="math notranslate nohighlight">\(\vec{v}\)</span> (see <a class="reference internal" href="#fig-sphere-coodinates"><span class="std std-ref">spherical coordinates</span></a> below).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When the crystal lattice is orthogonal, the vector
+<span class="math notranslate nohighlight">\(\vec{e_z}\)</span> is parallel to <span class="math notranslate nohighlight">\(\vec{u}\)</span> and vector
+<span class="math notranslate nohighlight">\(\vec{e_x}\)</span> is parallel to <span class="math notranslate nohighlight">\(\vec{v}\)</span>.</p>
+</div>
+<p>Then <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> coordinates are:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span> – The radius from the origin (<code class="docutils literal notranslate"><span class="pre">offset</span></code>) in <span class="math notranslate nohighlight">\(hkl\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\theta\)</span>  – The angle measured from <span class="math notranslate nohighlight">\(\vec{e_z}\)</span> to the vector (<span class="math notranslate nohighlight">\(\vec{Q}\)</span>),
+i.e. <span class="math notranslate nohighlight">\(0^{\circ}\)</span> is parallel to <span class="math notranslate nohighlight">\(\vec{e_z}\)</span> and <span class="math notranslate nohighlight">\(90^{\circ}\)</span> is
+perpendicular to <span class="math notranslate nohighlight">\(\vec{u}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\phi\)</span> –  The angle measured between the vector <span class="math notranslate nohighlight">\(\vec{Q_\perp}=\vec{Q}-\vec{e_z}(\vec{e_z}\cdot \vec{Q})\)</span>
+and the plane <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span>, i.e. vector <span class="math notranslate nohighlight">\(\vec{Q_\perp}\)</span> with <span class="math notranslate nohighlight">\(\phi = 0^{\circ}\)</span> lies in the <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span> plane and vector <span class="math notranslate nohighlight">\(\vec{Q_\perp}\)</span> with <span class="math notranslate nohighlight">\(\phi = 90^{\circ}\)</span> is normal to <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span> plane.
+(parallel to <span class="math notranslate nohighlight">\(\vec{e_y}\)</span>)</p></li>
+<li><p><span class="math notranslate nohighlight">\(E\)</span>  – The energy transfer as defined in <code class="docutils literal notranslate"><span class="pre">line_proj</span></code></p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\theta\)</span> lies in the range between <span class="math notranslate nohighlight">\(0^{\circ}\)</span> and
-<span class="math notranslate nohighlight">\(180^{\circ}\)</span>.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\phi\)</span> lies in the range between <span class="math notranslate nohighlight">\(-180^{\circ}\)</span> and
-<span class="math notranslate nohighlight">\(180^{\circ}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\theta\)</span> lies in the range between <span class="math notranslate nohighlight">\(0^{\circ}\)</span> and   <span class="math notranslate nohighlight">\(180^{\circ}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\phi\)</span> lies in the range between <span class="math notranslate nohighlight">\(-180^{\circ}\)</span> and  <span class="math notranslate nohighlight">\(180^{\circ}\)</span>.</p></li>
 </ul>
-<p>In radians, that is:</p>
-<ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\theta\)</span> lies in the range between <span class="math notranslate nohighlight">\(0\)</span> and <span class="math notranslate nohighlight">\(\pi\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(\phi\)</span> lies in the range between <span class="math notranslate nohighlight">\(-\pi\)</span> and <span class="math notranslate nohighlight">\(\pi\)</span>.</p></li>
-</ul>
+<p>Where the <code class="docutils literal notranslate"><span class="pre">type</span></code> of an angular axis is <code class="docutils literal notranslate"><span class="pre">r</span></code> these values are the equivalent in radians.</p>
 </div>
 <figure class="align-center" id="id9">
 <span id="fig-sphere-coodinates"></span><a class="reference internal image-reference" href="../_images/sphere_proj_coordinates.png"><img alt="spherical coordinate system." src="../_images/sphere_proj_coordinates.png" style="width: 400px;" /></a>
@@ -842,6 +788,17 @@ plane (the dashed line <a class="reference external" href="#fig-sphere-coodinate
 <p><span class="caption-text">Spherical coordinate system used by <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code></span><a class="headerlink" href="#id9" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
+<p>An alternative description of the spherical coordinate system may be found on MATLAB help pages.
+Horace uses MATLAB methods <code class="docutils literal notranslate"><span class="pre">cart2sph</span></code> and <code class="docutils literal notranslate"><span class="pre">sph2cart</span></code> to convert an array of vectors expressed
+in Cartesian coordinate system to spherical coordinate system and back.
+The formulas, used by these methods together with the image of the used coordinate system is provided
+<a class="reference external" href="https://uk.mathworks.com/help/matlab/ref/cart2sph.html">on MATLAB “cart2sph” help pages</a>.
+MATLAB uses <code class="docutils literal notranslate"><span class="pre">elevation</span></code> angle which is related to <span class="math notranslate nohighlight">\(\theta\)</span> angle used by Horace by relation:</p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(\theta = 90-elevation\)</span></p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">azimuth</span></code> angle form <a class="reference external" href="https://uk.mathworks.com/help/matlab/ref/cart2sph.html">MATLAB help pages</a>
+is equivalent to Horace <span class="math notranslate nohighlight">\(\phi\)</span> angle.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>A spherical projection currently does not have the ability to be rescaled in
@@ -864,6 +821,7 @@ arguments</a>). However:</p>
 <li><p><span class="math notranslate nohighlight">\(\phi\)</span> runs between <span class="math notranslate nohighlight">\([-180, 180]\)</span></p></li>
 </ul>
 <p>Attempting to specify binning outside of these ranges will fail.</p>
+<p>Where the <code class="docutils literal notranslate"><span class="pre">type</span></code> of an angular axis is <code class="docutils literal notranslate"><span class="pre">r</span></code> these values are the equivalent in radians.</p>
 </div>
 <section id="sphere-proj-2d-and-1d-cuts-examples">
 <h5><span class="section-number">5.1.5.2.1. </span><code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> 2D and 1D cuts examples:<a class="headerlink" href="#sphere-proj-2d-and-1d-cuts-examples" title="Permalink to this heading"></a></h5>
@@ -970,24 +928,22 @@ centre at <span class="math notranslate nohighlight">\([0,-1,1]\)</span>.</span>
 <section id="cylindrical-projections">
 <h4><span class="section-number">5.1.5.3. </span>Cylindrical Projections<a class="headerlink" href="#cylindrical-projections" title="Permalink to this heading"></a></h4>
 <p>In order to construct a cylindrical projection (i.e. a projection in
-<span class="math notranslate nohighlight">\(\vec{q}_{\perp}\)</span> (the radial distance from the polar axis),
-<span class="math notranslate nohighlight">\(\vec{q}_{\|}\)</span> (distance from origin along the polar axis), <span class="math notranslate nohighlight">\(\phi\)</span>
+<span class="math notranslate nohighlight">\(\vec{Q}_{\perp}\)</span> (the radial distance from the polar axis),
+<span class="math notranslate nohighlight">\(\vec{Q}_{\|}\)</span> (distance from origin along the polar axis), <span class="math notranslate nohighlight">\(\phi\)</span>
 (azimuthal angle) and <span class="math notranslate nohighlight">\(E\)</span>) coordinate system we create a projection in a
-similar way to the <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, but use the <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> function.</p>
+similar way to the <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, but use the <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> class.</p>
 <p>The complete signature for <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> is:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">([</span><span class="n">u</span><span class="p">][,</span><span class="w"> </span><span class="n">v</span><span class="p">][,</span><span class="w"> </span><span class="nb">type</span><span class="p">][,</span><span class="w"> </span><span class="n">alatt</span><span class="p">][,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">][,</span><span class="w"> </span><span class="n">offset</span><span class="p">][,</span><span class="w"> </span><span class="n">label</span><span class="p">][,</span><span class="w"> </span><span class="nb">title</span><span class="p">][,</span><span class="w"> </span><span class="n">lab1</span><span class="p">][,</span><span class="w"> </span><span class="n">lab2</span><span class="p">][,</span><span class="w"> </span><span class="n">lab3</span><span class="p">][,</span><span class="w"> </span><span class="n">lab4</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>where:</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code></p>
-<p>The vector <span class="math notranslate nohighlight">\(\vec{u}\)</span> is the reciprocal space vector defining the
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code>  The vector <span class="math notranslate nohighlight">\(\vec{u}\)</span> is the reciprocal space vector defining the
 polar-axis of the cylindrical coordinate system along which
-<span class="math notranslate nohighlight">\(\vec{q}_{\|}\)</span> is measured.</p>
+<span class="math notranslate nohighlight">\(\vec{Q}_{\|}\)</span> is measured.</p>
 <p>See the <a class="reference internal" href="#fig-cylinder-coodinates"><span class="std std-ref">diagram below</span></a> for details.</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code></p>
-<p>The vector <span class="math notranslate nohighlight">\(\vec{v}\)</span> is the reciprocal space vector which defines the second
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code>  The vector <span class="math notranslate nohighlight">\(\vec{v}\)</span> is the reciprocal space vector which defines the second
 component of the <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> plane from which <span class="math notranslate nohighlight">\(\phi\)</span> is measured.</p>
 <p>See the <a class="reference internal" href="#fig-cylinder-coodinates"><span class="std std-ref">diagram below</span></a> for details.</p>
 </li>
@@ -1005,35 +961,24 @@ plane defined by <span class="math notranslate nohighlight">\(u\)</span>-<span c
 <span class="math notranslate nohighlight">\([0,1,0]\)</span> respectively.</p>
 </div>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p>
-<p>Three character string denoting the the projection normalization of each
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>  Three character string denoting the the projection normalization of each
 dimension, one character for each directions, e.g. <code class="docutils literal notranslate"><span class="pre">'aad'</span></code> or <code class="docutils literal notranslate"><span class="pre">'aar'</span></code>.</p>
 <p>At the moment there is only one possible option implemented for the length
 components (<span class="math notranslate nohighlight">\(q_{\perp}\)</span> and <span class="math notranslate nohighlight">\(q_{\|}\)</span>) of <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
-<ol class="arabic">
-<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code></p>
-<p>Inverse angstroms.</p>
-</li>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code>     Inverse angstroms.</p></li>
 </ol>
 <p>There are 2 possible options for the third (angular) component of
 <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
-<ol class="arabic">
-<li><p><code class="docutils literal notranslate"><span class="pre">'d'</span></code></p>
-<p>Degrees</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code></p>
-<p>Radians</p>
-</li>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'d'</span></code>   Degrees</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code>   Radians</p></li>
 </ol>
 <p>For example, if we wanted the length components to be in inverse angstroms and
 the angles in degrees we would have <code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">=</span> <span class="pre">'aad'</span></code>.</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">alatt</span></code></p>
-<p>3-vector of lattice parameters.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">angdeg</span></code></p>
-<p>3-vector of lattice angles in degrees.</p>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alatt</span></code>   3-vector of lattice parameters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angdeg</span></code>  3-vector of lattice angles in degrees.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1042,12 +987,10 @@ they will be taken from the <code class="docutils literal notranslate"><span cla
 are cases where a projection object may need to be reused elsewhere.</p>
 </div>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code></p>
-<p>3-vector in <span class="math notranslate nohighlight">\((h,k,l)\)</span> or 4-vector in <span class="math notranslate nohighlight">\((h,k,l,e)\)</span> defining the
-origin of the projection coordinate system.</p>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code>  3-vector in <span class="math notranslate nohighlight">\((h,k,l)\)</span> or 4-vector in <span class="math notranslate nohighlight">\((h,k,l,e)\)</span> defining the
+origin of the projection coordinate system.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">label</span></code>, etc.</p>
-<p>See <a class="reference internal" href="#plotargs"><span class="std std-ref">above</span></a>.</p>
+<p>See <a class="reference internal" href="#plotargs"><span class="std std-ref">other plot arguments above</span></a>.</p>
 </li>
 </ul>
 <div class="admonition note">
@@ -1077,44 +1020,43 @@ positional or keyword arguments</span></a>. However the same
 recommendation applies that positionals should only be used to
 define <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
 </div>
+<p>A <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> defines a coordinate system which represents the
+momentum transfer vector <span class="math notranslate nohighlight">\(\vec{Q}\)</span> in cylindrical coordinates.
+<code class="docutils literal notranslate"><span class="pre">offset</span></code> defines the zero point of the coordinate system.
+If <code class="docutils literal notranslate"><span class="pre">offset</span></code> is zero, <span class="math notranslate nohighlight">\(\vec{Q}\)</span> is the vector of momentum
+transfer from the neutron to the magnetic or phononic excitations as
+measured in the experiment.
+The energy transfer coordinate for <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> is the same as in
+linear coordinates.</p>
+<p>As we do for <a class="reference internal" href="#spherical-projections"><span class="std std-ref">spherical projections</span></a>, we
+introduce an auxiliary orthogonal coordinate system where: the basis
+vector <span class="math notranslate nohighlight">\(\vec{e_z}\)</span> is a unit vector parallel to <span class="math notranslate nohighlight">\(\vec{u}\)</span>
+and the basis vector <span class="math notranslate nohighlight">\(\vec{e_x}\)</span> is orthogonal to
+<span class="math notranslate nohighlight">\(\vec{e_z}\)</span> and lies in the plane defined by <span class="math notranslate nohighlight">\(\vec{u}\)</span> and
+<span class="math notranslate nohighlight">\(\vec{v}\)</span> (see <a class="reference internal" href="#fig-cylinder-coodinates"><span class="std std-ref">cylindrical coordinates</span></a> below).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When the crystal lattice is orthogonal, the vector
+<span class="math notranslate nohighlight">\(\vec{e_z}\)</span> is parallel to <span class="math notranslate nohighlight">\(\vec{u}\)</span> and vector
+<span class="math notranslate nohighlight">\(\vec{e_x}\)</span> is parallel to <span class="math notranslate nohighlight">\(\vec{v}\)</span>.</p>
+</div>
 <p><code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> defines a cylindrical coordinate system, where:</p>
-<ul>
-<li><p><span class="math notranslate nohighlight">\(q_{\|}\)</span></p>
-<p>The length along the polar axis <span class="math notranslate nohighlight">\(\vec{u}\)</span> to <span class="math notranslate nohighlight">\(\vec{q}\)</span> relative to
-the origin (<code class="docutils literal notranslate"><span class="pre">offset</span></code>) in <span class="math notranslate nohighlight">\(hkl\)</span></p>
-<p>Mathematically, this is defined as:</p>
-<div class="math notranslate nohighlight">
-\[\vec{q_{\|}} = \frac{\left(\vec{q} \cdot{} \vec{u}\right)}
-                    {\left|u\right|}
-               \vec{u}\]</div>
-<div class="math notranslate nohighlight">
-\[q_{\|} = \left| \vec{q_{\|}} \right|\]</div>
-</li>
-<li><p><span class="math notranslate nohighlight">\(q_{\perp}\)</span></p>
-<p>The radial distance from the polar axis <span class="math notranslate nohighlight">\(\vec{u}\)</span> to <span class="math notranslate nohighlight">\(\vec{q}\)</span>
-relative to the origin (<code class="docutils literal notranslate"><span class="pre">offset</span></code>) in <span class="math notranslate nohighlight">\(hkl\)</span>.</p>
-<p>Mathematically, this is defined as:</p>
-<div class="math notranslate nohighlight">
-\[\vec{q_{\perp}} = \vec{q} - \vec{q_{\|}}\]</div>
-<div class="math notranslate nohighlight">
-\[q_{\perp} = \left| \vec{q_{\perp}} \right|\]</div>
-</li>
-<li><p><span class="math notranslate nohighlight">\(\phi\)</span></p>
-<p>The angle measured between the <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> plane to the vector
-(<span class="math notranslate nohighlight">\(\vec{q}\)</span>), i.e. <span class="math notranslate nohighlight">\(0^{\circ}\)</span> lies in the <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span>
-plane and <span class="math notranslate nohighlight">\(90^{\circ}\)</span> is normal to the <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> plane
-(i.e. parallel to <span class="math notranslate nohighlight">\(\vec{w}\)</span>).</p>
-<p>Mathematically this is defined as:</p>
-<div class="math notranslate nohighlight">
-\[\cos\left(\phi{}\right) = \frac{\vec{q_{\perp}} \cdot \left(\vec{w} \times \vec{u}\right)}
-                               {\left|\vec{q_{\perp}}\right|\left|\vec{u}\right|\left|\vec{w}\right|}\]</div>
-</li>
-<li><p><span class="math notranslate nohighlight">\(E\)</span>   is the energy transfer as defined in <code class="docutils literal notranslate"><span class="pre">line_proj</span></code></p></li>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\({Q_\perp}=|\vec{Q}-\vec{e_z}(\vec{e_z}\cdot \vec{Q})|\)</span>  –
+The length of the orthogonal to axis <span class="math notranslate nohighlight">\(\vec{e_z}\)</span> part of the momentum transfer
+<span class="math notranslate nohighlight">\(\vec{Q}\)</span> measured from the <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code>  origin (<code class="docutils literal notranslate"><span class="pre">offset</span></code>) in <span class="math notranslate nohighlight">\(hkl\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(Q_{\|}\)</span>  – The length of the projection of the momentum transfer <span class="math notranslate nohighlight">\(\vec{Q}\)</span> measured from the <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code>
+origin (<code class="docutils literal notranslate"><span class="pre">offset</span></code>) in <span class="math notranslate nohighlight">\(hkl\)</span> to <span class="math notranslate nohighlight">\(\vec{e_z}\)</span> axis of the <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(\phi\)</span> –  The angle measured between the vector <span class="math notranslate nohighlight">\(\vec{Q_\perp}\)</span> to
+the plane <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span> , i.e. <span class="math notranslate nohighlight">\(0^{\circ}\)</span> lies in the <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span>
+plane and <span class="math notranslate nohighlight">\(90^{\circ}\)</span> is normal to <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span> plane
+(i.e. parallel to <span class="math notranslate nohighlight">\(\vec{e_y}\)</span>).</p></li>
+<li><p><span class="math notranslate nohighlight">\(E\)</span>  – The energy transfer as defined in <code class="docutils literal notranslate"><span class="pre">line_proj</span></code></p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><span class="math notranslate nohighlight">\(\phi\)</span>  lies in the range between <span class="math notranslate nohighlight">\(-180^{\circ}\)</span> and <span class="math notranslate nohighlight">\(180^{\circ}\)</span>. The <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> settings
-allow to change these values to radians so <span class="math notranslate nohighlight">\(-\pi \leq \phi \leq \pi\)</span>.</p>
+<p><span class="math notranslate nohighlight">\(\phi\)</span>  lies in the range between <span class="math notranslate nohighlight">\(-180^{\circ}\)</span> and <span class="math notranslate nohighlight">\(180^{\circ}\)</span>.
+When the third component of <code class="docutils literal notranslate"><span class="pre">type</span></code> is <code class="docutils literal notranslate"><span class="pre">r</span></code>, these ranges are the equivalent in radians.</p>
 </div>
 <figure class="align-center" id="id14">
 <span id="fig-cylinder-coodinates"></span><a class="reference internal image-reference" href="../_images/cylinder_proj_coordinates.png"><img alt="cylindrical coordinate system." src="../_images/cylinder_proj_coordinates.png" style="width: 400px;" /></a>
@@ -1122,17 +1064,20 @@ allow to change these values to radians so <span class="math notranslate nohighl
 <p><span class="caption-text">Cylindrical coordinate system used by <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code></span><a class="headerlink" href="#id14" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
+<p>Similarly to <a class="reference internal" href="#fig-sphere-coodinates"><span class="std std-ref">Spherical coordinate system used by sphere_proj</span></a>, detailed description of the cylindrical coordinate system used by
+Horace together with the image of the used coordinate system are provided <a class="reference external" href="https://uk.mathworks.com/help/matlab/ref/cart2pol.html">on MATLAB “cart2pol/pol2cart” help pages</a>, as Horace uses these methods to convert array
+of vectors expressed in Cartesian coordinate system to cylindrical coordinate system and backward.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>A cylindrical projection currently does not have the ability to be
-rescaled in <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> or <span class="math notranslate nohighlight">\(Q_{||}\)</span> relative to the magnitude
+rescaled in <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> or <span class="math notranslate nohighlight">\(Q_{\|}\)</span> relative to the magnitude
 of <span class="math notranslate nohighlight">\(u\)</span> or <span class="math notranslate nohighlight">\(v\)</span> vectors.</p>
 </div>
 <p>When it comes to cutting and plotting, we can use a <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> in
 exactly the same way as we would a <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, but with one key
 difference. The binning arguments of <code class="docutils literal notranslate"><span class="pre">cut</span></code> no longer refer to
-<span class="math notranslate nohighlight">\(h,k,l,E\)</span>, but to <span class="math notranslate nohighlight">\(q_{\perp}\)</span>, <span class="math notranslate nohighlight">\(q_{\|}\)</span>, <span class="math notranslate nohighlight">\(\phi\)</span>, <span class="math notranslate nohighlight">\(E\)</span> variables.</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sp_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">,</span><span class="w"> </span><span class="n">Q_</span><span class="o">\</span><span class="n">perp</span><span class="p">,</span><span class="w"> </span><span class="n">Q_</span><span class="o">||</span><span class="p">,</span><span class="w"> </span><span class="n">phi</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">);</span>
+<span class="math notranslate nohighlight">\(h,k,l,E\)</span>, but to <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> (<code class="docutils literal notranslate"><span class="pre">Q_tr</span></code>), <span class="math notranslate nohighlight">\(Q_{\|}\)</span>, <span class="math notranslate nohighlight">\(\phi\)</span>, <span class="math notranslate nohighlight">\(E\)</span> variables.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sp_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">,</span><span class="w"> </span><span class="n">Q_tr</span><span class="p">,</span><span class="w"> </span><span class="n">Q_</span><span class="o">||</span><span class="p">,</span><span class="w"> </span><span class="n">phi</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">);</span>
 </pre></div>
 </div>
 <div class="admonition warning">
@@ -1140,10 +1085,10 @@ difference. The binning arguments of <code class="docutils literal notranslate">
 <p>The form of the arguments to <code class="docutils literal notranslate"><span class="pre">cut</span></code> is still the same (see: <a class="reference internal" href="#binning-arguments">Binning
 arguments</a>). However:</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(q_{\perp}\)</span> runs between <span class="math notranslate nohighlight">\([0, \infty)\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(\phi\)</span> runs between <span class="math notranslate nohighlight">\([-180, 180]\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(Q_{\perp}\)</span> (<code class="docutils literal notranslate"><span class="pre">Q_tr</span></code>) runs from <span class="math notranslate nohighlight">\([0, \infty)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\phi\)</span> runs between <span class="math notranslate nohighlight">\([-180, 180]\)</span>.</p></li>
 </ul>
-<p>requesting binning outside of these ranges will fail.</p>
+<p>Requesting binning outsize of these ranges will fail.</p>
 </div>
 <section id="cylinder-proj-2d-and-1d-cuts-examples">
 <h5><span class="section-number">5.1.5.3.1. </span><code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> 2D and 1D cuts examples:<a class="headerlink" href="#cylinder-proj-2d-and-1d-cuts-examples" title="Permalink to this heading"></a></h5>
@@ -1198,7 +1143,7 @@ function of <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> at d
 <span class="w">    </span><span class="n">amark</span><span class="p">(</span><span class="n">symbols</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
 <span class="w">    </span><span class="n">pd</span><span class="p">(</span><span class="n">w1</span><span class="p">(</span><span class="nb">i</span><span class="p">))</span>
 <span class="k">end</span>
-<span class="nb">legend</span><span class="p">(</span><span class="s">&#39;Q_{||}=-4&#39;</span><span class="p">,</span><span class="s">&#39;Q_{||}=-2&#39;</span><span class="p">,</span><span class="s">&#39;Q_{||}=0&#39;</span><span class="p">,</span><span class="s">&#39;Q_{||}=2&#39;</span><span class="p">);</span>
+<span class="nb">legend</span><span class="p">(</span><span class="s">&#39;Q_{\|}=-4&#39;</span><span class="p">,</span><span class="s">&#39;Q_{\|}=-2&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 <figure class="align-center" id="id16">
@@ -1207,11 +1152,6 @@ function of <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> at d
 <p><span class="caption-text">Cylindrical cuts along <span class="math notranslate nohighlight">\(Q_{\perp}\)</span></span><a class="headerlink" href="#id16" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The script above lets you take up to 4 cuts by changing <code class="docutils literal notranslate"><span class="pre">n_cuts</span></code>, here we
-present just two for clarify.</p>
-</div>
 </section>
 </section>
 </section>
@@ -1229,8 +1169,8 @@ integration ranges, and have to use <code class="docutils literal notranslate"><
 you have is to change the range of the plot axis by specifying
 <code class="docutils literal notranslate"><span class="pre">[lo1,0,hi1]</span></code> instead of <code class="docutils literal notranslate"><span class="pre">[]</span></code> (the ‘0’ means ‘use existing bin size’).</p>
 </div>
-<section id="changing-projections">
-<h4><span class="section-number">5.1.6.1. </span>Changing Projections<a class="headerlink" href="#changing-projections" title="Permalink to this heading"></a></h4>
+<section id="auto-binning-algorithm">
+<span id="bin-ranges-calculations"></span><h4><span class="section-number">5.1.6.1. </span>Auto-binning algorithm<a class="headerlink" href="#auto-binning-algorithm" title="Permalink to this heading"></a></h4>
 <p>When a <code class="docutils literal notranslate"><span class="pre">cut</span></code> will change projections (i.e. the source projection type is different
 or the principal-axes are not orthogonal to the target projection) there are a few things to be aware of,
 particularly when you specify automatic (<code class="docutils literal notranslate"><span class="pre">[]</span></code>, <code class="docutils literal notranslate"><span class="pre">[step]</span></code>) binning arguments.</p>
@@ -1245,7 +1185,7 @@ spherical projection, the meanings are:</p>
 <p class="rubric">Automatic Binning Arguments</p>
 <p>If you provide automatic binning arguments, an algorithm will attempt to
 create the minimum bounding shape in the new projection that entirely
-encapsulates the source projection. The parameters from this bounding shape
+encapsulates the source data. The parameters from this bounding shape
 will then be substituted into the places where automatic binning arguments are
 requested.</p>
 <div class="admonition warning">
@@ -1288,11 +1228,13 @@ remain a plot axis in the target projection, as expected.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>In contrast to cutting without a projection change, when changing
-projections <code class="docutils literal notranslate"><span class="pre">[]</span></code> and <code class="docutils literal notranslate"><span class="pre">[0]</span></code> have different meanings.</p>
+projections <code class="docutils literal notranslate"><span class="pre">[]</span></code> and <code class="docutils literal notranslate"><span class="pre">[0]</span></code> may behave differently.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code> will take the number of bins in the source dimension</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">[0]</span></code> will take the step length in the source dimension</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code> takes the number of bins in the source dimension</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[0]</span></code> takes the step length in the source dimension</p></li>
 </ul>
+<p>Without projection change this always produces reasonable result, but
+change in projection applies these values to different coordinate set.</p>
 <p>Cutting with <code class="docutils literal notranslate"><span class="pre">[0]</span></code> may lead to strange or incorrect results when
 changing projections. E.g. a q-step of <code class="docutils literal notranslate"><span class="pre">0.01</span></code> may be reasonable in a
 linear projection, but when transformed to a spherical or cylindrical
@@ -1317,9 +1259,11 @@ and issue a warning which looks like:</p>
 <span class="s"> This range may be inaccurate&#39;</span>
 </pre></div>
 </div>
-<p>The user must evaluate how acceptable this result is for the desired cut and
-if in doubt, specify the binning arguments manually to get their desired
-binning.</p>
+<p>Here, the first line shows the estimated lower bound
+and the second the estimated upper bound.</p>
+<p>The user must evaluate how acceptable this result is for
+the desired cut and if in doubt, specify the binning arguments manually to
+get their desired binning.</p>
 </div>
 </section>
 </section>
@@ -1410,7 +1354,7 @@ the range. The resulting image range will be <code class="docutils literal notra
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on May 20, 2024, 12:44:31 PM.
+      <span class="lastupdated">Last updated on May 28, 2024, 4:18:07 PM.
       </span></p>
   </div>
 
