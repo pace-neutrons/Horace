@@ -157,7 +157,7 @@ Binning arguments
 The binning arguments (``p1_bin``, ``p2_bin``, ``p3_bin`` and ``p4_bin``)
 specify the binning / integration ranges for the Q & Energy axes in **the target
 projection's** coordinate system (c.f. :ref:`Projection in more detail <Projection_in_details>` and
-`changing projections`_).
+`Auto-binning algorithm`_).
 
 Each can independently have one of four different forms below.
 
@@ -403,7 +403,7 @@ Where:
   1. ``'a'`` Inverse angstroms
 
   2. ``'r'``  Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
-     :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
+  :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
 
   3. ``'p'`` Preserve the values of ``u`` and ``v``
 
@@ -649,21 +649,21 @@ where:
    :math:`[0,1,0]` respectively.
 
 - ``type``  Three character string denoting the the projection normalization of each
-  dimension, one character for each directions, e.g. ``'add'``, ``'arr'``, ``'adr'``.
+  dimension, one character for each directions, e.g. ``'add'``, ``'hrr'``, ``'adr'``.
 
-  At the moment there is only one possible option for the first (length) component of ``type``:
+  There are 6 possible options defining scale for the value of the momentum transfer:
 
-  1. ``'a'``     Inverse angstroms.
+  1. ``'a'``  :math:`|Q|` is measured in inverse angstroms.
+  
+  2. ``'r'``  Reciprocal lattice units (r.l.u.) which normalises vector :math:`\vec{Q}` so that the scale is the maximal value of the :math:`\vec{u}` projection to the unit vectors directed along the reciprocal lattice vectors.
 
-  ..
-     2. ``'r'``
-
-        Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
-        :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
-
-     3. ``'p'``
-
-        Preserve the values of ``u`` and ``v``
+  3. ``'p'``   The scale is the length of the vector :math:`\vec{u}`
+  
+  4. ``'h'``   The scale is the length of the first vector of reciprocal lattice :math:`a^{*}`
+  
+  5. ``'k'``   The scale is the length of the second vector of reciprocal lattice :math:`b^{*}`  
+  
+  6. ``'l'``   The scale is the length of the third vector of reciprocal lattice :math:`c^{*}`    
 
   There are 2 possible options for the second and third (angular) components of
   ``type``:
@@ -705,7 +705,7 @@ where:
           sphere_proj with properties:
                  u: [1 0 0]
                  v: [0 1 0]
-              type: 'add'
+              type: 'pdd'
              alatt: []
             angdeg: []
             offset: [0 0 0 0]
@@ -789,10 +789,6 @@ MATLAB uses ``elevation`` angle which is related to :math:`\theta` angle used by
 ``azimuth`` angle form `MATLAB help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_
 is equivalent to Horace :math:`\phi` angle.
 
-.. note::
-
-   A spherical projection currently does not have the ability to be rescaled in
-   |Q| relative to the magnitude of :math:`u` or :math:`v`.
 
 When it comes to cutting and plotting, we can use a ``sphere_proj`` in
 exactly the same way as we would a ``line_proj``, but with one key
@@ -850,8 +846,8 @@ The following is an example using the :ref:`same data as above <datalink>`.
 .. code-block:: matlab
 
     data_source = 'Fe_ei401.sqw';
-    sp_proj = sphere_proj();
-    s2 = cut(data_source, sp_proj, [0, 0.1, 14], [0, 180], [-180, 180], [-10, 4, 400]);
+    sp_proj = sphere_proj([1,1,0]);
+    s2 = cut(data_source, sp_proj, [0, 0.02, 4.5], [0, 180], [-180, 180], [-10, 4, 400]);
     plot(s2);
 
 .. note::
@@ -866,16 +862,17 @@ This script produces the following plot:
    :alt: |Q|-dE cut.
 
    MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.
+   Note integrated spin-waves at :math:`[1,1,0]` locations.
 
 .. note::
 
    By default, energy transfer is expressed in meV, momentum transfer
-   :math:`\left|Q\right|` in inverse Angstroms (:math:`Å^{-1}`) and angles in
+   :math:`\left|Q\right|` in :math:`rlu`, scaled to the length of :math:`\vec{u}`-vector and angles in
    degrees (:math:`^\circ`).
 
 This figure shows that the energies of phonon excitations are located under
-50meV, some magnetic scattering is present at |Q| < 5 and spin waves follow the
-magnetic form factor.
+50meV, some magnetic scattering is observable at :math:`|Q| < 5Å^{-1}` and the spin
+waves are suppressed by the magnetic form factor.
 
 A spherical projection allows us to investigate the details of a particular spin
 wave, e.g. around the scattering point :math:`[0,-1,1]`.
@@ -883,7 +880,7 @@ wave, e.g. around the scattering point :math:`[0,-1,1]`.
 .. code-block:: matlab
 
     data_source = 'Fe_ei401.sqw';
-    sp_proj = sphere_proj();
+    sp_proj = sphere_proj('type','add');
     sp_proj.offset  = [0, -1, 1];
     s2 = cut(data_source, sp_proj, [0, 0.1, 2], [80, 90], [-180, 4, 180], [50, 60]);
     plot(s2);
