@@ -661,9 +661,9 @@ where:
   
   4. ``'h'``   The scale is the length of the first vector of reciprocal lattice :math:`a^{*}`
   
-  5. ``'k'``   The scale is the length of the second vector of reciprocal lattice :math:`b^{*}`  
+  5. ``'k'``   The scale is the length of the second vector of reciprocal lattice :math:`b^{*}`
   
-  6. ``'l'``   The scale is the length of the third vector of reciprocal lattice :math:`c^{*}`    
+  6. ``'l'``   The scale is the length of the third vector of reciprocal lattice :math:`c^{*}`
 
   There are 2 possible options for the second and third (angular) components of
   ``type``:
@@ -862,7 +862,7 @@ This script produces the following plot:
    :alt: |Q|-dE cut.
 
    MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.
-   Note integrated spin-waves at :math:`[1,1,0]` locations.
+   Note integrated spin-waves at :math:`[1,1,0]` locations, i.e. :math:`|Q|=1\ in\ |[1,1,0]*a^{*}|`. :math:`a^{*}=2.22Å^{-1}`
 
 .. note::
 
@@ -977,20 +977,20 @@ where:
 - ``type``  Three character string denoting the the projection normalization of each
   dimension, one character for each directions, e.g. ``'aad'`` or ``'aar'``.
 
-  At the moment there is only one possible option implemented for the length
-  components (:math:`q_{\perp}` and :math:`q_{\|}`) of ``type``:
+  Similarly to ``sphere_proj`` there are 6 possible options for scaling momentum transfer 
+  components (:math:`Q_{\perp}` and :math:`Q_{\|}`) of ``type(1)`` and ``type(2)`` values:
 
-  1. ``'a'``     Inverse angstroms.
+  1. ``'a'``  correspondent :math:`|Q|`-component is measured in inverse angstroms.
+  
+  2. ``'r'``  Reciprocal lattice units (r.l.u.) which normalises vector's component so that the scale is the maximal value of the projection of vector :math:`\vec{u}` for :math:`Q_{\|}` or vector :math:`\vec{v}` for :math:`Q_{\perp}` to the unit vectors directed along the reciprocal lattice vectors.
 
-  ..
-     2. ``'r'``
-
-        Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
-        :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
-
-     3. ``'p'``
-
-        Preserve the values of ``u`` and ``v``
+  3. ``'p'``   The scale is the length of the vector :math:`\vec{u}` for :math:`Q_{\perp}` or :math:`\vec{v}` for :math:`Q_{\|}` vectors.
+  
+  4. ``'h'``   The scale is the length of the first vector of reciprocal lattice :math:`a^{*}`
+  
+  5. ``'k'``   The scale is the length of the second vector of reciprocal lattice :math:`b^{*}`
+  
+  6. ``'l'``   The scale is the length of the third vector of reciprocal lattice :math:`c^{*}`
 
   There are 2 possible options for the third (angular) component of
   ``type``:
@@ -1025,7 +1025,7 @@ where:
 
    If you do not provide any arguments to ``cylinder_proj``, by default
    it will build a ``cylinder_proj`` with ``u=[1,0,0]``, ``v=[0,1,0]``,
-   ``type='aad'`` and ``offset=[0,0,0,0]``.
+   ``type='ppd'`` and ``offset=[0,0,0,0]``.
 
    .. code-block:: matlab
 
@@ -1035,7 +1035,7 @@ where:
           cylinder_proj with properties:
                  u: [1 0 0]
                  v: [0 1 0]
-              type: 'aad'
+              type: 'ppd'
              alatt: []
             angdeg: []
             offset: [0 0 0 0]
@@ -1107,16 +1107,10 @@ Similarly to :ref:`fig_sphere_coodinates`, detailed description of the cylindric
 Horace together with the image of the used coordinate system are provided `on MATLAB "cart2pol/pol2cart" help pages <https://uk.mathworks.com/help/matlab/ref/cart2pol.html>`_, as Horace uses these methods to convert array
 of vectors expressed in Cartesian coordinate system to cylindrical coordinate system and backward.
 
-.. note::
-
-   A cylindrical projection currently does not have the ability to be
-   rescaled in :math:`Q_{\perp}` or :math:`Q_{\|}` relative to the magnitude
-   of :math:`u` or :math:`v` vectors.
-
 When it comes to cutting and plotting, we can use a ``cylinder_proj`` in
 exactly the same way as we would a ``line_proj``, but with one key
 difference. The binning arguments of ``cut`` no longer refer to
-:math:`h,k,l,E`, but to :math:`Q_{\perp}` (``Q_tr``), :math:`Q_{\|}`, :math:`\phi`, :math:`E` variables.
+:math:`h,k,l,E`, but to :math:`Q_{\perp}` (``Q_tr``), :math:`Q_{\|}`, :math:`\phi` (``phi``), :math:`E` variables.
 
 .. code-block:: matlab
 
@@ -1147,7 +1141,7 @@ Taking the :ref:`previously used dataset <datalink>` and using the code:
 .. code-block:: matlab
 
     data_source = 'Fe_ei401.sqw';
-    cyl_proj = cylinder_proj();
+    cyl_proj = cylinder_proj('type','aad');
 
     %% A
 
@@ -1184,7 +1178,7 @@ function of :math:`Q_{\perp}` at different :math:`Q_{||}`:
 .. code-block:: matlab
 
     data_source ='Fe_ei401.sqw';
-    cyl_proj = cylinder_proj();
+    cyl_proj = cylinder_proj('type','aad');
     n_cuts = 2;
     w1 = repmat(sqw,1,n_cuts);
     colors = 'krgb';
