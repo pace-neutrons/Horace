@@ -40,9 +40,9 @@ end
 [azimuth,elevation,r] = cart2sph(pix_transf(1,:),pix_transf(2,:),pix_transf(3,:));
 
 if ndim == 4
-    pix_transf = [r*scales(1); scales(2)*(pi/2-elevation); azimuth*scales(3); pix_transf(4,:)];
+    pix_transf = [r/scales(1); scales(2)*(pi/2-elevation); azimuth*scales(3); pix_transf(4,:)];
 else
-    pix_transf = [r*scales(1); scales(2)*(pi/2-elevation); azimuth*scales(3)];
+    pix_transf = [r/scales(1); scales(2)*(pi/2-elevation); azimuth*scales(3)];
 end
 if input_is_obj
     if shift_ei

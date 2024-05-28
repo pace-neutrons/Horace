@@ -75,17 +75,23 @@ in_totvector=cell(1,4);
 % Create titling
 for j=1:4
     ax_type = type(j);
-    in_totvector{j} =  sprintf('in %s',obj.capt_units(ax_type));
+    angular_unit = (j == 2 || j == 3);
+    scale_present =  (abs(img_scales(j)-1) > small);
+    if scale_present && ~angular_unit
+        in_totvector{j} =  sprintf('in %.3g %s',img_scales(j),obj.capt_units(ax_type));
+    else
+        in_totvector{j} =  sprintf('in %s',obj.capt_units(ax_type));
+    end
     if ismember(j,pax) % pax
         ipax = find(j==pax(dax));
-        if j == 2 || j == 3
+        if angular_unit 
             if ax_type == 'd'
                 title_pax{ipax} = sprintf('%s%s',label{j},obj.capt_units(ax_type));
             else
                 title_pax{ipax} = sprintf('%s (%s)',label{j},obj.capt_units(ax_type));
             end
         else
-            if abs(img_scales(j)-1) > small
+            if scale_present
                 title_pax{ipax} = sprintf('%s in %.3g %s',label{j},img_scales(j),obj.capt_units(ax_type));
             else
                 title_pax{ipax} = sprintf('%s (%s)',label{j},obj.capt_units(ax_type));

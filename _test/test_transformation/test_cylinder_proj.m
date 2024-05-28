@@ -11,7 +11,33 @@ classdef test_cylinder_proj<TestCase
             end
             this=this@TestCase(name);
         end
+        %------------------------------------------------------------------
+        function test_scales_kl(~)
+            proj = cylinder_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','kld');
+            % length of b*,c*
+            assertElementsAlmostEqual(proj.img_scales,[1,2/3,180/pi]);
+        end
+        function test_scales_hk(~)
+            proj = cylinder_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','hkd');
+            % length of a*,b
+            assertElementsAlmostEqual(proj.img_scales,[2,1,180/pi]);
+        end
 
+        function test_scales_r(~)
+            proj = cylinder_proj([1,1,1],[-1,1,0],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','rrd');
+            % length of max|u*[e_h,e_k,e_l]| == 1
+            assertElementsAlmostEqual(proj.img_scales,[2,1,180/pi]);
+        end
+        function test_scales_p(~)
+            proj = cylinder_proj([1,1,0],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','ppd');
+            % length of |u| == 1
+            assertElementsAlmostEqual(proj.img_scales,[sqrt(2^2+1),1,180/pi]);
+        end
+        function test_scales_a(~)
+            proj = cylinder_proj([1,1,0],'angdeg',90,'type','aar');
+            % length of |u| == 1
+            assertElementsAlmostEqual(proj.img_scales,[1,1,1]);
+        end        
         %------------------------------------------------------------------
         function test_coord_transf_PixData_plus_offset(~)
             proj = cylinder_proj('alatt',2*pi,'angdeg',90);
@@ -135,7 +161,7 @@ classdef test_cylinder_proj<TestCase
         end
         %
         function test_set_direction_110_cub(~)
-            proj = cylinder_proj([1,-1,0],[1,1,0],'alatt',2*pi,'angdeg',90);
+            proj = cylinder_proj([1,-1,0],[1,1,0],'alatt',2*pi,'angdeg',90,'type','aad');
             assertEqual(proj.u,[1,-1,0])
             assertEqual(proj.v,[1, 1,0])
             ref_vec = [...
@@ -151,7 +177,7 @@ classdef test_cylinder_proj<TestCase
         end
         %
         function test_set_direction_010(~)
-            proj = cylinder_proj([0,1,0],[1,0,0]);
+            proj = cylinder_proj([0,1,0],[1,0,0],'type','aad');
             assertEqual(proj.u,[0,1,0])
             assertEqual(proj.v,[1,0,0])
             ref_vec = [...
@@ -165,7 +191,7 @@ classdef test_cylinder_proj<TestCase
         end
         %
         function test_set_direction_001(~)
-            proj = cylinder_proj([0,0,1],[1,0,0]);
+            proj = cylinder_proj([0,0,1],[1,0,0],'type','aad');
             assertEqual(proj.u,[0,0,1])
             assertEqual(proj.v,[1,0,0])
             ref_vec = [...
@@ -179,7 +205,7 @@ classdef test_cylinder_proj<TestCase
         end
 
         function test_empty_constructor(~)
-            proj = cylinder_proj();
+            proj = cylinder_proj('type','aad');
             assertEqual(proj.u,[1,0,0]);
             assertEqual(proj.v,[0,1,0])
 
