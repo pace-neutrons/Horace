@@ -26,12 +26,12 @@ classdef test_cylinder_proj<TestCase
         function test_scales_r(~)
             proj = cylinder_proj([1,1,1],[-1,1,0],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','rrd');
             % length of max|u*[e_h,e_k,e_l]| == 1
-            assertElementsAlmostEqual(proj.img_scales,[2,1,180/pi]);
+            assertElementsAlmostEqual(proj.img_scales,[1,2,180/pi]);
         end
         function test_scales_p(~)
             proj = cylinder_proj([1,1,0],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','ppd');
             % length of |u| == 1
-            assertElementsAlmostEqual(proj.img_scales,[sqrt(2^2+1),1,180/pi]);
+            assertElementsAlmostEqual(proj.img_scales,[1,sqrt(2^2+1),180/pi]);
         end
         function test_scales_a(~)
             proj = cylinder_proj([1,1,0],'angdeg',90,'type','aar');
