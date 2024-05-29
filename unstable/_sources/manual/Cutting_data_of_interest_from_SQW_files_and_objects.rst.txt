@@ -157,7 +157,7 @@ Binning arguments
 The binning arguments (``p1_bin``, ``p2_bin``, ``p3_bin`` and ``p4_bin``)
 specify the binning / integration ranges for the Q & Energy axes in **the target
 projection's** coordinate system (c.f. :ref:`Projection in more detail <Projection_in_details>` and
-`changing projections`_).
+`Auto-binning algorithm`_).
 
 Each can independently have one of four different forms below.
 
@@ -335,7 +335,7 @@ Where:
 - ``v``  3-vector in reciprocal space :math:`(h,k,l)` in the plane of the second viewing axis.
 
 - ``w``  3-vector in reciprocal space :math:`(h,k,l)` of the third viewing axis. If left empty
-  (``[]``) will default to :math:`\frac{\vec{u}}{|u|} \times \frac{\vec{v}}{|v|}`.
+  (``[]``) will default to :math:`\vec{w} = \frac{\vec{u}}{|u|} \times \frac{\vec{v}}{|v|}`.
 
 
 .. note::
@@ -403,7 +403,7 @@ Where:
   1. ``'a'`` Inverse angstroms
 
   2. ``'r'``  Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
-     :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
+  :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
 
   3. ``'p'`` Preserve the values of ``u`` and ``v``
 
@@ -649,21 +649,21 @@ where:
    :math:`[0,1,0]` respectively.
 
 - ``type``  Three character string denoting the the projection normalization of each
-  dimension, one character for each directions, e.g. ``'add'``, ``'arr'``, ``'adr'``.
+  dimension, one character for each directions, e.g. ``'add'``, ``'hrr'``, ``'adr'``.
 
-  At the moment there is only one possible option for the first (length) component of ``type``:
+  There are 6 possible options defining scale for the value of the momentum transfer:
 
-  1. ``'a'``     Inverse angstroms.
+  1. ``'a'``  :math:`|Q|` is measured in inverse angstroms.
+  
+  2. ``'r'``  Reciprocal lattice units (r.l.u.) which normalises vector :math:`\vec{Q}` so that the scale is the maximal value of the :math:`\vec{u}` projection to the unit vectors directed along the reciprocal lattice vectors.
 
-  ..
-     2. ``'r'``
-
-        Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
-        :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
-
-     3. ``'p'``
-
-        Preserve the values of ``u`` and ``v``
+  3. ``'p'``   The scale is the length of the vector :math:`\vec{u}`
+  
+  4. ``'h'``   The scale is the length of :math:`a^{*}`, the first vector of reciprocal lattice.
+  
+  5. ``'k'``   The scale is the length of :math:`b^{*}`, the second vector of reciprocal lattice. 
+  
+  6. ``'l'``   The scale is the length of :math:`c^{*}`, the third vector of reciprocal lattice.
 
   There are 2 possible options for the second and third (angular) components of
   ``type``:
@@ -705,7 +705,7 @@ where:
           sphere_proj with properties:
                  u: [1 0 0]
                  v: [0 1 0]
-              type: 'add'
+              type: 'pdd'
              alatt: []
             angdeg: []
             offset: [0 0 0 0]
@@ -789,10 +789,6 @@ MATLAB uses ``elevation`` angle which is related to :math:`\theta` angle used by
 ``azimuth`` angle form `MATLAB help pages <https://uk.mathworks.com/help/matlab/ref/cart2sph.html>`_
 is equivalent to Horace :math:`\phi` angle.
 
-.. note::
-
-   A spherical projection currently does not have the ability to be rescaled in
-   |Q| relative to the magnitude of :math:`u` or :math:`v`.
 
 When it comes to cutting and plotting, we can use a ``sphere_proj`` in
 exactly the same way as we would a ``line_proj``, but with one key
@@ -850,8 +846,8 @@ The following is an example using the :ref:`same data as above <datalink>`.
 .. code-block:: matlab
 
     data_source = 'Fe_ei401.sqw';
-    sp_proj = sphere_proj();
-    s2 = cut(data_source, sp_proj, [0, 0.1, 14], [0, 180], [-180, 180], [-10, 4, 400]);
+    sp_proj = sphere_proj([1,1,0]);
+    s2 = cut(data_source, sp_proj, [0, 0.02, 4.5], [0, 180], [-180, 180], [-10, 4, 400]);
     plot(s2);
 
 .. note::
@@ -866,16 +862,17 @@ This script produces the following plot:
    :alt: |Q|-dE cut.
 
    MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.
+   Note integrated spin-waves at :math:`[1,1,0]` locations, i.e. :math:`|Q|=1\ in\ |[1,1,0]*a^{*}|`, :math:`a^{*}=2.22Å^{-1}`
 
 .. note::
 
    By default, energy transfer is expressed in meV, momentum transfer
-   :math:`\left|Q\right|` in inverse Angstroms (:math:`Å^{-1}`) and angles in
+   :math:`\left|Q\right|` in :math:`rlu`, scaled to the length of :math:`\vec{u}`-vector and angles in
    degrees (:math:`^\circ`).
 
 This figure shows that the energies of phonon excitations are located under
-50meV, some magnetic scattering is present at |Q| < 5 and spin waves follow the
-magnetic form factor.
+50meV, some magnetic scattering is observable at :math:`|Q| < 5Å^{-1}` and the spin
+waves are suppressed by the magnetic form factor.
 
 A spherical projection allows us to investigate the details of a particular spin
 wave, e.g. around the scattering point :math:`[0,-1,1]`.
@@ -883,7 +880,7 @@ wave, e.g. around the scattering point :math:`[0,-1,1]`.
 .. code-block:: matlab
 
     data_source = 'Fe_ei401.sqw';
-    sp_proj = sphere_proj();
+    sp_proj = sphere_proj('type','add');
     sp_proj.offset  = [0, -1, 1];
     s2 = cut(data_source, sp_proj, [0, 0.1, 2], [80, 90], [-180, 4, 180], [50, 60]);
     plot(s2);
@@ -980,21 +977,21 @@ where:
 - ``type``  Three character string denoting the the projection normalization of each
   dimension, one character for each directions, e.g. ``'aad'`` or ``'aar'``.
 
-  At the moment there is only one possible option implemented for the length
-  components (:math:`q_{\perp}` and :math:`q_{\|}`) of ``type``:
+  Similarly to ``sphere_proj`` there are 6 possible options for scaling momentum transfer 
+  components (:math:`Q_{\perp}` and :math:`Q_{\|}`) of ``type(1)`` and ``type(2)`` values:
 
-  1. ``'a'``     Inverse angstroms.
+  1. ``'a'``  correspondent :math:`|Q|`-component is measured in inverse angstroms.
+  
+  2. ``'r'``  Reciprocal lattice units (r.l.u.) which normalises vector's component so that the scale is the maximal value of the projection of vector :math:`\vec{u}` for :math:`Q_{\|}` or vector :math:`\vec{v}` for :math:`Q_{\perp}` to the unit vectors directed along the reciprocal lattice vectors.
 
-  ..
-     2. ``'r'``
-
-        Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
-        :math:`|h|`, :math:`|k|` and :math:`|l|` is unity.
-
-     3. ``'p'``
-
-        Preserve the values of ``u`` and ``v``
-
+  3. ``'p'``   The scale is the length of the vector :math:`\vec{u}` for :math:`Q_{\perp}` or :math:`\vec{v}` for :math:`Q_{\|}` vectors.
+  
+  4. ``'h'``   The scale is the length of :math:`a^{*}`, the first vector of reciprocal lattice.
+  
+  5. ``'k'``   The scale is the length of :math:`b^{*}`, the second vector of reciprocal lattice. 
+  
+  6. ``'l'``   The scale is the length of :math:`c^{*}`, the third vector of reciprocal lattice.
+  
   There are 2 possible options for the third (angular) component of
   ``type``:
 
@@ -1028,7 +1025,7 @@ where:
 
    If you do not provide any arguments to ``cylinder_proj``, by default
    it will build a ``cylinder_proj`` with ``u=[1,0,0]``, ``v=[0,1,0]``,
-   ``type='aad'`` and ``offset=[0,0,0,0]``.
+   ``type='ppd'`` and ``offset=[0,0,0,0]``.
 
    .. code-block:: matlab
 
@@ -1038,7 +1035,7 @@ where:
           cylinder_proj with properties:
                  u: [1 0 0]
                  v: [0 1 0]
-              type: 'aad'
+              type: 'ppd'
              alatt: []
             angdeg: []
             offset: [0 0 0 0]
@@ -1110,16 +1107,10 @@ Similarly to :ref:`fig_sphere_coodinates`, detailed description of the cylindric
 Horace together with the image of the used coordinate system are provided `on MATLAB "cart2pol/pol2cart" help pages <https://uk.mathworks.com/help/matlab/ref/cart2pol.html>`_, as Horace uses these methods to convert array
 of vectors expressed in Cartesian coordinate system to cylindrical coordinate system and backward.
 
-.. note::
-
-   A cylindrical projection currently does not have the ability to be
-   rescaled in :math:`Q_{\perp}` or :math:`Q_{\|}` relative to the magnitude
-   of :math:`u` or :math:`v` vectors.
-
 When it comes to cutting and plotting, we can use a ``cylinder_proj`` in
 exactly the same way as we would a ``line_proj``, but with one key
 difference. The binning arguments of ``cut`` no longer refer to
-:math:`h,k,l,E`, but to :math:`Q_{\perp}` (``Q_tr``), :math:`Q_{\|}`, :math:`\phi`, :math:`E` variables.
+:math:`h,k,l,E`, but to :math:`Q_{\perp}` (``Q_tr``), :math:`Q_{\|}`, :math:`\phi` (``phi``), :math:`E` variables.
 
 .. code-block:: matlab
 
@@ -1150,7 +1141,7 @@ Taking the :ref:`previously used dataset <datalink>` and using the code:
 .. code-block:: matlab
 
     data_source = 'Fe_ei401.sqw';
-    cyl_proj = cylinder_proj();
+    cyl_proj = cylinder_proj('type','aad');
 
     %% A
 
@@ -1187,7 +1178,7 @@ function of :math:`Q_{\perp}` at different :math:`Q_{||}`:
 .. code-block:: matlab
 
     data_source ='Fe_ei401.sqw';
-    cyl_proj = cylinder_proj();
+    cyl_proj = cylinder_proj('type','aad');
     n_cuts = 2;
     w1 = repmat(sqw,1,n_cuts);
     colors = 'krgb';

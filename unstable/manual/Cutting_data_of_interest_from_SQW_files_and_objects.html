@@ -269,7 +269,7 @@ when making a cut.</p>
 <p>The binning arguments (<code class="docutils literal notranslate"><span class="pre">p1_bin</span></code>, <code class="docutils literal notranslate"><span class="pre">p2_bin</span></code>, <code class="docutils literal notranslate"><span class="pre">p3_bin</span></code> and <code class="docutils literal notranslate"><span class="pre">p4_bin</span></code>)
 specify the binning / integration ranges for the Q &amp; Energy axes in <strong>the target
 projection’s</strong> coordinate system (c.f. <a class="reference internal" href="#projection-in-details"><span class="std std-ref">Projection in more detail</span></a> and
-<a href="#id18"><span class="problematic" id="id19">`changing projections`_</span></a>).</p>
+<a class="reference internal" href="#auto-binning-algorithm">Auto-binning algorithm</a>).</p>
 <p>Each can independently have one of four different forms below.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -423,7 +423,7 @@ of linear coordinates from a set of basis vectors.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">u</span></code>  3-vector in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> specifying first viewing axis.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">v</span></code>  3-vector in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> in the plane of the second viewing axis.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">w</span></code>  3-vector in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> of the third viewing axis. If left empty
-(<code class="docutils literal notranslate"><span class="pre">[]</span></code>) will default to <span class="math notranslate nohighlight">\(\frac{\vec{u}}{|u|} \times \frac{\vec{v}}{|v|}\)</span>.</p></li>
+(<code class="docutils literal notranslate"><span class="pre">[]</span></code>) will default to <span class="math notranslate nohighlight">\(\vec{w} = \frac{\vec{u}}{|u|} \times \frac{\vec{v}}{|v|}\)</span>.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -482,8 +482,10 @@ the three <strong>Q</strong>-axes, one character for each axis, e.g. <code class
 <p>There are 3 possible options for each element of <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code> Inverse angstroms</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code>  Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
-<span class="math notranslate nohighlight">\(|h|\)</span>, <span class="math notranslate nohighlight">\(|k|\)</span> and <span class="math notranslate nohighlight">\(|l|\)</span> is unity.</p></li>
+</ol>
+<p>2. <code class="docutils literal notranslate"><span class="pre">'r'</span></code>  Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
+<span class="math notranslate nohighlight">\(|h|\)</span>, <span class="math notranslate nohighlight">\(|k|\)</span> and <span class="math notranslate nohighlight">\(|l|\)</span> is unity.</p>
+<ol class="arabic simple" start="3">
 <li><p><code class="docutils literal notranslate"><span class="pre">'p'</span></code> Preserve the values of <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code></p></li>
 </ol>
 <p>For example, if we wanted the first two <strong>Q</strong>-components to be in r.l.u. and
@@ -686,10 +688,15 @@ plane defined by <span class="math notranslate nohighlight">\(u\)</span>-<span c
 </div>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>  Three character string denoting the the projection normalization of each
-dimension, one character for each directions, e.g. <code class="docutils literal notranslate"><span class="pre">'add'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arr'</span></code>, <code class="docutils literal notranslate"><span class="pre">'adr'</span></code>.</p>
-<p>At the moment there is only one possible option for the first (length) component of <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
+dimension, one character for each directions, e.g. <code class="docutils literal notranslate"><span class="pre">'add'</span></code>, <code class="docutils literal notranslate"><span class="pre">'hrr'</span></code>, <code class="docutils literal notranslate"><span class="pre">'adr'</span></code>.</p>
+<p>There are 6 possible options defining scale for the value of the momentum transfer:</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code>     Inverse angstroms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code>  <span class="math notranslate nohighlight">\(|Q|\)</span> is measured in inverse angstroms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code>  Reciprocal lattice units (r.l.u.) which normalises vector <span class="math notranslate nohighlight">\(\vec{Q}\)</span> so that the scale is the maximal value of the <span class="math notranslate nohighlight">\(\vec{u}\)</span> projection to the unit vectors directed along the reciprocal lattice vectors.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'p'</span></code>   The scale is the length of the vector <span class="math notranslate nohighlight">\(\vec{u}\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'h'</span></code>   The scale is the length of <span class="math notranslate nohighlight">\(a^{*}\)</span>, the first vector of reciprocal lattice.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'k'</span></code>   The scale is the length of <span class="math notranslate nohighlight">\(b^{*}\)</span>, the second vector of reciprocal lattice.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'l'</span></code>   The scale is the length of <span class="math notranslate nohighlight">\(c^{*}\)</span>, the third vector of reciprocal lattice.</p></li>
 </ol>
 <p>There are 2 possible options for the second and third (angular) components of
 <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
@@ -725,7 +732,7 @@ it will build a <code class="docutils literal notranslate"><span class="pre">sph
 <span class="w">   </span><span class="n">sphere_proj</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="nb">properties</span><span class="p">:</span>
 <span class="w">          </span><span class="n">u</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
 <span class="w">          </span><span class="n">v</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
-<span class="w">       </span><span class="nb">type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;add&#39;</span>
+<span class="w">       </span><span class="nb">type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pdd&#39;</span>
 <span class="w">      </span><span class="n">alatt</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="w">     </span><span class="n">angdeg</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="w">     </span><span class="n">offset</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
@@ -799,11 +806,6 @@ MATLAB uses <code class="docutils literal notranslate"><span class="pre">elevati
 </div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">azimuth</span></code> angle form <a class="reference external" href="https://uk.mathworks.com/help/matlab/ref/cart2sph.html">MATLAB help pages</a>
 is equivalent to Horace <span class="math notranslate nohighlight">\(\phi\)</span> angle.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>A spherical projection currently does not have the ability to be rescaled in
-<span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span> relative to the magnitude of <span class="math notranslate nohighlight">\(u\)</span> or <span class="math notranslate nohighlight">\(v\)</span>.</p>
-</div>
 <p>When it comes to cutting and plotting, we can use a <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> in
 exactly the same way as we would a <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, but with one key
 difference. The binning arguments of <code class="docutils literal notranslate"><span class="pre">cut</span></code> no longer refer to
@@ -849,8 +851,8 @@ integration, rather than treating it as powder data.</p>
 </div>
 <p>The following is an example using the <a class="reference internal" href="#datalink"><span class="std std-ref">same data as above</span></a>.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;Fe_ei401.sqw&#39;</span><span class="p">;</span>
-<span class="n">sp_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">();</span>
-<span class="n">s2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">14</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">400</span><span class="p">]);</span>
+<span class="n">sp_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">s2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.02</span><span class="p">,</span><span class="w"> </span><span class="mf">4.5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">400</span><span class="p">]);</span>
 <span class="nb">plot</span><span class="p">(</span><span class="n">s2</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -862,22 +864,23 @@ integration, rather than treating it as powder data.</p>
 <figure class="align-center" id="id10">
 <a class="reference internal image-reference" href="../_images/powder_avrg.png"><img alt="|Q|-dE cut." src="../_images/powder_avrg.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.</span><a class="headerlink" href="#id10" title="Permalink to this image"></a></p>
+<p><span class="caption-text">MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.
+Note integrated spin-waves at <span class="math notranslate nohighlight">\([1,1,0]\)</span> locations, i.e. <span class="math notranslate nohighlight">\(|Q|=1\ in\ |[1,1,0]*a^{*}|\)</span>, <span class="math notranslate nohighlight">\(a^{*}=2.22Å^{-1}\)</span></span><a class="headerlink" href="#id10" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default, energy transfer is expressed in meV, momentum transfer
-<span class="math notranslate nohighlight">\(\left|Q\right|\)</span> in inverse Angstroms (<span class="math notranslate nohighlight">\(Å^{-1}\)</span>) and angles in
+<span class="math notranslate nohighlight">\(\left|Q\right|\)</span> in <span class="math notranslate nohighlight">\(rlu\)</span>, scaled to the length of <span class="math notranslate nohighlight">\(\vec{u}\)</span>-vector and angles in
 degrees (<span class="math notranslate nohighlight">\(^\circ\)</span>).</p>
 </div>
 <p>This figure shows that the energies of phonon excitations are located under
-50meV, some magnetic scattering is present at <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span> &lt; 5 and spin waves follow the
-magnetic form factor.</p>
+50meV, some magnetic scattering is observable at <span class="math notranslate nohighlight">\(|Q| &lt; 5Å^{-1}\)</span> and the spin
+waves are suppressed by the magnetic form factor.</p>
 <p>A spherical projection allows us to investigate the details of a particular spin
 wave, e.g. around the scattering point <span class="math notranslate nohighlight">\([0,-1,1]\)</span>.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;Fe_ei401.sqw&#39;</span><span class="p">;</span>
-<span class="n">sp_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">();</span>
+<span class="n">sp_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">(</span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="s">&#39;add&#39;</span><span class="p">);</span>
 <span class="n">sp_proj</span><span class="p">.</span><span class="n">offset</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span>
 <span class="n">s2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">80</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
 <span class="nb">plot</span><span class="p">(</span><span class="n">s2</span><span class="p">);</span>
@@ -963,10 +966,15 @@ plane defined by <span class="math notranslate nohighlight">\(u\)</span>-<span c
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>  Three character string denoting the the projection normalization of each
 dimension, one character for each directions, e.g. <code class="docutils literal notranslate"><span class="pre">'aad'</span></code> or <code class="docutils literal notranslate"><span class="pre">'aar'</span></code>.</p>
-<p>At the moment there is only one possible option implemented for the length
-components (<span class="math notranslate nohighlight">\(q_{\perp}\)</span> and <span class="math notranslate nohighlight">\(q_{\|}\)</span>) of <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
+<p>Similarly to <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> there are 6 possible options for scaling momentum transfer
+components (<span class="math notranslate nohighlight">\(Q_{\perp}\)</span> and <span class="math notranslate nohighlight">\(Q_{\|}\)</span>) of <code class="docutils literal notranslate"><span class="pre">type(1)</span></code> and <code class="docutils literal notranslate"><span class="pre">type(2)</span></code> values:</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code>     Inverse angstroms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code>  correspondent <span class="math notranslate nohighlight">\(|Q|\)</span>-component is measured in inverse angstroms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code>  Reciprocal lattice units (r.l.u.) which normalises vector’s component so that the scale is the maximal value of the projection of vector <span class="math notranslate nohighlight">\(\vec{u}\)</span> for <span class="math notranslate nohighlight">\(Q_{\|}\)</span> or vector <span class="math notranslate nohighlight">\(\vec{v}\)</span> for <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> to the unit vectors directed along the reciprocal lattice vectors.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'p'</span></code>   The scale is the length of the vector <span class="math notranslate nohighlight">\(\vec{u}\)</span> for <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> or <span class="math notranslate nohighlight">\(\vec{v}\)</span> for <span class="math notranslate nohighlight">\(Q_{\|}\)</span> vectors.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'h'</span></code>   The scale is the length of <span class="math notranslate nohighlight">\(a^{*}\)</span>, the first vector of reciprocal lattice.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'k'</span></code>   The scale is the length of <span class="math notranslate nohighlight">\(b^{*}\)</span>, the second vector of reciprocal lattice.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'l'</span></code>   The scale is the length of <span class="math notranslate nohighlight">\(c^{*}\)</span>, the third vector of reciprocal lattice.</p></li>
 </ol>
 <p>There are 2 possible options for the third (angular) component of
 <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
@@ -997,14 +1005,14 @@ origin of the projection coordinate system.</p></li>
 <p class="admonition-title">Note</p>
 <p>If you do not provide any arguments to <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code>, by default
 it will build a <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> with <code class="docutils literal notranslate"><span class="pre">u=[1,0,0]</span></code>, <code class="docutils literal notranslate"><span class="pre">v=[0,1,0]</span></code>,
-<code class="docutils literal notranslate"><span class="pre">type='aad'</span></code> and <code class="docutils literal notranslate"><span class="pre">offset=[0,0,0,0]</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">type='ppd'</span></code> and <code class="docutils literal notranslate"><span class="pre">offset=[0,0,0,0]</span></code>.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">cyl_pr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">()</span>
 
 <span class="n">cyl_pr</span><span class="w"> </span><span class="p">=</span>
 <span class="w">   </span><span class="n">cylinder_proj</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="nb">properties</span><span class="p">:</span>
 <span class="w">          </span><span class="n">u</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
 <span class="w">          </span><span class="n">v</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
-<span class="w">       </span><span class="nb">type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;aad&#39;</span>
+<span class="w">       </span><span class="nb">type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ppd&#39;</span>
 <span class="w">      </span><span class="n">alatt</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="w">     </span><span class="n">angdeg</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="w">     </span><span class="n">offset</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
@@ -1067,16 +1075,10 @@ When the third component of <code class="docutils literal notranslate"><span cla
 <p>Similarly to <a class="reference internal" href="#fig-sphere-coodinates"><span class="std std-ref">Spherical coordinate system used by sphere_proj</span></a>, detailed description of the cylindrical coordinate system used by
 Horace together with the image of the used coordinate system are provided <a class="reference external" href="https://uk.mathworks.com/help/matlab/ref/cart2pol.html">on MATLAB “cart2pol/pol2cart” help pages</a>, as Horace uses these methods to convert array
 of vectors expressed in Cartesian coordinate system to cylindrical coordinate system and backward.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>A cylindrical projection currently does not have the ability to be
-rescaled in <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> or <span class="math notranslate nohighlight">\(Q_{\|}\)</span> relative to the magnitude
-of <span class="math notranslate nohighlight">\(u\)</span> or <span class="math notranslate nohighlight">\(v\)</span> vectors.</p>
-</div>
 <p>When it comes to cutting and plotting, we can use a <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> in
 exactly the same way as we would a <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, but with one key
 difference. The binning arguments of <code class="docutils literal notranslate"><span class="pre">cut</span></code> no longer refer to
-<span class="math notranslate nohighlight">\(h,k,l,E\)</span>, but to <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> (<code class="docutils literal notranslate"><span class="pre">Q_tr</span></code>), <span class="math notranslate nohighlight">\(Q_{\|}\)</span>, <span class="math notranslate nohighlight">\(\phi\)</span>, <span class="math notranslate nohighlight">\(E\)</span> variables.</p>
+<span class="math notranslate nohighlight">\(h,k,l,E\)</span>, but to <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> (<code class="docutils literal notranslate"><span class="pre">Q_tr</span></code>), <span class="math notranslate nohighlight">\(Q_{\|}\)</span>, <span class="math notranslate nohighlight">\(\phi\)</span> (<code class="docutils literal notranslate"><span class="pre">phi</span></code>), <span class="math notranslate nohighlight">\(E\)</span> variables.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sp_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">,</span><span class="w"> </span><span class="n">Q_tr</span><span class="p">,</span><span class="w"> </span><span class="n">Q_</span><span class="o">||</span><span class="p">,</span><span class="w"> </span><span class="n">phi</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">);</span>
 </pre></div>
 </div>
@@ -1099,7 +1101,7 @@ incident beam as background scattering in inelastic instruments often has
 cylindrical symmetry.</p>
 <p>Taking the <a class="reference internal" href="#datalink"><span class="std std-ref">previously used dataset</span></a> and using the code:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;Fe_ei401.sqw&#39;</span><span class="p">;</span>
-<span class="n">cyl_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">();</span>
+<span class="n">cyl_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">(</span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="s">&#39;aad&#39;</span><span class="p">);</span>
 
 <span class="c">%% A</span>
 
@@ -1130,7 +1132,7 @@ cylindrical symmetry.</p>
 creates a plot which shows the behaviour of the scattering intensity as a
 function of <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> at different <span class="math notranslate nohighlight">\(Q_{||}\)</span>:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="s">&#39;Fe_ei401.sqw&#39;</span><span class="p">;</span>
-<span class="n">cyl_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">();</span>
+<span class="n">cyl_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">(</span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="s">&#39;aad&#39;</span><span class="p">);</span>
 <span class="n">n_cuts</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 <span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">repmat</span><span class="p">(</span><span class="n">sqw</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">n_cuts</span><span class="p">);</span>
 <span class="n">colors</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;krgb&#39;</span><span class="p">;</span>
@@ -1354,7 +1356,7 @@ the range. The resulting image range will be <code class="docutils literal notra
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on May 29, 2024, 12:22:31 PM.
+      <span class="lastupdated">Last updated on May 29, 2024, 7:55:55 PM.
       </span></p>
   </div>
 
