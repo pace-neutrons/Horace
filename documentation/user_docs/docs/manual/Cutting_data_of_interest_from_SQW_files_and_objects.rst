@@ -335,7 +335,7 @@ Where:
 - ``v``  3-vector in reciprocal space :math:`(h,k,l)` in the plane of the second viewing axis.
 
 - ``w``  3-vector in reciprocal space :math:`(h,k,l)` of the third viewing axis. If left empty
-  (``[]``) will default to :math:`\frac{\vec{u}}{|u|} \times \frac{\vec{v}}{|v|}`.
+  (``[]``) will default to :math:`\vec{w} = \frac{\vec{u}}{|u|} \times \frac{\vec{v}}{|v|}`.
 
 
 .. note::
@@ -659,11 +659,11 @@ where:
 
   3. ``'p'``   The scale is the length of the vector :math:`\vec{u}`
   
-  4. ``'h'``   The scale is the length of the first vector of reciprocal lattice :math:`a^{*}`
+  4. ``'h'``   The scale is the length of :math:`a^{*}`, the first vector of reciprocal lattice.
   
-  5. ``'k'``   The scale is the length of the second vector of reciprocal lattice :math:`b^{*}`
+  5. ``'k'``   The scale is the length of :math:`b^{*}`, the second vector of reciprocal lattice. 
   
-  6. ``'l'``   The scale is the length of the third vector of reciprocal lattice :math:`c^{*}`
+  6. ``'l'``   The scale is the length of :math:`c^{*}`, the third vector of reciprocal lattice.
 
   There are 2 possible options for the second and third (angular) components of
   ``type``:
@@ -862,7 +862,7 @@ This script produces the following plot:
    :alt: |Q|-dE cut.
 
    MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.
-   Note integrated spin-waves at :math:`[1,1,0]` locations, i.e. :math:`|Q|=1\ in\ |[1,1,0]*a^{*}|`. :math:`a^{*}=2.22Å^{-1}`
+   Note integrated spin-waves at :math:`[1,1,0]` locations, i.e. :math:`|Q|=1\ in\ |[1,1,0]*a^{*}|`, :math:`a^{*}=2.22Å^{-1}`
 
 .. note::
 
@@ -986,12 +986,12 @@ where:
 
   3. ``'p'``   The scale is the length of the vector :math:`\vec{u}` for :math:`Q_{\perp}` or :math:`\vec{v}` for :math:`Q_{\|}` vectors.
   
-  4. ``'h'``   The scale is the length of the first vector of reciprocal lattice :math:`a^{*}`
+  4. ``'h'``   The scale is the length of :math:`a^{*}`, the first vector of reciprocal lattice.
   
-  5. ``'k'``   The scale is the length of the second vector of reciprocal lattice :math:`b^{*}`
+  5. ``'k'``   The scale is the length of :math:`b^{*}`, the second vector of reciprocal lattice. 
   
-  6. ``'l'``   The scale is the length of the third vector of reciprocal lattice :math:`c^{*}`
-
+  6. ``'l'``   The scale is the length of :math:`c^{*}`, the third vector of reciprocal lattice.
+  
   There are 2 possible options for the third (angular) component of
   ``type``:
 
