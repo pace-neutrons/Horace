@@ -14,7 +14,7 @@ function obj = check_combo_arg_(obj)
 %
 % first axis (z in spherical or cylindrical coordinate system) goes first
 % and second axis (x in spherical or cylindrical coordinate system) goes second
-e12 = [obj.ez(:),obj.ex(:)];
+e12 = [obj.u(:),obj.v(:)];
 if obj.alatt_defined && obj.angdeg_defined
     bm = obj.bmatrix();
 else
@@ -27,7 +27,7 @@ e3 = cross(uv_norm(:,1),uv_norm(:,2));
 ne3 = norm(e3);
 if ne3 < obj.tol_
     error('HORACE:CurveProjBase:invalid_argument', ...
-        'Input vectors ez(%s) and ex(%s) are parallel or almost parallel to each other', ...
+        'Input vectors u(%s) and v(%s) are parallel or almost parallel to each other', ...
         mat2str(e12(:,2)),mat2str(e12(:,1)));
 end
 e3 = e3/ne3; % should be 1 anyway, just in case to reduce round-off errors

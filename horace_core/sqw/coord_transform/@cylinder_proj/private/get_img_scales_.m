@@ -21,8 +21,8 @@ function [img_scales,obj] = get_img_scales_(obj)
 
 if isempty(obj.img_scales_cache_)
     img_scales = ones(1,3);
-    img_scales(1) = calc_scales_(obj,obj.u(:),obj.type(1));
-    img_scales(2) = calc_scales_(obj,obj.v(:),obj.type(2));
+    img_scales(1) = calc_scales_(obj,obj.v(:),obj.type(1));
+    img_scales(2) = calc_scales_(obj,obj.u(:),obj.type(2));
     if obj.type_(3) == 'r'
         img_scales(3) = 1;
     else                  % phi_to_ang
