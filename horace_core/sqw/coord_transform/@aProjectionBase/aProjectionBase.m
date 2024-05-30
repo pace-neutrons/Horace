@@ -858,7 +858,8 @@ classdef aProjectionBase < serializable
                 error('HORACE:aProjectionBase:invalid_argument',...
                     'you may set do_generic property into true or false state only');
             end
-            obj.do_generic_ = logical(val);
+            obj.do_generic_                        = logical(val);
+            obj.disable_srce_to_targ_optimization_ = logical(val);            
         end
 
         function obj = set_offset(obj,val)
