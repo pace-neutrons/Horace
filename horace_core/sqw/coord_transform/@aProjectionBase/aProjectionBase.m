@@ -146,7 +146,7 @@ classdef aProjectionBase < serializable
         do_3D_transformation_ = true;
         %------------------------------------------------------------------
         %
-        type_ = ''        
+        type_ = ''
     end
     %======================================================================
     % ACCESSORS AND CONSTRUCTION
@@ -276,7 +276,7 @@ classdef aProjectionBase < serializable
         function obj=set.type(obj,type)
             obj = check_and_set_type(obj,type);
         end
-        
+
         function [bm,arlu,angrlu] = bmatrix(obj,ndim)
             % Return b-matrix defined on this projection lattice.
             %
@@ -735,7 +735,7 @@ classdef aProjectionBase < serializable
             %          corresponding to the projection
             ax_name = obj.axes_name;
             ax_class = feval(ax_name);
-            ax_class.axes_units = obj.type;                        
+            ax_class.axes_units = obj.type;
             ax_bl = AxesBlockBase.build_from_input_binning(...
                 ax_class,default_bin_ranges,requested_bin_ranges);
             ax_bl = obj.copy_proj_defined_properties_to_axes(ax_bl);
@@ -776,6 +776,25 @@ classdef aProjectionBase < serializable
                 return;
             end
             axes = obj.copy_proj_defined_properties_to_axes(axes);
+        end
+    end
+    %======================================================================
+    methods(Static)
+        function is_inside = bin_inside(img_grid_coord,img_size,targ_range)
+            % Found the cells which lie inside the limits provided as input
+            %
+            % Input:
+            % img_grid_coord  -- 3xNcells or 4xNcells array of image coordinates
+            % img_size        -- array which defines shape of ND image
+            % targ_range      -- 2x3 or 2x4 array of ranges to specify if
+            %                    img_grid_coord lie inside or outside of them.
+            %
+            % Ouptput:
+            % is_inside       -- logical array of size Ncells, containing true for
+            %                    cells which lie inside the target range and false for
+            %                    outsize cells.
+
+            is_inside = bin_inside_(img_grid_coord,img_size,targ_range);
         end
     end
     %======================================================================
@@ -859,7 +878,7 @@ classdef aProjectionBase < serializable
                     'you may set do_generic property into true or false state only');
             end
             obj.do_generic_                        = logical(val);
-            obj.disable_srce_to_targ_optimization_ = logical(val);            
+            obj.disable_srce_to_targ_optimization_ = logical(val);
         end
 
         function obj = set_offset(obj,val)
@@ -1017,7 +1036,7 @@ classdef aProjectionBase < serializable
         scales   = get_img_scales(obj);
         obj      = set_img_scales(obj,val);
 
-        % set projection type, changing the units of angular dimensions if 
+        % set projection type, changing the units of angular dimensions if
         obj = check_and_set_type(obj,val)% necessary/present
     end
     %======================================================================
