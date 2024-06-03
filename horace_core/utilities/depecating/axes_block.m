@@ -13,7 +13,7 @@ classdef axes_block < line_axes
             if nargin ==0
                 return;
             end
-            warning('HORACE:deprecated:invalid_argument',...
+            warning('HORACE:axes_block:deprecated',...
                 '"axes_block" class is deprecated. Use "line_axes" instead')
 
         end

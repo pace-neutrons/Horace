@@ -3,7 +3,7 @@ classdef cylinder_proj<CurveProjBase
     % to make cylindical cuts.
     %
     % Default angular coordinates names and meanings are chosen as follows:
-    % Q_tr    -- coordinate 1  is the module of the component of the momentum
+    % Q_{\perp}    -- coordinate 1  is the module of the component of the momentum
     %            transfer orthogonal to the direction, selected by property
     %            e_z  of this class. e_z property is expressed in hkl and
     %            defines direction of e_z axis of cylindrical coordinate
@@ -19,12 +19,24 @@ classdef cylinder_proj<CurveProjBase
     %            system
     % dE      -- coordinate 4 the energy transfer direction
     %
+    % parent's class "type" property describes which scales are avaliable for
+    % each direction:
+    % for |Q|:
+    % 'a' -- Angstrom,
+    % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u or v to
+    %                                       unit vectors in hkl directions
+    % 'p' -- scale == length of vector u or v
+    %  (depending on settings type(1)== 'p' or type(2)=='p')
+    % 'h','k' or 'l' -- scale in selected direction (1 or 2) == (a*,b* or c*);
+    % for angular units theta, phi:
+    % 'd' - degree, 'r' -- radians
+    % For energy transfer:
+    % 'e'-energy transfer in meV (no other scaling so may be missing)
     %
     properties(Constant,Access = private)
         % cellarray describing what letters are available to assign for
-        % type properties.
-        % 'a' -- Angstrom, 'd' - degree, 'r' -- radians, e-energy transfer in meV;
-        types_available_ = {'a','a',{'d','r'}};
+        % projection type property.
+        types_available_ = {{'a','p','r','h','k','l'},{'a','p','r','h','k','l'},{'d','r'}};
     end
 
     methods
@@ -34,9 +46,9 @@ classdef cylinder_proj<CurveProjBase
             %
             obj = obj@CurveProjBase();
             % Default projection type: A^{-1}, A^{-1}, degree
-            obj.type_ = 'aad';
+            obj.type_ = 'ppd';
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
-            obj.label = {'Q_{tr}','Q_{||}','\phi','En'};
+            obj.label = {'Q_{\perp}','Q_{||}','\phi','En'};
             obj.curve_proj_types_ = obj.types_available_;
             if nargin>0
                 obj = obj.init(varargin{:});
@@ -70,17 +82,25 @@ classdef cylinder_proj<CurveProjBase
     end
     methods(Access=protected)
         function [img_scales,obj] = get_img_scales(obj)
-            if isempty(obj.img_scales_cache_)
-                img_scales = ones(1,3);
-                if obj.type_(3) == 'r'
-                    img_scales(3) = 1;
-                else             % phi_to_ang
-                    img_scales(3) = 180/pi;
-                end
-                obj.img_scales_cache_ = img_scales;
-            else
-                img_scales = obj.img_scales_cache_;
-            end
+            % Calculate image scales using projection type
+            % input:
+            % obj -- initialized sphere_proj object with defined lattice
+            %        and "type" - property containing acceptable 3-letter
+            %        type code.
+            % Returns:
+            % img_scales  -- 1x3 elements array, containing scaling factors
+            %                for every scaled direction, namely:
+            % for |Q|:
+            % 'r' -- max(\vec{u}*\vec{e_h,e_k,e_l}) = 1 -- projection of u or v to
+            %                                       unit vectors in hkl directions
+            % 'p' -- scale == length of vector u or v
+            %  (depending on settings type(1)== 'p' or type(2)=='p')
+            % 'h','k' or 'l' -- scale in selected direction (1 or 2) == (a*,b* or c*);
+            % 'd' - degree, 'r' -- radians
+            % For energy transfer:
+            % 'e'-energy transfer in meV (no other scaling so may be missing)
+
+            [img_scales,obj] = get_img_scales_(obj);
         end
     end
     %=====================================================================

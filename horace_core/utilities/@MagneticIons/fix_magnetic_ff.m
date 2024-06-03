@@ -10,8 +10,6 @@ function wout=fix_magnetic_ff(self,win)
 %
 
 
-warning('MAGNETICIONS:depricated_method',...
-    'fix_magnetic_ff method is deprecated. Use correct_mag_ff instead');
+warning('HORACE:fix_magnetic_ff:deprecated',...
+    '"fix_magnetic_ff" method is deprecated. Use "correct_mag_ff" instead');
 wout=self.correct_mag_ff(win);
-
-

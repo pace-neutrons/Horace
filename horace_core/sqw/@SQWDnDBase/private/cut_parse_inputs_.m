@@ -229,13 +229,12 @@ if opt.proj_given
     % There are currently no situations where we want to define lattice in
     % projection. so always take lattice from the source object
     source_proj = obj.proj;
-    %if ~proj.alatt_defined
     proj.do_check_combo_arg = false;
+
     proj.alatt = source_proj.alatt;
-    %end
-    %if ~proj.angdeg_defined
     proj.angdeg = source_proj.angdeg;
-    proj.do_check_combo_arg = true;    
+
+    proj.do_check_combo_arg = true;
     proj = proj.check_combo_arg();
     %end
 
@@ -393,7 +392,7 @@ elseif numel(pbin_given) == 1
         new_axis = paxis;
     else
         n_steps = floor((paxis(end)-paxis(1))/pbin_given);
-        paxis_end = paxis(1)+pbin_given*n_steps;        
+        paxis_end = paxis(1)+pbin_given*n_steps;
         if paxis(end)-paxis_end  > 4*eps('single')
             n_steps = n_steps+1;
         end

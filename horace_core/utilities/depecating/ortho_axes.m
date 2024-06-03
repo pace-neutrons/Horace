@@ -13,7 +13,7 @@ classdef ortho_axes < line_axes
             if nargin ==0
                 return;
             end
-            warning('HORACE:deprecated:invalid_argument',...
+            warning('HORACE:ortho_axes:deprecated',...
                 '"ortho_axes" class is deprecated. Use "line_axes" class instead')
         end
     end

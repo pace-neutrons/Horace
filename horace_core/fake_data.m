@@ -24,7 +24,7 @@ function fake_data(indir,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi_min,p
 %   angdeg      Lattice angles in form [alpha,beta,gamma] (degrees)
 %   u           First vector (1x3) defining scattering plane (r.l.u.)
 %   v           Second vector (1x3) defining scattering plane (r.l.u.)
-%   psi         Angle of u w.r.t. incident beam (deg) 
+%   psi         Angle of u w.r.t. incident beam (deg)
 %   psi_min     Minimum value of psi (angle of u w.r.t. incident beam (deg))
 %   psi_max     Maximum value of psi
 % Crystal orientation refinement angles:
@@ -41,7 +41,8 @@ function fake_data(indir,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi_min,p
 % This is done to ensure faster execution of the, and not to fill up your
 % hard disk with fake data.
 
-disp(' *** DEPRECATED FUNCTION: Please replace this call to fake_data with one to dummy_sqw')
+warning('HORACE:fake_data:deprecated', ...
+        '"fake_data" has been deprecated. Please use "dummy_sqw"');
 
 % Check input arguments
 if ~isempty(indir)

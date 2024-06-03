@@ -18,10 +18,8 @@ function val=horace_info_level(val_in)
 %       >> ival = get(hor_config,'horace_info_level');
 
 
-disp('*** Deprecated function: horace_info_level                                   ***')
-disp('*** Please set or get the info level directly from the Horace configuration: ***')
-disp('***       >> set(hor_config,''log_level'',ival)                        ***')
-disp('***       >> ival = get(hor_config,''log_level'')                      ***')
+warning('HORACE:horace_info_level:deprecated', ...
+        'horace_info_level has been deprecated. Please use "hor_config.log_level"');
 
 if nargin>0
     try

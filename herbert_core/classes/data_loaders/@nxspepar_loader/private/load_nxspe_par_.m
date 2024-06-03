@@ -23,7 +23,7 @@ if get(hor_config,'log_level')>-1
     end
     if strncmpi(obj.nxspe_version_,'1.1',3)
         warning('LOAD_NXSPE:old_version',...
-            ' you are loading detector data from nxspe data file version 1.1. This nxspe file contains incorrect detectors sizes for rings, so you should use par file for rings');
+            ' you are loading detector data from nxspe data file version 1.1. This nxspe file contains incorrect detectors data for rings, so you should use par file for rings');
     end
 end
 polar = h5read(file_name,[root_folder,'/data/polar']);

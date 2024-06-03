@@ -1,4 +1,4 @@
-classdef unique_fields_example_class
+classdef unique_fields_example_class < serializable
     %UNIQUE_FIELDS_EXAMPLE_CLASS skeleton class to illustrate and test
     %   extraction of a property value by its field name
     
@@ -15,6 +15,14 @@ classdef unique_fields_example_class
             % - field : the object to be stored in property myfield
             obj.myfield = field;
             obj.mydisc = disc;
+        end
+        
+        function ver = classVersion(~)
+            ver = 0;
+        end
+        
+        function flds = saveableFields(obj)
+            flds = {'myfield','mydisc'};
         end
         
      end

@@ -409,44 +409,27 @@ classdef unique_objects_container < serializable
                 newself = newself.add(item);
             end
         end
-
+        
         function hash = hashify(self,obj,reset_count)
             % makes a hash from the argument object
             % which will be unique to any identical object
             %
             % Input:
             % - obj : object to be hashed
+            % - reset_count : if counting hash calcs is exposed in
+            % hashify_obj then this resets the count
             % Output:
             % - hash : the resulting has, a row vector of uint8's
             %
-            persistent Engine;
-            %{
-            % monitor for use of hashing. As this issue may continue, leaving it in the code
-            persistent count;
-            if nargin>2
-                count=0;
-                hash = []; % unused null value for this case
-                return;
-            end
-            if isempty(count)
-                count=0;
-            end
-            count=count+1;
-            count
-            disp(class(obj));
-            %}
-            if isempty(Engine)
-                Engine = java.security.MessageDigest.getInstance('MD5');
-            end
-            if isa(obj,'serializable') && ~self.non_default_f_conversion_set_
-                % use default serializer, build up by us for serializable objects
-                Engine.update(obj.serialize());
+            % this method started out as an instance method but now
+            % contains no references to self. For simplicity, keeping the
+            % original method (this one) as a wrapper to the static method
+            % now used => no other code changes
+            if nargin<=2
+                hash = Hashing.hashify_obj(obj);
             else
-                %convert_to_stream_f_ = @getByteStreamFromArray;
-                Engine.update(self.convert_to_stream_f_(obj));
+                hash = Hashing.hashify_obj(obj,reset_count);
             end
-            hash = typecast(Engine.digest,'uint8');
-            hash = char(hash');
         end
 
         function self = rehashify_all(self,with_checks)

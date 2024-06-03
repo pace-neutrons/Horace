@@ -269,12 +269,14 @@ classdef test_unique_objects < TestCase
         end
         %----------------------------------------------------------------
         function test_change_serializer(obj)
+            skipTest('serialiser function is now set constant and may not be changed');
+            % leaving the test in skipped in case this is reversed
             % Test different serializers
             mi2 = merlin_instrument(190, 700, 'g');
             uoc = unique_objects_container();
             uoc = uoc.add(obj.mi1);
             uoc = uoc.add(mi2);
-            voc = unique_objects_container('convert_to_stream_f',@hlp_serialize);
+            voc = unique_objects_container();%'convert_to_stream_f',@hlp_serialize);
             voc = voc.add(obj.mi1);
             voc = voc.add(mi2);
             ie = isequal( voc.stored_hashes(1,:), uoc.stored_hashes(1,:) );

@@ -6,13 +6,13 @@ function [grid_size, pix_range] = write_spe_to_sqw (spe_file, par_file, sqw_file
 %                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, pix_range_in)
 %
 % *** DEPRECATED FUNCTION **********************************************************
-% 
+%
 % Calls to this function should be replaced by a call to gen_sqw. The only
 % differences are:
 %   - The angles psi, omega, dpsi, gl, gs are entered in degrees
 %     in gen_sqw, but are radians in write-spe_to_sqw
-%   - [Rarely used] The output from gen_sqw will return an empty parameter as the 
-%     first argument. The second and third argument output arguments are the 
+%   - [Rarely used] The output from gen_sqw will return an empty parameter as the
+%     first argument. The second and third argument output arguments are the
 %     same as the first and second from write_spe_to_sqw
 %
 % **********************************************************************************
@@ -48,7 +48,8 @@ function [grid_size, pix_range] = write_spe_to_sqw (spe_file, par_file, sqw_file
 % Original author: T.G.Perring
 %
 
-disp('*** DEPRECATED FUNCTION:  Please replace this call to  write_spe_to_sqw  with one to  gen_sqw ***')
+warning('HORACE:write_spe_to_sqw:deprecated', ...
+        '"write_spe_to_sqw" has been deprecated. Please use "gen_sqw"');
 
 % Check input arguments
 % ---------------------
@@ -85,4 +86,3 @@ r2d=180/pi;
 if nargout==0
     clear grid_size pix_range
 end
-

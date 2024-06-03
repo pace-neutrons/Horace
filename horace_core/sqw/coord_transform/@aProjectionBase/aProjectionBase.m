@@ -32,8 +32,8 @@ classdef aProjectionBase < serializable
         %
         offset;     % Offset of origin of the projection in r.l.u.
         %           % and energy i.e. [h; k; l; en] [row vector]
-        type;   % Character string length 3 defining normalisation, specific
-        %         to a projection type
+        type;      % Character string length 3 defining normalisation, specific
+        %           to a projection type
         %---------------------------------
         label % the method which allows user to change labels present on a
         %      cut
@@ -277,7 +277,7 @@ classdef aProjectionBase < serializable
             obj = check_and_set_type(obj,type);
         end
         
-        function bm = bmatrix(obj,ndim)
+        function [bm,arlu,angrlu] = bmatrix(obj,ndim)
             % Return b-matrix defined on this projection lattice.
             %
             % B-matrix is the Busing-Levy matrix which relates a vector,
@@ -296,7 +296,7 @@ classdef aProjectionBase < serializable
                     mat2str(obj.alatt_),mat2str(obj.angdeg_))
             end
 
-            bm = bmatrix(obj.alatt,obj.angdeg);
+            [bm,arlu,angrlu] = bmatrix(obj.alatt,obj.angdeg);
             if nargin == 2 && ndim == 4
                 bm4 = eye(4);
                 bm4(1:3,1:3) = bm;

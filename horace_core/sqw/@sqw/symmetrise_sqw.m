@@ -83,7 +83,8 @@ if numel(varargin) == 1 && isa(varargin{1}, 'Symop') || ...
 
     sym = varargin{1};
 elseif numel(varargin) == 3
-
+    warning('HORACE:symmetrise_sqw:deprecated', ...
+            'Passing vectors to symmetrise_sqw is deprecated, please use "Symop"');
     sym = SymopReflection(varargin{:});
 else
     error('HORACE:symmetrise_sqw:invalid_argument', ...

@@ -9,4 +9,5 @@ User's Guide
    user_guide/Horace_GUI
    user_guide/Advanced_use
    user_guide/Resolution_convolution
+   user_guide/Horace3_to_4
    user_guide/Interfacing_with_other_programs

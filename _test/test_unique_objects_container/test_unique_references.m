@@ -598,6 +598,7 @@ function test_replace_unique_same_number_works(~)
         end
         %----------------------------------------------------------------
         function test_change_serializer(obj)
+            skipTest('not changing serializer any more');
             % Test different serializers
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
@@ -614,7 +615,7 @@ function test_replace_unique_same_number_works(~)
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2');
             vrc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2','IX_inst_DGfermi');
             hlc = vrc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2');
-            %hlc.convert_to_stream_f = @hlp_serialize;
+            hlc.convert_to_stream_f = @hlp_serialize;
 
             vrc = vrc.add(obj.mi1);
             vrc = vrc.add(mi2);

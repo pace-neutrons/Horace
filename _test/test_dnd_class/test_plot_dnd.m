@@ -20,9 +20,27 @@ classdef test_plot_dnd < TestCase
                 fullfile(hp.test_common,obj.sqw_2d_file),...
                 fullfile(hp.test_common,obj.sqw_3d_file),...
                 fullfile(hp.test_common,obj.sqw_4d_file)};
-            obj.dnd_obj = cell(4,1);
+
             obj.dnd_obj = cellfun(@(x)read_dnd(x),tst_files, ...
                 'UniformOutput',false);
+        end
+        %------------------------------------------------------------------
+        function test_spaghetti_default_labels(obj)
+            tob = [obj.dnd_obj{2};obj.dnd_obj{2}*2;obj.dnd_obj{2}*0.5];
+            [ds,cuts,figh,axh,plh] = spaghetti_plot(tob);
+            assertTrue(isa(ds,'IX_dataset_2d'))
+            assertEqual(cuts,tob);
+
+            assertTrue(isa(figh,'matlab.ui.Figure'));
+            assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+            assertTrue(isa(plh,'matlab.graphics.primitive.Patch'))
+            assertEqual(numel(figh),1)
+            assertEqual(numel(axh),1)
+            assertEqual(numel(plh),3)
+            assertEqual(axh.XTickLabel, ...
+                {'[-0.71, -0.71, 0]';'[-0.71, -0.71, 0]'; ...
+                '[-0.71, -0.71, 0]';'[-0.39, -0.39, 0]'});
+            close(figh);
         end
         %------------------------------------------------------------------
         function test_d4d_all_plot_methods_throw(obj)
