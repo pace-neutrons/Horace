@@ -30,6 +30,7 @@ classdef test_AxesBlockBase_methods < TestCase
             obj = obj@TestCase(name);
             obj.working_dir = fileparts(mfilename("fullpath"));
         end
+        %------------------------------------------------------------------        
         %------------------------------------------------------------------
         function test_get_char_size_sphere_proj_col(~)
             pr = sphere_proj('alatt',2*pi,'angdeg',90);

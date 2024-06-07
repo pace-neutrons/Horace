@@ -150,6 +150,9 @@ classdef sphere_axes < AxesBlockBase
             end
         end
     end
+    % s
+    methods
+    end
     %----------------------------------------------------------------------
     methods(Access=protected)
         function  volume = calc_bin_volume(obj,axis_cell)

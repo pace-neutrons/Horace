@@ -466,7 +466,10 @@ classdef AxesBlockBase < serializable
         range = get_cut_range(obj,varargin);
         % Return characteristic size of a grid cell in the target
         % coordinate system.
-        sz = get_char_size(obj,this_proj,targ_proj);
+        sz = get_char_size(obj,this_proj);
+        % return nodes of the interpolation grid used to identify grid
+        % intercept
+        [nodes,inside] = get_interp_nodes(obj,this_proj,char_sizes);
 
         function volume = get_bin_volume(obj,varargin)
             % Return the volume(s) of the axes grid. For rectilinear grid, the

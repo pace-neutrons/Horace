@@ -780,7 +780,7 @@ classdef aProjectionBase < serializable
     end
     %======================================================================
     methods(Static)
-        function is_inside = bin_inside(img_grid_coord,img_size,targ_range)
+        function is_inside = bin_inside(img_grid_coord,img_size,targ_range,include_edge_bins)
             % Found the cells which lie inside the limits provided as input
             %
             % Input:
@@ -794,7 +794,11 @@ classdef aProjectionBase < serializable
             %                    cells which lie inside the target range and false for
             %                    outsize cells.
 
-            is_inside = bin_inside_(img_grid_coord,img_size,targ_range);
+            if nargin<4
+                include_edge_bins = false;
+            end
+
+            is_inside = bin_inside_(img_grid_coord,img_size,targ_range,include_edge_bins);
         end
     end
     %======================================================================
