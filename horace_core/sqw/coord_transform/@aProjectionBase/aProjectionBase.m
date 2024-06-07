@@ -663,9 +663,9 @@ classdef aProjectionBase < serializable
             %              expressed in. The target projection has to be
             %              set up
             %
-            % pix_origin   4xNpix vector of pixels coordinates expressed in
-            %              the coordinate system, defined by current
-            %              projection
+            % pix_origin   3xNpix or 4xNpix vector of pixels coordinates
+            %              expressed in the coordinate system, defined by
+            %              current projection
             %Outputs:
             % pix_target -- 4xNpix vector of the pixels coordinates in the
             %               coordinate system, defined by the target

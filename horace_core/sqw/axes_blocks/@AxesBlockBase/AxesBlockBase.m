@@ -79,19 +79,17 @@ classdef AxesBlockBase < serializable
         % The range (in axes coordinate system), the binning is made and the
         % axes block describes.
         img_range;
-        % binning along each dimension of an object assuming tha
+        % binning along each dimension of an object assuming that
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
         % x-direction would have binning [10,1,1,1] and 1D object with 10
         % bins in dE direction would have binning [1,1,1,10];
         nbins_all_dims;
         %
-        img_scales   %The units of img_range image-appropriate units,i.e.
-        %             A^{-1} for linear axes, rad/deg for angular and meV
-        %             for energy transfer
         %
         dimensions;  % Number of AxesBlockBase object dimensions number of pax)
 
-        % what each axes units are. Corresponds to type in projection
+        % what each axes units are. Defined by and should be synchoneous
+        % to "type" in projection
         axes_units
         % shift between the origin of the axes block and the origin of
         % hkl-dE coordinate system (in rlu-dE, hkl units, not rotated)
@@ -124,10 +122,14 @@ classdef AxesBlockBase < serializable
         % maximal range the image can have
         max_img_range
         %
-        type;  % units of the projection. Not currently used by linear projection
-        %  but may is deployed in curvilinear  projections to convert from
-        % degrees to radians and vice versa
-
+        img_scales %The scales to convert img_range in image-appropriate units,i.e.
+        %           number to transform to A^{-1} for linear axes, to rad/deg
+        %           for angular and to meV  for energy transfer
+        type;  % units of axes, retrieved from projection. Not currently
+        %        used by linear_axes but may is deployed in curvilinear
+        %        axes to convert from
+        %        degrees to radians and vice versa
+        %
         % property defines if appropriate axes block presented on
         % picture changes aspect ratio of a 2D image, so that equal
         % physical ranges along axes occupy equal pixel ranges on the image
@@ -171,7 +173,48 @@ classdef AxesBlockBase < serializable
         %
         type_ = ''
     end
+    %----------------------------------------------------------------------
+    methods(Static)
+        % build new particular AxesBlockBase object from the binning
+        % parameters, provided as input. If some input binning parameters
+        % are missing, the defaults are taken from the given image range
+        % which should be properly pre-calculated
+        obj = build_from_input_binning(proj_cl_name,cur_img_range_and_steps,pbin);
+        %
+        function [any_within,is_within]=bins_in_1Drange(bins,range)
+            % get bins which contribute into the given range in one
+            % dimension
+            % Inputs:
+            % bins -- equally spaced increasing array of values,
+            %         representing bin edges.
+            % range -- 2 element vector of min/max values which should
+            %          surround contributing range
+            % Output:
+            % any_within -- true if any input bin contribute into the
+            %               selected range and false otherwise
+            % is_within  -- logical array of size numel(bins)-1
+            [any_within,is_within]=bins_in_1Drange_(bins,range);
+        end
+        %
+        function [npix,s,e,pix_cand,unique_runid,argi]=...
+                normalize_binning_input(grid_size,pix_coord_transf,n_argout,varargin)
+            % verify inputs of the bin_pixels function and convert various
+            % forms of the inputs of this function into a common form,
+            % where the missing inputs are returned as empty.
+            %
+            %Inputs:
+            % pix_coord_transf -- the array of pixels coordinates
+            %                     transformed into this AxesBlockBase
+            %                      coordinate system
+            % n_argout         -- number of argument, requested by the
+            %                     calling function
+            % Optional:
 
+            [npix,s,e,pix_cand,unique_runid,argi]=...
+                normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
+        end
+    end
+    %----------------------------------------------------------------------
     methods
         function obj = AxesBlockBase(varargin)
             % constructor
@@ -421,7 +464,9 @@ classdef AxesBlockBase < serializable
         % parameters, performed within this range would return the same cut
         % as the original object
         range = get_cut_range(obj,varargin);
-        %
+        % Return characteristic size of a grid cell in the target
+        % coordinate system.
+        sz = get_char_size(obj,this_proj,targ_proj);
 
         function volume = get_bin_volume(obj,varargin)
             % Return the volume(s) of the axes grid. For rectilinear grid, the
@@ -436,7 +481,7 @@ classdef AxesBlockBase < serializable
             % Optional:
             % axes  -- 4-element celarray, containig axes in all 4
             %          directions. If this argument is present, the
-            %          volume(s) are calculated for the grid, buil from
+            %          volume(s) are calculated for the grid, build from
             %          the axes provided as input.
             if nargin == 1
                 [~,~,~,volume] = obj.get_bin_nodes('-axes_only');
@@ -813,47 +858,6 @@ classdef AxesBlockBase < serializable
             obj=set_axis_bins_(obj,ndims,p1,p2,p3,p4);
         end
 
-    end
-    %----------------------------------------------------------------------
-    methods(Static)
-        % build new particular AxesBlockBase object from the binning
-        % parameters, provided as input. If some input binning parameters
-        % are missing, the defaults are taken from the given image range
-        % which should be properly pre-calculated
-        obj = build_from_input_binning(proj_cl_name,cur_img_range_and_steps,pbin);
-        %
-        function [any_within,is_within]=bins_in_1Drange(bins,range)
-            % get bins which contribute into the given range in one
-            % dimension
-            % Inputs:
-            % bins -- equally spaced increasing array of values,
-            %         representing bin edges.
-            % range -- 2 element vector of min/max values which should
-            %          surround contributing range
-            % Output:
-            % any_within -- true if any input bin contribute into the
-            %               selected range and false otherwise
-            % is_within  -- logical array of size numel(bins)-1
-            [any_within,is_within]=bins_in_1Drange_(bins,range);
-        end
-        %
-        function [npix,s,e,pix_cand,unique_runid,argi]=...
-                normalize_binning_input(grid_size,pix_coord_transf,n_argout,varargin)
-            % verify inputs of the bin_pixels function and convert various
-            % forms of the inputs of this function into a common form,
-            % where the missing inputs are returned as empty.
-            %
-            %Inputs:
-            % pix_coord_transf -- the array of pixels coordinates
-            %                     transformed into this AxesBlockBase
-            %                      coordinate system
-            % n_argout         -- number of argument, requested by the
-            %                     calling function
-            % Optional:
-
-            [npix,s,e,pix_cand,unique_runid,argi]=...
-                normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
-        end
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
