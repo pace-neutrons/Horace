@@ -464,6 +464,10 @@ classdef AxesBlockBase < serializable
         % parameters, performed within this range would return the same cut
         % as the original object
         range = get_cut_range(obj,varargin);
+        % Identify range this axes block occupies in target coordinate
+        % system
+        range = get_targ_range(obj,source_proj,targ_proj);
+
         % Return characteristic size of a grid cell in the target
         % coordinate system.
         sz = get_char_size(obj,this_proj);
