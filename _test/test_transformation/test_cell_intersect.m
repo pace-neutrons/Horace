@@ -40,6 +40,23 @@ classdef test_cell_intersect < TestCaseWithSave
             targ_cell = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
             assertEqualWithSave(obj,targ_cell)
         end
+        function test_line_spher_proj_targ_compat_no_offset(obj)
+            bin_base = {[-1,0.1,1],...
+                [-2,0.1,2],...
+                [-3,3],[0,10]};
+            bin_targ= {[0,0.1,0.8],[0,1,90],[-180,180],[0,10]};
+
+            base_proj = line_proj('alatt',2*pi,'angdeg',90);
+            targ_proj = sphere_proj([0,1,0],[0,0,1],'alatt',2*pi,'angdeg',90);
+
+            ax_base = base_proj.get_proj_axes_block(cell(1,4),bin_base);
+            npix    = ones(ax_base.dims_as_ssize);
+            ax_targ = targ_proj.get_proj_axes_block(cell(1,4),bin_targ);
+
+            targ_cell = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
+            assertEqualWithSave(obj,targ_cell)
+        end
+        
 
         %------------------------------------------------------------------
         function test_line_line_proj_targ_larger_2D(~)
@@ -56,12 +73,13 @@ classdef test_cell_intersect < TestCaseWithSave
             npix    = ones(ax_base.dims_as_ssize);
             ax_targ = targ_proj.get_proj_axes_block(cell(1,4),bin_targ);
 
-            ref_cell = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
+            [ref_cell,ref_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
             base_proj.convert_targ_to_source = false;
 
-            test_cell = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
+            [test_cell,test_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
 
             assertTrue(all(ismember(ref_cell,test_cell)));
+            assertTrue(all(test_size>=ref_size));            
         end
 
         function test_line_line_proj_targ_smaller_2D(~)
@@ -78,13 +96,13 @@ classdef test_cell_intersect < TestCaseWithSave
             npix    = ones(ax_base.dims_as_ssize);
             ax_targ = targ_proj.get_proj_axes_block(cell(1,4),bin_targ);
 
-            [ref_cell,ref_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);            
+            [ref_cell,ref_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
             base_proj.convert_targ_to_source = false;
 
-            [test_cell,test_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);            
+            [test_cell,test_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
 
             assertElementsAlmostEqual(ref_cell,test_cell);
-            assertTrue(all(test_size>=ref_size));            
+            assertTrue(all(test_size>=ref_size));
         end
 
         function test_line_line_proj_comparible_2D(~)
@@ -104,7 +122,7 @@ classdef test_cell_intersect < TestCaseWithSave
             [test_cell,test_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
 
             assertElementsAlmostEqual(ref_cell,test_cell);
-            assertTrue(all(test_size>=ref_size));            
+            assertTrue(all(test_size>=ref_size));
         end
     end
 end

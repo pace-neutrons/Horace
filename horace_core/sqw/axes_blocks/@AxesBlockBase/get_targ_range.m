@@ -13,13 +13,13 @@ function the_range = get_targ_range(obj,source_proj,targ_proj,range_requested)
 % range_requested
 %               -- logical 4-element array, containing true, for the
 %                  coordinates, which are requested and false for which are
-%                  not. 
+%                  not.
 %
 % Output:
-% the_range     --  2x4 element array containing min/max ranges, current 
+% the_range     --  2x4 element array containing min/max ranges, current
 %                   axes block range (obj.img_range) occupies in the target
-%                   coordinate system. 
-%                   If range_requested is provided, 
+%                   coordinate system.
+%                   If range_requested is provided,
 if nargin<4
     range_requested = true(1,4);
 end
@@ -48,10 +48,10 @@ end
 % cross-assign appropriate projections to allow
 % "from_this_to_targ_coord" method and possible optimizations in
 % source->target target->source transformations
-if isempty(source_proj.targ_proj)
-    source_proj.targ_proj = targ_proj;
-    targ_proj.targ_proj   = source_proj;
-end
+
+source_proj.targ_proj = targ_proj;
+targ_proj.targ_proj   = source_proj;
+
 
 % can we deploy simple case of linear projections or curvelinear
 % projections with the same centre?

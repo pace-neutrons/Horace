@@ -725,7 +725,7 @@ classdef aProjectionBase < serializable
             %           infinite. Usually it is the range of the existing
             %           axes block, transformed into the system
             %           coordinates, defined by cut projection using
-            %           dnd.targ_range(targ_proj) method.
+            %           dnd.get_targ_range(targ_proj) method.
             % requested_bin_ranges --
             %           cellarray of cut bin ranges, requested by user.
             %

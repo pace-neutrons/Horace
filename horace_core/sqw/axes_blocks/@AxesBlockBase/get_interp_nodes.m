@@ -8,11 +8,9 @@ if ~this_proj.do_3D_transformation
         '4D grit overlapping is not yet implemented');
 end
 
-
-range = obj.img_range(:,1:3);
-range_ex = expand_box(range(1,:),range(2,:));
-range_cc = this_proj.transform_img_to_pix(range_ex);
-range_cc = min_max(range_cc)';
+% get target range in Crystal Cartesian coordinate system
+range_cc = obj.get_targ_range(this_proj,line_proj('type','aaa'));
+range_cc = range_cc(:,1:3); % 3D case
 % expand minimas
 range_cc(1,:) = range_cc(1,:)-char_sizes;
 % expand maximas
@@ -38,7 +36,7 @@ end
 [nX,nY,nZ] = ndgrid(axes{:});
 ndCoord_cc = [nX(:)';nY(:)';nZ(:)'];
 ndCoord = this_proj.transform_pix_to_img(ndCoord_cc);
-bin_inside = aProjectionBase.bin_inside(ndCoord,grid_size,range,true);
+bin_inside = aProjectionBase.bin_inside(ndCoord,grid_size,obj.img_range(:,1:3),true);
 
 
 %keep_bins = bin_inside(:)|edge_bins(:);

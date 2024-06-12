@@ -1,5 +1,5 @@
-function the_range = targ_range(obj,targ_proj,varargin)
-%TARG_RANGE calculate the full range of the image to be produced by target
+function the_range = get_targ_range(obj,targ_proj,varargin)
+%GET_TARG_RANGE calculate the full range of the image to be produced by target
 % projection from the current image,
 %
 % Inputs:
