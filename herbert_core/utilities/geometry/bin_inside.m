@@ -1,5 +1,5 @@
-function is_inside = bin_inside_(img_grid_coord,img_size,targ_range,mark_nodes)
-% Found the cells which lie inside the limits provided as input
+function is_inside = bin_inside(img_grid_coord,img_size,targ_range,mark_nodes)
+% Found the cells or edges which lie inside the limits provided as input.
 %
 % Input:
 % img_grid_coord  -- 3xNcells or 4xNcells array of image coordinates
@@ -18,6 +18,9 @@ function is_inside = bin_inside_(img_grid_coord,img_size,targ_range,mark_nodes)
 %                    for all nodes which lay inside (or at the edge)
 %                    of the target range.
 
+if nargin<4
+    mark_nodes = false;
+end
 
 is_inside = ~(bin_outside(1)|bin_outside(2)|bin_outside(3));   % =0 if bin outside, =1 if at least partially intersects volume
 if mark_nodes

@@ -54,7 +54,7 @@ end
 [nX,nY,nZ] = ndgrid(axes{:});
 ndCoord_cc = [nX(:)';nY(:)';nZ(:)'];
 ndCoord = this_proj.transform_pix_to_img(ndCoord_cc);
-bin_inside = aProjectionBase.bin_inside(ndCoord,grid_size,obj.img_range(:,1:3),true);
+bin_in = bin_inside(ndCoord,grid_size,obj.img_range(:,1:3),true);
 
 % expand integrated ranges to integration edges if central bins belongs
 % to the shape (make shape cylindrical in integrated directions)
@@ -65,26 +65,26 @@ for i=1:3
         bin_idx{i} = 3;
         cb_idx = ndgridcell(bin_idx);
         cb_idx = sub2ind(grid_size,cb_idx{:});
-        center_inside = bin_inside(cb_idx);
+        center_inside = bin_in(cb_idx);
 
         bin_idx{i} = 2;
         lb_idx = ndgridcell(bin_idx);
         lb_idx = sub2ind(grid_size,lb_idx{:});
-        lm_incide = bin_inside(lb_idx);
+        lm_incide = bin_in(lb_idx);
 
         bin_idx{i} = 4;
         ub_idx = ndgridcell(bin_idx);
         ub_idx = sub2ind(grid_size,ub_idx{:});
-        rm_incide = bin_inside(ub_idx);
+        rm_incide = bin_in(ub_idx);
 
         cyl_shape = center_inside|lm_incide|rm_incide;
-        bin_inside(cb_idx)= cyl_shape;
-        bin_inside(lb_idx)= cyl_shape;
-        bin_inside(ub_idx)= cyl_shape;
+        bin_in(cb_idx)= cyl_shape;
+        bin_in(lb_idx)= cyl_shape;
+        bin_in(ub_idx)= cyl_shape;
     end
 end
 
-inside = double(bin_inside);
+inside = double(bin_in);
 nodes = {nX,nY,nZ};
 end
 

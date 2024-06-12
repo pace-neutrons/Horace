@@ -779,29 +779,6 @@ classdef aProjectionBase < serializable
         end
     end
     %======================================================================
-    methods(Static)
-        function is_inside = bin_inside(img_grid_coord,img_size,targ_range,include_edge_bins)
-            % Found the cells which lie inside the limits provided as input
-            %
-            % Input:
-            % img_grid_coord  -- 3xNcells or 4xNcells array of image coordinates
-            % img_size        -- array which defines shape of ND image
-            % targ_range      -- 2x3 or 2x4 array of ranges to specify if
-            %                    img_grid_coord lie inside or outside of them.
-            %
-            % Ouptput:
-            % is_inside       -- logical array of size Ncells, containing true for
-            %                    cells which lie inside the target range and false for
-            %                    outsize cells.
-
-            if nargin<4
-                include_edge_bins = false;
-            end
-
-            is_inside = bin_inside_(img_grid_coord,img_size,targ_range,include_edge_bins);
-        end
-    end
-    %======================================================================
     methods(Access = protected)
         function name = get_axes_name(obj)
             % return the name of the axes class, which corresponds to this

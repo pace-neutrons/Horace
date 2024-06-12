@@ -17,7 +17,7 @@ end
 % convert q_grid into the target coordinate system
 img_coords = source_proj.from_this_to_targ_coord(img_coords);
 
-bin_inside = aProjectionBase.bin_inside(img_coords,bsize,bin_range);
+bin_in = bin_inside(img_coords,bsize,bin_range);
 %
 contrib_ind = source_proj.convert_3Dplus1Ind_to_4Dind_ranges(...
-    bin_inside,e_inside);
+    bin_in,e_inside);
