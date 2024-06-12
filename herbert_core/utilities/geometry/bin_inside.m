@@ -13,7 +13,7 @@ function is_inside = bin_inside(img_grid_coord,img_size,targ_range,mark_nodes)
 % is_inside       -- logical array of size Ncells, containing true for
 %                    cells which lie inside the target range and false for
 %                    outsize cells.
-%   or  (if mark_nodes == true) 
+%   or  (if mark_nodes == true)
 %                 -- logical array of size img_size, containing true
 %                    for all nodes which lay inside (or at the edge)
 %                    of the target range.
@@ -44,20 +44,50 @@ end
 end
 
 function expanded_bins = mark_edge_bins(bin_inside,img_size)
-expanded_bins  = false(img_size);
-expanded_bins(bin_inside)=true;
-expanded_bins = expanded_bins|mark_edges(1)|mark_edges(2)|mark_edges(3);
+expanded_bins  = paddata_one_edge(bin_inside,img_size);
+expanded_bins = mark_edges(expanded_bins,1);
+expanded_bins = mark_edges(expanded_bins,2);
+expanded_bins = mark_edges(expanded_bins,3);
 
-    function edge_bins = mark_edges(idim)
+
+    function expanded_bins = mark_edges(expanded_bins,idim)
         sz = img_size;
         sz(idim) = sz(idim)-1;
-        [i1,i2,i3] = ind2sub(sz,find(diff(bin_inside,[],idim)<0));
+        [i1,i2,i3] = ind2sub(sz,find(diff(expanded_bins,[],idim)<0));
         add = zeros(3,1);
         add(idim) = 1;
         i1 = i1+add(1);
         i2 = i2+add(2);
         i3 = i3+add(3);
-        edge_bins(i1,i2,i3)= true;
+        expanded_bins(i1,i2,i3)= true;
     end
 
+end
+
+function padded = paddata_one_edge(input,new_size)
+% version independent paddata
+%
+persistent ver_bigger_than_2023a;
+if isempty(ver_bigger_than_2023a)
+    try
+        padded = paddata(input,new_size);
+        ver_bigger_than_2023a = true;
+        return;
+    catch
+        ver_bigger_than_2023a = false;
+    end
+end
+if ver_bigger_than_2023a
+    padded = paddata(input,new_size);
+else
+    sz0    = size(input);
+    sz0(1) = 1;
+    padded = cat(1,input,false(sz0));
+    sz0    = size(padded);
+    sz0(2) = 1;
+    padded = cat(2,padded,false(sz0));
+    sz0    = size(padded);
+    sz0(3) = 1;
+    padded = cat(3,padded,false(sz0));
+end
 end
