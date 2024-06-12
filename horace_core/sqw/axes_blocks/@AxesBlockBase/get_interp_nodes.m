@@ -1,8 +1,21 @@
 function  [nodes,inside] = get_interp_nodes(obj,this_proj,char_sizes)
 % return nodes of the interpolation grid used as base for identifying grid
 % intercept
+%
+% Inputs:
+% obj     -- initialized axes block which describes shape for intersection
+% this_proj
+%         -- aProjection class, descrbing the sapes' coordinate system
+% char_sizes
+%         -- 4-element array which contains characteristic sizes of the
+%            grid to build over the shape to calculate its intersection
+%            with the source grid
+% Returns:
+% nodes  -- 3 element cellarray containing X,Y,Z 3-dimensional coordinates
+%           (in ndgrid form) of the shape used for interpolation
+% inside -- 1 element array
 
-% Assuming 3D case. 4D case would may be expanded later
+% Assuming 3D case. 4D case may be expanded later
 if ~this_proj.do_3D_transformation
     error('HPRACE:AxesBlockBase:not_implemented', ...
         '4D grit overlapping is not yet implemented');
@@ -18,17 +31,22 @@ range_cc(2,:) = range_cc(2,:)+char_sizes;
 
 axes = cell(1,3);
 grid_size = zeros(1,3);
+is_iax = false(1,4);
+is_iax(obj.iax) = true;
 
 for i=1:3
-    if any(i==obj.iax)
-        ns = 4;
-        axes{i} = [range_cc(1,i),range_cc(1,i)+char_sizes(i),range_cc(2,i)-char_sizes(i),range_cc(2,i)];
+    if is_iax(i)
+        ns = 5;
+        axes{i} = [range_cc(1,i)-char_sizes(i),range_cc(1,i),...
+            0.5*(range_cc(1,i)+range_cc(2,i)),...
+            range_cc(2,i),range_cc(2,i)+char_sizes(i)];
     else
-        ns = floor((range_cc(2,i)-range_cc(1,i))/char_sizes(i));
-        if abs(range_cc(1,i)+ns*char_sizes(i)-range_cc(2,i))>eps('single')
-            ns = ns+1;
+        step = char_sizes(i);
+        ns = floor((range_cc(2,i)-range_cc(1,i))/step);
+        if abs(range_cc(1,i)+ns*step-range_cc(2,i))>eps('single')
+            step = (range_cc(2,i)-range_cc(1,i))/ns;
         end
-        range_cc(2,i) = range_cc(1,i)+ns*char_sizes(i);
+        range_cc(2,i) = range_cc(1,i)+ns*step; % redefine max range to avoid round-off errors
         axes{i} = linspace(range_cc(1,i),range_cc(2,i),ns);
     end
     grid_size(i) = ns;
@@ -38,12 +56,35 @@ ndCoord_cc = [nX(:)';nY(:)';nZ(:)'];
 ndCoord = this_proj.transform_pix_to_img(ndCoord_cc);
 bin_inside = aProjectionBase.bin_inside(ndCoord,grid_size,obj.img_range(:,1:3),true);
 
+% expand integrated ranges to integration edges if central bins belongs
+% to the shape (make shape cylindrical in integrated directions)
+for i=1:3
+    if is_iax(i)
+        bin_idx = {1:grid_size(1),1:grid_size(2),1:grid_size(3)};
 
-%keep_bins = bin_inside(:)|edge_bins(:);
-inside = zeros(grid_size);
-inside(bin_inside)=1;
-%inside = inside(keep_bins);
-%nodes  = ndCoord_cc(keep_bins);
+        bin_idx{i} = 3;
+        cb_idx = ndgridcell(bin_idx);
+        cb_idx = sub2ind(grid_size,cb_idx{:});
+        center_inside = bin_inside(cb_idx);
+
+        bin_idx{i} = 2;
+        lb_idx = ndgridcell(bin_idx);
+        lb_idx = sub2ind(grid_size,lb_idx{:});
+        lm_incide = bin_inside(lb_idx);
+
+        bin_idx{i} = 4;
+        ub_idx = ndgridcell(bin_idx);
+        ub_idx = sub2ind(grid_size,ub_idx{:});
+        rm_incide = bin_inside(ub_idx);
+
+        cyl_shape = center_inside|lm_incide|rm_incide;
+        bin_inside(cb_idx)= cyl_shape;
+        bin_inside(lb_idx)= cyl_shape;
+        bin_inside(ub_idx)= cyl_shape;
+    end
+end
+
+inside = double(bin_inside);
 nodes = {nX,nY,nZ};
 end
 

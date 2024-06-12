@@ -37,8 +37,9 @@ classdef test_cell_intersect < TestCaseWithSave
             npix    = ones(ax_base.dims_as_ssize);
             ax_targ = targ_proj.get_proj_axes_block(cell(1,4),bin_targ);
 
-            targ_cell = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
+            [targ_cell,block_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
             assertEqualWithSave(obj,targ_cell)
+            assertEqualWithSave(obj,block_size)
         end
         function test_line_spher_proj_targ_compat_no_offset(obj)
             bin_base = {[-1,0.1,1],...
@@ -53,10 +54,12 @@ classdef test_cell_intersect < TestCaseWithSave
             npix    = ones(ax_base.dims_as_ssize);
             ax_targ = targ_proj.get_proj_axes_block(cell(1,4),bin_targ);
 
-            targ_cell = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
+            [targ_cell,block_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
+            % sample selected on basis of analyzing image
             assertEqualWithSave(obj,targ_cell)
+            assertEqualWithSave(obj,block_size)
         end
-        
+
 
         %------------------------------------------------------------------
         function test_line_line_proj_targ_larger_2D(~)
@@ -79,7 +82,7 @@ classdef test_cell_intersect < TestCaseWithSave
             [test_cell,test_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
 
             assertTrue(all(ismember(ref_cell,test_cell)));
-            assertTrue(all(test_size>=ref_size));            
+            assertTrue(all(test_size>=ref_size));
         end
 
         function test_line_line_proj_targ_smaller_2D(~)
