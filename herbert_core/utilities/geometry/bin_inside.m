@@ -44,13 +44,13 @@ end
 end
 
 function expanded_bins = mark_edge_bins(bin_inside,img_size)
-expanded_bins  = paddata_one_edge(bin_inside,img_size);
-expanded_bins = mark_edges(expanded_bins,1);
-expanded_bins = mark_edges(expanded_bins,2);
-expanded_bins = mark_edges(expanded_bins,3);
+expanded_bins  = paddata_one_cell(bin_inside,img_size);
+mark_edges(1);
+mark_edges(2);
+mark_edges(3);
 
 
-    function expanded_bins = mark_edges(expanded_bins,idim)
+    function mark_edges(idim)
         sz = img_size;
         sz(idim) = sz(idim)-1;
         [i1,i2,i3] = ind2sub(sz,find(diff(expanded_bins,[],idim)<0));
@@ -64,8 +64,9 @@ expanded_bins = mark_edges(expanded_bins,3);
 
 end
 
-function padded = paddata_one_edge(input,new_size)
-% version independent paddata
+function padded = paddata_one_cell(input,new_size)
+% version independent paddata, expanding size of the input array in 3
+% dimensions
 %
 persistent ver_bigger_than_2023a;
 if isempty(ver_bigger_than_2023a)
