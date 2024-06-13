@@ -24,6 +24,31 @@ classdef test_cell_intersect < TestCaseWithSave
             obj.save();
         end
         %==================================================================
+        function test_line_spher_proj_box_shift(~)
+            bin_base = {[0,0.1,6],...
+                [-2,0.1,2],...
+                [-4,4],[0,2,100]};
+            bin_test = {[0,0.1,6],...
+                [-2,0.1,2],...
+                [-2,6],[0,2,100]};
+
+            bin_targ= {[0,0.1,1.5],[30,1,60],[-180,180],[0,10]};
+
+            base_proj = line_proj('alatt',2*pi,'angdeg',90);
+            targ_proj = sphere_proj('alatt',2*pi,'angdeg',90);
+
+            ax_base = base_proj.get_proj_axes_block(cell(1,4),bin_base);
+            ax_test = base_proj.get_proj_axes_block(cell(1,4),bin_test);
+            npix    = ones(ax_base.dims_as_ssize);
+            ax_targ = targ_proj.get_proj_axes_block(cell(1,4),bin_targ);
+
+            [ref_cell ,ref_size]  = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
+            [test_cell,test_size] = base_proj.get_nrange(npix,ax_test,ax_targ,targ_proj);
+
+            assertEqual(ref_cell,test_cell);
+            assertEqual(ref_size,test_size);
+        end
+
         function test_line_spher_proj_targ_compat(obj)
             bin_base = {[0,0.1,6],...
                 [-2,0.1,2],...
@@ -41,6 +66,7 @@ classdef test_cell_intersect < TestCaseWithSave
             assertEqualWithSave(obj,targ_cell)
             assertEqualWithSave(obj,block_size)
         end
+
         function test_line_spher_proj_targ_compat_no_offset(obj)
             bin_base = {[-1,0.1,1],...
                 [-2,0.1,2],...

@@ -1,4 +1,4 @@
-function the_range = get_targ_range(obj,source_proj,targ_proj,range_requested)
+function [the_range,is_in,img_targ_centre] = get_targ_range(obj,source_proj,targ_proj,range_requested)
 % Identify range this axes block occupies in target coordinate
 % system.
 %
@@ -20,6 +20,11 @@ function the_range = get_targ_range(obj,source_proj,targ_proj,range_requested)
 %                   axes block range (obj.img_range) occupies in the target
 %                   coordinate system.
 %                   If range_requested is provided,
+% is_in         --  true, if centre of target range lies withing the ranges
+%                   of the source data.
+% img_targ_centre
+%              --   the centre of the target range in the source coordinate
+%                   system
 if nargin<4
     range_requested = true(1,4);
 end
@@ -63,6 +68,9 @@ else
     is_zero_off  = any(abs(offset_diffr)<eps('single'));
 end
 
+img_targ_center = source_proj.transform_hkl_to_img(targ_proj.offset(:));
+is_in           = in_range(current_range,img_targ_center);
+
 if isa(source_proj,class(targ_proj)) && (is_zero_off || isa(source_proj,'LineProjBase'))
     % if both projections relate to the same type of coordinate system,
     % the min/max range evaluation will be trivial
@@ -74,8 +82,6 @@ else
     % specified. This else brings together all curvilinear projections
     % and uses the fact that first coordinate of these coordinate
     % system changes from 0 to inf.
-    targ_center = source_proj.transform_hkl_to_img(targ_proj.offset(:));
-    is_in       = in_range(current_range,targ_center);
 
     the_range = search_for_range(obj,source_proj,targ_proj,is_in,range_requested);
 end
