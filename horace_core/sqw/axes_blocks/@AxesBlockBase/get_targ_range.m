@@ -1,4 +1,4 @@
-function [the_range,is_in,img_targ_centre] = get_targ_range(obj,source_proj,targ_proj,range_requested)
+function [the_range,is_in,img_targ_center] = get_targ_range(obj,source_proj,targ_proj,range_requested)
 % Identify range this axes block occupies in target coordinate
 % system.
 %
@@ -22,7 +22,7 @@ function [the_range,is_in,img_targ_centre] = get_targ_range(obj,source_proj,targ
 %                   If range_requested is provided,
 % is_in         --  true, if centre of target range lies withing the ranges
 %                   of the source data.
-% img_targ_centre
+% img_targ_center
 %              --   the centre of the target range in the source coordinate
 %                   system
 if nargin<4
@@ -68,8 +68,8 @@ else
     is_zero_off  = any(abs(offset_diffr)<eps('single'));
 end
 
-img_targ_center = source_proj.transform_hkl_to_img(targ_proj.offset(:));
-is_in           = in_range(current_range,img_targ_center);
+img_targ_center = source_proj.transform_hkl_to_img(targ_proj.offset(1:3)');
+is_in           = obj.in_range(img_targ_center);
 
 if isa(source_proj,class(targ_proj)) && (is_zero_off || isa(source_proj,'LineProjBase'))
     % if both projections relate to the same type of coordinate system,
@@ -82,7 +82,6 @@ else
     % specified. This else brings together all curvilinear projections
     % and uses the fact that first coordinate of these coordinate
     % system changes from 0 to inf.
-
     the_range = search_for_range(obj,source_proj,targ_proj,is_in,range_requested);
 end
 
@@ -93,15 +92,15 @@ function out_range = search_for_range(obj,source_proj,targ_proj,in_ranges,ranges
 % system
 %
 range_defined  = false(2,4);
+out_range     = repmat([-inf;inf],1,4);
 img_range = obj.img_range;
 switch in_ranges
     case -1
         nbins_per_dim = ones(1,4);
-        out_range     = repmat([-inf;inf],1,4);
+
         max_out_range = out_range;
     case 0
         nbins_per_dim = 10*ones(1,4);
-        out_range     = repmat([-inf;inf],1,4);
         max_out_range = out_range;
         % caclculations show that only spherical or cylindrical projection
         % may come here. Bad for some stray projection in a future

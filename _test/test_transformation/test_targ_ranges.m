@@ -28,14 +28,14 @@ classdef test_targ_ranges < TestCase
         %==================================================================
         function test_default_cylinder_from_ortho(obj)
             sqw_samp = obj.sample_files{4};
-            clOb = set_temporary_warning('off','HORACE:targ_range','HORACE:push_warning');
+            clOb = set_temporary_warning('off','HORACE:get_targ_range','HORACE:push_warning');
 
             img_block = sqw_samp.data;
             targ_proj = cylinder_proj('type','aad');
             warning('HORACE:push_warning','issue warning which pushes ')
-            targ_range = img_block.targ_range(targ_proj);
+            targ_range = img_block.get_targ_range(targ_proj);
             [~,wid] = lastwarn();
-            assertEqual(wid,'HORACE:targ_range')
+            assertEqual(wid,'HORACE:get_targ_range')
 
             assertElementsAlmostEqual(targ_range(:,1)',[0,0.5], ...
                 'absolute',1.e-2)
@@ -50,14 +50,14 @@ classdef test_targ_ranges < TestCase
 
         function test_default_sphere_from_ortho(obj)
             sqw_samp = obj.sample_files{4};
-            clOb = set_temporary_warning('off','HORACE:targ_range','HORACE:push_warning');
+            clOb = set_temporary_warning('off','HORACE:get_targ_range','HORACE:push_warning');
 
             img_block = sqw_samp.data;
             targ_proj = sphere_proj('type','add');
             warning('HORACE:push_warning','issue warning which pushes ')
-            targ_range = img_block.targ_range(targ_proj);
+            targ_range = img_block.get_targ_range(targ_proj);
             [~,wid] = lastwarn();
-            assertEqual(wid,'HORACE:targ_range')
+            assertEqual(wid,'HORACE:get_targ_range')
 
 
             assertElementsAlmostEqual(targ_range(:,1)',[0,sqrt(1.5^2+0.5^2)], ...
@@ -88,7 +88,7 @@ classdef test_targ_ranges < TestCase
             targ_proj = line_proj('u',[1,-1,0]/sqrt(2),'v',[1,1,0]/sqrt(2), ...
                 'alatt',1,'angdeg',90);
 
-            range = dnd_obj.targ_range(targ_proj);
+            range = dnd_obj.get_targ_range(targ_proj);
             assertElementsAlmostEqual(range, ...
                 [-5*sqrt(2),-5/sqrt(2),  0,   -5;...
                 5/sqrt(2)  , 5*sqrt(2), 10, 20.0],...
@@ -110,7 +110,7 @@ classdef test_targ_ranges < TestCase
 
             targ_proj = line_proj();
 
-            range = dnd_obj.targ_range(targ_proj);
+            range = dnd_obj.get_targ_range(targ_proj);
             assertElementsAlmostEqual(range,[ ...
                 -12.2474,       0,       0, -5; ...
                 12.2474 , 12.2474, 12.2474, 20],'absolute',3e-4)
@@ -129,7 +129,7 @@ classdef test_targ_ranges < TestCase
 
             targ_proj = sphere_proj();
 
-            range = dnd_obj.targ_range(targ_proj);
+            range = dnd_obj.get_targ_range(targ_proj);
             ref_range = [...
                 0.         0.        0.      -5.0000
                 12.6886  180.0000   90.0000   20.0000];
@@ -152,7 +152,7 @@ classdef test_targ_ranges < TestCase
 
             targ_proj = line_proj();
 
-            range = dnd_obj.targ_range(targ_proj);
+            range = dnd_obj.get_targ_range(targ_proj);
             ref_range = [...
                 -10.000    0.      0.     -5.0000;...
                 10.0000    9.9999  9.9999 20.0000];
@@ -172,7 +172,7 @@ classdef test_targ_ranges < TestCase
 
             targ_proj = cylinder_proj([1,1,0],[1,-1,0],'offset',[1,0,0],'type','aad');
 
-            range = dnd_obj.targ_range(targ_proj);
+            range = dnd_obj.get_targ_range(targ_proj);
             ref_range = [...
                 0       -7.7782  -180.0   -5.0000;...
                 12.6689  6.3640   180.0   20.0000];
@@ -192,7 +192,7 @@ classdef test_targ_ranges < TestCase
 
             targ_proj = sphere_proj('alatt',2*pi,'angdeg',90);
 
-            range = dnd_obj.targ_range(targ_proj);
+            range = dnd_obj.get_targ_range(targ_proj);
             ref_range = [...
                 0         0         0         -5.0000;...
                 76.9530  180.0000   90.0000   20.0000];
@@ -212,7 +212,7 @@ classdef test_targ_ranges < TestCase
 
             targ_proj = cylinder_proj();
 
-            range = dnd_obj.targ_range(targ_proj);
+            range = dnd_obj.get_targ_range(targ_proj);
             ref_range = [...
                 0       -1 -180. -5.0000;...
                 sqrt(2)  1  180.  20.0000];
@@ -231,7 +231,7 @@ classdef test_targ_ranges < TestCase
 
             targ_proj = sphere_proj();
 
-            range = dnd_obj.targ_range(targ_proj);
+            range = dnd_obj.get_targ_range(targ_proj);
             ref_range = [...
                 0         0.     -180. -5.0000;...
                 sqrt(3) 180.0000  180.  20.0000];
@@ -246,7 +246,7 @@ classdef test_targ_ranges < TestCase
             cp = cylinder_proj();
 
             requested = [false,false,false,true];
-            img_range = dnd_obj.targ_range(cp,requested,'-binning');
+            img_range = dnd_obj.get_targ_range(cp,requested,'-binning');
             ref_range = {[],[],[],[0.05,0.1,9.95]};
 
             assertEqualToTol(img_range,ref_range);
@@ -259,7 +259,7 @@ classdef test_targ_ranges < TestCase
             cp = cylinder_proj();
 
             requested = [false,false,false,true];
-            img_range = dnd_obj.targ_range(cp,requested);
+            img_range = dnd_obj.get_targ_range(cp,requested);
             ref_range = [-inf,-inf,-inf,0;inf,inf,inf,10];
 
             assertElementsAlmostEqual(img_range,ref_range);

@@ -21,13 +21,17 @@ if ~this_proj.do_3D_transformation
         '4D grit overlapping is not yet implemented');
 end
 
-% get target range in Crystal Cartesian coordinate system
-range_cc = obj.get_targ_range(this_proj,line_proj('type','aaa'));
+% get target range in Crystal Cartesian coordinate system, build bounding
+% box around the axes block (if it was offsetted -- fine, around offsetted
+% point)
+[range_cc,in_range] = obj.get_targ_range(this_proj,line_proj('offset',this_proj.offset,'type','aaa'));
+offset_cc = this_proj.transform_hkl_to_pix(this_proj.offset(1:3)');
+in_range = in_range>=0;
 range_cc = range_cc(:,1:3); % 3D case
 % expand minimas
-range_cc(1,:) = range_cc(1,:)-char_sizes;
+range_cc(1,:) = range_cc(1,:)-char_sizes+offset_cc(:)';
 % expand maximas
-range_cc(2,:) = range_cc(2,:)+char_sizes;
+range_cc(2,:) = range_cc(2,:)+char_sizes+offset_cc(:)';
 
 axes = cell(1,3);
 grid_size = zeros(1,3);
@@ -36,10 +40,17 @@ is_iax(obj.iax) = true;
 
 for i=1:3
     if is_iax(i)
-        ns = 5;
-        axes{i} = [range_cc(1,i)-char_sizes(i),range_cc(1,i),...
-            0.5*(range_cc(1,i)+range_cc(2,i)),...
-            range_cc(2,i),range_cc(2,i)+char_sizes(i)];
+        % ranges are already expanded so include char_size halo.
+        if in_range
+            ns = 5;
+            axes{i} = [range_cc(1,i),range_cc(1,i)+char_sizes(i),...
+                offset_cc(i),...
+                range_cc(2,i)-char_sizes(i),range_cc(2,i)];
+        else
+            ns = 4;
+            axes{i} = [range_cc(1,i),range_cc(1,i)+char_sizes(i),...
+                range_cc(2,i)-char_sizes(i),range_cc(2,i)];
+        end
     else
         step = char_sizes(i);
         ns = floor((range_cc(2,i)-range_cc(1,i))/step);

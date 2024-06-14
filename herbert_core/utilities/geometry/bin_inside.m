@@ -59,7 +59,8 @@ mark_edges(3);
         i1 = i1+add(1);
         i2 = i2+add(2);
         i3 = i3+add(3);
-        expanded_bins(i1,i2,i3)= true;
+        ind = sub2ind(img_size,i1,i2,i3);
+        expanded_bins(ind)= true;
     end
 
 end

@@ -14,7 +14,7 @@ classdef test_cell_intersect < TestCaseWithSave
                 if nargin == 2
                     name = varargin{2};
                 else
-                    name = fullfile(fileparts(mfilename("fullpath")),name);
+                    name = fullfile(fileparts(mfilename("fullpath")),[name,'_output']);
                 end
                 argi = {'-save',name};
             else
@@ -37,6 +37,8 @@ classdef test_cell_intersect < TestCaseWithSave
             base_proj = line_proj('alatt',2*pi,'angdeg',90);
             targ_proj = sphere_proj('alatt',2*pi,'angdeg',90);
 
+            % two axes blocks with integraded dimension shifted 
+            % by two, but bins should be the same.
             ax_base = base_proj.get_proj_axes_block(cell(1,4),bin_base);
             ax_test = base_proj.get_proj_axes_block(cell(1,4),bin_test);
             npix    = ones(ax_base.dims_as_ssize);
@@ -49,7 +51,7 @@ classdef test_cell_intersect < TestCaseWithSave
             assertEqual(ref_size,test_size);
         end
 
-        function test_line_spher_proj_targ_compat(obj)
+        function test_line_spher_proj_targ_compat_with_offset(obj)
             bin_base = {[0,0.1,6],...
                 [-2,0.1,2],...
                 [-3,3],[0,10]};
@@ -107,8 +109,9 @@ classdef test_cell_intersect < TestCaseWithSave
 
             [test_cell,test_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
 
-            assertTrue(all(ismember(ref_cell,test_cell)));
-            assertTrue(all(test_size>=ref_size));
+            coincide = ismember(test_cell,ref_cell);
+            assertEqual(numel(ref_cell),sum(coincide));
+            assertTrue(all(test_size(coincide)>=ref_size));
         end
 
         function test_line_line_proj_targ_smaller_2D(~)
@@ -130,8 +133,9 @@ classdef test_cell_intersect < TestCaseWithSave
 
             [test_cell,test_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
 
-            assertElementsAlmostEqual(ref_cell,test_cell);
-            assertTrue(all(test_size>=ref_size));
+            coincide = ismember(test_cell,ref_cell);
+            assertEqual(numel(ref_cell),sum(coincide));
+            assertTrue(all(test_size(coincide)>=ref_size));
         end
 
         function test_line_line_proj_comparible_2D(~)
@@ -150,8 +154,9 @@ classdef test_cell_intersect < TestCaseWithSave
 
             [test_cell,test_size] = base_proj.get_nrange(npix,ax_base,ax_targ,targ_proj);
 
-            assertElementsAlmostEqual(ref_cell,test_cell);
-            assertTrue(all(test_size>=ref_size));
+            coincide = ismember(test_cell,ref_cell);
+            assertEqual(numel(ref_cell),sum(coincide));
+            assertTrue(all(test_size(coincide)>=ref_size));
         end
     end
 end

@@ -466,7 +466,7 @@ classdef AxesBlockBase < serializable
         range = get_cut_range(obj,varargin);
         % Identify range this axes block occupies in target coordinate
         % system
-        [range,is_in,img_targ_center] = get_targ_range(obj,source_proj,targ_proj);
+        [range,is_in,img_targ_center] = get_targ_range(obj,source_proj,targ_proj,range_requested);
 
         % Return characteristic size of a grid cell in the target
         % coordinate system.
@@ -786,7 +786,33 @@ classdef AxesBlockBase < serializable
             %
             nodes = dE_nodes_(obj,varargin{:});
         end
+        %
+        function [in,in_details] = in_range(obj,coord)
+            %IN_RANGE identifies if the input coordinates lie within the
+            %image data range.
+            %
+            % Inputs:
+            % obj           --  Axes block object containing image range
+            %
+            % coord         -- [NDim x N_coord] vector of coordinates to verify against the
+            %                  limits where N_coord is the number of vectors to verify
+            % return_in_details
+            %               -- if provided and true, return in_details array. (see
+            %                  below). If false, in_details will be empty
+            % Output:
+            % in            -- [1 x N_coord] integer array containing 1 if coord are within
+            %                  the min_max_ranges, 0 if it is on the edge and -1 if it
+            %                  is outside of the ranges.
+            % in_details   --  [NDim x N_coord] array of integers, specifying the same
+            %                  as
+            range = obj.img_range;
+            if size(coord,1)==3
+                range = range(:,1:3);
+            end
+            [in,in_details] = in_range(range,coord,nargout>1);
+        end
     end
+    %----------------------------------------------------------------------
     methods(Abstract)
         %
         [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
