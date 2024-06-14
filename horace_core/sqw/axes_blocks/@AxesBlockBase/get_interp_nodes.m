@@ -1,6 +1,12 @@
 function  [nodes,inside] = get_interp_nodes(obj,this_proj,char_sizes)
-% return nodes of the interpolation grid used as base for identifying grid
-% intercept
+% Return the rectangular grid surrounding input AxesBlock and expressed in
+% Crystal Cartesian coordinate system.
+% The grid values contain 1 for the nodes which may belong to the AxesBlock
+% shape and zeros for the nodes which would not.
+%
+% The grid is used for calculating interseptions between the AxesBlock
+% shape and the reference grid, which contains information about pixels
+% positions.
 %
 % Inputs:
 % obj     -- initialized axes block which describes shape for intersection
@@ -12,8 +18,9 @@ function  [nodes,inside] = get_interp_nodes(obj,this_proj,char_sizes)
 %            with the source grid
 % Returns:
 % nodes  -- 3 element cellarray containing X,Y,Z 3-dimensional coordinates
-%           (in ndgrid form) of the shape used for interpolation
-% inside -- 1 element array
+%           (in ndgrid form) of the rectangular grid used for interpolation
+% inside -- 1 element array, containing 1 for nodes which may lie inside of
+%           the input shape and 0 for nodes which may not.
 
 % Assuming 3D case. 4D case may be expanded later
 if ~this_proj.do_3D_transformation
@@ -25,8 +32,9 @@ end
 % box around the axes block (if it was offsetted -- fine, around offsetted
 % point)
 [range_cc,in_range] = obj.get_targ_range(this_proj,line_proj('offset',this_proj.offset,'type','aaa'));
-offset_cc = this_proj.transform_hkl_to_pix(this_proj.offset(1:3)');
 in_range = in_range>=0;
+
+offset_cc = this_proj.transform_hkl_to_pix(this_proj.offset(1:3)');
 range_cc = range_cc(:,1:3); % 3D case
 % expand minimas
 range_cc(1,:) = range_cc(1,:)-char_sizes+offset_cc(:)';
@@ -40,7 +48,7 @@ is_iax(obj.iax) = true;
 
 for i=1:3
     if is_iax(i)
-        % ranges are already expanded so include char_size halo.
+        % ranges are already expanded to include char_size halo.
         if in_range
             ns = 5;
             axes{i} = [range_cc(1,i),range_cc(1,i)+char_sizes(i),...

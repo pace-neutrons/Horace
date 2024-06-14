@@ -46,7 +46,7 @@ classdef test_AxesBlockBase_methods < TestCase
             ax = pr.get_proj_axes_block(cell(1,4),{[-1,0.1,1],[-2,0.2,2],[-3,3],[0,10]});
 
             sz = ax.get_char_size(pr);
-            assertEqual(sz,[0.3,0.3,6,10]);
+            assertElementsAlmostEqual(sz,[0.3,0.3,6,10]);
         end
         
         function test_get_char_size_line_proj_col(~)
@@ -54,7 +54,7 @@ classdef test_AxesBlockBase_methods < TestCase
             ax = pr.get_proj_axes_block(cell(1,4),{[-1,0.1,1],[-2,0.2,2],[-3,3],[0,10]});
 
             sz = ax.get_char_size(pr);
-            assertEqual(sz,[0.1,0.2,6,10]);
+            assertElementsAlmostEqual(sz,[0.1,0.2,6,10]);
         end
         %------------------------------------------------------------------
         function test_bin_volume_array(~)
