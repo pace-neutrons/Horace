@@ -35,7 +35,7 @@ classdef test_dnd_cut< TestCaseWithSave
                 [113,114],[cut_range(1,3),0.1,cut_range(2,3)],[-0.25,0.25]);
 
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
-            skipTest('Re #1639 These cells intersection does not look correct')
+            skipTest('Re #1707 These cells intersection does not look correct')
         end
 
         function test_2D_to2D_cut_with_spher_proj(obj)
@@ -47,7 +47,7 @@ classdef test_dnd_cut< TestCaseWithSave
                 [113,114],[cut_range(1,3),0.1,cut_range(2,3)],[-0.25,0.25]);
 
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
-            skipTest('Re #1639 These cells intersection does not look correct')
+            skipTest('Re #1707 These cells intersection does not look correct')
         end
 
         function test_2D_to2D_cut_with_proj(obj)

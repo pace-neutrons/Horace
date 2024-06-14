@@ -151,13 +151,14 @@ classdef cylinder_axes < AxesBlockBase
         function [in,in_details] = in_range(obj,coord)
             %IN_RANGE identifies if the input coordinates lie within the
             %image data range.
-            [in,in_details] = in_range@AxesBlockBase(obj.img_range,coord);
+            [in,in_details] = in_range@AxesBlockBase(obj,coord);
             % check if some coord have radius 0 and range r have radius 0.
             % these coordinates are in range regardless of angles range
             if any(in~=1) && obj.img_range(1,1)==0
-                rq_eq_0 = coord(1,:) == 0 & coord(2,:) == 0;
+                rq_eq_0 = coord(1,:) == 0;
                 if any(rq_eq_0)
-                    in_details([1,3],rq_eq_0) = 0;
+                    % any angular value is "in range" if Q_tr == 0
+                    in_details(3,rq_eq_0) = 0;
                     equal = in_details == 0;
                     in(any(equal,1))   = 0;
                 end
