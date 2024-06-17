@@ -59,6 +59,11 @@ for i=1:3
             axes{i} = [range_cc(1,i),range_cc(1,i)+char_sizes(i),...
                 range_cc(2,i)-char_sizes(i),range_cc(2,i)];
         end
+        is_duplicated = [axes{i}(1:end-1) == axes{i}(2:end),false];
+        if any(is_duplicated)
+            axes{i} = axes{i}(~is_duplicated);
+            ns = numel(axes{i});
+        end
     else
         step = char_sizes(i);
         ns = floor((range_cc(2,i)-range_cc(1,i))/step);
