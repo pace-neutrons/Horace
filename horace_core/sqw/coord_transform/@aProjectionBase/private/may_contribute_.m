@@ -16,13 +16,20 @@ end
 
 % build grid with points at bin edges for the target grid and bin centres
 % for reference grid
-[source_grid,dE_edges]  = source_axes_block.get_bin_nodes('-bin_centre','-3D');
+
 dE_range_requested = targ_axes_block.img_range(:,4)';
-may_contribute_dE = (dE_edges >= dE_range_requested(1)) & (dE_edges<=dE_range_requested(2));
-if ~any(may_contribute_dE)
-    may_contributeND = [];
+dE_range_source    = source_axes_block.img_range(:,4)';
+if any(source_axes_block.iax == 4)
+    dE_edges = dE_range_source;
+else
+    dE_edges = linspace(dE_range_source(1),dE_range_source(2),source_axes_block.nbins_all_dims(4)+1);
+end
+[any_inside,may_contribute_dE] = AxesBlockBase.bins_in_1Drange(dE_edges,dE_range_requested);
+if ~any_inside
+    may_contributeND= [];
     return;
 end
+source_grid  = source_axes_block.get_bin_nodes('-bin_centre','-3D');
 % define unit signal on the edges of the target grid and zeros at "halo"
 % points surrounding the target grid
 char_sizes = source_axes_block.get_char_size(source_proj);
@@ -41,3 +48,4 @@ interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},targ_grid_present,
     conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)', 'linear',0);
 
 may_contributeND = interp_ds(:)>eps(single(1));
+

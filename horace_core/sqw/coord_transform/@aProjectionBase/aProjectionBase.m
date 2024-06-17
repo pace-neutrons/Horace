@@ -953,8 +953,8 @@ classdef aProjectionBase < serializable
             % bin_inside3D -- 3D logical array, containing true
             %                 for indexes to include
             % en_inside    -- 1D logical array, containing true, for
-            %                 orthogonal 1D indexes on dE lattice to include
-            %                 into contributing indexes.
+            %                 contributing cells (n_cells = n_edges-1) for
+            %                 orthogonal 1D indexes on dE lattice 
             %
             % Uses knowledge about linear arrangement of 4-D array of indexes
             % in memory and on disk
@@ -970,7 +970,7 @@ classdef aProjectionBase < serializable
 
             % calculate full 4D indexes from the the knowledge of the contributing dE bins,
             % 3D indexes and 4D array allocation layout
-            q_stride = (0:numel(en_inside)-1)*q_block_size; % the shift of indexes for
+            q_stride = (0:numel(en_inside))*q_block_size; % the shift of indexes for
             % every subsequent dE block shifted by q_stride
             q_stride = q_stride(en_inside); % but only contributing dE blocks matter
 

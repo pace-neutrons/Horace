@@ -31,7 +31,15 @@ end
 % get target range in Crystal Cartesian coordinate system, build bounding
 % box around the axes block (if it was offsetted -- fine, around offsetted
 % point)
+
+ll = config_store.instance().get_value('hor_config','log_level');
+if ll < 2
+    ws = warning('off','HORACE:get_targ_range');
+end
 [range_cc,in_range] = obj.get_targ_range(this_proj,line_proj('offset',this_proj.offset,'type','aaa'));
+if ll<2
+    warning(ws);
+end
 in_range = in_range>=0;
 
 offset_cc = this_proj.transform_hkl_to_pix(this_proj.offset(1:3)');
