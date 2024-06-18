@@ -1,21 +1,22 @@
 function is_inside = bin_inside(img_grid_coord,img_size,targ_range,mark_nodes)
-% Found the cells or edges which lie inside the limits provided as input.
+% Find the cells or nodes which lie inside the limits provided as input.
 %
 % Input:
 % img_grid_coord  -- 3xNcells or 4xNcells array of image coordinates
-% img_size        -- array which defines shape of ND image
+% img_size        -- array which defines shape and size of ND image.
+%                    Ncells = prod(img_size);
 % targ_range      -- 2x3 or 2x4 array of ranges to specify if
 %                    img_grid_coord lie inside or outside of them.
 % mark_nodes      -- return contributing nodes rather then bin centers if
-%                    this option is set to true;
+%                    this option is set to true.
 %
 % Ouptput:
-% is_inside       -- logical array of size Ncells, containing true for
+% is_inside       -- logical array of size img_size-1, containing true for
 %                    cells which lie inside the target range and false for
 %                    outsize cells.
 %   or  (if mark_nodes == true)
 %                 -- logical array of size img_size, containing true
-%                    for all nodes which lay inside (or at the edge)
+%                    for all nodes which lay inside (or at the boundaries)
 %                    of the target range.
 
 if nargin<4

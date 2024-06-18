@@ -24,7 +24,7 @@ function  [nodes,inside] = get_interp_nodes(obj,this_proj,char_sizes)
 
 % Assuming 3D case. 4D case may be expanded later
 if ~this_proj.do_3D_transformation
-    error('HPRACE:AxesBlockBase:not_implemented', ...
+    error('HORACE:AxesBlockBase:not_implemented', ...
         '4D grit overlapping is not yet implemented');
 end
 

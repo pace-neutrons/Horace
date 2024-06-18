@@ -21,7 +21,7 @@ if nargin == 1
 end
 % Assuming 3D case. 4D case would may be expanded later
 if ~this_proj.do_3D_transformation
-    error('HPRACE:AxesBlockBase:not_implemented', ...
+    error('HORACE:AxesBlockBase:not_implemented', ...
         '4D grit overlapping is not yet implemented');
 end
 

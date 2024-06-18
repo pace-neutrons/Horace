@@ -13,7 +13,8 @@ function [the_range,is_in,img_targ_center] = get_targ_range(obj,source_proj,targ
 % range_requested
 %               -- logical 4-element array, containing true, for the
 %                  coordinates, which are requested and false for which are
-%                  not.
+%                  not. If omitted, all elements of this are set true, so
+%                  all ranges are requested.
 %
 % Output:
 % the_range     --  2x4 element array containing min/max ranges, current
