@@ -103,6 +103,10 @@ classdef line_axes < AxesBlockBase
         function lab = get.ulabel(obj)
             lab  = obj.label_;
         end
+        % Return characteristic size of a grid cell in the target
+        % coordinate system.
+        sz = get_char_size(obj,this_proj);
+
     end
     %----------------------------------------------------------------------
     methods(Static)

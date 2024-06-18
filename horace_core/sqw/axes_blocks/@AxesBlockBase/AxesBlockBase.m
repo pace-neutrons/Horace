@@ -470,7 +470,7 @@ classdef AxesBlockBase < serializable
 
         % Return characteristic size of a grid cell in the target
         % coordinate system.
-        sz = get_char_size(obj,this_proj_or_proj_coord,varargin);
+        sz = get_char_size(obj,this_proj);
         % return nodes of the interpolation grid used to identify grid
         % intercept
         [nodes,inside] = get_interp_nodes(obj,this_proj,char_sizes);
