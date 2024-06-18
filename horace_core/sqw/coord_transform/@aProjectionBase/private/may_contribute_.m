@@ -29,15 +29,16 @@ if ~any_inside
     may_contributeND= [];
     return;
 end
-[source_grid,~,nbs]  = source_axes_block.get_bin_nodes('-bin_centre','-3D');
-% convert the coordinates of the bin centres of the reference grid into
-% the coordinate system of the target grid.
-conv_grid = source_proj.transform_img_to_pix(source_grid);
-
 % define unit signal on the edges of the target grid and zeros at "halo"
 % points surrounding the target grid
-char_sizes = source_axes_block.get_char_size(conv_grid,nbs);
+char_sizes = source_axes_block.get_char_size(source_proj);
 [targ_nodes,targ_grid_present] = targ_axes_block.get_interp_nodes(targ_proj,char_sizes(1:3));
+
+
+source_grid  = source_axes_block.get_bin_nodes('-bin_centre','-3D');
+% convert the coordinates of the bin centres of the reference grid into
+% the coordinate system of the Crystal Cartezian grid.
+conv_grid = source_proj.transform_img_to_pix(source_grid);
 
 
 % find the presence of the reference grid centres within the target grid
