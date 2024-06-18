@@ -30,7 +30,7 @@ classdef test_AxesBlockBase_methods < TestCase
             obj = obj@TestCase(name);
             obj.working_dir = fileparts(mfilename("fullpath"));
         end
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         %------------------------------------------------------------------
         function test_get_char_size_sphere_proj_col(~)
             pr = sphere_proj('alatt',2*pi,'angdeg',90);
@@ -38,6 +38,28 @@ classdef test_AxesBlockBase_methods < TestCase
 
             sz = ax.get_char_size(pr);
             assertElementsAlmostEqual(sz,[0.0837,0.0943,0.1362,10.],'absolute',1.e-4);
+        end
+
+        function test_get_char_size_line_proj_diag_generic(~)
+            pr = line_proj([-1,1,0],[1,1,0],'alatt',2*pi,'angdeg',90);
+            ax = pr.get_proj_axes_block(cell(1,4),{[-1,0.1,1],[-2,0.2,2],[-3,3],[0,10]});
+
+            ax = line_axes_char_size_tester(ax);
+            sz1 = ax.get_char_size(pr);
+            ax.use_generic = true;
+            sz2 = ax.get_char_size(pr);
+            assertElementsAlmostEqual(sz1,sz2);
+        end
+
+        function test_get_char_size_line_proj_col_generic(~)
+            pr = line_proj('alatt',2*pi,'angdeg',90);
+            ax = pr.get_proj_axes_block(cell(1,4),{[-1,0.1,1],[-2,0.2,2],[-3,3],[0,10]});
+
+            ax = line_axes_char_size_tester(ax);
+            sz1 = ax.get_char_size(pr);
+            ax.use_generic = true;
+            sz2 = ax.get_char_size(pr);
+            assertElementsAlmostEqual(sz1,sz2);
         end
 
 
@@ -48,7 +70,7 @@ classdef test_AxesBlockBase_methods < TestCase
             sz = ax.get_char_size(pr);
             assertElementsAlmostEqual(sz,[0.3,0.3,6,10]);
         end
-        
+
         function test_get_char_size_line_proj_col(~)
             pr = line_proj('alatt',2*pi,'angdeg',90);
             ax = pr.get_proj_axes_block(cell(1,4),{[-1,0.1,1],[-2,0.2,2],[-3,3],[0,10]});
