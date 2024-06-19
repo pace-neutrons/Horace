@@ -104,6 +104,7 @@ classdef LineProjBase < aProjectionBase
         end
     end
     %======================================================================
+    % Legacy (u-to-rlu related)
     methods
         function axes_bl = copy_proj_defined_properties_to_axes(obj,axes_bl)
             % copy the properties, which are normally defined on projection
@@ -341,7 +342,6 @@ classdef LineProjBase < aProjectionBase
         end
         %
     end
-    %
     methods(Static)
         function lst = data_sqw_dnd_export_list()
             % Method, which define the values to be extracted from projection

@@ -22,10 +22,10 @@ classdef sphere_axes < AxesBlockBase
     %5) ab = sphere_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
-    %Note: 
+    %Note:
     %       Unlike line_axes, the img_range in the case of
     %       spherical axes should lie within alowed limits (0-inf for rho
-    %       [0,pi] for theta and [-pi, pi] for phi.    
+    %       [0,pi] for theta and [-pi, pi] for phi.
     properties(Constant,Access = private)
         % What units each possible dimension type of the spherical projection
         % have:  Currently momentum, angle, and energy transfer may be
@@ -46,7 +46,6 @@ classdef sphere_axes < AxesBlockBase
     properties(Dependent)
         % if angular dimensions of the axes are expressed in radians or degrees
         angular_unit_is_rad
-
     end
     properties(Dependent,Hidden)
         % the range used for cylinder_axes by default
@@ -146,6 +145,24 @@ classdef sphere_axes < AxesBlockBase
             for i=1:2
                 if obj.angular_unit_is_rad_(i)
                     range(:,1+i) = deg2rad(range(:,1+i));
+                end
+            end
+        end
+    end
+    % s
+    methods
+        function [in,in_details] = in_range(obj,coord)
+            %IN_RANGE identifies if the input coordinates lie within the
+            %image data range.
+            [in,in_details] = in_range@AxesBlockBase(obj,coord);
+            % check if some coord have radius 0 and range have radius 0.
+            % these coordinates are in range regardless of angles range
+            if any(in~=1) && obj.img_range(1,1)==0
+                r_eq_0 = coord(1,:) == 0;
+                if any(r_eq_0)
+                    in_details(1:3,r_eq_0) = 0;
+                    equal = in_details == 0;
+                    in(any(equal,1))   = 0;
                 end
             end
         end

@@ -146,7 +146,7 @@ classdef aProjectionBase < serializable
         do_3D_transformation_ = true;
         %------------------------------------------------------------------
         %
-        type_ = ''        
+        type_ = ''
     end
     %======================================================================
     % ACCESSORS AND CONSTRUCTION
@@ -276,7 +276,7 @@ classdef aProjectionBase < serializable
         function obj=set.type(obj,type)
             obj = check_and_set_type(obj,type);
         end
-        
+
         function [bm,arlu,angrlu] = bmatrix(obj,ndim)
             % Return b-matrix defined on this projection lattice.
             %
@@ -663,9 +663,9 @@ classdef aProjectionBase < serializable
             %              expressed in. The target projection has to be
             %              set up
             %
-            % pix_origin   4xNpix vector of pixels coordinates expressed in
-            %              the coordinate system, defined by current
-            %              projection
+            % pix_origin   3xNpix or 4xNpix vector of pixels coordinates
+            %              expressed in the coordinate system, defined by
+            %              current projection
             %Outputs:
             % pix_target -- 4xNpix vector of the pixels coordinates in the
             %               coordinate system, defined by the target
@@ -725,7 +725,7 @@ classdef aProjectionBase < serializable
             %           infinite. Usually it is the range of the existing
             %           axes block, transformed into the system
             %           coordinates, defined by cut projection using
-            %           dnd.targ_range(targ_proj) method.
+            %           dnd.get_targ_range(targ_proj) method.
             % requested_bin_ranges --
             %           cellarray of cut bin ranges, requested by user.
             %
@@ -735,7 +735,7 @@ classdef aProjectionBase < serializable
             %          corresponding to the projection
             ax_name = obj.axes_name;
             ax_class = feval(ax_name);
-            ax_class.axes_units = obj.type;                        
+            ax_class.axes_units = obj.type;
             ax_bl = AxesBlockBase.build_from_input_binning(...
                 ax_class,default_bin_ranges,requested_bin_ranges);
             ax_bl = obj.copy_proj_defined_properties_to_axes(ax_bl);
@@ -858,7 +858,8 @@ classdef aProjectionBase < serializable
                 error('HORACE:aProjectionBase:invalid_argument',...
                     'you may set do_generic property into true or false state only');
             end
-            obj.do_generic_ = logical(val);
+            obj.do_generic_                        = logical(val);
+            obj.disable_srce_to_targ_optimization_ = logical(val);
         end
 
         function obj = set_offset(obj,val)
@@ -952,8 +953,8 @@ classdef aProjectionBase < serializable
             % bin_inside3D -- 3D logical array, containing true
             %                 for indexes to include
             % en_inside    -- 1D logical array, containing true, for
-            %                 orthogonal 1D indexes on dE lattice to include
-            %                 into contributing indexes.
+            %                 contributing cells (n_cells = n_edges-1) for
+            %                 orthogonal 1D indexes on dE lattice 
             %
             % Uses knowledge about linear arrangement of 4-D array of indexes
             % in memory and on disk
@@ -969,7 +970,7 @@ classdef aProjectionBase < serializable
 
             % calculate full 4D indexes from the the knowledge of the contributing dE bins,
             % 3D indexes and 4D array allocation layout
-            q_stride = (0:numel(en_inside)-1)*q_block_size; % the shift of indexes for
+            q_stride = (0:numel(en_inside))*q_block_size; % the shift of indexes for
             % every subsequent dE block shifted by q_stride
             q_stride = q_stride(en_inside); % but only contributing dE blocks matter
 
@@ -1016,7 +1017,7 @@ classdef aProjectionBase < serializable
         scales   = get_img_scales(obj);
         obj      = set_img_scales(obj,val);
 
-        % set projection type, changing the units of angular dimensions if 
+        % set projection type, changing the units of angular dimensions if
         obj = check_and_set_type(obj,val)% necessary/present
     end
     %======================================================================

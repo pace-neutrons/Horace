@@ -23,17 +23,18 @@ classdef test_axes_block_binIn1D < TestCase
             range = [-0.5,1.5];
             [in,is_inside] = line_axes.bins_in_1Drange(bins,range);
             assertTrue(in)
-            inside = false(1,10);
+            inside = false(1,9);
             inside(1) = true;
             assertEqual(is_inside,inside);
         end
-        
+
         function test_range_outside_adjacent(~)
             bins = 1:10;
             range = [10,11];
             [in,is_inside] = line_axes.bins_in_1Drange(bins,range);
-            assertFalse(in)
-            inside = false(1,10);
+            assertTrue(in)
+            inside = false(1,9);
+            inside(9) = true;
             assertEqual(is_inside,inside);
         end
 
@@ -42,45 +43,47 @@ classdef test_axes_block_binIn1D < TestCase
             range = [9.5,10.5];
             [in,is_inside] = line_axes.bins_in_1Drange(bins,range);
             assertTrue(in)
-            inside = false(1,10);
+            inside = false(1,9);
             inside(9) = true;
             assertEqual(is_inside,inside);
         end
 
         function test_range_inside_range(~)
-            bins = 1:10;
+            edges = 1:10;
             range = [4.5,4.9];
-            [in,is_inside] = line_axes.bins_in_1Drange(bins,range);
+            [in,is_inside] = line_axes.bins_in_1Drange(edges,range);
             assertTrue(in)
-            inside = false(1,10);
+            inside = false(1,9);
             inside(4) = true;
             assertEqual(is_inside,inside);
         end
         function test_range_all_outside_smaller(~)
-            bins = 1:10;
+            edges = 1:10;
             range = [-1,1];
-            [in,is_inside] = line_axes.bins_in_1Drange(bins,range);
-            assertFalse(in)
-            inside = false(1,10);
+            [in,is_inside] = line_axes.bins_in_1Drange(edges,range);
+            assertTrue(in)
+            inside = false(1,9);
+            inside(1) = true;
             assertEqual(is_inside,inside);
         end
-        
+
 
         function test_range_all_outside_bigger(~)
-            bins = 1:10;
+            edges = 1:10;
             range = [11,12];
-            [in,is_inside] = line_axes.bins_in_1Drange(bins,range);
+            [in,is_inside] = line_axes.bins_in_1Drange(edges,range);
             assertFalse(in)
-            inside = false(1,10);
+            inside = false(1,9);
             assertEqual(is_inside,inside);
         end
-        
+
         function test_range_inside(~)
-            bins = 1:10;
+            edges = 1:10;
             range = [4,5];
-            [in,is_inside] = line_axes.bins_in_1Drange(bins,range);
+            [in,is_inside] = line_axes.bins_in_1Drange(edges,range);
             assertTrue(in)
-            inside = false(1,10);
+            inside = false(1,9);
+            inside(3) = true;
             inside(4) = true;
             inside(5) = true;
             assertEqual(is_inside,inside);

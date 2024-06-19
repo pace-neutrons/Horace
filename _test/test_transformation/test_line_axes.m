@@ -791,7 +791,7 @@ classdef test_line_axes < TestCase
             ab = line_axes(bin0{:});
 
             tob = DnDBase.dnd(ab,line_proj('alatt',2.7,'angdeg',90));
-            range  = tob.targ_range([],'-binning');
+            range  = tob.get_targ_range([],'-binning');
 
             assertEqual(bin0,range);
         end
@@ -806,7 +806,7 @@ classdef test_line_axes < TestCase
             proj2 = line_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
 
             tob = DnDBase.dnd(ab,proj1);
-            bin = tob.targ_range(proj2,'-binning');
+            bin = tob.get_targ_range(proj2,'-binning');
 
             % characteristic size of the block, transformed into proj2
             % coordinate system. This is absolutely unclear why does this
@@ -833,7 +833,7 @@ classdef test_line_axes < TestCase
             proj2 = line_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
 
             tob = DnDBase.dnd(ab,proj1);
-            bin = tob.targ_range(proj2,'-binning');
+            bin = tob.get_targ_range(proj2,'-binning');
 
             assertEqualToTol([-1,0.1,1],bin{1},'abstol',1.e-12);
             assertEqualToTol([-1,0.1,1],bin{2},'abstol',1.e-12);
@@ -851,7 +851,7 @@ classdef test_line_axes < TestCase
             tob = DnDBase.dnd(ab,proj1);
             proj2 = line_proj([1,0,0],[0,0,1],'alatt',1,'angdeg',90);
 
-            bin = tob.targ_range(proj2,'-binning');
+            bin = tob.get_targ_range(proj2,'-binning');
 
             assertEqualToTol(bin0{1},bin{1},'abstol',1.e-12);
             assertEqualToTol(bin0{2},bin{3},'abstol',1.e-12);
@@ -873,7 +873,7 @@ classdef test_line_axes < TestCase
             proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             tob = DnDBase.dnd(ab,proj1);
 
-            bin = tob.targ_range(proj1,'-binning');
+            bin = tob.get_targ_range(proj1,'-binning');
 
             assertEqualToTol(bin0,bin,'abstol',1.e-12);
         end

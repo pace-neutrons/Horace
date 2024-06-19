@@ -155,12 +155,13 @@ classdef CurveProjBase <aProjectionBase
         end
         %
     end
+
     methods(Access = protected)
         function    obj = check_and_set_type(obj,val)
             % set curvilinear projection type, changing the units of the
             % angular dimensions if necessary
             obj = check_and_set_type_(obj,val);
-        end       
+        end
         function obj = set_u(obj,val)
             % main setter for u-property
             val = aProjectionBase.check_and_brush3vector(val);
