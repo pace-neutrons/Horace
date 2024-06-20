@@ -711,14 +711,14 @@ classdef AxesBlockBase < serializable
             %       column describes a point on a grid.
             %
             % Inputs:
-            % obj         -- initialized version of the axes block
+            % obj        -- initialized version of the axes block
+            %
             % Optional:
-            %  char_cube -- the cube, describing the scale of the grid,
-            %               to construct the lattice on, defined by its
-            %               minimal and maximal points (4x2 matrix)
-            %  or         --
-            %               char_size directly (4x1 vector), describing the
-            %               scales along each axis the lattice should have
+            % nbins_all_dims 
+            %           -- (4-element vector) or single number
+            %               expanded to 4-element vector, describing the
+            %               binning along each axis for the lattice to
+            %               build instead of existing axis binning
             %
             % '-3D'     -- generate separate 3D grid nodes for q-axes and
             %              energy transfer binning grid as the energy axis
