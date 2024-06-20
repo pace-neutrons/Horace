@@ -69,6 +69,13 @@ Passing a pair of vectors will still be accepted and be internally
 transformed into the correct ``Symop``, however, it is still best to
 switch.
 
+Spaghetti Plot
+--------------
+
+``qwidth`` in ``spaghetti_plot`` arguments now correctly refers to a full-width of the perpendicular
+bins. This means that to achieve the same results in Horace 4 as Horace 3, a user-specified
+``qwidth`` should be twice as large. Default ``qwidths`` have been updated to reflect this change.
+
 Crystal Alignment
 -----------------
 
