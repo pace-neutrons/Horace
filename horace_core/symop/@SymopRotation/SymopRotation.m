@@ -70,7 +70,9 @@ classdef SymopRotation < Symop
         % belong to the irreducible set in the upper right quadrant
 
             if ~exist('proj', 'var')
-                proj = line_proj();
+                proj = line_proj([1, 0, 0], [0, 1, 0], ...
+                                 'angdeg', [90, 90, 90], ...
+                                 'alatt', [1, 1, 1]);
             end
 
             if ~isequal(proj.angdeg, [90 90 90])
