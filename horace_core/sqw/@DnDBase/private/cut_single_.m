@@ -101,10 +101,10 @@ function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
 % npix       Array defining how many pixels are contained in each image
 %            bin. size(npix) == size(s). As the data are interpolated,
 %            the number of pixels may become fractional
-npix = obj.npix;
-s = obj.s.*npix ;
-e = obj.e.*(npix.^2);
 
-[s,e,npix] = targ_axes.interpolate_data(obj.axes,obj.proj,{s,e,npix},targ_proj);
+s = obj.s;
 
-[s, e] = normalize_signal(s, e, npix);
+s = targ_axes.interpolate_data(obj.axes,obj.proj,{s},targ_proj);
+e = zeros(size(s));
+npix = ones(size(s));
+%[s, e] = normalize_signal(s, e, npix);

@@ -5,23 +5,34 @@ classdef test_dnd_cut< TestCaseWithSave
     %
 
     properties
-        dnd_file_2d_name = 'dnd_2d.sqw';
+        sqw_file_2d_name = 'w2d_qe_sqw.sqw';
         d2d_obj;
+        sqw_ref_obj;
     end
 
     methods
 
         %The above can now be read into the test routine directly.
         function obj=test_dnd_cut(varargin)
-            test_ref_data = fullfile(fileparts(mfilename('fullpath')),'test_dnd_cut.mat');
-
-            argi = [varargin,test_ref_data];
-
+            name = 'test_dnd_cut';
+            if nargin>0 && strncmp(varargin{1},'-save',max(strlength(varargin{1}),2))
+                if nargin == 2
+                    name = varargin{2};
+                else
+                    name = fullfile(fileparts(mfilename("fullpath")),'test_dnd_cut_output.mat');
+                end
+                argi = {'-save',name};
+            else
+                argi = {name};
+            end
+            
             obj = obj@TestCaseWithSave(argi{:});
             hp = horace_paths();
-            dnd_2d_fullpath = fullfile(hp.test_common,obj.dnd_file_2d_name);
+            sqw_2d_fullpath = fullfile(hp.test_common,obj.sqw_file_2d_name);
 
-            obj.d2d_obj = read_dnd(dnd_2d_fullpath);
+            obj.sqw_ref_obj = read_sqw(sqw_2d_fullpath);            
+            obj.d2d_obj     = obj.sqw_ref_obj.data;
+
             obj.save();
         end
         %------------------------------------------------------------------
@@ -29,10 +40,13 @@ classdef test_dnd_cut< TestCaseWithSave
         function test_2D_to2D_cut_with_cylinder_proj(obj)
             clOb = set_temporary_warning('off','HORACE:runtime_error');
 
-            proj = cylinder_proj('type','aad');
+            proj = cylinder_proj([1,1,0],[0,0,1],'type','aad');
             cut_range = obj.d2d_obj.get_targ_range(proj);
-            w2 = cut(obj.d2d_obj,proj,[1,0.1,2], ...
-                [113,114],[cut_range(1,3),0.1,cut_range(2,3)],[-0.25,0.25]);
+            w2 = cut(obj.d2d_obj,proj,[0,4], ...
+                [-2,0.1,2],[cut_range(1,3),cut_range(2,3)],[]);
+            w2f = cut(obj.sqw_ref_obj,proj,[0,4], ...
+                [-2,0.1,2],[cut_range(1,3),cut_range(2,3)],[]);
+
 
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
             skipTest('Re #1707 These cells intersection does not look correct')

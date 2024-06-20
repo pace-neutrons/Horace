@@ -36,6 +36,10 @@ function varargout = interpolate_data_(targ_axes,nout,ref_axes,ref_proj,ref_data
 for i= 1:nargout
     varargout{i} = [];
 end
+if ~targ_proj.do_3D_transformation
+    error('HORACE:AxesBlockBase:not_implemented', ...
+        '4D axes block transformation is not yet implemented');
+end
 % cross-assign the source and target projection transformations
 %
 %
