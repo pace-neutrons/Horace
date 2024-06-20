@@ -30,24 +30,24 @@ classdef test_dnd_cut< TestCaseWithSave
             clOb = set_temporary_warning('off','HORACE:runtime_error');
 
             proj = cylinder_proj('type','aad');
-            cut_range = obj.d2d_obj.targ_range(proj);
+            cut_range = obj.d2d_obj.get_targ_range(proj);
             w2 = cut(obj.d2d_obj,proj,[1,0.1,2], ...
                 [113,114],[cut_range(1,3),0.1,cut_range(2,3)],[-0.25,0.25]);
 
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
-            skipTest('Re #1639 These cells intersection does not look correct')            
+            skipTest('Re #1707 These cells intersection does not look correct')
         end
-        
+
         function test_2D_to2D_cut_with_spher_proj(obj)
             clOb = set_temporary_warning('off','HORACE:runtime_error');
 
             proj = sphere_proj('type','add');
-            cut_range = obj.d2d_obj.targ_range(proj);
+            cut_range = obj.d2d_obj.get_targ_range(proj);
             w2 = cut(obj.d2d_obj,proj,[1,0.1,2], ...
                 [113,114],[cut_range(1,3),0.1,cut_range(2,3)],[-0.25,0.25]);
 
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
-            skipTest('Re #1639 These cells intersection does not look correct')
+            skipTest('Re #1707 These cells intersection does not look correct')
         end
 
         function test_2D_to2D_cut_with_proj(obj)

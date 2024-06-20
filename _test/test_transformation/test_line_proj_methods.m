@@ -34,6 +34,7 @@ classdef test_line_proj_methods<TestCase
         function test_bin_range_05_samp_proj2Drot45_3D_opt_vs4D_generic_withdE(~)
             % full 4D transformation with orthogonal dE axis tested against
             % equivalent 3d+1 transformation. Should give equal results
+            skipTest('Re #1706 full 4D ttransformation is currently disabled')
             proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             proj1.do_3D_transformation = false;
@@ -79,6 +80,8 @@ classdef test_line_proj_methods<TestCase
         function test_binning_range_05_samp_proj2Drot45_3D_opt_vs4D_generic(~)
             % full 4D transformation with orthogonal dE axis tested against
             % equivalent 3d+1 transformation. Should give the same results
+            skipTest('Re #1706 full 4D ttransformation is currently disabled')
+
             proj1 = line_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
             proj1.do_generic = true;
             proj1.do_3D_transformation = false;
@@ -129,6 +132,8 @@ classdef test_line_proj_methods<TestCase
         function test_binning_range_half_sampe_proj2Drot45(~)
             % compare default generic cut (3D+1 now) with
             % old-style ranges cut
+            skipTest('Re #1706 full 4D ttransformation is currently disabled')
+
             proj1 = line_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
             proj1.do_generic = true;
             proj1.convert_targ_to_source = false;

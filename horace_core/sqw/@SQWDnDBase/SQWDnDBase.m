@@ -96,7 +96,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         wout = IX_dataset_2d(w);
         wout = IX_dataset_3d(w);
         % the maximal range of the image may be produced by target projection applied to the current image.
-        range = targ_range(obj,targ_proj,varargin)
+        range = get_targ_range(obj,targ_proj,varargin)
         % if the plotting operation should adjust aspect ratio when plotting sqw objects
         status = adjust_aspect(obj)
         % build target axes for cut
