@@ -1277,8 +1277,9 @@ limited and mostly discouraged.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code> is fully equivalent to <code class="docutils literal notranslate"><span class="pre">cut</span></code> except that attempting to apply it
 to a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object or file, will raise an error.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cut_dnd</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">cut</span></code> except it only ever returns a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> as
-though <code class="docutils literal notranslate"><span class="pre">-nopix</span></code> had been passed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cut_dnd</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">cut</span></code> on a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object, but for an
+<code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, it operates on the <code class="docutils literal notranslate"><span class="pre">dnd</span></code> (binned image) of the
+<code class="docutils literal notranslate"><span class="pre">sqw</span></code>, ignoring any pixel information and returning a <code class="docutils literal notranslate"><span class="pre">dnd</span></code>.</p></li>
 </ul>
 </section>
 </section>
@@ -1356,7 +1357,7 @@ the range. The resulting image range will be <code class="docutils literal notra
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Jun 19, 2024, 9:13:31 AM.
+      <span class="lastupdated">Last updated on Jun 20, 2024, 12:27:27 PM.
       </span></p>
   </div>
 

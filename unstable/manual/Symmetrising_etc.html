@@ -68,23 +68,23 @@
 <li class="toctree-l4"><a class="reference internal" href="#irreducible-region">10.1.5. Irreducible region</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#symop-methods">10.2. Symop Methods</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#transform-vec">10.2.1. <code class="docutils literal notranslate"><span class="pre">transform_vec</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#transform-pix">10.2.2. <code class="docutils literal notranslate"><span class="pre">transform_pix</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#transform-proj">10.2.3. <code class="docutils literal notranslate"><span class="pre">transform_proj</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#commands-for-cuts-and-slices">10.2. Commands for cuts and slices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#symmetrising">10.3. Symmetrising</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#symmetrise-sqw">10.3.1. <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gen-sqw">10.3.2. <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#commands-for-cuts-and-slices">10.3. Commands for cuts and slices</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#symmetrising">10.4. Symmetrising</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#symmetrise-sqw">10.4.1. <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#gen-sqw">10.4.2. <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cutting">10.4. Cutting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#combining">10.5. Combining</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rebinning">10.6. Rebinning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#symmetrise-data-then-unfold-back-to-original-range">10.7. Symmetrise data, then unfold back to original range</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#limitations">10.8. Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#symop-methods-advanced">10.9. Symop Methods - Advanced</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#transform-vec">10.9.1. <code class="docutils literal notranslate"><span class="pre">transform_vec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#transform-pix">10.9.2. <code class="docutils literal notranslate"><span class="pre">transform_pix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#transform-proj">10.9.3. <code class="docutils literal notranslate"><span class="pre">transform_proj</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#cutting">10.5. Cutting</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#combining">10.6. Combining</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#rebinning">10.7. Rebinning</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#symmetrise-data-then-unfold-back-to-original-range">10.8. Symmetrise data, then unfold back to original range</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#limitations">10.9. Limitations</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
@@ -287,8 +287,9 @@ symmetry reductions reduce the data, rather than mapping the data across the
 symmetry transformation.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This is currently only defined for <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> and <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> (which is why <code class="docutils literal notranslate"><span class="pre">SymopGeneral</span></code> is not
-currently permitted for symmetric reductions).</p>
+<p>This is currently only defined for <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> and <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code>
+(which is why <code class="docutils literal notranslate"><span class="pre">SymopGeneral</span></code> is not currently permitted for symmetric
+reductions).</p>
 </div>
 <p>The irreducible region for <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> is defined as the the positive
 half-volume with respect to the normal vector of the plane of
@@ -322,111 +323,8 @@ and some of a negative domain.</p>
 </div>
 </section>
 </section>
-<section id="symop-methods">
-<h2><span class="section-number">10.2. </span>Symop Methods<a class="headerlink" href="#symop-methods" title="Permalink to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">Symop</span></code> objects have methods to transform a variety of methods to transform
-objects which may be related by symmetry. These are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">transform_vec</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code></p></li>
-</ul>
-<p>Which transform numeric vectors, <code class="docutils literal notranslate"><span class="pre">PixelDataBase</span></code> objects and <code class="docutils literal notranslate"><span class="pre">aProjection</span></code>
-objects respectively.</p>
-<section id="transform-vec">
-<h3><span class="section-number">10.2.1. </span><code class="docutils literal notranslate"><span class="pre">transform_vec</span></code><a class="headerlink" href="#transform-vec" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">transform_vec</span></code> takes a 3xN list of 3-vectors to transform. This method can be
-applied directly from a single <code class="docutils literal notranslate"><span class="pre">Symop</span></code> or from an array (but not cell array)
-of <code class="docutils literal notranslate"><span class="pre">Symop</span></code> objects (see: <a class="reference internal" href="#groups-of-symmetry-operators">Groups of symmetry operators</a>).</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span>
-
-<span class="n">sym</span><span class="w"> </span><span class="p">=</span>
-
-<span class="n">Reflection</span><span class="w"> </span><span class="s">operator:</span>
-<span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-<span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-<span class="w">     </span><span class="n">offset</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="p">.</span><span class="n">transform_vec</span><span class="p">([</span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">])</span>
-
-<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-
-<span class="w">     </span><span class="mi">3</span>
-<span class="w">     </span><span class="mi">6</span>
-<span class="w">    </span><span class="o">-</span><span class="mi">1</span>
-</pre></div>
-</div>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">big_sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">90</span><span class="p">),</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">-</span><span class="mi">90</span><span class="p">)];</span>
-<span class="w">                         </span><span class="c">%v1|v2|v3|v4|v5</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">big_sym</span><span class="p">.</span><span class="n">transform_vec</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span>
-<span class="w">                          </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">                          </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">])</span>
-
-<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-<span class="w">    </span><span class="c">%v1&#39;| v2&#39;|  v3&#39;|  v4&#39;|  v5&#39;</span>
-<span class="w">    </span><span class="o">-</span><span class="mi">1</span><span class="w">    </span><span class="o">-</span><span class="mi">3</span><span class="w">    </span><span class="o">-</span><span class="mi">5</span><span class="w">    </span><span class="o">-</span><span class="mi">1</span><span class="w">    </span><span class="o">-</span><span class="mi">3</span>
-<span class="w">     </span><span class="mi">2</span><span class="w">     </span><span class="mi">2</span><span class="w">     </span><span class="mi">4</span><span class="w">     </span><span class="mi">6</span><span class="w">     </span><span class="mi">1</span>
-<span class="w">     </span><span class="mi">6</span><span class="w">     </span><span class="mi">3</span><span class="w">     </span><span class="mi">1</span><span class="w">     </span><span class="mi">3</span><span class="w">     </span><span class="mi">6</span>
-</pre></div>
-</div>
-</section>
-<section id="transform-pix">
-<h3><span class="section-number">10.2.2. </span><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code><a class="headerlink" href="#transform-pix" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code> takes a <code class="docutils literal notranslate"><span class="pre">PixelDataBase</span></code> derived object and transforms the
-contained pixel q-coordinates according to the symmetry operations and returns a
-new object with the transformed pixels.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code> takes the <code class="docutils literal notranslate"><span class="pre">Symop</span></code> object’s <a class="reference internal" href="#irreducible-region">Irreducible region</a> into
-account and does not transform the pixels which are considered to be within
-the irreducible region.</p>
-</div>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
-<span class="c">% 5 pixels in memory</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">PixelDataMemory</span><span class="p">(</span><span class="nb">rand</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">));</span>
-<span class="c">% Put pixels outside of &quot;positive quadrant&quot;</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix</span><span class="p">.</span><span class="n">q_coordinates</span><span class="p">(:,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="p">])</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">-</span><span class="n">pix</span><span class="p">.</span><span class="n">q_coordinates</span><span class="p">(:,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="p">]);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix_new</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sym</span><span class="p">.</span><span class="n">transform_pix</span><span class="p">(</span><span class="n">pix</span><span class="p">);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix</span><span class="p">.</span><span class="n">data</span>
-
-<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-
-<span class="w">   </span><span class="o">-</span><span class="mf">0.4898</span><span class="w">   </span><span class="o">-</span><span class="mf">0.1190</span><span class="w">    </span><span class="mf">0.6991</span><span class="w">    </span><span class="mf">0.8143</span><span class="w">    </span><span class="mf">0.8308</span><span class="w"> </span><span class="c">% q_x</span>
-<span class="w">   </span><span class="o">-</span><span class="mf">0.4456</span><span class="w">   </span><span class="o">-</span><span class="mf">0.4984</span><span class="w">    </span><span class="mf">0.8909</span><span class="w">    </span><span class="mf">0.2435</span><span class="w">    </span><span class="mf">0.5853</span><span class="w"> </span><span class="c">% q_y</span>
-<span class="w">   </span><span class="o">-</span><span class="mf">0.6463</span><span class="w">   </span><span class="o">-</span><span class="mf">0.9597</span><span class="w">    </span><span class="mf">0.9593</span><span class="w">    </span><span class="mf">0.9293</span><span class="w">    </span><span class="mf">0.5497</span><span class="w"> </span><span class="c">% q_z</span>
-<span class="w">    </span><span class="mf">0.7094</span><span class="w">    </span><span class="mf">0.3404</span><span class="w">    </span><span class="mf">0.5472</span><span class="w">    </span><span class="mf">0.3500</span><span class="w">    </span><span class="mf">0.9172</span><span class="w"> </span><span class="c">% dE</span>
-<span class="w">    </span><span class="mf">0.7547</span><span class="w">    </span><span class="mf">0.5853</span><span class="w">    </span><span class="mf">0.1386</span><span class="w">    </span><span class="mf">0.1966</span><span class="w">    </span><span class="mf">0.2858</span><span class="w"> </span><span class="c">% run_idx</span>
-<span class="w">    </span><span class="mf">0.2760</span><span class="w">    </span><span class="mf">0.2238</span><span class="w">    </span><span class="mf">0.1493</span><span class="w">    </span><span class="mf">0.2511</span><span class="w">    </span><span class="mf">0.7572</span><span class="w"> </span><span class="c">% detector_idx</span>
-<span class="w">    </span><span class="mf">0.6797</span><span class="w">    </span><span class="mf">0.7513</span><span class="w">    </span><span class="mf">0.2575</span><span class="w">    </span><span class="mf">0.6160</span><span class="w">    </span><span class="mf">0.7537</span><span class="w"> </span><span class="c">% energy_idx</span>
-<span class="w">    </span><span class="mf">0.6551</span><span class="w">    </span><span class="mf">0.2551</span><span class="w">    </span><span class="mf">0.8407</span><span class="w">    </span><span class="mf">0.4733</span><span class="w">    </span><span class="mf">0.3804</span><span class="w"> </span><span class="c">% signal</span>
-<span class="w">    </span><span class="mf">0.1626</span><span class="w">    </span><span class="mf">0.5060</span><span class="w">    </span><span class="mf">0.2543</span><span class="w">    </span><span class="mf">0.3517</span><span class="w">    </span><span class="mf">0.5678</span><span class="w"> </span><span class="c">% variance</span>
-
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix_new</span><span class="p">.</span><span class="n">data</span>
-
-<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-
-<span class="w">   </span><span class="o">-</span><span class="mf">0.4898</span><span class="w">   </span><span class="o">-</span><span class="mf">0.1190</span><span class="w">    </span><span class="mf">0.6991</span><span class="w">    </span><span class="mf">0.8143</span><span class="w">    </span><span class="mf">0.8308</span><span class="w"> </span><span class="c">% q_x</span>
-<span class="w">   </span><span class="o">-</span><span class="mf">0.4456</span><span class="w">   </span><span class="o">-</span><span class="mf">0.4984</span><span class="w">    </span><span class="mf">0.8909</span><span class="w">    </span><span class="mf">0.2435</span><span class="w">    </span><span class="mf">0.5853</span><span class="w"> </span><span class="c">% q_y</span>
-<span class="w">    </span><span class="mf">0.6463</span><span class="w">    </span><span class="mf">0.9597</span><span class="w">    </span><span class="mf">0.9593</span><span class="w">    </span><span class="mf">0.9293</span><span class="w">    </span><span class="mf">0.5497</span><span class="w"> </span><span class="c">% q_z</span>
-<span class="w">    </span><span class="mf">0.7094</span><span class="w">    </span><span class="mf">0.3404</span><span class="w">    </span><span class="mf">0.5472</span><span class="w">    </span><span class="mf">0.3500</span><span class="w">    </span><span class="mf">0.9172</span><span class="w"> </span><span class="c">% dE</span>
-<span class="w">    </span><span class="mf">0.7547</span><span class="w">    </span><span class="mf">0.5853</span><span class="w">    </span><span class="mf">0.1386</span><span class="w">    </span><span class="mf">0.1966</span><span class="w">    </span><span class="mf">0.2858</span><span class="w"> </span><span class="c">% run_idx</span>
-<span class="w">    </span><span class="mf">0.2760</span><span class="w">    </span><span class="mf">0.2238</span><span class="w">    </span><span class="mf">0.1493</span><span class="w">    </span><span class="mf">0.2511</span><span class="w">    </span><span class="mf">0.7572</span><span class="w"> </span><span class="c">% detector_idx</span>
-<span class="w">    </span><span class="mf">0.6797</span><span class="w">    </span><span class="mf">0.7513</span><span class="w">    </span><span class="mf">0.2575</span><span class="w">    </span><span class="mf">0.6160</span><span class="w">    </span><span class="mf">0.7537</span><span class="w"> </span><span class="c">% energy_idx</span>
-<span class="w">    </span><span class="mf">0.6551</span><span class="w">    </span><span class="mf">0.2551</span><span class="w">    </span><span class="mf">0.8407</span><span class="w">    </span><span class="mf">0.4733</span><span class="w">    </span><span class="mf">0.3804</span><span class="w"> </span><span class="c">% signal</span>
-<span class="w">    </span><span class="mf">0.1626</span><span class="w">    </span><span class="mf">0.5060</span><span class="w">    </span><span class="mf">0.2543</span><span class="w">    </span><span class="mf">0.3517</span><span class="w">    </span><span class="mf">0.5678</span><span class="w"> </span><span class="c">% variance</span>
-</pre></div>
-</div>
-</section>
-<section id="transform-proj">
-<h3><span class="section-number">10.2.3. </span><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code><a class="headerlink" href="#transform-proj" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code> is used to transform subclasses of the <code class="docutils literal notranslate"><span class="pre">aProjection</span></code>
-type. It is an internal function which creates a new projection with the
-symmetries applied and is not normally needed by users, but is recorded here for
-completeness.</p>
-</section>
-</section>
 <section id="commands-for-cuts-and-slices">
-<h2><span class="section-number">10.3. </span>Commands for cuts and slices<a class="headerlink" href="#commands-for-cuts-and-slices" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">10.2. </span>Commands for cuts and slices<a class="headerlink" href="#commands-for-cuts-and-slices" title="Permalink to this heading"></a></h2>
 <p>In Horace it is possible to symmetrise by 3 methods:</p>
 <ul class="simple">
 <li><p>symmetrise whole S(<strong>Q</strong>, <span class="math notranslate nohighlight">\(\omega{}\)</span>) objects using <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code></p></li>
@@ -443,7 +341,7 @@ to transform only those that might contribute to the result.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Symmetrisation maps the pixels outside the <a class="reference internal" href="#irreducible-region">Irreducible region</a> into their
+<p>Symmetrisation maps the pixels outside the <a class="reference internal" href="#irreducible-region">irreducible region</a> into their
 respective symmetry related sites. This means that subsequent binning/cutting
 of the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object will see these pixels as being on the symmetry related
 site rather than their original location.</p>
@@ -452,13 +350,19 @@ site rather than their original location.</p>
 </div>
 </section>
 <section id="symmetrising">
-<h2><span class="section-number">10.4. </span>Symmetrising<a class="headerlink" href="#symmetrising" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">10.3. </span>Symmetrising<a class="headerlink" href="#symmetrising" title="Permalink to this heading"></a></h2>
 <section id="symmetrise-sqw">
-<h3><span class="section-number">10.4.1. </span><code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code><a class="headerlink" href="#symmetrise-sqw" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">10.3.1. </span><code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code><a class="headerlink" href="#symmetrise-sqw" title="Permalink to this heading"></a></h3>
 <p>It is possible to reduce an entire dataset at once by symmetry, transforming all
 pixels according to the symmetry operations and accumulating the transformed
 pixels into the bins appropriately. This is done through the <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code>
 function, the signature for which is below:</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Due to restrictions related to the <a class="reference internal" href="#irreducible-region">irreducible region</a>, <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code> is
+only defined for <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> and <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> and <strong>NOT</strong> for
+<code class="docutils literal notranslate"><span class="pre">SymopGeneral</span></code>.</p>
+</div>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -519,7 +423,7 @@ function, the signature for which is below:</p>
 </div>
 </section>
 <section id="gen-sqw">
-<h3><span class="section-number">10.4.2. </span><code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code><a class="headerlink" href="#gen-sqw" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">10.3.2. </span><code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code><a class="headerlink" href="#gen-sqw" title="Permalink to this heading"></a></h3>
 <p id="id1">If you need to symmetrise a large <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, it can also be done during
 <code class="docutils literal notranslate"><span class="pre">sqw</span></code> generation, i.e. during generation of the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file, rather than
 after the object has been created. The <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> function has a special option
@@ -543,7 +447,7 @@ above. In the second, more general, case the user defined function (in a
 <code class="docutils literal notranslate"><span class="pre">.m</span></code>-file on the Matlab path) can define multiple symmetrisation operations
 that are applied sequentially to the entire data. An example is as follows,
 which folds a cubic system so that all eight of the symmetrically equivalent
-(1,0,0) type positions are folded on to each other:</p>
+regions are folded onto each other:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>wout<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">user_symmetrisation_routine</span><span class="p">(</span>win<span class="p">)</span>
 
 <span class="c">%fold about line (1,1,0) in HK plane</span>
@@ -567,17 +471,9 @@ resulting transformed <em>sqw</em> file into complete nonsense!</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>MPI workers are normal Matlab sessions which inherit basic Matlab path and
-initiate Horace themselves if the Horace path is not stored by the user (It’s
-not usually recommended and may be impossible for multiuser machines). The
-workers do not process Matlab’s <code class="docutils literal notranslate"><span class="pre">startup.m</span></code> file. The user’s symmetrisation
-routine has to be available on the worker’s Matlab path. The best way to
-achieve this is to put the routine into current Matlab working folder – the
-folder from which you run the symmetrisation. If this routine uses some
-additional user functions, located elsewhere on a custom user path, these
-routines have to be intialised by the user routine. This can be achieved by
-the following piece of code added to the beginning of your custom
-symmetrisation routine:</p>
+<p>Due to a quirk in MATLAB’s function loading, in order to work with parallel Horace
+(c.f. <a class="reference internal" href="Parallel.html#running-horace-in-parallel"><span class="std std-ref">Running Horace in Parallel</span></a>) it is necessary that
+the symmetrisation function is in the same folder as the generation script.</p>
 </div>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="nb">isempty</span><span class="p">(</span><span class="nb">which</span><span class="p">(</span><span class="s">&#39;my_additional_user_routine&#39;</span><span class="p">))</span>
 <span class="w">    </span><span class="nb">addpath</span><span class="p">(</span><span class="s">&#39;/home/myFedID/path_to_my_additional_user_routine&#39;</span><span class="p">);</span>
@@ -597,7 +493,7 @@ as:</p>
 </section>
 </section>
 <section id="cutting">
-<h2><span class="section-number">10.5. </span>Cutting<a class="headerlink" href="#cutting" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">10.4. </span>Cutting<a class="headerlink" href="#cutting" title="Permalink to this heading"></a></h2>
 <p>In order to do a symmetrised cut, the ordinary <code class="docutils literal notranslate"><span class="pre">cut</span></code> function (see
 <a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html#cut"><span class="std std-ref">cut</span></a>)
 is used with the appropriate symmetry operations additionally passed into the
@@ -666,7 +562,7 @@ axes and accumulated into the cut.</span><a class="headerlink" href="#id2" title
 </figure>
 </section>
 <section id="combining">
-<h2><span class="section-number">10.6. </span>Combining<a class="headerlink" href="#combining" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">10.5. </span>Combining<a class="headerlink" href="#combining" title="Permalink to this heading"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -685,7 +581,7 @@ object will have the projection axes of <code class="docutils literal notranslat
 </div>
 </section>
 <section id="rebinning">
-<h2><span class="section-number">10.7. </span>Rebinning<a class="headerlink" href="#rebinning" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">10.6. </span>Rebinning<a class="headerlink" href="#rebinning" title="Permalink to this heading"></a></h2>
 <p>Resize the bin boundaries along one or more axes, and rebin the data
 accordingly. There are several possibilities for the input format:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">rebin_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="n">step1</span><span class="p">,</span><span class="n">step2</span><span class="p">,</span><span class="k">...</span><span class="c">)</span>
@@ -707,7 +603,7 @@ rebinned.</p>
 template object <code class="docutils literal notranslate"><span class="pre">w2</span></code>.</p>
 </section>
 <section id="symmetrise-data-then-unfold-back-to-original-range">
-<h2><span class="section-number">10.8. </span>Symmetrise data, then unfold back to original range<a class="headerlink" href="#symmetrise-data-then-unfold-back-to-original-range" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">10.7. </span>Symmetrise data, then unfold back to original range<a class="headerlink" href="#symmetrise-data-then-unfold-back-to-original-range" title="Permalink to this heading"></a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>For producing plots only, any analysis on these results will be invalid due to
@@ -754,13 +650,116 @@ dataset (thereby increasing the counts four-fold).</p>
 </div>
 </section>
 <section id="limitations">
-<h2><span class="section-number">10.9. </span>Limitations<a class="headerlink" href="#limitations" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">10.8. </span>Limitations<a class="headerlink" href="#limitations" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>At present <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">combine_sqw</span></code>, and <code class="docutils literal notranslate"><span class="pre">rebin_sqw</span></code> work ONLY
 for sqw objects, since they require access to individual detector pixel
 information. The functions will work for any dimensionality of object,
 however.</p></li>
 </ul>
+</section>
+<section id="symop-methods-advanced">
+<h2><span class="section-number">10.9. </span>Symop Methods - Advanced<a class="headerlink" href="#symop-methods-advanced" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Symop</span></code> objects have methods to transform a variety of objects which
+may be related by symmetry. These are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">transform_vec</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code></p></li>
+</ul>
+<p>Which transform numeric vectors, <code class="docutils literal notranslate"><span class="pre">PixelDataBase</span></code> objects and <cite>aProjection</cite>
+objects respectively.</p>
+<section id="transform-vec">
+<h3><span class="section-number">10.9.1. </span><code class="docutils literal notranslate"><span class="pre">transform_vec</span></code><a class="headerlink" href="#transform-vec" title="Permalink to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">transform_vec</span></code> takes a 3xN list of 3-vectors to transform. This method can be
+applied directly from a single <code class="docutils literal notranslate"><span class="pre">Symop</span></code> or from an array (but not cell array)
+of <code class="docutils literal notranslate"><span class="pre">Symop</span></code> objects (see: <a class="reference internal" href="#groups-of-symmetry-operators">Groups of symmetry operators</a>).</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">sym</span><span class="w"> </span><span class="p">=</span>
+
+<span class="n">Reflection</span><span class="w"> </span><span class="s">operator:</span>
+<span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
+<span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">     </span><span class="n">offset</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="p">.</span><span class="n">transform_vec</span><span class="p">([</span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">])</span>
+
+<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
+
+<span class="w">     </span><span class="mi">3</span>
+<span class="w">     </span><span class="mi">6</span>
+<span class="w">    </span><span class="o">-</span><span class="mi">1</span>
+</pre></div>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">big_sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">90</span><span class="p">),</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">-</span><span class="mi">90</span><span class="p">)];</span>
+<span class="w">                         </span><span class="c">%v1|v2|v3|v4|v5</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">big_sym</span><span class="p">.</span><span class="n">transform_vec</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">                          </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                          </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">])</span>
+
+<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
+<span class="w">    </span><span class="c">%v1&#39;| v2&#39;|  v3&#39;|  v4&#39;|  v5&#39;</span>
+<span class="w">    </span><span class="o">-</span><span class="mi">1</span><span class="w">    </span><span class="o">-</span><span class="mi">3</span><span class="w">    </span><span class="o">-</span><span class="mi">5</span><span class="w">    </span><span class="o">-</span><span class="mi">1</span><span class="w">    </span><span class="o">-</span><span class="mi">3</span>
+<span class="w">     </span><span class="mi">2</span><span class="w">     </span><span class="mi">2</span><span class="w">     </span><span class="mi">4</span><span class="w">     </span><span class="mi">6</span><span class="w">     </span><span class="mi">1</span>
+<span class="w">     </span><span class="mi">6</span><span class="w">     </span><span class="mi">3</span><span class="w">     </span><span class="mi">1</span><span class="w">     </span><span class="mi">3</span><span class="w">     </span><span class="mi">6</span>
+</pre></div>
+</div>
+</section>
+<section id="transform-pix">
+<h3><span class="section-number">10.9.2. </span><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code><a class="headerlink" href="#transform-pix" title="Permalink to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code> takes a <code class="docutils literal notranslate"><span class="pre">PixelDataBase</span></code> derived object and transforms the
+contained pixel q-coordinates according to the symmetry operations and returns a
+new object with the transformed pixels.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code> takes the <code class="docutils literal notranslate"><span class="pre">Symop</span></code> object’s <a class="reference internal" href="#irreducible-region">Irreducible region</a> into
+account and does not transform the pixels which are considered to be within
+the irreducible region.</p>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+<span class="c">% 5 pixels in memory</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">PixelDataMemory</span><span class="p">(</span><span class="nb">rand</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">));</span>
+<span class="c">% Put pixels outside of &quot;positive quadrant&quot;</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix</span><span class="p">.</span><span class="n">q_coordinates</span><span class="p">(:,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="p">])</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">-</span><span class="n">pix</span><span class="p">.</span><span class="n">q_coordinates</span><span class="p">(:,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="p">]);</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix_new</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sym</span><span class="p">.</span><span class="n">transform_pix</span><span class="p">(</span><span class="n">pix</span><span class="p">);</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix</span><span class="p">.</span><span class="n">data</span>
+
+<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
+
+<span class="w">   </span><span class="o">-</span><span class="mf">0.4898</span><span class="w">   </span><span class="o">-</span><span class="mf">0.1190</span><span class="w">    </span><span class="mf">0.6991</span><span class="w">    </span><span class="mf">0.8143</span><span class="w">    </span><span class="mf">0.8308</span><span class="w"> </span><span class="c">% q_x</span>
+<span class="w">   </span><span class="o">-</span><span class="mf">0.4456</span><span class="w">   </span><span class="o">-</span><span class="mf">0.4984</span><span class="w">    </span><span class="mf">0.8909</span><span class="w">    </span><span class="mf">0.2435</span><span class="w">    </span><span class="mf">0.5853</span><span class="w"> </span><span class="c">% q_y</span>
+<span class="w">   </span><span class="o">-</span><span class="mf">0.6463</span><span class="w">   </span><span class="o">-</span><span class="mf">0.9597</span><span class="w">    </span><span class="mf">0.9593</span><span class="w">    </span><span class="mf">0.9293</span><span class="w">    </span><span class="mf">0.5497</span><span class="w"> </span><span class="c">% q_z</span>
+<span class="w">    </span><span class="mf">0.7094</span><span class="w">    </span><span class="mf">0.3404</span><span class="w">    </span><span class="mf">0.5472</span><span class="w">    </span><span class="mf">0.3500</span><span class="w">    </span><span class="mf">0.9172</span><span class="w"> </span><span class="c">% dE</span>
+<span class="w">    </span><span class="mf">0.7547</span><span class="w">    </span><span class="mf">0.5853</span><span class="w">    </span><span class="mf">0.1386</span><span class="w">    </span><span class="mf">0.1966</span><span class="w">    </span><span class="mf">0.2858</span><span class="w"> </span><span class="c">% run_idx</span>
+<span class="w">    </span><span class="mf">0.2760</span><span class="w">    </span><span class="mf">0.2238</span><span class="w">    </span><span class="mf">0.1493</span><span class="w">    </span><span class="mf">0.2511</span><span class="w">    </span><span class="mf">0.7572</span><span class="w"> </span><span class="c">% detector_idx</span>
+<span class="w">    </span><span class="mf">0.6797</span><span class="w">    </span><span class="mf">0.7513</span><span class="w">    </span><span class="mf">0.2575</span><span class="w">    </span><span class="mf">0.6160</span><span class="w">    </span><span class="mf">0.7537</span><span class="w"> </span><span class="c">% energy_idx</span>
+<span class="w">    </span><span class="mf">0.6551</span><span class="w">    </span><span class="mf">0.2551</span><span class="w">    </span><span class="mf">0.8407</span><span class="w">    </span><span class="mf">0.4733</span><span class="w">    </span><span class="mf">0.3804</span><span class="w"> </span><span class="c">% signal</span>
+<span class="w">    </span><span class="mf">0.1626</span><span class="w">    </span><span class="mf">0.5060</span><span class="w">    </span><span class="mf">0.2543</span><span class="w">    </span><span class="mf">0.3517</span><span class="w">    </span><span class="mf">0.5678</span><span class="w"> </span><span class="c">% variance</span>
+
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix_new</span><span class="p">.</span><span class="n">data</span>
+
+<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
+
+<span class="w">   </span><span class="o">-</span><span class="mf">0.4898</span><span class="w">   </span><span class="o">-</span><span class="mf">0.1190</span><span class="w">    </span><span class="mf">0.6991</span><span class="w">    </span><span class="mf">0.8143</span><span class="w">    </span><span class="mf">0.8308</span><span class="w"> </span><span class="c">% q_x</span>
+<span class="w">   </span><span class="o">-</span><span class="mf">0.4456</span><span class="w">   </span><span class="o">-</span><span class="mf">0.4984</span><span class="w">    </span><span class="mf">0.8909</span><span class="w">    </span><span class="mf">0.2435</span><span class="w">    </span><span class="mf">0.5853</span><span class="w"> </span><span class="c">% q_y</span>
+<span class="w">    </span><span class="mf">0.6463</span><span class="w">    </span><span class="mf">0.9597</span><span class="w">    </span><span class="mf">0.9593</span><span class="w">    </span><span class="mf">0.9293</span><span class="w">    </span><span class="mf">0.5497</span><span class="w"> </span><span class="c">% q_z</span>
+<span class="w">    </span><span class="mf">0.7094</span><span class="w">    </span><span class="mf">0.3404</span><span class="w">    </span><span class="mf">0.5472</span><span class="w">    </span><span class="mf">0.3500</span><span class="w">    </span><span class="mf">0.9172</span><span class="w"> </span><span class="c">% dE</span>
+<span class="w">    </span><span class="mf">0.7547</span><span class="w">    </span><span class="mf">0.5853</span><span class="w">    </span><span class="mf">0.1386</span><span class="w">    </span><span class="mf">0.1966</span><span class="w">    </span><span class="mf">0.2858</span><span class="w"> </span><span class="c">% run_idx</span>
+<span class="w">    </span><span class="mf">0.2760</span><span class="w">    </span><span class="mf">0.2238</span><span class="w">    </span><span class="mf">0.1493</span><span class="w">    </span><span class="mf">0.2511</span><span class="w">    </span><span class="mf">0.7572</span><span class="w"> </span><span class="c">% detector_idx</span>
+<span class="w">    </span><span class="mf">0.6797</span><span class="w">    </span><span class="mf">0.7513</span><span class="w">    </span><span class="mf">0.2575</span><span class="w">    </span><span class="mf">0.6160</span><span class="w">    </span><span class="mf">0.7537</span><span class="w"> </span><span class="c">% energy_idx</span>
+<span class="w">    </span><span class="mf">0.6551</span><span class="w">    </span><span class="mf">0.2551</span><span class="w">    </span><span class="mf">0.8407</span><span class="w">    </span><span class="mf">0.4733</span><span class="w">    </span><span class="mf">0.3804</span><span class="w"> </span><span class="c">% signal</span>
+<span class="w">    </span><span class="mf">0.1626</span><span class="w">    </span><span class="mf">0.5060</span><span class="w">    </span><span class="mf">0.2543</span><span class="w">    </span><span class="mf">0.3517</span><span class="w">    </span><span class="mf">0.5678</span><span class="w"> </span><span class="c">% variance</span>
+</pre></div>
+</div>
+</section>
+<section id="transform-proj">
+<h3><span class="section-number">10.9.3. </span><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code><a class="headerlink" href="#transform-proj" title="Permalink to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code> is used to transform subclasses of the <code class="docutils literal notranslate"><span class="pre">aProjection</span></code>
+type. It is an internal function which creates a new projection with the
+symmetries applied and is not normally needed by users, but is recorded here for
+completeness.</p>
+</section>
 </section>
 </section>
 
@@ -776,7 +775,7 @@ however.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Jun 19, 2024, 9:13:31 AM.
+      <span class="lastupdated">Last updated on Jun 20, 2024, 12:27:27 PM.
       </span></p>
   </div>
 
