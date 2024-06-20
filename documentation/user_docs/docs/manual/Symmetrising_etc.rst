@@ -172,8 +172,10 @@ symmetry reductions reduce the data, rather than mapping the data across the
 symmetry transformation.
 
 .. warning::
-   This is currently only defined for ``SymopReflection`` and ``SymopRotation`` (which is why ``SymopGeneral`` is not
-   currently permitted for symmetric reductions).
+
+   This is currently only defined for ``SymopReflection`` and ``SymopRotation``
+   (which is why ``SymopGeneral`` is not currently permitted for symmetric
+   reductions).
 
 The irreducible region for ``SymopReflection`` is defined as the the positive
 half-volume with respect to the normal vector of the plane of
@@ -220,116 +222,6 @@ the axis of rotation, :math:`\vec{u}` is the x- (or y-) axis (as above) and
    For an angle > 90 degrees or folds < 4, this will cover the positive quadrant
    and some of a negative domain.
 
-Symop Methods
-=============
-
-``Symop`` objects have methods to transform a variety of methods to transform
-objects which may be related by symmetry. These are:
-
-* ``transform_vec``
-* ``transform_pix``
-* ``transform_proj``
-
-Which transform numeric vectors, ``PixelDataBase`` objects and ``aProjection``
-objects respectively.
-
-``transform_vec``
------------------
-
-``transform_vec`` takes a 3xN list of 3-vectors to transform. This method can be
-applied directly from a single ``Symop`` or from an array (but not cell array)
-of ``Symop`` objects (see: `Groups of symmetry operators`_).
-
-.. code-block:: matlab
-
-    >> sym = SymopReflection([1 0 0], [0 1 0])
-
-    sym =
-
-    Reflection operator:
-     In-plane u (rlu): [1;0;0]
-     In-plane v (rlu): [0;1;0]
-         offset (rlu): [0;0;0]
-
-    >> sym.transform_vec([3; 6; 1])
-
-    ans =
-
-         3
-         6
-        -1
-
-.. code-block:: matlab
-
-    >> big_sym = [SymopRotation([1 0 0], 90), SymopReflection([0 1 0], [0 0 1]), SymopRotation([1 0 0], -90)];
-                             %v1|v2|v3|v4|v5
-    >> big_sym.transform_vec([1, 3, 5, 1, 3
-                              2, 2, 4, 6, 1
-                              6, 3, 1, 3, 6])
-
-    ans =
-        %v1'| v2'|  v3'|  v4'|  v5'
-        -1    -3    -5    -1    -3
-         2     2     4     6     1
-         6     3     1     3     6
-
-``transform_pix``
------------------
-
-``transform_pix`` takes a ``PixelDataBase`` derived object and transforms the
-contained pixel q-coordinates according to the symmetry operations and returns a
-new object with the transformed pixels.
-
-.. note::
-
-   ``transform_pix`` takes the ``Symop`` object's `Irreducible region`_ into
-   account and does not transform the pixels which are considered to be within
-   the irreducible region.
-
-.. code-block:: matlab
-
-   >> sym = SymopReflection([1 0 0], [0 1 0]);
-   % 5 pixels in memory
-   >> pix = PixelDataMemory(rand(9, 5));
-   % Put pixels outside of "positive quadrant"
-   >> pix.q_coordinates(:, [1 2]) = -pix.q_coordinates(:, [1 2]);
-   >> pix_new = sym.transform_pix(pix);
-   >> pix.data
-
-   ans =
-
-      -0.4898   -0.1190    0.6991    0.8143    0.8308 % q_x
-      -0.4456   -0.4984    0.8909    0.2435    0.5853 % q_y
-      -0.6463   -0.9597    0.9593    0.9293    0.5497 % q_z
-       0.7094    0.3404    0.5472    0.3500    0.9172 % dE
-       0.7547    0.5853    0.1386    0.1966    0.2858 % run_idx
-       0.2760    0.2238    0.1493    0.2511    0.7572 % detector_idx
-       0.6797    0.7513    0.2575    0.6160    0.7537 % energy_idx
-       0.6551    0.2551    0.8407    0.4733    0.3804 % signal
-       0.1626    0.5060    0.2543    0.3517    0.5678 % variance
-
-   >> pix_new.data
-
-   ans =
-
-      -0.4898   -0.1190    0.6991    0.8143    0.8308 % q_x
-      -0.4456   -0.4984    0.8909    0.2435    0.5853 % q_y
-       0.6463    0.9597    0.9593    0.9293    0.5497 % q_z
-       0.7094    0.3404    0.5472    0.3500    0.9172 % dE
-       0.7547    0.5853    0.1386    0.1966    0.2858 % run_idx
-       0.2760    0.2238    0.1493    0.2511    0.7572 % detector_idx
-       0.6797    0.7513    0.2575    0.6160    0.7537 % energy_idx
-       0.6551    0.2551    0.8407    0.4733    0.3804 % signal
-       0.1626    0.5060    0.2543    0.3517    0.5678 % variance
-
-``transform_proj``
-------------------
-
-``transform_proj`` is used to transform subclasses of the ``aProjection``
-type. It is an internal function which creates a new projection with the
-symmetries applied and is not normally needed by users, but is recorded here for
-completeness.
-
 Commands for cuts and slices
 ============================
 
@@ -349,7 +241,7 @@ In Horace it is possible to symmetrise by 3 methods:
 
 .. warning::
 
-   Symmetrisation maps the pixels outside the `Irreducible region`_ into their
+   Symmetrisation maps the pixels outside the `irreducible region`_ into their
    respective symmetry related sites. This means that subsequent binning/cutting
    of the ``sqw`` object will see these pixels as being on the symmetry related
    site rather than their original location.
@@ -367,6 +259,13 @@ It is possible to reduce an entire dataset at once by symmetry, transforming all
 pixels according to the symmetry operations and accumulating the transformed
 pixels into the bins appropriately. This is done through the ``symmetrise_sqw``
 function, the signature for which is below:
+
+.. warning::
+
+   Due to restrictions related to the `irreducible region`_, ``symmetrise_sqw`` is
+   only defined for ``SymopReflection`` and ``SymopRotation`` and **NOT** for
+   ``SymopGeneral``.
+
 
 .. code-block:: matlab
 
@@ -483,7 +382,7 @@ above. In the second, more general, case the user defined function (in a
 ``.m``-file on the Matlab path) can define multiple symmetrisation operations
 that are applied sequentially to the entire data. An example is as follows,
 which folds a cubic system so that all eight of the symmetrically equivalent
-(1,0,0) type positions are folded on to each other:
+regions are folded onto each other:
 
 .. code-block:: matlab
 
@@ -509,6 +408,11 @@ which folds a cubic system so that all eight of the symmetrically equivalent
 
 .. note::
 
+   Due to a quirk in MATLAB's function loading, in order to work with parallel Horace
+   (c.f. :ref:`manual/Parallel:Running Horace in Parallel`) it is necessary that
+   the symmetrisation function is in the same folder as the generation script.
+
+..
    MPI workers are normal Matlab sessions which inherit basic Matlab path and
    initiate Horace themselves if the Horace path is not stored by the user (It's
    not usually recommended and may be impossible for multiuser machines). The
@@ -762,8 +666,10 @@ dataset (thereby increasing the counts four-fold).
    dataset provided.
 
 ..
-   Re# 1447 should we reimplement `combine_equivalent_zones` ? See chunk symmeterize_equivalent_zones_description.bak_Re#1447 file in this folder when ticket resolved.
-   
+   Regarding #1447: should we reimplement `combine_equivalent_zones`,
+   see the file "symmeterize_equivalent_zones_description.bak_Re#1447"
+   in this folder.
+
 
 
 Limitations
@@ -773,11 +679,120 @@ Limitations
   information. The functions will work for any dimensionality of object,
   however.
 
-.. 
-  Re #1447 to enable  * ``combine_equivalent_zones`` has to perform some memory and hdd-access
-  intensive calculations, which should ideally be performed on `high performance
-  computing cluster
-  <http://www.isis.stfc.ac.uk/groups/excitations/data-analysis-computers/connecting-to-isiscomputendrlacuk-using-nomachine15120.html>`__. The
-  amount of memory used by the code is controlled by ``hor_config`` parameter
-  ``mem_chunk_size`` and is approximately 10 times larger then the amount,
-  specified by this parameter.
+..
+  Removed due to #1447
+
+  * ``combine_equivalent_zones`` has to perform some memory and
+  hdd-access intensive calculations, which should ideally be performed
+  on a :ref:`high performance computing cluster
+  <Download_and_setup:High Performance Computing Configuration>`_.
+
+Symop Methods - Advanced
+========================
+
+``Symop`` objects have methods to transform a variety of objects which
+may be related by symmetry. These are:
+
+* ``transform_vec``
+* ``transform_pix``
+* ``transform_proj``
+
+Which transform numeric vectors, ``PixelDataBase`` objects and `aProjection`
+objects respectively.
+
+``transform_vec``
+-----------------
+
+``transform_vec`` takes a 3xN list of 3-vectors to transform. This method can be
+applied directly from a single ``Symop`` or from an array (but not cell array)
+of ``Symop`` objects (see: `Groups of symmetry operators`_).
+
+.. code-block:: matlab
+
+    >> sym = SymopReflection([1 0 0], [0 1 0])
+
+    sym =
+
+    Reflection operator:
+     In-plane u (rlu): [1;0;0]
+     In-plane v (rlu): [0;1;0]
+         offset (rlu): [0;0;0]
+
+    >> sym.transform_vec([3; 6; 1])
+
+    ans =
+
+         3
+         6
+        -1
+
+.. code-block:: matlab
+
+    >> big_sym = [SymopRotation([1 0 0], 90), SymopReflection([0 1 0], [0 0 1]), SymopRotation([1 0 0], -90)];
+                             %v1|v2|v3|v4|v5
+    >> big_sym.transform_vec([1, 3, 5, 1, 3
+                              2, 2, 4, 6, 1
+                              6, 3, 1, 3, 6])
+
+    ans =
+        %v1'| v2'|  v3'|  v4'|  v5'
+        -1    -3    -5    -1    -3
+         2     2     4     6     1
+         6     3     1     3     6
+
+``transform_pix``
+-----------------
+
+``transform_pix`` takes a ``PixelDataBase`` derived object and transforms the
+contained pixel q-coordinates according to the symmetry operations and returns a
+new object with the transformed pixels.
+
+.. note::
+
+   ``transform_pix`` takes the ``Symop`` object's `Irreducible region`_ into
+   account and does not transform the pixels which are considered to be within
+   the irreducible region.
+
+.. code-block:: matlab
+
+   >> sym = SymopReflection([1 0 0], [0 1 0]);
+   % 5 pixels in memory
+   >> pix = PixelDataMemory(rand(9, 5));
+   % Put pixels outside of "positive quadrant"
+   >> pix.q_coordinates(:, [1 2]) = -pix.q_coordinates(:, [1 2]);
+   >> pix_new = sym.transform_pix(pix);
+   >> pix.data
+
+   ans =
+
+      -0.4898   -0.1190    0.6991    0.8143    0.8308 % q_x
+      -0.4456   -0.4984    0.8909    0.2435    0.5853 % q_y
+      -0.6463   -0.9597    0.9593    0.9293    0.5497 % q_z
+       0.7094    0.3404    0.5472    0.3500    0.9172 % dE
+       0.7547    0.5853    0.1386    0.1966    0.2858 % run_idx
+       0.2760    0.2238    0.1493    0.2511    0.7572 % detector_idx
+       0.6797    0.7513    0.2575    0.6160    0.7537 % energy_idx
+       0.6551    0.2551    0.8407    0.4733    0.3804 % signal
+       0.1626    0.5060    0.2543    0.3517    0.5678 % variance
+
+   >> pix_new.data
+
+   ans =
+
+      -0.4898   -0.1190    0.6991    0.8143    0.8308 % q_x
+      -0.4456   -0.4984    0.8909    0.2435    0.5853 % q_y
+       0.6463    0.9597    0.9593    0.9293    0.5497 % q_z
+       0.7094    0.3404    0.5472    0.3500    0.9172 % dE
+       0.7547    0.5853    0.1386    0.1966    0.2858 % run_idx
+       0.2760    0.2238    0.1493    0.2511    0.7572 % detector_idx
+       0.6797    0.7513    0.2575    0.6160    0.7537 % energy_idx
+       0.6551    0.2551    0.8407    0.4733    0.3804 % signal
+       0.1626    0.5060    0.2543    0.3517    0.5678 % variance
+
+``transform_proj``
+------------------
+
+``transform_proj`` is used to transform subclasses of the ``aProjection``
+type. It is an internal function which creates a new projection with the
+symmetries applied and is not normally needed by users, but is recorded here for
+completeness.
