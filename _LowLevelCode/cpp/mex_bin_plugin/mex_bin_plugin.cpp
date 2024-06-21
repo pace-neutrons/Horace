@@ -1,6 +1,6 @@
 #include "CommonCode.h"
 #include "bin_io_handler.hpp"
-#include "mex.h"
+
 #include "../utility/version.h"
 
 //--------------------------------------------------------------------------------------------------------------------
@@ -13,8 +13,9 @@ Input:
 */
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
-	if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
-		plhs[0] = mxCreateString(Horace::VERSION);
-		return;
-	}
+    if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+        plhs[0] = mxCreateString(Horace::VERSION);
+        return;
+    }
+
 }

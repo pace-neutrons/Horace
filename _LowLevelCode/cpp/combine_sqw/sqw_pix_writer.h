@@ -2,7 +2,7 @@
 #define H_SQW_PIX_WRITER
 
 //#include "pix_mem_map.h"
-#include "fileParameters.h"
+#include "../file_parameters_tester/fileParameters.h"
 #include "exchange_buffer.h"
 
 //-----------------------------------------------------------------------------------------------------------------
