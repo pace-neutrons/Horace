@@ -10,7 +10,6 @@ bool file_exists(const  std::string &filename) {
 };
 
 void del_file(const std::string& filename) {
-	//std::fclose(filename.c_str());
 	std::remove(filename.c_str());
 }
 
