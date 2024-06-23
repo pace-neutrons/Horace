@@ -2,7 +2,7 @@
 #define H_SQW_READER
 
 #include "pix_mem_map.h"
-#include "fileParameters.h"
+#include "../file_parameters_tester/fileParameters.h"
 //-----------------------------------------------------------------------------------------------------------------
 class sqw_reader
 {
