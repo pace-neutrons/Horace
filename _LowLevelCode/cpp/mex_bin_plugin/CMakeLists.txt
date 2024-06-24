@@ -1,12 +1,13 @@
 set(
     SRC_FILES
+    "bin_io_handler.cpp"
     "mex_bin_plugin.cpp"
 )
 
 set(
     HDR_FILES
     "../CommonCode.h"
-    "mex_bin_plugin.hpp"
+    "bin_io_handler.hpp"
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

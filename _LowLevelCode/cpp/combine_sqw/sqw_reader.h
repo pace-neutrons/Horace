@@ -2,7 +2,7 @@
 #define H_SQW_READER
 
 #include "pix_mem_map.h"
-#include "fileParameters.h"
+#include "../file_parameters_tester/fileParameters.h"
 //-----------------------------------------------------------------------------------------------------------------
 class sqw_reader
 {
@@ -54,8 +54,8 @@ private:
     size_t PIX_BUF_SIZE;
     //Boolean indicating that the id, which specify pixel run number should be modified
     bool change_fileno;
-    // Boolean, indicating if one needs to offset pixel's run number id by fileDescr.file_id
-    // or set up its value into fileDescr.file_id;
+    // Boolean, indicating if one needs to offset pixel's run number id by fileDescr.run_id
+    // or set up its value into fileDescr.run_id;
     bool fileno;
     
     static const size_t PIX_SIZE = 9; // size of the pixel in pixel data units (float)
