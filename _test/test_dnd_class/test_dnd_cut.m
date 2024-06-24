@@ -49,7 +49,6 @@ classdef test_dnd_cut< TestCaseWithSave
 
 
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
-            skipTest('Re #1707 These cells intersection does not look correct')
         end
 
         function test_2D_to2D_cut_with_spher_proj(obj)

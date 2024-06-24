@@ -104,7 +104,5 @@ function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
 
 s = obj.s;
 
-s = targ_axes.interpolate_data(obj.axes,obj.proj,{s},targ_proj);
-e = zeros(size(s));
-npix = ones(size(s));
-%[s, e] = normalize_signal(s, e, npix);
+[s,e,npix] = targ_axes.interpolate_data(obj.axes,obj.proj,{s},targ_proj);
+[s, e] = normalize_signal(s, e, npix);

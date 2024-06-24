@@ -75,11 +75,11 @@ if ngrid_form && hull
     error('HORACE:AxesBlockBase:invalid_argument',...
         '"-hull" and "-grid_form" parameters can not be used together');
 end
-grid_nnodes_multiplier = parse_inputs(n_pos_arg,nargin,varargin{:});
+grid_nnodes = parse_inputs(n_pos_arg,nargin,varargin{:});
 
 axes = cell(4,1);
 %
-if isempty(grid_nnodes_multiplier)
+if isempty(grid_nnodes)
     axes(obj.pax) = obj.p(:);
     iint_ax = num2cell(obj.iint',2);
     axes(obj.iax) = iint_ax(:);
@@ -96,18 +96,7 @@ else
     for i=1:4 % this mode is used for data interpolation, so we need to
         % keep bin centers, where the base interpolating function is
         % defined unchanged
-        ax = linspace(range(1,i),range(2,i),obj.nbins_all_dims(i)+1);
-        if grid_nnodes_multiplier(i) == 2
-            cent = 0.5*(ax(1:end-1)+ax(2:end));
-            ax = sort([ax,cent]);
-        elseif grid_nnodes_multiplier(i) > 2
-            bin_cells = cell(1,obj.nbins_all_dims(i));
-            for j=1:obj.nbins_all_dims(i)
-                bin_cells{j} = linspace(ax(j),ax(j+1),grid_nnodes_multiplier(i)+1);
-            end
-            bin_cells = cell2mat(bin_cells);
-            ax = unique(bin_cells);
-        end
+        ax = linspace(range(1,i),range(2,i),grid_nnodes(i)+1);
         if halo
             axes{i} = build_ax_with_halo(obj.max_img_range_(:,i),ax{i});
         else
@@ -240,21 +229,21 @@ if max_pos > range(2)
 end
 axes = [min_pos,axes(:)',max_pos];
 
-function nnodes_multiplier = parse_inputs(noptions,ninputs,varargin)
+function nnodes_in_dim = parse_inputs(noptions,ninputs,varargin)
 % process inputs to extract char size in the form of 4D cube. If the input
 % numeric array do not satisty the request for beeing 4D characteristic
 % cube, throw invalid_argument
 %
-nnodes_multiplier = [];
+nnodes_in_dim = [];
 if ninputs > noptions
     if isnumeric(varargin{1})
-        nnodes_multiplier = round(varargin{1});
-        nnodes_multiplier = nnodes_multiplier(:)';
-        if numel(nnodes_multiplier) == 1
-            nnodes_multiplier = ones(1,4)*nnodes_multiplier;
+        nnodes_in_dim = round(varargin{1});
+        nnodes_in_dim = nnodes_in_dim(:)';
+        if numel(nnodes_in_dim) == 1
+            nnodes_in_dim = ones(1,4)*nnodes_in_dim;
         end
-        nnodes_multiplier(nnodes_multiplier<1) = 1;
-        if numel(nnodes_multiplier)~=4
+        nnodes_in_dim(nnodes_in_dim<1) = 1;
+        if numel(nnodes_in_dim)~=4
             error('HORACE:AxesBlockBase:invalid_argument',...
                 ['nnodes multipler should be 1x4 vector or single value.\n', ...
                 ' Input size is: [%s]'],...
