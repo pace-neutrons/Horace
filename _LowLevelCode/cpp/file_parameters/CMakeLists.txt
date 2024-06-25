@@ -1,3 +1,5 @@
+# The project builds tester application for fileParameters
+# The class itself is used elsewhere
 set(
     SRC_FILES
     "fileParameters.cpp"

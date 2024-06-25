@@ -18,7 +18,7 @@
 #include <sys/stat.h>
 #include <filesystem>
 
-#include "../file_parameters_tester/fileParameters.h"
+#include "../file_parameters/fileParameters.h"
 
 
 //-----------------------------------------------------------------------------------------------------------------

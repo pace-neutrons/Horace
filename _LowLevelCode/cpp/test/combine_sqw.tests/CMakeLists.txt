@@ -7,7 +7,7 @@ set(TEST_SRC_FILES
 set(SRC_FILES
     "${CXX_SOURCE_DIR}/combine_sqw/combine_sqw.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/exchange_buffer.cpp"
-    "${CXX_SOURCE_DIR}/file_parameters_tester/fileParameters.cpp"
+    "${CXX_SOURCE_DIR}/file_parameters/fileParameters.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/nsqw_pix_reader.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/pix_mem_map.cpp"
     "${CXX_SOURCE_DIR}/combine_sqw/sqw_pix_writer.cpp"
@@ -18,7 +18,7 @@ set(SRC_FILES
 set(HDR_FILES
     "${CXX_SOURCE_DIR}/combine_sqw/combine_sqw.h"
     "${CXX_SOURCE_DIR}/combine_sqw/exchange_buffer.h"
-    "${CXX_SOURCE_DIR}/file_parameters_tester/fileParameters.h"
+    "${CXX_SOURCE_DIR}/file_parameters/fileParameters.h"
     "${CXX_SOURCE_DIR}/combine_sqw/nsqw_pix_reader.h"
     "${CXX_SOURCE_DIR}/combine_sqw/pix_mem_map.h"
     "${CXX_SOURCE_DIR}/combine_sqw/sqw_pix_writer.h"

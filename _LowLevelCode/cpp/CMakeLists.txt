@@ -20,7 +20,7 @@ set(MEX_FUNCTIONS
     "mtimesx_horace"
     "sort_pixels_by_bins"
     "mex_bin_plugin"
-    "file_parameters_tester"
+    "file_parameters"
      ${HDF_READER}
 )
 foreach(_mex_func ${MEX_FUNCTIONS})
