@@ -25,28 +25,38 @@ classdef test_dnd_cut< TestCaseWithSave
             else
                 argi = {name};
             end
-            
+
             obj = obj@TestCaseWithSave(argi{:});
             hp = horace_paths();
             sqw_2d_fullpath = fullfile(hp.test_common,obj.sqw_file_2d_name);
 
-            obj.sqw_ref_obj = read_sqw(sqw_2d_fullpath);            
+            obj.sqw_ref_obj = read_sqw(sqw_2d_fullpath);
             obj.d2d_obj     = obj.sqw_ref_obj.data;
 
             obj.save();
         end
         %------------------------------------------------------------------
         % tests
-        function test_2D_to2D_cut_with_cylinder_proj(obj)
+        function test_2D_to2D_cut_with_cylinder_proj_23(obj)
             clOb = set_temporary_warning('off','HORACE:runtime_error');
 
             proj = cylinder_proj([1,1,0],[0,0,1],'type','aad');
             cut_range = obj.d2d_obj.get_targ_range(proj);
-            w2 = cut(obj.d2d_obj,proj,[0,4], ...
-                [-2,0.1,2],[cut_range(1,3),cut_range(2,3)],[]);
-            w2f = cut(obj.sqw_ref_obj,proj,[0,4], ...
-                [-2,0.1,2],[cut_range(1,3),cut_range(2,3)],[]);
+            bin_range = {[0,4],[-2,0.1,2],[cut_range(1,3),2,cut_range(2,3)],[0,10]};
+            w2 = cut(obj.d2d_obj,proj,bin_range{:});
+            w2f = cut(obj.sqw_ref_obj,proj,bin_range{:});
 
+            assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
+        end
+
+        function test_2D_to2D_cut_with_cylinder_proj_24(obj)
+            clOb = set_temporary_warning('off','HORACE:runtime_error');
+
+            proj = cylinder_proj([1,1,0],[0,0,1],'type','aad');
+            cut_range = obj.d2d_obj.get_targ_range(proj);
+            bin_range = {[0,4],[-2,0.1,2],[cut_range(1,3),cut_range(2,3)],[]};
+            w2 = cut(obj.d2d_obj,proj,bin_range{:});
+            w2f = cut(obj.sqw_ref_obj,proj,bin_range{:});
 
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
         end

@@ -6,7 +6,7 @@ function volume = calc_bin_volume_(obj,ax_in_cell)
 % 1D array of size of total number of bins in the lattice if some cell
 % volumes differ.
 %
-if ~iscell(ax_in_cell) || numel(ax_in_cell) ~=4
+if ~iscell(ax_in_cell) || ~( numel(ax_in_cell) ==4 ||numel(ax_in_cell) ==3)
     error('HORACE:AxesBlockBase:invalid_argument', ...
         'Input for calc_bin_volume function should be cellarray containing 4 axis. It is %s', ...
         disp2str(ax_in_cell));
