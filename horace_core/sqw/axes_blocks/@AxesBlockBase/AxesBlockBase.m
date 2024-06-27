@@ -827,7 +827,7 @@ classdef AxesBlockBase < serializable
         pbin = default_pbin(obj,ndim)
         % calculate bin volume from the  axes of the axes block or input
         % axis organized in cellarray of 4 axis.
-        volume = calc_bin_volume(obj,axis_cell)
+        volume = calc_bin_volume(obj,varargin)
     end
     %======================================================================
     methods(Access=protected)
@@ -891,6 +891,33 @@ classdef AxesBlockBase < serializable
             obj=set_axis_bins_(obj,ndims,p1,p2,p3,p4);
         end
 
+    end
+    methods(Static,Access = protected)
+        function [is_axes,grid_size]= process_bin_volume_inputs(ax_instance,nodes_info,grid_size)
+            % general routine used to process inputs for routne, used to calculate bin_volume
+            % of different sorts of lattice
+            %
+
+            if iscell(nodes_info)
+                if  numel(nodes_info) ~=4
+                    error('HORACE:AxesBlockBase:invalid_argument', ...
+                        'Input for calc_bin_volume function should be cellarray containing 4 axis. It is %s', ...
+                        disp2str(nodes_info));
+                end
+                grid_size = cellfun(@(ax)numel(ax),nodes_info);
+                is_axes  = true;
+            else
+                is_axes  = false;
+                if nargin<3
+                    grid_size = ax_instance.nbins_all_dims+1;
+                end
+                if size(nodes_info,1) ~= numel(grid_size)
+                    error('HORACE:AxesBlockBase:invalid_argument', ...
+                        'first size of nodes_into array (%d) have to be equal to number of grid dimensions %d',...
+                        size(nodes_info,1),numel(grid_size));
+                end
+            end
+        end
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

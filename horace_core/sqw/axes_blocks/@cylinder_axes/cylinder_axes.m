@@ -175,11 +175,11 @@ classdef cylinder_axes < AxesBlockBase
                 obj = obj.check_combo_arg();
             end
         end
-        function  volume = calc_bin_volume(obj,axis_cell)
+        function  volume = calc_bin_volume(obj,nodes_info,varargin)
             % calculate bin volume from the  axes of the axes block or input
             % axis organized in cellarray of 4 axis. Will return array of
             % bin volumes
-            volume = calc_bin_volume_(obj,axis_cell);
+            volume = calc_bin_volume_(obj,nodes_info,varargin{:});
         end
 
         function  obj = check_and_set_img_range(obj,val)

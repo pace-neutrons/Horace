@@ -88,11 +88,11 @@ if ~isempty(targ_proj)
         % substantially use fact that dE nodes are dirstributed regularly
         dE     = dE_nodes(2:end)-dE_nodes(1:end-1);
         dE     = paddata_horace(dE,numel(dE)+1);
-        dE(end) = 0.5*dE(1);
-        dE(1)   = dE(end);
+        dE(end) = dE(1);
         targ_cell_volume  = reshape(targ_cell_volume(:).*dE(:)',[nbad3,numel(dE)]);
     end
 else % usually debug mode. Original grid coincides with interpolation grid
+    % and there is specialized and correct algorihm to do this.
     [nodes,~,~,targ_cell_volume] = targ_axes.get_bin_nodes('-bin_centre');
     inodes = nodes;
     dE_nodes = [];
