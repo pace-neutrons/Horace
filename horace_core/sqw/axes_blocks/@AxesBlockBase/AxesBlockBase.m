@@ -921,28 +921,32 @@ classdef AxesBlockBase < serializable
                 end
             end
         end
-        function [volume,inodes] = expand_to_dE_grid(volume,inodes,dE_nodes)
+        function [volume,inodes] = expand_to_dE_grid(volume,dE_nodes,inodes)
             % Epand 3-Dimensional interpolation lattice by orthogonal
             % 1-dimensional dE lattice, returning 4-dimensional lattice as
             % the result
             % Inputs:
             % volime    --   3-dimensional array of lattice grid volumes
+            % dE_nodes  --   1-dimensional array of energies used as 4-th
+            %                interpolation axis.            
             % inodes    --   2-dimensional [3,(size(volume)+1] array of
             %                coordinates of 3-dimensional grid, used for
             %                interpolation
-            % dE_nodes  --   1-dimensional array of energies used as 4-th
-            %                interpolation axis.
             % Return
             % volume    --   4-dimensional array of lattice grid volumes
             % inodes    --   2-dimensional array of coordinates of
             %                4-dimensional interpolation grid.
-            inodes = [repmat(inodes,1,numel(dE_nodes));repelem(dE_nodes,size(inodes,2))];
             %
             % substantially use fact that dE nodes are dirstributed regularly
-            dE     = dE_nodes(2:end)-dE_nodes(1:end-1);
-            dE     = paddata_horace(dE,numel(dE)+1);
-            dE(end) = dE(1);
-            volume  = reshape(volume(:).*dE(:)',[size(volume),numel(dE)]);
+            dE     = dE_nodes(2:end)-dE_nodes(1:end-1);            
+            if ~isempty(volume)
+                volume  = reshape(volume(:).*dE(:)',[size(volume),numel(dE)]);
+            end             
+            if nargin>2
+                inodes = [repmat(inodes,1,numel(dE_nodes));repelem(dE_nodes,size(inodes,2))];            
+            else
+                inodes = [];
+            end
         end
 
     end

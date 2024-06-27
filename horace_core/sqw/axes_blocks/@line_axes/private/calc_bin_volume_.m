@@ -34,4 +34,4 @@ if is_axes
 else
     volume = calc_bin_volume(nodes_info,grid_size(1:3));
 end
-volume = obj.get_volume_scale()*volume;
+volume = volume*obj.get_volume_scale();

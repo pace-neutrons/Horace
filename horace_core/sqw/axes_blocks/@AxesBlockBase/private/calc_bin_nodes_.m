@@ -77,9 +77,10 @@ if ngrid_form && hull
 end
 grid_nnodes = parse_inputs(n_pos_arg,nargin,varargin{:});
 
+binning_requested_explicitly = ~isempty(grid_nnodes );
 axes = cell(4,1);
 %
-if isempty(grid_nnodes)
+if ~binning_requested_explicitly 
     axes(obj.pax) = obj.p(:);
     iint_ax = num2cell(obj.iint',2);
     axes(obj.iax) = iint_ax(:);
@@ -112,9 +113,12 @@ else
 end
 
 if bin_centre || dens_interp || plot_edges
-    is_pax = false(4,1);
-    is_pax(obj.pax) = true;
-
+    if binning_requested_explicitly
+        is_pax = npoints_in_axes>2;        
+    else
+        is_pax = false(4,1);
+        is_pax(obj.pax) = true;
+    end
     % modify axes to be basis of the interpolation or extrapolation density
     % grid.
     for i=1:4
@@ -123,7 +127,7 @@ if bin_centre || dens_interp || plot_edges
                 axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
             end
         else % integration axis
-            if dens_interp  % may be necessary if cell size is provided, not for
+            if dens_interp   % may be necessary if cell size is provided, not for
                 %  default range which is already defined by this formula
                 axes{i} = [obj.img_range(1,i),obj.img_range(2,i)];
             else

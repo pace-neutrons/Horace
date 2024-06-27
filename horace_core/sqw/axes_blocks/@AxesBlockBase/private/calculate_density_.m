@@ -30,9 +30,8 @@ gridCE = reshape(data_nodes(4,:),npoints_in_base);
 %
 
 % build density grid
-
 grid_nbins = obj.nbins_all_dims;
-grid_nbins(obj.pax) = grid_nbins(obj.pax)*2;
+%grid_nbins(obj.pax) = grid_nbins(obj.pax)*2;
 
 [dens_nodes,~,n_ref_points] = obj.get_bin_nodes(grid_nbins);
 % provide the coefficient for the future integration over interpolated grid
