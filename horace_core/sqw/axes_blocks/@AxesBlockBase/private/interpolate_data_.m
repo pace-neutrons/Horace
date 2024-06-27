@@ -80,16 +80,11 @@ if ~isempty(targ_proj)
     % this are the interpolation nodes in source coordinate system
     inodes           = targ_proj.from_this_to_targ_coord(nodes);
     nbad3            = nbins_all_dims(1:3);
-    %targ_cell_volume = ref_axes.calc_bin_volume({reshape(inodes(1,:),nbad3),reshape(inodes(2,:),nbad3),reshape(inodes(3,:),nbad3)});
-    targ_cell_volume= ones(nbad3);
+    targ_cell_volume = ref_axes.calc_bin_volume(inodes,nbad3);
 
     if ~isempty(dE_nodes)
-        inodes = [repmat(inodes,1,numel(dE_nodes));repelem(dE_nodes,size(inodes,2))];
-        % substantially use fact that dE nodes are dirstributed regularly
-        dE     = dE_nodes(2:end)-dE_nodes(1:end-1);
-        dE     = paddata_horace(dE,numel(dE)+1);
-        dE(end) = dE(1);
-        targ_cell_volume  = reshape(targ_cell_volume(:).*dE(:)',[nbad3,numel(dE)]);
+        targ_cell_volume = reshape(targ_cell_volume,dbad3);
+        [targ_cell_volume,inodes] = AxesBlockBase.expand_to_dE_grid(targ_cell_volume,inodes,dE_nodes);
     end
 else % usually debug mode. Original grid coincides with interpolation grid
     % and there is specialized and correct algorihm to do this.

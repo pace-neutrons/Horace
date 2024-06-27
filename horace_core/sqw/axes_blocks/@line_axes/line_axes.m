@@ -161,10 +161,10 @@ classdef line_axes < AxesBlockBase
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
-        function  volume = calc_bin_volume(obj,axis_cell)
+        function  volume = calc_bin_volume(obj,varargin)
             % calculate bin volume from the  axes of the axes block or input
             % axis organized in cellarray of 4 axis.
-            volume = calc_bin_volume_(obj,axis_cell);
+            volume = calc_bin_volume_(obj,varargin{:});
         end
 
         function  obj = check_and_set_img_range(obj,val)
@@ -176,6 +176,11 @@ classdef line_axes < AxesBlockBase
             % and defines default binning in this situation
             rest = arrayfun(@(x)zeros(1,0),1:4-ndim,'UniformOutput',false);
             pbin=[repmat({[0,1]},1,ndim),rest];
+        end
+        function vol_scale = get_volume_scale(obj)
+            % retrieve the bin volume scale so that any bin volume be
+            % expessed in A^-3*mEv
+            vol_scale = prod(obj.img_scales(1:3));
         end
     end
     %======================================================================

@@ -175,7 +175,11 @@ classdef sphere_axes < AxesBlockBase
             % bin volumes
             volume = calc_bin_volume_(obj,grid_info,varargin{:});
         end
-
+        function vol_scale = get_volume_scale(obj)
+            % retrieve the bin volume scale so that bin volume of any image
+            % based on this axes be expessed in A^-3*mEv
+            vol_scale = obj.img_scales(1).^3;
+        end
         function  obj = check_and_set_img_range(obj,val)
             % main setter for spherical image range.
             obj = check_and_set_img_range_(obj,val);

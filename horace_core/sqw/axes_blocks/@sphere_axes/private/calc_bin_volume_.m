@@ -48,7 +48,7 @@ if is_axes
     if numel(dR)==1 && numel(dThet) == 1 && dE_regular
         volume = dR(1)*dThet(1)*dPhi(1)*grid_edges{4}(1);
     else
-        volume = grid_edges{1}(:)';
+        volume = grid_edges{1}(:)'*obj.get_volume_scale();
         for i=2:4
             volume = repmat(volume(:)',1,numel(grid_edges{i})).*...
                 repelem(grid_edges{i}(:)',numel(volume));
@@ -66,5 +66,5 @@ else
     Theta1 = nodes_info(2,cell_idx{1});
     Theta2 = nodes_info(2,cell_idx{3});
     dPhi   = nodes_info(3,cell_idx{4}) - nodes_info(3,cell_idx{1});
-    volume  = abs((r2-r1).*(r2.*r2+r1.*r1+r1.*r2).*sin((Theta1+Theta2)/2).*sin((Theta1-Theta2)/2).*dPhi);
+    volume  = obj.get_volume_scale()*abs((r2-r1).*(r2.*r2+r1.*r1+r1.*r2).*sin((Theta1+Theta2)/2).*sin((Theta1-Theta2)/2).*dPhi);
 end

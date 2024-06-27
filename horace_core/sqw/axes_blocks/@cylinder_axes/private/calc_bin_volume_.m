@@ -51,16 +51,13 @@ else
         errror('HORACE:cylinder_axes:not_implemented', ...
             'Volume of 4-Dimensional grid is not yet implemented')
     end
-    
+
     cell_idx = get_gridcell_ind(grid_size(1:3));
 
     r1 = nodes_info(1,cell_idx{1});
-    r2 = nodes_info(1,cell_idx{2});    
+    r2 = nodes_info(1,cell_idx{2});
     dz = nodes_info(2,cell_idx{3})   - nodes_info(2,cell_idx{1});
-    dPhi = nodes_info(3,cell_idx{4}) - nodes_info(3,cell_idx{1});    
+    dPhi = nodes_info(3,cell_idx{4}) - nodes_info(3,cell_idx{1});
     volume  = abs(0.5*(r1+r2).*(r2-r1).*dz.*dPhi);
 end
-
-
-
-
+volume = obj.get_volume_scale()*volume;
