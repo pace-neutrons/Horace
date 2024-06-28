@@ -77,7 +77,30 @@ classdef test_file_parameters_mex < TestCase
             if obj.skipTests
                 skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
             end
-            param = struct('file_name','my_file','pix_start_pos',10);
+            param = struct('file_name','my_file','pix_start_pos',10,'file_id',3,'nbins_total',6,'pixel_with',4);
+
+            % tester returns all input parameters
+            test_out = file_parameters_tester(param);
+            assertEqual(test_out{1},'my_file');
+            assertEqual(test_out{2},10);
+            assertEqual(test_out{3},4);
+            assertEqual(test_out{4},6);
+            assertEqual(test_out{5},1);
+            assertEqual(test_out{6},34);
+            %const std::map<std::string, int> fileParameters::fileParamNames = {
+     %{ std::string("file_name"),0 },
+    %{ std::string("npix_start_pos"),1 },
+    %{ std::string("pix_start_pos"),2 },
+    %{ std::string("file_id"),3 },
+    %{ std::string("nbins_total"),4 },
+    %{ std::string("npix_total"),5 },
+    %{ std::string("pixel_with"),6  }
+        end
+        function test_all_input_works(obj)
+            if obj.skipTests
+                skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
+            end
+            param = struct('file_name','my_file','pix_start_pos',10,'file_id',3,'nbins_total',6,'pixel_with',4);
 
             % tester returns all input parameters
             test_out = file_parameters_tester(param);

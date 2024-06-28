@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 // Matlab's includes
 #include <mex.h>
 #include <matrix.h>
