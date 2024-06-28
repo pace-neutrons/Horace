@@ -73,7 +73,7 @@ classdef test_file_parameters_mex < TestCase
                 'value for field: file_name requested but has not been provided',20))
         end
 
-        function test_missing_minimal_set_works(obj)
+        function test_all_input_works(obj)
             if obj.skipTests
                 skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
             end
@@ -87,16 +87,9 @@ classdef test_file_parameters_mex < TestCase
             assertEqual(test_out{4},6);
             assertEqual(test_out{5},1);
             assertEqual(test_out{6},34);
-            %const std::map<std::string, int> fileParameters::fileParamNames = {
-     %{ std::string("file_name"),0 },
-    %{ std::string("npix_start_pos"),1 },
-    %{ std::string("pix_start_pos"),2 },
-    %{ std::string("file_id"),3 },
-    %{ std::string("nbins_total"),4 },
-    %{ std::string("npix_total"),5 },
-    %{ std::string("pixel_with"),6  }
+
         end
-        function test_all_input_works(obj)
+        function test_minimal_set_works(obj)
             if obj.skipTests
                 skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
             end
