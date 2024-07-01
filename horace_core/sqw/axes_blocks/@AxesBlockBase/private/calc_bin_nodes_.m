@@ -80,7 +80,7 @@ grid_nnodes = parse_inputs(n_pos_arg,nargin,varargin{:});
 binning_requested_explicitly = ~isempty(grid_nnodes );
 axes = cell(4,1);
 %
-if ~binning_requested_explicitly 
+if ~binning_requested_explicitly
     axes(obj.pax) = obj.p(:);
     iint_ax = num2cell(obj.iint',2);
     axes(obj.iax) = iint_ax(:);
@@ -114,7 +114,7 @@ end
 
 if bin_centre || dens_interp || plot_edges
     if binning_requested_explicitly
-        is_pax = npoints_in_axes>2;        
+        is_pax = npoints_in_axes>=2;
     else
         is_pax = false(4,1);
         is_pax(obj.pax) = true;

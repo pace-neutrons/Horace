@@ -52,9 +52,8 @@ end
 function nodes=build2D(grid_size)
 
 ax = cell(2,1);
-gsl = grid_size-1;
-ax{1} = 1:gsl(1);
-ax{2} = 1:gsl(2);
+ax{1} = ax_points(grid_size(1));
+ax{2} = ax_points(grid_size(2));
 
 [lindX,lindY] = ndgrid(ax{:});
 lind00 = sub2ind(grid_size,lindX(:),lindY(:));
@@ -72,14 +71,12 @@ end
 function nodes=build3D(grid_size)
 ax = cell(3,1);
 
-ax{1} = 1:grid_size(1)-1;
-ax{2} = 1:grid_size(2)-1;
-ax{3} = 1:grid_size(3)-1;
+ax{1} = ax_points(grid_size(1));
+ax{2} = ax_points(grid_size(2));
+ax{3} = ax_points(grid_size(3));
 
 addi = zeros(3,4);
-addi(1,2) = 1;
-addi(2,3) = 1;
-addi(3,4) = 1;
+addi(:,2:4)= eye(3);
 
 nodes = cell(4,1);
 for i=1:4
@@ -92,16 +89,13 @@ end
 function nodes=build4D(grid_size)
 ax = cell(5,1);
 
-ax{1} = 1:grid_size(1)-1;
-ax{2} = 1:grid_size(2)-1;
-ax{3} = 1:grid_size(3)-1;
-ax{4} = 1:grid_size(3)-1;
+ax{1} = ax_points(grid_size(1));
+ax{2} = ax_points(grid_size(2));
+ax{3} = ax_points(grid_size(3));
+ax{4} = ax_points(grid_size(4));
 
-addi = zeros(3,5);
-addi(1,2) = 1;
-addi(2,3) = 1;
-addi(3,4) = 1;
-addi(4,5) = 1;
+addi = zeros(4,5);
+addi(:,2:5)= eye(4);
 
 
 nodes = cell(5,1);
@@ -109,7 +103,9 @@ for i=1:5
     [lindX,lindY,lindZ,lindE] = ndgrid(ax{1}+addi(1,i),ax{2}+addi(2,i),ax{3}+addi(3,i),ax{4}+addi(4,i));
     nodes{i} = sub2ind(grid_size,lindX(:),lindY(:),lindZ(:),lindE(:));
 end
-
-
-
 end
+
+function ap = ax_points(sz)
+ap = 1:sz-1;
+end
+

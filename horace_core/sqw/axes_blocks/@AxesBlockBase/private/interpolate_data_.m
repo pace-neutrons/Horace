@@ -33,8 +33,9 @@ function [s,e,npix] = interpolate_data_(targ_axes,nout,ref_axes,ref_proj,ref_dat
 %              of pixels calculated in the centres of the
 %              cells of this lattice.
 
+proj_present = ~isempty(targ_proj); % normally debug mode
 
-if ~targ_proj.do_3D_transformation
+if proj_present && ~targ_proj.do_3D_transformation
     error('HORACE:AxesBlockBase:not_implemented', ...
         '4D axes block transformation is not yet implemented');
 end
@@ -42,11 +43,14 @@ end
 %
 %
 [ref_nodes,density] = ref_axes.get_density(ref_data);
-% cross-assign source->target and target->source projections
-% as each other target projection to enable possible optimizations
-% doing transformations in similar coordinate systems.
-ref_proj.targ_proj = targ_proj;
-targ_proj.targ_proj = ref_proj;
+
+if proj_present
+    % cross-assign source->target and target->source projections
+    % as each other target projection to enable possible optimizations
+    % doing transformations in similar coordinate systems.
+    ref_proj.targ_proj = targ_proj;
+    targ_proj.targ_proj = ref_proj;
+end
 %ref_nodes = ref_proj.from_this_to_targ_coord(ref_nodes);
 
 ref_grid_size = size(density{1});
@@ -63,48 +67,52 @@ dE = [min(dE_nodes);max(dE_nodes)];
 range     = [range,dE];
 char_size = (range(2,:)-range(1,:))./ref_axes.nbins_all_dims;
 %
-if ~isempty(targ_proj)
-    % find the accuracy of the target interpolation grid so that it is
-    % comparible with the source interpolation grid and each qualifying  bin
-    % of source interpolation grid would contain at least one point of
-    % target interpolation grid.
-    nbins_all_dims = targ_axes.nbins_all_dims;
+
+% find the accuracy of the target interpolation grid so that it is
+% comparible with the source interpolation grid and each qualifying  bin
+% of source interpolation grid would contain at least one point of
+% target interpolation grid.
+nbins_all_dims = targ_axes.nbins_all_dims;
+if proj_present
     % found bounding box for the target cut, expressed in Crystal Cartesian
     % line_proj('type','aaa') transforms from targ_axes image to pixels.
-    range_cc       = targ_axes.get_targ_range(targ_proj,line_proj('type','aaa'),targ_axes.img_range);
-    cut_range      = range_cc(2,:)-range_cc(1,:);
-    targ_step      = cut_range ./nbins_all_dims;
-    too_coarse     = targ_step>char_size/2;
-    nbins_all_dims(too_coarse) = ceil(2*cut_range(too_coarse)./char_size(too_coarse));
+
+    range_cc      = targ_axes.get_targ_range(targ_proj,line_proj('type','aaa'),targ_axes.img_range);
+else
+    range_cc      = targ_axes.img_range;
+end
+cut_range      = range_cc(2,:)-range_cc(1,:);
+targ_step      = cut_range ./nbins_all_dims;
+too_coarse     = targ_step>char_size/2;
+while any(too_coarse) % divide target bins by two until they are smaller than the char size
+    nbins_all_dims(too_coarse) = 2*nbins_all_dims(too_coarse);
     targ_step  = cut_range./nbins_all_dims;
+    too_coarse     = targ_step>char_size/2;    
+end
 
-    test_max = range_cc(1,:)+nbins_all_dims.*targ_step;
-    too_small   = abs(test_max-range_cc(2,:))>eps('single');
-    nbins_all_dims(too_small) = nbins_all_dims(too_small)+1;
 
-    [nodes,dE_nodes] = targ_axes.get_bin_nodes('-3D','-plot_edges',nbins_all_dims);
+[nodes,dE_nodes] = targ_axes.get_bin_nodes('-3D','-plot_edges',nbins_all_dims);
+if proj_present
     inodes           = targ_proj.from_this_to_targ_coord(nodes); % Nodes in source coordinate system
-    % where the signal is provided.
-    nbad3            = nbins_all_dims(1:3);
-    targ_cell_volume = ref_axes.calc_bin_volume(inodes,nbad3+1);
-    if ~isempty(dE_nodes)
-        targ_cell_volume = reshape(targ_cell_volume,nbad3);
-        targ_cell_volume = AxesBlockBase.expand_to_dE_grid(targ_cell_volume,dE_nodes);
-    end
-
-
-    [nodes,dE_nodes] = targ_axes.get_bin_nodes('-3D','-bin_centre',nbins_all_dims);
-    % this are the interpolation nodes in source coordinate system
+else
+    inodes          = nodes;
+end
+% where the signal is provided.
+nbad3            = nbins_all_dims(1:3);
+targ_cell_volume = ref_axes.calc_bin_volume(inodes,nbad3+1);
+if ~isempty(dE_nodes)
+    targ_cell_volume = reshape(targ_cell_volume,nbad3);
+    targ_cell_volume = AxesBlockBase.expand_to_dE_grid(targ_cell_volume,dE_nodes);
+end
+[nodes,dE_nodes] = targ_axes.get_bin_nodes('-3D','-bin_centre',nbins_all_dims);
+% this are the interpolation nodes in source coordinate system
+if proj_present
     inodes           = targ_proj.from_this_to_targ_coord(nodes);
-    if ~isempty(dE_nodes)
-        [~,inodes] = AxesBlockBase.expand_to_dE_grid([],dE_nodes,inodes);
-    end
-
-else % usually debug mode. Original grid coincides with interpolation grid
-    % and there is specialized and correct algorihm to do this.
-    [nodes,~,~,targ_cell_volume] = targ_axes.get_bin_nodes('-bin_centre');
+else
     inodes = nodes;
-    dE_nodes = [];
+end
+if ~isempty(dE_nodes)
+    [~,inodes] = AxesBlockBase.expand_to_dE_grid([],dE_nodes,inodes);
 end
 
 % do interpolation in source coodinate system

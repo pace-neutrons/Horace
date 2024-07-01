@@ -490,10 +490,18 @@ classdef AxesBlockBase < serializable
             %          directions. If this argument is present, the
             %          volume(s) are calculated for the grid, build from
             %          the axes provided as input.
+            % OR:
+            % coordinates
+            %       -- 3xnbins or 4xnbins array of nodes defining grid
+            % grid_size
+            %       -- 3 or 4 elements array, defining size of the grid,
+            %          defined by the coordinates
+            %            
+
             if nargin == 1
                 [~,~,~,volume] = obj.get_bin_nodes('-axes_only');
-            elseif nargin == 2
-                volume = obj.calc_bin_volume(varargin{1});
+            elseif nargin > 1
+                volume = obj.calc_bin_volume(varargin{:});
             else
                 error('HORACE:AxesBlockBase:invalid_argument', ...
                     'This method accepts no or one argument. Called with %d arguments', ...

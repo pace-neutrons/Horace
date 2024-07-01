@@ -39,6 +39,8 @@ grid_nbins = obj.nbins_all_dims;
 densities = cell(numel(in_data),1);
 
 for i = 1:numel(in_data)
+    % put density values from centerpoints to cell edges to allow
+    % interpolation in new bin centers
     ref_ds  = convert_data_to_density(obj,in_data{i},base_cell_volume,npoints_in_base);
     densities{i} = interpn(gridCX,gridCY,gridCZ,gridCE,ref_ds,...
         dens_nodes(1,:),dens_nodes(2,:),dens_nodes(3,:),dens_nodes(4,:),'linear');

@@ -88,7 +88,9 @@ classdef test_AxesBlockBase_methods < TestCase
             ax{2} = [0,1,2,3,5,6];
             ax{3} = 1:0.1:2;
             ax{4} = [0,2,3,4,5,10];
-            n_cells = cellfun(@(x)numel(x)-1,ax);
+
+            grid_size = cellfun(@numel,ax);
+            n_cells = grid_size-1;
             n_cells = prod(n_cells);
 
             bv = ab.get_bin_volume(ax);
@@ -101,6 +103,11 @@ classdef test_AxesBlockBase_methods < TestCase
             % the volume of the last bin is the production
             % of all sizes of the last cell
             assertEqualToTol(bv(end),5*1*0.1*5,'tol',1.e-11);
+
+            [x,y,z,e] = ndgrid(ax{:});
+            coord = [x(:),y(:),z(:),e(:)]';
+            vol_p = ab.get_bin_volume(coord,grid_size);
+            assertElementsAlmostEqual(bv,vol_p);
         end
 
         function test_bin_volume_single(~)
@@ -126,7 +133,7 @@ classdef test_AxesBlockBase_methods < TestCase
                 other_dim = hull_sizes(j~=i);
                 assize = assize + 2*prod(other_dim);
             end
-            ax = ab.get_bin_nodes('-hull',2);
+            ax = ab.get_bin_nodes('-hull',nbins_all_dims*2);
             assertEqual(size(ax),[4,assize]);
         end
 
@@ -142,7 +149,7 @@ classdef test_AxesBlockBase_methods < TestCase
                 other_dim = hull_sizes(j~=i);
                 assize = assize + 2*prod(other_dim);
             end
-            ax = ab.get_bin_nodes('-hull',1);
+            ax = ab.get_bin_nodes('-hull',nbins_all_dims);
             assertEqual(size(ax),[4,assize]);
         end
 

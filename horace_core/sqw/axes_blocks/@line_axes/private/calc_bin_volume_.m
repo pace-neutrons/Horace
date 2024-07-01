@@ -11,27 +11,27 @@ function volume = calc_bin_volume_(obj,nodes_info,varargin)
 [is_axes,grid_size]= AxesBlockBase.process_bin_volume_inputs(obj,nodes_info,varargin{:});
 
 if is_axes
-    grid_edges = cell(1,4);
+    cell_sizes = cell(1,4);
     volume_is_array = false;
     for i=1:4
         ax = nodes_info{i};
-        grid_edges{i} = ax(2:end)-ax(1:end-1);
-        if abs(min(grid_edges{i}) - max(grid_edges{i})) > eps('single')
+        cell_sizes{i} = ax(2:end)-ax(1:end-1);
+        if abs(min(cell_sizes{i}) - max(cell_sizes{i})) > eps('single')
             volume_is_array  = true;
         end
     end
 
     if volume_is_array
-        volume = grid_edges{1}(:)';
+        volume = cell_sizes{1}(:)';
         for i=2:4
-            volume = repmat(volume(:)',1,grid_size{i}-1).*...
-                repelem(grid_edges{i}(:)',numel(volume));
+            volume = repmat(volume(:)',1,grid_size(i)-1).*...
+                repelem(cell_sizes{i}(:)',numel(volume));
         end
     else
-        vol = cellfun(@(x)x(1),grid_edges);
+        vol = cellfun(@(x)x(1),cell_sizes);
         volume = prod(vol);
     end
 else
-    volume = calc_bin_volume(nodes_info,grid_size(1:3));
+    volume = calc_bin_volume(nodes_info,grid_size);
 end
 volume = volume*obj.get_volume_scale();
