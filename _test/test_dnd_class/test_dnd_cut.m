@@ -38,59 +38,71 @@ classdef test_dnd_cut< TestCaseWithSave
         %------------------------------------------------------------------
         % tests
         function test_2D_to2D_cut_with_cylinder_proj_23(obj)
-            clOb = set_temporary_warning('off','HORACE:runtime_error');
+            clOb = set_temporary_warning('off','HORACE:runtime_error','HORACE:developers_option');
 
             proj = cylinder_proj([1,1,0],[0,0,1],'type','aad');
             cut_range = obj.d2d_obj.get_targ_range(proj);
             bin_range = {[0,4],[-2,0.1,2],[cut_range(1,3),2,cut_range(2,3)],[0,10]};
             w2 = cut(obj.d2d_obj,proj,bin_range{:});
-            w2f = cut(obj.sqw_ref_obj,proj,bin_range{:});
+            % this is reference image which should be compared with w2 manually            
+            %w2f = cut(obj.sqw_ref_obj,proj,bin_range{:});
 
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
         end
 
         function test_2D_to2D_cut_with_cylinder_proj_24(obj)
-            clOb = set_temporary_warning('off','HORACE:runtime_error');
+            clOb = set_temporary_warning('off','HORACE:runtime_error','HORACE:developers_option');
 
             proj = cylinder_proj([1,1,0],[0,0,1],'type','aad');
             cut_range = obj.d2d_obj.get_targ_range(proj);
             bin_range = {[0,4],[-2,0.1,2],[cut_range(1,3),cut_range(2,3)],[]};
             w2 = cut(obj.d2d_obj,proj,bin_range{:});
-            w2f = cut(obj.sqw_ref_obj,proj,bin_range{:});
+            % this is reference image which should be compared with w2 manually            
+            %w2f = cut(obj.sqw_ref_obj,proj,bin_range{:});
 
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
         end
 
         function test_2D_to2D_cut_with_spher_proj(obj)
-            clOb = set_temporary_warning('off','HORACE:runtime_error');
+            clOb = set_temporary_warning('off','HORACE:runtime_error','HORACE:developers_option');
 
             proj = sphere_proj('type','add');
-            cut_range = obj.d2d_obj.get_targ_range(proj);
-            w2 = cut(obj.d2d_obj,proj,[1,0.1,2], ...
-                [113,114],[cut_range(1,3),0.1,cut_range(2,3)],[-0.25,0.25]);
+            %cut_range = obj.d2d_obj.get_targ_range(proj);
+            w2 = cut(obj.d2d_obj,proj,[0,0.1,5], ...
+                [0,2,180],[-180,180],[20,50]);
+            % this is reference image which should be compared with w2 manually                        
+            %w2ref = cut(obj.sqw_ref_obj,proj,[0,0.1,5], ...
+            %    [0,2,180],[-180,180],[20,50]);
+
 
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
-            skipTest('Re #1707 These cells intersection does not look correct')
         end
 
         function test_2D_to2D_cut_with_proj(obj)
-            clOb = set_temporary_warning('off','HORACE:runtime_error');
+            clOb = set_temporary_warning('off','HORACE:runtime_error','HORACE:developers_option');
 
             proj = line_proj([1,1,1],[0,0,1]);
-            w2 = cut(obj.d2d_obj,proj,[-0.6,0.01,-0.4], ...
-                [-0.3,0.02,0.2],[-0.05,0.05],[-0.25,0.25]);
+            w2 = cut(obj.d2d_obj,proj,[0,0.02,0.9], ...
+                [-0.3,0.02,0.9],[-0.1,0.1],[20,50]);
 
+            % this is reference image which should be compared with w2 manually                        
+            %w2ref = cut(obj.sqw_ref_obj,proj,[0,0.02,0.9], ...
+            %    [-0.3,0.02,0.9],[-0.1,0.1],[20,50]);
+            
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
         end
 
         function test_2D_to2D_cut(obj)
-            w2 = cut(obj.d2d_obj,[-0.6+1.9222e-08+4.9794e-13,0.02,-0.4], ...
-                [-0.59,0.02,-0.47]);
+            w2 = cut(obj.d2d_obj,[-0.9,0.04,0.9],[0,4,100]);            
+            % this is reference image which should be compared with w1 manually                        
+            % w2ref = cut(obj.sqw_ref_obj,[-0.9,0.04,0.9],[0,4,100]);
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);
         end
 
         function test_2D_to1D_cut(obj)
-            w1 = cut(obj.d2d_obj,[-0.60+1.9222e-08+4.9794e-13,0.02,-0.4],[-0.54,-0.44]);
+            w1 = cut(obj.d2d_obj,[-0.9,0.04,0.9],[20,50]);
+            % this is reference image which should be compared with w1 manually                        
+            % w1ref = cut(obj.sqw_ref_obj,[-0.9,0.04,0.9],[20,50]);
             assertEqualToTolWithSave(obj,w1,'ignore_str',true,'tol',[1.e-9,1.e-9]);
         end
 

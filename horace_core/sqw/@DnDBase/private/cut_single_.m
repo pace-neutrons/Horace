@@ -40,6 +40,8 @@ end
 if proj_given
     % Interpolate image on non-commensurate grid and accumulate interpolated
     % data for cut
+    warning('HORACE:developers_option', ...
+        'This type of cut is incomplete and not fully verified. The results may be incorrect. Use on your own risk')
     [s, e, npix] = cut_interpolate_data_( ...
         w, tag_proj,targ_axes);
 else
@@ -105,4 +107,5 @@ function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
 s = obj.s;
 
 [s,e,npix] = targ_axes.interpolate_data(obj.axes,obj.proj,{s},targ_proj);
-[s, e] = normalize_signal(s, e, npix);
+npix(:)= 1;
+%[s, e] = normalize_signal(s, e, npix);

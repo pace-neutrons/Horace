@@ -65,22 +65,26 @@ char_size = (range(2,:)-range(1,:))./ref_axes.nbins_all_dims;
 %
 if ~isempty(targ_proj)
     % find the accuracy of the target interpolation grid so that it is
-    % comparible with the source grid.
+    % comparible with the source interpolation grid and each qualifying  bin
+    % of source interpolation grid would contain at least one point of
+    % target interpolation grid.
     nbins_all_dims = targ_axes.nbins_all_dims;
     % found bounding box for the target cut, expressed in Crystal Cartesian
+    % line_proj('type','aaa') transforms from targ_axes image to pixels.
     range_cc       = targ_axes.get_targ_range(targ_proj,line_proj('type','aaa'),targ_axes.img_range);
     cut_range      = range_cc(2,:)-range_cc(1,:);
     targ_step      = cut_range ./nbins_all_dims;
     too_coarse     = targ_step>char_size/2;
-    nbins_all_dims(too_coarse) = floor(2*cut_range(too_coarse)./char_size(too_coarse));
+    nbins_all_dims(too_coarse) = ceil(2*cut_range(too_coarse)./char_size(too_coarse));
     targ_step  = cut_range./nbins_all_dims;
 
-    test_size = cut_range(1,:)+nbins_all_dims.*targ_step;
-    too_small   = abs(test_size-cut_range)<eps('single');
+    test_max = range_cc(1,:)+nbins_all_dims.*targ_step;
+    too_small   = abs(test_max-range_cc(2,:))>eps('single');
     nbins_all_dims(too_small) = nbins_all_dims(too_small)+1;
 
     [nodes,dE_nodes] = targ_axes.get_bin_nodes('-3D','-plot_edges',nbins_all_dims);
     inodes           = targ_proj.from_this_to_targ_coord(nodes); % Nodes in source coordinate system
+    % where the signal is provided.
     nbad3            = nbins_all_dims(1:3);
     targ_cell_volume = ref_axes.calc_bin_volume(inodes,nbad3+1);
     if ~isempty(dE_nodes)
