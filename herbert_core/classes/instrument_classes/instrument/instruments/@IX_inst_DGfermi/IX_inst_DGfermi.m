@@ -68,6 +68,8 @@ classdef IX_inst_DGfermi < IX_inst
         end
 
         function obj=set.energy(obj,val)
+        % Temporary fix while some variables are coming in from Matlab populated as int32
+            val = double(val);
             obj.moderator_.energy = val;
             obj.fermi_chopper_.energy = val;
         end
