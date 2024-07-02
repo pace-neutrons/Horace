@@ -27,7 +27,7 @@ else
         if sz0(i)<=0
             continue;
         end
-        padded = cat(1,padded,false(sz0));
+        padded = cat(i,padded,false(sz0));
     end
 end
 end
