@@ -103,6 +103,10 @@ classdef line_axes < AxesBlockBase
         function lab = get.ulabel(obj)
             lab  = obj.label_;
         end
+        % Return characteristic size of a grid cell in the target
+        % coordinate system.
+        sz = get_char_size(obj,this_proj);
+
     end
     %----------------------------------------------------------------------
     methods(Static)
@@ -157,10 +161,28 @@ classdef line_axes < AxesBlockBase
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
-        function  volume = calc_bin_volume(obj,axis_cell)
-            % calculate bin volume from the  axes of the axes block or input
-            % axis organized in cellarray of 4 axis.
-            volume = calc_bin_volume_(obj,axis_cell);
+        function  volume = calc_bin_volume(obj,varargin)
+            %calculate the volume of a lattice cell defined by the
+            %cellarray of grid axes or array of coordinates of the grid nodes.
+            %
+            % The volume is either single value if all axes bins are the same or the
+            % 1D array of size of total number of bins in the lattice if some cell
+            % volumes differ or prod(grid_size-1) array of volumes if nodes_info is
+            % array
+            %
+            % Inputs:
+            % nodes_info   --
+            %       either:   4-element cellarray containing grid axes coordinates
+            %       or    :   3xN-elememts or 4xN-elements array of grid nodes
+            %                 produced by ndgrid function and combined into single
+            %                 array
+            % grid_size    -- if nodes_info is provided as array, 3 or 4 elements array
+            %                 containing sizes of the grid for the grid nodes in this
+            %                 array. Ignored if nodes_info contains axes.
+            % Output:
+            % volume       -- depending on input, single value or array of grid volumes
+            %                 measured in A^-3*mEv
+            volume = calc_bin_volume_(obj,varargin{:});
         end
 
         function  obj = check_and_set_img_range(obj,val)
@@ -172,6 +194,11 @@ classdef line_axes < AxesBlockBase
             % and defines default binning in this situation
             rest = arrayfun(@(x)zeros(1,0),1:4-ndim,'UniformOutput',false);
             pbin=[repmat({[0,1]},1,ndim),rest];
+        end
+        function vol_scale = get_volume_scale(obj)
+            % retrieve the bin volume scale so that any bin volume be
+            % expessed in A^-3*mEv
+            vol_scale = prod(obj.img_scales(1:3));
         end
     end
     %======================================================================

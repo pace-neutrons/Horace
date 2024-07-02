@@ -733,10 +733,10 @@ classdef test_line_axes < TestCase
             ab = line_axes(bin0{:});
 
 
-            [nodes,en,nbins] = ab.get_bin_nodes(2);
+            [nodes,en,nbins] = ab.get_bin_nodes(ab.nbins_all_dims*2);
             assertEqual(numel(en),nbins(4));
             assertEqual(size(nodes,1),4);
-            node_range = [min(nodes,[],2)';max(nodes,[],2)'];
+            node_range = min_max(nodes)';
             assertEqual(ab.img_range,node_range);
 
             %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
@@ -752,15 +752,15 @@ classdef test_line_axes < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = line_axes(bin0{:});
 
-            nnodes_mult = [2,40,40,10];
-            [nodes3D,dEgrid,npoints_in_axes] = ab.get_bin_nodes(nnodes_mult,'-3D');
+            nnodes_size = [2,40,40,10];
+            [nodes3D,dEgrid,npoints_in_axes] = ab.get_bin_nodes(nnodes_size,'-3D');
             assertEqual(size(nodes3D,1),3);
-            node_range = [min(nodes3D,[],2)';max(nodes3D,[],2)'];
+            node_range = min_max(nodes3D)';
             assertEqual(ab.img_range(:,1:3),node_range);
 
             %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
 
-            nns = [43,41,41,111];
+            nns = nnodes_size+1;
             assertEqual(npoints_in_axes,nns);
             q_size = prod(nns(1:3));
             assertEqual(numel(dEgrid),nns(4))

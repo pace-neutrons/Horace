@@ -490,10 +490,18 @@ classdef AxesBlockBase < serializable
             %          directions. If this argument is present, the
             %          volume(s) are calculated for the grid, build from
             %          the axes provided as input.
+            % OR:
+            % coordinates
+            %       -- 3xnbins or 4xnbins array of nodes defining grid
+            % grid_size
+            %       -- 3 or 4 elements array, defining size of the grid,
+            %          defined by the coordinates
+            %            
+
             if nargin == 1
                 [~,~,~,volume] = obj.get_bin_nodes('-axes_only');
-            elseif nargin == 2
-                volume = obj.calc_bin_volume(varargin{1});
+            elseif nargin > 1
+                volume = obj.calc_bin_volume(varargin{:});
             else
                 error('HORACE:AxesBlockBase:invalid_argument', ...
                     'This method accepts no or one argument. Called with %d arguments', ...
@@ -827,7 +835,10 @@ classdef AxesBlockBase < serializable
         pbin = default_pbin(obj,ndim)
         % calculate bin volume from the  axes of the axes block or input
         % axis organized in cellarray of 4 axis.
-        volume = calc_bin_volume(obj,axis_cell)
+        volume = calc_bin_volume(obj,varargin)
+        % retrieve the bin volume scale so that any bin volume be expessed in
+        % A^-3*mEv
+        vol_scale = get_volume_scale(obj);
     end
     %======================================================================
     methods(Access=protected)
@@ -889,6 +900,61 @@ classdef AxesBlockBase < serializable
             %   in turn define all axes block parameters
 
             obj=set_axis_bins_(obj,ndims,p1,p2,p3,p4);
+        end
+
+    end
+    methods(Static,Access = protected)
+        function [is_axes,grid_size]= process_bin_volume_inputs(ax_instance,nodes_info,grid_size)
+            % general routine used to process inputs for routne, used to calculate bin_volume
+            % of different sorts of lattice
+            %
+
+            if iscell(nodes_info)
+                if  numel(nodes_info) ~=4
+                    error('HORACE:AxesBlockBase:invalid_argument', ...
+                        'Input for calc_bin_volume function should be cellarray containing 4 axis. It is %s', ...
+                        disp2str(nodes_info));
+                end
+                grid_size = cellfun(@(ax)numel(ax),nodes_info);
+                is_axes  = true;
+            else
+                is_axes  = false;
+                if nargin<3
+                    grid_size = ax_instance.nbins_all_dims+1;
+                end
+                if size(nodes_info,1) ~= numel(grid_size)
+                    error('HORACE:AxesBlockBase:invalid_argument', ...
+                        'first size of nodes_into array (%d) have to be equal to number of grid dimensions %d',...
+                        size(nodes_info,1),numel(grid_size));
+                end
+            end
+        end
+        function [volume,inodes] = expand_to_dE_grid(volume,dE_nodes,inodes)
+            % Epand 3-Dimensional interpolation lattice by orthogonal
+            % 1-dimensional dE lattice, returning 4-dimensional lattice as
+            % the result
+            % Inputs:
+            % volime    --   3-dimensional array of lattice grid volumes
+            % dE_nodes  --   1-dimensional array of energies used as 4-th
+            %                interpolation axis.            
+            % inodes    --   2-dimensional [3,(size(volume)+1] array of
+            %                coordinates of 3-dimensional grid, used for
+            %                interpolation
+            % Return
+            % volume    --   4-dimensional array of lattice grid volumes
+            % inodes    --   2-dimensional array of coordinates of
+            %                4-dimensional interpolation grid.
+            %
+            % substantially use fact that dE nodes are dirstributed regularly
+            dE     = dE_nodes(2:end)-dE_nodes(1:end-1);            
+            if ~isempty(volume)
+                volume  = reshape(volume(:).*dE(:)',[size(volume),numel(dE)]);
+            end             
+            if nargin>2
+                inodes = [repmat(inodes,1,numel(dE_nodes));repelem(dE_nodes,size(inodes,2))];            
+            else
+                inodes = [];
+            end
         end
 
     end
