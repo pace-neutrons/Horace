@@ -13,7 +13,7 @@ sqw_reader::sqw_reader() :
 {}
 
 sqw_reader::~sqw_reader() {
-    //mexPrintf("|MEX::COMBINE_SQW: in destructor for file N %d  |",this->fileDescr.file_id);
+    //mexPrintf("|MEX::COMBINE_SQW: in destructor for file N %d  |",this->fileDescr.run_id);
     //mexEvalString("pause(.002);");
      
     this->finish_read_job();
@@ -310,7 +310,7 @@ void sqw_reader::read_pixels_job() {
 }
 //
 void sqw_reader::finish_read_job() {
-    //mexPrintf("|MEX::COMBINE_SQW: in finish read job for file N %d  |",this->fileDescr.file_id);
+    //mexPrintf("|MEX::COMBINE_SQW: in finish read job for file N %d  |",this->fileDescr.run_id);
     //mexEvalString("pause(.002);");
     
     this->pix_map.finish_read_bin_job();
@@ -334,7 +334,7 @@ void sqw_reader::finish_read_job() {
     }
     this->read_pix_needed.notify_one();
     read_pix_job_holder.join();
-    //mexPrintf(" completed pix read job|\n",this->fileDescr.file_id);
+    //mexPrintf(" completed pix read job|\n",this->fileDescr.run_id);
     //mexEvalString("pause(.002);");
 
 }
@@ -364,7 +364,7 @@ void sqw_reader::_read_pix(size_t pix_start_num, float *const pix_buffer, size_t
 
     if (this->change_fileno) {
         for (size_t i = 0; i < num_pix_to_read; i++) {
-            *(pix_buffer + 4 + i * 9) = float(this->fileDescr.file_id);
+            *(pix_buffer + 4 + i * 9) = float(this->fileDescr.run_id);
         }
 
     }

@@ -27,9 +27,9 @@ classdef test_main_mex < TestCase
             pths = horace_paths;
 
             if ispc
-                this.accum_cut_folder=fullfile(pths.horace,'\@sqw');
+                obj.accum_cut_folder=fullfile(pths.horace,'\@sqw');
             else
-                this.accum_cut_folder=fullfile(pths.horace,'@sqw');
+                obj.accum_cut_folder=fullfile(pths.horace,'@sqw');
             end
             obj.this_folder = fileparts(which('test_main_mex.m'));
             obj.curr_folder = pwd();

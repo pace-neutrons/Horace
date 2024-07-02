@@ -104,13 +104,13 @@ classdef test_AxesBlockBase_methods < TestCase
                 other_dim = hull_sizes(j~=i);
                 assize = assize + 2*prod(other_dim);
             end
-            ax = ab.get_bin_nodes('-hull',2);
+            ax = ab.get_bin_nodes('-hull',[16,2,8,2]);
             assertEqual(size(ax),[4,assize]);
         end
 
         function test_axes_block_nodes_hull_grid_mult_1(~)
             dbr = [0,-2,-3,0;8,2,3,10];
-            nbins_all_dims = [8,1,4,1];
+            nbins_all_dims = [8,8,8,8];
             ab = line_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
 
             hull_sizes = nbins_all_dims + 1;
@@ -120,7 +120,7 @@ classdef test_AxesBlockBase_methods < TestCase
                 other_dim = hull_sizes(j~=i);
                 assize = assize + 2*prod(other_dim);
             end
-            ax = ab.get_bin_nodes('-hull',1);
+            ax = ab.get_bin_nodes('-hull',[8,8,8,8]);
             assertEqual(size(ax),[4,assize]);
         end
 
