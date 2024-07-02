@@ -1,11 +1,20 @@
 function [nodes_ind,n_dims] = get_gridcell_ind(grid_size)
-% Returns an indices of cells for 1,2,3 or 4 dimensional grid
+% Returns an indices of cells for 1,2,3 or 4 dimensional grid, assuming
+% that the cell nodes are obtained using ndgrid function and placed into 
+% [ND,N-nodes] array of grid nodes coordinates.
 %
 % Inputs:
-% grid_size --   1,2,3 or 4 elements array, which describe the size of the
-%                grid.
+% grid_size --   ND elements array, where ND may be 1,2,3 or 4, which 
+%                describes the size of the ND grid.
 %
 % Outputs:
+% nodes_ind  -- [ND+1,prod(grid_size-1)] elements array containing the
+%               linear indices of the nodes, which define every grid cell. 
+%
+%               e.g. for 1D grid of N-points, nodes_ind would have a form:
+%               [1,2....N-1;...
+%                2,3....N];             
+% 
 
 n_dims = numel(grid_size);
 if n_dims == 2 && any(grid_size==1)

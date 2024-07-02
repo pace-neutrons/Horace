@@ -1,12 +1,25 @@
 function volume = calc_bin_volume_(obj,nodes_info,varargin)
 %CALC_BIN_VOLUME_ calculate the volume of a lattice cell defined by the
-%cellarray of lattice axes or by the coordinates of the grid nodes
+%cellarray of grid axes or array of coordinates of the grid nodes.
 %
 % The volume is either single value if all axes bins are the same or the
 % 1D array of size of total number of bins in the lattice if some cell
-% volumes differ, or array of size(nodes_info)-1 if grid node coordinates
-% are provided as the input.
+% volumes differ or prod(grid_size-1) array of volumes if nodes_info is
+% array.
 %
+% Inputs:
+% nodes_info   --
+%       either:   4-element cellarray containing grid axes coordinates
+%       or    :   3xN-elememts or 4xN-elements array of grid nodes
+%                 produced by ndgrid function and combined into single
+%                 array
+% grid_size    -- if nodes_info is provided as array, 3 or 4 elements array
+%                 containing sizes of the grid for the grid nodes in this
+%                 array. Ignored if nodes_info contains axes.
+% Output:
+% volume       -- depending on input, single value or array of grid volumes
+%                 measured in A^-3*mEv
+
 
 [is_axes,grid_size]= AxesBlockBase.process_bin_volume_inputs(obj,nodes_info,varargin{:});
 
@@ -34,4 +47,5 @@ if is_axes
 else
     volume = calc_bin_volume(nodes_info,grid_size);
 end
+% convert to A^-3*mEv
 volume = volume*obj.get_volume_scale();

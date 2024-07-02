@@ -1,11 +1,26 @@
 function volume = calc_bin_volume_(obj,nodes_info,varargin)
 %CALC_BIN_VOLUME_ calculate the volume of a lattice cell defined by the
-%cellarray of lattice axes.
+%cellarray of grid axes or array of coordinates of the grid nodes.
 %
 % The volume is either single value if all axes bins are the same or the
 % 1D array of size of total number of bins in the lattice if some cell
-% volumes differ.
+% volumes differ or prod(grid_size-1) array of volumes if nodes_info is
+% array
 %
+% Inputs:
+% nodes_info   --
+%       either:   4-element cellarray containing grid axes coordinates
+%       or    :   3xN-elememts or 4xN-elements array of grid nodes
+%                 produced by ndgrid function and combined into single
+%                 array
+% grid_size    -- if nodes_info is provided as array, 3 or 4 elements array
+%                 containing sizes of the grid for the grid nodes in this
+%                 array. Ignored if nodes_info contains axes.
+% Output:
+% volume       -- depending on input, single value or array of grid volumes
+%                 measured in A^-3*mEv
+
+
 [is_axes,grid_size]= AxesBlockBase.process_bin_volume_inputs(obj,nodes_info,varargin{:});
 
 grid_edges = cellfun(@(ax)(ax(2:end)-ax(1:end-1)),nodes_info, ...
@@ -66,5 +81,7 @@ else
     Theta1 = nodes_info(2,cell_idx{1});
     Theta2 = nodes_info(2,cell_idx{3});
     dPhi   = nodes_info(3,cell_idx{4}) - nodes_info(3,cell_idx{1});
-    volume  = obj.get_volume_scale()*abs((r2-r1).*(r2.*r2+r1.*r1+r1.*r2).*sin((Theta1+Theta2)/2).*sin((Theta1-Theta2)/2).*dPhi);
+    volume  = abs((r2-r1).*(r2.*r2+r1.*r1+r1.*r2).*sin((Theta1+Theta2)/2).*sin((Theta1-Theta2)/2).*dPhi);
 end
+% convert to A^-3*mEv
+volume = obj.get_volume_scale()*volume;

@@ -1,6 +1,6 @@
 classdef line_axes_char_size_tester< line_axes
-    % Helper class which tests get_char_size method for line_proj and its
-    %   Detailed explanation goes here
+    % Helper class which tests get_char_size method for line_proj and helps
+    % to compare generic algorithm with reference cases.
 
     properties
         use_generic = false;
@@ -16,7 +16,7 @@ classdef line_axes_char_size_tester< line_axes
                 in = varargin{1}.to_struct();
                 obj = obj.from_struct(in,obj);
             else
-                obj = obj.init(varargin{:});                
+                obj = obj.init(varargin{:});
             end
 
         end
