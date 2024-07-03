@@ -55,12 +55,13 @@ for i = 1:numel(in_data)
         gint = griddedInterpolant(gridCX,gridCY,gridCZ,gridCE,ref_ds,'linear','nearest');
         interp_dss = gint(dens_nodes(1,edgs(:)),dens_nodes(2,edgs(:)),dens_nodes(3,edgs(:)),dens_nodes(4,edgs(:)));
 
-        densities{i}(edgs) = interp_dss(:); % if integrating, multiply edge
+        densities{i}(edgs) = interp_dss(:); % if integrating on edge points,
+        %                                     multiply edge
         %                                     values by half accounting
         %                                     to half volume at edges
         %                                     in the integration formulas
-        % without this, integral over edges may cause additional values on
-        % edges
+        % without this, integral over edge points may cause additional
+        % values on edges
         % make density array shape equal to the grid shape
     end
    densities{i} = reshape(densities{i},n_ref_points);

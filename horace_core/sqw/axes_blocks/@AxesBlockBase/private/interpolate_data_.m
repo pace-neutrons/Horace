@@ -33,7 +33,7 @@ function [s,e,npix] = interpolate_data_(targ_axes,nout,ref_axes,ref_proj,ref_dat
 %              of pixels calculated in the centres of the
 %              cells of this lattice.
 
-proj_present = ~isempty(targ_proj); % normally debug mode
+proj_present = ~isempty(targ_proj); % in ~present, usually debug mode
 
 if proj_present && ~targ_proj.do_3D_transformation
     error('HORACE:AxesBlockBase:not_implemented', ...

@@ -41,7 +41,7 @@ if proj_given
     % Interpolate image on non-commensurate grid and accumulate interpolated
     % data for cut
     warning('HORACE:developers_option', ...
-        'This type of cut is incomplete and not fully verified. The results may be incorrect. Use on your own risk')
+        'This type of cut is incomplete and not fully verified. The results may be incorrect. Use it on your own risk')
     [s, e, npix] = cut_interpolate_data_( ...
         w, tag_proj,targ_axes);
 else
