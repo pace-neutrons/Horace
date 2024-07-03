@@ -215,7 +215,5 @@ classdef rundatah < rundata
             flds = saveableFields@rundata(obj);
             flds = [flds,'transform_sqw'];
         end
-
     end
-
 end

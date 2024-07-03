@@ -287,7 +287,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             
         end
         
-        function test_finish_task(obj)
+        function test_finish_task(~)
             
             
             serverfbMPI  = MessagesFilebased('test_finish_task');
