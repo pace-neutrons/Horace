@@ -496,7 +496,7 @@ classdef AxesBlockBase < serializable
             % grid_size
             %       -- 3 or 4 elements array, defining size of the grid,
             %          defined by the coordinates
-            %            
+            %
 
             if nargin == 1
                 [~,~,~,volume] = obj.get_bin_nodes('-axes_only');
@@ -936,7 +936,7 @@ classdef AxesBlockBase < serializable
             % Inputs:
             % volime    --   3-dimensional array of lattice grid volumes
             % dE_nodes  --   1-dimensional array of energies used as 4-th
-            %                interpolation axis.            
+            %                interpolation axis.
             % inodes    --   2-dimensional [3,(size(volume)+1] array of
             %                coordinates of 3-dimensional grid, used for
             %                interpolation
@@ -946,12 +946,12 @@ classdef AxesBlockBase < serializable
             %                4-dimensional interpolation grid.
             %
             % substantially use fact that dE nodes are dirstributed regularly
-            dE     = dE_nodes(2:end)-dE_nodes(1:end-1);            
+            dE     = dE_nodes(2:end)-dE_nodes(1:end-1);
             if ~isempty(volume)
                 volume  = reshape(volume(:).*dE(:)',[size(volume),numel(dE)]);
-            end             
+            end
             if nargin>2
-                inodes = [repmat(inodes,1,numel(dE_nodes));repelem(dE_nodes,size(inodes,2))];            
+                inodes = [repmat(inodes,1,numel(dE_nodes));repelem(dE_nodes,size(inodes,2))];
             else
                 inodes = [];
             end
@@ -968,7 +968,8 @@ classdef AxesBlockBase < serializable
             'label','img_scales','img_range','nbins_all_dims','single_bin_defines_iax',...
             'dax','offset','changes_aspect_ratio'};
     end
-
+    %----------------------------------------------------------------------
+    % Serializable interface
     methods
         %
         function obj = check_combo_arg(obj)
