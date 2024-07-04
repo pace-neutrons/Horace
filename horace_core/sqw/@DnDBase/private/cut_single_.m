@@ -40,6 +40,8 @@ end
 if proj_given
     % Interpolate image on non-commensurate grid and accumulate interpolated
     % data for cut
+    warning('HORACE:developers_option', ...
+        'This type of cut is incomplete and not fully verified. The results may be incorrect. Use it on your own risk')
     [s, e, npix] = cut_interpolate_data_( ...
         w, tag_proj,targ_axes);
 else
@@ -101,10 +103,9 @@ function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
 % npix       Array defining how many pixels are contained in each image
 %            bin. size(npix) == size(s). As the data are interpolated,
 %            the number of pixels may become fractional
-npix = obj.npix;
-s = obj.s.*npix ;
-e = obj.e.*(npix.^2);
 
-[s,e,npix] = targ_axes.interpolate_data(obj.axes,obj.proj,{s,e,npix},targ_proj);
+s = obj.s;
 
-[s, e] = normalize_signal(s, e, npix);
+[s,e,npix] = targ_axes.interpolate_data(obj.axes,obj.proj,{s},targ_proj);
+npix(:)= 1;
+%[s, e] = normalize_signal(s, e, npix);
