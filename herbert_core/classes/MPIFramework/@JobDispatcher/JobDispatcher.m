@@ -87,7 +87,7 @@ classdef JobDispatcher
         task_check_time_ = 4;
 
         fail_limit_ = 100; % number of times to try for changes in job status file until
-                           % decided the job has failed
+        % decided the job has failed
 
         % The framework to exchange messages with the tasks
         mess_framework_;
@@ -370,6 +370,36 @@ classdef JobDispatcher
             % init_mess     -- cell array (size: n_workers) of messages containing
             %                  initialization information for workers
             [task_id_list,init_mess]=split_tasks_(common_par,loop_par,return_outputs,n_workers);
+        end
+        %
+        function [n_workers,worker_par_list,is_list] = split_tasks_indices(job_param_list,n_workers)
+            % get indices of the input array, cellarray or structure which would properly divide
+            % inputs among specifed number of workers (parts).
+            %
+            % Inputs:
+            % job_param_list   -- array, cellarray or structural array
+            %                     to divide into parts.
+            % n_workers        -- number of parts to divide job_param_list
+            %
+            % Outputs:
+            % n_workers        -- actual number of parts the input array
+            %                     was divided into. Normally should be
+            %                     equal to n_workers, but if inputs have
+            %                     fewer elements than input n_workers,
+            %                     usually equal to number of elements in
+            %                     input.
+            % worker_par_list  -- cellarray containing n_workers - elements.
+            %                     Each cellarry element would contain
+            %                     information about part of the
+            %                     job_param_list which should be allocated
+            %                     to appropriate worker.
+            % is_list          -- boolean which is true if input array is
+            %                     divided into array of indices or false if
+            %                     it is divided into parirs containing
+            %                     numbers of first and last contributing
+            %                     elements.
+            %
+            [n_workers,worker_par_list,is_list] = split_tasks_indices_(job_param_list,n_workers);
         end
 
     end

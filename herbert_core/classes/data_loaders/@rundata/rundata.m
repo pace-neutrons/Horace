@@ -99,10 +99,10 @@ classdef rundata < serializable
             fields = rundata.min_field_set_;
         end
         %
-        function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
+        function [runfiles_list,file_exist,replicated_files]=gen_runfiles(spe_files,varargin)
             % Returns array of rundata objects created by the input arguments.
             %
-            %   >> [runfiles_list,file_exist] = gen_runfiles(spe_file,[par_file],arg1,arg2,...)
+            %   >> [runfiles_list,file_exist,replicated] = gen_runfiles(spe_file,[par_file],arg1,arg2,...)
             %
             % Input:
             % ------
@@ -138,11 +138,16 @@ classdef rundata < serializable
             %                   would then contain members, which do not have loader
             %                   defined. Missing files are allowed only if -allow_missing
             %                   option is present as input
+            % replicated_files
+            %               -- list of file names containing the names of files which
+            %                  have been replicated to provide each parallel worker
+            %                   with its own version of spe file.
+
             %
             % Notes:
             % ^1    This parameter is optional for some formats of spe files. If
             %       provided, overrides the information contained in the the "spe" file.
-            [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
+            [runfiles_list,file_exist,replicated_files]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
         end
         %
         function [id,filename] = extract_id_from_filename(file_name)
@@ -434,7 +439,7 @@ classdef rundata < serializable
             det = get_loader_field_(this,'det_par');
         end
         function det=get_det_par_rows(this)
-        %GET_DET_PAR_ROWS return detpar structure with fields in row order
+            %GET_DET_PAR_ROWS return detpar structure with fields in row order
             det = get_loader_field_(this,'det_par');
             det.group = det.group(:)';
             det.x2 = det.x2(:)';

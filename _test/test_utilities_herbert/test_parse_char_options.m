@@ -36,6 +36,5 @@ classdef test_parse_char_options< TestCase
             assertTrue(~false2);
             assertEqual({'aaa','bbb','ccc','-dddd'},left);
         end
-
     end
 end

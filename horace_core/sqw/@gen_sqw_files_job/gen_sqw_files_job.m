@@ -152,6 +152,9 @@ classdef gen_sqw_files_job < JobExecutor
             loop_par = cell2struct({runfiles;tmp_files},...
                 {'runfile','sqw_file_name'});
         end
+        function spe_files = generate_sources_for_replication(spe_files,n_workers)
+            % analyses 
+        end
         %
         function [grid_size,data_range,update_runlabels]=...
                 runfiles_to_sqw(run_files,tmp_fnames,...

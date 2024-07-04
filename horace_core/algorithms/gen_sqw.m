@@ -284,8 +284,11 @@ end
 
 % build all runfiles, including missing runfiles
 rundata_par = [rundata_par(:);'-allow_missing'];
-run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice, ...
+[run_files,~,new_duplicates] = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice, ...
     instrument,sample,rundata_par{:});
+if ~isempty(new_duplicates)
+    clDuplicates = onCleanup(@()del_memmapfile_files(new_duplicates));
+end
 
 % check runfiles correctness
 if emode ~= 0
