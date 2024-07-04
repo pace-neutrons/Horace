@@ -86,10 +86,10 @@ classdef AxesBlockBase < serializable
         nbins_all_dims;
         %
         %
-        dimensions;  % Number of AxesBlockBase object dimensions number of pax)
+        dimensions;  % Number of AxesBlockBase object dimensions (number of pax)
 
         % what each axes units are. Defined by and should be synchoneous
-        % to "type" in projection
+        % to "type" property in projection
         axes_units
         % shift between the origin of the axes block and the origin of
         % hkl-dE coordinate system (in rlu-dE, hkl units, not rotated)
@@ -106,9 +106,6 @@ classdef AxesBlockBase < serializable
         % size(s)
         dims_as_ssize;
 
-        % the step in each pax dimension in units of img_range units
-        step;
-
         % boolean row, identifying if a single bin direction (dir)
         % (nbins_all_dims(dir)==1) is integration axis or a projection
         % axis. By default, single nbins_all_dims direction is
@@ -119,6 +116,9 @@ classdef AxesBlockBase < serializable
         single_bin_defines_iax;
     end
     properties(Dependent,Hidden)
+        % the step in each pax dimension in units of img_range units, 
+        % defined by img_range(pax) and nbins_all_dims(pax) properties
+        step;        
         % maximal range the image can have
         max_img_range
         %
