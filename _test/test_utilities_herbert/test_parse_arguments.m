@@ -26,15 +26,11 @@ classdef test_parse_arguments < TestCase
             %
             % Author: T.G.Perring
 
-
-
             if nargin==1
                 nloop=500;  % default value
             else
                 nloop = varargin{2};
             end
-
-
 
             inpars={[13,14],'hello','missus',true};
             argname={'name','newplot','type'};
@@ -90,6 +86,7 @@ classdef test_parse_arguments < TestCase
             % Success announcement
             % --------------------
         end
+
         function test_pasre_simple_key_val_list(~)
 
             inputs = {'input_file.dat',18,-0.5,0.6,...
@@ -144,6 +141,10 @@ classdef test_parse_arguments < TestCase
         end
 
         function test_process_key_val_input(~)
+            inputs = {'input_file.dat',18,{'hello','tiger'},...
+                'back',[15000,19000],'mod','nonorm'};
+
+
             % Argument names and default values:
             keyval_def = struct('background',[12000,18000], ...
                 'normalise', 1, ...
@@ -152,12 +153,9 @@ classdef test_parse_arguments < TestCase
 
             % Arguments which are logical flags:
             flagnames = {'normalise','modulation'};
-            argi = {'input_file.dat',18,{'hello','tiger'},...
-                'back',[15000,19000],'mod','nonorm'};
 
             % Parse input:
-            [par, out, present] = parse_arguments...
-                (argi, keyval_def, flagnames);
+            [par, out, present] = parse_arguments(inputs, keyval_def, flagnames);
 
             % results in the output:
             r_par = {'input_file.dat',18,{'hello','tiger'}};

@@ -256,14 +256,17 @@ nindx=numel(indx);
 % Create temporary sqw files, and combine into one (if more than one input file)
 % -------------------------------------------------------------------------------
 % At this point, there will be at least one spe data input that needs to be turned into an sqw file
-
-% Create fully fledged single crystal rundata objects
-if ~isempty(opt.transform_sqw)
-    rundata_par = {'transform_sqw',opt.transform_sqw};
+if opt.replicate
+    rundata_par = {'-replicate'};
 else
     rundata_par = {};
 end
+if ~isempty(opt.transform_sqw)
+    rundata_par = ['transform_sqw';opt.transform_sqw;rundata_par(:)];
+end
 
+
+% Create fully fledged single crystal rundata objects
 % build all runfiles, including missing runfiles. TODO: Lost generality, assume detectors are all equvalent
 empty_par_files = cellfun(@isempty,par_file);
 if any(empty_par_files) && sum(spe_exist) ~= n_all_spe_files % missing rf may need to use different
@@ -280,8 +283,9 @@ if any(empty_par_files) && sum(spe_exist) ~= n_all_spe_files % missing rf may ne
 end
 
 % build all runfiles, including missing runfiles
+rundata_par = [rundata_par(:);'-allow_missing'];
 run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice, ...
-    instrument,sample,'-allow_missing',rundata_par{:});
+    instrument,sample,rundata_par{:});
 
 % check runfiles correctness
 if emode ~= 0

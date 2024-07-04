@@ -19,7 +19,7 @@ classdef rundatah < rundata
 
     methods(Static)
         %
-        function [runfiles_list,file_exist]=gen_runfiles(spe_files,varargin)
+        function [runfiles_list,file_exist,replicated_files]=gen_runfiles(spe_files,varargin)
             % Returns array of rundatah objects created by the input arguments.
             %
             % Usage:
@@ -42,19 +42,24 @@ classdef rundatah < rundata
             %
             % Output:
             % -------
-            %   runfiles        Array of rundatah objects
-            %   file_exist      boolean array  containing true for files which were found
-            %                   and false for which have been not. runfiles list
-            %                   would then contain members, which do not have loader
-            %                   defined. Missing files are allowed only if -allow_missing
-            %                   option is present as input
+            % runfiles   --  Array of rundatah objects
+            % file_exist --  boolean array  containing true for files which were found
+            %                and false for which have been not. runfiles list
+            %                would then contain members, which do not have loader
+            %                defined. Missing files are allowed only if -allow_missing
+            %                option is present as input
+            % replicated_files
+            %           -- list of file names containing the names of files which
+            %              have been replicated to provide each parallel worker
+            %             with its own version of spe file.
+
             %
             % Determine keyword arguments, if present
             arglist=struct('transform_sqw',[]);
             flags={};
             [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
-            [runfiles_list,file_exist]= rundata.gen_runfiles_of_type('rundatah',spe_files,args{:});
+            [runfiles_list,file_exist,replicated_files]= rundata.gen_runfiles_of_type('rundatah',spe_files,args{:});
             % add check to verify if run_ids for all generated files are
             % unique. non-unique run_ids will be renumbered. This should
             % not normally happen, but additional check will do no harm
@@ -100,11 +105,11 @@ classdef rundatah < rundata
             % from sqw
             %
             obj = obj@rundata();
-            
+
             % add the detectors container here, cannot construct in
             % property defaults
             obj.compressed_detpars = unique_references_container(...
-                                 'GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
+                'GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
             if nargin == 1 && isa(varargin{1},'sqw')
                 obj = rundata_from_sqw_(varargin{1});
             else

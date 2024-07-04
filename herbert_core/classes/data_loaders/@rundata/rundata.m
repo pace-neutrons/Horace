@@ -173,10 +173,10 @@ classdef rundata < serializable
     end
 
     methods(Static,Access=protected)
-        function [runfiles_list,defined]= gen_runfiles_of_type(type_name,spe_files,varargin)
+        function [runfiles_list,defined,replicated_files]= gen_runfiles_of_type(type_name,spe_files,varargin)
             % protected function to access private rundata routine.
             % Generates files of the named type type_name, with rundata interface.
-            [runfiles_list,defined]=gen_runfiles_(type_name,spe_files,varargin{:});
+            [runfiles_list,defined,replicated_files]=gen_runfiles_(type_name,spe_files,varargin{:});
         end
     end
 

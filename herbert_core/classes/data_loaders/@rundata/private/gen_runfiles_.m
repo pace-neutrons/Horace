@@ -1,4 +1,4 @@
-function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,...
+function [runfiles,file_exist,replicated_files] = gen_runfiles_(name_of_class,spe_files,...
     varargin)
 % Returns array of rundata objects created by the input arguments.
 %
@@ -35,16 +35,25 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,...
 %                     defined
 % -check_validity   - if present, check if the generated runfiles are
 %                     valid, i.e. can be used for transformation
+% -replicate        - if present, some input spe files may be replicated
+%                     Together with 'parallel' option, modifies the list
+%                     of the input files to ensure each parallel worker
+%                     have its own version of replicated file.
 %
 %
 % Output:
 % -------
-%   runfiles        Array of rundata objects
-%   file_exist   boolean array  containing true for files which were found
-%                   and false for which have been not. runfiles list
-%                   would then contain members, which do not have loader
-%                   defined. Missing files are allowed only if -allow_missing
-%                   option is present as input
+% runfiles      -- Array of rundata objects
+% file_exist    -- boolean array  containing true for files which were found
+%                  and false for which have been not. runfiles list
+%                  would then contain members, which do not have loader
+%                  defined. Missing files are allowed only if -allow_missing
+%                  option is present as input
+% replicated_files
+%               -- list of file names containing the names of files which
+%                  have been replicated to provide each parallel worker
+%                   with its own version of spe file.
+%
 %
 % Notes:
 % ^1    This parameter is optional for some formats of spe files. If
@@ -53,8 +62,9 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,...
 %
 %
 %
-control_keys = {'-allow_missing','-check_validity'};
-[ok,mess,allow_missing,check_validity,params]=parse_char_options(varargin,control_keys);
+replicated_files = {};
+control_keys = {'-allow_missing','-check_validity','-replicate'};
+[ok,mess,allow_missing,check_validity,replicate,params]=parse_char_options(varargin,control_keys);
 if ~ok
     error('HERBERT:rundata:invalid_argument',mess);
 end
@@ -70,6 +80,16 @@ elseif ~(iscellstr(spe_files)||isstring(spe_files))
     if ~allow_missing && iscell(spe_files)
         error('HERBERT:rundata:invalid_argument',...
             'spe file input must be a single file name or cell array of file names')
+    end
+end
+if replicate
+    [parallel,n_workers] = config_store.instance().get_value('hpc_config','build_sqw_in_parallel','parallel_workers_number');
+    if parallel
+        % if files get replicated and this will happen in parallel, check
+        % if each worker have its own version of source file. Do this in
+        % gen_sqw_files_job as algorithm for replication should coincide
+        % with algorithm for splitting
+        [spe_files,replicated_files] = gen_sqw_files_job.duplicate_sources_for_replication(spe_files,n_workers);
     end
 end
 n_spe_files = numel(spe_files);
