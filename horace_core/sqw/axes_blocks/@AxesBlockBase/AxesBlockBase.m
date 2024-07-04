@@ -116,24 +116,24 @@ classdef AxesBlockBase < serializable
         single_bin_defines_iax;
     end
     properties(Dependent,Hidden)
-        % the step in each pax dimension in units of img_range units, 
+        % the step in each pax dimension in units of img_range units,
         % defined by img_range(pax) and nbins_all_dims(pax) properties
-        step;        
-        % maximal range the image can have
-        max_img_range
+        step;
         %
-        img_scales %The scales to convert img_range in image-appropriate units,i.e.
-        %           number to transform to A^{-1} for linear axes, to rad/deg
-        %           for angular and to meV  for energy transfer
+        max_img_range;  % maximal range the image can have. Infinity for linear
+        %             but have limits for some dimensions in spherical or
+        %             cylindrical projections.
+        %
+        img_scales; %The scales to convert img_range in image-appropriate units,i.e.
+        %          number to transform to A^{-1} for linear axes, to rad/deg
+        %          for angular and to meV  for energy transfer
         type;  % units of axes, retrieved from projection. Not currently
-        %        used by linear_axes but may is deployed in curvilinear
-        %        axes to convert from
-        %        degrees to radians and vice versa
+        %        used by linear_axes but is deployed in curvilinear
+        %        axes to convert from degrees to radians and vice versa.
         %
         % property defines if appropriate axes block presented on
         % picture changes aspect ratio of a 2D image, so that equal
         % physical ranges along axes occupy equal pixel ranges on the image
-        %
         % May be set up locally on an object but have defaults specific for
         % each axes block
         changes_aspect_ratio;
