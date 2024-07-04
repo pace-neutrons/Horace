@@ -441,6 +441,16 @@ classdef test_job_dispatcher_common_methods < TestCase & FakeJenkins4Tests
             assertEqual(r_config_folder, remote_config_folder);
         end
         %------------------------------------------------------------------
+        function test_split_task_indices_list(~)
+            data = {'a','b','c','d','e','f','g','h','k','l'};
+            [n_workers,worker_par_list,is_list]= JobDispatcher.split_tasks_indices(data,3);
+
+            assertEqual(n_workers,3);
+            assertEqual(numel(worker_par_list),3)
+            assertTrue(is_list);
+            assertEqual(worker_par_list,{[1,2,3],[4,5,6],[7,8,9,10]});
+        end
+        
         function test_split_task_indices(~)
             data = 1:10;
             [n_workers,worker_par_list,is_list]= JobDispatcher.split_tasks_indices(data,3);
