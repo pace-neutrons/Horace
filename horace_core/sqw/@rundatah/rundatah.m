@@ -19,7 +19,7 @@ classdef rundatah < rundata
 
     methods(Static)
         %
-        function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
+        function [runfiles_list,file_exist]=gen_runfiles(spe_files,varargin)
             % Returns array of rundatah objects created by the input arguments.
             %
             % Usage:
@@ -54,7 +54,7 @@ classdef rundatah < rundata
             flags={};
             [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
-            [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundatah',spe_files,args{:});
+            [runfiles_list,file_exist]= rundata.gen_runfiles_of_type('rundatah',spe_files,args{:});
             % add check to verify if run_ids for all generated files are
             % unique. non-unique run_ids will be renumbered. This should
             % not normally happen, but additional check will do no harm

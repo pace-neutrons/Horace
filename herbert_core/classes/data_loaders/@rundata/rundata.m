@@ -133,7 +133,7 @@ classdef rundata < serializable
             % Output:
             % -------
             %   runfiles        Array of rundata objects
-            %   file_exist   boolean array  containing true for files which were found
+            %   file_exist      boolean array  containing true for files which were found
             %                   and false for which have been not. runfiles list
             %                   would then contain members, which do not have loader
             %                   defined. Missing files are allowed only if -allow_missing
