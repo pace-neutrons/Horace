@@ -25,7 +25,37 @@ function [spe_files,duplicated_fnames] = generate_sources_for_replication_(spe_f
 %               source file
 %
 duplicated_fnames = {};
-unique_fnames = unique_filenames(spe_files);
+
+is_empty = cellfun(@isempty,spe_files);
+if any(is_empty)
+    spe_files = spe_files(~is_empty);
+    restore_empty = true;
+else
+    restore_empty = false;
+end
+
+[spe_files_str,is_string] = cellfun(@to_char,spe_files,'UniformOutput',false);
+is_string = [is_string(:)];
+if any(is_string)
+end
+
+[unique_fnames,unique_fname_idx] = unique(spe_files_str);
+if numel(unique_fnames) == numel(spe_files)
+    % nothing to do. all filenames are already unique
+    return;
+end
+if numel(unique_fnames) < n_workers % Replication is necessary
+end
+
+end
 
 
+function [in,is_string] = to_char(in)
+is_string = false;
+if isstring(in)
+    in = char(in);
+    is_string = true;
+elseif isempty(in)
+    in = '';
+end
 end
