@@ -25,15 +25,12 @@
 /* Class responsible for writing block of pixels on HDD */
 class bin_io_handler {
 public:
-    bin_io_handler() :
-        last_pix_written(0), pix_array_position(0){}
+	bin_io_handler() :
+		last_pix_written(0), pix_array_position(0),pixel_width(0) {}
 
     void init(const fileParameters &fpar);
     void write_pixels(const char * const buffer, const size_t n_pix_to_write);
-    //void run_write_pix_job();
-    //void operator()() {
-    //    this->run_write_pix_job();
-    //}
+	
     
     ~bin_io_handler();
 
@@ -48,6 +45,8 @@ private:
     size_t pix_array_position;
     size_t nbin_position;
     size_t pixel_width;
+	size_t num_pixels_written;
+	
 
     std::vector<float> pix_buffer{};
     //

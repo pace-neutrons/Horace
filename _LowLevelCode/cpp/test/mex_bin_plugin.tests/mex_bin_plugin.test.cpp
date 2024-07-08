@@ -14,6 +14,7 @@ void del_file(const std::string& filename) {
 }
 
 
+
 TEST(TestMexBinPlugin, write_bin_data) {
     const std::string horace_root{
         Environment::get_env_variable(Environment::HORACE_ROOT, ".") };
