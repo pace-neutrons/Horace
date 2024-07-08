@@ -24,10 +24,11 @@ TEST(TestMexBinPlugin, write_bin_data) {
         bin_io_handler my_writer;
         fileParameters file_info;
         file_info.fileName = binary_file;
-        file_info.nbin_start_pos = 1;
+        file_info.nbin_start_pos = 0;
         file_info.pix_start_pos = 0;
+        file_info.run_id = 0;
         file_info.total_NfileBins = 0;
-        file_info.total_nPixels = 1000;
+        file_info.pixel_width = 34;
 
         size_t n_bins2proces(0);
 

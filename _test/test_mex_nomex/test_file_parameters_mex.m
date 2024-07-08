@@ -1,5 +1,5 @@
 classdef test_file_parameters_mex < TestCase
-    %TEST_FILE_PARAMETERS_MEX validaes plugin wich
+    % TEST_FILE_PARAMETERS_MEX validates plugin wich
     % accepts file parameters from MATLAB.
     % The test plugin returns these parameters back for testing
     % but in actual FileParameters tests these parameters are used for
@@ -77,16 +77,16 @@ classdef test_file_parameters_mex < TestCase
             if obj.skipTests
                 skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
             end
-            param = struct('file_name','my_file','npix_start_pos',10,...
-            'pix_start_pos',3,'file_id',6,'nbins_total',4,'pixel_with',34);
+            param = struct('file_name','my_file','npix_start_pos',1,...
+            'pix_start_pos',1,'file_id',6,'nbins_total',0,'pixel_with',34);
 
             % tester returns all input parameters
             test_out = file_parameters_tester(param);
             assertEqual(test_out{1},'my_file');
-            assertEqual(test_out{2},10);
-            assertEqual(test_out{3},3);
+            assertEqual(test_out{2},1);
+            assertEqual(test_out{3},1);
             assertEqual(test_out{4},6);
-            assertEqual(test_out{5},4);
+            assertEqual(test_out{5},0);
             assertEqual(test_out{6},34);
             %const std::map<std::string, int> fileParameters::fileParamNames = {
      %{ std::string("file_name"),0 },
@@ -101,12 +101,17 @@ classdef test_file_parameters_mex < TestCase
             if obj.skipTests
                 skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
             end
-            param = struct('file_name','my_file','pix_start_pos',10,'file_id',3,'nbins_total',6,'pixel_with',4);
+            param = struct('file_name','my_file','npix_start_pos',1,...
+            'pix_start_pos',1,'file_id',6,'nbins_total',0,'pixel_with',34);
 
             % tester returns all input parameters
             test_out = file_parameters_tester(param);
             assertEqual(test_out{1},'my_file');
-            assertEqual(test_out{2},10);
+            assertEqual(test_out{2},1);
+            assertEqual(test_out{3},1);
+            assertEqual(test_out{4},6);
+            assertEqual(test_out{5},0);
+            assertEqual(test_out{6},34);
         end
     end
 end

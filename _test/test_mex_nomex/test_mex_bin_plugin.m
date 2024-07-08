@@ -17,6 +17,13 @@ classdef test_mex_bin_plugin < TestCase
                 name = 'test_mex_bin_plugin';
             end
             this = this@TestCase(name);
+            
+            
+            this.skip_tests = ~get(hor_config, 'use_mex');
+
+            this.tmp_data_folder = tmp_dir;
+            pths = horace_paths;
+            this.sample_dir = pths.test_common;
 
         end
 
