@@ -1,4 +1,4 @@
-function [spe_files,file_order,duplicated_fnames] = generate_sources_for_replication_(spe_files,n_workers)
+function [spe_files,duplicated_fnames] = generate_sources_for_replication_(spe_files,n_workers)
 % analyses list of input files and physically duplicates the files
 % represented by the same filenames so that each worker would
 % have access to unique set of files.
@@ -17,10 +17,6 @@ function [spe_files,file_order,duplicated_fnames] = generate_sources_for_replica
 %              files and duplicate spe files arranged in such
 %              an order so each parallel worker would have
 %              access to unique set of input files.
-% file_order
-%          -- positions of the filenames in the initial order of the
-%             files.
-%
 %
 % duplicated_fnames
 %            -- list of new filenames containing the list of names
@@ -37,7 +33,7 @@ end
 
 spe_files = cellfun(@char,spe_files,'UniformOutput',false);
 
-[unique_fnames,unique_fname_idx,irec] = unique(spe_files);
+[unique_fnames,~,irec] = unique(spe_files);
 if numel(unique_fnames) == numel(spe_files)
     % nothing to do. all filenames are already unique
     return;
@@ -49,61 +45,51 @@ end
 
 %
 n_unique = numel(unique_fnames);
-duplicated_fnames = cell(1,n_workers-n_unique);
+duplicated_fnames = cell(1,numel(spe_files)-1);
+copies_list       = containers.Map(unique_fnames,num2cell(zeros(1,n_unique)));
 %
-worker_idx = worker_par_list{1};
-unique_used = ismember(unique_fname_idx,worker_idx);
-for i=2:n_workers
-    worker_idx = worker_par_list{i};
-    unique_used_by_wrks = ismember(unique_fname_idx,worker_idx);
-    unique_reused = ismember(unique_used,unique_used_by_wrks);
-    if any(unique_reused)
-        for j=1:numel(worker_idx)
-            if unique_reused(j)
-                expanded_f_name = create_duplicate(unique_fname,n_duplicate)
-            end
-        end
-    end
-end
-
-
-% Replicate unique files to provide copies to every independent worker.
-if n_unique < n_workers
-    exp_fnames = cell(1,n_workers);
-
-    copied_numbers    = containers.Map(1:n_unique,cell(1,n_unique));
-    fc = 1;
-    for i=1:n_workers
-        for j=1:n_unique
-            if fc<=n_unique
-                exp_fnames{fc} = unique_fnames{j};
-            else
-                [fp,fn,fe] = fileparts(unique_fnames{j});
-
-                short_fname = sprintf('%s_%d%s',fn,i,fe);
-                exp_fnames{fc} = fullfile(fp,short_fname);
-                copyfile(unique_fnames{j},exp_fnames{fc},'f');
-                copied_numbers(j) = [copied_numbers(j)(:),fc];
-            end
-            fc = fc+1;
-        end
-    end
-end
-
+n_spe = 0;
+n_duplicate = 1;
 for i=1:n_workers
-    worker_idx = worker_par_list{i};
-    for j=1:numel(worker_idx)
-
+    worker_file_idx     = irec(worker_par_list{i}); % numbers of filename used by this worker
+    unique_for_worker   = unique(worker_file_idx);  % how many unique files are there
+    for j=1:numel(worker_file_idx)
+        f_idx            = worker_file_idx(j);
+        is_wkr_unique    = f_idx == unique_for_worker;
+        file_name        =  spe_files{f_idx};
+        if any(is_wkr_unique) % this is unique file_idx taken first time
+            unique_for_worker(is_wkr_unique) = 0;
+            n_copies     = copies_list(file_name);
+            if n_copies == 0
+                copies_list(file_name) = 1;
+            else
+                duplicated_fnames{n_duplicate} = create_duplicate(file_name,n_copies);
+                copies_list(file_name)         = n_copies + 1;
+                file_name                      = duplicated_fnames{n_duplicate};
+                n_duplicate = n_duplicate+1;                
+            end
+        else
+            file_name = spe_files{n_spe};
+        end
+        n_spe            = n_spe+1;
+        spe_files{n_spe} = file_name;
     end
 end
-
+to_trim = cellfun(@isempty,duplicated_fnames);
+duplicated_fnames = duplicated_fnames(~to_trim);
 end
 
-function expanded_f_name = create_duplicate(unique_fname,n_duplicate)
+function  [expanded_f_name,copied] = create_duplicate(unique_fname,n_duplicate)
+% Replicate unique files to provide copies to every independent worker.
 [fp,fn,fe] = fileparts(unique_fname);
 short_fname = sprintf('%s_%d%s',fn,n_duplicate,fe);
 expanded_f_name  = fullfile(fp,short_fname);
-copyfile(unique_fname,expanded_f_name,'f');
 
+if is_file(expanded_f_name)
+    copied = false;
+else
+    copied = true;
+    copyfile(unique_fname,expanded_f_name,'f');
+end
 end
 

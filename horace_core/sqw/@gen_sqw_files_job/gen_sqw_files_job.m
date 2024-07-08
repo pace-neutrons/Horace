@@ -153,7 +153,7 @@ classdef gen_sqw_files_job < JobExecutor
                 {'runfile','sqw_file_name'});
         end
         %
-        function [spe_files,file_order,duplicated_fnames] = generate_sources_for_replication(spe_files,n_workers)
+        function [spe_files,duplicated_fnames] = generate_sources_for_replication(spe_files,n_workers)
             % analyses list of input files and physically duplicates the files
             % represented by the same filenames so that each worker would
             % have access to unique set of files.
@@ -172,7 +172,7 @@ classdef gen_sqw_files_job < JobExecutor
             %              files and duplicate spe files arranged in such
             %              an order so each parallel worker would have
             %              access to unique set of input files.
-            
+
             %              
             % duplicated_fnames
             %            -- list of new filenames containing the list of names 
@@ -180,7 +180,7 @@ classdef gen_sqw_files_job < JobExecutor
             %               allow each parallel worker to work with unique
             %               source file
             % 
-            [spe_files,file_order,duplicated_fnames] = generate_sources_for_replication_(spe_files,n_workers);
+            [spe_files,duplicated_fnames] = generate_sources_for_replication_(spe_files,n_workers);
         end
         %
         function [grid_size,data_range,update_runlabels]=...
