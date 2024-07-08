@@ -91,7 +91,7 @@ if replicate
         % if each worker have its own version of source file. Do this in
         % gen_sqw_files_job as algorithm for replication should coincide
         % with algorithm for splitting
-        [spe_files,file_order,replicated_files] = gen_sqw_files_job.generate_sources_for_replication(spe_files,n_workers);
+        [spe_files,replicated_files] = gen_sqw_files_job.generate_sources_for_replication(spe_files,n_workers);
     end
 end
 
