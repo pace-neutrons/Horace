@@ -30,6 +30,8 @@ void fileParameters ::returnInputs(mxArray** const outParList) {
             break;
         }
         case(1): {
+			auto pVal = mxCreateDoubleScalar(double(this->nbin_start_pos));
+			mxSetCell(out, n_set_param, pVal);
             break;
         }
         case(2): {
@@ -38,15 +40,23 @@ void fileParameters ::returnInputs(mxArray** const outParList) {
             break;
         }
         case(3): {
+			auto pVal = mxCreateDoubleScalar(double(this->run_id));
+			mxSetCell(out, n_set_param, pVal);
             break;
         }
         case(4): {
+			auto pVal = mxCreateDoubleScalar(double(this->total_NfileBins));
+			mxSetCell(out, n_set_param, pVal);
             break;
         }
         case(5): {
+			auto pVal = mxCreateDoubleScalar(double(this->total_nPixels));
+			mxSetCell(out, n_set_param, pVal);
             break;
         }
         case(6): {
+			auto pVal = mxCreateDoubleScalar(double(this->pixel_width));
+			mxSetCell(out, n_set_param, pVal);
             break;
         }
         default: {
