@@ -82,6 +82,8 @@ elseif ~(iscellstr(spe_files)||isstring(spe_files))
             'spe file input must be a single file name or cell array of file names')
     end
 end
+n_spe_files = numel(spe_files);
+%
 if replicate
     [parallel,n_workers] = config_store.instance().get_value('hpc_config','build_sqw_in_parallel','parallel_workers_number');
     if parallel
@@ -89,10 +91,10 @@ if replicate
         % if each worker have its own version of source file. Do this in
         % gen_sqw_files_job as algorithm for replication should coincide
         % with algorithm for splitting
-        [spe_files,replicated_files] = gen_sqw_files_job.generate_sources_for_replication(spe_files,n_workers);
+        [spe_files,file_order,replicated_files] = gen_sqw_files_job.generate_sources_for_replication(spe_files,n_workers);
     end
 end
-n_spe_files = numel(spe_files);
+
 ll = config_store.instance().get_value('hor_config','log_level');
 if ll>0 && n_spe_files > 5
     print_progress_dots = true;
