@@ -14,17 +14,19 @@ void bin_io_handler::init(const fileParameters & fpar) {
     this->pix_array_position = fpar.pix_start_pos;
     this->nbin_position = fpar.nbin_start_pos;
 }
-void write_pix_info(const char* const buffer, const size_t npix) {
-	size_t pixel_width;
-	size_t last_pix_written;
-	size_t nbin_position;
-	this->h_out_sqw.seekp(nbin_position);
-	size_t next_position = pixel_width - last_pix_written;
-	//this->h_out_sqw.write(buffer,next_position);
-	/*this->*/last_pix_written += next_position;
+void  bin_io_handler::write_pix_info(const size_t& num_pixels, const uint32_t& pix_width) {
+
+    size_t pix_info_position = this->pix_array_position - 32 - 64;
+	this->h_out_sqw.seekp(pix_info_position);
+    this->h_out_sqw.write(reinterpret_cast<const char const*>(&pix_width), sizeof(pix_width));
+    this->h_out_sqw.write(reinterpret_cast<const char const*>(&num_pixels), sizeof(num_pixels));
 
 }
-void read_pix_info(const char* const buffer, const size_t npix) {
+void  bin_io_handler::read_pix_info(size_t &num_pixels, uint32_t& pix_width) {
+
+    size_t pix_info_position = this->pix_array_position - 32 - 64;
+    this->h_out_sqw.seekp(pix_info_position);
+
 	//std::cout << pixel_width;
 	//std::cout << last_pix_written;
 }
