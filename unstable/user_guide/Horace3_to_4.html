@@ -55,6 +55,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Converting from Horace 3 to Horace 4</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#projections">Projections</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#symmetrisation">Symmetrisation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spaghetti-plot">Spaghetti Plot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#crystal-alignment">Crystal Alignment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#multifit">Multifit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#deprecated-functions">Deprecated Functions</a></li>
@@ -152,6 +153,12 @@ of vectors.</p>
 <p>Passing a pair of vectors will still be accepted and be internally
 transformed into the correct <code class="docutils literal notranslate"><span class="pre">Symop</span></code>, however, it is still best to
 switch.</p>
+</section>
+<section id="spaghetti-plot">
+<h2>Spaghetti Plot<a class="headerlink" href="#spaghetti-plot" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">qwidth</span></code> in <code class="docutils literal notranslate"><span class="pre">spaghetti_plot</span></code> arguments now correctly refers to a full-width of the perpendicular
+bins. This means that to achieve the same results in Horace 4 as Horace 3, a user-specified
+<code class="docutils literal notranslate"><span class="pre">qwidth</span></code> should be twice as large. Default <code class="docutils literal notranslate"><span class="pre">qwidths</span></code> have been updated to reflect this change.</p>
 </section>
 <section id="crystal-alignment">
 <h2>Crystal Alignment<a class="headerlink" href="#crystal-alignment" title="Permalink to this heading"></a></h2>
@@ -345,7 +352,7 @@ parameters should be reported to the developers at <a class="reference external"
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Jul 4, 2024, 5:47:05 PM.
+      <span class="lastupdated">Last updated on Jul 8, 2024, 9:13:45 AM.
       </span></p>
   </div>
 
