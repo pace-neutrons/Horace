@@ -50,3 +50,20 @@ TEST(TestMexBinPlugin, write_bin_data) {
     del_file(binary_file);
 
 }
+
+TEST(BinIO_HandlerTest,bin_io_handler) {
+	const std::string horace_root{
+		Environment::get_env_variable(Environment::HORACE_ROOT, ".") };
+
+	std::string binary_file{ horace_root + "/_test/binary_write.bin" };
+	std::vector<char> test_data(10, 'a');
+	{
+		bin_io_handler file_info;
+		file_info.last_pix_written = 64;
+		file_info.pix_array_position = 0;
+		file_info.nbin_position = 0;
+		file_info.pixel_width = 32;
+		file_info.num_pixels_written = 0;
+	}
+
+}

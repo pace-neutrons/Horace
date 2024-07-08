@@ -26,9 +26,9 @@ void  bin_io_handler::read_pix_info(size_t &num_pixels, uint32_t& pix_width) {
 
     size_t pix_info_position = this->pix_array_position - 32 - 64;
     this->h_out_sqw.seekp(pix_info_position);
-
-	//std::cout << pixel_width;
-	//std::cout << last_pix_written;
+	this->h_in_sqw.read(reinterpret_cast<char*>(&pix_width), sizeof(pix_width));
+	this->h_in_sqw.read(reinterpret_cast<char*>(&num_pixels), sizeof(num_pixels));
+	
 }
 
 
