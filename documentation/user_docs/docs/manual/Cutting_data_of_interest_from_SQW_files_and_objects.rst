@@ -1344,9 +1344,9 @@ limited and mostly discouraged.
 - ``cut_sqw`` is fully equivalent to ``cut`` except that attempting to apply it
   to a ``dnd`` object or file, will raise an error.
 
-- ``cut_dnd`` is equivalent to ``cut`` except it only ever returns a ``dnd`` as
-  though ``-nopix`` had been passed.
-
+- ``cut_dnd`` is equivalent to ``cut`` on a ``dnd`` object, but for an
+  ``sqw`` object, it operates on the ``dnd`` (binned image) of the
+  ``sqw``, ignoring any pixel information and returning a ``dnd``.
 
 section
 =======

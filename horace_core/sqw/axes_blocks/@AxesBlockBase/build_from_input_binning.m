@@ -14,12 +14,14 @@ function  new_axes_block = build_from_input_binning(...
 % axes_class_or_name -- name of the axes block class to build or empty
 %                       instance of this class
 % cur_img_range_and_steps
-%          --   4-elements cellarray of the ranges and steps of source
+%          --   1x4-elements cellarray of the ranges and steps of source
 %               image, expressed in the target coordinate system (the system
 %               the new axes block is build for) and used as source of
-%               default ranges.
+%               default ranges. May be empty (cell(1,4)). In this case,
+%               all ranges provided as the next argument have to be defined
+%               explicitly.
 %               if these ranges are not specified by pbin
-% pbin     --   4-elements cellarray of input binning parameters, which define
+% pbin     --   1x4-elements cellarray of input binning parameters, which define
 %               target image binning.
 % where each cell may contain the following parameters:
 %               - [] or ''      Use default (default) bins (bin size and limits)
@@ -112,7 +114,7 @@ switch numel(bin_req)
             end
         end
 
-    case 3 % Projection
+    case 3 % viewing axis
         range = bin_req;
         if isinf(range(1))
             range(1) = bin_default(1);

@@ -17,21 +17,7 @@ end
 % convert q_grid into the target coordinate system
 img_coords = source_proj.from_this_to_targ_coord(img_coords);
 
-bin_inside = ~(bin_outside(1)|bin_outside(2)|bin_outside(3));   % =0 if bin outside, =1 if at least partially intersects volume
+bin_in = bin_inside(img_coords,bsize,bin_range);
 %
 contrib_ind = source_proj.convert_3Dplus1Ind_to_4Dind_ranges(...
-    bin_inside,e_inside);
-
-    function wrk = bin_outside (idim)
-        % Determine if the bins lie wholly outside the limits along dimension number idim
-        % include range limits
-        wrk = reshape(img_coords(idim,:) < bin_range(1,idim),bsize);
-        all_low = wrk(1:end-1,1:end-1,1:end-1) & wrk(2:end,1:end-1,1:end-1) & wrk(1:end-1,2:end,1:end-1) & wrk(2:end,2:end,1:end-1) & ...
-            wrk(1:end-1,1:end-1,2:end) & wrk(2:end,1:end-1,2:end) & wrk(1:end-1,2:end,2:end) & wrk(2:end,2:end,2:end);
-        wrk = reshape(img_coords(idim,:) > bin_range(2,idim),bsize);
-        all_hi  = wrk(1:end-1,1:end-1,1:end-1) & wrk(2:end,1:end-1,1:end-1) & wrk(1:end-1,2:end,1:end-1) & wrk(2:end,2:end,1:end-1) & ...
-            wrk(1:end-1,1:end-1,2:end) & wrk(2:end,1:end-1,2:end) & wrk(1:end-1,2:end,2:end) & wrk(2:end,2:end,2:end);
-        wrk = all_low | all_hi;
-    end
-
-end
+    bin_in,e_inside);

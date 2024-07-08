@@ -44,6 +44,9 @@ if ndim == 4
 else
     pix_transf = [r/scales(1); scales(2)*(pi/2-elevation); azimuth*scales(3)];
 end
+% set phi = 0 for r == 0
+r_zero = abs(pix_transf(1,:))<eps('double');
+pix_transf(2,r_zero) = 0;
 if input_is_obj
     if shift_ei
         ei = pix_input.dE -obj.offset(4);

@@ -2,6 +2,12 @@
 Planning a Horace scan
 ######################
 
+.. note::
+
+   While Horace includes its own planner it is worth noting that the
+   `MANTID DGS
+   planner <https://docs.mantidproject.org/v3.8.0/interfaces/DGSPlanner.html>`__
+   exists [1]_.
 
 horace_planner: a simple scan planner
 -------------------------------------
@@ -130,3 +136,35 @@ in exactly the same way as you would a real dataset. For example:
    :alt: 2d simulation
 
    Sample plot of fake dataset
+
+
+.. [1] The main feature differences at the time of writing are:
+
+   - The crystal orientation can be specified as a UB matrix instead
+     of as the u and v vectors which define the horizontal scattering
+     plane.
+
+   - It allows rotations about horizontal rotation axes (Horace only
+     allows rotation about the vertical axis). Which is not supported
+     by Horace.
+
+   However, the GUI is significantly different:
+
+   - Plots
+
+     * The Mantid DGS has a single plot window with a single projection
+       of the 3D q-space into 2D.
+
+     * Horace has 3 plots showing all three projections in to the
+       possible combinations of axes.
+
+   - Rescaling
+
+     * The Mantid DGS GUI is resizeable so is usable on small laptop
+       screens.
+
+     * The Horace GUI is not resizeable so is very difficult to view in
+       small laptop screens.
+
+   The result of this is that if you have a small screen it may be
+   favourable to use the MANTID planner rather than Horace's native one.

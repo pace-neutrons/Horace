@@ -120,6 +120,30 @@ classdef test_cut_sqw_sym < TestCaseWithSave
 
         end
 
+        function test_cut_sym_from_file(obj)
+            op = SymopReflection([-1 1 0], [0 0 1], [0 0 0]);
+
+            ubin_half = [-0.25 0.05 0];
+
+            wtmp = symmetrise_sqw(obj.data, op);
+            wtmp.pix = PixelDataMemory(wtmp.pix);
+
+            w1sym = cut(wtmp, obj.proj, ubin_half, ...
+                obj.width, obj.width, obj.ebins, '-nopix');
+
+            w2sym = cut(obj.data_source, obj.proj, ubin_half, ...
+                obj.width, obj.width, obj.ebins, ...
+                {SymopIdentity(), op}, '-nopix');
+
+            w3sym = cut_sqw(obj.data_source, obj.proj, ubin_half, ...
+                            obj.width, obj.width, obj.ebins, ...
+                            {SymopIdentity(), op}, '-nopix');
+
+            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1, 'tol', 1e-6);
+            assertEqualToTol(w1sym, w3sym, 'ignore_str', 1, 'tol', 1e-6);
+        end
+
+
         function test_cut_sym_with_pix(obj)
         % Test symmetrisation, keeping pixels
             clOb = set_temporary_config_options(hor_config, 'log_level', -1);
@@ -148,7 +172,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                 obj.sym2, '-nopix');
 
             ref = obj.getReferenceDataset('test_cut_sqw_sym_P2__1_3', ...
-                                          'test_cut_sqw_sym_P2__1_3_1')
+                                          'test_cut_sqw_sym_P2__1_3_1');
 
             assertEqualToTol(c, ref, obj.tol_sp,'ignore_str',1);
         end

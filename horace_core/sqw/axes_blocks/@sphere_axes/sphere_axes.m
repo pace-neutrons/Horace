@@ -22,10 +22,10 @@ classdef sphere_axes < AxesBlockBase
     %5) ab = sphere_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
-    %Note: 
+    %Note:
     %       Unlike line_axes, the img_range in the case of
     %       spherical axes should lie within alowed limits (0-inf for rho
-    %       [0,pi] for theta and [-pi, pi] for phi.    
+    %       [0,pi] for theta and [-pi, pi] for phi.
     properties(Constant,Access = private)
         % What units each possible dimension type of the spherical projection
         % have:  Currently momentum, angle, and energy transfer may be
@@ -46,7 +46,6 @@ classdef sphere_axes < AxesBlockBase
     properties(Dependent)
         % if angular dimensions of the axes are expressed in radians or degrees
         angular_unit_is_rad
-
     end
     properties(Dependent,Hidden)
         % the range used for cylinder_axes by default
@@ -150,15 +149,54 @@ classdef sphere_axes < AxesBlockBase
             end
         end
     end
+    % s
+    methods
+        function [in,in_details] = in_range(obj,coord)
+            %IN_RANGE identifies if the input coordinates lie within the
+            %image data range.
+            [in,in_details] = in_range@AxesBlockBase(obj,coord);
+            % check if some coord have radius 0 and range have radius 0.
+            % these coordinates are in range regardless of angles range
+            if any(in~=1) && obj.img_range(1,1)==0
+                r_eq_0 = coord(1,:) == 0;
+                if any(r_eq_0)
+                    in_details(1:3,r_eq_0) = 0;
+                    equal = in_details == 0;
+                    in(any(equal,1))   = 0;
+                end
+            end
+        end
+    end
     %----------------------------------------------------------------------
     methods(Access=protected)
-        function  volume = calc_bin_volume(obj,axis_cell)
-            % calculate bin volume from the  axes of the axes block or input
-            % axis organized in cellarray of 4 axis. Will return array of
-            % bin volumes
-            volume = calc_bin_volume_(obj,axis_cell);
+        function  volume = calc_bin_volume(obj,grid_info,varargin)
+            %calculate the volume of a lattice cell defined by the
+            %cellarray of grid axes or array of coordinates of the grid nodes.
+            %
+            % The volume is either single value if all axes bins are the same or the
+            % 1D array of size of total number of bins in the lattice if some cell
+            % volumes differ or prod(grid_size-1) array of volumes if nodes_info is
+            % array
+            %
+            % Inputs:
+            % nodes_info   --
+            %       either:   4-element cellarray containing grid axes coordinates
+            %       or    :   3xN-elememts or 4xN-elements array of grid nodes
+            %                 produced by ndgrid function and combined into single
+            %                 array
+            % grid_size    -- if nodes_info is provided as array, 3 or 4 elements array
+            %                 containing sizes of the grid for the grid nodes in this
+            %                 array. Ignored if nodes_info contains axes.
+            % Output:
+            % volume       -- depending on input, single value or array of grid volumes
+            %                 measured in A^-3*mEv
+            volume = calc_bin_volume_(obj,grid_info,varargin{:});
         end
-
+        function vol_scale = get_volume_scale(obj)
+            % retrieve the bin volume scale so that bin volume of any image
+            % based on this axes be expessed in A^-3*mEv
+            vol_scale = obj.img_scales(1).^3;
+        end
         function  obj = check_and_set_img_range(obj,val)
             % main setter for spherical image range.
             obj = check_and_set_img_range_(obj,val);

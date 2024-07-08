@@ -90,6 +90,9 @@ try % mex C++
         'mtimesx_mex.cpp');
     mex_single([cpp_in_rel_dir 'compute_pix_sums'], out_rel_dir, ...
         'compute_pix_sums_c.cpp','compute_pix_sums_helpers.cpp');
+    mex_single([cpp_in_rel_dir 'GetMD5'], out_rel_dir, ...
+        'GetMD5.cpp');
+
 
 
     % create the procedure to access hdf files

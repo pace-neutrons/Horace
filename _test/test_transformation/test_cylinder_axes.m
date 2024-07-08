@@ -58,7 +58,7 @@ classdef test_cylinder_axes < TestCase
                 [dbr(1,3),1,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = cylinder_axes(bin0{:});
             dobj = DnDBase.dnd(ab,cylinder_proj('alatt',3,'angdeg',90));
-            range = dobj.targ_range([],'-bin');
+            range = dobj.get_targ_range([],'-bin');
             ref_range = {[0.25,0.5,10.25];[0,1,10];[-179.5,1,179.5];[dbr(1,4),1,dbr(2,4)]};
             assertEqual(ref_range,range');
         end
@@ -84,7 +84,7 @@ classdef test_cylinder_axes < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab   = cylinder_axes(bin0{:});
             dobj = DnDBase.dnd(ab,cylinder_proj('alatt',2.7,'angdeg',90));
-            range = dobj.targ_range([],'-bin');
+            range = dobj.get_targ_range([],'-bin');
             assertEqual(bin0,range');
         end
         %

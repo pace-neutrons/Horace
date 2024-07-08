@@ -25,7 +25,7 @@ classdef test_sphere_axes < TestCase
 
             vol = ab.get_bin_volume();
             assertEqual(numel(vol),10^4);
-        end       
+        end
         function test_bin_volume_single(~)
             dbr = ...
                 [  1, 45,  0, 0;...
@@ -34,7 +34,7 @@ classdef test_sphere_axes < TestCase
 
             vol = ab.get_bin_volume();
             assertEqual(numel(vol),1);
-			% single bin volume Int(r^2*sin(theta)dTheta*dPhi)
+            % single bin volume Int(r^2*sin(theta)dTheta*dPhi)
             ref_vol = 0.1*1.1033* (cosd(45)-cosd(46))*9*pi/180*1;
             assertEqualToTol(vol,ref_vol,1.e-8);
         end
@@ -48,7 +48,7 @@ classdef test_sphere_axes < TestCase
             assertEqual(numel(vol),1);
             ref_vol = 2*pi/3;  % half a sphere volume
             assertEqualToTol(vol,ref_vol,1.e-8);
-        end        
+        end
         %------------------------------------------------------------------
         function test_axes_ranges_at_limits(~)
             dbr = ...
@@ -58,21 +58,21 @@ classdef test_sphere_axes < TestCase
                 [dbr(1,3),1,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = sphere_axes(bin0{:});
             dobj = DnDBase.dnd(ab,sphere_proj('alatt',3,'angdeg',90));
-            range = dobj.targ_range([],'-bin');
+            range = dobj.get_targ_range([],'-bin');
             ref_range = {[0.25,0.5,10.25];[0.5,1,179.5];[-179.5,1,179.5];[dbr(1,4),1,dbr(2,4)]};
             assertEqual(ref_range,range');
         end
-        function test_invalid_axes_proj_combination_throws(~)           
-             ab = sphere_axes();
-             proj = line_proj();
-             assertExceptionThrown(@()DnDBase.dnd(ab,proj), ...
-                 'HORACE:DnDBase:invalid_argument');
+        function test_invalid_axes_proj_combination_throws(~)
+            ab = sphere_axes();
+            proj = line_proj();
+            assertExceptionThrown(@()DnDBase.dnd(ab,proj), ...
+                'HORACE:DnDBase:invalid_argument');
 
-             ab = line_axes();
-             proj = sphere_proj();
-             assertExceptionThrown(@()DnDBase.dnd(ab,proj), ...
-                 'HORACE:DnDBase:invalid_argument');
-             
+            ab = line_axes();
+            proj = sphere_proj();
+            assertExceptionThrown(@()DnDBase.dnd(ab,proj), ...
+                'HORACE:DnDBase:invalid_argument');
+
         end
 
 
@@ -82,7 +82,7 @@ classdef test_sphere_axes < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = sphere_axes(bin0{:});
             dobj = DnDBase.dnd(ab,sphere_proj('alatt',2.7,'angdeg',90));
-            range = dobj.targ_range([],'-bin');
+            range = dobj.get_targ_range([],'-bin');
             assertEqual(bin0,range');
         end
         %

@@ -147,6 +147,24 @@ classdef cylinder_axes < AxesBlockBase
             end
         end
     end
+    methods
+        function [in,in_details] = in_range(obj,coord)
+            %IN_RANGE identifies if the input coordinates lie within the
+            %image data range.
+            [in,in_details] = in_range@AxesBlockBase(obj,coord);
+            % check if some coord have radius 0 and range r have radius 0.
+            % these coordinates are in range regardless of angles range
+            if any(in~=1) && obj.img_range(1,1)==0
+                rq_eq_0 = coord(1,:) == 0;
+                if any(rq_eq_0)
+                    % any angular value is "in range" if Q_tr == 0
+                    in_details(3,rq_eq_0) = 0;
+                    equal = in_details == 0;
+                    in(any(equal,1))   = 0;
+                end
+            end
+        end
+    end
     %----------------------------------------------------------------------
     methods(Access=protected)
         function    obj = check_and_set_type(obj,val)
@@ -157,12 +175,35 @@ classdef cylinder_axes < AxesBlockBase
                 obj = obj.check_combo_arg();
             end
         end
-        function  volume = calc_bin_volume(obj,axis_cell)
-            % calculate bin volume from the  axes of the axes block or input
-            % axis organized in cellarray of 4 axis. Will return array of
-            % bin volumes
-            volume = calc_bin_volume_(obj,axis_cell);
+        function  volume = calc_bin_volume(obj,nodes_info,varargin)
+            %calculate the volume of a lattice cell defined by the
+            %cellarray of grid axes or array of coordinates of the grid nodes.
+            %
+            % The volume is either single value if all axes bins are the same or the
+            % 1D array of size of total number of bins in the lattice if some cell
+            % volumes differ or prod(grid_size-1) array of volumes if nodes_info is
+            % array
+            %
+            % Inputs:
+            % nodes_info   --
+            %       either:   4-element cellarray containing grid axes coordinates
+            %       or    :   3xN-elememts or 4xN-elements array of grid nodes
+            %                 produced by ndgrid function and combined into single
+            %                 array
+            % grid_size    -- if nodes_info is provided as array, 3 or 4 elements array
+            %                 containing sizes of the grid for the grid nodes in this
+            %                 array. Ignored if nodes_info contains axes.
+            % Output:
+            % volume       -- depending on input, single value or array of grid volumes
+            %                 measured in A^-3*mEv
+            volume = calc_bin_volume_(obj,nodes_info,varargin{:});
         end
+        function vol_scale = get_volume_scale(obj)
+            % retrieve the bin volume scale so that bin volume of any image
+            % based on this axes be expessed in A^-3*mEv
+            vol_scale = obj.img_scales(1)*obj.img_scales(1)*obj.img_scales(2);
+        end
+
 
         function  obj = check_and_set_img_range(obj,val)
             % main setter for spherical image range.

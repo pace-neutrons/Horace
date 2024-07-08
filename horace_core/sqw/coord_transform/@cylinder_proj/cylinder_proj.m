@@ -80,6 +80,7 @@ classdef cylinder_proj<CurveProjBase
             pix_cc = transform_cylinder_to_pix_(obj,pix_transformed,varargin{:});
         end
     end
+
     methods(Access=protected)
         function [img_scales,obj] = get_img_scales(obj)
             % Calculate image scales using projection type

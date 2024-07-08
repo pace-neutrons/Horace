@@ -1,4 +1,4 @@
-function [in,in_details] = in_range(min_max_ranges,coord)
+function [in,in_details] = in_range(min_max_ranges,coord,return_in_details)
 %IN_RANGE identifies if the input coordinates lie within the
 %specified data range.
 %
@@ -8,6 +8,9 @@ function [in,in_details] = in_range(min_max_ranges,coord)
 %                  dimensions to check
 % coord         -- [NDim x N_coord] vector of coordinates to verify against the
 %                  limits where N_coord is the number of vectors to verify
+% return_in_details
+%               -- if provided and true, return in_details array. (see
+%                  below). If false, in_details will be empty
 % Output:
 % in            -- [1 x N_coord] integer array containing 1 if coord are within
 %                  the min_max_ranges, 0 if it is on the edge and -1 if it
@@ -15,6 +18,11 @@ function [in,in_details] = in_range(min_max_ranges,coord)
 % in_details   --  [NDim x N_coord] array of integers, specifying the same
 %                  as
 %
+%
+if nargin<3
+    return_in_details = false;
+end
+
 % Do we need to calculate equality within range?
 nDims = size(min_max_ranges,2);
 nVectors = size(coord,2);
@@ -26,7 +34,7 @@ in = ones(1,nVectors);
 in(any(outside,1)) = -1;
 in(any(equal,1))   = 0;
 
-if nargout > 1
+if return_in_details
     in_details = ones(nDims,nVectors);
     in_details(outside) = -1;
     in_details(equal)   = 0;

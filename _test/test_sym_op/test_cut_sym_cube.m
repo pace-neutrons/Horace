@@ -35,9 +35,13 @@ classdef test_cut_sym_cube < TestCase
             res_sqw3 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                            [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
                            SymopIdentity(), '-nopix');
+            res_sqw4 = cut_sqw(tsqw, line_proj([1 0 0], [0 1 0]), ...
+                               [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
+                               SymopIdentity(), '-nopix');
 
             assertEqual(res_sqw, res_sqw2)
             assertEqual(res_sqw, res_sqw3)
+            assertEqual(res_sqw, res_sqw4)
 
         end
 
@@ -56,8 +60,47 @@ classdef test_cut_sym_cube < TestCase
             res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                            [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
                            {id}, '-nopix');
+            res_sqw3 = cut_sqw(tsqw, line_proj([1 0 0], [0 1 0]), ...
+                           [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
+                           {id}, '-nopix');
 
             assertEqual(res_sqw, res_sqw2)
+            assertEqual(res_sqw, res_sqw3)
+
+        end
+
+        function test_cut_sym_nonorthog_identity(obj)
+        % Test that symmetrisation works with non-orthogonal lattice
+
+            id = [obj.ref_x_op, obj.ref_x_op]; % Reflect -> reflect back
+            tsqw = sqw.generate_cube_sqw(10);
+            tsqw.data.angdeg = [90, 90, 120];
+
+            res_sqw = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
+                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], '-nopix');
+            res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
+                           [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
+                           {id}, '-nopix');
+
+            assertEqual(res_sqw, res_sqw2)
+
+        end
+
+        function test_cut_sym_nonorthog_rot(obj)
+        % Test that symmetrisation works with non-orthogonal lattice
+
+            tsqw = sqw.generate_cube_sqw(10);
+            tsqw.data.angdeg = [90, 90, 120];
+
+            wtmp = symmetrise_sqw(tsqw, SymopRotation.fold(2, [0,0,1]));
+            res_sqw = cut(wtmp, line_proj([1 0 0], [0 1 0]), ...
+                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5]);
+
+            res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
+                           [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
+                           SymopRotation.fold(2, [0,0,1]));
+
+            assertEqual(res_sqw.data, res_sqw2.data)
 
         end
 
@@ -73,8 +116,10 @@ classdef test_cut_sym_cube < TestCase
             w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
 
             w2sym = cut(data, proj, ubin_half, all_data{:}, obj.ref_x_op, '-nopix');
+            w3sym = cut_sqw(data, proj, ubin_half, all_data{:}, obj.ref_x_op, '-nopix');
 
             assertEqualToTol(w1sym, w2sym);
+            assertEqualToTol(w1sym, w3sym);
         end
 
         function test_cut_sym_reflect_xy(obj)

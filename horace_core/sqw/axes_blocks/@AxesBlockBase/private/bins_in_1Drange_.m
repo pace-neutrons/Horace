@@ -1,11 +1,11 @@
-function  [any_within,is_within]=bins_in_1Drange_(bins,minmax_val)
+function  [any_within,is_within]=bins_in_1Drange_(edges,minmax_val)
 % get bins which lie within the given range in one dimension
 %
 % No checks of arguments validity due to specifics of the usage within AxesBlockBase.
 % If usage is expanded, the check should be performed
 %
 % Inputs:
-% bins        -- equally spaced increasing array of values,
+% edges       -- equally spaced increasing array of values,
 %                representing bin edges.
 % minmax_val  -- 2 element vector of min/max values which should
 %                surround contributing range
@@ -18,37 +18,9 @@ function  [any_within,is_within]=bins_in_1Drange_(bins,minmax_val)
 %               considered as being in the range due to the binning algorithm.
 %
 %
-step = (bins(2)-bins(1));
-is_within = false(1,numel(bins));
-ind_min = floor((minmax_val(1)-bins(1))/step)+1;
-ind_max = floor((minmax_val(2)-bins(1))/step)+1;
-if ind_min<1
-    if ind_max<1
-        any_within = false;
-        return;
-    elseif ind_max == 1 % account for partial bin in the beginning
-        if minmax_val(2)<= bins(1) && minmax_val(1) <= bins(1)
-            any_within = false;
-            return;
-        end
-    end
-    ind_min = 1;
-end
-n_bins = numel(bins);
-if ind_max >= n_bins
-    if ind_min>n_bins
-        any_within = false;
-        return;
-    elseif ind_min == n_bins
-        if minmax_val(2)> bins(end) && minmax_val(1)>=bins(end)
-            any_within = false;
-            return;
-        end
-    end
-    % last bin is always false due to the specifics of usage is_within
-    % array for dE binning
-    ind_max  = n_bins-1;
-    if ind_min>ind_max; ind_min=ind_max; end
-end
-any_within = true;
-is_within(ind_min:ind_max) = true;
+wk        = edges<minmax_val(1);
+all_low   = wk(1:end-1)&wk(2:end);
+wk        = edges>minmax_val(2);
+all_high  = wk(1:end-1)&wk(2:end);
+is_within = ~(all_low|all_high);
+any_within= any(is_within);
