@@ -55,26 +55,36 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 		Environment::get_env_variable(Environment::HORACE_ROOT, ".") };
 
 	std::string binary_file{ horace_root + "/_test/file_for_metadata.bin" };
-
-    fileParameters file_info;
-    file_info.fileName = binary_file;
-    file_info.nbin_start_pos = 0;
-    file_info.pix_start_pos = 0;
-    file_info.run_id = 0;
-    file_info.total_NfileBins = 0;
-    file_info.pixel_width = 34;
-
+	fileParameters file_info;
+	std::vector<char> test_data(10, 'a'); {
+		
+		file_info.fileName = binary_file;
+		file_info.nbin_start_pos = 0;
+		file_info.pix_start_pos = 0;
+		file_info.run_id = 0;
+		file_info.total_NfileBins = 0;
+		file_info.pixel_width = 32;
+	}
     bin_io_handler my_writer;
     my_writer.init(file_info);
     size_t n_pixels(100);
-    uint32_t pix_width(39);
+    uint32_t pix_width(32);
     my_writer.write_pix_info(n_pixels,pix_width);
 
-    size_t n_pixels_out;
-    uint32_t pix_width_out;
+    size_t n_pixels_out(100);
+    uint32_t pix_width_out(32);
     my_writer.read_pix_info(n_pixels_out, pix_width_out);
-    EXPECT_EQ(n_pixels, n_pixels_out);
-    EXPECT_EQ(pix_width, pix_width_out);
+    ASSERT_EQ(n_pixels, n_pixels_out);
+    ASSERT_EQ(pix_width, pix_width_out);
 
+	EXPECT_TRUE(file_exists(binary_file));
+
+	std::ifstream file_data(binary_file);
+	std::vector<char> data_buf(10, 'a');
+	file_data.read(&data_buf[0], 10);
+	//start comparison with initial data
+	ASSERT_EQ(test_data,data_buf);
+
+	file_data.close();
     del_file(binary_file);
 }
