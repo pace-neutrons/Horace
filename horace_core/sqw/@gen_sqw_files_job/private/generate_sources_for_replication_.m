@@ -90,10 +90,12 @@ spe_files_out = do_recover_empty(spe_files,is_empty,recover_empty);
 end
 
 function spe_out = do_recover_empty(spe_in,is_empty,recover_empty)
-% if necessary recover empt
+% if necessary, recover empty cells to generate reduced rundata files to be
+% used for identifying gen_sqw ranges. convert_to_tmp would not use these
+% files
+% 
 if recover_empty
     spe_out = cell(1,numel(is_empty));
-    spe_out(is_empty) = '';
     spe_out(~is_empty) = spe_in(:);
 else
     spe_out = spe_in;
