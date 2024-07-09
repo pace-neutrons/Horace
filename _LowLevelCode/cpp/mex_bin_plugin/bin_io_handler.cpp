@@ -2,6 +2,7 @@
 
 void bin_io_handler::init(const fileParameters & fpar) {
 
+    fpar.check_inputs_provided();
 
     this->filename = fpar.fileName;
     this->h_out_sqw.open(fpar.fileName, std::ofstream::binary | std::ofstream::out | std::ofstream::app);
@@ -18,8 +19,8 @@ void  bin_io_handler::write_pix_info(const size_t& num_pixels, const uint32_t& p
 
     size_t pix_info_position = this->pix_array_position - 32 - 64;
 	this->h_out_sqw.seekp(pix_info_position);
-    this->h_out_sqw.write(reinterpret_cast<const char const*>(&pix_width), sizeof(pix_width));
-    this->h_out_sqw.write(reinterpret_cast<const char const*>(&num_pixels), sizeof(num_pixels));
+    this->h_out_sqw.write(reinterpret_cast<const char * const>(&pix_width), sizeof(pix_width));
+    this->h_out_sqw.write(reinterpret_cast<const char * const>(&num_pixels), sizeof(num_pixels));
 
 }
 void  bin_io_handler::read_pix_info(size_t &num_pixels, uint32_t& pix_width) {

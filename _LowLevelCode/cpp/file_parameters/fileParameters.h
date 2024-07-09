@@ -34,6 +34,7 @@ public:
     {}
     // helper function to return to matlab inputs during class testing
     void returnInputs(mxArray **const outPar);
+    void check_inputs_provided();
 private:
     static const std::map<std::string, int> fileParamNames;
     // list of input file parameters 
@@ -44,9 +45,8 @@ private:
     std::vector<bool> parameters_set;
 
     // helper function to validate inputs for fileParameters are correct and sufficient
-    void check_inputs_provided();
+
     // string which defines error ID, errors in this code are throwing.
     static const std::string MEX_ERR_ID;
 
-	void set_properties();
 };
