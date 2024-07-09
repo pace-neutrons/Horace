@@ -11,6 +11,7 @@
 #include <matrix.h>
 #include <limits>
 
+
 /* Class provides informatiob about target file to combine multiple pixel data in it or
    write binary pixel data*/
 class fileParameters {
@@ -46,4 +47,6 @@ private:
     void check_inputs_provided();
     // string which defines error ID, errors in this code are throwing.
     static const std::string MEX_ERR_ID;
+
+	void set_properties();
 };

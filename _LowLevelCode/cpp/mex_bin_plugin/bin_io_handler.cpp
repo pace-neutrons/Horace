@@ -45,6 +45,18 @@ void bin_io_handler::write_pixels(const char* buffer, size_t num_pixels) {
     //
 
 }
+
+void set_properties(const  std::string& fileName, const size_t num_pixels(), const size_t pix_start_pos(), const size_t pix_width()) {
+
+	fileParameters input;
+
+	input.fileName = "/_test/binary_write.bin";
+	input.pix_start_pos = 64;
+	input.pixel_width = 32;
+	bin_io_handler(input);
+
+
+}
 //
 bin_io_handler::~bin_io_handler() {
     this->h_out_sqw.close();

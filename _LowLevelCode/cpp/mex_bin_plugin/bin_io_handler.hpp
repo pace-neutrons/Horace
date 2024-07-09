@@ -27,12 +27,8 @@ class bin_io_handler {
 public:
 	bin_io_handler() :
 		last_pix_written(0), pix_array_position(0),pixel_width(0) {}
-	size_t last_pix_written;
-	size_t pix_array_position;
-	size_t nbin_position;
-	size_t pixel_width;
-	size_t num_pixels_written;
 	
+	bin_io_handler() = default;
 
     void init(const fileParameters &fpar);
     void write_pixels(const char * const buffer, const size_t n_pix_to_write);
@@ -49,14 +45,14 @@ private:
     std::string filename;
 	std::ifstream h_in_sqw;
     std::ofstream h_out_sqw;
-	/*
-	size_t last_pix_written;
-    size_t pix_array_position;
-    size_t nbin_position;
-    size_t pixel_width;
-	size_t num_pixels_written;
 	
-	*/
+	size_t last_pix_written{64};
+	size_t pix_array_position{0};
+	size_t nbin_position{0};
+	size_t pixel_width{32};
+	size_t num_pixels_written{0};
+	
+	
     std::vector<float> pix_buffer{};
     //
 

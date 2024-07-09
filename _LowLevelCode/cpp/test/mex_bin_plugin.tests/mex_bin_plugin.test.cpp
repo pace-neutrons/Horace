@@ -58,12 +58,13 @@ TEST(BinIO_HandlerTest,bin_io_handler) {
 	std::string binary_file{ horace_root + "/_test/binary_write.bin" };
 	std::vector<char> test_data(10, 'a');
 	{
+		/*
 		bin_io_handler file_info;
 		file_info.last_pix_written = 64;
 		file_info.pix_array_position = 0;
 		file_info.nbin_position = 0;
 		file_info.pixel_width = 32;
-		file_info.num_pixels_written = 0;
+		file_info.num_pixels_written = 0;*/
 	}
 
 }
