@@ -87,10 +87,10 @@ n_spe_files = numel(spe_files);
 if replicate
     [parallel,n_workers] = config_store.instance().get_value('hpc_config','build_sqw_in_parallel','parallel_workers_number');
     if parallel
-        % if files get replicated and this will happen in parallel, check
+        % if files get replicated and this happens in parallel, check
         % if each worker have its own version of source file. Do this in
         % gen_sqw_files_job as algorithm for replication should coincide
-        % with algorithm for splitting
+        % with algorithm for splitting sqw files between workers.
         [spe_files,replicated_files] = gen_sqw_files_job.generate_sources_for_replication(spe_files,n_workers);
     end
 end

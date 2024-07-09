@@ -336,6 +336,68 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
 
         end
         %------------------------------------------------------------------
+        function test_gen_sources_for_replication_2_sources_3Workers_spaces(obj)
+            source1 = obj.spe_file{1};
+            source2 = obj.spe_file{2};
+            source_files = {source1,source2,'',source1,source2,source1,[],source2};
+
+            [spe_files,duplicated_fnames]=...
+                gen_sqw_files_job.generate_sources_for_replication(source_files,3);
+            clOb = onCleanup(@()del_memmapfile_files(duplicated_fnames));
+            [fp,fn1,fe] =fileparts(source1);
+            [~ ,fn2 ,~] =fileparts(source2);
+            for i=1:numel(duplicated_fnames)
+                assertTrue(is_file(duplicated_fnames{i}));
+            end
+
+            assertEqual(numel(duplicated_fnames),4);
+            assertEqual(duplicated_fnames{1},fullfile(fp,[fn1,'_1',fe]));
+            assertEqual(duplicated_fnames{2},fullfile(fp,[fn2,'_1',fe]));
+            assertEqual(duplicated_fnames{3},fullfile(fp,[fn1,'_2',fe]));
+            assertEqual(duplicated_fnames{4},fullfile(fp,[fn2,'_2',fe]));
+
+
+            assertEqual(spe_files,{source1,source2,'', ...
+                fullfile(fp,[fn1,'_1',fe]),fullfile(fp,[fn2,'_1',fe]), ...
+                fullfile(fp,[fn1,'_2',fe]),'',fullfile(fp,[fn2,'_2',fe])})
+        end
+        
+        function test_gen_sources_for_replication_3_sources_4Workers(obj)
+            source1 = obj.spe_file{1};
+            source2 = obj.spe_file{2};
+            source3 = obj.spe_file{3};
+            source_files = {
+                source1,source2,source1,...
+                source1,source2,source3,...
+                source1,source2,source1,...
+                source2,source3,source2};
+
+            [spe_files,duplicated_fnames]=...
+                gen_sqw_files_job.generate_sources_for_replication(source_files,4);
+            clOb = onCleanup(@()del_memmapfile_files(duplicated_fnames));
+            [fp,fn1,fe] =fileparts(source1);
+            [~ ,fn2 ,~] =fileparts(source2);
+            [~ ,fn3 ,~] =fileparts(source3);
+            for i=1:numel(duplicated_fnames)
+                assertTrue(is_file(duplicated_fnames{i}));
+            end
+
+            assertEqual(numel(duplicated_fnames),6);
+            assertEqual(duplicated_fnames{1},fullfile(fp,[fn1,'_1',fe]));
+            assertEqual(duplicated_fnames{2},fullfile(fp,[fn2,'_1',fe]));
+            assertEqual(duplicated_fnames{3},fullfile(fp,[fn1,'_2',fe]));
+            assertEqual(duplicated_fnames{4},fullfile(fp,[fn2,'_2',fe]));
+            assertEqual(duplicated_fnames{5},fullfile(fp,[fn2,'_3',fe]));
+            assertEqual(duplicated_fnames{6},fullfile(fp,[fn3,'_1',fe]));
+
+
+            assertEqual(spe_files, ...
+                {source1,source2,source1, ...
+                fullfile(fp,[fn1,'_1',fe]),fullfile(fp,[fn2,'_1',fe]),source3, ...
+                fullfile(fp,[fn1,'_2',fe]),fullfile(fp,[fn2,'_2',fe]),fullfile(fp,[fn1,'_2',fe]) ...
+                fullfile(fp,[fn2,'_3',fe]),fullfile(fp,[fn3,'_1',fe]),fullfile(fp,[fn2,'_3',fe]) })
+        end
+
         function test_gen_sources_for_replication_2_sources_3Workers(obj)
             source1 = obj.spe_file{1};
             source2 = obj.spe_file{2};
