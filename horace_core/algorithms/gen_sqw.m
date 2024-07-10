@@ -262,7 +262,7 @@ else
     rundata_par = {};
 end
 if ~isempty(opt.transform_sqw)
-    rundata_par = ['transform_sqw';opt.transform_sqw;rundata_par(:)];
+    rundata_par = {rundata_par{:},'transform_sqw',opt.transform_sqw};
 end
 
 
@@ -283,7 +283,7 @@ if any(empty_par_files) && sum(spe_exist) ~= n_all_spe_files % missing rf may ne
 end
 
 % build all runfiles, including missing runfiles
-rundata_par = [rundata_par(:);'-allow_missing'];
+rundata_par = ['-allow_missing';rundata_par(:)];
 [run_files,~,new_duplicates] = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice, ...
     instrument,sample,rundata_par{:});
 if ~isempty(new_duplicates)

@@ -54,7 +54,8 @@ classdef rundatah < rundata
             %             with its own version of spe file.
 
             %
-            % Determine keyword arguments, if present
+            % Determine keyword arguments, if present and remove it from
+            % the input of gen_runfiles as it is processed separately
             arglist=struct('transform_sqw',[]);
             flags={};
             [args,opt,present] = parse_arguments(varargin,arglist,flags);
