@@ -32,7 +32,8 @@ public:
 
     void init(const fileParameters &fpar);
     void write_pixels(const char * const buffer, const size_t n_pix_to_write);
-    void write_pix_info(const size_t &num_pixels, const uint32_t &pix_width);
+	void write_pix_info(const size_t& num_pixels, const uint32_t& pix_width);
+	
     void read_pix_info(size_t& num_pixels, uint32_t& pix_width);
 
     
@@ -43,8 +44,9 @@ private:
     //exchange_buffer &Buff;
 	
     std::string filename;
-	std::ifstream h_in_sqw;
-    std::ofstream h_out_sqw;
+	std::fstream h_inout_sqw;
+	//std::ifstream h_in_sqw;
+    //std::ofstream h_out_sqw;
 	
 	size_t last_pix_written{0};
 	size_t pix_array_position{0};
