@@ -35,7 +35,8 @@ public:
 	void write_pix_info(const size_t& num_pixels);
 	
     void read_pix_info(size_t& num_pixels, uint32_t& pix_width);
-
+	size_t get_file_size();
+	bool seek_within_bounds(std::streampos position);
     
     ~bin_io_handler();
 
