@@ -26,7 +26,7 @@ public:
     
 
     fileParameters(const mxArray *pFileParam);
-    fileParameters() :fileName(""), nbin_start_pos(0), pix_start_pos(98),
+    fileParameters() :fileName(""), nbin_start_pos(0), pix_start_pos(12),
         run_id(0), total_NfileBins(0), total_nPixels(std::numeric_limits<size_t>::max()),
         pixel_width(36),
         parameters_set(7,false),

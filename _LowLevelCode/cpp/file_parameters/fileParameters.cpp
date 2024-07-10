@@ -167,10 +167,16 @@ void fileParameters::check_inputs_provided() {
         };
     };
     this->num_input_params = n_params_provided;
-    if (this->nbin_start_pos + this->total_NfileBins > this->pix_start_pos) {
+    if (this->nbin_start_pos + this->total_NfileBins > this->pix_start_pos - 12) {
         std::stringstream buf;
         buf << "NBINS position at: "<< this->nbin_start_pos << " plus number of bins: " << this->total_NfileBins 
             << " overlaps with pixels info start position: " << this->pix_start_pos << std::endl;
+        mexErrMsgIdAndTxt(MEX_ERR_ID.c_str(), buf.str().c_str());
+
+    }
+    if (this->pix_start_pos < 12) {
+        std::stringstream buf;
+        buf << "Pix start position at: " << this->pix_start_pos << " does not allow to write 12 bytes of metadata in front of it " << std::endl;
         mexErrMsgIdAndTxt(MEX_ERR_ID.c_str(), buf.str().c_str());
 
     }

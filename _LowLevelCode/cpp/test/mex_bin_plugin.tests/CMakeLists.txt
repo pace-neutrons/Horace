@@ -3,11 +3,13 @@ set(TEST_SRC_FILES
 )
 
 set(SRC_FILES
+    "${CXX_SOURCE_DIR}/file_parameters/fileParameters.cpp"
     "${CXX_SOURCE_DIR}/mex_bin_plugin/bin_io_handler.cpp"
     "${CXX_SOURCE_DIR}/utility/environment.cpp"
 )
 
 set(HDR_FILES
+    "${CXX_SOURCE_DIR}/file_parameters/fileParameters.h"
     "${CXX_SOURCE_DIR}/mex_bin_plugin/bin_io_handler.hpp"
     "${CXX_SOURCE_DIR}/utility/environment.h"
 )

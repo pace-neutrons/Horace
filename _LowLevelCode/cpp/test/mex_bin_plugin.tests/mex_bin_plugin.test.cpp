@@ -60,14 +60,12 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 	std::fstream bin_stream;
 	//auto filename = horace_root + "/_test/file_for_metadata.bin";
 	bin_stream.open(binary_file,std::ios::in|std::ios::out|std::ios::binary|std::ios::app);
-	EXPECT_TRUE(bin_stream.is_open());
+	ASSERT_TRUE(bin_stream.is_open());
 
 	
 
 	size_t pix_array_position = 128;  // Example initialization
-	//bin_io_handler my_writer(h_inout_sqw, pix_array_position);
-	bin_io_handler my_writer;
-	
+    
 	fileParameters file_info;
 	file_info.fileName = binary_file;
 	file_info.nbin_start_pos = 0;
@@ -78,8 +76,12 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 	size_t n_bins2proces(0);
 	size_t n_pixels = 100;
 	uint32_t pix_width = 32;
+
+	//bin_io_handler my_writer(h_inout_sqw, pix_array_position);
+	bin_io_handler my_writer;
 	my_writer.init(file_info);
-	my_writer.write_pix_info(n_pixels, pix_width);
+
+	my_writer.write_pix_info(n_pixels);
 
 	size_t n_pixels_out;
 	uint32_t pix_width_out;
@@ -90,6 +92,6 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 
 	bin_stream.close();
 	
-
+	del_file(binary_file);
 
 }
