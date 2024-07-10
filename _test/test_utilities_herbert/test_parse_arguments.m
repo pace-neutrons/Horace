@@ -82,9 +82,6 @@ classdef test_parse_arguments < TestCase
             t=toc;
             disp(['     Time per function call (microseconds): ',num2str(1e6*t/nloop)]);
             disp(' ')
-
-            % Success announcement
-            % --------------------
         end
 
         function test_pasre_simple_key_val_list(~)
