@@ -19,14 +19,14 @@ public:
     std::string fileName;
     size_t nbin_start_pos;    // the initial file position where nbin array is located in the file
     uint64_t pix_start_pos;   // the initial file position where the pixel array is located in file
-    int      run_id;           // the number which used to identify pixels, obtained from this particular file
+    int      run_id;          // the number which used to identify pixels, obtained from this particular file
     size_t total_NfileBins;   // the number of bins in this file (has to be the same for all files)
     size_t total_nPixels;     // total number of pixels to be written in the file
-    uint32_t  pixel_width;    // the number of bytes in pixel. By default 9*4 (9 32byte values) but changes 
-                              // for compressed pixels
+    uint32_t  pixel_width;    // the number of bytes in pixel. By default 9*4 (9 32byte values) but changes for compressed pixels
+    
 
     fileParameters(const mxArray *pFileParam);
-    fileParameters() :fileName(""), nbin_start_pos(0), pix_start_pos(0),
+    fileParameters() :fileName(""), nbin_start_pos(0), pix_start_pos(98),
         run_id(0), total_NfileBins(0), total_nPixels(std::numeric_limits<size_t>::max()),
         pixel_width(36),
         parameters_set(7,false),

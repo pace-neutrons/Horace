@@ -14,36 +14,21 @@
     this->last_pix_written = 0;
     this->pix_array_position = fpar.pix_start_pos;
     this->nbin_position = fpar.nbin_start_pos;
-}/*
-void  bin_io_handler::write_pix_info(const size_t& num_pixels, const uint32_t& pix_width) {
-
-    size_t pix_info_position = this->pix_array_position - 32 - 64;
-	this->h_inout_sqw.seekp(pix_info_position);
-    this->h_inout_sqw.write(reinterpret_cast<const char * const>(&pix_width), sizeof(pix_width));
-    this->h_inout_sqw.write(reinterpret_cast<const char * const>(&num_pixels), sizeof(num_pixels));
-
 }
-void bin_io_handler::read_pix_info(size_t &num_pixels, uint32_t& pix_width) {
 
+ void bin_io_handler::write_pix_info(const size_t& num_pixels) {
     size_t pix_info_position = this->pix_array_position - 32 - 64;
-    this->h_inout_sqw.seekg(pix_info_position);
-	this->h_inout_sqw.read(reinterpret_cast<char*>(&pix_width), sizeof(pix_width));
-	this->h_inout_sqw.read(reinterpret_cast<char*>(&num_pixels), sizeof(num_pixels));
-	
-}*/
-
- void bin_io_handler::write_pix_info(const size_t& num_pixels, const uint32_t& pix_width) {
-	 size_t pix_info_position = this->pix_array_position - 32 - 64;
-	 this->h_inout_sqw.seekp(pix_info_position);
-	 this->h_inout_sqw.write(reinterpret_cast<const char*>(&pix_width), sizeof(pix_width));
-	 this->h_inout_sqw.write(reinterpret_cast<const char*>(&num_pixels), sizeof(num_pixels));
+     uint32_t pix_width = uint32_t(this->pix_width) ;
+     this->h_inout_sqw.seekp(pix_info_position);
+     this->h_inout_sqw.write(reinterpret_cast<const char*>(&pix_width), sizeof(pix_width));
+     this->h_inout_sqw.write(reinterpret_cast<const char*>(&num_pixels), sizeof(num_pixels));
  }
 
  void bin_io_handler::read_pix_info(size_t& num_pixels, uint32_t& pix_width) {
-	 size_t pix_info_position = this->pix_array_position - 32 - 64;
-	 this->h_inout_sqw.seekg(pix_info_position);  // Changed to seekg for reading
-	 this->h_inout_sqw.read(reinterpret_cast<char*>(&pix_width), sizeof(pix_width));
-	 this->h_inout_sqw.read(reinterpret_cast<char*>(&num_pixels), sizeof(num_pixels));
+     size_t pix_info_position = this->pix_array_position - 32 - 64;
+     this->h_inout_sqw.seekg(pix_info_position);  // Changed to seekg for reading
+     this->h_inout_sqw.read(reinterpret_cast<char*>(&pix_width), sizeof(pix_width));
+     this->h_inout_sqw.read(reinterpret_cast<char*>(&num_pixels), sizeof(num_pixels));
  }
 
 
@@ -66,7 +51,7 @@ void set_properties(const  std::string& fileName, const size_t num_pixels(), con
 	fileParameters input;
 	//std::vector<char> x(10, 'a'); {
 		input.fileName = "/_test/file_for_metadata.bin";
-		input.pix_start_pos = 64;
+		input.pix_start_pos = 100;
 		input.pixel_width = 32;
 		
 	//}

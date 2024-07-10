@@ -71,7 +71,7 @@ void fileParameters ::returnInputs(mxArray** const outParList) {
  @input -- pointer to Matlab structure, containing the file description, with fields defined in the map above.
 */
 fileParameters::fileParameters(const mxArray* pFileParam) :
-    fileParameters()
+   fileParameters()
 {
 
     mwSize total_num_of_elements = mxGetNumberOfElements(pFileParam);
