@@ -66,7 +66,7 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 	fileParameters file_info;
 	file_info.fileName = binary_file;
 	file_info.nbin_start_pos = 0;
-	file_info.pix_start_pos = 12;
+	file_info.pix_start_pos  = 80;
 	file_info.run_id = 0;
 	file_info.total_NfileBins = 0;
 	file_info.pixel_width = 36;
