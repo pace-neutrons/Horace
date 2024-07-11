@@ -48,7 +48,6 @@ private:
 	
     std::string filename;
 	std::fstream h_inout_sqw;
-	
 	size_t last_pix_written;
 	size_t pix_array_position;
 	size_t pixel_width;
@@ -56,7 +55,7 @@ private:
 	
 	
     std::vector<float> pix_buffer{};
-    //
+    
 
 };
 
