@@ -25,7 +25,7 @@ TEST(TestMexBinPlugin, write_bin_data) {
         fileParameters file_info;
         file_info.fileName = binary_file;
         file_info.nbin_start_pos = 0;
-        file_info.pix_start_pos = 1;
+        file_info.pix_start_pos = 60;
         file_info.run_id = 0;
         file_info.total_NfileBins = 0;
         file_info.pixel_width = 32;
@@ -59,8 +59,8 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 
 	bin_stream.open(binary_file,std::ios::in|std::ios::out|std::ios::binary|std::ios::app);
 	ASSERT_TRUE(bin_stream.is_open());
-
 	
+	//variables for testing ::
 
 	size_t pix_array_position = 128; 
 	fileParameters file_info;
@@ -72,19 +72,17 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 	file_info.pixel_width = 36;
 	size_t n_bins2proces(0);
 
-	 std::unique_ptr<bin_io_handler> my_writer(new bin_io_handler());
-
-
+	std::unique_ptr<bin_io_handler> my_writer(new bin_io_handler());
+	 
 	my_writer->init(file_info);
 
 	size_t n_pixels = 100;
 	my_writer->write_pix_info(n_pixels);
-
-
+	
 	size_t   n_pixels_out;
 	uint32_t pix_width_out;
 	my_writer->read_pix_info(n_pixels_out, pix_width_out);
-
+	//checks if same size
 	ASSERT_EQ(n_pixels, n_pixels_out);
 	ASSERT_EQ(file_info.pixel_width, pix_width_out);
 

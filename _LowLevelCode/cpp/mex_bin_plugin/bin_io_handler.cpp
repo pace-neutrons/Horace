@@ -22,7 +22,7 @@
 	 this->h_inout_sqw.seekg(current_pos);
 	 return size;
  }
- bool bin_io_handler::seek_within_bounds(std::streampos position) {
+ bool bin_io_handler::seek_within_bounds(std::streampos position) {//seekp and seekg need bounds in order for them to not seek too far and break the code
 	 size_t file_size = get_file_size();
 	 if (position > 0 || size_t (position) <= file_size) {
 		 this->h_inout_sqw.seekp(position);
@@ -44,18 +44,18 @@
  void bin_io_handler::write_pix_info(const size_t& num_pixels) {
      size_t pix_info_position = this->pix_array_position - this->pixel_info_size;
      uint32_t pix_width = uint32_t(this->pixel_width) ;
-     //this->h_inout_sqw.seekp(pix_info_position);
-	 //if (seek_within_bounds(pix_info_position)) {
+     this->h_inout_sqw.seekp(pix_info_position);
+	
 		 
 		 this->h_inout_sqw.write(reinterpret_cast<const char*>(&pix_width), sizeof(pix_width));
 		 this->h_inout_sqw.write(reinterpret_cast<const char*>(&num_pixels), sizeof(num_pixels));
-	// }
+	
  }
 
  void bin_io_handler::read_pix_info(size_t& num_pixels, uint32_t& pix_width) {
      size_t pix_info_position = this->pix_array_position - this->pixel_info_size;
 	 if (seek_within_bounds(pix_info_position)) {
-		 //this->h_inout_sqw.seekg(pix_info_position);  // Changed to seekg for reading
+		 
 		 this->h_inout_sqw.read(reinterpret_cast<char*>(&pix_width), sizeof(pix_width));
 		 this->h_inout_sqw.read(reinterpret_cast<char*>(&num_pixels), sizeof(num_pixels));
 	 }
@@ -65,18 +65,13 @@
 /* Write chunk on pixels stored in write buffer */
 void bin_io_handler::write_pixels(const char* buffer, size_t num_pixels) { 
     size_t pix_pos = pix_array_position + last_pix_written * this->pixel_width;
-	//this->h_inout_sqw.seekp(pix_pos);
-	//seek_within_bounds(pix_pos);
+	
 	if (seek_within_bounds(pix_pos)) {
 		size_t length = num_pixels * this->pixel_width;
 		this->h_inout_sqw.write(buffer, length);
 		this->last_pix_written += length;
 	}
-	/*else {
-	size_t length = num_pixels * this->pixel_width;
-	this->h_inout_sqw.write(buffer, length);
-	this->last_pix_written += length;
-    }*/
+
 
 
 }
