@@ -56,7 +56,7 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 
 	std::string binary_file = { horace_root + "/_test/file_for_metadata.bin" };
 	std::fstream bin_stream;
-	//auto filename = horace_root + "/_test/file_for_metadata.bin";
+
 	bin_stream.open(binary_file,std::ios::in|std::ios::out|std::ios::binary|std::ios::app);
 	ASSERT_TRUE(bin_stream.is_open());
 
@@ -72,7 +72,7 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 	file_info.pixel_width = 34;
 	size_t n_bins2proces(0);
 
-	auto my_writer = std::unique_ptr<bin_io_handler>();
+	 std::unique_ptr<bin_io_handler> my_writer(new bin_io_handler());
 
 
 	my_writer->init(file_info);
