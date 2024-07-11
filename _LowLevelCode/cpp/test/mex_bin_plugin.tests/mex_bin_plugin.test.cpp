@@ -25,7 +25,7 @@ TEST(TestMexBinPlugin, write_bin_data) {
         fileParameters file_info;
         file_info.fileName = binary_file;
         file_info.nbin_start_pos = 0;
-        file_info.pix_start_pos = 12;
+        file_info.pix_start_pos = 1;
         file_info.run_id = 0;
         file_info.total_NfileBins = 0;
         file_info.pixel_width = 32;
@@ -66,10 +66,10 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 	fileParameters file_info;
 	file_info.fileName = binary_file;
 	file_info.nbin_start_pos = 0;
-	file_info.pix_start_pos =12;
+	file_info.pix_start_pos = 12;
 	file_info.run_id = 0;
 	file_info.total_NfileBins = 0;
-	file_info.pixel_width = 34;
+	file_info.pixel_width = 36;
 	size_t n_bins2proces(0);
 
 	 std::unique_ptr<bin_io_handler> my_writer(new bin_io_handler());

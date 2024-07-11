@@ -24,16 +24,16 @@
  }
  bool bin_io_handler::seek_within_bounds(std::streampos position) {
 	 size_t file_size = get_file_size();
-	 if (position < 0 || static_cast<size_t>(position) >= file_size) {
-		 std::cerr << "Error: Seek position " << position << " is out of bounds." << std::endl;
-		 this->h_inout_sqw.seekp(position);
-		 return false;
-	 }
-	 else {
-
+	 if (position > 0 || size_t (position) <= file_size) {
 		 this->h_inout_sqw.seekp(position);
 
 		 return true;
+	 }
+	 else {
+		 std::cerr << "Error: Seek position " << position << " is out of bounds." << std::endl;
+		 this->h_inout_sqw.seekp(position);
+		 return false;
+		 
 	 }
  }
  /* write pixel metadata containing information about pixel width 
@@ -72,11 +72,11 @@ void bin_io_handler::write_pixels(const char* buffer, size_t num_pixels) {
 		this->h_inout_sqw.write(buffer, length);
 		this->last_pix_written += length;
 	}
-	else {
+	/*else {
 	size_t length = num_pixels * this->pixel_width;
 	this->h_inout_sqw.write(buffer, length);
 	this->last_pix_written += length;
-    }
+    }*/
 
 
 }
