@@ -4,7 +4,7 @@ function run_files = update_duplicated_rf_id(run_files)
 %
 % Input: 
 % run_files  - cellarray of rundata class instances with some run_id
-%            may be duplicated or some cells are empty.
+%              may be duplicated or some cells are empty.
 % Output:
 % run_files  - cellarray of the same rundata class instances, modified to
 %              ensure all run_ids are different. The first duplicated
@@ -19,12 +19,12 @@ function run_files = update_duplicated_rf_id(run_files)
 run_ids_all = cellfun(@get_run_id,run_files,'UniformOutput',true);
 [run_ids_sorted,sid]= sort(run_ids_all);
 
-i_udef1 = find(isnan(run_ids_sorted),1);
-if isempty(i_udef1)
-    i_udef1 = numel(run_ids_sorted) + 1;
+i_undef1 = find(isnan(run_ids_sorted),1);
+if isempty(i_undef1)
+    i_undef1 = numel(run_ids_sorted) + 1;
 end
-n_undef = numel(run_ids_sorted)-i_udef1+1; % number of empty places 
-%                                         in runfiles sequence
+n_undef = numel(run_ids_sorted)-i_undef1+1; % number of empty places 
+%                                             in runfiles sequence
 % maximal index is maxiamal present index + number of empty indexes
 % (assuming empty places are eventually filled with files, 
 %  containing subsequent numbers) 
