@@ -72,24 +72,24 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 	file_info.pixel_width = 34;
 	size_t n_bins2proces(0);
 
+	auto my_writer = std::unique_ptr<bin_io_handler>();
+
+
+	my_writer->init(file_info);
+
 	size_t n_pixels = 100;
-	uint32_t pix_width = 32;
-	size_t n_pixels_out;
+	my_writer->write_pix_info(n_pixels);
+
+
+	size_t   n_pixels_out;
 	uint32_t pix_width_out;
-	bin_io_handler my_writer;
-
-
-	my_writer.init(file_info);
-	//my_writer.write_pixels(.........);
-	my_writer.write_pix_info(n_pixels);
-
-
-	my_writer.read_pix_info(n_pixels_out, pix_width_out);
+	my_writer->read_pix_info(n_pixels_out, pix_width_out);
 
 	ASSERT_EQ(n_pixels, n_pixels_out);
-	ASSERT_EQ(pix_width, pix_width_out);
+	ASSERT_EQ(file_info.pixel_width, pix_width_out);
 
 	bin_stream.close();
+	my_writer.reset();
 	
 	del_file(binary_file);
 

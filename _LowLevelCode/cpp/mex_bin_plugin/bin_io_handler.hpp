@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iomanip>
 #include <map>
+#include <memory>
 #include <vector>
 #include <mex.h>
 #include <matrix.h>

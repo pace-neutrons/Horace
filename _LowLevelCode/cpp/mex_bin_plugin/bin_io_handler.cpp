@@ -12,6 +12,7 @@
     this->last_pix_written   = 0;
     this->pix_array_position = fpar.pix_start_pos;
     this->nbin_position      = fpar.nbin_start_pos;
+	this->pixel_width        = fpar.pixel_width;
 }
 
  size_t bin_io_handler::get_file_size() {//in order to create bounds for seekp and seekg need size of file 
@@ -79,7 +80,6 @@ void bin_io_handler::write_pixels(const char* buffer, size_t num_pixels) {
 
 
 }
-
 
 
 bin_io_handler::~bin_io_handler() {
