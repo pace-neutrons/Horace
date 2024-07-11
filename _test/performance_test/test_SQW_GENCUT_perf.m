@@ -13,9 +13,6 @@ classdef test_SQW_GENCUT_perf < SQW_GENCUT_perf_tester
     %
 
     properties(Access=private)
-        % Template file name: the name of the file used as a template for
-        % others.
-        source_template_file_ = 'MER19566_22.0meV_one2one125.nxspe';
     end
     methods
 
@@ -46,7 +43,7 @@ classdef test_SQW_GENCUT_perf < SQW_GENCUT_perf_tester
             % create source files, used for generation
             %
             filenames = obj.generate_source_file_names();
-            if obj.generate_nxspe_files
+            if obj.generate_nxspe_files && ~obj.replicate_mode
                 filelist = source_nxspe_files_generator_(obj,filenames);
             else
                 filelist  = filenames;

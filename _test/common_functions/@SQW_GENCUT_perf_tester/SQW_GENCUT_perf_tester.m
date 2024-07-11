@@ -63,6 +63,10 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         par_file = 'MERLIN_one2one_181.par'
         % number of energy transfer bins used by test files generation routine
         num_energy_bins = 220;
+        % if replicate mode selected, run gen_sqw in replicate mode
+        % and not generate source file name. gen_sqw from single source but
+        % different parameters.
+        replicate_mode = true;
     end
 
     properties(Access=protected)
@@ -85,6 +89,10 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         %
         % format of the filenames used as the source of the test data
         template_name_form_ = 'MER_fake_run_N%03d';
+        % Template file name: the name of the file used as a template for
+        % others.
+        source_template_file_ = 'MER19566_22.0meV_one2one125.nxspe';
+        
     end
     methods
         %------------------------------------------------------------------
@@ -211,7 +219,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
                 obj.sample_data_size_ = smpl_data_size;
 
                 obj.test_source_files_list_ = filelist;
-                if obj.delete_generated_nxspe_files
+                if obj.delete_generated_nxspe_files && ~obj.replicate_mode
                     % delete generated files after the test completed.
                     obj.add_to_files_cleanList(filelist);
                 end
@@ -240,12 +248,17 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         %--------------------------------------------------------------------------
         function filelist = generate_source_file_names(obj,file_name_form)
             n_files = obj.n_files_to_use;
-            if nargin<2
-                file_name_form = [obj.template_name_form_,'.nxspe'];
-            end
-            filelist = cell(n_files,1);
-            for i=1:n_files
-                filelist{i} = sprintf(file_name_form,i);
+
+            if obj.replicate_mode
+                filelist = arrayfun(@(i)obj.source_template_file_,1:n_files,'UniformOutput',false);
+            else
+                if nargin<2
+                    file_name_form = [obj.template_name_form_,'.nxspe'];
+                end
+                filelist = cell(n_files,1);            
+                for i=1:n_files
+                    filelist{i} = sprintf(file_name_form,i);
+                end
             end
         end
         function [filelist,smpl_data_size] = generate_source_test_files(obj,varargin)
