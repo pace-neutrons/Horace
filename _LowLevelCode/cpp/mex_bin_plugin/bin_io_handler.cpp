@@ -3,37 +3,52 @@
 void bin_io_handler::init(const fileParameters& fpar) {
 
     this->filename = fpar.fileName;
-    this->h_inout.open(this->filename.c_str(), std::ios::binary | std::ios::in | std::ios::out |std::ios::app);
-    if (!this->h_inout.is_open()) {
-        std::string err = "Can not open target sqw file: " + fpar.fileName;
-        mexErrMsgIdAndTxt(MEX_ERR_INPUT.c_str(), err.c_str());
-    }
+	if (std::ifstream (filename.c_str())) {
+		this->h_inout.open(this->filename.c_str(), std::ios::binary | std::ios::in | std::ios::out | std::ios::ate);
+		
+		
+		this->last_pix_written = 0;
+		this->pix_array_position = fpar.pix_start_pos;
+		this->nbin_position = fpar.nbin_start_pos;
+		this->pixel_width = fpar.pixel_width;
+		// identify actual file size
+		this->h_inout.seekg(0, std::ios::end);
+		this->file_size = this->h_inout.tellg();
+	}
+	else {
+		this->h_inout.open(this->filename.c_str(), std::ios::binary | std::ios::in | std::ios::out | std::ios::app);
+	
+    
+		if (!this->h_inout.is_open()) {
+			std::string err = "Can not open target sqw file: " + fpar.fileName;
+			mexErrMsgIdAndTxt(MEX_ERR_INPUT.c_str(), err.c_str());
+		}
 
-    this->last_pix_written = 0;
-    this->pix_array_position = fpar.pix_start_pos;
-    this->nbin_position = fpar.nbin_start_pos;
-    this->pixel_width = fpar.pixel_width;
-    // identify actual file size
-    this->h_inout.seekg(0, std::ios::end);
-    this->file_size = this->h_inout.tellg();
+		this->last_pix_written = 0;
+		this->pix_array_position = fpar.pix_start_pos;
+		this->nbin_position = fpar.nbin_start_pos;
+		this->pixel_width = fpar.pixel_width;
+		// identify actual file size
+		this->h_inout.seekg(0, std::ios::end);
+		this->file_size = this->h_inout.tellg();
 
-    // padd files with 0 to allow writing pixel info or npix data at specified positions
-    if ((this->pix_array_position - this->pixel_info_size > this->file_size) || (this->nbin_position > this->file_size)) {
-        this->h_inout.seekp(0, std::ios::end);
-        size_t pix_out(0);
-        if (this->pix_array_position > this->file_size) {
-            pix_out = this->pix_array_position - this->file_size;
-        }
-        size_t npix_out(0);
-        if (this->nbin_position > this->file_size) {
-            npix_out = this->nbin_position - this->file_size;
-        }
+		// padd files with 0 to allow writing pixel info or npix data at specified positions
+		if ((this->pix_array_position - this->pixel_info_size > this->file_size) || (this->nbin_position > this->file_size)) {
+			this->h_inout.seekp(0, std::ios::end);
+			size_t pix_out(0);
+			if (this->pix_array_position > this->file_size) {
+				pix_out = this->pix_array_position - this->file_size;
+			}
+			size_t npix_out(0);
+			if (this->nbin_position > this->file_size) {
+				npix_out = this->nbin_position - this->file_size;
+			}
 
-        size_t add_size = std::max(pix_out, npix_out);
-        std::vector<char> tmp_mem(add_size, 0);
-        this->h_inout.write(&tmp_mem[0], add_size);
-    }
-
+			size_t add_size = std::max(pix_out, npix_out);
+			std::vector<char> tmp_mem(add_size, 0);
+			this->h_inout.write(&tmp_mem[0], add_size);
+		}
+	}
 }
 
 size_t bin_io_handler::get_file_size() {//in order to create bounds for seekp and seekg need size of file 
@@ -68,7 +83,7 @@ void bin_io_handler::write_pix_info(const size_t& num_pixels) {
 
     size_t pix_info_position = this->pix_array_position - this->pixel_info_size;
     uint32_t pix_width = uint32_t(this->pixel_width);
-<<<<<<< HEAD
+
 
 	this->seek_within_bounds(pix_info_position);
 	this->h_inout.seekp(pix_info_position);
@@ -76,7 +91,7 @@ void bin_io_handler::write_pix_info(const size_t& num_pixels) {
 
     //this->h_inout.write(reinterpret_cast<const char*>(&pix_width), sizeof(num_pixels));
 	this->h_inout.write(reinterpret_cast<const char*>(&pix_width), sizeof(pix_width));
-=======
+
     this->h_inout.seekp(pix_info_position, std::ios::beg);
     if (!this->h_inout.good()) {
         std::stringstream buf;
@@ -91,7 +106,7 @@ void bin_io_handler::write_pix_info(const size_t& num_pixels) {
         mexErrMsgIdAndTxt(MEX_ERR_INPUT.c_str(), buf.str().c_str());
     }
 
->>>>>>> a07df6a5e12870345a33957fe07d66e99f809d1c
+
     this->h_inout.write(reinterpret_cast<const char*>(&num_pixels), sizeof(num_pixels));
     if (!this->h_inout.good()) {
         std::stringstream buf;
