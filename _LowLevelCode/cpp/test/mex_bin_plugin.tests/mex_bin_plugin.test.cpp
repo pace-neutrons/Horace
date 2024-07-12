@@ -66,7 +66,7 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 	fileParameters file_info;
 	file_info.fileName = binary_file;
 	file_info.nbin_start_pos = 0;
-	file_info.pix_start_pos  = 80;
+	file_info.pix_start_pos = 60;
 	file_info.run_id = 0;
 	file_info.total_NfileBins = 0;
 	file_info.pixel_width = 36;
@@ -76,7 +76,8 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 	 
 	my_writer->init(file_info);
 
-	size_t n_pixels = 100;
+	size_t n_pixels = 60;
+
 	my_writer->write_pix_info(n_pixels);
 	
 	size_t   n_pixels_out;

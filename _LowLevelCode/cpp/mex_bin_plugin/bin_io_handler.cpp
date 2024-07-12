@@ -50,10 +50,13 @@ void bin_io_handler::write_pix_info(const size_t& num_pixels) {
 
     size_t pix_info_position = this->pix_array_position - this->pixel_info_size;
     uint32_t pix_width = uint32_t(this->pixel_width);
-    this->h_inout.seekp(pix_info_position);
+
+	this->seek_within_bounds(pix_info_position);
+	this->h_inout.seekp(pix_info_position);
     this->h_inout.clear();
 
-    this->h_inout.write(reinterpret_cast<const char*>(&pix_width), sizeof(pix_width));
+    //this->h_inout.write(reinterpret_cast<const char*>(&pix_width), sizeof(num_pixels));
+	this->h_inout.write(reinterpret_cast<const char*>(&pix_width), sizeof(pix_width));
     this->h_inout.write(reinterpret_cast<const char*>(&num_pixels), sizeof(num_pixels));
 
     this->n_pixels_written_info = num_pixels;
@@ -67,6 +70,7 @@ void bin_io_handler::read_pix_info(size_t& num_pixels, uint32_t& pix_width) {
 
     this->h_inout.read(reinterpret_cast<char*>(&pix_width), sizeof(pix_width));
     this->h_inout.read(reinterpret_cast<char*>(&num_pixels), sizeof(num_pixels));
+	//this->h_inout.read(reinterpret_cast<char*>(&pix_width), sizeof(num_pixels));
 }
 
 
@@ -86,6 +90,7 @@ void bin_io_handler::write_pixels(const char* buffer, size_t num_pixels) {
         this->file_size = last_pos;
     }
 }
+
 
 
 bin_io_handler::~bin_io_handler() {
