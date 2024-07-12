@@ -16,7 +16,7 @@ void bin_io_handler::init(const fileParameters& fpar) {
 		this->file_size = this->h_inout.tellg();
 	}
 	else {
-		this->h_inout.open(this->filename.c_str(), std::ios::binary | std::ios::in | std::ios::out | std::ios::app);
+		this->h_inout.open(this->filename.c_str(), std::ios::binary | std::ios::in | std::ios::out | std::ios::trunc);
 	
     
 		if (!this->h_inout.is_open()) {
@@ -152,6 +152,7 @@ void bin_io_handler::write_pixels(const char* buffer, size_t num_pixels) {
     if (last_pos > this->file_size) {
         this->file_size = last_pos;
     }
+	
 }
 
 
