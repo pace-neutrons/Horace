@@ -19,6 +19,7 @@ TEST(TestMexBinPlugin, write_bin_data) {
         Environment::get_env_variable(Environment::HORACE_ROOT, ".") };
 
     std::string binary_file{ horace_root + "/_test/binary_write.bin" };
+
     std::vector<char> test_data(10, 'a');
     { // scope tested class to close file on variable deletion.
         bin_io_handler my_writer;
@@ -35,6 +36,7 @@ TEST(TestMexBinPlugin, write_bin_data) {
         my_writer.init(file_info); // initialize writer class to write data
         my_writer.write_pixels(&test_data[0], 10);
     }
+
 
     ASSERT_TRUE(file_exists(binary_file));
 
@@ -67,7 +69,7 @@ TEST(TestMexBinPlugin,write_read_metadata) {
 	fileParameters file_info;
 	file_info.fileName = binary_file;
 	file_info.nbin_start_pos = 0;
-	file_info.pix_start_pos = 15;
+	file_info.pix_start_pos = 12;
 	file_info.run_id = 0;
 	file_info.total_NfileBins = 0;
 	file_info.pixel_width = 36;
