@@ -2,63 +2,58 @@
 Binary operations
 #################
 
-Introduction
-============
+Overview
+========
 
 Binary operations between two objects can be applied in a variety of ways in
 Horace. You can either use the symbolic form (``+``, ``-`` , ``*``, ``/``,
 ``\``), or you can use the explicit function names (``plus, minus, mtimes,
-mrdivide``, ``mldivide``, etc.).
+mrdivide``, ``mldivide``).
 
-Main Horace data objects (main from this chapter point of view) have binary operations defined between them
-excluding some special cases below.
-Here we call "main" the objects which are related to results of experiment and contain arrays of data
-obtained from experiment. These objects in order of their priority are:
- 
+Most Horace data objects have binary operations defined between them,
+and you can perform operations between objects of different classes, 
+as long as the dimensions of the "image" contained in the objects agree
+and/or the size of "pixels" array are the same.
+As described in the :ref:`FAQ <manual/FAQ:What is the difference between sqw and dnd objects>`,
+Horace data objects may contain up to two parts: an "image"
+(histogrammed counts on a grid defined by the projection axes) and a set of "pixels"
+(the raw counts from the data per detector element and energy bin).
+The ``sqw`` class has both sets of information, whereas ``d1d``, ``d2d``, ``d3d``, ``d4d``,
+``IX_dataset`` and ``sigvar`` objects contain only the "image" information,
+and ``PixelData`` objects contain only pixel information.
+
+Thus, you can perform a binary operation between an ``sqw`` object and any other Horace
+object (as long as the "image" dimensions and the number of "pixels" agree) because it
+contains both "image" and "pixel" data.
+However, you cannot perform a binary operation between a ``d1d`` and a ``PixelData`` object
+because one only has "image" data and the other only has "pixel" data.
+
+You can perform a binary operation between a scalar number and any Horace data object.
+
+You can perform a binary operation between a numeric Matlab array and any Horace data object
+which contains an "image" as long as the array dimension and image dimension matches.
+
+The result of the binary operation has the same type as the more "complex" of the input objects,
+where "complexity" equates to the amount of information an object carries.
+That is, an ``sqw`` object, which has both "image" and "pixel" data, is considered the most complex,
+whereas a ``sigvar`` object which just has count data (a signal and a variance array) but no
+coordinate information is considered the least complex.
+
+Thus, an operation between a ``sqw`` and a ``d3d`` object will yield a ``sqw`` output.
+Such an operation will not only produce a different "image", it will also change the "pixels"
+in order to maintain consistency between the two parts of the ``sqw`` output object.
+For example, if you perform the operation: 
+
 .. code-block:: matlab
+   w_sub = w_sqw - w_d2d_bkg
 
-    'sqw','PixelDataBase','DnDBase','IX_dataset','sigvar','numbers and arrays of numbers'
+where ``w_sqw`` is a ``sqw`` object and ``w_d2d_bkg`` is a ``d2d``, then ``w_sub`` will be a ``sqw``
+and the signal value of each "pixel" in ``w_sub`` which contributes to a particular bin (histogram)
+in the "image" of ``w_sqw`` will be reduced by the value of the corresponding bin in ``w_d2d_bkg``
+divided by the number of "pixels" contributing to that bin.
 
-"Priority" here means that the operation between two different priority objects produces the object of higher priority.
-The priority of operations is defined by the amount of information stored in objects. We can 
-identify three types of information used in operations. 
+Commonly used binary operations are described in more detail below.
 
-First is image information defined by ``signal`` and ``variance`` arrays (e.g. ``s`` and ``e`` arrays of ``dnd`` objects).
-
-Second is ``PixelData`` information containing information about every or almost every "neutron event" occurring
-in experiment (e.g. ``signal``, ``variance``, ``u1`` and other contents of ``PixelDataBase`` classes). 
-
-Third is the "complexity" of the data, i.e. ``dnd`` object contain signal, variance and number of pixels contributing 
-into each image cell, so its priority in operations is higher then ``IX_dataset`` which contain only ``signal`` and ``variance``.
-
-
-.. note::
-   The binary operations are undefined between the objects which contain only pixels and only image information  
-   e.g. operation between ``PixelDataMemory`` (pixels) and ``dnd`` object (image) is undefined. 
-
-``sqw`` objects contain both pixels and image information and this information is consistent. 
-(See `Binary operations manager`_ on more about this)  As top priority Horace object,
-``sqw`` object may participate in operations with any other primary Horace object.
-
-For two objects to be able to participate in binary operation their image size and shape and ``pixel`` size (number of elements)
-must be equal. Other possibility is that some information (pixel or image) is missing. 
-Scalar number is the only exception from this rule, as operation with this is applied to every element of object's data.
-
-.. note::
-   When you perform operation between numeric arrays and ``sqw`` object, the array modifies image first. 
-   This means that shape and size of the array have to be consistent with shape and size of image. 
-   When operation with array is performed, pixels in ``sqw`` object are modified to maintain consistency with
-   modified image. Similar rules are applicable for operations between ``sqw`` object and other objects containing
-   image i.e. ``dnd``,``IX_dataset`` and ``sigvar`` objects.
-
-The more information an object has, the higher priority it has in operation,
-e.g. if you want to add ``sqw`` (Pixel + image information) and ``IX_dataset`` information, 
-the result would be ``sqw`` object as it has both pixel and image information. The resulting ``sqw`` object 
-pixel information is calculated from the images resulting in operation to maintain image-pixels consistency. 
-Alternatively, the result of ``sqw`` and ``PixelData`` operation would be ``sqw`` object with image calculated 
-from pixels changed by operation.
-
-Often used and most useful binary operations are described in more details below.
 
 sqw objects
 ===========
@@ -246,9 +241,9 @@ Binary operations manager
 ``sqw`` objects contain both pixels and image information and this information is consistent, i.e. 
 image is calculated from pixels and pixels are sorted within ``PixelData`` array in such a way that the block of
 pixels contributed into image bin(cell) is located in specific position of ``PixelData`` array and this position can be
-identified from image. The position :math:`i_1` of the first pixel contributing into image bin(cell) number :math:`n` is defined by
-formula: :math:`i_1 = cumsum(sqw.data.npix(1:n-1))+1` and the last by: :math:`i_{end} = i_1+sqw.data.npix(n)-1` where 
-:math:`sqw.data.npix` refers to ``npix`` array of ``dnd`` object. Particular pixels positions between :math:`i_1` and :math:`i_{end}`
+identified from image. The position :code:`i_1` of the first pixel contributing into image bin(cell) number :code:`n` is defined by
+formula: :code:`i_1 = cumsum(sqw.data.npix(1:n-1))+1` and the last by: :code:`i_{end} = i_1+sqw.data.npix(n)-1` where 
+:code:`sqw.data.npix` refers to ``npix`` array of ``dnd`` object. Particular pixels positions between :code:`i_1` and :code:`i_{end}`
 are random. 
 
 When you perform binary operation between two objects containing pixels, the pixels have to be sorted within the bin to ensure
@@ -263,7 +258,7 @@ to add them together. In this case, you may decrease time of your ``plus`` opera
 	w_bg   = sqw_eval(my_cut,@my_background,background_parameters);	
 	w_sum  = binary_op_manager(w_fg,w_bg,@plus,true);
 	
-Last parameter of ``binary_op_manager`` set to ``true`` disables sorting pixels in bins while performing binary operations.
+If the last parameter of ``binary_op_manager`` is set to ``true`` it disables sorting pixels in bins while performing binary operations.
 
 .. warning::
 
