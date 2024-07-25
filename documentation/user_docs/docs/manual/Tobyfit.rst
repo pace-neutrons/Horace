@@ -11,20 +11,21 @@ Introduction
 The purpose of Tobyfit is to enable you to fit parameters to Horace datasets
 taking into account the broadening of the data arising from the resolution of
 the instrument. Even if the excitations in your sample were infinitely
-long-lives you would have non-zero broadening in energy and wave vector arising
-from numerous contributions.
+long-lived you would have non-zero broadening in energy and wave vector arising
+from instrumental effects which broaden the energy and wavevector distribution
+of the neutron beam.
 
-The spread of energies arise from:
+The spread of energies arises from:
 
 - the non-zero width in the moderator pulse;
 
 - the non-zero pulse width from the Fermi or disk choppers;
 
-- the different flight-times for the neutrons due to different distances that
-  neutrons travel depending on the point of emission from the moderator, point
+- the different flight-times for neutrons due to different distances that
+  they travel depending on the point of emission from the moderator, point
   of scattering in the sample and point of absorption in the detector.
 
-The spread of wavevector arises from:
+The spread of wavevectors arises from:
 
 - spread of angle of the incident neutrons at the sample from the non-zero width
   of the moderator;
@@ -37,9 +38,9 @@ The spread of wavevector arises from:
 Resolution effects can be quite considerable. Not only do they result in an
 increase in the energy width of peaks (thereby giving an illusory shorter
 lifetime of the excitations), they can also shift the positions of peaks
-depending on, for example, the curvature of dispersion relation within the
+depending on, for example, the curvature of the dispersion relation within the
 resolution function. This can result in incorrect values of exchange constants
-being extracted from the data is resolution is ignored.
+being extracted from the data if resolution effects are ignored.
 
 Tobyfit uses the :ref:`multifit <manual/Multifit:Multifit>` fitting interface to
 enable you fit your data to a model for |SQW| together with background
@@ -62,13 +63,14 @@ difference is that Tobyfit uses instrument information in the sqw objects to
 convolve the |SQW| model(s) with the instrument resolution function using a
 Monte Carlo multi-dimensional integration, and provides some additional methods
 to control how the convolution is carried out.
+A more detailed description of the theory used by TobyFit is given in the
+:ref:`User's Guide <user_guide/Resolution_convolution:Background Theory>`.
 
 .. note::
 
    The background functions are **not** convoluted with the resolution
    function - the assumption is that they are simply empirical functions such as
-   linear background models and so resolution function convolution makes little
-   sense.
+   linear background models and so resolution convolution makes little sense.
 
 This also means that instrument information must be included in the ``sqw``
 object. At present, this is done using the ``<inst>_instrument`` functions which
@@ -76,9 +78,15 @@ are defined for the three ISIS spectrometers LET, MAPS and MERLIN. In future,
 this information will be included when the ``sqw`` file is constructed by
 ``gen_sqw`` if the input files contain suitable information.
 
+A detailed description of how to use these functions and a working example
+is given in the :ref:`User's Guide <user_guide/Resolution_convolution:Using tobyfit`.
+
 
 Performing resolution convolution
 =================================
+
+A working example is also given in the :ref:`User's Guide <user_guide/Resolution_convolution:A worked example`.
+
 
 Setting the sample and instrument information
 *********************************************
@@ -120,8 +128,7 @@ where
 - ``chopper_type`` : character that indicates the chopper type (in the case of
   MAPS this is 'A' , 'B' or 'S' for the sloppy chopper)
 
-The functions for the other spectrometers are ``merlin_instrument``,
-``mari_instrument``, and ``let_instrument``.
+The functions for the other spectrometers are ``merlin_instrument`` and ``let_instrument``.
 
 Now you need to associate this information with the cuts you wish to fit with
 Tobyfit.
