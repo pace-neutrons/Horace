@@ -14,7 +14,7 @@ as well as a generic way of interfacing with modelling codes you may want to use
 
 We also note that the `Brille library <https://brille.github.io>`__ for :math:`q`-space interpolation
 is also a PACE project and is used internally by Euphonic and SpinW to speed up calculations.
-Documentation for how to accomplish may be found in the relevant Euphonic and SpinW documentation.
+Documentation for how to accomplish this may be found in the relevant Euphonic and SpinW documentation.
 
 
 .. contents:: Contents
@@ -112,25 +112,22 @@ Because `Euphonic` is a Python program, you need to have Python setup on your sy
 and to tell Matlab about this. 
 Please see `here <https://horace-euphonic-interface.readthedocs.io/en/latest/#set-up-python-in-matlab>`__
 for more detailed information.
+Also, please note that there are restrictions on the supported Python versions for a given
+Matlab version.
+Please see `here <https://www.mathworks.com/support/requirements/python-compatibility.html>`__
+for a table.
 
-If you haven't installed the `Euphonic` Python package then you can do this within Horace using:
-
-.. code-block:: matlab
-
-    euphonic.install_python_modules()
-
-This may not work for all Python distributions, in which case you should install Euphonic manually.
-Euphonic can be installed with ``pip install euphonic`` in the Python command line,
-but there are also other ways of installing Euphonic, which are detailed in the
+In addition, you should also have the `Euphonic` Python package installed in the Python
+environment you have set up in Matlab. Please see details in the
 `Euphonic installation instructions <https://euphonic.readthedocs.io/en/stable/installation.html>`__.
+We recommend to use the Conda installation.
 
 On the `IDAaaS system <https://isis.analysis.stfc.ac.uk/>`__, you can access the pre-installed
 Euphonic Python environment using:
 
 .. code-block:: matlab
 
-    pyenv('Version', '/usr/local/virtualenvs/euphonicenv/bin/python3');
-    py.sys.setdlopenflags(int32(10));
+    pyenv('Version', '/opt/euphonic/bin/python');
 
 Note that this should be done at the start of a Matlab session.
 If a different Python interpreter has already been started you will need to restart Matlab,
@@ -208,7 +205,8 @@ The following code reads the force constants from a CASTEP file, sets up the
 
 - The ``debye_waller_grid`` parameter is the size of the (Monhkhorst-Pack) :math:`q`-space grid
   to use for the Brillouin zone integration needed to calculate the Debye-Waller factor.
-  Higher values will yield a more accurate calculation but the :math:`6 \times 6 \times 6` is sufficient in most cases.
+  Higher values will yield a more accurate calculation but the :math:`6 \times 6 \times 6` grid 
+  is sufficient in most cases.
 
 - The ``temperature`` is in Kelvin.
 
@@ -216,7 +214,7 @@ The following code reads the force constants from a CASTEP file, sets up the
 
   * ``reciprocal`` applies the ASR correction to the dynamical matrix at every :math:`q`-point (recommended).
 
-  * ``realspace`` applies the ASR correction is applied to the force constant matrix in real space.
+  * ``realspace`` applies the ASR correction to the force constant matrix in real space.
     This method is known to fail for polar systems.
 
   If this parameter is not specified, the ASR correction is not applied.
@@ -380,8 +378,9 @@ That was the case above where ``'mat', {'J_1', 'K(3,3)'}`` indicates that:
 - The first Horace-fittable parameter ``p(1)`` corresponds to the ``J_1`` named matrix and that matrix should be set to ``eye(3)*p(1)``.
 - The second Horace-fittable parameter ``p(2)`` corresponds to the ``K`` named matrix and that one the matrix element should be set as ``K(3,3)=p(2)``.
 
-For example, if the user wants both an anisotropy along :math:`z` and :math:`x` which can vary independently,
-they can set ``'mat', {'K(1,1)', 'K(3,3)'}``.
+For example, if the user wants two independent axial anisotropies along the :math:`x` and :math:`z` directions,
+they can set ``'mat', {'K(1,1)', 'K(3,3)'}``, indicating that the first parameter ``p(1)`` is the :math:`x` direction
+anisotropy and the second parameter ``p(2)`` is the :math:`z` direction anisotropy.
 
 In more complex cases, for example for a DM interaction where multiple elements of a named matrix are dependent,
 the ``selector`` argument should be given:
@@ -407,11 +406,11 @@ In each case, two elements of the ``DM`` matrix should be varied together, which
 
 In addition to ``mat`` and ``selector``, ``horace_sqw`` also takes some other arguments:
 
-- ``'usefast'`` - This tells ``horace_sqw`` to use a faster but slightly less accurate code than ``spinwave``. In particular, this code achieves a speed gain by:
+- ``'usefast'`` - This tells ``horace_sqw`` to use a faster, more memory efficient but slightly less accurate code than ``spinwave``. In particular, this code achieves its speed gain and lower memory usage by:
 
-    * Only calculating ``Sperp`` rather than the full :math:`S^{\alpha\beta}` tensor
+    * Only calculating the perpendicular component ``Sperp`` rather than the full :math:`S^{\alpha\beta}`
+      spin-spin correlation tensor, as neutron scattering is only sensitive to ``Sperp``.
     * Only calculating magnon creation (positive energy / neutron energy loss) modes.
-    * Ignoring twins
 
 - ``'coordtrans'`` - A :math:`4 \times 4` matrix to transform the input :math:`(Q_h,Q_k,Q_l,\hbar\omega)` coordinates received from Horace before passing to SpinW
 
@@ -433,7 +432,7 @@ which is a half-doped bilayer manganite with an intriguing magnetic ground state
 This was the subject of differing models of the exchange interactions deduced from diffraction data
 and was eventually resolved by inelastic neutron measurements.
 For details, please see `G.E. Johnstone et al. <https://doi.org/10.1103/PhysRevLett.109.237202>`__
-and `Ewings et al. <https://doi.org/10.1103/PhysRevB.94.014405>`__.
+and `R. A. Ewings et al. <https://doi.org/10.1103/PhysRevB.94.014405>`__.
 
 The following code simulates a 2D slice with resolution convolution using the parameters found by `Johnstone et al.`
 The `SpinW` model can be downloaded `here <https://spinw.org/RealWorldExample/matlab/prcasrmn2o7.m>`__
@@ -442,7 +441,7 @@ and the data file is `here <https://github.com/pace-neutrons/pace-python-demo/bl
 .. code-block:: matlab
 
    % Create a cut of the data
-   proj = ortho_proj([1, 0, 0], [0, 1, 0], 'type', 'rrr')
+   proj = line_proj([1, 0, 0], [0, 1, 0], 'type', 'rrr')
    w1 = cut_sqw('pcsmo_cut1.sqw', proj, [-1, 0.05, 1], [-1, 0.05, 1], [-10, 10], [10, 20])
 
    % Defines the sample and instrument parameters
@@ -538,10 +537,10 @@ We will use the example of spin waves in bcc-Iron, where the scattering function
 where :math:`I_0` is an amplitude (intensity scaling) parameter,
 :math:`\Gamma` is an energy width parameter, :math:`\Delta` is an energy gap parameter,
 and :math:`J` is an exchange parameter to be fitted.
-Thus :math:`E_0(E)` is the *dispersion relation*, :math:`\mathcal{N}_(T)` is the thermal population (Bose) factor
+Thus :math:`E_0(\mathbf{Q})` is the *dispersion relation*, :math:`\mathcal{N}(E)` is the thermal population (Bose) factor
 where :math:`k_B` is Boltzmann's constant and :math:`T` the sample temperature.
 :math:`F(q)` is the magnetic form factor for metallic iron with :math:`q = \sqrt{q_h^2 + q_k^2 + q_l^2}/(4a^2)`,
-where :math:`a=2.87~\text{Å}` is the lattice parameter of bcc-Iron and the parameters :math:`A=0.0706`, :math:`a=35.008`,
+where :math:`a=2.87~\text{Å}` is the lattice parameter of bcc-Iron and the parameters are :math:`A=0.0706`, :math:`a=35.008`,
 :math:`B=0.3589`, :math:`b=15.358`, :math:`C=0.5819`, :math:`c=5.561`, and :math:`D=-0.0114`.
 
 The data file for the code examples below can be downloaded from
@@ -578,7 +577,7 @@ For simplicity we have passed the sample temperature as a fit variable but it sh
 .. code-block:: matlab
 
    % Make a cut of the data
-   proj = ortho_proj([1,1,0], [-1,1,0], 'type', 'rrr');
+   proj = line_proj([1,1,0], [-1,1,0], 'type', 'rrr');
    w_fe = cut_sqw('fe_cut.sqw', proj, [-3,0.05,3], [-1.05,-0.95], [-0.05,0.05], [70, 90]);
 
    % Define starting parameters
@@ -647,9 +646,9 @@ we must now wrap this Python function in a Matlab *anonymous function* (equivale
 
    fe_sqw_py = @(h,k,l,e,p,temperature) double(py.fe_module.fe_function( ...
                 py.numpy.array(h), py.numpy.array(k), py.numpy.array(l), ...
-                py.numpy.array(en), py.numpy.array(p)), temperature); 
+                py.numpy.array(e), py.numpy.array(p), temperature)); 
    kk = multifit_sqw(w_fe)
-   kk = kk.set_fun (@fe_sqw_py, {[J, D, gam, amp] temp})
+   kk = kk.set_fun (fe_sqw_py, {[J, D, gam, amp] temp})
    kk = kk.set_bfun (@linear_bg, [0.1, 0])
    kk = kk.set_bfree ([1, 0])
    [wfit, fitdata] = kk.fit();
@@ -743,7 +742,7 @@ C example
            e2E02 = (en[i]*en[i] - E0*E0);
            game = gam * en[i];
            result[i] = (ff * ff) * amp * (en[i] / (1 - exp(-11.602*en[i] / tt)))
-                       * (4 * gam * om) / (e2E02*e2E02 + 4 * game * game);
+                       * (4 * gam * E0) / (e2E02*e2E02 + 4 * game * game);
        }
    
    }
@@ -856,7 +855,7 @@ Create a file ``fe_sqw.f90`` with:
                         * (4 * gam * E0) / (e2E02*e2E02 + 4 * game * game);
        end do
    
-   end subroutine user_model_sqw
+   end subroutine fe_f90_func
 
 Compile it using:
 
