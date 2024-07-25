@@ -33,7 +33,7 @@ Horace takes two types of model functions:
   evaluated using :mat:mod:`~sqw.@SQWDnDBase.sqw_eval` and similar functions.
 
 In the first case, for example, if the user makes a 1D cut along the :math:`\mathbf{Q}=(1,1,0)` direction,
-and calls :mat:mod:`~sqw.@SQWDnDBase.func_eval` on this cut, a single vector of the values of 
+and calls :mat:mod:`~sqw.@SQWDnDBase.func_eval` on this cut, a single vector of the values of
 :math:`\sqrt{Q_h^2 + Q_k^2}` is passed to the user model function.
 On the other hand, if she calls :mat:mod:`~sqw.@SQWDnDBase.sqw_eval` on this cut,
 4 vectors, namely :math:`(Q_h, Q_k, Q_l, E)`, are passed to the user model function.
@@ -46,7 +46,7 @@ In particular the interface with external modelling codes described here exclusi
 Energy convolution
 ------------------
 
-The :mat:mod:`~sqw.@SQWDnDBase.sqw_eval` function expects the user model function to return a single vector 
+The :mat:mod:`~sqw.@SQWDnDBase.sqw_eval` function expects the user model function to return a single vector
 :math:`S(Q_h, Q_k, Q_l, E)` of neutron intensity evaluated at the 4 reciprocal space coordinates.
 However, in many cases calculations instead return pairs of values :math:`(E, I)`
 of mode energy :math:`E` and intensity :math:`I` for a particular :math:`\mathbf{Q}=(Q_h, Q_k, Q_l)` point.
@@ -67,7 +67,7 @@ and performs an energy convolution using either:
 
 Note that this energy convolution is required for *all* model functions which yields pairs
 (energy :math:`E`, intensity :math:`I`) from an input set of :math:`\mathbf{Q}=(Q_h, Q_k, Q_l)` points.
-For calculations which take into account 
+For calculations which take into account
 :ref:`the instrument resolution function <user_guide/Resolution_convolution:Resolution Convolution>`,
 this energy convolution can be considered the "intrinsic" (lifetime) energy broadening of the excitation.
 
@@ -82,7 +82,7 @@ Installing Euphonic
 
 `Euphonic <https://euphonic.readthedocs.io/>`__ is a Python package to calculate phonon
 inelastic neutron scattering (INS) intensities from force constants determined from *ab initio* calculations.
-To use it with Horace, you should first download the 
+To use it with Horace, you should first download the
 `Horace-Euphonic-Interface <https://horace-euphonic-interface.readthedocs.io/en/latest/>`__
 which is available as a Matlab toolbox add-on.
 This can be installed within Matlab by clicking on the "Home" tab in the control ribbon,
@@ -101,7 +101,7 @@ Type ``euphonic`` in the search bar, and click on the ``horace-euphonic-interfac
 Then click "Add" in the next window (you may have to log into your Mathworks account).
 
 If you prefer, you can download the `Horace-Euphonic-Interface` toolbox directly from
-`here <https://github.com/pace-neutrons/horace-euphonic-interface/releases>`__ 
+`here <https://github.com/pace-neutrons/horace-euphonic-interface/releases>`__
 (download the latest ``mltbx`` file). Then run:
 
 .. code-block:: matlab
@@ -109,7 +109,7 @@ If you prefer, you can download the `Horace-Euphonic-Interface` toolbox directly
     matlab.addons.toolbox.installToolbox('/path/to/mltbx_file')
 
 Because `Euphonic` is a Python program, you need to have Python setup on your system,
-and to tell Matlab about this. 
+and to tell Matlab about this.
 Please see `here <https://horace-euphonic-interface.readthedocs.io/en/latest/#set-up-python-in-matlab>`__
 for more detailed information.
 Also, please note that there are restrictions on the supported Python versions for a given
@@ -168,7 +168,7 @@ The following code reads the force constants from a CASTEP file, sets up the
 
    % Read force constants
    fc = euphonic.ForceConstants.from_castep('quartz.castep_bin')
-   
+
    % Set up model
    coh_model = euphonic.CoherentCrystal(...
       fc, ...
@@ -177,23 +177,23 @@ The following code reads the force constants from a CASTEP file, sets up the
       'temperature', 100, ...
       'asr', 'reciprocal', ...
       'use_c', true);
-   
+
    % Read in experimental cut
    cut = cut_sqw('quartz_cut.sqw', [-3.02, -2.98], [5, 0.5, 38])
-   
+
    % Simulate
    scale_factor = 200;
    effective_fwhm = 1;
    cut_sim = disp2sqw_eval(...
       cut, @coh_model.horace_disp, {scale_factor}, effective_fwhm);
-   
+
    % Plot
    plot(cut_sim);
 
 
 .. note::
 
-    The data files ``quartz.castep_bin`` and ``quartz_cut.sqw`` are available for download 
+    The data files ``quartz.castep_bin`` and ``quartz_cut.sqw`` are available for download
     `here <https://github.com/pace-neutrons/pace-python-demo/blob/main/datafiles/>`__
 
 
@@ -205,7 +205,7 @@ The following code reads the force constants from a CASTEP file, sets up the
 
 - The ``debye_waller_grid`` parameter is the size of the (Monhkhorst-Pack) :math:`q`-space grid
   to use for the Brillouin zone integration needed to calculate the Debye-Waller factor.
-  Higher values will yield a more accurate calculation but the :math:`6 \times 6 \times 6` grid 
+  Higher values will yield a more accurate calculation but the :math:`6 \times 6 \times 6` grid
   is sufficient in most cases.
 
 - The ``temperature`` is in Kelvin.
@@ -257,7 +257,7 @@ convolution as described in :ref:`the last section <user_guide/Resolution_convol
   is_crystal = true;
   xgeom = [0,0,1]; ygeom = [0,1,0];
   shape = 'cuboid'; shape_pars = [0.01,0.05,0.01];
-  
+
   % Need to set the sample information inside the cut.
   cut = set_sample(cut, IX_sample(is_crystal, xgeom, ygeom, shape, shape_pars));
 
@@ -359,7 +359,7 @@ but ``horace_sqw`` takes an argument ``resfun`` which can be used to specify a d
 - ``'resfun', @fun_handle`` - a function handle to a function which will be accepted by Horace's ``disp2sqw`` method
 
 Note that the different options to ``resfun`` changes the number of parameters which should be set by Horace.
-For example, if there are :math:`n` spinwave model parameters and the user specifies the ``sho`` peak function, 
+For example, if there are :math:`n` spinwave model parameters and the user specifies the ``sho`` peak function,
 they should pass :math:`n+3` parameters (intrinsic width :math:`\Gamma`, sample temperature and an intensity amplitude)
 
 A SpinW model can contain a lot of parameters
@@ -497,7 +497,7 @@ expects a model function to have the following signature:
 where ``qh``, ``qk``, ``ql``, and ``en`` are :math:`n_{\mathrm{pix}}`-length vectors denoting the
 coordinates of the pixels of a Horace ``sqw`` object, or the bin centres of a ``dnd`` object.
 The function should return an :math:`n_{\mathrm{pix}}`-length vector ``I`` of neutron intensities at those coordinates.
-``parameters`` is a vector of the current iteration's fittable parameter values, and 
+``parameters`` is a vector of the current iteration's fittable parameter values, and
 ``varargin`` is an optional cell array denoting a variable-length argument list,
 using `standard Matlab syntax <https://www.mathworks.com/help/matlab/ref/varargin.html>`__.
 
@@ -553,7 +553,7 @@ The data file for the code examples below can be downloaded from
 Matlab function
 ...............
 
-The simplest case is for a model function written in Matlab. 
+The simplest case is for a model function written in Matlab.
 Put the following into a file called ``fe_sqw.m``:
 
 .. code-block:: matlab
@@ -628,7 +628,7 @@ For example, let us define a Python file called ``fe_module.py`` with the follow
 .. code-block:: python
 
    import numpy as np
-   
+
    def fe_function(h, k, l, e, p, temperature):
        js = p[0]; d = p[1]; gamma = p[2]; I0 = p[3]
        E0 = d + (8*js) * (1 - np.cos(np.pi * h) * np.cos(np.pi * k) * np.cos(np.pi * l))
@@ -646,7 +646,7 @@ we must now wrap this Python function in a Matlab *anonymous function* (equivale
 
    fe_sqw_py = @(h,k,l,e,p,temperature) double(py.fe_module.fe_function( ...
                 py.numpy.array(h), py.numpy.array(k), py.numpy.array(l), ...
-                py.numpy.array(e), py.numpy.array(p), temperature)); 
+                py.numpy.array(e), py.numpy.array(p), temperature));
    kk = multifit_sqw(w_fe)
    kk = kk.set_fun (fe_sqw_py, {[J, D, gam, amp] temp})
    kk = kk.set_bfun (@linear_bg, [0.1, 0])
@@ -668,7 +668,7 @@ but there are some limitations:
   (dynamically-linked library (``.dll``) in Windows).
 * To ensure that there are no heap memory errors, and to avoid slow-downs in copying large arrays,
   the model function *must* use an pre-allocated array for the results
-  and should not allocate any arrays itself to return to Matlab 
+  and should not allocate any arrays itself to return to Matlab
   (e.g. C/C++ functions must return ``void`` and Fortran must functions must be declared as ``subroutine``).
 * To allow the same interface for C/C++ and Fortran, the C/C++ functions must pass by reference.
 
@@ -721,7 +721,7 @@ C example
 .. code-block:: c
 
    #include <math.h>
-   
+
    void fe_c_func(const double *qh, const double *qk, const double *ql, const double *en,
                   const double *parameters, double *result, int *n_elem)
    {
@@ -733,7 +733,7 @@ C example
        const double js8 = 8 * js;
        const double qscal = pow(1./(2.*2.87), 2.);
        const double A=0.0706, a=35.008, B=0.3589, b=15.358, C=0.5819, c=5.561, D=-0.0114;
-   
+
        double E0, q2, ff, e2E02, game;
        for (int i=0; i<*n_elem; i++) {
            E0 = d + js8 * (1. - cos(M_PI * qh[i]) * cos(M_PI * qk[i]) * cos(M_PI * ql[i]));
@@ -744,7 +744,7 @@ C example
            result[i] = (ff * ff) * amp * (en[i] / (1 - exp(-11.602*en[i] / tt)))
                        * (4 * gam * E0) / (e2E02*e2E02 + 4 * game * game);
        }
-   
+
    }
 
 Put the above code into a file called ``fe_sqw.c`` and compile it with:
@@ -764,18 +764,18 @@ Put the compiled library file into a folder on the Matlab path, and run the fit 
    kk = kk.set_bfree ([1, 0])
    [wfit, fitdata] = kk.fit();
 
-   
+
 C++ example
 ^^^^^^^^^^^
 
 Create a file ``fe_sqw.cpp`` with:
 
 .. code-block:: cpp
-   
+
    #include <cmath>
-   
+
    extern "C" {
-   
+
    void fe_cpp_func(const double *qh, const double *qk, const double *ql, const double *en,
                     const double *parameters, double *result, int *n_elem)
    {
@@ -787,7 +787,7 @@ Create a file ``fe_sqw.cpp`` with:
        const double js8 = 8 * js;
        const double qscal = pow(1./(2.*2.87), 2.);
        const double A=0.0706, a=35.008, B=0.3589, b=15.358, C=0.5819, c=5.561, D=-0.0114;
-   
+
        double E0, q2, ff, e2E02, game;
        for (int i=0; i<*n_elem; i++) {
            E0 = d + js8 * (1. - cos(M_PI * qh[i]) * cos(M_PI * qk[i]) * cos(M_PI * ql[i]));
@@ -798,11 +798,11 @@ Create a file ``fe_sqw.cpp`` with:
            result[i] = (ff * ff) * amp * (en[i] / (1 - exp(-11.602*en[i] / tt)))
                        * (4 * gam * E0) / (e2E02*e2E02 + 4 * game * game);
        }
-   
+
    }
-   
+
    } // extern "C"
-   
+
 Compile it using:
 
 .. code-block:: sh
@@ -823,11 +823,11 @@ Fortran example
 Create a file ``fe_sqw.f90`` with:
 
 .. code-block:: fortran
-   
+
    subroutine fe_f90_func(qh, qk, ql, en, parameters, results, n_elem) bind(C)
        implicit none
        real(8), parameter :: PI = 3.1415926535897932385
-   
+
        real(8), dimension(n_elem), intent(in) :: qh, qk, ql, en
        real(8), dimension(5), intent(in) :: parameters
        real(8), dimension(n_elem), intent(out) :: results
@@ -837,14 +837,14 @@ Create a file ``fe_sqw.f90`` with:
        real(8), parameter :: A = 0.0706, aa=35.008, B=0.3589, bb=15.358
        real(8), parameter :: C=0.5819, cc=5.561, DD=-0.0114
        integer :: i
-   
+
        js = parameters(1) * 8
        d = parameters(2)
        gam = parameters(3)
        tt = parameters(4)
        amp = parameters(5) / PI
        qscal = (1. / (2. * 2.87))**2
-   
+
        do i=1, n_elem
            E0 = d + js * (1. - cos(PI * qh(i)) * cos(PI * qk(i)) * cos(PI * ql(i)));
            q2 = qscal * (qh(i)*qh(i) + qk(i)*qk(i) + ql(i)*ql(i));
@@ -854,7 +854,7 @@ Create a file ``fe_sqw.f90`` with:
            results(i) = (ff * ff) * amp * (en(i) / (1 - exp(-11.602*en(i) / tt))) &
                         * (4 * gam * E0) / (e2E02*e2E02 + 4 * game * game);
        end do
-   
+
    end subroutine fe_f90_func
 
 Compile it using:

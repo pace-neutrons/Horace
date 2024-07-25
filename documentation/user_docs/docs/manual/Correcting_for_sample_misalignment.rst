@@ -417,15 +417,14 @@ rlu_corr_to_lattice
 Extract lattice parameters and orientation matrix from r.l.u correction matrix and reference lattice parameters
 
 
-..
-   calc_proj_matrix
-   ================
+calc_proj_matrix
+================
 
-   ::
+::
 
-      [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+   [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 
 
-   Calculate matrix that convert momentum from coordinates in spectrometer frame to projection axes defined by :math:`u1 \| a^*`,
-   :math:`u2` in plane of :math:`a^*` and :math:`b^*` i.e. crystal Cartesian axes. Allows for correction scattering plane (omega, dpsi, gl, gs) -
-   see Tobyfit for conventions
+Calculate matrix that convert momentum from coordinates in spectrometer frame to projection axes defined by :math:`u1 \| a^*`,
+:math:`u2` in plane of :math:`a^*` and :math:`b^*` i.e. crystal Cartesian axes. Allows for correction scattering plane (omega, dpsi, gl, gs) -
+see Tobyfit for conventions

@@ -79,13 +79,13 @@ this information will be included when the ``sqw`` file is constructed by
 ``gen_sqw`` if the input files contain suitable information.
 
 A detailed description of how to use these functions and a working example
-is given in the :ref:`User's Guide <user_guide/Resolution_convolution:Using tobyfit`.
+is given in the :ref:`User's Guide <user_guide/Resolution_convolution:Using \`\`tobyfit\`\`>`.
 
 
 Performing resolution convolution
 =================================
 
-A working example is also given in the :ref:`User's Guide <user_guide/Resolution_convolution:A worked example`.
+A working example is also given in the :ref:`User's Guide <user_guide/Resolution_convolution:A worked example>`.
 
 
 Setting the sample and instrument information
@@ -135,8 +135,8 @@ Tobyfit.
 
 .. warning::
 
-   Tobyfit will only fit :ref:`sqw objects <manual/FAQ:The difference between
-   sqw and dnd objects>`, because the information of each pixel is needed to
+   Tobyfit will only fit :ref:`sqw objects <manual/FAQ:What is the difference between sqw and dnd objects>`,
+   because the information of each pixel is needed to
    perform the resolution convolution. This information is removed when you
    create cuts of type ``d1d``, ``d2d``, etc.
 

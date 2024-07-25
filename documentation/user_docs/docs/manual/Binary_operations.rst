@@ -11,7 +11,7 @@ Horace. You can either use the symbolic form (``+``, ``-`` , ``*``, ``/``,
 mrdivide``, ``mldivide``).
 
 Most Horace data objects have binary operations defined between them,
-and you can perform operations between objects of different classes, 
+and you can perform operations between objects of different classes,
 as long as the dimensions of the "image" contained in the objects agree
 and/or the size of "pixels" array are the same.
 As described in the :ref:`FAQ <manual/FAQ:What is the difference between sqw and dnd objects>`,
@@ -42,9 +42,10 @@ coordinate information is considered the least complex.
 Thus, an operation between a ``sqw`` and a ``d3d`` object will yield a ``sqw`` output.
 Such an operation will not only produce a different "image", it will also change the "pixels"
 in order to maintain consistency between the two parts of the ``sqw`` output object.
-For example, if you perform the operation: 
+For example, if you perform the operation:
 
 .. code-block:: matlab
+
    w_sub = w_sqw - w_d2d_bkg
 
 where ``w_sqw`` is a ``sqw`` object and ``w_d2d_bkg`` is a ``d2d``, then ``w_sub`` will be a ``sqw``
@@ -69,7 +70,7 @@ object is called ``w2`` and has an attached ``pix`` array.
    .. note::
 
       You can have an ``sqw`` object without the pix array by converting a
-      ``dnd`` to ``sqw``, though this is inadvisable as a lot of important information 
+      ``dnd`` to ``sqw``, though this is inadvisable as a lot of important information
 	  about experiment specific to ``sqw`` object remains empty as the result of this
 	  operation.
 
@@ -228,7 +229,7 @@ the corresponding functions are:
 .. warning::
 
 	Binary operations between Horace objects, unlike arithmetic operations are not fully invertible.
-	If you do ``w_out = w1+w2`` and ``w1_out = w_out-w2`` ``w1_out ~= w1``. 
+	If you do ``w_out = w1+w2`` and ``w1_out = w_out-w2`` ``w1_out ~= w1``.
 	
 	Actually ``w1.data.s==w1_out.data.s`` and ``w1.pix.signal==w1_out.pix.signal`` but
 	errors are accumulated in each operation so:
@@ -238,17 +239,17 @@ the corresponding functions are:
 Binary operations manager
 --------------------------------------------
 
-``sqw`` objects contain both pixels and image information and this information is consistent, i.e. 
+``sqw`` objects contain both pixels and image information and this information is consistent, i.e.
 image is calculated from pixels and pixels are sorted within ``PixelData`` array in such a way that the block of
 pixels contributed into image bin(cell) is located in specific position of ``PixelData`` array and this position can be
 identified from image. The position :code:`i_1` of the first pixel contributing into image bin(cell) number :code:`n` is defined by
-formula: :code:`i_1 = cumsum(sqw.data.npix(1:n-1))+1` and the last by: :code:`i_{end} = i_1+sqw.data.npix(n)-1` where 
+formula: :code:`i_1 = cumsum(sqw.data.npix(1:n-1))+1` and the last by: :code:`i_{end} = i_1+sqw.data.npix(n)-1` where
 :code:`sqw.data.npix` refers to ``npix`` array of ``dnd`` object. Particular pixels positions between :code:`i_1` and :code:`i_{end}`
-are random. 
+are random.
 
 When you perform binary operation between two objects containing pixels, the pixels have to be sorted within the bin to ensure
-the operation is performed between correspondent pixels. In many cases, user may be sure that the operation is performed between two 
-objects with pixels ordered in the same way. For example, you calculate foreground and background on the same ``sqw`` object and now want 
+the operation is performed between correspondent pixels. In many cases, user may be sure that the operation is performed between two
+objects with pixels ordered in the same way. For example, you calculate foreground and background on the same ``sqw`` object and now want
 to add them together. In this case, you may decrease time of your ``plus`` operation by avoiding sorting pixels within the bins as follows:
 
 .. code-block:: matlab
@@ -262,5 +263,5 @@ If the last parameter of ``binary_op_manager`` is set to ``true`` it disables so
 
 .. warning::
 
-	Use this option carefully. If you do binary operation between two objects with pixels sorted differently, the first result would look correct. 
+	Use this option carefully. If you do binary operation between two objects with pixels sorted differently, the first result would look correct.
 	Unfortunately, any future operations on the result of such operation may produce completely unexpected results.
