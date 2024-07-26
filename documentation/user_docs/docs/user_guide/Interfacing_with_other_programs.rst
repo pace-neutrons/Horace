@@ -120,7 +120,7 @@ for a table.
 In addition, you should also have the `Euphonic` Python package installed in the Python
 environment you have set up in Matlab. Please see details in the
 `Euphonic installation instructions <https://euphonic.readthedocs.io/en/stable/installation.html>`__.
-We recommend to use the Conda installation.
+We recommend using the Conda installation.
 
 On the `IDAaaS system <https://isis.analysis.stfc.ac.uk/>`__, you can access the pre-installed
 Euphonic Python environment using:
@@ -203,7 +203,7 @@ The following code reads the force constants from a CASTEP file, sets up the
   but the Horace data is defined using a conventional unit cell.
   By default it is set to the identity matrix.
 
-- The ``debye_waller_grid`` parameter is the size of the (Monhkhorst-Pack) :math:`q`-space grid
+- The ``debye_waller_grid`` parameter is the size of the (Monkhorst-Pack) :math:`q`-space grid
   to use for the Brillouin zone integration needed to calculate the Debye-Waller factor.
   Higher values will yield a more accurate calculation but the :math:`6 \times 6 \times 6` grid
   is sufficient in most cases.
@@ -408,8 +408,8 @@ In addition to ``mat`` and ``selector``, ``horace_sqw`` also takes some other ar
 
 - ``'usefast'`` - This tells ``horace_sqw`` to use a faster, more memory efficient but slightly less accurate code than ``spinwave``. In particular, this code achieves its speed gain and lower memory usage by:
 
-    * Only calculating the perpendicular component ``Sperp`` rather than the full :math:`S^{\alpha\beta}`
-      spin-spin correlation tensor, as neutron scattering is only sensitive to ``Sperp``.
+    * Only calculating the perpendicular component :math:`S_{\text{perp}}` rather than the full :math:`S^{\alpha\beta}`
+      spin-spin correlation tensor, as neutron scattering is only sensitive to :math:`S_{\text{perp}}`.
     * Only calculating magnon creation (positive energy / neutron energy loss) modes.
 
 - ``'coordtrans'`` - A :math:`4 \times 4` matrix to transform the input :math:`(Q_h,Q_k,Q_l,\hbar\omega)` coordinates received from Horace before passing to SpinW

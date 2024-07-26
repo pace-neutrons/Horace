@@ -63,7 +63,7 @@ difference is that Tobyfit uses instrument information in the sqw objects to
 convolve the |SQW| model(s) with the instrument resolution function using a
 Monte Carlo multi-dimensional integration, and provides some additional methods
 to control how the convolution is carried out.
-A more detailed description of the theory used by TobyFit is given in the
+A more detailed description of the theory used by Tobyfit is given in the
 :ref:`User's Guide <user_guide/Resolution_convolution:Background Theory>`.
 
 .. note::

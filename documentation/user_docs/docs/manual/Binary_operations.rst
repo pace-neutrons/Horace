@@ -242,9 +242,9 @@ Binary operations manager
 ``sqw`` objects contain both pixels and image information and this information is consistent, i.e.
 image is calculated from pixels and pixels are sorted within ``PixelData`` array in such a way that the block of
 pixels contributed into image bin(cell) is located in specific position of ``PixelData`` array and this position can be
-identified from image. The position :code:`i_1` of the first pixel contributing into image bin(cell) number :code:`n` is defined by
-formula: :code:`i_1 = cumsum(sqw.data.npix(1:n-1))+1` and the last by: :code:`i_{end} = i_1+sqw.data.npix(n)-1` where
-:code:`sqw.data.npix` refers to ``npix`` array of ``dnd`` object. Particular pixels positions between :code:`i_1` and :code:`i_{end}`
+identified from image. The position ``i_1`` of the first pixel contributing into image bin(cell) number ``n`` is defined by
+formula: ``i_1 = cumsum(sqw.data.npix(1:n-1))+1`` and the last by: ``i_{end} = i_1+sqw.data.npix(n)-1`` where
+``sqw.data.npix`` refers to ``npix`` array of ``dnd`` object. Particular pixels positions between ``i_1`` and ``i_{end}``
 are random.
 
 When you perform binary operation between two objects containing pixels, the pixels have to be sorted within the bin to ensure
