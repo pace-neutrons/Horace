@@ -44,24 +44,13 @@ function  fint = getFF_calculator(self,win)
 %
 
 if isa(win,'sqw')
-    self.proj_ = win.data.proj;
+    self.hkl_to_Qmat_ = win.data.proj.bmatrix();
 elseif isnumeric(win) || all(size(win) == [3,3])
-    proj = line_proj([1,0,0], [0,1,0]);
-    % Uses the identity:
-    % inv(B^T * B) = [aa ab.cos(gamma) ac.cos(beta);
-    %                 ab.cos(gamma) bb bc.cos(alpha);
-    %                 ac.cos(beta) bc.cos(alpha) cc];
-    bb = inv(win' * win);
-    alatt = sqrt(diag(bb));
-    angdeg(1) = acos(bb(2,3) / prod(alatt(2:3)));
-    angdeg(2) = acos(bb(1,3) / prod(alatt([1 3])));
-    angdeg(3) = acos(bb(1,2) / prod(alatt(1:2)));
-    proj.alatt = 2*pi * alatt;
-    proj.angdeg = angdeg * 180 / pi;
-    self.proj_ = proj;
+    self.hkl_to_Qmat_= win;
 else
-    self.proj_ = win.proj;
+    self.hkl_to_Qmat_ = win.proj.bmatrix();
 end
+
 
 fint = @(h,k,l,en,argi)form_factor(self,h,k,l,en,argi);
 
