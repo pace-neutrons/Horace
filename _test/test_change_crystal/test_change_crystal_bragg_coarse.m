@@ -591,6 +591,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertEqualToTol(cut_old.data, cut_new.data);
             skipTest('Re #1616 Experiment alignment is not recovered as modern alignment')
         end
+        %
         function test_rotmat_recovery(~)
             % this is test to check how well rotation matrix can be recovered
             % from u_to_rlu_matrix; The procedure occuring while we take
@@ -631,6 +632,36 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             rotmat_rec = b*u_to_rlu_leg_aligned;
 
             assertElementsAlmostEqual(corr.rotmat,rotmat_rec);
+        end
+        function test_corrections_work_in_parallel(obj)
+            % testing if multifit works in parallel (actually no parallel 
+            % should be invoked) for this kind of task
+            
+            clOb = set_temporary_config_options('hpc_config','parallel_multifit',true);
+            %
+            bragg_pos=[...
+                0, -1, 0; ...
+                1,  2, 0; ...
+                0, -1, 1];
+            alatt0 = [5,5,5];
+            angdeg0 = [90,90,90];
+
+            % the Bragg points positions found by fitting measured Bragg
+            % peaks shape to Gaussian and identifying the Gaussian centerpoints
+            % See test_u_alignment_tf_way for the procedure of obtaining
+            % them
+            rlu_real = [...
+                0.0372, -0.9999, 0.0521;...
+                0.9200, 2.0328, -0.1568;...
+                0.1047, -0.9425, 1.0459];
+
+            % Get correction class from the 3 peak positions:
+            % ------------------------------------------------
+            corr = refine_crystal(rlu_real, ...
+                alatt0,angdeg0, bragg_pos);
+            hpc = hpc_config;
+            assertTrue(hpc.parallel_multifit);
+            assertEqualWithSave(obj,corr)
         end
 
         function test_bragg_pos(obj)
