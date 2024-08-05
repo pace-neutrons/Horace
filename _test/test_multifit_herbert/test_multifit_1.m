@@ -324,5 +324,8 @@ classdef test_multifit_1 < TestCaseWithSave
             assertEqualToTolWithSave (this, ww_fcellarr_f, 'tol', tol)
             assertEqualToTolWithSave (this, pp_fcellarr, 'tol', tol)
         end
+
+        function test_multifit_simple(~)
+        end
     end
 end

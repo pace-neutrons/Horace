@@ -57,7 +57,8 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             sim_sqw_file = fullfile(obj.dir_out, 'test_change_crystal_coarse_sim.sqw'); % output file for simulation in reference lattice
             obj = obj.build_misaligned_source_file(sim_sqw_file);
-
+            
+            obj.save();
         end
         function test_change_crystal_family_invalid_throw_in_memory(obj)
             sqw_sample = read_sqw(obj.misaligned_sqw_file);
