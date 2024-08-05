@@ -49,7 +49,7 @@ private:
 
 	//VARIABLES:
 	std::string filename;       // name of the file this class works with
-	std::fstream h_inout;       // holder for the stream, operated with the file
+	std::fstream h_inout;      // holder for the stream, operated with the file
 	//
 	size_t last_pix_written;   // counter for number of pixels stored in subsequent write operations
 	size_t pix_array_position; // location of pix_array within the binary file
@@ -67,8 +67,8 @@ private:
 	// and number of pixels written on disk
 	const size_t pixel_info_size{ 12 };
 	// message ID this class return to Matlab in case of errors
-	const std::string MEX_ERR_INPUT{ "HORACE:bin_io_handler:invalid_argument" };
-	const std::string MEX_ERR_IO{ "HORACE:bin_io_handler:io_error" };
+	const std::string MEX_ERR_INPUT{"HORACE:bin_io_handler:invalid_argument"};
+	const std::string MEX_ERR_IO{"HORACE:bin_io_handler:io_error"};
 
 };
 

@@ -6,9 +6,7 @@ void bin_io_handler::init(const fileParameters& fpar) {
     this->pix_array_position = fpar.pix_start_pos;
     this->nbin_position = fpar.nbin_start_pos;
     this->pixel_width = fpar.pixel_width;
-    // identify actual file size
-    this->h_inout.seekg(0, std::ios::end);
-    this->file_size = this->h_inout.tellg();
+
     this->filename = fpar.fileName;
 
     if (std::ifstream(filename.c_str())) {
@@ -38,6 +36,9 @@ void bin_io_handler::init(const fileParameters& fpar) {
         std::vector<char> tmp_mem(add_size, 0);
         this->h_inout.write(&tmp_mem[0], add_size);
     }
+    // identify actual file size
+    this->h_inout.seekg(0, std::ios::end);
+    this->file_size = this->h_inout.tellg();
 }
 
 size_t bin_io_handler::get_file_size() {//in order to create bounds for seekp and seekg need size of file 
@@ -76,7 +77,6 @@ void bin_io_handler::write_pix_info(const size_t& num_pixels) {
 
     this->seek_within_bounds(pix_info_position);
     this->h_inout.seekp(pix_info_position);
-    this->h_inout.clear();
 
     //this->h_inout.write(reinterpret_cast<const char*>(&pix_width), sizeof(num_pixels));
     this->h_inout.write(reinterpret_cast<const char*>(&pix_width), sizeof(pix_width));
