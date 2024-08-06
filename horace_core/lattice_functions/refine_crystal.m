@@ -172,6 +172,8 @@ kk = multifit (vcryst0_3, zeros(3*nv,1), 0.01*ones(3*nv,1));
 kk = kk.set_fun (@reciprocal_space_deviation, {pars,rlu_expected}, pfree, pbind);
 kk = kk.set_options ('list', 0);
 kk = kk.set_options ('fit',[1e-4,50,-1e-6]);
+% disable possible parallel fitting as it does not make sence for
+% refine_crystal data. The fitting for these data is faster serially.
 clOb = set_temporary_config_options('hpc_config','parallel_multifit',false);
 [distance,fitpar] = kk.fit();
 
