@@ -79,7 +79,6 @@ classdef test_change_crystal_bragg_fine < TestCase
                 catch
                 end
             end
-            obj.save();
         end
         function setUp(~)
             hpc = hpc_config;
