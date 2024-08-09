@@ -46,8 +46,10 @@ classdef d3d < DnDBase
         % actual plotting interface:
         %------------------------------------------------------------------
         % PLOT:
-        [figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin);
-        [figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargin);
+        %[figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin);
+        varargout = sliceomatic(w, varargin);
+        %[figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargin);
+        varargout = sliceomatic_overview(w,varargin);
 
     end
 end

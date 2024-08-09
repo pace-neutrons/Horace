@@ -55,7 +55,8 @@ classdef IX_dataset_3d < IX_data_3d & data_plot_interface
         % actual plotting interface:
         %------------------------------------------------------------------
         % PLOT:
-        [figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin);
+        %[figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin);
+        varargout = sliceomatic(w, varargin);
     end
 
 end
