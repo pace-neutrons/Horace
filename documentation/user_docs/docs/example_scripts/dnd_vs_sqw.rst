@@ -2,7 +2,7 @@ dnd vs sqw: the difference
 ##########################
 
 This tutorial was originally a script designed to illustrate and explain the
-different key data types -- ``sqw`` and ``dnd`` (the ``d0d``, ``d1d`, ...
+different key data types -- ``sqw`` and ``dnd`` (the ``d0d``, ``d1d``, ...
 family). -- in Horace, and why they are important.
 
 `Whole script`_ available here.
