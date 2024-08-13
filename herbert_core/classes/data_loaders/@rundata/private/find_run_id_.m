@@ -13,8 +13,4 @@ if isempty(obj.loader)
     return
 end
 ld = obj.loader;
-if isempty(ld.file_name)
-    id = 0;
-    return
-end
-id = obj.extract_id_from_filename(ld.file_name);
+id  = ld.run_id;

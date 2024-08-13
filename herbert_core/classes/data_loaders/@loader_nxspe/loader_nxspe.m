@@ -13,16 +13,25 @@ classdef loader_nxspe < a_loader
     end
     properties(Access=private)
         % the folder within nexus file where nxspe data are located;
-        root_nexus_dir='';
+        root_nexus_dir_='';
         % current version of nxspe file
-        nxspe_version='';
+        nxspe_version_=[];
         % the structure, containing the folder structure of the nxspe file
         % as defined in hdf5 file
         nexus_dataset_info_ = [];
         % a structure for instrument information
         nexus_instrument_ = [];
     end
-    
+    properties(Constant,Access = private)
+        % the list of field names which describe nxspe file data and loader
+        % returns from file info structure (fh) used to identify loader
+        % and major information about the file.
+        % By chance and for simplicity, these field names correspond to
+        % the name of main info fields used to set up valid data loader
+        data_info_fields_ = {'n_detindata_','file_name_','en','efix','psi',...
+            'nxspe_version_','root_nexus_dir_','nexus_dataset_info_'}
+    end
+
     methods(Static)
         function fext=get_file_extension()
             % return the file extension used by this loader
@@ -59,18 +68,18 @@ classdef loader_nxspe < a_loader
                 warning('LOAD_NXSPE:invalid_argument','file %s is not an hdf5 file',full_file_name);
                 return;
             end
-            [ndet,en,full_file_name,ei,psil,nexus_dir,nxspe_ver,dataset_info]=loader_nxspe.get_data_info(file_name);
-            fh = struct('n_detindata_',ndet,'en',en,'file_name_',full_file_name,...
-                'efix',ei,'psi',psil,'root_nexus_dir',...
-                nexus_dir,'nxspe_version',nxspe_ver,'nexus_dataset_info_',dataset_info);
+            fh =loader_nxspe.get_data_info(full_file_name);
         end
         %
-        function [ndet,en,file_name,ei,psi,nexus_dir,nxspe_ver,nexus_datast_info]=get_data_info(file_name)
+        function fh =get_data_info(file_name)
             % Load header information of nxspe MANTID file
             %
-            % >> [ndet,en,full_file_name,ei,psi,nexus_ver,nexus_dir] = loader_nxspe.get_data_info(filename)
+            % >> fh = loader_nxspe.get_data_info(filename)
             %
-            % where:
+            % where: 
+            % fh is a structure with fields, defined by data_info_fields_
+            % property and values as follows:
+            %
             % ndet  -- number of detectors
             % en    -- energy bins
             % full_file_name -- the full name (with path) of the source nxpse file
@@ -85,12 +94,16 @@ classdef loader_nxspe < a_loader
                 error('HERBERT:loader_nxspe:invalid_argument',...
                     ' has to be called with valid file name');
             end
-            [ndet,nxspe_ver,nexus_dir,nexus_datast_info]=...
+            [ndet,nxspe_ver,nexus_dir,nexus_datast_info] = ...
                 a_detpar_loader_interface.get_nxspe_file_info(file_name);
-            
+
             en = h5read(file_name,[nexus_dir,'/data/energy']);
             ei = h5read(file_name,[nexus_dir,'/NXSPE_info/fixed_energy']);
             psi = h5read(file_name,[nexus_dir,'/NXSPE_info/psi']);
+
+            fh = cell2struct({ndet;file_name;en;ei;psi; ...
+                nxspe_ver;nexus_dir;nexus_datast_info}, ...
+                loader_nxspe.data_info_fields_');
         end
         %
     end
@@ -109,55 +122,26 @@ classdef loader_nxspe < a_loader
             %                      file and contains number of detectors
             %                      energy bins, full file name and other nxspe information for this file
             %
-            if numel(varargin) == 0
-                full_par_file_name = [];
-                fh=[];
-            elseif numel(varargin)== 1
-                if isstruct(varargin{1})
-                    full_par_file_name = [];
-                    fh=varargin{1};
+
+            obj = init@a_loader(obj,full_nxspe_file_name,varargin{:});
+            if numel(varargin)>0 && istext(varargin{1})
+                if isempty(varargin{1})
+                    obj.par_file_name = obj.file_name;
                 else
-                    full_par_file_name = varargin{1};
-                    fh = [];
-                end
-            elseif  numel(varargin)== 2
-                full_par_file_name = varargin{1};
-                fh=varargin{2};
-            end
-            if isempty(full_par_file_name) || strcmp(full_par_file_name,full_nxspe_file_name)
-                % detectors and data are taken from the same nxspe file:
-                if isempty(fh)
-                    obj.detpar_loader = full_nxspe_file_name;
-                else
-                    ldr = nxspepar_loader();
-                    obj.detpar_loader_ = ...
-                        ldr.set_nxspe_info(fh);
+                    obj.par_file_name = varargin{1};
                 end
             else
-                obj.detpar_loader = full_par_file_name;
+                obj.par_file_name = obj.file_name;
             end
             % Checks if file has instrument info.
             try
                 obj.nexus_instrument_ = obj.read_instrument_info_();
             catch ME
                 if strcmp(ME.identifier, 'HERBERT:loader_nxspe:missing_instrument_fields')
-                    warning(ME.identifier, ME.message);
+                    warning(ME.identifier,'%s', ME.message);
                 end
                 % Ignore all other errors; instrument info not guaranteed to
                 % be in all nxspe files; its absence is not an error.
-            end
-            if ~isempty(fh) % call from loaders factory
-                defined_fields = fields(fh);
-                obj.do_check_combo_arg_ = false;
-                for i=1:numel(defined_fields)
-                    obj.(defined_fields{i}) = fh.(defined_fields{i});
-                end
-                obj.do_check_combo_arg_ = true;                
-                obj = obj.check_combo_arg();
-            else
-                % set up file name checking that the file in fact exists and
-                % correct
-                obj.file_name =full_nxspe_file_name;
             end
         end
         %
@@ -171,11 +155,11 @@ classdef loader_nxspe < a_loader
             %where:
             % full_nxspe_file_name -- full file name (with path) to proper
             %                         nxspe file
-            
+
             obj=obj@a_loader(varargin{:});
             % The run_data structure fields which become defined if proper spe file is provided
             obj.loader_define_ ={'S','ERR','en','efix','psi','det_par','n_detectors'};
-            
+
             if exist('full_nxspe_file_name', 'var')
                 obj= obj.init(full_nxspe_file_name,varargin{:});
             end
@@ -193,14 +177,6 @@ classdef loader_nxspe < a_loader
                 psi_loc = ismember(fields,'psi');
                 fields  = fields(~psi_loc);
             end
-        end
-        
-        function obj = set_data_info(obj,nxspe_file_name)
-            % obtain data file information and set it into class
-            [obj.n_detindata_,obj.en_,obj.file_name_,...
-                obj.efix,obj.psi,...
-                obj.root_nexus_dir,obj.nxspe_version,obj.nexus_dataset_info_]=...
-                loader_nxspe.get_data_info(nxspe_file_name);
         end
         %
         function obj = delete(obj)
@@ -235,6 +211,28 @@ classdef loader_nxspe < a_loader
     end
     %
     methods(Access=protected)
+        function flds = get_data_info_fields(~)
+            % list of data info fields for nxspe data
+            flds = loader_nxspe.data_info_fields_;
+        end
+        function obj = set_info_fields(obj,fh,field_names)
+            % generic method, used to set fields which define loader
+            % for every appropriate. Have to be overloaded to have access
+            % to private fields
+            nf = numel(field_names);
+            for i=1:nf
+                obj.(field_names{i}) = fh.(field_names{i});
+            end
+        end
+
+        function obj = find_run_id(obj)
+            if obj.nxspe_version_ > 1.2
+                obj.run_id_ = h5read(obj.file_name,[obj.root_nexus_dir_,'/instrument/run_number']);
+            else
+                obj = find_run_id@a_loader(obj);
+            end
+        end
+
         function obj = set_data_file_name(obj,filename)
             % set nxspe data source accounting for the case when detector
             % parameters are also coming from the same nxspe file. Save on
@@ -249,15 +247,7 @@ classdef loader_nxspe < a_loader
                             'setting non-nxspe par file %s as the source of the nxspe data',...
                             filename);
                     end
-                    obj.file_name_ = filename;
-                    [obj.root_nexus_dir,obj.nexus_dataset_info_,obj.nxspe_version] = ...
-                        obj.detpar_loader_.get_nxspe_info();
-                    %
-                    dataset_info=find_dataset_info(obj.nexus_dataset_info_,'data','data');
-                    obj.n_detindata_  = dataset_info.Dataspace.Size(2);
-                    obj.en_  = h5read(filename,[obj.root_nexus_dir,'/data/energy']);
-                    obj.efix = h5read(filename,[obj.root_nexus_dir,'/NXSPE_info/fixed_energy']);
-                    obj.psi = h5read(filename,[obj.root_nexus_dir,'/NXSPE_info/psi']);
+                    obj = obj.set_data_info(filename);
                 else
                     obj = set_data_file_name@a_loader(obj,filename);
                 end
@@ -271,8 +261,8 @@ classdef loader_nxspe < a_loader
             else
                 filename = obj.par_file_name;
             end
-            if ~isempty(obj.root_nexus_dir)
-                root_dir = obj.root_nexus_dir;
+            if ~isempty(obj.root_nexus_dir_)
+                root_dir = obj.root_nexus_dir_;
             else
                 root_dir = find_root_nexus_dir(filename);
             end
@@ -281,7 +271,7 @@ classdef loader_nxspe < a_loader
             % Instrument we support must have 'moderator' and 'source' components
             if ~any(isfield(dataset, {'moderator', 'source'}))
                 error('HERBERT:loader_nxspe:invalid_instrument', ...
-                      'nxspe file has instrument data incompatible with Horace');
+                    'nxspe file has instrument data incompatible with Horace');
             end
             source = IX_source(dataset.source.Name.value, '', double(dataset.source.frequency.value));
             moderator = obj.read_inst_moderator_(dataset);
@@ -289,14 +279,14 @@ classdef loader_nxspe < a_loader
             % instrument types based on presence of 'shaping_chopper' and 'mono_chopper'
             % as we only have two types of instruments supported at present
             if all(isfield(dataset, {'shaping_chopper', 'mono_chopper', ...
-                                     'horiz_div', 'vert_div'}))
+                    'horiz_div', 'vert_div'}))
                 instrument = obj.read_disk_inst_(dataset, source, moderator);
             else
                 % The struct must at least have an 'aperture' field
                 if ~isfield(dataset, 'aperture')
                     error('HERBERT:loader_nxspe:missing_instrument_fields', ...
-                          ['nxspe file has incomplete instrument data. Please manually ' ...
-                           'set instrument if you want to perform resolution convolution']);
+                        ['nxspe file has incomplete instrument data. Please manually ' ...
+                        'set instrument if you want to perform resolution convolution']);
                 end
                 instrument = obj.read_fermi_inst_(dataset, source, moderator);
             end
@@ -306,25 +296,25 @@ classdef loader_nxspe < a_loader
             if isfield(ds.moderator, 'pulse_shape')
                 pulse_model = 'table';
                 parameters = {ds.moderator.pulse_shape.Time.value ...
-                              ds.moderator.pulse_shape.Intensity.value};
+                    ds.moderator.pulse_shape.Intensity.value};
             elseif isfield(ds.moderator, 'empirical_pulse_shape')
                 pulse_model = ds.moderator.empirical_pulse_shape.type.value;
                 parameters = ds.moderator.empirical_pulse_shape.data.value;
             else
                 error('HERBERT:loader_nxspe:invalid_moderator', ...
-                      'moderator model in instrument info not understandable by Horace.');
+                    'moderator model in instrument info not understandable by Horace.');
             end
             moderator = IX_moderator(abs(ds.moderator.transforms.MOD_T_AXIS.value), ...
-                                     ds.moderator.transforms.MOD_R_AXIS.value, ...
-                                     pulse_model, parameters);
+                ds.moderator.transforms.MOD_R_AXIS.value, ...
+                pulse_model, parameters);
         end
         function instrument = read_fermi_inst_(obj, ds, src, mod)
             % Construct an IX_inst_DGfermi from a NeXus data structure
             aperture = IX_aperture(ds.aperture.transforms.AP_AXIS.value, ...
-                                   ds.aperture.x_gap.value, ds.aperture.y_gap.value);
+                ds.aperture.x_gap.value, ds.aperture.y_gap.value);
             fermi = IX_fermi_chopper(ds.fermi.type.value, abs(ds.fermi.distance.value), ...
-                                     ds.fermi.rotation_speed.value, ds.fermi.radius.value, ...
-                                     ds.fermi.r_slit.value, ds.fermi.slit.value);
+                ds.fermi.rotation_speed.value, ds.fermi.radius.value, ...
+                ds.fermi.r_slit.value, ds.fermi.slit.value);
             ei = ds.fermi.energy.value;
             name = ds.name.value;
             instrument = IX_inst_DGfermi(mod, aperture, fermi, ei, 'name', name, 'source', src);
@@ -334,21 +324,21 @@ classdef loader_nxspe < a_loader
             ch1 = ds.shaping_chopper;
             slot_width = tand(abs(diff(ch1.slit_edges.value))) * ch1.radius.value;
             ch1 = IX_doubledisk_chopper('chopper_1', abs(ch1.transforms.CH1_T_AXIS.value), ...
-                                        ch1.rotation_speed.value, ch1.radius.value, slot_width);
+                ch1.rotation_speed.value, ch1.radius.value, slot_width);
             ch5 = ds.mono_chopper;
             slot_width = tand(abs(diff(ch5.slit_edges.value))) * ch5.radius.value;
             ch5 = IX_doubledisk_chopper('chopper_5', abs(ch5.transforms.CH5_T_AXIS.value), ...
-                                        ch5.rotation_speed.value, ch5.radius.value, slot_width);
+                ch5.rotation_speed.value, ch5.radius.value, slot_width);
             ang = ds.horiz_div.data.Horizontal_Divergence.value / 180 * pi;
             hdiv = IX_divergence_profile(ang, ds.horiz_div.data.Normalised_Beam_Profile.value);
             ang = ds.vert_div.data.Vertical_Divergence.value / 180 * pi;
             vdiv = IX_divergence_profile(ang, ds.vert_div.data.Normalised_Beam_Profile.value);
             instrument = IX_inst_DGdisk(mod, ch1, ch5, hdiv, vdiv, ds.fermi.energy.value, ...
-                                        'name', ds.name.value, 'source', src);
+                'name', ds.name.value, 'source', src);
         end
     end
-    
-    
+
+
 end
 
 

@@ -248,11 +248,12 @@ classdef test_loader_ascii < TestCase
 
         function test_get_data_info(obj)
             spe_file_name = fullfile(obj.test_data_path,'MAP10001.spe');
-            [ndet,en,file_name]=loader_ascii.get_data_info(spe_file_name);
+            %[ndet,en,file_name]=loader_ascii.get_data_info(spe_file_name);
+            fi =loader_ascii.get_data_info(spe_file_name);
 
-            assertEqual([31,1],size(en));
-            assertEqual(obj.EXPECTED_DET_NUM,ndet);
-            assertEqual(spe_file_name,file_name);
+            assertEqual([31,1],size(fi.en));
+            assertEqual(obj.EXPECTED_DET_NUM,fi.n_detindata_);
+            assertEqual(spe_file_name,fi.file_name_);
         end
 
         function test_can_load_and_init(obj)
@@ -272,19 +273,21 @@ classdef test_loader_ascii < TestCase
             la = loader_ascii();
             la=la.init(spe_file_name,fh);
 
-            [ndet,en,file_name]=loader_ascii.get_data_info(spe_file_name);
-            assertEqual(en,la.en);
-            assertEqual(file_name,la.file_name);
+            %[ndet,en,file_name]=loader_ascii.get_data_info(spe_file_name);
+            fi = loader_ascii.get_data_info(spe_file_name);
+
+            assertEqual(fi.en,la.en);
+            assertEqual(fi.file_name_,la.file_name);
 
             f=@()la.get_run_info();
             assertExceptionThrown(f,'A_LOADER:runtime_error');
 
             par_file_name =fullfile(obj.test_data_path,obj.test_par_file);
             la.par_file_name = par_file_name;
-            [ndet1,en1] = la.get_run_info();
+            [ndet_l,en_l] = la.get_run_info();
 
-            assertEqual(en,en1);
-            assertEqual(ndet,ndet1);
+            assertEqual(fi.en,en_l);
+            assertEqual(fi.n_detindata_,ndet_l);
 
         end
 

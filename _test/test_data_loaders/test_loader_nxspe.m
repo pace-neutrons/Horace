@@ -312,16 +312,17 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_get_data_info(obj)
-            nxspe_file_name = fullfile(obj.test_data_path,'MAP11014v2.nxspe');
-            [ndet,en,file_name,ei,psi,nexus_dir,nxspe_ver]=loader_nxspe.get_data_info(nxspe_file_name);
+            nxspe_file_name = fullfile(obj.test_data_path,'MAP11014v3.nxspe');
+            %[ndet,en,file_name,ei,psi,nexus_dir,nxspe_ver]=loader_nxspe.get_data_info(nxspe_file_name);
+            fi=loader_nxspe.get_data_info(nxspe_file_name);
 
-            assertEqual([31,1],size(en));
-            assertEqual(obj.EXPECTED_DET_NUM,ndet);
-            assertEqual(nxspe_file_name,file_name);
-            assertEqual(800,ei);
-            assertEqual(20,psi);
-            assertEqual('/11014.spe',nexus_dir);
-            assertEqual('1.2',nxspe_ver);
+            assertEqual([31,1],size(fi.en));
+            assertEqual(obj.EXPECTED_DET_NUM,fi.n_detindata_);
+            assertEqual(nxspe_file_name,fi.file_name_);
+            assertEqual(800,fi.efix);
+            assertEqual(20,fi.psi);
+            assertEqual('/11014.spe',fi.root_nexus_dir_);
+            assertEqual(1.3,fi.nxspe_version_);
         end
 
         function test_can_load_init_and_runinfo(obj)
@@ -340,15 +341,16 @@ classdef test_loader_nxspe < TestCase
             la = loader_nxspe();
             la=la.init(nxspe_file_name,fh);
 
-            [ndet,en,file_name,ei,psi]=loader_nxspe.get_data_info(nxspe_file_name);
-            assertEqual(en,la.en);
-            assertEqual(file_name,la.file_name);
-            assertEqual(ei,la.efix);
-            assertEqual(psi,la.psi);
+            %[ndet,en,file_name,ei,psi]=loader_nxspe.get_data_info(nxspe_file_name);
+            fi = loader_nxspe.get_data_info(nxspe_file_name);
+            assertEqual(fi.en,la.en);
+            assertEqual(fi.file_name_,la.file_name);
+            assertEqual(fi.efix,la.efix);
+            assertEqual(fi.psi,la.psi);
 
             [ndet1,en1] = la.get_run_info();
-            assertEqual(en,en1);
-            assertEqual(ndet,ndet1);
+            assertEqual(fi.en,en1);
+            assertEqual(fi.n_detindata_,ndet1);
         end
 
         function test_init_all(obj)
@@ -471,7 +473,7 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_load(obj)
-            dat_file =f_name(obj,'MAP11014v2.nxspe');
+            dat_file =f_name(obj,'MAP11014v3.nxspe');
             lx = loader_nxspe(dat_file);
             lx=lx.load();
 
