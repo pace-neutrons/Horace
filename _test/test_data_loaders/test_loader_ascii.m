@@ -350,6 +350,12 @@ classdef test_loader_ascii < TestCase
             assertEqual('',mess);
         end
 
+        function test_runid_from_filename(obj)
+            dat_file = fullfile(obj.test_data_path,'MAP10001.spe');
+            lx = loader_ascii(dat_file);
+            assertEqual(lx.run_id,10001)
+        end
+
         function test_mex_nomex(obj)
             if isempty(which('get_ascii_file'))
                 skipTest('no get_ascii_file.mex found so the test has been disabled')

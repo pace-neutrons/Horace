@@ -227,7 +227,7 @@ classdef loader_nxspe < a_loader
 
         function obj = find_run_id(obj)
             if obj.nxspe_version_ > 1.2
-                obj.run_id_ = h5read(obj.file_name,[obj.root_nexus_dir_,'/instrument/run_number']);
+                obj.run_id_ = double(h5read(obj.file_name,[obj.root_nexus_dir_,'/instrument/run_number']));
             else
                 obj = find_run_id@a_loader(obj);
             end

@@ -244,12 +244,18 @@ classdef test_loader_nxspe < TestCase
             %assertElementsAlmostEqual(nxpse_phx(5,:),ascii_phx(5,:),'relative',1.e-4);
         end
 
+        function test_run_id_from_file_certainly(obj)        
+            file = f_name(obj,'inst_let_ei3p7_240_120.nxspe');
+            ll = loader_nxspe(file);
+            assertEqual(ll.run_id,666);
+        end
+
         function test_load_inst_info_from_nxspe(obj)
             ref_inst = {let_instrument(3.7, 240, 120, 31, 2, '-version', 2) ...
-                        maps_instrument(400, 600, 's', '-version', 2, '-moderator', 'base2016') ...
-                        merlin_instrument(120, 600, 'g', '-moderator', 'base2016')};
+                maps_instrument(400, 600, 's', '-version', 2, '-moderator', 'base2016') ...
+                merlin_instrument(120, 600, 'g', '-moderator', 'base2016')};
             nxspes = {'inst_let_ei3p7_240_120.nxspe', 'inst_maps_ei400_600hz.nxspe', ...
-                      'inst_merlin_ei120_600hz.nxspe'};
+                'inst_merlin_ei120_600hz.nxspe'};
             for ii = 1:numel(nxspes)
                 nxspe_inst = loader_nxspe(f_name(obj, nxspes{ii})).get_instrument();
                 assertEqual(nxspe_inst.to_struct(), ref_inst{ii}.to_struct(), '', [1e-9, 0.01]);
@@ -326,7 +332,7 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_can_load_init_and_runinfo(obj)
-            spe_file_name = fullfile(obj.test_data_path,'MAP10001.spe');
+            spe_file_name   = fullfile(obj.test_data_path,'MAP10001.spe');
             nxspe_file_name = fullfile(obj.test_data_path,'MAP11014.nxspe');
 
 
@@ -470,6 +476,18 @@ classdef test_loader_nxspe < TestCase
             loader = loader_nxspe(f_name(obj,'MAP11014.nxspe'));
             fields = defined_fields(loader);
             assertEqual({'S','ERR','en','efix','psi','det_par','n_detectors','n_det_in_par'},fields);
+        end
+
+        function test_runid_from_nxspe(obj)
+            dat_file =f_name(obj,'MAP11014v3.nxspe');
+            lx = loader_nxspe(dat_file);
+            assertEqual(lx.run_id,1104)
+        end
+        
+        function test_runid_from_filename(obj)
+            dat_file =f_name(obj,'MAP11014.nxspe');
+            lx = loader_nxspe(dat_file);
+            assertEqual(lx.run_id,11014)
         end
 
         function test_load(obj)
