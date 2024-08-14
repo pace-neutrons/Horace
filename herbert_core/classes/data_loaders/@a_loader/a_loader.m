@@ -30,11 +30,11 @@ classdef a_loader < a_detpar_loader_interface
         ERR
         % energy boundaries
         en
-        % the variable which describes the file from which main part or
-        % all data should be loaded
+        % the string containibng the full file name of the file from which
+        % the main part or all data should be loaded.
         file_name
 
-        run_id % the number with identifies run on instrument
+        run_id % the number which identifies run on instrument
 
         isvalid
         reason_for_invalid;
