@@ -703,7 +703,7 @@ classdef a_loader < a_detpar_loader_interface
             %             unmabgled par of file_name if $id% was present
             %
             if isempty(file_name)
-                id = 0;
+                id = NaN;
                 filename = '';
                 return
             end
