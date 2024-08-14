@@ -13,15 +13,23 @@ function datastruct = read_nexus_groups_recursive(filename, nexus_path)
     %
     switch class(filename)
       case 'struct'
+          try
         if ~isfield(filename, 'Filename')
             error('HERBERT:hdf_nexus:read_nexus_groups_recursive', 'filename and nexus_path must be strings');
         elseif exist('nexus_path', 'var')
             error('HERBERT:hdf_nexus:read_nexus_groups_recursive', 'filename provided as struct, but nexus_path also provided');
         end
-
+          catch ME
+              disp(' ')
+          end
+        try
         dinfo = filename;
         filename = dinfo.Filename;
+        catch ME
+            disp(' ')
+        end
       case {'string', 'char'}
+          try
         if ~exist('nexus_path', 'var')
             error('HERBERT:hdf_nexus:read_nexus_groups_recursive', 'filename provided as string, but nexus_path not provided');
         end
@@ -31,6 +39,9 @@ function datastruct = read_nexus_groups_recursive(filename, nexus_path)
         else
             dinfo = nexus_path;
         end
+          catch ME
+              disp(' ')
+          end
 
       otherwise
         error('HERBERT:hdf_nexus:read_nexus_groups_recursive', ...
@@ -38,14 +49,53 @@ function datastruct = read_nexus_groups_recursive(filename, nexus_path)
               class(filename), class(nexus_path));
 
     end
+    try
     datastruct = read_nexus_datasets(filename, dinfo);
+    catch ME
+        disp(' ')
+    end
     for ii = 1:numel(dinfo.Groups)
+        try
         pathfields = split(dinfo.Groups(ii).Name, '/');
-        datastruct.(pathfields{end}) = read_nexus_groups_recursive(filename, dinfo.Groups(ii));
+        catch ME
+            disp(' ')
+        end
+        % while spurious fields starting 'rep_' are present in nxspe files, ignore them.
+        % the formation of the datastruct field has been split up to ensure that the 'rep_'
+        % field does not generate an invalid field error (unclear why this was happening 
+        % but the refactor here fixes it.)
+        try
+            pfe = pathfields(end);
+            pfe{1}
+            if strncmp(pfe{1},'rep_',4)
+                disp(' ')
+                isrep = true;
+            elseif strcmp(pfe{1},'moderator')
+                disp(' ')
+                isrep = false;
+            else
+                isrep = false;
+            end
+        catch ME
+            disp(' ');
+        end
+        if ~isrep
+        try
+        substruct = read_nexus_groups_recursive(filename, dinfo.Groups(ii));
+        catch ME
+            disp(' ');
+        end
+        try
+        datastruct.(pfe{1}) = substruct;
+        catch ME
+            disp(' ');
+        end
+        end
     end
 end
 
 function datasets = read_nexus_datasets(filename, nexus_struct)
+try
     datasets = struct();
     for ii = 1:numel(nexus_struct.Datasets)
         nexus_path = [nexus_struct.Name '/' nexus_struct.Datasets(ii).Name];
@@ -57,4 +107,7 @@ function datasets = read_nexus_datasets(filename, nexus_struct)
         fieldname = replace(nexus_struct.Datasets(ii).Name, ' ', '_');
         datasets.(fieldname) = fieldstruct;
     end
+catch ME
+    disp(' ')
+end
 end
