@@ -14,3 +14,6 @@ if isempty(obj.loader)
 end
 ld  = obj.loader;
 id  = ld.run_id;
+if isnan(id)
+    id = 0;
+end
