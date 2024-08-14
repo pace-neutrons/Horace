@@ -56,7 +56,7 @@ switch textb
 % *** with:
         if ~isempty(val)
             if val < d.clim(1,2)
-                sliceomatic('ISONew1',[val,d.clim(1,2)])
+                sliceomatic('ISONew1',[val,d.clim(1,2)]);
             else
                 disp('Error in input - must be less than current maximum intensity setting')
                 set(h,'String',d.clim(1,1));
