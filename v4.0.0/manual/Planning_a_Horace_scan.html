@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1. Planning a Horace scan &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2. Generating SQW files" href="Generating_SQW_files.html" />
+    <link rel="prev" title="Horace Manual" href="../Horace_manual.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1. Planning a Horace scan</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#horace-planner-a-simple-scan-planner">1.1. horace_planner: a simple scan planner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#more-detailed-planning-of-scans">1.2. More detailed planning of scans</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">2. Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">3. Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Special_sqw_information.html">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">9. Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">12. Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">13. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">15. Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">16. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">17. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">18. Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">1. </span>Planning a Horace scan</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Planning_a_Horace_scan.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="planning-a-horace-scan">
+<h1><span class="section-number">1. </span>Planning a Horace scan<a class="headerlink" href="#planning-a-horace-scan" title="Link to this heading"></a></h1>
+<section id="horace-planner-a-simple-scan-planner">
+<h2><span class="section-number">1.1. </span>horace_planner: a simple scan planner<a class="headerlink" href="#horace-planner-a-simple-scan-planner" title="Link to this heading"></a></h2>
+<p>Horace has a useful little tool which allows you to work out the coverage of
+reciprocal space that will be achieved for a given instrument, the incident
+energy and the sample angle range.</p>
+<p>You start it up by typing</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">horace_planner</span>
+</pre></div>
+</div>
+<p>The graphical user interface shown below should open up</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/Screenshot-Horace_Planner.png"><img alt="2d simulation" src="../_images/Screenshot-Horace_Planner.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">Horace planner GUI</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<ul class="simple">
+<li><p>You first select the <code class="docutils literal notranslate"><span class="pre">.par</span></code> file associated with your instrument (which
+specifies detector positions), by browsing to it, and then clicking <code class="docutils literal notranslate"><span class="pre">LOAD</span></code>.</p></li>
+<li><p>Next you enter the vector <strong>u</strong> and <strong>v</strong> as comma-separated lists.</p>
+<ul>
+<li><p><strong>u</strong> is the <strong>Q</strong>-space direction parallel to the incident beam when the
+crystal rotation angle, <span class="math notranslate nohighlight">\(\psi\)</span>, is equal to 0</p></li>
+<li><p><strong>v</strong> is a second vector not parallel to <strong>u</strong> lying in the equatorial plane
+of the detectors (horizontal for most instruments).</p></li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is not necessary for <strong>v</strong> to be perpendicular to <strong>u</strong>.</p>
+</div>
+<ul class="simple">
+<li><p>Enter the lattice parameters (in Angstroms) and lattice angles (in degrees) of
+your sample as comma-separated lists.</p></li>
+<li><p>Enter the incident energy, <span class="math notranslate nohighlight">\(E_i\)</span>, and the energy transfer you are
+interested in, then the minimum and maximum values of <span class="math notranslate nohighlight">\(\psi\)</span> you are
+considering.</p></li>
+<li><p>Now hit <code class="docutils literal notranslate"><span class="pre">Calculate</span></code> and the coverage is calculated. The axes of the three
+plots are the <strong>Q</strong> directions parallel to <strong>u</strong> and <strong>v</strong>, and the
+out-of-plane direction, respectively. The axes are labelled with inverse
+Angstroms, and circles are shown at integer <span class="math notranslate nohighlight">\((h,k,l)\)</span> positions.</p></li>
+<li><p>The three views shown in the image above correspond to looking at the
+<strong>Q</strong>-coverage volume from three different perspectives.</p>
+<ul>
+<li><p>Top-left we see the view from above (i.e. down an axis perpendicular
+to <strong>u</strong> and <strong>v</strong>)</p></li>
+<li><p>Top-right we see the view from the right-hand side (i.e. along <strong>u</strong>
+from the positive side)</p></li>
+<li><p>Bottom-left we see a view from the bottom (i.e. along <strong>v</strong> from the
+negative side)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="more-detailed-planning-of-scans">
+<h2><span class="section-number">1.2. </span>More detailed planning of scans<a class="headerlink" href="#more-detailed-planning-of-scans" title="Link to this heading"></a></h2>
+<p>The scan planner shown above is quick and simple to use, but sometimes you need
+greater detail about what reciprocal space coverage you will get for a given
+scan. To do this, you can generate a fake dataset, where the <code class="docutils literal notranslate"><span class="pre">signal</span></code> is
+represented as the angle of of the contributing scan at each point.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This process can be rather slow. Often it is better to check using the simple
+scan planner detailed above first before making decisions.</p>
+</div>
+<p>An example script for generating fake data is given below.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">en</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span><span class="mi">190</span><span class="p">];</span><span class="w">  </span><span class="c">% energy bins (coarse for simulation)</span>
+<span class="n">par_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/usr/local/mprogs/Libisis/InstrumentFiles/maps/4to1_124.par&#39;</span><span class="p">;</span><span class="w">  </span><span class="c">% detector parameter file</span>
+<span class="n">sqw_file_fake</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/home/maps/maps_users/Gruenwald/fake_200meV.sqw&#39;</span><span class="p">;</span><span class="w">         </span><span class="c">% name of output file</span>
+
+<span class="n">efix</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">200</span><span class="p">;</span><span class="w">  </span><span class="c">% incident energy</span>
+<span class="n">emode</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">   </span><span class="c">% select 1 for direct geometry spectrometer</span>
+
+<span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">5.7</span><span class="p">,</span><span class="w"> </span><span class="mf">5.7</span><span class="p">,</span><span class="w"> </span><span class="mf">5.7</span><span class="p">];</span>
+<span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">];</span>
+
+<span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span>
+<span class="n">v</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span>
+
+<span class="nb">psi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">90</span><span class="p">:</span><span class="mi">0</span><span class="p">];</span><span class="w">  </span><span class="c">% scan range in degrees</span>
+
+<span class="n">omega</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">dpsi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">gl</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">gs</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="n">dummy_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">en</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file_fake</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="w">           </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Once you have created this fake dataset you can take cuts and slices out of it
+in exactly the same way as you would a real dataset. For example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w">  </span><span class="c">% viewing axes for plots</span>
+
+<span class="n">my_l</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="mi">2</span><span class="p">];</span><span class="w">  </span><span class="c">% loop over a set of values of L</span>
+
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">my_l</span><span class="p">)</span>
+<span class="w">    </span><span class="n">my_slice</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">sqw_file_fake</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="n">my_l</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="n">my_l</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="o">+</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">80</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">my_slice</span><span class="p">(</span><span class="nb">i</span><span class="p">)));</span>
+<span class="w">    </span><span class="n">keep_figure</span><span class="p">;</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/Scan_figure.png"><img alt="2d simulation" src="../_images/Scan_figure.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">Sample plot of fake dataset</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../Horace_manual.html" class="btn btn-neutral float-left" title="Horace Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Generating_SQW_files.html" class="btn btn-neutral float-right" title="2. Generating SQW files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Aug 15, 2024, 5:05:37 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/manual/Planning_a_Horace_scan.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

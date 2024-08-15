@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5. Cutting data of interest from SQW files and objects &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="6. Special SQW information from sqw objects and files" href="Special_sqw_information.html" />
+    <link rel="prev" title="4. Correcting for sample misalignment" href="Correcting_for_sample_misalignment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">1. Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">2. Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">3. Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">5. Cutting data of interest from SQW files and objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cut">5.1. cut</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#datasource">5.1.1. Data Source</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#projection-proj">5.1.2. Projection (proj)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#binning-arguments">5.1.3. Binning arguments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#file-and-memory-backed-cuts">5.1.4. File- and memory-backed cuts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#projection-in-more-details">5.1.5. Projection in more details</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#lattice-based-projections-line-proj">5.1.5.1. Lattice based projections (<code class="docutils literal notranslate"><span class="pre">line_proj</span></code>)</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#non-orthogonal-axes">5.1.5.1.1. Non-orthogonal axes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="#line-proj-2d-cut-examples-fe-scattering-function">5.1.5.1.2. <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> 2D cut examples: Fe Scattering Function</a></li>
+<li class="toctree-l6"><a class="reference internal" href="#line-proj-1d-cut-example">5.1.5.1.3. <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> 1D cut example</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="#spherical-projections">5.1.5.2. Spherical Projections</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sphere-proj-2d-and-1d-cuts-examples">5.1.5.2.1. <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> 2D and 1D cuts examples:</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="#cylindrical-projections">5.1.5.3. Cylindrical Projections</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#cylinder-proj-2d-and-1d-cuts-examples">5.1.5.3.1. <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> 2D and 1D cuts examples:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#additional-notes">5.1.6. Additional notes</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#changing-projections">5.1.6.1. Changing Projections</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#legacy-calls-to-cut-cut-sqw-and-cut-dnd">5.1.7. Legacy calls to <code class="docutils literal notranslate"><span class="pre">cut</span></code>: <code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">cut_dnd</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#section">5.2. section</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Special_sqw_information.html">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">9. Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">12. Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">13. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">15. Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">16. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">17. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">18. Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">5. </span>Cutting data of interest from SQW files and objects</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Cutting_data_of_interest_from_SQW_files_and_objects.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cutting-data-of-interest-from-sqw-files-and-objects">
+<h1><span class="section-number">5. </span>Cutting data of interest from SQW files and objects<a class="headerlink" href="#cutting-data-of-interest-from-sqw-files-and-objects" title="Link to this heading"></a></h1>
+<p>Horace <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object is the main object Horace operates with.
+It contains full information about the results of a neutron experiment.
+This information includes information about each neutron “event” registered
+in the experiment which is stored in a 1-D dataset called the “pixels”.
+The dataset is usually the major by size part of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p>
+<p>Another part of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object is a 0 to 4-dimensional histogram (binning)
+of the “pixels”  in reciprocal space (<code class="docutils literal notranslate"><span class="pre">hkl-dE</span></code>) which we call the “image”.
+This carries only limited information about the original data, i.e. only the
+averaged neutron intensity contributed into the reciprocal space bins.
+The “image” is the main part of Horace’s <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object – the second by importance Horace’s object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For the differences between <code class="docutils literal notranslate"><span class="pre">dnd</span></code> and <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects see: <a class="reference internal" href="FAQ.html#what-is-the-difference-between-sqw-and-dnd-objects"><span class="std std-ref">here</span></a></p>
+</div>
+<p>Generally, rather than attempting to deal with the full experimental
+data, a user works with smaller objects, extracted from the full dataset using
+<code class="docutils literal notranslate"><span class="pre">cut</span></code>. This is for multiple reasons including:</p>
+<ul class="simple">
+<li><p>The 4-dimensional dataset is impossible to visualise, as only 3-d (through
+slice-o-matic), 2-d and 1-d cuts can be easily represented.</p></li>
+<li><p>The entire dataset is often too large to fit in the memory of most computers.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>“pixels” in 1D dataset are arranged in such a way, that simple calculation allows
+to identify “pixels” contributing into every bin of a <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object’s <code class="docutils literal notranslate"><span class="pre">image</span></code>.
+<code class="docutils literal notranslate"><span class="pre">cut</span></code> uses this information to extract relevant pixels and maintains
+the arrangement between bins and “pixels” for resulting <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p>
+</div>
+<section id="cut">
+<h2><span class="section-number">5.1. </span>cut<a class="headerlink" href="#cut" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">cut</span></code> takes a (or multiple) section(s) of data from an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code>
+object or file, discards the pixels which lie outside of the binning regions
+(described <a class="reference external" href="#binning-arguments">below</a>) from an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and accumulates them
+into a histogram (the “image” or <code class="docutils literal notranslate"><span class="pre">dnd</span></code>, which may be independent if requested
+or attached to the parent <code class="docutils literal notranslate"><span class="pre">sqw</span></code>). It can return an object or file depending on
+the parameters given.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cut</span></code> can produce objects of the same or reduced size and dimensions. The
+result of a cut is itself an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object which can be further
+plotted, manipulated, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the resulting object is estimated by Horace to be too big to fit in
+memory, it will be saved to disc, but will appear mostly indistinguishable
+from a memory-backed <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, supporting most operations. We call this
+a “file-backed <code class="docutils literal notranslate"><span class="pre">sqw</span></code>” (for more detail see: <a class="reference internal" href="#file-and-memory-backed-cuts">File- and memory-backed
+cuts</a>). When the manual refers to an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object both “file-backed” and
+“memory-backed” are included.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>File-backed objects may be significantly slower to operate on than memory
+backed ones.</p>
+</div>
+</div>
+<p>The inputs are as follows:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">my_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">[,</span><span class="w"> </span><span class="n">proj</span><span class="p">],</span><span class="w"> </span><span class="n">p1_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p2_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p3_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p4_bin</span><span class="p">[,</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">][,</span><span class="w"> </span><span class="n">sym</span><span class="p">][,</span><span class="w"> </span><span class="n">filename</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="#datasource">data_source</a> is either a string giving the full filename (including
+path) of an input sqw file or a variable containing a <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p></li>
+<li><p><a class="reference external" href="#projection-proj">proj</a> defines the axes and origin of the cut including
+the shape of the region to extract and the representation in the resulting
+histogram.</p></li>
+<li><p><a class="reference external" href="#binning-arguments">pN_bin</a> describe the histogram bins to capture the
+data.</p></li>
+</ul>
+<p>There are also several extra optional arguments which are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-nopix</span></code>  drop the “pixels” from the resulting object returning just the <code class="docutils literal notranslate"><span class="pre">dnd</span></code> binned
+data (the “image”). This option is faster and the resulting object requires
+less memory, but is also more restricted in what you can do with the result.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sym</span></code>  cell array of symmetry operations. For a full description of usage, <a class="reference internal" href="Symmetrising_etc.html#cutting"><span class="std std-ref">see
+here</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code> - if provided, uses file-backed algorithms to write the resulting object
+directly to a file named <code class="docutils literal notranslate"><span class="pre">filename</span></code> and return a file-backed <code class="docutils literal notranslate"><span class="pre">sqw</span></code>.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">cut</span></code> is called without a return argument, the <code class="docutils literal notranslate"><span class="pre">filename</span></code> option is
+mandatory.</p>
+</div>
+<section id="datasource">
+<span id="id1"></span><h3><span class="section-number">5.1.1. </span>Data Source<a class="headerlink" href="#datasource" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">data_source</span></code> in <code class="docutils literal notranslate"><span class="pre">cut</span></code> is either a string giving the full filename (including path) of
+the input <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file or just the variable containing an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code>
+object stored in memory from which the pixels will be taken.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>By convention both <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects use the <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> suffix when
+stored to disc. It is advisable to name the file appropriately to distinguish
+the types stored inside, e.g. <code class="docutils literal notranslate"><span class="pre">MnO2_sqw.sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">MnO2_d2d.sqw</span></code>.</p>
+</div>
+</section>
+<section id="projection-proj">
+<h3><span class="section-number">5.1.2. </span>Projection (proj)<a class="headerlink" href="#projection-proj" title="Link to this heading"></a></h3>
+<p>The projection defines the coordinate system and thus the meaning of the
+<a class="reference internal" href="#binning-arguments">Binning arguments</a> and the presentation of the data.</p>
+<p><code class="docutils literal notranslate"><span class="pre">proj</span></code> should be a projection type such as <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code>,
+etc. which contains information about the desired coordinate system representation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To take a cut from an existing <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object while retaining the
+existing projection, provide an empty <code class="docutils literal notranslate"><span class="pre">proj</span></code> argument:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[</span><span class="n">lo1</span><span class="p">,</span><span class="w"> </span><span class="n">hi1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="n">lo2</span><span class="p">,</span><span class="w"> </span><span class="n">hi2</span><span class="p">],</span><span class="w"> </span><span class="k">...</span><span class="c">)</span>
+</pre></div>
+</div>
+</div>
+<p>Different projections are covered in the <a href="#id17"><span class="problematic" id="id18">`Projection in more detail`_</span></a> section below.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Changing projection does not change the underlying pixels, merely its
+representation (binning) in the image and how thus it appears when plotted.</p>
+<p>It does, however, affect which pixels are selected and which are discarded
+when making a cut.</p>
+</div>
+</section>
+<section id="binning-arguments">
+<h3><span class="section-number">5.1.3. </span>Binning arguments<a class="headerlink" href="#binning-arguments" title="Link to this heading"></a></h3>
+<p>The binning arguments (<code class="docutils literal notranslate"><span class="pre">p1_bin</span></code>, <code class="docutils literal notranslate"><span class="pre">p2_bin</span></code>, <code class="docutils literal notranslate"><span class="pre">p3_bin</span></code> and <code class="docutils literal notranslate"><span class="pre">p4_bin</span></code>)
+specify the binning / integration ranges for the Q &amp; Energy axes in <strong>the target
+projection’s</strong> coordinate system (c.f. <a href="#id19"><span class="problematic" id="id20">`Projection in more detail`_</span></a> and
+<a class="reference internal" href="#changing-projections">changing projections</a>).</p>
+<p>Each can independently have one of four different forms below.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The meaning of the first, second, third, etc. component in <code class="docutils literal notranslate"><span class="pre">pN_bin</span></code> changes
+between each form. Ensure that you have the correct value in each component
+to ensure your cut is what you expect.</p>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code>  An empty binning range will use the source binning axes in that dimension.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[step]</span></code>  A single (scalar) number defines a plot axis.
+The bin width will be equal to the number you specify. The lower and upper
+limits will be from the source binning axes in that dimension.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A value of <code class="docutils literal notranslate"><span class="pre">[0]</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">[step]</span></code> using bin size of the source
+coordinate system.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When changing projections e.g. <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> to <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code>, using either
+<code class="docutils literal notranslate"><span class="pre">[]</span></code> or <code class="docutils literal notranslate"><span class="pre">[step]</span></code> see, <a class="reference internal" href="#changing-projections">changing projections</a> below.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">[lower,upper]</span></code>  A vector with two components defines an integration axis.</p>
+<blockquote>
+<div><p>The signal will be integrated over that axis between the limits specified by
+the two components of the vector.</p>
+</div></blockquote>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>A two-component binning axis defines the integration region between bin
+edges. For example, <code class="docutils literal notranslate"><span class="pre">[-1</span> <span class="pre">1]</span></code> will capture pixels from <code class="docutils literal notranslate"><span class="pre">-1</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code>
+inclusive.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">[lower,step,upper]</span></code>  A vector with three components defines a plot axis.</p>
+<blockquote>
+<div><p>The first <code class="docutils literal notranslate"><span class="pre">lower</span></code> and the last <code class="docutils literal notranslate"><span class="pre">upper</span></code> components specifying the centres
+of the first and the last bins of the data to be cut. The middle component
+specifies the bin width.</p>
+</div></blockquote>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">step</span></code> is <code class="docutils literal notranslate"><span class="pre">0</span></code>, the <code class="docutils literal notranslate"><span class="pre">step</span></code> is taken from the source binning axes.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>A three-component binning axis defines the integration region by bin centres,
+i.e. the limits of the data to be cut lie between <code class="docutils literal notranslate"><span class="pre">min</span> <span class="pre">=</span> <span class="pre">lower-step/2</span></code> and
+<code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">=</span> <span class="pre">upper+step/2</span></code>, including <code class="docutils literal notranslate"><span class="pre">min/max</span></code> values. For example, <code class="docutils literal notranslate"><span class="pre">[-1</span> <span class="pre">1</span>
+<span class="pre">1]</span></code> will capture pixels from <code class="docutils literal notranslate"><span class="pre">-1.5</span></code> to <code class="docutils literal notranslate"><span class="pre">1.5</span></code> inclusive.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">[lower,</span> <span class="pre">separation,</span> <span class="pre">upper,</span> <span class="pre">cut_width]</span></code>  A vector with four components defines <strong>multiple</strong> integration axes with
+<strong>multiple</strong> integration limits in the selected direction.</p>
+<p>These components are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">lower</span></code>   Position of the lowest cut bin-centre.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">separation</span></code>  Distance between cut bin-centres.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upper</span></code>   Approximate (see <a class="reference internal" href="#separation-warn"><span class="std std-ref">below</span></a>) position of highest cut bin-centre</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cut_width</span></code>   Width of each cut, centred on each bin-centre, thus extending one half-width
+in both directions</p></li>
+</ul>
+<p>The number of cuts produced will be one more than the number of
+<code class="docutils literal notranslate"><span class="pre">separation</span></code>-sized steps between <code class="docutils literal notranslate"><span class="pre">lower</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code>.</p>
+</li>
+</ul>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../_images/4-element-diag.png"><img alt="../_images/4-element-diag.png" src="../_images/4-element-diag.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">Diagram showing the relationship between the 4 binning parameters
+and their meaning in the context of a cut, where: <code class="docutils literal notranslate"><span class="pre">lower</span> <span class="pre">=</span> <span class="pre">1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">upper</span> <span class="pre">=</span> <span class="pre">7</span></code>, <code class="docutils literal notranslate"><span class="pre">separation</span> <span class="pre">=</span> <span class="pre">2</span></code> and <code class="docutils literal notranslate"><span class="pre">cut_width</span> <span class="pre">=</span> <span class="pre">0.6</span></code>, i.e <code class="docutils literal notranslate"><span class="pre">[1,</span>
+<span class="pre">2,</span> <span class="pre">7,</span> <span class="pre">0.6]</span></code>. <span class="math notranslate nohighlight">\(\zeta\)</span> and <span class="math notranslate nohighlight">\(\xi\)</span> are arbitrary axes
+where <span class="math notranslate nohighlight">\(\zeta\)</span> is the specified axis. This will produce 4 cut
+objects around <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">3</span></code>, <code class="docutils literal notranslate"><span class="pre">5</span></code> and <code class="docutils literal notranslate"><span class="pre">7</span></code>.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="admonition warning" id="separation-warn">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">upper</span></code> will be automatically increased such that <code class="docutils literal notranslate"><span class="pre">separation</span></code> evenly
+divides <code class="docutils literal notranslate"><span class="pre">upper</span> <span class="pre">-</span> <span class="pre">lower</span></code>.  For example, <code class="docutils literal notranslate"><span class="pre">[106,</span> <span class="pre">4,</span> <span class="pre">113,</span> <span class="pre">2]</span></code> defines the
+integration ranges for three cuts, the first cut integrates the axis over
+<code class="docutils literal notranslate"><span class="pre">105-107</span></code>, the second over <code class="docutils literal notranslate"><span class="pre">109-111</span></code> and the third <code class="docutils literal notranslate"><span class="pre">113-115</span></code>.</p>
+</div>
+</section>
+<section id="file-and-memory-backed-cuts">
+<h3><span class="section-number">5.1.4. </span>File- and memory-backed cuts<a class="headerlink" href="#file-and-memory-backed-cuts" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cut</span></code> generally tries to return its result in memory. However, if the
+resulting object is sufficiently large (the threshold of which is the product of
+<code class="docutils literal notranslate"><span class="pre">mem_chunk_size</span></code> and <code class="docutils literal notranslate"><span class="pre">fb_scale_factor</span></code> defined in the <a class="reference internal" href="Changing_Horace_settings.html#horace-config"><span class="std std-ref">Horace config</span></a>), the object is written to a
+temporary file and will be “file-backed”.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The file being temporary means that it will be deleted when the <code class="docutils literal notranslate"><span class="pre">sqw</span></code>
+object backed by this file is deleted.</p>
+</div>
+<p>If the <code class="docutils literal notranslate"><span class="pre">filename</span></code> argument is provided to <code class="docutils literal notranslate"><span class="pre">cut</span></code>, the object will always
+saved to a file with this name and the returned object will be backed by this
+file. This file will not be a temporary file.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object is backed by a temporary file, the object and its
+descendants (through subsequent operations) will all be temporary.</p>
+<p>To ensure an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> is kept, you can <a class="reference internal" href="Save_and_load.html#save"><span class="std std-ref">save</span></a> this
+object to a file permanently.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Operations with file-backed objects are substantially slower then
+memory-backed objects.</p>
+<p>This is because the objects themselves are usually bigger, and because
+reading data from disc is around three orders of magnitude slower than from
+memory.</p>
+</div>
+</section>
+<section id="projection-in-more-details">
+<h3><span class="section-number">5.1.5. </span>Projection in more details<a class="headerlink" href="#projection-in-more-details" title="Link to this heading"></a></h3>
+<p>As mentioned in <a class="reference internal" href="#projection-proj">Projection (proj)</a>, the <code class="docutils literal notranslate"><span class="pre">proj</span></code> argument defines the coordinate
+system of the histogrammed image.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Horace, prior to version 4.0.0, used a structure with fields <code class="docutils literal notranslate"><span class="pre">u</span></code>,
+<code class="docutils literal notranslate"><span class="pre">v</span></code>, … or else a <code class="docutils literal notranslate"><span class="pre">projaxes</span></code> object, to define the image coordinate
+system. This has been replaced by the <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>. You can still
+call <code class="docutils literal notranslate"><span class="pre">cut</span></code> with these structures, however, it will issue a
+warning and construct a <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> internally.</p>
+</div>
+<section id="lattice-based-projections-line-proj">
+<h4><span class="section-number">5.1.5.1. </span>Lattice based projections (<code class="docutils literal notranslate"><span class="pre">line_proj</span></code>)<a class="headerlink" href="#lattice-based-projections-line-proj" title="Link to this heading"></a></h4>
+<p>The most common type of projection for single-crystal experiments is the
+<code class="docutils literal notranslate"><span class="pre">line_proj</span></code> which defines a (usually orthogonal, but not necessarily) system
+of linear coordinates from a set of basis vectors.</p>
+<p>The complete signature for <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">[,[],</span><span class="n">w</span><span class="p">][,</span><span class="w"> </span><span class="n">nonorthogonal</span><span class="p">][,</span><span class="w"> </span><span class="nb">type</span><span class="p">][,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">][,</span><span class="w"> </span><span class="n">offset</span><span class="p">][,</span><span class="w"> </span><span class="n">label</span><span class="p">][,</span><span class="w"> </span><span class="nb">title</span><span class="p">][,</span><span class="w"> </span><span class="n">lab1</span><span class="p">][,</span><span class="w"> </span><span class="n">lab2</span><span class="p">][,</span><span class="w"> </span><span class="n">lab3</span><span class="p">][,</span><span class="w"> </span><span class="n">lab4</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>Where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code>  3-vector in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> specifying first viewing axis.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code>  3-vector in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> in the plane of the second viewing axis.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code>  3-vector of in reciprocal space <span class="math notranslate nohighlight">\((h,k,l)\)</span> of the third viewing axis.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The first viewing axis is strictly defined to be <code class="docutils literal notranslate"><span class="pre">u</span></code>.
+The second viewing axis is constructed by default to be in the plane of <code class="docutils literal notranslate"><span class="pre">u</span></code>
+and <code class="docutils literal notranslate"><span class="pre">v</span></code> and perpendicular to <code class="docutils literal notranslate"><span class="pre">u</span></code>.
+The third viewing axes is by default defined as the cross product of the first
+two (<span class="math notranslate nohighlight">\(u \times{} v\)</span>).</p>
+<p>The fourth viewing axis is always energy and cannot be modified.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>None of these vectors can be collinear. An error will be thrown
+in this case.</p>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> of a <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> are distinct from the vectors <code class="docutils literal notranslate"><span class="pre">u</span></code>
+and <code class="docutils literal notranslate"><span class="pre">v</span></code> that are specified in <a class="reference internal" href="Generating_SQW_files.html#gen-sqw"><span class="std std-ref">gen_sqw</span></a>, which describe how the crystal is
+oriented with respect to the spectrometer and are determined by the physical
+orientation of your sample.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> are defined in the reciprocal lattice basis so if the crystal
+axes are not orthogonal, they are not necessarily orthogonal in
+reciprocal space.</p>
+<p>E.g.:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">angdeg</span><span class="w"> </span><span class="s">%</span><span class="w"> </span><span class="p">=</span><span class="o">&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">60</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="mi">90</span><span class="p">]</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>such that <code class="docutils literal notranslate"><span class="pre">u</span></code> = <span class="math notranslate nohighlight">\([1,0,0]\)</span> and <code class="docutils literal notranslate"><span class="pre">v</span></code> = <span class="math notranslate nohighlight">\([0,1,0]\)</span>. The
+reciprocal space projection will actually be skewed according to <code class="docutils literal notranslate"><span class="pre">angdeg</span></code>.</p>
+</div>
+<ul class="simple" id="nonortho">
+<li><p><code class="docutils literal notranslate"><span class="pre">nonorthogonal</span></code> Whether lattice vectors are allowed to be non-orthogonal</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you don’t specify <code class="docutils literal notranslate"><span class="pre">nonorthogonal</span></code>, or set it to <code class="docutils literal notranslate"><span class="pre">false</span></code>, you will get
+orthogonal axes defined by <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> normal to <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">u</span></code> <span class="math notranslate nohighlight">\(\times\)</span>
+<code class="docutils literal notranslate"><span class="pre">v</span></code>. Setting <code class="docutils literal notranslate"><span class="pre">nonorthogonal</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code> forces the axes to be exactly the ones
+you define, even if they are not orthogonal in the crystal lattice basis.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Any plots produced using a non-orthogonal basis will plot them as though
+the basis vectors are orthogonal, so features may be distorted (see
+<a class="reference external" href="#non-orthogonal-axes">below</a>) .</p>
+</div>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>  Three character string denoting the the projection normalization of each of
+the three <strong>Q</strong>-axes, one character for each axis, e.g. <code class="docutils literal notranslate"><span class="pre">'aaa'</span></code>, <code class="docutils literal notranslate"><span class="pre">'rrr'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'ppp'</span></code>.</p>
+<p>There are 3 possible options for each element of <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code> Inverse angstroms</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code>  Reciprocal lattice units (r.l.u.) which normalises so that the maximum of
+<span class="math notranslate nohighlight">\(|h|\)</span>, <span class="math notranslate nohighlight">\(|k|\)</span> and <span class="math notranslate nohighlight">\(|l|\)</span> is unity.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'p'</span></code> Preserve the values of <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code></p></li>
+</ol>
+<p>For example, if we wanted the first two <strong>Q</strong>-components to be in r.l.u. and
+the third to be in inverse Angstroms we would have <code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">=</span> <span class="pre">'rra'</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alatt</span></code>   3-vector of lattice parameters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angdeg</span></code>  3-vector of lattice angles in degrees.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In general, you should not need to define <code class="docutils literal notranslate"><span class="pre">alatt</span></code> or <code class="docutils literal notranslate"><span class="pre">angdeg</span></code> when doing a <code class="docutils literal notranslate"><span class="pre">cut</span></code>.
+They are taken from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object during a <code class="docutils literal notranslate"><span class="pre">cut</span></code> and your settings will be overridden.
+However, there are cases where a projection object may need to be reused elsewhere.</p>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code>  3-vector in <span class="math notranslate nohighlight">\((h,k,l)\)</span> or 4-vector in <span class="math notranslate nohighlight">\((h,k,l,e)\)</span> defining the
+origin of the projection coordinate system. For example you may wish to make
+the origin of all your plots <span class="math notranslate nohighlight">\([2,1,0]\)</span>, in which case set <code class="docutils literal notranslate"><span class="pre">offset</span>
+<span class="pre">=</span> <span class="pre">[2,1,0]</span></code>.</p></li>
+</ul>
+<ul class="simple" id="plotargs">
+<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code>  4-element cell-array of captions for axes of plots.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code>  Plot title for cut result.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lab[1-4]</span></code>  Individual components label (for historical reasons).</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you do not provide any arguments to <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, by default it
+will build a <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> with <code class="docutils literal notranslate"><span class="pre">u=[1,0,0]</span></code> and <code class="docutils literal notranslate"><span class="pre">v=[0,1,0]</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">line_proj</span><span class="p">()</span>
+
+<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
+
+<span class="w">  </span><span class="n">line_proj</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="nb">properties</span><span class="p">:</span>
+
+<span class="w">                </span><span class="n">u</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">                </span><span class="n">v</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">                </span><span class="n">w</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">             </span><span class="nb">type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ppr&#39;</span>
+<span class="w">    </span><span class="n">nonorthogonal</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">            </span><span class="n">alatt</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">           </span><span class="n">angdeg</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">           </span><span class="n">offset</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">            </span><span class="n">label</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;\zeta&#39;</span><span class="w">  </span><span class="s">&#39;\xi&#39;</span><span class="w">  </span><span class="s">&#39;\eta&#39;</span><span class="w">  </span><span class="s">&#39;E&#39;</span><span class="p">}</span>
+<span class="w">            </span><span class="nb">title</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note" id="poskwarg">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">line_proj</span></code> accepts arguments both positionally and as key-value pairs e.g.</p>
+<blockquote>
+<div><div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;aaa&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;title&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;My linear cut&#39;</span><span class="p">)</span>
+
+<span class="n">line_proj</span><span class="w"> </span><span class="s">with</span><span class="w"> </span><span class="s">properties:</span>
+
+<span class="w">             </span><span class="n">u</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">             </span><span class="n">v</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span>
+<span class="w">             </span><span class="n">w</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">          </span><span class="nb">type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;aaa&#39;</span>
+<span class="w"> </span><span class="n">nonorthogonal</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">        </span><span class="n">offset</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">         </span><span class="n">label</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;\zeta&#39;</span><span class="w">  </span><span class="s">&#39;\xi&#39;</span><span class="w">  </span><span class="s">&#39;\eta&#39;</span><span class="w">  </span><span class="s">&#39;E&#39;</span><span class="p">}</span>
+<span class="w">         </span><span class="nb">title</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;My linear cut&#39;</span>
+</pre></div>
+</div>
+<p>However, it is advised that besides <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> arguments are passed as
+key-value pairs.</p>
+<p>Alternatively you may define some parameters in the constructor, and define others
+later by setting their properties:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">proj</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;aaa&#39;</span><span class="p">;</span>
+<span class="n">proj</span><span class="p">.</span><span class="n">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;My linear cut&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Both forms result in the same object</p>
+</div></blockquote>
+</div>
+<section id="non-orthogonal-axes">
+<h5><span class="section-number">5.1.5.1.1. </span>Non-orthogonal axes<a class="headerlink" href="#non-orthogonal-axes" title="Link to this heading"></a></h5>
+<p>You may choose to use non-orthogonal axes (c.f. <a class="reference external" href="#nonortho">here</a>), e.g.:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;nonorthogonal&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Below is an example:</p>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../_images/orthogonal_vs_nonorthogonal_proj.png"><img alt="Plot of Uranium-Palladium-3 for cases where the projection is orthogonal and non-orthogonal." src="../_images/orthogonal_vs_nonorthogonal_proj.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Plot to show the difference between <code class="docutils literal notranslate"><span class="pre">nonorthogonal=false</span></code> and
+<code class="docutils literal notranslate"><span class="pre">nonorthogonal=true</span></code> with a hexagonal material (<span class="math notranslate nohighlight">\(\textrm{UPd}_3\)</span>)
+where <code class="docutils literal notranslate"><span class="pre">angdeg=[90,90,120]</span></code>.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>We can see that for the <code class="docutils literal notranslate"><span class="pre">nonorthogonal=false</span></code> case, the image clearly shows
+the hexagonal symmetry and circular powder rings, but the axes being
+<span class="math notranslate nohighlight">\([\zeta,0,0]\)</span> and <span class="math notranslate nohighlight">\([-0.5\xi,\xi,0]\)</span> even in this simple case makes
+computing where points lie in <span class="math notranslate nohighlight">\(hkl\)</span> trickier.</p>
+<p>Where we have <code class="docutils literal notranslate"><span class="pre">nonorthogonal=true</span></code>, this makes it easier to calculate the
+location of points in <span class="math notranslate nohighlight">\(hkl\)</span> (the Bragg peaks align in a square pattern and
+the axes are simply <span class="math notranslate nohighlight">\([\zeta,0,0]\)</span> and <span class="math notranslate nohighlight">\([\xi,0,0]\)</span>), but distorts the
+image (note the powder rings which should be circular).</p>
+</section>
+<section id="line-proj-2d-cut-examples-fe-scattering-function">
+<h5><span class="section-number">5.1.5.1.2. </span><code class="docutils literal notranslate"><span class="pre">line_proj</span></code> 2D cut examples: Fe Scattering Function<a class="headerlink" href="#line-proj-2d-cut-examples-fe-scattering-function" title="Link to this heading"></a></h5>
+<div class="admonition note" id="datalink">
+<p class="admonition-title">Note</p>
+<p>This dataset is available as part of the Horace source on <a class="reference external" href="https://github.com/pace-neutrons/Horace/tree/master/demo">Github</a>.</p>
+</div>
+<p>The iron crystal has been aligned along the <span class="math notranslate nohighlight">\([1,0,0]\)</span> axis.</p>
+<p>To reproduce the example below, a cut is first made along the <span class="math notranslate nohighlight">\([0,1,0]\)</span>
+and <span class="math notranslate nohighlight">\([0,0,1]\)</span> directions:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;Fe_ei401.sqw&#39;</span><span class="p">;</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;aaa&#39;</span><span class="p">);</span>
+<span class="n">w2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">4.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">14.5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w2</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You do not need to provide a lattice for the projection as <code class="docutils literal notranslate"><span class="pre">cut</span></code> will use
+the lattice parameters from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p>
+</div>
+<p>The code produces:</p>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../_images/iv_hkl.png"><img alt="2d cut" src="../_images/iv_hkl.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">MAPS Fe data; reciprocal space covered by MAPS for an iron sample
+with incident neutron energy of 401meV.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The cut with the same parameters as above at higher energy transfer</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">4.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">14.5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w2</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>shows clear spin waves:</p>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../_images/iv_hkl_dE.png"><img alt="2d cut instrument view energy transfer." src="../_images/iv_hkl_dE.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">MAPS Fe Data; reciprocal space covered by MAPS for an iron sample
+with incident neutron energy of 401meV. Energies integrated between [50, 60].</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="line-proj-1d-cut-example">
+<h5><span class="section-number">5.1.5.1.3. </span><code class="docutils literal notranslate"><span class="pre">line_proj</span></code> 1D cut example<a class="headerlink" href="#line-proj-1d-cut-example" title="Link to this heading"></a></h5>
+<p>It is simple to take a 1-d cut by integrating over all but one axis. The example
+cut generated by the code below shows a cut along the <span class="math notranslate nohighlight">\([1,1,0]\)</span> direction
+(note the projection’s <code class="docutils literal notranslate"><span class="pre">u</span></code> &amp; <code class="docutils literal notranslate"><span class="pre">v</span></code>), i.e. the diagonal of the figure
+above.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;Fe_ei401.sqw&#39;</span><span class="p">;</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;offset&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w1</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This shows the intensity of the spin wave:</p>
+<figure class="align-center" id="id7">
+<a class="reference internal image-reference" href="../_images/Fe_cut1D.png"><img alt="1d cut along diagonal." src="../_images/Fe_cut1D.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">MAPS Fe Data; 1D cut along the diagonal of the 2D image above.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+<section id="spherical-projections">
+<h4><span class="section-number">5.1.5.2. </span>Spherical Projections<a class="headerlink" href="#spherical-projections" title="Link to this heading"></a></h4>
+<p>In order to construct a spherical projection (i.e. a projection in <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span>,
+<span class="math notranslate nohighlight">\(\theta\)</span> (polar angle), <span class="math notranslate nohighlight">\(\phi\)</span> (azimuthal angle), <span class="math notranslate nohighlight">\(E\)</span>) we
+create a projection in an analogous way to the <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, but using the
+<code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> function.</p>
+<p>The complete signature for <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">([</span><span class="n">u</span><span class="p">][,</span><span class="w"> </span><span class="n">v</span><span class="p">][,</span><span class="w"> </span><span class="nb">type</span><span class="p">][,</span><span class="w"> </span><span class="n">alatt</span><span class="p">][,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">][,</span><span class="w"> </span><span class="n">offset</span><span class="p">][,</span><span class="w"> </span><span class="n">label</span><span class="p">][,</span><span class="w"> </span><span class="nb">title</span><span class="p">][,</span><span class="w"> </span><span class="n">lab1</span><span class="p">][,</span><span class="w"> </span><span class="n">lab2</span><span class="p">][,</span><span class="w"> </span><span class="n">lab3</span><span class="p">][,</span><span class="w"> </span><span class="n">lab4</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>where:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code>  The vector <span class="math notranslate nohighlight">\(\vec{u}\)</span> is the reciprocal space vector defining the
+polar-axis of the spherical coordinate system from which <span class="math notranslate nohighlight">\(\theta\)</span> is
+measured.</p>
+<p>See the <a class="reference internal" href="#fig-sphere-coodinates"><span class="std std-ref">diagram below</span></a> for details.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> The vector <span class="math notranslate nohighlight">\(\vec{v}\)</span> is the reciprocal space vector which defines the
+second component of the <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> plane from which <span class="math notranslate nohighlight">\(\phi\)</span> is
+measured.</p>
+<p>See the <a class="reference internal" href="#fig-sphere-coodinates"><span class="std std-ref">diagram below</span></a> for details.</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The reciprocal space vectors <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> are not necessarily
+orthogonal so the actual axis from which <span class="math notranslate nohighlight">\(\phi\)</span> is measured lies in the
+plane defined by <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> vectors and is orthogonal to <span class="math notranslate nohighlight">\(u\)</span>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default a <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> will define its principal axes <span class="math notranslate nohighlight">\(u\)</span> and
+<span class="math notranslate nohighlight">\(v\)</span> along the <span class="math notranslate nohighlight">\(hkl\)</span> directions <span class="math notranslate nohighlight">\([1,0,0]\)</span> and
+<span class="math notranslate nohighlight">\([0,1,0]\)</span> respectively.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>  Three character string denoting the the projection normalization of each
+dimension, one character for each directions, e.g. <code class="docutils literal notranslate"><span class="pre">'add'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arr'</span></code>, <code class="docutils literal notranslate"><span class="pre">'adr'</span></code>.</p>
+<p>At the moment there is only one possible option for the first (length) component of <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code>     Inverse angstroms.</p></li>
+</ol>
+<p>There are 2 possible options for the second and third (angular) components of
+<code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'d'</span></code>     Degrees</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code>     Radians</p></li>
+</ol>
+<p>For example, if we wanted the <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span>-component to be in inverse angstroms and
+the angles in degrees we would have <code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">=</span> <span class="pre">'add'</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alatt</span></code>  3-vector of lattice parameters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angdeg</span></code> 3-vector of lattice angles in degrees.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>when cutting, you should not need to define <code class="docutils literal notranslate"><span class="pre">alatt</span></code> or <code class="docutils literal notranslate"><span class="pre">angdeg</span></code>; by default
+they will be taken from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object during a <code class="docutils literal notranslate"><span class="pre">cut</span></code> and your setting will be overwritten.
+However, there are cases where a projection object may need to be reused elsewhere.</p>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code>  3-vector in <span class="math notranslate nohighlight">\((h,k,l)\)</span> or 4-vector in <span class="math notranslate nohighlight">\((h,k,l,e)\)</span> defining the
+origin of the projection coordinate system.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code>, etc.  See <a class="reference internal" href="#plotargs"><span class="std std-ref">description for plot arguments above</span></a>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you do not provide any arguments to <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code>, by default
+it will build a <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> with <code class="docutils literal notranslate"><span class="pre">u=[1,0,0]</span></code>, <code class="docutils literal notranslate"><span class="pre">v=[0,1,0]</span></code>,
+<code class="docutils literal notranslate"><span class="pre">type='add'</span></code> and <code class="docutils literal notranslate"><span class="pre">offset=[0,0,0,0]</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sp_pr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">()</span>
+
+<span class="n">sp_pr</span><span class="w"> </span><span class="p">=</span>
+<span class="w">   </span><span class="n">sphere_proj</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="nb">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="n">u</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">          </span><span class="n">v</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">       </span><span class="nb">type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;add&#39;</span>
+<span class="w">      </span><span class="n">alatt</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">     </span><span class="n">angdeg</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">     </span><span class="n">offset</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">      </span><span class="n">label</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;|Q|&#39;</span><span class="w">  </span><span class="s">&#39;\theta&#39;</span><span class="w">  </span><span class="s">&#39;\phi&#39;</span><span class="w">  </span><span class="s">&#39;En&#39;</span><span class="p">}</span>
+<span class="w">      </span><span class="nb">title</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Like <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> can be <a class="reference internal" href="#poskwarg"><span class="std std-ref">defined using
+positional or keyword arguments</span></a>. However the same
+recommendation applies that positional should only be used to
+define <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> defines a spherical coordinate system which contains
+spherical coordinates of momentum transfer vector  <span class="math notranslate nohighlight">\(\vec{Q}\)</span>.
+Energy transfer coordinate for <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> remain unchanged.
+If projection <code class="docutils literal notranslate"><span class="pre">offset</span></code> parameter is zero, this vector is the vector
+of momentum transfer from neutron to excitations – lattice measured
+in scattering experiment. If offset is not zero, <span class="math notranslate nohighlight">\(\vec{Q}\)</span>
+is the difference between <code class="docutils literal notranslate"><span class="pre">offset</span></code> and the measured momentum transfer.</p>
+<p>Then <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> coordinates are:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span> The radius from the origin (<code class="docutils literal notranslate"><span class="pre">offset</span></code>) in <span class="math notranslate nohighlight">\(hkl\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\theta\)</span>  – The angle measured from <span class="math notranslate nohighlight">\(\vec{u}\)</span> to the vector (<span class="math notranslate nohighlight">\(\vec{Q}\)</span>),
+i.e. <span class="math notranslate nohighlight">\(0^{\circ}\)</span> is parallel to <span class="math notranslate nohighlight">\(\vec{u}\)</span> and <span class="math notranslate nohighlight">\(90^{\circ}\)</span> is
+perpendicular to <span class="math notranslate nohighlight">\(\vec{u}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\phi\)</span> –  is the angle measured between the projection of vector
+<span class="math notranslate nohighlight">\(\vec{Q_\perp}=\vec{Q}-\frac{\vec{u}}{|u|^2}(\vec{u}\cdot \vec{Q})\)</span> to the plane
+<span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span> , i.e. <span class="math notranslate nohighlight">\(0^{\circ}\)</span> lies in the <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span>
+plane and <span class="math notranslate nohighlight">\(90^{\circ}\)</span> is normal to <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span> plane</p></li>
+</ul>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(E\)</span>   is the energy transfer as defined in <code class="docutils literal notranslate"><span class="pre">line_proj</span></code></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\theta\)</span> lies in the range between <span class="math notranslate nohighlight">\(0^{\circ}\)</span> and   <span class="math notranslate nohighlight">\(180^{\circ}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\phi\)</span> lies in the range between <span class="math notranslate nohighlight">\(-180^{\circ}\)</span> and  <span class="math notranslate nohighlight">\(180^{\circ}\)</span>.</p></li>
+</ul>
+<p>Alternatively you can set <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> option <code class="docutils literal notranslate"><span class="pre">type</span></code> to define these values in radians.</p>
+</div>
+<figure class="align-center" id="id8">
+<span id="fig-sphere-coodinates"></span><a class="reference internal image-reference" href="../_images/sphere_proj_coordinates.png"><img alt="spherical coordinate system." src="../_images/sphere_proj_coordinates.png" style="width: 400px;" /></a>
+<figcaption>
+<p><span class="caption-text">Spherical coordinate system used by <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code></span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Alternative description of spherical coordinate system may be found on MATLAB help pages.
+Horace uses MATLAB methods <code class="docutils literal notranslate"><span class="pre">cart2sph</span></code> and <code class="docutils literal notranslate"><span class="pre">sph2cart</span></code> to convert an array of vectors expressed
+in Cartesian coordinate system to spherical coordinate system and back.
+The formulas, used by these methods together with the image of the used coordinate system is provided
+<a class="reference external" href="https://uk.mathworks.com/help/matlab/ref/cart2sph.html">on MATLAB “cart2sph” help pages</a>.
+MATLAB uses <code class="docutils literal notranslate"><span class="pre">elevation</span></code> angle which is related to <span class="math notranslate nohighlight">\(\theta\)</span> angle used by Horace by relation:</p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(\theta = 90-elevation\)</span></p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">azimuth</span></code> angle form <a class="reference external" href="https://uk.mathworks.com/help/matlab/ref/cart2sph.html">MATLAB help pages</a>
+is equivalent to Horace <span class="math notranslate nohighlight">\(\phi\)</span> angle.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A spherical projection currently does not have the ability to be rescaled in
+<span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span> relative to the magnitude of <span class="math notranslate nohighlight">\(u\)</span> or <span class="math notranslate nohighlight">\(v\)</span>.</p>
+</div>
+<p>When it comes to cutting and plotting, we can use a <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> in
+exactly the same way as we would a <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, but with one key
+difference. The binning arguments of <code class="docutils literal notranslate"><span class="pre">cut</span></code> no longer refer to
+<span class="math notranslate nohighlight">\(h,k,l,E\)</span>, but to <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span>, <span class="math notranslate nohighlight">\(\theta\)</span>, <span class="math notranslate nohighlight">\(\phi\)</span>, <span class="math notranslate nohighlight">\(E\)</span>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sp_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="n">Q</span><span class="p">,</span><span class="w"> </span><span class="n">theta</span><span class="p">,</span><span class="w"> </span><span class="n">phi</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">);</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The form of the arguments to <code class="docutils literal notranslate"><span class="pre">cut</span></code> is still the same (see: <a class="reference internal" href="#binning-arguments">Binning
+arguments</a>). However:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span> runs between <span class="math notranslate nohighlight">\([0, \infty)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\theta\)</span> runs between <span class="math notranslate nohighlight">\([0, 180]\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\phi\)</span> runs between <span class="math notranslate nohighlight">\([-180, 180]\)</span></p></li>
+</ul>
+<p>Attempting to specify binning outside of these ranges will fail.</p>
+</div>
+<section id="sphere-proj-2d-and-1d-cuts-examples">
+<h5><span class="section-number">5.1.5.2.1. </span><code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code> 2D and 1D cuts examples:<a class="headerlink" href="#sphere-proj-2d-and-1d-cuts-examples" title="Link to this heading"></a></h5>
+<p>Integrating over the angular terms of a spherical projection of a
+<strong>single crystal</strong> dataset will give an <strong>approximation</strong> of a powder
+average of the sample. Integrating over the angular terms for a
+<strong>powder</strong> sample is a valid powder averaging.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is because (except for low scattering angles) the detectors do
+not cover the full <span class="math notranslate nohighlight">\(4\pi\)</span> solid angular range.  Thus regions
+without detector coverage will not be sampled by the angular
+spherical integration.</p>
+<p>In contrast for a true powder sample, there will be crystal grains
+with the correct orientation to be detected even by the limited
+detector coverage.</p>
+<p>At low scattering angles (below approximately 30 degrees on LET),
+the detectors <em>do</em> cover the full angular range so the angular
+integration of a single crystal dataset will give a valid powder
+average.</p>
+<p>These effects are important to bear in mind when modelling the
+scattering - e.g. for a single crystal dataset it is best to model
+it as a single crystal and then let Horace perform the angular
+integration, rather than treating it as powder data.</p>
+</div>
+<p>The following is an example using the <a class="reference internal" href="#datalink"><span class="std std-ref">same data as above</span></a>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;Fe_ei401.sqw&#39;</span><span class="p">;</span>
+<span class="n">sp_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">();</span>
+<span class="n">s2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">14</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">400</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">s2</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Binning ranges are specified in the <strong>target</strong> coordinate system.</p>
+</div>
+<p>This script produces the following plot:</p>
+<figure class="align-center" id="id9">
+<a class="reference internal image-reference" href="../_images/powder_avrg.png"><img alt="|Q|-dE cut." src="../_images/powder_avrg.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, energy transfer is expressed in meV, momentum transfer
+<span class="math notranslate nohighlight">\(\left|Q\right|\)</span> in inverse Angstroms (<span class="math notranslate nohighlight">\(Å^{-1}\)</span>) and angles in
+degrees (<span class="math notranslate nohighlight">\(^\circ\)</span>).</p>
+</div>
+<p>This figure shows that the energies of phonon excitations are located under
+50meV, some magnetic scattering is present at <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span> &lt; 5 and spin waves follow the
+magnetic form factor.</p>
+<p>A spherical projection allows us to investigate the details of a particular spin
+wave, e.g. around the scattering point <span class="math notranslate nohighlight">\([0,-1,1]\)</span>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;Fe_ei401.sqw&#39;</span><span class="p">;</span>
+<span class="n">sp_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">();</span>
+<span class="n">sp_proj</span><span class="p">.</span><span class="n">offset</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span>
+<span class="n">s2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">80</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">s2</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The unwrapping of the intensity of the spin-wave located around <span class="math notranslate nohighlight">\([0,-1,1]\)</span>
+Bragg peak shows:</p>
+<figure class="align-center" id="id10">
+<a class="reference internal image-reference" href="../_images/spin_w_tiny.png"><img alt="Q-phi cut" src="../_images/spin_w_tiny.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">MAPS Fe data; Spin-wave scattering intensity the the origin centred
+about the <span class="math notranslate nohighlight">\([0,-1,1]\)</span> Bragg peak. A visible gap caused by
+missing detectors is obvious in the <span class="math notranslate nohighlight">\(\phi\)</span>-axis range
+<span class="math notranslate nohighlight">\([-50^\circ:+50^\circ]\)</span>.
+Inset: Linear projection of the same region; the red lines show the
+approximate mapping from the linear to spherical projections.</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Integrating over the whole <span class="math notranslate nohighlight">\(\theta\)</span> range and thus including other
+detectors substantially improves statistics; this is done by setting the
+<span class="math notranslate nohighlight">\(\theta\)</span> parameter to <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">180]</span></code>:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">s2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id11">
+<a class="reference internal image-reference" href="../_images/spin_w_theta_av.png"><img alt="Q-phi cut theta-averages" src="../_images/spin_w_theta_av.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">MAPS Fe data; Scattering intensity from cut averaged over all <span class="math notranslate nohighlight">\(\theta\)</span>
+spin-wave with the origin centred at the <span class="math notranslate nohighlight">\([0,-1,1]\)</span> Bragg
+peak.</span><a class="headerlink" href="#id11" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The 1D cut below, generated by further integrating over the <span class="math notranslate nohighlight">\(\phi\)</span>-axis,
+shows the intensity distribution as a function of <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span>, i.e. the distance from
+the spin-wave centre:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">s2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id12">
+<a class="reference internal image-reference" href="../_images/spin_w_intensity_1D.png"><img alt="intensity vs Q." src="../_images/spin_w_intensity_1D.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">Scattering intensity as function of distance from the scattering
+centre at <span class="math notranslate nohighlight">\([0,-1,1]\)</span>.</span><a class="headerlink" href="#id12" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+<section id="cylindrical-projections">
+<h4><span class="section-number">5.1.5.3. </span>Cylindrical Projections<a class="headerlink" href="#cylindrical-projections" title="Link to this heading"></a></h4>
+<p>In order to construct a cylindrical projection (i.e. a projection in
+<span class="math notranslate nohighlight">\(\vec{Q}_{\perp}\)</span> (the radial distance from the polar axis),
+<span class="math notranslate nohighlight">\(\vec{Q}_{\|}\)</span> (distance from origin along the polar axis), <span class="math notranslate nohighlight">\(\phi\)</span>
+(azimuthal angle) and <span class="math notranslate nohighlight">\(E\)</span>) coordinate system we create a projection in a
+similar way to the <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, but use the <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> class.</p>
+<p>The complete signature for <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">([</span><span class="n">u</span><span class="p">][,</span><span class="w"> </span><span class="n">v</span><span class="p">][,</span><span class="w"> </span><span class="nb">type</span><span class="p">][,</span><span class="w"> </span><span class="n">alatt</span><span class="p">][,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">][,</span><span class="w"> </span><span class="n">offset</span><span class="p">][,</span><span class="w"> </span><span class="n">label</span><span class="p">][,</span><span class="w"> </span><span class="nb">title</span><span class="p">][,</span><span class="w"> </span><span class="n">lab1</span><span class="p">][,</span><span class="w"> </span><span class="n">lab2</span><span class="p">][,</span><span class="w"> </span><span class="n">lab3</span><span class="p">][,</span><span class="w"> </span><span class="n">lab4</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>where:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code>  The vector <span class="math notranslate nohighlight">\(\vec{u}\)</span> is the reciprocal space vector defining the
+polar-axis of the cylindrical coordinate system along which
+<span class="math notranslate nohighlight">\(\vec{Q}_{\|}\)</span> is measured.</p>
+<p>See the <a class="reference internal" href="#fig-cylinder-coodinates"><span class="std std-ref">diagram below</span></a> for details.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code>  The vector <span class="math notranslate nohighlight">\(\vec{v}\)</span> is the reciprocal space vector which defines the second
+component of the <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> plane from which <span class="math notranslate nohighlight">\(\phi\)</span> is measured.</p>
+<p>See the <a class="reference internal" href="#fig-cylinder-coodinates"><span class="std std-ref">diagram below</span></a> for details.</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The reciprocal space vectors <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> are not necessarily
+orthogonal so the actual axis from which <span class="math notranslate nohighlight">\(\phi\)</span> is measured lies in the
+plane defined by <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> vectors, orthogonal to <span class="math notranslate nohighlight">\(u\)</span>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default a <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> will define its principal axes <span class="math notranslate nohighlight">\(u\)</span> and
+<span class="math notranslate nohighlight">\(v\)</span> along the <span class="math notranslate nohighlight">\(hkl\)</span> directions <span class="math notranslate nohighlight">\([1,0,0]\)</span> and
+<span class="math notranslate nohighlight">\([0,1,0]\)</span> respectively.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>  Three character string denoting the the projection normalization of each
+dimension, one character for each directions, e.g. <code class="docutils literal notranslate"><span class="pre">'aad'</span></code> or <code class="docutils literal notranslate"><span class="pre">'aar'</span></code>.</p>
+<p>At the moment there is only one possible option implemented for the length
+components (<span class="math notranslate nohighlight">\(q_{\perp}\)</span> and <span class="math notranslate nohighlight">\(q_{\|}\)</span>) of <code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'a'</span></code>     Inverse angstroms.</p></li>
+</ol>
+<p>There are 2 possible options for the third (angular) component of
+<code class="docutils literal notranslate"><span class="pre">type</span></code>:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'d'</span></code>   Degrees</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'r'</span></code>   Radians</p></li>
+</ol>
+<p>For example, if we wanted the length components to be in inverse angstroms and
+the angles in degrees we would have <code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">=</span> <span class="pre">'aad'</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alatt</span></code>   3-vector of lattice parameters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angdeg</span></code>  3-vector of lattice angles in degrees.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In general, you should not need to define <code class="docutils literal notranslate"><span class="pre">alatt</span></code> or <code class="docutils literal notranslate"><span class="pre">angdeg</span></code>; by default
+they will be taken from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object during a <code class="docutils literal notranslate"><span class="pre">cut</span></code>. However, there
+are cases where a projection object may need to be reused elsewhere.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code>  3-vector in <span class="math notranslate nohighlight">\((h,k,l)\)</span> or 4-vector in <span class="math notranslate nohighlight">\((h,k,l,e)\)</span> defining the
+origin of the projection coordinate system.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code>, etc.</p>
+<p>See <a class="reference internal" href="#plotargs"><span class="std std-ref">other plot arguments above</span></a>.</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you do not provide any arguments to <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code>, by default
+it will build a <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> with <code class="docutils literal notranslate"><span class="pre">u=[1,0,0]</span></code>, <code class="docutils literal notranslate"><span class="pre">v=[0,1,0]</span></code>,
+<code class="docutils literal notranslate"><span class="pre">type='aad'</span></code> and <code class="docutils literal notranslate"><span class="pre">offset=[0,0,0,0]</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">cyl_pr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">()</span>
+
+<span class="n">cyl_pr</span><span class="w"> </span><span class="p">=</span>
+<span class="w">   </span><span class="n">cylinder_proj</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="nb">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="n">u</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">          </span><span class="n">v</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">       </span><span class="nb">type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;aad&#39;</span>
+<span class="w">      </span><span class="n">alatt</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">     </span><span class="n">angdeg</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">     </span><span class="n">offset</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">      </span><span class="n">label</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;\Q_{\perp}&#39;</span><span class="w">  </span><span class="s">&#39;\Q_{||}&#39;</span><span class="w">  </span><span class="s">&#39;\phi&#39;</span><span class="w">  </span><span class="s">&#39;En&#39;</span><span class="p">}</span>
+<span class="w">      </span><span class="nb">title</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Like <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> can be <a class="reference internal" href="#poskwarg"><span class="std std-ref">defined using
+positional or keyword arguments</span></a>. However the same
+recommendation applies that positional should only be used to
+define <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> defines a cylindrical coordinate system, where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\vec{Q_\perp}=\vec{Q}-\frac{\vec{u}}{|u|^2}(\vec{u}\cdot \vec{Q})\)</span>  – The length of the orthogonal to axis <span class="math notranslate nohighlight">\(\vec{u}\)</span> part of the momentum transfer  <span class="math notranslate nohighlight">\(\vec{Q}\)</span> measured from the <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code>  origin (<code class="docutils literal notranslate"><span class="pre">offset</span></code>) in <span class="math notranslate nohighlight">\(hkl\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(Q_{\|}\)</span>  – The length of the projection of the momentum transfer <span class="math notranslate nohighlight">\(\vec{Q}\)</span> measured from the <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code>
+origin (<code class="docutils literal notranslate"><span class="pre">offset</span></code>) in <span class="math notranslate nohighlight">\(hkl\)</span> to <span class="math notranslate nohighlight">\(\vec{u}\)</span> axis of the <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(\phi\)</span> –  is the angle measured between the vector <span class="math notranslate nohighlight">\(\vec{Q_\perp}\)</span> to
+the plane <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span> , i.e. <span class="math notranslate nohighlight">\(0^{\circ}\)</span> lies in the <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span>
+plane and <span class="math notranslate nohighlight">\(90^{\circ}\)</span> is normal to <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<span class="math notranslate nohighlight">\(\vec{v}\)</span> plane
+(i.e. parallel to <span class="math notranslate nohighlight">\(\vec{e_y}\)</span>).</p></li>
+<li><p><span class="math notranslate nohighlight">\(E\)</span>  is the energy transfer as defined in <code class="docutils literal notranslate"><span class="pre">line_proj</span></code></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><span class="math notranslate nohighlight">\(\phi\)</span>  lies in the range between <span class="math notranslate nohighlight">\(-180^{\circ}\)</span> and <span class="math notranslate nohighlight">\(180^{\circ}\)</span>. The <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> <code class="docutils literal notranslate"><span class="pre">type</span></code>
+property allows to change these values to radians so <span class="math notranslate nohighlight">\(-\pi \leq \phi \leq \pi\)</span>.</p>
+</div>
+<figure class="align-center" id="id13">
+<span id="fig-cylinder-coodinates"></span><a class="reference internal image-reference" href="../_images/cylinder_proj_coordinates.png"><img alt="cylindrical coordinate system." src="../_images/cylinder_proj_coordinates.png" style="width: 400px;" /></a>
+<figcaption>
+<p><span class="caption-text">Cylindrical coordinate system used by <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code></span><a class="headerlink" href="#id13" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Similarly to <a class="reference internal" href="#fig-sphere-coodinates"><span class="std std-ref">Spherical coordinate system used by sphere_proj</span></a>, detailed description of the cylindrical coordinate system used by
+Horace together with the image of the used coordinate system are provided <a class="reference external" href="https://uk.mathworks.com/help/matlab/ref/cart2pol.html">on MATLAB “cart2pol/pol2cart” help pages</a>, as Horace uses these methods to convert array
+of vectors expressed in Cartesian coordinate system to cylindrical coordinate system and backward.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A cylindrical projection currently does not have the ability to be
+rescaled in <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> or <span class="math notranslate nohighlight">\(Q_{\|}\)</span> relative to the magnitude
+of <span class="math notranslate nohighlight">\(u\)</span> or <span class="math notranslate nohighlight">\(v\)</span> vectors.</p>
+</div>
+<p>When it comes to cutting and plotting, we can use a <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> in
+exactly the same way as we would a <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, but with one key
+difference. The binning arguments of <code class="docutils literal notranslate"><span class="pre">cut</span></code> no longer refer to
+<span class="math notranslate nohighlight">\(h,k,l,E\)</span>, but to <span class="math notranslate nohighlight">\(Q_{\perp}\)</span>, <span class="math notranslate nohighlight">\(Q_{\|}\)</span>, <span class="math notranslate nohighlight">\(\phi\)</span>, <span class="math notranslate nohighlight">\(E\)</span> variables.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sp_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">,</span><span class="w"> </span><span class="n">Q_tr</span><span class="p">,</span><span class="w"> </span><span class="n">Q_</span><span class="o">||</span><span class="p">,</span><span class="w"> </span><span class="n">phi</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">);</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The form of the arguments to <code class="docutils literal notranslate"><span class="pre">cut</span></code> is still the same (see: <a class="reference internal" href="#binning-arguments">Binning
+arguments</a>). However:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(Q_{\perp}\)</span> runs from <span class="math notranslate nohighlight">\([0, \infty)\)</span> – attempt to use <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> with a minimum
+bound smaller than <span class="math notranslate nohighlight">\(0\)</span> will fail.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\phi\)</span> runs between <span class="math notranslate nohighlight">\([-180, 180]\)</span> – requesting binning outsize of these ranges will fail.</p></li>
+</ul>
+</div>
+<section id="cylinder-proj-2d-and-1d-cuts-examples">
+<h5><span class="section-number">5.1.5.3.1. </span><code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code> 2D and 1D cuts examples:<a class="headerlink" href="#cylinder-proj-2d-and-1d-cuts-examples" title="Link to this heading"></a></h5>
+<p>Cylindrical projection can be used to obtain cylindrical cuts in a manner
+analogous to linear and spherical projections.</p>
+<p>The main use of cylindrical projection is for cuts with axis parallel to the
+incident beam as background scattering in inelastic instruments often has
+cylindrical symmetry.</p>
+<p>Taking the <a class="reference internal" href="#datalink"><span class="std std-ref">previously used dataset</span></a> and using the code:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;Fe_ei401.sqw&#39;</span><span class="p">;</span>
+<span class="n">cyl_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">();</span>
+
+<span class="c">%% A</span>
+
+<span class="n">w2_Qtr_dE</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">cyl_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">14</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">400</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w2_Qtr_dE</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">%% B</span>
+
+<span class="n">w2_Qtr_Qll</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">cyl_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">14</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w2_Qtr_Qll</span><span class="p">);</span>
+<span class="n">keep_figure</span><span class="p">;</span>
+
+<span class="c">%% C</span>
+
+<span class="n">w2_Qtr_phi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">cyl_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">14</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,,</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w2_Qtr_phi</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>one can easily obtain various cuts taken along different coordinate axes.</p>
+<figure class="align-center" id="id14">
+<span id="img-2d-cylindrical-cuts"></span><a class="reference internal image-reference" href="../_images/cylindrical_cuts_2D.png"><img alt="2D cylindrical cuts." src="../_images/cylindrical_cuts_2D.png" style="width: 1200px;" /></a>
+<figcaption>
+<p><span class="caption-text">Cylindrical cuts along different coordinate axes</span><a class="headerlink" href="#id14" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>It is also possible to make one dimensional cylindrical cuts. The following code
+creates a plot which shows the behaviour of the scattering intensity as a
+function of <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> at different <span class="math notranslate nohighlight">\(Q_{||}\)</span>:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="s">&#39;Fe_ei401.sqw&#39;</span><span class="p">;</span>
+<span class="n">cyl_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cylinder_proj</span><span class="p">();</span>
+<span class="n">n_cuts</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">repmat</span><span class="p">(</span><span class="n">sqw</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">n_cuts</span><span class="p">);</span>
+<span class="n">colors</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;krgb&#39;</span><span class="p">;</span>
+<span class="n">symbols</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;.+*x&#39;</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="p">=</span><span class="mi">1</span><span class="p">:</span><span class="n">n_cuts</span>
+<span class="w">    </span><span class="n">cut_center</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">-</span><span class="mi">4</span><span class="o">+</span><span class="p">(</span><span class="nb">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">8</span><span class="o">/</span><span class="n">n_cuts</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Qll_range</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">cut_center</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="n">cut_center</span><span class="o">+</span><span class="mf">0.1</span><span class="p">];</span>
+<span class="w">    </span><span class="n">w1</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">cyl_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">14</span><span class="p">],</span><span class="w"> </span><span class="n">Qll_range</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="mi">60</span><span class="p">],</span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">acolor</span><span class="p">(</span><span class="n">colors</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="w">    </span><span class="n">amark</span><span class="p">(</span><span class="n">symbols</span><span class="p">(</span><span class="nb">i</span><span class="p">));</span>
+<span class="w">    </span><span class="n">pd</span><span class="p">(</span><span class="n">w1</span><span class="p">(</span><span class="nb">i</span><span class="p">))</span>
+<span class="k">end</span>
+<span class="nb">legend</span><span class="p">(</span><span class="s">&#39;Q_{\|}=-4&#39;</span><span class="p">,</span><span class="s">&#39;Q_{\|}=-2&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id15">
+<a class="reference internal image-reference" href="../_images/cylindrical_cuts_1D.png"><img alt="1D cylindrical cuts." src="../_images/cylindrical_cuts_1D.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">Cylindrical cuts along <span class="math notranslate nohighlight">\(Q_{\perp}\)</span></span><a class="headerlink" href="#id15" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The script above lets you take up to 4 cuts by changing <code class="docutils literal notranslate"><span class="pre">n_cuts</span></code>, here we
+present just two for clarify.</p>
+</div>
+</section>
+</section>
+</section>
+<section id="additional-notes">
+<h3><span class="section-number">5.1.6. </span>Additional notes<a class="headerlink" href="#additional-notes" title="Link to this heading"></a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The number of binning arguments need only match the dimensionality of the
+object <code class="docutils literal notranslate"><span class="pre">w</span></code> (i.e. the number of plot axes), so can be fewer than 4.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You cannot change the binning in a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object, i.e. you can only set the
+integration ranges, and have to use <code class="docutils literal notranslate"><span class="pre">[]</span></code> for the plot axis. The only option
+you have is to change the range of the plot axis by specifying
+<code class="docutils literal notranslate"><span class="pre">[lo1,0,hi1]</span></code> instead of <code class="docutils literal notranslate"><span class="pre">[]</span></code> (the ‘0’ means ‘use existing bin size’).</p>
+</div>
+<section id="changing-projections">
+<h4><span class="section-number">5.1.6.1. </span>Changing Projections<a class="headerlink" href="#changing-projections" title="Link to this heading"></a></h4>
+<p>When a <code class="docutils literal notranslate"><span class="pre">cut</span></code> will change projections (i.e. the source projection type is different
+or the principal-axes are not orthogonal to the target projection) there are a few things to be aware of,
+particularly when you specify automatic (<code class="docutils literal notranslate"><span class="pre">[]</span></code>, <code class="docutils literal notranslate"><span class="pre">[step]</span></code>) binning arguments.</p>
+<p class="rubric">Binning range meaning</p>
+<p>When you specify the binning ranges these are defined in the the “target”
+(desired) coordinate system. E.g. in cutting from a linear to a
+spherical projection, the meanings are:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(..)</span><span class="w"> </span><span class="c">% in linear projection</span>
+<span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">sphere_proj</span><span class="p">(),</span><span class="w"> </span><span class="o">**</span><span class="n">R</span><span class="o">**</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">THETA</span><span class="o">**</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">PHI</span><span class="o">**</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">E</span><span class="o">**</span><span class="p">,</span><span class="w"> </span><span class="p">..)</span>
+</pre></div>
+</div>
+<p class="rubric">Automatic Binning Arguments</p>
+<p>If you provide automatic binning arguments, an algorithm will attempt to
+create the minimum bounding shape in the new projection that entirely
+encapsulates the source projection. The parameters from this bounding shape
+will then be substituted into the places where automatic binning arguments are
+requested.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This algorithm will not change the number of bins unless the
+<code class="docutils literal notranslate"><span class="pre">[step]</span></code> form is used, but will change the ranges and thus the
+size of the bins in this instance.</p>
+<p>If you do not specify a step, ensure you have checked that the binning
+is suitable in the new projection, or you may waste time having to
+re-cut your dataset.</p>
+</div>
+<figure class="align-center" id="id16">
+<a class="reference internal image-reference" href="../_images/hull.png"><img alt="Example showing a linear projection (target) encapsulating a spherical projection (source)." src="../_images/hull.png" style="width: 400px;" /></a>
+<figcaption>
+<p><span class="caption-text">Example showing a linear projection (target) encapsulating a spherical
+projection (source).
+Here, if we consider a sphere of radius <span class="math notranslate nohighlight">\(r\)</span>, then the encapsulating
+cuboid has sidelength (<span class="math notranslate nohighlight">\(a\)</span>) of size <span class="math notranslate nohighlight">\(2r\)</span>.</span><a class="headerlink" href="#id16" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p class="rubric">Example</p>
+<p>If:</p>
+<ul class="simple">
+<li><p>you provide an empty binning range (<code class="docutils literal notranslate"><span class="pre">[]</span></code>) as the third
+<a class="reference external" href="#binning-arguments">binning argument</a> in your <code class="docutils literal notranslate"><span class="pre">cut</span></code> and,</p></li>
+<li><p>your source coordinate system is linear and,</p></li>
+<li><p>the target coordinate system is cylindrical, then:</p></li>
+</ul>
+<blockquote>
+<div><p>the <code class="docutils literal notranslate"><span class="pre">cut</span></code> algorithm will try to compute the <span class="math notranslate nohighlight">\(\phi\)</span> range (the
+3<sup>rd</sup> coordinate of the cylindrical projection) which encapsulates the
+source cuboid in the target (cylindrical) coordinate system.</p>
+</div></blockquote>
+<p>The number of bins in <span class="math notranslate nohighlight">\(\phi\)</span> will be equal to the number of bins
+in the 3<sup>rd</sup> dimension (<span class="math notranslate nohighlight">\(\vec{w}\)</span>) of the source
+projection. If the 3<sup>rd</sup> dimension of the source projection was
+an integration axis, the <span class="math notranslate nohighlight">\(\phi\)</span> of the target projection will
+also be an integration axis; if it was a plot axis, it will likewise
+remain a plot axis in the target projection, as expected.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>In contrast to cutting without a projection change, when changing
+projections <code class="docutils literal notranslate"><span class="pre">[]</span></code> and <code class="docutils literal notranslate"><span class="pre">[0]</span></code> have different meanings.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code> will take the number of bins in the source dimension</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[0]</span></code> will take the step length in the source dimension</p></li>
+</ul>
+<p>Cutting with <code class="docutils literal notranslate"><span class="pre">[0]</span></code> may lead to strange or incorrect results when
+changing projections. E.g. a q-step of <code class="docutils literal notranslate"><span class="pre">0.01</span></code> may be reasonable in a
+linear projection, but when transformed to a spherical or cylindrical
+projection it may be used as the step size for the <span class="math notranslate nohighlight">\(\phi\)</span> binning
+range (<code class="docutils literal notranslate"><span class="pre">-180:180</span></code> ), creating 36000 bins in <span class="math notranslate nohighlight">\(\phi\)</span> direction,
+which may be problematic.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The algorithm which identifies binning ranges is just a simple algorithm.</p>
+<p>While it works reliably in simple cases, e.g. for transformations described
+by projections of the same kind (e.g. <code class="docutils literal notranslate"><span class="pre">sphere_proj-&gt;sphere_proj</span></code>), where
+the offset between the two projections is unchanged. In more complex cases
+(e.g. <code class="docutils literal notranslate"><span class="pre">line_proj-&gt;cylinder_proj</span></code> or where the polar-axis of the cylindrical
+projection is not aligned with any of the <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> axes), the algorithm
+may not converge quickly. After a number of failed iterations, it will give up
+and issue a warning which looks like:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="s">&#39; target range search algorithm have not converged after 5 iterations.</span>
+<span class="s">  Search have identified the following default range:</span>
+<span class="s"> 0        0.0120  -179.9641</span>
+<span class="s"> 1.5843   90.0000  179.9641</span>
+<span class="s"> This range may be inaccurate&#39;</span>
+</pre></div>
+</div>
+<p>The user must evaluate how acceptable this result is for the desired cut and
+if in doubt, specify the binning arguments manually to get their desired
+binning.</p>
+</div>
+</section>
+</section>
+<section id="legacy-calls-to-cut-cut-sqw-and-cut-dnd">
+<h3><span class="section-number">5.1.7. </span>Legacy calls to <code class="docutils literal notranslate"><span class="pre">cut</span></code>: <code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">cut_dnd</span></code><a class="headerlink" href="#legacy-calls-to-cut-cut-sqw-and-cut-dnd" title="Link to this heading"></a></h3>
+<p>Historically, <code class="docutils literal notranslate"><span class="pre">cut</span></code> came in two different forms <code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code> and
+<code class="docutils literal notranslate"><span class="pre">cut_dnd</span></code>. These forms are still available now, however their uses are more
+limited and mostly discouraged.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code> is fully equivalent to <code class="docutils literal notranslate"><span class="pre">cut</span></code> except that attempting to apply it
+to a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object or file, will raise an error.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cut_dnd</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">cut</span></code> except it only ever returns a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> as
+though <code class="docutils literal notranslate"><span class="pre">-nopix</span></code> had been passed.</p></li>
+</ul>
+</section>
+</section>
+<section id="section">
+<h2><span class="section-number">5.2. </span>section<a class="headerlink" href="#section" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">section</span></code> is an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> method, which works like <code class="docutils literal notranslate"><span class="pre">cut</span></code>, but uses the
+existing bins of an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object rather than rebinning.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">section</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">p1_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p2_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p3_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p4_bin</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Because it only extracts existing bins (and their pixels), this means that it
+doesn’t need to recompute any statistics related to the object itself and is
+therefore faster and more efficient. However, it has the limitation that it
+cannot alter the projection or binning widths from the original.</p>
+<p>The parameters of section are as follows:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code></p>
+<p>The array of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object(s) to be sectioned.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pN_bin</span></code></p>
+<p>The range of bins specified as bin edges to extract from <code class="docutils literal notranslate"><span class="pre">w</span></code>.</p>
+<p>There are three valid forms for any <code class="docutils literal notranslate"><span class="pre">pN_bin</span></code>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code>, <code class="docutils literal notranslate"><span class="pre">[0]</span></code></p>
+<p>Use the original binning.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[lo,</span> <span class="pre">hi]</span></code></p>
+<p>Take a section of original axis which lies between <code class="docutils literal notranslate"><span class="pre">lo</span></code> and <code class="docutils literal notranslate"><span class="pre">hi</span></code> values.
+The range of the resulting image in this case is the range between left edge
+of image bin containing <code class="docutils literal notranslate"><span class="pre">lo</span></code> value and right edge of bin containing <code class="docutils literal notranslate"><span class="pre">hi</span></code>
+value.</p>
+</li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The size of <code class="docutils literal notranslate"><span class="pre">pN_bin</span></code> must match the dimensionality of the underlying
+<code class="docutils literal notranslate"><span class="pre">dnd</span></code> object.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These parameters are specified by inclusive edge limits. Any ranges beyond
+the the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object’s <code class="docutils literal notranslate"><span class="pre">img_range</span></code> will be reduced to only capture existing
+bins.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The bins selected will be those whose bin centres lie within the range <code class="docutils literal notranslate"><span class="pre">lo</span> <span class="pre">-</span>
+<span class="pre">hi</span></code>, this means that the actual returned <code class="docutils literal notranslate"><span class="pre">img_range</span></code> may not match <code class="docutils literal notranslate"><span class="pre">[lo</span>
+<span class="pre">hi]</span></code>. For example, a bin from <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">-</span> <span class="pre">1</span></code> (centre <code class="docutils literal notranslate"><span class="pre">0.5</span></code>) will be included by
+the following <code class="docutils literal notranslate"><span class="pre">section</span></code> despite the bin not being entirely contained within
+the range. The resulting image range will be <code class="docutils literal notranslate"><span class="pre">[0</span> <span class="pre">1]</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">section</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.4</span><span class="w"> </span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>In order to extract bins whose centres lie in the range <code class="docutils literal notranslate"><span class="pre">[-5</span> <span class="pre">5]</span></code> from a 4-D
+<code class="docutils literal notranslate"><span class="pre">sqw</span></code> object:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w4_red</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">section</span><span class="p">(</span><span class="n">w4</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="w"> </span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="p">[])</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Correcting_for_sample_misalignment.html" class="btn btn-neutral float-left" title="4. Correcting for sample misalignment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Special_sqw_information.html" class="btn btn-neutral float-right" title="6. Special SQW information from sqw objects and files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on May 15, 2024, 8:37:08 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/manual/Cutting_data_of_interest_from_SQW_files_and_objects.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

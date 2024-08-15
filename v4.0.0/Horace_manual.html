@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Horace Manual &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="1. Planning a Horace scan" href="manual/Planning_a_Horace_scan.html" />
+    <link rel="prev" title="Interfacing with other programs" href="user_guide/Interfacing_with_other_programs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Horace
+              <img src="_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Horace Manual</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Planning_a_Horace_scan.html">1. Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Generating_SQW_files.html">2. Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Data_diagnostics.html">3. Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Special_sqw_information.html">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Reshaping_etc.html">9. Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Symmetrising_etc.html">10. Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Unary_operations.html">11. Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Binary_operations.html">12. Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html">13. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Simulation.html">14. Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Multifit.html">15. Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Tobyfit.html">16. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Parallel.html">17. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Changing_Horace_settings.html">18. Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/FAQ.html">FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Previous_versions.html">Previous Versions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Horace Manual</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Horace_manual.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="horace-manual">
+<h1>Horace Manual<a class="headerlink" href="#horace-manual" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="manual/Planning_a_Horace_scan.html">1. Planning a Horace scan</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Planning_a_Horace_scan.html#horace-planner-a-simple-scan-planner">1.1. horace_planner: a simple scan planner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Planning_a_Horace_scan.html#more-detailed-planning-of-scans">1.2. More detailed planning of scans</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Generating_SQW_files.html">2. Generating SQW files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Generating_SQW_files.html#accumulate-sqw">2.1. accumulate_sqw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Generating_SQW_files.html#gen-sqw">2.2. gen_sqw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Generating_SQW_files.html#applying-symmetry-operations-to-an-entire-dataset">2.3. Applying symmetry operations to an entire dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Data_diagnostics.html">3. Data diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Data_diagnostics.html#run-inspector">3.1. run_inspector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Data_diagnostics.html#split">3.2. split</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Data_diagnostics.html#join">3.3. join</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#step-1-determining-the-true-bragg-peak-positions">4.1. Step 1 - determining the true Bragg peak positions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#bragg-positions">4.1.1. Bragg Positions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#step-2-check-the-bragg-positions-fits-worked-properly">4.1.2. Step 2 - check the Bragg positions fits worked properly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#step-3-calculate-the-misalignment-correction">4.1.3. Step 3 - calculate the misalignment correction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#step-4-apply-the-correction-to-the-data">4.1.4. Step 4 - apply the correction to the data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#option-1-apply-the-correction-to-an-existing-sqw-file">4.2. Option 1 : apply the correction to an existing sqw file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#option-2-calculate-goniometer-offsets-for-regeneration-of-sqw-file-s">4.3. Option 2 : calculate goniometer offsets for regeneration of sqw file(s)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#option-2a-for-use-with-e-g-mslice-calculate-the-true-u-and-v-for-your-misaligned-crystal">4.4. Option 2a (for use with e.g. Mslice): calculate the true u and v for your misaligned crystal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#list-of-alignment-correction-routines">4.4.1. List of alignment correction routines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#id1">4.5. bragg_positions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#bragg-positions-view">4.6. bragg_positions_view</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#crystal-pars-correct">4.7. crystal_pars_correct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#refine-crystal">4.8. refine_crystal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#ubmatrix">4.9. ubmatrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#uv-correct">4.10. uv_correct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html#rlu-corr-to-lattice">4.11. rlu_corr_to_lattice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Cutting_data_of_interest_from_SQW_files_and_objects.html#cut">5.1. cut</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Cutting_data_of_interest_from_SQW_files_and_objects.html#datasource">5.1.1. Data Source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Cutting_data_of_interest_from_SQW_files_and_objects.html#projection-proj">5.1.2. Projection (proj)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Cutting_data_of_interest_from_SQW_files_and_objects.html#binning-arguments">5.1.3. Binning arguments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Cutting_data_of_interest_from_SQW_files_and_objects.html#file-and-memory-backed-cuts">5.1.4. File- and memory-backed cuts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Cutting_data_of_interest_from_SQW_files_and_objects.html#projection-in-more-detail">5.1.5. Projection in more detail</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Cutting_data_of_interest_from_SQW_files_and_objects.html#additional-notes">5.1.6. Additional notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Cutting_data_of_interest_from_SQW_files_and_objects.html#legacy-calls-to-cut-cut-sqw-and-cut-dnd">5.1.7. Legacy calls to <code class="docutils literal notranslate"><span class="pre">cut</span></code>: <code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">cut_dnd</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Cutting_data_of_interest_from_SQW_files_and_objects.html#section">5.2. section</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Special_sqw_information.html">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Special_sqw_information.html#head">6.1. head</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Special_sqw_information.html#legacy-equivalents-of-head">6.1.1. legacy equivalents of <code class="docutils literal notranslate"><span class="pre">head</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Special_sqw_information.html#xye">6.2. xye</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Special_sqw_information.html#save-xye">6.3. save_xye</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Save_and_load.html#read-horace">7.1. read_horace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Save_and_load.html#read-sqw">7.2. read_sqw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Save_and_load.html#read-dnd">7.3. read_dnd</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Save_and_load.html#save">8.1. save</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Reshaping_etc.html">9. Other shape functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Reshaping_etc.html#replicate">9.1. <code class="docutils literal notranslate"><span class="pre">replicate</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Reshaping_etc.html#compact">9.2. <code class="docutils literal notranslate"><span class="pre">compact</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Reshaping_etc.html#permute">9.3. <code class="docutils literal notranslate"><span class="pre">permute</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Reshaping_etc.html#cut">9.4. <code class="docutils literal notranslate"><span class="pre">cut</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Reshaping_etc.html#section">9.5. <code class="docutils literal notranslate"><span class="pre">section</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Reshaping_etc.html#smooth">9.6. <code class="docutils literal notranslate"><span class="pre">smooth</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Reshaping_etc.html#mask">9.7. <code class="docutils literal notranslate"><span class="pre">mask</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Reshaping_etc.html#mask-points">9.8. <code class="docutils literal notranslate"><span class="pre">mask_points</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Reshaping_etc.html#mask-runs">9.9. <code class="docutils literal notranslate"><span class="pre">mask_runs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Symmetrising_etc.html">10. Symmetry Operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Symmetrising_etc.html#symmetry-operators">10.1. Symmetry Operators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Symmetrising_etc.html#reflections">10.1.1. Reflections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Symmetrising_etc.html#rotations">10.1.2. Rotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Symmetrising_etc.html#general-transformations">10.1.3. General Transformations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Symmetrising_etc.html#groups-of-symmetry-operators">10.1.4. Groups of symmetry operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Symmetrising_etc.html#irreducible-region">10.1.5. Irreducible region</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Symmetrising_etc.html#symop-methods">10.2. Symop Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Symmetrising_etc.html#transform-vec">10.2.1. <code class="docutils literal notranslate"><span class="pre">transform_vec</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Symmetrising_etc.html#transform-pix">10.2.2. <code class="docutils literal notranslate"><span class="pre">transform_pix</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Symmetrising_etc.html#transform-proj">10.2.3. <code class="docutils literal notranslate"><span class="pre">transform_proj</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Symmetrising_etc.html#commands-for-cuts-and-slices">10.3. Commands for cuts and slices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Symmetrising_etc.html#symmetrising">10.4. Symmetrising</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Symmetrising_etc.html#symmetrise-sqw">10.4.1. <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Symmetrising_etc.html#gen-sqw">10.4.2. <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Symmetrising_etc.html#cutting">10.5. Cutting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Symmetrising_etc.html#combining">10.6. Combining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Symmetrising_etc.html#rebinning">10.7. Rebinning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Symmetrising_etc.html#symmetrise-data-then-unfold-back-to-original-range">10.8. Symmetrise data, then unfold back to original range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Symmetrising_etc.html#limitations">10.9. Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Unary_operations.html">11. Unary operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Unary_operations.html#unary-plus">11.1. unary plus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Unary_operations.html#unary-minus">11.2. unary minus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Unary_operations.html#trigonometric-and-hyperbolic-functions">11.3. Trigonometric and hyperbolic functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Unary_operations.html#other-mathematical-functions">11.4. Other mathematical functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Binary_operations.html">12. Binary operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Binary_operations.html#introduction">12.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Binary_operations.html#sqw-objects">12.2. sqw objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Binary_operations.html#single-sqw-object">12.2.1. Single sqw object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Binary_operations.html#array-of-sqw-objects">12.2.2. Array of sqw objects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Binary_operations.html#dnd-objects">12.3. dnd objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Binary_operations.html#single-dnd-object">12.3.1. Single dnd object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Binary_operations.html#array-of-dnd-objects">12.3.2. Array of dnd objects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Binary_operations.html#tips-and-tricks">12.4. Tips and Tricks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Binary_operations.html#list-of-operations-and-their-equivalent-code">12.4.1. List of operations and their equivalent code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Binary_operations.html#binary-operations-manager">12.4.2. Binary operations manager</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Plotting.html">13. Plotting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#plot">13.1. plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#smooth">13.2. smooth</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Plotting.html#altering-plot-characteristics-and-other-useful-commands">13.2.1. Altering plot characteristics and other useful commands</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#colour-of-lines-and-markers">13.3. Colour of lines and markers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#line-style">13.4. Line style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#marker-style">13.5. Marker style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#axes-limits">13.6. Axes Limits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#cursor">13.7. Cursor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#keeping-plots">13.8. Keeping plots</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Plotting.html#one-dimensional-plots">13.8.1. One dimensional plots</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#dd-draw-data">13.9. dd (draw data)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#dl-draw-line">13.10. dl (draw line)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#dm-draw-markers">13.11. dm (draw markers)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#dp-draw-points">13.12. dp (draw points)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#de-draw-errors">13.13. de (draw errors)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#dh-draw-histogram">13.14. dh (draw histogram)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#pd-plot-data">13.15. pd (plot data)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#pl-plot-line">13.16. pl (plot line)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#pm-plot-markers">13.17. pm (plot markers)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#pp-plot-points">13.18. pp (plot points)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#pe-plot-errors">13.19. pe (plot errors)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#ph-plot-histogram">13.20. ph (plot histogram)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#ploc-plot-line-over-current">13.21. ploc (plot line over current)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#pdoc-plot-data-over-current">13.22. pdoc (plot data over current)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#pmoc-plot-markers-over-current">13.23. pmoc (plot markers over current)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#ppoc-plot-points-over-current">13.24. ppoc (plot points over current)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#peoc-plot-errors-over-current">13.25. peoc (plot errors over current)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#phoc">13.26. phoc</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Plotting.html#two-dimensional-plots">13.26.1. Two dimensional plots</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#da-draw-area">13.27. da (draw area)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#ds-draw-surface">13.28. ds (draw surface)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#ds2-draw-surface-from-2-sources">13.29. ds2 (draw surface from 2 sources)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#pa-plot-area">13.30. pa (plot area)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#ps-plot-surface">13.31. ps (plot surface)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#ps2-plot-surface-from-2-objects">13.32. ps2 (plot surface from 2 objects)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#spaghetti-plot">13.33. spaghetti_plot</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Plotting.html#three-dimensional-plots">13.33.1. Three dimensional plots</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#sliceomatic">13.34. sliceomatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html#sliceomatic-overview">13.35. sliceomatic_overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Plotting.html#miscellaneous-functions">13.35.1. Miscellaneous functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Simulation.html">14. Simulation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Simulation.html#func-eval">14.1. func_eval</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Simulation.html#sqw-eval">14.2. sqw_eval</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Simulation.html#dispersion">14.3. dispersion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Simulation.html#disp2sqw-eval">14.4. disp2sqw_eval</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Simulation.html#dispersion-plot">14.5. dispersion_plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Simulation.html#disp2sqw-plot">14.6. disp2sqw_plot</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Multifit.html">15. Multifit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Multifit.html#overview">15.1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Multifit.html#introduction-to-setting-up-and-performing-a-fit">15.2. Introduction to setting up and performing a fit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Multifit.html#simple-fitting">15.2.1. Simple fitting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Multifit.html#background-functions">15.2.2. Background functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Multifit.html#binding-parameters">15.2.3. Binding parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Multifit.html#semi-global-fits">15.2.4. Semi-global fits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Multifit.html#summary-of-commands-with-multifit">15.3. Summary of commands with multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Multifit.html#fitting-functions">15.4. Fitting functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Multifit.html#multifit-function">15.4.1. multifit function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Multifit.html#multifit-func">15.4.2. multifit_func</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Multifit.html#multifit-sqw">15.4.3. multifit_sqw</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Multifit.html#multifit-sqw-sqw">15.4.4. multifit_sqw_sqw</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Multifit.html#parallel-fitting">15.5. Parallel fitting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Tobyfit.html">16. Tobyfit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Tobyfit.html#introduction">16.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Tobyfit.html#performing-resolution-convolution">16.2. Performing resolution convolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Tobyfit.html#setting-the-sample-and-instrument-information">16.2.1. Setting the sample and instrument information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Tobyfit.html#fitting-data">16.2.2. Fitting data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Parallel.html">17. Running Horace in Parallel</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Parallel.html#controlling-mpi">17.1. Controlling MPI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="manual/Parallel.html#enabling-locally">17.1.1. Enabling Locally</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manual/Parallel.html#enabling-globally">17.1.2. Enabling Globally</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Parallel.html#mpi-schemes">17.2. MPI Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Parallel.html#managing-parallel-jobs">17.3. Managing parallel jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Parallel.html#slurm-jobs">17.4. Slurm Jobs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Changing_Horace_settings.html">18. Changing Horace settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Changing_Horace_settings.html#horace-config">18.1. Horace Config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Changing_Horace_settings.html#hpc-config">18.2. HPC Config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Changing_Horace_settings.html#parallel-config">18.3. Parallel Config</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Horace Manual Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="manual/List_of_functions.html">List of functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual/Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual/FAQ.html">FAQ</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="user_guide/Interfacing_with_other_programs.html" class="btn btn-neutral float-left" title="Interfacing with other programs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="manual/Planning_a_Horace_scan.html" class="btn btn-neutral float-right" title="1. Planning a Horace scan" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Aug 15, 2024, 5:05:37 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/Horace_manual.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Multifit &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Changing object type" href="Changing_object_type.html" />
+    <link rel="prev" title="Unsorted Manual Pages" href="../Unsorted.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
+          <li class="breadcrumb-item"><a href="../Unsorted.html">Unsorted Manual Pages</a></li>
+      <li class="breadcrumb-item active">Advanced Multifit</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Advanced_Multifit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="advanced-multifit">
+<h1>Advanced Multifit<a class="headerlink" href="#advanced-multifit" title="Link to this heading"></a></h1>
+<p>At some point in the future it may be possible that someone wishes to extend the
+usage of <code class="docutils literal notranslate"><span class="pre">multifit</span></code> as a generic fitting engine to fit multivariate problems
+with multiple correlated datasets contained in a data-containing class. To
+support this no-doubt noble goal, this section describes how to define a
+dataclass which is compatible with <code class="docutils literal notranslate"><span class="pre">multifit</span></code> specifications.</p>
+<section id="multifit-methods-requirements">
+<h2>Multifit methods requirements<a class="headerlink" href="#multifit-methods-requirements" title="Link to this heading"></a></h2>
+<p>In many cases, the most convenient thing to do is extract the x, y, and error
+arrays from an object and pass those to <code class="docutils literal notranslate"><span class="pre">multifit</span></code>. This can be done by
+defining an <code class="docutils literal notranslate"><span class="pre">xye</span></code> method on the class which returns an x, y, e triple:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="p">(</span><span class="n">xye</span><span class="p">(</span><span class="n">w</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>where the method <code class="docutils literal notranslate"><span class="pre">xye</span></code> must return a structure of the form required by
+<code class="docutils literal notranslate"><span class="pre">multifit</span></code>, i.e. a structure with fields <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">e</span></code>, where <code class="docutils literal notranslate"><span class="pre">x</span></code>
+is a cell array <code class="docutils literal notranslate"><span class="pre">{x1,</span> <span class="pre">x2,</span> <span class="pre">...}</span></code> containing vectors of coordinates along each
+axis, and <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">e</span></code> are vectors of the signal’s magnitude and standard
+deviation respectively.</p>
+<p>A convenient way to do this is to use the methods <a class="reference internal" href="#sigvar-get">sigvar_get</a> and
+<a class="reference internal" href="#sigvar-getx">sigvar_getx</a> if they have been written to allow the object itself to be passed
+to <code class="docutils literal notranslate"><span class="pre">multifit</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">multifit</span></code> is being used to fit functions to instances of the class itself
+rather than bare x-y-e triples, then there are some methods that need to be
+defined on the class. You might want to fit the objects if their internal
+structure is more complex, for example if the fitting function depends on fields
+other than just the x values and parameters being passed to the fit function.</p>
+<p>Another case is when the masking of points from fitting requires manipulation of
+fields other than simply removing x-y-e values.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>One example is the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects used in Horace. Here, the calculation of
+the intensity at a data point depends on the individual pixels that
+contribute to that data point. Masking requires that the pixel information of
+masked bins is removed from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p>
+</div>
+<p>The methods required for fitting objects with <code class="docutils literal notranslate"><span class="pre">multifit</span></code> are as follows:</p>
+<section id="fit-functions">
+<h3>Fit functions<a class="headerlink" href="#fit-functions" title="Link to this heading"></a></h3>
+<p>The general format for a valid fitting function is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">wcalc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_function</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="n">c2</span><span class="p">,</span><span class="w"> </span><span class="n">c3</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">)</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">w</span></code> is the object to be fitted and <code class="docutils literal notranslate"><span class="pre">c1</span></code>, <code class="docutils literal notranslate"><span class="pre">c2</span></code>, <code class="docutils literal notranslate"><span class="pre">c3</span></code>, … are the fit
+parameters.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The global and background function(s) if given, can be methods of the
+class or simply functions, with input argument form as described in detail by
+<code class="docutils literal notranslate"><span class="pre">help('multifit')</span></code>.</p>
+</div>
+<p>Defining members of the <code class="docutils literal notranslate"><span class="pre">multifit</span></code> family of functions as methods of your
+class allows you to use that method to process arguments as needed before
+passing them through to the underlying <code class="docutils literal notranslate"><span class="pre">mfclass</span></code> object (which defines the
+fitting operation itself). This is done when fitting a Guassian to an <code class="docutils literal notranslate"><span class="pre">sqw</span></code>,
+for example, where the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> determines the correct dimensionality of Gaussian
+to match that of the object.</p>
+<section id="utility-methods">
+<h4>Utility methods<a class="headerlink" href="#utility-methods" title="Link to this heading"></a></h4>
+<p>This section contains a list of methods which <code class="docutils literal notranslate"><span class="pre">multifit</span></code> understands and are
+used to fit user-defined classes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Those defined as “[Optional]” are not necessary for an class to be fit, but
+can be helpful in optimisation. They will be used if available, but
+<code class="docutils literal notranslate"><span class="pre">multifit</span></code> will fall back to mandatory methods automatically if not
+provided.</p>
+</div>
+<section id="mask">
+<h5>mask<a class="headerlink" href="#mask" title="Link to this heading"></a></h5>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">msk</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A method that removes data points from further calculation. The output object must
+be a valid instance of the class in which the masked values have been removed in
+whatever sense the class and fitting requires.</p>
+</section>
+<section id="mask-points-optional">
+<span id="mask-points"></span><h5>mask_points [optional]<a class="headerlink" href="#mask-points-optional" title="Link to this heading"></a></h5>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">msk</span><span class="p">,</span><span class="w"> </span><span class="n">ok</span><span class="p">,</span><span class="w"> </span><span class="n">mess</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">xkeep</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;remove&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">xremove</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;mask&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">msk_in</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a mask array given ranges of x-coordinates to keep, remove or mask from
+the array. The elements of a mask array are <code class="docutils literal notranslate"><span class="pre">true</span></code> for those data points which
+are to be retained, i.e. NOT omitted.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is not necessary to provide a <code class="docutils literal notranslate"><span class="pre">mask_points</span></code> method if a <a class="reference internal" href="#sigvar-getx">sigvar_getx</a>
+method is defined, however, <code class="docutils literal notranslate"><span class="pre">mask_points</span></code> will take priority over
+<code class="docutils literal notranslate"><span class="pre">sigvar_getx</span></code></p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">mask_points</span></code> should return a logical flag <code class="docutils literal notranslate"><span class="pre">ok</span></code>, with message string in
+<code class="docutils literal notranslate"><span class="pre">mess</span></code> if not <code class="docutils literal notranslate"><span class="pre">ok</span></code> rather than terminate.</p>
+<p>If the function is only ever to be used without demanding the <code class="docutils literal notranslate"><span class="pre">ok</span></code> /
+<code class="docutils literal notranslate"><span class="pre">mess</span></code> return values from <code class="docutils literal notranslate"><span class="pre">multifit</span></code> it is possible to avoid this
+requirement.</p>
+<p>However, if it is expected that other people will attempt to fit your custom
+class, this requirement should be respected or very obviously documented as
+not complying.</p>
+</div>
+</section>
+<section id="sigvar-get">
+<h5>sigvar_get<a class="headerlink" href="#sigvar-get" title="Link to this heading"></a></h5>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="nb">var</span><span class="p">,</span><span class="w"> </span><span class="n">msk</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sigvar_get</span><span class="p">(</span><span class="n">win</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A method that returns the intensity and variance arrays from an object, along
+with a mask array that indicates which elements are to be retained.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>elements of <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">var</span></code> which correspond to <code class="docutils literal notranslate"><span class="pre">true</span></code> elements of
+<code class="docutils literal notranslate"><span class="pre">msk</span></code> are retained.</p>
+<p>An example of where <code class="docutils literal notranslate"><span class="pre">msk</span></code> might be useful is points where <code class="docutils literal notranslate"><span class="pre">y</span></code>
+or <code class="docutils literal notranslate"><span class="pre">var</span></code> are undefined due to normalisation (dividing by zero) as part of
+calculating <code class="docutils literal notranslate"><span class="pre">sigvar</span></code>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The output arrays <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">var</span></code> must have the same size and shape.</p>
+<p><code class="docutils literal notranslate"><span class="pre">msk</span></code> must have the same number of elements as <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">var</span></code>, but can
+be a different shape.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The returned <code class="docutils literal notranslate"><span class="pre">msk</span></code> must be compatibible with the <a class="reference internal" href="#mask">mask</a> method.</p>
+</div>
+</section>
+<section id="sigvar-getx-optional">
+<span id="sigvar-getx"></span><h5>sigvar_getx [optional]<a class="headerlink" href="#sigvar-getx-optional" title="Link to this heading"></a></h5>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sigvar_getx</span><span class="p">(</span><span class="n">win</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Get the corresponding <code class="docutils literal notranslate"><span class="pre">x</span></code> values to the <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">var</span></code>, <code class="docutils literal notranslate"><span class="pre">msk</span></code> arrays that
+are returned by <code class="docutils literal notranslate"><span class="pre">sigvar_get</span></code>.</p>
+<ul>
+<li><p>If one dimensional, i.e. single x coordinate per point:</p>
+<p><code class="docutils literal notranslate"><span class="pre">x</span></code> will be a single array, the same size as <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">var</span></code></p>
+</li>
+<li><p>If n-dimensional, i.e. n x-values per point:</p>
+<p><code class="docutils literal notranslate"><span class="pre">x</span></code> will be a cell array of arrays, one per x dimension, each the same size
+as <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">var</span></code> as returned by <code class="docutils literal notranslate"><span class="pre">sigvar_get</span></code>.</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method replaces the need to have the <a class="reference internal" href="#mask-points">mask_points</a> method, as
+<code class="docutils literal notranslate"><span class="pre">sigvar_getx</span></code> will enable <code class="docutils literal notranslate"><span class="pre">multifit</span></code> to use its own masking
+function. However, if <code class="docutils literal notranslate"><span class="pre">mask_points</span></code> exists, then it will have priority over
+<code class="docutils literal notranslate"><span class="pre">sigvar_getx</span></code>.</p>
+</div>
+</section>
+<section id="plus-optional">
+<h5>plus [optional]<a class="headerlink" href="#plus-optional" title="Link to this heading"></a></h5>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wsum</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">plus</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">w2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Basic addition of two objects of the custom class.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>In order to use a background function with <code class="docutils literal notranslate"><span class="pre">multifit</span></code>, the addition of
+objects must be defined.</p>
+</div>
+</section>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../Unsorted.html" class="btn btn-neutral float-left" title="Unsorted Manual Pages" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Changing_object_type.html" class="btn btn-neutral float-right" title="Changing object type" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Aug 15, 2024, 5:05:37 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/manual/Advanced_Multifit.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

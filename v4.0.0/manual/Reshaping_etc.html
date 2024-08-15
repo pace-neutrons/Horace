@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>9. Other shape functions &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="10. Symmetry Operations" href="Symmetrising_etc.html" />
+    <link rel="prev" title="7. Loading sqw and dnd objects to memory" href="Save_and_load.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">1. Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">2. Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">3. Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Special_sqw_information.html">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">9. Other shape functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#replicate">9.1. <code class="docutils literal notranslate"><span class="pre">replicate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compact">9.2. <code class="docutils literal notranslate"><span class="pre">compact</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#permute">9.3. <code class="docutils literal notranslate"><span class="pre">permute</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cut">9.4. <code class="docutils literal notranslate"><span class="pre">cut</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#section">9.5. <code class="docutils literal notranslate"><span class="pre">section</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#smooth">9.6. <code class="docutils literal notranslate"><span class="pre">smooth</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mask">9.7. <code class="docutils literal notranslate"><span class="pre">mask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mask-points">9.8. <code class="docutils literal notranslate"><span class="pre">mask_points</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mask-runs">9.9. <code class="docutils literal notranslate"><span class="pre">mask_runs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">12. Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">13. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">15. Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">16. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">17. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">18. Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">9. </span>Other shape functions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Reshaping_etc.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="other-shape-functions">
+<h1><span class="section-number">9. </span>Other shape functions<a class="headerlink" href="#other-shape-functions" title="Link to this heading"></a></h1>
+<section id="replicate">
+<h2><span class="section-number">9.1. </span><code class="docutils literal notranslate"><span class="pre">replicate</span></code><a class="headerlink" href="#replicate" title="Link to this heading"></a></h2>
+<p>This is a function to create a higher dimensional dataset by replicating along
+an additional axis. For example, a <code class="docutils literal notranslate"><span class="pre">d2d</span></code> which is essentially a 2D array of
+intensity, can be replicated to make a <code class="docutils literal notranslate"><span class="pre">d3d</span></code> (a 3D array of intensity) where
+the extra dimension is made up of the original “stacked” atop copies of itself in
+that direction. Likewise, a <code class="docutils literal notranslate"><span class="pre">d4d</span></code> might be made up of “stacked” copies of a
+<code class="docutils literal notranslate"><span class="pre">d3d</span></code>.</p>
+<p>In Matlab syntax this means e.g.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">oldmat</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">3</span><span class="w"> </span><span class="s">4]</span><span class="p">;</span>
+<span class="n">newmat</span><span class="p">(:,:,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">oldmat</span><span class="p">;</span>
+<span class="n">newmat</span><span class="p">(:,:,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">oldmat</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The actual syntax for replicate does not construct the layers individually.
+Instead, a reference object of the required dimensionality (<code class="docutils literal notranslate"><span class="pre">wref_3d</span></code> below)
+is supplied to act as a template.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w_3d</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">replicate</span><span class="p">(</span><span class="n">w_nd</span><span class="p">,</span><span class="w"> </span><span class="n">wref_3d</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w_4d</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">replicate</span><span class="p">(</span><span class="n">w_nd</span><span class="p">,</span><span class="w"> </span><span class="n">wref_4d</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">wref</span></code> can be either a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> or an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> type object.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">w_nd</span></code> may be of any dimensionality less than that of <code class="docutils literal notranslate"><span class="pre">wref</span></code></p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">w_nd</span></code> must be <code class="docutils literal notranslate"><span class="pre">dnd</span></code> and not <code class="docutils literal notranslate"><span class="pre">sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">replicate</span></code> on an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object
+simply returns its representative <code class="docutils literal notranslate"><span class="pre">dnd</span></code> replicated.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function cannot be applied to a 4-dimensional object, attempting to
+<code class="docutils literal notranslate"><span class="pre">replicate</span></code> a 4-d object will result in an error.</p>
+</div>
+</section>
+<section id="compact">
+<h2><span class="section-number">9.2. </span><code class="docutils literal notranslate"><span class="pre">compact</span></code><a class="headerlink" href="#compact" title="Link to this heading"></a></h2>
+<p>Trim empty bins from around the border of a dnd.</p>
+<p>The resulting object has its ranges redefined such that all primary axis
+dimensions are the minimum required to contain all data without losses.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">compact</span><span class="p">(</span><span class="n">win</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For example,</p>
+<p>Suppose we have a 2-dimensional dataset where the axes are <code class="docutils literal notranslate"><span class="pre">p{1}</span> <span class="pre">=</span>
+<span class="pre">[-4.5:1:4.5]</span></code> and <code class="docutils literal notranslate"><span class="pre">p{2}</span> <span class="pre">=</span> <span class="pre">[-4.5:1:4.5]</span></code>. The intensity would be given by a
+10x10 matrix. Suppose there is only non-zero intensity for <code class="docutils literal notranslate"><span class="pre">-3</span> <span class="pre">&lt;</span> <span class="pre">p{1}</span> <span class="pre">&lt;</span> <span class="pre">3</span></code>
+and <code class="docutils literal notranslate"><span class="pre">-3</span> <span class="pre">&lt;</span> <span class="pre">p{2}</span> <span class="pre">&lt;</span> <span class="pre">3</span></code>. In this case <code class="docutils literal notranslate"><span class="pre">compact</span></code> would reduce the size of the
+intensity matrix, to be <code class="docutils literal notranslate"><span class="pre">[-2.5:1:2.5],</span> <span class="pre">[-2.5:1:2.5]</span></code> (6x6).</p>
+</div>
+</section>
+<section id="permute">
+<h2><span class="section-number">9.3. </span><code class="docutils literal notranslate"><span class="pre">permute</span></code><a class="headerlink" href="#permute" title="Link to this heading"></a></h2>
+<p>Function to permute the order of the display (binning) axes in an object.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">permute</span><span class="p">(</span><span class="n">win</span><span class="p">[,</span><span class="w"> </span><span class="n">permutation</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>Permutation is an nx1 array for n-dimensional objects specifying the new order
+of each axis. If no <code class="docutils literal notranslate"><span class="pre">permutation</span></code> is provided, the function will cyclically
+permute the axes by one (e.g. 1-&gt;2, 2-&gt;3, 3-&gt;4, 4-&gt;1).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">permute</span><span class="p">(</span><span class="n">w_3d</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>makes the new 1st axis the old 3rd, and the new 3rd axis the old 1st.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function only changes the order of the axes for display. All other
+information, including the projection axes, are unchanged.</p>
+</div>
+</section>
+<section id="cut">
+<h2><span class="section-number">9.4. </span><code class="docutils literal notranslate"><span class="pre">cut</span></code><a class="headerlink" href="#cut" title="Link to this heading"></a></h2>
+<p>Produce a rebinned dataset from a starting dataset. See <a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html#cut"><span class="std std-ref">cut</span></a> for
+more details.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">ax_1</span><span class="p">,</span><span class="w"> </span><span class="n">ax_2</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">);</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">ax_1</span></code> etc. take the form:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[lo,</span> <span class="pre">hi]</span></code> for integration between two limits</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[lo,</span> <span class="pre">step,</span> <span class="pre">hi]</span></code> for a plot axis between given limits with a given step size</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[step]</span></code> for a plot axis taking the existing lo and hi and rebinning to a
+given step size,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[]</span></code> for leaving the limits and step size of an axis unchanged.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects, it is only possible to cut to the same or lower
+dimensionality. This is because they do not contain the underlying pixel
+information with which to rebin the data.</p>
+<p>For example, for a d3d starting dataset you can get to a d2d, d1d, or
+d0d. The lower dimensional dataset is created by taking the average over a
+given integration range from the original dataset.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w_3d</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">0.9</span><span class="p">,</span><span class="w"> </span><span class="mf">1.1</span><span class="p">],</span><span class="w"> </span><span class="p">[]);</span>
+</pre></div>
+</div>
+<p>takes the input d3d object <code class="docutils literal notranslate"><span class="pre">w_3d</span></code> and averages the signal between the
+limits -0.2 and +0.2 for the 1st axis, and between 0.9 and 1.1 for the second
+axis. The resultant <code class="docutils literal notranslate"><span class="pre">wout</span></code> is thus a d1d.</p>
+</div>
+</section>
+<section id="section">
+<h2><span class="section-number">9.5. </span><code class="docutils literal notranslate"><span class="pre">section</span></code><a class="headerlink" href="#section" title="Link to this heading"></a></h2>
+<p>Takes a cut from an n-dimensional object without rebinning.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="n">section</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">ax1_lo</span><span class="p">,</span><span class="w"> </span><span class="n">ax1_hi</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="n">ax2_lo</span><span class="p">,</span><span class="w"> </span><span class="n">ax2_hi</span><span class="p">],</span><span class="w"> </span><span class="k">...</span><span class="c">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only bin centres within the limits of <code class="docutils literal notranslate"><span class="pre">lo</span></code>, <code class="docutils literal notranslate"><span class="pre">hi</span></code> will be captured.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The difference between <code class="docutils literal notranslate"><span class="pre">section</span></code> and <code class="docutils literal notranslate"><span class="pre">cut</span></code> is that <code class="docutils literal notranslate"><span class="pre">section</span></code> does not
+have to rebin data as the selected data are taken from the original’s
+bins. This means that section is much faster for cases where bins are not
+changing.</p>
+<p>This does, however, mean that it is impossible to reshape or resize bins as
+part of a <code class="docutils literal notranslate"><span class="pre">section</span></code> operation.</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">win</span></code> is the input dnd or sqw object, and the vectors <code class="docutils literal notranslate"><span class="pre">[ax_lo,</span> <span class="pre">ax_hi]</span></code>
+specify the lower and upper limits on each axis to retain.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If just a zero is specified, e.g.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">section</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>then the existing limits are retained. So for the above 3-dimensional example
+data along the first axis between 1 and 2 are retained, and data between 3
+and 4 on the 3rd axis are retained, and all of the data along the second axis
+are retained.</p>
+</div>
+</section>
+<section id="smooth">
+<h2><span class="section-number">9.6. </span><code class="docutils literal notranslate"><span class="pre">smooth</span></code><a class="headerlink" href="#smooth" title="Link to this heading"></a></h2>
+<p>A function that can be used on <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects smooths the data <code class="docutils literal notranslate"><span class="pre">win</span></code> by
+convolving it with a windowing function.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is not implemented for <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects where it would make very
+little sense.</p>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">smooth</span><span class="p">(</span><span class="n">win</span><span class="p">[,</span><span class="w"> </span><span class="n">width_vector</span><span class="p">][,</span><span class="w"> </span><span class="k">function</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>e.g.:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">smooth</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;gaussian&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function is will do nothing if applied to <code class="docutils literal notranslate"><span class="pre">d0d</span></code> objects where it is
+functionally meaningless.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The default <code class="docutils literal notranslate"><span class="pre">width_vector</span></code> if not supplied is <code class="docutils literal notranslate"><span class="pre">3</span></code> for all dimensions.</p>
+</div>
+<p>The vector <code class="docutils literal notranslate"><span class="pre">[width_vector]</span></code> is an nx1 array for a n-dimensional object and
+gives the width of the convolution along each axis in terms of the number of
+bins. Alternatively you can supply a 1x1 (scalar) array, in which case the same
+width will be used for all axes. You can also choose with what function the data
+are convoluted.</p>
+<p><code class="docutils literal notranslate"><span class="pre">function</span></code> may be either either <code class="docutils literal notranslate"><span class="pre">'hat'</span></code> or <code class="docutils literal notranslate"><span class="pre">'gaussian'</span></code> to apply the
+respective windowing function.</p>
+</section>
+<section id="mask">
+<h2><span class="section-number">9.7. </span><code class="docutils literal notranslate"><span class="pre">mask</span></code><a class="headerlink" href="#mask" title="Link to this heading"></a></h2>
+<p>Apply a mask to points in an n-dimensional dataset <code class="docutils literal notranslate"><span class="pre">win</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">mask_array</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The points to mask are defined by <code class="docutils literal notranslate"><span class="pre">mask_array</span></code>, an array of the same size as
+the plot axes of <code class="docutils literal notranslate"><span class="pre">win</span></code>, consisting of booleans where data are to be retained
+(<code class="docutils literal notranslate"><span class="pre">true</span></code>) or masked (<code class="docutils literal notranslate"><span class="pre">false</span></code>) respectively.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> The masked out bins have their intensity (<code class="docutils literal notranslate"><span class="pre">s</span></code>) set to NaN,
+errorbar (<code class="docutils literal notranslate"><span class="pre">e</span></code>) set to zero and <code class="docutils literal notranslate"><span class="pre">npix</span></code> set to zero.</p>
+<p>In an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> the masked pixels are filtered from the data as though cut and
+the corresponding <code class="docutils literal notranslate"><span class="pre">dnd</span></code> will reflect this.</p>
+</div>
+</section>
+<section id="mask-points">
+<h2><span class="section-number">9.8. </span><code class="docutils literal notranslate"><span class="pre">mask_points</span></code><a class="headerlink" href="#mask-points" title="Link to this heading"></a></h2>
+<p>A function to generate a suitable mask array (see above) for an n-dimensional
+dataset.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">win</span><span class="p">[,</span><span class="w"> </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">xkeep</span><span class="p">][,</span><span class="w"> </span><span class="s">&#39;remove&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">xremove</span><span class="p">][,</span><span class="w"> </span><span class="s">&#39;mask&#39;</span><span class="p">,</span>
+<span class="n">mask_array</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The inputs are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">win</span></code> is the input <code class="docutils literal notranslate"><span class="pre">sqw</span></code> dataset</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xkeep</span></code> is the range of display axes to keep, e.g. <code class="docutils literal notranslate"><span class="pre">[x1_lo,</span> <span class="pre">x1_hi,</span> <span class="pre">x2_lo,</span>
+<span class="pre">x2_hi,</span> <span class="pre">...,</span> <span class="pre">xn_lo,</span> <span class="pre">xn_hi]</span></code>, where <code class="docutils literal notranslate"><span class="pre">n</span></code> is the dimensionality of <code class="docutils literal notranslate"><span class="pre">win</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For a given dimensionality of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, you must provide ranges for all the specified dimensions.</p>
+</div>
+<p>e.g.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Select the points between 50 and 70 in the first display dimension</span>
+<span class="n">sel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">win_1d</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="mi">70</span><span class="p">]);</span>
+<span class="c">% select the points in the rectangle defined by the corners</span>
+<span class="c">% (1, 130), (2, 160)</span>
+<span class="n">sel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">win_2d</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">130</span><span class="p">,</span><span class="mi">160</span><span class="p">]);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>More than one range can be specified for each dimension by writing
+<code class="docutils literal notranslate"><span class="pre">[range_1;</span> <span class="pre">range_2;...]</span></code>, where each <code class="docutils literal notranslate"><span class="pre">range_n</span></code> has the form of an
+<code class="docutils literal notranslate"><span class="pre">xkeep</span></code> specification, e.g.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Select the points in the rectangles defined by the corners</span>
+<span class="c">% (1, 130), (2, 160) and (5, 110), (7, 130)</span>
+<span class="n">sel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_points</span><span class="p">(</span><span class="n">win_2d</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">130</span><span class="p">,</span><span class="w"> </span><span class="mi">160</span><span class="p">;</span><span class="w"> </span><span class="k">...</span>
+<span class="w">                                   </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="mi">110</span><span class="p">,</span><span class="w"> </span><span class="mi">130</span><span class="p">]);</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xremove</span></code> is the range of display axes to remove. Follows the same format as
+<code class="docutils literal notranslate"><span class="pre">xkeep</span></code>.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It should be noted that masking through the <code class="docutils literal notranslate"><span class="pre">xkeep</span></code> and <code class="docutils literal notranslate"><span class="pre">xremove</span></code>
+arguments will mask data based on the bin-centres and not through any
+intersection of any bin-edges. This means that for a 1-D case where:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">bins</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="c">% &lt;- Defines bin-centres at: [1.5, 2.5, 3.5]</span>
+<span class="n">mask_points</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;keep&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">1.7</span><span class="p">,</span><span class="w"> </span><span class="mf">3.51</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>will remove the first bin because even though <code class="docutils literal notranslate"><span class="pre">1.7</span></code> lies within the first
+bin, the range does not contain the bin-centre. <code class="docutils literal notranslate"><span class="pre">3.51</span></code>, however, just
+barely captures the last bin and so this will not be removed.</p>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">mask_array</span></code> is an array of booleans with the same number of
+elements as <code class="docutils literal notranslate"><span class="pre">win</span></code>, with corresponding <code class="docutils literal notranslate"><span class="pre">true</span></code> to keep and
+<code class="docutils literal notranslate"><span class="pre">false</span></code> to remove.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The shape of <code class="docutils literal notranslate"><span class="pre">mask_array</span></code> should match the complete stored pixel data, not
+the bins as presented on the plotting axes.</p>
+</div>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Should more than one of <code class="docutils literal notranslate"><span class="pre">'keep'</span></code>, <code class="docutils literal notranslate"><span class="pre">'remove'</span></code> or <code class="docutils literal notranslate"><span class="pre">'mask'</span></code> be specified,
+for any given point, all options agree to keep the point for that point to be
+kept.</p>
+<p>That is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Here, keep and remove are arrays of logicals</span>
+<span class="c">% of the same shape as `win`&#39;s data constructed</span>
+<span class="c">% from the ranges specified in `xkeep` and `xremove`</span>
+
+<span class="n">sel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">keep</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="nb">remove</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">mask</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Any unspecified keywords (<code class="docutils literal notranslate"><span class="pre">'keep'</span></code>, <code class="docutils literal notranslate"><span class="pre">'remove'</span></code> or <code class="docutils literal notranslate"><span class="pre">'mask'</span></code>) are
+considered to be <code class="docutils literal notranslate"><span class="pre">keep</span></code> for all points</p>
+</div>
+<p>The outputs are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sel</span></code> mask array of the required size, accounting for all of the input
+requirements.</p></li>
+</ul>
+</section>
+<section id="mask-runs">
+<h2><span class="section-number">9.9. </span><code class="docutils literal notranslate"><span class="pre">mask_runs</span></code><a class="headerlink" href="#mask-runs" title="Link to this heading"></a></h2>
+<p>Remove all pixels from one or more runs from an sqw object. Useful, for example
+if one run from many in an sqw file is deemed to be spurious (e.g. detector
+noise, unknown sample orientation, etc.)</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask_runs</span><span class="w"> </span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">runno</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The inputs are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">win</span></code> is the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object to be masked.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runno</span></code> is the run number, or array of run numbers, in the sqw object to be
+masked.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The run number <code class="docutils literal notranslate"><span class="pre">runno</span></code> here is not the experimental run number, but is the
+position of the file in the list when the <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file was generated. This
+value can be determined by inspecting <code class="docutils literal notranslate"><span class="pre">win.header</span></code></p>
+</div>
+<p>The output is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wout</span></code>, the output sqw object with mask applied</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Save_and_load.html" class="btn btn-neutral float-left" title="7. Loading sqw and dnd objects to memory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Symmetrising_etc.html" class="btn btn-neutral float-right" title="10. Symmetry Operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Aug 15, 2024, 5:05:37 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/manual/Reshaping_etc.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6. Special SQW information from sqw objects and files &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="7. Loading sqw and dnd objects to memory" href="Save_and_load.html" />
+    <link rel="prev" title="5. Cutting data of interest from SQW files and objects" href="Cutting_data_of_interest_from_SQW_files_and_objects.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">1. Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">2. Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">3. Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#head">6.1. head</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#legacy-equivalents-of-head">6.1.1. legacy equivalents of <code class="docutils literal notranslate"><span class="pre">head</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#xye">6.2. xye</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#save-xye">6.3. save_xye</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">9. Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">12. Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">13. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">15. Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">16. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">17. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">18. Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">6. </span>Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Special_sqw_information.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="special-sqw-information-from-sqw-objects-and-files">
+<h1><span class="section-number">6. </span>Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files<a class="headerlink" href="#special-sqw-information-from-sqw-objects-and-files" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects in memory are normal MATLAB objects, so they can be converted into structure for analysis.
+The objects contain complex information including service information, so converting them into structure may return
+a lot of unnecessary and unclear information. This is why MATLAB normally warns you against applying <code class="docutils literal notranslate"><span class="pre">struct</span></code>
+function to an object.</p>
+<p>To return full essential information about Horace objects in memory, one may use <code class="docutils literal notranslate"><span class="pre">to_struct</span></code> method.
+Majority of Horace objects are <code class="docutils literal notranslate"><span class="pre">serializable</span></code> objects, which means they may be converted into linear sequence of
+bytes and reconstruct from this sequence.
+<code class="docutils literal notranslate"><span class="pre">to_struct</span></code> method is used for converting object into a structure containing information, sufficient for recovering
+<code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object from this information.</p>
+<blockquote>
+<div><p>Number of additional commands exist for extracting information essential for physical problem or some special purposes.</p>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The commands described here work on object in memory and return information about part of the object, placed in memory.
+If they applied to a file-backed object or object which would not fit memory, they return different forms of
+references to the part of the information remained in file.</p>
+</div>
+<section id="head">
+<h2><span class="section-number">6.1. </span>head<a class="headerlink" href="#head" title="Link to this heading"></a></h2>
+<p>Gets the principal information about binary <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">.dnd</span></code> file at the location given
+in <code class="docutils literal notranslate"><span class="pre">filename</span></code> or in the object, specified as input.</p>
+<p>If the option <code class="docutils literal notranslate"><span class="pre">'-full'</span></code> is used, then the full set of header information,
+rather than just the principal header, is returned. Equivalent usage forms are:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">head</span><span class="p">(</span><span class="n">filename</span><span class="p">[,</span><span class="s">&#39;-full&#39;</span><span class="p">]);</span>
+<span class="n">info</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">head</span><span class="p">(</span><span class="n">obj</span><span class="p">,[,</span><span class="s">&#39;-full&#39;</span><span class="p">]);</span>
+<span class="n">info</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">obj</span><span class="p">.</span><span class="n">head</span><span class="p">([</span><span class="s">&#39;-full&#39;</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">obj</span></code> is an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object.</p>
+<p>If applied to file, the main use of this function is to determine whether or not the file contains
+an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or a <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object. It also returns general information about the contents of the
+this object, i.e. data ranges, number of pixels in <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file etc., whatever developers decided
+most important for user to know about correspondent object.</p>
+<p>Note, that the outputs from calling <code class="docutils literal notranslate"><span class="pre">head(filename);</span></code> and <code class="docutils literal notranslate"><span class="pre">res</span> <span class="pre">=</span> <span class="pre">head(filename)</span></code> differ:</p>
+<p>&gt;&gt; <code class="docutils literal notranslate"><span class="pre">head(filename);</span></code> <strong>“Scientific” view:</strong></p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">head</span><span class="p">(</span><span class="s">&#39;sqw_1d_2.sqw&#39;</span><span class="p">);</span>
+<span class="mi">1</span><span class="o">-</span><span class="n">dimensional</span><span class="w"> </span><span class="n">object</span><span class="p">:</span>
+<span class="o">-------------------------</span>
+<span class="n">Original</span><span class="w"> </span><span class="s">datafile:</span><span class="w">  </span><span class="s">...\Horace\_test\common_data\sqw_1d_2.sqw</span>
+<span class="w">            </span><span class="n">Title</span><span class="p">:</span><span class="w"> </span><span class="o">&lt;</span><span class="n">none</span><span class="o">&gt;</span>
+
+<span class="n">Lattice</span><span class="w"> </span><span class="s">parameters</span><span class="w"> </span><span class="s">(Angstroms</span><span class="w"> </span><span class="s">and</span><span class="w"> </span><span class="s">degrees):</span>
+<span class="w">    </span><span class="n">a</span><span class="p">=</span><span class="mf">2.87</span><span class="w">           </span><span class="n">b</span><span class="p">=</span><span class="mf">2.87</span><span class="w">            </span><span class="n">c</span><span class="p">=</span><span class="mf">2.87</span>
+<span class="nb">alpha</span><span class="p">=</span><span class="mi">90</span><span class="w">          </span><span class="nb">beta</span><span class="p">=</span><span class="mi">90</span><span class="w">          </span><span class="nb">gamma</span><span class="p">=</span><span class="mi">90</span>
+
+<span class="n">Extent</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">data:</span>
+<span class="n">Number</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">spe</span><span class="w"> </span><span class="s">files:</span><span class="w"> </span><span class="s">186</span>
+<span class="w">    </span><span class="n">Number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">pixels</span><span class="p">:</span><span class="w"> </span><span class="mi">4324</span>
+
+<span class="n">Size</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">1-dimensional</span><span class="w"> </span><span class="s">dataset:</span><span class="w"> </span><span class="s">[21]</span>
+<span class="w">    </span><span class="n">Plot</span><span class="w"> </span><span class="nb">axes</span><span class="p">:</span>
+<span class="w">        </span><span class="o">\</span><span class="n">xi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">-</span><span class="mf">0.525</span><span class="p">:</span><span class="mf">0.05</span><span class="p">:</span><span class="mf">0.525</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">\</span><span class="n">xi</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">    </span><span class="n">Integration</span><span class="w"> </span><span class="nb">axes</span><span class="p">:</span>
+<span class="w">        </span><span class="mf">0.95</span><span class="w"> </span><span class="p">=</span><span class="o">&lt;</span><span class="w"> </span><span class="o">\</span><span class="n">zeta</span><span class="w"> </span><span class="p">=</span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1.05</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="p">[</span><span class="o">\</span><span class="n">zeta</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="o">-</span><span class="mf">0.05</span><span class="w"> </span><span class="p">=</span><span class="o">&lt;</span><span class="w"> </span><span class="o">\</span><span class="n">eta</span><span class="w"> </span><span class="p">=</span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.05</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">\</span><span class="n">eta</span><span class="p">]</span>
+<span class="w">        </span><span class="mi">150</span><span class="w"> </span><span class="p">=</span><span class="o">&lt;</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">=</span><span class="o">&lt;</span><span class="w"> </span><span class="mi">160</span>
+<span class="n">Object</span><span class="w"> </span><span class="s">is</span><span class="w"> </span><span class="s">stored</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">Horace-2</span><span class="w"> </span><span class="s">format</span><span class="w"> </span><span class="s">file</span><span class="w">     </span><span class="s">%</span><span class="w"> </span><span class="s">what</span><span class="w"> </span><span class="s">version</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">Horace</span><span class="w"> </span><span class="s">produced</span><span class="w"> </span><span class="s">this</span><span class="w"> </span><span class="s">file</span>
+</pre></div>
+</div>
+<p>&gt;&gt; <code class="docutils literal notranslate"><span class="pre">res</span> <span class="pre">=</span> <span class="pre">head(filename)</span></code> <strong>“Programmer’s” view:</strong></p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span><span class="w"> </span><span class="p">=</span>
+<span class="w">    </span><span class="nb">struct</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">fields</span><span class="p">:</span>
+<span class="w">         </span><span class="n">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;sqw_1d_2.sqw&#39;</span><span class="w">                          </span><span class="c">% Name of the file containing the object</span>
+<span class="w">         </span><span class="n">filepath</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;...\Horace\_test\common_data&#39;</span><span class="w">          </span><span class="c">% path to the file containing the object</span>
+<span class="w">            </span><span class="nb">title</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="w">                                      </span><span class="c">% Title to be displayed when object is plotted</span>
+<span class="w">            </span><span class="n">alatt</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">2.8700</span><span class="w"> </span><span class="mf">2.8700</span><span class="w"> </span><span class="mf">2.8700</span><span class="p">]</span><span class="w">                  </span><span class="c">% 3-element array of lattice parameters</span>
+<span class="w">           </span><span class="n">angdeg</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="w"> </span><span class="mi">90</span><span class="w"> </span><span class="mi">90</span><span class="p">]</span><span class="w">                              </span><span class="c">% 3-element array of lattice angles</span>
+<span class="w">           </span><span class="n">offset</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w">                               </span><span class="c">% Image offset from point [0,0,0,0] in reciprocal space defined by lattice</span>
+<span class="w">         </span><span class="n">u_to_rlu</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">4</span>×<span class="mi">4</span><span class="w"> </span><span class="nb">double</span><span class="p">]</span><span class="w">                            </span><span class="c">% 4x4 matrix used for conversion from pixel to image coordinate system (for line_proj)</span>
+<span class="w">             </span><span class="n">ulen</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">3.0961</span><span class="w"> </span><span class="mf">3.0961</span><span class="w"> </span><span class="mf">2.1893</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w">                </span><span class="c">% scales used in conversion from pixel to image coordinate system (axes units)</span>
+<span class="w">            </span><span class="n">label</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;\zeta&#39;</span><span class="w">  </span><span class="s">&#39;\xi&#39;</span><span class="w">  </span><span class="s">&#39;\eta&#39;</span><span class="w">  </span><span class="s">&#39;E&#39;</span><span class="p">}</span><span class="w">           </span><span class="c">% axes labels</span>
+<span class="w">              </span><span class="n">iax</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span><span class="w">                                 </span><span class="c">% what directions of full 4-dimensional dataset are integrated</span>
+<span class="w">             </span><span class="n">iint</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span>×<span class="mi">3</span><span class="w"> </span><span class="nb">double</span><span class="p">]</span><span class="w">                            </span><span class="c">% [2 x numel(iax)] array of image integration ranges (parts of img_range)</span>
+<span class="w">              </span><span class="n">pax</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w">                                       </span><span class="c">% what direction of full 4-dim dataset is binned</span>
+<span class="w">                </span><span class="n">p</span><span class="p">:</span><span class="w"> </span><span class="p">{[</span><span class="o">-</span><span class="mf">0.5250</span><span class="w"> </span><span class="o">-</span><span class="mf">0.4750</span><span class="w">  </span>…<span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span>×<span class="mi">22</span><span class="w"> </span><span class="nb">double</span><span class="p">)}</span><span class="w">   </span><span class="c">% [1 x numel(pax)] cellarray of  binning ranges for each binned direction</span>
+<span class="w">              </span><span class="n">dax</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">                                       </span><span class="c">% order of displaying axis  among all binned axes</span>
+<span class="w">        </span><span class="n">img_range</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span>×<span class="mi">4</span><span class="w"> </span><span class="nb">double</span><span class="p">]</span><span class="w">                            </span><span class="c">% Ranges of the image dimensions including integrated and binned dimensions</span>
+<span class="w">       </span><span class="n">dimensions</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">                                       </span><span class="c">% Number of image dimensions (binned dimensions)</span>
+<span class="w">    </span><span class="n">creation_date</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="w">                                      </span><span class="c">% Date the sqw object was created. Valid for Horace-4 objects only.</span>
+<span class="w">          </span><span class="n">npixels</span><span class="p">:</span><span class="w"> </span><span class="mi">4324</span><span class="w">                                    </span><span class="c">% Number of pixels (neutron events) stored in dataset</span>
+<span class="n">num_contrib_files</span><span class="p">:</span><span class="w"> </span><span class="mi">186</span><span class="w">                                     </span><span class="c">% Number of source files (runs) contributed into the dataset</span>
+<span class="w">       </span><span class="n">data_range</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span>×<span class="mi">9</span><span class="w"> </span><span class="nb">double</span><span class="p">]</span><span class="w">                            </span><span class="c">% 2x9 array of min/max ranges of Pixel data. Valid for Horace-4 only</span>
+<span class="w">  </span><span class="n">faccess_version</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w">                                       </span><span class="c">% version of class used to access data. Usually corresponds to Horace version.</span>
+</pre></div>
+</div>
+<section id="legacy-equivalents-of-head">
+<h3><span class="section-number">6.1.1. </span>legacy equivalents of <code class="docutils literal notranslate"><span class="pre">head</span></code><a class="headerlink" href="#legacy-equivalents-of-head" title="Link to this heading"></a></h3>
+<p>Number of methods were used in the past to retrieve information similar to the information returned by <code class="docutils literal notranslate"><span class="pre">head</span></code> function.
+These methods are still available and work as before repeating the operations, performed by <code class="docutils literal notranslate"><span class="pre">head</span></code> function.
+These methods are: <code class="docutils literal notranslate"><span class="pre">head_horace</span></code>, <code class="docutils literal notranslate"><span class="pre">head_dnd</span></code> and <code class="docutils literal notranslate"><span class="pre">head_sqw</span></code>. Internally these methods are interfaces to <code class="docutils literal notranslate"><span class="pre">head</span></code> function.</p>
+</section>
+</section>
+<section id="xye">
+<h2><span class="section-number">6.2. </span>xye<a class="headerlink" href="#xye" title="Link to this heading"></a></h2>
+<p>Extract the bin centres, intensity and standard errors from an sqw or dnd
+object.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">S</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">xye</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The output is a structure with fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">S.x</span></code> - vector of bin centres if a 1D object, or cell array of vectors
+containing the bin centres along each axis if 2D, 3D or 4D object</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">S.y</span></code> - array of intensities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">S.e</span></code> - array of estimated error on the intensities</p></li>
+</ul>
+</section>
+<section id="save-xye">
+<h2><span class="section-number">6.3. </span>save_xye<a class="headerlink" href="#save-xye" title="Link to this heading"></a></h2>
+<p>Save an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object to an ascii format file at the location
+<code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">save_xye</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The format of the ascii file for an n-dimensional dataset is n columns of
+co-ordinates along each of the axes, plus one column of signal and another
+column of error (standard deviation).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Cutting_data_of_interest_from_SQW_files_and_objects.html" class="btn btn-neutral float-left" title="5. Cutting data of interest from SQW files and objects" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Save_and_load.html" class="btn btn-neutral float-right" title="7. Loading sqw and dnd objects to memory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Aug 15, 2024, 5:05:37 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/manual/Special_sqw_information.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Script for data treatment &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Script for data treatment</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Script_for_data_treatment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="script-for-data-treatment">
+<h1>Script for data treatment<a class="headerlink" href="#script-for-data-treatment" title="Link to this heading"></a></h1>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="p">.</span><span class="n">u</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj</span><span class="p">.</span><span class="n">v</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj</span><span class="p">.</span><span class="n">uoffset</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj</span><span class="p">.</span><span class="n">type</span><span class="p">=</span><span class="s">&#39;rrr&#39;</span><span class="p">;</span>
+
+
+<span class="c">%==Background subtraction (including cuts, replication, binary operation)==</span>
+
+<span class="n">my_slice</span><span class="p">=</span><span class="n">cut_sqw</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="n">proj</span><span class="p">,[</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">6</span><span class="p">],[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1000</span><span class="p">]);</span><span class="c">%make a slice from which you wish to subtract a background</span>
+<span class="c">%this makes most sense for QE slices, but can be done for QQ slices too.</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice</span><span class="p">);</span>
+
+<span class="n">my_bg</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],[]);</span><span class="c">%take a cut from this slice, going along the energy axis</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_bg</span><span class="p">);</span>
+
+<span class="c">%Now replicate this 1d background into a 2d slice. Note that we must operate on dnd data objects now, because by doing this subtraction we lose</span>
+<span class="c">%contact with the true original data</span>
+<span class="n">my_bg_rep</span><span class="p">=</span><span class="n">replicate</span><span class="p">(</span><span class="n">d1d</span><span class="p">(</span><span class="n">my_bg</span><span class="p">),</span><span class="n">d2d</span><span class="p">(</span><span class="n">my_slice</span><span class="p">));</span><span class="c">%we replicate the 1d cut to 2d using the original slice as the template (for Q range etc)</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_bg_rep</span><span class="p">)</span>
+
+<span class="n">my_slice_subtracted</span><span class="p">=</span><span class="n">d2d</span><span class="p">(</span><span class="n">my_slice</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">my_bg_rep</span><span class="p">;</span><span class="c">%Just use the binary operation &#39;-&#39; to subtract the background slice</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_subtracted</span><span class="p">);</span>
+
+
+<span class="c">%=========== Symmetrisation =============================</span>
+
+<span class="n">my_slice2</span><span class="p">=</span><span class="n">cut_sqw</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="n">proj</span><span class="p">,[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],[</span><span class="mi">500</span><span class="p">,</span><span class="mi">600</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice2</span><span class="p">);</span>
+
+<span class="c">%Fold along vertical (look at the proj axes above) - we specify the fold using a plane. The plane is specified by providing two non-parallel vectors that lie in it</span>
+<span class="c">%the cross-product of the vectors define the plane normal. The position of the plane w.r.t. the origin is given by the 3rd vector argument</span>
+<span class="c">%in this case (and most cases) it is not offset from the origin</span>
+
+<span class="n">my_sym</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">my_slice2</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_sym</span><span class="p">);</span>
+
+<span class="c">%Two folds along diagonals</span>
+<span class="n">my_sym2</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">my_slice2</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">my_sym2</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">my_sym2</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_sym2</span><span class="p">);</span>
+
+<span class="c">%========== Bose factor correction ==============</span>
+
+<span class="n">my_slice_bose</span><span class="p">=</span><span class="n">bose</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,</span><span class="mi">300</span><span class="p">);</span><span class="c">%data taken at 300K</span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice_bose</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2024, STFC RAL.
+      <span class="lastupdated">Last updated on Aug 15, 2024, 5:05:37 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/manual/Script_for_data_treatment.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
