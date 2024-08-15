@@ -67,18 +67,10 @@ end
 
 n_candidate_pix = sum(block_sizes);
 
-large_pixels = PixelDataBase.do_filebacked(n_candidate_pix) && keep_pixels;
-cut_to_file = ~return_cut || large_pixels;
-% Always cut in mem if not in file, leave as debugging option to compare with filebacked ops.
-cut_in_mem = ~cut_to_file;
+filebacked_cut = PixelDataBase.do_filebacked(n_candidate_pix) && ~keep_pixels;
 
-fb_scale = config_store.instance().get_value('hor_config','fb_scale_factor');
-if cut_in_mem && PixelDataBase.do_filebacked(n_candidate_pix, fb_scale) && keep_pixels
-    warning('HORACE:cut:large_cut', ['Requested cut may retain up to %d pixel indices, which may exceed system memory\n', ...
-        'Suggested fix: use cut with ''-save''\n', ...
-        'Recommended limit: b_scale_factor*mem_chunk_size (%d) specified in hor_config'], ...
-        n_candidate_pix,fb_scale*get(hor_config, 'mem_chunk_size'));
-end
+keep_precision = ~keep_pixels || filebacked_cut;
+pixel_contrib_name = report_cut_type(obj, log_level, filebacked_cut, keep_pixels);
 
 if keep_pixels
     [npix, s, e, pix_out, unique_runid] = cut_with_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
@@ -124,7 +116,7 @@ for iter = 1:num_chunks
 
     candidate_pix = pix.get_pix_in_ranges(pix_start, block_sizes, false, true);
 
-        if ll >= 1
+    if ll >= 1
         if ll>=2
             n_read_pixels = n_read_pixels + candidate_pix.num_pixels;
             time_to_read(iter)= toc;
@@ -151,7 +143,7 @@ for iter = 1:num_chunks
             time_to_process(iter) = toc;
             n_retained_pixels     = n_retained_pixels+npix_step_retained;
             tic;
-    end
+        end
         fprintf(' ----->  %s  %8d pixels\n', pixel_contrib_name, npix_step_retained);
     end
 
@@ -240,7 +232,7 @@ for iter = 1:num_chunks
                 time_to_process(iter) = toc;
                 n_retained_pixels     = n_retained_pixels+npix_step_retained;
                 tic;
-        end
+            end
             fprintf(' ----->  %s  %8d pixels\n', pixel_contrib_name, npix_step_retained);
         end
 
@@ -254,7 +246,7 @@ for iter = 1:num_chunks
         if ll>=2
             time_to_accum(iter) = toc;
             tic;
-    end
+        end
     end
 end  % loop over pixel blocks
 
