@@ -7,7 +7,7 @@ classdef Experiment < serializable
         instruments_ = 'initialised in constructor';
         detector_arrays_ = 'initialised in constructor';
         samples_ = 'initialised in constructor';
-        samples_set_ = false; % Two prperties used to harmonize lattice
+        samples_set_ = false; % Two properties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata
         %holder to store old sample lattice if the new lattice is set
         old_lattice_holder_ = [];
@@ -95,9 +95,9 @@ classdef Experiment < serializable
             %              object.
             %
             % Each argument can be a single object or array of objects.
-            
+
             obj = obj@serializable();
-            
+
             % initialising the compressed component containers.
             % these may be overwritten if they are passed in as arguments
             % below
@@ -106,72 +106,23 @@ classdef Experiment < serializable
             obj.samples_ = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
             % expdata is not compressed and has been initialised as an
             % empty array
-            
+
             if nargin == 0 || (nargin == 1 && isempty(varargin{1}))
                 % no components in initialising arguments
                 % so finish
                 return;
-                
-            elseif nargin == 4
-                % arguments are the component arrays, 
-                % initialise them
-                detector_arrays = varargin{1};
-                instruments     = varargin{2};
-                samples         = varargin{3};
-                expdata         = varargin{4};
 
-                % define expdata first, as the size of this determines the
-                % number of runs which obj will hold
-                if isa(expdata, 'IX_experiment')
-                    % add to default compressed container
-                    % this must be of the right size to define number of
-                    % runs for the experiment - the other fields can handle
-                    % adding duplicates once they know this numberval,
-                    obj.expdata_ = expdata;
-                elseif isempty(expdata)
-                    % do nothing, leave default array container empty
-                else
-                    error('HORACE:Experiment:invalid_argument', ...
-                          'input is not empty or IX_experiment');
-                end
-                                
-                obj = obj.add_input_with_checks(detector_arrays, 'IX_detector_array');
-                
-                obj = obj.add_input_with_checks(instruments,     'IX_inst');
-                
-                obj = obj.add_input_with_checks(samples,         'IX_samp');
-                
-                                
-            elseif nargin == 1 
-                arg = varargin{1};
-                if ~iscell(arg)
-                    % make arg a cell so that it is a cell array regardless
-                    % of whether it is a single header struct or a cell
-                    % array of header structs
-                    arg = { arg };
-                end
-                if ~obj.isoldheader(arg{1})
-                    error('HORACE:Experiment:invalid_argument', ...
-                           ['single argument is not an oldstyle header struct', ...
-                            ' or cell of such structs']);
-                end
-                % now have cell array of headers, init_ will process
-                varargin{1} = arg;
-                
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                      ['the other cases do not yet have examples ',...
-                       'so catching them here until we can do them ',...
-                       'properly']);
+                % all other nargin values are now processed in init_()
             end
             obj = init_(obj,varargin{:});
         end
-        
         %
         function obj = init(obj,varargin)
             % initialize Experiment object using various possible forms of inputs,
             % provided to Experiment constructor.
-            error('Why are we here?');
+            %
+            % Called if empty Experiment (i.e. array of experiments produced by e.g. repmat)
+            % needs to be initialized.
             if nargin == 1
                 return;
             end
@@ -259,14 +210,23 @@ classdef Experiment < serializable
         function obj = set.runid_recalculated(obj,val)
             % Do not normally use, except for tests. This is internal
             % property, which inform about the behaviour of runid map
+            %
+            % Inputs:
+            % logical value, if true, says that run_id were recalculated by
+            % external (test) procedure. Normally the property is modified
+            % during loading old files and set-up internally in loadobj
+            % from_old_struct.
+            %
             obj.runid_recalculated_ = logical(val);
         end
+        % Alignment
+        obj = change_crystal(obj,alignment_info,varargin)
     end
     %----------------------------------------------------------------------
     % legacy instrument methods interface
     %----------------------------------------------------------------------
     methods
-    
+
         %Change fields in the experiment with corrections related to aligned
         %crystal lattice parameters and orientation
 
@@ -404,6 +364,35 @@ classdef Experiment < serializable
             end
             subexper = get_subobj_(obj,runids_to_keep,indexes_provided);
         end
+
+        function expt_idx = get_experiment_idx (obj, run_idx, varargin)
+            % Get the experiment indices for an array of run indices in the pixel data
+            %
+            %   >> expt_idx = get_experiment_idx (obj, run_idx)
+            %   >> expt_idx = get_experiment_idx (obj, run_idx, sparse_lookup)
+            %
+            % Input:
+            % ------
+            %   obj             Instance of Experiment object.
+            %   run_idx         Array of run indices selected from the pix field of an sqw object.
+            %                   The array can have any size.
+            %
+            % Optionally:
+            %   sparse_lookup   Force a sparse intermediate lookup array or a full lookup
+            %                   array according as the value true or false.
+            %                   This overrules the default behaviour that selects a full or
+            %                   sparse intermediate lookup array according to the size and
+            %                   sparcity of the runid_map
+            %
+            % Output:
+            % -------
+            %   expt_idx        Index into the arrays of experiment information held in the
+            %                   input Experiment object corresponding to the values of
+            %                   run_idx.
+            %                   The size of expt_idx is the same as that of run_idx.
+            expt_idx = get_experiment_idx_ (obj, run_idx, varargin{:});
+        end
+
         %
         % GEN_SQW interface
         %------------------------------------------------------------------
@@ -499,7 +488,7 @@ classdef Experiment < serializable
             std_form = check_sample_or_inst_array_and_return_std_form_(...
                 sample_or_instrument,class_base);
         end
-        
+
         function obj = add_input_with_checks(obj, val,type)
             % ADD_INPUT_WITH_CHECKS
             % Add val to one of the unique_reference_container properties.
@@ -528,46 +517,45 @@ classdef Experiment < serializable
             field = [inputname(2) '_'];
 
             if isa(val, 'unique_references_container') && ...
-                   strcmp(val.stored_baseclass,type)
+                    strcmp(val.stored_baseclass,type)
                 % if size is right, overwrite default compressed container
                 if val.n_runs ~= obj.n_runs
                     error('HORACE:Experiment:invalid_argument', ...
-                          'input %d size must match number of runs',obj.n_runs);
+                        'input %d size must match number of runs',obj.n_runs);
                 end
                 obj.(field) = val;
 
             elseif ( isa(val, type) &&                       ...
-                     numel(val) == obj.n_runs )              ...
-                   ||                                        ...                   
-                   ( isa(val, 'unique_objects_container') && ...
-                     val.n_runs == obj.n_runs             && ...
-                     strcmp(val.baseclass, type) )           ...
-                   ||                                        ...
-                   ( iscell(val)                          && ...
-                     numel(val) == obj.n_runs             && ...
-                     isa(val{1}, type) )
+                    numel(val) == obj.n_runs )              ...
+                    ||                                        ...
+                    ( isa(val, 'unique_objects_container') && ...
+                    val.n_runs == obj.n_runs             && ...
+                    strcmp(val.baseclass, type) )           ...
+                    ||                                        ...
+                    ( iscell(val)                          && ...
+                    numel(val) == obj.n_runs             && ...
+                    isa(val{1}, type) )
 
                 % add to default compressed container
                 obj.(field) = obj.(field).add(val);
 
             elseif ( isa(val, type) &&                       ...
-                     numel(val) == 1 )                       ...
-                   ||                                        ...
-                   ( iscell(val)                          && ...
-                     numel(val) == 1                      && ...
-                     isa(val{1}, type) )
+                    numel(val) == 1 )                       ...
+                    ||                                        ...
+                    ( iscell(val)                          && ...
+                    numel(val) == 1                      && ...
+                    isa(val{1}, type) )
                 % assume we're adding n_runs identical copies
-                % 
+                %
                 % add to default compressed container
                 obj.(field) = obj.(field).add_copies_(val, obj.n_runs);
 
             elseif isempty(val)
                 % do nothing, leave default compressed container empty
-                ;
             else
                 error('HORACE:Experiment:invalid_argument', ...
-                      ['input is not empty, does not have the right number ' ...
-                       'of runs, or is not of type %s'], type);
+                    ['input is not empty, does not have the right number ' ...
+                    'of runs, or is not of type %s'], type);
             end
         end
     end
@@ -644,7 +632,7 @@ classdef Experiment < serializable
         % repetitive unnecessary checks
         fields_to_save_ = { 'expdata','detector_arrays','instruments','samples'};
     end
-    
+
     methods
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
@@ -673,8 +661,8 @@ classdef Experiment < serializable
             obj = check_combo_arg_(obj);
         end
     end
-    
-    
+
+
     %----------------------------------------------------------------------
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)
@@ -707,9 +695,9 @@ classdef Experiment < serializable
     methods(Static)
         function ishdr = isoldheader(val)
             ishdr = isstruct(val) && ...
-                    all(isfield(val,{'alatt','angdeg','efix','emode'}));
+                all(isfield(val,{'alatt','angdeg','efix','emode'}));
         end
-        
+
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % save-able class

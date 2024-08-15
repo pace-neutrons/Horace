@@ -31,7 +31,7 @@ small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
 file  = obj.full_filename;
 title = obj.title;
 %
-ulen  = obj.ulen;
+img_scales  = obj.img_scales;
 label = obj.label;
 
 
@@ -75,25 +75,38 @@ in_totvector=cell(1,4);
 % Create titling
 for j=1:4
     ax_type = type(j);
-    in_totvector{j} =  [' in ',obj.capt_units(ax_type)];
+    angular_unit = (j == 2 || j == 3);
+    scale_present =  (abs(img_scales(j)-1) > small);
+    if scale_present && ~angular_unit
+        in_totvector{j} =  sprintf('in %.3g %s',img_scales(j),obj.capt_units(ax_type));
+    else
+        in_totvector{j} =  sprintf('in %s',obj.capt_units(ax_type));
+    end
     if ismember(j,pax) % pax
         ipax = find(j==pax(dax));
-        if abs(ulen(j)-1) > small
-            title_pax{ipax} = [label{j},' in ',num2str(ulen(j)),' ',obj.capt_units(ax_type)];
-        else
+        if angular_unit 
             if ax_type == 'd'
-                title_pax{ipax} = [label{j},obj.capt_units(ax_type)];                
+                title_pax{ipax} = sprintf('%s%s',label{j},obj.capt_units(ax_type));
             else
-                title_pax{ipax} = [label{j},' (',obj.capt_units(ax_type),')'];
+                title_pax{ipax} = sprintf('%s (%s)',label{j},obj.capt_units(ax_type));
+            end
+        else
+            if scale_present
+                title_pax{ipax} = sprintf('%s in %.3g %s',label{j},img_scales(j),obj.capt_units(ax_type));
+            else
+                title_pax{ipax} = sprintf('%s (%s)',label{j},obj.capt_units(ax_type));
             end
         end
-        title_main_pax{ipax} = [label{j},'=',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
-        display_pax{ipax} = [label{j},' = ',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
+        title_main_pax{ipax} = sprintf('%s = %.3g:%.2g:%.3g %s', ...
+            label{j},plot_bin_centers(1:3,ipax),in_totvector{j});
+        display_pax{ipax} = title_main_pax{ipax};
     else               % iax
         iiax = find(j==iax);
-        title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_totvector{j}];
-        title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_totvector{j}];
-        display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',label{j},' =< ',num2str(iint(2,iiax)),in_totvector{j}];
+        title_iax{iiax}      = sprintf('%.3g \\leq %s \\leq %.3g %s', ...
+            iint(1,iiax),label{j},iint(2,iiax),in_totvector{j});
+        title_main_iax{iiax} = title_iax{iiax};
+        display_iax{iiax}    = sprintf('%.3g =< %s =< %.3g %s', ...
+            iint(1,iiax),label{j},iint(2,iiax),in_totvector{j});
     end
 end
 
@@ -111,7 +124,7 @@ if ~isempty(title)
     iline = iline + 1;
 end
 title_main{iline}=sprintf('Spherical projection at centre: %s(hklE)',mat2str(offset));
-iline = iline + 1;    
+iline = iline + 1;
 
 if ~isempty(iax)
     title_main{iline}=title_main_iax{1};

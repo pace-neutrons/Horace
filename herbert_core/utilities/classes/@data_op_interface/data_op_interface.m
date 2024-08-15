@@ -57,7 +57,8 @@ classdef(Abstract) data_op_interface
         wout = mtimes  (w1,w2)
         wout = plus    (w1,w2)
         %------------------------------------------------------------------
-        w = binary_op_manager_single(w1, w2, op_function_handle);
+        w = binary_op_manager(w1,w2,op_function_handle,varargin);
+        w = binary_op_manager_single(w1, w2, op_function_handle,varargin);
     end
     methods(Static)
         function [priority,sv_size,has_pix,has_img] = get_priority(obj)
@@ -82,15 +83,14 @@ classdef(Abstract) data_op_interface
             % There are 5 types of operations:
             % 1 -> object<->scalar 2-> object<->image and 3->object<->object
             % 0 means operations can be performed by converting to sigvar.
-            % -1 means operation prohibited (or will not be performed)
             % Inputs:
             % op1_has_pix   -- true if operand 1 has pixels
             % op1_has_img   -- true if operand 1 has image
             % op2_has_pix   -- true if operand 2 has pixels
             % op2_has_img   -- true if operand 2 has image
             % Returns:
-            % number from -1 to 3, describing type of operation, performed
-            % over pixesl
+            % number from 0 to 3, describing type of operation, performed
+            % over pixels
             op_kind = get_operation_kind_(op1_has_pix,op1_has_img,op2_has_pix,op2_has_img);
             %
         end
@@ -109,9 +109,9 @@ classdef(Abstract) data_op_interface
             %          operation instead of class1 as it would normally
             %          occur.
             % page_op_kind
-            %       -- depending on operands, 5 types of page op are
-            %          defined. See get_op_kind for the details of the
-            %          operations.
+            %       -- depending on operands, 4 types of page op are
+            %          defined. See get_operation_kind for the details of the
+            %          operations kinds.
             %
             if nargin<3
                 op_name = 'an_operation';
@@ -120,7 +120,6 @@ classdef(Abstract) data_op_interface
         end
     end
     methods(Access=protected)
-        w = binary_op_manager(w1,w2,op_function_handle);
         w = unary_op_manager (w1, op_function_handle);
     end
 

@@ -1,4 +1,4 @@
-function sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis,clim,isoflag)
+function varargout=sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis,clim,isoflag,name)
 % SLICEOMATIC - Slice and isosurface volume exploration GUI
 %
 % Using the GUI:
@@ -99,13 +99,21 @@ function sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis,clim,isof
 %   clim    Intensity limits
 %   isoflag TRUE if isonormals are to be plotted later on. FALSE (or simply
 %           omitted) if not. Isonormals take longer to calculate.
+%   name    if provided, the name of the figure to contain sliseomatic. If absent,
+%           the name will be Sliceomatic
 
 
 colordef white  % to avoid screw-up that earlier 'colordef none' produces
 
 if nargin==0
     help sliceomatic
+    if nargout>0
+        varargout{1} = [];
+    end
     return
+end
+if nargin < 13
+    name = 'Sliceomatic';
 end
 
 if ~exist('isoflag', 'var')
@@ -151,6 +159,8 @@ if isa(U1,'double')
     d.xlim = d.xlim + [-deltax/2,deltax/2];
     d.ylim = d.ylim + [-deltay/2,deltay/2];
     d.zlim = d.zlim + [-deltaz/2,deltaz/2];
+
+    d.name = name;
     d = sliceomaticfigure(d);
     d = sliceomaticsetdata(d,isoflag);
 
@@ -175,7 +185,7 @@ else
                     'xdata',d.clim,'ydata',[0 5],...
                     'alphadata',1.0, ...
                     'hittest','off');
-                sliceomatic('isodeleteall')
+                sliceomatic('isodeleteall');
 
             case 'ISONew2'
                 %           I=U2;
@@ -189,7 +199,7 @@ else
                     'xdata',d.clim,'ydata',[0 5],...
                     'alphadata',1.0, ...
                     'hittest','off');
-                sliceomatic('isodeleteall')
+                sliceomatic('isodeleteall');
                 %--------------------------Modification started on 12th  may 2003 by srikanth---------------
             case 'XnewText'
                 X=U2;
@@ -770,8 +780,8 @@ else
                 if strcmp(d.defalpha,'flat') || strcmp(d.defalpha,'interp')
                     d.defalpha='texture';
                 end
-%             case	'defaultinterp'
-%                 d.defcolor='none';
+                %             case	'defaultinterp'
+                %                 d.defcolor='none';
             case	'defaulttransnone'
                 d.defalpha='none';
             case	'defaulttransflat'
@@ -876,6 +886,10 @@ end
 % Will reset just before exiting this function
 set(0, 'DefaultFigureRendererMode', mode);
 set(0,'DefaultFigureRenderer',rend );
+if nargout>0
+    varargout{1} = d;
+end
+
 %-------------------------------------------------------------------------------------------------
 
 
@@ -1176,6 +1190,9 @@ if ~isempty(X)
         [xdata, ydata, zdata]=meshgrid(newX,d.ylim(1):ydivision:d.ylim(2),d.zlim(1):zdivision:d.zlim(2));
         st = 'X';
     else
+        if nargout>0
+            varargout{1} = d;
+        end
         return
     end
 elseif ~isempty(Y)
@@ -1186,6 +1203,10 @@ elseif ~isempty(Y)
         [xdata, ydata, zdata]=meshgrid(d.xlim(1):xdivision:d.xlim(2),newY,d.zlim(1):zdivision:d.zlim(2));
         st = 'Y';
     else
+        if nargout>0
+            varargout{1} = d;
+        end
+
         return
     end
 elseif ~isempty(Z)
@@ -1196,6 +1217,9 @@ elseif ~isempty(Z)
         [xdata, ydata, zdata]=meshgrid(d.xlim(1):xdivision:d.xlim(2),d.ylim(1):ydivision:d.ylim(2),newZ);
         st = 'Z';
     else
+        if nargout>0
+            varargout{1} = d;
+        end
         return
     end
 else
@@ -1257,6 +1281,10 @@ contour = getappdata(s,'contour');
 if ~isempty(contour)
     localcontour(s, contour);
 end
+if nargout>0
+    varargout{1} = d;
+end
+
 
 
 function textureizeslice(slice,onoff)

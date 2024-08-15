@@ -1,5 +1,5 @@
 function  [may_contributeND,may_contribute_dE] = may_contribute_(source_proj,...
-    source_axes_block,target_proj,targ_axes_block)
+    source_axes_block,targ_proj,targ_axes_block)
 % Return the indexes of cells, which may contain the nodes,
 % belonging to the target axes block by transforming the source
 % coordinate system (SCS) into target coordinate system (TCS)
@@ -8,83 +8,46 @@ function  [may_contributeND,may_contribute_dE] = may_contribute_(source_proj,...
 % values on TCS and zero values outside of TCS.
 %
 
-% build bin edges for the target grid and bin centres for reference grid
-if source_proj.do_3D_transformation_
-    [targ_nodes,dEnodes] = targ_axes_block.get_bin_nodes('-3D','-ngrid','-halo');
-    [source_grid,baseEdges]  = source_axes_block.get_bin_nodes('-bin_centre','-3D');
-    targ_grid_present = ones(size(dEnodes));
-    targ_grid_present = nullify_edges(targ_grid_present,size(dEnodes));
-    nodes_near = interp1(dEnodes,targ_grid_present,baseEdges,'linear',0);
-    may_contribute_dE = nodes_near>0;
-    if ~any(may_contribute_dE)
-        may_contributeND = [];
-        return;
-    end
+% Assuming 3D case. 4D case would may be expanded later
+if ~source_proj.do_3D_transformation
+    error('HPRACE:AxesBlockBase:not_implemented', ...
+        '4D grit overlapping is not yet implemented');
+end
+
+% build grid with points at bin edges for the target grid and bin centres
+% for reference grid
+
+dE_range_requested = targ_axes_block.img_range(:,4)';
+dE_range_source    = source_axes_block.img_range(:,4)';
+if any(source_axes_block.iax == 4)
+    dE_edges = dE_range_source;
 else
-    may_contribute_dE = [];
-    targ_nodes = targ_axes_block.get_bin_nodes('-ngrid','-halo');
-    source_grid = source_axes_block.get_bin_nodes('-bin_centre');
+    dE_edges = linspace(dE_range_source(1),dE_range_source(2),source_axes_block.nbins_all_dims(4)+1);
+end
+[any_inside,may_contribute_dE] = AxesBlockBase.bins_in_1Drange(dE_edges,dE_range_requested);
+if ~any_inside
+    may_contributeND= [];
+    return;
 end
 % define unit signal on the edges of the target grid and zeros at "halo"
 % points surrounding the target grid
-szn = size(targ_nodes{1});
-targ_grid_present = ones(szn);
-targ_grid_present = nullify_edges(targ_grid_present,szn);
+char_sizes = source_axes_block.get_char_size(source_proj);
+[targ_nodes,targ_grid_present] = targ_axes_block.get_interp_nodes(targ_proj,char_sizes(1:3));
 
+
+source_grid  = source_axes_block.get_bin_nodes('-bin_centre','-3D');
 % convert the coordinates of the bin centres of the reference grid into
-% the coordinate system of the target grid.
-conv_grid = source_proj.from_this_to_targ_coord(source_grid);
+% the coordinate system of the Crystal Cartezian grid.
+conv_grid = source_proj.transform_img_to_pix(source_grid);
+
 
 % find the presence of the reference grid centres within the target grid
-% cells.
-if source_proj.do_3D_transformation_
-    interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},targ_grid_present,...
-        conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)', 'linear',0);
-    targ_nodes = targ_axes_block.get_bin_nodes('-3D','-hull');
-else
-    interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},targ_nodes{4},targ_grid_present,...
-        conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)',conv_grid(4,:)', 'linear',0);
-    targ_nodes = targ_axes_block.get_bin_nodes('-hull');
-end
-% verify if hull nodes may contribute to the cut, which may be 
-% the case when source cells are larger and fully contain the cut cells
-targ_nodes = target_proj.from_this_to_targ_coord(targ_nodes);
-cell_dist = source_axes_block.bin_pixels(targ_nodes);
-may_contributeND = interp_ds(:)>eps(single(1))|cell_dist(:)>0;
+% cells. If reference grid is present its signal is higher then 0
 
+%F = scatteredInterpolant(targ_nodes(1,:)',targ_nodes(2,:)',targ_nodes(3,:)',targ_grid_present(:)');
+%interp_ds = F(conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)', 'linear',0);
+interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},targ_grid_present,...
+    conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)', 'linear',0);
 
-function mat = nullify_edges(mat,sze)
-% Ugly. Can it be done better?
-n_dim = numel(sze);
-if numel(sze) == 2 && any(sze == 1)
-    n_dim = 1;
-end
-switch n_dim
-    case 1
-        mat(1) = 0;
-        mat(end)=0;
-    case 2
-        mat(1,:)  = 0;
-        mat(end,:)= 0;
-        mat(:,1)  = 0;
-        mat(:,end)= 0;
-    case 3
-        mat(1,:,:)  = 0;
-        mat(end,:,:)= 0;
-        mat(:,1,:)  = 0;
-        mat(:,end,:)= 0;
-        mat(:,:,1)  = 0;
-        mat(:,:,end)= 0;
-    case 4
-        mat(1,:,:,:)  = 0;
-        mat(end,:,:,:)= 0;
-        mat(:,1,:,:)  = 0;
-        mat(:,end,:,:)= 0;
-        mat(:,:,1,:)  = 0;
-        mat(:,:,end,:)= 0;
-        mat(:,:,:,1)  = 0;
-        mat(:,:,:,end)= 0;
-    otherwise
-        error('HORACE:aProjectionBase:unsupported_number_of_dimensions',...
-            'Can not process %d dimensions',n_dim);
-end
+may_contributeND = interp_ds(:)>eps(single(1));
+

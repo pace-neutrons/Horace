@@ -69,7 +69,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(numel(mheader.title),0);
             assertEqual(mheader.filename,'test_sqw_file_read_write_v3.sqw');
             assertEqual(mheader.filepath,...
-                'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file\');
+                'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file');
 
             exp_info = file_accessor.get_exp_info();
             %exp_info = header.get_exp_info();
@@ -141,14 +141,14 @@ classdef test_faccess_sqw_v3_3< TestCase
 
             assertTrue(isa(sqw_obj,'sqw'));
             assertEqual(sqw_obj.main_header.filename,fo.filename)
-            assertEqual(sqw_obj.main_header.filepath,[fo.filepath,filesep])
+            assertEqual(sqw_obj.main_header.filepath,fo.filepath)
 
             sqw_obj1 = fo.get_sqw('-hverbatim');
 
             assertTrue(isa(sqw_obj1,'sqw'));
             assertEqual(sqw_obj1.main_header.filename,'test_sqw_file_read_write_v3.sqw')
             assertEqual(sqw_obj1.main_header.filepath,...
-                'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file\')
+                'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file')
         end
         %
         function test_save_sqw2to3_3(obj)
@@ -191,6 +191,30 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertElementsAlmostEqual(pix_range,img_db_range, ...
                 'relative',5.e-6) % is this the accuracy of conversion from
             % double to single?
+        end
+        function obj = test_put_npix(obj)
+
+            tf = fullfile(tmp_dir,'test_put_npix.sqw');
+            clOb = onCleanup(@()del_memmapfile_files(tf));
+            copyfile(obj.sample_file,tf,'f');
+
+            so = faccess_sqw_v3_3(tf);
+            so = so.reopen_to_write();
+
+            % file will be probably broken but actually faccessor recovers
+            % it from metadata (binary reader will not)
+            so = so.put_num_pixels(10);
+            so.delete();
+
+            ldr = sqw_formats_factory.instance().get_loader(tf);
+            pix_pos = ldr.pix_position;
+            ldr.delete();
+            fh = fopen(tf,'rb');
+            assertTrue(fh>0)
+            fseek(fh,pix_pos,'bof');
+            npix = fread(fh,1,'uint64');
+            fclose(fh);
+            assertEqual(npix,10);
         end
         %
         function obj = test_save_load_sqwV3_3(obj)

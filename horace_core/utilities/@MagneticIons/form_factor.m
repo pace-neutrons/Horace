@@ -9,9 +9,9 @@ function FF = form_factor(self,h,k,l,varargin)
 % optional:
 % en       -- unused vector of energy transfers, provided for
 %             compartibility with sqw_eval interface.
-% b_matrix -- Busing & Levy 's B-matrix (Acta Crystallographica, 1967(4) pp.457-464)
-%             used to convert from crystal cartezian to hkl coordinate system
-%             If provided, used instead of B-matix defined by sqw object
+% proj     -- Instance of aProjection base class initialized to perform
+%             transform_hkl_to_pix operation.
+%
 %
 % Returns vector of changes of magnetic form factors along input hkl vector
 % for the selected ion.
@@ -19,13 +19,12 @@ function FF = form_factor(self,h,k,l,varargin)
 %
 %
 if numel(varargin) > 1 && nargin > 5 && ~isempty(varargin{2})
-    rlu_to_Q = varargin{2};
+    proj = varargin{2};
 else
-    rlu_to_Q = self.hkl_to_Qmat_;
-
+    proj = self.proj_;
 end
-q = rlu_to_Q*[h';k';l'];
 
+q = proj.transform_hkl_to_pix([h';k';l']);
 
 q2 = (q(1,:).*q(1,:)+q(2,:).*q(2,:)+q(3,:).*q(3,:))/(16*pi*pi);
 FF=self.J0_ff_(q2).^2+self.J2_ff_(q2).^2+self.J4_ff_(q2).^2+self.J6_ff_(q2).^2;

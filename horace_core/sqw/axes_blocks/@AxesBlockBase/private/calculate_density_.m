@@ -30,16 +30,17 @@ gridCE = reshape(data_nodes(4,:),npoints_in_base);
 %
 
 % build density grid
+grid_nbins = obj.nbins_all_dims;
+%grid_nbins(obj.pax) = grid_nbins(obj.pax)*2;
 
-cell_dens_multiplier = ones(1,4);
-cell_dens_multiplier(obj.pax) = 2;
-[dens_nodes,~,n_ref_points] = obj.get_bin_nodes(cell_dens_multiplier);
-
+[dens_nodes,~,n_ref_points] = obj.get_bin_nodes(grid_nbins);
 % provide the coefficient for the future integration over interpolated grid
 % in the form int(grid,a,b) = 0.5*grid_step*sum(signal_i,for a<= i <b);
 densities = cell(numel(in_data),1);
 
 for i = 1:numel(in_data)
+    % put density values from centerpoints to cell edges to allow
+    % interpolation in new bin centers
     ref_ds  = convert_data_to_density(obj,in_data{i},base_cell_volume,npoints_in_base);
     densities{i} = interpn(gridCX,gridCY,gridCZ,gridCE,ref_ds,...
         dens_nodes(1,:),dens_nodes(2,:),dens_nodes(3,:),dens_nodes(4,:),'linear');
@@ -54,16 +55,16 @@ for i = 1:numel(in_data)
         gint = griddedInterpolant(gridCX,gridCY,gridCZ,gridCE,ref_ds,'linear','nearest');
         interp_dss = gint(dens_nodes(1,edgs(:)),dens_nodes(2,edgs(:)),dens_nodes(3,edgs(:)),dens_nodes(4,edgs(:)));
 
-        densities{i}(edgs) = interp_dss(:); % if integrating, multiply edge
+        densities{i}(edgs) = interp_dss(:); % if integrating on edge points,
+        %                                     multiply edge
         %                                     values by half accounting
         %                                     to half volume at edges
         %                                     in the integration formulas
-        % without this, integral over edges may cause additional values on
-        % edges
+        % without this, integral over edge points may cause additional
+        % values on edges
         % make density array shape equal to the grid shape
-        densities{i} = reshape(densities{i},n_ref_points);
     end
-
+   densities{i} = reshape(densities{i},n_ref_points);
 end
 %
 

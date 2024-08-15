@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = dh(w,varargin)
+function varargout = dh(w,varargin)
 % Draws a histogram plot of a spectrum or array of spectra
 %
 %   >> dh(w)
@@ -12,16 +12,9 @@ function [fig_handle, axes_handle, plot_handle] = dh(w,varargin)
 %   >> [fig_handle, axes_handle, plot_handle] = dh(w,...) 
 
 
-% Check input arguments
-opt=struct('newplot',true,'lims_type','xy');
-[args,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
-
-% Perform plot
-type='h';
-[fig_,axes_,plot_]=plot_oned (w,opt.newplot,type,fig,lims{:});
-
+[fig_,axes_,plot_] = plot_1d_nd_(w,'h',varargin{:});
 
 % Output only if requested
-if nargout>=1, fig_handle=fig_; end
-if nargout>=2, axes_handle=axes_; end
-if nargout>=3, plot_handle=plot_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+end

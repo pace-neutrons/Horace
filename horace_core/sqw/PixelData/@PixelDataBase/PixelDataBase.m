@@ -113,6 +113,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         % if false, converts all pixel data loaded from disk into double
         % precision
         keep_precision
+        % Property returns size of a pixel in bytes
+        pix_byte_size
     end
 
     properties(Access=protected)
@@ -137,8 +139,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         % memory or on disk and all additional properties describing
         % pix array, like its size, shape, alignment, etc
         metadata;
-        % the property contains or describes the pixel data array itself
-        % contains if the array fits area or describes it if the only
+        % the property contains or describes the pixel data array itself.
+        % Contains if the array fits memory or describes it if the only
         % possible location of this array is disk.
         data_wrap;
         %------------------------------------------------------------------
@@ -170,6 +172,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         EMPTY_RANGE = [inf(1,9);-inf(1,9)];
         EMPTY_PIXELS = zeros(9, 0);
         NO_INPUT_INDICES = -1;
+        FIELD_INDEX_MAP = PixelDataBase.FIELD_INDEX_MAP_;
     end
 
     properties(Constant,Access=protected)
@@ -203,6 +206,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     end
 
     methods (Static)
+        out_obj = cat(varargin);
         function isfb = do_filebacked(num_pixels, scale_fac)
             % function defines default rule to make pixels filebased or memory
             % based.
@@ -271,7 +275,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             %  '-filebacked' -- if present, request filebacked data (does
             %                   not work currently work with array of data)
             %  '-upgrade'    -- if present, alow write access to filebased
-            %  '-writable'      data (properties are synonimous)
+            %  '-writable'      data (properties are synonymous)
             %  '-norange'    -- if present, do not calculate the range of
             %                   pix data if this range is missing. Should
             %                   be selected during file-format upgrade, as
@@ -287,8 +291,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         function loc_range = pix_minmax_ranges(data, current)
             % Compute the minmax ranges in data in the appropriate format for
             % PixelData objects
-            loc_range = [min(data,[],2),...
-                max(data,[],2)]';
+            loc_range = min_max(data)';
             if exist('current', 'var')
                 loc_range = minmax_ranges(current,loc_range);
             end
@@ -305,14 +308,14 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             % indices   -- the indices corresponding to the fields
             %
 
-            if istext(fld_name)
-                idx = PixelDataBase.FIELD_INDEX_MAP_(fld_name);
-            elseif isnumeric(fld_name)
-                idx = fld_name(:)';
-            elseif iscell(fld_name)
+            if iscell(fld_name)
                 idx=cellfun(@(x)PixelDataBase.FIELD_INDEX_MAP_(x),fld_name, ...
                     'UniformOutput',false);
                 idx = [idx{:}];
+            elseif isnumeric(fld_name)
+                idx = fld_name(:)';
+            elseif istext(fld_name)
+                idx = PixelDataBase.FIELD_INDEX_MAP_(fld_name);
             else
                 error('HORACE:PixelDataBase:invalid_argument',...
                     ['Method accepts the name of the pixel field, array of field indices or cellarray of fields.\n' ...
@@ -337,15 +340,15 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     methods(Abstract)
         % --- Pixel operations ---
-        pix_out  = append(obj, pix);
-        pix_copy = copy(obj)
+        pix_copy = copy(obj);
 
-
-        data = get_raw_data(obj,varargin)
+        data = get_raw_data(obj,varargin);
         pix  = set_raw_data(obj,pix);
 
         obj = recalc_data_range(obj,varargin);
-        % realign pixels using alignment matrix stored with pixels
+
+        % return byte-size of single pixel
+        sz = get_pix_byte_size(obj,keep_precision);
     end
     %======================================================================
     % File handling/migration.
@@ -357,13 +360,10 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         % operation, possibly using new file name
         [obj,varargout] = activate(obj,filename,varargin);
 
-        obj = prepare_dump(obj)
         obj = get_write_handle(obj, varargin)
         obj = store_page_data(obj,data_page)
-
-        obj = get_new_handle(obj, varargin)
         %
-        obj = finish_dump(obj,varargin)
+        obj = finish_dump(obj,page_op)
         %
         % Sets file, associated with object to be removed when obj gets out of scope
         obj =set_as_tmp_obj(obj,filename);
@@ -709,6 +709,12 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         function is = get.is_tmp_obj(obj)
             is = get_is_tmp_obj(obj);
         end
+        function sz = get.pix_byte_size(obj)
+            % In a future it may be overloaded to account for various types
+            % of pixel data but we can not yet give clear specification for
+            % that.
+            sz = get_pix_byte_size(obj);
+        end
     end
     %----------------------------------------------------------------------
     methods
@@ -726,6 +732,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
 
         pix_out = do_unary_op(obj, unary_op)
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
+
         %
         %------------------------------------------------------------------
         % Helpers for page_op and data_op_interface. Work with data in
@@ -759,33 +766,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             calc_variance   = nargout > 1;
             [mean_signal, mean_variance,signal_msd] = ...
                 compute_bin_data_(obj, npix,pix_idx,calc_variance,calc_signal_msd);
-        end
-        function out_obj = cat(obj,varargin)
-            % Concatenate the given PixelData objects' pixels. This function performs
-            % a straight-forward data concatenation.
-            %
-            %   >> joined_pix = pix_data1.cat(pix_data1, pix_data2);
-            %
-            % Input:
-            % ------
-            %   varargin    A cell array of PixelData objects
-            %
-            % Output:
-            % -------
-            %   obj         A PixelData object containing all the pixels in the inputted
-            %               PixelData objects
-            %               The type of the object (filebacked or
-            %               memorybacked) will be defined by the type of
-            %               the first object to cat.
-
-            % Take the dataclass of the first object.
-            if isempty(varargin)
-                out_obj = obj;
-                return;
-            end
-            out_obj = copy(obj);
-
-            out_obj= out_obj.cat(varargin{:});
         end
     end
     %======================================================================
@@ -863,7 +843,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     % Helper methods.
     methods(Access=protected)
-        function obj = set_alignment(obj,val,pix_average_treatment_function)
+        function [obj,alignment_changed] = set_alignment(obj,val,pix_treatment_function)
             % set non-unary alignment matrix and recalculate or invalidate
             % pix averages.
             % Part of alignment_mart setter
@@ -871,10 +851,11 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             % obj    -- initial object
             % val    -- 3x3 alignment matrix or empty value if matrix
             %           invalidation is requested
-            % pix_average_treatment_function
-            %        -- the function used for recalculation or invalidation
-            %           of pixel averages
-            obj = set_alignment_matr_(obj,val,pix_average_treatment_function);
+            % pix_treatment_function
+            %        -- the function to apply to the PixelDataBase object
+            %           after aligment changes e.g. for recalculation or
+            %            invalidation of pixel averages.
+            [obj,alignment_changed] = set_alignment_matr_(obj,val,pix_treatment_function);
         end
         %------------------------------------------------------------------
         function [abs_pix_indices,pix_col_idx,ignore_range,raw_data,keep_precision,align] = ...

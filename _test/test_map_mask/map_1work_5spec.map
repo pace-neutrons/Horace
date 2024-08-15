@@ -1,0 +1,6 @@
+! Map file: 1 workspace, 5 spectra
+1 	% number of workspaces
+99 	% workspace name
+5 	% Number of spectra in the workspace
+11 13 	% spectrum numbers - first line
+2-4		% spectrum numbers - second line

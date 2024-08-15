@@ -44,6 +44,12 @@ properties([
     ),
     string(
       defaultValue: '',
+      description: 'The version of Python to build with. Affects Linux builds only.',
+      name: 'PYTHON_VERSION',
+      trim: true
+    ),
+    string(
+      defaultValue: '',
       description: 'The year of the version of Visual Studio to build with. Affects Windows builds only.',
       name: 'VS_VERSION',
       trim: true
@@ -84,11 +90,15 @@ pipeline {
   }
 
   environment {
+    // SL7 nodes had matlab/R20xx[ab] + matlab/2020b. Rocky8 nodes do not, only matlab/20xx[ab]
+    // removing the R here from the pipeline library standard version so as not to break other library dependent pipelines
     MATLAB_VERSION = utilities.get_param('MATLAB_VERSION', pli.matlab_release)
-    CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', '3.19')
-    GCC_VERSION = utilities.get_param('GCC_VERSION', '6.3.0')
-    VS_VERSION = utilities.get_param('VS_VERSION', "${env.AGENT == 'icdpacewin' ? '2019' : '2017'}")
-    CPPCHECK_VERSION = utilities.get_param('CPPCHECK_VERSION', '1.77')
+    MATLAB_MODULE = utilities.get_param('MATLAB_VERSION', pli.matlab_release.minus('R'))
+    CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', '3.26')
+    GCC_VERSION = utilities.get_param('GCC_VERSION', '13')
+    PYTHON_VERSION = utilities.get_param('PYTHON_VERSION', '3.8')
+    VS_VERSION = utilities.get_param('VS_VERSION', '2019')
+    CPPCHECK_VERSION = utilities.get_param('CPPCHECK_VERSION', '2.13')
     BUILD_DOCS = utilities.get_param('BUILD_DOCS', 'true')
   }
 
@@ -113,11 +123,11 @@ pipeline {
             // Limiting sphinxcontrib-matlabdomain version due to use of Python 3.8 features in latest
             if (isUnix()) {
               sh '''
-            module load python/3.6 &&
-            pip install --user --upgrade pip &&
-            pip install --user sphinx &&
-            pip install --user sphinx_rtd_theme &&
-            pip install --user sphinxcontrib-matlabdomain==0.14.1
+            module load python/\$PYTHON_VERSION &&
+            python -m pip install --user --upgrade pip &&
+            python -m pip install --user sphinx &&
+            python -m pip install --user sphinx_rtd_theme &&
+            python -m pip install --user sphinxcontrib-matlabdomain==0.14.1
             '''
             } else {
               powershell '''
@@ -129,10 +139,10 @@ pipeline {
           }
           if (isUnix()) {
             sh '''
-              module load python/3.6 &&
+              module load python/\$PYTHON_VERSION &&
               export PATH=${PATH}:~/.local/bin &&
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
               ./tools/build_config/build.sh \
@@ -161,7 +171,7 @@ pipeline {
           if (isUnix()) {
             sh '''
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
               ./tools/build_config/build.sh --analyze
@@ -187,7 +197,7 @@ pipeline {
           if (isUnix()) {
             sh '''
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               ./tools/build_config/build.sh --build
             '''
@@ -210,7 +220,7 @@ pipeline {
           if (isUnix()) {
             sh '''
                 export PATH=${PATH}:~/.local/bin &&
-                module load python/3.6 &&
+                module load python/\$PYTHON_VERSION &&
                 module load cmake/\$CMAKE_VERSION &&
                 ./tools/build_config/build.sh --docs
             '''
@@ -245,7 +255,7 @@ pipeline {
           if (isUnix()) {
             sh '''
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               ./tools/build_config/build.sh --test
             '''
@@ -268,7 +278,7 @@ pipeline {
           if (isUnix()) {
             sh '''
               module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
+              module load matlab/\$MATLAB_MODULE &&
               module load gcc/\$GCC_VERSION &&
               ./tools/build_config/build.sh --benchmark
              '''

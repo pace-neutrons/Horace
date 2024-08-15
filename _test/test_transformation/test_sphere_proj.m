@@ -11,7 +11,38 @@ classdef test_sphere_proj<TestCase
             end
             this=this@TestCase(name);
         end
+        %------------------------------------------------------------------
+        function test_scales_l(~)
+            proj = sphere_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','ldd');
+            % length of c*
+            assertElementsAlmostEqual(proj.img_scales,[2/3,180/pi,180/pi]);
+        end
+        function test_scales_k(~)
+            proj = sphere_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','kdd');
+            % length of b*
+            assertElementsAlmostEqual(proj.img_scales,[1,180/pi,180/pi]);
+        end
+        function test_scales_h(~)
+            proj = sphere_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','hdd');
+            % length of a*
+            assertElementsAlmostEqual(proj.img_scales,[2,180/pi,180/pi]);
+        end
 
+        function test_scales_r(~)
+            proj = sphere_proj([1,1,1],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','rdd');
+            % length of max|u*[e_h,e_k,e_l]| == 1
+            assertElementsAlmostEqual(proj.img_scales,[2,180/pi,180/pi]);
+        end
+        function test_scales_p(~)
+            proj = sphere_proj([1,1,0],'alatt',[pi,2*pi,3*pi],'angdeg',90,'type','pdd');
+            % length of |u| == 1
+            assertElementsAlmostEqual(proj.img_scales,[sqrt(2^2+1),180/pi,180/pi]);
+        end
+        function test_scales_a(~)
+            proj = sphere_proj([1,1,0],'angdeg',90,'type','arr');
+            % length of |u| == 1
+            assertElementsAlmostEqual(proj.img_scales,[1,1,1]);
+        end
         %------------------------------------------------------------------
         function test_coord_transf_PixData_plus_offset(~)
             proj = sphere_proj('alatt',2*pi,'angdeg',90);
@@ -75,15 +106,15 @@ classdef test_sphere_proj<TestCase
                 proj.type = val;
             end
             assertExceptionThrown(@()type_setter(proj,'a'),...
-                'HORACE:sphere_proj:invalid_argument');
+                'HORACE:CurveProjBase:invalid_argument');
             assertExceptionThrown(@()type_setter(proj,20),...
-                'HORACE:sphere_proj:invalid_argument');
+                'HORACE:CurveProjBase:invalid_argument');
 
             assertExceptionThrown(@()type_setter(proj,'abb'),...
-                'HORACE:sphere_proj:invalid_argument');
+                'HORACE:CurveProjBase:invalid_argument');
 
             assertExceptionThrown(@()type_setter(proj,'xrr'),...
-                'HORACE:sphere_proj:invalid_argument');
+                'HORACE:CurveProjBase:invalid_argument');
         end
 
         function test_coord_sphere_ranged_rad(~)
@@ -136,9 +167,9 @@ classdef test_sphere_proj<TestCase
         end
 
         function test_set_direction_110_cub(~)
-            proj = sphere_proj([1,-1,0],[1,1,0],'alatt',2*pi,'angdeg',90);
-            assertEqual(proj.ez,[1,-1,0])
-            assertEqual(proj.ex,[1, 1,0])
+            proj = sphere_proj([1,-1,0],[1,1,0],'alatt',2*pi,'angdeg',90,'type','add');
+            assertEqual(proj.u,[1,-1,0])
+            assertEqual(proj.v,[1, 1,0])
             ref_vec = [...
                 1. ,   1.,    1.; ... R
                 45 , 135.,   90.; ... Theta
@@ -154,9 +185,9 @@ classdef test_sphere_proj<TestCase
 
 
         function test_set_direction_010(~)
-            proj = sphere_proj([0,1,0],[1,0,0]);
-            assertEqual(proj.ez,[0,1,0])
-            assertEqual(proj.ex,[1,0,0])
+            proj = sphere_proj([0,1,0],[1,0,0],'type','add');
+            assertEqual(proj.u,[0,1,0])
+            assertEqual(proj.v,[1,0,0])
             ref_vec = [...
                 1. ,   1.,    1.; ... R
                 90 ,   0.,   90.; ... Theta
@@ -169,9 +200,9 @@ classdef test_sphere_proj<TestCase
 
 
         function test_set_direction_001(~)
-            proj = sphere_proj([0,0,1],[1,0,0]);
-            assertEqual(proj.ez,[0,0,1])
-            assertEqual(proj.ex,[1,0,0])
+            proj = sphere_proj([0,0,1],[1,0,0],'type','add');
+            assertEqual(proj.u,[0,0,1])
+            assertEqual(proj.v,[1,0,0])
             ref_vec = [...
                 1. ,   1.,    1.; ... R
                 90 ,  90.,    0.; ... Theta
@@ -183,9 +214,9 @@ classdef test_sphere_proj<TestCase
         end
 
         function test_empty_constructor(~)
-            proj = sphere_proj();
-            assertEqual(proj.ez,[1,0,0]);
-            assertEqual(proj.ex,[0,1,0])
+            proj = sphere_proj('type','add');
+            assertEqual(proj.u,[1,0,0]);
+            assertEqual(proj.v,[0,1,0])
 
             ref_vec = [...
                 1,  1.,  1.; ... R

@@ -4,7 +4,7 @@ function run_docify()
     docifiable_folders = {'applications/multifit', ...
                           'utilities'};
     for ii = 1:numel(docifiable_folders)
-        fld = join([base_dir '/' docifiable_folders{ii}], '');
+        fld = fullfile(base_dir,docifiable_folders{ii});
         docify(fld, '-recursive', '-list', 3, '-all')
     end
 end

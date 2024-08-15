@@ -1,4 +1,4 @@
-function obj  = put_sqw_block_(obj,block_name_or_instance,obj_to_work_with)
+function [obj,the_data_block]  = put_sqw_block_(obj,block_name_or_instance,obj_to_work_with)
 % store modified particular sqw sub-object data block within the
 % sqw object binary records on hdd
 % Inputs:
@@ -16,6 +16,15 @@ function obj  = put_sqw_block_(obj,block_name_or_instance,obj_to_work_with)
 % OR:
 % subobj       -- the subobject of sqw object to store using selected
 %                 data_block
+% Output:
+% obj          -- faccess object with modified BAT, containing position of
+%                 the block in file.
+%                 The block contents have been written in the file and
+%                 modified BAT have been written to file too.
+% Optional:
+% the_data_block
+%              --  instance of the data_block just written to the disk
+%                  (copy of the value, stored in BAT)
 %
 if ~obj.bat_.initialized
     error('HORACE:binfile_v4_common:runtime_error', ...

@@ -17,7 +17,12 @@ end
 %
 obj=obj.check_obj_initated_properly();
 %
+% this now extracts the detector arrays from the faccess object
+% rather than an old-style detpar struct
 [detpar,new_obj] = obj.extract_correct_subobj('detpar',argi{:});
+% but now converting to old detpar representation for old file format
+% as the old file format presumably needs exactly that
+detpar = detpar{1}.get_detpar_representation();
 if new_obj
     update = true;
 end

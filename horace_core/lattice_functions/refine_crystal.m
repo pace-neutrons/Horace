@@ -1,12 +1,14 @@
-function aligment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
+function [alignment_info, error_estimate] = refine_crystal(rlu_actual,alatt0,angdeg0,rlu_expected,varargin)
 % Refine crystal orientation and lattice parameters
 %
-%   >> aligment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu)
-%   >> aligment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu, alatt_init, angdeg_init)
+%   >> alignment_info = refine_crystal(rlu_actual, alatt0, angdeg0, rlu_expected)
+%   >> alignment_info = refine_crystal(rlu_actual, alatt0, angdeg0, rlu_expected, alatt_init, angdeg_init)
+% Return estimates of the error in the crystal alignment fit
+%   >> [..., error_estimate] = refine_crystal( ... )
 %
 % In addition, there are keyword arguments to control the refinement e.g.
-%   >> aligment_info = refine_crystal(..., 'fix_angdeg')
-%   >> aligment_info = refine_crystal(..., 'free_alatt', [1,0,1])
+%   >> alignment_info = refine_crystal(..., 'fix_angdeg')
+%   >> alignment_info = refine_crystal(..., 'free_alatt', [1,0,1])
 %
 %
 % This function is used to get the information necessary to relate the coordinates of a vector (h0,k0,l0)
@@ -20,13 +22,14 @@ function aligment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 %
 % Input:
 % ------
-%   rlu0            Positions of reciprocal lattice vectors as h,k,l in reference lattice
+%   rlu_actual      Positions of reciprocal lattice vectors as h,k,l in reference lattice
 %                   (n x 3 matrix, n=no. reflections)
 %   alatt0          Reference lattice parameters [a,b,c] (Angstroms), which
-%                   would provide bragg peaks at rlu0
+%                   would provide bragg peaks at rlu_actual
 %   angdeg0         Reference lattice angles [alph,bet,gam] (deg), which
-%                   would provide bragg peaks at rlu0
-%   rlu             True indexes of reciprocal lattice vectors (n x 3 matrix)
+%                   would provide bragg peaks at rlu_actual
+%   rlu_expected    True indices (the indices would be expected in aligned lattice)
+%                   of reciprocal lattice vectors (n x 3 matrix)
 %
 % Optional input parameter:
 %   alatt_init     Initial lattice parameters for start of refinement [a,b,c] (Angstroms)
@@ -61,7 +64,7 @@ function aligment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 %
 % Output:
 % -------
-%  alighment_info  -- helper class, which contains information, necessary
+%  alignment_info  -- helper class, which contains information, necessary
 %                     for the crystal alignment. The class contains the
 %                     following fields, calculated by the procedure:
 %
@@ -72,19 +75,24 @@ function aligment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 %                     in the two frames are related by
 %                       v(i)= rotmat(i,j)*v0(j)
 %      distance       Distances between peak positions and points given by true indexes, in input
-%                     argument rlu, in the refined crystal lattice. (Ang^-1)
+%                     argument rlu_expected, in the refined crystal lattice. (Ang^-1)
 %
 %      rotangle       Angle of rotation corresponding to rotmat (to give a measure
 %                     of the misorientation) (degrees)
 %
+% error_estimate  --  Structure containing estimated errors on the fit parameters as a result of refinement
+%
+%      alatt          Error on refined lattice parameters [a,b,c] (Angstroms)
+%      angdeg         Error on refined lattice angles [alph,bet,gam] (degrees)
+%      rotmat         Error on rotation matrix
 %
 % EXAMPLES
 %   Want to refine crystal orientation only:
-%   >> alighment_info =refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_lattice')
+%   >> alignment_info =refine_crystal (rlu_actual, alatt0, angdeg0, rlu_expected, 'fix_lattice')
 %    the alignment info would contain the initial lattice values i.e.  alatt0, angdeg0
 %
 %   Want to refine lattice parameters a,b,c as well as crystal orientation:
-%   >> alighment_info=refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_angdeg')
+%   >> alignment_info=refine_crystal (rlu_actual, alatt0, angdeg0, rlu_expected, 'fix_angdeg')
 %    the alignment info would contain the initial lattice angles i.e.  angdeg0
 
 small=1e-10;
@@ -98,7 +106,7 @@ flags={'fix_lattice','fix_alatt','fix_alatt_ratio','fix_angdeg','fix_orientation
 check_options_consistency(present,opt);
 
 % Check input arguments
-lattice0 = check_input_arguments(rlu0,rlu,alatt0,angdeg0);
+lattice0 = check_input_arguments(rlu_actual,rlu_expected,alatt0,angdeg0);
 
 % Check initial lattice parameters for refinement, if given, are acceptable
 lattice_init = check_additional_args(lattice0,args{:});
@@ -109,8 +117,8 @@ lattice_init = check_additional_args(lattice0,args{:});
 b0    = bmatrix(lattice0(1:3),lattice0(4:6));
 binit = bmatrix(lattice_init(1:3),lattice_init(4:6));
 
-vcryst0=b0*rlu0';       % crystal Cartesian coords in reference lattice
-vcryst_init=binit*rlu'; % crystal Cartesian coords in initial lattice
+vcryst0=b0*rlu_actual';       % crystal Cartesian coords in reference lattice
+vcryst_init=binit*rlu_expected'; % crystal Cartesian coords in initial lattice
 
 % Check lengths are all non-zero
 lensqr0=sum(vcryst0.^2,1);
@@ -129,7 +137,7 @@ end
 
 % Fit
 % ---
-nv=size(rlu,1);
+nv=size(rlu_expected,1);
 vcryst0_3=repmat(vcryst0',3,1);     % Treble the number of vectors, as will compute three components of deviations
 
 pars=[lattice_init,rotvec_ave(:)'];
@@ -159,9 +167,14 @@ if opt.fix_orientation
 end
 
 kk = multifit (vcryst0_3, zeros(3*nv,1), 0.01*ones(3*nv,1));
-kk = kk.set_fun (@reciprocal_space_deviation, {pars,rlu}, pfree, pbind);
+% function to caclulate distance between actual and expected bragg peak
+% positions in reciprocal space.
+kk = kk.set_fun (@reciprocal_space_deviation, {pars,rlu_expected}, pfree, pbind);
 kk = kk.set_options ('list', 0);
 kk = kk.set_options ('fit',[1e-4,50,-1e-6]);
+% disable possible parallel fitting as it does not make sence for
+% refine_crystal data. The fitting for these data is faster serially.
+clOb = set_temporary_config_options('hpc_config','parallel_multifit',false);
 [distance,fitpar] = kk.fit();
 
 
@@ -184,47 +197,11 @@ alatt  = fitpar.p(1:3);
 angdeg = fitpar.p(4:6);
 distance=sqrt(sum(reshape(distance,3,nv).^2,1))';
 
-aligment_info = crystal_alignment_info(alatt,angdeg,rotvec,distance);
+error_estimate = struct('alatt', fitpar.sig(1:3), ...
+    'angdeg', fitpar.sig(4:6), ...
+    'rotvec', fitpar.sig(7:9));
 
-
-%============================================================================================================
-% Distance function for fitting
-%============================================================================================================
-function dist = reciprocal_space_deviation (x1,x2,x3,p,rlu)
-% Function to calculate the distance between a point in reciprocal space and corresponding point in a reference orthonormal frame
-%
-%   >> dist = reciprocal_space_deviation (v0,p,rlu)
-%
-% Input:
-% -------
-%   x1,x2,x3    Array of coordinates in reference crystal Cartesian coordinates
-%              This is n x 3 array repeated three times along first dimension
-%   p           Parameters that can be fitted: [a,b,c,alph,bet,gam,theta1,theta2,theta3]
-%               a,b,c           lattice parameters (Ang)
-%               alph,bet,gam     lattice angles (deg)
-%               theta1,theta2,theta3    components of rotation vector linking
-%                                          crystal Cartesian coordinates
-%                                           v(i)=R_theta(i,j)*v0(j)
-%   rlu         Components along a*, b*, c* in lattice defined by p (n x 3 array)
-%
-% Output:
-% -------
-%   dist        Column vector of deviations along x,y,z axes of reference crystal
-%              Cartesian coordinates for each of the vectors rlu in turn
-
-nv=size(rlu,1);
-
-alatt=p(1:3);
-angdeg=p(4:6);
-rotvec=p(7:9);
-
-b=bmatrix(alatt,angdeg);
-R=rotvec_to_rotmat2(rotvec);
-rlu_to_cryst0=R\b;
-v=(rlu_to_cryst0*rlu')';
-dv=v-[x1(1:nv),x2(1:nv),x3(1:nv)];
-
-dist=reshape(dv',3*nv,1)./repmat(sqrt(sum(v.^2,2)),3,1);
+alignment_info = crystal_alignment_info(alatt,angdeg,rotvec,distance);
 
 
 %============================================================================================================
@@ -375,18 +352,18 @@ elseif opt.fix_alatt && (present.fix_alatt_ratio && ~opt.fix_alatt_ratio)
         'Check consistency of options to fix lattice parameters')
 end
 %
-function lattice0 = check_input_arguments(rlu0,rlu,alatt0,angdeg0)
-if size(rlu0,2)~=3 || size(rlu0,1)<2 || numel(size(rlu0))~=2
+function lattice0 = check_input_arguments(rlu_actual,rlu_expected,alatt0,angdeg0)
+if size(rlu_actual,2)~=3 || size(rlu_actual,1)<2 || numel(size(rlu_actual))~=2
     error('HORACE:lattice_functions:invalid_argument', ...
         'Must be at least two input reciprocal lattice vectors, each given as triples (h,k,l)')
 end
-if numel(size(rlu))~=2 || ~all(size(rlu0)==size(rlu))
+if numel(size(rlu_expected))~=2 || ~all(size(rlu_actual)==size(rlu_expected))
     error('HORACE:lattice_functions:invalid_argument', ...
         'Must be the same number of reciprocal lattice vectors in reference and new coordinate frames, each given as a triple (h,k,l)')
 end
-if ~all(isfinite(rlu0(:)))  % catch case of rlu not being found - a common input is from bragg_positions
+if ~all(isfinite(rlu_actual(:)))  % catch case of rlu_expected not being found - a common input is from bragg_positions
     error('HORACE:lattice_functions:invalid_argument', ...
-        'One or more positions of the true Bragg peak positions (input argument ''rlu'') is not finite.')
+        'One or more positions of the true Bragg peak positions (input argument ''rlu_expected'') is not finite.')
 end
 
 if isnumeric(alatt0) && numel(alatt0)==3 && all(alatt0>0) && isnumeric(angdeg0) && numel(angdeg0)==3  && all(angdeg0>0)

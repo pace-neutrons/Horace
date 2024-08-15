@@ -29,76 +29,12 @@ classdef test_line_proj_methods<TestCase
         %------------------------------------------------------------------
     end
     %------------------------------------------------------------------
-    methods % Test offset
-        function test_get_set_img_offset_ppr_scales_hkl(~)
-            alatt = [2,2,2];
-            angdeg = 90;
-
-            pra = line_proj([1,-1,0],[1, 1,0],'alatt',alatt,'angdeg',angdeg);
-            assertEqual(pra.offset,zeros(1,4));
-            in_offset = [1,1,0,0];
-            pra.img_offset = [0,1,0,0];
-            assertElementsAlmostEqual(pra.img_offset,[0,1,0,0],'absolute',1.e-12);
-            assertElementsAlmostEqual(pra.offset,in_offset,'absolute',1.e-12);
-
-        end
-
-        function test_get_set_hkl_offset_ppr_scales(~)
-            alatt = [2,2,2];
-            angdeg = 90;
-
-            pra = line_proj([1,-1,0],[1, 1,0],'alatt',alatt,'angdeg',angdeg);
-            assertEqual(pra.offset,zeros(1,4));
-            in_offset = [1,1,0,0];
-            pra.offset = in_offset;
-            assertElementsAlmostEqual(pra.offset,in_offset,'absolute',1.e-12);
-
-            assertElementsAlmostEqual(pra.img_offset,[0,1,0,0],'absolute',1.e-12);
-
-        end
-
-        function test_set_img_offset_get_offset_scaled(~)
-            alatt = [1,2,3];
-            angdeg = 90;
-
-            pra = line_proj([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg,'type','aaa');
-            assertEqual(pra.offset,zeros(1,4));
-            in_offset = [1,1,0,0];
-            img_offset = in_offset.*(2*pi./[alatt,1]);
-            pra.img_offset = img_offset;
-
-            assertElementsAlmostEqual(pra.img_offset,img_offset,'absolute',1.e-12);
-            assertElementsAlmostEqual(pra.offset,in_offset,'absolute',1.e-12);
-        end
-
-        function test_set_offset_get_img_offset_scaled(~)
-            alatt = [1,2,3];
-            angdeg = 90;
-
-            pra = line_proj([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg,'type','aaa');
-            assertEqual(pra.offset,zeros(1,4));
-            in_offset = [1,1,0,0];
-            pra.offset = in_offset;
-            assertEqual(pra.offset,in_offset);
-            img_offset = in_offset.*(2*pi./[alatt,1]);
-
-            assertElementsAlmostEqual(pra.img_offset,img_offset,'absolute',1.e-12);
-        end
-
-        function test_img_offset_zero(~)
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-
-            pra = line_proj([1,1,0],[0, 1,0],'w',[1,1,1],'alatt',alatt,'angdeg',angdeg);
-            assertEqual(pra.offset,zeros(1,4));
-            assertEqual(pra.offset,pra.img_offset);
-        end
-    end
     methods  % Bining ranges
         %------------------------------------------------------------------
         function test_bin_range_05_samp_proj2Drot45_3D_opt_vs4D_generic_withdE(~)
             % full 4D transformation with orthogonal dE axis tested against
             % equivalent 3d+1 transformation. Should give equal results
+            skipTest('Re #1706 full 4D ttransformation is currently disabled')
             proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             proj1.do_3D_transformation = false;
@@ -144,6 +80,8 @@ classdef test_line_proj_methods<TestCase
         function test_binning_range_05_samp_proj2Drot45_3D_opt_vs4D_generic(~)
             % full 4D transformation with orthogonal dE axis tested against
             % equivalent 3d+1 transformation. Should give the same results
+            skipTest('Re #1706 full 4D ttransformation is currently disabled')
+
             proj1 = line_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
             proj1.do_generic = true;
             proj1.do_3D_transformation = false;
@@ -194,6 +132,8 @@ classdef test_line_proj_methods<TestCase
         function test_binning_range_half_sampe_proj2Drot45(~)
             % compare default generic cut (3D+1 now) with
             % old-style ranges cut
+            skipTest('Re #1706 full 4D ttransformation is currently disabled')
+
             proj1 = line_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
             proj1.do_generic = true;
             proj1.convert_targ_to_source = false;
@@ -421,7 +361,7 @@ classdef test_line_proj_methods<TestCase
             % resurfaces.
             %ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
             %clob0 = onCleanup(@()warning(ws));
-            [a,b]=lastwarn
+
             hc = hor_config();
             cur_mex = hc.use_mex;
             hc.use_mex = 0;

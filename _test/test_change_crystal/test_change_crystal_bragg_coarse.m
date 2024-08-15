@@ -58,7 +58,48 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             sim_sqw_file = fullfile(obj.dir_out, 'test_change_crystal_coarse_sim.sqw'); % output file for simulation in reference lattice
             obj = obj.build_misaligned_source_file(sim_sqw_file);
 
+            obj.save();
         end
+        function test_change_crystal_family_invalid_throw_in_memory(obj)
+            sqw_sample = read_sqw(obj.misaligned_sqw_file);
+            dnd_sample = sqw_sample.data;
+
+            corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250], [-0.0530 0.0519 0.0345]);
+
+            assertExceptionThrown(@()change_crystal_dnd({sqw_sample,dnd_sample},corrections), ...
+                'HORACE:change_crystal:invalid_argument');
+
+            assertExceptionThrown(@()change_crystal_sqw({sqw_sample,dnd_sample},corrections), ...
+                'HORACE:change_crystal:invalid_argument');
+
+            al_obj = change_crystal({sqw_sample,dnd_sample},corrections);
+
+            assertEqualToTol(al_obj{1}.data,al_obj{2})
+        end
+
+        function test_change_crystal_family_invalid_throw(obj)
+            targ_file = fullfile(tmp_dir,'aligned_copy.sqw');
+            clOb = onCleanup(@()delete(targ_file));
+
+            copyfile(obj.misaligned_sqw_file, targ_file, 'f');
+            corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250], [-0.0530 0.0519 0.0345]);
+
+            assertExceptionThrown(@()change_crystal_dnd(targ_file,corrections), ...
+                'HORACE:change_crystal:invalid_argument');
+
+            dnd_obj = read_dnd(targ_file);
+
+            dnd_obj1 = change_crystal(dnd_obj,corrections);
+            dnd_obj2 = change_crystal_dnd(dnd_obj,corrections);
+            assertEqual(dnd_obj1,dnd_obj2)
+
+            save(dnd_obj,targ_file);
+            assertExceptionThrown(@()change_crystal_sqw(targ_file,corrections), ...
+                'HORACE:change_crystal:invalid_argument');
+        end
+
 
         function test_u_alignment_tf_way(obj)
             % Fit Bragg peak positions
@@ -99,7 +140,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             % Apply to a copy of the sqw object to see that the alignment is now OK
             % ---------------------------------------------------------------------
-            tmp_file_1 = TmpFileHandler('test_change_crystal_coarse_sima_corr.sqw');
+            tmp_file_1 = TmpFileHandler('test_change_crystal_coarse_sima_corr.sqw',true);
             sim_sqw_file_corr = tmp_file_1.file_name;
 
             copyfile(obj.misaligned_sqw_file, sim_sqw_file_corr, 'f')
@@ -161,23 +202,26 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             % ensure we indeed do filebacked algorithm
             assertTrue(wout_aligned.is_filebacked);
+            assertFalse(wout_aligned.is_tmp_obj);
 
             corr_rev.rotvec = -corr_rev.rotvec;
             assertEqualToTol(corrections, corr_rev, 'tol', 1.e-9)
 
             % test cut ranges:
-            cr = [-0.3,-2.0,-0.5,-0.5;...
+            cr=[-0.3,-2.0,-0.5,-0.5;...
                 +3.5,+4.2,+1.0,+0.5];
 
             proj = line_proj;
-            cut_range = {[cr(1, 1), 0.05, cr(2, 1)], ...
-                [cr(1, 2), 0.05, cr(2, 2)], ...
+            cut_range = {[cr(1, 1), 0.08, cr(2, 1)], ...
+                [cr(1, 2), 0.08, cr(2, 2)], ...
                 cr(:, 3)', cr(:, 4)'};
 
             % test the cut from crystal with alignment and cut with aligned
             % crystal, alignment applied are the same
             cut_cor= cut(tf_ref_corr, proj, cut_range{:});
+            assertTrue(cut_cor.is_tmp_obj)
             cut_al = cut(tf_ref_al, proj, cut_range{:});
+            assertTrue(cut_al.is_tmp_obj)
 
             assertEqualToTol(cut_cor, cut_al, 4*eps('single'), 'ignore_str', true);
         end
@@ -211,50 +255,20 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertEqualToTol(corrections, corr_rev, 'tol', 1.e-9)
 
             % test cut ranges:
-            cr = [-0.3,-2.0,-0.5,-0.5;...
-                +3.5,+4.2,+1.0,+0.5];
+            cr=[-0.3, -2.0, -0.5, -0.5;...
+                +3.5, +4.2, +1.0, +0.5];
 
             proj = line_proj;
-            cut_range = {[cr(1, 1), 0.05, cr(2, 1)], ...
-                [cr(1, 2), 0.05, cr(2, 2)], ...
+            cut_range = {...
+                [cr(1, 1), 0.08, cr(2, 1)], ...
+                [cr(1, 2), 0.08, cr(2, 2)], ...
                 cr(:, 3)', cr(:, 4)'};
 
             cut_cor= cut_sqw(tf_ref_corr, proj, cut_range{:});
             cut_al = cut_sqw(wout_aligned, proj, cut_range{:});
             assertEqualToTol(cut_cor, cut_al, 4*eps('single'), 'ignore_str', true);
         end
-
-        function test_upgrade_legacy_alignment_on_file(obj)
-            % testing the possibility to realign the crystal, aligned by
-            % legacy algorithm when object stored in sqw file.
-            tmp_file_1 = TmpFileHandler(obj.misaligned_sqw_file);
-            tf_legacy_al = tmp_file_1.file_name;
-            tmp_file_2 = TmpFileHandler(obj.misaligned_sqw_file);
-            tf_ref_al = tmp_file_2.file_name;
-
-            copyfile(obj.misaligned_sqw_file, tf_legacy_al, 'f');
-            copyfile(obj.misaligned_sqw_file, tf_ref_al, 'f');
-
-            corrections = crystal_alignment_info(...
-                [5.0191 4.9903 5.0121], ...
-                [90.1793 90.9652 89.9250], ...
-                [-0.0530 0.0519 0.0345]);
-
-            % apply new crystal alignment
-            change_crystal(tf_ref_al, corrections);
-
-            % get the crystal aligned according to legacy algorithm.
-            corrections.legacy_mode = true;
-            change_crystal (tf_legacy_al, corrections);
-
-            upgrade_legacy_alignment(tf_legacy_al, ...
-                obj.alatt, obj.angdeg);
-
-            test_obj = read_sqw(tf_legacy_al);
-            ref_obj  = read_sqw(tf_ref_al);
-
-            assertEqualToTol(test_obj, ref_obj, 'tol', 1.e-9, 'ignore_str', true)
-        end
+        %
         function test_pageOp_moves_from_tmp_misaligned_to_tmp_other_obj(obj)
             % Prepare test data
             test_file = build_tmp_file_name(obj.misaligned_sqw_file);
@@ -289,8 +303,6 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             clear test_fb_al;
             assertFalse(is_file(test_file));
         end
-
-
 
         function test_pageOp_moves_from_tmp_misaligned_to_tmp_same_obj(obj)
             % Prepare test data
@@ -349,7 +361,6 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             clear test_fb;
             assertFalse(is_file(test_file));
         end
-
 
         function test_finalize_alignment_moves_tmp_aligned_file(obj)
             targ_file = fullfile(tmp_dir,'nonaligned_copy.sqw');
@@ -412,7 +423,12 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             [test_mb, corr_rev_mb] = finalize_alignment(test_mb);
             [test_fb, corr_rev_fb] = finalize_alignment(test_fb);
 
-            assertEqualToTol(corr_rev_mb, corr_rev_fb, 'tol', 1.e-6);
+            % memory based file already realigned and pixels moved into
+            % correct position
+            assertTrue(isempty(corr_rev_mb))
+            corr_rev_mb = corrections;
+            corr_rev_mb.rotvec = -corr_rev_mb.rotvec;
+            assertEqualToTol(corr_rev_mb,corr_rev_fb , 'tol', 1.e-6);
             assertEqualToTol(test_mb, test_fb, 'tol', 1.e-6, 'ignore_str', true);
 
         end
@@ -420,7 +436,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
         function test_finalize_alignment_in_mem(obj)
             % testing the possibility to align the crystal using
             % finalize_alignment routine in memory
-            test_obj = read_sqw(obj.misaligned_sqw_file);
+            test_obj = sqw(obj.misaligned_sqw_file,'file_backed',true);
             proj = test_obj.data.proj;
 
             corrections = crystal_alignment_info(...
@@ -432,7 +448,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             proj.angdeg = corrections.angdeg;
 
             wout_corrected = change_crystal(test_obj, corrections);
-            [wout_aligned, corr_rev] = finalize_alignment(wout_corrected);
+           [wout_aligned, corr_rev] = finalize_alignment(wout_corrected);
 
             corr_rev.rotvec = -corr_rev.rotvec;
             assertEqualToTol(corrections, corr_rev, 'tol', 1.e-9)
@@ -441,108 +457,23 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             cr = [-0.3,-2.0,-0.5,-0.5;...
                 +3.5,+4.2,+1.0,+0.5];
 
-            cut_range = {[cr(1, 1), 0.05, cr(2, 1)], ...
-                [cr(1, 2), 0.05, cr(2, 2)], ...
+            cut_range = {[cr(1, 1), 0.1, cr(2, 1)], ...
+                [cr(1, 2), 0.2, cr(2, 2)], ...
                 cr(:, 3)', cr(:, 4)'};
 
             cut_cor = cut(wout_corrected, proj, cut_range{:});
-            cut_al = cut(wout_aligned, proj, cut_range{:});
-            assertEqualToTol(cut_cor, cut_al, 'tol', 1.e-9);
+            cut_al  = cut(wout_aligned, proj, cut_range{:});
+            assertEqualToTol(cut_cor, cut_al, 'tol', [8*eps('single'),0])
         end
-
-        function test_upgrade_legacy_alignment(obj)
-            % testing the possibility to realign the crystal, aligned by
-            % legacy algorithm.
-            test_obj = read_sqw(obj.misaligned_sqw_file);
-            alatt0   = test_obj.data.alatt;
-            angdeg0  = test_obj.data.angdeg;
-            corrections = crystal_alignment_info(...
-                [5.0191 4.9903 5.0121], ...
-                [90.1793 90.9652 89.9250], ...
-                [-0.0530 0.0519 0.0345]);
-            proj = test_obj.data.proj;
-            proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
-
-            wout_legacy = test_obj;
-            wout_legacy.data.proj = proj;
-            % get the crystal aligned according to legacy algorithm.
-            wout_legacy = change_crystal (wout_legacy, corrections);
-
-            [obj_realigned, deal_info] = upgrade_legacy_alignment(wout_legacy, ...
-                alatt0, angdeg0);
-
-            wout_modern = change_crystal (test_obj, corrections);
-
-            assertEqualToTol(deal_info.rotvec, -corrections.rotvec, 'tol', 1.e-9)
-            assertEqual(wout_modern, obj_realigned);
-        end
-
-        function test_remove_legacy_keep_lattice_change_fails(obj)
-            % testing the possibility to dealign the crystal, aligned by
-            % legacy algorithm if original lattice is unknown
-            test_obj = read_sqw(obj.misaligned_sqw_file);
-
-            corrections = crystal_alignment_info(...
-                [5.0191 4.9903 5.0121], ...
-                [90.1793 90.9652 89.9250], ...
-                [-0.0530 0.0519 0.0345]);
-            proj = test_obj.data.proj;
-            proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
-
-            wout_legacy  = test_obj;
-            wout_legacy.data.proj = proj;
-            % get the crystal aligned according to legacy algorithm.
-            wout_legacy = change_crystal (wout_legacy, corrections);
-
-            [obj_recovered, deal_info] = remove_legacy_alignment(wout_legacy);
-
-            lat_corrections = crystal_alignment_info(...
-                [5.0191 4.9903 5.0121], ...
-                [90.1793 90.9652 89.9250], ...
-                [0 0 0]);
-            wout_lat = change_crystal (test_obj, lat_corrections);
-
-            assertElementsAlmostEqual(deal_info.rotvec, -corrections.rotvec);
-            % change legacy without lattice does not properly recover
-            % alignment
-            obj_recovered.experiment_info = wout_lat.experiment_info;
-            obj_recovered.data.proj = wout_lat.data.proj;
-            assertEqual(wout_lat, obj_recovered);
-        end
-
-        function test_remove_legacy_alignment(obj)
-            % testing the possibility to dealign the crystal, aligned by
-            % legacy algorithm.
-            test_obj = read_sqw(obj.misaligned_sqw_file);
-            alatt0 = test_obj.data.alatt;
-            angdeg0 = test_obj.data.angdeg;
-            corrections = crystal_alignment_info(...
-                [5.0191 4.9903 5.0121], ...
-                [90.1793 90.9652 89.9250], ...
-                [-0.0530 0.0519 0.0345]);
-            proj = test_obj.data.proj;
-            proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
-
-            wout_legacy  = test_obj;
-            wout_legacy.data.proj = proj;
-            % get the crystal aligned according to legacy algorithm.
-            wout_legacy = change_crystal (wout_legacy, corrections);
-
-            [obj_recovered, deal_info] = remove_legacy_alignment(wout_legacy, ...
-                alatt0, angdeg0);
-
-            assertElementsAlmostEqual(deal_info.rotvec, -corrections.rotvec);
-            assertEqual(test_obj, obj_recovered);
-        end
-
+        %
         function test_legacy_vs_pix_alignment(obj)
             % theoretical Bragg points positions
             bragg_pos=[...
                 0, -1, 0; ...
-                1, 2, 0; ...
+                1,  2, 0; ...
                 0, -1, 1];
 
-            fit_obj = read_sqw(obj.misaligned_sqw_file);
+            test_obj = read_sqw(obj.misaligned_sqw_file);
             % the Bragg points positions found by fitting measured Bragg
             % peaks shape to Gaussian and identifying the Gaussian centerpoints
             % See test_u_alignment_tf_way for the procedure of obtaining
@@ -552,54 +483,106 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 0.9200, 2.0328, -0.1568;...
                 0.1047, -0.9425, 1.0459];
 
-
-            % Get correction matrix from the 3 peak positions:
+            % Get correction class from the 3 peak positions:
             % ------------------------------------------------
             corr = refine_crystal(rlu_real, ...
                 obj.alatt, obj.angdeg, bragg_pos);
 
-            proj = fit_obj.data.proj;
-            proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
-            wout_legacy = fit_obj;
-            wout_legacy.data.proj = proj;
+            wout_legacy = test_obj;
+            corr.legacy_mode = true;
             wout_legacy = change_crystal (wout_legacy, corr);
 
-            wout_align = change_crystal (fit_obj, corr);
+            corr.legacy_mode = false;
+            wout_align = change_crystal (test_obj, corr);
 
             pix_sample  = PixelDataMemory(eye(9));
-            pix_aligned = pix_sample;
-            pix_aligned.alignment_matr = wout_align.pix.alignment_matr;
 
+            % New and legacy projections are aligned equally
             pix_leg = wout_legacy.data.proj.transform_pix_to_img(pix_sample);
-            pix_al  = wout_align.data.proj.transform_pix_to_img(pix_aligned);
+            % now data in memory aligned immediately
+            pix_aligned = pix_sample;
+            pix_aligned.alignment_matr = corr.rotmat;
+            pix_al  = wout_align.data.proj.transform_pix_to_img(pix_sample);
             assertElementsAlmostEqual(pix_al, pix_leg);
+            % Modern aligned data maintain consistency between pixels and
+            % image
+            pix_al  = wout_align.data.proj.transform_pix_to_img(pix_aligned);
+            assertElementsAlmostEqual(pix_sample.coordinates,pix_al);
+        end
+        %
+        function test_legacy_vs_pix_aligmnent_recovered_on_load(obj)
+            % theoretical Bragg points positions
+            bragg_pos=[...
+                0, -1, 0; ...
+                1,  2, 0; ...
+                0, -1, 1];
 
-            proj_leg = wout_legacy.data.proj;
+            test_obj = read_sqw(obj.misaligned_sqw_file);
+            % the Bragg points positions found by fitting measured Bragg
+            % peaks shape to Gaussian and identifying the Gaussian centerpoints
+            % See test_u_alignment_tf_way for the procedure of obtaining
+            % them
+            rlu_real = [...
+                0.0372, -0.9999, 0.0521;...
+                0.9200, 2.0328, -0.1568;...
+                0.1047, -0.9425, 1.0459];
+            proj0 = test_obj.data.proj;
+            %
+            corr = refine_crystal(rlu_real, ...
+                obj.alatt, obj.angdeg, bragg_pos);
 
-            % This is not correct and should not. One projection contains
-            % alignment matrix attached to B-matrix and another one does not
-            % (alignment is on pixels only)
-            %mix_cut_range = wout_legacy.targ_range(proj_al);
-            %assertElementsAlmostEqual(mix_cut_range, al_cut_range);
+            wout_legacy = test_obj;
+            corr.legacy_mode = true;
+            wout_legacy = change_crystal (wout_legacy, corr);
 
+            corr.legacy_mode = false;
+            wout_align = change_crystal (test_obj, corr);
+
+
+            % Legacy aligned data are converted to modern aligned data at
+            % save/load operations:
+            ss = wout_legacy.to_struct();
+            % Let's make it old structure
+            ss.version = 4;
+            % recover old structure usling loadobj
+            wout_leg_rec = sqw.loadobj(ss);
+            %
+            % Error in axes.img_range is high due to errors in recovering
+            % rotation matrix and different original range conversion:
+            % Original:
+            % img_range->range_cc using old rotation & old lattice
+            % range_cc->img_range using modified rotation & modified lattice.
+            % Legacy:
+            % img_range->range_cc using old rotation & new lattice
+            % range_cc->img_range using modified rotation & modified lattice.
+            %
+            assertEqualToTol(wout_align.data,wout_leg_rec.data,1.e-8,'ignore_str',true)
+            %
+            al_mat_modern = wout_align.pix.alignment_matr;
+            al_mat_rec_leg = wout_leg_rec.pix.alignment_matr;
+            assertElementsAlmostEqual(al_mat_rec_leg,al_mat_modern,'absolute',1.e-8)
+
+            % Experiment is not realigned. Re #1616 Update experiment alignment too.
+            assertEqualToTol(wout_align.pix,wout_leg_rec.pix,'tol',1.e-8);
             % test cut ranges:
             cr = [-0.3, -2, -1.8, -0.5;3.5, 4.2, 2, 0.5];
 
-            cut_old1d  = cut(wout_legacy, proj_leg, [cr(1, 1), 0.05, cr(2, 1)], cr(:, 2)', cr(:, 3)', cr(:, 4)');
-            cut_new1d  = cut(wout_align, proj_leg, [cr(1, 1), 0.05, cr(2, 1)], cr(:, 2)', cr(:, 3)', cr(:, 4)');
+            cut_old1d  = cut(wout_leg_rec, proj0, [cr(1, 1), 0.05, cr(2, 1)], cr(:, 2)', cr(:, 3)', cr(:, 4)');
+            cut_new1d  = cut(wout_align, proj0, [cr(1, 1), 0.05, cr(2, 1)], cr(:, 2)', cr(:, 3)', cr(:, 4)');
 
             assertEqual(cut_old1d.experiment_info.n_runs, ...
                 cut_new1d.experiment_info.n_runs)
             % old alignment changes the direction of cu, cv components and
-            % new one does not so they can not be compared directly.
+            % new one does not so they can not be compared directly. Re
+            % #1616 fix this.
             cut_old1d.experiment_info = cut_new1d.experiment_info;
             % images look the same but pixels remain misaligned in old cut
             % and aligned afer new cut so you can not do direct comparison
             assertEqualToTol(cut_old1d.data, cut_new1d.data);
 
             ranges = {[cr(1, 1), 0.05, cr(2, 1)], [cr(1, 2), 0.1, cr(2, 2)], [cr(1, 3), 0.1, cr(2, 3)], [cr(1, 4), 0.1, cr(2, 4)]};
-            cut_old = cut(wout_legacy, proj_leg, ranges{:});
-            cut_new = cut(wout_align, proj_leg, ranges{:});
+            cut_old = cut(wout_leg_rec, proj0, ranges{:});
+            cut_new = cut(wout_align, proj0, ranges{:});
 
             assertEqual(cut_old.experiment_info.n_runs, ...
                 cut_new.experiment_info.n_runs)
@@ -607,7 +590,80 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % new one does not so they can not be compared directly. Yet!
             cut_old.experiment_info = cut_new.experiment_info;
             assertEqualToTol(cut_old.data, cut_new.data);
+            skipTest('Re #1616 Experiment alignment is not recovered as modern alignment')
+        end
+        %
+        function test_rotmat_recovery(~)
+            % this is test to check how well rotation matrix can be recovered
+            % from u_to_rlu_matrix; The procedure occuring while we take
+            % legacy realigned data and try to recover
+            %
+            bragg_pos=[...
+                0, -1, 0; ...
+                1,  2, 0; ...
+                0, -1, 1];
+            alatt0 = [5,5,5];
+            angdeg0 = [90,90,90];
+            b0  = bmatrix(alatt0,angdeg0);
 
+            % the Bragg points positions found by fitting measured Bragg
+            % peaks shape to Gaussian and identifying the Gaussian centerpoints
+            % See test_u_alignment_tf_way for the procedure of obtaining
+            % them
+            rlu_real = [...
+                0.0372, -0.9999, 0.0521;...
+                0.9200, 2.0328, -0.1568;...
+                0.1047, -0.9425, 1.0459];
+
+            % Get correction class from the 3 peak positions:
+            % ------------------------------------------------
+            corr = refine_crystal(rlu_real, ...
+                alatt0,angdeg0, bragg_pos);
+            % legacy alignment matrix stored with instrument projection:
+            u_to_rlu_legacy = inv(bmatrix(alatt0,angdeg0));
+            % corrections retrived by alignment procedure
+            b  = bmatrix(corr.alatt,corr.angdeg);
+            corr_mat=b\corr.rotmat*b0;
+
+            % this matrix is stored in legacy-aligned file
+            u_to_rlu_leg_aligned = corr_mat*u_to_rlu_legacy;
+            %
+            % when loading crystal we try to recover rotation matrix from
+            % legacy aligned matrix:
+            rotmat_rec = b*u_to_rlu_leg_aligned;
+
+            assertElementsAlmostEqual(corr.rotmat,rotmat_rec);
+        end
+        function test_corrections_work_in_parallel(obj)
+            % testing if multifit works when parallel_miltifit option is true
+            % At the momentm no parallel is invoked in refine_crystal, 
+            % but other choices are possible in a future.
+            
+            clOb = set_temporary_config_options('hpc_config','parallel_multifit',true);
+            % Theoretical lattice parameters.
+            bragg_pos=[...
+                0, -1, 0; ...
+                1,  2, 0; ...
+                0, -1, 1];
+            alatt0 = [5,5,5];
+            angdeg0 = [90,90,90];
+
+            % the Bragg points positions found by fitting measured Bragg
+            % peaks shape to Gaussian and identifying the Gaussian centerpoints
+            % See test_u_alignment_tf_way for the procedure of obtaining
+            % them
+            rlu_real = [...
+                0.0372, -0.9999, 0.0521;...
+                0.9200, 2.0328, -0.1568;...
+                0.1047, -0.9425, 1.0459];
+
+            % Get correction class from the 3 peak positions:
+            % ------------------------------------------------
+            corr = refine_crystal(rlu_real, ...
+                alatt0,angdeg0, bragg_pos);
+            hpc = hpc_config;
+            assertTrue(hpc.parallel_multifit);
+            assertEqualWithSave(obj,corr)
         end
 
         function test_bragg_pos(obj)

@@ -223,6 +223,7 @@ classdef test_unique_references < TestCase
             urc = urc.add(0.222);
             urc = urc.add(0.333);
             urc = urc.add(0.222);
+            clOb_file = onCleanup(@()delete('test_unique_references_container_save_load_1.mat'));
             save('test_unique_references_container_save_load_1.mat','urc');
             zzz = load('test_unique_references_container_save_load_1.mat');
             assertEqual(zzz.urc, urc);
@@ -467,6 +468,7 @@ function test_replace_unique_same_number_works(~)
             assertEqual(lw,'HERBERT:unique_references_container:incomplete_setup');
             assertEqual(lwn, 'baseclass not initialised, using first assigned type');
             clear cl4b;
+            lastwarn('');
 
             % setup container of char
             unique_references_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS2');
@@ -483,6 +485,7 @@ function test_replace_unique_same_number_works(~)
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
             assertEqual(urc2.n_objects,1); % warning was issued and object was not added
             clear cl2b;
+            lastwarn('');
 
             % fail inserting with wrong type
             cl3b = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');            
@@ -595,6 +598,7 @@ function test_replace_unique_same_number_works(~)
         end
         %----------------------------------------------------------------
         function test_change_serializer(obj)
+            skipTest('not changing serializer any more');
             % Test different serializers
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
@@ -611,7 +615,7 @@ function test_replace_unique_same_number_works(~)
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2');
             vrc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2','IX_inst_DGfermi');
             hlc = vrc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2');
-            %hlc.convert_to_stream_f = @hlp_serialize;
+            hlc.convert_to_stream_f = @hlp_serialize;
 
             vrc = vrc.add(obj.mi1);
             vrc = vrc.add(mi2);
@@ -756,7 +760,7 @@ function test_replace_unique_same_number_works(~)
             assertEqual(urc,urc_rec);
         end
         %-----------------------------------------------------------------
-        function test_property_reset_issues(obj)
+        function test_property_reset_issues(~)
             urc = unique_references_container('Joby','double');
             urc = urc.add([3,4,5]);
             function throw()
@@ -774,7 +778,7 @@ function test_replace_unique_same_number_works(~)
             urc4 = unique_references_container('Biby','IX_inst');
         end
         %-----------------------------------------------------------------
-        function test_use_properties(obj)
+        function test_use_properties(~)
             urc = unique_references_container('global_thingies','thingy');
             urc{1} = thingy(111);
             assertEqual(urc{1}, thingy(111));
@@ -790,7 +794,7 @@ function test_replace_unique_same_number_works(~)
             'when adding to the end of a container, additionally setting properties is not permitted'));
         end
         %-----------------------------------------------------------------
-        function test_arrays_of_containers(obj)
+        function test_arrays_of_containers(~)
             urc1 = unique_references_container('global_test_doubles','double');
             urc1 = urc1.add([6 7]);
             urc2 = unique_references_container('global_test_doubles','double');

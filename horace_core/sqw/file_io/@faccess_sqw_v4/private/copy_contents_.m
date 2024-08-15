@@ -39,12 +39,6 @@ if ~sqw_obj.pix.is_range_valid()
         sqw_obj = update_pixels_run_id(sqw_obj,unique_pix_id);
     end
 end
-% this method is only on the old file interface and checks if
-% the projection is defined for cut (image system of
-% coordinates is different from pixel system coordinates) or
-% recovered for original sqw file (image coordinates system
-% is Crystal Cartesian).
-sqw_obj = other_obj.update_projection(sqw_obj);
 % define number of contributing files, which is stored in sqw
 % object header, but necessary for sqw_file_interface (not any
 % more but historically to be able to recover headers)
@@ -52,10 +46,10 @@ obj.num_contrib_files_ = sqw_obj.main_header.nfiles;
 
 if upgrade_range
     % clear disk location of all data blocks except the locked
-    obj.bat_ = obj.bat_.clear();
+    obj.bat_ = obj.bat_.clear_unlocked_blocks();
 end
 % as pix data block position already allocated,
-obj.bat_ = obj.bat_.init_obj_info(sqw_obj,'-insert');
+obj.bat_ = obj.bat_.place_undocked_blocks(sqw_obj,true);
 
 obj.sqw_holder_ = sqw_obj;
 missinig_fields = 'data_in_memory_write_result';

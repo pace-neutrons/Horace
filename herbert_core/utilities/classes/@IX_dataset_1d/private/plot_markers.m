@@ -6,9 +6,10 @@ marker_type=get_global_var('genieplot','marker_type');
 color=get_global_var('genieplot','color');
 
 nw = numel(w);
-icol = mod(0:nw-1,length(color))+1;
+
+[color,icol]       = types_list_(color,'colors',nw);
+[marker_type,ityp] = types_list_(marker_type,'marker_types',nw);
 isiz = mod(0:nw-1,length(marker_size))+1;
-ityp = mod(0:nw-1,length(marker_type))+1;
 for i=1:nw
     if i==2; hold on; end   % hold on for array input
     x = w(i).x;

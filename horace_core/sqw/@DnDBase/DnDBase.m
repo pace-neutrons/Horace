@@ -1,4 +1,4 @@
-classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
+classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
 
@@ -49,14 +49,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         creation_date;
     end
     properties(Dependent,Hidden)
-        % legacy operations, necessary for saving dnd object in the old sqw
-        % data format. May be removed if old sqw format saving is not used
-        % any more.
-        u_to_rlu % Matrix (4x4) of projection axes in hkle representation
-        %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        ulen;
-        u_to_rlu_legacy % old legacy u_to_rlu produced by Toby's code.
-        % used in tests and loading old format files
         %
         creation_date_defined; % True, if creation date is known and written with file
         %------------------------------------------------------------------
@@ -71,7 +63,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         %------------------------------------------------------------------
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
-        uoffset % old interface to img_offset
     end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == line_axes.dims_as_ssize)
@@ -153,7 +144,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         w  = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %------------------------------------------------------------------
-        wout = replicate (win, wref);
+        wout = replicate (win, wref,varargin);
 
         function obj=signal(~,varargin)
             error('HORACE:DnDBase:runtime_error',...
@@ -179,7 +170,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         %                             % dispersion function on the dnd object
         wout = func_eval(win, func_handle, pars, varargin);  % calculate the
         %                             % function, provided as input on the
-        %                             % bin centers of the image axes
+        %                             % bin centres of the image axes
         %------------------------------------------------------------------
         %
         varargout = head(obj,vararin);
@@ -197,12 +188,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         % Change the crystal lattice and orientation of dnd object or
         % array of objects
         wout = change_crystal(win,al_info,varargin);
-        % modify crystal lattice and orientation matrix to remove legacy
-        % alignment.
-        [wout,al_info,alatt0,angdeg0] = remove_legacy_alignment(obj,varargin)
-        % remove legacy alignment and put modern alignment instead
-        [wout,al_info,no_alignment,alatt0,angdeg0] = upgrade_legacy_alignment(obj,varargin)
-        %------------------------------------------------------------------
+          %------------------------------------------------------------------
         %
         function varargout = IX_dataset_1d(obj)
             error('HORACE:DnDBase:not_implemented', ...
@@ -234,12 +220,44 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
 
         % calculate the range of the image to be produced by target
         % projection from the current object
-        range = targ_range(obj,targ_proj,varargin)
+        range = get_targ_range(obj,targ_proj,ranges_requested,varargin)
         %
         % add various noise to signal
-        wout = noisify(w,varargin);        
+        wout = noisify(w,varargin);
         % take part of the object limited by fraction of the image grit
-        [wout,out_axes] = section (win,varargin);        
+        [wout,out_axes] = section (win,varargin);
+        function sz = img_size_bytes(obj)
+            % return size of data image expressed in bytes.
+            %
+            % Now and in foreseeable future, our image contains 3 double
+            % precision arrays so conversion to bytes would be
+            % 3x8x(number of image array elements)
+            sz = 3*numel(obj.s_)*8; % size of resulting split images in Bytes
+        end
+        function dat = get_se_npix(obj,varargin)
+            % return image arrays using interface, common to data reader
+            % Input:
+            % obj  -- initialized DnDBase object
+            % Returns:
+            % dat  -- dnd_data object containing information about image
+            dat = obj.nd_data();
+        end
+        function npix = get_npix_block(obj,block_start,block_size)
+            % return specified chunk of npix array which describes pixel
+            % distribution over block bins.
+            % Inputs:
+            % obj         -- initialized DnDBase object.
+            % block_start -- initial location of the block within the npix
+            %                array. To be compatible with file interface, the
+            %                position starts from 0, unlike MATLAB arrays,
+            %                which start from 1.
+            % block_size  -- number of npix elements to return.
+            % Returns:
+            % npix        -- block_size-size chunk of npix array, describing
+            %                 distribution of pixels over bins.
+            %
+            npix = obj.npix_((1+block_start):(block_start+block_size));
+        end
     end
     %======================================================================
     % Redundant and convenience Accessors
@@ -271,20 +289,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         %             obj.proj_.offset = val;
         %         end
 
-        function val = get.u_to_rlu(obj)
-            val = obj.proj.u_to_rlu;
-        end
-        function val = get.u_to_rlu_legacy(obj)
-            val = obj.proj.u_to_rlu_legacy;
-        end
-
-        %
-        function val = get.ulen(obj)
-            val = obj.axes.img_scales;
-        end
-        function obj = set.ulen(obj, ulen)
-            obj.axes.img_scales = ulen;
-        end
         %
         function val = get.label(obj)
             val = obj.axes_.label;
@@ -318,10 +322,9 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         end
         %
         function val = get.img_offset(obj)
-            val = obj.proj.img_offset;
-        end
-        function val = get.uoffset(obj)
-            val = obj.proj.img_offset;
+            offset_ = obj.proj.offset;
+            val = obj.proj.transform_hkl_to_img(offset_(1:3)');
+            val = [val;offset_(4)]';
         end
     end
     %======================================================================
@@ -361,7 +364,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             %           dimensionality and binning.
             % creation_data
             %        -- the date when this object should be recorded
-            %           created. The format is Matlab datetime class format
+            %           created. The format is MATLAB datetime class format
             %           If missing, the creation time will be set to the
             %           first time the object was stored on HDD.
             %
@@ -516,6 +519,10 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
     % binfile IO interface
     methods
         function md = get.metadata(obj)
+            md = get_dnd_metadata(obj);
+        end
+        function md = get_dnd_metadata(obj)
+            % return metadata describing image.
             md = dnd_metadata(obj);
         end
         function obj = set.metadata(obj,val)
@@ -569,7 +576,13 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
                 error('HORACE:DnDBase:invalid_argument',...
                     'input %s must be numeric array',field)
             end
-            obj.([field,'_']) = val;
+            if numel(val) == 1 && ~isempty(obj.([field,'_']))
+                % if contents is array and the input is a single value,
+                % assign this value to the whole array.
+                obj.([field,'_'])(:) = val;
+            else
+                obj.([field,'_']) = val;
+            end
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -580,6 +593,31 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             return_cut = nargout > 0;
             varargout{1} = cut_single_(obj, tag_proj, targ_axes,...
                 return_cut, opt, log_level);
+        end
+        function is = get_is_filebacked(~)
+            %DnD objects never filebacked
+            is = false;
+        end
+
+    end
+    %======================================================================
+    % HORACE3 dnd interrace
+    methods(Access=protected)
+        function val = get_u_to_rlu(obj)
+            val = obj.proj.u_to_rlu;
+        end
+        function val = get_u_to_rlu_legacy(obj)
+            val = obj.proj.u_to_rlu_legacy;
+        end
+        function val = get_ulen(obj)
+            val = obj.axes.img_scales;
+        end
+        function val = get_uoffset(obj)
+            val = obj.proj.offset;
+        end
+        %
+        function  obj = set_ulen(obj,ulen)
+            obj.axes.img_scales = ulen;
         end
     end
     %======================================================================

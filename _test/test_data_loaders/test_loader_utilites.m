@@ -34,7 +34,7 @@ classdef test_loader_utilites < TestCase
         function test_CorrectHeader(this)
             [result,version] = find_root_nexus_dir(f_name(this,'MAP11014.nxspe'),'NXSPE'); % file name has loose relation to the result
             assertEqual(result,'/11014.spe');
-            assertEqual(version,'1.1');
+            assertEqual(version,1.1);
         end
 
         % FIND_DATASET_INFO

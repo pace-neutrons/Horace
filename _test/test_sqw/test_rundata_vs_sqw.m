@@ -89,13 +89,14 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
             det = get_par(obj.par_file);
             det_par = rd.det_par;
-
-            assertElementsAlmostEqual(det_par.azim,det.azim,'absolute',7.7e-6);
-            assertElementsAlmostEqual(det_par.group,det.group,'absolute',1.e-12);
-            assertElementsAlmostEqual(det_par.height,det.height,'absolute',1.e-9);
-            assertElementsAlmostEqual(det_par.phi,det.phi,'absolute',2.e-6);
-            assertElementsAlmostEqual(det_par.width,det.width,'absolute',2.e-6);
-            assertElementsAlmostEqual(det_par.x2,det.x2,'absolute',2.e-6);
+            
+            % transposes added to give agreement
+            assertElementsAlmostEqual(det_par.azim',det.azim,'absolute',7.7e-6);
+            assertElementsAlmostEqual(det_par.group',det.group,'absolute',1.e-12);
+            assertElementsAlmostEqual(det_par.height',det.height,'absolute',1.e-9);
+            assertElementsAlmostEqual(det_par.phi',det.phi,'absolute',2.e-6);
+            assertElementsAlmostEqual(det_par.width',det.width,'absolute',2.e-6);
+            assertElementsAlmostEqual(det_par.x2',det.x2,'absolute',2.e-6);
             assertEqual(det_par.filename,det.filename)
         end
 
@@ -187,6 +188,10 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
             rd = rundatah(test_file,ds);
             rd = rd.load();
+            % this is needed to fix one bug; see use of rundata.get_det_par_rows()
+            % for where this causes further problems and the rows call fixes that.
+            %TODO fix the mex call calc_projections_c to make this unnecessary
+            rd.loader.detpar_loader = rd.loader.detpar_loader.columnize_detpar();
 
             clob = set_temporary_config_options(hor_config, ...
                                                 'use_mex', false, ...

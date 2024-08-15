@@ -13,7 +13,7 @@ classdef binfile_v4_common < horace_binfile_interface
         data_blocks_list;
     end
     properties(Dependent,Hidden)
-        % old data type, not relevant any more. Left for compartibility.
+        % old data type, not relevant any more. Left for compatibility.
         % Always "b+" for dnd and "a" for sqw objects.
         data_type
     end
@@ -175,7 +175,7 @@ classdef binfile_v4_common < horace_binfile_interface
             [obj,set_obj]  = get_sqw_block_(obj,block_name_or_class);
         end
         %
-        function obj = put_sqw_block(obj,block_name_or_class,varargin)
+        function [obj,block_instance] = put_sqw_block(obj,block_name_or_class,varargin)
             % store modified particular sqw sub-object data block within the
             % sqw object binary records on hdd
             % Inputs:
@@ -200,6 +200,16 @@ classdef binfile_v4_common < horace_binfile_interface
             % '-noinit'    -- do not initialize file accessor, even if it
             %                 is possible
             %
+            % Output:
+            % obj          -- faccess object with modified BAT, containing position of
+            %                 the block in file.
+            %                 The block contents have been written in the file and
+            %                 modified BAT have been written to file too.
+            % Optional:
+            % the_data_block
+            %              --  instance of the data_block just written to the disk
+            %                  (copy of the value, stored in BAT)
+
             if nargin>2 % otherwise have to assume that the object is initialized
                 [ok,mess,no_initialization,argi] = parse_char_options(varargin,{'-noinit'});
                 if ~ok
@@ -210,9 +220,9 @@ classdef binfile_v4_common < horace_binfile_interface
                     obj  = put_sqw_block_(obj,block_name_or_class);
                     return;
                 end
-                obj  = put_sqw_block_(obj,block_name_or_class,argi{:});
+                [obj,block_instance]  = put_sqw_block_(obj,block_name_or_class,argi{:});
             else
-                obj  = put_sqw_block_(obj,block_name_or_class);
+                [obj,block_instance]  = put_sqw_block_(obj,block_name_or_class);
             end
         end
         %
@@ -225,6 +235,60 @@ classdef binfile_v4_common < horace_binfile_interface
         function dt = get.data_type(obj)
             dt = get_data_type(obj);
         end
+        function obj = put_new_blocks_values(obj,obj_to_write,varargin)
+            % method takes initialized faccessor and replaces blocks
+            % stored in file with new block values obtained from sqw or dnd
+            % object provided as input.
+            %
+            % Inputs:
+            % obj   -- initialized instance of file-accessor attached to
+            %          existing sqw file containing sqw/dnd data.
+            % obj_to_write
+            %       -- sqw or dnd object with contents that replaces
+            %          previous contents on disk.
+            % Optional:
+            % 'exclude' -- option followed by list of block names which
+            %              should remain unchanged in file.
+            %  block_list
+            %          -- cellarray of valid block names following 'exclude'
+            %             keyword, describing blocks which contents in file
+            %             should remains unchanged.
+            %             If this keyword/list are missing the method
+            %             replaces all data in file except pixel data,
+            %             which are locked by default.
+            %
+            % 'update' -- option followed by list of block names which
+            %             should be replaced in file. This option is opposite
+            %             to 'exclude' option.
+            %  block_list
+            %          -- cellarray of valid block names following 'update'
+            %             keyword, describing blocks which contents in file
+            %             should be replaced.
+            %             Similarly to 'exclude' if this option is missed,
+            %             all blocks except pixels are replaced in file
+            %             excluding pixel data. If this option is present,
+            %             only blocks from the list provided here are updated.
+            %
+            % '-ignore_locks'
+            %         --  if present, put new data even into blocks
+            %             already locked in place.
+            % '-nocache'
+            %         --  if present tells the algorithm not to cache serialized
+            %             contents of the blocks while calculating block sizes.
+            %             This means that objects roughly speaking would be serialized
+            %             twice -- first time when their size is estimated, and second
+            %             time  -- before writing data on disk. These are more expensive
+            %             calculations but memory is saved, as when cache is used, the
+            %             serialized data for all blocks to be stored are placed in
+            %             memory together and saved later.
+            [ok,mess,ignore_locks,nocache,argi] = parse_char_options( ...
+                varargin,{'-ignore_locks','-nocache'});
+            if ~ok
+                error('HORACE:file_io:invalid_argument',mess);
+            end
+            obj = put_new_blocks_values_(obj,obj_to_write, ...
+                ~ignore_locks,nocache,argi{:});
+        end
     end
     %======================================================================
     % DND access methods common for dnd and sqw objects
@@ -234,7 +298,7 @@ classdef binfile_v4_common < horace_binfile_interface
             % the sqw binary file.
             %
             % Overloaded for file format 4 to store BAT immediately after
-            % horace sqw file header
+            % Horace sqw file header
             obj = put_app_header@horace_binfile_interface(obj,varargin{:});
             obj.bat_.put_bat(obj.file_id_);
 
@@ -260,6 +324,8 @@ classdef binfile_v4_common < horace_binfile_interface
         %
         obj = put_dnd_data(obj,dnd_obh);
         obj = put_dnd_metadata(obj,varargin)
+        obj = put_senpix_block(obj,img_struct,pos);
+        obj = get_npix_block(obj,bin_start,bin_end);
         %
         function  [data,obj] =  get_data(obj,varargin)
             % equivalent to get_dnd('-noclass). Should it also return pix

@@ -24,20 +24,24 @@ classdef test_cut_sym_cube < TestCase
             obj@TestCase(name)
         end
 
-        function test_cut_sym_identity_stripped(obj)
+        function test_cut_sym_identity_stripped(~)
             tsqw = sqw.generate_cube_sqw(10);
 
             res_sqw = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
-                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5]);
+                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], '-nopix');
             res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                            [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
-                           {SymopIdentity()});
+                           {SymopIdentity()}, '-nopix');
             res_sqw3 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                            [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
-                           SymopIdentity());
+                           SymopIdentity(), '-nopix');
+            res_sqw4 = cut_sqw(tsqw, line_proj([1 0 0], [0 1 0]), ...
+                               [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
+                               SymopIdentity(), '-nopix');
 
             assertEqual(res_sqw, res_sqw2)
             assertEqual(res_sqw, res_sqw3)
+            assertEqual(res_sqw, res_sqw4)
 
         end
 
@@ -52,10 +56,49 @@ classdef test_cut_sym_cube < TestCase
             tsqw = sqw.generate_cube_sqw(10);
 
             res_sqw = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
-                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5]);
+                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], '-nopix');
             res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                            [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
-                           {id});
+                           {id}, '-nopix');
+            res_sqw3 = cut_sqw(tsqw, line_proj([1 0 0], [0 1 0]), ...
+                           [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
+                           {id}, '-nopix');
+
+            assertEqual(res_sqw, res_sqw2)
+            assertEqual(res_sqw, res_sqw3)
+
+        end
+
+        function test_cut_sym_nonorthog_identity(obj)
+        % Test that symmetrisation works with non-orthogonal lattice
+
+            id = [obj.ref_x_op, obj.ref_x_op]; % Reflect -> reflect back
+            tsqw = sqw.generate_cube_sqw(10);
+            tsqw.data.angdeg = [90, 90, 120];
+
+            res_sqw = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
+                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], '-nopix');
+            res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
+                           [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
+                           {id}, '-nopix');
+
+            assertEqual(res_sqw, res_sqw2)
+
+        end
+
+        function test_cut_sym_nonorthog_rot(obj)
+        % Test that symmetrisation works with non-orthogonal lattice
+
+            tsqw = sqw.generate_cube_sqw(10);
+            tsqw.data.angdeg = [90, 90, 120];
+
+            wtmp = symmetrise_sqw(tsqw, SymopRotation.fold(2, [0,0,1]));
+            res_sqw = cut(wtmp, line_proj([1 0 0], [0 1 0]), ...
+                          [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5]);
+
+            res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
+                           [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
+                           SymopRotation.fold(2, [0,0,1]));
 
             assertEqual(res_sqw.data, res_sqw2.data)
 
@@ -70,11 +113,13 @@ classdef test_cut_sym_cube < TestCase
             all_data = {[-5 5] [-5 5] [-5 5]};
 
             wtmp = symmetrise_sqw(data, obj.ref_x{:}, obj.nil);
-            w1sym = cut(wtmp, proj, ubin_half, all_data{:});
+            w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
 
-            w2sym = cut(data, proj, ubin_half, all_data{:}, obj.ref_x_op);
+            w2sym = cut(data, proj, ubin_half, all_data{:}, obj.ref_x_op, '-nopix');
+            w3sym = cut_sqw(data, proj, ubin_half, all_data{:}, obj.ref_x_op, '-nopix');
 
-            assertEqualToTol(w1sym.data, w2sym.data);
+            assertEqualToTol(w1sym, w2sym);
+            assertEqualToTol(w1sym, w3sym);
         end
 
         function test_cut_sym_reflect_xy(obj)
@@ -88,10 +133,10 @@ classdef test_cut_sym_cube < TestCase
 
             wtmp = symmetrise_sqw(data, obj.ref_xy{:}, obj.nil);
 
-            w1sym = cut(wtmp, proj, ubin_half, all_data{:});
-            w2sym = cut(data, proj, ubin_half, all_data{:}, obj.ref_xy_op);
+            w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
+            w2sym = cut(data, proj, ubin_half, all_data{:}, obj.ref_xy_op, '-nopix');
 
-            assertEqualToTol(w1sym.data, w2sym.data);
+            assertEqualToTol(w1sym, w2sym);
         end
 
         function test_cut_sym_reflect_offset(obj)
@@ -104,13 +149,13 @@ classdef test_cut_sym_cube < TestCase
             offset = [0.5 0 0];
 
             wtmp = symmetrise_sqw(data, obj.ref_x{:}, offset);
-            w1sym = cut(wtmp, proj, ubin_half, all_data{:});
+            w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
 
             op = obj.ref_x_op;
             op.offset = offset;
-            w2sym = cut(data, proj, ubin_half, all_data{:}, op);
+            w2sym = cut(data, proj, ubin_half, all_data{:}, op, '-nopix');
 
-            assertEqualToTol(w1sym.data, w2sym.data);
+            assertEqualToTol(w1sym, w2sym);
 
         end
 
@@ -123,13 +168,13 @@ classdef test_cut_sym_cube < TestCase
 
             wtmp = symmetrise_sqw(data, obj.ref_x{:}, obj.nil);
             wtmp = symmetrise_sqw(wtmp, obj.ref_y{:}, obj.nil);
-            w1sym = cut(wtmp, proj, ubin_half, all_data{:});
+            w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
 
 
             op = {obj.ref_x_op, obj.ref_y_op, [obj.ref_x_op, obj.ref_y_op]};
-            w2sym = cut(data, proj, ubin_half, all_data{:}, op);
+            w2sym = cut(data, proj, ubin_half, all_data{:}, op, '-nopix');
 
-            assertEqualToTol(w1sym.data, w2sym.data);
+            assertEqualToTol(w1sym, w2sym);
 
         end
 

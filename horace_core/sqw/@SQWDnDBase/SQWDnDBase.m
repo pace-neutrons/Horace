@@ -6,6 +6,11 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     properties(Abstract,Dependent,Hidden=true)
         NUM_DIMS
     end
+    properties
+        % return state of the object, if it is fully in memory or
+        % backed by file
+        is_filebacked;
+    end
     %======================================================================
     methods (Abstract)
         %------------------------------------------------------------------
@@ -18,6 +23,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         % values for the named argument
         wout = cut(obj, varargin);    % take cut from a sqw or sqw/dnd object
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
+        wout = cut_dnd(obj,varargin); % legacy entrance for cut for dnd objects
         % rebin an object to the other object with the dimensionality
         % smaller then the dimensionality of the current object
         obj = rebin(obj,varargin);
@@ -27,6 +33,8 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     % i.e. affect all pixels and recalculate image according to changes
     %  in pixels or vise versa.
     methods(Abstract)
+        % calculate function defined on image and return sqw/dnd object
+        % with signal set to values of this function
         wout = func_eval(win, func_handle, pars, varargin);
         %
         [wout,mask_array] = mask(win, mask_array); % mask image data and
@@ -41,11 +49,13 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         % the image grid
         [wout,irange] = section (win,varargin);
         % Make a higher dimensional dataset from a lower dimensional dataset
-        wout = replicate (win,wref);
+        wout = replicate (win,wref,varargin);
     end
     %----------------------------------------------------------------------
     % PageOp methods implemented on this level
     methods
+        % calculate function defined on hkle values of sqw obect and return
+        % object with image and pixels containing values of this function.
         wout = sqw_eval(win, sqwfunc, pars, varargin);
     end
     %----------------------------------------------------------------------
@@ -55,13 +65,14 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         % REDUNDANT METHOD to remove
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
+        % Check if object is filebacked or not.
+        is = get_is_filebacked(obj);
     end
     %======================================================================
     % METHODS, Available on SQW but requesting only DND object for
     % implementation
     methods(Abstract)
         wout = compact(win)
-        wout = cut_dnd(obj,varargin); % legacy entrance for cut for dnd objects
 
         [nd,sz] = dimensions(win)
         [wout_disp, wout_weight] = dispersion(win, dispreln, pars) % Calculate
@@ -85,7 +96,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         wout = IX_dataset_2d(w);
         wout = IX_dataset_3d(w);
         % the maximal range of the image may be produced by target projection applied to the current image.
-        range = targ_range(obj,targ_proj,varargin)
+        range = get_targ_range(obj,targ_proj,varargin)
         % if the plotting operation should adjust aspect ratio when plotting sqw objects
         status = adjust_aspect(obj)
         % build target axes for cut
@@ -103,6 +114,11 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         [value, sigma] = value(w, x)
         wout = smooth(win, varargin); % Run smooth operation over DnD
         %                             % objects or sqw objects without pixels
+        sz = img_size_bytes(obj);     % return size of data image used to evaluate necessary memory
+        data = get_se_npix(obj,varargin);  % return image arrays
+        npix = get_npix_block(obj,block_start,block_size) % return specified chunk of npix array,
+        %  which describes pixel destribution over bins
+        md = get_dnd_metadata(obj) % return metadata describing image
     end
     properties(Constant,Hidden)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -130,7 +146,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     end
 
     methods  % Public
-        [sel,ok,mess] = mask_points(win, varargin);       
+        [sel,ok,mess] = mask_points(win, varargin);
         cl = save(w, varargin);
         %                             %
         wout = disp2sqw_eval(win, dispreln, pars, fwhh, opt);
@@ -143,6 +159,11 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         varargout = multifit_func (varargin);
         varargout = multifit_sqw (varargin);
         varargout = multifit_sqw_sqw (varargin);
+
+        function is = get.is_filebacked(obj)
+            is = get_is_filebacked(obj);
+        end
+        %
     end
 
     methods (Access = protected)

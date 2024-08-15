@@ -1,7 +1,8 @@
-function [img_db_range,data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
+function [img_db_range,pix_data_range,wout]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
+%   >>[img_db_range,pix_data_range,wout]  =  write_nsqw_to_sqw (infiles, outfiles,varargin)
 %
 % Input:
 % ------
@@ -9,19 +10,25 @@ function [img_db_range,data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 %   outfile         Full name of output sqw file
 %
 % Optional inputs:
-% -allow_equal_headers -- disables checking input files for absolutely
-%                       equal headers. Two file having equal headers is an error
-%                       in normal operations so this option  used in
-%                       tests or when equal zones are combined.
-% -parallel           -- combine files using Herbert parallel framework.
-%                       this is duplicate for hpc_config option (currently
-%                       missing) so either this keyword or hpc_config
-%                       option or the instance of the JobDispatcher has to
-%                       be present to combine sqw files in  parallel.
-% -keep_runid         -- if present, forces routine to keep run-id specific
-%                       defined in the contributing run-files instead of
-%                       generating run-id on the basis of the data, stored
-%                       in the runfiles
+% -allow_equal_headers
+%                    -- disables checking input files for absolutely
+%                       equal headers. Two file having equal headers is an
+%                       error in normal operations so this option used in
+%                       tests in case of some specific data modelling.
+%                       To learn what headers are considered equal in details
+%                       look at  Experiment.combine_experiments method, as
+%                       this method performs actual header combining and
+%                       checks.
+% -parallel          -- combine files using Herbert parallel framework.
+%                       this is duplicate for hpc_config option so either
+%                       this keyword or hpc_config option or the instance
+%                       of the JobDispatcher has to be present to combine
+%                       sqw files in  parallel.
+% -keep_runid        -- if present, forces routine to keep run-id defined
+%                       in the contributing  run-files instead of
+%                       setting run-id according to the number of file in
+%                       the list of files provided as input to this
+%                       algorithm.
 %
 % JobDispatcherInstance-- the initialized instance of JobDispatcher,
 %                       to use in combining sqw files in parallel
@@ -44,50 +51,30 @@ function [img_db_range,data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 %                    defining the grid the pixel data base is binned on
 %  pix_data_range -- the actual range of the pixels data, contributing into the
 %                    sqw file (useful if input pix_range is not provided)
+%  wout           -- filebacked instance of sqw object produced by the
+%                    routine and backed by the outfile.
 
 
 % T.G.Perring   27 June 2007
-% T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
+% T.G.Perring   22 March 2013  Modified to enable sqw files with more than
+%               one spe file to be combined.
 %
-
-accepted_options = {'-allow_equal_headers','-keep_runid',...
-    '-parallel'};
 
 if nargin<2
     error('HORACE:write_nsqw_to_sqw:invalid_argument',...
         'function should have at least 2 input arguments')
 end
-[ok,mess,allow_equal_headers,keep_runid,combine_in_parallel,argi]...
+accepted_options = {'-parallel','-keep_runid'};
+[ok,mess,combine_in_parallel,keep_runid,argi]...
     = parse_char_options(varargin,accepted_options);
 if ~ok
     error('HORACE:write_nsqw_to_sqw:invalid_argument',mess);
 end
-[data_range,job_disp,jd_initialized]= parse_additional_input(argi);
+[pix_data_range,job_disp,jd_initialized,argi]= parse_additional_input4_join_sqw_(argi{:});
 
 persistent old_matlab;
 if isempty(old_matlab)
     old_matlab = verLessThan('matlab', '8.1');
-end
-
-combine_mode = config_store.instance().get_value('hpc_config','combine_sqw_using');
-if isempty(job_disp)
-    if strcmp(combine_mode,'mpi_code') || combine_in_parallel
-        combine_in_parallel = true;
-    else
-        combine_in_parallel = false;
-    end
-else
-    combine_in_parallel = true;
-end
-
-if combine_in_parallel && isempty(job_disp) % define name of new parallel job and initiate it.
-    [~,fn] = fileparts(outfile);
-    if numel(fn) > 8
-        fn = fn(1:8);
-    end
-    job_name = ['job_nsqw2sqw_',fn];
-    %
-    job_disp = JobDispatcher(job_name);
 end
 
 % check if writing to output file is possible so that all further
@@ -101,30 +88,49 @@ if sqw_exist          % init may want to upgrade the file and this
     delete(outfile);  %  is not the option we want to do here
 end
 
+%==========================================================================
+% Parallel options.
+combine_mode = config_store.instance().get_value('hpc_config','combine_sqw_using');
+if isempty(job_disp)
+    if strcmp(combine_mode,'mpi_code') || combine_in_parallel
+        combine_in_parallel = true;
+    else
+        combine_in_parallel = false;
+    end
+else
+    combine_in_parallel = true;
+end
+if combine_in_parallel && isempty(job_disp) % define name of new parallel job and initiate it.
+    [~,fn] = fileparts(outfile);
+    if numel(fn) > 8
+        fn = fn(1:8);
+    end
+    job_name = ['job_nsqw2sqw_',fn];
+    %
+    job_disp = JobDispatcher(job_name);
+end
 if ~jd_initialized
     job_disp_4head = []; % do not initialize job dispatcher to process headers.
     %  overhead is high and the job is small
 else
     job_disp_4head =job_disp;
 end
+%==========================================================================
+%
 % construct target sqw object containing everything except pixel data.
 % Instead of PixelData, it will contain information about how to combine
 % PixelData
-[sqw_struc_sum,img_db_range,data_range,job_disp_4head]=get_pix_comb_info_(infiles,data_range,job_disp_4head, ...
-    allow_equal_headers,keep_runid);
-if ~isempty(job_disp_4head)
-    job_disp = job_disp_4head;
+if keep_runid
+    argi = ['-keep_runid';argi(:)];
 end
+[sqw_mem_part,~,job_disp] = collect_sqw_metadata(infiles,pix_data_range,job_disp_4head,argi{:});
+if ~isempty(job_disp)
+    job_disp.finalize_all();
+end
+sqw_mem_part.full_filename = outfile;
+sqw_mem_part.creation_date  = datetime('now');
 %
-%
-%
-sqw_struc_sum.main_header.full_filename = outfile;
-sqw_struc_sum.pix.full_filename = outfile;
-%
-ds = sqw(sqw_struc_sum);
-wrtr = sqw_formats_factory.instance().get_pref_access(ds);
-%
-hor_log_level = get(hor_config,'log_level');
+[hor_log_level,use_mex] = config_store.instance().get_value(hor_config,'log_level','use_mex');
 if hor_log_level>-1
     disp(' ')
     disp(['Writing to output file ',outfile,' ...'])
@@ -132,59 +138,26 @@ end
 % initialize sqw writer algorithm with sqw file to write, containing a normal sqw
 % object with pix field containing information about the way to assemble the
 % pixels
-ds.creation_date  = datetime('now');
-ds.full_filename = outfile;
-wrtr = wrtr.init(ds,outfile);
-if combine_in_parallel
-    wrtr = wrtr.put_sqw(job_disp,'-verbatim');
-else
-    wrtr = wrtr.put_sqw('-verbatim');
-end
-wrtr.delete();
-%
-%
-function [data_range,job_disp,jd_initialized]= parse_additional_input(argi)
-% parse input to extract pixel range and initialized job dispatcher if any
-% of them provided as input arguments
-%
-data_range = PixelDataBase.EMPTY_RANGE;
-job_disp = [];
-jd_initialized = false;
-%
-if isempty(argi)
-    return;
-end
 
-is_jd = cellfun(@(x)(isa(x,'JobDispatcher')),argi,'UniformOutput',true);
-if any(is_jd)
-    job_disp = argi(is_jd);
-    if numel(job_disp) >1
-        error('HORACE:write_nsqw_to_sqw:invalid_argument',...
-            'only one instance of JobDispatcher can be provided as input');
-    else
-        job_disp  = job_disp{1};
-    end
-    if ~job_disp.is_initialized
-        error('HORACE:write_nsqw_to_sqw:invalid_argument',...
-            ['Only initialized JobDispatcher is currently supported',...
-            ' as input for write_nsqw_to_sqw.',...
-            ' Use "parallel" option to combine files in parallel']);
-    end
-    jd_initialized = true;
-    argi = argi(~is_jd);
-end
+
+page_op         = PageOp_join_sqw;
+page_op.outfile = outfile;
 %
-if isempty(argi)
-    return;
+if keep_runid
+    run_id = [];
+else
+    run_id = sqw_mem_part.runid_map.keys();
+    run_id = [run_id{:}];
 end
+hpc = hpc_config;
+use_mex = use_mex && strncmp(hpc.combine_sqw_using,'mex',3);
+[page_op,wout]  = page_op.init(sqw_mem_part,run_id,use_mex);
+% TODO: Re #1320 do not load result in memory and do not initilize
+% filebacked operations if it is not requested
+wout            = sqw.apply_op(wout,page_op);
+
+% Set up output averages
+img_db_range   = sqw_mem_part.data.img_range;
+pix_data_range = sqw_mem_part.pix.data_range;
 %
-is_range = cellfun(@(x)(isequal(size(x),[2,9])),argi,'UniformOutput',true);
-if ~any(is_range)
-    return;
-end
-if sum(is_range) > 1
-    error('HORACE:write_nsqw_to_sqw:invalid_argument',...
-        ['More then one variable in input arguments is interpreted as range.',...
-        ' This is not currently supported'])
-end
-data_range  = argi{is_range};
+%

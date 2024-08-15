@@ -138,17 +138,6 @@ classdef horace_binfile_interface < serializable
         [header,fid] = get_file_header(file,varargin)
         %
     end
-    methods(Static,Hidden) % defined by this class
-        function sqw_data = update_projection(sqw_data)
-            % Check if the projection attached to dnd class is related to
-            % the cut (the cut image range is in hkl) or to the initial
-            % generated sqw file (image range equal to the pixel range)
-            % and modify dnd projection accordingly
-            %
-            % Used in upgrade_file_format, and does nothing for the same
-            % file formats
-        end
-    end
 
     % Main class methods & constructor
     methods
@@ -165,8 +154,8 @@ classdef horace_binfile_interface < serializable
         % applications and adds some information about stored sqw/dnd
         % object and binary file version
         % The binary header should be readable by all Horace versions
-        % including binary versions, so its implemenataion is moved to top
-        % faccessors level
+        % including binary versions, so its implementation is moved to top
+        % f-accessors level
         app_header = build_app_header(obj,varargin)
         % store application header which describes the sqw binary file
         obj = put_app_header(obj,varargin);
@@ -426,7 +415,7 @@ classdef horace_binfile_interface < serializable
             %
             move_to_position_(fid,pos);
         end
-        function check_write_error(fid)
+        function check_write_error(fid,add_info)
             % check if write operation have completed successfully.
             %
             % Inputs:
@@ -435,9 +424,12 @@ classdef horace_binfile_interface < serializable
             %
             % If add_info is not empty, it added to the error message and
             % used for clarification of the error location.
-            check_io_error_(fid,'writing');
+            if nargin<2
+                add_info = '';
+            end
+            check_io_error_(fid,'writing',add_info);
         end
-        function check_read_error(fid)
+        function check_read_error(fid,add_info)
             % check if read operation have completed successfully.
             %
             % Inputs:
@@ -447,7 +439,10 @@ classdef horace_binfile_interface < serializable
             %
             % If add_info is not empty, it added to the error message and
             % used for clarification of the error location.
-            check_io_error_(fid,'reading');
+            if nargin<2
+                add_info = '';
+            end
+            check_io_error_(fid,'reading',add_info);
         end
     end
     %======================================================================

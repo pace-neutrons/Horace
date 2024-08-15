@@ -9,11 +9,11 @@ function [proj, pbin] = get_proj_and_pbin(w)
 %
 % Output:
 % -------
-%   proj    Projection as a projaxes object
+%   proj    Projection as a aProjectionBase object
 %   pbin    Cell array, a row length 4, of the binning description of the
 %          sqw object
 
-% T.G.Perring   30 September 2018
+
 
 if numel(w)==1
     [proj, pbin] = get_proj_and_pbin_single(w);

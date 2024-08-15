@@ -53,8 +53,14 @@ end
 
 range = zeros(2,4);
 nbins  = zeros(4,1);
+max_range = obj.max_img_range_;
 for i=1:4
-    [range1,nbins1]=obj.pbin_parse(varargin{i},one_bn_is_iax(i),i);
+    [range1,nbins1,ok,mess]=obj.pbin_parse(varargin{i},one_bn_is_iax(i),max_range(:,i));
+    if ~ok
+        clname = class(obj);
+        error(['HORACE:',clname,'invalid_argument'], ...
+            'Range N%d %s',i,mess);
+    end
     range(:,i) = range1;
     nbins(i) = nbins1;
 end

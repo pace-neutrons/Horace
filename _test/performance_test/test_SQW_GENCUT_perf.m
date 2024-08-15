@@ -11,14 +11,11 @@ classdef test_SQW_GENCUT_perf < SQW_GENCUT_perf_tester
     % files available to user In a future, such file should be auto-generated.
     %
     %
-    
+
     properties(Access=private)
-        % Template file name: the name of the file used as a template for
-        % others.
-        source_template_file_ = 'MER19566_22.0meV_one2one125.nxspe';
     end
     methods
-        
+
         %------------------------------------------------------------------
         function obj = test_SQW_GENCUT_perf(varargin)
             % create test suite, generate source files and load existing
@@ -45,13 +42,18 @@ classdef test_SQW_GENCUT_perf < SQW_GENCUT_perf_tester
         function [filelist,smpl_data_size] = generate_source_test_files(obj,varargin)
             % create source files, used for generation
             %
-            filelist = source_nxspe_files_generator_(obj);
+            filenames = obj.generate_source_file_names();
+            if obj.generate_nxspe_files && ~obj.replicate_mode
+                filelist = source_nxspe_files_generator_(obj,filenames);
+            else
+                filelist  = filenames;
+            end
             smpl_data_size = obj.sample_data_size_;
         end
-        
+
     end %Methods
     methods(Access=protected)
-        function  spe_filelist = source_nxspe_files_generator_(obj)
+        function  spe_filelist = source_nxspe_files_generator_(obj,filenames)
             % Generate test of source files to use in further tests
             %
             %Input: number of files to generate
@@ -64,15 +66,13 @@ classdef test_SQW_GENCUT_perf < SQW_GENCUT_perf_tester
             n_files = obj.n_files_to_use_;
             data_dir = obj.source_data_dir;
             working_dir = obj.working_dir;
-            
+
             spe_filelist=cell(1,n_files);
             %
             source_file = fullfile(data_dir,obj.source_template_file_);
-            
-            template_name_form = obj.template_name_form_;
             %
             for i=1:n_files
-                fname =sprintf([template_name_form,'.nxspe'],i);
+                fname =filenames{i};
                 spe_filelist{i} = fullfile(working_dir,fname);
                 if ~(exist(spe_filelist{i},'file')==2)
                     copyfile(source_file,spe_filelist{i},'f');
@@ -80,5 +80,5 @@ classdef test_SQW_GENCUT_perf < SQW_GENCUT_perf_tester
             end
         end
     end
-    
+
 end

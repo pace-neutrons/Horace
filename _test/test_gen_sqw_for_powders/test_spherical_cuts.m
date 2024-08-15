@@ -47,6 +47,7 @@ classdef test_spherical_cuts < TestCaseWithSave
             obj.spe_file_1=fullfile(this_dir,'test_combine_1.nxspe');
             obj.spe_file_2=fullfile(this_dir,'test_combine_2.nxspe');
 
+            
             efix=[100,100];
             emode=1;
             alatt=2*pi*ones(1,3);

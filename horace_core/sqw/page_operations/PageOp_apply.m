@@ -34,7 +34,10 @@ classdef PageOp_apply < PageOp_sqw_eval
             %
             obj.compute_variance = compute_variance;
             obj.changes_pix_only = ~recompute_bins;
-            if ~obj.changes_pix_only
+            if obj.changes_pix_only
+                obj.split_at_bin_edges = false;
+            else
+                obj.split_at_bin_edges = true;
                 obj.var_acc_ = zeros(numel(obj.npix),1);
             end
         end
@@ -59,7 +62,7 @@ classdef PageOp_apply < PageOp_sqw_eval
                 return;
             end
             new_signal     = pixpage.signal;
-            %
+            % Overload for update_img_accumulators:
             if obj.compute_variance
                 [img_signal,img_var,sig_variance] = compute_bin_data(npix_block,new_signal,[],true);
                 obj.page_data_(obj.var_idx,:)     = sig_variance;
@@ -69,17 +72,15 @@ classdef PageOp_apply < PageOp_sqw_eval
             end
             obj.sig_acc_(npix_idx(1):npix_idx(2)) = img_signal(:);
             obj.var_acc_(npix_idx(1):npix_idx(2)) = img_var(:);
-
         end
-
         function [out_obj,obj] = finish_op(obj,out_obj)
-            % Complete image modifications which would happen only if you
-            % were updating the accumulators
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-
-            % transfer modifications to the underlying object
+            % unlike its parent PageOp_sqw_eval, this operation calculates
+            % variance, so one needs to overload it over
+            % finish_op@PageOp_sqw_eval
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
         end
+
+
     end
     methods(Access=protected)
         function  does = get_changes_pix_only(obj)
@@ -87,6 +88,15 @@ classdef PageOp_apply < PageOp_sqw_eval
         end
         function obj = set_changes_pix_only(obj,val)
             obj.change_pix_only_ = logical(val);
+        end
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','apply_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.apply_split_ratio = val;
         end
     end
 end

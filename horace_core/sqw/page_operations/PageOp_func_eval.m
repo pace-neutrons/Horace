@@ -1,51 +1,18 @@
 classdef PageOp_func_eval < PageOpBase
     % Single pixel page operation used by sqw_eval function
     %
-    properties(Access = private)
-        pix_idx_start_ = 1;
-    end
 
     methods
         function obj = PageOp_func_eval(varargin)
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'func_eval';
+            obj.split_at_bin_edges = true;
         end
         function obj = init(obj,sqw_obj)
             obj  = init@PageOpBase(obj,sqw_obj);
-            obj.pix_idx_start_ = 1;
             %
-        end
-
-        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
-            % Method used to split input npix array into pages
-            %
-            % Overload specific for sqw_eval
-            % Inputs:
-            % npix  -- image npix array, which defines the number of pixels
-            %           contributing into each image bin and the pixels
-            %           ordering in the linear array
-            % chunk_size
-            %       -- sized of chunks to split pixels
-            % Returns:
-            % npix_chunks -- cellarray, containing the npix parts
-            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
-            %                the npix array.
-            % See split procedure for more details
-            [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
-        end
-
-
-        function obj = get_page_data(obj,idx,npix_blocks)
-            % return block of data used in page operation
-            %
-            % Overload specific for sqw_eval. Its average operation needs
-            % knolege of all pixel coordinates in a cell.
-            npix_block = npix_blocks{idx};
-            npix = sum(npix_block(:));
-            pix_idx_end = obj.pix_idx_start_+npix-1;
-            obj.page_data_ = obj.pix_.get_pixels( ...
-                obj.pix_idx_start_:pix_idx_end,'-raw');
-            obj.pix_idx_start_ = pix_idx_end+1;
+            obj.img_.e =zeros(size(obj.img_.s)) ; % image in funceval have
+            % been calculated separately. PageOp calculates pixels only.
         end
 
         function obj = apply_op(obj,~,npix_idx)
@@ -53,12 +20,22 @@ classdef PageOp_func_eval < PageOpBase
             obj.page_data_(obj.signal_idx,:)   = s(:)';
             obj.page_data_(obj.var_idx,:)      = 0;
         end
-
-        function [out_obj,obj] = finish_op(obj,out_obj)
-            % transfer modifications to the underlying object
-            [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
-            obj.pix_idx_start_ = 1;
+    end
+    methods(Access=protected)
+        function  does = get_changes_pix_only(~)
+            % pageOp calculates pixels only using image as source. No point
+            % of calculating image from pixels again as it would be in
+            % usual PageOp
+            does = true;
         end
-
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','func_eval_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.func_eval_split_ratio = val;
+        end
     end
 end

@@ -84,7 +84,7 @@ if ~ok
 end
 if return_selected && nout ~= 4
     error('HORACE:AxesBlockBase:invalid_argument', ...
-          'return_selected requested for non pixel cut')
+        'return_selected requested for non pixel cut')
 end
 
 bin_array_size  = obj.nbins_all_dims; % arrays of this size will be allocated too
@@ -133,7 +133,9 @@ coord = coord(:,ok);
 n_bins  = bin_array_size(pax);
 
 if ndims == 0
-    npix = npix + sum(ok);
+    npix1= sum(ok);
+    npix = npix + npix1;
+    pix_indx = ones(npix1,1);
 else
     r1 = r1(pax);
     r2 = r2(pax);
@@ -153,13 +155,9 @@ else
             pix_indx(on_edge(:,i),i) = n_bins(i);
         end
     end
-    if numel(n_bins) == 1
-        n_bins = [n_bins,1];
-    end
     % mex code, if deployed below, needs pixels collected during this
-    % particular accumulation.
-    npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
-    npix = npix + npix1;
+    % particular accumulation.    
+    [npix,npix1] = cut_data_from_file_job.calc_npix_distribution(pix_indx,npix);
 end
 
 if nout<3
@@ -198,7 +196,7 @@ if ndims == 0
     end
 else
     for i=1:ndata
-        out{i} = out{i}+accumarray(pix_indx,bin_values{i}(ok),n_bins);
+        out{i} = out{i}+accumarray(pix_indx,bin_values{i}(ok),size(npix));
     end
 end
 
@@ -231,7 +229,7 @@ end
 %--------------------------------------------------------------------------
 % find unique indices,
 % more then 5 outputs apparently requested to obtain sorted pixels
-loc_unique = unique(pix_ok.run_idx);
+loc_unique   = unique(pix_ok.run_idx);
 unique_runid = unique([unique_runid,loc_unique]);
 clear ok;
 

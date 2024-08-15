@@ -19,7 +19,8 @@ function wout = change_crystal(obj,alignment_info,varargin)
 % -------
 %   wout        Output dnd object with changed crystal lattice parameters and orientation
 
-if ~isa(alignment_info,'crystal_alignment_info') || nargin>2
+
+if ~isa(alignment_info,'crystal_alignment_info')
     error('HORACE:DnDBase:invalid_argument',...
         ['Old interface to modify the crystal alignment is deprecated.\n', ...
         ' Use crystal_alignment_info class obtained from "refine_crystal" routine to realign crystal.\n', ...
@@ -29,24 +30,21 @@ end
 
 wout = obj;
 
-alatt  = alignment_info.alatt;
-angdeg = alignment_info.angdeg;
 for i=1:numel(obj)
-    legacy_mode = alignment_info.hkl_mode || ~isempty(obj(i).proj.ub_inv_legacy);
+    legacy_mode = alignment_info.hkl_mode;
     this_alignment = alignment_info;
-
-    if legacy_mode
-        this_alignment.hkl_mode  = true;        
-        rlu_corr = this_alignment.get_corr_mat(obj.proj);
-        rlu_to_u = wout(i).proj.bmatrix();
+    if isa(wout(i).proj,'LineProjBase')
         proj = wout(i).proj;
-        proj.img_offset(1:3)=rlu_corr*wout(i).img_offset(1:3)';
-        proj = proj.set_ub_inv_compat(rlu_corr/rlu_to_u);
-        wout(i).proj = proj;
-        %
-        wout(i).alatt=alatt;
-        wout(i).angdeg=angdeg;
     else
-        [wout(i).proj,wout(i).axes] = wout(i).proj.align_proj(alignment_info,wout(i).axes);
+        error('HORACE:DnDBase:invalid_argument',...
+            ['Alignment is possible for objects with coordinate systems' ...
+            ' defined LineProjBase transformations only.\n' ...
+            ' Object N%d coordinates defined by: %s projection'], ...
+            i,class(wout(i).proj))
     end
+    if legacy_mode
+        this_alignment.hkl_mode  = true;
+        proj = proj.get_ubmat_proj();
+    end
+    [wout(i).proj,wout(i).axes] = proj.align_proj(alignment_info,wout(i).axes);
 end

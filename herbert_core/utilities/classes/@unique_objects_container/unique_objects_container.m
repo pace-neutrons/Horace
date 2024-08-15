@@ -409,29 +409,27 @@ classdef unique_objects_container < serializable
                 newself = newself.add(item);
             end
         end
-
-        function hash = hashify(self,obj)
+        
+        function hash = hashify(self,obj,reset_count)
             % makes a hash from the argument object
             % which will be unique to any identical object
             %
             % Input:
             % - obj : object to be hashed
+            % - reset_count : if counting hash calcs is exposed in
+            % hashify_obj then this resets the count
             % Output:
             % - hash : the resulting has, a row vector of uint8's
             %
-            persistent Engine;
-            if isempty(Engine)
-                Engine = java.security.MessageDigest.getInstance('MD5');
-            end
-            if isa(obj,'serializable') && ~self.non_default_f_conversion_set_
-                % use default serializer, build up by us for serializable objects
-                Engine.update(obj.serialize());
+            % this method started out as an instance method but now
+            % contains no references to self. For simplicity, keeping the
+            % original method (this one) as a wrapper to the static method
+            % now used => no other code changes
+            if nargin<=2
+                hash = Hashing.hashify_obj(obj);
             else
-                %convert_to_stream_f_ = @getByteStreamFromArray;
-                Engine.update(self.convert_to_stream_f_(obj));
+                hash = Hashing.hashify_obj(obj,reset_count);
             end
-            hash = typecast(Engine.digest,'uint8');
-            hash = char(hash');
         end
 
         function self = rehashify_all(self,with_checks)
@@ -476,7 +474,10 @@ classdef unique_objects_container < serializable
                 % get intersection of array stored_hashes_ with (single) array
                 % hash from hashify. Calculates the index of the hash in
                 % stored_hashes.
-                ix = find(ismember(self.stored_hashes_,hash));
+                [~,ix] = ismember( hash, self.stored_hashes_ );
+                if ix<1
+                    ix = []; % ismember returns 0 in this case, not []
+                end
             end
         end
     end
@@ -748,14 +749,42 @@ classdef unique_objects_container < serializable
         end
         
         function field_vals = get_unique_field(self, field)
+            % determine type of unique_objects_container to make from the
+            % object feld type, and construct the container
             s1 = self.get(1);
             v = s1.(field);
             field_vals = unique_objects_container(class(v));
+            
+            % make container of possible field values from the unique contents of self
+            % this will do the minimal hashing of the field values
+            poss_field_vals = unique_objects_container(class(v));
+            uix = unique( self.idx_, 'stable' );
+            for ii=1:numel(uix)
+                sii = self.get( uix(ii) );
+                v = sii.(field);
+                poss_field_vals = poss_field_vals.add_single_(v);
+            end
+            
+            % make a container for the fields in order of the objects in self using the hash
+            % info previously put into poss_field_vaues
             for ii=1:self.n_runs
                 sii = self.get(ii);
                 v = sii.(field);
-                field_vals = field_vals.add(v);
+                index = self.idx_(ii);
+                [~,loc] = ismember(index,uix);
+                hash = poss_field_vals.hash(loc);
+                [~,hashloc] = ismember(hash,field_vals.stored_hashes_);
+                if hashloc>0
+                    field_vals = field_vals.add_single_(v,hashloc,hash);
+                else
+                    field_vals = field_vals.add_single_(v,[],hash);
+                end
             end
+        end
+        
+        function val = hash(self,index)
+        % accessor for the stored hashes
+            val = self.stored_hashes_{ self.idx_(index) };
         end
 
 
@@ -858,14 +887,24 @@ classdef unique_objects_container < serializable
                     out = objs{1};
                     for ii=2:numel(objs)
                         for jj=1:objs{ii}.n_runs
-                            out = out.add( objs{ii}.get(jj) );
+                            out_obj = objs{ii}.get(jj);
+                            out_hsh = objs{ii}.hash(jj);
+                            [~,index] = ismember(out_hsh, out.stored_hashes_);
+                            if index==0, index = []; end;
+                            out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
                         end
                     end
                 else
                     out = objs(1);
                     for ii=2:numel(objs)
                         for jj=1:objs(ii).n_runs
-                            out = out.add( objs(ii).get(jj) );
+                            out_obj = objs(ii).get(jj);
+                            out_hsh = objs(ii).hash(jj);
+                            [~,index] = ismember(out_hsh, out.stored_hashes_);
+                            if index==0, index = [], end;
+                            out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
+                            
+                            %out = out.add( objs(ii).get(jj) );
                         end
                     end
                 end

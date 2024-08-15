@@ -1,0 +1,21 @@
+% Map file: 5 workspace, none empty
+5 	% number of workspaces
+
+2 	% Workspace name
+0 	% Number of spectra
+
+3 	% Workspace name
+6 	% Number of spectra
+31:36
+
+4 	% Workspace name
+7 	% Number of spectra
+41:47
+
+5 	% Workspace name
+8 	% Number of spectra
+51:58
+
+6 	% Workspace name
+9 	% Number of spectra
+61:69

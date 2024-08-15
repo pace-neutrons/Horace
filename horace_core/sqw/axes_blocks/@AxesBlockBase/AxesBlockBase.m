@@ -1,6 +1,7 @@
 classdef AxesBlockBase < serializable
     % The class contains information about axes and scales used for
-    % displaying sqw/dnd object and provides scales for neutron image data.
+    % displaying sqw/dnd object and provides scales for neutron image data
+    % binned on a grid, defined by this class
     %
     % It also contains main methods, used to produce physical image of the
     % sqw/dnd object
@@ -22,6 +23,7 @@ classdef AxesBlockBase < serializable
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     properties(Dependent)
+        % Legacy projection interface
         % Title of sqw data structure, displayed on plots.
         title;
 
@@ -70,22 +72,30 @@ classdef AxesBlockBase < serializable
         %Cell array containing bin boundaries along the plot axes [column vectors]
         %   e.g. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
         p;
-
+    end
+    %
+    properties
         %------------------------------------------------------------------
         % The range (in axes coordinate system), the binning is made and the
-        % axes block describes
+        % axes block describes.
         img_range;
-        %
-        img_scales   %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        %
-        dimensions;  % Number of AxesBlockBase object dimensions
-
-        % binning along each dimension of an object assuming tha
+        % binning along each dimension of an object assuming that
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
         % x-direction would have binning [10,1,1,1] and 1D object with 10
         % bins in dE direction would have binning [1,1,1,10];
         nbins_all_dims;
+        %
+        %
+        dimensions;  % Number of AxesBlockBase object dimensions (number of pax)
 
+        % what each axes units are. Defined by and should be synchoneous
+        % to "type" property in projection
+        axes_units
+        % shift between the origin of the axes block and the origin of
+        % hkl-dE coordinate system (in rlu-dE, hkl units, not rotated)
+        offset
+    end
+    properties(Dependent) % Helper properties
         % number of bins for each non-unit dimension. This would be the
         % binning of the data arrays associated with the given AxesBlockBase
         data_nbins;
@@ -96,9 +106,6 @@ classdef AxesBlockBase < serializable
         % size(s)
         dims_as_ssize;
 
-        % the step in each pax dimension in units of img_range units
-        step;
-
         % boolean row, identifying if a single bin direction (dir)
         % (nbins_all_dims(dir)==1) is integration axis or a projection
         % axis. By default, single nbins_all_dims direction is
@@ -107,18 +114,37 @@ classdef AxesBlockBase < serializable
         % is defined, the input binning parameters in this direction
         % are treated as bin edges rather then bin centres.
         single_bin_defines_iax;
-
+    end
+    properties(Dependent,Hidden)
+        % the step in each pax dimension in units of img_range units,
+        % defined by img_range(pax) and nbins_all_dims(pax) properties
+        step;
+        %
+        max_img_range;  % maximal range the image can have. Infinity for linear
+        %             but have limits for some dimensions in spherical or
+        %             cylindrical projections.
+        %
+        img_scales; %The scales to convert img_range in image-appropriate units,i.e.
+        %          number to transform to A^{-1} for linear axes, to rad/deg
+        %          for angular and to meV  for energy transfer
+        type;  % units of axes, retrieved from projection. Not currently
+        %        used by linear_axes but is deployed in curvilinear
+        %        axes to convert from degrees to radians and vice versa.
+        %
         % property defines if appropriate axes block presented on
         % picture changes aspect ratio of a 2D image, so that equal
         % physical ranges along axes occupy equal pixel ranges on the image
-        %
         % May be set up locally on an object but have defaults specific for
         % each axes block
         changes_aspect_ratio;
+        %------------------------------------------------------------------
+        full_filename % convenience property as fullfile(filepath, filename)
+        % are often used
+        % Old name for img_range left for compartibility with old user code
+        img_db_range;
 
-        % shift between the origin of the axes block and the origin of
-        % hkl-dE coordinate system (in rlu-dE, hkl units, not rotated)
-        offset
+        %Old interface to img_scales
+        ulen;   % in Ang^-1 or meV [row vector]
     end
 
     properties(Access=protected)
@@ -127,7 +153,7 @@ classdef AxesBlockBase < serializable
         filepath_=''   % Path to sqw file that is being read, including terminating file separator.
         %               Used in titles
         label_  = {'Q_h','Q_k','Q_l','En'}; %Labels of the projection axes [1x4 cell array of character strings]
-        img_scales_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        img_scales_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1, meV or rad/deg [row vector]
         img_range_      = ... % 2x4 vector of min/max values in 4-dimensions
             PixelDataBase.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf]
 
@@ -144,17 +170,51 @@ classdef AxesBlockBase < serializable
         max_img_range_ = [-inf,-inf,-inf,-inf;inf,inf,inf,inf];
         %
         offset_ = [0,0,0,0];
+        %
+        type_ = ''
     end
-    properties(Dependent,Hidden)
-        full_filename % convenience property as fullfile(filepath, filename)
-        % are often used
-        % Old name for img_range left for compartibility with old user code
-        img_db_range;
+    %----------------------------------------------------------------------
+    methods(Static)
+        % build new particular AxesBlockBase object from the binning
+        % parameters, provided as input. If some input binning parameters
+        % are missing, the defaults are taken from the given image range
+        % which should be properly pre-calculated
+        obj = build_from_input_binning(proj_cl_name,cur_img_range_and_steps,pbin);
+        %
+        function [any_within,is_within]=bins_in_1Drange(bins,range)
+            % get bins which contribute into the given range in one
+            % dimension
+            % Inputs:
+            % bins -- equally spaced increasing array of values,
+            %         representing bin edges.
+            % range -- 2 element vector of min/max values which should
+            %          surround contributing range
+            % Output:
+            % any_within -- true if any input bin contribute into the
+            %               selected range and false otherwise
+            % is_within  -- logical array of size numel(bins)-1
+            [any_within,is_within]=bins_in_1Drange_(bins,range);
+        end
+        %
+        function [npix,s,e,pix_cand,unique_runid,argi]=...
+                normalize_binning_input(grid_size,pix_coord_transf,n_argout,varargin)
+            % verify inputs of the bin_pixels function and convert various
+            % forms of the inputs of this function into a common form,
+            % where the missing inputs are returned as empty.
+            %
+            %Inputs:
+            % pix_coord_transf -- the array of pixels coordinates
+            %                     transformed into this AxesBlockBase
+            %                      coordinate system
+            % n_argout         -- number of argument, requested by the
+            %                     calling function
+            % Optional:
 
-        %Old interface to Length of projection axes vectors
-        ulen;   % in Ang^-1 or meV [row vector]
+            [npix,s,e,pix_cand,unique_runid,argi]=...
+                normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
+        end
     end
-
+    %----------------------------------------------------------------------
     methods
         function obj = AxesBlockBase(varargin)
             % constructor
@@ -337,6 +397,19 @@ classdef AxesBlockBase < serializable
             end
             obj.single_bin_defines_iax_ = logical(val(:)');
         end
+        function type = get.type(obj)
+            type = obj.type_;
+        end
+        function type = get.axes_units(obj)
+            type = obj.type_;
+        end
+        function obj = set.type(obj,val)
+            obj = check_and_set_type(obj,val);
+        end
+        function obj = set.axes_units(obj,val)
+            obj = check_and_set_type(obj,val);
+        end
+
         %------------------------------------------------------------------
         % LEGACY API: historical and convenience getters for dependent properties
         % which do not have setters
@@ -380,6 +453,9 @@ classdef AxesBlockBase < serializable
             steps = (obj.img_range(2, obj.pax) - obj.img_range(1, obj.pax)) ./ (obj.nbins_all_dims(obj.pax)-1);
         end
 
+        function range = get.max_img_range(obj)
+            range = obj.max_img_range_;
+        end
     end
     %======================================================================
     % Integration, interpolation and binning
@@ -388,7 +464,16 @@ classdef AxesBlockBase < serializable
         % parameters, performed within this range would return the same cut
         % as the original object
         range = get_cut_range(obj,varargin);
-        %
+        % Identify range this axes block occupies in target coordinate
+        % system
+        [range,is_in,img_targ_center] = get_targ_range(obj,source_proj,targ_proj,range_requested);
+
+        % Return characteristic size of a grid cell in the target
+        % coordinate system.
+        sz = get_char_size(obj,this_proj);
+        % return nodes of the interpolation grid used to identify grid
+        % intercept
+        [nodes,inside] = get_interp_nodes(obj,this_proj,char_sizes);
 
         function volume = get_bin_volume(obj,varargin)
             % Return the volume(s) of the axes grid. For rectilinear grid, the
@@ -403,12 +488,20 @@ classdef AxesBlockBase < serializable
             % Optional:
             % axes  -- 4-element celarray, containig axes in all 4
             %          directions. If this argument is present, the
-            %          volume(s) are calculated for the grid, buil from
+            %          volume(s) are calculated for the grid, build from
             %          the axes provided as input.
+            % OR:
+            % coordinates
+            %       -- 3xnbins or 4xnbins array of nodes defining grid
+            % grid_size
+            %       -- 3 or 4 elements array, defining size of the grid,
+            %          defined by the coordinates
+            %
+
             if nargin == 1
                 [~,~,~,volume] = obj.get_bin_nodes('-axes_only');
-            elseif nargin == 2
-                volume = obj.calc_bin_volume(varargin{1});
+            elseif nargin > 1
+                volume = obj.calc_bin_volume(varargin{:});
             else
                 error('HORACE:AxesBlockBase:invalid_argument', ...
                     'This method accepts no or one argument. Called with %d arguments', ...
@@ -488,6 +581,8 @@ classdef AxesBlockBase < serializable
             % references axes block onto the grid, defined by this axes block.
             %
             % Inputs:
+            % obj      -- axes block defining the lattice for interpolating
+            %             signal on.
             % source_axes
             %           -- axes block -source grid, defining the lattice
             %              where source data are defined on
@@ -699,7 +794,33 @@ classdef AxesBlockBase < serializable
             %
             nodes = dE_nodes_(obj,varargin{:});
         end
+        %
+        function [in,in_details] = in_range(obj,coord)
+            %IN_RANGE identifies if the input coordinates lie within the
+            %image data range.
+            %
+            % Inputs:
+            % obj           --  Axes block object containing image range
+            %
+            % coord         -- [NDim x N_coord] vector of coordinates to verify against the
+            %                  limits where N_coord is the number of vectors to verify
+            % return_in_details
+            %               -- if provided and true, return in_details array. (see
+            %                  below). If false, in_details will be empty
+            % Output:
+            % in            -- [1 x N_coord] integer array containing 1 if coord are within
+            %                  the min_max_ranges, 0 if it is on the edge and -1 if it
+            %                  is outside of the ranges.
+            % in_details   --  [NDim x N_coord] array of integers, specifying the same
+            %                  as
+            range = obj.img_range;
+            if size(coord,1)==3
+                range = range(:,1:3);
+            end
+            [in,in_details] = in_range(range,coord,nargout>1);
+        end
     end
+    %----------------------------------------------------------------------
     methods(Abstract)
         %
         [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
@@ -712,16 +833,28 @@ classdef AxesBlockBase < serializable
         obj = check_and_set_img_range(obj,val);
         % defines bins used when default constructor with dimensions only is called.
         pbin = default_pbin(obj,ndim)
-        % takes binning parameters converts it into axis binning for the
-        % given axes
-        [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
         % calculate bin volume from the  axes of the axes block or input
         % axis organized in cellarray of 4 axis.
-
-        volume = calc_bin_volume(obj,axis_cell)
+        volume = calc_bin_volume(obj,varargin)
+        % retrieve the bin volume scale so that any bin volume be expessed in
+        % A^-3*mEv
+        vol_scale = get_volume_scale(obj);
     end
     %======================================================================
     methods(Access=protected)
+        function  [range,nbin,ok,mess]=pbin_parse(obj,p,p_defines_bin_centers,range_limits)
+            % take binning parameters and converts them into axes bin ranges
+            % and number of bins defining this axes block
+            [range,nbin,ok,mess]=pbin_parse_(obj,p,p_defines_bin_centers,range_limits);
+        end
+        function    obj = check_and_set_type(obj,val)
+            % not used in generic projections; overloaded in curvilinear.
+            % may be expanded in a future
+            obj.type_ = val;
+            if numel(obj.type_) == 3
+                obj.type_ = [obj.type_(:)','e'];
+            end
+        end
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
@@ -770,46 +903,60 @@ classdef AxesBlockBase < serializable
         end
 
     end
-    %----------------------------------------------------------------------
-    methods(Static)
-        % build new particular AxesBlockBase object from the binning
-        % parameters, provided as input. If some input binning parameters
-        % are missing, the defaults are taken from the given image range
-        % which should be properly pre-calculated
-        obj = build_from_input_binning(proj_cl_name,cur_img_range_and_steps,pbin);
-        %
-        function [any_within,is_within]=bins_in_1Drange(bins,range)
-            % get bins which contribute into the given range in one
-            % dimension
-            % Inputs:
-            % bins -- equally spaced increasing array of values,
-            %         representing bin edges.
-            % range -- 2 element vector of min/max values which should
-            %          surround contributing range
-            % Output:
-            % any_within -- true if any input bin contribute into the
-            %               selected range and false otherwise
-            % is_within  -- logical array of size numel(bins)-1
-            [any_within,is_within]=bins_in_1Drange_(bins,range);
-        end
-        %
-        function [npix,s,e,pix_cand,unique_runid,argi]=...
-                normalize_binning_input(grid_size,pix_coord_transf,n_argout,varargin)
-            % verify inputs of the bin_pixels function and convert various
-            % forms of the inputs of this function into a common form,
-            % where the missing inputs are returned as empty.
+    methods(Static,Access = protected)
+        function [is_axes,grid_size]= process_bin_volume_inputs(ax_instance,nodes_info,grid_size)
+            % general routine used to process inputs for routne, used to calculate bin_volume
+            % of different sorts of lattice
             %
-            %Inputs:
-            % pix_coord_transf -- the array of pixels coordinates
-            %                     transformed into this AxesBlockBase
-            %                      coordinate system
-            % n_argout         -- number of argument, requested by the
-            %                     calling function
-            % Optional:
 
-            [npix,s,e,pix_cand,unique_runid,argi]=...
-                normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
+            if iscell(nodes_info)
+                if  numel(nodes_info) ~=4
+                    error('HORACE:AxesBlockBase:invalid_argument', ...
+                        'Input for calc_bin_volume function should be cellarray containing 4 axis. It is %s', ...
+                        disp2str(nodes_info));
+                end
+                grid_size = cellfun(@(ax)numel(ax),nodes_info);
+                is_axes  = true;
+            else
+                is_axes  = false;
+                if nargin<3
+                    grid_size = ax_instance.nbins_all_dims+1;
+                end
+                if size(nodes_info,1) ~= numel(grid_size)
+                    error('HORACE:AxesBlockBase:invalid_argument', ...
+                        'first size of nodes_into array (%d) have to be equal to number of grid dimensions %d',...
+                        size(nodes_info,1),numel(grid_size));
+                end
+            end
         end
+        function [volume,inodes] = expand_to_dE_grid(volume,dE_nodes,inodes)
+            % Epand 3-Dimensional interpolation lattice by orthogonal
+            % 1-dimensional dE lattice, returning 4-dimensional lattice as
+            % the result
+            % Inputs:
+            % volime    --   3-dimensional array of lattice grid volumes
+            % dE_nodes  --   1-dimensional array of energies used as 4-th
+            %                interpolation axis.
+            % inodes    --   2-dimensional [3,(size(volume)+1] array of
+            %                coordinates of 3-dimensional grid, used for
+            %                interpolation
+            % Return
+            % volume    --   4-dimensional array of lattice grid volumes
+            % inodes    --   2-dimensional array of coordinates of
+            %                4-dimensional interpolation grid.
+            %
+            % substantially use fact that dE nodes are dirstributed regularly
+            dE     = dE_nodes(2:end)-dE_nodes(1:end-1);
+            if ~isempty(volume)
+                volume  = reshape(volume(:).*dE(:)',[size(volume),numel(dE)]);
+            end
+            if nargin>2
+                inodes = [repmat(inodes,1,numel(dE_nodes));repelem(dE_nodes,size(inodes,2))];
+            else
+                inodes = [];
+            end
+        end
+
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
@@ -821,7 +968,8 @@ classdef AxesBlockBase < serializable
             'label','img_scales','img_range','nbins_all_dims','single_bin_defines_iax',...
             'dax','offset','changes_aspect_ratio'};
     end
-
+    %----------------------------------------------------------------------
+    % Serializable interface
     methods
         %
         function obj = check_combo_arg(obj)
@@ -848,6 +996,5 @@ classdef AxesBlockBase < serializable
                 inputs.img_scale = inputs.ulen;
             end
         end
-
     end
 end

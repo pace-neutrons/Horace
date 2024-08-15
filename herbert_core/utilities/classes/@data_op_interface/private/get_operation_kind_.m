@@ -1,10 +1,10 @@
 function op_kind = get_operation_kind_(op1_has_pix,op1_has_img,op2_has_pix,op2_has_img);
 % What kind of operation should be applied between two operands
 % given operand features.
-% There are 5 types of operations:
+% There are 4 types of operations:
 % 1 -> object<->scalar 2-> object<->image and 3->object<->object
 % 0 means operations can be performed by converting to sigvar.
-% -1 means operation prohibited (or will not be performed)
+
 % Inputs:
 % op1_has_pix   -- true if operand 1 has pixels
 % op1_has_img   -- true if operand 1 has image
@@ -32,7 +32,7 @@ elseif op1_has_img
     % image operations are perfomed though sivgar
     op_kind = 0;
 else
-    % numeric operand should not be able to come herec, so it is probably scalar objects
+    % numeric operand should not be able to come here, so it is probably scalar objects
     % of allowed types
     op_kind = 0;
 end

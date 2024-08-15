@@ -152,7 +152,7 @@ classdef test_faccess_sqw_v2< TestCase
             main_h = to.get_main_header('-keep_original');
             assertEqual(main_h.nfiles,186);
             assertEqual(main_h.filename,'Fe_ei787.sqw');
-            assertEqual(main_h.filepath,'c:\data\Fe\sqw\');
+            assertEqual(main_h.filepath,'c:\data\Fe\sqw');
 
         end
 
@@ -191,13 +191,13 @@ classdef test_faccess_sqw_v2< TestCase
 
             assertTrue(isa(sqw_obj,'sqw'));
             assertEqual(sqw_obj.main_header.filename,fo.filename)
-            assertEqual(sqw_obj.main_header.filepath,[fo.filepath,filesep])
+            assertEqual(sqw_obj.main_header.filepath,fo.filepath)
 
             sqw_obj1 = fo.get_sqw('-hverbatim');
             assertTrue(isa(sqw_obj1,'sqw'));
             assertEqual(sqw_obj1.main_header.filename,'ei140.sqw')
             assertEqual(sqw_obj1.main_header.filepath,...
-                'C:\Russell\PCMO\ARCS_Oct10\Data\SQW\')
+                'C:\Russell\PCMO\ARCS_Oct10\Data\SQW')
         end
         %
         function obj = test_put_sqw(obj)
@@ -228,7 +228,7 @@ classdef test_faccess_sqw_v2< TestCase
             % new file has been upgraded with runid_map so its size have
             % increased? one byte is missing, why?
             assertEqual(sz1+numel('$id$1')+numel(char(datetime("now")))- ...
-                28,... % save small dummy ulabel instead of large old one
+                29,... % save small dummy ulabel instead of large old one
                 sz2);
             %
             tn = faccess_sqw_v2(tf);

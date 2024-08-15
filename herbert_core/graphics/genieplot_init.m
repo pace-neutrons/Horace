@@ -11,6 +11,14 @@ genieplot.xscale = 'linear';
 genieplot.yscale = 'linear';
 genieplot.zscale = 'linear';
 
+genieplot.line_styles = {'-','--',':','-.'};
+if verLessThan('MATLAB','9.9')
+    genieplot.colors = {'r','g','b','c','m','k'};
+    genieplot.marker_types = {'o','+','*','.','x','s','d','^','v','>','<','p','h'};
+else
+    genieplot.colors = {'r','g','b','c','m','k','#0072BD','#D95319','#EDB120','#7E2F8E','#77AC30','#4DBEEE','#A2142F'};
+    genieplot.marker_types = {'o','+','*','.','x','_','|','square','diamond','^','v','>','<','pentagram','hexagram'};
+end
 genieplot.oned_maxspec = 1000;
 genieplot.oned_binning = 1;
 
@@ -28,3 +36,5 @@ genieplot.name_sliceomatic = 'Sliceomatic';
 
 % Set global variable
 set_global_var('genieplot',genieplot)
+
+

@@ -54,7 +54,7 @@ classdef PageOp_binary_sqw_img < PageOp_bin_Base
                     error('HORACE:PageOp_binary_sqw_img:invalid_argument', ...
                         'external npix input and second operand of DnD-type are not compartible')
                 end
-                % need to remove pixels in places where  second operand
+                % need to remove pixels in bins where  second operand
                 % does not have pixels (operand.npix == 0)
                 obj.keep_array = logical(obj.operand.npix(:));
                 if  numel(obj.npix)== 1 % 1st operand is npix only and class
@@ -159,9 +159,19 @@ classdef PageOp_binary_sqw_img < PageOp_bin_Base
             % reduce total number of pixels in final image to account for
             % pixels removed from masked bins
             obj.npix_(~obj.keep_array) = 0;
-            %
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_);
+
             [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
         end
     end
+    methods(Access=protected)
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','sqw_binary_img_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.sqw_binary_img_split_ratio = val;
+        end
+    end    
 end

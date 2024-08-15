@@ -1,5 +1,5 @@
 classdef test_object_lookup < TestCase
-    % Test of object_lookup class
+    % Test of basic functionality of object_lookup methods
     properties
         c1
         c2

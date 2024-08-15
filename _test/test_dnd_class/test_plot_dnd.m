@@ -20,9 +20,27 @@ classdef test_plot_dnd < TestCase
                 fullfile(hp.test_common,obj.sqw_2d_file),...
                 fullfile(hp.test_common,obj.sqw_3d_file),...
                 fullfile(hp.test_common,obj.sqw_4d_file)};
-            obj.dnd_obj = cell(4,1);
+
             obj.dnd_obj = cellfun(@(x)read_dnd(x),tst_files, ...
                 'UniformOutput',false);
+        end
+        %------------------------------------------------------------------
+        function test_spaghetti_default_labels(obj)
+            tob = [obj.dnd_obj{2};obj.dnd_obj{2}*2;obj.dnd_obj{2}*0.5];
+            [ds,cuts,figh,axh,plh] = spaghetti_plot(tob);
+            assertTrue(isa(ds,'IX_dataset_2d'))
+            assertEqual(cuts,tob);
+
+            assertTrue(isa(figh,'matlab.ui.Figure'));
+            assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+            assertTrue(isa(plh,'matlab.graphics.primitive.Patch'))
+            assertEqual(numel(figh),1)
+            assertEqual(numel(axh),1)
+            assertEqual(numel(plh),3)
+            assertEqual(axh.XTickLabel, ...
+                {'[-0.71, -0.71, 0]';'[-0.71, -0.71, 0]'; ...
+                '[-0.71, -0.71, 0]';'[-0.39, -0.39, 0]'});
+            close(figh);
         end
         %------------------------------------------------------------------
         function test_d4d_all_plot_methods_throw(obj)
@@ -35,7 +53,6 @@ classdef test_plot_dnd < TestCase
             errors_list = {'HORACE:DnDBase:not_implemented',...
                 'HERBERT:graphics:invalid_argument','HORACE:d4d:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(26) = 2;
             err_ind(28) = 3;
             err_ind(29) = 3;
             function thrower(obx,fmethod)
@@ -60,7 +77,6 @@ classdef test_plot_dnd < TestCase
             errors_list = {'HORACE:DnDBase:not_implemented',...
                 'HERBERT:graphics:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(26) = 2;
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
@@ -81,8 +97,11 @@ classdef test_plot_dnd < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(d3d_obj);
+                [objh,axh,plh]  = meth(d3d_obj);
                 assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isstruct(plh));
+
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
                 end
@@ -124,8 +143,11 @@ classdef test_plot_dnd < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(d2d_obj);
+                [objh,axh,plh] = meth(d2d_obj);
                 assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
                 end
@@ -141,12 +163,13 @@ classdef test_plot_dnd < TestCase
             errors_list = {'HORACE:DnDBase:not_implemented',...
                 'HERBERT:graphics:invalid_argument','HORACE:d1d:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(8) = 2;
             err_ind(10) = 3;
             err_ind(11) = 3;
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
+            % This method may generate different types of error depending
+            % on presence of existing pictures
             for i=1:numel(other_methods)
                 assertExceptionThrown(@()thrower(d1d_obj,other_methods{i}), ...
                     errors_list{err_ind(i)}, ...
@@ -164,7 +187,11 @@ classdef test_plot_dnd < TestCase
             for i=1:numel(pl_methods)
                 meth = pl_methods{i};
 
-                objh = meth(d1d_obj);
+                [objh,axh,plh] = meth(d1d_obj);
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
+
                 assertTrue(isa(objh,'matlab.ui.Figure'));
                 if ~isempty(prev_h) && prev_h ~= objh
                     close(prev_h)
@@ -175,8 +202,12 @@ classdef test_plot_dnd < TestCase
             for i=1:numel(opl_methods)
                 meth = opl_methods{i};
 
-                oboh = meth(d1d_obj);
+                [oboh,axh,plh] = meth(d1d_obj);
                 assertEqual(oboh,objh)
+                assertTrue(numel(plh)>1);
+                assertTrue(isa(objh,'matlab.ui.Figure'));
+                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
             end
             close(oboh);
         end

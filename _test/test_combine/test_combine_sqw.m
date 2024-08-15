@@ -66,15 +66,8 @@ classdef test_combine_sqw < TestCase
         function test_combine1D(obj)
             % The test for combining in non-orthogonal coordinate system
             %
-            % TODO:
-            % original sqw format has issues with nonorhtogonal system,
-            % so the format (and test) need to be modified to fix this issue
-
             img_db_range = obj.sqw_sample_gen.data.img_range;
-            %TODO: this is issue to resolve on refactoring.
-            %  img_db_range generated with non-orthogonal lattice is equal
-            %  to pix_range, when in fact it should be diffetent
-            % (see cut_source_range below).
+            %
             proj = line_proj([1,0,0],[0,1,0]);
             proj.alatt = obj.sqw_sample_gen.data.alatt;
             proj.angdeg = obj.sqw_sample_gen.data.angdeg;

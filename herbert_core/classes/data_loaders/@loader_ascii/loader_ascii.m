@@ -8,6 +8,15 @@ classdef loader_ascii < a_loader
         % systems
         ASCII_DATA_ACCURACY = 4;
     end
+    properties(Constant,Access = private)
+        % the list of field names which describe nxspe file data and loader
+        % returns from file info structure (fh) used to identify loader
+        % and major information about the file.
+        % By chance and for simplicity, these field names correspond to
+        % the name of main info fields used to set up valid data loader
+        data_info_fields_ = {'n_detindata_','file_name_','en'};
+    end
+
 
 
     methods(Static)
@@ -47,21 +56,20 @@ classdef loader_ascii < a_loader
                 warning('LOADER_ASCII:is_loader_correct','file %s with extension .spe is hdf5 file',full_file_name);
                 return;
             end
-            [ndet,en,full_file_name]=loader_ascii.get_data_info(file_name);
-            fh = struct('n_detectors',ndet,'en',en,'file_name',full_file_name);
+            fh=loader_ascii.get_data_info(file_name);
         end
         %
-        function [ndet,en,full_file_name]=get_data_info(file_name)
+        function fh = get_data_info(file_name)
             % Load header information of VMS format ASCII .spe file
             %
             % >> [ndet,en,full_file_name] = loader_ascii.get_data_info(filename)
             %
             % where:
             % ndet  -- number of detectors
-            % en    -- energy bins
             % full_file_name -- the full (with the path) file name with the spe information. On unix machines this
             %                   name can be also modified to have the extension case correspondent to the existing spe file
             %                   (e.g .spe if lower case extension spe file exist or SPE if upper case extension file exist)
+            % en    -- energy bins
             %
             %
             if ~exist('file_name', 'var')
@@ -86,8 +94,10 @@ classdef loader_ascii < a_loader
                 error('HERBERT:loader_ascii:invalid_argument',...
                     ' Ill formatted ascii spe file %s',file_name);
             end
+            fh = cell2struct({ndet;full_file_name;en},loader_ascii.data_info_fields_');
         end
     end
+
 
     methods
         function obj = loader_ascii(full_spe_file_name,varargin)
@@ -121,49 +131,22 @@ classdef loader_ascii < a_loader
 
         end
         %
-        function ascii_loader = init(ascii_loader,full_spe_file_name,full_par_file_name,fh)
-            % method initiates internal structure of ascii_loader, which is responsible for
-            % work with spe data file.
-            %Usage:
-            %>>loader=loader.init(full_spe_file_name,[full_par_file_name],[fh]);
-            %
-            %parameters:
-            %full_spe_file_name -- the full name of spe data file
-            %full_par_file_name -- if present -- the full name of par file
-            %fh                 -- if present -- the structure which describes ascii spe
-            %                      file and contains number of detectors
-            %                      energy bins and full file name for this file
-            %
+    end
 
-            if ~exist('full_spe_file_name', 'var')
-                return
-            end
 
-            if exist('full_par_file_name', 'var')
-                if isstruct(full_par_file_name) && ~exist('fh', 'var')
-                    fh = full_par_file_name; % second parameters defines spe file structure
-                else
-                    ascii_loader.par_file_name = full_par_file_name;
-                end
-            end
-            if exist('fh', 'var')
-                ascii_loader.n_detindata_    = fh.n_detectors;
-                ascii_loader.en_             = fh.en;
-                ascii_loader.file_name_ = fh.file_name;
-            else
-                % set new file name, run all checks on this file and set up
-                % all file information
-                ascii_loader.file_name = full_spe_file_name;
-
-            end
+    methods(Access=protected)
+        function flds = get_data_info_fields(~)
+            % list of data info fields for ascii data
+            flds = loader_ascii.data_info_fields_;
         end
-        %
-        function obj = set_data_info(obj,full_spe_file_name)
-            % obtain data file information and set it into class
-            [ndet,en,full_file_name]=loader_ascii.get_data_info(full_spe_file_name);
-            obj.file_name_ = full_file_name;
-            obj.n_detindata_ = ndet;
-            obj.en_ = en;
+        function obj = set_info_fields(obj,fh,field_names)
+            % generic method, used to set fields which define loader
+            % for every appropriate. Have to be overloaded to have access
+            % to private fields
+            nf = numel(field_names);
+            for i=1:nf
+                obj.(field_names{i}) = fh.(field_names{i});
+            end
         end
     end
 end

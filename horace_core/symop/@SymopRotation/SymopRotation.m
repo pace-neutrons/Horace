@@ -70,7 +70,15 @@ classdef SymopRotation < Symop
         % belong to the irreducible set in the upper right quadrant
 
             if ~exist('proj', 'var')
-                proj = line_proj();
+                proj = line_proj([1, 0, 0], [0, 1, 0], ...
+                                 'angdeg', [90, 90, 90], ...
+                                 'alatt', [1, 1, 1]);
+            end
+
+            if ~isequal(proj.angdeg, [90 90 90])
+                error('HORACE:SymopRotation:invalid_argument', ...
+                      ['Rotational reduction is only supported for an orthogonal projection. ', ...
+                       'If using symmetrise_sqw, please pass through an orthogonal projection'])
             end
 
             n = obj.n / norm(obj.n);
@@ -88,7 +96,7 @@ classdef SymopRotation < Symop
             normvec_u = cross(n, u);
             normvec_v = cross(v, n);
 
-            selected = (coords'*normvec_u > 0 & ...
+            selected = (coords'*normvec_u >= 0 & ...
                         coords'*normvec_v > 0);
         end
 

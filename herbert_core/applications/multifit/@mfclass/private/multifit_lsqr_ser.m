@@ -457,6 +457,13 @@ else
         end
 
         [~,s,v]=svd(jac,0);
+        % constrain possible conditionality number and nullify small
+        % elements to inprove resulting fit comparison in tests in 
+        % case of poorly defined matrix
+        max_sv = max(abs(s(:)));
+        degraded = abs(s/max_sv)<eps('single');
+        s(degraded) = 0;
+        %
         s=repmat((1./diag(s))',[npfree,1]);
         v=v.*s;
         cov=chisqr_red*(v*v');  % true covariance matrix;

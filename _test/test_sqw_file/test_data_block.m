@@ -32,7 +32,7 @@ classdef test_data_block < TestCase
             end
             delete(file);
         end
-        function test_pix_data_block_fron_to_bat_rec(~)
+        function test_pix_data_block_from_to_bat_rec(~)
             pdb = pix_data_block(10,1000);
             assertEqual(pdb.block_name,'bl_pix_data_wrap');
             assertEqual(pdb.npixels,uint64(1000))
@@ -313,6 +313,10 @@ classdef test_data_block < TestCase
 
             assertEqual(sqw_mod.experiment_info.instruments(1),inst);
         end
+    end
+    % TESTING common data blocks and how they restore its contents from 
+    % sqw object tree. 
+    methods
         %------------------------------------------------------------------
         function test_get_block_name(~)
             dp = data_block('data','proj');

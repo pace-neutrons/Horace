@@ -22,7 +22,7 @@ classdef test_config_classes < TestCase
             set(tgp_test_class1,'default');
             set(tgp_test_class2,'default');
 
-            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
             obj.s0_def = get(tgp_test_class);
             obj.s1_def = get(tgp_test_class1);
@@ -32,7 +32,7 @@ classdef test_config_classes < TestCase
 
         function obj = test_getstruct(obj)
             config_store.instance().clear_config(tgp_test_class2,'-files');
-            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
             % ----------------------------------------------------------------------------
             % Test getting values from a configuration
@@ -52,7 +52,7 @@ classdef test_config_classes < TestCase
 
         function obj = test_get_wrongCase(obj)
             % This should fail because V3 is upper case, but the field is v3
-            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
             try
                 [v1,v3] = get(tgp_test_class2,'v1','V3');
@@ -69,7 +69,7 @@ classdef test_config_classes < TestCase
             % Test getting values and saving
             % ----------------------------------------------------------------------------
             % Change the config without saving, change to default without saving - see that this is done properly
-            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
+            clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
             set(tgp_test_class2,'v1',55,'-buffer');
             s2_buf = get(tgp_test_class2);
@@ -84,6 +84,9 @@ classdef test_config_classes < TestCase
         end
 
         function obj = test_set_withbuffer(obj)
+            clWarn = set_temporary_warning('off', ...
+                'HERBERT:config_store:default_configuration');
+
             set(tgp_test_class2,'v1',-30);
             s2_sav = get(tgp_test_class2);
 
@@ -120,99 +123,107 @@ classdef test_config_classes < TestCase
             assertTrue(found_when_init_tests_on);
         end
 
-        function obj = test_parallel_config_fake_worker(obj)
-            clob = set_temporary_config_options(parallel_config);
-            clWn = set_temporary_warning('off','HORACE:parallel_config:invalid_argument');
-            pc = parallel_config_tester;
+        function test_is_configured_on_first_call(~)
+            clWarn = set_temporary_warning('off', ...
+                'HERBERT:config_store:default_configuration','HERBERT:fake_warning');
+            warning('HERBERT:fake_warning','ensure no unwanted warnings have been issued');
 
-            pc = pc.set_worker('non_existing_worker');
+            config_store.instance().clear_config('tgp_test_class2','-files');
 
-            pc.worker = 'non_existing_worker';
-            [~,wid] = lastwarn;
-            assertEqual(wid,'HORACE:parallel_config:invalid_argument')
-            assertEqual(pc.worker,'non_existing_worker');
-            assertEqual(pc.parallel_cluster,'none');
-            assertEqual(pc.cluster_config,'none');
+
+            stc = tgp_test_class2();
+            assertFalse(stc.is_field_configured('v1'))
+            assertFalse(stc.is_field_configured('v2'))
+            assertFalse(stc.is_field_configured('v3'))
+            assertFalse(stc.is_field_configured('v4'))
+
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:fake_warning')
+
+            % first call to property loads it to memory.
+            assertEqual(stc.v1,10000000)
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:config_store:default_configuration')
+
+            warning('HERBERT:fake_warning','ensure no unwanted warnings have been issued');
+            assertTrue(stc.is_field_configured('v1'))
+            assertTrue(stc.is_field_configured('v2'))
+            assertTrue(stc.is_field_configured('v3'))
+            assertTrue(stc.is_field_configured('v4'))
+
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:fake_warning')
+
+            % clean-up to erase all memory about this test
+            config_store.instance().clear_config(stc,'-files');
         end
 
-        function obj = test_parallel_config_missing_worker(obj)
-            clob = set_temporary_config_options(parallel_config);
-            pc = parallel_config();
+    end
+    % Test unsaveable property
+    methods
+        function test_unsaveable_recovered_from_store(~)
+            clWarn = set_temporary_warning('off', ...
+                'HERBERT:test_warning','HERBERT:config_store:default_configuration');
+            cf = config_base_tester();
+            config_class_file = fullfile(cf.config_folder,'config_base_tester.mat');
+            config_store.instance.clear_config(config_base_tester,'-file');
+            assertFalse(is_file(config_class_file));
+            warning('HERBERT:test_warning','this is to set warning to defined state')
 
-            f = @()set(pc,'worker','non_existing_worker');
-            assertExceptionThrown(f,'HORACE:parallel_config:invalid_argument');
+            val = config_store.instance().get_value('config_base_tester','unsaveable_property');
+            assertEqual(val,'abra_cadabra');
+            [~,lv] = lastwarn;
+            assertEqual(lv,'HERBERT:config_store:default_configuration')
         end
 
-        function obj = test_parallel_config_slurm_commands_parser(obj)
-            clob = set_temporary_config_options(parallel_config);
-            pc = parallel_config();
 
-            % Sets for comparison
-            new_commands = containers.Map({'-A' '-p'}, {'account' 'partition'});
-            new_commands_app = containers.Map({'-p' '-q'}, {'new_part' 'queue'});
-            new_commands_app_check = containers.Map({'-A' '-p' '-q'}, {'account' 'new_part' 'queue'});
+        function test_unsaveable_sets_gets_clears(~)
+            clWarn = set_temporary_warning('off', ...
+                'HERBERT:test_warning','HERBERT:config_store:default_configuration');
+            cf = config_base_tester();
+            config_class_file = fullfile(cf.config_folder,'config_base_tester.mat');
+            config_store.instance.clear_config(config_base_tester,'-file');
+            assertFalse(is_file(config_class_file));
 
-            %% Destructive
-            % Set as map
-            pc.slurm_commands = new_commands;
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
+            warning('HERBERT:test_warning','this is to check if no other warning was issued')
+            % As we have deleted config from memory and file.
+            % this generates the warning if defaults were used (first
+            % configuration) as the class is indeed configured for the
+            % first time, but nothing is changed in file. This is probably
+            % expected behaviour.
+            cf.unsaveable_property = 'ha_ha_ha';
+            % but nothing have been saved
+            assertFalse(is_file(config_class_file));
+            cf.my_prop = 'AAA';
 
-            % Set empty (check clearing works)
-            pc.slurm_commands = [];
-            assertTrue(isempty(pc.slurm_commands))
+            assertEqual(cf.unsaveable_property,'ha_ha_ha');
+            assertEqual(cf.my_prop,'AAA');
 
-            % Set as char
-            pc.slurm_commands = [];
-            pc.slurm_commands = '-A account -p=partition';
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
+            config_store.instance.clear_config(config_base_tester);
+            assertTrue(is_file(config_class_file));
 
+            cf = config_base_tester();
+            assertEqual(cf.unsaveable_property,'abra_cadabra');
+            assertEqual(cf.my_prop,'AAA');
 
-            % Set as cellstr of commands
-            pc.slurm_commands = [];
-            pc.slurm_commands = {'-A' 'account' '-p' 'partition'};
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
-            % Set as cell array of pairs of commands
-            pc.slurm_commands = [];
-            pc.slurm_commands = {{'-A' 'account'} {'-p' 'partition'}};
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
-            % Using update_slurm_commands
-            pc.slurm_commands = [];
-            pc.update_slurm_commands('-A account -p=partition', false);
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
-            % Using update_slurm_commands omitting append
-            pc.slurm_commands = [];
-            pc.update_slurm_commands(new_commands);
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
-            %% Non-destructive
-            % Set through update_slurm_commands as map
-            pc.slurm_commands = new_commands;
-            pc.update_slurm_commands(new_commands_app, true);
-            assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
-
-            % Set through update_slurm_commands as char
-            pc.slurm_commands = new_commands;
-            pc.update_slurm_commands('-q queue -p=new_part', true);
-            assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
-
-            % Set through Map interface
-            pc.slurm_commands = new_commands;
-            pc.slurm_commands('-q') = 'queue';
-            pc.slurm_commands('-p') = 'new_part';
-            assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
+            [~,lv] = lastwarn;
+            assertEqual(lv,'HERBERT:config_store:default_configuration')
         end
 
+        function test_unsaveable_property_works_with_no_warning(~)
+            clWarn = set_temporary_warning('off', ...
+                'HERBERT:test_warning','HERBERT:config_store:default_configuration');
+            cf = config_base_tester();
+            config_class_file = fullfile(cf.config_folder,'config_base_tester.mat');
+            if ~isfile(config_class_file)
+                cf.my_prop = 'something'; % store modified configuration
+            end
+            assertTrue(isfile(config_class_file))
+            warning('HERBERT:test_warning','this is to check if no other warning was issued')
+
+            assertEqual(cf.unsaveable_property,'abra_cadabra');
+            [~,lv] = lastwarn;
+            assertEqual(lv,'HERBERT:test_warning')
+        end
     end
 end

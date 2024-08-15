@@ -115,7 +115,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function pix = transform_pix(obj, pix, proj)
+        function pix = transform_pix(obj, pix, proj, selected)
             % Transform pixel coordinates into symmetry related coordinates
             %
             % The transformation converts the components of a vector which is
@@ -138,12 +138,16 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %
             %   pix         PixelData object
             %
+            %   selected    Pixels to transform
             % Output:
             % -------
             %   pix         Transformed PixelData object
 
             if ~exist('proj', 'var')
                 proj = {};
+            end
+            if ~exist('selected', 'var')
+                selected = 1:pix.num_pixels;
             end
 
             % Check input
@@ -156,19 +160,12 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             if isa(pix, 'PixelDataMemory')
                 for i = numel(obj):-1:1
                     sel = obj(i).in_irreducible(pix.q_coordinates, proj{:});
+                    sel(~selected) = false;
                     pix.q_coordinates(:, ~sel) = obj(i).transform_vec(pix.q_coordinates(:, ~sel));
                 end
             else
-                for i = 1:pix.num_pages
-                    pix.page_num = i;
-                    curr_page = pix.data;
-                    for i = numel(obj):-1:1
-                        sel = ~obj(i).in_irreducible(curr_page(1:3, :), proj{:});
-                        curr_page(1:3, sel) = obj(i).transform_vec(curr_page(1:3, sel));
-                    end
-                    pix = pix.format_dump_data(curr_page);
-                end
-                pix = pix.finalise();
+                error('HORACE:Symop:not_implemented', ...
+                    'Transforming file-backed pixels is not currently implemented');
             end
 
         end
@@ -219,12 +216,23 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     offset_new(1:3) = obj.transform_vec(offset_new(1:3));
                     if ~isempty(proj.w)
                         w_new = obj.R * proj.w(:);
-                        proj = proj.set_axes(u_new, v_new, [], offset_new);
+                        proj = proj.set_directions(u_new, v_new, [], offset_new);
                     else
-                        proj = proj.set_axes(u_new, v_new, [], offset_new);
+                        proj = proj.set_directions(u_new, v_new, [], offset_new);
                     end
+                case 'ubmat_proj'
+                    lp = proj.get_line_proj();
+                    u_new = obj.R * proj.u(:);
+                    v_new = obj.R * proj.v(:);
+                    offset_new = proj.offset(:);
+                    proj = lp.set_directions(u_new, v_new, [], offset_new);
 
-                case 'sphere_proj'
+                case {'sphere_proj','cylinder_proj'}
+                    if ~isa(obj,'SymopIdentity')
+                        error('HORACE:Symop:not_implemented', ...
+                            'Symmetry operation %s is not yet implemented for %s', ...
+                            class(obj),class(proj));
+                    end
 
                     %% TODO non-aligned ez/ey not supported
                     % ez_new = obj.R * proj.ez(:);
@@ -234,12 +242,9 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     %                 offset_new(1:3) = obj.transform_vec(offset_new(1:3));
                     %
                     %                 proj.offset = offset_new;
-
                 otherwise
-
                     error('HORACE:Symop:not_implemented', ...
                         'Cannot transform projection class "%s"', class(proj));
-
             end
 
         end

@@ -16,14 +16,14 @@ if length(argin)==1, error('Must have at least two arrays in input cell'), end
 nin = length(argin);
 nout = nin;
 
-for i=nin:-1:1,
+for i=nin:-1:1
   argin{i} = full(argin{i}); % Make sure everything is full
   siz(i) = prod(size(argin{i}));
 end
 if length(siz)<nout, siz = [siz ones(1,nout-length(siz))]; end
 
 argout = cell(1,nout);
-for i=1:nout,
+for i=1:nout
   x = argin{i}(:); % Extract and reshape as a vector.
   s = siz; s(i) = []; % Remove i-th dimension
   x = reshape(x(:,ones(1,prod(s))),[length(x) s]); % Expand x

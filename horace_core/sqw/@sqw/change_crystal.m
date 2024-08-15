@@ -42,11 +42,9 @@ wout = obj;
 alignment_mat = alignment_info.rotmat;
 for i=1:numel(obj)
     proj = obj(i).data.proj;    % unmodified projection to change
-    if ~isempty(proj.ub_inv_legacy)
-        alignment_info.legacy_mode = true;
-    end
+    % experiment needs unmodified projection:
+    wout(i).experiment_info = obj(i).experiment_info.change_crystal(alignment_info,proj);    
     wout(i).data = obj(i).data.change_crystal(alignment_info);
-    wout(i).experiment_info = obj(i).experiment_info.change_crystal(alignment_info,proj);
     %
     if ~alignment_info.legacy_mode
         % this invalidates q-range of pixels for filebacked pixels and

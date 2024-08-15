@@ -17,7 +17,7 @@ classdef test_PixelDataBase < TestCase
             'variance'};
 
         warning_cache;
-        initial_mem_chunk_size
+        working_test_file
     end
 
     properties (Constant)
@@ -35,11 +35,6 @@ classdef test_PixelDataBase < TestCase
         function obj = test_PixelDataBase(~)
             obj = obj@TestCase('test_PixelData');
             obj.warning_cache = warning('off','HORACE:old_file_format');
-            hc = hor_config;
-            if hc.saveable
-                obj.initial_mem_chunk_size = hc.mem_chunk_size;
-            end
-            hc.saveable = false;
 
             obj.raw_pix_range = obj.get_ref_range(obj.raw_pix_data);
 
@@ -65,11 +60,7 @@ classdef test_PixelDataBase < TestCase
 
         function delete(obj)
             warning(obj.warning_cache);
-            hc = hor_config;
-            if ~isempty(obj.initial_mem_chunk_size)
-                hc.mem_chunk_size = obj.initial_mem_chunk_size;
-            end
-            hc.saveable = true;
+            del_memmapfile_files(obj.tst_sqw_file_full_path);
         end
 
         % --- Tests for in-memory operations ---
@@ -327,19 +318,6 @@ classdef test_PixelDataBase < TestCase
             assertEqual(coords, pix_data_obj.coordinates(:, 2:6));
         end
 
-
-        function test_cat_combines_given_PixelData_objects(obj)
-            skipTest('Re #1330 disabled until cat is properly refactored')
-            pix_data_obj1 = obj.get_random_pix_data_(10);
-            pix_data_obj2 = obj.get_random_pix_data_(5);
-
-            combined_pix = pix_data_obj1.cat(pix_data_obj2);
-
-            assertEqual(combined_pix.num_pixels, 15);
-            assertEqual(combined_pix.data, ...
-                horzcat(pix_data_obj1.data, pix_data_obj2.data));
-        end
-
         function test_get_pixels_returns_PixelData_obj_with_given_pix_indices(~)
             data = rand(9, 10);
             pix = PixelDataBase.create(data);
@@ -531,12 +509,6 @@ classdef test_PixelDataBase < TestCase
                     'relative',obj.tol);
 
             end
-        end
-
-        function test_error_if_append_called(~)
-            pix = PixelDataFileBacked(rand(9, 1));
-            f = @() pix.append(rand(9, 1));
-            assertExceptionThrown(f, 'HORACE:PixelDataFileBacked:not_implemented');
         end
 
         function test_move_to_page_loads_given_page_into_memory(obj)

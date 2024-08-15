@@ -1,0 +1,11 @@
+! A little mask
+60:-1:50,2-5,30-40
+19-23
+
+! Another comment
+38-42
+
+10,11,12    % in-line comment
+
+% Matlab style comment
+12, 32, 56-62

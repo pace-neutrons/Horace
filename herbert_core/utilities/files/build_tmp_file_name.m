@@ -24,6 +24,9 @@ if nargin == 1
         filepath = tmp_dir();
     end
 end
+if isempty(name)
+    name = 'from_mem';
+end
 
 for i = 1:5
     file_name = fullfile(filepath, ...
@@ -33,7 +36,7 @@ for i = 1:5
     end
 end
 % Unlikely to happen, but best to check fail to generate
-if i == 5 && is_file(file_name)
+if i == 5 && isfile(file_name)
     error('HERBERT:utilities:runtime_error', ...
         ['Can not generate available tmp file name for: %s in folder: %s\n', ...
         'Check target folder and clear any .tmp_<id> files'], ...

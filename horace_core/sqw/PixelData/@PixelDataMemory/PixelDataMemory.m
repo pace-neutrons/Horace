@@ -54,7 +54,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
     %======================================================================
     % Implementing abstract PixelDataBase interface
     methods
-        pix_out     = append(obj, pix);
         %
         function data =  get_raw_data(obj,field_id)
             % main part of get.data accessor
@@ -62,10 +61,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
             if nargin>1
                 idx = obj.field_index(field_id);
                 data = data(idx,:);
-
             end
         end
-        pix     = set_raw_data(obj,pix);
     end
 
     methods
@@ -106,7 +103,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
     end
     %======================================================================
     % File handling/migration. Does nothing on membased except dump_data
-    % which recets raw data with input.
+    % which resets raw data with input.
     methods
         function obj = deactivate(obj)
             % close all open file handles to allow file movements to new
@@ -122,12 +119,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
             end
         end
 
-        function obj = prepare_dump(obj)
-            % does nothing on Mem-based
-        end
-        function obj = get_new_handle(obj, varargin)
-            % does nothing on Mem-based
-        end
         function wh = get_write_handle(~, varargin)
             % does nothing on Mem-based
             wh = [];
@@ -163,6 +154,11 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
         function obj_out = copy(obj)
             obj_out = obj;
         end
+        %
+        function   sz = get_pix_byte_size(obj,varargin)
+            % Return the size of single pixel expressed in bytes.
+            sz = obj.DEFAULT_NUM_PIX_FIELDS*8;
+        end
     end
 
     methods
@@ -197,54 +193,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
                 obj.detector_idx(selected) = abs(obj.detector_idx(selected));
             end
         end
-        function obj = cat(obj,varargin)
-            % Concatenate the given PixelData objects' pixels. This function performs
-            % a straight-forward data concatenation.
-            %
-            %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
-            %
-            % Input:
-            % ------
-            %   varargin    A cell array of PixelData objects
-            %
-            % Output:
-            % -------
-            %   obj         A PixelData object containing all the pixels in the inputted
-            %               PixelData objects
-
-            if isempty(varargin)
-                obj = PixelDataMemory();
-                return;
-            elseif numel(varargin) == 1
-                if isa(varargin{1}, 'PixelDataFileBacked')
-                    obj = PixelDataMemory(varargin{1});
-                elseif isa(varargin{1}, 'PixelDataMemory')
-                    obj = varargin{1};
-                end
-                return;
-            end
-
-            is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
-            if any(is_ldr)
-                obj = PixelDataFileBacked(varargin);
-                return
-            end
-
-            obj = PixelDataMemory();
-
-            obj.data_range_ = PixelDataBase.EMPTY_RANGE;
-            for i = 1:numel(varargin)
-                curr_pix = varargin{i};
-                for page = 1:curr_pix.num_pages
-                    curr_pix.page_num = page;
-                    data = curr_pix.data;
-                    obj.data_range = ...
-                        obj.pix_minmax_ranges(data, obj.data_range_);
-                    obj.data = [obj.data, data];
-                end
-            end
-        end
-        
     end
 
     methods(Static)
@@ -254,6 +202,13 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods(Access=protected)
+        function obj = align_pixels(obj,varargin)
+            % apply alignment for pixels located in memory
+            q_aligned = obj.alignment_matr_*obj.data_(1:3,:);
+            pix_range = min_max(q_aligned);
+            obj.data_(1:3,:) = q_aligned;
+            obj.data_range_(:,1:3) = pix_range';
+        end
         function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx)
             % Overloaded part of get_raw_pix operation.
             %
@@ -302,7 +257,12 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
         function obj = set_alignment_matrix(obj,val)
             % set new alignment matrix and recalculate new pixel ranges
             % if alignment changes
-            obj = obj.set_alignment(val,@calc_page_range);
+            [obj,alignment_changed] = obj.set_alignment(val,@align_pixels);
+            if alignment_changed % we changed matrix, aligned pixels and
+                %  returned them back. now pixels are aligned
+                obj.alignment_matr_ = eye(3);
+                obj.is_misaligned_  = false;
+            end
         end
         function num_pix = get_num_pixels(obj)
             % num_pixels getter

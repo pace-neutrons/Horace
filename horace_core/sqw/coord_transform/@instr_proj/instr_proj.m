@@ -217,6 +217,14 @@ classdef instr_proj<aProjectionBase
         end
     end
     methods(Access = protected)
+        function img_scales = get_img_scales(~)
+            img_scales = ones(1,4);
+        end
+        function obj = set_img_scales(varargin)
+            error('HORACE:instr_proj:invalid_argument', ...
+                'instr_proj scaling is always 1')
+        end
+        %
         function  alat = get_alatt_(obj)
             % get lattice from oriented lattice property
             alat  = obj.lattice.alatt;
@@ -234,6 +242,11 @@ classdef instr_proj<aProjectionBase
         function proj = get_target_proj(~)
             proj = line_proj();
         end
+        function obj = check_and_set_type(varargin)
+            error('HORACE:instr_proj:not_implemented', ...
+                'instr_proj does not currently accepts "type" property as do not support scaling')
+        end
+        
 
     end
     %=====================================================================

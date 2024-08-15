@@ -1,38 +1,33 @@
-function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx)
+function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, ipix)
 % Return 4D momentum-energy covariance matrix for the resolution function
 %
 % For all pixels:
 %   >> [cov_spec, cov_proj, cov_hkle] = tobyfit_DGdisk_resfun_covariance (w)
 %
 % For selected pixels:
-%   >> [cov_spec, cov_proj, cov_hkle] = tobyfit_DGdisk_resfun_covariance (w, indx)
+%   >> [cov_spec, cov_proj, cov_hkle] = tobyfit_DGdisk_resfun_covariance (w, ipix)
 %
 %
 % Input:
 % ------
-%   win         Array of sqw objects, or cell array of scalar sqw objects
+%   win         Array of sqw objects
 %
-%  [Optional]
-%   indx        Pixel indices:
-%               Single sqw object:
-%                 - ipix            Array of pixels indices
-%            *OR* - {irun,idet,ien} Arrays of run, detector and energy bin index
-%                                   Dimension expansion is performed on scalar
-%                                  quantities i.e. each must be a scalar or array
-%                                  with arrays having the same length
-%               Multiple sqw object:
-%                 - As above, assumed to apply to all sqw objects,
-%            *OR* - Cell array of the above, one cell array per sqw object
-%                  e.g. if two sqw objects:
-%                       {ipix1, ipix2}
-%                       {{irun1,idet1,ien1}, {irun2,idet2,ien2}}
+% [Optional]
+%   ipix        Pixel indices for which the output is to be extracted from the
+%               sqw object(s). It has the form of one of:
+%
+%               - Array of pixel indices. If there are multiple sqw objects,
+%                 it is then applied to every sqw object
+%
+%               - Cell array of pixel indices arrays
+%                   - only one array: applied to every sqw object, or
+%                   - several pixel indices arrays: one per sqw object
 %
 % Output:
 % -------
 % [The format of the following three arguments depends on the format of win:
 %   - win is a scalar sqw object:       Array size [4,4,npix]
 %   - win is an array of sqw objects:   Cell array of arrays size [4,4,npix(i)]
-%   - win is a cell array:               "     "    "    "     "       "         ]
 %
 %   cov_proj    Covariance matrix for wavevector-energy in projection axes
 %
@@ -44,21 +39,14 @@ function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, 
 
 % Get lookup arrays
 % -----------------
-
-all_pixels = ~exist('indx','var');
-if all_pixels
-    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win);
+if exist('ipix','var')
+    all_pixels = false;
+    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win, ipix);
 else
-    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win, indx);
+    all_pixels = true;
+    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win);
 end
-
-% Get variances
-% -------------
-% This block of code effectively does the equivalent of tobyfit_DGfermi_resconv
-
-cov_proj = cell(size(win));
-cov_spec = cell(size(win));
-cov_hkle = cell(size(win));
+if ~ok, error(mess), end
 
 
 % Create pointers to parts of lookup structure
@@ -69,42 +57,53 @@ vert_div_table = lookup.vert_div_table;
 sample_table = lookup.sample_table;
 detector_table = lookup.detector_table;
 
+% Constants
+k_to_v = lookup.k_to_v;
+k_to_e = lookup.k_to_e;
 
-% Get covariance matricies
+
+% Get covariance matrices
 % ------------------------
-for iw = 1:numel(win)
-    if iscell(win)
-        wtmp = win{iw};
-    else
-        wtmp = win(iw);
-    end
+cov_proj = cell(size(win));
+cov_spec = cell(size(win));
+cov_hkle = cell(size(win));
 
+for iw = 1:numel(win)
+    % Get the indices to the runs in the experiment information block, the 
+    % detector indices and the energy bin indices
     if all_pixels
-        [irun,idet] = parse_pixel_indices (wtmp);
+        % For all pixels in the sqw object
+        [irun,idet] = parse_pixel_indices (win(iw));
+    elseif iscell(ipix) && numel(ipix)>1
+        % Different ipix arrays for each sqw object
+        [irun, idet] = parse_pixel_indices(win(iw), ipix{iw});
     else
-        [irun,idet] = parse_pixel_indices (wtmp,indx,iw);
+        % Single ipix array for all sqw objects
+        [irun, idet] = parse_pixel_indices(win(iw), ipix);
     end
     npix = npix_arr(iw);
 
     % Simple pointers to items in lookup
+    xa = lookup.xa{iw};
+    x1 = lookup.x1{iw};
+    ki = lookup.ki{iw};
     kf = lookup.kf{iw};
+    s_mat = lookup.s_mat{iw};
+    spec_to_rlu = lookup.spec_to_rlu{iw};
     dt = lookup.dt{iw};
 
+    [x2, ~, d_mat, f_mat] = detector_table.func_eval_ind (iw, irun, idet, @detector_info);
+    dq_mat = dq_matrix_DGdisk (ki(irun), kf,...
+        xa(irun), x1(irun), x2,...
+        s_mat(:,:,irun), f_mat, d_mat,...
+        spec_to_rlu(:,:,irun), k_to_v, k_to_e);
+    
     % Compute variances
     cov_sh_ch = 1e-12 * mod_shape_mono_table.func_eval_ind(iw, irun, @covariance);
     var_horiz_div = (horiz_div_table.func_eval_ind(iw, irun, @profile_width)).^2;
     var_vert_div = (vert_div_table.func_eval_ind(iw, irun, @profile_width)).^2;
     cov_sample = sample_table.func_eval_ind(iw, irun, @covariance);
-    % The following calculation of cov_detector will benefit from the generalised
-    % func_eval_ind to be implemented. In the the meantime, just expose the loop
-    % that will eventually be inside func_eval_ind [TGP 19 July 2023]. The loop
-    % is very inefficient in general if the number of pixels at which to
-    % calculate is large.
-    cov_detector = NaN(3,3,npix);
-    for i=1:npix
-        cov_detector(:,:,i) = detector_table.func_eval_ind(iw, irun(i), ...
-            @covariance, idet(i), kf(i));
-    end
+    cov_detector = detector_table.func_eval_ind (iw, irun, idet, 'split', @covariance, kf);
     var_tbin = dt.^2 / 12;
 
     % Fill covariance matrix
@@ -117,24 +116,22 @@ for iw = 1:numel(win)
     cov_x(11,11,:) = var_tbin;
 
     % Compute wavevector-energy covariance matrix in different dimensions
-    dq_mat = lookup.dq_mat{iw};
-    spec_to_rlu = lookup.spec_to_rlu{iw};
-
-    cov_hkle{iw} = transform_matrix (cov_x, dq_mat);
-    %TODO: Re #1040 this code is not consistent with generic projection:
-    if ~isa(wtmp.data.proj,'line_proj')
+    %TODO: Re #1040 this code is not consistent with generic projections
+    if ~isa(win(iw).data.proj,'LineProjBase')
         error('HORACE:sqw:not_implemented', ...
-            'resolution can not currently be calculated for any projection except linear projection')
-    end    
-    cov_proj{iw} = transform_matrix (cov_hkle{iw}, inv(wtmp.data.u_to_rlu));
-
+            'resolution cannot currently be calculated for any projection except linear projection')
+    end
+    
+    cov_hkle{iw} = transform_matrix (cov_x, dq_mat);
+    cov_proj{iw} = transform_matrix (cov_hkle{iw}, inv(win(iw).data.u_to_rlu));
     rlu_to_spec = invert_matrix (spec_to_rlu);
     rlu_to_spec4(1:3,1:3,:) = rlu_to_spec(:,:,irun);
     rlu_to_spec4(4,4,:) = 1;
     cov_spec{iw} = transform_matrix (cov_hkle{iw}, rlu_to_spec4);
 end
 
-if ~iscell(win) && isscalar(win)
+if isscalar(win)
+    % Numeric array output if just one sqw object
     cov_hkle = cov_hkle{1};
     cov_proj = cov_proj{1};
     cov_spec = cov_spec{1};
@@ -151,7 +148,7 @@ function Cout = transform_matrix (C,B)
 szC = size(C);
 szB = size(B);
 if numel(szC)==2 && numel(szB)==2
-    % Just do straightforward MATLAB matric multiplication
+    % Just do straightforward MATLAB matrix multiplication
     Cout = B * C * B';
 else
     if numel(szB)==2
@@ -165,12 +162,12 @@ end
 
 %=============================================================================
 function Cinv = invert_matrix (C)
-% Compute the inverse of an array of square matricies, taking additional
+% Compute the inverse of an array of square matrices, taking additional
 % dimensions as the matrix array dimensions
 
 szC = size(C);
 if numel(szC)==2
-    % Just do straighforward matlab inversion
+    % Just do straightforward MATLAB inversion
     Cinv = inv(C);
 else
     Cinv = zeros(size(C));

@@ -312,6 +312,85 @@ classdef test_experiment_methods < TestCase
             assertEqual(part.expdata(1).filename,'a2')
             assertEqual(part.expdata(2).filename,'a3')
         end
+        
+        %-----------------------------------------------------------------------
+        % Test get_experiment_idx
+        %-----------------------------------------------------------------------
+        
+        function test_get_experiment_idx_fullLookup(obj)
+            % Change to runid_map with non-ordered keys and values
+            experiment = obj.sample_exper;
+            experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
+            
+            % Array of valid run_idx
+            run_idx = [30,40,20,20,30];
+            expt_idx = experiment.get_experiment_idx (run_idx);
+            
+            assertEqual(expt_idx, [3,2,1,1,3])
+        end
+        
+        function test_get_experiment_idx_fullLookup_arrayRun_idx(obj)
+            % Change to runid_map with non-ordered keys and values
+            experiment = obj.sample_exper;
+            experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
+            
+            % Array of valid run_idx
+            run_idx = [30,40,20; 20,30,40]; % 2x3 array
+            sparse_lookup = false;
+            expt_idx = experiment.get_experiment_idx (run_idx, sparse_lookup);
+            
+            assertEqual(expt_idx, [3,2,1; 1,3,2])
+        end
+        
+        function test_get_experiment_idx_sparseLookup_arrayRun_idx(obj)
+            % Change to runid_map with non-ordered keys and values
+            experiment = obj.sample_exper;
+            experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
+            
+            % Array of valid run_idx
+            run_idx = [30,40,20; 20,30,40]; % 2x3 array
+            sparse_lookup = true;
+            expt_idx = experiment.get_experiment_idx (run_idx, sparse_lookup);
+            
+            assertEqual(expt_idx, [3,2,1; 1,3,2])
+        end
+        
+        function test_get_experiment_idx_fullLookup_emptyRun_idx(obj)
+            % Change to runid_map with non-ordered keys and values
+            experiment = obj.sample_exper;
+            experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
+            
+            % Array of valid run_idx
+            run_idx = [];
+            expt_idx = experiment.get_experiment_idx (run_idx);
+            
+            assertEqual(expt_idx, [])
+        end
+        
+        function test_get_experiment_idx_fullLookup_outOfRangeRun_idx(obj)
+            % Change to runid_map with non-ordered keys and values
+            experiment = obj.sample_exper;
+            experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
+            
+            % Array with an invalid run_idx out of range
+            run_idx = [30,20,50];   % 50 is out of range
+            f = @() experiment.get_experiment_idx (run_idx);
+            
+            assertExceptionThrown(f, 'HORACE:Experiment:invalid_argument');
+        end
+        
+        function test_get_experiment_idx_fullLookup_invalidRun_idx(obj)
+            % Change to runid_map with non-ordered keys and values
+            experiment = obj.sample_exper;
+            experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
+            
+            % Array with an invalid run_idx out of range
+            run_idx = [30,25,20];   % 25 is not a valid key
+            f = @() experiment.get_experiment_idx (run_idx);
+            
+            assertExceptionThrown(f, 'HORACE:Experiment:invalid_argument');
+        end
+        
     end
 end
 

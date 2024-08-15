@@ -1,5 +1,5 @@
 classdef test_cut_sqw_sym < TestCaseWithSave
-% Test of various operations associated with symmetrisation
+    % Test of various operations associated with symmetrisation
     properties
         data_source
         data
@@ -50,14 +50,14 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             obj.data2 = read_horace(obj.data2_source);
             % Construct the pointgroup operations of P 2_1 3:
             Ws = [1 -1  1 -1  0  0  0  0  0  0  0  0
-                  0  0  0  0  1 -1  1 -1  0  0  0  0
-                  0  0  0  0  0  0  0  0  1 -1  1 -1
-                  0  0  0  0  0  0  0  0  1 -1 -1  1
-                  1 -1 -1  1  0  0  0  0  0  0  0  0
-                  0  0  0  0  1 -1 -1  1  0  0  0  0
-                  0  0  0  0  1  1 -1 -1  0  0  0  0
-                  0  0  0  0  0  0  0  0  1  1 -1 -1
-                  1  1 -1 -1  0  0  0  0  0  0  0  0];
+                0  0  0  0  1 -1  1 -1  0  0  0  0
+                0  0  0  0  0  0  0  0  1 -1  1 -1
+                0  0  0  0  0  0  0  0  1 -1 -1  1
+                1 -1 -1  1  0  0  0  0  0  0  0  0
+                0  0  0  0  1 -1 -1  1  0  0  0  0
+                0  0  0  0  1  1 -1 -1  0  0  0  0
+                0  0  0  0  0  0  0  0  1  1 -1 -1
+                1  1 -1 -1  0  0  0  0  0  0  0  0];
             Ws = mat2cell(reshape(Ws,[3,3,12]),3,3,ones(12,1));
             obj.sym2 = squeeze(cellfun(@SymopGeneral, Ws, 'UniformOutput', false));
             % setup projection and binning specifications
@@ -78,71 +78,103 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         % Tests
         %------------------------------------------------------------------------
         function test_cut_sym_no_dup_2_identity(obj)
-        % Test symmetrisation, does not duplicate pixels
-        % Even if we cut identity twice.
-        % `id` is defined as 2 identical reflections because
-        % `SymopIdentity`s are filtered from ops.
+            % Test symmetrisation, does not duplicate pixels
+            % Even if we cut identity twice.
+            % `id` is defined as 2 identical reflections because
+            % `SymopIdentity`s are filtered from ops.
 
             op = SymopReflection([1 0 0], [0 1 0], [0 0 0]);
             id = [op, op]; % Reflect reflect back
 
-            obj.data2.pix = PixelDataMemory(obj.data2.pix);
-            w1sym = cut(obj.data2, obj.proj2, obj.ubin2, ...
-                        obj.vbin2, obj.wbin2, obj.ebin2);
 
-            w2sym = cut(obj.data2, obj.proj2, obj.ubin2, ...
-                        obj.vbin2, obj.wbin2, obj.ebin2, ...
-                        {SymopIdentity(), id});
+            obj.data2.pix = PixelDataMemory(obj.data2.pix);
+
+            % Range of data2's first axis which contains pixels
+            ubin = [-0.5 0.05 0];
+            w1sym = cut(obj.data2, obj.proj2, ubin, ...
+                obj.vbin2, obj.wbin2, obj.ebin2, '-nopix');
+
+            w2sym = cut(obj.data2, obj.proj2, ubin, ...
+                obj.vbin2, obj.wbin2, obj.ebin2, ...
+                {SymopIdentity(), id}, '-nopix');
 
             assertEqualToTol(w1sym, w2sym, 'ignore_str', 1);
         end
 
         function test_cut_sym_reflect_half_to_whole_cut(obj)
-            op = SymopReflection([0 0 1], [0 1 0], [0 0 0]);
+            op = SymopReflection([-1 1 0], [0 0 1], [0 0 0]);
 
-            wtmp = symmetrise_sqw(obj.data2, op);
+            ubin_half = [-0.25 0.05 0];
+
+            wtmp = symmetrise_sqw(obj.data, op);
             wtmp.pix = PixelDataMemory(wtmp.pix);
-            ubin_half = [-0.5 0.05 0];
 
-            w1sym = cut(wtmp, obj.proj2, ubin_half, ...
-                        obj.vbin2, obj.wbin2, obj.ebin2);
+            w1sym = cut(wtmp, obj.proj, ubin_half, ...
+                obj.width, obj.width, obj.ebins, '-nopix');
 
-            w2sym = cut(obj.data2, obj.proj2, ubin_half, ...
-                        obj.vbin2, obj.wbin2, obj.ebin2, ...
-                        {SymopIdentity(), op});
+            w2sym = cut(obj.data, obj.proj, ubin_half, ...
+                obj.width, obj.width, obj.ebins, ...
+                {SymopIdentity(), op}, '-nopix');
 
-            assertEqualToTol(w1sym.data, w2sym.data, 'ignore_str', 1);
+            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1);
 
         end
+
+        function test_cut_sym_from_file(obj)
+            op = SymopReflection([-1 1 0], [0 0 1], [0 0 0]);
+
+            ubin_half = [-0.25 0.05 0];
+
+            wtmp = symmetrise_sqw(obj.data, op);
+            wtmp.pix = PixelDataMemory(wtmp.pix);
+
+            w1sym = cut(wtmp, obj.proj, ubin_half, ...
+                obj.width, obj.width, obj.ebins, '-nopix');
+
+            w2sym = cut(obj.data_source, obj.proj, ubin_half, ...
+                obj.width, obj.width, obj.ebins, ...
+                {SymopIdentity(), op}, '-nopix');
+
+            w3sym = cut_sqw(obj.data_source, obj.proj, ubin_half, ...
+                            obj.width, obj.width, obj.ebins, ...
+                            {SymopIdentity(), op}, '-nopix');
+
+            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1, 'tol', 1e-6);
+            assertEqualToTol(w1sym, w3sym, 'ignore_str', 1, 'tol', 1e-6);
+        end
+
 
         function test_cut_sym_with_pix(obj)
         % Test symmetrisation, keeping pixels
             clOb = set_temporary_config_options(hor_config, 'log_level', -1);
             w2sym = cut(obj.data, obj.proj, obj.bin,...
-                        obj.width, obj.width, obj.ebins, obj.sym);
+                obj.width, obj.width, obj.ebins, obj.sym);
 
             obj.assertEqualToTolWithSave(w2sym.data, obj.tol_sp,'ignore_str',1);
         end
 
         function test_cut_sym_with_nopix(obj)
-        % Test symmetrisation, without keeping pixels
+            % Test symmetrisation, without keeping pixels
             clOb = set_temporary_config_options(hor_config, 'log_level', -1);
             d2sym = cut(obj.data, obj.proj, obj.bin,...
-                        obj.width, obj.width, obj.ebins, obj.sym, '-nopix');
+                obj.width, obj.width, obj.ebins, obj.sym, '-nopix');
 
             obj.assertEqualToTolWithSave(d2sym, obj.tol_sp,'ignore_str',1);
         end
 
         function test_cut_sqw_sym_P2__1_3(obj)
-        % Test multiple overlapping symmetry related cuts, some of
-        % which contribute zero pixels to the result.
+            % Test multiple overlapping symmetry related cuts, some of
+            % which contribute zero pixels to the result.
 
             clOb = set_temporary_config_options(hor_config, 'log_level', -1);
             c = cut(obj.data2, obj.proj2, ...
-                    obj.ubin2, obj.vbin2, obj.wbin2, obj.ebin2, ...
-                    obj.sym2);
+                obj.ubin2, obj.vbin2, obj.wbin2, obj.ebin2, ...
+                obj.sym2, '-nopix');
 
-            obj.assertEqualToTolWithSave(c.data, obj.tol_sp,'ignore_str',1);
+            ref = obj.getReferenceDataset('test_cut_sqw_sym_P2__1_3', ...
+                                          'test_cut_sqw_sym_P2__1_3_1');
+
+            assertEqualToTol(c, ref, obj.tol_sp,'ignore_str',1);
         end
 
         %------------------------------------------------------------------------
@@ -152,5 +184,4 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         % - handcraft a symmetrised cut, using the private combine
         %------------------------------------------------------------------------
     end
-
 end

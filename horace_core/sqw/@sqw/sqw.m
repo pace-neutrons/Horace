@@ -32,16 +32,13 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         data;
 
         % access to pixel information, if any such information is
-        % stored within an object. May also contain pix_combine_info or
-        % filebased pixels.
+        % stored within an object. May also contain MultipxBase class
+        % or filebacked pixels.
         pix;
 
         % The date of the sqw object file creation. As the date is defined both
         % in sqw and dnd object parts, this property synchronize both
         creation_date;
-        % return state of the object, if it is fully in memory or
-        % filebacked
-        is_filebacked;
     end
 
     properties(Dependent,Hidden=true)
@@ -68,7 +65,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % The class providing brief description of a whole sqw file.
         main_header_ = main_header_cl();
 
-        experiment_info_ = Experiment();
+        experiment_info_ = []; %Experiment(); now at start of constructor;
         % detectors array
         detpar_  = struct([]);
 
@@ -83,17 +80,15 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     properties(Access=private)
         % holder for the class, which deletes temporary file when holding
         % object goes out of scope.
-        % Has to be present on sqw level, as pix level can not delete file
-        % due to object destruction rules.
+        % Has to be present on sqw level, as its copy on pix level can not
+        % delete sqw file due to object destruction rules.
         tmp_file_holder_;
-        % Re #1302 TODO: delete old interface
-        file_holder_
     end
 
     methods(Static)
         % returns list of fields, which need to be filled by head function
         form_fields = head_form(sqw_only,keep_data_arrays)
-		%
+        %
         function obj = apply_op(obj, operation)
             % Apply special PageOp operation affecting sqw object and pixels
             %
@@ -108,7 +103,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             %              calculates changes to image, caused by the
             %              modifications to pixels.
             obj = obj.pix.apply_op(obj,operation);
-        end        
+        end
+        % build sqw from multiple compatible-sqw parts.
+        wout = join(w,varargin);
     end
     %======================================================================
     % PageOp methods -- methods, which use PageOp for implementation, so
@@ -117,14 +114,14 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         % combine together various sqw objects, containing the same size images
         wout = combine_sqw(w1,varargin);
-        wout = join(w,wi);
-        wout = split(w);
+        wout = split(w,varargin);
 
         [wout,mask_array] = mask(win, mask_array);
 
         wout = mask_pixels(win, mask_array,varargin);
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
+        wout = slim (win, reduce); % Slim an sqw object by removing random pixels
 
         % calculate pixel data range and recalculate image not modifying
         % pixel data
@@ -142,7 +139,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % coordinate values
         w    = coordinates_calc(w, name);
         % Make a higher dimensional dataset from a lower dimensional dataset
-        wout = replicate (win,wref);
+        wout = replicate (win,wref,varargin);
 
         %Evaluate a function at the plotting bin centres of sqw object
         wout = func_eval (win, func_handle, pars, varargin)
@@ -230,10 +227,10 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         wout = IX_dataset_2d(w);
         wout = IX_dataset_3d(w);
         %
-        function range = targ_range(obj,targ_proj,varargin)
+        function range = get_targ_range(obj,targ_proj,varargin)
             % calculate the maximal range of the image may be produced by
             % target projection applied to the current image.
-            range = obj.data.targ_range(targ_proj,varargin{:});
+            range = obj.data.get_targ_range(targ_proj,varargin{:});
         end
         function status = adjust_aspect(obj)
             % method reports if the plotting operation should adjust
@@ -266,17 +263,37 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         function [value, sigma] = value(w, x)
             [value, sigma] = w.data.value(x);
         end
+        function sz = img_size_bytes(obj)
+            % return size of data image expressed in bytes
+            sz = obj.data.img_size_bytes();
+        end
+        function struc = get_se_npix(obj,varargin)
+            % return image arrays
+            struc = obj.data.get_se_npix(varargin{:});
+        end
+        function npix = get_npix_block(obj,block_start,block_size)
+            % return specified chunk of npix array which describes pixel
+            % destribution over block bins.
+            npix = obj.data.get_npix_block(block_start,block_size);
+        end
+        function md = get_dnd_metadata(obj)
+            % return metadata describing image
+            md = obj.data.get_dnd_metadata();
+        end
     end
     %======================================================================
     % Construction and change of state
     methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
+            
+            obj.experiment_info_ = Experiment();
 
             if nargin==0 % various serializers need empty constructor
                 obj.data_ = d0d();
                 return;
             end
+            
             obj = obj.init(varargin{:});
         end
         % initialization of empty sqw object or main part of constructor
@@ -312,11 +329,24 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         end
         %
         function val = get.detpar(obj)
-            val = obj.detpar_;
+            val = obj.experiment_info.detector_arrays;
         end
         function obj = set.detpar(obj,val)
             %TODO: implement checks for validity
-            obj.detpar_ = val;
+            if isa(val,'unique_references_container')
+                obj.experiment_info_.detector_arrays = val;
+             elseif isstruct(val)
+                detector = IX_detector_array(val);
+                if obj.experiment_info_.detector_arrays.n_runs == 0
+                    obj.experiment_info_.detector_arrays = ...
+                        obj.experiment_info_.detector_arrays.add_copies_( ...
+                                          detector,obj.experiment_info_.n_runs);
+                end
+            elseif isempty(val) && obj.experiment_info_.detector_arrays.n_runs > 0
+                ; % pass, do nothing, info already in experiment_info
+            else
+                error('HORACE:sqw_set_detpar:invalid_argument','incorrect type');
+            end
         end
         %
         function val = get.main_header(obj)
@@ -366,10 +396,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             is = obj.pix_.num_pixels == 0;
         end
         %
-        function is = get.is_filebacked(obj)
-            is = obj.has_pixels && obj.pix.is_filebacked;
-        end
-        %
         function map = get.runid_map(obj)
             map = get_runid_map_(obj);
         end
@@ -380,6 +406,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         function npix = get.num_pixels(obj)
             npix = obj.pix_.num_pixels;
         end
+        % if sqw object has actual pixels or pixelles object
+        has = has_pixels(w);
     end
     %======================================================================
     % REDUNDANT and compatibility methods
@@ -395,13 +423,12 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         end
     end
     %======================================================================
-    % supporting function for apply_op
+    % supporting methods for apply_op
     methods
         %----------------------------------
         new_sqw = copy(obj, varargin)
-        [obj, ldr] = get_new_handle(obj, outfile)
-        wh  = get_write_handle(obj, outfile)
-        obj = finish_dump(obj,varargin);
+        wh  = get_write_handle(obj, outfile,varargin)
+        obj = finish_dump(obj,page_op);
         %
     end
     %======================================================================
@@ -431,11 +458,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % Change the crystal lattice and orientation of an sqw object or
         % array of objects to apply alignment corrections
         wout = change_crystal (obj,alignment_info,varargin)
-        % modify crystal lattice and orientation matrix to remove legacy
-        % alignment.
-        [wout,al_info] = remove_legacy_alignment(obj,varargin)
-        % remove legacy alignment and put modern alignment instead
-        [wout,al_info] = upgrade_legacy_alignment(obj,varargin)
         %------------------------------------------------------------------
         %TODO: Special call on interface for different type of instruments
         %      from generic object, which may contain any instrument is
@@ -444,10 +466,10 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         varargout = tobyfit (varargin);
         [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, ipix);
         [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, ipix);
     end
 
     %======================================================================
@@ -466,6 +488,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         function obj = init_from_file(obj, in_struc)
             % Initialize SQW from file or file accessor
             obj = init_sqw_from_file_(obj, in_struc);
+        end
+        function is = get_is_filebacked(obj)
+            is = obj.has_pixels && obj.pix.is_filebacked;
         end
     end
     methods(Static,Access=protected)
@@ -517,8 +542,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             % number
             ver = 5;
             % version 5 -- support for loading previous version
-            % data and setting ub_inv_legacy matrix in case if the data
-            % were realigned
+            % data in case if the data were realigned
         end
 
         function flds = saveableFields(~)
@@ -540,6 +564,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             % NB combined if-expression is in parentheses to help visually
             % locate it - just useful cosmetic
 
+            %{
             if (~isempty(obj.detpar)                             && ...
                     IX_detector_array.check_detpar_parms(obj.detpar) && ...
                     ~isempty(obj.detpar.group)                       && ...
@@ -554,6 +579,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
                 %end
                 obj.experiment_info.detector_arrays = updated_detectors;
             end
+            %}
         end
     end
 

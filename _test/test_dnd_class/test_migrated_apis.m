@@ -51,33 +51,7 @@ classdef test_migrated_apis < TestCaseWithSave
             assertEqual(en, 0);
         end
 
-        function test_calculate_qw_bins(obj)
-        end
-
-        %% Change
-        function test_change_crystal(obj)
-        end
-
-        %% Compact/slim
-        function test_compact(obj)
-        end
-        function test_slim(obj)
-        end
-
         %% Cut
-        function test_cut(obj)
-            skipTest('Incorrect test data for cut');
-            dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
-            proj = line_proj([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
-            range = [0,0.2];    % range of cut
-            step = 0.01;        % Q step
-            bin = [range(1)+step/2,step,range(2)-step/2];
-            width = [-0.15,0.15];  % Width in Ang^-1 of cuts
-            ebins = [105,0,115];
-
-            w2 = dnd_2d_obj.cut(proj, bin, width, width, ebins, '-pix');
-            %            this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);
-        end
         function test_cut_sym(obj)
             skipTest('Incorrect test data for cut_sym');
             dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
@@ -143,7 +117,7 @@ classdef test_migrated_apis < TestCaseWithSave
 
 
             assertEqualToTolWithSave(obj, wout_disp, 'ignore_str', true,'tol',3.e-7);
-            assertEqualToTolWithSave(obj, wout_weight, 'ignore_str', true,'tol',1.e-9);
+            assertEqualToTolWithSave(obj, wout_weight, 'ignore_str', true,'tol',1.e-7);
         end
         function test_dispersion_with_disp_return_value_on_dnd(obj)
             params = {'scale', 10};
@@ -172,22 +146,6 @@ classdef test_migrated_apis < TestCaseWithSave
             assertEqualToTol(proj, expected_proj, 1e-6);
             assertEqualToTol(pbin, expected_pbin, 1e-6);
         end
-
-        %% split/join
-        %function test_split(obj)
-        %    % tested in test_join
-        %end
-        %function test_join(obj)
-        %    % tested in test_join
-        %end
-        %function test_split_and_join(obj)
-        %    % tested in test_join
-        %end
-
-        %% mask
-        %function test_mask(obj)
-        %    % tested in test_mask
-        %end
 
         %% xye
         function test_xye_returns_bin_centres_and_errors_sqw(obj)

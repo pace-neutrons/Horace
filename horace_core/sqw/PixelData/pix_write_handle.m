@@ -2,6 +2,10 @@ classdef pix_write_handle < handle
     %PIX_WRITE_HANDLE wraps different kinds of write access handles for
     % writing pixels and provides common interface for writing pixels.
     %
+    % as pixels are closely related to image, the class also contains
+    % methods to update image or part of the image, which was modified while
+    % modifying pixels.
+    %
     % In addition, it closes accessor handle on class deletion, and may
     % delete target file if the class goes out of scope due to errors.
     %
@@ -13,18 +17,35 @@ classdef pix_write_handle < handle
         move_to_original
     end
     properties(Dependent)
+        % number of pixels written using this write handle
         npix_written;
-        % true, if file has extension tmp
+        % true, if file has extension tmp or has been set to be
+        % true or false explicitly. tmp files deleted when the object
+        % holding these files goes out of scope
         is_tmp_file
         %
         write_handle;
+    end
+    properties(Dependent,Hidden)
+        % initial position (in bytes)from the beginning of file,
+        % where target pixels are written.
+        % Used by external mex code which writes pixels.
+        pixout_start
     end
     properties(Access=private)
         npix_written_ = 0;
         handle_is_class_ = false;
         write_handle_ = [];
 
+        % initial shift of components of image (s,e,npix) from their
+        % physical position on file expressed in number of bins (image
+        % pixels) used by save_img_chunk if run in a cycle without providing
+        % the position where to write modified image chunk
+        img_start_post_ = 0
+
         delete_target_file_ = true;
+
+        is_tmp_file_ = [];
     end
 
     methods
@@ -52,8 +73,45 @@ classdef pix_write_handle < handle
 
             obj.npix_written_ = 0;
         end
+        function save_img_chunk(obj,img_struc,start_pos)
+            % store part of image changed due to modifications in pixels
+            % within specified location in the image already stored on disk.
+            %
+            % Inputs:
+            % obj   -- instance of pix_write_handle initialized using
+            %          faccessor class
+            % img_struc
+            %       -- the structure containing 3 fields of modified image
+            %          (s,e, npix) to write
+            % start_pos
+            %       -- the position within existing image where to start
+            %          writing the image chunk. If absent, uses internal
+            %          value of the position, which is 0 initially, but
+            %          modified by number of written bins each time the
+            %          method get called.
+            %
+            if ~obj.handle_is_class_
+                error('HORACE:pix_write_handle:not_implemented', ...
+                    ['writing image using direct IO operations is not yet implemented.' ...
+                    ' Use faccess_*** classes to modify image'])
+            end
+            if nargin < 3
+                start_pos = obj.img_start_post_;
+            end
+
+            obj.write_handle_.put_senpix_block(img_struc,start_pos);
+            obj.img_start_post_ = start_pos + numel(img_struc.npix);
+        end
 
         function save_data(obj,data,start_pos)
+            % write block of pixels at the specified location within the
+            % binary sqw file.
+            % Inputs:
+            % Inputs:
+            % obj   -- instance of pix_write_handle initialized using
+            %          faccessor class or Matlab fopen operation
+            % data  -- chunk of pixel data -- PixelDataBase.
+
             if nargin <3
                 start_pos = obj.npix_written_+1;
             end
@@ -64,7 +122,38 @@ classdef pix_write_handle < handle
             end
             obj.npix_written_ = obj.npix_written_ + size(data, 2);
         end
-        function finish_pix_dump(obj,pix_obj)
+        function pix_meta = finish_pix_dump(obj,pix_obj,store_metadata)
+            % finalize multipage pix.write operation writing information
+            % about number of pixels written using pix_write_handle at the
+            % beginning of pixel data block stored in sqw file.
+            %
+            % if store_metadata true (or missing) also write pixel metadata
+            % block
+            % Inputs:
+            % obj   -- initialized instance of pix_write_handle used to
+            %          write pixels and containing number of pixels written
+            %          during all these write operations.
+            % pix_obj
+            %       -- PixelDataFilebacked object used as source of
+            %          metadata to store in sqw file. not used if
+            %          store_metadata is false;
+            % store_metadata
+            %       -- if true, pixel metadata are stored in sqw file
+            %          together with pixel_data. If missing -- assumed
+            %          true.
+            % Returns:
+            % pix_meta
+            %       -- modified by written pixel information pix_metadata
+            %          class
+            % Result:
+            % finalized pix.data block in sqw file.
+            % if store_metadata is true
+            % also pix.metadata stored in file so correctly formed
+            % PixelData block stored within sqw file.
+            %
+            if nargin<3
+                store_metadata = true;
+            end
             if obj.handle_is_class_
                 num_pixels = obj.npix_written;
                 wh = obj.write_handle_;
@@ -79,7 +168,14 @@ classdef pix_write_handle < handle
                 pix_meta = pix_obj.metadata;
                 pix_meta.full_filename = wh.full_filename;
                 pix_meta.npix = num_pixels;
-                obj.write_handle_ = wh.put_pix_metadata(pix_meta);
+                if store_metadata
+                    obj.write_handle_ = wh.put_new_blocks_values(pix_meta, ...
+                        'update','bl_pix_metadata');
+                else
+                    obj.write_handle_ = wh;
+                end
+            else
+                pix_meta = [];
             end
         end
         %
@@ -111,7 +207,9 @@ classdef pix_write_handle < handle
             % file is released for external access. Do not delete it on
             % deleteon of this class.
             obj.delete_target_file_ = false;
+
         end
+        %
         function delete(obj)
             obj = obj.close_handles();
             % in case of errors in operations, delete intermediate/incomplete
@@ -121,12 +219,31 @@ classdef pix_write_handle < handle
             end
         end
         %==================================================================
+        function pixout = get.pixout_start(obj)
+            if ~obj.handle_is_class_
+                error('HORACE:pix_write_handle:runtime_error', ...
+                    'Attempt to get pix position from incompartible binary file')
+            end
+            pixout = obj.write_handle_.pix_position;
+        end
         function is = get.is_tmp_file(obj)
-            [~,~,fe] = fileparts(obj.write_file_name);
-            is = strncmp(fe,'.tmp',4);
+            if isempty(obj.is_tmp_file_)
+                [~,~,fe] = fileparts(obj.write_file_name);
+                is = strncmp(fe,'.tmp',4);
+            else
+                is = obj.is_tmp_file_;
+            end
+        end
+        function set.is_tmp_file(obj,val)
+            obj.is_tmp_file_ = logical(val);
         end
         function np = get.npix_written(obj)
             np = obj.npix_written_;
+        end
+        function set.npix_written(obj,val)
+            % should be used only when pixels are written externaly by
+            % mex-routine
+            obj.npix_written_ = double(val);
         end
     end
     methods(Access=private)

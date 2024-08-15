@@ -74,9 +74,6 @@ classdef JobDispatcher
         % how often (in seconds) JobDispatcher should query the task status
         task_check_time;
 
-        % Short drop-out time (in seconds) for querying task status
-        task_wait_time;
-
         % Number of times to try action until deciding the action has failed
         fail_limit;
 
@@ -89,11 +86,8 @@ classdef JobDispatcher
         % How often (in seconds) JobDispatcher should display the task status
         task_check_time_ = 4;
 
-        % Short drop-out time (in seconds) for querying task status
-        task_wait_time_ = 0.1;
-
         fail_limit_ = 100; % number of times to try for changes in job status file until
-                           % decided the job has failed
+        % decided the job has failed
 
         % The framework to exchange messages with the tasks
         mess_framework_;
@@ -260,17 +254,6 @@ classdef JobDispatcher
             this = reset_fail_limit_(this,this.time_to_fail/val);
         end
 
-        function time = get.task_wait_time(this)
-            time = this.task_wait_time_;
-        end
-
-        function this = set.task_wait_time(this,val)
-            if val<=0
-                error('JOB_DISPATCHER:invalid_argument',...
-                    'time to wait jobs has to be positive');
-            end
-            this.task_wait_time_ =val;
-        end
 
         function time = get.time_to_fail(this)
             time = this.time_to_fail_;
@@ -387,6 +370,36 @@ classdef JobDispatcher
             % init_mess     -- cell array (size: n_workers) of messages containing
             %                  initialization information for workers
             [task_id_list,init_mess]=split_tasks_(common_par,loop_par,return_outputs,n_workers);
+        end
+        %
+        function [n_workers,worker_par_list,is_list] = split_tasks_indices(job_param_list,n_workers)
+            % get indices of the input array, cellarray or structure which would properly divide
+            % inputs among specifed number of workers (parts).
+            %
+            % Inputs:
+            % job_param_list   -- array, cellarray or structural array
+            %                     to divide into parts.
+            % n_workers        -- number of parts to divide job_param_list
+            %
+            % Outputs:
+            % n_workers        -- actual number of parts the input array
+            %                     was divided into. Normally should be
+            %                     equal to n_workers, but if inputs have
+            %                     fewer elements than input n_workers,
+            %                     usually equal to number of elements in
+            %                     input.
+            % worker_par_list  -- cellarray containing n_workers - elements.
+            %                     Each cellarry element would contain
+            %                     information about part of the
+            %                     job_param_list which should be allocated
+            %                     to appropriate worker.
+            % is_list          -- boolean which is true if input array is
+            %                     divided into array of indices or false if
+            %                     it is divided into parirs containing
+            %                     numbers of first and last contributing
+            %                     elements.
+            %
+            [n_workers,worker_par_list,is_list] = split_tasks_indices_(job_param_list,n_workers);
         end
 
     end

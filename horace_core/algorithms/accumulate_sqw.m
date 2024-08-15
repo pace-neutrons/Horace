@@ -1,4 +1,4 @@
-function [tmp_file,grid_size,pix_range] = accumulate_sqw (varargin)
+function [tmp_file,grid_size,pix_range,varargout] = accumulate_sqw (varargin)
 % Read one or more spe files and a detector parameter file, and accumulate to an existing sqw file.
 %
 % Normal use:
@@ -6,10 +6,10 @@ function [tmp_file,grid_size,pix_range] = accumulate_sqw (varargin)
 % The standard way to use accumulate_sqw is to pass the file names and parameters for
 % all the runs that are *anticipated* to be combined, but might not yet exist. Initially
 % call with the keyword 'clean' to force a fresh sqw file to be created:
-% 
+%
 %   >> accumulate_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                               u, v, psi, omega, dpsi, gl, gs, 'clean')
-% 
+%
 % As the experiment continues, subsequent calls to accumulate_sqw can be made with the
 % same argument list, apart from removing the keyword 'clean'. A check is made in the
 % function to determine which of the spe files have already been accumulated to the sqw file
@@ -37,7 +37,7 @@ function [tmp_file,grid_size,pix_range] = accumulate_sqw (varargin)
 % -----------------------------------------------------
 % Include instrument and sample information:
 %
-%   >> accumulate_sqw (..., instrument, sample,...)        
+%   >> accumulate_sqw (..., instrument, sample,...)
 %
 % If the sqw file does not yet exist, or you  specify 'clean', you can give fix
 % the grid and data range:
@@ -49,7 +49,7 @@ function [tmp_file,grid_size,pix_range] = accumulate_sqw (varargin)
 % ---------------------------
 %   >> [tmp_file,grid_size,pix_range] = accumulate_sqw (...)
 %
-% 
+%
 % Notes
 % -----
 % The goal of accumulate_spe is to allow you to create an sqw file which has a data
@@ -60,7 +60,7 @@ function [tmp_file,grid_size,pix_range] = accumulate_sqw (varargin)
 % been created are accumulated to the sqw file, and any that already exist in the sqw
 % file are skipped. That is, the original call to accumulate_sqw simply adds newly
 % create spe files. You can change any of the input arguments on the later call; any
-% runs that were not in the original call will not be accumulated to the sqw file - 
+% runs that were not in the original call will not be accumulated to the sqw file -
 % but any data tha is outside the data range of the sqw file will be lost.
 %
 %
@@ -95,7 +95,7 @@ function [tmp_file,grid_size,pix_range] = accumulate_sqw (varargin)
 %   sample          Structure or object containing sample geometry information [scalar or array length nfile]
 %
 % Optional keyword arguments: (can be used singly or together)
-%   'clean'         Create the sqw file from fresh. It is possible to get confused about what 
+%   'clean'         Create the sqw file from fresh. It is possible to get confused about what
 %                  data has been included in an sqw file if it is built up slowly over
 %                  an experiment. Use this option to start afresh.
 %
@@ -133,7 +133,12 @@ function [tmp_file,grid_size,pix_range] = accumulate_sqw (varargin)
 
 
 % Gateway routine that calls sqw method
-[tmp_file,grid_size,pix_range] = gen_sqw (varargin{:}, 'accumulate');
+if nargout> 3
+    [tmp_file,grid_size,pix_range,sqw_out] = gen_sqw (varargin{:}, 'accumulate');
+    varargout{1} = sqw_out;    
+else
+    [tmp_file,grid_size,pix_range] = gen_sqw (varargin{:}, 'accumulate');    
+end
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0

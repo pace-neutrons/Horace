@@ -77,7 +77,6 @@ classdef test_main_mex < TestCase
             skipTest('Only pixel sorting is currently mexed')
         end
 
-
         function obj=test_accum_cut(obj)
             if obj.no_mex
                 skipTest('Can not use and test mex code to accumulate_cut');
@@ -160,15 +159,54 @@ classdef test_main_mex < TestCase
 
             assertEqual(size(pix_c.data, 1), 9);
         end
+        
+        function test_hashing(obj)
+            
+            hcf = hor_config;
+            
+            % store original value in config to restore at end of test
+            use_mex = hcf.use_mex;
+            cl0b = onCleanup( @()hcf.set('use_mex', use_mex) );
+            
+            % object to test for native Matlab types
+            obj1 = 'hello';
+            % object to test for subclasses of serializable
+            obj2 = IX_inst_DGfermi();
+            
+            % make hashes with mex off
+            hcf.use_mex = false;
+            hash1_nomex = Hashing.hashify_obj(obj1);
+            hash2_nomex = Hashing.hashify_obj(obj2);
+            
+            % make hashes with mex on
+            hcf.use_mex = true;
+            hash1_mex = Hashing.hashify_obj(obj1);
+            hash2_mex = Hashing.hashify_obj(obj2);
+            
+            % compare mex and nomex hashes
+            assertTrue( strcmp(hash1_nomex, hash1_mex) );
+            assertTrue( strcmp(hash2_nomex, hash2_mex) );
+            
+            % compare hashes against previously recorded values
+            assertTrue( strcmp(hash1_nomex, 'b7e33a9818a21b4a33425f56c7751a4a') );
+            assertTrue( strcmp(hash2_nomex, '22e08809d241e24adfb657fc1341ff94') );
+            
+            % check that the GetMD5 code is present in the mex functions
+            % and that the check for this is correctly set up
+            mex_list = check_horace_mex;
+            assertEqual( numel(mex_list), 13 );
+            assertTrue( strncmp( mex_list{13}, 'GetMD5 ', 6 ) );
+
+        end
 
         function test_recompute_bin_data(obj)
 
             hc = hor_config;
             pc = parallel_config;
             cleanup_obj_hc = set_temporary_config_options(hor_config, ...
-                                                          'log_level', -1, ...
-                                                          'use_mex', false ...
-                                                         );
+                'log_level', -1, ...
+                'use_mex', false ...
+                );
             cleanup_obj_pc = set_temporary_config_options(parallel_config, 'threads', 8);
 
             test_sqw = sqw();
@@ -205,93 +243,6 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(new_sqw2.data.s,s)
 
             assertElementsAlmostEqual(new_sqw2.data.e,e)
-
-        end
-
-        function test_sort_pix(obj)
-            % prepare pixels to sort
-            cleanup_obj_hc = set_temporary_config_options(hor_config, ...
-                                                          'log_level', -1, ...
-                                                          'use_mex', false ...
-                                                         );
-            cleanup_obj_pc = set_temporary_config_options(parallel_config, 'threads', 8);
-
-            pix=ones(9,40000);
-            xs = 9.6:-1:0.6;
-            xp = 0.1:0.5:10;
-            [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
-            pix(1,:) = ux(:);
-            pix(2,:) = uy(:);
-            pix(3,:) = uz(:);
-            pix(4,:) = et(:);
-            pix(7,:) = 1:size(pix,2);
-            pix = PixelDataBase.create(pix);
-            npix = 4*ones(10,10,10,10);
-            ix = ceil(pix.u1);
-            iy = ceil(pix.u2);
-            iz = ceil(pix.u3);
-            ie = ceil(pix.dE);
-            ix = sub2ind(size(npix), ix,iy,iz,ie);
-
-            % test sorting parameters and matlab sorting
-            pix1 = sort_pix(pix,ix,[]);
-            assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
-            assertElementsAlmostEqual(pix1.energy_idx(5:8),[1809,1819,3809,3819]);
-            assertElementsAlmostEqual(pix1.energy_idx(end-3:end),[36181,36191,38181,38191]);
-
-            pix2 = sort_pix(pix,ix,npix,'-nomex');
-            assertElementsAlmostEqual(pix1.data,pix2.data);
-
-            if obj.no_mex
-                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
-            end
-
-            % test mex
-            pix1 = sort_pix(pix,ix,npix,'-force_mex');
-            assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
-            assertElementsAlmostEqual(pix1.data, pix2.data);
-
-            pix0 = PixelDataBase.create(single(pix.data));
-            ix0  = int64(ix);
-            pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
-            assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);
-
-        end
-
-        function profile_sort_pix(~)
-            xs = 9.99:-0.1:0.01;
-            xp = 0.01:0.1:9.99;
-            [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
-            NumPix = numel(ux);
-            pix=ones(9,NumPix);
-            pix(1,:) = ux(:);
-            pix(2,:) = uy(:);
-            pix(3,:) = uz(:);
-            pix(4,:) = et(:);
-            pix(7,:) = 1:NumPix;
-            npix = ones(10,10,10,10)*(NumPix/10000);
-            ix = ceil(pix(1,:));
-            iy = ceil(pix(2,:));
-            iz = ceil(pix(3,:));
-            ie = ceil(pix(4,:));
-            ix = sub2ind(size(npix), ix,iy,iz,ie);
-            pix0 = single(pix);
-            ix0 = int64(ix);
-            clear iy iz ie ux uy uz et
-
-            disp('Profile started')
-            profile on
-            % test sorting parameters and matlab sorting
-            t1=tic();
-            pix1 = sort_pix(pix0,ix0,npix,'-force_mex','-keep_type');
-            t2=toc(t1);
-            pix1 = sort_pix(pix,ix,npix,'-force_mex','-keep_type');
-            t3=toc(t2);
-            pix1 = sort_pix(pix0,ix0,npix,'-nomex','-keep_type');
-            t4=toc(t3);
-
-            profile off
-            profview;
 
         end
 
@@ -350,6 +301,29 @@ classdef test_main_mex < TestCase
             vv(4,:)=repmat(en,1,obj.nDet);
 
             pix = PixelDataBase.create(vv);
+        end
+    end
+    methods(Access=protected)
+        function [pix,ix,npix] = build_pix_page_for_sorting(~,xs,xp)
+            % pix=ones(9,40000);
+            [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
+            NumPix = numel(ux);
+            pix=ones(9,NumPix);
+            npix = ones(10,10,10,10)*(NumPix/10000);
+
+            pix(1,:) = ux(:);
+            pix(2,:) = uy(:);
+            pix(3,:) = uz(:);
+            pix(4,:) = et(:);
+            pix(7,:) = 1:NumPix;
+            pix = PixelDataBase.create(pix);
+
+            ix = ceil(pix.u1);
+            iy = ceil(pix.u2);
+            iz = ceil(pix.u3);
+            ie = ceil(pix.dE);
+            ix = sub2ind(size(npix), ix,iy,iz,ie);
+            ix = ix(:);
         end
     end
 end

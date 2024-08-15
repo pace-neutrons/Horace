@@ -55,7 +55,7 @@ classdef test_rundata < TestCase
         function test_custom_save_loadobj_all(obj)
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
-            rd=rundata(f_name(obj,'MAP11014v2.nxspe'),ds);
+            rd=rundata(f_name(obj,'MAP11014v3.nxspe'),ds);
             assertTrue(rd.isvalid);
 
             rd = get_rundata (rd,'-this');
@@ -73,7 +73,7 @@ classdef test_rundata < TestCase
         function test_custom_save_loadobj_ei_fixed(obj)
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
-            rd=rundata(f_name(obj,'MAP11014v2.nxspe'),ds);
+            rd=rundata(f_name(obj,'MAP11014v3.nxspe'),ds);
             assertEqual(rd.efix,800);
             rd.efix = 801;
 
@@ -522,30 +522,6 @@ classdef test_rundata < TestCase
             rd = rundata();
             id =  rd.run_id;
             assertTrue(isempty(id));
-        end
-
-        function test_extract_runid_long_complex(~)
-            fname =fullfile('cycle20201','MAR1044one2oneEi4.5.nxs');
-            id = rundata.extract_id_from_filename(fname);
-            assertEqual(1044,id);
-        end
-
-        function test_extract_runid_complex(~)
-            fname = 'MAR1044one2oneEi4.5.nxs';
-            id = rundata.extract_id_from_filename(fname);
-            assertEqual(1044,id);
-        end
-
-        function test_extract_runid_simple(~)
-            fname = 'MAR1044.nxs';
-            id = rundata.extract_id_from_filename(fname);
-            assertEqual(1044,id);
-        end
-
-        function test_extract_runid_empty(~)
-            fname = 'nlalflalel';
-            id = rundata.extract_id_from_filename(fname);
-            assertTrue(isnan(id));
         end
 
         function test_saveNXSPE_unbound(~)

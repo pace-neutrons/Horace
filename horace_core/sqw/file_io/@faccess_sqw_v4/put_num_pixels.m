@@ -1,5 +1,5 @@
 function obj = put_num_pixels(obj, num_pixels)
-%PUT_RAW_PIX  Store num_pixels in the appropriate position of the pixel data
+%PUT_NUM_PIXELS  Store num_pixels in the appropriate position of the pixel data
 %block.
 %
 % Inputs:

@@ -12,7 +12,11 @@ function   obj = put_pix(obj,varargin)
 %
 % If update options is selected, file header have to exist. This option keeps
 % existing file information untouched;
-[ok,mess,update,nopix,reserve,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve'});
+%
+% hold_pix_place is here for compatibility with horace4 file format
+% interface. This option is ignored here.
+[ok,mess,update,nopix,reserve,hold_pix_place,argi] = ...
+    parse_char_options(varargin,{'-update','-nopix','-reserve','-hold_pix_place'});
 if ~ok
     error('SQW_FILE_IO:invalid_argument',...
         'SQW_BINFILE_COMMON::put_pix: %s',mess);
@@ -147,40 +151,34 @@ if npix == 0
     return % nothing to do.
 end
 %
-if isa(input_obj,'pix_combine_info') % pix field contains info to read &
-    %combine pixels from sequence of files. There is special sub-algorithm
-    %to do that.
-    obj = obj.put_sqw_data_pix_from_file(obj,input_obj, jobDispatcher);
-else % write pixels directly
 
-    % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
-    % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
-    % could have no pixels because none contributed to the given data range.
-    block_size = config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
+% Try writing large array of pixel information a block at a time - seems to speed up the write slightly
+% Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
+% could have no pixels because none contributed to the given data range.
+block_size = config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
 
-    try
-        do_fseek(obj.file_id_, obj.pix_pos_ , 'bof');
-    catch ME
-        exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
-            'Error moving to the start of the pixels record');
-        throw(exc.addCause(ME))
+try
+    do_fseek(obj.file_id_, obj.pix_pos_ , 'bof');
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+        'Error moving to the start of the pixels record');
+    throw(exc.addCause(ME))
+end
+
+npix_to_write = obj.npixels;
+if npix_to_write <= block_size
+    for i = 1:input_obj.num_pages
+        input_obj.page_num = i;
+        fwrite(obj.file_id_, single(input_obj.data), 'float32');
     end
-
-    npix_to_write = obj.npixels;
-    if npix_to_write <= block_size
-        for i = 1:input_obj.num_pages
-            input_obj.page_num = i;
-            fwrite(obj.file_id_, single(input_obj.data), 'float32');
-        end
-        check_error_report_fail_(obj,'Error writing pixels array');
-    else
-        for ipix=1:block_size:npix_to_write
-            istart = ipix;
-            iend   = min(ipix+block_size-1, npix_to_write);
-            fwrite(obj.file_id_, single(input_obj.get_pixels(istart:iend).data), 'float32');
-            check_error_report_fail_(obj,...
-                sprintf('Error writing pixels array, npix from: %d to: %d in the rage from: %d to: %d',...
-                istart,iend,1,npix_to_write));
-        end
+    check_error_report_fail_(obj,'Error writing pixels array');
+else
+    for ipix=1:block_size:npix_to_write
+        istart = ipix;
+        iend   = min(ipix+block_size-1, npix_to_write);
+        fwrite(obj.file_id_, single(input_obj.get_pixels(istart:iend).data), 'float32');
+        check_error_report_fail_(obj,...
+            sprintf('Error writing pixels array, npix from: %d to: %d in the rage from: %d to: %d',...
+            istart,iend,1,npix_to_write));
     end
 end

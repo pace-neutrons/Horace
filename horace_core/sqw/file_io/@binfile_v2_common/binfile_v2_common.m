@@ -341,6 +341,9 @@ classdef binfile_v2_common < horace_binfile_interface
             %    npix is always uint64
             data_str = get_se_npix_data_(obj,varargin{:});
         end
+        % get block of npix data, describing pixel distribution over the
+        % requested bins.
+        npix = get_npix_block(obj,pos_start,pos_end);
         %
         % retrieve the whole dnd object from properly initialized dnd file
         % and treat it like an sqw object
@@ -392,9 +395,11 @@ classdef binfile_v2_common < horace_binfile_interface
             flds = flds(~cdi);
             hd = struct();
 
-            % HACK. This should be dealt with some day. u_to_rlu should go
             if ~isfield(data,'u_to_rlu') && isfield(data,'u_to_rlu_legacy')
                 data.u_to_rlu = data.u_to_rlu_legacy;
+            end
+            if ~isfield(data,'offset') && isfield(data,'uoffset')
+                data.offset = data.uoffset;
             end
 
             for i=1:numel(flds)

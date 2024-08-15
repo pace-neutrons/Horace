@@ -392,7 +392,7 @@ energy whose step size is the existing step size in the file.
      range low -> high will be plotted, with step size given by ``step``
 
    For more info see: :ref:`cutting
-   <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut>`.
+   <manual/Cutting_data_of_interest_from_SQW_files_and_objects:cut>`.
 
 This creates a new object containing that particular slice of data. To plot it,
 we write:

@@ -17,10 +17,6 @@ classdef PageOp_coord_calc < PageOpBase
         % properties
         pix_page;
     end
-    properties(Access = private)
-        pix_idx_start_ = 1;
-    end
-    
     properties(Constant)
         xname={'d1';'d2';'d3';'d4'; ...
             'h';'k';'l';'E'; ...
@@ -30,6 +26,8 @@ classdef PageOp_coord_calc < PageOpBase
     methods
         function obj = PageOp_coord_calc(varargin)
             obj = obj@PageOpBase(varargin{:});
+            %
+            obj.split_at_bin_edges = true;
         end
 
         function obj = init(obj,in_obj,ind)
@@ -45,38 +43,37 @@ classdef PageOp_coord_calc < PageOpBase
             obj.pix_page = PixelDataMemory();
 
             obj.var_acc_ = zeros(numel(obj.npix),1);
-                    obj.pix_idx_start_ = 1;
-        end
-        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
-            % Method used to split input npix array into pages
-            %
-            % Overload specific for coord_calc
-            % Inputs:
-            % npix  -- image npix array, which defines the number of pixels
-            %           contributing into each image bin and the pixels
-            %           ordering in the linear array
-            % chunk_size
-            %       -- sized of chunks to split pixels
-            % Returns:
-            % npix_chunks -- cellarray, containing the npix parts
-            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
-            %                the npix array.
-            % See split procedure for more details
-             [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
         end
 
-        
         function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation
             %
-            npix_block = npix_blocks{idx};
-            npix = sum(npix_block(:));
-            pix_idx_end = obj.pix_idx_start_+npix-1;
-            obj.page_data_ = obj.pix_.get_pixels( ...
-                obj.pix_idx_start_:pix_idx_end,'-raw');
-            obj.pix_idx_start_ = pix_idx_end+1;
-            %
+            obj = get_page_data@PageOpBase(obj,idx,npix_blocks);
             obj.pix_page = obj.pix_page.set_raw_data(obj.page_data_);
+        end
+
+        function obj = update_img_accumulators(obj,npix_block,npix_idx, ...
+                signal,varargin)
+            % OVERLOAD:
+            % Recalculate changes in image from changes in
+            % pixel data. coord_calc specific code.
+            % Inputs:
+            % obj        --
+            % npix_block -- part of npix array, which containing pixel
+            %               distribution within the selected chunk of bins
+            % npix_idx   -- indices of the selected cells of image to
+            %               modify from pixels
+            % s          -- modified pixels signal
+            % Returns:
+            % obj        -- page_op object containg updated accumulators.
+
+
+            [s_ar,v_ar,s_msd] = compute_bin_data(npix_block,signal,[],true);
+            obj.page_data_(obj.var_idx_,:)  = s_msd;
+
+            obj.sig_acc_(npix_idx(1):npix_idx(2))  = s_ar(:);
+            obj.var_acc_(npix_idx(1):npix_idx(2))  = v_ar(:);
+
         end
 
         function obj = apply_op(obj,npix_block,npix_idx)
@@ -108,21 +105,19 @@ classdef PageOp_coord_calc < PageOpBase
             if obj.changes_pix_only
                 return;
             end
-            % update image accumulators:
-            [s_ar,v_ar,s_msd] = compute_bin_data(npix_block,signal,[],true);
-            obj.page_data_(obj.var_idx_,:)  = s_msd;
-
-
-            obj.sig_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.sig_acc_(npix_idx(1):npix_idx(2)) + s_ar(:);
-            obj.var_acc_(npix_idx(1):npix_idx(2))    = ...
-                obj.var_acc_(npix_idx(1):npix_idx(2)) + v_ar(:);
-
+            % update image accumulators (overloaded here):
+            obj = update_img_accumulators(obj,npix_block,npix_idx,signal);
         end
-        %
-        function [out_obj,obj] = finish_op(obj,in_obj)
-            obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-            [out_obj,obj] = finish_op@PageOpBase(obj,in_obj);
+    end
+    methods(Access=protected)
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','coord_calc_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.coord_calc_split_ratio = val;
         end
     end
 end

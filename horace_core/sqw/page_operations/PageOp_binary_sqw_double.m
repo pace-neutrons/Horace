@@ -13,7 +13,7 @@ classdef PageOp_binary_sqw_double < PageOp_bin_Base
             % here we definetely expect operand with sigvar_size == [1,1]
             [obj,name_op1] = init@PageOp_bin_Base(obj,w1,operand,operation,flip,varargin{:});
             %
-            obj.scalar_input_ = true;
+            obj.split_at_bin_edges = false;
             %
             if isnumeric(obj.operand)
                 name_op2 = 'scalar';
@@ -50,6 +50,17 @@ classdef PageOp_binary_sqw_double < PageOp_bin_Base
             end
             % update image accumulators:
             obj = update_img_accumulators(obj,npix_block,npix_idx,res.s,res.e);
+        end
+    end
+    methods(Access=protected)
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','sqw_binary_double_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.sqw_binary_double_split_ratio = val;
         end
     end
 end

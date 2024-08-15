@@ -30,10 +30,10 @@ classdef aProjectionBase < serializable
         %
         angdeg       % angles between the lattice edges
         %
-        offset; % Offset of origin of the projection in r.l.u.
-        %         and energy i.e. [h; k; l; en] [row vector]
-        img_offset; % Convenience property, providing/accepting the offset
-        %           % expressed in the image coordinate system.
+        offset;     % Offset of origin of the projection in r.l.u.
+        %           % and energy i.e. [h; k; l; en] [row vector]
+        type;      % Character string length 3 defining normalisation, specific
+        %           to a projection type
         %---------------------------------
         label % the method which allows user to change labels present on a
         %      cut
@@ -49,6 +49,11 @@ classdef aProjectionBase < serializable
         %
     end
     properties(Dependent,Hidden)
+        % scaling factors used in transformation from pix to image
+        % coordinate system. Property of ubmat_proj but calculated in
+        % line_proj, sphere_proj or cylinder_proj
+        img_scales % the scaling factor (in A^-1)
+
         % Internal properties, used by algorithms and better not to be
         % exposed to users
         %
@@ -92,17 +97,9 @@ classdef aProjectionBase < serializable
         alatt_defined
         % returns true if lattice angles have been set up
         angdeg_defined
-        % old interface to img_offset for old data containing a
-        % structure with the value of this property, or old user scripts
-        % which define structure with this value.
-        uoffset
         % Helper property, which specifies the name of the axes class,
-        % which corresponds to this projection
+        % which corresponds to this projection. The class has to be defined
         axes_name
-        % The property specifies if the projection is aligned. Depending on
-        % the value of this property, pix to img transformation calculated
-        % differently
-        proj_aligned
     end
 
     properties(Constant, Hidden)
@@ -121,8 +118,8 @@ classdef aProjectionBase < serializable
         lattice_defined_= [false,false];
         %------------------------------------
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        offset_  = [0,0,0,0] %Offset of origin of projection axes in image units
-        % e.g. r.l.u. and energy [h; k; l; en] [row vector]
+        offset_  = [0,0,0,0] %Offset of origin of projection axes in
+        % r.l.u. and energy [h; k; l; en] [row vector]
         %
         label_  = {'Q_h','Q_k','Q_l','En'};
         title_ ='';
@@ -148,10 +145,8 @@ classdef aProjectionBase < serializable
         % algorithmically simpler so actively used in tests.
         do_3D_transformation_ = true;
         %------------------------------------------------------------------
-        % temporary variable used to keep img_offset if one is set to the
-        % projection, until hkl offset can be properly calculated (lattice
-        % and coordinate transformations are fully defined)
-        tmp_img_offset_holder_ = [];
+        %
+        type_ = ''
     end
     %======================================================================
     % ACCESSORS AND CONSTRUCTION
@@ -242,6 +237,13 @@ classdef aProjectionBase < serializable
             obj = check_and_set_andgdeg(obj,val);
         end
         %
+        function ul = get.img_scales(obj)
+            ul = get_img_scales(obj);
+        end
+        function obj = set.img_scales(obj,val)
+            obj = set_img_scales(obj,val);
+        end
+        %
         function lab=get.label(obj)
             lab = obj.label_;
         end
@@ -253,41 +255,7 @@ classdef aProjectionBase < serializable
             offset = obj.offset_;
         end
         function obj = set.offset(obj,val)
-            obj.offset_ = check_offset_(obj,val);
-            obj.tmp_img_offset_holder_ = []; % just in case if you set up
-            % one and then another but reconciliation have not happened yet
-            if obj.do_check_combo_arg_ % does nothing here, but
-                % will recalculate caches in children
-                obj = obj.check_combo_arg();
-            end
-        end
-        function uoffset = get.img_offset(obj)
-            % convert hkl offset into Crystal Cartesian
-            if ~isempty(obj.tmp_img_offset_holder_)
-                uoffset = obj.tmp_img_offset_holder_(:)';
-                return;
-            end
-            if ~obj.alatt_defined || ~obj.angdeg_defined
-                uoffset = [];
-                return;
-            end
-            uoffset  = zeros(1,4);
-            hkl_offset = obj.offset_(:)';
-            if ~isequal(hkl_offset,uoffset)
-                % nullify internal offset to kill side effects of offset to
-                % pix->img transformation. Results are local anyway.
-                obj.offset = zeros(1,4);
-                pix_offset_cc = obj.bmatrix(4)*hkl_offset(:);
-                uoffset = (obj.transform_pix_to_img(pix_offset_cc))';
-            end
-        end
-        function obj = set.img_offset(obj,val)
-            % check common offset properties (shape, size) numeric value
-            % and set offset_ in invalid units
-            obj.tmp_img_offset_holder_ = check_offset_(obj,val);
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
+            obj = set_offset(obj,val);
         end
         %
         function tl = get.title(obj)
@@ -301,7 +269,15 @@ classdef aProjectionBase < serializable
             end
             obj.title_ = val;
         end
-        function bm = bmatrix(obj,ndim)
+        %
+        function typ=get.type(obj)
+            typ = obj.type_;
+        end
+        function obj=set.type(obj,type)
+            obj = check_and_set_type(obj,type);
+        end
+
+        function [bm,arlu,angrlu] = bmatrix(obj,ndim)
             % Return b-matrix defined on this projection lattice.
             %
             % B-matrix is the Busing-Levy matrix which relates a vector,
@@ -320,7 +296,7 @@ classdef aProjectionBase < serializable
                     mat2str(obj.alatt_),mat2str(obj.angdeg_))
             end
 
-            bm = bmatrix(obj.alatt,obj.angdeg);
+            [bm,arlu,angrlu] = bmatrix(obj.alatt,obj.angdeg);
             if nargin == 2 && ndim == 4
                 bm4 = eye(4);
                 bm4(1:3,1:3) = bm;
@@ -376,23 +352,9 @@ classdef aProjectionBase < serializable
         function def = get.angdeg_defined(obj)
             def = obj.lattice_defined_(2);
         end
-        % OLD sqw object creation interface.
-        function off = get.uoffset(obj)
-            off = obj.img_offset;
-        end
-        function obj = set.uoffset(obj,val)
-            obj.img_offset = val;
-        end
         function name = get.axes_name(obj)
             name = get_axes_name(obj);
         end
-        function is = get.proj_aligned(obj)
-            is = get_proj_aligned(obj);
-        end
-        function obj = set.proj_aligned(obj,val)
-            obj = obj.set_proj_aligned(val);
-        end
-
     end
 
     %======================================================================
@@ -444,8 +406,8 @@ classdef aProjectionBase < serializable
                 cur_axes_block, targ_proj,targ_axes_block)
             % return logical array of size of the current axes block grid
             % containing true for the cells which may contribute into
-            % into cut, descrined by target projection and target axes
-            % block/
+            % cut, described by target projection and target axes
+            % block.
             %
             % Part of get_nrange -> get_contrib_cell_ind routines
             % Inputs:
@@ -638,7 +600,8 @@ classdef aProjectionBase < serializable
             % pix_img   -- 4xNpix or 3xNpix vector of pixels coordinates
             %              expressed in the coordinate system defined by
             %              this projection
-            pix_img = obj.bmatrix() * pix_hkl;
+            ndim = size(pix_hkl,1);
+            pix_img = obj.bmatrix(ndim) * pix_hkl;
         end
 
         function pix_img = transform_hkl_to_img(obj,pix_hkl,varargin)
@@ -658,10 +621,11 @@ classdef aProjectionBase < serializable
             % pix_img   -- 4xNpix or 3xNpix vector of pixels coordinates
             %              expressed in the coordinate system defined by
             %              this projection
-            pix_img = obj.transform_pix_to_img(obj.bmatrix() * pix_hkl);
+            ndim  = size(pix_hkl,1);
+            pix_img = obj.transform_pix_to_img(obj.bmatrix(ndim) * pix_hkl);
         end
 
-        function pix_hkl = tansform_img_to_hkl(obj,img_coord,varargin)
+        function pix_hkl = transform_img_to_hkl(obj,img_coord,varargin)
             % Converts from image coordinate system to hkl coordinate
             % system
             %
@@ -699,9 +663,9 @@ classdef aProjectionBase < serializable
             %              expressed in. The target projection has to be
             %              set up
             %
-            % pix_origin   4xNpix vector of pixels coordinates expressed in
-            %              the coordinate system, defined by current
-            %              projection
+            % pix_origin   3xNpix or 4xNpix vector of pixels coordinates
+            %              expressed in the coordinate system, defined by
+            %              current projection
             %Outputs:
             % pix_target -- 4xNpix vector of the pixels coordinates in the
             %               coordinate system, defined by the target
@@ -712,7 +676,7 @@ classdef aProjectionBase < serializable
                 error('HORACE:aProjectionBase:runtime_error',...
                     'Target projection property has to be set up to convert to target coordinate system')
             end
-            pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
+            pic_cc      = obj.transform_img_to_pix(pix_origin,varargin{:});
             pix_target  = targproj.transform_pix_to_img(pic_cc,varargin{:});
         end
         %
@@ -745,24 +709,24 @@ classdef aProjectionBase < serializable
     % Related Axes and Alignment
     methods
         %
-        function ax_bl = get_proj_axes_block(obj,def_bin_ranges,req_bin_ranges)
+        function ax_bl = get_proj_axes_block(obj,default_bin_ranges,requested_bin_ranges)
             % Construct the axes block, corresponding to this projection class
-            % Returns generic AxesBlockBase, built from the block ranges or the
-            % binning ranges.
+            % Returns projection-specific AxesBlockBase class, built from the
+            % block ranges or the binning ranges.
             %
-            % Usually overloaded for specific projection and specific axes
-            % block to return the particular AxesBlockBase specific for the
+            % Usually overloaded for specific projection
+            % to add the particular axes_block properties, specific for the
             % projection class.
             %
             % Inputs:
-            % def_bin_ranges --
+            % default_bin_ranges --
             %           cellarray of the binning ranges used as defaults
             %           if requested binning ranges are undefined or
             %           infinite. Usually it is the range of the existing
             %           axes block, transformed into the system
             %           coordinates, defined by cut projection using
-            %           dnd.targ_range(targ_proj) method.
-            % req_bin_ranges --
+            %           dnd.get_targ_range(targ_proj) method.
+            % requested_bin_ranges --
             %           cellarray of cut bin ranges, requested by user.
             %
             % Returns:
@@ -770,8 +734,10 @@ classdef aProjectionBase < serializable
             %          numbers of  bins in each direction, AxesBlockBase
             %          corresponding to the projection
             ax_name = obj.axes_name;
+            ax_class = feval(ax_name);
+            ax_class.axes_units = obj.type;
             ax_bl = AxesBlockBase.build_from_input_binning(...
-                ax_name,def_bin_ranges,req_bin_ranges);
+                ax_class,default_bin_ranges,requested_bin_ranges);
             ax_bl = obj.copy_proj_defined_properties_to_axes(ax_bl);
         end
         %
@@ -782,7 +748,8 @@ classdef aProjectionBase < serializable
             if ~isempty(obj.title)
                 axes_bl.title = obj.title;
             end
-            axes_bl.offset = obj.offset;
+            axes_bl.offset      = obj.offset;
+            axes_bl.img_scales  = obj.img_scales;
         end
         %
         function [obj,axes] = align_proj(obj,alignment_info,axes)
@@ -813,13 +780,6 @@ classdef aProjectionBase < serializable
     end
     %======================================================================
     methods(Access = protected)
-        function is = get_proj_aligned(~)
-            is = false;
-        end
-        function obj = set_proj_aligned(obj,varargin)
-            % do nothing -- have not implemented alignment on generic
-            % projection
-        end
         function name = get_axes_name(obj)
             % return the name of the axes class, which corresponds to this
             % projection
@@ -866,6 +826,12 @@ classdef aProjectionBase < serializable
                     ' Attempted to use: %s'],...
                     disp2str(val))
             end
+            if ~val.alatt_defined
+                val.alatt = obj.alatt;
+            end
+            if ~val.angdeg_defined
+                val.angdeg = obj.angdeg;
+            end
             obj.targ_proj_ = val;
             obj.do_3D_transformation_ = val.do_3D_transformation;
         end
@@ -892,11 +858,48 @@ classdef aProjectionBase < serializable
                 error('HORACE:aProjectionBase:invalid_argument',...
                     'you may set do_generic property into true or false state only');
             end
-            obj.do_generic_ = logical(val);
+            obj.do_generic_                        = logical(val);
+            obj.disable_srce_to_targ_optimization_ = logical(val);
+        end
+
+        function obj = set_offset(obj,val)
+            obj.offset_ = check_offset_(obj,val);
+            % one and then another but reconciliation have not happened yet
+            if obj.do_check_combo_arg_ % does nothing here, but
+                % will recalculate caches in children
+                obj = obj.check_combo_arg();
+            end
         end
     end
     %
     methods(Static,Access=protected)
+        function [alignment_needed,alignment_mat] = check_alignment_needed(pixData)
+            % verify if input argumnet contain alignment information and
+            % return this information if it is available.
+            %
+            % Inputs:
+            % pixData -- any instance of the PixelDataBase or pix_metadata class
+            %            containing information about alignment
+            % Returns:
+            % alignment_needed -- true if input contains non-unary alignment
+            %                     info
+            %
+            % alignment_mat    -- if alignment_needed is true, matrix which
+            %                     describes pixels misalignment
+            %                     if false, empty argument
+            alignment_mat    =  [];
+            if nargin>0 && (isa(pixData,'PixelDataBase')|| isa(pixData,'pix_metadata'))
+                if pixData.is_misaligned
+                    alignment_needed = true;
+                    alignment_mat = pixData.alignment_matr;
+                else
+                    alignment_needed = false;
+                end
+            else
+                alignment_needed = false;
+            end
+        end
+
         %
         function [bl_start,bl_size]=convert_contrib_cell_into_pix_indexes(...
                 cell_ind,npix)
@@ -950,8 +953,8 @@ classdef aProjectionBase < serializable
             % bin_inside3D -- 3D logical array, containing true
             %                 for indexes to include
             % en_inside    -- 1D logical array, containing true, for
-            %                 orthogonal 1D indexes on dE lattice to include
-            %                 into contributing indexes.
+            %                 contributing cells (n_cells = n_edges-1) for
+            %                 orthogonal 1D indexes on dE lattice 
             %
             % Uses knowledge about linear arrangement of 4-D array of indexes
             % in memory and on disk
@@ -967,7 +970,7 @@ classdef aProjectionBase < serializable
 
             % calculate full 4D indexes from the the knowledge of the contributing dE bins,
             % 3D indexes and 4D array allocation layout
-            q_stride = (0:numel(en_inside)-1)*q_block_size; % the shift of indexes for
+            q_stride = (0:numel(en_inside))*q_block_size; % the shift of indexes for
             % every subsequent dE block shifted by q_stride
             q_stride = q_stride(en_inside); % but only contributing dE blocks matter
 
@@ -1009,6 +1012,14 @@ classdef aProjectionBase < serializable
         % to image coordinate system
         varargout = get_pix_img_transformation(obj,ndim,varargin);
     end
+    %
+    methods(Abstract,Access=protected)
+        scales   = get_img_scales(obj);
+        obj      = set_img_scales(obj,val);
+
+        % set projection type, changing the units of angular dimensions if
+        obj = check_and_set_type(obj,val)% necessary/present
+    end
     %======================================================================
     % Serializable interface
     %======================================================================
@@ -1019,29 +1030,8 @@ classdef aProjectionBase < serializable
         function ver  = classVersion(~)
             ver = 1;
         end
-        function  flds = saveableFields(obj)
-            flds = {'alatt','angdeg','offset','label'};
-            if ~isempty(obj.title)
-                flds = [flds(:);'title']';
-            end
-        end
-        % validation
-        function obj = check_combo_arg (obj)
-            % check if the img_offset has been set and transform it into
-            % hkl offset if all necessary class properties are defined
-            if ~isempty(obj.tmp_img_offset_holder_) && obj.alatt_defined && obj.angdeg_defined
-                img_offset_ = obj.tmp_img_offset_holder_(:);
-
-                % Extract existing offset here to add it in the transformation
-                offset_cc = obj.bmatrix(4)*obj.offset_(:);
-                img_offset_here_ = obj.transform_pix_to_img(offset_cc);
-                img_offset_ = img_offset_- img_offset_here_;
-
-                % transform offset into hkl coordinate system and set it
-                % using public interface (check interdependent properties)
-                obj.offset  = (obj.transform_img_to_hkl(img_offset_))';
-                obj.tmp_img_offset_holder_ = [];
-            end
+        function  flds = saveableFields(~)
+            flds = {'alatt','angdeg','offset','label','title'};
         end
     end
 end

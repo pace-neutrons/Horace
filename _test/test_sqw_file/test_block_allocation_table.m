@@ -4,6 +4,7 @@ classdef test_block_allocation_table < TestCase
     end
 
     methods
+        % Construction and helpers
         function obj = test_block_allocation_table(varargin)
             if nargin == 0
                 name = varargin{1};
@@ -35,9 +36,116 @@ classdef test_block_allocation_table < TestCase
             assertFalse(bac.initialized);
 
             test_class = binfile_v4_block_tester();
-            bac  = bac.init_obj_info(test_class);
+            bac  = bac.init_obj_info(test_class,'-nocache');
             assertTrue(bac.initialized);
         end
+    end
+    methods
+        % Test clear blocks of data, add blocks of modified data
+        function test_set_leave_two_blocks_returns_same_BAT(obj)
+            bat = obj.init_bac();
+            bat.blocks_list{end-1}.locked = true;
+            bat.blocks_list{2}.locked = true;
+
+            bat0 = bat.clear_unlocked_blocks();
+
+            test_class = binfile_v4_block_tester();
+            batR = bat0.place_undocked_blocks(test_class,true);
+
+            assertEqual(bat.free_spaces_and_size,batR.free_spaces_and_size);
+            assertEqual(bat.end_of_file_pos,batR.end_of_file_pos);
+
+        end
+
+        function test_set_block_info_one_before_last_returns_same_BAT(obj)
+            % reallocates free space between BAT and last block and adds
+            % free space at the end
+            bat = obj.init_bac();
+            bat.blocks_list{end-1}.locked = true;
+            bat0 = bat.clear_unlocked_blocks();
+
+            test_class = binfile_v4_block_tester();
+            batR = bat0.place_undocked_blocks(test_class,true);
+
+            assertEqual(bat.free_spaces_and_size,batR.free_spaces_and_size);
+            assertEqual(bat.end_of_file_pos,batR.end_of_file_pos);
+
+        end
+
+        function test_set_block_info_last_returns_same_BAT(obj)
+            % reallocates free space between BAT and last block
+            bat = obj.init_bac();
+            bat.blocks_list{end}.locked = true;
+            bat0 = bat.clear_unlocked_blocks();
+
+            test_class = binfile_v4_block_tester();
+            batR = bat0.place_undocked_blocks(test_class,true);
+            assertEqual(bat.free_spaces_and_size,batR.free_spaces_and_size);
+            assertEqual(bat.end_of_file_pos,batR.end_of_file_pos);
+        end
+        %
+        function test_clear_leave_two_blocks(obj)
+            bat = obj.init_bac();
+            bat.blocks_list{end-1}.locked = true;
+            bat.blocks_list{2}.locked = true;
+
+            bat = bat.clear_unlocked_blocks();
+
+            assertTrue(bat.initialized);
+            assertEqual(size(bat.free_spaces_and_size),[2,2])
+            assertEqual(bat.free_spaces_and_size(1,1),bat.blocks_start_position)
+            assertEqual(bat.free_spaces_and_size(2,1), ...
+                bat.blocks_list{2}.position - bat.blocks_start_position)
+            assertEqual(bat.free_spaces_and_size(1,2), ...
+                bat.blocks_list{2}.position+bat.blocks_list{2}.size)
+            assertEqual(bat.free_spaces_and_size(1,2)+bat.free_spaces_and_size(2,2), ...
+                bat.blocks_list{end-1}.position)
+            assertEqual(bat.end_of_file_pos, ...
+                bat.blocks_list{end-1}.position+bat.blocks_list{end-1}.size);
+        end
+
+        function test_clear_block_info_one_before_last_locked(obj)
+            % allocates free space between BAT and last block and drops
+            % free space at the end
+            bat = obj.init_bac();
+            bat.blocks_list{end-1}.locked = true;
+
+            bat = bat.clear_unlocked_blocks();
+
+            assertTrue(bat.initialized);
+            assertEqual(bat.end_of_file_pos, ...
+                bat.blocks_list{end-1}.position+bat.blocks_list{end-1}.size);
+            assertEqual(numel(bat.free_spaces_and_size),2)
+            assertEqual(bat.free_spaces_and_size(1),bat.blocks_start_position)
+            assertEqual(bat.free_spaces_and_size(2), ...
+                bat.blocks_list{end-1}.position - bat.blocks_start_position)
+        end
+
+        function test_clear_block_info_last_locked(obj)
+            % allocates free space between BAT and last block
+            bat = obj.init_bac();
+            bat.blocks_list{end}.locked = true;
+            bat = bat.clear_unlocked_blocks();
+
+            assertTrue(bat.initialized);
+            assertEqual(bat.end_of_file_pos, ...
+                bat.blocks_list{end}.position+bat.blocks_list{end}.size);
+            assertEqual(numel(bat.free_spaces_and_size),2)
+            assertEqual(bat.free_spaces_and_size(1),bat.blocks_start_position)
+            assertEqual(bat.free_spaces_and_size(2), ...
+                bat.blocks_list{end}.position - bat.blocks_start_position)
+        end
+
+        function test_clear_block_info(obj)
+            bat = obj.init_bac();
+            bat = bat.clear_unlocked_blocks();
+
+            assertFalse(bat.initialized);
+            assertEqual(bat.end_of_file_pos,bat.bat_bin_size);
+        end
+    end
+    methods
+        % Test functionality
         function test_init_with_insertion(~)
             data_list =  {data_block('','level2_a'),data_block('','level2_b')...
                 data_block('','level2_c'),dnd_data_block(),data_block('','level2_d'),...
@@ -52,7 +160,7 @@ classdef test_block_allocation_table < TestCase
             bac = bac.set_data_block(pdb);
 
             test_class = binfile_v4_block_tester();
-            bac = bac.init_obj_info(test_class,'-insertion','-test_mode');
+            bac = bac.place_undocked_blocks(test_class);
 
             assertEqual(bac.free_spaces_and_size,uint64([439;60]));
 
@@ -222,7 +330,6 @@ classdef test_block_allocation_table < TestCase
             % end of file position have not changed
             assertEqual(bac.end_of_file_pos,old_eof_pos)
         end
-
         function test_two_blocks_moved_compression_possible_for_third(obj)
 
             bac = obj.init_bac();
@@ -341,7 +448,7 @@ classdef test_block_allocation_table < TestCase
 
             bac = blockAllocationTable(0,data_list);
             assertFalse(bac.initialized);
-            assertEqual(bac.bat_bin_size,4+54*4+55*2);
+            assertEqual(bac.bat_bin_size,uint64(4+4+54*4+55*2));
             bac = bac.init_obj_info(obj.test_structure);
             assertTrue(bac.initialized);
 
@@ -361,7 +468,7 @@ classdef test_block_allocation_table < TestCase
 
             bac = blockAllocationTable(0,data_list);
             assertFalse(bac.initialized);
-            assertEqual(bac.bat_bin_size,4+54*4+55*2);
+            assertEqual(bac.bat_bin_size,uint64(4+4+54*4+55*2));
 
             name = data_list{2};
             assertExceptionThrown(@()get_block_pos(bac,name), ...
@@ -375,7 +482,9 @@ classdef test_block_allocation_table < TestCase
 
             bac = blockAllocationTable(0,data_list);
             assertFalse(bac.initialized);
-            assertEqual(bac.bat_bin_size,4+54*4+55*2);
+            % 4 bytes BAT length, 4 bytes n_elements and elements
+            % themselves
+            assertEqual(bac.bat_bin_size,uint64(4+4+54*4+55*2));
 
             bac = bac.init_obj_info(obj.test_structure);
             assertTrue(bac.initialized);
@@ -404,13 +513,13 @@ classdef test_block_allocation_table < TestCase
 
             bac = blockAllocationTable(0,data_list);
             assertFalse(bac.initialized);
-            assertEqual(bac.bat_bin_size,167);
+            assertEqual(bac.bat_bin_size,uint64(171));
             bac = bac.init_obj_info(obj.test_structure);
             assertTrue(bac.initialized);
 
             bin_data = bac.ba_table;
             assertTrue(isa(bin_data,'uint8'));
-            assertEqual(numel(bin_data),bac.bat_bin_size);
+            assertEqual(uint64(numel(bin_data)),bac.bat_bin_size-4);
 
             rec_table = blockAllocationTable();
             rec_table.ba_table = bin_data;
@@ -421,7 +530,7 @@ classdef test_block_allocation_table < TestCase
         function test_empty_table(~)
             bac = blockAllocationTable();
             assertFalse(bac.initialized);
-            assertEqual(bac.bat_bin_size,4); % Empty table occupies 4 bytes
+            assertEqual(bac.bat_bin_size,uint64(4)); % Empty table occupies 4 bytes
 
             bin_data = bac.ba_table;
             assertEqual(numel(bin_data),4);

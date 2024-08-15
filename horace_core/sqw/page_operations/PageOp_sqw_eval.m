@@ -9,61 +9,35 @@ classdef PageOp_sqw_eval < PageOpBase
         op_parms
         %
     end
-    properties(Access = private)
-        pix_idx_start_ = 1;
-    end
 
     methods
         function obj = PageOp_sqw_eval(varargin)
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'sqw_eval';
+            obj.split_at_bin_edges = true;
         end
         function obj = init(obj,sqw_obj,operation,op_param,average)
             obj           = init@PageOpBase(obj,sqw_obj);
             obj.average   = average;
             obj.op_holder = operation;
             obj.op_parms  = op_param;
-            obj.pix_idx_start_ = 1;
+            %--------------------------------------------------------------
+            obj.split_at_bin_edges = obj.average;
+            %--------------------------------------------------------------
             %
-            if isa(sqw_obj,'sqw') % this is impossible for sqw_eval but may
+            if isa(sqw_obj,'sqw') % non-sqw impossible for sqw_eval but may
                 % be necessary for children (generic apply)
                 obj.proj      = sqw_obj.data.proj;
             end
         end
-
-        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
-            % Method used to split input npix array into pages
-            %
-            % Overload specific for sqw_eval
-            % Inputs:
-            % npix  -- image npix array, which defines the number of pixels
-            %           contributing into each image bin and the pixels
-            %           ordering in the linear array
-            % chunk_size
-            %       -- sized of chunks to split pixels
-            % Returns:
-            % npix_chunks -- cellarray, containing the npix parts
-            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
-            %                the npix array.
-            % See split procedure for more details
-            if obj.average
-                [npix_chunks, npix_idx] = split_vector_max_sum(npix, chunk_size);
-            else
-                [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
-            end
-        end
-
-        function obj = get_page_data(obj,idx,npix_blocks)
-            % return block of data used in page operation
-            %
-            % Overload specific for sqw_eval. Its average operation needs
-            % knolege of all pixel coordinates in a cell.
-            npix_block = npix_blocks{idx};
-            npix = sum(npix_block(:));
-            pix_idx_end = obj.pix_idx_start_+npix-1;
-            obj.page_data_ = obj.pix_.get_pixels( ...
-                obj.pix_idx_start_:pix_idx_end,'-raw');
-            obj.pix_idx_start_ = pix_idx_end+1;
+        function obj = update_img_accumulators(obj,npix_block,npix_idx, ...
+                new_signal,varargin)
+            % specific overload for sqw_eval. Variance accumulator is not
+            % initialized for it, and call to compute_bin_data accepts only
+            % one argument
+            img_signal = compute_bin_data(npix_block,new_signal,[],true);
+            obj.sig_acc_(npix_idx(1):npix_idx(2)) = ...
+                obj.sig_acc_(npix_idx(1):npix_idx(2))+img_signal(:);
         end
 
         function obj = apply_op(obj,npix_block,npix_idx)
@@ -84,20 +58,26 @@ classdef PageOp_sqw_eval < PageOpBase
             obj.page_data_(obj.signal_idx,:)   = new_signal(:)';
             obj.page_data_(obj.var_idx,:)      = 0; % I do not like this but this is legacy behaviour
             %
-            img_signal = compute_bin_data(npix_block,new_signal,[],true);
-            obj.sig_acc_(npix_idx(1):npix_idx(2)) = ...
-                obj.sig_acc_(npix_idx(1):npix_idx(2))+img_signal(:);
+            obj = update_img_accumulators(obj,npix_block,npix_idx, ...
+                new_signal);
         end
 
         function [out_obj,obj] = finish_op(obj,out_obj)
-            variance = zeros(numel(obj.sig_acc_),1); % I do not like this but this is legacy behaviour
-            % Complete image modifications:
-            obj = obj.update_image(obj.sig_acc_,variance);
+            obj.var_acc_ = zeros(numel(obj.sig_acc_),1); % I do not like this but this is legacy behaviour
 
             % transfer modifications to the underlying object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
-            obj.pix_idx_start_ = 1;
         end
-
+    end
+    methods(Access=protected)
+        % Log frequency
+        %------------------------------------------------------------------
+        function rat = get_info_split_log_ratio(~)
+            rat = config_store.instance().get_value('log_config','sqw_eval_split_ratio');
+        end
+        function obj = set_info_split_log_ratio(obj,val)
+            log = log_config;
+            log.sqw_eval_split_ratio = val;
+        end
     end
 end

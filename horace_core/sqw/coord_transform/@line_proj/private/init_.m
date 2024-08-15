@@ -32,9 +32,10 @@ function obj = init_by_input_parameters_(obj,varargin)
 %
 
 
-opt =  [line_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
+opt =  [line_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
 % check if the type is defined explicitly
 n_type = find(ismember(opt,'type'));
+% convert all inputs into text to be able to use ismember function
 text_in = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false); 
 
 if ismember('type',text_in) || ... % defined as key-value pair
@@ -42,12 +43,6 @@ if ismember('type',text_in) || ... % defined as key-value pair
     obj.type_is_defined_explicitly_ = true;
 end
 is_uoffset = ismember(text_in,'uoffset');
-is_img_offset = ismember(text_in,'img_offset');
-if any(is_uoffset) && any(is_img_offset)
-    error('HORACE:line_proj:invalid_argument',...    
-        'only one key describing image offset (img_offset or uoffset) may be provided as input')
-end
-is_uoffset = is_uoffset | is_img_offset;
 if any(is_uoffset)
     uoffset_provided = true;
     uoffset_nval = find(is_uoffset)+1;
@@ -66,5 +61,20 @@ if ~isempty(remains)
         disp2str(remains));
 end
 if uoffset_provided
-    obj.img_offset = varargin{uoffset_nval};
+    uoffset = varargin{uoffset_nval};
+    try
+        offset = obj.transform_img_to_hkl(uoffset(:));
+    catch ME
+        if strcmp(ME.identifier,'HORACE:line_proj:runtime_error')
+            warning('HORACE:invalid_argument', ...
+                ['attempt to use old interface "uoffset" ' ...
+                'which should define offset in image coordinate system but the projection lattice is undefined\n' ...
+                'Using uoffset = %s assuming it is offset in hkle coordinate system'], ...
+                disp2str(uoffset(:)'));
+            offset = uoffset(:)';
+        else
+            retrhow(ME);
+        end
+    end
+    obj.offset = offset;
 end

@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = dl(w,varargin)
+function varargout = dl(w,varargin)
 % Draws a line plot of a spectrum or array of spectra
 %
 %   >> dl(w)
@@ -12,15 +12,9 @@ function [fig_handle, axes_handle, plot_handle] = dl(w,varargin)
 %   >> [fig_handle, axes_handle, plot_handle] = dl(w,...) 
 
 
-% Check input arguments
-opt=struct('newplot',true,'lims_type','xy');
-[args,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
-
-% Perform plot
-type='l';
-[fig_,axes_,plot_]=plot_oned (w,opt.newplot,type,fig,lims{:});
+[fig_,axes_,plot_] = plot_1d_nd_(w,'l',varargin{:});
 
 % Output only if requested
-if nargout>=1, fig_handle=fig_; end
-if nargout>=2, axes_handle=axes_; end
-if nargout>=3, plot_handle=plot_; end
+if nargout>0
+    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+end

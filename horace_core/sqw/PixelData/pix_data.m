@@ -8,8 +8,9 @@ classdef pix_data < serializable
     properties(Dependent)
         npix;   % Number of pixels, stored in the the pixels data block
         n_rows  % Number of rows in pixel data array
-        data;  % data array block
-        offset;
+        data;   % data array block
+        offset; % shift (in Bytes) from the beginning of the binary file
+        %  containing  the pixels to the first byte of pixels to access.
     end
 
     properties(Access=protected)
@@ -38,7 +39,7 @@ classdef pix_data < serializable
                     obj.npix   = inputs.num_pixels;
                     obj.data   = inputs.full_filename;
                     obj.offset = inputs.offset;
-                elseif isa(varargin{1},'pix_combine_info')
+                elseif isa(varargin{1},'MultipixBase')
                     obj.npix = inputs.num_pixels;
                     obj.data = inputs.full_filename;
                 else

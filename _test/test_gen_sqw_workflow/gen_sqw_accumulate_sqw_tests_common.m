@@ -290,18 +290,25 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             end
             % ---------------------------------------
             % Test gen_sqw ---------------------------------------
+            clConf = set_temporary_config_options('hor_config','delete_tmp',true);
 
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             %hc.threads = 1;
 
 
-            [dummy,grid1,pix_data_range1]=gen_sqw (obj.spe_file, '', ...
+            [tmp_files,grid1,pix_data_range1]=gen_sqw (obj.spe_file, '', ...
                 sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            for i=1:numel(tmp_files)
+                assertFalse(is_file(tmp_files{i}));
+            end
             %hc.build_sqw_in_parallel=0;
-            [dummy,grid2,pix_data_range2]=gen_sqw (obj.spe_file([1,4,5,6,2,3]),...
+            [tmp_files,grid2,pix_data_range2]=gen_sqw (obj.spe_file([1,4,5,6,2,3]),...
                 '', sqw_file_145623, efix([1,4,5,6,2,3]), emode, alatt, angdeg,...
                 u, v, psi([1,4,5,6,2,3]), omega([1,4,5,6,2,3]), ...
                 dpsi([1,4,5,6,2,3]), gl([1,4,5,6,2,3]), gs([1,4,5,6,2,3]));
+            for i=1:numel(tmp_files)
+                assertFalse(is_file(tmp_files{i}));
+            end
 
             assertEqual(grid1,grid2);
             assertElementsAlmostEqual(pix_data_range1,pix_data_range2);
@@ -357,9 +364,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
 
             hpc_config_cleanup = set_temporary_config_options(hpc_config, ...
-                                                              'build_sqw_in_parallel', false, ...
-                                                              'combine_sqw_using', 'mex_code' ...
-                                                             );
+                'build_sqw_in_parallel', false, ...
+                'combine_sqw_using', 'mex_code' ...
+                );
             hc_config_cleanup = set_temporary_config_options(hor_config, 'delete_tmp', true);
 
             % Test symmetrisation ---------------------------------------
@@ -381,8 +388,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertEqual(w_inm.pix.num_pixels,w_mem_sym.pix.num_pixels)
 
             gen_sqw(obj.spe_file, '', sqw_file_sym,...
-                    efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
-                    'transform_sqw',@(x)symmetrise_sqw(x,sym));
+                efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
+                'transform_sqw',@(x)symmetrise_sqw(x,sym));
 
 
             loc_proj=struct('u',u,'v',v);
@@ -390,10 +397,10 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             w1_inf_sym = cut(sqw_file_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             w1_inm_sym = cut(w_mem_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             % Uncomment to see the cut shapes
-%             acolor('r')
-%             plot(w1_inf_sym)
-%             acolor('k')
-%             pd(w1_inm_sym)
+            %             acolor('r')
+            %             plot(w1_inf_sym)
+            %             acolor('k')
+            %             pd(w1_inm_sym)
 
             assertEqualToTol(w1_inf_sym,w1_inm_sym,'ignore_str',true,'tol',1.e-6)
 
@@ -401,10 +408,11 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertEqual(w_inf_sym.npixels,w_mem_sym.npixels)
             %TODO: with proper projection the error should be lower. The
             %difference due to various borders added in different places
+            clear hc_config_cleanup;
             skipTest('Memory based and file-based symmetrisation ranges are different Ticket #798');
             assertEqualToTol(w_mem_sym,w_inf_sym,'ignore_str',true,'tol',2.e-5)
 
-            clear config_cleanup;
+
 
         end
 
@@ -419,6 +427,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 clobS = onCleanup(@()obj.tearDown());
             end
             %-------------------------------------------------------------
+            clConf = set_temporary_config_options('hor_config','delete_tmp',true);
             file_pref = obj.test_pref;
             wk_dir = obj.working_dir;
 
@@ -434,8 +443,11 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % ---------------------------------------------------------------------------
             [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
 
-            [~,grid1,pix_range14]=gen_sqw (obj.spe_file([1,4]), '', sqw_file_14, efix([1,4]),...
+            [tmp_files,grid1,pix_range14]=gen_sqw (obj.spe_file([1,4]), '', sqw_file_14, efix([1,4]),...
                 emode, alatt, angdeg, u, v, psi([1,4]), omega([1,4]), dpsi([1,4]), gl([1,4]), gs([1,4]));
+            for i=1:numel(tmp_files)
+                assertFalse(is_file(tmp_files{i}));
+            end
 
             % Now use accumulate sqw ----------------------
             obj.proj.u=u;
@@ -511,9 +523,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % Allow nan-s and inf-s to keep masked pixels, to ensure
             % consistency of estimated and actual pix_ranges
             co5 = set_temporary_config_options(hor_config, ...
-                                               'ignore_nan', false, ...
-                                               'ignore_inf', false ...
-                                               );
+                'ignore_nan', false, ...
+                'ignore_inf', false ...
+                );
 
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
@@ -550,11 +562,12 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
 
 
             gen_sqw_accumulate_sqw_tests_common.rename_file_list(new_names{2},'.nxspe');
-            [~,~,pix_range_f1456]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
+            [tmp_fls,~,pix_range_f1456]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             assertTrue(all(pix_range_f145(1,:)>=pix_range_f1456(1,:)));
             assertTrue(all(pix_range_f145(2,:)<=pix_range_f1456(2,:)));
-
+            %
+            clAccFls=onCleanup(@()obj.delete_files(tmp_fls));
             %
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
             dat = ldr.get_data();
@@ -612,31 +625,36 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             hc = hpc_config;
             disp(hc);
 
-            [~,~,pix_range1456]=...
+            [tmp_fls,~,pix_range1456]=...
                 gen_sqw (obj.spe_file([1,4,5,6]), '',sqw_file_1456, efix([1,4,5,6]),...
                 emode, alatt, angdeg, u, v,...
                 psi([1,4,5,6]), omega([1,4,5,6]), dpsi([1,4,5,6]), gl([1,4,5,6]), gs([1,4,5,6]));
+            for i=1:numel(tmp_fls)
+                assertTrue(is_file(tmp_fls{i}));
+            end
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_1456);
             dat = ldr.get_data();
             data_range = ldr.get_data_range();
             clear ldr;
             img_db_range1 = dat.img_range;
-            assertEqual(pix_range1456,data_range);
+            assertElementsAlmostEqual(data_range,pix_range1456,'relative',4*eps('single'));
             assertElementsAlmostEqual(data_range(:,1:4),img_db_range1,'relative',1.e-4);
 
 
             % Now use accumulate sqw ----------------------
 
             spe_accum={obj.spe_file{1},'','',obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
-            [~,~,acc_pix_range1456]=...
+            [tmp_fls_t,~,acc_pix_range1456,all_sqw]=...
                 accumulate_sqw (spe_accum, '', sqw_file_accum,efix,...
                 emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-            ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
-            dat = ldr.get_data();
-            data_range = ldr.get_data_range();
-            assertEqual(acc_pix_range1456,data_range);
-            clear ldr;
-            img_db_range2 = dat.img_range;
+            clFls = onCleanup(@()obj.delete_files(tmp_fls_t));
+            for i=1:numel(tmp_fls)
+                assertTrue(is_file(tmp_fls_t{i}));
+            end
+
+            assertElementsAlmostEqual(all_sqw.pix.data_range,acc_pix_range1456,'relative',4*eps('single'));
+
+            img_db_range2 = all_sqw.data.img_range;
             % img_db_range in second case is wider then in the first, as
             % additional ranges were added from missing files
             assertTrue(all(img_db_range1(1,:)>=img_db_range2(1,:)));
@@ -649,6 +667,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 proj_o,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             %
+            clear all_sqw;
             clear co2;
             % Test against saved or store to save later
             obj.assertEqualToTolWithSave(w2_1456,'ignore_str',true,'tol',1.e-7);
@@ -694,9 +713,16 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 emode, alatt, angdeg, u, v, psi([1,3,4,5,6]),...
                 omega([1,3,4,5,6]), dpsi([1,3,4,5,6]), gl([1,3,4,5,6]), gs([1,3,4,5,6]),...
                 'replicate');
+            clTmpDel = onCleanup(@()obj.delete_files(tmp_files));
             assertEqual(exist(sqw_file_11456,'file'),2)
-            clobT = onCleanup(@()obj.delete_files(tmp_files));
+            for i=1:numel(tmp_files)
+                % files left because delete_tmp is true
+                assertTrue(is_file(tmp_files{i}));
+            end
 
+            clear co2;
+            co2 = set_temporary_config_options(hor_config, 'delete_tmp', true,'log_level',1);
+            clWarn = set_temporary_warning('off','HORACE:push_warning','HORACE:valid_tmp_files_exist');
             % Now use accumulate sqw ----------------------
             obj.proj.u=u;
             obj.proj.v=v;
@@ -704,11 +730,25 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % Repeat a file with 'replicate'
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},...
                 obj.spe_file{5},obj.spe_file{6}};
-
+            warning('HORACE:push_warning','push warning issued to ensure correct warning will appear below');
             [tmp_fls,~,pix_range2]=accumulate_sqw (spe_accum, '',...
                 sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi,...
                 omega, dpsi, gl, gs,...
                 'replicate'); %grid_size1,pix_range1,
+            % these files have different pixel coordinate ranges so
+            % existing tmp will not be reused
+            [~,warn_id] = lastwarn;
+            % Check on no warning on reusing existing files as this warning
+            % should not be issued in accumulate mode + files are not reused
+            % anyway
+            assertFalse(isequal(warn_id,'HORACE:valid_tmp_files_exist'))
+
+            % Not all provided spe files were present so tmp are not deleted
+            % after sqw file was generated
+            for i=1:numel(tmp_files)
+                assertTrue(is_file(tmp_fls{i}));
+            end
+
 
             assertEqualToTol(pix_range1,pix_range2,[2.e-7,2.e-7]);
             % Estimated ranges the pixels rebinned onto are different but
@@ -733,11 +773,13 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             if obj.save_output
                 return;
             end
-            % Accumulate nothing, all files already accumulated.
+            % Accumulate nothing, all files already accumulated. No warning
+            % as this is accumulate_sqw mode
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
             [~,grid_size,pix_range]=accumulate_sqw (spe_accum, '', sqw_file_accum,...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
-            assertEqual(pix_range,pix_range2);
+
+            assertElementsAlmostEqual(pix_range,pix_range2,'relative',4*eps('single'));
             assertEqual(grid_size,grid_size1);
 
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,...
@@ -745,6 +787,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
 
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',...
                 mess]);
+            clear cleanup_obj1;
+            clear clTmpDel;
         end
         %
     end

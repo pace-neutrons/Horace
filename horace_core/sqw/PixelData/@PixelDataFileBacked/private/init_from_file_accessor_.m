@@ -27,8 +27,10 @@ obj.metadata = meta;
 obj.full_filename = faccessor.full_filename;
 
 ver = faccessor.faccess_version;
-if ver< 4.0
+if ver< sqw_formats_factory.instance().last_version()
     obj.old_file_format_ = true;
+else
+    obj.old_file_format_ = false;
 end
 
 if norange
