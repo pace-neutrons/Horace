@@ -36,6 +36,31 @@ classdef test_a_loader< TestCase
             assertExceptionThrown(f,'A_LOADER:abstract_method_called');
 
         end
+
+        function test_extract_runid_long_complex_from_fname(~)
+            fname =fullfile('cycle20201','MAR1044one2oneEi4.5.nxs');
+            id = a_loader.extract_id_from_filename(fname);
+            assertEqual(1044,id);
+        end
+
+        function test_extract_runid_complex(~)
+            fname = 'MAR1044one2oneEi4.5.nxs';
+            id = a_loader.extract_id_from_filename(fname);
+            assertEqual(1044,id);
+        end
+
+        function test_extract_runid_simple(~)
+            fname = 'MAR1044.nxs';
+            id = a_loader.extract_id_from_filename(fname);
+            assertEqual(1044,id);
+        end
+
+        function test_extract_runid_empty(~)
+            fname = 'nlalflalel';
+            id = a_loader.extract_id_from_filename(fname);
+            assertTrue(isnan(id));
+        end
+
         %
         function test_constructors(this)
             par_file = fullfile(this.test_data_path,'demo_par.par');

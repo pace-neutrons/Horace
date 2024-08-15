@@ -23,7 +23,7 @@ classdef test_loaders_factory< TestCase
 
         function test_select_loader(this)
             ascii_spe  = fullfile(this.test_data_path,'MAP10001.spe');
-            nxspe_f    = fullfile(this.test_data_path,'MAP11014v2.nxspe');
+            nxspe_f    = fullfile(this.test_data_path,'MAP11014v3.nxspe');
 
 
             asc_loader=loaders_factory.instance().get_loader(ascii_spe);

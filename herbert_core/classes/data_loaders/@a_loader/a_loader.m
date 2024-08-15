@@ -30,9 +30,11 @@ classdef a_loader < a_detpar_loader_interface
         ERR
         % energy boundaries
         en
-        % the variable which describes the file from which main part or
-        % all data should be loaded
+        % the string containibng the full file name of the file from which
+        % the main part or all data should be loaded.
         file_name
+
+        run_id % the number which identifies run on instrument
 
         isvalid
         reason_for_invalid;
@@ -41,6 +43,8 @@ classdef a_loader < a_detpar_loader_interface
         % property exposing detpar loader and giving possibility to set it
         % up to appropriate value
         detpar_loader;
+        % fields which specify data info for a particular loader
+        data_info_fields
     end
 
     properties(Access=protected)
@@ -55,7 +59,8 @@ classdef a_loader < a_detpar_loader_interface
         en_=[];
         % name of data file to load data from
         file_name_='';
-        % the data fields which are defined by the main data file
+        % the data fields which are stored in main data file and can be
+        % read from it
         loader_define_={};
         % holder to keep appropriate class, responsible for loading the
         % detectors parameters
@@ -64,6 +69,8 @@ classdef a_loader < a_detpar_loader_interface
         % object
         isvalid_ = true;
         reason_for_invalid_ = '';
+
+        run_id_;
     end
     properties(Constant,Access=protected)
         fext_to_parloader_map_ = containers.Map({'.par','.phx','.nxspe'},...
@@ -85,7 +92,7 @@ classdef a_loader < a_detpar_loader_interface
         %        recognized as suitable for a loader e.g. open file handle
         %        for an ASCII file to load. This information is used by
         %        loader's init function.
-        [ndet,en,varargout]=get_data_info(file_name);
+        fh = get_data_info(file_name);
         % get information about spe-part of data defined in the data file
         % namely number of detectors and the energy bins
         %
@@ -118,16 +125,10 @@ classdef a_loader < a_detpar_loader_interface
         % Common constructor of a specific loader the_loader should have the form similar to
         % the following:
         %
-        % function obj = the_loader(data_file,par_file,varargin)
-        %   obj =the_loader@a_loader(par_file);
-        %   obj=obj.init(data_file,varargin);
-        % end
-        % See loader_ascii or loader_nxspe for actual example of init method and the constructor.
-        obj=init(obj,data_file_name,varargin);
-
-        % method sets internal file information obtained for appropriate file
-        % by get_data_info method into internal class memory.
-        obj=set_data_info(obj,file_name);
+    end
+    methods(Abstract,Access=protected)
+        obj = set_info_fields(obj,fh,field_names)
+        flds = get_data_info_fields(obj);
     end
 
     methods
@@ -150,6 +151,61 @@ classdef a_loader < a_detpar_loader_interface
                 end
             end
         end
+        function obj = init(obj,full_spe_file_name,varargin)
+            % method initiates internal structure of ascii_loader, which is responsible for
+            % work with spe data file.
+            %Usage:
+            %>>loader=loader.init(full_spe_file_name,[full_par_file_name],[fh]);
+            %
+            %parameters:
+            %full_spe_file_name -- the full name of spe data file
+            %full_par_file_name -- if present -- the full name of par file
+            %fh                 -- if present -- the structure which describes ascii spe
+            %                      file and contains number of detectors
+            %                      energy bins and full file name for this file
+            %
+
+            if ~exist('full_spe_file_name', 'var')
+                return
+            end
+
+            if numel(varargin) == 0
+                full_par_file_name = [];
+                fh=[];
+            elseif numel(varargin)== 1
+                if isstruct(varargin{1})
+                    full_par_file_name = [];
+                    fh=varargin{1};
+                else
+                    full_par_file_name = varargin{1};
+                    fh = [];
+                end
+            elseif  numel(varargin)== 2
+                full_par_file_name = varargin{1};
+                fh=varargin{2};
+            end
+            if ~isempty(full_par_file_name)
+                obj.par_file_name = full_par_file_name;
+            end
+
+            if ~isempty(fh)
+                obj = obj.set_info_fields(fh,obj.data_info_fields);
+            else
+                % set new file name, run all checks on this file and set up
+                % all file information
+                obj.file_name = full_spe_file_name;
+            end
+            obj = obj.find_run_id();
+        end
+        %
+        function obj = set_data_info(obj,full_spe_file_name)
+            % method sets internal file information obtained for appropriate file
+            % by get_data_info method into internal class memory.
+
+            fh  = obj.get_data_info(full_spe_file_name);
+            obj = obj.set_info_fields(fh,obj.data_info_fields);
+        end
+
         %
         function [ndet,en,obj]=get_run_info(obj)
             % Get number of detectors and energy boundaries defined by the data files
@@ -339,13 +395,13 @@ classdef a_loader < a_detpar_loader_interface
 
             save_nxspe_internal(obj,filename,efix,psi,remaining{:});
         end
-        function rv = has_loaded_instrument(obj)
+        function rv = has_loaded_instrument(~)
             % Method to determine if this loader can load (optional) instrument
             % information from the data file. Default is false.
             % Subclasses should implement their own checks if they can load instrument
             rv = false;
         end
-        function instrument = get_instrument(obj)
+        function instrument = get_instrument(~)
             error('HERBERT:a_loader:not_implemented', 'get_instrument is not implemented for this loader');
         end
         % -----------------------------------------------------------------
@@ -389,6 +445,12 @@ classdef a_loader < a_detpar_loader_interface
                 end
             end
         end
+        function id = get.run_id(obj)
+            if isempty(obj.run_id_)
+                obj = find_run_id(obj);
+            end
+            id = obj.run_id_;
+        end
         %
         function S = get.S(obj)
             % get signal if all signal&error&energy fields are well defined
@@ -430,6 +492,9 @@ classdef a_loader < a_detpar_loader_interface
         end
         function obj = set.detpar_loader(obj,val)
             obj  = set_detpar_loader(obj,val);
+        end
+        function flds = get.data_info_fields(obj)
+            flds = get_data_info_fields(obj);
         end
         % ------------------------------------------------------------------
         function [ok,mess,f_name]=check_file_exist(obj,new_name)
@@ -512,6 +577,14 @@ classdef a_loader < a_detpar_loader_interface
     end
     %
     methods(Access=protected)
+        function obj = find_run_id(obj)
+            if isempty(obj.file_name)
+                obj.run_id_ = 0;
+                return;
+            end
+            id = obj.extract_id_from_filename(obj.file_name);
+            obj.run_id_ = id;
+        end
         function is = check_validity(obj)
             % overload this property to verify validity of interdependent
             % properties
@@ -618,6 +691,29 @@ classdef a_loader < a_detpar_loader_interface
         %------------------------------------------------------------------
     end
     methods(Static)
+        function [id,filename] = extract_id_from_filename(file_name)
+            % Extract run id from a filename, if run-number is
+            % present in the filename, and is first number among all other
+            % numbers. Alternativelym it may be stored at the end of the filename after
+            % special character string, specifying this number.
+            % Inputs:
+            % file_name - string containing filename with runid or mangled string
+            %             containg special representation of runid in the form
+            %             fildname$id$string_representation_of_id;
+            % Output:
+            % id        - number (id) extracted from filename. NaN if routine has not
+            %              been able to identify any numbers in the filename
+            % filename  - unchanged filename if file_name did not contained $id$ or
+            %             unmabgled par of file_name if $id% was present
+            %
+            if isempty(file_name)
+                id = NaN;
+                filename = '';
+                return
+            end
+            [id,filename] = extract_id_from_filename_(file_name);
+        end
+
         function [ndet,varargout]=get_par_info(par_file_name)
             % get number of detectors and other detrcotrs methadata defined by
             % par,phx nxspe or other supported file

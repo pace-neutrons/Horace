@@ -337,7 +337,7 @@ classdef IX_experiment < goniometer
             obj.angular_is_degree_ = false;
             alatt = inputs.alatt;
             angdeg = inputs.angdeg;
-            [runid,filename] = rundata.extract_id_from_filename(inputs.filename);
+            [runid,filename] = a_loader.extract_id_from_filename(inputs.filename);
             if ~isnan(runid)
                 obj.run_id = runid;
                 obj.filename = filename;

@@ -4,7 +4,10 @@ classdef test_loader_nxspe < TestCase
         test_data_path;
         initial_warn_state;
 
-        test_par_file = 'demo_par.par';
+        sample_v1_1_nxspe;
+        sample_v1_3_nxspe;
+        sample_ascii_par_file; % par file consistent with nxspe detector's parameters
+
         EXPECTED_DET_NUM = 28160
     end
 
@@ -17,6 +20,10 @@ classdef test_loader_nxspe < TestCase
             obj = obj@TestCase(name);
             pths = horace_paths;
             obj.test_data_path = pths.test_common;
+
+            obj.sample_v1_1_nxspe = f_name(obj,'MAP11014.nxspe');
+            obj.sample_v1_3_nxspe = f_name(obj,'MAP11014v3.nxspe');
+            obj.sample_ascii_par_file = f_name(obj,'demo_par.par');
         end
 
         function obj=setUp(obj)
@@ -35,8 +42,8 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_to_from_struct_loader_in_memory(obj)
-            nxspe_file = f_name(obj,'MAP11014.nxspe');
-            par_file = fullfile(obj.test_data_path,obj.test_par_file);
+            nxspe_file = obj.sample_v1_1_nxspe;
+            par_file   = obj.sample_ascii_par_file;
             ld = loader_nxspe(nxspe_file,par_file);
             [S,ERR,en,ld] = ld.load_data();
             [par,ld] = ld.load_par();
@@ -69,8 +76,8 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_to_from_struct_loader_onfile(obj)
-            nxspe_file = f_name(obj,'MAP11014.nxspe');
-            par_file = f_name(obj,'MAP11014.nxspe');
+            nxspe_file =  obj.sample_v1_1_nxspe;
+            par_file   =  obj.sample_v1_1_nxspe;
             ld = loader_nxspe(nxspe_file,par_file);
 
             str = ld.to_struct();
@@ -107,13 +114,13 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_loader_nxspe_initated(obj)
-            nxspe_file = f_name(obj,'MAP11014.nxspe');
+            nxspe_file =  obj.sample_v1_1_nxspe;
             loader=loader_nxspe(nxspe_file);
             % should be OK and return correct file name and file location;
             %assertEqual(loader.root_nexus_dir,'/11014.spe');
             assertEqual(800,loader.efix);
             assertEqual(0,loader.psi);
-            assertEqual(loader.file_name,f_name(obj,'MAP11014.nxspe'));
+            assertEqual(loader.file_name, obj.sample_v1_1_nxspe);
         end
 
         % DEFINED FIELDS
@@ -134,7 +141,7 @@ classdef test_loader_nxspe < TestCase
 
         function test_loader_nxspe_works(obj)
             loader=loader_nxspe();
-            file_name = f_name(obj,'MAP11014.nxspe');
+            file_name =  obj.sample_v1_1_nxspe;
             % loads only spe data
             [S,ERR,en,loader]=load_data(loader,file_name);
             Ei = loader.efix;
@@ -144,14 +151,14 @@ classdef test_loader_nxspe < TestCase
             assertEqual(31,numel(en));
             assertEqual(800,Ei);
             assertEqual(0,psi);
-            assertEqual(loader.file_name,f_name(obj,'MAP11014.nxspe'));
+            assertEqual(loader.file_name, obj.sample_v1_1_nxspe);
             assertEqual(psi,loader.psi);
             assertEqual(Ei,loader.efix);
             assertEqual(en,loader.en);
         end
 
         function test_loader_nxspe_constr(obj)
-            loader=loader_nxspe(f_name(obj,'MAP11014.nxspe'));
+            loader=loader_nxspe( obj.sample_v1_1_nxspe);
             % loads only spe data
             [S,ERR,en,loader]=load_data(loader);
             Ei = loader.efix;
@@ -198,7 +205,7 @@ classdef test_loader_nxspe < TestCase
                 warnStruct = warning('off', 'LOAD_NXSPE:old_version');
             end
             % loads only par data
-            par_file = f_name(obj,'MAP11014.nxspe');
+            par_file =  obj.sample_v1_1_nxspe;
             [par,loader]=load_par(loader,par_file);
 
             % MAP11014.nxspe is version 1.1 nxspe file
@@ -218,7 +225,7 @@ classdef test_loader_nxspe < TestCase
             assertEqual(obj.EXPECTED_DET_NUM,loader.n_detectors)
             %assertEqual(loader.root_nexus_dir,'/11014.spe');
             assertTrue(isempty(loader.file_name));
-            assertEqual(loader.par_file_name,f_name(obj,'MAP11014.nxspe'));
+            assertEqual(loader.par_file_name, obj.sample_v1_1_nxspe);
             assertEqual(loader.det_par,par);
         end
 
@@ -244,12 +251,18 @@ classdef test_loader_nxspe < TestCase
             %assertElementsAlmostEqual(nxpse_phx(5,:),ascii_phx(5,:),'relative',1.e-4);
         end
 
+        function test_run_id_from_file_certainly(obj)
+            file = f_name(obj,'inst_let_ei3p7_240_120.nxspe');
+            ll = loader_nxspe(file);
+            assertEqual(ll.run_id,666);
+        end
+
         function test_load_inst_info_from_nxspe(obj)
             ref_inst = {let_instrument(3.7, 240, 120, 31, 2, '-version', 2) ...
-                        maps_instrument(400, 600, 's', '-version', 2, '-moderator', 'base2016') ...
-                        merlin_instrument(120, 600, 'g', '-moderator', 'base2016')};
+                maps_instrument(400, 600, 's', '-version', 2, '-moderator', 'base2016') ...
+                merlin_instrument(120, 600, 'g', '-moderator', 'base2016')};
             nxspes = {'inst_let_ei3p7_240_120.nxspe', 'inst_maps_ei400_600hz.nxspe', ...
-                      'inst_merlin_ei120_600hz.nxspe'};
+                'inst_merlin_ei120_600hz.nxspe'};
             for ii = 1:numel(nxspes)
                 nxspe_inst = loader_nxspe(f_name(obj, nxspes{ii})).get_instrument();
                 assertEqual(nxspe_inst.to_struct(), ref_inst{ii}.to_struct(), '', [1e-9, 0.01]);
@@ -286,7 +299,7 @@ classdef test_loader_nxspe < TestCase
 
         %GET_RUNINFO
         function test_get_runinfo(obj)
-            loader=loader_nxspe(f_name(obj,'MAP11014.nxspe'));
+            loader=loader_nxspe( obj.sample_v1_1_nxspe);
             % loads only partial spe data
             [ndet,en,loader]=get_run_info(loader);
 
@@ -312,21 +325,22 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_get_data_info(obj)
-            nxspe_file_name = fullfile(obj.test_data_path,'MAP11014v2.nxspe');
-            [ndet,en,file_name,ei,psi,nexus_dir,nxspe_ver]=loader_nxspe.get_data_info(nxspe_file_name);
+            nxspe_file_name =  obj.sample_v1_3_nxspe;
+            %[ndet,en,file_name,ei,psi,nexus_dir,nxspe_ver]=loader_nxspe.get_data_info(nxspe_file_name);
+            fi=loader_nxspe.get_data_info(nxspe_file_name);
 
-            assertEqual([31,1],size(en));
-            assertEqual(obj.EXPECTED_DET_NUM,ndet);
-            assertEqual(nxspe_file_name,file_name);
-            assertEqual(800,ei);
-            assertEqual(20,psi);
-            assertEqual('/11014.spe',nexus_dir);
-            assertEqual('1.2',nxspe_ver);
+            assertEqual([31,1],size(fi.en));
+            assertEqual(obj.EXPECTED_DET_NUM,fi.n_detindata_);
+            assertEqual(nxspe_file_name,fi.file_name_);
+            assertEqual(800,fi.efix);
+            assertEqual(20,fi.psi);
+            assertEqual('/11014.spe',fi.root_nexus_dir_);
+            assertEqual(1.3,fi.nxspe_version_);
         end
 
         function test_can_load_init_and_runinfo(obj)
-            spe_file_name = fullfile(obj.test_data_path,'MAP10001.spe');
-            nxspe_file_name = fullfile(obj.test_data_path,'MAP11014.nxspe');
+            spe_file_name   = fullfile(obj.test_data_path,'MAP10001.spe');
+            nxspe_file_name =  obj.sample_v1_1_nxspe;
 
 
             [ok,mess]=loader_nxspe.can_load(spe_file_name);
@@ -340,19 +354,20 @@ classdef test_loader_nxspe < TestCase
             la = loader_nxspe();
             la=la.init(nxspe_file_name,fh);
 
-            [ndet,en,file_name,ei,psi]=loader_nxspe.get_data_info(nxspe_file_name);
-            assertEqual(en,la.en);
-            assertEqual(file_name,la.file_name);
-            assertEqual(ei,la.efix);
-            assertEqual(psi,la.psi);
+            %[ndet,en,file_name,ei,psi]=loader_nxspe.get_data_info(nxspe_file_name);
+            fi = loader_nxspe.get_data_info(nxspe_file_name);
+            assertEqual(fi.en,la.en);
+            assertEqual(fi.file_name_,la.file_name);
+            assertEqual(fi.efix,la.efix);
+            assertEqual(fi.psi,la.psi);
 
             [ndet1,en1] = la.get_run_info();
-            assertEqual(en,en1);
-            assertEqual(ndet,ndet1);
+            assertEqual(fi.en,en1);
+            assertEqual(fi.n_detindata_,ndet1);
         end
 
         function test_init_all(obj)
-            nxspe_file_name = fullfile(obj.test_data_path,'MAP11014.nxspe');
+            nxspe_file_name =  obj.sample_v1_1_nxspe;
 
 
             la = loader_nxspe();
@@ -363,7 +378,7 @@ classdef test_loader_nxspe < TestCase
             assertEqual(31,numel(en));
 
 
-            par_file_name =fullfile(obj.test_data_path,obj.test_par_file);
+            par_file_name = obj.sample_ascii_par_file;
             la=la.init(nxspe_file_name,par_file_name);
 
             [ndet,en]=la.get_run_info();
@@ -373,8 +388,8 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_load_and_init_all(obj)
-            nxspe_file_name = fullfile(obj.test_data_path,'MAP11014.nxspe');
-            par_file_name =fullfile(obj.test_data_path,obj.test_par_file);
+            nxspe_file_name = obj.sample_v1_1_nxspe;
+            par_file_name   = obj.sample_ascii_par_file;
 
             [ok,fh] = loader_nxspe.can_load(nxspe_file_name);
             assertTrue(ok);
@@ -400,7 +415,7 @@ classdef test_loader_nxspe < TestCase
             assertExceptionThrown(f,'A_LOADER:runtime_error');
         end
 
-        function test_get_file_extension(obj)
+        function test_get_file_extension(~)
             fext=loader_nxspe.get_file_extension();
 
             assertEqual(fext,'.nxspe');
@@ -410,8 +425,8 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_is_loader_valid(obj)
-            nxspe_file_name = fullfile(obj.test_data_path,'MAP11014.nxspe');
-            par_file_name =fullfile(obj.test_data_path,obj.test_par_file);
+            nxspe_file_name =  obj.sample_v1_1_nxspe;
+            par_file_name   =  obj.sample_ascii_par_file;
 
             la = loader_nxspe(nxspe_file_name,par_file_name );
 
@@ -441,8 +456,8 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_all_fields_defined(obj)
-            nxspe_file_name = fullfile(obj.test_data_path,'MAP11014.nxspe');
-            par_file_name =fullfile(obj.test_data_path,obj.test_par_file);
+            nxspe_file_name = obj.sample_v1_1_nxspe;
+            par_file_name   = obj.sample_ascii_par_file;
 
             loader=loader_nxspe();
             fields = defined_fields(loader);
@@ -465,13 +480,25 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_loader_nxspe_defines(obj)
-            loader = loader_nxspe(f_name(obj,'MAP11014.nxspe'));
+            loader = loader_nxspe(obj.sample_v1_1_nxspe);
             fields = defined_fields(loader);
             assertEqual({'S','ERR','en','efix','psi','det_par','n_detectors','n_det_in_par'},fields);
         end
 
+        function test_runid_from_nxspe(obj)
+            dat_file = obj.sample_v1_3_nxspe;
+            lx = loader_nxspe(dat_file);
+            assertEqual(lx.run_id,1104)
+        end
+
+        function test_runid_from_filename(obj)
+            dat_file = obj.sample_v1_1_nxspe;
+            lx = loader_nxspe(dat_file);
+            assertEqual(lx.run_id,11014)
+        end
+
         function test_load(obj)
-            dat_file =f_name(obj,'MAP11014v2.nxspe');
+            dat_file = obj.sample_v1_3_nxspe;
             lx = loader_nxspe(dat_file);
             lx=lx.load();
 
