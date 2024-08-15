@@ -486,7 +486,7 @@ classdef test_loader_nxspe < TestCase
         end
 
         function test_runid_from_nxspe(obj)
-            dat_file = obj.sample_v1_1_nxspe;
+            dat_file = obj.sample_v1_3_nxspe;
             lx = loader_nxspe(dat_file);
             assertEqual(lx.run_id,1104)
         end

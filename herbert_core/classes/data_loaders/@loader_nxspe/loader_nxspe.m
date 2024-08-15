@@ -227,7 +227,15 @@ classdef loader_nxspe < a_loader
 
         function obj = find_run_id(obj)
             if obj.nxspe_version_ > 1.2
-                obj.run_id_ = double(h5read(obj.file_name,[obj.root_nexus_dir_,'/instrument/run_number']));
+                try
+                    obj.run_id_ = double(h5read(obj.file_name,[obj.root_nexus_dir_,'/instrument/run_number']));
+                catch ME
+                    if strcmp(ME.identifier,'MATLAB:imagesci:h5read:libraryError')
+                        obj.run_id_ = NaN;
+                    else
+                        rethrow(ME);
+                    end
+                end
             else
                 obj = find_run_id@a_loader(obj);
             end

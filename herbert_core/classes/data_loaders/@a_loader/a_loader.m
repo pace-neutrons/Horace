@@ -578,6 +578,10 @@ classdef a_loader < a_detpar_loader_interface
     %
     methods(Access=protected)
         function obj = find_run_id(obj)
+            if isempty(obj.file_name)
+                obj.run_id_ = 0;
+                return;
+            end
             id = obj.extract_id_from_filename(obj.file_name);
             obj.run_id_ = id;
         end
