@@ -70,12 +70,13 @@ end
 
 n_candidate_pix = sum(block_sizes);
 
-cut_to_file = ~return_cut || PixelDataBase.do_filebacked(n_candidate_pix);
+large_pixels = PixelDataBase.do_filebacked(n_candidate_pix) && keep_pixels;
+cut_to_file = ~return_cut || large_pixels;
 % Always cut in mem if not in file, leave as debugging option to compare with filebacked ops.
 cut_in_mem = ~cut_to_file;
 
 fb_scale = config_store.instance().get_value('hor_config','fb_scale_factor');
-if ~cut_to_file && PixelDataBase.do_filebacked(n_candidate_pix, fb_scale)
+if cut_in_mem && PixelDataBase.do_filebacked(n_candidate_pix, fb_scale) && keep_pixels
     warning('HORACE:cut:large_cut', ['Requested cut may retain up to %d pixel indices, which may exceed system memory\n', ...
         'Suggested fix: use cut with ''-save''\n', ...
         'Recommended limit: b_scale_factor*mem_chunk_size (%d) specified in hor_config'], ...
