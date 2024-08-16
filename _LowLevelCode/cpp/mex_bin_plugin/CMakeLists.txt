@@ -7,7 +7,7 @@ set(
 set(
     HDR_FILES
     "../CommonCode.h"
-    "bin_io_handler.hpp"
+    "bin_io_handler.h"
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

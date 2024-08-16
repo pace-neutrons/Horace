@@ -1,4 +1,4 @@
-#include "mex_bin_plugin/bin_io_handler.hpp"
+#include "mex_bin_plugin/bin_io_handler.h"
 #include "utility/environment.h"
 #include <gtest/gtest.h>
 

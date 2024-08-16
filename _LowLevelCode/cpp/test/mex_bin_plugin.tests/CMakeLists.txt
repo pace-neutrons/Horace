@@ -10,7 +10,7 @@ set(SRC_FILES
 
 set(HDR_FILES
     "${CXX_SOURCE_DIR}/file_parameters/fileParameters.h"
-    "${CXX_SOURCE_DIR}/mex_bin_plugin/bin_io_handler.hpp"
+    "${CXX_SOURCE_DIR}/mex_bin_plugin/bin_io_handler.h"
     "${CXX_SOURCE_DIR}/utility/environment.h"
 )
 

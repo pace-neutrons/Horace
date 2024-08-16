@@ -1,5 +1,5 @@
 #include "CommonCode.h"
-#include "bin_io_handler.hpp"
+#include "bin_io_handler.h"
 
 #include "../utility/version.h"
 
