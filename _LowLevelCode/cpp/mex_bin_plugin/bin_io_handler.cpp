@@ -8,60 +8,32 @@ void bin_io_handler::init(const fileParameters& fpar) {
     this->pixel_width = fpar.pixel_width;
 
     this->filename = fpar.fileName;
-
-    if (std::ifstream(filename.c_str())) {
-        this->h_inout.open(this->filename.c_str(), std::ios::binary | std::ios::in | std::ios::out | std::ios::app);
+    bool new_file(false);
+    auto file_mode = std::ios::binary | std::ios::in | std::ios::out;
+    if (!std::ifstream(filename.c_str())) {
+        file_mode = file_mode | std::ios::trunc;
+        new_file = true;
     }
-    else {
-        this->h_inout.open(this->filename.c_str(), std::ios::binary | std::ios::in | std::ios::out | std::ios::trunc);
-    }
+    this->h_inout.open(this->filename.c_str(), file_mode);
     if (!this->h_inout.is_open()) {
         std::string err = "Can not open target sqw file: " + fpar.fileName;
-        mexErrMsgIdAndTxt(MEX_ERR_INPUT.c_str(), err.c_str());
-    }
-
-    // padd files with 0 to allow writing pixel info or npix data at specified positions
-    if ((this->pix_array_position - this->pixel_info_size > this->file_size) || (this->nbin_position > this->file_size)) {
-        this->h_inout.seekp(0, std::ios::end);
-        size_t pix_out(0);
-        if (this->pix_array_position > this->file_size) {
-            pix_out = this->pix_array_position - this->file_size;
-        }
-        size_t npix_out(0);
-        if (this->nbin_position > this->file_size) {
-            npix_out = this->nbin_position - this->file_size;
-        }
-
-        size_t add_size = std::max(pix_out, npix_out);
-        std::vector<char> tmp_mem(add_size, 0);
-        this->h_inout.write(&tmp_mem[0], add_size);
+        mexErrMsgIdAndTxt(MEX_ERR_ARGUMENTS.c_str(), err.c_str());
     }
     // identify actual file size
-    this->h_inout.seekg(0, std::ios::end);
+    this->h_inout.seekp(0, std::ios::end);
     this->file_size = this->h_inout.tellg();
+
+    // padd files with 0 to allow writing pixel info or npix data at specified positions
+    if ((this->pix_array_position > this->file_size + this->pixel_info_size) || (this->nbin_position > this->file_size)) {
+
+        size_t add_size = std::max(this->pix_array_position, this->nbin_position);
+        std::filesystem::path file(this->filename);
+        std::filesystem::resize_file(file, add_size);
+    }
+    if (new_file) // write pix width
+        this->write_pix_info(0);
 }
 
-size_t bin_io_handler::get_file_size() {//in order to create bounds for seekp and seekg need size of file 
-    std::streampos current_pos = this->h_inout.tellg();
-    this->h_inout.seekg(0, std::ios::end);
-    size_t size = this->h_inout.tellg();
-    this->h_inout.seekg(current_pos);
-    return size;
-}
-
-bool bin_io_handler::seek_within_bounds(std::streampos position) {//seekp and seekg need bounds in order for them to not seek too far and break the code
-    if (position > 0 || size_t(position) <= this->file_size) {
-        this->h_inout.seekg(position);
-        return true;
-    }
-    else {
-        std::stringstream buf;
-        size_t num_pixel = (size_t(position) - this->pix_array_position) / this->pixel_width;
-        buf << "Seek position:" << position << "pixel number: " << num_pixel << " is out of bounds";
-        mexErrMsgIdAndTxt(MEX_ERR_INPUT.c_str(), buf.str().c_str());
-        return false;
-    }
-}
 /**
   * Write pixel metadata containing information about pixel width
   * and number of pixels stored in pixels array
@@ -69,45 +41,34 @@ bool bin_io_handler::seek_within_bounds(std::streampos position) {//seekp and se
   * @param num_pixels -- number of pixes to be written in appropriate position in the file
   * @return           file is modified
    */
-void bin_io_handler::write_pix_info(const size_t& num_pixels) {
+void bin_io_handler::write_pix_info(const uint64_t& num_pixels) {
 
     size_t pix_info_position = this->pix_array_position - this->pixel_info_size;
     uint32_t pix_width = uint32_t(this->pixel_width);
-
-
-    this->seek_within_bounds(pix_info_position);
-    this->h_inout.seekp(pix_info_position);
-
-    //this->h_inout.write(reinterpret_cast<const char*>(&pix_width), sizeof(num_pixels));
-    this->h_inout.write(reinterpret_cast<const char*>(&pix_width), sizeof(pix_width));
 
     this->h_inout.seekp(pix_info_position, std::ios::beg);
     if (!this->h_inout.good()) {
         std::stringstream buf;
         buf << "Can not seek to pixel into position:" << pix_info_position;
-        mexErrMsgIdAndTxt(MEX_ERR_INPUT.c_str(), buf.str().c_str());
+        mexErrMsgIdAndTxt(MEX_ERR_IO.c_str(), buf.str().c_str());
     }
+
 
     this->h_inout.write(reinterpret_cast<const char*>(&pix_width), sizeof(pix_width));
-    if (!this->h_inout.good()) {
-        std::stringstream buf;
-        buf << "Can not write  pixel width:" << pix_width;
-        mexErrMsgIdAndTxt(MEX_ERR_INPUT.c_str(), buf.str().c_str());
-    }
-
-
     this->h_inout.write(reinterpret_cast<const char*>(&num_pixels), sizeof(num_pixels));
     if (!this->h_inout.good()) {
         std::stringstream buf;
-        buf << "Can not write  pixel number of pixels:" << num_pixels;
-        mexErrMsgIdAndTxt(MEX_ERR_INPUT.c_str(), buf.str().c_str());
+        buf << "Can not write number of pixels:" << num_pixels;
+        mexErrMsgIdAndTxt(MEX_ERR_IO.c_str(), buf.str().c_str());
     }
-
 
     this->n_pixels_written_info = num_pixels;
 }
 
-/* Restore information about pixels block stored in the file */
+/**
+Restore information about pixels block stored in the file
+
+*/
 void bin_io_handler::read_pix_info(size_t& num_pixels, uint32_t& pix_width) {
     size_t pix_info_position = this->pix_array_position - this->pixel_info_size;
 
@@ -116,7 +77,7 @@ void bin_io_handler::read_pix_info(size_t& num_pixels, uint32_t& pix_width) {
     if (!this->h_inout.good()) {
         std::stringstream buf;
         buf << "Can not seek to pixel into position for reading:" << pix_info_position;
-        mexErrMsgIdAndTxt(MEX_ERR_INPUT.c_str(), buf.str().c_str());
+        mexErrMsgIdAndTxt(MEX_ERR_IO.c_str(), buf.str().c_str());
     }
 
 
@@ -125,18 +86,45 @@ void bin_io_handler::read_pix_info(size_t& num_pixels, uint32_t& pix_width) {
     //this->h_inout.read(reinterpret_cast<char*>(&pix_width), sizeof(num_pixels));
 }
 
+/**
+*/
+size_t  bin_io_handler::read_pixels(char* const buffer, size_t num_pixels_to_read, const size_t pix_position/* wrt the pixel block start */) {
+    std::stringstream err_buf;
+    if (pix_position + num_pixels_to_read > this->last_pix_written)
+        num_pixels_to_read = this->last_pix_written - pix_position;
+
+    this->h_inout.seekg(this->pix_array_position + pix_position * this->pixel_width);
+    if (!this->h_inout.good()) {
+        err_buf << "Can not seek to pixel array postioon to read pixels:" << this->pix_array_position + pix_position;
+        mexErrMsgIdAndTxt(MEX_ERR_IO.c_str(), err_buf.str().c_str());
+    }
+
+    this->h_inout.read(buffer, num_pixels_to_read * sizeof(this->pixel_width));
+    if (!this->h_inout.good()) {
+        err_buf << "ERROR reading " << num_pixels_to_read << "pixels ";
+        mexErrMsgIdAndTxt(MEX_ERR_IO.c_str(), err_buf.str().c_str());
+    }
+
+    // actually it would be bumber of really read pixels
+    return num_pixels_to_read;
+}
 
 /* Write chunk on pixel information stored in write buffer
 *
 */
 void bin_io_handler::write_pixels(const char* buffer, size_t num_pixels) {
     size_t pix_pos = pix_array_position + last_pix_written * this->pixel_width;
-    //this->h_inout.seekp(pix_pos);
-    //this->h_inout.clear();
 
     size_t length = num_pixels * this->pixel_width;
     this->h_inout.write(buffer, length);
-    this->last_pix_written += length;
+    if (!this->h_inout.good()) {
+        std::stringstream err_buf;
+        err_buf << "ERROR adding to file containing " << this->last_pix_written
+            << " pixels " << num_pixels << "additional pixels";
+        mexErrMsgIdAndTxt(MEX_ERR_IO.c_str(), err_buf.str().c_str());
+    }
+
+    this->last_pix_written += num_pixels;
     auto last_pos = this->h_inout.tellp();
     if (last_pos > this->file_size) {
         this->file_size = last_pos;
@@ -147,8 +135,13 @@ void bin_io_handler::write_pixels(const char* buffer, size_t num_pixels) {
 
 
 bin_io_handler::~bin_io_handler() {
-    if (this->last_pix_written > this->n_pixels_written_info)
+    if (this->last_pix_written > this->n_pixels_written_info) {
         this->write_pix_info(this->last_pix_written);
+    }
+    else {
+        this->write_pix_info(this->n_pixels_written_info);
+    }
+
 
     this->h_inout.close();
 }

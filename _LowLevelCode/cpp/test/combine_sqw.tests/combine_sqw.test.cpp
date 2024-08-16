@@ -481,7 +481,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
   sqw_reader reader;
   fileParameters file_par;
   file_par.fileName = TEST_FILE_NAME;
-  file_par.file_id = 0;
+  file_par.run_id = 0;
   file_par.nbin_start_pos = BIN_POS_IN_FILE;
   file_par.pix_start_pos = PIX_POS_IN_FILE;
   file_par.total_NfileBins = NUM_BINS_IN_FILE;
@@ -556,7 +556,7 @@ TEST_F(TestCombineSQW, SQW_Reader_NoBuf_Mode) {
   sqw_reader reader;
   fileParameters file_par;
   file_par.fileName = TEST_FILE_NAME;
-  file_par.file_id = 0;
+  file_par.run_id = 0;
   file_par.nbin_start_pos = BIN_POS_IN_FILE;
   file_par.pix_start_pos = PIX_POS_IN_FILE;
   file_par.total_NfileBins = NUM_BINS_IN_FILE;
@@ -629,7 +629,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
   sqw_reader reader;
   fileParameters file_par;
   file_par.fileName = TEST_FILE_NAME;
-  file_par.file_id = 0;
+  file_par.run_id = 0;
   file_par.nbin_start_pos = BIN_POS_IN_FILE;
   file_par.pix_start_pos = PIX_POS_IN_FILE;
   file_par.total_NfileBins = NUM_BINS_IN_FILE;
@@ -701,7 +701,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
   sqw_reader reader;
   fileParameters file_par;
   file_par.fileName = TEST_FILE_NAME;
-  file_par.file_id = 0;
+  file_par.run_id = 0;
   file_par.nbin_start_pos = BIN_POS_IN_FILE;
   file_par.pix_start_pos = PIX_POS_IN_FILE;
   file_par.total_NfileBins = NUM_BINS_IN_FILE;
@@ -790,7 +790,7 @@ TEST_F(TestCombineSQW, MXSQW_Reader_Propagate_Pix_Multi) {
 
   fileParameters file_par;
   file_par.fileName = TEST_FILE_NAME;
-  file_par.file_id = 0;
+  file_par.run_id = 0;
   file_par.nbin_start_pos = BIN_POS_IN_FILE;
   file_par.pix_start_pos = PIX_POS_IN_FILE;
   file_par.total_NfileBins = NUM_BINS_IN_FILE;
