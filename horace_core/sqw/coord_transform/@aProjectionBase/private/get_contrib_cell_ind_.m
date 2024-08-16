@@ -20,4 +20,3 @@ if source_proj.do_3D_transformation_
 else
     contrib_ind = find(may_contributeND);
 end
-

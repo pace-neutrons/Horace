@@ -76,11 +76,12 @@ if ngrid_form && hull
     error('HORACE:AxesBlockBase:invalid_argument',...
         '"-hull" and "-grid_form" parameters can not be used together');
 end
-nbins_all_dims = parse_inputs(n_pos_arg,nargin,varargin{:});
+grid_nnodes = parse_inputs(n_pos_arg,nargin,varargin{:});
 
+binning_requested_explicitly = ~isempty(grid_nnodes );
 axes = cell(4,1);
 %
-if isempty(nbins_all_dims)
+if ~binning_requested_explicitly
     axes(obj.pax) = obj.p(:);
     iint_ax = num2cell(obj.iint',2);
     axes(obj.iax) = iint_ax(:);
@@ -97,7 +98,7 @@ else
     for i=1:4 % this mode is used for data interpolation, so we need to
         % keep bin centers, where the base interpolating function is
         % defined unchanged
-        ax = linspace(range(1,i),range(2,i),nbins_all_dims(i)+1);
+        ax = linspace(range(1,i),range(2,i),grid_nnodes(i)+1);
         if halo
             axes{i} = build_ax_with_halo(obj.max_img_range_(:,i),ax{i});
         else
@@ -113,9 +114,12 @@ else
 end
 
 if bin_centre || dens_interp || plot_edges
+    if binning_requested_explicitly
+        is_pax = npoints_in_axes>=2;
+    else
     is_pax = false(4,1);
     is_pax(obj.pax) = true;
-
+    end
     % modify axes to be basis of the interpolation or extrapolation density
     % grid.
     for i=1:4
@@ -230,19 +234,21 @@ if max_pos > range(2)
 end
 axes = [min_pos,axes(:)',max_pos];
 
-function nbins_all_dims= parse_inputs(noptions,ninputs,varargin)
-% process inputs to extract binning or char size in the form of 4D cube.
+function nnodes_in_dim = parse_inputs(noptions,ninputs,varargin)
+% process inputs to extract char size in the form of 4D cube. If the input
+% numeric array do not satisty the request for beeing 4D characteristic
+% cube, throw invalid_argument
 %
-nbins_all_dims = [];
+nnodes_in_dim = [];
 if ninputs > noptions
     if isnumeric(varargin{1})
-        nbins_all_dims = round(varargin{1});
-        nbins_all_dims = nbins_all_dims(:)';
-        if numel(nbins_all_dims) == 1
-            nbins_all_dims = ones(1,4)*nbins_all_dims;
+        nnodes_in_dim = round(varargin{1});
+        nnodes_in_dim = nnodes_in_dim(:)';
+        if numel(nnodes_in_dim) == 1
+            nnodes_in_dim = ones(1,4)*nnodes_in_dim;
         end
-        nbins_all_dims(nbins_all_dims<1) = 1;
-        if numel(nbins_all_dims)~=4
+        nnodes_in_dim(nnodes_in_dim<1) = 1;
+        if numel(nnodes_in_dim)~=4
             error('HORACE:AxesBlockBase:invalid_argument',...
                 ['axis binning should be 1x4 vector or single value.\n', ...
                 ' Input size is: [%s]'],...

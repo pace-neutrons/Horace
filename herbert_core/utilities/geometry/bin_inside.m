@@ -45,7 +45,7 @@ end
 end
 
 function expanded_bins = mark_edge_bins(bin_inside,img_size)
-expanded_bins  = paddata_one_cell(bin_inside,img_size);
+expanded_bins  = paddata_horace(bin_inside,img_size);
 mark_edges(1);
 mark_edges(2);
 mark_edges(3);
@@ -63,34 +63,4 @@ mark_edges(3);
         ind = sub2ind(img_size,i1,i2,i3);
         expanded_bins(ind)= true;
     end
-
-end
-
-function padded = paddata_one_cell(input,new_size)
-% version independent paddata, expanding size of the input array in 3
-% dimensions
-%
-persistent ver_bigger_than_2023a;
-if isempty(ver_bigger_than_2023a)
-    try
-        padded = paddata(input,new_size);
-        ver_bigger_than_2023a = true;
-        return;
-    catch
-        ver_bigger_than_2023a = false;
-    end
-end
-if ver_bigger_than_2023a
-    padded = paddata(input,new_size);
-else
-    sz0    = size(input);
-    sz0(1) = 1;
-    padded = cat(1,input,false(sz0));
-    sz0    = size(padded);
-    sz0(2) = 1;
-    padded = cat(2,padded,false(sz0));
-    sz0    = size(padded);
-    sz0(3) = 1;
-    padded = cat(3,padded,false(sz0));
-end
 end

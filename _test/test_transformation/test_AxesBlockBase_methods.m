@@ -40,6 +40,28 @@ classdef test_AxesBlockBase_methods < TestCase
             assertElementsAlmostEqual(sz,[0.0837,0.0943,0.1362,10.],'absolute',1.e-4);
         end
 
+        function test_get_char_size_line_proj_diag_generic(~)
+            pr = line_proj([-1,1,0],[1,1,0],'alatt',2*pi,'angdeg',90);
+            ax = pr.get_proj_axes_block(cell(1,4),{[-1,0.1,1],[-2,0.2,2],[-3,3],[0,10]});
+
+            ax = line_axes_char_size_tester(ax);
+            sz1 = ax.get_char_size(pr);
+            ax.use_generic = true;
+            sz2 = ax.get_char_size(pr);
+            assertElementsAlmostEqual(sz1,sz2);
+        end
+
+        function test_get_char_size_line_proj_col_generic(~)
+            pr = line_proj('alatt',2*pi,'angdeg',90);
+            ax = pr.get_proj_axes_block(cell(1,4),{[-1,0.1,1],[-2,0.2,2],[-3,3],[0,10]});
+
+            ax = line_axes_char_size_tester(ax);
+            sz1 = ax.get_char_size(pr);
+            ax.use_generic = true;
+            sz2 = ax.get_char_size(pr);
+            assertElementsAlmostEqual(sz1,sz2);
+        end
+
 
         function test_get_char_size_line_proj_diag(~)
             pr = line_proj([-1,1,0],[1,1,0],'alatt',2*pi,'angdeg',90);
@@ -66,7 +88,9 @@ classdef test_AxesBlockBase_methods < TestCase
             ax{2} = [0,1,2,3,5,6];
             ax{3} = 1:0.1:2;
             ax{4} = [0,2,3,4,5,10];
-            n_cells = cellfun(@(x)numel(x)-1,ax);
+
+            grid_size = cellfun(@numel,ax);
+            n_cells = grid_size-1;
             n_cells = prod(n_cells);
 
             bv = ab.get_bin_volume(ax);
@@ -79,6 +103,11 @@ classdef test_AxesBlockBase_methods < TestCase
             % the volume of the last bin is the production
             % of all sizes of the last cell
             assertEqualToTol(bv(end),5*1*0.1*5,'tol',1.e-11);
+
+            [x,y,z,e] = ndgrid(ax{:});
+            coord = [x(:),y(:),z(:),e(:)]';
+            vol_p = ab.get_bin_volume(coord,grid_size);
+            assertElementsAlmostEqual(bv,vol_p);
         end
 
         function test_bin_volume_single(~)
@@ -120,7 +149,7 @@ classdef test_AxesBlockBase_methods < TestCase
                 other_dim = hull_sizes(j~=i);
                 assize = assize + 2*prod(other_dim);
             end
-            ax = ab.get_bin_nodes('-hull',[8,8,8,8]);
+            ax = ab.get_bin_nodes('-hull',nbins_all_dims);
             assertEqual(size(ax),[4,assize]);
         end
 
