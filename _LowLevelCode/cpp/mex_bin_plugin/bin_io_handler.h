@@ -56,7 +56,7 @@ private:
 
 
 	//tests and internal variables
-	size_t n_pixels_written_info; // contains the information about pixels metadata
+	size_t n_pixels_written_info; // contains the information about pixels metadata parameters written to disk
 	// to ensure pixel metadata are synchroneous with number of pixels actually written in file
 	size_t nbins_field_size;    // the size of npix block written in file
 	size_t file_size;           //initial file size
