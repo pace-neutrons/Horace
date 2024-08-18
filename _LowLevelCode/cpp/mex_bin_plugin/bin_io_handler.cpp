@@ -109,11 +109,14 @@ size_t  bin_io_handler::read_pixels(char* const buffer, size_t num_pixels_to_rea
     return num_pixels_to_read;
 }
 
-/* Write chunk on pixel information stored in write buffer
+/** Write chunk on pixel information stored in write buffer
 *
+*  It is assumed that pixels are always written consequently and appended at the 
+*  end of the existing pixel block
 */
 void bin_io_handler::write_pixels(const char* buffer, size_t num_pixels) {
-    size_t pix_pos = pix_array_position + last_pix_written * this->pixel_width;
+    // where to write next block of pixels
+    size_t pix_pos = this->pix_array_position + this->last_pix_written * this->pixel_width;
 
     size_t length = num_pixels * this->pixel_width;
     this->h_inout.write(buffer, length);
