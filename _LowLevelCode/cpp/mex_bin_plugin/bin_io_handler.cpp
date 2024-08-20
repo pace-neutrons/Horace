@@ -39,7 +39,8 @@ void bin_io_handler::init(const fileParameters& fpar) {
   * and number of pixels stored in pixels array
   * Inputs:
   * @param num_pixels -- number of pixes to be written in appropriate position in the file
-  * @return           file is modified
+  * @return              Resulting file is modified with pixel width from init and number of
+  *                      of pixels from the input of this method.
    */
 void bin_io_handler::write_pix_info(const uint64_t& num_pixels) {
 
@@ -111,7 +112,7 @@ size_t  bin_io_handler::read_pixels(char* const buffer, size_t num_pixels_to_rea
 
 /** Write chunk on pixel information stored in write buffer
 *
-*  It is assumed that pixels are always written consequently and appended at the 
+*  It is assumed that pixels are always written consequently and appended at the
 *  end of the existing pixel block
 */
 void bin_io_handler::write_pixels(const char* buffer, size_t num_pixels) {
