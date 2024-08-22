@@ -1,16 +1,18 @@
 function  sz = get_char_size(obj,this_proj)
 % Return characteristic sizes of a source grid cell in Crystal Cartesian
-% coordinate system
-% 
-% Clearly validated only in case when this_proj is line_proj,
-% or offset ==  0
+% coordinate system.
+%
+% Has been tested only in cases when this_proj is line_proj,
+% or offset ==  0. For other cases single char size would be poor measure
+% or the algorithm which is implemented here may be incorrect (Some cells
+% would collapse giving zero size)
 %
 % Inputs:
 % obj        -- initialized instance of AxesBlock class
 % this_proj
 %    Either:  -- the projection which describes current coordinate system,
-%               where this axes block grid is defined.
-% Or:         -- 3xNpix array of the axesBlockBase nodes in Crystal Cartesian
+%                where this axes block grid is defined.
+%    Or:      -- 3xNpix array of the axesBlockBase nodes in Crystal Cartesian
 %                coordinate system, used to identify characteristic size
 %
 % Output:

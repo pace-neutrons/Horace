@@ -48,8 +48,9 @@ classdef AxesBlockBase < serializable
         label;
 
         % Index of integration axes into the projection axes  [row vector]
-        %          Always in increasing numerical order
-        %                  e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+        % Always in increasing numerical order e.g. if data is 2D,
+        % data.iax=[1,3] means summation has been performed along u1 and u3
+        % axes
         iax;
 
         % Integration range along each of the integration axes. [iint(2,length(iax))]
@@ -722,10 +723,10 @@ classdef AxesBlockBase < serializable
             % obj        -- initialized version of the axes block
             %
             % Optional:
-            % nbins_all_dims 
-            %           -- (4-element vector) or single number
-            %               expanded to 4-element vector, describing the
-            %               binning along each axis for the lattice to
+            % nbins_all_dims
+            %           -- (4-element vector) or single number representing
+            %               4-element vector of the same values, describing
+            %               the binning along each axis for the lattice to
             %               build instead of existing axis binning
             %
             % '-3D'     -- generate separate 3D grid nodes for q-axes and
