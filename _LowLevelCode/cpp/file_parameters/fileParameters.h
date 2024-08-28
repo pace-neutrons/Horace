@@ -17,7 +17,7 @@
 class fileParameters {
 public:
     std::string fileName;
-    size_t      nbin_start_pos;  // the initial file position where nbin array is located in the file
+    uint64_t    nbin_start_pos;  // the initial file position where nbin array is located in the file
     uint64_t    pix_start_pos;   // the initial file position where the pixel array is located in file
     int         run_id;          // the number which used to identify pixels, obtained from this particular file
     size_t      total_NfileBins; // the number of bins in this file (has to be the same for all files)
@@ -37,16 +37,17 @@ public:
     void check_inputs_provided();
 private:
     static const std::map<std::string, int> fileParamNames;
-    // list of input file parameters 
-    static const bool param_requested[];
     // how many parameterw were set in input operations
     int num_input_params;
     // auxiliary variable containing true for each parameter set st of the parameters set during input
     std::vector<bool> parameters_set;
 
-    // helper function to validate inputs for fileParameters are correct and sufficient
 
+    // array of input keys, which define which file parameters are mandatory (value true),
+    //  and which are optional (value false)
+    static const bool param_requested[];
     // string which defines error ID, errors in this code are throwing.
     static const std::string MEX_ERR_ID;
-
+    // helper function to process input parameters which define pix or npix position
+    uint64_t process_pix_npix_pos(const mxArray *const pFieldContents);
 };

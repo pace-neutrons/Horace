@@ -9,7 +9,8 @@ const std::map<std::string, int> fileParameters::fileParamNames = {
     { std::string("npix_total"),5 },
     { std::string("pixel_with"),6  }
 };
-const bool fileParameters::param_requested[] = {true,false,true,false,false,false,false};
+
+const bool fileParameters::param_requested[] = { true,false,true,false,false,false,false };
 const std::string fileParameters::MEX_ERR_ID("HORACE:fileParameters:invalid_argument");
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
@@ -17,8 +18,8 @@ const std::string fileParameters::MEX_ERR_ID("HORACE:fileParameters:invalid_argu
 /* return input parameters as cellarray of character arrays
 *  Function used in testing fileParameters interface to Matlab
 */
-void fileParameters ::returnInputs(mxArray** const outParList) {
-    auto out = mxCreateCellMatrix(this->num_input_params,1);
+void fileParameters::returnInputs(mxArray** const outParList) {
+    auto out = mxCreateCellMatrix(this->num_input_params, 1);
     outParList[0] = out;
     int n_set_param(0); // number of parameter set as the result
     for (size_t i = 0; i < fileParamNames.size(); i++) {
@@ -30,8 +31,8 @@ void fileParameters ::returnInputs(mxArray** const outParList) {
             break;
         }
         case(1): {
-			auto pVal = mxCreateDoubleScalar(double(this->nbin_start_pos));
-			mxSetCell(out, n_set_param, pVal);
+            auto pVal = mxCreateDoubleScalar(double(this->nbin_start_pos));
+            mxSetCell(out, n_set_param, pVal);
             break;
         }
         case(2): {
@@ -40,23 +41,23 @@ void fileParameters ::returnInputs(mxArray** const outParList) {
             break;
         }
         case(3): {
-			auto pVal = mxCreateDoubleScalar(double(this->run_id));
-			mxSetCell(out, n_set_param, pVal);
+            auto pVal = mxCreateDoubleScalar(double(this->run_id));
+            mxSetCell(out, n_set_param, pVal);
             break;
         }
         case(4): {
-			auto pVal = mxCreateDoubleScalar(double(this->total_NfileBins));
-			mxSetCell(out, n_set_param, pVal);
+            auto pVal = mxCreateDoubleScalar(double(this->total_NfileBins));
+            mxSetCell(out, n_set_param, pVal);
             break;
         }
         case(5): {
-			auto pVal = mxCreateDoubleScalar(double(this->total_nPixels));
-			mxSetCell(out, n_set_param, pVal);
+            auto pVal = mxCreateDoubleScalar(double(this->total_nPixels));
+            mxSetCell(out, n_set_param, pVal);
             break;
         }
         case(6): {
-			auto pVal = mxCreateDoubleScalar(double(this->pixel_width));
-			mxSetCell(out, n_set_param, pVal);
+            auto pVal = mxCreateDoubleScalar(double(this->pixel_width));
+            mxSetCell(out, n_set_param, pVal);
             break;
         }
         default: {
@@ -71,7 +72,7 @@ void fileParameters ::returnInputs(mxArray** const outParList) {
  @input -- pointer to Matlab structure, containing the file description, with fields defined in the map above.
 */
 fileParameters::fileParameters(const mxArray* pFileParam) :
-   fileParameters()
+    fileParameters()
 {
 
     mwSize total_num_of_elements = mxGetNumberOfElements(pFileParam);
@@ -80,12 +81,12 @@ fileParameters::fileParameters(const mxArray* pFileParam) :
     if (total_num_of_elements != 1) {
         std::stringstream buf;
         buf << "each field of file parameter structure should contain only one element, not: " << (short)total_num_of_elements << std::endl;
-        mexErrMsgIdAndTxt(MEX_ERR_ID.c_str(),buf.str().c_str());
+        mexErrMsgIdAndTxt(MEX_ERR_ID.c_str(), buf.str().c_str());
     }
     if (number_of_fields > 7) {
         std::stringstream buf;
         buf << "each file parameter structure should contain no more then 7 fields but have: " << (short)number_of_fields << std::endl;
-        mexErrMsgIdAndTxt(MEX_ERR_ID.c_str(),buf.str().c_str());
+        mexErrMsgIdAndTxt(MEX_ERR_ID.c_str(), buf.str().c_str());
     }
 
     for (int field_index = 0; field_index < number_of_fields; field_index++) {
@@ -97,7 +98,7 @@ fileParameters::fileParameters(const mxArray* pFileParam) :
         }
         catch (std::out_of_range) {
             std::string err = "file parameters structure contains unknown parameter: " + FieldName;
-            mexErrMsgIdAndTxt(MEX_ERR_ID.c_str(),err.c_str());
+            mexErrMsgIdAndTxt(MEX_ERR_ID.c_str(), err.c_str());
         }
 
         const mxArray* pFieldContents = mxGetFieldByNumber(pFileParam, 0, field_index);
@@ -107,13 +108,11 @@ fileParameters::fileParameters(const mxArray* pFileParam) :
             break;
         }
         case(1): {
-            double* pnBin_start = mxGetPr(pFieldContents);
-            this->nbin_start_pos = int64_t(pnBin_start[0]);
+            this->nbin_start_pos = process_pix_npix_pos(pFieldContents);
             break;
         }
         case(2): {
-            double* pPixStart = mxGetPr(pFieldContents);
-            this->pix_start_pos = uint64_t(pPixStart[0]);
+            this->pix_start_pos = process_pix_npix_pos(pFieldContents);
             break;
         }
         case(3): {
@@ -144,6 +143,35 @@ fileParameters::fileParameters(const mxArray* pFileParam) :
 
     this->check_inputs_provided();
 }
+uint64_t fileParameters::process_pix_npix_pos(const mxArray* const pFieldContents) {
+    mxClassID id = mxGetClassID(pFieldContents);
+    uint64_t pos(0);
+    switch (id) {
+    case mxINT64_CLASS: {
+        int64_t* pPixStart = (int64_t*)mxGetData(pFieldContents);
+        pos = uint64_t(pPixStart[0]);
+        break;
+    }
+    case mxUINT64_CLASS: {
+        uint64_t* pPixStart = (uint64_t*)mxGetData(pFieldContents);
+        pos = uint64_t(pPixStart[0]);
+        break;
+    }
+    case mxDOUBLE_CLASS: {
+        double* pPixStart = mxGetPr(pFieldContents);
+        pos = uint64_t(pPixStart[0]);
+        break;
+    }
+    default: {
+        std::stringstream err_buf;
+        const char* class_name = mxGetClassName(pFieldContents);
+        err_buf << "unsupported type of the input data for pix_start_pos: " << class_name << std::endl;
+        mexErrMsgIdAndTxt(MEX_ERR_ID.c_str(), err_buf.str().c_str());
+    }
+    }
+    return pos;
+}
+
 /* Validate if user provided all requested inputs and consistency between some of these inputs
 */
 void fileParameters::check_inputs_provided() {
@@ -169,7 +197,7 @@ void fileParameters::check_inputs_provided() {
     this->num_input_params = n_params_provided;
     if (this->nbin_start_pos + this->total_NfileBins > this->pix_start_pos - 12) {
         std::stringstream buf;
-        buf << "NBINS position at: "<< this->nbin_start_pos << " plus number of bins: " << this->total_NfileBins 
+        buf << "NBINS position at: " << this->nbin_start_pos << " plus number of bins: " << this->total_NfileBins
             << " overlaps with pixels info start position: " << this->pix_start_pos << std::endl;
         mexErrMsgIdAndTxt(MEX_ERR_ID.c_str(), buf.str().c_str());
 

@@ -6,7 +6,7 @@ set(
     "pix_mem_map.cpp"
     "sqw_pix_writer.cpp"
     "sqw_reader.cpp"
-	"../file_parameters/fileParameters.cpp"
+    "../file_parameters/fileParameters.cpp"
 )
 
 set(

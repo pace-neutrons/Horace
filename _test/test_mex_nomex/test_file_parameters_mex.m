@@ -73,35 +73,99 @@ classdef test_file_parameters_mex < TestCase
                 'value for field: file_name requested but has not been provided',20))
         end
 
-        function test_all_input_works(obj)
+        function test_setting_pix_without_metadata_fails(obj)
             if obj.skipTests
                 skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
             end
             param = struct('file_name','my_file','npix_start_pos',1,...
             'pix_start_pos',1,'file_id',6,'nbins_total',0,'pixel_with',34);
 
+            function fout = fp_test_wrapper()
+                fout = file_parameters_tester(param);
+            end
+
+
+            assertExceptionThrown(@()fp_test_wrapper,...
+                'HORACE:fileParameters:invalid_argument');
+        end
+
+        function test_pix_pos_is_int32_throws(obj)
+            if obj.skipTests
+                skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
+            end
+            param = struct('file_name','my_file','npix_start_pos',1,...
+            'pix_start_pos',int32(16),'file_id',6,'nbins_total',0,'pixel_with',34);
+            function fout = fp_test_wrapper()
+                fout = file_parameters_tester(param);
+            end
+            assertExceptionThrown(@()fp_test_wrapper,...
+                'HORACE:fileParameters:invalid_argument');
+        end        
+
+        function test_pix_pos_is_int64(obj)
+            if obj.skipTests
+                skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
+            end
+            param = struct('file_name','my_file','npix_start_pos',1,...
+            'pix_start_pos',int64(16),'file_id',6,'nbins_total',0,'pixel_with',34);
+
             % tester returns all input parameters
             test_out = file_parameters_tester(param);
             assertEqual(test_out{1},'my_file');
             assertEqual(test_out{2},1);
-            assertEqual(test_out{3},1);
+            assertEqual(test_out{3},16);
             assertEqual(test_out{4},6);
             assertEqual(test_out{5},0);
             assertEqual(test_out{6},34);
+        end
 
+        function test_pix_pos_is_uint(obj)
+            if obj.skipTests
+                skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
+            end
+            param = struct('file_name','my_file','npix_start_pos',1,...
+            'pix_start_pos',uint64(16),'file_id',6,'nbins_total',0,'pixel_with',34);
+
+            % tester returns all input parameters
+            test_out = file_parameters_tester(param);
+            assertEqual(test_out{1},'my_file');
+            assertEqual(test_out{2},1);
+            assertEqual(test_out{3},16);
+            assertEqual(test_out{4},6);
+            assertEqual(test_out{5},0);
+            assertEqual(test_out{6},34);
+        end
+        
+        
+
+        function test_all_input_works(obj)
+            if obj.skipTests
+                skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
+            end
+            param = struct('file_name','my_file','npix_start_pos',1,...
+            'pix_start_pos',16,'file_id',6,'nbins_total',0,'pixel_with',34);
+
+            % tester returns all input parameters
+            test_out = file_parameters_tester(param);
+            assertEqual(test_out{1},'my_file');
+            assertEqual(test_out{2},1);
+            assertEqual(test_out{3},16);
+            assertEqual(test_out{4},6);
+            assertEqual(test_out{5},0);
+            assertEqual(test_out{6},34);
         end
         function test_minimal_set_works(obj)
             if obj.skipTests
                 skipTest('Mex is not available or invalid. Can not test fileParameters processing ')
             end
             param = struct('file_name','my_file','npix_start_pos',1,...
-            'pix_start_pos',1,'file_id',6,'nbins_total',0,'pixel_with',34);
+            'pix_start_pos',30,'file_id',6,'nbins_total',0,'pixel_with',34);
 
             % tester returns all input parameters
             test_out = file_parameters_tester(param);
             assertEqual(test_out{1},'my_file');
             assertEqual(test_out{2},1);
-            assertEqual(test_out{3},1);
+            assertEqual(test_out{3},30);
             assertEqual(test_out{4},6);
             assertEqual(test_out{5},0);
             assertEqual(test_out{6},34);

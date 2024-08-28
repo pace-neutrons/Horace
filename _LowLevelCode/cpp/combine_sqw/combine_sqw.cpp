@@ -3,6 +3,7 @@
 #include "nsqw_pix_reader.h"
 #include "sqw_pix_writer.h"
 #include "../utility/version.h"
+#include "../file_parameters/fileParameters.h"
 
 #include <memory>
 #include <stdio.h>
