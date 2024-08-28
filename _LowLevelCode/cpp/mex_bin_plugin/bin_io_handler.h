@@ -29,7 +29,7 @@
 class bin_io_handler {
 public:
     bin_io_handler() :
-        last_pix_written(0), pix_array_position(bin_io_handler::pixel_info_size), pixel_width(36), nbin_position(0),
+        last_pix_written(0), pix_array_position(fileParameters::PIX_INFO_SIZE), pixel_width(36), nbin_position(0),
         n_pixels_written_info(0), nbins_field_size(0), file_size(0)
     {}
 
@@ -61,12 +61,9 @@ private:
     size_t nbins_field_size;    // the size of npix block written in file
     size_t file_size;           //initial file size
 
-    // size of the fields containing pixel information, e.g. pixel_width (in bytes)
-    // and number of pixels written on disk
-    const size_t pixel_info_size{ 12 };
     // message ID this class return to Matlab in case of errors
-    const char* MEX_ERR_ARGUMENTS{"HORACE:bin_io_handler:invalid_argument"};
-    const char* MEX_ERR_IO{"HORACE:bin_io_handler:io_error"};
+    inline static const char* MEX_ERR_ARGUMENTS{"HORACE:bin_io_handler:invalid_argument"};
+    inline static const char* MEX_ERR_IO{"HORACE:bin_io_handler:io_error"};
 
 };
 

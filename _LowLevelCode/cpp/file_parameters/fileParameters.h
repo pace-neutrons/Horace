@@ -26,7 +26,7 @@ enum file_par {
    write binary pixel data into bin fields and/or pixel fields */
 class fileParameters {
 public:
-    static const int PIX_INFO_WIDTH = 12; // the number of bytes pixel metadata occupies. Refers fo 
+    static const int PIX_INFO_SIZE = 12; // the number of bytes pixel metadata occupies. Refers fo 
                                           // pixel_width (4 bytes) + num_pixels (8 bytes)
     std::string fileName;
     uint64_t    nbin_start_pos;  // the initial file position where nbin array is located in the file
@@ -38,7 +38,7 @@ public:
 
 
     fileParameters(const mxArray* pFileParam);
-    fileParameters() :fileName(""), nbin_start_pos(0), pix_start_pos(fileParameters::PIX_INFO_WIDTH),
+    fileParameters() :fileName(""), nbin_start_pos(0), pix_start_pos(fileParameters::PIX_INFO_SIZE),
         run_id(0), total_NfileBins(0), total_nPixels(std::numeric_limits<size_t>::max()),
         pixel_width(36),
         parameters_set(7, false),
@@ -57,9 +57,9 @@ private:
 
     // array of input keys, which define which file parameters are mandatory (value true),
     //  and which are optional (value false)
-    static const bool param_requested[];
+    inline static const bool param_requested[] = { true,false,true,false,false,false,false };
     // string which defines error ID, errors in this code are throwing.
-    const char* MEX_ERR_ID{"HORACE:fileParameters:invalid_argument"};
+    inline static const char* MEX_ERR_ID{"HORACE:fileParameters:invalid_argument"};
     // helper function to process input parameters which define pix or npix position
     uint64_t process_pix_npix_pos(const mxArray* const pFieldContents);
 };

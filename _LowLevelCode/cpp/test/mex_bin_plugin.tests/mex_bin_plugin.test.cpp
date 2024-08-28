@@ -4,10 +4,6 @@
 
 using namespace Horace::Utility;
 
-bool file_exists(const  std::string& filename) {
-    std::ifstream f(filename.c_str());
-    return f.good();
-};
 
 void del_file(const std::string& filename) {
     std::remove(filename.c_str());
@@ -25,6 +21,7 @@ TEST(TestMexBinPlugin, write_bin_data_no_file) {
 
     std::unique_ptr<bin_io_handler> my_writer(new bin_io_handler);
     fileParameters file_info;
+    // set up random acceptable numbers
     file_info.fileName = binary_file;
     file_info.nbin_start_pos = 0;
     file_info.pix_start_pos = 60;
@@ -37,7 +34,7 @@ TEST(TestMexBinPlugin, write_bin_data_no_file) {
     my_writer.reset();
 
 
-    ASSERT_TRUE(file_exists(binary_file));
+    ASSERT_TRUE(std::filesystem::exists(binary_file));
 
     std::ifstream data_check_stream(binary_file);
     data_check_stream.seekg(60);
@@ -48,8 +45,8 @@ TEST(TestMexBinPlugin, write_bin_data_no_file) {
     test_data.resize(20);
     ASSERT_EQ(test_data, data_buf);
     // check correct pixel info written by reading result directly
-    data_check_stream.seekg(60 - 12);
-    data_check_stream.read(&data_buf[0], 12);
+    data_check_stream.seekg(60 - fileParameters::PIX_INFO_SIZE);
+    data_check_stream.read(&data_buf[0], fileParameters::PIX_INFO_SIZE);
     data_check_stream.close();
 
     ASSERT_EQ(*(reinterpret_cast<uint32_t*>(&data_buf[0])), file_info.pixel_width);
@@ -71,7 +68,6 @@ TEST(TestMexBinPlugin, write_read_metadata_no_file) {
     //bin_stream.close();
 
     //variables for testing ::
-
     size_t pix_array_position = 128;
     fileParameters file_info;
     file_info.fileName = binary_file;
@@ -119,8 +115,8 @@ TEST(TestMexBinPlugin, write_read_metadata_file_exist) {
 
     std::fstream bin_stream;
     std::vector<char> test_data(100);
-    for (int i = 0; i < 100; i++) {
-        test_data[i] = char(i);
+    for (char i = 0; i < 100; i++) {
+        test_data[i] = i;
     }
     bin_stream.open(binary_file, std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
     ASSERT_TRUE(bin_stream.is_open());
