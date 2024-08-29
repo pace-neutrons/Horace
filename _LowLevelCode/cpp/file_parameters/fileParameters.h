@@ -55,8 +55,8 @@ private:
     std::vector<bool> parameters_set;
 
 
-    // array of input keys, which define which file parameters are mandatory (value true),
-    //  and which are optional (value false)
+    // array of boolean values, which define which file parameters are mandatory (value true),
+    // and which are optional (value false)
     inline static const bool param_requested[] = { true,false,true,false,false,false,false };
     // string which defines error ID, errors in this code are throwing.
     inline static const char* MEX_ERR_ID{"HORACE:fileParameters:invalid_argument"};

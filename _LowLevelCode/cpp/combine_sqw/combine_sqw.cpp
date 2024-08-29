@@ -38,8 +38,8 @@ enum OutputArguments { // unique output arguments,
     "npix_start_pos"    -- the location of the beginning of the npix data in the binary file
                            (output of ftellg(fid) or of fseek(fid, npix_start_pos)
     "pix_start_pos"     -- the location of the beginning of the pix data in the binary file. Similar to npix
-    "run_id"           -- number of pixel (pixel ID) distinguishing the pixels, obtained from this run from
-                           all other pixels in combined sqw file.
+    "run_id"            -- the number (pixel ID) distinguishing the pixels, obtained from a particular run from
+                           pixels generated retrieved from other runs in combined sqw file.
     "nbins_total"       -- number of bins stored in single data file
 %
 % 2) outFileParams -- structure, which defines the parameters for the pixels to write.
