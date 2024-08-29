@@ -58,7 +58,8 @@ if nargin > 1
     end
     return;
 end
-
+fw = config_store.instance().get_value('hor_config','spe_file_energy_transfer_field_width');
+fmt = ['%',num2str(fw),'f'];
 
 % Read data
 S=zeros(ne,ndet);
@@ -67,10 +68,10 @@ try
     for i=1:ndet
         temp  =fgetl(fid);        % read eol character
         s_text=fgetl(fid);        % get rid of line ### S(Phi,w)
-        S(:,i)=fscanf(fid,'%10f',ne);
+        S(:,i)=fscanf(fid,fmt,ne);
         temp  =fgetl(fid);        % read eol character
         temp  =fgetl(fid);        % get rid of line ### Errors
-        ERR(:,i)=fscanf(fid,'%10f',ne);
+        ERR(:,i)=fscanf(fid,fmt,ne);
     end
 catch ME
     error('HERBERT:loader_ascii:io_error',ME.message);
