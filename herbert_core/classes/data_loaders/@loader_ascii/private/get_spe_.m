@@ -16,7 +16,6 @@ function varargout = get_spe_(filename,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 % Based on Radu coldea routine load_spe in mslice
 
@@ -32,14 +31,14 @@ clob = onCleanup(@()fclose(fid));
 
 % Read number of detectors and energy bins
 ndet=fscanf(fid,'%d',1);
-ne=fscanf(fid,'%d',1);
+ne  =fscanf(fid,'%d',1);
 if isempty(ne)|| isempty(ndet)
-    error('LOADER_ASCII:invalid_argument', ...
+    error('HERBERT:loader_ascii:invalid_argument', ...
         ' file %s is not proper spe file as can not interpret ndet and ne parameters in first row',...
         filename);
 end
 if (ndet<0) || (ndet > 1e+32) || (ne<0) || (ne> 100000)
-    error('LOADER_ASCII:runtime_error',...
+    error('HERBERT:loader_ascii:runtime_error',...
         'found ndet=%d and ne=%d when interpreting file %s',ndet,ne,filename);
 end
 temp=fgetl(fid);    % read eol
@@ -74,8 +73,7 @@ try
         ERR(:,i)=fscanf(fid,'%10f',ne);
     end
 catch ME
-    ME.message = ['IO error at: ',s_text,' reason: ',ME.message];
-    rethrow(ME);
+    error('HERBERT:loader_ascii:io_error',ME.message);
 end
 if nargout>0
     varargout{1}=S;
