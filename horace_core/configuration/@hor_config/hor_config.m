@@ -146,7 +146,7 @@ classdef hor_config < config_base
         force_mex_if_use_mex_ = false;
         log_level_ = 1;
         init_tests_ = false;
-        spe_file_energy_transfer_field_width_ = 10;
+        spe_file_en_transf_field_width_ = 10;
     end
 
     properties(Constant, Access=private)

@@ -177,7 +177,7 @@ classdef test_loader_ascii < TestCase
         function test_get_run_info_no_par_file(obj)
             loader=loader_ascii(fullfile(obj.test_data_path,'spe_info_correspondent2demo_par.spe'));
             f = @()get_run_info(loader);
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
             % run info obtained from spe file
             loader.det_par = ones(6,obj.EXPECTED_DET_NUM);
             [ndet,en,rin]=loader.get_run_info();
@@ -204,7 +204,7 @@ classdef test_loader_ascii < TestCase
             wrong_par = fullfile(obj.test_data_path,obj.test_par_file);
 
             f =@()loader_ascii(wrong_spe,wrong_par);
-            assertExceptionThrown(f,'LOADER_ASCII:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:loader_ascii:invalid_argument');
         end
 
         function test_get_run_info_inconsistent2spe(obj)
@@ -215,7 +215,7 @@ classdef test_loader_ascii < TestCase
 
             f = @()get_run_info(loader);
             % inconsistent spe and par files
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
         end
 
         function test_get_run_info_OK(obj)
@@ -280,7 +280,7 @@ classdef test_loader_ascii < TestCase
             assertEqual(fi.file_name_,la.file_name);
 
             f=@()la.get_run_info();
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
 
             par_file_name =fullfile(obj.test_data_path,obj.test_par_file);
             la.par_file_name = par_file_name;

@@ -58,7 +58,7 @@ if nargin > 1
     end
     return;
 end
-fw = config_store.instance().get_value('hor_config','spe_file_energy_transfer_field_width');
+fw = config_store.instance().get_value('hor_config','spe_file_en_transf_field_width');
 fmt = ['%',num2str(fw),'f'];
 
 % Read data
