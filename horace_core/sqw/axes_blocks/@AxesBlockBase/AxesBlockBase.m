@@ -48,8 +48,9 @@ classdef AxesBlockBase < serializable
         label;
 
         % Index of integration axes into the projection axes  [row vector]
-        %          Always in increasing numerical order
-        %                  e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+        % Always in increasing numerical order e.g. if data is 2D,
+        % data.iax=[1,3] means summation has been performed along u1 and u3
+        % axes
         iax;
 
         % Integration range along each of the integration axes. [iint(2,length(iax))]
@@ -719,14 +720,14 @@ classdef AxesBlockBase < serializable
             %       column describes a point on a grid.
             %
             % Inputs:
-            % obj         -- initialized version of the axes block
+            % obj        -- initialized version of the axes block
+            %
             % Optional:
-            %  char_cube -- the cube, describing the scale of the grid,
-            %               to construct the lattice on, defined by its
-            %               minimal and maximal points (4x2 matrix)
-            %  or         --
-            %               char_size directly (4x1 vector), describing the
-            %               scales along each axis the lattice should have
+            % nbins_all_dims
+            %           -- (4-element vector) or single number representing
+            %               4-element vector of the same values, describing
+            %               the binning along each axis for the lattice to
+            %               build instead of existing axis binning
             %
             % '-3D'     -- generate separate 3D grid nodes for q-axes and
             %              energy transfer binning grid as the energy axis

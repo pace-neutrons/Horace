@@ -3,6 +3,7 @@
 #include "nsqw_pix_reader.h"
 #include "sqw_pix_writer.h"
 #include "../utility/version.h"
+#include "../file_parameters/fileParameters.h"
 
 #include <memory>
 #include <stdio.h>
@@ -37,16 +38,16 @@ enum OutputArguments { // unique output arguments,
     "npix_start_pos"    -- the location of the beginning of the npix data in the binary file
                            (output of ftellg(fid) or of fseek(fid, npix_start_pos)
     "pix_start_pos"     -- the location of the beginning of the pix data in the binary file. Similar to npix
-    "file_id"           -- number of pixel (pixel ID) distinguishing the pixels, obtained from this run from
-                           all other pixels in combined sqw file.
+    "run_id"            -- the number (pixel ID) distinguishing the pixels, obtained from a particular run from
+                           pixels generated retrieved from other runs in combined sqw file.
     "nbins_total"       -- number of bins stored in single data file
 %
 % 2) outFileParams -- structure, which defines the parameters for the pixels to write.
     The structure is similar to the one used for inFileParams but some fields are undefined.
     The fields need to be defined are file_name, npix_start_pos and pix_start_pos.
-    The undefined fields are file_id and nbins_total
+    The undefined fields are run_id and nbins_total
     nbins_total is calculated from nbins_total of the input files and file id
-    is the combination of file_ids of input files to can not be unique or defined.
+    is the combination of run_ids of input files to can not be unique or defined.
 %
 % 3) programSettings -- array of parameters defining the file combine process, namely:
 % n_bin        -- number of bins in the image array
@@ -269,7 +270,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     std::vector<sqw_reader> fileReader(n_files);
     for (size_t i = 0; i < n_files; i++) {
         if (change_fileno && !fileno_provided) { // renumbering pixel id-s with file number
-            fileParam[i].file_id = int(i + 1); // file numbers in Matlab start from 1 so adhere to this convention
+            fileParam[i].run_id = int(i + 1); // file numbers in Matlab start from 1 so adhere to this convention
         }
         fileReader[i].init(fileParam[i], change_fileno,read_buf_size, read_files_multitreaded);
     }
@@ -314,4 +315,3 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     }
     fileReader.clear();
 }
-

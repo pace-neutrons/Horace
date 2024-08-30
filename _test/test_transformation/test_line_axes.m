@@ -669,7 +669,7 @@ classdef test_line_axes < TestCase
             mult = ones(3,1);
             ex = assertExceptionThrown(@()get_bin_nodes(ab,'-bin_centre',mult),...
                 'HORACE:AxesBlockBase:invalid_argument');
-            assertTrue(strncmp(ex.message,'nnodes multipler should',23));
+            assertTrue(strncmp(ex.message,'axis binning should be 1x4 vector or single value',23));
         end
         %
         function test_wrong_keyword_throw(~)
@@ -687,7 +687,7 @@ classdef test_line_axes < TestCase
 
             ex = assertExceptionThrown(@()get_bin_nodes(ab,'-wrong',mult),...
                 'HORACE:AxesBlockBase:invalid_argument');
-            assertTrue(strncmp(ex.message,'nodes_multiplier, if present, should',36));
+            assertTrue(strncmp(ex.message,'axis binning, if present, should be single numeric value',36));
         end
         %
         function test_get_bin_nodes_2D_2d(~)
