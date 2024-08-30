@@ -19,6 +19,8 @@ set(MEX_FUNCTIONS
     "compute_pix_sums"
     "mtimesx_horace"
     "sort_pixels_by_bins"
+    "mex_bin_plugin"
+    "file_parameters"
      ${HDF_READER}
 )
 foreach(_mex_func ${MEX_FUNCTIONS})

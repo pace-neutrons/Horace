@@ -22,6 +22,7 @@ set(TEST_DIRECTORIES
     "utility.tests"
     "combine_sqw.tests"
     "compute_pix_sums.tests"
+    "mex_bin_plugin.tests"
 )
 foreach(_test_dir ${TEST_DIRECTORIES})
     add_subdirectory("${_test_dir}")

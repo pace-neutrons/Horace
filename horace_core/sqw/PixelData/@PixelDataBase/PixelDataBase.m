@@ -55,7 +55,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     properties (Dependent)
         full_filename; % full name of the file this pixels are based on or
         %                were loaded from
-        num_pixels;         % The number of pixels class contains
+        num_pixels;    % The number of pixels class contains
         %------------------------------------------------------------------
         u1; % The 1st dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u2; % The 2nd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]

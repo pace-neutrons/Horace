@@ -54,8 +54,10 @@ classdef test_sort_pix_mex_nomex < TestCase
             assertTrue(isfile(tmp_file_names{1}))
             assertTrue(isfile(tmp_file_names{2}))
 
-            pos_pix_start = 8*numel(npix1)+8; % 8 first bytes -- 
+            pos_pix_start = 8*numel(npix1)+8+4; % 8 first bytes -- 
             % number of bytes for number of elements in stored npix field
+            % + 4 additional bytes for pixel width (number of colums in
+            % pixels)
             assertEqual(pci.pos_npixstart,[0,0])
             assertEqual(pci.pos_pixstart,[pos_pix_start,pos_pix_start]);
 
