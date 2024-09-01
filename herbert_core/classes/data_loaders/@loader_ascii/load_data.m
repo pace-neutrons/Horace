@@ -46,7 +46,7 @@ if use_mex
 end
 
 if ~use_mex
-    [S,ERR,en] = get_spe_(file_name);
+    [S,ERR,en] = read_spe(file_name);
 end
 
 % Convert symbolic NaN-s into ISO NaN-s

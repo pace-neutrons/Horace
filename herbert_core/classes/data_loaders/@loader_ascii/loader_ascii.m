@@ -89,7 +89,7 @@ classdef loader_ascii < a_loader
             end
             %
             % get info about ascii spe file;
-            [ne,ndet,en]= get_spe_(full_file_name,'-info_only');
+            [ne,ndet,en]= read_spe(full_file_name,'-info_only');
             if numel(en) ~= ne+1
                 error('HERBERT:loader_ascii:invalid_argument',...
                     ' Ill formatted ascii spe file %s',file_name);

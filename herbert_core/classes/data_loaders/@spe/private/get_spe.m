@@ -29,7 +29,7 @@ try
     if get(hor_config,'log_level')>-1
         disp(['Matlab loading of .spe file : ' file_tmp]);
     end
-    [data.S,data.ERR,data.en]=read_spe_(file_tmp);
+    [data.S,data.ERR,data.en]=read_spe(file_tmp);
 catch
     data=[];
     ok=false;
@@ -47,6 +47,6 @@ end
 
 [ne,ndet]=size(data.S);
 if get(hor_config,'log_level')>-1
-        disp(['Loaded spe data ( ' num2str(ndet) ' detector(s) and ' num2str(ne) ' energy bin(s)) from file : ']);
-        disp(file_tmp);
+    disp(['Loaded spe data ( ' num2str(ndet) ' detector(s) and ' num2str(ne) ' energy bin(s)) from file : ']);
+    disp(file_tmp);
 end
