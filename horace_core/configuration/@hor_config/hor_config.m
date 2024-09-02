@@ -100,11 +100,6 @@ classdef hor_config < config_base
 
         % add unit test folders to search path (option for testing)
         init_tests;
-        % standard spe files contains data stored in old FORTRAN format,
-        % where the energy transfer field occupies 10 positions. There are
-        % rare old format spe files, which energy transfer fields occupy 11
-        % position. Change this to 11 to process these files.
-        spe_file_en_transf_field_width
     end
 
     properties(Dependent,SetAccess=private)
@@ -171,10 +166,6 @@ classdef hor_config < config_base
 
         %-----------------------------------------------------------------
         % overloaded getters
-        function fw = get.spe_file_en_transf_field_width(obj)
-            fw = get_or_restore_field(obj,'spe_file_en_transf_field_width');
-        end
-
         function mcs = get.mem_chunk_size(obj)
             mcs = get_or_restore_field(obj,'mem_chunk_size');
         end
@@ -246,18 +237,6 @@ classdef hor_config < config_base
 
         %-----------------------------------------------------------------
         % overloaded setters
-        function obj = set.spe_file_en_transf_field_width(obj,val)
-            if ~isnumeric(val)
-                error('HORACE:hor_config:invalid_argument', ...
-                    'energy transfer field width in spe file shoule be numeric. You provide: %s',class(val));
-            end
-            if val<4 || val > 20
-                error('HORACE:hor_config:invalid_argument', ...
-                    'energy transfer field width in spe file shoule be in range from 4 to 20. Reasonable values are 10 or 11. You provide: %d',val);
-            end
-            config_store.instance().store_config(obj,'spe_file_en_transf_field_width',val);
-        end
-
         function obj = set.mem_chunk_size(obj,val)
 
             % Don't allow non-integer values, may cause weird effects
