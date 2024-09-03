@@ -18,7 +18,6 @@ include(PACE_AddCppUnitTest)
 
 set(TEST_DIRECTORIES
     "cpp_communicator.tests"
-    "get_ascii_file.tests"
     "utility.tests"
     "combine_sqw.tests"
     "compute_pix_sums.tests"

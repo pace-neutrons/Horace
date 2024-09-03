@@ -99,7 +99,6 @@ classdef loader_ascii < a_loader
         end
     end
 
-
     methods
         function obj = loader_ascii(full_spe_file_name,varargin)
             % the constructor for spe data loader; called usually from run_data
