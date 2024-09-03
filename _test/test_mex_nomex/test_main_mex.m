@@ -194,8 +194,8 @@ classdef test_main_mex < TestCase
             % check that the GetMD5 code is present in the mex functions
             % and that the check for this is correctly set up
             mex_list = check_horace_mex;
-            assertEqual( numel(mex_list), 13 );
-            assertTrue( strncmp( mex_list{13}, 'GetMD5 ', 6 ) );
+            assertEqual( numel(mex_list), 12 );
+            assertTrue( strncmp( mex_list{12}, 'GetMD5 ', 6 ) );
 
         end
 
