@@ -355,29 +355,5 @@ classdef test_loader_ascii < TestCase
             lx = loader_ascii(dat_file);
             assertEqual(lx.run_id,10001)
         end
-
-        function test_mex_nomex(obj)
-            if isempty(which('get_ascii_file'))
-                skipTest('no get_ascii_file.mex found so the test has been disabled')
-            end
-
-            spe_file = fullfile(obj.test_data_path,'MAP10001.spe');
-            par_file = fullfile(obj.test_data_path,obj.test_par_file);
-            ld = loader_ascii(spe_file,par_file);
-
-            clob = set_temporary_config_options(hor_config, 'use_mex', true);
-            [Smex,Emex,enMex] = ld.load_data();
-            detMex = ld.load_par('-array');
-
-            hc.use_mex = false;
-            [Snom,Enom,enNom] = ld.load_data();
-            detNom = ld.load_par('-array');
-
-            assertEqual(Smex,Snom);
-            assertEqual(Emex,Enom);
-            assertEqual(enMex,enNom);
-            assertEqual(detMex,detNom);
-
-        end
     end
 end

@@ -28,26 +28,7 @@ else
 end
 file_name  = obj.file_name;
 
-use_mex=config_store.instance().get_value('hor_config','use_mex');
-if use_mex
-    try
-        [S,ERR,en] = get_ascii_file(file_name ,'spe');
-    catch err
-        force_mex = get(hor_config,'force_mex_if_use_mex');
-        if ~force_mex
-            if get(hor_config,'log_level')>-1
-                warning('HERBERT:loader_ascii:runtime_error',' Cannot read data using C++ routines -- reverted to Matlab\n Reason: %s',err.message);
-            end
-            use_mex=false;
-        else
-            error('HERBERT:loader_ascii:runtime_error',' Cannot read data using C++ routines \n Reason: %s',err.message);
-        end
-    end
-end
-
-if ~use_mex
-    [S,ERR,en] = read_spe(file_name);
-end
+[S,ERR,en] = read_spe(file_name);
 
 % Convert symbolic NaN-s into ISO NaN-s
 nans      = (S(:,:)<-1.e+29);
