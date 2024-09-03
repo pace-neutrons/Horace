@@ -38,7 +38,7 @@ classdef loader_ascii < a_loader
             % loaded by loader_ascii
             %
             %Usage:
-            %>>[ok,fh]=loader.is_loader_correct(file_name)
+            %>>[ok,fh]=loader.can_load(file_name)
             % Input:
             % file_name -- the name of the file to check
             % Output:
@@ -53,7 +53,8 @@ classdef loader_ascii < a_loader
             end
             if H5F.is_hdf5(full_file_name)>0
                 ok = false;
-                warning('LOADER_ASCII:is_loader_correct','file %s with extension .spe is hdf5 file',full_file_name);
+                warning('LOADER_ASCII:is_loader_correct', ...
+                    'file %s with extension .spe is hdf5 file',full_file_name);
                 return;
             end
             fh=loader_ascii.get_data_info(file_name);
