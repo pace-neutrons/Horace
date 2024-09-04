@@ -1,6 +1,5 @@
 classdef test_get_par< TestCase
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
     %
     
     properties
@@ -13,7 +12,7 @@ classdef test_get_par< TestCase
         % tests themself
         function test_wrong_file_name(this)
             f = @()get_par('non-existent-file-name');
-            assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
+            assertExceptionThrown(f,'HERBERT:loaders_factory:invalid_argument');
         end
         function test_get_par_from_ASCII(this)
             par = get_par('one2one_112.par','-array');
