@@ -70,13 +70,14 @@ clob = onCleanup(@()fclose(fid));
 
 % Read number of detectors and energy bins
 ndetne=fscanf(fid,'%d',2);
-ndet = ndetne(1);
-ne   = ndetne(2);
-if isempty(ne)|| isempty(ndet)
+if isempty(ndetne) || ~isnumeric(ndetne) || numel(ndetne) ~=2
     error('HERBERT:read_spe:invalid_argument', ...
         ' file %s is not proper spe file as can not interpret ndet and ne parameters in first row',...
         filename);
 end
+ndet = ndetne(1);
+ne   = ndetne(2);
+
 if (ndet<0) || (ndet > 1e+32) || (ne<0) || (ne> 100000)
     error('HERBERT:read_spe:runtime_error',...
         'found ndet=%d and ne=%d when interpreting file %s',ndet,ne,filename);
@@ -183,6 +184,7 @@ function [block_end,field_width] = parse_block_size(string_list,n_first_row,bloc
 %
 n_rows = numel(string_list);
 data_symbol_size = 0;
+bel_undefined = true;
 for i=n_first_row:n_rows
     the_row = string_list{i};
     if the_row(end) == char(13)
@@ -190,9 +192,13 @@ for i=n_first_row:n_rows
     end
     if strncmpi(the_row,block_end_line,numel(block_end_line))
         block_end = i-1;
+        bel_undefined  = false;
         break
     end
     data_symbol_size = data_symbol_size + numel(the_row);
+end
+if bel_undefined
+    block_end = [];
 end
 field_width = round(data_symbol_size/n_components);
 
@@ -208,7 +214,9 @@ clOb = onCleanup(@()fclose(fid));
 if info_only
     %  Read extended block of data to certainly include whole energy bin
     %  boundary block.
-    n_positions = 10+10+100+(ne+1)*20+100+(ndet+1)*20;
+    n_positions = 20+20+... % ne,npix values occupy max 10 symbols each
+        100+(ndet+1)*20+... % phi block; each field is not bigger than 20 symblos (normally 10)
+        100+(ne+1)*20;      % en block;  each field is not bigger than 20 symblos (normally 10)
     data = fread(fid,n_positions,'*char');
 else
     % Read all data
@@ -217,6 +225,9 @@ end
 %
 eol_pos = find(data == newline);
 eol_pos = [0;eol_pos];
+if eol_pos(end) ~= numel(data) % guard against non-standard files not ending with \cr or \cl
+    eol_pos = [eol_pos;numel(data)];
+end
 n_lines = numel(eol_pos);
 idx = 1:n_lines-1;
 data_strings = arrayfun(@(idx)data(eol_pos(idx)+1:eol_pos(idx+1)-1)',idx,'UniformOutput',false);
@@ -226,6 +237,12 @@ if ~strncmp(data_strings{phi_grid_starts-1},'### Phi',7)
     error('HERBERT:read_spe:invalid_argument','Can not identify start of phi grid');
 end
 phi_grid_ends = parse_block_size(data_strings,phi_grid_starts,'### Energy',ndet+1);
+if isempty(phi_grid_ends)
+    error('HERBERT:read_spe:runtime_error', [...
+        'Can not identify location of ### Energy grid.\n' ...
+        'File: %s is not an spe file or broken spe file'], ...
+        filename);
+end
 
 en_data_starts = phi_grid_ends+2;
 [en_data_ends,en_field_width] = parse_block_size(data_strings,en_data_starts ,'### S(Phi',ne+1);

@@ -118,14 +118,14 @@ classdef test_rundata < TestCase
         function test_wrong_file_extension(obj)
             f = @()rundata(f_name(obj,'file.unspported_extension'));
             ws=warning('off','MATLAB:printf:BadEscapeSequenceInFormat');
-            assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
+            assertExceptionThrown(f,'HERBERT:loaders_factory:invalid_argument');
             warning(ws);
         end
 
         function test_file_not_found(obj)
             f = @()rundata(f_name(obj,'not_existing_file.spe'));
             ws=warning('off','MATLAB:printf:BadEscapeSequenceInFormat');
-            assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
+            assertExceptionThrown(f,'HERBERT:loaders_factory:invalid_argument');
             warning(ws);
         end
 
@@ -296,35 +296,51 @@ classdef test_rundata < TestCase
             warning(wr);
         end
 
-        function test_save_rundata_nxspe(obj)
+        function test_invalid_spe(obj)
+            spe_spource = fullfile(obj.test_data_path,'spe_info_inconsistent2demo_par.spe');
+
+            assertExceptionThrown(@()rundata(spe_spource),...
+                'HERBERT:loaders_factory:invalid_argument');
+        end
+
+        function test_save_rundata_nxspe(obj)   
             test_file = fullfile(tmp_dir,'test_save_rundata_nxspe.nxspe');
             if is_file(test_file)
                 delete(test_file);
             end
-            spe_spource = fullfile(obj.test_data_path,'spe_info_inconsistent2demo_par.spe');
+            clWarn = set_temporary_warning('off','HERBERT:saveNXSPE:invalid_argument','TESTS:clear_warnings');
+
+            run = rundata();
+            run.saveNXSPE(test_file);
+            [mess,wid] = lastwarn;
+            assertEqual(mess,'nothing to save');
+            assertEqual(wid,'HERBERT:saveNXSPE:invalid_argument');            
+
+            
             lat = oriented_lattice();
             lat.psi = 10;
-
-            run=rundata(spe_spource);
             run.lattice = lat;
+            warning('TESTS:clear_warnings','clear previous warning state')
+            run.saveNXSPE(test_file);
+            [mess,wid] = lastwarn;
+            assertEqual(mess,'nothing to save');
+            assertEqual(wid,'HERBERT:saveNXSPE:invalid_argument');            
+            
+            run.par_file_name = f_name(obj,'demo_par.PAR');            
+            
             f=@()run.saveNXSPE(test_file);
-            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
-
-            run.par_file_name = f_name(obj,'demo_par.PAR');
-            assertEqual(run.lattice,lat);
-            f=@()run.saveNXSPE(test_file);
-            % efix has to be defined
-            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
+            assertExceptionThrown(f,'HERBERT:load_nxspe:invalid_argument');
 
             run.efix = 1;
             f=@()run.saveNXSPE(test_file);
             % efix has to be defined
-            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
+            assertExceptionThrown(f,'HERBERT:load_nxspe:invalid_argument');
 
             run.efix = 150;
             f=@()run.saveNXSPE(test_file);
-            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
-
+            assertExceptionThrown(f,'HERBERT:load_nxspe:invalid_argument');
+            
+            
             run.data_file_name = fullfile(obj.test_data_path,'MAP10001.spe');
 
             f=@()run.saveNXSPE(test_file);

@@ -204,11 +204,11 @@ classdef test_loader_ascii < TestCase
             wrong_par = fullfile(obj.test_data_path,obj.test_par_file);
 
             f =@()loader_ascii(wrong_spe,wrong_par);
-            assertExceptionThrown(f,'HERBERT:loader_ascii:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:read_spe:invalid_argument');
         end
 
         function test_get_run_info_inconsistent2spe(obj)
-            inconsistent_spe = fullfile(obj.test_data_path,'spe_info_inconsistent2demo_par.spe');
+            inconsistent_spe = fullfile(obj.test_data_path,'Fe4_2K_reduced_11l.spe');
             demo_par = fullfile(obj.test_data_path,obj.test_par_file);
 
             loader=loader_ascii(inconsistent_spe,demo_par);

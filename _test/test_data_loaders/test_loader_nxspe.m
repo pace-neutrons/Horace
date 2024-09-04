@@ -412,7 +412,7 @@ classdef test_loader_nxspe < TestCase
             assertEqual(0,is_loader_valid(la));
 
             f = @()la.get_run_info();
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
         end
 
         function test_get_file_extension(~)

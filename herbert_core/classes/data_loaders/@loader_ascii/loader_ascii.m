@@ -57,7 +57,11 @@ classdef loader_ascii < a_loader
                     'file %s with extension .spe is hdf5 file',full_file_name);
                 return;
             end
-            fh=loader_ascii.get_data_info(file_name);
+            try
+                fh=loader_ascii.get_data_info(file_name);
+            catch
+                ok = false;
+            end
         end
         %
         function fh = get_data_info(file_name)
