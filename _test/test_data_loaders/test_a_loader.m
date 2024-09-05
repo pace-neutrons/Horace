@@ -264,12 +264,12 @@ classdef test_a_loader< TestCase
         function test_get_run_info(this)
             al=a_loader_tester();
             f = @()al.get_run_info();
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
 
             par_file = fullfile(this.test_data_path,'demo_par.par');
             al.par_file_name = par_file;
             f = @()al.get_run_info();
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
 
         end
 

@@ -141,6 +141,7 @@ classdef hor_config < config_base
         force_mex_if_use_mex_ = false;
         log_level_ = 1;
         init_tests_ = false;
+        spe_file_en_transf_field_width_ = 10;
     end
 
     properties(Constant, Access=private)
@@ -165,7 +166,6 @@ classdef hor_config < config_base
 
         %-----------------------------------------------------------------
         % overloaded getters
-
         function mcs = get.mem_chunk_size(obj)
             mcs = get_or_restore_field(obj,'mem_chunk_size');
         end

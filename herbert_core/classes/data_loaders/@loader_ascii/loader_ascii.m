@@ -38,7 +38,7 @@ classdef loader_ascii < a_loader
             % loaded by loader_ascii
             %
             %Usage:
-            %>>[ok,fh]=loader.is_loader_correct(file_name)
+            %>>[ok,fh]=loader.can_load(file_name)
             % Input:
             % file_name -- the name of the file to check
             % Output:
@@ -53,10 +53,15 @@ classdef loader_ascii < a_loader
             end
             if H5F.is_hdf5(full_file_name)>0
                 ok = false;
-                warning('LOADER_ASCII:is_loader_correct','file %s with extension .spe is hdf5 file',full_file_name);
+                warning('LOADER_ASCII:is_loader_correct', ...
+                    'file %s with extension .spe is hdf5 file',full_file_name);
                 return;
             end
-            fh=loader_ascii.get_data_info(file_name);
+            try
+                fh=loader_ascii.get_data_info(file_name);
+            catch
+                ok = false;
+            end
         end
         %
         function fh = get_data_info(file_name)
@@ -89,7 +94,7 @@ classdef loader_ascii < a_loader
             end
             %
             % get info about ascii spe file;
-            [ne,ndet,en]= get_spe_(full_file_name,'-info_only');
+            [ne,ndet,en]= read_spe(full_file_name,'-info_only');
             if numel(en) ~= ne+1
                 error('HERBERT:loader_ascii:invalid_argument',...
                     ' Ill formatted ascii spe file %s',file_name);
@@ -97,7 +102,6 @@ classdef loader_ascii < a_loader
             fh = cell2struct({ndet;full_file_name;en},loader_ascii.data_info_fields_');
         end
     end
-
 
     methods
         function obj = loader_ascii(full_spe_file_name,varargin)

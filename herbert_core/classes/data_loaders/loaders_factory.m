@@ -88,7 +88,7 @@ classdef loaders_factory < handle
             [ok,message,full_data_name] = check_file_exist(data_file_name,'*');
             if ~ok
                 message = regexprep(message,'[\\]','/');
-                error('LOADERS_FACTORY:get_loader',message);
+                error('HERBERT:loaders_factory:invalid_argument',message);
             end
             for i=1:numel(obj.supported_readers)
                 loader = obj.supported_readers{i};
@@ -106,7 +106,8 @@ classdef loaders_factory < handle
                     return
                 end
             end
-            error('LOADERS_FACTORY:get_loader',' existing loaders can not load file %s',full_data_name);
+            error('HERBERT:loaders_factory:invalid_argument', ...
+                'Existing loaders can not load file %s',full_data_name);
         end
     end
     

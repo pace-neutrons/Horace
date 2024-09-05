@@ -10,7 +10,6 @@ endif()
 set(MEX_FUNCTIONS
     "GetMD5"
     "cpp_communicator"
-    "get_ascii_file"
     "serialiser"
     "accumulate_cut_c"
     "bin_pixels_c"

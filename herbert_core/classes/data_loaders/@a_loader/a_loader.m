@@ -224,7 +224,7 @@ classdef a_loader < a_detpar_loader_interface
 
             [ok,mess,ndet,en] = is_loader_valid(obj);
             if ok<1
-                error('A_LOADER:runtime_error',mess);
+                error('HERBERT:a_loader:runtime_error',mess);
             end
 
             if isempty(obj.en)
