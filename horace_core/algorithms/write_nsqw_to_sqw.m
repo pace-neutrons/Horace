@@ -77,6 +77,27 @@ if isempty(old_matlab)
     old_matlab = verLessThan('matlab', '8.1');
 end
 
+combine_mode = config_store.instance().get_value('hpc_config','combine_sqw_using');
+if isempty(job_disp)
+    if strcmp(combine_mode,'mpi_code') || combine_in_parallel
+        combine_in_parallel = true;
+    else
+        combine_in_parallel = false;
+    end
+else
+    combine_in_parallel = true;
+end
+
+if combine_in_parallel && isempty(job_disp) % define name of new parallel job and initiate it.
+    [~,fn] = fileparts(outfile);
+    if numel(fn) > 8
+        fn = fn(1:8);
+    end
+    job_name = ['job_nsqw2sqw_',fn];
+    %
+    job_disp = JobDispatcher.instance();
+end
+
 % check if writing to output file is possible so that all further
 % operations make sense.
 [ok,sqw_exist,outfile,err_mess] = check_file_writable(outfile);

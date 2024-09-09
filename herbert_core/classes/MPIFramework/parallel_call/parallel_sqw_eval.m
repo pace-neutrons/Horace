@@ -1,8 +1,4 @@
-function wout = parallel_sqw_eval(func, nWorkers, args)
-
-    w = args{1};
-    args = args(2:end);
-
+function wout = parallel_sqw_eval(func, w, nWorkers, args)
     if ~iscell(w)
         w = {w};
     end
@@ -13,15 +9,16 @@ function wout = parallel_sqw_eval(func, nWorkers, args)
                          'args', {args}, ...
                          'merge_data', []);
 
-    jd = JobDispatcher('ParallelSQWEval');
-    [res, nFailed] = jd.start_job('ParallelSQWEval', common_data, loop_data, true, nWorkers);
-    if nFailed
-        jd.display_fail_job_results(res, nFailed, nWorkers);
-        error('HERBERT:parallel_sqw_eval:runtime_error', ...
-              'Parallel execution of SQW eval failed');
+    jd = JobDispatcher.instance();
+    [res, n_failed] = jd.start_job('ParallelSQWEval', common_data, loop_data, true, nWorkers);
+    if n_failed
+        jd.display_fail_job_results(res, n_failed, 1);
+        error('HORACE:parallel_sqw_eval:job_failed', ...
+              'Failure in parallel job');
     end
 
     wout = cellfun(@copy, w, 'UniformOutput', false);
+    res
 
     if iscell(res{1})
         extract = @(x, i) x{i}.pix;

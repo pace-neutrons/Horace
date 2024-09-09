@@ -1,13 +1,13 @@
 classdef JDTester < JobDispatcher
     % Class used to test job dispatcher functionality
-    
+
     properties(Dependent)
         job_control_structure
     end
-    
+
     methods
         function jd = JDTester(varargin)
-            jd = jd@JobDispatcher(varargin{:});
+            jd = jd@JobDispatcher.instance();
         end
         function [completed,n_failed,all_changed,this]= check_tasks_status_pub(this)
             [completed,n_failed,all_changed,this]= this.check_tasks_status;
@@ -27,6 +27,5 @@ classdef JDTester < JobDispatcher
             end
         end
     end
-    
-end
 
+end
