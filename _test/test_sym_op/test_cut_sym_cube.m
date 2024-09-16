@@ -178,6 +178,30 @@ classdef test_cut_sym_cube < TestCase
 
         end
 
+        function test_cut_sym_general(obj)
+            data = sqw.generate_cube_sqw(10);
+
+            proj = line_proj([1 0 0], [0 1 0]);
+            ubin = {[0.5 1 4.5], [0.5 1 4.5], [-5 5], [-5 5]};
+
+            wtmp = symmetrise_sqw(data, SymopRotation([0 0 1], 90));
+            w1sym = cut(wtmp, proj, ubin{:}, '-nopix');
+
+            op = {};
+            for i = 1:3
+                op{i} = SymopGeneral(rot_mat_z(i*90));
+            end
+
+            w2sym = cut(data, proj, ubin{:}, op, '-nopix');
+
+            assertEqualToTol(w1sym, w2sym);
+        end
 
     end
+end
+
+function mat = rot_mat_z(x)
+    mat = [cosd(x) -sind(x) 0
+           sind(x)  cosd(x) 0
+             0        0     1];
 end
