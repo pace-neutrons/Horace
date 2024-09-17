@@ -106,11 +106,15 @@ The outputs are:
 
    These cuts are ``IX_dataset_1d`` objects and can be plotted using the plot functions.
 
+   These cuts can also be passed to ``bragg_positions_view`` together with ``wpeak`` to view the output.
+
 - ``wpeak`` - an n-by-3 array of spectra, that summarise the peak analysis.
 
 .. note::
 
-   These cuts are ``IX_dataset_1d`` objects and can be plotted using the plot functions.
+   These spectra are ``IX_dataset_1d`` objects and can be plotted using the plot functions.
+
+   These spectra can also be passed to ``bragg_positions_view`` together with ``wcut`` to view the output.
 
 .. note::
 
@@ -198,7 +202,7 @@ the rotation matrix which aligns Crystal Cartesian frame into correct position a
 Step 4 - apply the correction to the data
 -----------------------------------------
 
-There are different to do this, for different circumstances:
+There are different ways to do this, for different circumstances:
 
 - When you have a completed scan and an existing ``sqw`` file:
 
@@ -211,7 +215,7 @@ There are different to do this, for different circumstances:
 
 - When you are still accumulating data (e.g. on the beamline):
 
-  Calculate what the goniometer offsets for regeneration
+  Calculate the goniometer offsets needed for regeneration
 
 
 Option 1 : apply the correction to an existing sqw file
@@ -417,15 +421,14 @@ rlu_corr_to_lattice
 Extract lattice parameters and orientation matrix from r.l.u correction matrix and reference lattice parameters
 
 
-..
-   calc_proj_matrix
-   ================
+calc_proj_matrix
+================
 
-   ::
+::
 
-      [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+   [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 
 
-   Calculate matrix that convert momentum from coordinates in spectrometer frame to projection axes defined by :math:`u1 \| a^*`,
-   :math:`u2` in plane of :math:`a^*` and :math:`b^*` i.e. crystal Cartesian axes. Allows for correction scattering plane (omega, dpsi, gl, gs) -
-   see Tobyfit for conventions
+Calculate matrix that convert momentum from coordinates in spectrometer frame to projection axes defined by :math:`u1 \| a^*`,
+:math:`u2` in plane of :math:`a^*` and :math:`b^*` i.e. crystal Cartesian axes. Allows for correction scattering plane (omega, dpsi, gl, gs) -
+see Tobyfit for conventions

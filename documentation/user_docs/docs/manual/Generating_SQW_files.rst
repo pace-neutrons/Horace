@@ -288,5 +288,5 @@ type positions are folded on to each other:
    wout=symmetrise_sqw(wout,[1,0,-1],[0,1,0],[0,0,0]); % fold about line (1,0,-1) in HL plane
 
 
-see very important notes on the technical details of symmeterising a whole
-dataset in :ref:`manual/Symmetrising_etc:Commands for entire datasets`.
+see very important notes on the technical details of symmetrising a whole
+dataset in :ref:`manual/Symmetrising_etc:\`\`gen_sqw\`\``.

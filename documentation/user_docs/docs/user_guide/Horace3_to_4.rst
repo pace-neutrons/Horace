@@ -27,7 +27,7 @@ have been deprecated and a warning will be issued if they are
 used. For old-style projections the conversion is as simple as
 replacing the ``struct``, ``projaxes`` or ``ortho_proj`` with ``line_proj``
 (c.f. :ref:`projections
-<manual/Cutting_data_of_interest_from_SQW_files_and_objects:Projection in more details>`).
+<manual/Cutting_data_of_interest_from_SQW_files_and_objects:Projection in more detail>`).
 
 .. code-block:: matlab
 
