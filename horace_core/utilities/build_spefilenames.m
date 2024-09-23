@@ -32,7 +32,6 @@ function [spefiles,psi]=build_spefilenames(spefile_template, run_nums, psi_beg, 
 %   >> % Append a second group of files:
 %   >> [spe_file,psi]=build_spefilenames('c:\temp\map*_4to1.spe',15883:15927,1,2,89,spe_file,psi);
 
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 % Check input parameters
 if isempty(spefile_template)||~ischar(spefile_template)||numel(size(spefile_template))>2||size(spefile_template,1)~=1
