@@ -215,14 +215,17 @@ for iter = 1:num_chunks
             iter, num_chunks, candidate_pix.num_pixels);
     end
 
+    apply_symmetries = num_proj > 1;
     for i = 1:num_proj
 
         % Pix not sorted here
         [npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
             targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
 
-        candidate_pix = sym{i}.transform_pix(candidate_pix, {}, selected);
-        candidate_pix = candidate_pix.tag(selected);
+        if apply_symmetries
+            candidate_pix = sym{i}.transform_pix(candidate_pix, {}, selected);
+            candidate_pix = candidate_pix.tag(selected);
+        end
 
         npix_step_retained = pix_ok.num_pixels; % just for logging the progress
         unique_runid = unique([unique_runid, unique_runid_l(:)']);
