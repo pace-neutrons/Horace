@@ -221,6 +221,8 @@ end
 if ~isempty(sqw_file) % we may not want to write a file and return an object instead
     [ok,sqw_exist,sqw_file_out,mess] = check_file_writable(sqw_file,require_sqw_exist);
     if ~ok
+        % replace possible issues with \ in filepath
+        mess = regexprep(mess,'\\','/');
         error('HORACE:algorithms:runtime_error',...
             mess);
     end
