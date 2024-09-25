@@ -38,7 +38,7 @@ classdef sphere_proj<CurveProjBase
     % Default angular coordinates names and meanings are chosen according
     % to the conventions of inelastic spectrometry, i.e.:
     % |Q|     -- coordinate 1 is the module of the scattering momentum,
-    % theta   -- coordinate 2, the angle between axis u (k_i)
+    % theta   -- coordinate 2, the angle between axis u
     %            and the direction of the Q,
     % phi     -- coordinate 3 is the angle between the projection of the
     %            scattering vector to the plane, defined by vector v and
