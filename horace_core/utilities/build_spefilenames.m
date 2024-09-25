@@ -1,19 +1,24 @@
 function [spefiles,psi]=build_spefilenames(spefile_template, run_nums, psi_beg, psi_step, psi_end, spefiles_in, psi_in)
-% Build (and accumulate) spe file names for use in Horace with ISIS data. Small utility to make life a bit easier
+% Build array of spe(nxspe) file names to provide as input for Horace gen_sqw
+% algorithm.
 %
-%   >> [spefiles,psi] = build_spefilenames (spefile_template, run_nums,...
-%                                                   psi_beg, psi_step, psi_end)
-%   >> [spefiles,psi] = build_spefilenames (spefile_template, run_nums,...
-%                                                   psi_beg, psi_step, psi_end, spefiles_in, psi_in)
+% Allows simple generation of filenames and arrays of correspondent sample
+% orientations given input in the form, used in experimental setup.
+%
+%   >> [spefiles,psi] = build_spefilenames(spefile_template, run_nums,...
+%                                          psi_beg, psi_step, psi_end)
+%   >> [spefiles,psi] = build_spefilenames(spefile_template, run_nums,...
+%                                          psi_beg, psi_step, psi_end,...
+%                                          spefiles_in, psi_in)
 %
 % Input:
 % ------
-%   spefile_template    File name for spe file, including path, where the run number
+%   spefile_template   File name for spe file, including path, where the run number
 %                      is denoted by an asterisk e.g. 'c:\temp\map*_4to1.spe'
-%                       The output cell array of file names will be constructed
+%                      The output cell array of file names will be constructed
 %                      from the list of run numbers substituting in the position of *
 %                      appropriately padded with leading zeros. For example,
-%                      run number 1234 in the above becomes 'c:\temp\map01234_4to1.spe' 
+%                      run number 1234 in the above becomes 'c:\temp\map01234_4to1.spe'
 %
 %   run_nums            Array of run numbers
 %   psi_beg             Starting angle of psi (deg)
@@ -22,7 +27,13 @@ function [spefiles,psi]=build_spefilenames(spefile_template, run_nums, psi_beg, 
 %
 % Optional:
 %   spefiles_in         Input list of spe filenames to which to accumulate
-%   psi_in              Input array of psi angles to which to accumulate
+%   psi_in              Input array of psi angles used in experiment, each
+%                       angle corresponding to the sample orientation for
+%                       each input spe files.
+%                       Usually these arrays were
+%                       produced in previous call to build_spefilenames and
+%                       will be merged to the result of the current call to
+%                       build_spefilenames.
 %
 %
 % EXAMPLE OF USE:
@@ -42,7 +53,7 @@ else
         error('Cannot find location(s) to substitute with run number in spe filename template')
     end
 end
-    
+
 if isempty(run_nums)||~isnumeric(run_nums)||any(run_nums-round(run_nums)~=0)||any(run_nums)<0
     error('Run numbers must be integers and greater or equal to zero')
 end
