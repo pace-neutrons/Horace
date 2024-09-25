@@ -2,11 +2,44 @@ classdef cylinder_proj<CurveProjBase
     % Class defines cylindical coordinate projection, used by cut_sqw
     % to make cylindical cuts.
     %
+    % Usage (with positional parameters):
+    %
+    % >>sp = cylinder_proj(); %default construction
+    % >>sp = cylinder_proj(u,v);    
+    % >>sp = cylinder_proj(u,v,type);
+    % >>sp = cylinder_proj(u,v,type,alatt,angdeg);
+    % >>sp = cylinder_proj(u,v,type,alatt,angdeg,offset,label,title);
+    %
+    % Where:
+    % u  -- [1,3] vector of hkl direction of z-axis of the cylindrical
+    %       coordinate system this projection defines.
+    %       Defines direction of z-axis of cylindrical projection.
+    % v  -- [1,3] vector of hkl direction of x-axis of the cylindrical
+    %       coordinate system. The axis to calculate Phi angle from.
+    %       If u directed along the beam, [u,v] defines Horace
+    %       rotation plane.
+    % type-- 3-letter symbol, defining the cylindrical
+    %        coordinate system units (see type property below)
+    % alatt-- 3-vector of lattice parameters
+    % angdeg- 3-vector of lattice angles
+    % offset- 4-vector, defining hkldE value of centre of
+    %         coordinates of the cylindrical coordinate
+    %         system.
+    % label - 4-element cellarray, which defines axes labels
+    % title - character string to title the plots of cuts, obtained
+    %         using this projection.
+    %
+    % all parameters may be provided as 'key',value  pairs appearing in
+    % random order after positional parameters
+    % e.g.:
+    % >>sp = cylinder_proj([1,0,0],[0,1,0],'aar','offset',[1,1,0]);
+    % >>sp = cylinder_proj([1,0,0],'type','aar','v',[0,1,0],'offset',[1,1,0]);
+    %
     % Default angular coordinates names and meanings are chosen as follows:
     % Q_{\perp}    -- coordinate 1  is the module of the component of the momentum
     %            transfer orthogonal to the direction, selected by property
     %            e_z  of this class. e_z property is expressed in hkl and
-    %            defines direction of e_z axis of cylindrical coordinate
+    %            defines directiosn of e_z axis of cylindrical coordinate
     %            system. Horace has default beam direction along axis
     %            [1,0,0] so default crystalographic direction of e_z axis is
     %            [1,0,0] because the secondary symmetry of the instrument
