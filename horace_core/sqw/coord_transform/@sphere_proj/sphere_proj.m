@@ -5,7 +5,7 @@ classdef sphere_proj<CurveProjBase
     % Usage (with positional parameters):
     %
     % >>sp = sphere_proj(); %default construction
-    % >>sp = sphere_proj(u,v);    
+    % >>sp = sphere_proj(u,v);
     % >>sp = sphere_proj(u,v,type);
     % >>sp = sphere_proj(u,v,type,alatt,angdeg);
     % >>sp = sphere_proj(u,v,type,alatt,angdeg,offset,label,title);
@@ -38,11 +38,11 @@ classdef sphere_proj<CurveProjBase
     % Default angular coordinates names and meanings are chosen according
     % to the conventions of inelastic spectrometry, i.e.:
     % |Q|     -- coordinate 1 is the module of the scattering momentum,
-    % theta   -- coordinate 2, the angle between the beam direction (k_i)
+    % theta   -- coordinate 2, the angle between axis u (k_i)
     %            and the direction of the Q,
     % phi     -- coordinate 3 is the angle between the projection of the
-    %            scattering vector to the instrument plane (perpendicular
-    %            to k_i) and the crystal rotation plane.
+    %            scattering vector to the plane, defined by vector v and
+    %            perpendicular to u.
     % dE      -- coordinate 4 the energy transfer direction
     %
     % parent's class "type" property describes which scales are avaliable for

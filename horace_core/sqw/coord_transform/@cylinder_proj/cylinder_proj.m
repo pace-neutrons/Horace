@@ -48,8 +48,8 @@ classdef cylinder_proj<CurveProjBase
     %            directed along the selected e_z axis.
     % phi     -- coordinate 3 is the angle between x-axis of the cylindrical
     %            coordinate system and the projection of the momentum transfer
-    %            (Q_tr) to the xy plane of the cylindircal coordinate
-    %            system
+    %            (Q_tr) to the plane of the cylindircal coordinate
+    %            system defined by vector v and perpendicular to u.
     % dE      -- coordinate 4 the energy transfer direction
     %
     % parent's class "type" property describes which scales are avaliable for
