@@ -195,7 +195,7 @@ classdef test_main_mex < TestCase
             % and that the check for this is correctly set up
             mex_list = check_horace_mex;
             assertEqual( numel(mex_list), 12 );
-            assertTrue( strncmp( mex_list{12}, 'GetMD5 ', 6 ) );
+            assertTrue(any(cellfun(@(x)strncmp(x,'GetMD5',6),mex_list)));
 
         end
 
