@@ -87,6 +87,7 @@ end
 qw = cell(4, 1);
 qw(1:3) = calculate_q(ki, kf, detdcn(:, idet), spec_to_rlu(:, :, irun));
 qw{4} = eps_diff;
+% Join cell array into 4xN mat
 qw = cat(2, qw{:})';
 qw = win.data.proj.transform_hkl_to_pix(qw);
 
