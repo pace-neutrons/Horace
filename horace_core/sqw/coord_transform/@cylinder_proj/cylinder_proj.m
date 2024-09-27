@@ -36,21 +36,21 @@ classdef cylinder_proj<CurveProjBase
     % >>sp = cylinder_proj([1,0,0],'type','aar','v',[0,1,0],'offset',[1,1,0]);
     %
     % Default angular coordinates names and meanings are chosen as follows:
-    % Q_{\perp}    -- coordinate 1  is the module of the component of the momentum
-    %            transfer orthogonal to the direction, selected by property
-    %            e_z  of this class. e_z property is expressed in hkl and
-    %            defines directiosn of e_z axis of cylindrical coordinate
-    %            system. Horace has default beam direction along axis
-    %            [1,0,0] so default crystalographic direction of e_z axis is
-    %            [1,0,0] because the secondary symmetry of the instrument
-    %            image would be cylindrical symmetry around beam direction
-    % Q_||    -- coordinate 2 is the component of the momentum Q, (Q_||)
-    %            directed along the selected e_z axis.
-    % phi     -- coordinate 3 is the angle between x-axis of the cylindrical
-    %            coordinate system and the projection of the momentum transfer
-    %            (Q_tr) to the plane of the cylindircal coordinate
-    %            system defined by vector v and perpendicular to u.
-    % dE      -- coordinate 4 the energy transfer direction
+    % Q_{\perp}-- coordinate 1  is the module of the component of the momentum
+    %             transfer orthogonal to the direction, selected by property
+    %             u of this class. u property is expressed in hkl and
+    %             defines direction of e_z axis of cylindrical coordinate
+    %             system. Horace has default beam direction along axis
+    %             [1,0,0] so default crystalographic direction of e_z axis is
+    %             [1,0,0] because the secondary symmetry of the instrument
+    %             image would be cylindrical symmetry around beam direction
+    % Q_||    --  coordinate 2 is the component of the momentum Q, (Q_||)
+    %             directed along the selected u(e_z) axis.
+    % phi     --  coordinate 3 is the angle between x-axis of the cylindrical
+    %             coordinate system and the projection of the momentum transfer
+    %             (Q_tr) to the plane of the cylindircal coordinate
+    %             system defined by vector v and perpendicular to u.
+    % dE      --  coordinate 4 the energy transfer direction
     %
     % parent's class "type" property describes which scales are avaliable for
     % each direction:
