@@ -51,6 +51,7 @@ try % mex C++
     disp('**********> Creating mex files from C++ code')
     % root directory is assumed to be that in which this function resides
     cd(root_dir);
+    clear mex;
 
     cpp_in_rel_dir = ['_LowLevelCode',filesep,'cpp',filesep];
     % get folder names corresponding to the current Matlab version and OS
@@ -200,10 +201,10 @@ if ~check_access(outdir,add_files{1})
     error('MEX_SINGLE:invalid_arg',' can not get write access to new mex file: %s',fullfile(outdir,add_files{1}));
 end
 if ispc
-    cxx_flags ='COMPFLAGS= $COMPFLAGS /openmp';
+    cxx_flags ='COMPFLAGS= $COMPFLAGS /openmp /std:c++17';
     ld_flags = 'LDFLAGS= --no-undefined';
 else
-    cxx_flags = 'CXXFLAGS= $CFLAGS  -fopenmp -std=c++11';
+    cxx_flags = 'CXXFLAGS= $CFLAGS  -fopenmp -std=c++17';
     ld_flags  = 'LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp';
 end
 if(nFiles==1)
