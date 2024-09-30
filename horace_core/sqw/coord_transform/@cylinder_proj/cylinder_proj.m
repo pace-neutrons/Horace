@@ -5,7 +5,7 @@ classdef cylinder_proj<CurveProjBase
     % Usage (with positional parameters):
     %
     % >>sp = cylinder_proj(); %default construction
-    % >>sp = cylinder_proj(u,v);    
+    % >>sp = cylinder_proj(u,v);
     % >>sp = cylinder_proj(u,v,type);
     % >>sp = cylinder_proj(u,v,type,alatt,angdeg);
     % >>sp = cylinder_proj(u,v,type,alatt,angdeg,offset,label,title);
@@ -15,13 +15,13 @@ classdef cylinder_proj<CurveProjBase
     %       coordinate system this projection defines.
     %       Defines direction of z-axis of cylindrical projection.
     % v  -- [1,3] vector of hkl direction of x-axis of the cylindrical
-    %       coordinate system. The axis to calculate Phi angle from.
-    %       If u directed along the beam, [u,v] defines Horace
+    %       coordinate system, the axis to calculate Phi angle from.
+    %       If u directed along the beam as in gen_sqw, [u,v] defines Horace
     %       rotation plane.
-    % type-- 3-letter symbol, defining the cylindrical
+    % type-- 3-letter character array, defining the cylindrical
     %        coordinate system units (see type property below)
-    % alatt-- 3-vector of lattice parameters
-    % angdeg- 3-vector of lattice angles
+    % alatt-- 3-vector of lattice parameters. Value will be ignored by cut.
+    % angdeg- 3-vector of lattice angles. Value will be ignored by cut.
     % offset- 4-vector, defining hkldE value of centre of
     %         coordinates of the cylindrical coordinate
     %         system.
@@ -30,25 +30,28 @@ classdef cylinder_proj<CurveProjBase
     %         using this projection.
     %
     % all parameters may be provided as 'key',value  pairs appearing in
-    % random order after positional parameters
+    % arbitrary order after positional parameters.
     % e.g.:
     % >>sp = cylinder_proj([1,0,0],[0,1,0],'aar','offset',[1,1,0]);
     % >>sp = cylinder_proj([1,0,0],'type','aar','v',[0,1,0],'offset',[1,1,0]);
     %
-    % Default angular coordinates names and meanings are chosen as follows:
-    % Q_{\perp}-- coordinate 1  is the module of the component of the momentum
-    %             transfer orthogonal to the direction, selected by property
+    % Default angular coordinates names and meaning of the coordinate system,
+    % defined by cylinder_proj are chosen as follows:
+    % Q_{\perp}-- coordinate 1  is the modulus of the component of the momentum
+    %             transfer orthogonal to the direction defined by property
     %             u of this class. u property is expressed in hkl and
     %             defines direction of e_z axis of cylindrical coordinate
-    %             system. Horace has default beam direction along axis
-    %             [1,0,0] so default crystalographic direction of e_z axis is
+    %             system.
+    %             Horace has default beam direction along axis [1,0,0]
+    %             so default crystalographic direction of e_z axis is
     %             [1,0,0] because the secondary symmetry of the instrument
     %             image would be cylindrical symmetry around beam direction
     % Q_||    --  coordinate 2 is the component of the momentum Q, (Q_||)
-    %             directed along the selected u(e_z) axis.
+    %             directed along the selected by property u axis (e_z axis
+    %             of cylindrical coordinates).
     % phi     --  coordinate 3 is the angle between x-axis of the cylindrical
     %             coordinate system and the projection of the momentum transfer
-    %             (Q_tr) to the plane of the cylindircal coordinate
+    %             (Q_{\perp}) to the plane of the cylindircal coordinate
     %             system defined by vector v and perpendicular to u.
     % dE      --  coordinate 4 the energy transfer direction
     %

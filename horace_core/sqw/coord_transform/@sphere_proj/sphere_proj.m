@@ -15,13 +15,13 @@ classdef sphere_proj<CurveProjBase
     %        coordinate system this projection defines.
     %        The axis to calculate theta angle from.
     % v  -- [1,3] vector of hkl direction of x-axis of the spherical
-    %       coordinate system. The axis to calculate Phi angle from.
-    %       If u directed along the beam, [u,v] defines Horace
+    %       coordinate system, the axis to calculate Phi angle from.
+    %       If u directed along the beam as in gen_sqw, [u,v] defines Horace
     %       rotation plane.
-    % type-- 3-letter symbol, defining the spherical
+    % type-- 3-letter character array, defining the spherical
     %        coordinate system units (see type property below)
-    % alatt-- 3-vector of lattice parameters
-    % angdeg- 3-vector of lattice angles
+    % alatt-- 3-vector of lattice parameters. Value will be ignored by cut.
+    % angdeg- 3-vector of lattice angles. Value will be ignored by cut.
     % offset- 4-vector, defining hkldE value of centre of
     %         coordinates of the spherical coordinate
     %         system.
@@ -30,18 +30,18 @@ classdef sphere_proj<CurveProjBase
     %         using this projection.
     %
     % all parameters may be provided as 'key',value pairs appearing in
-    % random order after positional parameters
+    % arbitrary order after positional parameters
     % e.g.:
     % >>sp = sphere_proj([1,0,0],[0,1,0],'arr','offset',[1,1,0]);
     % >>sp = sphere_proj([1,0,0],'type','arr','v',[0,1,0],'offset',[1,1,0]);
     %
-    % Default angular coordinates names and meanings are chosen according
-    % to the conventions of inelastic spectrometry, i.e.:
-    % |Q|     -- coordinate 1 is the module of the scattering momentum,
+    % Default angular coordinates names and meaning of the coordinate system,
+    % defined by sphere_proj are chosen as follows:
+    % |Q|     -- coordinate 1 is the modulus of the scattering momentum.
     % theta   -- coordinate 2, the angle between axis u
-    %            and the direction of the Q,
+    %            and the direction of the Q.
     % phi     -- coordinate 3 is the angle between the projection of the
-    %            scattering vector to the plane, defined by vector v and
+    %            scattering vector to the plane defined by vector v and
     %            perpendicular to u.
     % dE      -- coordinate 4 the energy transfer direction
     %
