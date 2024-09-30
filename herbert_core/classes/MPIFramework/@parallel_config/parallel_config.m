@@ -275,7 +275,7 @@ classdef parallel_config<config_base
     properties(Access = private)
         % Property, used by setter of cluster configuration to keep cluster
         % configuration until all properties are set and final validation
-        % may be performed. 
+        % may be performed.
         trial_cluster_config_;
     end
 
@@ -491,7 +491,13 @@ classdef parallel_config<config_base
         function obj = set.parallel_threads(obj,n_threads)
             n_threads = floor(n_threads);
             n_workers = get_or_restore_field(obj, 'parallel_workers_number');
-            n_poss_threads = floor(obj.n_cores/n_workers);
+            if ispc % let's assume pc is Intel so threades are double number of cores
+                % this estimeat will not be too wrong even if it is AMD,
+                % but would remove bunch annoying messages otherwise
+                n_poss_threads = floor(2*obj.n_cores/n_workers);
+            else
+                n_poss_threads = floor(obj.n_cores/n_workers);
+            end
 
             if n_threads < 0
                 error('HERBERT:parallel_config:invalid_argument', ...
