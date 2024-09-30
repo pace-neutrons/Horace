@@ -139,7 +139,7 @@ peak_problem=false(size(rlu_expected));
 for i=1:size(rlu_expected,1)
     % Extract Q point through which to get three orthogonal cuts
     Qrlu = rlu_expected(i,:);
-    modQ=norm(B*Qrlu(:));   % length of Q vector in Ang^-1
+    modQ=norm(proj.transform_hkl_to_pix(Qrlu(:)));   % length of Q vector in Ang^-1
 
     % Create proj for taking three orthogonal cuts
     %   - proj.u along Q, to get maximum resolution in d-spacing
