@@ -2,14 +2,47 @@ classdef sphere_proj<CurveProjBase
     % Class defines spherical coordinate projection, used by cut_sqw
     % to make spherical cuts.
     %
-    % Default angular coordinates names and meanings are chosen according
-    % to the conventions of inelastic spectrometry, i.e.:
-    % |Q|     -- coordinate 1 is the module of the scattering momentum,
-    % theta   -- coordinate 2, the angle between the beam direction (k_i)
-    %            and the direction of the Q,
+    % Usage (with positional parameters):
+    %
+    % >>sp = sphere_proj(); %default construction
+    % >>sp = sphere_proj(u,v);
+    % >>sp = sphere_proj(u,v,type);
+    % >>sp = sphere_proj(u,v,type,alatt,angdeg);
+    % >>sp = sphere_proj(u,v,type,alatt,angdeg,offset,label,title);
+    %
+    % Where:
+    % u  -- [1,3] vector of hkl direction of z-axis of the spherical
+    %        coordinate system this projection defines.
+    %        The axis to calculate theta angle from.
+    % v  -- [1,3] vector of hkl direction of x-axis of the spherical
+    %       coordinate system, the axis to calculate Phi angle from.
+    %       If u directed along the beam as in gen_sqw, [u,v] defines Horace
+    %       rotation plane.
+    % type-- 3-letter character array, defining the spherical
+    %        coordinate system units (see type property below)
+    % alatt-- 3-vector of lattice parameters. Value will be ignored by cut.
+    % angdeg- 3-vector of lattice angles. Value will be ignored by cut.
+    % offset- 4-vector, defining hkldE value of centre of
+    %         coordinates of the spherical coordinate
+    %         system.
+    % label - 4-element cellarray, which defines axes labels
+    % title - character string to title the plots of cuts, obtained
+    %         using this projection.
+    %
+    % all parameters may be provided as 'key',value pairs appearing in
+    % arbitrary order after positional parameters
+    % e.g.:
+    % >>sp = sphere_proj([1,0,0],[0,1,0],'arr','offset',[1,1,0]);
+    % >>sp = sphere_proj([1,0,0],'type','arr','v',[0,1,0],'offset',[1,1,0]);
+    %
+    % Default angular coordinates names and meaning of the coordinate system,
+    % defined by sphere_proj are chosen as follows:
+    % |Q|     -- coordinate 1 is the modulus of the scattering momentum.
+    % theta   -- coordinate 2, the angle between axis u
+    %            and the direction of the Q.
     % phi     -- coordinate 3 is the angle between the projection of the
-    %            scattering vector to the instrument plane (perpendicular
-    %            to k_i) and the crystal rotation plane.
+    %            scattering vector to the plane defined by vector v and
+    %            perpendicular to u.
     % dE      -- coordinate 4 the energy transfer direction
     %
     % parent's class "type" property describes which scales are avaliable for
