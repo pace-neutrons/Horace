@@ -296,7 +296,7 @@ classdef hor_config < config_base
             if use
                 % Configure mex usage
                 % --------------------
-                [~, n_errors, can_combine_with_mex,can_use_herbert_mpi] = check_horace_mex();
+                [~, n_errors, can_combine_with_mex,can_use_custom_mpi] = check_horace_mex();
                 if n_errors>0
                     use = false;
                     warning('HOR_CONFIG:set_use_mex',...
@@ -305,7 +305,7 @@ classdef hor_config < config_base
                 if ~can_combine_with_mex
                     config_store.instance().store_config('hpc_config','combine_sqw_using','matlab');
                 end
-                if ~can_use_herbert_mpi
+                if ~can_use_custom_mpi
                     pc = parallel_config;
                     if ismember(pc.parallel_cluster,{'mpiexec_mpi','slurm_mpi'})
                         pc.parallel_cluster = 'herbert';
