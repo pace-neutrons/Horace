@@ -28,14 +28,25 @@ for i=1:args.array_numel
     elseif ~isempty(args.data_struct)
         obj_in{i} = obj(i).from_bare_struct(args.data_struct{i});
     elseif ~isempty(args.set_of_fields)
-        if isempty(args.keys)
-            keys = obj.saveableFields();
+        if numel(args.set_of_fields)>1 && isnumeric(args.set_of_fields{1})...
+            && numel(args.set_of_fields{1}) == 6 && isnumeric(args.set_of_fields{2})...
+            && numel( numel(args.set_of_fields{1})) == 4
+            % legacy DnD constructor
+            obj_in{i} = DnDBase.spinw_dnd_obj_constructor(args.set_of_fields{:});
+            if (obj.NUM_DIMS ~= obj_in{i}.NUM_DIMS)
+                error('HORACE:DnDBase:invalid_argument', ...
+                    '%d dimensional object constructed from array of input parameters using legacy spinW constructor differs from requested %d dimensional object', ...
+                    obj_in{i}.NUM_DIMS,obj.NUM_DIMS);
+            end
         else
-            keys = args.keys;
+            if isempty(args.keys)
+                keys = obj.saveableFields();
+            else
+                keys = args.keys;
+            end
+            obj_in{i} = set_positional_and_key_val_arguments(obj,...
+                keys,false,args.set_of_fields{:});
         end
-        obj_in{i} = set_positional_and_key_val_arguments(obj,...
-            keys,false,args.set_of_fields{:});
-
     elseif ~isempty(args.sqw_obj)
         obj_in{i} = args.sqw_obj(i).data;
     end
@@ -128,8 +139,9 @@ elseif numel(input_data) > 1
         error(['HORACE:', class(obj),':invalid_argument'], ...
             'Unrecognised number or type of the input arguments')
     end
-
 else
     error(['HORACE:', class(obj),':invalid_argument'], ...
         'unknown input for %s constructor',class(obj));
 end
+
+function ob
