@@ -183,6 +183,7 @@ pipeline {
             '''
           }
         }
+        run_integration_test()
       }
     }
 
@@ -369,6 +370,7 @@ pipeline {
 
     success {
       post_github_status("success", "The build succeeded")
+      run_integration_test()
     }
 
     unsuccessful {
