@@ -1,4 +1,4 @@
-function [init_folder,hor_init_dir,use_old_init_path] = ...
+function [init_folder,hor_init_dir,use_old_init_path,modified_hor_on_contents] = ...
     horace_install(varargin)
 % Install and initialize Horace at the location, where the Horace package
 % has been unpacked.
@@ -124,9 +124,7 @@ worker_path = find_file( ...
     'worker_v4.m.template', ...
     {code_root, fullfile(opt.horace_root, 'admin')} ...
     );
-if opt.test_mode
-    return;
-end
+
 % Install horace_on
 if isempty(opt.spinW_folder)
     placeholders = {HORACE_ON_PLACEHOLDER};
@@ -135,14 +133,15 @@ else
     placeholders = {HORACE_ON_PLACEHOLDER,SPINW_PLACEHOLDER};
     replacement_str = {hor_init_dir,opt.spinW_folder};
 end
-install_file( ...
+modified_hor_on_contents = install_file( ...
     horace_on_path, ...
     fullfile(init_folder, 'horace_on.m'), ...
-    placeholders,replacement_str ...
+    placeholders,replacement_str, ...
+    opt.test_mode ...
     );
 
 % Install worker_v4 script (required by parallel routines) to user-path
-install_file(worker_path, fullfile(init_folder, 'worker_v4.m'));
+install_file(worker_path, fullfile(init_folder, 'worker_v4.m'),opt.test_mode);
 
 % Validate the installation
 validate_function(@horace_on, @horace_off);
@@ -186,13 +185,13 @@ function opts = parse_args(code_root,init_folder_default,...
 % Parse install script options and identify default package
 % location(s)
 %
-    test_mode = ismember('-test_mode',varargin);
-    if test_mode
-        tm = ismember(varargin,'-test_mode');
-        argi = varargin(~tm);
-    else
-        argi = varargin;
-    end
+test_mode = ismember('-test_mode',varargin);
+if test_mode
+    tm = ismember(varargin,'-test_mode');
+    argi = varargin(~tm);
+else
+    argi = varargin;
+end
 
     function validate_path(x, arg_name)
 
@@ -202,71 +201,79 @@ function opts = parse_args(code_root,init_folder_default,...
 
     end
 
-    % Default horace_root is "<check_up_folder_name>/Horace", but Jenkins
-    % checks it up directly into check_up_folder_name.
-    hor_root_default = fullfile(code_root, hor_checkup_folder);
-    % Default init folder location is either init folder where previous Horace
-    % init files are located or, if clean installation, "<horace_root>/../ISIS"
+% Default horace_root is "<check_up_folder_name>/Horace", but Jenkins
+% checks it up directly into check_up_folder_name.
+hor_root_default = fullfile(code_root, hor_checkup_folder);
+% Default init folder location is either init folder where previous Horace
+% init files are located or, if clean installation, "<horace_root>/../ISIS"
 
-    use_old_init_path = ~isempty(init_folder_default);
-    if ~use_old_init_path
-        init_folder_default = fullfile(code_root,'ISIS');
+use_old_init_path = ~isempty(init_folder_default);
+if ~use_old_init_path
+    init_folder_default = fullfile(code_root,'ISIS');
+end
+
+parser = inputParser();
+% Default horace_root is one directory above this script
+parser.addParameter( ...
+    'horace_root', ...
+    hor_root_default, ...
+    @(x) validate_path(x, 'horace_root') ...
+    );
+parser.addParameter( ...
+    'init_folder', ...
+    init_folder_default, ...
+    @(x) validate_path(x, 'init_folder') ...
+    );
+
+parser.addParameter( ...
+    'spinW_folder', ...
+    '', ...
+    @(x) validate_path(x, 'spinW_folder') ...
+    );
+
+parser.parse(argi{:});
+
+opts = parser.Results;
+
+opts.test_mode = test_mode;
+% check if user provided some specific location for init folder, different
+% from the previous default location
+if ~strcmp(opts.init_folder, init_folder_default)
+    use_old_init_path = false;
+    % if user provided init folder without ISIS extension, add ISIS
+    % extension to the folder name
+    [~,folder_name] = fileparts(opts.init_folder);
+    if ~strcmp(folder_name,'ISIS')
+        opts.init_folder = fullfile(opts.init_folder,'ISIS');
     end
-
-    parser = inputParser();
-    % Default horace_root is one directory above this script
-    parser.addParameter( ...
-        'horace_root', ...
-        hor_root_default, ...
-        @(x) validate_path(x, 'horace_root') ...
-                       );
-    parser.addParameter( ...
-        'init_folder', ...
-        init_folder_default, ...
-        @(x) validate_path(x, 'init_folder') ...
-                       );
-
-    parser.addParameter( ...
-        'spinW_folder', ...
-        '', ...
-        @(x) validate_path(x, 'spinW_folder') ...
-                       );
-    
-    parser.parse(argi{:});
-
-    opts = parser.Results;
-
-    opts.test_mode = test_mode;
-    % check if user provided some specific location for init folder, different
-    % from the previous default location
-    if ~strcmp(opts.init_folder, init_folder_default)
-        use_old_init_path = false;
-        % if user provided init folder without ISIS extension, add ISIS
-        % extension to the folder name
-        [~,folder_name] = fileparts(opts.init_folder);
-        if ~strcmp(folder_name,'ISIS')
-            opts.init_folder = fullfile(opts.init_folder,'ISIS');
-        end
-    end
-    opts.use_old_init_path = use_old_init_path;
-    opts.herbert_root = opts.horace_root;
+end
+opts.use_old_init_path = use_old_init_path;
+opts.herbert_root = opts.horace_root;
 
 end
 
-function install_file(source, dest, placeholders, replace_strs)
+function file_contents = install_file(source, dest, placeholders, replace_strs,test_mode)
 % copy the given file to the given destination
 % if placeholders and replace_strs are given, then replace the string values
 % in placeholders with the string at the corresponding index in
 % replace_strs.
 %
-if ~exist('placeholders', 'var')
-    copy_file(source, dest);
-else
+if exist('placeholders', 'var')
     file_contents = fileread(source);
     for i = 1:numel(placeholders)
         file_contents = replace(file_contents, placeholders{i}, replace_strs{i});
     end
+    if test_mode
+        return;
+    end
     write_file(dest, file_contents);
+else
+    if test_mode && nargout>0
+        file_contents = fileread(source);
+    else
+        copy_file(source, dest);
+        file_contents = [];
+    end
 end
 end
 
