@@ -58,8 +58,20 @@ new_version = this_horace_version(root_path);
 % if spinW start up file exist, try to initialize it
 sw_start = which('spinw_on.m');
 ws = warning('off','MATLAB:rmpath:DirNotFound');
-if ~isempty(sw_start)
-    spinw_on(default_spinw_path);
+if isempty(sw_start)
+    % check if spinW already on a path, though "on" script is not on the path
+    sw_stargt = which('spinw_init');    
+    if ~isempty(sw_stargt)
+        spinw_init;
+    %else == no spinW, no point to warn users about it, probably they do not
+    %        care
+    end
+else
+    if spinw_installation_path(1)=='$' % spinW was installed through its own installation script
+       spinw_on();                     % Horace installation does not know about it.
+    else   % spinw was installed through horace_install
+       spinw_on(spinw_installation_path);
+    end
 end
 warning(ws);
 
