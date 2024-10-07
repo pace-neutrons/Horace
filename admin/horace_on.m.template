@@ -9,7 +9,7 @@ default_horace_path  = '${Horace_CORE}';
 % To use spinW together with Horace, modify the row below pointing to correct
 % spinW location. Also need to modify spinw_on template and place it together
 % with horace_on.m script.
-default_spinw_path = '/usr/local/mprogs/spinW';
+default_spinw_path = '${spinW_folder}';
 
 %
 warn_state=warning('off','all');    % turn off warnings 

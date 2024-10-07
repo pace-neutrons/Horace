@@ -7,6 +7,7 @@ function [init_folder,hor_init_dir,use_old_init_path] = ...
 %  >>horace_install()
 %  >>horace_install('horace_root',/path/to/Horace)
 %  >>horace_install(__,'init_folder',/path/to/place/where/init_files/to_be_installed)
+%  >>horace_install(__,'spinW_folder',/path/to/spinW)
 %
 % Optional arguments:
 % ------------------
@@ -33,6 +34,7 @@ function [init_folder,hor_init_dir,use_old_init_path] = ...
 %  Expected to be used in test mode only.
 %
 HORACE_ON_PLACEHOLDER = '${Horace_CORE}';
+SPINW_PLACEHOLDER     = '${spinW_folder}';
 
 % presumably the code root is where this file is located
 code_root = fileparts(mfilename('fullpath'));
@@ -126,11 +128,19 @@ if opt.test_mode
     return;
 end
 % Install horace_on
+if isempty(opt.spinW_folder)
+    placeholders = {HORACE_ON_PLACEHOLDER};
+    replacement_str = {hor_init_dir};
+else
+    placeholders = {HORACE_ON_PLACEHOLDER,SPINW_PLACEHOLDER};
+    replacement_str = {hor_init_dir,opt.spinW_folder};
+end
 install_file( ...
     horace_on_path, ...
     fullfile(init_folder, 'horace_on.m'), ...
-    {HORACE_ON_PLACEHOLDER}, {hor_init_dir} ...
+    placeholders,replacement_str ...
     );
+
 % Install worker_v4 script (required by parallel routines) to user-path
 install_file(worker_path, fullfile(init_folder, 'worker_v4.m'));
 
@@ -216,6 +226,12 @@ function opts = parse_args(code_root,init_folder_default,...
         @(x) validate_path(x, 'init_folder') ...
                        );
 
+    parser.addParameter( ...
+        'spinW_folder', ...
+        '', ...
+        @(x) validate_path(x, 'spinW_folder') ...
+                       );
+    
     parser.parse(argi{:});
 
     opts = parser.Results;
