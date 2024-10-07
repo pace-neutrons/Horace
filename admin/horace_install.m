@@ -141,13 +141,14 @@ modified_hor_on_contents = install_file( ...
     );
 
 % Install worker_v4 script (required by parallel routines) to user-path
-install_file(worker_path, fullfile(init_folder, 'worker_v4.m'),opt.test_mode);
+install_file(worker_path, fullfile(init_folder, 'worker_v4.m'),'','',opt.test_mode);
 
-% Validate the installation
-validate_function(@horace_on, @horace_off);
-
-disp('Horace successfully installed.')
-disp('Call ''horace_on'' to start using Horace.')
+if ~opt.test_mode
+    % Validate the installation
+    validate_function(@horace_on, @horace_off);
+    disp('Horace successfully installed.')
+    disp('Call ''horace_on'' to start using Horace.')
+end
 
 end
 % -----------------------------------------------------------------------------
@@ -258,7 +259,7 @@ function file_contents = install_file(source, dest, placeholders, replace_strs,t
 % in placeholders with the string at the corresponding index in
 % replace_strs.
 %
-if exist('placeholders', 'var')
+if exist('placeholders', 'var') && ~isempty(placeholders)
     file_contents = fileread(source);
     for i = 1:numel(placeholders)
         file_contents = replace(file_contents, placeholders{i}, replace_strs{i});
@@ -268,12 +269,15 @@ if exist('placeholders', 'var')
     end
     write_file(dest, file_contents);
 else
-    if test_mode && nargout>0
-        file_contents = fileread(source);
+    if test_mode
+        if nargout>0
+            file_contents = fileread(source);
+            return;
+        end
     else
         copy_file(source, dest);
-        file_contents = [];
     end
+    file_contents = [];
 end
 end
 

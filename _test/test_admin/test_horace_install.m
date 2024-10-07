@@ -126,14 +126,14 @@ classdef test_horace_install < TestCase
             assertFalse(use_old_init_folder);
 
             assertEqual(new_install,install_folder);
-            %assertEqual(her_test_source,her_init_dir);
             assertEqual(hor_test_source,hor_init_dir);
 
             clear clob1;
             clear clob2;
             clear clOb;
+            assertTrue(contains(modified_hor_on_contents,spinw_foler));
         end
-        
+
         %
         function test_files_in_folder_like_Jenkins_repo_clean(obj)
             % prepare fake Horace/Herbert code tree
@@ -218,7 +218,7 @@ classdef test_horace_install < TestCase
             assertEqual(fileparts(which('horace_on')),install_folder);
             assertTrue(use_old_init_folder);
 
-            assertEqual(install_root,hor_admin);            
+            assertEqual(install_root,hor_admin);
             assertEqual(hor_test_source,hor_init_dir);
 
             clear clob1;
@@ -280,7 +280,6 @@ classdef test_horace_install < TestCase
                 copyfile(source,targ,'f');
             end
         end
-
     end
 
 end
