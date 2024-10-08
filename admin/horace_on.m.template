@@ -9,11 +9,11 @@ default_horace_path  = '${Horace_CORE}';
 % To use spinW together with Horace, modify the row below pointing to correct
 % spinW location. Also need to modify spinw_on template and place it together
 % with horace_on.m script.
-default_spinw_path = '${spinW_folder}';
+spinw_installation_path = '${spinW_folder}';
 
 %
-warn_state=warning('off','all');    % turn off warnings 
-% (so don't get errors if removing non-existent paths 
+warn_state=warning('off','all');    % turn off warnings
+% (so don't get errors if removing non-existent paths
 % -- if no package have been initialized before, this is normal situation)
 try
     % get old code version if any available. Will throw if no Horace
@@ -60,17 +60,18 @@ sw_start = which('spinw_on.m');
 ws = warning('off','MATLAB:rmpath:DirNotFound');
 if isempty(sw_start)
     % check if spinW already on a path, though "on" script is not on the path
-    sw_stargt = which('spinw_init');    
+    sw_stargt = which('spinw_init');
     if ~isempty(sw_stargt)
         spinw_init;
-    %else == no spinW, no point to warn users about it, probably they do not
-    %        care
+        %else == no spinW, no point to warn users about it, probably they do not
+        %        care
     end
 else
-    if spinw_installation_path(1)=='$' % spinW was installed through its own installation script
-       spinw_on();                     % Horace installation does not know about it.
+    if spinw_installation_path(1)=='$' || isempty(spinw_installation_path)
+        %             spinW was installed through its own installation script
+        spinw_on(); % Horace installation does not know about it.
     else   % spinw was installed through horace_install
-       spinw_on(spinw_installation_path);
+        spinw_on(spinw_installation_path);
     end
 end
 warning(ws);
@@ -79,7 +80,7 @@ if ~isempty(old_version) && new_version ~= old_version
     clearvars -global;
     clearvars config_store MPI_State ;
     evalin('base','clearvars')
-    clearvars -except horace_path;    
+    clearvars -except horace_path;
 end
 
 

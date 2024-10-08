@@ -43,7 +43,7 @@ code_root = fileparts(mfilename('fullpath'));
 
 % is there an old installation present? Use old Horace init directory not
 % to create mess
-old_horace_on = which('horace_on');
+old_horace_on   = which('horace_on');
 old_init_folder = fileparts(old_horace_on);
 %
 % Are some path or parameters provided as input? If not, use defaults
@@ -127,7 +127,7 @@ worker_path = find_file( ...
 
 % Install horace_on
 if isempty(opt.spinW_folder)
-    placeholders = {HORACE_ON_PLACEHOLDER};
+    placeholders    = {HORACE_ON_PLACEHOLDER};
     replacement_str = {hor_init_dir};
 else
     placeholders = {HORACE_ON_PLACEHOLDER,SPINW_PLACEHOLDER};
