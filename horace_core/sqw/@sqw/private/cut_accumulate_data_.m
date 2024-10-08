@@ -195,7 +195,7 @@ if ll>=2
     t_proj_start = tic;
 end
 
-% multiple projections here can appear only from multiple symmetries, so 
+% multiple projections here can appear only from multiple symmetries, so
 % if only one projection is there, no symmetries will be used
 apply_symmetries = num_proj > 1;
 
@@ -226,8 +226,8 @@ for iter = 1:num_chunks
 
         % if there are symmetries, we need to transform pixels and tag used
         % pixels to avoid multiple usage of the same pixels.
-        if apply_symmetries 
-            candidate_pix = sym{i}.transform_pix(candidate_pix, {}, selected);
+        if apply_symmetries
+            candidate_pix = sym{i}.transform_pix(candidate_pix, {}, selected, true);
             candidate_pix = candidate_pix.tag(selected);
         end
 
