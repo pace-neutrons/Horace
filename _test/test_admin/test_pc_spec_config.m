@@ -85,6 +85,7 @@ classdef test_pc_spec_config < TestCase
             hc.log_level= ll+1;
             assertEqual(hc.log_level,ll+1);
 
+            clWarn = set_temporary_warning('off', 'HERBERT:parallel_config:parallel_threads');
             cm.load_configuration('-set_config');
 
             % the previous number of threads have been restored
