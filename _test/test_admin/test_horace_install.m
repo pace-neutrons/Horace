@@ -133,7 +133,6 @@ classdef test_horace_install < TestCase
             clear clOb;
             assertTrue(contains(modified_hor_on_contents,spinw_foler));
         end
-
         %
         function test_files_in_folder_like_Jenkins_repo_clean(obj)
             % prepare fake Horace/Herbert code tree
