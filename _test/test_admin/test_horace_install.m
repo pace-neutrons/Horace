@@ -252,7 +252,7 @@ classdef test_horace_install < TestCase
             clOb = onCleanup(@()(rmdir(fake_install_root,'s')));
 
             template_files = {'horace_install.m','horace_on.m.template',...
-                'worker_v4.m.template'};
+                'worker_v4.m.template','spinw_on.m.template'};
             obj.copy_install_files(template_files,admin_folder);
             hor_test_init = fullfile(obj.this_folder,source_folder,hor_folder);
             mkdir(hor_test_init);
