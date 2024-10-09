@@ -42,6 +42,7 @@ install(
     FILES
         "horace_on.m.template"
         "worker_v4.m.template"
+        "spinw_on.m.template"
         "horace_install.m"
     DESTINATION "."
 )
