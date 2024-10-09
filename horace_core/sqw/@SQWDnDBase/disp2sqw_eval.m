@@ -64,6 +64,10 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,varargin)
 %             that contain data.
 %             Applies only to input with no pixel information - it is ignored if
 %             full sqw object.
+%             if source objects contanis no npix information at all,
+%             (e.g. summ(obj.npix(:)) == 0), this option enables function
+%             evaluation in every point of the dataset, and returns
+%             evaluated dataset with npix(:)==1 
 %
 %   '-av[erage]' Requests that the calculated sqw be computed for the
 %              average values of h,k,l of the pixels in a bin, not for each

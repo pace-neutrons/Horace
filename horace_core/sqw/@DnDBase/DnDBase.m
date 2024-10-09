@@ -106,6 +106,27 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
                         ndims);
             end
         end
+        function obj = spinw_dnd_obj_constructor(lattice_const,varargin)
+            % build dnd object from list of input parameters usually
+            % defined by spinW
+            % Inputs:
+            % lattice_const -- 6-element array containing 3 components for
+            %                  lattice parameters and 3 components for
+            %                  lattice angles
+            % Optional:
+            % 0 to 4 pairs containing [axis direction, binning parameters]
+            % where
+            % axis_direction -- 4-element vector containing axis direction 
+            %                   in hklE coordinate system
+            % binning parameters
+            %                -- 3-element vector contaning min,step,max
+            %                   binning parameters for appropriate axis
+            %
+            % Number of pairs would define number of dimensions in DnD object
+            % The constructor build object containing line_proj.
+            %
+            obj = spinw_dnd_obj_constructor_(lattice_const,varargin{:});
+        end
         function [form_fields,data_fields] = head_form(keep_data_arrays)
             % the method returns list of fields, which need to be filled by
             % head function
