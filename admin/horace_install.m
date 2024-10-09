@@ -156,7 +156,7 @@ install_file(worker_path, fullfile(init_folder, 'worker_v4.m'),'','',opt.test_mo
 if isempty(spinw_on_path)
     off_functions = {@horace_off};
 else
-    off_functions = {@horace_off,@spinw_off};
+    off_functions = {@spinw_off,@horace_off};
     % Install spinw_on script
     install_file( ...
         spinw_on_path, ...
