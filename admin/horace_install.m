@@ -125,14 +125,19 @@ worker_path = find_file( ...
     {code_root, fullfile(opt.horace_root, 'admin')} ...
     );
 
-% Install horace_on
+% Identify the parameters, necessary for spinW installation or 
+% horace_on only installation
 if isempty(opt.spinW_folder)
     placeholders    = {HORACE_ON_PLACEHOLDER};
     replacement_str = {hor_init_dir};
+    spinw_on_path = '';
 else
+    spinw_on_path = find_file('spinw_on.m.template',...
+        {code_root, fullfile(opt.horace_root, 'admin')});
     placeholders = {HORACE_ON_PLACEHOLDER,SPINW_PLACEHOLDER};
     replacement_str = {hor_init_dir,opt.spinW_folder};
 end
+% Install horace_on
 modified_hor_on_contents = install_file( ...
     horace_on_path, ...
     fullfile(init_folder, 'horace_on.m'), ...
@@ -143,9 +148,26 @@ modified_hor_on_contents = install_file( ...
 % Install worker_v4 script (required by parallel routines) to user-path
 install_file(worker_path, fullfile(init_folder, 'worker_v4.m'),'','',opt.test_mode);
 
+if isempty(spinw_on_path)
+    off_functions = {@horace_off};
+else
+    off_functions = {@horace_off,@spinw_off};
+    % Install spinw_on script
+    install_file( ...
+        spinw_on_path, ...
+        fullfile(init_folder, 'spinw_on.m'), ...
+        placeholders,replacement_str, ...
+        opt.test_mode ...
+        );
+    addpath(init_folder) % put init folder at the start of the path
+    % to shadow internal spinW's spinw_on initialization function.
+    rehash % update list of functions as installed file shadows spinW script
+    % and horace_on should use this one
+end
+
 if ~opt.test_mode
     % Validate the installation
-    validate_function(@horace_on, @horace_off);
+    validate_function(@horace_on, off_functions{:});
     disp('Horace successfully installed.')
     disp('Call ''horace_on'' to start using Horace.')
 end
@@ -258,6 +280,11 @@ function file_contents = install_file(source, dest, placeholders, replace_strs,t
 % if placeholders and replace_strs are given, then replace the string values
 % in placeholders with the string at the corresponding index in
 % replace_strs.
+%
+
+if nargin<5 % placeholders and other vars may be missing
+    test_mode = false;
+end
 %
 if exist('placeholders', 'var') && ~isempty(placeholders)
     file_contents = fileread(source);
@@ -382,7 +409,7 @@ if ~ok
 end
 end
 
-function validate_function(func, post_func)
+function validate_function(func, post_func,varargin)
 % validate the given function can be called
 % The second argument is called after the first, with the intended purpose
 % being clean up.
@@ -397,4 +424,8 @@ catch ME
     throw(ERR);
 end
 post_func();
+for i=1:numel(varargin)
+    fun = varargin{i};
+    fun();
+end
 end
