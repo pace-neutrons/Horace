@@ -40,7 +40,7 @@ if nargin==1
 else
     start_app(sw_default_path);
 end
-path = fileparts(which('install_spinw.m'));
+path = fileparts(which('install_spinw'));
 
 
 function start_app(path)
@@ -49,6 +49,7 @@ try
     spinw_off();
 catch
 end
+addpath(path);
 addpath(genpath(fullfile(path, 'swfiles')));
 addpath(genpath(fullfile(path, 'external')));
 addpath(genpath(fullfile(path, 'dat_files')));
