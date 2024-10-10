@@ -4,7 +4,7 @@ function check_mpi_mpiexec_can_be_enabled_(~)
 
 if isempty(which('cpp_communicator'))
     mess = 'Can not find cpp_communicator mex file on Matlab search path';
-    error('HERBERT:ClusterWrapper:not_available',mess);
+    error('HERBERT:ClusterWrapper:runtime_error',mess);
 end
 try
     mex_ver = cpp_communicator();
@@ -16,12 +16,12 @@ try
     end
 catch ME
     mess = ME.message;
-    error('HERBERT:ClusterWrapper:not_available',mess);
+    error('HERBERT:ClusterWrapper:runtime_error',mess);
 end
 
 
 mpiexec = ClusterMPI.get_mpiexec();
 if ~is_file(mpiexec)
     mess = 'Can not find mpiexec to run parallel programs';
-    error('HERBERT:ClusterWrapper:not_available',mess);
+    error('HERBERT:ClusterWrapper:runtime_error',mess);
 end

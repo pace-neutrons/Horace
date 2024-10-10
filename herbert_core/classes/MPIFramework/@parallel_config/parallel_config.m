@@ -275,7 +275,7 @@ classdef parallel_config<config_base
     properties(Access = private)
         % Property, used by setter of cluster configuration to keep cluster
         % configuration until all properties are set and final validation
-        % may be performed. 
+        % may be performed.
         trial_cluster_config_;
     end
 
@@ -491,7 +491,13 @@ classdef parallel_config<config_base
         function obj = set.parallel_threads(obj,n_threads)
             n_threads = floor(n_threads);
             n_workers = get_or_restore_field(obj, 'parallel_workers_number');
-            n_poss_threads = floor(obj.n_cores/n_workers);
+            if ispc % let's assume pc is Intel so threads are double number of cores.
+                % This estimate will not be too wrong even if it is AMD,
+                % but would remove bunch annoying messages otherwise
+                n_poss_threads = floor(2*obj.n_cores/n_workers);
+            else
+                n_poss_threads = floor(obj.n_cores/n_workers);
+            end
 
             if n_threads < 0
                 error('HERBERT:parallel_config:invalid_argument', ...
@@ -671,7 +677,7 @@ classdef parallel_config<config_base
         function the_opt = select_option(opt,arg)
             % Select single valued option from the list of available options
             % Inputs:
-            % opt -- cellarray of available options
+            % opt -- cell-array of available options
             % arg -- either string, which uniquely define one of the options or
             %        the number, selecting the option with number.
             %        Uniquely here means that the comparison of the
@@ -682,7 +688,7 @@ classdef parallel_config<config_base
         end
 
         function [keys, vals] = parse_slurm_commands(val)
-            % Parse slurm commands into keys and values for building a map
+            % Parse Slurm commands into keys and values for building a map
             % or updating one
             if isstring(val) || ischar(val)
                 val = strsplit(val, {' ', '\t', '='});

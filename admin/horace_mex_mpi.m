@@ -5,7 +5,14 @@ function [ok,mess] = horace_mex_mpi(varargin)
 % Manually modify this script to specify the mpi libraries location in your
 % system.
 %
-use_her_mpich = false;
+ 
+% we supply MPI libraries together with Herbert. They may not work with any
+% Matlab version and with any OS so may be cases when it is preferable to
+% use system libraries but:
+use_her_mpich = true; % if true, use MPI libraries, provided with Herbert.
+% if false, modify script below providing the location of the MPI libraries
+% present on the system.
+
 verbose = nargin > 0;
 pths = horace_paths;
 
@@ -70,7 +77,7 @@ outdir = fullfile(pths.horace,'DLL',['_',computer],'_R2015a');
 
 build_version_h(pths.root)
 try
-    opt = sprintf('CXXFLAGS=$CFLAGS -fopenmp -std=c++11 -Wl,-rpath=%s,--enable-new-dtags,--no-undefined,-fopenmp',mpi_lib_folder);
+    opt = sprintf('CXXFLAGS=$CFLAGS -fopenmp -std=c++17 -Wl,-rpath=%s,--enable-new-dtags,--no-undefined,-fopenmp',mpi_lib_folder);
     if isempty(opt_file)
         mex('-v',add_include{:},opt,input_files{:},...
             mpi_lib{:},'-outdir',outdir);
