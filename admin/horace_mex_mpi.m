@@ -5,7 +5,14 @@ function [ok,mess] = horace_mex_mpi(varargin)
 % Manually modify this script to specify the mpi libraries location in your
 % system.
 %
-use_her_mpich = true;
+ 
+% we supply MPI libraries together with Herbert. They may not work with any
+% Matlab version and with any OS so may be cases when it is preferable to
+% use system libraries but:
+use_her_mpich = true; % if true, use MPI libraries, provided with Herbert.
+% if false, modify script below providing the location of the MPI libraries
+% present on the system.
+
 verbose = nargin > 0;
 pths = horace_paths;
 
