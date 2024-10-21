@@ -1,4 +1,4 @@
-function horace_mex
+function horace_mex()
 % Usage:
 % horace_mex;
 % Create mex files for all the Horace C(++) routines assuming that proper mex
@@ -51,6 +51,7 @@ try % mex C++
     disp('**********> Creating mex files from C++ code')
     % root directory is assumed to be that in which this function resides
     cd(root_dir);
+    clear mex;
 
     cpp_in_rel_dir = ['_LowLevelCode',filesep,'cpp',filesep];
     % get folder names corresponding to the current Matlab version and OS
@@ -88,9 +89,11 @@ try % mex C++
         'mtimesx_mex.cpp');
     mex_single([cpp_in_rel_dir 'compute_pix_sums'], out_rel_dir, ...
         'compute_pix_sums_c.cpp','compute_pix_sums_helpers.cpp');
+
     mex_single([cpp_in_rel_dir 'GetMD5'], out_rel_dir, ...
         'GetMD5.cpp');
-
+    mex_single([cpp_in_rel_dir 'mex_bin_plugin'], out_rel_dir, ...
+        'mex_bin_plugin.cpp');
 
 
     % create the procedure to access hdf files
@@ -108,7 +111,7 @@ catch ME
 
 end
 try
-    cof = {'combine_sqw.cpp','exchange_buffer.cpp','fileParameters.cpp',...
+    cof = {'combine_sqw.cpp','exchange_buffer.cpp','../file_parameters/fileParameters.cpp',...
         'pix_mem_map.cpp', 'sqw_pix_writer.cpp', 'sqw_reader.cpp', 'nsqw_pix_reader.cpp'};
     mex_single([cpp_in_rel_dir 'combine_sqw'], out_rel_dir,cof{:} );
     disp('**********> Successfully created mex file for combining components from C++')
@@ -198,10 +201,10 @@ if ~check_access(outdir,add_files{1})
     error('MEX_SINGLE:invalid_arg',' can not get write access to new mex file: %s',fullfile(outdir,add_files{1}));
 end
 if ispc
-    cxx_flags = 'COMPFLAGS= $COMPFLAGS /openmp';
+    cxx_flags ='COMPFLAGS= $COMPFLAGS /openmp /std:c++17';
     ld_flags = 'LDFLAGS= --no-undefined';
 else
-    cxx_flags = 'CXXFLAGS= $CFLAGS  -fopenmp -std=c++11';
+    cxx_flags = 'CXXFLAGS= $CFLAGS  -fopenmp -std=c++17';
     ld_flags  = 'LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp';
 end
 if(nFiles==1)
