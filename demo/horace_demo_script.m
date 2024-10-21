@@ -54,9 +54,10 @@ else
         end
     end
 end
-
-gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-    u, v, psi, omega, dpsi, gl, gs);
+if ~isfile(sqw_file)
+    gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+        u, v, psi, omega, dpsi, gl, gs);
+end
 
 %====================================
 %% Make plots etc
@@ -128,9 +129,18 @@ plot(w_sqw)
 %fixed (2nd vector is list of free parameters). We will
 %also have a backgound function (specified separately). The (optional) list
 %argument gives a verbose output during the fitting process
-[wfit,fitdata]=fit_sqw(cc2a,@demo_FM_spinwaves,[250 0 2.4 10 5],[1 0 1 0 1],...
-    @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
+%[wfit,fitdata]=fit_sqw(cc2a,@demo_FM_spinwaves,[250 0 2.4 10 5],[1 0 1 0 1],...
+%    @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
+kk = multifit_sqw (cc2a);
+kk = kk.set_fun (@demo_FM_spinwaves);
 
+kk = kk.set_pin ([250 0 2.4 10 5]); %input parameters
+kk = kk.set_free ([1 0 1 0 1]); %fitting parameters 1, 3 and 5
+
+kk = kk.set_bfun (@constant_background); % set_bfun sets the background functions
+kk = kk.set_bpin (0.05);   % initial background constant
+kk = kk.set_bfree (1);    % fix the background
+[wfit fitdata]=kk.fit();
 try
     %Use spinW to calculate the S(Q,w) instead. First setup the spinW model.
     try
@@ -157,10 +167,22 @@ try
     fefm = spinw_setpar(fefm,'convolvfn',@spinw_sho_sqw);
     %Note both lines above can also be combined into a single line.
     %Parameters in this case is: [J D gamma temperature amplitude]
-    [wfitsw,fitdatasw]=fit_sqw(cc2a,@spinw_sqw,{[250 0 2.4 10 5] fefm},[1 0 1 0 1],...
-        @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
-catch
-    warning('spinw has not been found');
+    %[wfitsw,fitdatasw]=fit_sqw(cc2a,@spinw_sqw,{[250 0 2.4 10 5] fefm},[1 0 1 0 1],...
+    %    @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
+    kk = multifit_sqw (cc2a);
+    kk = kk.set_fun (@fefm.horace_sqw);
+    %kk = kk.set_fun (@demo_FM_spinwaves);
+
+    kk = kk.set_pin ([250 0 2.4 10 5]); %input parameters
+    kk = kk.set_free ([1 0 1 0 1]); %fitting parameters 1, 3 and 5
+
+    kk = kk.set_bfun (@constant_background); % set_bfun sets the background functions
+    kk = kk.set_bpin (0.05);   % initial background constant
+    kk = kk.set_bfree (1);    % fix the background
+    [wfit fitdata_sw]=kk.fit();
+
+catch ME
+    warning(ME.identifier,'Problem with spinw: %s',ME.message);
 end
 
 %% Symmetrising, and some other bits and bobs
@@ -186,10 +208,3 @@ plot(wadd);%notice the changed limits of the colour scale!
 
 %Also, to get inline info about a particular function, type in Matlab
 %>> help <function_name>
-
-
-
-
-
-
-
