@@ -9,10 +9,16 @@
 %====================================
 %% Generate Horace data files
 %====================================
+demo_dir=pwd;
+indir=demo_dir;     % source directory of spe (or nxspe) files
+par_file=[indir,filesep,'4to1_124.par'];     % detector parameter file
+sqw_file=[indir,filesep,'fe_demo.sqw'];        % output sqw file
+data_source =sqw_file;
+
 
 %Run the command below to obtain the data we will use for the demo. This
 %process can take a few minutes - be patient!
-file_list=setup_demo_data();
+file_list=setup_demo_data(sqw_file);
 
 %At the end of this you should have a set of files called
 %HoraceDemoDataFileN.spe, where N is 1 to 23.
@@ -22,11 +28,6 @@ file_list=setup_demo_data();
 %source, data from which can then be cut and sliced along any direction in
 %4-dimensional reciprocal space:
 
-demo_dir=pwd;
-indir=demo_dir;     % source directory of spe (or nxspe) files
-par_file=[indir,filesep,'4to1_124.par'];     % detector parameter file
-sqw_file=[indir,filesep,'fe_demo.sqw'];        % output sqw file
-data_source =sqw_file;
 
 % Set incident energy, lattice parameters etc.
 efix=787;
@@ -130,17 +131,25 @@ keep_figure;
 %fixed (2nd vector is list of free parameters). We will
 %also have a backgound function (specified separately). The (optional) list
 %argument gives a verbose output during the fitting process
+J = 250;     % Exchange interaction in meV
+D = 0;      % Single-ion anisotropy in meV
+gam = 2.4;   % Intrinsic linewidth in meV (inversely proportional to excitation lifetime)
+temp = 10;  % Sample measurement temperature in Kelvin
+amp = 5;  % Magnitude of the intensity of the excitation (arbitrary units)
+
 %[wfit,fitdata]=fit_sqw(cc2a,@demo_FM_spinwaves,[250 0 2.4 10 5],[1 0 1 0 1],...
 %    @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
 kk = multifit_sqw (cc2a);
 kk = kk.set_fun (@demo_FM_spinwaves);
 
-kk = kk.set_pin ([250 0 2.4 10 5]); %input parameters
+kk = kk.set_pin ([J D gam temp amp]); %input parameters
 kk = kk.set_free ([1 0 1 0 1]); %fitting parameters 1, 3 and 5
 
 kk = kk.set_bfun (@constant_background); % set_bfun sets the background functions
 kk = kk.set_bpin (0.05);   % initial background constant
 kk = kk.set_bfree (1);    % fix the background
+kk = kk.set_options('fit_control_parameters',[0.001 30 0.001]);
+sh = kk.simulate();
 [wfit fitdata]=kk.fit();
 plot(wfit)
 keep_figure
@@ -160,28 +169,13 @@ try
     fefm.addaniso('D');
     fefm.genmagstr('mode','direct','S',[0; 0; 1]);
 
-    cpars = {'mat', {'J', 'D(3,3)'}, 'hermit', false, 'optmem', 1, 'useFast', true, 'resfun', 'sho', 'formfact', true};
+    cpars = {'mat', {'J', 'D(3,3)'}, 'hermit', false, 'optmem', 1, 'useFast', true, 'resfun', 'sho', 'formfact', false};
 
-    %Horace requires parameters as a vector. We need to tell spinW which elements
-    %of this vector corresponds to which parameters. In this case, the first element
-    %is the exchange interaction J, the second the gap, or single-ion anisotropy D.
-    %fefm = spinw_setpar(fefm,'mapping',{'J','D'},'hermit',false);
-    %By default the spinW dispersion is convoluted with a finite energy Gaussian
-    %and a flat background is added. The parameters then would be:
-    %[J D amplitude fwhm background]. Here we want a SHO weighted by the Bose factor
-    %fefm = spinw_setpar(fefm,'convolvfn',@spinw_sho_sqw);
-    %Note both lines above can also be combined into a single line.
-    %Parameters in this case is: [J D gamma temperature amplitude]
     %[wfitsw,fitdatasw]=fit_sqw(cc2a,@spinw_sqw,{[250 0 2.4 10 5] fefm},[1 0 1 0 1],...
     %    @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
-    J = 250;     % Exchange interaction in meV
-    D = 0;      % Single-ion anisotropy in meV
-    gam = 2.4;   % Intrinsic linewidth in meV (inversely proportional to excitation lifetime)
-    temp = 10;  % Sample measurement temperature in Kelvin
-    amp = 5;  % Magnitude of the intensity of the excitation (arbitrary units)
 
     kk = multifit_sqw (cc2a);
-    kk = kk.set_fun (@fefm.horace_sqw, {[J, D, gam, temp, amp], cpars{:}});
+    kk = kk.set_fun (@fefm.horace_sqw, {[50, D, gam, temp, 0.1], cpars{:}});
 
     %kk = kk.set_pin ({[250 0 2.4 10 5],fefm}); %input parameters
     kk = kk.set_free ([1 0 1 0 1]); %fitting parameters 1, 3 and 5
@@ -189,6 +183,8 @@ try
     kk = kk.set_bfun (@constant_background); % set_bfun sets the background functions
     kk = kk.set_bpin (0.05);   % initial background constant
     kk = kk.set_bfree (1);    % fix the background
+    kk = kk.set_options('fit_control_parameters',[0.001 30 0.001]);    
+    ssw = kk.simulate();
     [wfit fitdata_sw]=kk.fit();
 
 catch ME
@@ -210,11 +206,11 @@ plot(wadd);%notice the changed limits of the colour scale!
 
 for i=1:numel(spe_file)
     if isfile(spe_file{i})
-        delete(spe_file{i},'f');
+        delete(spe_file{i});
     end
 end
 if isfile(sqw_file)
-    delete(sqw_file,'f');
+    delete(sqw_file);
 end
 
 %There is much much more in the Horace online manual:

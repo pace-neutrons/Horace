@@ -1,4 +1,4 @@
-function file_list=setup_demo_data()
+function file_list=setup_demo_data(sqw_ready)
 %
 % Internal routine for demo - generates some spe files that can then be
 % used in the Horace demo suite.
@@ -24,6 +24,7 @@ file_list = cell(1,numel(psi));
 hil=get(hor_config,'log_level');
 set(hor_config,'log_level',-Inf);
 clob = onCleanup(@()set(hor_config,'log_level',hil));
+resulting_sqw_present = isfile(sqw_ready);
 %
 disp('Getting data for Horace demo... Please wait a few minutes');
 try
@@ -33,7 +34,7 @@ try
         else
             file_list{i} = fullfile(demo_dir,['HoraceDemoDataFile',num2str(i),'.spe']);
         end
-        if exist(file_list{i},'file')
+        if exist(file_list{i},'file') || resulting_sqw_present
             continue;
         end
         w = dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
