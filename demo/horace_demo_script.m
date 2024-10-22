@@ -123,6 +123,7 @@ cc2a=cut_sqw(sqw_file,proj,[-3,0.05,3],[-3,0.05,3],[-0.1,0.1],[180,220]);
 % function of (vector) Q and energy)
 w_sqw=sqw_eval(cc2a,@demo_FM_spinwaves,[250 0 2.4 10 5]);
 plot(w_sqw)
+keep_figure;
 %Looks vaguely like the data.
 
 %Do a fit. We'll fit parameters 1, 3 and 5 in our model, but leave 2 and 4
@@ -141,39 +142,48 @@ kk = kk.set_bfun (@constant_background); % set_bfun sets the background function
 kk = kk.set_bpin (0.05);   % initial background constant
 kk = kk.set_bfree (1);    % fix the background
 [wfit fitdata]=kk.fit();
+plot(wfit)
+keep_figure
 try
     %Use spinW to calculate the S(Q,w) instead. First setup the spinW model.
-    try
-        fefm = sw;
-    catch
-        %spinW v3 naming convention.
-        fefm = spinw;
-    end
+
+    %spinW v3 naming convention.
+    fefm = spinw;
+
     fefm.genlattice('lat_const',[2.87 2.87 2.87],'angled',[90 90 90]);
     fefm.addatom('r',[0 0 0],'S',1);
     fefm.gencoupling();
-    fefm.addmatrix('mat',eye(3),'label',{'J'});
-    fefm.addcoupling('J',1);
-    fefm.addmatrix('mat',[0 0 1],'label',{'D'});
+    fefm.addmatrix('value',1,'label','J');
+    fefm.addcoupling('mat','J','bond',1);
+
+    fefm.addmatrix('value',diag([0 0 1]),'label',{'D'});
     fefm.addaniso('D');
     fefm.genmagstr('mode','direct','S',[0; 0; 1]);
+
+    cpars = {'mat', {'J', 'D(3,3)'}, 'hermit', false, 'optmem', 1, 'useFast', true, 'resfun', 'sho', 'formfact', true};
+
     %Horace requires parameters as a vector. We need to tell spinW which elements
     %of this vector corresponds to which parameters. In this case, the first element
     %is the exchange interaction J, the second the gap, or single-ion anisotropy D.
-    fefm = spinw_setpar(fefm,'mapping',{'J','D'},'hermit',false);
+    %fefm = spinw_setpar(fefm,'mapping',{'J','D'},'hermit',false);
     %By default the spinW dispersion is convoluted with a finite energy Gaussian
     %and a flat background is added. The parameters then would be:
     %[J D amplitude fwhm background]. Here we want a SHO weighted by the Bose factor
-    fefm = spinw_setpar(fefm,'convolvfn',@spinw_sho_sqw);
+    %fefm = spinw_setpar(fefm,'convolvfn',@spinw_sho_sqw);
     %Note both lines above can also be combined into a single line.
     %Parameters in this case is: [J D gamma temperature amplitude]
     %[wfitsw,fitdatasw]=fit_sqw(cc2a,@spinw_sqw,{[250 0 2.4 10 5] fefm},[1 0 1 0 1],...
     %    @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
-    kk = multifit_sqw (cc2a);
-    kk = kk.set_fun (@fefm.horace_sqw);
-    %kk = kk.set_fun (@demo_FM_spinwaves);
+    J = 250;     % Exchange interaction in meV
+    D = 0;      % Single-ion anisotropy in meV
+    gam = 2.4;   % Intrinsic linewidth in meV (inversely proportional to excitation lifetime)
+    temp = 10;  % Sample measurement temperature in Kelvin
+    amp = 5;  % Magnitude of the intensity of the excitation (arbitrary units)
 
-    kk = kk.set_pin ([250 0 2.4 10 5]); %input parameters
+    kk = multifit_sqw (cc2a);
+    kk = kk.set_fun (@fefm.horace_sqw, {[J, D, gam, temp, amp], cpars{:}});
+
+    %kk = kk.set_pin ({[250 0 2.4 10 5],fefm}); %input parameters
     kk = kk.set_free ([1 0 1 0 1]); %fitting parameters 1, 3 and 5
 
     kk = kk.set_bfun (@constant_background); % set_bfun sets the background functions
@@ -198,7 +208,14 @@ plot(wsym)
 wadd=cc2a+27;
 plot(wadd);%notice the changed limits of the colour scale!
 
-
+for i=1:numel(spe_file)
+    if isfile(spe_file{i})
+        delete(spe_file{i},'f');
+    end
+end
+if isfile(sqw_file)
+    delete(sqw_file,'f');
+end
 
 %There is much much more in the Horace online manual:
 
