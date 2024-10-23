@@ -133,7 +133,7 @@ keep_figure;
 %argument gives a verbose output during the fitting process
 J = 250;     % Exchange interaction in meV
 D = 0;      % Single-ion anisotropy in meV
-gam = 2.4;   % Intrinsic linewidth in meV (inversely proportional to excitation lifetime)
+gam = 0.5;   % Intrinsic linewidth in meV (inversely proportional to excitation lifetime)
 temp = 10;  % Sample measurement temperature in Kelvin
 amp = 5;  % Magnitude of the intensity of the excitation (arbitrary units)
 
@@ -150,8 +150,8 @@ kk = kk.set_bpin (0.05);   % initial background constant
 kk = kk.set_bfree (1);    % fix the background
 kk = kk.set_options('fit_control_parameters',[0.001 30 0.001]);
 sh = kk.simulate();
-[wfit fitdata]=kk.fit();
-plot(wfit)
+[wfit_hor fitdata_hor]=kk.fit();
+plot(wfit_hor)
 keep_figure
 try
     %Use spinW to calculate the S(Q,w) instead. First setup the spinW model.
@@ -185,7 +185,7 @@ try
     kk = kk.set_bfree (1);    % fix the background
     kk = kk.set_options('fit_control_parameters',[0.001 30 0.001]);    
     ssw = kk.simulate();
-    [wfit fitdata_sw]=kk.fit();
+    [wfit_sw fitdata_sw]=kk.fit();
 
 catch ME
     warning(ME.identifier,'Problem with spinw: %s',ME.message);

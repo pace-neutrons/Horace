@@ -27,8 +27,9 @@ warning off
 js=pars(1); delta=pars(2);
 gam=pars(3); temp=pars(4); amp=pars(5);
 
-omega0 = delta + ...
-    (4*js)*((sin(pi.*qh)).^2 + (sin(pi.*qk)).^2 + (sin(pi.*ql)).^2);
+%omega0 = delta + ...
+%    (4*js)*((sin(pi.*qh)).^2 + (sin(pi.*qk)).^2 + (sin(pi.*ql)).^2);
+omega0 = delta + (8*js)*(1-cos(pi.*qh).*cos(pi.*qk).*cos(pi.*ql));
 
 Bose= en./ (1-exp(-11.602.*en./temp));%Bose factor from Tobyfit. 
 
