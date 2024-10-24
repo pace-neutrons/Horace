@@ -1,23 +1,35 @@
 %demo script, guiding you through the process of using the basic features
 %of Horace from the Matlab command line
 
+
+% Define working directories, used by this script
 %First of all ensure that the current directory of Matlab is the directory
 %in which this script file is located (otherwise the following line will
 %not work).
-
-%
-%====================================
-%% Generate Horace data files
-%====================================
-demo_dir=pwd;
-indir=demo_dir;     % source directory of spe (or nxspe) files
-par_file=[indir,filesep,'4to1_124.par'];     % detector parameter file
-sqw_file=[indir,filesep,'fe_demo.sqw'];        % output sqw file
+demo_dir = fileparts(mfilename('fullpath'));
+indir=demo_dir; % source directory of spe (or nxspe) files
+%               % We will generate demo source files  in this directory,
+%               % but usually this  folder is the folder with data 
+%               % reduction results
+par_file=fullfile(indir,'4to1_124.par'); % detector parameters (positions) file.
+%                                       % Old spe files need this but modern 
+%                                       % reduction script puts this data into
+%                                       % each nxspe file, so par-file may 
+%                                       % be lef empty. If it is not emptpy, it
+%                                       % contents will override the contents
+%                                       % stored in nxspe files.
+sqw_file=fullfile(indir,'fe_demo.sqw'); % let's place output sqw file into
+%                                       % init directory.
 data_source =sqw_file;
 
 
+%====================================
+%% Generate Horace data files
+%====================================
 %Run the command below to obtain the data we will use for the demo. This
-%process can take a few minutes - be patient!
+%process can take a few minutes - be patient! Provide sqw file name as
+%additional parameter, to ensure that if sqw is already there, you do not 
+%need to generated source files again.
 file_list=setup_demo_data(sqw_file);
 
 %At the end of this you should have a set of files called
@@ -49,9 +61,9 @@ if exist('file_list','var')
 else
     spe_file=cell(1,nfiles);
     for i=1:length(psi)
-        spe_file{i}=[indir,filesep,'HoraceDemoDataFile',num2str(i),'.nxspe'];
+        spe_file{i}=fullfile(indir,['HoraceDemoDataFile',num2str(i),'.nxspe']);
         if ~exist(spe_file{i},'file')
-            spe_file{i}=[indir,filesep,'HoraceDemoDataFile',num2str(i),'.spe'];
+            spe_file{i}=fullfile(indir,['HoraceDemoDataFile',num2str(i),'.spe']);
         end
     end
 end
@@ -132,13 +144,11 @@ keep_figure;
 %also have a backgound function (specified separately). The (optional) list
 %argument gives a verbose output during the fitting process
 J = 250;     % Exchange interaction in meV
-D = 0;      % Single-ion anisotropy in meV
+D = 0;       % Single-ion anisotropy in meV
 gam = 0.5;   % Intrinsic linewidth in meV (inversely proportional to excitation lifetime)
 temp = 10;  % Sample measurement temperature in Kelvin
 amp = 5;  % Magnitude of the intensity of the excitation (arbitrary units)
 
-%[wfit,fitdata]=fit_sqw(cc2a,@demo_FM_spinwaves,[250 0 2.4 10 5],[1 0 1 0 1],...
-%    @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
 kk = multifit_sqw (cc2a);
 kk = kk.set_fun (@demo_FM_spinwaves);
 
@@ -148,7 +158,7 @@ kk = kk.set_free ([1 0 1 0 1]); %fitting parameters 1, 3 and 5
 kk = kk.set_bfun (@constant_background); % set_bfun sets the background functions
 kk = kk.set_bpin (0.05);   % initial background constant
 kk = kk.set_bfree (1);    % fix the background
-kk = kk.set_options('fit_control_parameters',[0.001 30 0.001]);
+kk = kk.set_options('fit_control_parameters',[0.001 30 0.001],'listing',2);
 sh = kk.simulate();
 [wfit_hor fitdata_hor]=kk.fit();
 plot(wfit_hor)
@@ -158,32 +168,29 @@ try
 
     %spinW v3 naming convention.
     fefm = spinw;
-
-    fefm.genlattice('lat_const',[2.87 2.87 2.87],'angled',[90 90 90]);
-    fefm.addatom('r',[0 0 0],'S',1);
+    
+    fefm.genlattice('lat_const',[2.87 2.87 2.87],'angled',[90 90 90],'sym','I m -3 m');
+    fefm.addatom('r',[0 0 0],'S',2.5,'label', 'MFe3');
     fefm.gencoupling();
-    fefm.addmatrix('value',1,'label','J');
+    fefm.addmatrix('label','J','value',1);
     fefm.addcoupling('mat','J','bond',1);
 
-    fefm.addmatrix('value',diag([0 0 1]),'label',{'D'});
+    fefm.addmatrix('value',diag([0 0 -1]),'label','D');
     fefm.addaniso('D');
-    fefm.genmagstr('mode','direct','S',[0; 0; 1]);
+    fefm.genmagstr('mode','direct','S',[0,0; 0,0;1,1]);
 
-    cpars = {'mat', {'J', 'D(3,3)'}, 'hermit', false, 'optmem', 1, 'useFast', true, 'resfun', 'sho', 'formfact', false};
-
-    %[wfitsw,fitdatasw]=fit_sqw(cc2a,@spinw_sqw,{[250 0 2.4 10 5] fefm},[1 0 1 0 1],...
-    %    @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
+    cpars = {'mat', {'J', 'D(3,3)'}, 'hermit', false, 'optmem', 1, 'useFast', true, 'resfun', 'sho', 'formfact', true};
 
     kk = multifit_sqw (cc2a);
-    kk = kk.set_fun (@fefm.horace_sqw, {[50, D, gam, temp, 0.1], cpars{:}});
+    kk = kk.set_fun (@fefm.horace_sqw, {[300 0 2 10 2], cpars{:}});
 
     %kk = kk.set_pin ({[250 0 2.4 10 5],fefm}); %input parameters
-    kk = kk.set_free ([1 0 1 0 1]); %fitting parameters 1, 3 and 5
+    kk = kk.set_free ([1 0 1 0 1]); %fitting parameters 1,3 and 5
 
     kk = kk.set_bfun (@constant_background); % set_bfun sets the background functions
     kk = kk.set_bpin (0.05);   % initial background constant
     kk = kk.set_bfree (1);    % fix the background
-    kk = kk.set_options('fit_control_parameters',[0.001 30 0.001]);    
+    kk = kk.set_options('fit_control_parameters',[0.001 30 0.001],'listing',2);    
     ssw = kk.simulate();
     [wfit_sw fitdata_sw]=kk.fit();
 
@@ -204,6 +211,9 @@ plot(wsym)
 wadd=cc2a+27;
 plot(wadd);%notice the changed limits of the colour scale!
 
+% if all above is successful, remove generated nxspe files sample
+% sqw file to clean-up and do not leave results of the this script
+% operations.
 for i=1:numel(spe_file)
     if isfile(spe_file{i})
         delete(spe_file{i});

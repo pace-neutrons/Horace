@@ -2,13 +2,14 @@ function file_list=setup_demo_data(sqw_ready)
 %
 % Internal routine for demo - generates some spe files that can then be
 % used in the Horace demo suite.
+% 
 %
 
 demo_dir=pwd;
 
 en=-80:8:760;
-par_file=[demo_dir,filesep,'4to1_124.par'];
-sqw_file_single=[demo_dir,filesep,'single.sqw'];
+par_file=fullfile(demo_dir,'4to1_124.par');
+sqw_file_single=fullfile(demo_dir,'single.sqw');
 efix=800;
 emode=1;
 alatt=[2.87,2.87,2.87];
