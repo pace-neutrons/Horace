@@ -19,11 +19,11 @@ function [init_folder,hor_init_dir,use_old_init_path,modified_hor_on_contents] =
 %                  to be installed. If missing,
 %                  <path to Horace code>/../ISIS folder is selected.
 %                  This folder will be added to Matlab search path.
-% spinW_folder --  key with value, which shows where spinw is located. 
-%                  Allows to initalize horace together with spin_w
+% spinW_folder --  key with value, which shows where spinW is located. 
+%                  Allows to initialize Horace together with spin_w
 %                  For this option to work, spinw_on.m.template file have
-%                  to be available in Horace and spinw package installedn and 
-%                  be avaiable on filesystem.
+%                  to be available in Horace and spinW package installed and 
+%                  be available on filesystem.
 %
 % test_mode   -- if true, do not install Horace but return installation
 %              folders, i.e. the folder where Horace and horace_on
@@ -33,7 +33,7 @@ function [init_folder,hor_init_dir,use_old_init_path,modified_hor_on_contents] =
 % Defaults (no arguments)
 %  the horace_install script is located either in the folder, where Horace
 %  and  Herbert folders are extracted to (installation archive) or in
-%  /Horace/admin folder (cloned from the Github directly)
+%  /Horace/admin folder (cloned from the GitHub directly)
 %
 % Output parameters:
 %  Expected to be used in test mode only.

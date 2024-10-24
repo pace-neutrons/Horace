@@ -1,14 +1,15 @@
-function file_list=setup_demo_data()
+function file_list=setup_demo_data(sqw_ready)
 %
 % Internal routine for demo - generates some spe files that can then be
 % used in the Horace demo suite.
+% 
 %
 
 demo_dir=pwd;
 
-en=[-80:8:760];
-par_file=[demo_dir,filesep,'4to1_124.par'];
-sqw_file_single=[demo_dir,filesep,'single.sqw'];
+en=-80:8:760;
+par_file=fullfile(demo_dir,'4to1_124.par');
+sqw_file_single=fullfile(demo_dir,'single.sqw');
 efix=800;
 emode=1;
 alatt=[2.87,2.87,2.87];
@@ -24,24 +25,24 @@ file_list = cell(1,numel(psi));
 hil=get(hor_config,'log_level');
 set(hor_config,'log_level',-Inf);
 clob = onCleanup(@()set(hor_config,'log_level',hil));
+resulting_sqw_present = isfile(sqw_ready);
 %
 disp('Getting data for Horace demo... Please wait a few minutes');
 try
     for i=1:numel(psi)
         if i<=nxspe_limit
-            file_list{i} = [demo_dir,filesep,'HoraceDemoDataFile',num2str(i),'.nxspe'];            
+            file_list{i} = fullfile(demo_dir,['HoraceDemoDataFile',num2str(i),'.nxspe']);
         else
-            file_list{i} = [demo_dir,filesep,'HoraceDemoDataFile',num2str(i),'.spe'];            
+            file_list{i} = fullfile(demo_dir,['HoraceDemoDataFile',num2str(i),'.spe']);
         end
-        if exist(file_list{i},'file')
+        if exist(file_list{i},'file') || resulting_sqw_present
             continue;
         end
-        dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
-                         u, v, psi(i), omega, dpsi, gl, gs);
+        w = dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
+            u, v, psi(i), omega, dpsi, gl, gs);
 
-        w=read_sqw(sqw_file_single);
         %Make the fake data:
-        w=sqw_eval(w,@demo_FM_spinwaves,[300 0 2 10 2]);%simulate spinwave cross-section 
+        w=sqw_eval(w,@demo_FM_spinwaves,[300 0 2 10 2]);%simulate spinwave cross-section
         w=noisify(w,1);%add some noise to simulate real data
         if i<=nxspe_limit
             d = rundatah(w+0.74);
@@ -64,5 +65,3 @@ end
 if exist(sqw_file_single,'file')
     delete(sqw_file_single);
 end
-
-    
