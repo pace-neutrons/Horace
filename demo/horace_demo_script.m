@@ -20,7 +20,8 @@ par_file=fullfile(indir,'4to1_124.par'); % detector parameters (positions) file.
 %                                       % stored in nxspe files.
 sqw_file=fullfile(indir,'fe_demo.sqw'); % let's place output sqw file into
 %                                       % init directory.
-% after generation, sqw file becomes the source of further analysis
+% after generation, sqw file becomes the source of further analysis.
+% When script completed successfully, file will be deleted.
 data_source =sqw_file;
 
 
@@ -30,7 +31,8 @@ data_source =sqw_file;
 %Run the command below to obtain the data we will use for the demo. This
 %process can take a few minutes - be patient! Provide sqw file name as
 %additional parameter, to ensure that if sqw is already there, you do not 
-%need to generated source files again.
+%need to generated source files again. Generation of sqw file will not be
+%demonstrated as the result. Will demonstrate only operations with sqw.
 file_list=setup_demo_data(sqw_file);
 
 %At the end of this you should have a set of files called
@@ -40,7 +42,6 @@ file_list=setup_demo_data(sqw_file);
 %combines the data from several runs (23 in this case) into one single data
 %source, data from which can then be cut and sliced along any direction in
 %4-dimensional reciprocal space:
-
 
 % Set incident energy, lattice parameters etc.
 efix=787;
@@ -73,15 +74,15 @@ if ~isfile(sqw_file)
         u, v, psi, omega, dpsi, gl, gs);
 end
 
-%====================================
-%% Make plots etc
-%====================================
+%============================================
+%% Analyze dava visually. Make cuts and plots
+%============================================
 
 %Viewing axes to look at the data. These can be any orthogonal set you like
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 
 %3D slice - view using sliceomatic
-cc3=cut_sqw(sqw_file,proj,[-3,0.05,3],[-3,0.05,3],[-0.1,0.1],[0,16,700]); %,'-nopix');
+cc3=cut_sqw(sqw_file,proj,[-3,0.05,3],[-3,0.05,3],[-0.1,0.1],[0,16,700],'-nopix');
 save(cc3,'cut3D_sqw.sqw');
 plot(cc3);
 %notice the '-nopix' option - we chose not to retain in memory the
@@ -145,11 +146,11 @@ w_sqw=sqw_eval(cc2a,@demo_FM_spinwaves,[250 0 2.4 10 5]);
 %fixed (2nd vector is list of free parameters). We will
 %also have a backgound function (specified separately). The (optional) list
 %argument gives a verbose output during the fitting process
-J = 300;     % Exchange interaction in meV
+J = 250;     % Exchange interaction in meV
 D = 0;       % Single-ion anisotropy in meV
-gam  = 2;   % Intrinsic linewidth in meV (inversely proportional to excitation lifetime)
-temp = 10;  % Sample measurement temperature in Kelvin
-amp  = 2;  % Magnitude of the intensity of the excitation (arbitrary units)
+gam  = 2.5;   % Intrinsic linewidth in meV (inversely proportional to excitation lifetime)
+temp = 10; % Sample measurement temperature in Kelvin
+amp  = 1;  % Magnitude of the intensity of the excitation (arbitrary units)
 
 kk = multifit_sqw (cc2a);
 kk = kk.set_fun (@demo_FM_spinwaves);
