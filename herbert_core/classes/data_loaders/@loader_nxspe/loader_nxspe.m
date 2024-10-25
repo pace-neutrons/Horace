@@ -138,7 +138,9 @@ classdef loader_nxspe < a_loader
                 obj.nexus_instrument_ = obj.read_instrument_info_();
             catch ME
                 if strcmp(ME.identifier, 'HERBERT:loader_nxspe:missing_instrument_fields')
-                    warning(ME.identifier,'%s', ME.message);
+                    warning(ME.identifier, '%s', ME.message);
+                else
+                    rethrow(ME);
                 end
                 % Ignore all other errors; instrument info not guaranteed to
                 % be in all nxspe files; its absence is not an error.
@@ -301,6 +303,7 @@ classdef loader_nxspe < a_loader
         end
         function moderator = read_inst_moderator_(obj, ds)
             % Construct an IX_moderator from a NeXus data structure
+            moderator_described = true;
             if isfield(ds.moderator, 'pulse_shape')
                 pulse_model = 'table';
                 parameters = {ds.moderator.pulse_shape.Time.value ...
@@ -309,12 +312,19 @@ classdef loader_nxspe < a_loader
                 pulse_model = ds.moderator.empirical_pulse_shape.type.value;
                 parameters = ds.moderator.empirical_pulse_shape.data.value;
             else
-                error('HERBERT:loader_nxspe:invalid_moderator', ...
-                    'moderator model in instrument info not understandable by Horace.');
+                moderator_described = false;
+                warning('HERBERT:loader_nxspe:invalid_moderator', ...
+                      'moderator model in instrument info not understandable by Horace.');
             end
-            moderator = IX_moderator(abs(ds.moderator.transforms.MOD_T_AXIS.value), ...
-                ds.moderator.transforms.MOD_R_AXIS.value, ...
-                pulse_model, parameters);
+            if moderator_described
+                moderator = IX_moderator(abs(ds.moderator.transforms.MOD_T_AXIS.value), ...
+                                         ds.moderator.transforms.MOD_R_AXIS.value, ...
+                                         pulse_model, parameters);
+            else
+                warning('HERBERT:loader_nxspe:invalid_moderator', ...
+                         'replacing moderator with predefined working one');
+                moderator = IX_inst.fill_missing_moderator(ds);
+            end
         end
         function instrument = read_fermi_inst_(obj, ds, src, mod)
             % Construct an IX_inst_DGfermi from a NeXus data structure
