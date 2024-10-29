@@ -1,18 +1,39 @@
 %demo script, guiding you through the process of using the basic features
 %of Horace from the Matlab command line
 
+
+% Define working directories, used by this script
 %First of all ensure that the current directory of Matlab is the directory
 %in which this script file is located (otherwise the following line will
 %not work).
+demo_dir = fileparts(mfilename('fullpath'));
+indir=demo_dir; % source directory of spe (or nxspe) files
+%               % We will generate demo source files  in this directory,
+%               % but usually this  folder is the folder with data 
+%               % reduction results
+par_file=fullfile(indir,'4to1_124.par'); % detector parameters (positions) file.
+%                                       % Old spe files need this but modern 
+%                                       % reduction script puts this data into
+%                                       % each nxspe file, so par-file may 
+%                                       % be lef empty. If it is not emptpy, it
+%                                       % contents will override the contents
+%                                       % stored in nxspe files.
+sqw_file=fullfile(indir,'fe_demo.sqw'); % let's place output sqw file into
+%                                       % init directory.
+% after generation, sqw file becomes the source of further analysis.
+% When script completed successfully, file will be deleted.
+data_source =sqw_file;
 
-%
+
 %====================================
 %% Generate Horace data files
 %====================================
-
 %Run the command below to obtain the data we will use for the demo. This
-%process can take a few minutes - be patient!
-file_list=setup_demo_data();
+%process can take a few minutes - be patient! Provide sqw file name as
+%additional parameter, to ensure that if sqw is already there, you do not 
+%need to generated source files again. Generation of sqw file will not be
+%demonstrated as the result. Will demonstrate only operations with sqw.
+file_list=setup_demo_data(sqw_file);
 
 %At the end of this you should have a set of files called
 %HoraceDemoDataFileN.spe, where N is 1 to 23.
@@ -21,12 +42,6 @@ file_list=setup_demo_data();
 %combines the data from several runs (23 in this case) into one single data
 %source, data from which can then be cut and sliced along any direction in
 %4-dimensional reciprocal space:
-
-demo_dir=pwd;
-indir=demo_dir;     % source directory of spe (or nxspe) files
-par_file=[indir,filesep,'4to1_124.par'];     % detector parameter file
-sqw_file=[indir,filesep,'fe_demo.sqw'];        % output sqw file
-data_source =sqw_file;
 
 % Set incident energy, lattice parameters etc.
 efix=787;
@@ -48,25 +63,26 @@ if exist('file_list','var')
 else
     spe_file=cell(1,nfiles);
     for i=1:length(psi)
-        spe_file{i}=[indir,filesep,'HoraceDemoDataFile',num2str(i),'.nxspe'];
+        spe_file{i}=fullfile(indir,['HoraceDemoDataFile',num2str(i),'.nxspe']);
         if ~exist(spe_file{i},'file')
-            spe_file{i}=[indir,filesep,'HoraceDemoDataFile',num2str(i),'.spe'];
+            spe_file{i}=fullfile(indir,['HoraceDemoDataFile',num2str(i),'.spe']);
         end
     end
 end
+if ~isfile(sqw_file)
+    gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+        u, v, psi, omega, dpsi, gl, gs);
+end
 
-gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-    u, v, psi, omega, dpsi, gl, gs);
-
-%====================================
-%% Make plots etc
-%====================================
+%============================================
+%% Analyze dava visually. Make cuts and plots
+%============================================
 
 %Viewing axes to look at the data. These can be any orthogonal set you like
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 
 %3D slice - view using sliceomatic
-cc3=cut_sqw(sqw_file,proj,[-3,0.05,3],[-3,0.05,3],[-0.1,0.1],[0,16,700]); %,'-nopix');
+cc3=cut_sqw(sqw_file,proj,[-3,0.05,3],[-3,0.05,3],[-0.1,0.1],[0,16,700],'-nopix');
 save(cc3,'cut3D_sqw.sqw');
 plot(cc3);
 %notice the '-nopix' option - we chose not to retain in memory the
@@ -116,51 +132,73 @@ plot(wdiff);
 %==================================
 
 cc2a=cut_sqw(sqw_file,proj,[-3,0.05,3],[-3,0.05,3],[-0.1,0.1],[180,220]);
+plot(cc2a)
+keep_figure;
 
 % Simulate a model for S(Q,w):
 % (This is an example where the user can provide the spectral weight as a
 % function of (vector) Q and energy)
 w_sqw=sqw_eval(cc2a,@demo_FM_spinwaves,[250 0 2.4 10 5]);
-plot(w_sqw)
 %Looks vaguely like the data.
 
+% Simulation parameters are 300 0 2 10 2 and we try to recover it
 %Do a fit. We'll fit parameters 1, 3 and 5 in our model, but leave 2 and 4
 %fixed (2nd vector is list of free parameters). We will
 %also have a backgound function (specified separately). The (optional) list
 %argument gives a verbose output during the fitting process
-[wfit,fitdata]=fit_sqw(cc2a,@demo_FM_spinwaves,[250 0 2.4 10 5],[1 0 1 0 1],...
-    @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
+J = 250;     % Exchange interaction in meV
+D = 0;       % Single-ion anisotropy in meV
+gam  = 2.5;   % Intrinsic linewidth in meV (inversely proportional to excitation lifetime)
+temp = 10; % Sample measurement temperature in Kelvin
+amp  = 1;  % Magnitude of the intensity of the excitation (arbitrary units)
 
+kk = multifit_sqw (cc2a);
+kk = kk.set_fun (@demo_FM_spinwaves);
+
+kk = kk.set_pin ([J D gam temp amp]); %input parameters
+kk = kk.set_free ([1 0 1 0 1]); %fitting parameters 1, 3 and 5
+
+kk = kk.set_bfun (@constant_background); % set_bfun sets the background functions
+kk = kk.set_bpin (0.05);   % initial background constant
+kk = kk.set_bfree (1);    % fix the background
+kk = kk.set_options('fit_control_parameters',[0.001 30 0.001],'listing',2);
+sh = kk.simulate();
+[wfit_hor fitdata_hor]=kk.fit();
+plot(wfit_hor)
+keep_figure
 try
     %Use spinW to calculate the S(Q,w) instead. First setup the spinW model.
-    try
-        fefm = sw;
-    catch
-        %spinW v3 naming convention.
-        fefm = spinw;
-    end
-    fefm.genlattice('lat_const',[2.87 2.87 2.87],'angled',[90 90 90]);
-    fefm.addatom('r',[0 0 0],'S',1);
+
+    %spinW v3 naming convention.
+    fefm = spinw;
+    
+    fefm.genlattice('lat_const',[2.87 2.87 2.87],'angled',[90 90 90],'sym','I m -3 m');
+    fefm.addatom('r',[0 0 0],'S',2.5,'label', 'MFe3');
     fefm.gencoupling();
-    fefm.addmatrix('mat',eye(3),'label',{'J'});
-    fefm.addcoupling('J',1);
-    fefm.addmatrix('mat',[0 0 1],'label',{'D'});
+    fefm.addmatrix('label','J','value',-1);
+    fefm.addcoupling('mat','J','bond',1);
+
+    fefm.addmatrix('value',diag([0 0 -1]),'label','D');
     fefm.addaniso('D');
-    fefm.genmagstr('mode','direct','S',[0; 0; 1]);
-    %Horace requires parameters as a vector. We need to tell spinW which elements
-    %of this vector corresponds to which parameters. In this case, the first element
-    %is the exchange interaction J, the second the gap, or single-ion anisotropy D.
-    fefm = spinw_setpar(fefm,'mapping',{'J','D'},'hermit',false);
-    %By default the spinW dispersion is convoluted with a finite energy Gaussian
-    %and a flat background is added. The parameters then would be:
-    %[J D amplitude fwhm background]. Here we want a SHO weighted by the Bose factor
-    fefm = spinw_setpar(fefm,'convolvfn',@spinw_sho_sqw);
-    %Note both lines above can also be combined into a single line.
-    %Parameters in this case is: [J D gamma temperature amplitude]
-    [wfitsw,fitdatasw]=fit_sqw(cc2a,@spinw_sqw,{[250 0 2.4 10 5] fefm},[1 0 1 0 1],...
-        @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
-catch
-    warning('spinw has not been found');
+    fefm.genmagstr('mode','direct','S',[0,0; 0,0;1,1]);
+
+    cpars = {'mat', {'J', 'D(3,3)'}, 'hermit', false, 'optmem', 1, 'useFast', true, 'resfun', 'sho', 'formfact', false};
+
+    kk = multifit_sqw (cc2a);
+    kk = kk.set_fun (@fefm.horace_sqw, {[50 0 2 10 0.1], cpars{:}});
+
+    %kk = kk.set_pin ({[250 0 2.4 10 5],fefm}); %input parameters
+    kk = kk.set_free ([1 0 1 0 1]); %fitting parameters 1,3 and 5
+
+    kk = kk.set_bfun (@constant_background); % set_bfun sets the background functions
+    kk = kk.set_bpin (0.05);   % initial background constant
+    kk = kk.set_bfree (1);    % fix the background
+    kk = kk.set_options('fit_control_parameters',[0.001 30 0.001],'listing',2);    
+    ssw = kk.simulate();
+    [wfit_sw fitdata_sw]=kk.fit();
+
+catch ME
+    warning(ME.identifier,'Problem with spinw: %s',ME.message);
 end
 
 %% Symmetrising, and some other bits and bobs
@@ -176,7 +214,17 @@ plot(wsym)
 wadd=cc2a+27;
 plot(wadd);%notice the changed limits of the colour scale!
 
-
+% if all above is successful, remove generated nxspe files sample
+% sqw file to clean-up and do not leave results of the this script
+% operations.
+for i=1:numel(spe_file)
+    if isfile(spe_file{i})
+        delete(spe_file{i});
+    end
+end
+if isfile(sqw_file)
+    delete(sqw_file);
+end
 
 %There is much much more in the Horace online manual:
 
@@ -186,10 +234,3 @@ plot(wadd);%notice the changed limits of the colour scale!
 
 %Also, to get inline info about a particular function, type in Matlab
 %>> help <function_name>
-
-
-
-
-
-
-
