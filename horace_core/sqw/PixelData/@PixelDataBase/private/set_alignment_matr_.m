@@ -27,7 +27,7 @@ if isempty(val)
         alignment_changed = false;
     end
     obj.alignment_matr_ = eye(3);
-    obj.is_misaligned_  = false;
+    obj.is_realigned_   = false;
     return;
 end
 if ~isnumeric(val)
@@ -45,7 +45,12 @@ difr = val - prev_matr;
 if max(abs(difr(:))) > 1.e-8
     alignment_changed   = true;
     obj.alignment_matr_ = val;
-    obj.is_misaligned_  = true;
+    mal_value = val-eye(3);
+    if any(abs(mal_value(:))>eps('single'))
+        obj.is_realigned_  = true;
+    else
+        obj.is_realigned_  = false;
+    end
     obj = pix_proc_function(obj,'q_coordinates');
 else
     alignment_changed = false;
