@@ -1,4 +1,4 @@
-function theta = rotmat_to_rotvec2 (rotmat, algorithm)
+function theta = rotmat_to_rotvec_rad (rotmat, algorithm)
 % Convert rotation matricies to rotation vectors
 %
 % The rotation matrix relates the components of a vector expressed in a
@@ -31,8 +31,8 @@ function theta = rotmat_to_rotvec2 (rotmat, algorithm)
 %               In this function the units are radians.
 %
 % Note:
-%   rotmat_to_rotvec    Rotation vector in degrees
-%   rotmat_to_rotvec2   Rotation vector in radians
+%   rotmat_to_rotvec       Rotation vector in degrees
+%   rotmat_to_rotvec_rad   Rotation vector in radians
 
 
 sz=size(rotmat);

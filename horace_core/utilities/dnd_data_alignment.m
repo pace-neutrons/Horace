@@ -26,7 +26,7 @@ end
 
 if any(abs(subdiag_elements(alignment_matrix))>4*eps('single'))
     % legacy files do not have correct aligned projection
-    rotvec = rotmat_to_rotvec2(alignment_matrix(1:3,1:3));
+    rotvec = rotmat_to_rotvec_rad(alignment_matrix(1:3,1:3));
     al_info = crystal_alignment_info(dnd_obj.alatt,dnd_obj.angdeg,rotvec);
     if nargout>1
         dnd_obj = dnd_obj.change_crystal(al_info);

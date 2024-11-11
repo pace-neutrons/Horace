@@ -1,5 +1,5 @@
-function theta = rotmat_to_rotvec (rotmat, algorithm)
-% Convert rotation matricies to rotation vectors
+function theta = rotmat_to_rotvec (rotmat, varargin)
+% Convert rotation matrices to rotation vectors
 %
 % The rotation matrix relates the components of a vector expressed in a
 % coordinate frame S to those in a frame S' by v'(i) = R(i,j) v(j).
@@ -9,11 +9,11 @@ function theta = rotmat_to_rotvec (rotmat, algorithm)
 %
 % Input:
 % ------
-%   rotmat      Rotation matricies: 3x3 (siugle matrix) or 3 x 3 x m array
+%   rotmat      Rotation matrices: 3x3 (siugle matrix) or 3 x 3 x m array
 %               Relates the components of a vector v expressed in the two
 %              coordinate frames by:
 %                   v'(i) = R(i,j) v(j)
-%
+%Optional:
 %   algorithm   Method for algorithm
 %                 =0  Fast method due to T.G.Perring (default)
 %                 =1  Generic method based on matrix exponentiation
@@ -31,12 +31,9 @@ function theta = rotmat_to_rotvec (rotmat, algorithm)
 %               In this function the units are degrees.
 %
 % Note:
-%   rotmat_to_rotvec    Rotation vector in degrees
-%   rotmat_to_rotvec2   Rotation vector in radians
+%   rotmat_to_rotvec       Rotation vector in degrees
+%   rotmat_to_rotvec_rad   Rotation vector in radians
 
-if nargin==1
-    theta = rotmat_to_rotvec2 (rotmat);
-else
-    theta = rotmat_to_rotvec2 (rotmat, algorithm);
-end
-theta=theta*(180/pi);   % convert to degrees
+theta = rotmat_to_rotvec_rad (rotmat, varargin{:});
+theta = rad2deg(theta);  % convert to degrees
+

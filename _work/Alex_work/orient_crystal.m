@@ -27,7 +27,7 @@ function [rlu_corr,alatt,angdeg,rotmat] = orient_crystal(rlu_index,rlu_real,rlu_
 %                  together with crystal orientation
 %   fix_orient      Fix the crystal orientation i.e. only refine lattice parameters
 %
-% Finer control of refoinement of lattice parameters: instead of fix_lattice, fix_angdeg,... use
+% Finer control of refinement of lattice parameters: instead of fix_lattice, fix_angdeg,... use
 %   free_alatt      Array length 3 of zeros or ones, 1=free, 0=fixed
 %                  e.g. ...,'free_alatt',[1,0,1],... allows only lattice parameter b to vary
 %   free_angdeg     Array length 3 of zeros or ones, 1=free, 0=fixed
@@ -123,15 +123,15 @@ r_k = (B*rlu_real');
 Tphi = build_othro_sets(r_k,valid);
 
 Ulist = cellfun(@(tf,tc)(tf*tc'),Tphi,Tc,'UniformOutput',false);
-rotvec_list =cellfun(@rotmat_to_rotvec2,Ulist,'UniformOutput',false); 
+rotvec_list =cellfun(@rotmat_to_rotvec_rad,Ulist,'UniformOutput',false); 
 
 rotvec = reshape([rotvec_list{:}],3,numel(rotvec_list));
 rotvec_ave = sum(rotvec,2)/numel(rotvec_list);
-rot_mat=rotvec_to_rotmat2(rotvec_ave);
+rot_mat=rotvec_to_rotmat_rad(rotvec_ave);
 
 
 function [ortho,valid] = build_othro_sets(vectors,varargin)
-% Build orthonormal sets based on all non-parrallel pairs of input vectors
+% Build orthonormal sets based on all non-parallel pairs of input vectors
 %
 n_vectors = size(vectors,2);
 vec_ind = 1:n_vectors;

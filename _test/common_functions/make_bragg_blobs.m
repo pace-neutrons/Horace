@@ -41,7 +41,7 @@ amp=p(1);
 qsig=p(2)/sqrt(log(256));
 esig=p(3)/sqrt(log(256));
 
-% Conversion matrix to turn h,k,l into correponding values for the lattice defined by parameters
+% Conversion matrix to turn h,k,l into corresponding values for the lattice defined by parameters
 % -------------------------------------------------------------------------------------
 % b0 is the matrix to convert rlu in the reference lattice to crystal Cartesian coords
 [b0,arlu,angrlu] = bmatrix(lattice0(1:3),lattice0(4:6));
@@ -54,7 +54,7 @@ else
 end
 
 if exist('rotvec','var')
-    R=rotvec_to_rotmat2(rotvec');
+    R=rotvec_to_rotmat_rad(rotvec');
 else
     R=eye(3);
 end

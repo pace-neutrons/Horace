@@ -26,7 +26,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             assertTrue(test_sqw.is_filebacked);
             assertEqual(size(test_sqw.pix.data,2),500);
 
-            al_matr = rotvec_to_rotmat2([0, 0, pi/4]);
+            al_matr = rotvec_to_rotmat_rad([0, 0, pi/4]);
             % you should not do that with real sqw, as this invalidates
             % pix-image correspondence. But fine for this test.
             test_sqw.pix.alignment_matr = al_matr;
@@ -70,7 +70,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             pdm = PixelDataFileBacked(pix_data);
             assertEqualToTol(pix_data(:, 1:10), pdm.data, 'tol', 1e-6)
 
-            al_matr = rotvec_to_rotmat2([0, 0, pi/4]);
+            al_matr = rotvec_to_rotmat_rad([0, 0, pi/4]);
             pdm.alignment_matr = al_matr;
             assertTrue(pdm.is_misaligned);
 
@@ -114,7 +114,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             pdm = PixelDataMemory(pix_data);
 
-            al_matr = rotvec_to_rotmat2([0, pi/4, pi/4]);
+            al_matr = rotvec_to_rotmat_rad([0, pi/4, pi/4]);
 
             pdm.alignment_matr = al_matr;
             assertFalse(pdm.is_misaligned);
@@ -138,7 +138,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             pdm = PixelDataFileBacked(pix_data);
 
-            al_matr = rotvec_to_rotmat2([0, 0, pi/4]);
+            al_matr = rotvec_to_rotmat_rad([0, 0, pi/4]);
             pdm.alignment_matr = al_matr ;
 
             ref_data = al_matr*pix_data(1:3, :);
@@ -162,7 +162,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             initial_range = pdf.data_range;
 
 
-            al_matr = rotvec_to_rotmat2([pi/4, 0, 0]);
+            al_matr = rotvec_to_rotmat_rad([pi/4, 0, 0]);
             % this actually changes pixel_data_range, as actual pixel
             % coordinate change
             pdf.alignment_matr = al_matr ;
@@ -193,7 +193,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             pdm = PixelDataMemory(pix_data);
 
-            al_matr = rotvec_to_rotmat2([0, 0, pi/4]);
+            al_matr = rotvec_to_rotmat_rad([0, 0, pi/4]);
             pdm.alignment_matr = al_matr ;
 
             ref_data = al_matr*pix_data(1:3, :);
@@ -216,7 +216,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             initial_range = pdm.data_range;
 
-            al_matr = rotvec_to_rotmat2([pi/4, 0, 0]);
+            al_matr = rotvec_to_rotmat_rad([pi/4, 0, 0]);
             % this actually changes pixel_data_range, as actual pixel
             % coordinate change
             pdm.alignment_matr = al_matr;

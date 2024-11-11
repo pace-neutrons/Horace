@@ -54,7 +54,7 @@ if ~targ_obj.pix.is_misaligned && targ_obj.pix.is_range_valid
     return;
 end
 rotmat  = targ_obj.pix.alignment_matr;
-rotvec  = rotmat_to_rotvec2(rotmat');
+rotvec  = rotmat_to_rotvec_rad(rotmat');
 alatt   = targ_obj.data.proj.alatt;
 angdeg  = targ_obj.data.proj.angdeg;
 al_info = crystal_alignment_info(alatt,angdeg,rotvec);
