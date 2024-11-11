@@ -10,7 +10,7 @@ classdef crystal_alignment_info < serializable
     % describe modified lattice and 3-element rotvect, which defines
     % 3-D rotations (rotation matrix) necessary to align the crystal.
     %
-    % It also contans and may be set using the following class
+    % It also contains and may be set using the following class
     % properties:
     %
     %   alatt           Refined lattice parameters [a,b,c] (Angstroms)
@@ -53,22 +53,21 @@ classdef crystal_alignment_info < serializable
 
         % True or false specifies if one wants to get corrections for image
         % or for pixel, where if true changes involve B-matrix together with
-        % U matrix, wehere false retunrs only corrections to U-matrix
+        % U matrix, where false returns only corrections to U-matrix
         hkl_mode;
 
     end
     properties(Dependent, Hidden)
-        legacy_mode % == hkl_mode; legacy corrections were perfomed in hkl
+        legacy_mode % == hkl_mode; legacy corrections were performed in hkl
         % mode only
     end
     properties(Access = protected)
         alatt_  = [2*pi,2*pi,2*pi]  % Refined lattice parameters [a,b,c] (Angstroms)
         angdeg_ = [90,90,90]; % Refined lattice angles [alf,bet,gam] (degrees)
-        rotmat_ = eye(3) % Rotation matrix that relates crystal Cartesian coordinate
 
         distance_ = [];% Distances between peak positions and points given by true indexes, in input
         %          argument rlu, in the refined crystal lattice. (Ang^-1)
-        rotvec_ =  zeros(3,1)% Angle of rotation corresponding to rotmat
+        rotvec_ =  zeros(1,3)% Angle of rotation corresponding to rotmat
         %          (to give a measure of the misorientation) (radia)
         hkl_mode_ = false;
     end
@@ -114,7 +113,7 @@ classdef crystal_alignment_info < serializable
             ang = obj.angdeg_;
         end
         function rotmat = get.rotmat(obj)
-            rotmat=rotvec_to_rotmat2(obj.rotvec_);
+            rotmat=rotvec_to_rotmat_rad(obj.rotvec_(:));
         end
         function dist = get.distance(obj)
             dist = obj.distance_;
@@ -166,6 +165,23 @@ classdef crystal_alignment_info < serializable
 
             end
             obj.rotvec_= val(:)';
+        end
+        function obj = set.rotmat(obj,val)
+            if ~isnumeric(val) || any(size(val) ~= 3)
+                error('HORACE:crystal_alignment_info:invalid_argument', ...
+                    'rotmat must be 3x3-martix defining the orientation matrix. It is: %s',...
+                    disp2str(val));
+
+            end
+            trc = val*val'-eye(3);
+            if any(abs(trc(:))>eps("single"))
+                error('HORACE:crystal_alignment_info:invalid_argument',[...                
+                    'rotmat have to be 3x3 rotation matrix.\n' ...
+                    'In fact it is non-orthogonal as R*R"-I=%s\n which differs from zero(3,3)'],...
+                disp2str(trc));
+            end
+            rv = rotmat_to_rotvec_rad(val);
+            obj.rotvec_ = rv(:)';
         end
         %
         function mode = get.hkl_mode(obj)
