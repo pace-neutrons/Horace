@@ -3,20 +3,20 @@ function  obj = set_alignment_matr_(obj,val)
 %
 if isempty(val)
     obj.alignment_matr_ = eye(3);
-    if obj.is_misaligned_
+    if obj.is_realigned_
         % nullify pixel range as it is invalid any more
         obj.data_range_(:,1:3) = PixelDataBase.EMPTY_RANGE_();
     end
-    obj.is_misaligned_  = false;
+    obj.is_realigned_  = false;
     return;
 end
 if ~isnumeric(val)
-    error('HORACE:PixelDataBase:invalid_argument', ...
+    error('HORACE:pix_metadata:invalid_argument', ...
         'Alignment matrix must be 3x3 numeric matrix. Attempt to set value of class: %s', ...
         class(val));
 end
 if any(size(val) ~= [3,3])
-    error('HORACE:PixelDataBase:invalid_argument', ...
+    error('HORACE:pix_metadata:invalid_argument', ...
         'Alignment matrix must be 3x3 matrix. Attempt to set the matrix of size: %s', ...
         mat2str(val))
 end
@@ -24,8 +24,8 @@ end
 difr = val - eye(3);
 if max(abs(difr(:))) > 1.e-8
     obj.alignment_matr_ = val;
-    obj.is_misaligned_ = true;
+    obj.is_realigned_   = true;
 else
     obj.alignment_matr_ = eye(3);
-    obj.is_misaligned_ = false;
+    obj.is_realigned_   = false;
 end

@@ -13,7 +13,7 @@ function pix_out = pack_get_pix_result_(obj,pix_data,ignore_range,raw_data,keep_
 % align        -- if true and data are misaligned, apply
 %                 alignment matrix and dealign the data
 %
-misaligned = obj.is_misaligned;
+misaligned = obj.is_realigned;
 
 if align && misaligned
     pix_data(1:3,:) = obj.alignment_matr*pix_data(1:3,:);

@@ -34,7 +34,7 @@ end
 
 pix_op = pix_op.init(obj);
 % Re #1319 -- to be implemented
-% if ~obj.pix.is_misaligned
+% if ~obj.pix.is_realigned
 %     pix_op.inplace = true;
 % end
 

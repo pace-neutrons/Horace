@@ -11,7 +11,7 @@ if nargin<2
     outfile = '';
 end
 targ_obj = copy(obj);
-if ~targ_obj.is_misaligned && targ_obj.is_range_valid
+if ~targ_obj.is_realigned && targ_obj.is_range_valid
     return;
 end
 

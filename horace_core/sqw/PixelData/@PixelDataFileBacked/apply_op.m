@@ -34,7 +34,7 @@ if issue_range_warning
     if ~is_range_valid
         if isempty(page_op.outfile) && n_chunks>fbs && ll>0
             original_file  = obj_in.full_filename;
-            was_misaligned = obj_in.pix.is_misaligned;
+            was_misaligned = obj_in.pix.is_realigned;
             issue_range_warning = true;
         else
             issue_range_warning = false;

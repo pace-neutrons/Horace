@@ -78,7 +78,7 @@ if ~(isa(input_obj,'MultipixBase') || (~isnumeric(input_obj) && input_obj.is_fil
     return;
 end
 metadata = input_obj.metadata;
-if metadata.is_misaligned
+if metadata.is_realigned
     % Data will be written aligned so metadata should also state that
     % data are aligned. metadata can not grow here, as it will try to place
     % them behind pixels which have not been written yet. And they should

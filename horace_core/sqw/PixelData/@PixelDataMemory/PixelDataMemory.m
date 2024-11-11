@@ -261,7 +261,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
             if alignment_changed % we changed matrix, aligned pixels and
                 %  returned them back. now pixels are aligned
                 obj.alignment_matr_ = eye(3);
-                obj.is_misaligned_  = false;
+                obj.is_realigned_  = false;
             end
         end
         function num_pix = get_num_pixels(obj)
@@ -283,8 +283,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
 
             % setting data property value removes misalignment. We do not
             % consciously set misaligned data
-            if obj.is_misaligned_
-                obj.is_misaligned_ = false;
+            if obj.is_realigned_
+                obj.is_realigned_ = false;
                 obj.alignment_matr_= eye(3);
             end
             obj=obj.calc_page_range(fld);
@@ -293,7 +293,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataMemory  < P
         function data  = get_data(obj,varargin)
             % main part of data getter
             data = obj.data_;
-            if obj.is_misaligned_
+            if obj.is_realigned_
                 pix_coord = obj.alignment_matr_*data(1:3,:);
                 data(1:3,:) = pix_coord;
             end
