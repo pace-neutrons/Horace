@@ -272,36 +272,96 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertEqualToTol(cut_cor, cut_al, 4*eps('single'), 'ignore_str', true);
         end
         %------------------------------------------------------------------
+        %------------------------------------------------------------------
+        function test_alignment_is_additive_on_file(obj)
+            % Prepare test data
+            corr  = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250], [-0.0530 0.0519 0.0345]);
+            corr05 = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250], 0.5*[-0.0530 0.0519 0.0345]);
+
+            test_file_fb = build_tmp_file_name(obj.misaligned_sqw_file);
+            copyfile(obj.misaligned_sqw_file, test_file_fb, 'f');
+            test_file_05 = build_tmp_file_name(obj.misaligned_sqw_file);
+            copyfile(obj.misaligned_sqw_file, test_file_05, 'f');
+
+            % create test objects and ensure clean-up after test completeon
+            test_fb = sqw(test_file_fb,'file_backed',true);
+            assertTrue(test_fb.is_filebacked, ...
+                'This test validates filebacked operations but the object test_fb placed in memory')
+            test_fb = test_fb.set_as_tmp_obj();
+            assertTrue(test_fb.is_tmp_obj)
+
+            test_05 = sqw(test_file_05,'file_backed',true);
+            assertTrue(test_05.is_filebacked, ...
+                'This test validates filebacked operations but the object test_05 placed in memory')
+            test_05 = test_05.set_as_tmp_obj();
+            assertTrue(test_05.is_tmp_obj)
+
+            % TEST:
+            % apply alignment
+            test_fb_ref = change_crystal(test_fb, corr);
+
+            % apply half-alignment twice
+            test_05  = change_crystal(test_05, corr05);
+            test_05  = change_crystal(test_05, corr05);
+
+            % check:
+            assertEqualToTol(test_05,test_fb_ref,'tol',[1.e-12,1.e-12]);
+        end
+
+        function test_alignment_is_additive_in_memory(obj)
+            % Prepare test data
+            corr  = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250], [-0.0530 0.0519 0.0345]);
+            corr05 = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250], 0.5*[-0.0530 0.0519 0.0345]);
+
+
+            test_mb = read_sqw(obj.misaligned_sqw_file);
+            if test_mb.is_filebacked
+                skipTest('Test validates memory based operations but memory is insufficient to put test object in memory')
+            end
+            % apply alignment
+            test_mb_ref = change_crystal(test_mb, corr);
+
+            % apply half-alignment twice
+            test_mb_05  = change_crystal(test_mb, corr05);
+            test_mb     = change_crystal(test_mb_05, corr05);
+
+            assertEqualToTol(test_mb,test_mb_ref,'tol',[1.e-12,1.e-12]);
+        end
+
         function test_revert_alignment_works_in_memory(obj)
             % Prepare test data
             corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
                 [90.1793 90.9652 89.9250], [-0.0530 0.0519 0.0345]);
 
-            test_fb = read_sqw(obj.misaligned_sqw_file);
-            if test_fb.is_filebacked
+            test_mb = read_sqw(obj.misaligned_sqw_file);
+            if test_mb.is_filebacked
                 skipTest('Test validates memory based operations but memory is insufficient to put test object in memory')
             end
 
-            alatt0 = test_fb.data.alatt;
-            angdeg0 = test_fb.data.angdeg;
+            alatt0 = test_mb.data.alatt;
+            angdeg0 = test_mb.data.angdeg;
 
             % apply alignment
-            test_fb = change_crystal(test_fb, corrections);
+            test_mb = change_crystal(test_mb, corrections);
 
             rev_corr = corrections;
             rev_corr.alatt  = alatt0;
             rev_corr.angdeg = angdeg0;
             rev_corr.rotmat = corrections.rotmat';
             % revert alignment
-            test_fb = change_crystal(test_fb, rev_corr);
+            test_mb = change_crystal(test_mb, rev_corr);
 
             % check alignment reverted
             % This just means that alignment matric is removed from pixels
             % nothing to do with physical alignment
-            assertFalse(test_fb.pix.is_corrected);
+            assertFalse(test_mb.pix.is_corrected);
             ref_sqw = sqw(obj.misaligned_sqw_file);
 
-            assertEqualToTol(test_fb,ref_sqw,'tol',[1.e-9,1.e-9]);
+            assertEqualToTol(test_mb,ref_sqw,'tol',[1.e-9,1.e-9]);
         end
 
         function test_revert_alignment_works_on_fb(obj)
