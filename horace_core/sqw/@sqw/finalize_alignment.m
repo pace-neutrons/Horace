@@ -16,7 +16,7 @@ if nargin<2
 end
 targ_obj = copy(obj);
 %
-if ~targ_obj.pix.is_misaligned && targ_obj.pix.is_range_valid
+if ~targ_obj.pix.is_corrected && targ_obj.pix.is_range_valid
     if ~isempty(outfile)
         fp = fileparts(outfile);
         if isempty(fp)

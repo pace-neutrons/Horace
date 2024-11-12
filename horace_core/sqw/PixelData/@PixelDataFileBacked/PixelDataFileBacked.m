@@ -441,13 +441,13 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
                 page_number = 1;
             end
             data =  obj.get_raw_data(page_number);
-            if obj.is_misaligned_
+            if obj.is_corrected_
                 data(1:3,:) = obj.alignment_matr_*data(1:3,:);
             end
         end
         %------------------------------------------------------------------
         function obj = set_alignment_matrix(obj,val)
-            % set non-unary alignment martix and invalidate pixel averages
+            % set non-unary alignment matrix and invalidate pixel averages
             % if alignment changes
             obj = obj.set_alignment(val,@invalidate_range);
         end

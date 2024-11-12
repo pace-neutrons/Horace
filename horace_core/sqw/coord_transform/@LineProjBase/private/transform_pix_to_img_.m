@@ -12,7 +12,7 @@ function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
 %
 
 if isa(pix_input,'PixelDataBase')
-    if pix_input.is_misaligned
+    if pix_input.is_corrected
         pix_cc = pix_input.get_raw_data('q_coordinates');
     else
         pix_cc = pix_input.q_coordinates;

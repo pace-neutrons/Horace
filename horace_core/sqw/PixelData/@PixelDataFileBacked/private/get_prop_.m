@@ -16,7 +16,7 @@ if isempty(obj.f_accessor_)|| ...
     prp = zeros(obj.get_field_count(fld), 0);
 else
     idx = obj.FIELD_INDEX_MAP_(fld);
-    if obj.is_misaligned_ && any(idx<4)
+    if obj.is_corrected_ && any(idx<4)
         acc_idx = unique([1:3,idx]);
         data = double(obj.f_accessor_.Data.data(acc_idx, ...
             pix_idx_start:pix_idx_end));

@@ -110,14 +110,14 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             proj.u=obj.u;
             proj.v=obj.v;
 
-            % theoretical bragg points positions
+            % theoretical Bragg points positions
             bragg_pos=[...
                 0, -1, 0; ...
                 1,  2, 0; ...
                 0, -1, 1];
 
             % the Bragg points positions found by fitting measured Bragg
-            % peaks shape to Gaussian and identifying the Gaussian centrepoints
+            % peaks shape to Gaussian and identifying the Gaussian centre-points
             % See test_u_alignment_tf_way for the procedure of obtaining
             % them. The operation is:
             %[rlu_real, width, wcut, wpeak]=bragg_positions(obj.misaligned_sqw_file, ...
@@ -298,7 +298,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % check alignment reverted
             % This just means that alignment matric is removed from pixels
             % nothing to do with physical alignment
-            assertFalse(test_fb.pix.is_realigned);
+            assertFalse(test_fb.pix.is_corrected);
             ref_sqw = sqw(obj.misaligned_sqw_file);
 
             assertEqualToTol(test_fb,ref_sqw,'tol',[1.e-9,1.e-9]);
@@ -333,7 +333,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             test_fb.pix.pix_range = pix_range0;
 
             % check alignment reverted
-            assertFalse(test_fb.pix.is_realigned)
+            assertFalse(test_fb.pix.is_corrected)
             ref_sqw = sqw(obj.misaligned_sqw_file);
 
             assertEqualToTol(test_fb,ref_sqw,'tol',[1.e-9,1.e-9]);
@@ -423,7 +423,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             [test_fb_al, corr_rev_fb] = test_fb.finalize_alignment(targ_file);
 
             assertTrue(isa(corr_rev_fb,'crystal_alignment_info'))
-            assertFalse(test_fb_al.pix.is_realigned);
+            assertFalse(test_fb_al.pix.is_corrected);
 
             assertTrue(is_file(targ_file));
             assertTrue(test_fb.is_tmp_obj);

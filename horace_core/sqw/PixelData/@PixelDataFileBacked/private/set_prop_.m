@@ -14,10 +14,10 @@ indx = pix_idx_start:pix_idx_end;
 flds = obj.FIELD_INDEX_MAP_(fld);
 obj.f_accessor_.Data.data(flds, indx) = single(val);
 
- setting data property value removes realignment. We do not
-% consciously set data which need alignment. Pixels are aligned elsewhere.if obj.is_misaligned_
-if obj.is_misaligned_
-    obj.is_misaligned_ = false;
+% setting data property value removes realignment. We do not
+% consciously set data which need alignment. Pixels are aligned elsewhere.
+if obj.is_corrected_
+    obj.is_corrected_  = false;
     obj.alignment_matr_= eye(3);
 end
 %
