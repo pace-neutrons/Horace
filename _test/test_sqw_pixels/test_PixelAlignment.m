@@ -30,11 +30,11 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             % you should not do that with real sqw, as this invalidates
             % pix-image correspondence. But fine for this test.
             test_sqw.pix.alignment_matr = al_matr;
-            assertTrue(test_sqw.pix.is_realigned);
+            assertTrue(test_sqw.pix.is_misaligned);
 
             save(test_sqw,test_file_al);
             al_sqw = sqw(test_file_al,'file_backed',true);
-            assertFalse(al_sqw.pix.is_realigned);
+            assertFalse(al_sqw.pix.is_misaligned);
 
             ref_sqw.pix.alignment_matr = al_matr;
             assertEqualToTol(al_sqw,ref_sqw,4*eps('single'),'ignore_str',true,'-ignore_date');
@@ -47,7 +47,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             pdm = PixelDataFileBacked(pix_data);
             
-            assertFalse(pdm.is_realigned);
+            assertFalse(pdm.is_misaligned);
             assertTrue(pdm.is_range_valid);
 
             ref_range = pdm.data_range;
@@ -56,7 +56,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             pdm = pdm.finalize_alignment();
 
-            assertFalse(pdm.is_realigned);
+            assertFalse(pdm.is_misaligned);
             assertTrue(pdm.is_range_valid);
             assertElementsAlmostEqual(pdm.data_range, ref_range);
         end
@@ -72,7 +72,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             al_matr = rotvec_to_rotmat_rad([0, 0, pi/4]);
             pdm.alignment_matr = al_matr;
-            assertTrue(pdm.is_realigned);
+            assertTrue(pdm.is_misaligned);
 
             ref_data = pix_data;
             ref_data(1:3, :) = al_matr*pix_data(1:3, :);
@@ -86,7 +86,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             % equal with single precision as pixel filebacked are
             % stored with single precision.
             assertEqualToTol(pdm.data_range, ref_range,4*eps('single'));
-            assertFalse(pdm.is_realigned);
+            assertFalse(pdm.is_misaligned);
             assertEqualToTol(pdm, ref_pix, 'tol',4*eps('single'));
         end
 
@@ -94,7 +94,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             pix_data = rand(9, 10);
 
             pdm = PixelDataMemory(pix_data);
-            assertFalse(pdm.is_realigned);
+            assertFalse(pdm.is_misaligned);
             assertTrue(pdm.is_range_valid);
 
             ref_range = pdm.data_range;
@@ -103,7 +103,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             pdm = pdm.finalize_alignment();
 
-            assertFalse(pdm.is_realigned);
+            assertFalse(pdm.is_misaligned);
             assertTrue(pdm.is_range_valid);
             assertElementsAlmostEqual(pdm.data_range, ref_range);
         end
@@ -117,7 +117,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             al_matr = rotvec_to_rotmat_rad([0, pi/4, pi/4]);
 
             pdm.alignment_matr = al_matr;
-            assertFalse(pdm.is_realigned);
+            assertFalse(pdm.is_misaligned);
 
             ref_data = pix_data;
             ref_data(1:3, :) = al_matr*pix_data(1:3, :);
@@ -127,7 +127,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             pdm = pdm.finalize_alignment();
 
-            assertFalse(pdm.is_realigned);
+            assertFalse(pdm.is_misaligned);
             assertElementsAlmostEqual(pdm.data, ref_data);
             assertElementsAlmostEqual(pdm.data_range, ref_range);
         end
@@ -166,7 +166,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             % this actually changes pixel_data_range, as actual pixel
             % coordinate change
             pdf.alignment_matr = al_matr ;
-            assertTrue(pdf.is_realigned);
+            assertTrue(pdf.is_misaligned);
             assertFalse(pdf.is_range_valid)
 
             ref_al_data = al_matr*pix_data(1:3, :);
@@ -221,7 +221,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             % coordinate change
             pdm.alignment_matr = al_matr;
 
-            assertFalse(pdm.is_realigned);
+            assertFalse(pdm.is_misaligned);
 
             ref_al_data = al_matr*pix_data(1:3, :);
             ref_data = pix_data;

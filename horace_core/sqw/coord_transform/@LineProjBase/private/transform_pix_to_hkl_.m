@@ -16,7 +16,7 @@ if isa(pix_input,'PixelDataBase')
     pix_cc = pix_input.q_coordinates;
     ndim = 3;
     input_is_obj = true;
-    if pix_input.is_realigned
+    if pix_input.is_misaligned
         alignment_needed = true;
         alignment_mat = pix_input.alignment_matr;
     end
