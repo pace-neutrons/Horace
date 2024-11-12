@@ -12,10 +12,13 @@ When mounting your sample on a spectrometer, it can often be the case that it is
 It is straightforward to correct this misalignment, once enough data have been accumulated, by
 comparing the positions of Bragg peaks with what they are expected to be.
 
-Alignment correction is a two-step process:
+Alignment correction is a three-step process:
 
-1. First, the misalignment must be determined and checked.
-2. Then, the correction must be applied to the data.
+1. First, the misalignment must be determined from known theoretical diffraction patterns expected from the crystal and 
+   actual diffraction patterns measured in the experiment.
+2. Second, the corrections, which would bring actual diffraction patterns as close as possible to the actual patterns
+   should be identified.
+3. Then, the correction must be applied to the data.
 
 
 Step 1 - determining the true Bragg peak positions
@@ -118,8 +121,8 @@ The outputs are:
 
 
 
-Step 2 - check the Bragg positions fits worked properly
--------------------------------------------------------
+Check the Bragg positions fits worked properly
+------------------------------------------------
 
 You can make plots of the cuts and fits of your predicted Bragg peaks to check that the program has correctly fitted
 everything, using outputs from ``bragg_positions`` described above.
@@ -145,22 +148,22 @@ You will be prompted in the MATLAB command window as to which plot and fit you w
    fitting, etc.
 
 
-Step 3 - calculate the misalignment correction
-----------------------------------------------
+Step 2 - calculate the misalignment correction
+==============================================
 
 Using the outputs of ``bragg_positions``, you can determine a transformation to go from the original
 misaligned frame to the aligned frame.
 
 ::
 
-   alignment_info = refine_crystal(rlu_actual, alatt, angdeg, rlu_expected, <keyword options>);
+   alignment_info = refine_crystal(rlu_actual, alatt0, angdeg0, rlu_expected, <keyword options>);
 
 
 The inputs are:
 
 - ``rlu_actual``  - the an n-by-3 matrix of actual peak positions as in :math:`h,k,l` as indexed with the current lattice parameters
 
-- ``alatt, angdeg`` - the lattice parameters and angles used in the original (misaligned) sqw file.
+- ``alatt0, angdeg0`` - the lattice parameters and angles used in the original (misaligned) sqw file.
 
 - ``rlu_expected`` - the predicted (integer) Bragg peaks corresponding to ``bragg_expected``
 
@@ -193,38 +196,63 @@ The keyword options are:
 
 The output is an ``crystal_alignment_info`` object which contains all the relevant data for crystal realignment, namely
 the rotation matrix which aligns Crystal Cartesian frame into correct position and modified lattice parameters, if
-``refine_crystal`` modified them.
+``refine_crystal`` modified them. 
 
-Step 4 - apply the correction to the data
------------------------------------------
+At this stage is may be useful to inverse alignment transformation for the future usage:
 
-There are different to do this, for different circumstances:
+::
+    >>reverse_transf = crystal_alignment_info(alatt0,angdeg0);
+    >>reverse_transf.rotmat = alignment_info.rotmat';
 
-- When you have a completed scan and an existing ``sqw`` file:
+i.e. create crystal alignment info class with your initial lattice parameters and assign inverse rotation matrix defining rotation
+which is opposite to the rotation, necessary for corrections you will be applying to your data on the following step.
 
-  Apply the correction to an existing file
+Step 3 - apply the correction to the data
+==========================================
 
-- When you have a loaded ``sqw`` object:
+There are different ways to do this preferred in different circumstances. 
 
-  Apply the correction to the object. The object's lattice and pixels orientation will be modified 
-  to aligned values.
+1. Initially you want to be sure that you have selected correct Bragg peaks, 
+adding new peaks would not improve accuracy of your alignment and the resulting alignment is satisfactory.
+You want to get your results quickly and possibly experiment with them, modify them and get the results quickly. 
+In this case you apply correctios to existing ``sqw`` file or ``sqw`` object loaded in memory.
 
-- When you are still accumulating data (e.g. on the beamline):
+2. When you are satisfied with the result of alignment you may want to regenerate your ``sqw`` file after calculating goniometer
+offsets, which define actual crystal position. You have to to this step if you want to apply various symmetry 
+transformations to the whole ``sqw`` file during generation. 
 
-  Calculate what the goniometer offsets for regeneration
+Both ways result in sqw file identical from physical point of view. Minor differences occurs in the data, stored in an sqw file. 
+These differences are explained below.
+
 
 
 Option 1 : apply the correction to an existing sqw file
-=======================================================
+--------------------------------------------------------
 
-There is a simple routine to apply the changes to an existing file, without the need to regenerate it from raw data
+There is a simple and fast routine to apply the changes to an existing file, without the need to regenerate it from raw data. 
+The second form of this routine returns aligned  filebacked ``sqw`` object if pixels data are too big to be loaded in memory.
 
 ::
 
-   change_crystal(win, alignment_info)
+   >>change_crystal(win, alignment_info);
+   or 
+   >>wout = change_crystal(win, alignment_info);
 
-where ``alignment_info`` was determined in the steps described above. This procedure modifies lattice parameters and 
-the pixels will be aligned whenever they are loaded or manipulated (e.g. accessing pixel data, cutting, plotting, etc.).
+where ``win`` is misaligned ``sqw`` file or ``sqw`` object (second option only) and ``alignment_info`` was determined in the steps described above.
+This procedure modifies lattice parameters and adds alignment matrix to the pixels data. When ``change_crystal`` is used on ``sqw`` file, pixels themselves are not modified so the alignment procedure is very fast. Pixels will be aligned whenever they are loaded or manipulated (e.g. accessing pixel data, cutting, plotting, etc.). The pixels alignment is combined with other transformations, usually performed during pixels manipulations, so the speed of majority of such operations is not affected. The actual slow-down in operations with aligned file occurs when some advanced algorithms use pixels range (e.g. ``mask_pixels`` based on a range). Pixels range is invalidated when pixels are realigned, so such algorithms have to calculate this range. This may take substantial time. Majority of Horace users do not need to use such algorithms so may work with fast-realigned files without any noticeable hindrance.
+
+
+Repeat step 1 and 2 above and do couple of cuts to ensure your alignment is satisfactory. If you decided to modify your alignment procedure in some way, e.g. adding or removing some Bragg peaks, it is better to start the procedure from fresh ``sqw`` file, which has not been aligned before. Here your stored 
+on step 2 ``reverse_transf`` object becomes useful. Apply:
+
+::
+
+   >>change_crystal(win, reverse_transf);
+   or 
+   >>wout = change_crystal(wout, reverse_transf);
+
+to remove alignment, previously applied to ``sqw`` object or file. 
+
 
 Once you have confirmed that the alignment you have is the correct one, it is possible to fix the alignment to avoid this calculation step.
 
@@ -258,7 +286,7 @@ Where:
    generation is currently possible for ``sqw`` files generation but not yet implemented for ``finalize_alignment``.
 
 Option 2 : calculate goniometer offsets for regeneration of sqw file(s)
-=======================================================================
+-----------------------------------------------------------------------
 
 In this case there is a single routine to calculate the new goniometer offsets, that can then be used in future sqw file generation.
 
@@ -310,7 +338,7 @@ The outputs are:
 
 
 Option 2a (for use with e.g. Mslice): calculate the true u and v for your misaligned crystal
-============================================================================================
+---------------------------------------------------------------------------------------------
 
 Following option 2 above, you can recalculate the true ``u`` and ``v`` vectors with the following method:
 
@@ -339,7 +367,7 @@ The outputs are:
 
 
 List of alignment correction routines
--------------------------------------
+======================================
 
 Below we provide a brief summary of the routines available for different aspects of alignment corrections. For further information type
 
@@ -350,7 +378,7 @@ Below we provide a brief summary of the routines available for different aspects
 in the Matlab command window.
 
 bragg_positions
-===============
+----------------
 
 ::
 
@@ -360,7 +388,7 @@ bragg_positions
 Get actual Bragg peak positions, given initial estimates of their positions, from an sqw object or file
 
 bragg_positions_view
-====================
+---------------------
 
 ::
 
@@ -369,7 +397,7 @@ bragg_positions_view
 View the output of fitting to Bragg peaks performed by ``bragg_positions``
 
 crystal_pars_correct
-====================
+---------------------
 
 ::
 
@@ -378,7 +406,7 @@ crystal_pars_correct
 Return correct lattice parameters and crystal orientation for gen_sqw from a matrix that corrects the r.l.u.
 
 refine_crystal
-==============
+---------------------
 
 ::
 
@@ -387,7 +415,7 @@ refine_crystal
 Refine crystal orientation and lattice parameters
 
 ubmatrix
-========
+---------------------
 
 ::
 
@@ -398,7 +426,7 @@ Calculate UB matrix that transforms components of a vector given in r.l.u. into 
 defined by the two vectors u and v (each given in r.l.u)
 
 uv_correct
-==========
+---------------------
 
 ::
 
@@ -408,7 +436,7 @@ uv_correct
 Calculate the correct u and v vectors for a misaligned crystal, for use e.g. with Mslice.
 
 rlu_corr_to_lattice
-===================
+---------------------
 
 ::
 
