@@ -1,5 +1,6 @@
 function [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in)
-% Take parameters and sqw object and realign the crystal, stripping parameters
+% Take parameters and sqw object and realign the crystal, stripping
+% alignment parameters
 %
 %   >> [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in)
 %
@@ -21,7 +22,7 @@ function [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in)
 %
 % Output:
 % -------
-%   wout        The sqw object with the crystal realigned accordiung to the 
+%   wout        The sqw object with the crystal realigned according to the 
 %              crystal refinement orientation
 %
 %   pars_out    Parameters stripped of crystal refinement parameters
@@ -34,10 +35,12 @@ alatt = pars_in(end-8:end-6);
 angdeg = pars_in(end-5:end-3);
 rotvec = pars_in(end-2:end);
 
-% Compute rotation matrix and new ub matrix
-rotmat = rotvec_to_rotmat2(rotvec);
-ub = ubmatrix(xtal.urot,xtal.vrot,bmatrix(alatt,angdeg));
-rlu_corr = ub\rotmat*xtal.ub0;
+% Compute rotation matrix and new ub matrix : unclear meaning of this code.
+% it seems the replacemant below 
+%rotmat = rotvec_to_rotmat2(rotvec);
+%ub = ubmatrix(xtal.urot,xtal.vrot,bmatrix(alatt,angdeg));
+%rlu_corr = ub\rotmat*xtal.ub0;
 
+corr = crystal_alignment_info(alatt,angdeg,rotvec);
 % Reorient workspace
-wout = change_crystal(win,rlu_corr);
+wout = change_crystal(win,corr);
