@@ -164,7 +164,7 @@ classdef rundatah < rundata
             if size(obj.S,1)+1 == numel(en)
                 en = 0.5*(en(1:end-1)+en(2:end));
             end
-            [qspec,en]=calc_qspec_(detdcn,obj.efix,en,obj.emode);
+            [qspec,en]=calc_qspec(detdcn,obj.efix,en,obj.emode);
         end
 
         function [pix_or_data_range,pix,obj] = calc_projections(obj,detdcn)
