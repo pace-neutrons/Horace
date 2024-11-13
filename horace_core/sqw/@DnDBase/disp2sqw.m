@@ -16,9 +16,13 @@ for i=1:numel(win)
     weight=reshape(...
         disp2sqw(q, en, dispreln, pars, fwhh), ...
         size(win(i).s));
-    if ~all_bins
+    if all_bins
+        if sum(win(i).npix(:)) == 0
+            wout(i).npix = 1;
+        end
+    else
         omit=(win(i).npix==0);
-        if any(omit), weight(omit)=0; end
+        if any(omit(:)), weight(omit)=0; end
     end
     wout(i).s = weight;
     wout(i).e = zeros(size(win(i).e));

@@ -1,8 +1,6 @@
 function y=demo_FM_spinwaves(qh,qk,ql,en,pars)
-%
 % Calculate the spectral weight from a Heisenberg ferromagnet for a Q-E slice
 % with nearest-neighbour interactions only.
-% Same model as in sqw_broad in Tobyfit.
 %
 % syntax:
 %   >> wout= sqw_eval(win,@demo_FM_spinwaves,[pars],options)
@@ -27,12 +25,16 @@ warning off
 js=pars(1); delta=pars(2);
 gam=pars(3); temp=pars(4); amp=pars(5);
 
-omega0 = delta + ...
-    (4*js)*((sin(pi.*qh)).^2 + (sin(pi.*qk)).^2 + (sin(pi.*ql)).^2);
+% Same model as in sqw_broad in Tobyfit.
+%omega0 = delta + ...
+%    (4*js)*((sin(pi.*qh)).^2 + (sin(pi.*qk)).^2 + (sin(pi.*ql)).^2);
+% 
+% Iron nearest neighbours model
+omega0 = delta + (8*js)*(1-cos(pi.*qh).*cos(pi.*qk).*cos(pi.*ql));
 
 Bose= en./ (1-exp(-11.602.*en./temp));%Bose factor from Tobyfit. 
 
-%Use damped SHO model to give intensity:
+%Use damped SHO model to give intensity (peak broadening):
 y = amp.* (Bose .* (4.*gam.*omega0)./(pi.*((en-omega0).^2 + 4.*(gam.*en).^2)));
 
 
