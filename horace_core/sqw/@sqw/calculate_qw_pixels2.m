@@ -27,14 +27,12 @@ if ~isscalar(win)
           'Only a single sqw object is valid - cannot take an array of sqw objects')
 end
 
-c = neutron_constants;
-k_to_e = c.c_k_to_emev;
+efix = win.experiment_info.get_efix();
+emode = win.experiment_info.get_emode();
+en = win.experiment_info.en;
+det_direction = win.experiment_info.detector_arrays.det_direction;
 
-% as column vectors
-idx = win.pix.all_indexes();
-irun = idx(1,:)';
-idet = idx(2,:)';
-ien = idx(3,:)';
+[qspec, en] = calc_qspec(det_direction, efix, en, emode);
 
 remap = containers.Map(unique(irun), 1:numel(win.header));
 irun = arrayfun(@(x) remap(x), irun);
@@ -45,11 +43,6 @@ else
     header = win.header;
 end
 
-emode = cellfun(@(x) x.emode, header);
-
-if ~all(emode==emode(1))
-    error('HORACE:calculate_qw_pixels2:invalid_argument', ...
-          'Contributing runs to an sqw object must be all be direct geometry or all indirect geometry')
 end
 
 emode = emode(1);
