@@ -4,8 +4,8 @@ function theta = rotmat_to_rotvec_rad (rotmat, algorithm)
 % The rotation matrix relates the components of a vector expressed in a
 % coordinate frame S to those in a frame S' by v'(i) = R(i,j) v(j).
 %
-%   >> theta = rotmat_to_rotvec2 (rotmat)
-%   >> theta = rotmat_to_rotvec2 (rotmat, algorithm)
+%   >> theta = rotmat_to_rotvec_rad(rotmat)
+%   >> theta = rotmat_to_rotvec_rad(rotmat, algorithm)
 %
 % Input:
 % ------
@@ -31,8 +31,8 @@ function theta = rotmat_to_rotvec_rad (rotmat, algorithm)
 %               In this function the units are radians.
 %
 % Note:
-%   rotmat_to_rotvec       Rotation vector in degrees
-%   rotmat_to_rotvec_rad   Rotation vector in radians
+%   rotmat_to_rotvec_rad   This function   -- Rotation vector in radians
+%   rotmat_to_rotvec       Sister function -- Rotation vector in degrees
 
 
 sz=size(rotmat);

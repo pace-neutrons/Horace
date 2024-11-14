@@ -768,7 +768,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
         function test_corrections_work_in_parallel(obj)
             % testing if multifit works when parallel_miltifit option is true
-            % At the momentm no parallel is invoked in refine_crystal,
+            % At the moment no parallel is invoked in refine_crystal,
             % but other choices are possible in a future.
 
             clOb = set_temporary_config_options('hpc_config','parallel_multifit',true);

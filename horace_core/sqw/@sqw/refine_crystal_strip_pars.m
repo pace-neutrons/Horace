@@ -36,7 +36,8 @@ angdeg = pars_in(end-5:end-3);
 rotvec = pars_in(end-2:end);
 
 % Compute rotation matrix and new ub matrix : unclear meaning of this code.
-% it seems the replacemant below 
+% it seems the replacemant below is sufficient unless additional crystal
+% rotation/correction is intended. TODO: should be resolved by Re #1772
 %rotmat = rotvec_to_rotmat2(rotvec);
 %ub = ubmatrix(xtal.urot,xtal.vrot,bmatrix(alatt,angdeg));
 %rlu_corr = ub\rotmat*xtal.ub0;

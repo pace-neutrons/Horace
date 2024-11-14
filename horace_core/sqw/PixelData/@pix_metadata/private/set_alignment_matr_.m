@@ -1,6 +1,7 @@
 function  obj = set_alignment_matr_(obj,val)
 %SET_ALIGNMENT_MATR_ helper property which checks and sets alignment matrix
-% if alignment matrix differs from unary matrix, it is stored in the class
+%
+% If alignment matrix differs from unit matrix, it is stored in the class
 % and property is_corrected is set to true.
 %
 %
