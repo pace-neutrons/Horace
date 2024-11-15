@@ -1,6 +1,9 @@
 classdef IX_inst < serializable
-    % Defines the base instrument class. This superclass must be
-    % inherited by all instrument classes to unsure that they are
+    % Defines the base instrument class containing properties common to
+    % all instruments.
+    %
+    % This superclass must be
+    % inherited by all instrument classes to ensure that they are
     % discoverable as instruments using isa(my_obj,'IX_inst')
 
     properties (Access=protected)

@@ -33,8 +33,8 @@ function rotmat = rotvec_to_rotmat (theta, varargin)
 %                   v'(i) = R(i,j) v(j)
 %
 % Note:
-%   rotvec_to_rotmat    Rotation vector in degrees
-%   rotvec_to_rotmat_rad   Rotation vector in radians
+%   rotvec_to_rotmat      this function  -- input rotation vector in degrees
+%   rotvec_to_rotmat_rad  sister function-- input rotation vector in radians
 
 theta=deg2rad(theta);   % convert to radians
 rotmat = rotvec_to_rotmat_rad(theta, varargin{:});

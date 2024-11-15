@@ -14,7 +14,7 @@ classdef test_crystal_alignment_info < TestCase
             obj = obj@TestCase(name);
 
         end
-
+        %------------------------------------------------------------------
         function test_set_rotvec_sets_rotmat(~)
 
             cal = crystal_alignment_info();
@@ -30,7 +30,6 @@ classdef test_crystal_alignment_info < TestCase
             assertElementsAlmostEqual(cal.rotvec,[pi/4,0,0]);
             assertElementsAlmostEqual(cal.rotmat,rm);
         end
-
         function test_set_rotmat_sets_rotvec(~)
             rotvec = [0,0,0];
 
@@ -47,7 +46,7 @@ classdef test_crystal_alignment_info < TestCase
             assertElementsAlmostEqual(cal.rotmat,rm)
             assertElementsAlmostEqual(cal.rotvec,[0,0,pi/4])
         end
-
+        %------------------------------------------------------------------
         function test_construction(~)
             alatt  = [1,2,3];
             angdeg = [70,80,110];
