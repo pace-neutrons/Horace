@@ -110,7 +110,7 @@ for i=1:numel(in_data)
             %
             if ~alignment_info.legacy_mode
                 pix_info = ld.get_pix_metadata();
-                pix_info.alignment_matr = alignment_info.rotmat;
+                pix_info.alignment_matr = pix_info.alignment_matr*alignment_info.rotmat;
                 ld = ld.put_pix_metadata(pix_info);
             end
         elseif sqw_only

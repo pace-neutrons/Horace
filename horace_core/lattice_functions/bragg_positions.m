@@ -56,13 +56,13 @@ function [rlu_actual,width,wcut,wpeak]=bragg_positions(w, rlu_expected,...
 %                  (radial cuts) and degrees (transverse cuts)
 %
 % Fitting:
-%   'outer'         Determine peak position from centre of peak half-height; find
+%   'outer'        Determine peak position from centre of peak half-height; find
 %                  peak width moving inwards from limits of data - useful if
 %                  there is known to be a single peak in the data as it is
 %                  more robust to too finely binned data.  [Default]
-%   'inner'         Determine peak position from centre of peak half height; find
+%   'inner'        Determine peak position from centre of peak half height; find
 %                  peak width moving outwards from peak maximum
-%   'gaussian'      Fit Gaussian on a linear background.
+%   'gaussian'     Fit Gaussian on a linear background.
 %
 %
 % Output:
@@ -139,7 +139,6 @@ peak_problem=false(size(rlu_expected));
 for i=1:size(rlu_expected,1)
     % Extract Q point through which to get three orthogonal cuts
     Qrlu = rlu_expected(i,:);
-    modQ=norm(proj.transform_hkl_to_pix(Qrlu(:)));   % length of Q vector in Ang^-1
 
     % Create proj for taking three orthogonal cuts
     %   - proj.u along Q, to get maximum resolution in d-spacing
@@ -171,6 +170,7 @@ for i=1:size(rlu_expected,1)
         bin_t=trans_bin_width;
         thick_t=trans_thickness;
     else
+        modQ=norm(proj.transform_hkl_to_pix(Qrlu(:)));   % length of Q vector in Ang^-1        
         len_r=radial_cut_length*modQ;
         bin_r=radial_bin_width*modQ;
         thick_r=radial_thickness*modQ;
