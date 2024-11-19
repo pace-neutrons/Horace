@@ -12,13 +12,39 @@ When mounting your sample on a spectrometer, it can often be the case that it is
 It is straightforward to correct this misalignment, once enough data have been accumulated, by
 comparing the positions of Bragg peaks with what they are expected to be.
 
-Alignment correction is a three-step process:
+.. _Core Alignment:
+
+Alignment correction is based on a three-step process:
 
 1. First, the misalignment must be determined from known theoretical diffraction patterns expected from the crystal and 
    actual diffraction patterns measured in the experiment.
 2. Second, the corrections, which would bring actual diffraction patterns as close as possible to the actual patterns
    should be identified.
 3. Then, the correction must be applied to the data.
+
+In practice, these steps usually applied iteratively. Namely:
+
+.. _StepA:
+
+A. Evaluate actual diffraction pattern taking number of cuts and slices in different directions. The directions should cover
+   whole 3D Q-space. Select actual diffraction patterns which demonstrate misalignment best and are least affected by experimental
+   inefficiencies (e.g. edges of detectors covered areas, twinning reflections, can reflections etc...)
+
+.. _StepB:
+
+B. Perform :ref:`three-step process<Core Alignment>` above using actual diffraction patterns, identified at :ref:`Step A<StepA>`.
+
+.. _StepC:
+
+C. Evaluate result of alignment observing modified diffraction patterns.
+
+.. _StepD:
+
+D. Revert alignment corrections and go to :ref:`Step A<StepA>` with modified actual diffraction patterns. Finish when sure that selected 
+   representative diffraction patters and resulting alignment looks correct and not affected by selections of slightly
+   different set of representative diffraction patters.
+
+Lets consider all these steps in more details. 
 
 
 Step 1 - determining the true Bragg peak positions
@@ -147,6 +173,7 @@ You will be prompted in the MATLAB command window as to which plot and fit you w
    detectors so the cuts are poorly defined), the Bragg peaks may have strange shapes which can confuse the automatic
    fitting, etc.
 
+.. _Step_2_misalignment_correction:
 
 Step 2 - calculate the misalignment correction
 ==============================================
@@ -198,9 +225,11 @@ The output is an ``crystal_alignment_info`` object which contains all the releva
 the rotation matrix which aligns Crystal Cartesian frame into correct position and modified lattice parameters, if
 ``refine_crystal`` modified them. 
 
-At this stage is may be useful to inverse alignment transformation for the future usage:
+At this stage would be useful to store inverse alignment transformation to be able to perform :ref:`step D<StepD>` without the need to regenerate
+your sqw object from the initial misaligned results of the experiment:
 
 ::
+
     >>reverse_transf = crystal_alignment_info(alatt0,angdeg0);
     >>reverse_transf.rotmat = alignment_info.rotmat';
 
@@ -214,23 +243,26 @@ There are different ways to do this preferred in different circumstances.
 
 1. Initially you want to be sure that you have selected correct Bragg peaks, 
 adding new peaks would not improve accuracy of your alignment and the resulting alignment is satisfactory.
+In other words, you are following :ref:`the iterative process<StepA>` above.
 You want to get your results quickly and possibly experiment with them, modify them and get the results quickly. 
 In this case you apply correctios to existing ``sqw`` file or ``sqw`` object loaded in memory.
 
 2. When you are satisfied with the result of alignment you may want to regenerate your ``sqw`` file after calculating goniometer
 offsets, which define actual crystal position. You have to to this step if you want to apply various symmetry 
-transformations to the whole ``sqw`` file during generation. 
+transformations to the whole ``sqw`` file during generation. Alternatively, you may want to "freeze" alignment corrections
+applied 
 
 Both ways result in sqw file identical from physical point of view. Minor differences occurs in the data, stored in an sqw file. 
 These differences are explained below.
 
 
 
-Option 1 : apply the correction to an existing sqw file
---------------------------------------------------------
+Option 1 : apply the correction to an existing sqw file or object
+-----------------------------------------------------------------
 
 There is a simple and fast routine to apply the changes to an existing file, without the need to regenerate it from raw data. 
-The second form of this routine returns aligned  filebacked ``sqw`` object if pixels data are too big to be loaded in memory.
+The second form of this routine returns aligned ``sqw`` object. The object is filebacked if pixels data are too big to be loaded in memory.
+The second form is mandatory if you are applying alignment to ``sqw`` object in memory.
 
 ::
 
@@ -238,12 +270,11 @@ The second form of this routine returns aligned  filebacked ``sqw`` object if pi
    or 
    >>wout = change_crystal(win, alignment_info);
 
-where ``win`` is misaligned ``sqw`` file or ``sqw`` object (second option only) and ``alignment_info`` was determined in the steps described above.
+where ``win`` is misaligned ``sqw`` file or ``sqw`` object and ``alignment_info`` was determined on the :ref:`Step 2<Step_2_misalignment_correction>` described above.
+
 This procedure modifies lattice parameters and adds alignment matrix to the pixels data. When ``change_crystal`` is used on ``sqw`` file, pixels themselves are not modified so the alignment procedure is very fast. Pixels will be aligned whenever they are loaded or manipulated (e.g. accessing pixel data, cutting, plotting, etc.). The pixels alignment is combined with other transformations, usually performed during pixels manipulations, so the speed of majority of such operations is not affected. The actual slow-down in operations with aligned file occurs when some advanced algorithms use pixels range (e.g. ``mask_pixels`` based on a range). Pixels range is invalidated when pixels are realigned, so such algorithms have to calculate this range. This may take substantial time. Majority of Horace users do not need to use such algorithms so may work with fast-realigned files without any noticeable hindrance.
 
-
-Repeat step 1 and 2 above and do couple of cuts to ensure your alignment is satisfactory. If you decided to modify your alignment procedure in some way, e.g. adding or removing some Bragg peaks, it is better to start the procedure from fresh ``sqw`` file, which has not been aligned before. Here your stored 
-on step 2 ``reverse_transf`` object becomes useful. Apply:
+If you are following :ref:`iterative process<StepA>` above, after validating your alignment revert your alignment at :ref:`Step D <StepD>` applying:
 
 ::
 
@@ -251,20 +282,30 @@ on step 2 ``reverse_transf`` object becomes useful. Apply:
    or 
    >>wout = change_crystal(wout, reverse_transf);
 
-to remove alignment, previously applied to ``sqw`` object or file. 
 
+If you performed multiple alignment and ``change_crystal`` operations on filebacked object without reverting them, you may recover resulting reverse (or direct) transformation from filebacked object's pixels alignment matrix:
 
-Once you have confirmed that the alignment you have is the correct one, it is possible to fix the alignment to avoid this calculation step.
+::
 
-This is done through the ``finalize_alignment`` function:
+    >>reverse_transf = crystal_alignment_info(alatt0,angdeg0);
+    >>reverse_transf.rotmat = wout.pix.alignment_matr';
+
+This is possible because resulting alignment (and de-alignment) matrix is the result of multiplication of sequence of rotation operations.
+
+There are no possibility to retrieve lost initial lattice parameters ``alatt0``; ``angdeg0`` from any ``sqw`` object and alignment matrix from memory based aligned ``sqw`` object.
+This is why it is recommended to revert the alignment first each time you want to realign your ``sqw`` object. It is not the critical recommendation, as you can always rebuild your misaligned ``sqw`` object from the initial experimental results.
+
+Once you have confirmed that the alignment you have is the correct one, it is possible to fix the alignment to avoid pixel ranges calculation step mentioned above.
+
+This is done using the ``finalize_alignment`` function:
 
 ::
 
    [wout, rev_corr] = finalize_alignment(win, ['-keep_original'])
 
-.. warning::
+.. Note::
 
-   You must have attached the alignment to the ``sqw`` through the ``change_crystal`` function prior to applying it.
+   You must have attached the alignment to the ``sqw`` through the ``change_crystal`` function prior to applying it, as it will do nothing otherwise.
 
 Where:
 
@@ -278,12 +319,12 @@ Where:
 
 - ``wout`` - Resulting ``sqw`` object to which the alignment was applied. If input was kept in file or was filebacked, the object will be filebacked.
 
-- ``rev_corr`` - A corresponding ``crystal_alignment_info`` to be able to reverse the application.
+- ``rev_corr`` - A corresponding ``crystal_alignment_info`` to be able to reverse the alignment. You can not retrive this information from pixels alignment matrix any more.
 
 .. note::
    
    Finalize alignment of large ``sqw`` object may take substantial time. The time may be even bigger than regenerating this file from scratch as parallel 
-   generation is currently possible for ``sqw`` files generation but not yet implemented for ``finalize_alignment``.
+   generation is currently possible for ``sqw`` files generation but not yet implemented for ``finalize_alignment`` algorithm.
 
 Option 2 : calculate goniometer offsets for regeneration of sqw file(s)
 -----------------------------------------------------------------------
@@ -335,6 +376,9 @@ The outputs are:
   :math:`[\alpha_{true},\beta_{true},\gamma_{true}]` (in Å and |deg| respectively)
 
 - ``dpsi_deg, gl_deg, gs_deg`` - Misorientation angles of the vectors ``u_new`` and ``v_new`` (all in |deg|)
+
+
+Use the information, obtained from this routine as additional input to ``gen_sqw`` algorithm.
 
 
 Option 2a (for use with e.g. Mslice): calculate the true u and v for your misaligned crystal
