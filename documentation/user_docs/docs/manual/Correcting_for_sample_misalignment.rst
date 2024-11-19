@@ -275,14 +275,14 @@ The second form is mandatory if you are applying alignment to ``sqw`` object in 
 
 Here ``win`` is misaligned ``sqw`` file or ``sqw`` object and ``alignment_info`` was determined on the :ref:`Step 2<Step_2_misalignment_correction>` described above.
 
-``change_crystal`` procedure modifies lattice parameters and adds alignment matrix to the pixels data. When ``change_crystal`` is used on ``sqw`` file,
-pixels themselves are not modified so the alignment procedure is very fast. Pixels will be aligned whenever they are loaded or manipulated 
+Majority of Horace users may work with files realigned using ``change_crystal`` without any noticeable hindrance. 
+Advanced users may want to know, that ``change_crystal`` procedure modifies lattice parameters and adds alignment matrix to the pixels data.
+Pixels themselves are not modified so the alignment procedure is very fast. Pixels will be aligned whenever they are loaded or manipulated 
 (e.g. accessing pixel data, cutting, plotting, etc.). 
 The pixels alignment is combined with other transformations, usually performed during pixels manipulations, so the speed of majority of such operations is not affected.
 The actual slow-down in operations with aligned file occurs when some advanced algorithms use pixels range (e.g. ``mask_pixels`` based on a range).
-Pixels range is invalidated when pixels are realigned, so such algorithms have to calculate this range first,
-which may take substantial time.
-Majority of Horace users do not need to use such algorithms so may work with fast-realigned files without any noticeable hindrance.
+Pixels range is invalidated when pixels are realigned by ``change_crystal``, so such algorithms have to calculate this range first. This may take substantial time.
+
 
 If you are following :ref:`iterative process<StepA>` above, after validating your alignment revert your alignment at :ref:`Step D <StepD>` applying:
 
