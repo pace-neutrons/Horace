@@ -298,6 +298,24 @@ This is possible because resulting alignment (and de-alignment) matrix is the re
 There are no possibility to retrieve lost initial lattice parameters ``alatt0``; ``angdeg0`` from any ``sqw`` object and alignment matrix from memory based aligned ``sqw`` object.
 This is why it is recommended to revert the alignment first each time you want to realign your ``sqw`` object. It is not the critical recommendation, as you can always rebuild your misaligned ``sqw`` object from the initial experimental results.
 
+.. Note::
+
+   ``SQW`` file de-alignment procedure, which works regardless of the previous alignment attempts is performed using the following code.
+   The procedure works only on filebacked objects, as memory based objects do not have alignment matrix attached to pixels.
+        
+::
+
+        % de-align crystal if aligned previously and and set lattice to the theoretical value;
+        rlu_rev_corr = crystal_alignment_info([a_theoretical,b_theoretical,c_theoretical],[alpha_theor,beta_theor,gama_theor]);
+        sqw_obj = sqw(sqw_file_name,'filebacked',true);
+        if sqw_obj.pix.is_corrected
+            rlu_rev_corr.rotmat = sqw_obj.pix.alignment_matr';
+        end
+        clear sqw_obj;
+        change_crystal(sqw_file_name,rlu_rev_corr);
+
+
+
 Once you have confirmed that the alignment you have is the correct one, it is possible to fix the alignment to avoid pixel ranges calculation step mentioned above.
 
 This is done using the ``finalize_alignment`` function:
