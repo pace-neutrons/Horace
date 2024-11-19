@@ -44,7 +44,7 @@ D. Revert alignment corrections and go to :ref:`Step A<StepA>` with modified act
    representative diffraction patters and resulting alignment looks correct and not affected by selections of slightly
    different set of representative diffraction patters.
 
-Lets consider all these steps in more details. 
+Let's consider all these steps in more details. 
 
 
 Step 1 - determining the true Bragg peak positions
@@ -60,7 +60,7 @@ First you should identify several Bragg peaks which are strong and not parallel 
 Henceforth, we define :math:`\{\vec{Q}\}` as the set of vectors from the gamma point to each Bragg point :math:`\{p
 \in{} P: \vec{\Gamma{}p}\}`.
 
-From the accuracy point of view it is also reasonable not to have them all on one plain which means that more then 3 Bragg peaks
+From the accuracy point of view it is also reasonable not to have them all on one plane which means that more then 3 Bragg peaks
 should be used.
 
 The following routine generates radial and transverse cuts around specified Bragg peaks and calculates the deviation
@@ -228,7 +228,7 @@ The output is an ``crystal_alignment_info`` object which contains all the releva
 the rotation matrix which aligns Crystal Cartesian frame into correct position and modified lattice parameters, if
 ``refine_crystal`` modified them. 
 
-At this stage would be useful to store inverse alignment transformation to be able to perform :ref:`step D<StepD>` without the need to regenerate
+At this stage it would be useful to store inverse alignment transformation to be able to perform :ref:`step D<StepD>` without the need to regenerate
 your sqw object from the initial misaligned results of the experiment:
 
 ::
@@ -301,13 +301,15 @@ This is why it is recommended to revert the alignment first each time you want t
 .. Note::
 
    ``SQW`` file de-alignment procedure, which works regardless of the previous alignment attempts is performed using the following code.
-   The procedure works only on filebacked objects, as memory based objects do not have alignment matrix attached to pixels.
+   The procedure works only on filebacked objects, as memory based objects do not have alignment matrix attached to the pixels. If you are 
+   investigating your crystal to find most suitable Bragg peaks, you may want to put this procedure at the beginning of each 
+   :ref:`alignment iteration<Core Alignment>`. 
         
 ::
 
         % de-align crystal if aligned previously and and set lattice to the theoretical value;
         rlu_rev_corr = crystal_alignment_info([a_theoretical,b_theoretical,c_theoretical],[alpha_theor,beta_theor,gama_theor]);
-        sqw_obj = sqw(sqw_file_name,'filebacked',true);
+        sqw_obj = sqw(sqw_file_name,'file_backed',true);
         if sqw_obj.pix.is_corrected
             rlu_rev_corr.rotmat = sqw_obj.pix.alignment_matr';
         end
