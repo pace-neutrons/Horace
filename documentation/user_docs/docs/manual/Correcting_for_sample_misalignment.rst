@@ -212,11 +212,11 @@ The keyword options are:
 
 - ``fix_orient`` - Fix the crystal orientation i.e. only refine the lattice parameters
 
-- ``free_alatt`` - Array length 3 of booleans, 1=free, 0=fixed
+- ``free_alatt`` - keyword followed by array of 3 of booleans, 1=free, 0=fixed
 
   e.g. ``'free_alatt',[0,1,0],...`` allows only lattice parameter :math:`b^{*}` to vary
 
-- ``free_angdeg`` - Array length 3 of booleans, 1=free, 0=fixed.
+- ``free_angdeg`` - keyword followed by array of 3 of booleans, 1=free, 0=fixed.
 
   e.g. ``'free_angdeg',[1,1,0],...`` fixes lattice angle gamma buts allows :math:`\alpha` and :math:`\beta` to vary
 
