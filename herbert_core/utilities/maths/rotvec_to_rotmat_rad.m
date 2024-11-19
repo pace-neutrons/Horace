@@ -1,13 +1,13 @@
-function rotmat = rotvec_to_rotmat2 (theta, algorithm)
-% Convert rotation vectors to rotation matricies
+function rotmat = rotvec_to_rotmat_rad (theta, algorithm)
+% Convert rotation vectors to rotation matrices
 %
 % The rotation matrix relates the components of a vector expressed in a
 % coordinate frame S to those in a frame S' that is obtained from S by the
 % rotation vector (whose components are given in S). The relationship is
 % v'(i) = R(i,j) v(j).
 %
-%   >> rotmat = rotvec_to_rotmat2 (theta)
-%   >> rotmat = rotvec_to_rotmat2 (theta, algorithm)
+%   >> rotmat = rotvec_to_rotmat_rad (theta)
+%   >> rotmat = rotvec_to_rotmat_rad (theta, algorithm)
 %
 % Input:
 % ------
@@ -27,14 +27,14 @@ function rotmat = rotvec_to_rotmat2 (theta, algorithm)
 %
 % Output:
 % -------
-%   rotmat      Rotation matrix or set of rotation matricies: 3 x 3 x m array
+%   rotmat      Rotation matrix or set of rotation matrices: 3 x 3 x m array
 %               Relates the components of a vector v expressed in the
 %              two coordinate frames by:
 %                   v'(i) = R(i,j) v(j)
 %
 % Note:
 %   rotvec_to_rotmat    Rotation vector in degrees
-%   rotvec_to_rotmat2   Rotation vector in radians
+%   rotvec_to_rotmat_rad   Rotation vector in radians
 
 
 % Check that rotation vector has correct size; make a single vector a column
@@ -56,7 +56,7 @@ else
         disp2str(sz))
 end
 
-% Calculate rotation matricies
+% Calculate rotation matrices
 if nargin==2 && algorithm==1
     % Generic method, but appears to be up to a factor of 100 slower than the default method
     if nvec==1

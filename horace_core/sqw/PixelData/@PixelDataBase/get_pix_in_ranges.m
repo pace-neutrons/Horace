@@ -47,7 +47,7 @@ else
     pix_out = PixelDataBase.create();
     pix_out = pix_out.set_raw_data(raw_pix);
 end
-if obj.is_misaligned
+if obj.is_corrected
     pix_out.alignment_matr_ = obj.alignment_matr;
-    pix_out.is_misaligned_ = true;
+    pix_out.is_corrected_   = true;
 end

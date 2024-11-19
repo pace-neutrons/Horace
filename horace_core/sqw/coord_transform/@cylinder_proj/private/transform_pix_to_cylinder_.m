@@ -11,7 +11,9 @@ function pix_transf = transform_pix_to_cylinder_(obj,pix_input,varargin)
 %            into spherical coordinate system defined by object properties
 %
 if isa(pix_input,'PixelDataBase')
-    if pix_input.is_misaligned
+    if pix_input.is_corrected
+        % Retrieve raw (not aligned) pixel coordinates, as alignment 
+        % matrix will be deployed together with other transformation matrices.
         pix_cc = pix_input.get_raw_data('q_coordinates');
     else
         pix_cc = pix_input.q_coordinates;

@@ -87,7 +87,7 @@ if ~(opts.head || opts.his)
         elseif isa(detpar,'unique_references_container')
             sqw_skel.experiment_info.detector_arrays = detpar;
         else
-            error('HORACE:faccess_v4-get_sqw:invalid_argument', ...
+            error('HORACE:faccess_v4:invalid_argument', ...
                   'detpar from file is neither detpar struct or detector arrays');
         end
     else

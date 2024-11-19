@@ -11,7 +11,7 @@ classdef pix_metadata < serializable
         npix;
         pix_range; % 2x4 range of pixel coordinates, first part of data_range, left for compatibility
         data_range; % 2x9 range of all pixel data
-        is_misaligned %
+        is_corrected %
         alignment_matr;
     end
     properties(Access=protected)
@@ -19,7 +19,7 @@ classdef pix_metadata < serializable
         npix_;
         data_range_ = PixelDataBase.EMPTY_RANGE;
         %
-        is_misaligned_ = false;
+        is_corrected_ = false;
         alignment_matr_ = eye(3);
     end
 
@@ -40,7 +40,7 @@ classdef pix_metadata < serializable
                     obj.npix          = inputs.num_pixels;
                     obj.data_range    = inputs.data_range;
                     obj.full_filename = inputs.full_filename;
-                    if inputs.is_misaligned
+                    if inputs.is_corrected
                         obj.alignment_matr = inputs.alignment_matr;
                     end
                 else
@@ -124,8 +124,8 @@ classdef pix_metadata < serializable
             obj.data_range_ = val;
         end
         %------------------------------------------------------------------
-        function is = get.is_misaligned(obj)
-            is = obj.is_misaligned_;
+        function is = get.is_corrected(obj)
+            is = obj.is_corrected_;
         end
         function matr = get.alignment_matr(obj)
             matr = obj.alignment_matr_;
@@ -146,7 +146,7 @@ classdef pix_metadata < serializable
             % the state of a serializable object, so when the field values are
             % provided, the object can be fully restored from these values.
             %
-            if obj.is_misaligned || isempty(obj.npix_) % second condition
+            if obj.is_corrected || isempty(obj.npix_) % second condition
                 % forces the method returning full set of fields for empty
                 % object, which is important for serializable recovery
                 flds = {'full_filename','npix','data_range','alignment_matr'};

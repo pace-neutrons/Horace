@@ -874,7 +874,7 @@ classdef aProjectionBase < serializable
     %
     methods(Static,Access=protected)
         function [alignment_needed,alignment_mat] = check_alignment_needed(pixData)
-            % verify if input argumnet contain alignment information and
+            % verify if input argument contain alignment information and
             % return this information if it is available.
             %
             % Inputs:
@@ -889,7 +889,7 @@ classdef aProjectionBase < serializable
             %                     if false, empty argument
             alignment_mat    =  [];
             if nargin>0 && (isa(pixData,'PixelDataBase')|| isa(pixData,'pix_metadata'))
-                if pixData.is_misaligned
+                if pixData.is_corrected
                     alignment_needed = true;
                     alignment_mat = pixData.alignment_matr;
                 else

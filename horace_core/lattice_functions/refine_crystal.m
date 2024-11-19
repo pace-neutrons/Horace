@@ -167,12 +167,12 @@ if opt.fix_orientation
 end
 
 kk = multifit (vcryst0_3, zeros(3*nv,1), 0.01*ones(3*nv,1));
-% function to caclulate distance between actual and expected bragg peak
+% function to calculate distance between actual and expected Bragg peak
 % positions in reciprocal space.
 kk = kk.set_fun (@reciprocal_space_deviation, {pars,rlu_expected}, pfree, pbind);
 kk = kk.set_options ('list', 0);
 kk = kk.set_options ('fit',[1e-4,50,-1e-6]);
-% disable possible parallel fitting as it does not make sence for
+% disable possible parallel fitting as it does not make sense for
 % refine_crystal data. The fitting for these data is faster serially.
 clOb = set_temporary_config_options('hpc_config','parallel_multifit',false);
 [distance,fitpar] = kk.fit();
@@ -234,14 +234,14 @@ for i=1:nv
         k=k+1;
         iin(k)=i; jin(k)=j;
         [rotmat,ok(k)]=rotmat_from_uv(v0(:,i),v0(:,j),v(:,i),v(:,j));
-        if ok(k), rotvec(:,k)=rotmat_to_rotvec2(rotmat); end
+        if ok(k), rotvec(:,k)=rotmat_to_rotvec_rad(rotmat); end
     end
 end
 
 n_ok=sum(ok);
 if sum(ok)>0
     rotvec_ave=sum(rotvec(:,ok),2)/n_ok;
-    rotmat_ave=rotvec_to_rotmat2(rotvec_ave);
+    rotmat_ave=rotvec_to_rotmat_rad(rotvec_ave);
 else
     rotmat_ave=[];
     rotvec_ave=[];
@@ -380,7 +380,7 @@ if numel(varargin)>=1
         lattice_init(1:3)=varargin{1}(:)';
     else
         error('HORACE:lattice_functions:invalid_argument', ...
-            'Initial lattice parameters ([a,b,c]) should contan 3-vector of initial lattice parameters to fit.\n It is: %s', ...
+            'Initial lattice parameters ([a,b,c]) should contain 3-vector of initial lattice parameters to fit.\n It is: %s', ...
             disp2str(varargin{1}))
     end
 end
@@ -389,7 +389,7 @@ if numel(varargin)==2
         lattice_init(4:6)=varargin{2}(:)';
     else
         error('HORACE:lattice_functions:invalid_argument', ...
-            'Initial lattice angles ([alph,bet,gam]) should contan 3-vector of initial lattice angles to fit.\n It is: %s', ...
+            'Initial lattice angles ([alph,bet,gam]) should contain 3-vector of initial lattice angles to fit.\n It is: %s', ...
             disp2str(varargin{2}))
     end
 end

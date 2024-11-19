@@ -62,7 +62,7 @@ classdef MultipixBase < serializable
         % Always false, as this kind of data are never misaligned and
         % if components are misaligned, they will be aligned while retrieved
         % from components during join/combine operation.
-        is_misaligned
+        is_corrected
         %------------------------------------------------------------------
     end
     %
@@ -210,7 +210,7 @@ classdef MultipixBase < serializable
         function is = get.is_filebacked(obj)
             is = get_is_filebacked(obj);
         end
-        function is = get.is_misaligned(~)
+        function is = get.is_corrected(~)
             is = false;
         end
         %

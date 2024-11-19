@@ -13,7 +13,7 @@ rotvec=(pi/180)*[4,28,94];
 
 b0=bmatrix(alatt0,angdeg0);
 b=bmatrix(alatt,angdeg);
-rotmat=rotvec_to_rotmat2(rotvec);
+rotmat=rotvec_to_rotmat_rad(rotvec);
 
 rlu_corr=b\rotmat*b0;
 

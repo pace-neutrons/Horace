@@ -203,7 +203,7 @@ if test_output
 end
 
 % Test that the rotation vector is good, and the lattice parameters too:
-rotvec_fit=rotmat_to_rotvec2(rotmat_fit);
+rotvec_fit=rotmat_to_rotvec_rad(rotmat_fit);
 if ~equal_to_relerr(alatt_fit,alatt_true,0.001) || ~equal_to_relerr(rotvec_fit,rotvec,0.10)
     error('Problem in refinement of crystal orientation and lattice parameters')
 end

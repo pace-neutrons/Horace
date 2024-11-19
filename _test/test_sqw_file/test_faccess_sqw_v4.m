@@ -662,12 +662,12 @@ classdef test_faccess_sqw_v4< TestCase
             fac0 = faccess_sqw_v4(test_f);
             meta = fac0.get_pix_metadata();
 
-            assertFalse(meta.is_misaligned)
+            assertFalse(meta.is_corrected)
             ref_range = meta.data_range;
             empty_range = ref_range  == PixelDataBase.EMPTY_RANGE;
             assertTrue(~any(empty_range(:)));
             ref_range(2,end) = 2*ref_range(2,end);
-            alignment_mat = rotvec_to_rotmat2(rand(1,3));
+            alignment_mat = rotvec_to_rotmat_rad(rand(1,3));
             meta.alignment_matr = alignment_mat;
             meta.data_range = ref_range;
 
@@ -677,7 +677,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             fac1 = faccess_sqw_v4(test_f);
             meta = fac1.get_pix_metadata();
-            assertTrue(meta.is_misaligned)
+            assertTrue(meta.is_corrected)
             fac1.delete();
 
             assertElementsAlmostEqual(meta.alignment_matr,alignment_mat);

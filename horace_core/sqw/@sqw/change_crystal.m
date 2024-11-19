@@ -49,6 +49,6 @@ for i=1:numel(obj)
     if ~alignment_info.legacy_mode
         % this invalidates q-range of pixels for filebacked pixels and
         % recalculates it for memory-based pixels
-        wout(i).pix.alignment_matr = alignment_mat;
+        wout(i).pix.alignment_matr = wout(i).pix.alignment_matr*alignment_mat;
     end
 end
