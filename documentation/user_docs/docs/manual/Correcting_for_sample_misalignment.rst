@@ -314,14 +314,14 @@ This is why it is recommended to revert the alignment first each time you want t
         
 ::
 
-        % de-align crystal if aligned previously and and set lattice to the theoretical value;
+        % de-align crystal if aligned previously and set lattice to its theoretical value;
         rlu_rev_corr = crystal_alignment_info([a_theoretical,b_theoretical,c_theoretical],[alpha_theor,beta_theor,gama_theor]);
-        sqw_obj = sqw(sqw_file_name,'file_backed',true);
+        sqw_obj = sqw(sqw_file_name,'file_backed',true); % build filebacked object to get access to pixels metadata
         if sqw_obj.pix.is_corrected
-            rlu_rev_corr.rotmat = sqw_obj.pix.alignment_matr';
+            rlu_rev_corr.rotmat = sqw_obj.pix.alignment_matr'; % retrieve alignment matrix and revert it.
         end
         clear sqw_obj;
-        change_crystal(sqw_file_name,rlu_rev_corr);
+        change_crystal(sqw_file_name,rlu_rev_corr); % apply original lattice and inverse orientation matrix to sqw file.
 
 
 
