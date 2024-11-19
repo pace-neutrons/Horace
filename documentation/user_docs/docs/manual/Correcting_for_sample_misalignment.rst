@@ -60,6 +60,9 @@ First you should identify several Bragg peaks which are strong and not parallel 
 Henceforth, we define :math:`\{\vec{Q}\}` as the set of vectors from the gamma point to each Bragg point :math:`\{p
 \in{} P: \vec{\Gamma{}p}\}`.
 
+From the accuracy point of view it is also reasonable not to have them all on one plain which means that more then 3 Bragg peaks
+should be used.
+
 The following routine generates radial and transverse cuts around specified Bragg peaks and calculates the deviation
 from the expected values.
 
