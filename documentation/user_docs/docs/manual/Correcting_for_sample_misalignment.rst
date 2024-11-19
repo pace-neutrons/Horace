@@ -41,7 +41,7 @@ C. Evaluate result of alignment observing modified diffraction patterns.
 .. _StepD:
 
 D. Revert alignment corrections and go to :ref:`Step A<StepA>` with modified actual diffraction patterns. Finish when sure that selected 
-   representative diffraction patters and resulting alignment looks correct and not affected by selections of slightly
+   representative diffraction patters and resulting alignment looks correct and not affected by selecting slightly
    different set of representative diffraction patters.
 
 Let's consider all these steps in more details. 
@@ -242,30 +242,27 @@ which is opposite to the rotation, necessary for corrections you will be applyin
 Step 3 - apply the correction to the data
 ==========================================
 
-There are different ways to do this preferred in different circumstances. 
+There are different ways to do this, to be preferred in different circumstances.
 
 1. Initially you want to be sure that you have selected correct Bragg peaks, 
-adding new peaks would not improve accuracy of your alignment and the resulting alignment is satisfactory.
+that adding new peaks would not improve accuracy of your alignment, and that the resulting alignment is satisfactory.
 In other words, you are following :ref:`the iterative process<StepA>` above.
-You want to get your results quickly and possibly experiment with them, modify them and get the results quickly. 
+You want to get your results quickly and possibly experiment with them, modify them and apply or undo your a quickly. 
 In this case you apply correctios to existing ``sqw`` file or ``sqw`` object loaded in memory.
 
 2. When you are satisfied with the result of alignment you may want to regenerate your ``sqw`` file after calculating goniometer
-offsets, which define actual crystal position. You have to to this step if you want to apply various symmetry 
-transformations to the whole ``sqw`` file during generation. Alternatively, you may want to "freeze" alignment corrections
-applied 
+offsets, which define actual crystal position. You have to do this step if you want to apply various symmetry 
+transformations to the whole ``sqw`` file during generation. Alternatively, you may want to "finalize" alignment corrections
+applied initially.
 
-Both ways result in sqw file identical from physical point of view. Minor differences occurs in the data, stored in an sqw file. 
-These differences are explained below.
-
+Both ways result in an sqw file; the resulting files are identical from a physical point of view.
+Minor differences occurs in the data, stored in an sqw file.
 
 
 Option 1 : apply the correction to an existing sqw file or object
 -----------------------------------------------------------------
 
-There is a simple and fast routine to apply the changes to an existing file, without the need to regenerate it from raw data. 
-The second form of this routine returns aligned ``sqw`` object. The object is filebacked if pixels data are too big to be loaded in memory.
-The second form is mandatory if you are applying alignment to ``sqw`` object in memory.
+There is a simple and fast routine ``change_crystal`` to apply the changes to an existing file, without the need to regenerate it from raw data.
 
 ::
 
@@ -273,9 +270,19 @@ The second form is mandatory if you are applying alignment to ``sqw`` object in 
    or 
    >>wout = change_crystal(win, alignment_info);
 
-where ``win`` is misaligned ``sqw`` file or ``sqw`` object and ``alignment_info`` was determined on the :ref:`Step 2<Step_2_misalignment_correction>` described above.
+The second form of this routine returns aligned ``sqw`` object. The object is filebacked if pixels data are too big to be loaded in memory.
+The second form is mandatory if you are applying alignment to ``sqw`` object in memory.
 
-This procedure modifies lattice parameters and adds alignment matrix to the pixels data. When ``change_crystal`` is used on ``sqw`` file, pixels themselves are not modified so the alignment procedure is very fast. Pixels will be aligned whenever they are loaded or manipulated (e.g. accessing pixel data, cutting, plotting, etc.). The pixels alignment is combined with other transformations, usually performed during pixels manipulations, so the speed of majority of such operations is not affected. The actual slow-down in operations with aligned file occurs when some advanced algorithms use pixels range (e.g. ``mask_pixels`` based on a range). Pixels range is invalidated when pixels are realigned, so such algorithms have to calculate this range. This may take substantial time. Majority of Horace users do not need to use such algorithms so may work with fast-realigned files without any noticeable hindrance.
+Here ``win`` is misaligned ``sqw`` file or ``sqw`` object and ``alignment_info`` was determined on the :ref:`Step 2<Step_2_misalignment_correction>` described above.
+
+``change_crystal`` procedure modifies lattice parameters and adds alignment matrix to the pixels data. When ``change_crystal`` is used on ``sqw`` file,
+pixels themselves are not modified so the alignment procedure is very fast. Pixels will be aligned whenever they are loaded or manipulated 
+(e.g. accessing pixel data, cutting, plotting, etc.). 
+The pixels alignment is combined with other transformations, usually performed during pixels manipulations, so the speed of majority of such operations is not affected.
+The actual slow-down in operations with aligned file occurs when some advanced algorithms use pixels range (e.g. ``mask_pixels`` based on a range).
+Pixels range is invalidated when pixels are realigned, so such algorithms have to calculate this range first,
+which may take substantial time.
+Majority of Horace users do not need to use such algorithms so may work with fast-realigned files without any noticeable hindrance.
 
 If you are following :ref:`iterative process<StepA>` above, after validating your alignment revert your alignment at :ref:`Step D <StepD>` applying:
 
@@ -295,7 +302,7 @@ If you performed multiple alignment and ``change_crystal`` operations on filebac
 
 This is possible because resulting alignment (and de-alignment) matrix is the result of multiplication of sequence of rotation operations.
 
-There are no possibility to retrieve lost initial lattice parameters ``alatt0``; ``angdeg0`` from any ``sqw`` object and alignment matrix from memory based aligned ``sqw`` object.
+There is no possibility to retrieve lost initial lattice parameters ``alatt0``; ``angdeg0`` from any ``sqw`` object and alignment matrix from memory based aligned ``sqw`` object.
 This is why it is recommended to revert the alignment first each time you want to realign your ``sqw`` object. It is not the critical recommendation, as you can always rebuild your misaligned ``sqw`` object from the initial experimental results.
 
 .. Note::
@@ -326,28 +333,35 @@ This is done using the ``finalize_alignment`` function:
 
    [wout, rev_corr] = finalize_alignment(win, ['-keep_original'])
 
-.. Note::
-
-   You must have attached the alignment to the ``sqw`` through the ``change_crystal`` function prior to applying it, as it will do nothing otherwise.
-
 Where:
 
 - ``win`` - Input filename or ``sqw`` object to update.
 
-- ``'-keep_original'`` - In the case of a file-backed ``sqw`` object, this will avoid overwriting the original datafile and retain the temporary file created as part of the calculation process
-
-.. note::
-
-   If you use ``'-keep_original'`` you may wish to ``save`` your object as the temporary file will be cleared when the ``wout`` object is. (see: file_backed_objects)
+- ``'-keep_original'`` - In the case of a file-backed ``sqw`` object, this will avoid overwriting the original datafile and retain the temporary
+  file created as part of the calculation process.
 
 - ``wout`` - Resulting ``sqw`` object to which the alignment was applied. If input was kept in file or was filebacked, the object will be filebacked.
 
-- ``rev_corr`` - A corresponding ``crystal_alignment_info`` to be able to reverse the alignment. You can not retrive this information from pixels alignment matrix any more.
+- ``rev_corr`` - A corresponding ``crystal_alignment_info`` to be able to reverse the alignment excluding lattice changes. It contains inverted pixels alignment matrix and new lattice
+  because you can not retrieve this information from pixels alignment matrix after applying ``finalize_alignment``.
+
+
+.. Note::
+
+   You must have attached the alignment to the ``sqw`` through the ``change_crystal`` function prior to applying it, as it will do nothing otherwise.
+
+
+.. note::
+
+   If you use ``'-keep_original'`` you may wish to ``save`` your resulting file-backed object as the temporary file will be cleared when the
+   ``wout`` object goes out of scope. (see: file_backed_objects)
+
 
 .. note::
    
    Finalize alignment of large ``sqw`` object may take substantial time. The time may be even bigger than regenerating this file from scratch as parallel 
-   generation is currently possible for ``sqw`` files generation but not yet implemented for ``finalize_alignment`` algorithm.
+   generation is currently possible for ``sqw`` files generation but not yet implemented for ``finalize_alignment`` algorithm. Option 2 below is recommended to use
+   to finalize alignment in Horace-4.
 
 Option 2 : calculate goniometer offsets for regeneration of sqw file(s)
 -----------------------------------------------------------------------
