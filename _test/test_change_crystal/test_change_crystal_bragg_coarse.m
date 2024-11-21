@@ -273,9 +273,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
-        function test_revert_alignment_works_on_file_and_on_filebacked(obj)
-            corr  = crystal_alignment_info([5.0191 4.9903 5.0121], ...
-                [90.1793 90.9652 89.9250], [-0.0530 0.0519 0.0345]);
+        function test_revert_alignment_same_on_file_and_on_filebacked_object(obj)
             test_file_fb = build_tmp_file_name(obj.misaligned_sqw_file);
             copyfile(obj.misaligned_sqw_file, test_file_fb, 'f');
             test_file_file = fullfile(tmp_dir,'misaligned_file_to_check_reversion.sqw');
@@ -289,8 +287,9 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             test_fb = test_fb.set_as_tmp_obj();
             assertTrue(test_fb.is_tmp_obj)
 
-
-            % TEST:
+            corr  = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250], [-0.0530 0.0519 0.0345]);
+            % TEST:            
             % apply alignment on FB object
             test_fb_ref = change_crystal(test_fb, corr);
             % apply alignment on file directrly
