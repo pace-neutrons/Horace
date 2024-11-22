@@ -275,9 +275,11 @@ The second form is mandatory if you are applying alignment to ``sqw`` object in 
 
 Here ``win`` is misaligned ``sqw`` file or ``sqw`` object and ``alignment_info`` was determined on the :ref:`Step 2<Step_2_misalignment_correction>` described above.
 
-Majority of Horace users may work with files realigned using ``change_crystal`` without any noticeable hindrance. 
+Majority of Horace users may work with files or objects realigned using ``change_crystal`` without any noticeable hindrance. When ``change_crystal`` 
+is applied to object in memory the resulting object is fully aligned and no other actions is necessary to finish alignment. When ``change_crystal`` applied to file, you may want to do :ref:`final alignment step<Finalize_alignment>`, but for majority of practical reasons it is unnecessary.
 
-Advanced users may want to know, that ``change_crystal`` procedure modifies lattice parameters and adds alignment matrix to the pixels data.
+
+Advanced users may want to know, that ``change_crystal`` procedure modifies lattice parameters and adds alignment matrix to the pixels data in file.
 Pixels themselves are not modified so the alignment procedure is very fast. Pixels will be aligned whenever they are loaded or manipulated 
 (e.g. accessing pixel data, cutting, doing unary and binary operations, etc.).
 The pixels alignment is combined with other transformations, usually performed during pixels manipulations, so the speed of majority of such operations is not affected.
@@ -327,6 +329,8 @@ This is why it is recommended to revert the alignment first each time you want t
 
 
 Once you have confirmed that the alignment you have is the correct one, it is possible to fix the alignment to avoid pixel ranges calculation step mentioned above.
+
+.. _Finalize_alignment:
 
 This is done using the ``finalize_alignment`` function:
 
