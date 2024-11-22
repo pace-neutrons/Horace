@@ -8,7 +8,7 @@ function [matlab_dirname,dll_extention,os_dirname]=matlab_version_folder(varargi
 % Enforce operating system folder for DLLs (*** TGP thinks this is redundant 5/12/11)
 %   >> [matlab_dirname,dll_extention,os_dirname]=matlab_version_folder(os_dirname)
 %
-% This function returns the information needed to put correct dll folder on the path in 
+% This function returns the information needed to put correct dll folder on the path in
 % applications such as Horace.
 %
 %   matlab_dirname      Version folder name for dll files to be used (e.g. _R2009a)
@@ -35,22 +35,22 @@ version_number = matlab_version_num();
 
 % Get default matlab directory name from which to use mex file dlls
 if version_number<8.05      % i.e. matlab version 8.4 i.e. R20014b
-    matlab_dirname='_R2014b';    
-elseif(version_number>23.99) % tested up to R2023b
+    matlab_dirname='_R2014b';
+elseif(version_number >= 25) % tested up to R2024b
     warning(['This subversion of mex-files has not been tested with Matlab version %s \n',...
-        'Trying to use the files tested with Matlab 23.02 (2023b) but they may not work'],...
+        'Trying to use the files tested with Matlab 24.02 (2024b) but they may not work'],...
         version());
     matlab_dirname='_R2015a';
 else
-    matlab_dirname='_R2015a';    
+    matlab_dirname='_R2015a';
 end
 
 if strcmp(os_dirname,'_MACI64')
-     matlab_dirname='_R2015a';
+    matlab_dirname='_R2015a';
 end
 
 
-% Matlab extension types 
+% Matlab extension types
 % ----------------------
 try
     dll_extention = mexext;
