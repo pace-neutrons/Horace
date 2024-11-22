@@ -273,6 +273,45 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
+        function test_revert_alignment_same_on_file_and_on_filebacked_object(obj)
+            test_file_fb = build_tmp_file_name(obj.misaligned_sqw_file);
+            copyfile(obj.misaligned_sqw_file, test_file_fb, 'f');
+            test_file_file = fullfile(tmp_dir,'misaligned_file_to_check_reversion.sqw');
+            copyfile(obj.misaligned_sqw_file, test_file_file, 'f');
+            clOb = onCleanup(@()delete(test_file_file));
+
+
+            test_fb = sqw(test_file_fb,'file_backed',true);
+            assertTrue(test_fb.is_filebacked, ...
+                'This test validates filebacked operations but the object test_fb placed in memory')
+            test_fb = test_fb.set_as_tmp_obj();
+            assertTrue(test_fb.is_tmp_obj)
+
+            corr  = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250], [-0.0530 0.0519 0.0345]);
+            % TEST:            
+            % apply alignment on FB object
+            test_fb_ref = change_crystal(test_fb, corr);
+            % apply alignment on file directrly
+            test_file = change_crystal(test_file_file, corr);
+
+            assertEqualToTol(test_fb_ref,sqw(test_file{1}),'ignore_str',true);
+
+            source_obj = sqw(obj.misaligned_sqw_file,'file_backed',true);
+            rev_corr_way1 = crystal_alignment_info(source_obj.data.alatt,source_obj.data.angdeg);
+            rev_corr_way1.rotmat = test_fb_ref.pix.alignment_matr';
+
+            rev_corr_way2 = crystal_alignment_info(source_obj.data.alatt,source_obj.data.angdeg);
+            rev_corr_way2.rotmat = corr.rotmat';
+
+            assertEqualToTol(rev_corr_way1,rev_corr_way2)
+
+            test_fb_rev = change_crystal(test_fb_ref, rev_corr_way1);
+            test_file_rev = change_crystal(test_file_file, rev_corr_way1);
+
+            assertEqualToTol(test_fb_rev,sqw(test_file_rev{1}),'ignore_str',true,'tol',[1.e-12,1.e-12]);
+        end
+
         function test_alignment_is_additive_on_file(obj)
             % Prepare test data
             corr  = crystal_alignment_info([5.0191 4.9903 5.0121], ...
