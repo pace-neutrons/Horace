@@ -1,0 +1,53 @@
+@startuml
+skinparam linetype polyline
+skinparam linetype ortho
+
+class data_op_interface
+class data_plot_interface
+
+class IX_dataset
+together {
+  class IX_data1d
+  class IX_data2d
+  class IX_data3d
+}
+together {
+  class IX_dataset1d
+  class IX_dataset2d
+  class IX_dataset3d
+}
+
+class SQWDnDBase
+class sqw
+class DnDBase
+together {
+  class d0d
+  class d1d
+  class d2d
+  class d3d
+  class d4d
+}
+
+data_op_interface <-- SQWDnDBase
+data_plot_interface <-- SQWDnDBase
+SQWDnDBase <-- sqw
+
+DnDBase <-- d0d
+DnDBase <-- d1d
+DnDBase <-- d2d
+DnDBase <-- d3d
+DnDBase <-- d4d
+SQWDnDBase <-- DnDBase
+data_plot_interface <-- DnDBase
+
+IX_data1d <-- IX_dataset1d
+data_plot_interface <---- IX_dataset1d
+IX_data2d <-- IX_dataset2d
+data_plot_interface <---- IX_dataset2d
+IX_data3d <-- IX_dataset3d
+data_plot_interface <---- IX_dataset3d
+IX_dataset <-- IX_data1d
+IX_dataset <-- IX_data2d
+IX_dataset <-- IX_data3d
+data_op_interface <-- IX_dataset
+@enduml

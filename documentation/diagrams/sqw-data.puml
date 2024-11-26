@@ -1,0 +1,95 @@
+@startuml
+skinparam linetype polyline
+skinparam linetype ortho
+
+class sqw {
+  creation_date : str
+  pix : PixelData
+  detpar : double
+  experiment_info : Experiment
+  main_header : struct
+  npixels : int
+  data : DnD
+  runid_map : Containers.Map
+
+}
+class PixelData {
+                full_filename : str
+                num_pixels : int
+                pix_range : 2 x 9 double
+                data_range : 2 x 4 double
+                data : 9 x npix double
+                alignment_matr : 3 x 3 double
+            }
+struct main_header {
+                filename, filepath
+                efix, emode, en : double
+                psi, omega, dpsi, gl, gs : double
+                u_to_rlu : 3 x 3 double
+                uoffset : 1 x 4 double
+                cu : 1 x 4 double
+                cv : 1 x 4 double
+                ulabel, ulen
+                alatt, angdeg : 1x3 double
+            }
+
+class Experiment {
+                n_runs : int
+                expdata : IX_experiment
+                detector_arrays : unique_references_container
+                instruments : unique_references_container
+                samples : unique_references_container
+                runid_map : Containers.Map
+            }
+class IX_experiment {
+                filename, filepath : str
+                run_id : int
+                emode, efix, en : double
+                goniometer : Goniometer
+            }
+class Goniometer {
+                psi, omega, dpsi, gl, gs : double
+                u, v : 1 x 3 double
+            }
+
+class DnD {
+                full_filename, filename, filepath, title : str
+                alatt, angdeg : double
+                offset, img_offset : double
+                label, iax, iind, dax, p, pax, nbins, npix : int
+                img_range, s, e : double
+                axes : AxesBlock
+                proj : Projection
+            }
+class Projection {
+                title : str
+                label : 1 x 4 str
+                u, v, w : 1 x 3 double
+                type : 1 x 3 str
+                non_orthogonal : bool
+                alatt, angdeg : 1 x 3 double
+                offset : 1 x 4 double
+            }
+class AxesBlock {
+                title, filename, filepath : str
+                label : 1 x 4 str
+                dimensions : int
+                hkle_axes_directions: 4 x 4 double
+                iax, iint, pax, dax : 1 x dim int
+                p : 1 x dim cell array of double arrays
+                data_nbins, dims_as_ssize : 1 x dim int
+                offset : 1 x 4 double
+                single_bin_defines_iax : 1 x dim bool
+                axes_units : str
+            }
+
+sqw *-- PixelData
+sqw *-- Experiment
+sqw *-l- main_header
+sqw *-r- IX_experiment
+IX_experiment <-r- Goniometer
+sqw *-- DnD
+DnD *-- Projection
+DnD *-- AxesBlock
+
+@enduml
