@@ -80,11 +80,10 @@ The inputs are:
 
 - ``bragg_expected``   - an n-by-3 array specifying the Bragg positions expected from aligned crystal.
 
-- ``radial_cut_length`` - lengths of the various cuts along each :math:`\vec{Q}`-direction in Bragg peaks set :math:`\{P\}`. Length is in :math:`{Å}^{-1}` or relative units, see below --``bin_absolute`` or ``bin_relative`` keywords.
+- ``radial_cut_length`` - lengths of the various cuts along each :math:`\vec{Q}`-direction in Bragg peaks set :math:`\{P\}`.
+- ``radial_bin_width`` - bin (step) sizes along the radial cuts.
 
-- ``radial_bin_width`` - bin (step) sizes along the radial cuts
-
-- ``radial_thickness`` - integration thickness along the axes perpendicular to the radial cut direction
+- ``radial_thickness`` - integration thickness along the axes perpendicular to the radial cut direction.
 
 - ``trans_cut_length`` - lengths of cuts of each cut perpendicular to :math:`\{\vec{Q}\}`.
 
@@ -94,8 +93,13 @@ The inputs are:
 
 - ``energy_window`` - Energy integration window around elastic line (meV). Choose according to the instrument resolution.
 
+
+.. Note::
+   Units of the ```length``, ``width`` and ``thickness`` above are inverse Angstroms :math:`{Å}^{-1}` or relative.
+   See below --``bin_absolute`` or ``bin_relative`` keywords.
+
 .. note::
-   This is the full energy window.  A good value for ``energy_window`` is 2 x full-width half-height,
+   ``energy_window`` is the full energy window.  A good value for ``energy_window`` is 2 x full-width half-height,
    e.g. for -1meV to +1 meV, set ``energy_window=2``
 
 The following keyword options are available:
