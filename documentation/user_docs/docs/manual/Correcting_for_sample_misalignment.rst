@@ -80,7 +80,8 @@ The inputs are:
 
 - ``bragg_expected``   - an n-by-3 array specifying the Bragg positions expected from aligned crystal.
 
-- ``radial_cut_length`` - lengths of the various cuts along each :math:`\vec{Q}`-direction in Bragg peaks set :math:`\{P\}`.
+- ``radial_cut_length`` - lengths of the various cuts along each :math:`\vec{Q}`-direction
+  in the Bragg peaks set :math:`\{P\}` above.
 - ``radial_bin_width`` - bin (step) sizes along the radial cuts.
 
 - ``radial_thickness`` - integration thickness along the axes perpendicular to the radial cut direction.
