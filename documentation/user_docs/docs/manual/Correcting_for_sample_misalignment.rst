@@ -239,9 +239,9 @@ the rotation matrix which aligns Crystal Cartesian frame into correct position a
 
 .. Warning::
 
-   You are defining 3 rotation angles and may be fitting 3 lattice parameters and 3 angular parameters. You need at least 9 variables (dimensions) to define 9 parameters. 3 Bragg peaks
+   You are fitting 3 rotation angles and may be 3 lattice parameters and 3 angular parameters. You need at least 9 variables (dimensions) to fit 9 variables. 3 Bragg peaks
    in 3D space would provide you with at least 9 parameters, so this is the minimal number of 
-   inputs for the algorithm to work. In practice, it is better to have more actual Bragg positions to build over-defined system of equations. Changing allowed rotation and lattice parameters algorithm minimizes the difference between actual and theoretical Bragg positions.
+   inputs for the algorithm to work. In practice, it is better to have more actual Bragg positions to build over-defined system of equations. Algorithm minimizes the difference between actual and theoretical Bragg positions by fitting allowed rotation angles and lattice parameters.
 
 At this stage it would be useful to store inverse alignment transformation to be able to perform :ref:`step D<StepD>` without the need to regenerate
 your sqw object from the initial misaligned results of the experiment:
@@ -419,7 +419,7 @@ The inputs are:
 The keywords options are:
 
 .. warning::
-   Normally keywords options need not be given and the inputs ``u``, ``v`` and ``omega`` will be used.
+   Normally keywords options need not be given and the inputs ``u``, ``v`` and ``omega0_deg`` will be used.
 
 - ``u_new``, ``v_new`` - :math:`\vec{u}`, :math:`\vec{v}` that define the scattering plane. :math:`d\psi`,
   :math:`g_{l}`, :math:`g_{s}` will be calculated with respect to these vectors. (Default: ``u``, ``v`` respectively)
