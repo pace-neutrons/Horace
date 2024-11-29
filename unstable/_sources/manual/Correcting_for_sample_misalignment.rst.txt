@@ -80,11 +80,11 @@ The inputs are:
 
 - ``bragg_expected``   - an n-by-3 array specifying the Bragg positions expected from aligned crystal.
 
-- ``radial_cut_length`` - lengths of the various cuts along each of :math:`\{\vec{Q}\}`.
+- ``radial_cut_length`` - lengths of the various cuts along each :math:`\vec{Q}`-direction
+  in the Bragg peaks set :math:`\{P\}` above.
+- ``radial_bin_width`` - bin (step) sizes along the radial cuts.
 
-- ``radial_bin_width`` - bin (step) sizes along the radial cuts
-
-- ``radial_thickness`` - integration thickness along the axes perpendicular to the radial cut direction
+- ``radial_thickness`` - integration thickness along the axes perpendicular to the radial cut direction.
 
 - ``trans_cut_length`` - lengths of cuts of each cut perpendicular to :math:`\{\vec{Q}\}`.
 
@@ -92,23 +92,24 @@ The inputs are:
 
 - ``trans_thickness`` - integration thickness along the two perpendicular directions to the transverse cuts
 
-- ``energy_window`` - Energy integration window around elastic line (meV). Choose according to the instrument
-  resolution.
+- ``energy_window`` - Energy integration window around elastic line (meV). Choose according to the instrument resolution.
+
+
+.. Note::
+   Units of the ```length``, ``width`` and ``thickness`` above are inverse Angstroms :math:`{Å}^{-1}` or relative.
+   See below --``bin_absolute`` or ``bin_relative`` keywords.
 
 .. note::
-
-   This is the full energy window.  A good value for ``energy_window`` is 2 x full-width half-height,
+   ``energy_window`` is the full energy window.  A good value for ``energy_window`` is 2 x full-width half-height,
    e.g. for -1meV to +1 meV, set ``energy_window=2``
 
 The following keyword options are available:
 
 For binning:
 
-- ``'bin_absolute'`` [Default] - denotes that the radial and transverse cut lengths, bin sizes, and thicknesses are in
-  inverse Angstroms
+- ``'bin_absolute'`` [Default] - denotes that the radial and transverse cut lengths, bin sizes, and thicknesses are in inverse Angstroms (:math:`{Å}^{-1}`)
 
-- ``'bin_relative'`` - denotes that cut lengths, bin sizes and thicknesses are fractions of :math:`\left|\mathbf{Q}\right|` for radial
-  cuts and degrees for transverse cuts.
+- ``'bin_relative'`` - denotes that cut lengths, bin sizes and thicknesses are fractions of each  :math:`\{\vec{Q}\}` length (``radial_cut_length``) for radial cuts and degrees for transverse cuts.
 
 For fitting:
 
@@ -161,7 +162,16 @@ everything, using outputs from ``bragg_positions`` described above.
    bragg_positions_view(wcut,wpeak)
 
 
-You will be prompted in the MATLAB command window as to which plot and fit you wish to view.
+You will be prompted in the MATLAB command window as to which plot and fit you wish to view, e.g.:
+
+::
+
+  Enter one of the following:
+    - peak number (1-N) and scan number (1-3) e.g. N,3
+    - <CR> to continue from present peak and scan (p,n)
+    - Q or q to quit
+
+where N is the total number of peaks (e.g. 9 for 9 Bragg peaks) and (p,n) are current peak and scan numbers (e.g. (1,1) for first peak and scan)
 
 .. note::
 
@@ -228,6 +238,12 @@ The output is an ``crystal_alignment_info`` object which contains all the releva
 the rotation matrix which aligns Crystal Cartesian frame into correct position and modified lattice parameters, if
 ``refine_crystal`` modified them. 
 
+.. Warning::
+
+   You are fitting 3 rotation angles and may be 3 lattice parameters and 3 angular parameters. You need at least 9 variables (dimensions) to fit 9 variables. 3 Bragg peaks
+   in 3D space would provide you with at least 9 parameters, so this is the minimal number of 
+   inputs for the algorithm to work. In practice, it is better to have more actual Bragg positions to build over-defined system of equations. Algorithm minimizes the difference between actual and theoretical Bragg positions by fitting allowed rotation angles and lattice parameters.
+
 At this stage it would be useful to store inverse alignment transformation to be able to perform :ref:`step D<StepD>` without the need to regenerate
 your sqw object from the initial misaligned results of the experiment:
 
@@ -256,7 +272,7 @@ transformations to the whole ``sqw`` file during generation. Alternatively, you 
 applied initially.
 
 Both ways result in an sqw file; the resulting files are identical from a physical point of view.
-Minor differences occurs in the data, stored in an sqw file.
+Minor differences occurs in the data, stored in an sqw file. These differences do not generally affect the results of operations, performed on the file but may affect the performance of following operations. These differences are explained in more details below.
 
 
 Option 1 : apply the correction to an existing sqw file or object
@@ -273,7 +289,11 @@ There is a simple and fast routine ``change_crystal`` to apply the changes to an
 The second form of this routine returns aligned ``sqw`` object. The object is filebacked if pixels data are too big to be loaded in memory.
 The second form is mandatory if you are applying alignment to ``sqw`` object in memory.
 
-Here ``win`` is misaligned ``sqw`` file or ``sqw`` object and ``alignment_info`` was determined on the :ref:`Step 2<Step_2_misalignment_correction>` described above.
+Here ``win`` is a file containing misaligned ``sqw`` object or filebacked/memory-based ``sqw`` object and ``alignment_info`` was determined on the :ref:`Step 2<Step_2_misalignment_correction>` described above.
+
+.. Note::
+
+   If you use second form of ``change_crystal``, regardless of ``sqw`` object being file-backed or memory based, you need to :ref:`save<manual/Save_and_load:save>` your result if you want your changes to be permanent. The changes to memory based and file-backed objects disappear if object gets deleted from memory.
 
 Majority of Horace users may work with files or objects realigned using ``change_crystal`` without any noticeable hindrance. When ``change_crystal`` 
 is applied to object in memory the resulting object is fully aligned and no other actions is necessary to finish alignment. When ``change_crystal`` applied to file, you may want to do :ref:`final alignment step<Finalize_alignment>`, but for majority of practical reasons it is unnecessary.
@@ -348,7 +368,7 @@ Where:
 - ``wout`` - Resulting ``sqw`` object to which the alignment was applied. If input was kept in file or was filebacked, the object will be filebacked.
 
 - ``rev_corr`` - A corresponding ``crystal_alignment_info`` to be able to reverse the alignment excluding lattice changes. It contains inverted pixels alignment matrix and new lattice
-  because you can not retrieve this information from pixels alignment matrix after applying ``finalize_alignment``.
+  because you can not retrieve this information from pixels alignment matrix after applying ``change_crystal``.
 
 
 .. Note::
@@ -384,7 +404,6 @@ The inputs are:
   were performed.
 
 .. note::
-
    ``u`` is usually defined as the vector of the incident beam and ``v`` is coplanar with respect to the instrument.
 
 - ``alatt0``, ``angdeg0`` - The initial sample lattice parameters, before refinement
@@ -393,7 +412,6 @@ The inputs are:
   |deg|)
 
 .. note::
-
    :math:`\text{d}\psi`, :math:`g_l` and :math:`g_s` refer to the Euler angles relative to the scattering plane. Naming
    conventions may differ in other notations, e.g. :math:`\theta, \phi, \chi`.
 
@@ -402,7 +420,7 @@ The inputs are:
 The keywords options are:
 
 .. warning::
-   Normally these need not be given and the inputs ``u``, ``v`` and ``omega`` will be used.
+   Normally keywords options need not be given and the inputs ``u``, ``v`` and ``omega0_deg`` will be used.
 
 - ``u_new``, ``v_new`` - :math:`\vec{u}`, :math:`\vec{v}` that define the scattering plane. :math:`d\psi`,
   :math:`g_{l}`, :math:`g_{s}` will be calculated with respect to these vectors. (Default: ``u``, ``v`` respectively)
@@ -423,8 +441,10 @@ The outputs are:
 Use the information, obtained from this routine as additional input to ``gen_sqw`` algorithm.
 
 
-Option 2a (for use with e.g. Mslice): calculate the true u and v for your misaligned crystal
+Option 2a : calculate the true u and v for your misaligned crystal
 ---------------------------------------------------------------------------------------------
+
+This option is not recommended for use with Horace as goniometer offsets is preferred option to align ``sqw`` data. Some older programs (e.g. Mslice) may not give access to goniometer, so changing ``u`` and ``v`` may be the only way to align the data, or you may be just interested in actual beam direction with respect to crystal orientation.
 
 Following option 2 above, you can recalculate the true ``u`` and ``v`` vectors with the following method:
 

@@ -61,7 +61,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#step-3-apply-the-correction-to-the-data">4.3. Step 3 - apply the correction to the data</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#option-1-apply-the-correction-to-an-existing-sqw-file-or-object">4.3.1. Option 1 : apply the correction to an existing sqw file or object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#option-2-calculate-goniometer-offsets-for-regeneration-of-sqw-file-s">4.3.2. Option 2 : calculate goniometer offsets for regeneration of sqw file(s)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#option-2a-for-use-with-e-g-mslice-calculate-the-true-u-and-v-for-your-misaligned-crystal">4.3.3. Option 2a (for use with e.g. Mslice): calculate the true u and v for your misaligned crystal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#option-2a-calculate-the-true-u-and-v-for-your-misaligned-crystal">4.3.3. Option 2a : calculate the true u and v for your misaligned crystal</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#list-of-alignment-correction-routines">4.4. List of alignment correction routines</a><ul>
@@ -184,27 +184,30 @@ from the expected values.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">sqw_obj</span></code> - <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object with misaligned data</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bragg_expected</span></code>   - an n-by-3 array specifying the Bragg positions expected from aligned crystal.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">radial_cut_length</span></code> - lengths of the various cuts along each of <span class="math notranslate nohighlight">\(\{\vec{Q}\}\)</span>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">radial_bin_width</span></code> - bin (step) sizes along the radial cuts</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">radial_thickness</span></code> - integration thickness along the axes perpendicular to the radial cut direction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">radial_cut_length</span></code> - lengths of the various cuts along each <span class="math notranslate nohighlight">\(\vec{Q}\)</span>-direction
+in the Bragg peaks set <span class="math notranslate nohighlight">\(\{P\}\)</span> above.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">radial_bin_width</span></code> - bin (step) sizes along the radial cuts.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">radial_thickness</span></code> - integration thickness along the axes perpendicular to the radial cut direction.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trans_cut_length</span></code> - lengths of cuts of each cut perpendicular to <span class="math notranslate nohighlight">\(\{\vec{Q}\}\)</span>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trans_bin_width</span></code> - bin (step) sizes along the transverse cuts</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trans_thickness</span></code> - integration thickness along the two perpendicular directions to the transverse cuts</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">energy_window</span></code> - Energy integration window around elastic line (meV). Choose according to the instrument
-resolution.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">energy_window</span></code> - Energy integration window around elastic line (meV). Choose according to the instrument resolution.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is the full energy window.  A good value for <code class="docutils literal notranslate"><span class="pre">energy_window</span></code> is 2 x full-width half-height,
+<p>Units of the <code class="docutils literal notranslate"><span class="pre">`length</span></code>, <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">thickness</span></code> above are inverse Angstroms <span class="math notranslate nohighlight">\({Å}^{-1}\)</span> or relative.
+See below –<code class="docutils literal notranslate"><span class="pre">bin_absolute</span></code> or <code class="docutils literal notranslate"><span class="pre">bin_relative</span></code> keywords.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">energy_window</span></code> is the full energy window.  A good value for <code class="docutils literal notranslate"><span class="pre">energy_window</span></code> is 2 x full-width half-height,
 e.g. for -1meV to +1 meV, set <code class="docutils literal notranslate"><span class="pre">energy_window=2</span></code></p>
 </div>
 <p>The following keyword options are available:</p>
 <p>For binning:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">'bin_absolute'</span></code> [Default] - denotes that the radial and transverse cut lengths, bin sizes, and thicknesses are in
-inverse Angstroms</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'bin_relative'</span></code> - denotes that cut lengths, bin sizes and thicknesses are fractions of <span class="math notranslate nohighlight">\(\left|\mathbf{Q}\right|\)</span> for radial
-cuts and degrees for transverse cuts.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'bin_absolute'</span></code> [Default] - denotes that the radial and transverse cut lengths, bin sizes, and thicknesses are in inverse Angstroms (<span class="math notranslate nohighlight">\({Å}^{-1}\)</span>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'bin_relative'</span></code> - denotes that cut lengths, bin sizes and thicknesses are fractions of each  <span class="math notranslate nohighlight">\(\{\vec{Q}\}\)</span> length (<code class="docutils literal notranslate"><span class="pre">radial_cut_length</span></code>) for radial cuts and degrees for transverse cuts.</p></li>
 </ul>
 <p>For fitting:</p>
 <ul class="simple">
@@ -251,7 +254,14 @@ everything, using outputs from <code class="docutils literal notranslate"><span 
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">bragg_positions_view</span><span class="p">(</span><span class="n">wcut</span><span class="p">,</span><span class="n">wpeak</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>You will be prompted in the MATLAB command window as to which plot and fit you wish to view.</p>
+<p>You will be prompted in the MATLAB command window as to which plot and fit you wish to view, e.g.:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">Enter</span><span class="w"> </span><span class="s">one</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">following:</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">peak</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">scan</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="mi">3</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="o">&lt;</span><span class="n">CR</span><span class="o">&gt;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="k">continue</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">present</span><span class="w"> </span><span class="n">peak</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">scan</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="nb">quit</span>
+</pre></div>
+</div>
+<p>where N is the total number of peaks (e.g. 9 for 9 Bragg peaks) and (p,n) are current peak and scan numbers (e.g. (1,1) for first peak and scan)</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Press <code class="docutils literal notranslate"><span class="pre">'q'</span></code> to exit this interactive mode.</p>
@@ -303,6 +313,12 @@ overall scale of the lattice to be refined together with crystal orientation</p>
 <p>The output is an <code class="docutils literal notranslate"><span class="pre">crystal_alignment_info</span></code> object which contains all the relevant data for crystal realignment, namely
 the rotation matrix which aligns Crystal Cartesian frame into correct position and modified lattice parameters, if
 <code class="docutils literal notranslate"><span class="pre">refine_crystal</span></code> modified them.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You are fitting 3 rotation angles and may be 3 lattice parameters and 3 angular parameters. You need at least 9 variables (dimensions) to fit 9 variables. 3 Bragg peaks
+in 3D space would provide you with at least 9 parameters, so this is the minimal number of
+inputs for the algorithm to work. In practice, it is better to have more actual Bragg positions to build over-defined system of equations. Algorithm minimizes the difference between actual and theoretical Bragg positions by fitting allowed rotation angles and lattice parameters.</p>
+</div>
 <p>At this stage it would be useful to store inverse alignment transformation to be able to perform <a class="reference internal" href="#stepd"><span class="std std-ref">step D</span></a> without the need to regenerate
 your sqw object from the initial misaligned results of the experiment:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="n">reverse_transf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">crystal_alignment_info</span><span class="p">(</span><span class="n">alatt0</span><span class="p">,</span><span class="n">angdeg0</span><span class="p">);</span>
@@ -325,7 +341,7 @@ offsets, which define actual crystal position. You have to do this step if you w
 transformations to the whole <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file during generation. Alternatively, you may want to “finalize” alignment corrections
 applied initially.</p>
 <p>Both ways result in an sqw file; the resulting files are identical from a physical point of view.
-Minor differences occurs in the data, stored in an sqw file.</p>
+Minor differences occurs in the data, stored in an sqw file. These differences do not generally affect the results of operations, performed on the file but may affect the performance of following operations. These differences are explained in more details below.</p>
 <section id="option-1-apply-the-correction-to-an-existing-sqw-file-or-object">
 <h3><span class="section-number">4.3.1. </span>Option 1 : apply the correction to an existing sqw file or object<a class="headerlink" href="#option-1-apply-the-correction-to-an-existing-sqw-file-or-object" title="Permalink to this heading"></a></h3>
 <p>There is a simple and fast routine <code class="docutils literal notranslate"><span class="pre">change_crystal</span></code> to apply the changes to an existing file, without the need to regenerate it from raw data.</p>
@@ -336,7 +352,11 @@ Minor differences occurs in the data, stored in an sqw file.</p>
 </div>
 <p>The second form of this routine returns aligned <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. The object is filebacked if pixels data are too big to be loaded in memory.
 The second form is mandatory if you are applying alignment to <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object in memory.</p>
-<p>Here <code class="docutils literal notranslate"><span class="pre">win</span></code> is misaligned <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file or <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object and <code class="docutils literal notranslate"><span class="pre">alignment_info</span></code> was determined on the <a class="reference internal" href="#step-2-misalignment-correction"><span class="std std-ref">Step 2</span></a> described above.</p>
+<p>Here <code class="docutils literal notranslate"><span class="pre">win</span></code> is a file containing misaligned <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object or filebacked/memory-based <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object and <code class="docutils literal notranslate"><span class="pre">alignment_info</span></code> was determined on the <a class="reference internal" href="#step-2-misalignment-correction"><span class="std std-ref">Step 2</span></a> described above.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you use second form of <code class="docutils literal notranslate"><span class="pre">change_crystal</span></code>, regardless of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object being file-backed or memory based, you need to <a class="reference internal" href="Save_and_load.html#save"><span class="std std-ref">save</span></a> your result if you want your changes to be permanent. The changes to memory based and file-backed objects disappear if object gets deleted from memory.</p>
+</div>
 <p>Majority of Horace users may work with files or objects realigned using <code class="docutils literal notranslate"><span class="pre">change_crystal</span></code> without any noticeable hindrance. When <code class="docutils literal notranslate"><span class="pre">change_crystal</span></code>
 is applied to object in memory the resulting object is fully aligned and no other actions is necessary to finish alignment. When <code class="docutils literal notranslate"><span class="pre">change_crystal</span></code> applied to file, you may want to do <a class="reference internal" href="#finalize-alignment"><span class="std std-ref">final alignment step</span></a>, but for majority of practical reasons it is unnecessary.</p>
 <p>Advanced users may want to know, that <code class="docutils literal notranslate"><span class="pre">change_crystal</span></code> procedure modifies lattice parameters and adds alignment matrix to the pixels data in file.
@@ -388,7 +408,7 @@ investigating your crystal to find most suitable Bragg peaks, you may want to pu
 file created as part of the calculation process.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">wout</span></code> - Resulting <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object to which the alignment was applied. If input was kept in file or was filebacked, the object will be filebacked.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rev_corr</span></code> - A corresponding <code class="docutils literal notranslate"><span class="pre">crystal_alignment_info</span></code> to be able to reverse the alignment excluding lattice changes. It contains inverted pixels alignment matrix and new lattice
-because you can not retrieve this information from pixels alignment matrix after applying <code class="docutils literal notranslate"><span class="pre">finalize_alignment</span></code>.</p></li>
+because you can not retrieve this information from pixels alignment matrix after applying <code class="docutils literal notranslate"><span class="pre">change_crystal</span></code>.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -437,7 +457,7 @@ conventions may differ in other notations, e.g. <span class="math notranslate no
 <p>The keywords options are:</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Normally these need not be given and the inputs <code class="docutils literal notranslate"><span class="pre">u</span></code>, <code class="docutils literal notranslate"><span class="pre">v</span></code> and <code class="docutils literal notranslate"><span class="pre">omega</span></code> will be used.</p>
+<p>Normally keywords options need not be given and the inputs <code class="docutils literal notranslate"><span class="pre">u</span></code>, <code class="docutils literal notranslate"><span class="pre">v</span></code> and <code class="docutils literal notranslate"><span class="pre">omega0_deg</span></code> will be used.</p>
 </div>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">u_new</span></code>, <code class="docutils literal notranslate"><span class="pre">v_new</span></code> - <span class="math notranslate nohighlight">\(\vec{u}\)</span>, <span class="math notranslate nohighlight">\(\vec{v}\)</span> that define the scattering plane. <span class="math notranslate nohighlight">\(d\psi\)</span>,
@@ -453,8 +473,9 @@ conventions may differ in other notations, e.g. <span class="math notranslate no
 </ul>
 <p>Use the information, obtained from this routine as additional input to <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> algorithm.</p>
 </section>
-<section id="option-2a-for-use-with-e-g-mslice-calculate-the-true-u-and-v-for-your-misaligned-crystal">
-<h3><span class="section-number">4.3.3. </span>Option 2a (for use with e.g. Mslice): calculate the true u and v for your misaligned crystal<a class="headerlink" href="#option-2a-for-use-with-e-g-mslice-calculate-the-true-u-and-v-for-your-misaligned-crystal" title="Permalink to this heading"></a></h3>
+<section id="option-2a-calculate-the-true-u-and-v-for-your-misaligned-crystal">
+<h3><span class="section-number">4.3.3. </span>Option 2a : calculate the true u and v for your misaligned crystal<a class="headerlink" href="#option-2a-calculate-the-true-u-and-v-for-your-misaligned-crystal" title="Permalink to this heading"></a></h3>
+<p>This option is not recommended for use with Horace as goniometer offsets is preferred option to align <code class="docutils literal notranslate"><span class="pre">sqw</span></code> data. Some older programs (e.g. Mslice) may not give access to goniometer, so changing <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> may be the only way to align the data, or you may be just interested in actual beam direction with respect to crystal orientation.</p>
 <p>Following option 2 above, you can recalculate the true <code class="docutils literal notranslate"><span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> vectors with the following method:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">u_true</span><span class="p">,</span><span class="w"> </span><span class="n">v_true</span><span class="p">,</span><span class="w"> </span><span class="n">rlu_corr</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">uv_correct</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">alatt0</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg0</span><span class="p">,</span><span class="w"> </span><span class="n">omega_deg</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gl_deg</span><span class="p">,</span><span class="w"> </span><span class="n">gs_deg</span><span class="p">,</span><span class="w"> </span><span class="n">alatt_true</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg_true</span><span class="p">)</span>
 </pre></div>
@@ -547,7 +568,7 @@ defined by the two vectors u and v (each given in r.l.u)</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Nov 22, 2024, 11:29:14 AM.
+      <span class="lastupdated">Last updated on Nov 29, 2024, 3:39:49 PM.
       </span></p>
   </div>
 
