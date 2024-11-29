@@ -12,32 +12,32 @@ classdef test_experiment_methods < TestCase
             end
             obj = obj@TestCase(name);
             instruments = { IX_inst_DGfermi(), ...
-                            IX_inst_DGdisk(),  ...
-                            IX_inst_DGdisk()   };
-            
+                IX_inst_DGdisk(),  ...
+                IX_inst_DGdisk()   };
+
             sample1 = IX_sample([1,2,3],[91,90,89]);
             sample1.name = 'sample1';
             sample2 = IX_sample([1.1,2.2,3.2],[90,91,92]);
             sample2.name = 'sample2';
             sample3  = IX_samp('sample3',[1.2,2.3,3.3],[89,92,91]);
             samples = {sample1,sample2,sample3};
-            
+
             exp = repmat(IX_experiment,3,1);
             exp(1).run_id = 10;
             exp(1).filename = 'a1';
             exp(1).psi = 10;
-            exp(1).angular_units = 'rad';            
+            exp(1).angular_units = 'rad';
 
             exp(2).run_id = 20;
             exp(2).filename = 'a2';
-            exp(2).psi = 10;            
-            exp(2).angular_units = 'rad';            
+            exp(2).psi = 10;
+            exp(2).angular_units = 'rad';
 
             exp(3).run_id = 30;
             exp(3).filename = 'a3';
-            exp(3).psi = 10;            
-            exp(3).angular_units = 'rad';                        
-            
+            exp(3).psi = 10;
+            exp(3).angular_units = 'rad';
+
             detector = IX_detector_array();
             detector = repmat(detector,3,1);
 
@@ -153,15 +153,15 @@ classdef test_experiment_methods < TestCase
             assertEqual(rec_exp.expdata,exp.expdata(2));
             assertEqual(rec_exp.runid_map.keys,{20});
             assertEqual(rec_exp.runid_map.values,{1});
-            
+
             assertEqual(rec_exp.detector_arrays.n_runs, 0);
 
-            % properties are now recovered from old headers so we can 
-            % compare reconstructed data for element 1 against 
+            % properties are now recovered from old headers so we can
+            % compare reconstructed data for element 1 against
             % the original element 2
             assertEqual(rec_exp.instruments{1},exp.instruments{2});
             assertEqual(rec_exp.samples{1},exp.samples{2});
-            
+
             % note that detector detpars are not held in the headers so any
             % detectors in exp will not have been passed to rec_exp via
             % the reconstruction via hdrs_cell. To ensure that exp does
@@ -188,7 +188,7 @@ classdef test_experiment_methods < TestCase
             % instruments are not recovered from old headers at all
             %exp.instruments = {IX_null_inst(),IX_null_inst(),IX_null_inst()};
             assertEqual(rec_exp.instruments,exp.instruments);
-            
+
             %NB detectors are not stored in old headers and so
             %   have not been converted
         end
@@ -312,85 +312,84 @@ classdef test_experiment_methods < TestCase
             assertEqual(part.expdata(1).filename,'a2')
             assertEqual(part.expdata(2).filename,'a3')
         end
-        
+
         %-----------------------------------------------------------------------
         % Test get_experiment_idx
         %-----------------------------------------------------------------------
-        
+
         function test_get_experiment_idx_fullLookup(obj)
             % Change to runid_map with non-ordered keys and values
             experiment = obj.sample_exper;
             experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
-            
+
             % Array of valid run_idx
             run_idx = [30,40,20,20,30];
             expt_idx = experiment.get_experiment_idx (run_idx);
-            
+
             assertEqual(expt_idx, [3,2,1,1,3])
         end
-        
+
         function test_get_experiment_idx_fullLookup_arrayRun_idx(obj)
             % Change to runid_map with non-ordered keys and values
             experiment = obj.sample_exper;
             experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
-            
+
             % Array of valid run_idx
             run_idx = [30,40,20; 20,30,40]; % 2x3 array
             sparse_lookup = false;
             expt_idx = experiment.get_experiment_idx (run_idx, sparse_lookup);
-            
+
             assertEqual(expt_idx, [3,2,1; 1,3,2])
         end
-        
+
         function test_get_experiment_idx_sparseLookup_arrayRun_idx(obj)
             % Change to runid_map with non-ordered keys and values
             experiment = obj.sample_exper;
             experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
-            
+
             % Array of valid run_idx
             run_idx = [30,40,20; 20,30,40]; % 2x3 array
             sparse_lookup = true;
             expt_idx = experiment.get_experiment_idx (run_idx, sparse_lookup);
-            
+
             assertEqual(expt_idx, [3,2,1; 1,3,2])
         end
-        
+
         function test_get_experiment_idx_fullLookup_emptyRun_idx(obj)
             % Change to runid_map with non-ordered keys and values
             experiment = obj.sample_exper;
             experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
-            
+
             % Array of valid run_idx
             run_idx = [];
             expt_idx = experiment.get_experiment_idx (run_idx);
-            
+
             assertEqual(expt_idx, [])
         end
-        
+
         function test_get_experiment_idx_fullLookup_outOfRangeRun_idx(obj)
             % Change to runid_map with non-ordered keys and values
             experiment = obj.sample_exper;
             experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
-            
+
             % Array with an invalid run_idx out of range
             run_idx = [30,20,50];   % 50 is out of range
             f = @() experiment.get_experiment_idx (run_idx);
-            
+
             assertExceptionThrown(f, 'HORACE:Experiment:invalid_argument');
         end
-        
+
         function test_get_experiment_idx_fullLookup_invalidRun_idx(obj)
             % Change to runid_map with non-ordered keys and values
             experiment = obj.sample_exper;
             experiment.runid_map = containers.Map([20,30,40],[1,3,2]);
-            
+
             % Array with an invalid run_idx out of range
             run_idx = [30,25,20];   % 25 is not a valid key
             f = @() experiment.get_experiment_idx (run_idx);
-            
+
             assertExceptionThrown(f, 'HORACE:Experiment:invalid_argument');
         end
-        
     end
 end
 

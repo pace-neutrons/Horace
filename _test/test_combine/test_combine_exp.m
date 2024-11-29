@@ -108,7 +108,6 @@ classdef test_combine_exp < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_combine_dnd_notol(this)
             % dnd combination without specifying a tolerance
-            skipTest("combine dnd skpped until #878 is fixed")
             w2d_qq_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
             w2d_qq_d2d_plus=read_dnd(fullfile(this.testdir,'w2d_qq_d2d_plus.sqw'));
             w2d_qq_d2d_minus=read_dnd(fullfile(this.testdir,'w2d_qq_d2d_minus.sqw'));
@@ -131,7 +130,6 @@ classdef test_combine_exp < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_combine_dnd_tol(this)
             % dnd combination specifying a tolerance
-            skipTest("combine dnd skpped until #878 is fixed")
             w1d_d1d=read_dnd(fullfile(this.testdir,'w1d_d1d.sqw'));
             w1d_d1d_plus=read_dnd(fullfile(this.testdir,'w1d_d1d_plus.sqw'));
             w1d_d1d_minus=read_dnd(fullfile(this.testdir,'w1d_d1d_minus.sqw'));

@@ -29,18 +29,22 @@ class_type=class(w1);
 
 % Get parameters from the first IX_dataset_1d
 if numel(w1)~=1
-    error(['Input argument 1 must be a single ',class_type,' object, not an array']);
+    error ('HERBERT:IX_data_1d:invalid_argument', ...
+        'Combine works on a single input object, not an array of objects');
 end
 w.x=w1.x; w.y=w1.signal; w.e=w1.error;
 is_hist=logical(length(w.x)-length(w.y));
 
 if rem(nargin,2)~=0
-    error ('Check number of arguments to dataset combine function')
+    error ('HERBERT:IX_data_1d:invalid_argument', ...
+        'Number of arguments to dataset combine function should be even. It equal to: %d', ...
+        nargin)
 end
 
 nwork= nargin/2; %number of IX_dataset_1d objects that will be combined
-if nwork<=1
-    error(['Not enough input paramters given! Minimum input consists'...
+if nargin < 2
+    error ('HERBERT:IX_data_1d:invalid_argument', ...
+        ['Not enough input paramters given! Minimum input consists'...
         ' of e.g. wout= combine(w1,x1,w2,delta)']);
 end
 
@@ -50,15 +54,20 @@ j=1;
 w=repmat(w,1,nwork);
 for i=2:2:2*(nwork-1)
     j= j+1;
-    if ~isa(varargin{i} , class_type),
-        error(['Input argument ' 1+int2str(i) ' is not a ',class_type,' object']);
-    elseif length(varargin{i})~=1
-        error(['Input argument ' 1+int2str(i) ' must be a single ',class_type,' object, not an array']);
+    if ~isa(varargin{i} , class_type)
+        error ('HERBERT:IX_data_1d:invalid_argument', ...
+            'Input argument N %d is not a %s object', ...
+            1+int2str(i),class_type);
+    elseif numel(varargin{i})~=1
+        error ('HERBERT:IX_data_1d:invalid_argument', ...
+            'Input argument N %d  must be a single %s object, not an array', ...
+            1+int2str(i),class_type);
     else
         w(j).x=varargin{i}.x; w(j).y=varargin{i}.signal; w(j).e=varargin{i}.error;
     end
     if logical(length(w(j).x)-length(w(j).y))~=is_hist
-        error ('Cannot mix histogram and point data sets');
+        error ('HERBERT:IX_data_1d:invalid_argument', ...
+            'Cannot mix histogram and point data sets');
     end
 end
 
@@ -67,9 +76,9 @@ end
 % are in increasing order. Will give x1, x2, x3, ..., xn-1.
 j=0;
 x=zeros(1,nwork-1);
-for i=1:2:2*nwork-3,
+for i=1:2:2*nwork-3
     j= j+1;
-    if ~isa(varargin{i}, 'double'),
+    if ~isa(varargin{i}, 'double')
         error(['Input agument ' 1+int2str(i) ' is not a number']);
     elseif length(varargin{i})>1
         error(['Input agument ' 1+int2str(i) ' must be a scalar']);

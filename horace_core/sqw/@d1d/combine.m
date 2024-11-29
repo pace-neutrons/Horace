@@ -1,8 +1,8 @@
-function wout=combine_horace_1d(w1,w2,varargin)
+function wout=combine(w1,w2,varargin)
 %
 % Combine two d1d (or sqw of d1d-type) datasets.
 %
-% wout=combine_horace_1d(w1,w2) - combines w1 and w2. The bins and
+% wout=combine(w1,w2) - combines w1 and w2. The bins and
 % specified by w1 will be those used for wout. The limits of wout are such
 % that all of the data from both datasets are included.
 %
@@ -48,30 +48,29 @@ if ~ok
 end
 
 %
-if same_axes
-    %
-    if isequal(w1.data_.u_to_rlu(:,w1.data_.pax(1)), w2.data_.u_to_rlu(:,w2.data_.pax(1)))
-        x1 = w1.data_.p{1}; x2 = w2.data_.p{1};
-        s1 = w1.data_.s; s2 = w2.data_.s;
-        e1 = w1.data_.e; e2 = w2.data_.e;
-        n1 = w1.data_.npix; n2 = w2.data_.npix;
+if ~same_axes
+    error('HORACE:d1d:invalid_argument','1d objects must have same x-axis projection');
+end
+%
+if isequal(w1.data_.u_to_rlu(:,w1.data_.pax(1)), w2.data_.u_to_rlu(:,w2.data_.pax(1)))
+    x1 = w1.data_.p{1}; x2 = w2.data_.p{1};
+    s1 = w1.data_.s; s2 = w2.data_.s;
+    e1 = w1.data_.e; e2 = w2.data_.e;
+    n1 = w1.data_.npix; n2 = w2.data_.npix;
 
-        if has_tolerance
-            [xout, sout, eout, nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,tol);
-        else
-            [xout, sout, eout, nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,[]);
-        end
-
-        % Now need to construct the output d1d
-        wout=d1d(w1);
-        wout.data_.p{1}=xout(:,1);
-        wout.data_.s=sout;
-        wout.data_.e=eout;
-        wout.data_.npix=nout;
-        wout.data_.title=[wout.data_.title,' COMBINED '];;
+    if has_tolerance
+        [xout, sout, eout, nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,tol);
     else
-        error('Horace error: 1d objects must have the same x-axis');
+        [xout, sout, eout, nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,[]);
     end
+
+    % Now need to construct the output d1d
+    wout=d1d(w1);
+    wout.data_.p{1}=xout(:,1);
+    wout.data_.s=sout;
+    wout.data_.e=eout;
+    wout.data_.npix=nout;
+    wout.data_.title=[wout.data_.title,' COMBINED '];
 else
-    error('Horace error: 1d objects must have same x-axis projection');
+    error('Horace error: 1d objects must have the same x-axis');
 end
