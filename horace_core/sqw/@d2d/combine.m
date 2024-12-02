@@ -1,4 +1,4 @@
-function wout=combine_horace_2d(w1,w2,varargin)
+function wout=combine(w1,w2,varargin)
 %
 % Combine two d2d (or sqw of d2d-type) datasets.
 %
@@ -25,13 +25,10 @@ function wout=combine_horace_2d(w1,w2,varargin)
 [ndims2,~]=dimensions(w2);
 
 if ndims1~=2 || ndims2~=2
-    error('Horace error: ensure both objects have the same dimensionality')
-end
+    error('HORACE:d2d:invalid_argument', ...
+        'Both objects have the same dimensionality. Actually, ndims(obj1) = %d, ndims(obj2)=%d ', ...
+        ndims1,ndims2);
 
-if isa(w1,'SQWDnDBase') && isa(w2,'SQWDnDBase')
-    if has_pixels(w1) && has_pixels(w2)
-        error('Horace error: d1d method cannot be used for 2 sqw objects with pixel info. Logic flaw');
-    end
 end
 
 %First set of cases is where no tolerance is specified
@@ -40,9 +37,11 @@ if nargin==2
 elseif nargin==3
     tol=varargin{1};
     if ~isnumeric(tol)
-        error('Horace error: the combining tolerance should be specified by a scalar');
+        error('HORACE:d2d:invalid_argument', ...
+            'the combining tolerance should be specified by a scalar');
     elseif numel(tol)~=2
-        error('Horace error: the combining tolerance should be specified by a 2-element vector');
+        error('HORACE:d2d:invalid_argument', ...
+            'The combining tolerance should be specified by a scalar');
     end
     route=2;
 else
@@ -61,36 +60,39 @@ switch route
             %
             [irange,uoff]=calculate_integration_range(w1,w2);
             %
-            if isequal(w1.data.u_to_rlu(:,w1.data.pax(1)),w2.data_.u_to_rlu(:,w2.data.pax(1)))
-                [x1,y1]=ndgrid(w1.data.p{1},w1.data.p{2});
-                [x2,y2]=ndgrid(w2.data.p{1},w2.data.p{2});
-                s1=w1.data.s; s2=w2.data.s;
-                e1=w1.data.e; e2=w2.data.e;
-                n1=w1.data.npix; n2=w2.data.npix;
+            if isequal(w1.u_to_rlu(:,w1.pax(1)),w2.u_to_rlu(:,w2.pax(1)))
+                [x1,y1]=ndgrid(w1.p{1},w1.p{2});
+                [x2,y2]=ndgrid(w2.p{1},w2.p{2});
+                s1=w1.s; s2=w2.s;
+                e1=w1.e; e2=w2.e;
+                n1=w1.npix; n2=w2.npix;
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,[]);
             else
                 %have same axes, but y-axis of w1 is x-axis of w2, and v.v.
-                [x1,y1]=ndgrid(w1.data_.p{1},w1.data_.p{2});
-                [x2,y2]=ndgrid(w2.data_.p{2},w2.data_.p{1});
-                s1=w1.data_.s; s2=w2.data_.s';
-                e1=w1.data_.e; e2=w2.data_.e';
-                n1=w1.data_.npix; n2=w2.data_.npix';
+                [x1,y1]=ndgrid(w1.p{1},w1.p{2});
+                [x2,y2]=ndgrid(w2.p{2},w2.p{1});
+                s1=w1.s; s2=w2.s';
+                e1=w1.e; e2=w2.e';
+                n1=w1.npix; n2=w2.npix';
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,[]);
                 %
             end
             %Now need to construct the output d2d:
-            wout=d2d(w1);
-            paxis = (wout.nbins_all_dims>1);
-            range = [min(xout(:,1),min(yout(:,1)));max(xout(:,1),max(yout(:,1)))];
-            wout.img_range(paxis) = range;
-            wout.nbins_all_dims(1) = numel(xout(:,1));
-            wout.nbins_all_dims(2) = numel(yout(1,:));
+            wout=d2d(w1);            
+            wout.do_check_combo_arg = false;
+            paxis = (wout.axes.nbins_all_dims>1);
+            range = [min(xout(:,1)),min(yout(:,1));max(xout(:,1)),max(yout(:,1))];
+            wout.axes.img_range(:,paxis) = range;
+            wout.axes.nbins_all_dims(1) = numel(xout(:,1))-1;
+            wout.axes.nbins_all_dims(2) = numel(yout(1,:))-1;
             wout.s=sout;
             wout.e=eout;
             wout.npix=nout;
             wout.title=[wout.title,' COMBINED '];
-            wout.img_range(~paxis)=irange;
-            wout.uoffset=uoff;
+            wout.axes.img_range(:,~paxis)=irange;
+            wout.proj.offset=uoff;
+            wout.do_check_combo_arg = true;
+            wout = wout.check_combo_arg();
 
         else
             [irange,uoff]=calculate_integration_range(w1,w2);
@@ -122,8 +124,8 @@ switch route
             wout=w1tmp;
             wout.s=sout; wout.e=eout; wout.npix=nout;
             wout.iint=irange;
-            wout.uoffset=uoff;
-            wout.title=[w1.data_.title, ' COMBINED'];
+            wout.proj.offset=uoff;
+            wout.title=[w1.title, ' COMBINED'];
 
         end
     case 2
@@ -136,20 +138,20 @@ switch route
             %
             [irange,uoff]=calculate_integration_range(w1,w2);
             %
-            if isequal(w1.data_.u_to_rlu(:,w1.data_.pax(1)),w2.data_.u_to_rlu(:,w2.data_.pax(1)))
-                [x1,y1]=ndgrid(w1.data_.p{1},w1.data_.p{2});
-                [x2,y2]=ndgrid(w2.data_.p{1},w2.data_.p{2});
-                s1=w1.data_.s; s2=w2.data_.s;
-                e1=w1.data_.e; e2=w2.data_.e;
-                n1=w1.data_.npix; n2=w2.data_.npix;
+            if isequal(w1.u_to_rlu(:,w1.pax(1)),w2.u_to_rlu(:,w2.pax(1)))
+                [x1,y1]=ndgrid(w1.p{1},w1.p{2});
+                [x2,y2]=ndgrid(w2.p{1},w2.p{2});
+                s1=w1.s; s2=w2.s;
+                e1=w1.e; e2=w2.e;
+                n1=w1.npix; n2=w2.npix;
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,tol);
             else
                 %y-axis of w1 is x-axis of w2, and v.v.
-                [x1,y1]=ndgrid(w1.data_.p{1},w1.data_.p{2});
-                [x2,y2]=ndgrid(w2.data_.p{2},w2.data_.p{1});
-                s1=w1.data_.s; s2=w2.data_.s';
-                e1=w1.data_.e; e2=w2.data_.e';
-                n1=w1.data_.npix; n2=w2.data_.npix';
+                [x1,y1]=ndgrid(w1.p{1},w1.p{2});
+                [x2,y2]=ndgrid(w2.p{2},w2.p{1});
+                s1=w1.s; s2=w2.s';
+                e1=w1.e; e2=w2.e';
+                n1=w1.npix; n2=w2.npix';
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,tol);
                 %
             end
@@ -166,7 +168,7 @@ switch route
             wout.title=[wout.title,' COMBINED '];
             wout.img_range(~paxis)=irange;
             wout.uoffset=uoff;
-            
+
         else
             [irange,uoff]=calculate_integration_range(w1,w2);
             %data plane is the same, but the axes are different. So need
@@ -209,6 +211,6 @@ switch route
             wout.s=sout; wout.e=eout; wout.npix=nout;
             wout.iint=irange;
             wout.uoffset=uoff;
-            wout.title=[w1.data_.title, ' COMBINED'];
+            wout.title=[w1.title, ' COMBINED'];
         end
 end
