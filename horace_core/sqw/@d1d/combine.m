@@ -17,13 +17,9 @@ function wout=combine(w1,w2,varargin)
 [ndims2, ~]=dimensions(w2);
 
 if ndims1~=1 || ndims2~=1
-    error('Horace error: ensure both objects have the same dimensionality')
-end
-
-if isa(w1,'sqw') && isa(w2,'sqw')
-    if has_pixels(w1) && has_pixels(w2)
-        error('Horace error: d1d method cannot be used for 2 sqw objects with pixel info. Logic flaw');
-    end
+    error('HORACE:d1d:invalid_argument', ...
+        'Both objects have the same dimensionality. Actually, ndims(obj1) = %d, ndims(obj2)=%d ', ...
+        ndims1,ndims2);
 end
 
 %First set of cases is where no tolerance is specified
@@ -32,45 +28,56 @@ if nargin==2
 elseif nargin==3
     tol=varargin{1};
     if ~isnumeric(tol)
-        error('Horace error: the combining tolerance should be specified by a scalar');
+        error('HORACE:d1d:invalid_argument', ...
+            'the combining tolerance should be specified by a scalar');
     elseif numel(tol)~=1
-        error('Horace error: the combining tolerance should be specified by a scalar');
+        error('HORACE:d1d:invalid_argument', ...
+            'The combining tolerance should be specified by a scalar');
     end
     has_tolerance = true;
 else
-    error('Horace error: check number and format of input arguments');
+    error('HORACE:d1d:invalid_argument', ...
+        'Incorrect number of input arguments. 2 or 3 allowed, Provided: %d', ...
+        nargin);
 end
 
 %
-[ok, same_axes, mess]=check_rebinning_axes_1d(w1, w2);
-if ~ok
-    error(mess);
-end
-
 %
-if ~same_axes
-    error('HORACE:d1d:invalid_argument','1d objects must have same x-axis projection');
+if ~isequal(w1.proj, w2.proj)
+    error('HORACE:d1d:invalid_argument', ...
+        '1d objects must have same x-axis type and direction');
 end
 %
-if isequal(w1.data_.u_to_rlu(:,w1.data_.pax(1)), w2.data_.u_to_rlu(:,w2.data_.pax(1)))
-    x1 = w1.data_.p{1}; x2 = w2.data_.p{1};
-    s1 = w1.data_.s; s2 = w2.data_.s;
-    e1 = w1.data_.e; e2 = w2.data_.e;
-    n1 = w1.data_.npix; n2 = w2.data_.npix;
 
-    if has_tolerance
-        [xout, sout, eout, nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,tol);
-    else
-        [xout, sout, eout, nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,[]);
-    end
+x1 = w1.p{1}; x2 = w2.p{1};
+s1 = w1.s; s2 = w2.s;
+e1 = w1.e; e2 = w2.e;
+n1 = w1.npix; n2 = w2.npix;
 
-    % Now need to construct the output d1d
-    wout=d1d(w1);
-    wout.data_.p{1}=xout(:,1);
-    wout.data_.s=sout;
-    wout.data_.e=eout;
-    wout.data_.npix=nout;
-    wout.data_.title=[wout.data_.title,' COMBINED '];
+if has_tolerance
+    [xout, sout, eout, nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,tol);
 else
-    error('Horace error: 1d objects must have the same x-axis');
+    [xout, sout, eout, nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,[]);
 end
+
+% Now need to construct the output d1d
+nbins = numel(xout)-1;
+step  = xout(2)-xout(1);
+nbins_all_dims = w1.axes.nbins_all_dims;
+tot_range       = w1.img_range;
+nbins_all_dims(w1.pax) = nbins;
+range = minmax(xout');
+range(1)=range(1)+0.5*step;
+range(2)=range(2)-0.5*step;
+tot_range(:,w1.pax) = range;
+
+wout=d1d(w1);
+wout.do_check_combo_arg = false;
+wout.axes.nbins_all_dims =nbins_all_dims;
+wout.axes.img_range      = tot_range;
+wout.s=sout;
+wout.e=eout;
+wout.npix=nout;
+wout.title=[wout.title,' COMBINED '];
+wout.do_check_combo_arg = true;
+wout = wout.check_combo_arg();

@@ -134,7 +134,7 @@ classdef test_combine_exp < TestCase
             w1d_d1d_plus=read_dnd(fullfile(this.testdir,'w1d_d1d_plus.sqw'));
             w1d_d1d_minus=read_dnd(fullfile(this.testdir,'w1d_d1d_minus.sqw'));
 
-            w1d_combined=combine_horace_1d(w1d_d1d_minus,w1d_d1d_plus,0.025);
+            w1d_combined=combine(w1d_d1d_minus,w1d_d1d_plus,0.025);
 
             mf = multifit_sqw (w1d_d1d);
             mf = mf.set_fun (@fake_cross_sec, 0.9*[this.stiffness,this.gam,this.amp]);
