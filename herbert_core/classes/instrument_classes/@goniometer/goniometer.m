@@ -1,28 +1,28 @@
-classdef goniometer < serializable
+classdef Goniometer < serializable
     % class describes main properties of a goniometer used to orient
     % sample in a spectrometer for neutron scattering or x-ray investigation.
     % and contains various service functions to work with such goniometer
     %
     % Usage:
-    %>>lat = goniometer() -- build goniometer with default
+    %>>lat = Goniometer() -- build goniometer with default
     %                             parameters. angle psi of such
     %                             goniometer can be considered undefined and
     %                             all others - have default values
     % or:
-    %>>lat = goniometer(psi)       !- build goniometer using
-    %>>lat = goniometer(psi,u)     ! default positional
-    %>>lat = goniometer(psi,u,v)   ! parameters
-    %>>lat = goniometer(....,key,value)       --!
+    %>>lat = Goniometer(psi)       !- build goniometer using
+    %>>lat = Goniometer(psi,u)     ! default positional
+    %>>lat = Goniometer(psi,u,v)   ! parameters
+    %>>lat = Goniometer(....,key,value)       --!
     % or:
     % Constructor which defines all lattice parameters in the positions,
     % specified as below:
-    %>>lat = goniometer(psi,u,v,omega,dpsi,gl,gs,['deg'|'rad'])
+    %>>lat = Goniometer(psi,u,v,omega,dpsi,gl,gs,['deg'|'rad'])
     %
     %        where optional 'deg'|'rad' key specifies degree or radian
     %        units input angular parameters are expressed in.
     %        Default is 'degree'
     % or:
-    %>>lat = goniometer(struct) -- build goniometer from
+    %>>lat = Goniometer(struct) -- build goniometer from
     %                  structure with field names, corresponding to names
     %                  of goniometer public properties.
     %
@@ -101,13 +101,13 @@ classdef goniometer < serializable
     %
     methods
         % constructor
-        function self = goniometer(varargin)
+        function self = Goniometer(varargin)
             if nargin == 0
                 return;
             end
             [self,rem] = self.init(varargin{:});
             if ~isempty(rem)
-                error('HORACE:goniometer:invalid_argument', ...
+                error('HORACE:Goniometer:invalid_argument', ...
                     'Provided Unrecognized additional parameter(s): %s', ...
                     disp2str(rem))
             end
@@ -240,11 +240,11 @@ classdef goniometer < serializable
     end
     methods(Access=protected)
         function obj = check_and_set_uv(obj,name,val)
-            % main overloadable setter for u and v
+            % main over-loadable setter for u and v
             obj = check_and_set_uv_(obj,name,val);
         end
         function [val,obj] = check_angular_val(obj,val)
-            % main overloadable setter function for goniometer angles
+            % main over-loadable setter function for goniometer angles
             val = check_angular_set_(obj,val);
         end
         function uf = get_undef_fields(obj)
@@ -256,7 +256,7 @@ classdef goniometer < serializable
             end
         end
         function [is,val,argi] = check_angular_units_present(obj,varargin)
-            % analyze input parameters in all reasonable forms and extract
+            % analyse input parameters in all reasonable forms and extract
             % angular units value from them if it is present.
             % Necessary for construction, as it has to be set first not to
             % change parameter values when it set
@@ -278,10 +278,10 @@ classdef goniometer < serializable
             ver = 1;
         end
         function flds = saveableFields(~)
-            flds = [goniometer.gon_fields_(:);'angular_is_degree'];
+            flds = [Goniometer.gon_fields_(:);'angular_is_degree'];
         end
         function flds = constructionFields(~)
-            flds = [goniometer.gon_fields_(:);'angular_units'];
+            flds = [Goniometer.gon_fields_(:);'angular_units'];
         end
 
         function obj = check_combo_arg(obj)
@@ -307,7 +307,7 @@ classdef goniometer < serializable
         end
 
         function obj = loadobj(input)
-            obj = goniometer();
+            obj = Goniometer();
             obj = loadobj@serializable(input,obj);
         end
     end

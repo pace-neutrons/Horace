@@ -24,7 +24,7 @@ classdef test_IX_experiment <  TestCase
             assertFalse(isequal(ch1,ch2));
         end
         function test_goniometer_key_construction(~)
-            gon = goniometer(10,[0,1,0],[1,0,0]);
+            gon = Goniometer(10,[0,1,0],[1,0,0]);
 
             exp1 = IX_experiment('my_file','my_path',666,10,1,1:9, ...
                 'goniometer',gon);
@@ -39,7 +39,7 @@ classdef test_IX_experiment <  TestCase
         end
 
         function test_goniometer_construction(~)
-            gon = goniometer(10,[0,1,0],[1,0,0]);
+            gon = Goniometer(10,[0,1,0],[1,0,0]);
             exp1 = IX_experiment('my_file','my_path',666,10,1,1:9,gon);
 
             assertEqual(exp1.psi,10)
