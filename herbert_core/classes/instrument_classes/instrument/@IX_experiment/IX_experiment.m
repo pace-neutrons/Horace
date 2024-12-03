@@ -132,7 +132,7 @@ classdef IX_experiment < Goniometer
             ids = arrayfun(@(in)(obj(in).run_id_),ind);
             idmap = containers.Map(ids,ind);
         end
-        
+
         %
         function mode = get.emode(obj)
             mode = obj.emode_;
@@ -261,30 +261,31 @@ classdef IX_experiment < Goniometer
             old_hdr = convert_to_binfile_header_(obj,mode,arg1,arg2,nomangle);
         end
         %
-        function [hash,obj] = get_neq_hash(obj)
+        function [hash,obj,is_new] = get_neq_hash(obj)
             % get hash used for comparison of IX_experiment objects against
             % equality while building sqw objects
 
             % At present, we insist that the contributing spe data are distinct in that:
             %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
-
             if obj.hash_valid_
                 hash = obj.comparison_hash_;
+                is_new = false;
                 return;
             end
             % list of properties which can not be all equal for
             % experiments to be diffetent
             comp_prop = IX_experiment.unique_prop ;
 
-            hash = IX_experiment.get_comparison_hash(obj,comp_prop);
+            hash   = IX_experiment.get_comparison_hash(obj,comp_prop);
+            is_new = true;
             if nargout>1
                 obj.comparison_hash_ =  hash;
                 obj.hash_valid_      = true;
             end
         end
         %
-        function obj = combine(obj,exper_cellarray,keep_runid,varargin)
-            % properly combine input IX_experiment array with elements 
+        function [obj,this_runid_map] = combine(obj,exper_cellarray,keep_runid,varargin)
+            % properly combine input IX_experiment array with elements
             % contained in exper_cellarray, ignoring possible duplicates
             % Inputs:
             % obj             -- sinle instance or array of IX_experiment objects
@@ -293,7 +294,7 @@ classdef IX_experiment < Goniometer
             % keep_runid      -- boolean, which includes true if run_id-s
             %                    stored in IX_experiment data should be
             %                    kept or final obj run_id should be
-            %                    recalculated. 
+            %                    recalculated.
             % WARNING:        -- run_id(s) modified if keep_runid == false
             %                    must be synchronized with run_id(s) stored
             %                    in pixels, which means that keep_runid ==
@@ -306,10 +307,14 @@ classdef IX_experiment < Goniometer
             % obj             -- resulting array, containing unique
             %                    instances of IX_experiment classes with
             %                    all non-unique IX_experiments excluded.
+            % this_runid_map --  the map which connects run_id(s) of data,
+            %                    stored in the obj with the positions of
+            %                    the data objects in the object array.
+
             if nargin == 2
                 keep_runid = true;
             end
-            obj = combine_(obj,exper_cellarray,keep_runid);
+            [obj,this_runid_map] = combine_(obj,exper_cellarray,keep_runid,varargin{:});
         end
     end
     methods(Access=protected)
@@ -412,7 +417,7 @@ classdef IX_experiment < Goniometer
             % verify interdependent variables and the validity of the
             % obtained lattice object
             obj = check_combo_arg@Goniometer(obj);
-            if numel(obj.efix_) == 1 && obj.efix_ == 0 && obj.emode_ ~=0
+            if isscalar(obj.efix_) && obj.efix_ == 0 && obj.emode_ ~=0
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'efix (incident energy) can be 0 in elastic mode only. Emode=%d', ...
                     obj.emode_)
@@ -470,7 +475,6 @@ classdef IX_experiment < Goniometer
             % + support for legacy alignment matrix
             obj = IX_experiment();
             obj = loadobj@serializable(S,obj);
-
         end
     end
 end
