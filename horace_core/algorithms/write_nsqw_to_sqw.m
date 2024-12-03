@@ -152,7 +152,7 @@ end
 hpc = hpc_config;
 use_mex = use_mex && strncmp(hpc.combine_sqw_using,'mex',3);
 [page_op,wout]  = page_op.init(sqw_mem_part,run_id,use_mex);
-% TODO: Re #1320 do not load result in memory and do not initilize
+% TODO: Re #1320 do not load result in memory and do not initialize
 % filebacked operations if it is not requested
 wout            = sqw.apply_op(wout,page_op);
 

@@ -4,11 +4,11 @@
 %Christian Balz 25/07/2022
 
 %In order to symmetrise data we first need to correct for any existing
-%sample misalingment. As the symmetrisation routines will asume the sample
-%to be perfectly alignetd they will create false results if it is not done
+%sample misalignment. As the symmetrization routines will assume the sample
+%to be perfectly aligned they will create false results if it is not done
 %in this order. We will start with a raw sqw file and apply the sample
 %alignment corrections after fitting a set of Bragg peaks. Then we
-%will take this corrected sqw and see what the symmetrisation routines can
+%will take this corrected sqw and see what the symmetrization routines can
 %do for us.
 
 %Set the data folder

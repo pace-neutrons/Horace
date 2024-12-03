@@ -1,4 +1,4 @@
-classdef IX_experiment < goniometer
+classdef IX_experiment < Goniometer
     %IX_EXPERIMENT -- transient class which describes transformation of a
     %single run into Crystal Cartesian coordinate system during sqw file
     %generation
@@ -28,14 +28,14 @@ classdef IX_experiment < goniometer
         u_to_rlu;
     end
     properties(Hidden)
-        % these properties are not used in Horace-4 but left for compartibility
+        % these properties are not used in Horace-4 but left for compatibility
         % with Horace-3 file format when it read/updated from/to Horace-3
         % format files.
         ulabel = {'','','',''};
         ulen = [1,1,1,1];
     end
     properties(Constant)
-        % the list of properties which define IX_experiment uniques
+        % the list of properties which define IX_experiment uniqueness
         % if all properties values are the same, IX_experiments are
         % considered the same
         unique_prop = {'filename','cu','cv','efix',...
@@ -43,7 +43,7 @@ classdef IX_experiment < goniometer
     end
 
     properties(Hidden)
-        % Never usefully ised except loading from old files so candidates
+        % Never usefully used except loading from old files so candidates
         % for removal
         uoffset=[0,0,0,0];  % Always 0.
     end
@@ -125,6 +125,14 @@ classdef IX_experiment < goniometer
             ind = 1:numel(obj);
             ids = arrayfun(@(in)(obj(in).run_id_),ind);
         end
+        function idmap = get_run_id_map(obj)
+            % retrieve all run_ids, which may be present in the array of
+            % rundata objects and build run_id map from them
+            ind = 1:numel(obj);
+            ids = arrayfun(@(in)(obj(in).run_id_),ind);
+            idmap = containers.Map(ids,ind);
+        end
+        
         %
         function mode = get.emode(obj)
             mode = obj.emode_;
@@ -193,7 +201,7 @@ classdef IX_experiment < goniometer
             str = obj.to_bare_struct();
             str.u = obj.cu;
             str.v = obj.cv;
-            gon = goniometer(str);
+            gon = Goniometer(str);
         end
         function obj = set.goniometer(obj,val)
             if isstruct(val)
@@ -203,11 +211,11 @@ classdef IX_experiment < goniometer
                 if isfield(val,'cv')
                     val.v = val.cv;
                 end
-            elseif isa(val,'goniometer')
+            elseif isa(val,'Goniometer')
                 val = val.to_bare_struct();
             else
                 error('HORACE:IX_experiment:invalid_argument', ...
-                    'Goniometer property accepts input as a class "goniometer" or a structure, convertable into goniometer.\n Provided %s', ...
+                    'Goniometer property accepts input as a class "Goniometer" or a structure, convertible into Goniometer.\n Provided %s', ...
                     class(val));
             end
             obj = obj.from_bare_struct(val);
@@ -275,18 +283,46 @@ classdef IX_experiment < goniometer
             end
         end
         %
+        function obj = combine(obj,exper_cellarray,keep_runid,varargin)
+            % properly combine input IX_experiment array with elements 
+            % contained in exper_cellarray, ignoring possible duplicates
+            % Inputs:
+            % obj             -- sinle instance or array of IX_experiment objects
+            % exper_cellarray -- exper_cellarray cellarray containing
+            %                     IX_experiments arrays
+            % keep_runid      -- boolean, which includes true if run_id-s
+            %                    stored in IX_experiment data should be
+            %                    kept or final obj run_id should be
+            %                    recalculated. 
+            % WARNING:        -- run_id(s) modified if keep_runid == false
+            %                    must be synchronized with run_id(s) stored
+            %                    in pixels, which means that keep_runid ==
+            %                    false could be used mainly in tests
+            % Optional:
+            % runid_map       -- the map containing information about
+            %                    run_id(s) stored in the object.
+            %
+            % Returns:
+            % obj             -- resulting array, containing unique
+            %                    instances of IX_experiment classes with
+            %                    all non-unique IX_experiments excluded.
+            if nargin == 2
+                keep_runid = true;
+            end
+            obj = combine_(obj,exper_cellarray,keep_runid);
+        end
     end
     methods(Access=protected)
         %
         function obj = check_and_set_uv(obj,name,val)
             % main overloadable setter for u and v
-            obj = check_and_set_uv@goniometer(obj,name,val);
+            obj = check_and_set_uv@Goniometer(obj,name,val);
             obj.hash_valid_  = false;
         end
 
         function [val,obj] = check_angular_val(obj,val)
             % main overloadable setter function for goniometer angles
-            [val,obj] = check_angular_val@goniometer(obj,val);
+            [val,obj] = check_angular_val@Goniometer(obj,val);
             obj.hash_valid_ = false;
         end
 
@@ -356,14 +392,14 @@ classdef IX_experiment < goniometer
     end
     methods
         function flds = saveableFields(obj)
-            base= saveableFields@goniometer(obj);
+            base= saveableFields@Goniometer(obj);
             flds = [IX_experiment.fields_to_save_(:);base(:)];
             if ~isempty(obj(1).u_to_rlu_) || isnan(obj(1).run_id_) % run_id_ is NaN on non-initialized file
                 flds = [flds(:);'u_to_rlu'];
             end
         end
         function flds = constructionFields(obj)
-            base= constructionFields@goniometer(obj);
+            base= constructionFields@Goniometer(obj);
             flds = [IX_experiment.fields_to_save_(:);base(:)];
 
         end
@@ -375,18 +411,13 @@ classdef IX_experiment < goniometer
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained lattice object
-            obj = check_combo_arg@goniometer(obj);
+            obj = check_combo_arg@Goniometer(obj);
             if numel(obj.efix_) == 1 && obj.efix_ == 0 && obj.emode_ ~=0
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'efix (incident energy) can be 0 in elastic mode only. Emode=%d', ...
                     obj.emode_)
 
             end
-            % Do we need this? current usage of the hash is very restricted so
-            % it is reasonable to calculate it on request only
-            %             if ~obj.hash_valid_
-            %                 [~,obj.comparison_hash_] = obj.get_comparison_hash();
-            %             end
         end
     end
     methods(Access=protected)
