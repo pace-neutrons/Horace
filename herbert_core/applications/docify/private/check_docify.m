@@ -1,7 +1,12 @@
 function out = check_docify(topic)
     persistent isR2023
     if isempty(isR2023)
-        isR2023 = isMATLABReleaseOlderThan('R2024a');
+        try
+            matlab.internal.language.introspective.resolveName('');
+            isR2023 = true;
+        catch
+            isR2023 = false;
+        end
     end
     if isR2023
         resolveName = @(topic) matlab.internal.language.introspective.resolveName(topic, '', false, [], false);
