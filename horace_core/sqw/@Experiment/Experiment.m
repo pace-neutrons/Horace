@@ -171,7 +171,6 @@ classdef Experiment < serializable
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
-
         end
         %
         function val=get.expdata(obj)
@@ -332,6 +331,36 @@ classdef Experiment < serializable
             %        corresponding to the run indexes provided as input.
             exp = get_experiments_(obj,ind);
         end
+        %
+        function [exp,nspe] = combine_experiments(obj,exp_cellarray,allow_equal_headers,keep_runid)
+            %COMBINE_EXPRIMENTS
+            % Take cellarray of experiments (e.g., generated from each runfile build
+            % during gen_sqw generation)
+            % and combine then together into single Experiment info class
+            % Inputs:
+            % exp_cellarray -- cellarray of Experiment classes, related to
+            %                  different runs or combination of runs
+            % allow_equal_headers
+            %               -- if true, equal runs are allowed.
+            % At present, we insist that the contributing spe data are distinct
+            % in that:
+            %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be
+            %     equal for two spe data input. If allow_equal_headers is
+            %     set to true, this check is disabled
+            %
+            % keep_runid    -- if true, the procedure keeps run_id-s
+            %                  defined for contributing experiments.
+            %                  if false, the run-ids are reset from 1 for
+            %                  first contributed run to n_runs for the
+            %                  last contributing run (nxspe file)
+            % Returns:
+            % exp           -- Experiment class containing combined input
+            %                  experiments
+            % nspe          -- number of unique runs, contributing into
+            %                  resulting Experiment
+            [exp,nspe] = combine_experiments_(obj,exp_cellarray,allow_equal_headers,keep_runid);
+        end
+        
         %
         function subexper = get_subobj(obj,runids_to_keep,varargin)
             % Return Experiment object containing subset of experiments,
@@ -599,29 +628,6 @@ classdef Experiment < serializable
             [args,npar] = check_and_expand_function_args_(varargin{:});
         end
 
-        function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,keep_runid)
-            %COMBINE_EXPRIMENTS
-            % Take cellarray of experiments (e.g., generated from each runfile build
-            % during gen_sqw generation)
-            % and combine then together into single Experiment info class
-            % Inputs:
-            % exp_cellarray -- cellarray of Experiment classes, related to
-            %                  different runs or combination of runs
-            % allow_equal_headers
-            %               -- if true, equal runs are allowed.
-            % At present, we insist that the contributing spe data are distinct
-            % in that:
-            %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be
-            %     equal for two spe data input. If allow_equal_headers is
-            %     set to true, this check is disabled
-            %
-            % keep_runid    -- if true, the procedure keeps run_id-s
-            %                  defined for contributing experiments.
-            %                  if false, the run-ids are reset from 1 for
-            %                  first contributed run to n_runs for the
-            %                  last contributing run (nxspe file)
-            [exp,nspe] = combine_experiments_(exp_cellarray,allow_equal_headers,keep_runid);
-        end
     end
     %======================================================================
     % SERIALIZABLE interface

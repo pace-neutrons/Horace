@@ -125,6 +125,14 @@ classdef IX_experiment < Goniometer
             ind = 1:numel(obj);
             ids = arrayfun(@(in)(obj(in).run_id_),ind);
         end
+        function idmap = get_run_id_map(obj)
+            % retrieve all run_ids, which may be present in the array of
+            % rundata objects and build run_id map from them
+            ind = 1:numel(obj);
+            ids = arrayfun(@(in)(obj(in).run_id_),ind);
+            idmap = containers.Map(ids,ind);
+        end
+        
         %
         function mode = get.emode(obj)
             mode = obj.emode_;
@@ -275,6 +283,30 @@ classdef IX_experiment < Goniometer
             end
         end
         %
+        function obj = combine(obj,exper_cellarray,keep_runid)
+            % properly combine input IX_experiment array with elements 
+            % contained in exper_cellarray, ignoring possible duplicates
+            % Inputs:
+            % obj             -- sinle instance or array of IX_experiment objects
+            % exper_cellarray -- exper_cellarray cellarray containing
+            %                     IX_experiments arrays
+            % keep_runid      -- boolean, which includes true if run_id-s
+            %                    stored in IX_experiment data should be
+            %                    kept or final obj run_id should be
+            %                    recalculated. 
+            % WARNING:        -- run_id(s) modified if keep_runid == false
+            %                    must be synchronized with run_id(s) stored
+            %                    in pixels, which means that keep_runid ==
+            %                    false could be used mainly in tests
+            % Returns:
+            % obj             -- resulting array, containing unique
+            %                    instances of IX_experiment classes with
+            %                    all non-unique IX_experiments excluded.
+            if nargin == 2
+                keep_runid = true;
+            end
+            obj = combine_(obj,exper_cellarray,keep_runid);
+        end
     end
     methods(Access=protected)
         %
@@ -382,11 +414,6 @@ classdef IX_experiment < Goniometer
                     obj.emode_)
 
             end
-            % Do we need this? current usage of the hash is very restricted so
-            % it is reasonable to calculate it on request only
-            %             if ~obj.hash_valid_
-            %                 [~,obj.comparison_hash_] = obj.get_comparison_hash();
-            %             end
         end
     end
     methods(Access=protected)
