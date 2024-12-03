@@ -1,4 +1,4 @@
-function obj = combine_(obj,exper_cellarray,keep_runid)
+function obj = combine_(obj,exper_cellarray,keep_runid,this_runid_map)
 % COMBINE_ : properly combines input IX_experiment array with elements
 % contained in exper_cellarray, ignoring possible duplicates
 % Inputs:
@@ -23,15 +23,29 @@ if isempty(exper_cellarray)
     end
     return;
 end
+if nargin<4
+    this_runid_map = obj.get_runid_map();
+end
 if isa(exper_cellarray{1},'Experiment')
     res_data = cellfun(@(x)[{x.expdata},{x.runid_map}],exper_cellarray);
     exper_cellarray= res_data(1,:);
     runid_map      = res_data(2,:);
 else
-    runid_map      = cellfun(@(x)x.,exper_cellarray,'UniformOutput','false');
+    runid_map      = cellfun(@(x)(x.get_runid_map),exper_cellarray,'UniformOutput','false');
 end
 
-expinfo(ic)= exp_cellarray{i}.expdata(j);
+n_exper_to_add = numel(exper_cellarray);
+add_runs  = cell(1,n_exper_to_add );
+add_runid = cell(1,n_exper_to_add );
+n_addruns = 0;
+for i=1:n_exper_to_add
+    add_map = runid_map{i};
+    keys = add_map.keys;
+    for j=1:exper_cellarray{i}.n_runs
+        if this_runid_map.isKey
+    end
+end
+expinfo(ic)= exper_cellarray{i}.expdata(j);
 if ~keep_runid
     expinfo(ic).run_id = ic;
 end

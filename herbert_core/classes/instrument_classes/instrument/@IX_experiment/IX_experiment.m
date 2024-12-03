@@ -283,7 +283,7 @@ classdef IX_experiment < Goniometer
             end
         end
         %
-        function obj = combine(obj,exper_cellarray,keep_runid)
+        function obj = combine(obj,exper_cellarray,keep_runid,varargin)
             % properly combine input IX_experiment array with elements 
             % contained in exper_cellarray, ignoring possible duplicates
             % Inputs:
@@ -298,6 +298,10 @@ classdef IX_experiment < Goniometer
             %                    must be synchronized with run_id(s) stored
             %                    in pixels, which means that keep_runid ==
             %                    false could be used mainly in tests
+            % Optional:
+            % runid_map       -- the map containing information about
+            %                    run_id(s) stored in the object.
+            %
             % Returns:
             % obj             -- resulting array, containing unique
             %                    instances of IX_experiment classes with

@@ -70,16 +70,6 @@ sampl{1}   = obj.samples{1};
 % TODO: is these two rows below work in progress?
 det        = cell(1,ntotal);
 det{1}     = obj.detector_arrays{1};
-% if exp_cellarray{1}.n_runs == 1
-%     i_start = 2;
-%     j_start = 1;
-% else % despite headers in the first run are certainly satisfy
-%     % the conditions, the following Experiment-s may contain the same
-%     % IX_experiments, so hashes for the first Experiment have to be
-%     % recalculated
-%     i_start = 1;
-%     j_start = 2;
-% end
 
 ic = 2;
 for i=1:n_contrib-1
