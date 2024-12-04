@@ -13,7 +13,7 @@ classdef test_help< TestCase
 
         end
         function test_help_works(~)
-            if matlab_version_num() < 9.05
+            if matlab_version_num() < 9.06
                 ref_str = 'Reference page in Doc Center';
             else
                 ref_str = 'Documentation for test_help';
