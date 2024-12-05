@@ -62,7 +62,7 @@ sampl  = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER', ...
 
 %detectors = []; % default empty detectors until the unique_references_containers are activated.
 expinfo    = obj.expdata;
-expinfo    = expinfo.combine(exp_cellarray,keep_runid,obj.runid_map);
+[expinfo,file_id_map,skipped_runs]    = expinfo.combine(exp_cellarray,allow_equal_headers,keep_runid,obj.runid_map);
 
 
 instr{1}   = obj.instruments{1};
@@ -73,7 +73,11 @@ det{1}     = obj.detector_arrays{1};
 
 ic = 2;
 for i=1:n_contrib-1
+    skipped_run = skipped_runs{i};
     for j=1:exp_cellarray{i}.n_runs
+        if skipped_run(j) % the run have been rejected 
+            continue;
+        end
         instr{ic}  = exp_cellarray{i}.instruments{j};
         sampl{ic}  = exp_cellarray{i}.samples{j};
         det{ic}    = exp_cellarray{i}.detector_arrays{j};
@@ -86,10 +90,6 @@ for i=1:n_contrib-1
                 'The emode and sample for all runs contributing to experiment have to be the same.\n',...
                 'File N%d, contributed run %d differs from the first run '],i,j);
         end
-        if allow_equal_headers
-            ic = ic+1;
-            continue;
-        end
         ic = ic+1;
     end
 end
@@ -97,7 +97,7 @@ end
 obj.do_check_combo_arg = false;
 obj.instruments     = instr;
 obj.samples         = sampl;
-obj.detector_arrays = det;
+obj.detector_arrays = det; % 
 obj.expdata         = expinfo;
 obj.do_check_combo_arg = true;
 obj = obj.check_combo_arg();

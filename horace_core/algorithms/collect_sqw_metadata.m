@@ -36,7 +36,7 @@ end
 
 [pix_data_range,job_disp]= parse_additional_input4_join_sqw_(argi{:});
 if iscell(inputs)
-    if all(cellfun(@istext,inputs))
+    if all(cellfun(@istext,inputs)) % input is list of files, containing sqw data
         [sqw_sum_struc,pix_data_range,job_disp]=get_pix_comb_info_(inputs, ...
             pix_data_range,job_disp, ...
             allow_equal_headers,keep_runid);

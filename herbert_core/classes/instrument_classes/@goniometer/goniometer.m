@@ -95,7 +95,7 @@ classdef Goniometer < serializable
 
         % radian to degree transformation constant
         deg_to_rad_=pi/180;
-        % the minimal norm for two vectors considered to be parallell or 0
+        % the minimal norm for two vectors considered to be parallel or 0
         tol_  = 1.e-9
     end
     %

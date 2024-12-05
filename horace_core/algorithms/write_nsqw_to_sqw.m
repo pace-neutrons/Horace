@@ -19,7 +19,7 @@ function [img_db_range,pix_data_range,wout]=write_nsqw_to_sqw (infiles, outfile,
 %                       look at  Experiment.combine_experiments method, as
 %                       this method performs actual header combining and
 %                       checks.
-% -parallel          -- combine files using Herbert parallel framework.
+% -parallel          -- combine files using parallel framework.
 %                       this is duplicate for hpc_config option so either
 %                       this keyword or hpc_config option or the instance
 %                       of the JobDispatcher has to be present to combine

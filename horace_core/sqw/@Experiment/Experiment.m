@@ -185,6 +185,12 @@ classdef Experiment < serializable
         end
         %
         function map = get.runid_map(obj)
+            map = obj.get_runid_map();
+        end
+        function map = get_runid_map(obj)
+            % Return run_id map, providing consistent interface with
+            % IX_experiment
+            %
             % deep copy handle class, to maintain consistent behaviour
             if isempty(obj.runid_map_)
                 map = [];
@@ -360,7 +366,7 @@ classdef Experiment < serializable
             %                  resulting Experiment
             [exp,nspe] = combine_experiments_(obj,exp_cellarray,allow_equal_headers,keep_runid);
         end
-        
+
         %
         function subexper = get_subobj(obj,runids_to_keep,varargin)
             % Return Experiment object containing subset of experiments,

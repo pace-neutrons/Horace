@@ -38,12 +38,12 @@ classdef IX_experiment < Goniometer
         % the list of properties which define IX_experiment uniqueness
         % if all properties values are the same, IX_experiments are
         % considered the same
-        unique_prop = {'filename','cu','cv','efix',...
+        unique_prop = {'cu','cv','efix',...
             'psi', 'omega', 'dpsi', 'gl', 'gs'}
     end
 
     properties(Hidden)
-        % Never usefully used except loading from old files so candidates
+        % Never usefully used except loading from old files so candidate
         % for removal
         uoffset=[0,0,0,0];  % Always 0.
     end
@@ -58,8 +58,7 @@ classdef IX_experiment < Goniometer
     end
     properties(Access= private)
         % the hash used to compare IX_experiments for equality
-        hash_valid_ = false;
-        comparison_hash_
+        hash_ = [];
     end
     methods
         function obj = IX_experiment(varargin)
@@ -92,7 +91,7 @@ classdef IX_experiment < Goniometer
                     class(val))
             end
             obj.filename_     = val;
-            obj.hash_valid_  = false;
+            obj.hash_  = [];
         end
         %
         function fn = get.filepath(obj)
@@ -105,7 +104,6 @@ classdef IX_experiment < Goniometer
                     class(val))
             end
             obj.filepath_ = val;
-            obj.hash_valid_  = false;
         end
         %
         function id = get.run_id(obj)
@@ -118,6 +116,7 @@ classdef IX_experiment < Goniometer
                     class(val),numel(val))
             end
             obj.run_id_ = val;
+            obj.hash_  = [];
         end
         function ids = get_run_ids(obj)
             % retrieve all run_ids, which may be present in the array of
@@ -125,9 +124,11 @@ classdef IX_experiment < Goniometer
             ind = 1:numel(obj);
             ids = arrayfun(@(in)(obj(in).run_id_),ind);
         end
-        function idmap = get_run_id_map(obj)
+        function idmap = get_runid_map(obj)
             % retrieve all run_ids, which may be present in the array of
-            % rundata objects and build run_id map from them
+            % rundata objects and build run_id map from them. run_id map 
+            % used for finding particular element's position given its
+            % run_id
             ind = 1:numel(obj);
             ids = arrayfun(@(in)(obj(in).run_id_),ind);
             idmap = containers.Map(ids,ind);
@@ -144,6 +145,7 @@ classdef IX_experiment < Goniometer
                     disp2str(val));
             end
             obj.emode_ = val;
+            obj.hash_  = [];
         end
 
         %
@@ -157,6 +159,7 @@ classdef IX_experiment < Goniometer
                     class(val));
             end
             obj.en_ = val(:);
+            obj.hash_  = [];
         end
         %
         function ef = get.efix(obj)
@@ -168,7 +171,7 @@ classdef IX_experiment < Goniometer
                     'efix (incident energy) can not be negative')
             end
             obj.efix_ = val;
-            obj.hash_valid_  = false;
+            obj.hash_  = [];
         end
         %
         function mat = get.u_to_rlu(obj)
@@ -219,6 +222,7 @@ classdef IX_experiment < Goniometer
                     class(val));
             end
             obj = obj.from_bare_struct(val);
+            obj.hash_  = [];
         end
     end
     %----------------------------------------------------------------------
@@ -266,9 +270,9 @@ classdef IX_experiment < Goniometer
             % equality while building sqw objects
 
             % At present, we insist that the contributing spe data are distinct in that:
-            %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
-            if obj.hash_valid_
-                hash = obj.comparison_hash_;
+            %   - efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
+            if ~isempty(obj.hash_)
+                hash   = obj.hash_;
                 is_new = false;
                 return;
             end
@@ -278,19 +282,28 @@ classdef IX_experiment < Goniometer
 
             hash   = IX_experiment.get_comparison_hash(obj,comp_prop);
             is_new = true;
-            if nargout>1
-                obj.comparison_hash_ =  hash;
-                obj.hash_valid_      = true;
-            end
+            obj.hash_ =  hash;
         end
         %
-        function [obj,this_runid_map] = combine(obj,exper_cellarray,keep_runid,varargin)
-            % properly combine input IX_experiment array with elements
-            % contained in exper_cellarray, ignoring possible duplicates
+        function [obj,file_id_array,skipped_inputs,this_runid_map] = combine(obj,exper_cellarray,allow_eq_headers,keep_runid,varargin)
+            % method combines input IX_experiment array(s) with elements
+            % contained in exper_cellarray, identifying possible duplicates
+            % and either ignoring them, or throwing error depending on
+            % input keys.
+            %
             % Inputs:
             % obj             -- sinle instance or array of IX_experiment objects
             % exper_cellarray -- exper_cellarray cellarray containing
-            %                     IX_experiments arrays
+            %                    IX_experiments arrays or Experiment classes
+            %                    to cobine their IX_experiments into obj.
+            % allow_eq_headers-- if true, headers with the same runid and
+            %                    same values are allowed and accounted for
+            %                    in combine operations. If false, routine
+            %                    throws HORACE:IX_experiment:invalid_argument
+            %                    if the IX_experiment have the same run_id
+            %                    and values.
+            %                    IX_experiments with same run_id and
+            %                    different values are always rejected.
             % keep_runid      -- boolean, which includes true if run_id-s
             %                    stored in IX_experiment data should be
             %                    kept or final obj run_id should be
@@ -298,7 +311,8 @@ classdef IX_experiment < Goniometer
             % WARNING:        -- run_id(s) modified if keep_runid == false
             %                    must be synchronized with run_id(s) stored
             %                    in pixels, which means that keep_runid ==
-            %                    false could be used mainly in tests
+            %                    false could be used in tests or in sqw
+            %                    file generation.
             % Optional:
             % runid_map       -- the map containing information about
             %                    run_id(s) stored in the object.
@@ -307,28 +321,40 @@ classdef IX_experiment < Goniometer
             % obj             -- resulting array, containing unique
             %                    instances of IX_experiment classes with
             %                    all non-unique IX_experiments excluded.
-            % this_runid_map --  the map which connects run_id(s) of data,
-            %                    stored in the obj with the positions of
-            %                    the data objects in the object array.
-
-            if nargin == 2
+            % skipped_inputs  -- cellarray of logical arrays containing true where
+            %                    input object was dropped and false where it has been
+            %                    kept
+            % file_id_array   -- array contains run_ids for each input combined
+            %                    IX_experiment value.
+            %                    if some IX_experiments with equal run_id(s) and values
+            %                    were rejected, some elements of this array will
+            %                    contain the same values
+            %
+            % this_runid_map --  the map which connects run_id(s) of data, stored in
+            %                    the obj with the positions of the data objects in the
+            %                    object array.
+            if nargin < 3
+                allow_eq_headers = false;
+            end
+            if nargin<4
                 keep_runid = true;
             end
-            [obj,this_runid_map] = combine_(obj,exper_cellarray,keep_runid,varargin{:});
+            [obj,file_id_array,skipped_inputs,this_runid_map] = combine_(obj,exper_cellarray,allow_eq_headers,keep_runid,varargin{:});
         end
+        %
     end
     methods(Access=protected)
         %
         function obj = check_and_set_uv(obj,name,val)
             % main overloadable setter for u and v
             obj = check_and_set_uv@Goniometer(obj,name,val);
-            obj.hash_valid_  = false;
+            obj.hash_  = [];
         end
 
         function [val,obj] = check_angular_val(obj,val)
             % main overloadable setter function for goniometer angles
             [val,obj] = check_angular_val@Goniometer(obj,val);
-            obj.hash_valid_ = false;
+            obj.hash_ = [];
         end
 
     end
@@ -340,11 +366,6 @@ classdef IX_experiment < Goniometer
             % prop_list -- the list of properties of comp_obj object
             %              to extract values and build comparison hash
             %
-            persistent engine;
-            if isempty(engine)
-                engine= java.security.MessageDigest.getInstance('MD5');
-            end
-
             n_par = numel(prop_list);
             contents = cell(1,n_par);
             for i=1:n_par
@@ -357,10 +378,8 @@ classdef IX_experiment < Goniometer
                     contents{i} = typecast(contents{i},'uint8');
                 end
             end
-            contents = [contents{:}];
-            engine.update(contents);
-            hash = typecast(engine.digest,'uint8');
-            hash = char(hash');
+            contents = cell2mat(contents);
+            hash = Hashing.hashify_obj(contents);
         end
 
         %------------------------------------------------------------------
@@ -417,6 +436,7 @@ classdef IX_experiment < Goniometer
             % verify interdependent variables and the validity of the
             % obtained lattice object
             obj = check_combo_arg@Goniometer(obj);
+            obj.hash_ = [];
             if isscalar(obj.efix_) && obj.efix_ == 0 && obj.emode_ ~=0
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'efix (incident energy) can be 0 in elastic mode only. Emode=%d', ...
