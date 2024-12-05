@@ -37,10 +37,14 @@ if obj.slit_width_==0 && obj.radius_==0 && obj.frequency_==0 && ...
 else
     % One or more chopper parameters have been set
     vi = 1e6 * sqrt(ei) / obj.c_e_to_t_;           % incident velocity (m/s)
-    
-    omega=2*pi*obj.frequency_;
+   
+   % attempt to fix problem with obj.frequency coming in from nxspe files populated
+   % with instrument information as int32.
+   % Cast to double for omega effective and makes gam for pk_fwhh==0 to be Inf not max(int32).
+   % Ordering change for pk_fwhh left in although it doesn't persuade the calc to widen to double.
+    omega=2*pi*double(obj.frequency_);
     s=2*omega*obj.curvature_;
-    pk_fwhh=obj.slit_width_/(2*obj.radius_*omega);
+    pk_fwhh=obj.slit_width_/(2*omega*obj.radius_);
     
     if phase
         gam=(2*obj.radius_/pk_fwhh)*abs(1/s-1./vi);
