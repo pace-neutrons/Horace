@@ -53,15 +53,6 @@ for i=1:n_contrib-1
 end
 % ntotal = sum(nspe);
 
-instr  = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER', ...
-    'IX_inst');                         % previously cell(1,n_tot);
-sampl  = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER', ...
-    'IX_samp');                         % previously cell(1,n_tot);
-%
-% TODO: is this work in progress?
-det = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER', ...
-    'IX_detector_array');
-
 %detectors = []; % default empty detectors until the unique_references_containers are activated.
 expinfo    = obj.expdata;
 [expinfo,run_id_array,skipped_runs]    = expinfo.combine(exp_cellarray,allow_equal_headers,keep_runid,obj.runid_map);
