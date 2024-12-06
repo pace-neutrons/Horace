@@ -37,7 +37,7 @@ img_range = check_img_consistency_(img_metadata,filenames);
 %     spe data inputs
 %   - emode, lattice parameters, u, v, sample must be the same for all spe
 %     data inputs.
-[exper_combined,nspe,run_id_array] = Experiment.combine_experiments(experiments,allow_equal_headers,keep_runid);
+[exper_combined,nspe,run_id_array] = experiments{1}.combine_experiments(experiments(2:end),allow_equal_headers,keep_runid);
 
 
 %  Build combined header
