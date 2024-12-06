@@ -81,7 +81,7 @@ classdef test_IX_experiment <  TestCase
             assertEqual(rmd.keys,this_runid_map.keys);
             assertEqual(rmd.values,this_runid_map.values);
         end
-        
+
         %------------------------------------------------------------------
         function test_combine_multirun_same_headers_works(~)
             [Input,fids] = test_IX_experiment.build_IX_array_blocks(10,3);
@@ -425,8 +425,15 @@ classdef test_IX_experiment <  TestCase
         function [data,run_id] = build_IX_array_blocks(n_elements,n_blocks)
             data = cell(n_blocks,1);
             ids  = cell(n_blocks,1);
+            unr = [];
             for i=1:n_blocks
                 [data{i},ids{i}]=test_IX_experiment.build_IX_array(n_elements);
+                unr1 = unique([ids{i},unr]);
+                while numel(unr1) ~= i*n_elements
+                    [data{i},ids{i}]=test_IX_experiment.build_IX_array(n_elements);
+                    unr1 = unique([ids{i},unr]);
+                end
+                unr = unr1;
             end
             run_id = [ids{:}];
         end
