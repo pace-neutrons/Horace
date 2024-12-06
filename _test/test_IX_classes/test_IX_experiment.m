@@ -14,14 +14,47 @@ classdef test_IX_experiment <  TestCase
             end
             obj = obj@TestCase(name);
         end
-        %------------------------------------------------------------------
-        function test_combine_multirun_with_changing_ID_works(~)
-            [Input,fids] = test_IX_experiment.build_IX_array_blocks(10,3);
+        %==================================================================
+        function test_combine_single_runs_eq_headers_changeID(~)
+            data = test_IX_experiment.build_IX_array(10);
+            data(2) = data(7);
+            Input = num2cell(data);
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,false);
 
-            assertEqual([Input{:}],result);
+            data = [data(1:6),data(8:10)];
+            for i=1:9
+                data(i).run_id = i;
+            end
+            fids = [1:6,2,7:9];
+
+            assertEqual(data,result);
             assertEqual(file_id_array,fids);
+            assertTrue(iscell(skipped_inputs))
+            skipped_inputs = [skipped_inputs{:}];
+            assertEqual(numel(skipped_inputs),9);
+            assertTrue(skipped_inputs(6)); % 7th skipped
+            assertFalse(all(skipped_inputs(1:5))); % left itact
+            assertFalse(all(skipped_inputs(7:9))); % left itact
+
+            keys = this_runid_map.keys();
+            for i=1:numel(keys)
+                id = this_runid_map(keys{i});
+                assertEqual(result(id).run_id,keys{i});
+            end
+        end
+
+        function test_combine_single_runs_changing_ID(~)
+            data = test_IX_experiment.build_IX_array(10);
+            Input = num2cell(data);
+
+            [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,false);
+
+            for i=1:10
+                data(i).run_id = i;
+            end
+            assertEqual(data,result);
+            assertEqual(file_id_array,1:10);
             assertTrue(iscell(skipped_inputs))
             skipped_inputs = [skipped_inputs{:}];
             assertEqual(numel(skipped_inputs),9);
@@ -33,7 +66,49 @@ classdef test_IX_experiment <  TestCase
                 assertEqual(result(id).run_id,keys{i});
             end
         end
+        function test_combine_empty_change_ID(~)
+            data = test_IX_experiment.build_IX_array(10);
+            [result,file_id_array,skipped_inputs,this_runid_map] = data.combine({},true,false);
+            for i=1:10
+                data(i).run_id = i;
+            end
+            fids= 1:10;
+
+            assertEqual(data,result);
+            assertEqual(fids,file_id_array);
+            assertTrue(isempty(skipped_inputs));
+            rmd = result.get_runid_map();
+            assertEqual(rmd.keys,this_runid_map.keys);
+            assertEqual(rmd.values,this_runid_map.values);
+        end
         
+        %------------------------------------------------------------------
+        function test_combine_multirun_same_headers_works(~)
+            [Input,fids] = test_IX_experiment.build_IX_array_blocks(10,3);
+            Input{2}(1)= Input{1}(1);
+            Input{3}(1)= Input{1}(1);
+            fids(11) = fids(1);
+            fids(21) = fids(1);
+
+            [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,true);
+
+            cai = [Input{1},Input{2}(2:10),Input{3}(2:10)];
+            assertEqual(cai,result);
+            assertEqual(file_id_array,fids);
+            assertTrue(iscell(skipped_inputs))
+            assertEqual(numel(skipped_inputs),2);
+            sis = false(1,10);
+            sis(1) = true;
+            assertEqual(skipped_inputs{1},sis); % first skipped
+            assertEqual(skipped_inputs{2},sis); % first skipped
+
+            keys = this_runid_map.keys();
+            for i=1:numel(keys)
+                id = this_runid_map(keys{i});
+                assertEqual(result(id).run_id,keys{i});
+            end
+        end
+
         function test_combine_multirun_works(~)
             [Input,fids] = test_IX_experiment.build_IX_array_blocks(10,3);
 
@@ -43,7 +118,7 @@ classdef test_IX_experiment <  TestCase
             assertEqual(cai,result);
             assertEqual(file_id_array,fids);
             assertTrue(iscell(skipped_inputs))
-            assertEqual(numel(skipped_inputs),2);            
+            assertEqual(numel(skipped_inputs),2);
             skipped_inputs = [skipped_inputs{:}];
             assertEqual(numel(skipped_inputs),20);
             assertTrue(all(~skipped_inputs)); % nothing skipped
@@ -55,7 +130,7 @@ classdef test_IX_experiment <  TestCase
             end
         end
 
-        function test_combine_single_runs_eq_headers_works(~)
+        function test_combine_single_runs_eq_headers(~)
             [data,fids] = test_IX_experiment.build_IX_array(10);
             data(2) = data(7);
             fids(2) = data(7).run_id;
@@ -77,6 +152,17 @@ classdef test_IX_experiment <  TestCase
                 id = this_runid_map(keys{i});
                 assertEqual(result(id).run_id,keys{i});
             end
+        end
+        function test_combine_empty(~)
+            [data,fids] = test_IX_experiment.build_IX_array(10);
+            [result,file_id_array,skipped_inputs,this_runid_map] = data.combine({},true,true);
+
+            assertEqual(data,result);
+            assertEqual(fids,file_id_array);
+            assertTrue(isempty(skipped_inputs));
+            rmd = result.get_runid_map();
+            assertEqual(rmd.keys,this_runid_map.keys);
+            assertEqual(rmd.values,this_runid_map.values);
         end
 
         function test_combine_single_runs_throws_on_emode(~)
@@ -113,7 +199,7 @@ classdef test_IX_experiment <  TestCase
                 assertEqual(result(id).run_id,keys{i});
             end
         end
-        %------------------------------------------------------------------
+        %==================================================================
         function test_comparison_hash_neq(~)
             exp1 = IX_experiment('my_file','my_path',1,20,1,'psi',10);
             exp2 = exp1;
