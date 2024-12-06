@@ -4,7 +4,7 @@ function [obj,nspe,run_id_array] = combine_experiments_(obj,exp_cellarray,allow_
 % during gen_sqw generation)
 % and combine then together into single Experiment info class
 % Inputs:
-% obj           -- first experiment to add other experinents to.
+% obj           -- first experiment to add other experiments to.
 % exp_cellarray -- additional Experiment class or cellarray of Experiment
 %                  classes, related to different runs or combination of runs
 %
