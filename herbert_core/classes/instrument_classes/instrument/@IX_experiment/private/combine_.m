@@ -54,7 +54,7 @@ if isempty(exper_cellarray)
 end
 
 if isa(exper_cellarray{1},'Experiment')
-    exper_cellarray = cellfun(@(x)(x.expdata),exper_cellarray);
+    exper_cellarray = cellfun(@(x)(x.expdata),exper_cellarray,'UniformOutput',false);
 end
 n_existing_runs = numel(obj);
 % Caclulate number of runs defined by all input IX_experiment data

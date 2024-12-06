@@ -1,4 +1,4 @@
-function [obj,nspe] = combine_experiments_(obj,exp_cellarray,allow_equal_headers,keep_runid)
+function [obj,nspe,run_id_array] = combine_experiments_(obj,exp_cellarray,allow_equal_headers,keep_runid)
 %COMBINE_EXPEERIMENTS_
 % Take cellarray of experiments (e.g., generated from each runfile build
 % during gen_sqw generation)
@@ -26,6 +26,8 @@ function [obj,nspe] = combine_experiments_(obj,exp_cellarray,allow_equal_headers
 %                  experiments
 % nspe          -- number of unique runs, contributing into
 %                  resulting Experiment
+% run_id_array   -- array of final run_id-s for all input nxspe. one id per
+%                  input run
 if numel(obj)>1
     error('HORACE:Experiment:invalid_argument', ...
         ['combine_experiments accepts only single Experiment object to add other experiments to.' ...
@@ -46,10 +48,10 @@ end
 n_contrib = numel(exp_cellarray)+1;
 nspe    = zeros(n_contrib,1);
 nspe(1) = obj.n_runs;
-for i=2:n_contrib
-    nspe(i) = exp_cellarray{i}.n_runs;
+for i=1:n_contrib-1
+    nspe(i+1) = exp_cellarray{i}.n_runs;
 end
-ntotal = sum(nspe);
+% ntotal = sum(nspe);
 
 instr  = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER', ...
     'IX_inst');                         % previously cell(1,n_tot);
@@ -57,18 +59,17 @@ sampl  = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER', ...
     'IX_samp');                         % previously cell(1,n_tot);
 %
 % TODO: is this work in progress?
-%detectors = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER', ...
-%    'IX_detector_array');
+det = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER', ...
+    'IX_detector_array');
 
 %detectors = []; % default empty detectors until the unique_references_containers are activated.
 expinfo    = obj.expdata;
-[expinfo,file_id_map,skipped_runs]    = expinfo.combine(exp_cellarray,allow_equal_headers,keep_runid,obj.runid_map);
+[expinfo,run_id_array,skipped_runs]    = expinfo.combine(exp_cellarray,allow_equal_headers,keep_runid,obj.runid_map);
 
 
 instr{1}   = obj.instruments{1};
 sampl{1}   = obj.samples{1};
 % TODO: is these two rows below work in progress?
-det        = cell(1,ntotal);
 det{1}     = obj.detector_arrays{1};
 
 ic = 2;

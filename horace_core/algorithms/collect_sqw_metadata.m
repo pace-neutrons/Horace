@@ -1,4 +1,4 @@
-function [sqw_out,pix_data_range,job_disp] = collect_sqw_metadata(inputs,varargin)
+function [sqw_out,pix_data_range,run_id_array,job_disp] = collect_sqw_metadata(inputs,varargin)
 %COLLECT_SQW_METADATA collects metadata from various sqw objects provided
 % as input with the purpose of constructing single sqw object from these
 % input sqw objects.
@@ -25,6 +25,11 @@ function [sqw_out,pix_data_range,job_disp] = collect_sqw_metadata(inputs,varargi
 %            containing all sqw object information except combined pixels.
 %            Pixels are represented not by a PixelData class but by a
 %            class, which provides information about how to combine pixels.
+% pix_data_range
+%         -- range surrounding all pixels
+% run_id_array
+%         -- array of final run_id-s for all input nxspe. one id per
+%            input run
 %
 % Throws HORACE:collect_sqw_metadata:invalid_argument if input objects
 %           contain different grid or have equal data headers
@@ -37,12 +42,12 @@ end
 [pix_data_range,job_disp]= parse_additional_input4_join_sqw_(argi{:});
 if iscell(inputs)
     if all(cellfun(@istext,inputs)) % input is list of files, containing sqw data
-        [sqw_sum_struc,pix_data_range,job_disp]=get_pix_comb_info_(inputs, ...
+        [sqw_sum_struc,pix_data_range,run_id_array,job_disp]=get_pix_comb_info_(inputs, ...
             pix_data_range,job_disp, ...
             allow_equal_headers,keep_runid);
 
     elseif all(cellfun(@(x)isa(x,'sqw'),inputs))
-        [sqw_sum_struc,pix_data_range]=get_pix_comb_info_from_sqw(inputs, ...
+        [sqw_sum_struc,pix_data_range,run_id_array]=get_pix_comb_info_from_sqw(inputs, ...
             pix_data_range, ...
             allow_equal_headers,keep_runid);
 
@@ -70,7 +75,7 @@ end
 sqw_out = sqw(sqw_sum_struc);
 end
 
-function  [sqw_sum_struc,pix_data_range] = get_pix_comb_info_from_sqw(inputs, ...
+function  [sqw_sum_struc,pix_data_range,run_id_array] = get_pix_comb_info_from_sqw(inputs, ...
     pix_data_range, allow_equal_headers,keep_runid)
 % Construct information about pixel distribution from cellarray of sqw objects in
 % memory
@@ -79,7 +84,7 @@ function  [sqw_sum_struc,pix_data_range] = get_pix_comb_info_from_sqw(inputs, ..
 
 ll = config_store.instance().get_value('hor_config','log_level');
 
-[dnd_data,exper_combined,mhc] = combine_exper_and_img_( ...
+[dnd_data,exper_combined,run_id_array,mhc] = combine_exper_and_img_( ...
     experiments_from_sqw,img_hdrs,inputs,allow_equal_headers,keep_runid, ...
     [],ll);
 

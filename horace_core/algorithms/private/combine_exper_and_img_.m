@@ -1,4 +1,4 @@
-function [dnd_data,exper_combined,mhc] = combine_exper_and_img_( ...
+function [dnd_data,exper_combined,run_id_array,mhc] = combine_exper_and_img_( ...
     experiments,img_metadata,inputs,allow_equal_headers,keep_runid, ...
     job_dp,hor_log_level)
 %COMBINE_EXPER_AND_IMG_  checks consistency of DnD image and combines input
@@ -33,11 +33,11 @@ img_range = check_img_consistency_(img_metadata,filenames);
 
 % Check consistency:
 % At present, we insist that the contributing spe data for:
-%   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two
+%   - efix, psi, omega, dpsi, gl, gs cannot all be equal for two
 %     spe data inputs
 %   - emode, lattice parameters, u, v, sample must be the same for all spe
 %     data inputs.
-[exper_combined,nspe] = Experiment.combine_experiments(experiments,allow_equal_headers,keep_runid);
+[exper_combined,nspe,run_id_array] = Experiment.combine_experiments(experiments,allow_equal_headers,keep_runid);
 
 
 %  Build combined header

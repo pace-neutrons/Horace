@@ -338,7 +338,7 @@ classdef Experiment < serializable
             exp = get_experiments_(obj,ind);
         end
         %
-        function [exp,nspe] = combine_experiments(obj,exp_cellarray,allow_equal_headers,keep_runid)
+        function [exp,nspe,file_id_array] = combine_experiments(obj,exp_cellarray,allow_equal_headers,keep_runid)
             %COMBINE_EXPRIMENTS
             % Take cellarray of experiments (e.g., generated from each runfile build
             % during gen_sqw generation)
@@ -364,7 +364,10 @@ classdef Experiment < serializable
             %                  experiments
             % nspe          -- number of unique runs, contributing into
             %                  resulting Experiment
-            [exp,nspe] = combine_experiments_(obj,exp_cellarray,allow_equal_headers,keep_runid);
+            % file_id_array -- array of final run_id-s for all input nxspe.
+            %                  one id per input run
+
+            [exp,nspe,file_id_array] = combine_experiments_(obj,exp_cellarray,allow_equal_headers,keep_runid);
         end
 
         %
