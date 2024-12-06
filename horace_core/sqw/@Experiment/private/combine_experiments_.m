@@ -67,18 +67,19 @@ expinfo    = obj.expdata;
 [expinfo,run_id_array,skipped_runs]    = expinfo.combine(exp_cellarray,allow_equal_headers,keep_runid,obj.runid_map);
 
 
-instr{1}   = obj.instruments{1};
-sampl{1}   = obj.samples{1};
+instr   = obj.instruments;
+sampl   = obj.samples;
 % TODO: is these two rows below work in progress?
-det{1}     = obj.detector_arrays{1};
+det     = obj.detector_arrays;
 
-ic = 2;
+ic = instr.n_objects;
 for i=1:n_contrib-1
     skipped_run = skipped_runs{i};
     for j=1:exp_cellarray{i}.n_runs
         if skipped_run(j) % the run have been rejected 
             continue;
         end
+        ic = ic+1;        
         instr{ic}  = exp_cellarray{i}.instruments{j};
         sampl{ic}  = exp_cellarray{i}.samples{j};
         det{ic}    = exp_cellarray{i}.detector_arrays{j};
@@ -88,10 +89,10 @@ for i=1:n_contrib-1
         %   - emode, lattice parameters, u, v, sample must be the same for all spe data input
         if sampl{ic} ~= sampl{1}
             error('HORACE:Experiment:runtime_error',[...
-                'The emode and sample for all runs contributing to experiment have to be the same.\n',...
+                'The sample for all runs contributing to experiment have to be the same.\n',...
                 'File N%d, contributed run %d differs from the first run '],i,j);
         end
-        ic = ic+1;
+
     end
 end
 
