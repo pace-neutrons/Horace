@@ -4,15 +4,15 @@ classdef Hashing
     %   of implementation.
     %
     %   provides one single static method which performs the hash
-    
+
     properties
-        
+
     end
-    
+
     methods (Static)
-        
+
         function hash = hashify_obj(obj,reset_count)
-            % makes a hash from the argument object which will be unique 
+            % makes a hash from the argument object which will be unique
             % when generated from any identical object
             %
             % Input:
@@ -25,7 +25,7 @@ classdef Hashing
 
             % get config to use use_mex
             hhc = hor_config;
-            
+
             % In case the java engine is going to be used, initialise it as
             % a persistent object
             persistent Engine;
@@ -33,30 +33,14 @@ classdef Hashing
                 Engine = java.security.MessageDigest.getInstance('MD5');
             end
 
-            %{
-            % monitor for use of hashing. As the issue of counting number of
-            % hashes may continue, leaving it in the code.
-            
-            persistent count;
-            if nargin>2
-                count=0;
-                hash = []; % unused null value for this case
-                return;
-            end
-            if isempty(count)
-                count=0;
-            end
-            count=count+1;
-            count
-            disp(class(obj));
-            %}
-
-            if isa(obj,'serializable') 
+            if isa(obj,'serializable')
                 bytestream = (obj.serialize());
+            elseif isa(obj,'uint8')
+                bytestream = obj;
             else
                 bytestream = serialize(obj);
             end
-            
+
             if hhc.use_mex
                 % mex version to be used, use it
                 hash = GetMD5(bytestream);
@@ -65,7 +49,7 @@ classdef Hashing
                 % Java engine
                 Engine.update(bytestream);
                 hash0 = Engine.digest;
-                
+
                 %using the following typecast to remedy that dec2hex
                 %does not work with negative numbers before Matlab 2020b.
                 %the typecast moves negative numbers to twos-complement

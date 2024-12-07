@@ -438,7 +438,7 @@ omega=0; dpsi=0; gl=0; gs=0;
 % u and v are the notional scattering plane, alatt0, angdeg0, etc are the
 % original values for those parameters you used in gen_sqw, rlu_corr is the
 % misalignment correction matrix determined above. The routine outputs the
-% corrected lattic parameters (if these were refined) and the values of
+% corrected lattice parameters (if these were refined) and the values of
 % dpsi, gl and gs to use in future regenerations of the sqw file.
 
 %% ========================================================================

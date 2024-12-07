@@ -2,7 +2,7 @@ function [is,val,argi] = check_angular_units_present_(obj,varargin)
 % Function used as goniometer construction helper. It goes through
 % the list of input parameters and checks if property 'angular_units' is
 % present among input values. If it is there, list of input parameters is
-% strept off this parameter and the value is returned in inputs.
+% stripped off this parameter and the value is returned in inputs.
 %
 % If it is present, it means that angles provided as constructor parameters
 % are expressed in these units, so the units have to be set first to avoid
@@ -27,7 +27,7 @@ if nargin == 2 && (isstruct(varargin{1}) || isa(varargin{1},'goniometer'))
     end
 else
     pos_par_names = obj.constructionFields();
-    pos_deg = numel(pos_par_names); % The location of deg/rad argument as positonal argument
+    pos_deg = numel(pos_par_names); % The location of deg/rad argument as positional argument
     %                               % is at the end of the parameter list
     if numel(varargin)>=pos_deg % full number of construction arguments
         ang_units_cand = varargin{pos_deg};
@@ -38,7 +38,7 @@ else
         end
         if  ~isempty(ang_units_cand) &&...
                 ismember(ang_units_cand,{'deg','rad'})
-            % deg/rad argument is present as last postional argument
+            % deg/rad argument is present as last positional argument
             is   = true;
             val  = varargin{pos_deg};
 

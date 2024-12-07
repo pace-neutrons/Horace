@@ -33,7 +33,7 @@ function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,lattice,
 %             name of mem file containing the detector positions
 %             information.
 %
-if isnumeric(lattice) % old style inputs, left here for compartibility with
+if isnumeric(lattice) % old style inputs, left here for compatibility with
     % old code
     % Here alatt, angdeg and other lattice components are provided
     % separately as inputs for the function.

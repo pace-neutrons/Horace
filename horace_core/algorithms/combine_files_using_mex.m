@@ -31,6 +31,7 @@ infiles = pix_comb_info.infiles;
 nfiles = numel(infiles);
 
 close_files = isnumeric(infiles);
+filenum_provided = change_fileno && ~isempty(runlabel);
 
 in_params=cell(nfiles,1);
 for i=1:nfiles
@@ -69,7 +70,7 @@ out_param = struct( ...          % filepar description of the output file
 % 1            -- first bin to start copying pixels for
 % out_buf_size -- the size of output buffer to use for writing pixels
 % change_fileno-- if pixel run id should be changed
-% relabel_with_fnum -- if change_fileno is true, how to calculate the new pixel
+% filenum_provided -- if change_fileno is true, how to calculate the new pixel
 %                  id -- by providing new id equal to filenum or by
 %                  assigning the new number provided to it
 % num_ticks    -- approximate number of log messages to generate while
@@ -77,7 +78,7 @@ out_param = struct( ...          % filepar description of the output file
 % buf size     -- buffer size -- the size of buffer used for each input file
 %                 read operations
 % multithreaded_combining - use multiple threads to read files
-program_param = [pix_comb_info.nbins,1,out_buf_size,log_level,change_fileno,relabel_with_fnum,100,buf_size,multithreaded_combining];
+program_param = [pix_comb_info.nbins,1,out_buf_size,log_level,change_fileno,filenum_provided,100,buf_size,multithreaded_combining];
 
 if log_level > 0
     t_start=tic;

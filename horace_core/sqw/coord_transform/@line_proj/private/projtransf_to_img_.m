@@ -1,5 +1,5 @@
 function [q_to_img,ulen,b_mat,obj] = projtransf_to_img_(obj)
-% Determine matrices to convert betwen Crystal Cartesian and Image
+% Determine matrices to convert between Crystal Cartesian and Image
 % coordinate systems.
 %
 %
