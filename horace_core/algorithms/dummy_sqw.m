@@ -6,7 +6,7 @@ function [tmp_sqw, grid_size, img_db_range] = dummy_sqw (en, par_file, sqw_file,
 %                    u, v, psi, omega, dpsi, gl, gs)
 %
 %   >> dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, pix_range_in)
+%                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, pix_range_in,run_id)
 %
 %   >> [tmp_file, grid_size, img_db_range] = dummy_sqw (...)
 %
@@ -41,6 +41,11 @@ function [tmp_sqw, grid_size, img_db_range] = dummy_sqw (en, par_file, sqw_file,
 %   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
 %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
 % Optional:
+%   run_id         Number, larger than 1000 to distinguish if from possible
+%                  scalar grid_size_in, which is too big to be 1000^4.
+%                  If provided, specifies the unique number, which
+%                  distinguish different runs one from another. If not,
+%                  function returns 
 %   grid_size_in   Scalar or row vector of grid dimensions. The default
 %                  size will depend on the product of energy bins and detector elements
 %                  summed across all the spe files.
@@ -155,7 +160,7 @@ end
 grid_default=[];
 instrument_default=IX_null_inst();  % default 1x1 structure with no fields
 sample_default=IX_null_sample();      % default 1x1 structure with no fields
-[present,grid_size,img_db_range,instrument,sample]=gen_sqw_check_optional_args(...
+[present,grid_size,img_db_range,instrument,sample,run_id]=gen_sqw_check_optional_args(...
     nfiles,grid_default,instrument_default,sample_default,lattice,varargin{:});
 
 
@@ -169,6 +174,7 @@ sample_default=IX_null_sample();      % default 1x1 structure with no fields
 run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice, ...
     instrument,sample,'-allow_missing');
 run_file = run_files{1};
+run_file.run_id = run_id(1);
 
 ndet = run_file.n_detectors;
 % Determine a grid size if not given one on input
@@ -184,9 +190,11 @@ end
 hor_log_level = get(hor_config, 'log_level');
 
 % Determine pix_range
-if isempty(img_db_range)
+if isempty(img_db_range) 
     img_db_range = PixelDataBase.EMPTY_RANGE_;
     for i=1:numel(run_files)
+        % assign unique run_id to each generated run_file
+        run_files{i}.run_id = run_id(i); % will work as multiple files generation is prohibited if range is present
         [pix_range_l,run_files{i}] = run_files{i}.calc_pix_range(en_lo(i),en_hi(i));
         img_db_range = [min(pix_range_l(1,:),img_db_range(1,:));max(pix_range_l(2,:),img_db_range(2,:))];
     end

@@ -64,14 +64,14 @@ classdef test_cylindrical_cuts < TestCaseWithSave
 
             if ~is_file(obj.spe_file_1)
                 simulate_spe_testfunc (en1, obj.par_file, obj.spe_file_1, @sqw_cylinder, [10,1], 0.3,...
-                    efix(1), emode, alatt, angdeg, u, v, psi_1, omega, dpsi, gl, gs)
+                    efix(1), emode, alatt, angdeg, u, v, psi_1, omega, dpsi, gl, gs,1001)
             end
             % Simulate second file, with reproducible random looking noise
             % -------------------------------------------------------------
 
             if ~is_file(obj.spe_file_2)
                 simulate_spe_testfunc (en2, obj.par_file, obj.spe_file_2, @sqw_cylinder, [10,1], 0.3,...
-                    efix(1), emode, alatt, angdeg, u, v, psi_2, omega, dpsi, gl, gs)
+                    efix(1), emode, alatt, angdeg, u, v, psi_2, omega, dpsi, gl, gs,1002)
             end
 
             gen_sqw ({obj.spe_file_1,obj.spe_file_2}, obj.par_file, obj.sqw_file_coarse, efix, 1,...

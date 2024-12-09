@@ -1,4 +1,4 @@
-function [present,grid,pix_db_range,instrument,sample]=gen_sqw_check_optional_args...
+function [present,grid,pix_db_range,instrument,sample,run_id]=gen_sqw_check_optional_args...
     (nfile,grid_default,instrument_default,sample_default,lattice,varargin)
 % Check optional input arguments to gen_sqw, and set defaults to those that are missing
 %
@@ -71,6 +71,13 @@ end
 
 
 % Check arguments
+% if varargin contains scalar value bigger than 1000, this value is runid
+runid_present = cellfun(@(x)((numel(x)==1||numel(x)==nfile) && all(x>=1000)),varargin);
+if any(runid_present)
+    run_id = varargin(runid_present);
+else
+    run_id = 1000:(1000+nfile-1);
+end
 narg=numel(varargin);
 if narg==0
     grid=grid_default;

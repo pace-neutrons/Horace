@@ -1,4 +1,4 @@
-function spe_file=simulate_spe_testfunc (en, par_file, spe_file, sqwfunc, pars, scale, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+function spe_file=simulate_spe_testfunc (en, par_file, spe_file, sqwfunc, pars, scale, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,run_id)
 % Simulate an spe file using an sqw model, with reproducible random looking noise
 %
 % >>spe_file=simulate_spe_testfunc (en, par_file, spe_file, sqwfunc, pars, scale, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
@@ -27,6 +27,9 @@ if isempty(rseq_store)
 else
     seed_defined = true;
 end
+if ~exist('run_id,'var')
+    run_id= 1000;
+end
 %-----------------------------------------------------------------
 %----- store/restore seed or random sequence for random signal function
 [~,seed_key] = fileparts(spe_file);
@@ -49,7 +52,7 @@ end
 % Create sqw file
 %sqw_file=fullfile(tmp_dir,['test_spe_testfun',str_random(12),'.sqw']);
 %clo = onCleanup(@()delete(sqw_file));
-w= dummy_sqw (en, par_file, '', efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+w= dummy_sqw (en, par_file, '', efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,run_id);
 if ~seed_defined || numel(rseq) ~= w{1}.pix.num_pixels
     wrs = sqw_eval(w{1},@gen_rseq,[]);
     rseq = wrs.pix.signal;
@@ -61,7 +64,7 @@ end
 wcalc=sqw_eval(w{1},sqwfunc,pars);
 clear w
 
-% Add random looking, but determinisitic, noise
+% Add random looking, but deterministic, noise
 peak=max(abs(wcalc.pix.signal));
 if peak==0
     peak=10; % Case of all signal==0
