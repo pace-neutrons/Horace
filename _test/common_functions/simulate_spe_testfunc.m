@@ -27,7 +27,7 @@ if isempty(rseq_store)
 else
     seed_defined = true;
 end
-if ~exist('run_id,'var')
+if ~exist('run_id','var')
     run_id= 1000;
 end
 %-----------------------------------------------------------------
