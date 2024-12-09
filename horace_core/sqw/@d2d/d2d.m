@@ -28,7 +28,7 @@ classdef d2d < DnDBase
         dat = IX_dataset_2d(obj);
 
 
-        wout=combine_horace_2d(w1,w2,varargin);
+        wout=combine(w1,w2,varargin);
         wout=symmetrise_horace_2d(win,varargin);
         wout=rebin_horace_2d(win,varargin);
 
@@ -43,6 +43,12 @@ classdef d2d < DnDBase
         function [nd,sz] = dimensions(obj)
             nd = 2;
             sz = obj.axes_.data_nbins;
+        end
+        function wout=combine_horace_2d(w1,w2,varargin)
+            warning('HORACE:d2d:deprecated', ...
+                'combine_horace_2d is deprecated. Use combine instead');
+            wout = combine(w1,w2,varargin{:});
+            
         end
     end
 

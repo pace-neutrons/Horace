@@ -69,7 +69,7 @@ classdef test_gen_runfiles < TestCase
             scale = 0.3;
             for i = 1:nfiles_max
                 simulate_spe_testfunc(en{i}, par_file, spe_file{i}, @sqw_sc_hfm_testfunc, pars, scale, ...
-                    efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i));
+                    efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i),1000+i);
             end
 
             % =====================================================================================================================

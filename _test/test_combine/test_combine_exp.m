@@ -93,6 +93,7 @@ classdef test_combine_exp < TestCase
             % NB - combining results in slightly different binning and pix
             w2d_qq_combined=combine_sqw(w2d_qq_sqw_minus,w2d_qq_sqw_plus);
 
+            clOb = set_temporary_config_options('hpc_config','parallel_multifit',0);
             mf_qq = multifit_sqw(w2d_qq_sqw);
             mf_qq = mf_qq.set_fun (@fake_cross_sec, 0.9*[this.stiffness,this.gam,this.amp]);
             [wfit_qq,fitdata_qq] = mf_qq.fit();
@@ -108,13 +109,13 @@ classdef test_combine_exp < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_combine_dnd_notol(this)
             % dnd combination without specifying a tolerance
-            skipTest("combine dnd skpped until #878 is fixed")
             w2d_qq_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
             w2d_qq_d2d_plus=read_dnd(fullfile(this.testdir,'w2d_qq_d2d_plus.sqw'));
             w2d_qq_d2d_minus=read_dnd(fullfile(this.testdir,'w2d_qq_d2d_minus.sqw'));
 
-            w2d_qq_combined=combine_horace_2d(w2d_qq_d2d_minus,w2d_qq_d2d_plus);
+            w2d_qq_combined=combine(w2d_qq_d2d_minus,w2d_qq_d2d_plus);
 
+            clOb = set_temporary_config_options('hpc_config','parallel_multifit',0);
             mf_qq = multifit_sqw (w2d_qq_d2d);
             mf_qq = mf_qq.set_fun (@fake_cross_sec, 0.9*[this.stiffness,this.gam,this.amp]);
             [wfit_qq,fitdata_qq] = mf_qq.fit();
@@ -131,12 +132,13 @@ classdef test_combine_exp < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_combine_dnd_tol(this)
             % dnd combination specifying a tolerance
-            skipTest("combine dnd skpped until #878 is fixed")
             w1d_d1d=read_dnd(fullfile(this.testdir,'w1d_d1d.sqw'));
             w1d_d1d_plus=read_dnd(fullfile(this.testdir,'w1d_d1d_plus.sqw'));
             w1d_d1d_minus=read_dnd(fullfile(this.testdir,'w1d_d1d_minus.sqw'));
 
-            w1d_combined=combine_horace_1d(w1d_d1d_minus,w1d_d1d_plus,0.025);
+            w1d_combined=combine(w1d_d1d_minus,w1d_d1d_plus,0.025);
+
+            clOb = set_temporary_config_options('hpc_config','parallel_multifit',0);
 
             mf = multifit_sqw (w1d_d1d);
             mf = mf.set_fun (@fake_cross_sec, 0.9*[this.stiffness,this.gam,this.amp]);

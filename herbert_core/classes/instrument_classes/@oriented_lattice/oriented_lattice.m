@@ -1,4 +1,4 @@
-classdef oriented_lattice < goniometer
+classdef oriented_lattice < Goniometer
     % class describes main properties of a sample with oriented lattice
     % under neutron scattering or x-ray investigation.
     % and contains various service functions to work with such sample
@@ -63,7 +63,7 @@ classdef oriented_lattice < goniometer
     end
     properties(Constant,Hidden)
         % fields defined in lattice
-        lattice_fields = [goniometer.gon_fields_(:);oriented_lattice.lat_fields_(:)];
+        lattice_fields = [Goniometer.gon_fields_(:);oriented_lattice.lat_fields_(:)];
     end
 
     properties(Access=private)
@@ -103,7 +103,7 @@ classdef oriented_lattice < goniometer
             if nargin == 1
                 return;
             end
-            [obj,rem] = init@goniometer(obj,varargin{:});
+            [obj,rem] = init@Goniometer(obj,varargin{:});
             if ~isempty(rem)
                 error('HERBERT:oriented_lattice:invalud_argument',...
                     'Unrecognized oriented_lattice parameters: %s',...
@@ -145,7 +145,7 @@ classdef oriented_lattice < goniometer
             % get list of undefined fields
             fld_l = {'alatt','angdeg'};
             uf_ = fld_l(obj.undef_fields_);
-            fld_b = get_undef_fields@goniometer(obj);
+            fld_b = get_undef_fields@Goniometer(obj);
             uf  = [uf_(:);fld_b(:)];
         end
         function flds = get_fields_to_define(~)
@@ -167,19 +167,19 @@ classdef oriented_lattice < goniometer
         end
         function flds = saveableFields(obj)
             fld_l = {'alatt';'angdeg'};
-            fld_b = saveableFields@goniometer(obj);
+            fld_b = saveableFields@Goniometer(obj);
             flds = [fld_l(:);fld_b(:)];
         end
         function flds = constructionFields(obj)
             fld_l = {'alatt';'angdeg'};
-            fld_b = constructionFields@goniometer(obj);
+            fld_b = constructionFields@Goniometer(obj);
             flds = [fld_l(:);fld_b(:)];
         end
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained lattice object
             try
-                obj = check_combo_arg@goniometer(obj);
+                obj = check_combo_arg@Goniometer(obj);
             catch ME
                 obj.isvalid_ = false;
                 obj.reason_for_invalid_ = ME.message;

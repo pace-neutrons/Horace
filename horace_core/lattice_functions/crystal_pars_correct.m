@@ -7,9 +7,9 @@ function [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_pars_correct (u, v,
 %
 % This functions returns the true lattice parameters and crystal misorientation angles for the generation
 % of an sqw file. The input is the lattice parameters and crystal misorientation used to generate an
-% sqw file, and a matrix that converts the indicies (h,k,l) to the correct values of (h,k,l). Optionally,
+% sqw file, and a matrix that converts the indices (h,k,l) to the correct values of (h,k,l). Optionally,
 % the vectors u and v that define the scattering plane can be altered, and the angle omega that defines the
-% orientation of the virtual gonoiometer.
+% orientation of the virtual goniometer.
 %
 % The rlu correction matrix can be estimated using the function refine_crystal (type
 % >> help refine_crystal   for details). This matrix can be used directly to correct the crystal orientation and

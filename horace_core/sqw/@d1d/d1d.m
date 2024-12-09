@@ -26,7 +26,7 @@ classdef d1d < DnDBase
         end
         dat = IX_dataset_1d(obj);
 
-        wout = combine_horace_1d(w1,w2,varargin);
+        wout = combine(w1,w2,varargin);
         wout = rebin_horace_1d(win, varargin);
         wout = symmetrise_horace_1d(win, varargin);
 
@@ -37,6 +37,12 @@ classdef d1d < DnDBase
             nd = 1;
             sz = obj.axes_.data_nbins;
         end
+        function wout = combine_horace_1d(w1,w2,varargin)
+            warning('HORACE:d1d:deprecated', ...
+                'combine_horace_1d is deprecated. Use combine instead');
+            wout = combine(w1,w2,varargin{:});
+        end
+
     end
     methods(Access = protected)
         function obj = set_senpix(obj,val,field)

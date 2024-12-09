@@ -90,7 +90,7 @@ function [tmp_file,grid_size,pix_range,varargout] = accumulate_sqw (varargin)
 %                   Default if not given or [] is is [50,50,50,50]
 %   pix_range_in       [Optional] Range of data grid for output as a 2x4 matrix:
 %                              [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
-%                   Default if not given or [] is the smallest hypercuboid that encloses the whole data range.
+%                   Default if not given or [] is the smallest hyper-cuboid that encloses the whole data range.
 %   instrument      Structure or object containing instrument information [scalar or array length nfile]
 %   sample          Structure or object containing sample geometry information [scalar or array length nfile]
 %

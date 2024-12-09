@@ -15,10 +15,10 @@ function  lat = convert_old_input_to_lat(varargin)
 %^2 gs            Small goniometer arc angle (deg)   [scalar or vector length nfile]
 % Notes:
 % nfile considered to be max dimension of scalar variables or first
-%       dimension of vecor variable. All parameters with nfiles 1 are expanded
+%       dimension of vector variable. All parameters with nfiles 1 are expanded
 %       to size nfiles as the result of this method.
 % ^1    This parameter is optional for some formats of spe files. If
-%       provided, overides the information contained in the the "spe" file.
+%       provided, overrides the information contained in the the "spe" file.
 % ^2    Optional parameter. If absent, the default value defined by the class
 %       is used instead;
 %
