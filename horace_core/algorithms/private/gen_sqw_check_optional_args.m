@@ -74,11 +74,13 @@ end
 % if varargin contains scalar value bigger than 1000, this value is runid
 runid_present = cellfun(@(x)((numel(x)==1||numel(x)==nfile) && all(x>=1000)),varargin);
 if any(runid_present)
-    run_id = varargin(runid_present);
+    run_id = varargin{runid_present};
+    argi = varargin(~runid_present);
 else
     run_id = 1000:(1000+nfile-1);
+    argi = varargin;
 end
-narg=numel(varargin);
+narg=numel(argi);
 if narg==0
     grid=grid_default;
     pix_db_range=[];
@@ -87,7 +89,7 @@ if narg==0
     sample=repmat(sample_default,[nfile,1]);
 
 elseif narg==1  % grid
-    [grid,mess]=check_grid_size(varargin{1},grid_default);
+    [grid,mess]=check_grid_size(argi{1},grid_default);
     if ~isempty(mess)
         error('HORACE:gen_sqw:invalid_argument',mess)
     end
@@ -97,13 +99,13 @@ elseif narg==1  % grid
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
 
-elseif narg==2 && isnumeric(varargin{1})    % grid, pix_db_range
-    [grid,mess]=check_grid_size(varargin{1},grid_default);
+elseif narg==2 && isnumeric(argi{1})    % grid, pix_db_range
+    [grid,mess]=check_grid_size(argi{1},grid_default);
     if ~isempty(mess)
         error('HORACE:gen_sqw:invalid_argument',mess)
     end
     present.grid=true;
-    [pix_db_range,mess]=check_pix_range(varargin{2});
+    [pix_db_range,mess]=check_pix_range(argi{2});
     if ~isempty(mess)
         error('HORACE:gen_sqw:invalid_argument',mess)
     end
@@ -113,17 +115,17 @@ elseif narg==2 && isnumeric(varargin{1})    % grid, pix_db_range
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
 
-elseif narg==2 && ~isnumeric(varargin{1})   % instrument, sample
+elseif narg==2 && ~isnumeric(argi{1})   % instrument, sample
     grid=grid_default;
     pix_db_range=[];
 
-    [instrument,mess]=check_inst_or_sample(varargin{1},nfile,'instrument',instrument_default);
+    [instrument,mess]=check_inst_or_sample(argi{1},nfile,'instrument',instrument_default);
     if ~isempty(mess)
         error('HORACE:gen_sqw:invalid_argument',mess)
     end
 
     present.instrument=true;
-    [sample,mess]=check_inst_or_sample(varargin{2},nfile,'sample',sample_default);
+    [sample,mess]=check_inst_or_sample(argi{2},nfile,'sample',sample_default);
     if ~isempty(mess)
         error('HORACE:gen_sqw:invalid_argument',mess)
     end
@@ -131,26 +133,26 @@ elseif narg==2 && ~isnumeric(varargin{1})   % instrument, sample
     present.sample=true;
 
 elseif narg==4                              % grid, pix_db_range, instrument, sample
-    [grid,mess]=check_grid_size(varargin{1},grid_default);
+    [grid,mess]=check_grid_size(argi{1},grid_default);
     if ~isempty(mess)
         error('HORACE:gen_sqw:invalid_argument',mess)
     end
 
     present.grid=true;
-    [pix_db_range,mess]=check_pix_range(varargin{2});
+    [pix_db_range,mess]=check_pix_range(argi{2});
     if ~isempty(mess)
         error('HORACE:gen_sqw:invalid_argument',mess)
     end
 
     present.pix_db_range=true;
 
-    [instrument,mess]=check_inst_or_sample(varargin{3},nfile,'instrument',instrument_default);
+    [instrument,mess]=check_inst_or_sample(argi{3},nfile,'instrument',instrument_default);
     if ~isempty(mess)
         error('HORACE:gen_sqw:invalid_argument',mess)
     end
 
     present.instrument=true;
-    [sample,mess]=check_inst_or_sample(varargin{4},nfile,'sample',sample_default);
+    [sample,mess]=check_inst_or_sample(argi{4},nfile,'sample',sample_default);
     if ~isempty(mess)
         error('HORACE:gen_sqw:invalid_argument',mess)
     end
