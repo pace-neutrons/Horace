@@ -35,6 +35,8 @@ if numel(obj)>1
 end
 nspe = obj.n_runs;
 if isempty(exp_cellarray)|| numel(exp_cellarray)== 0
+    expinfo    = obj.expdata;    
+    [~,run_id_array]    = expinfo.combine(exp_cellarray,allow_equal_headers,keep_runid,obj.runid_map);
     return;
 end
 if isa(exp_cellarray,'Experiment')
