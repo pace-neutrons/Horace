@@ -92,12 +92,7 @@ ll = config_store.instance().get_value('hor_config','log_level');
 
 % Prepare writing to output file
 % ---------------------------
-if keep_runid
-    run_label = 'nochange';
-else
-    keys = exper_combined.runid_map.keys;
-    run_label=[keys{:}];
-end
+
 % % instead of the real pixels to place in target sqw file, place in pix field the
 % % information about the way to get the contributing pixels
 pix = pixobj_combine_info(pix,npix);
