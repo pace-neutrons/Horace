@@ -193,8 +193,6 @@ hor_log_level = get(hor_config, 'log_level');
 if isempty(img_db_range) 
     img_db_range = PixelDataBase.EMPTY_RANGE_;
     for i=1:numel(run_files)
-        % assign unique run_id to each generated run_file
-        run_files{i}.run_id = run_id(i); % will work as multiple files generation is prohibited if range is present
         [pix_range_l,run_files{i}] = run_files{i}.calc_pix_range(en_lo(i),en_hi(i));
         img_db_range = [min(pix_range_l(1,:),img_db_range(1,:));max(pix_range_l(2,:),img_db_range(2,:))];
     end
@@ -235,7 +233,7 @@ for i=1:nfiles
     run_files{i}.S = data.S;
     run_files{i}.ERR = data.ERR;
     run_files{i}.en = en{i};
-    run_files{i}.run_id = i;
+    run_files{i}.run_id = run_id(i);
     %
     w = run_files{i}.calc_sqw(grid_size, img_db_range);
 
