@@ -75,17 +75,11 @@ end
 
 % Prepare writing to output file
 % ---------------------------
-if keep_runid
-    run_label = 'nochange';
-else
-    keys = exper_combined.runid_map.keys;
-    run_label=[keys{:}];
-end
 %
 % instead of the real pixels to place in target sqw file, place in pix field the
 % information about the way to get the contributing pixels
 pix = pixfile_combine_info(infiles,numel(dnd_data.npix),npixtot, ...
-    pos_npixstart,pos_pixstart,run_label);
+    pos_npixstart,pos_pixstart,run_id_array);
 pix.data_range = data_range;
 
 sqw_sum_struc= struct('main_header',mhc,'experiment_info',exper_combined,'detpar',[]);

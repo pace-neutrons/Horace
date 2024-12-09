@@ -36,7 +36,7 @@ classdef test_cut_simple_to_complex < TestCaseWithSave
             alatt = [2.83,2.83,2.83];
             angdeg = [90,90,90];
             wtmp = dummy_sqw(en,par_file,'',efix,1,...
-                alatt,angdeg,[0,0,1],[0,-1,0],0,0,0,0,0,[50,50,50,50]);
+                alatt,angdeg,[0,0,1],[0,-1,0],0,0,0,0,0,[50,50,50,50],1001);
             
             obj.sqw_4D_ortho = sqw_eval(wtmp{1},@make_bragg_blobs,...
                 {[10,1,1],[alatt,angdeg],[alatt,angdeg],[0,0,0],0});
@@ -44,7 +44,7 @@ classdef test_cut_simple_to_complex < TestCaseWithSave
             angdeg = [85,95,93];
             
             wtmp = dummy_sqw(en,par_file,'',efix,1,...
-                alatt,angdeg,[0,0,1],[0,-1,0],0,0,0,0,0,[50,50,50,50]);
+                alatt,angdeg,[0,0,1],[0,-1,0],0,0,0,0,0,[50,50,50,50],1002);
             obj.sqw_4D_tricl = sqw_eval(wtmp{1},@make_bragg_blobs,...
                 {[10,1,1],[alatt,angdeg],[alatt,angdeg],[0,0,0],0});
             

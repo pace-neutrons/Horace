@@ -38,7 +38,7 @@ classdef IX_experiment < Goniometer
         % the list of properties which define IX_experiment uniqueness
         % if all properties values are the same, IX_experiments are
         % considered the same
-        unique_prop = {'cu','cv','efix',...
+        unique_prop = {'filename','cu','cv','efix',...
             'psi', 'omega', 'dpsi', 'gl', 'gs'}
     end
 
