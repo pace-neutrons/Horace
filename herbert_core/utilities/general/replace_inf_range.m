@@ -1,7 +1,7 @@
 function img_range = replace_inf_range(img_range)
 %REPLACE_INF_RANGE Remove old inf integration ranges which may be present
 % in old sqw or dnd objects
-% 
+%
 % Inputs:
 % img_range  -- 2xN array of min/max values with possible +-inf values
 %               present in it
@@ -28,7 +28,9 @@ if any(min_is_inf)
     max_base= min_is_inf&(~max_is_inf); % max range is defined and min range is not. Take max range as reference
     guess_range            =  img_range(1,:);
     guess_range(min_is_inf)= -eps_single ;
-    guess_range(max_base)  =  img_range(2,max_base)*(1-sign(img_range(2,max_base))*eps_single );
+    if any(max_base)
+        guess_range(max_base)  =  img_range(2,max_base)*(1-sign(img_range(2,max_base))*eps_single );
+    end
     img_range(1,min_is_inf)=  guess_range(min_is_inf) ;
 end
 
@@ -36,7 +38,9 @@ if any(max_is_inf)
     min_base= max_is_inf&(~min_is_inf); % min range is defined and max range is not. Take min range as reference
     guess_range            = img_range(2,:);
     guess_range(max_is_inf)= eps_single ;
-    guess_range(min_base)  = img_range(1,min_base)*(1+sign(img_range(1,min_base))*eps_single);
+    if any(min_base)
+        guess_range(min_base)  = img_range(1,min_base)*(1+sign(img_range(1,min_base))*eps_single);
+    end
     img_range(2,max_is_inf)= guess_range(max_is_inf);
 end
 end

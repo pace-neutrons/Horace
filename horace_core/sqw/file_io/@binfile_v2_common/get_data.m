@@ -165,6 +165,10 @@ end
 data_str.warn_on_legacy_data = false;
 proj = line_proj.get_from_old_data(data_str);
 ax   = line_axes.get_from_old_data(data_str);
+cname = class(obj);
+if contains(cname,'dnd') % if loading dnd object only, remove inf if present in img_range
+    ax.img_range = replace_inf_range(ax.img_range);
+end
 
 % really old file format does not contain lattice
 % in real life we will probably never face this file format
@@ -180,3 +184,4 @@ data_str = DnDBase.dnd(ax,proj,data_str.s,data_str.e,data_str.npix);
 obj.sqw_holder_ = data_str;
 
 end
+

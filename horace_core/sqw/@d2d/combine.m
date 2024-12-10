@@ -81,7 +81,7 @@ switch route
             wout=d2d(w1);            
             wout.do_check_combo_arg = false;
             paxis = (wout.axes.nbins_all_dims>1);
-            range = [min(xout(:,1)),min(yout(:,1));max(xout(:,1)),max(yout(:,1))];
+            range = [min(xout(:)),min(yout(:));max(xout(:)),max(yout(:))];
             wout.axes.img_range(:,paxis) = range;
             wout.axes.nbins_all_dims(1) = numel(xout(:,1))-1;
             wout.axes.nbins_all_dims(2) = numel(yout(1,:))-1;
