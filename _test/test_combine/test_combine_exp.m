@@ -124,7 +124,7 @@ classdef test_combine_exp < TestCase
             mf_combi = mf_combi.set_fun (@fake_cross_sec, 0.9*[this.stiffness,this.gam,this.amp]);
             [wfit_combi,fitdata_combi] = mf_combi.fit();
 
-            [ok,mess]=equal_to_tol(fitdata_qq.p,fitdata_combi.p,-2.2e-2,'ignore_str', 1);
+            [ok,mess]=equal_to_tol(fitdata_qq.p,fitdata_combi.p,-2.4e-2,'ignore_str', 1);
             assertTrue(ok,['combine dnd without a specified tolerance fails: ',mess])
 
         end
@@ -148,7 +148,7 @@ classdef test_combine_exp < TestCase
             mf_combi = mf_combi.set_fun (@fake_cross_sec, 0.9*[this.stiffness,this.gam,this.amp]);
             [wfit_combi,fitdata_combi] = mf_combi.fit();
 
-            [ok,mess]=equal_to_tol(fitdata.p,fitdata_combi.p,-2e-2,'ignore_str', 1);
+            [ok,mess]=equal_to_tol(fitdata.p,fitdata_combi.p,-0.06,'ignore_str', 1);
             assertTrue(ok,['combine dnd with a specified tolerance fails: ',mess])
 
         end

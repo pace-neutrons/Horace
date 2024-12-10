@@ -96,7 +96,7 @@ ll = config_store.instance().get_value('hor_config','log_level');
 % % instead of the real pixels to place in target sqw file, place in pix field the
 % % information about the way to get the contributing pixels
 pix = pixobj_combine_info(pix,npix);
-pix.run_label = run_label;
+pix.run_label = run_id_array;
 if ~any(pix_data_range(:) == PixelDataBase.EMPTY_RANGE(:))
     pix.data_range = pix_data_range;
 end
