@@ -53,12 +53,12 @@ classdef test_combine_sqw < TestCase
             obj.v = obj.gen_sqw_par{6};
             tsqw = dummy_sqw(-0.5:1:obj.gen_sqw_par{2}-5, obj.par_file, '',...
                 obj.gen_sqw_par{2},obj.gen_sqw_par{1},...
-                obj.gen_sqw_par{3:end});
+                obj.gen_sqw_par{3:end},1002);
             obj.sqw_sample_gen = tsqw{1};
 
             tsqw = dummy_sqw(-0.5:1:obj.gen_sqw_par_ortho{2}-5, obj.par_file, '',...
                 obj.gen_sqw_par_ortho{2},obj.gen_sqw_par_ortho{1},...
-                obj.gen_sqw_par_ortho{3:end});
+                obj.gen_sqw_par_ortho{3:end},1003);
             obj.sqw_sample_ortho = tsqw{1};
 
         end

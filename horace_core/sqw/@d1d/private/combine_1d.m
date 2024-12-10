@@ -21,69 +21,15 @@ function [xout,yout,eout,nout]=combine_1d(x1,y1,e1,n1,x2,y2,e2,n2,tol)
 
 %It is important that we deal entirely with column vectors, so check that
 %inputs are of this form:
-if ~iscolvector(x1) && isvector(x1)
-    x1=x1';
-elseif iscolvector(x1)
-    %do nothing
-else
-    error('Combine error: 1st set of x-coordinates must be in the form of a column vector');
-end
+x1=x1(:);
+y1=y1(:);
+e1=e1(:);
+n1=n1(:);
 %
-if ~iscolvector(y1) && isvector(y1)
-    y1=y1';
-elseif iscolvector(y1)
-    %do nothing
-else
-    error('Combine error: 1st signal array must be in the form of a column vector');
-end
-%
-if ~iscolvector(e1) && isvector(e1)
-    e1=e1';
-elseif iscolvector(e1)
-    %do nothing
-else
-    error('Combine error: 1st error array must be in the form of a column vector');
-end
-%
-if ~iscolvector(n1) && isvector(n1)
-    n1=n1';
-elseif iscolvector(n1)
-    %do nothing
-else
-    error('Combine error: 1st npix array must be in the form of a column vector');
-end
-%
-if ~iscolvector(x2) && isvector(x2)
-    x2=x2';
-elseif iscolvector(x2)
-    %do nothing
-else
-    error('Combine error: 2nd set of x-coordinates must be in the form of a column vector');
-end
-%
-if ~iscolvector(y2) && isvector(y2)
-    y2=y2';
-elseif iscolvector(y2)
-    %do nothing
-else
-    error('Combine error: 2nd signal array must be in the form of a column vector');
-end
-%
-if ~iscolvector(e2) && isvector(e2)
-    e2=e2';
-elseif iscolvector(e2)
-    %do nothing
-else
-    error('Combine error: 2nd error array must be in the form of a column vector');
-end
-%
-if ~iscolvector(n2) && isvector(n2)
-    n2=n2';
-elseif iscolvector(n2)
-    %do nothing
-else
-    error('Combine error: 2nd npix array must be in the form of a column vector');
-end
+x2=x2(:);
+y2=y2(:);
+e2=e2(:);
+n2=n2(:);
 %
 
 %Determine the data range:
@@ -105,13 +51,13 @@ if isempty(tol)
     end
 else
     if lo1<=lo2 && hi1>=hi2
-        xnew=[lo1:tol:(hi1+tol-eps)]';%extra bit is to ensure the upper limit is not too low
+        xnew=(lo1:tol:(hi1+tol-eps))';%extra bit is to ensure the upper limit is not too low
     elseif lo2<=lo1 && hi2>=hi1
-        xnew=[lo2:tol:(hi2+tol-eps)]';
+        xnew=(lo2:tol:(hi2+tol-eps))';
     elseif lo2<lo1 && hi2<=hi1
-        xnew=[lo2:tol:(hi1+tol-eps)]';
+        xnew=(lo2:tol:(hi1+tol-eps))';
     elseif lo1<lo2 && hi1<=hi2
-        xnew=[lo1:tol:(hi2+tol-eps)]';
+        xnew=(lo1:tol:(hi2+tol-eps))';
     end
 end
     
@@ -138,20 +84,3 @@ eout(err1_old==0 & err2_old==0)=0;
 %
 %Convert error back to absoute from fractional:
 eout=eout.*yout;
-
-%==========================================================================
-%==========================================================================
-
-function out=iscolvector(in)
-%
-% determine if input vector is a column vector. inputs have already been
-% checked to determine if they are vectors.
-%
-[sz1,sz2]=size(in);
-if sz1==1 && sz2>=1
-    out=false;
-elseif sz1>=1 && sz2==1
-    out=true;
-else
-    error('Combine error: logic flaw');
-end

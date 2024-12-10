@@ -9,18 +9,18 @@ function [irange,uoff]=calculate_integration_range(w1,w2)
 % RAE 22/1/10
 %
 
-iax11=w1.data_.u_to_rlu(:,w1.data_.iax(1));
-iax12=w1.data_.u_to_rlu(:,w1.data_.iax(2));
-off11=w1.data_.uoffset(w1.data_.iax(1));
-off12=w1.data_.uoffset(w1.data_.iax(2));
+iax11=w1.u_to_rlu(:,w1.iax(1));
+iax12=w1.u_to_rlu(:,w1.iax(2));
+off11=w1.uoffset(w1.iax(1));
+off12=w1.uoffset(w1.iax(2));
 
-iax21=w2.data_.u_to_rlu(:,w2.data_.iax(1));
-iax22=w2.data_.u_to_rlu(:,w2.data_.iax(2));
-off21=w2.data_.uoffset(w2.data_.iax(1));
-off22=w2.data_.uoffset(w2.data_.iax(2));
+iax21=w2.u_to_rlu(:,w2.iax(1));
+iax22=w2.u_to_rlu(:,w2.iax(2));
+off21=w2.uoffset(w2.iax(1));
+off22=w2.uoffset(w2.iax(2));
 
-iint1=w1.data_.iint;
-iint2=w2.data_.iint;
+iint1=w1.iint;
+iint2=w2.iint;
 
 if isequal(1e-5.*round(1e5.*iax11),1e-5.*round(1e5.*iax21))
     %must compare 1st cols of iint1 and iint2
@@ -43,7 +43,7 @@ else
 end
 
 irange=[lo1 lo2; hi1 hi2];
-utmp=w1.data_.uoffset;
-utmp(w1.data_.iax(1))=uoff1;
-utmp(w1.data_.iax(2))=uoff2;
+utmp=w1.uoffset;
+utmp(w1.iax(1))=uoff1;
+utmp(w1.iax(2))=uoff2;
 uoff=utmp;

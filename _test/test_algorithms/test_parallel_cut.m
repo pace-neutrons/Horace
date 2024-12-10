@@ -61,9 +61,5 @@ classdef test_parallel_cut < TestCase
             assertEqualToTol(cut_ser.data, cut_par.data, 'ignore_str', true)
 
         end
-
-
     end
-
-
 end

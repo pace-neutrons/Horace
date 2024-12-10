@@ -38,8 +38,8 @@ function gen_sqw_cylinder(spe_file, par_file, sqw_file, efix, varargin)
 % - This sqw object that is created is a 3D object, with axes (Q_inplane, Qz, eps)
 %
 % - Use cut_sqw and @sqw/cut WITHOUT the proj option. All other use may lead to
-%  unexpected behavior. The symmetrisation routines may not work, but the only
-%  symmetrisation that is meaningful is to add +ve and -ve Qz, so this can be
+%  unexpected behavior. The symmetrization routines may not work, but the only
+%  symmetrization that is meaningful is to add +ve and -ve Qz, so this can be
 %  done by hand. Many other functions in Horace will not be meaningful.
 
 

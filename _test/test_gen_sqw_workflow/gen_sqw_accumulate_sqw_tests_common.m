@@ -252,7 +252,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             for i=1:n_files
                 if ~is_file(spe_files{i})
                     simulate_spe_testfunc (en{i}, obj.par_file,spe_files{i}, @sqw_sc_hfm_testfunc, obj.pars, obj.scale,...
-                        efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i));
+                        efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i),1000+i);
                 end
             end
 

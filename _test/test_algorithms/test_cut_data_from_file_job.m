@@ -58,7 +58,7 @@ classdef test_cut_data_from_file_job < TestCase
             assertEqual(dat.s,s);
             assertEqual(dat.e,e);
             assertEqual(pix,pix_ok)
-            assertEqual(unique_runid,1)
+            assertEqual(unique_runid,1000)
             npc = accumarray(pix_indx, ones(1,size(pix_indx,1)), [numel(npix),1]);
             assertEqual(npix(:),npc);
         end
@@ -89,7 +89,7 @@ classdef test_cut_data_from_file_job < TestCase
             assertEqual(dat.s,s);
             assertEqual(dat.e,e);
             assertEqual(pix,pix_ok)
-            assertEqual(unique_runid,1)
+            assertEqual(unique_runid,1000)
             npc = accumarray(pix_indx, ones(1,size(pix_indx,1)), [numel(npix),1]);
             assertEqual(npix(:),npc);
         end
@@ -116,7 +116,7 @@ classdef test_cut_data_from_file_job < TestCase
             assertEqual(dat.s,s);
             assertEqual(dat.e,e);
             assertEqual(pix,pix_ok)
-            assertEqual(unique_runid,1)
+            assertEqual(unique_runid,1000)
             npc = accumarray(pix_indx, ones(1,size(pix_indx,1)), [numel(npix),1]);
             assertEqual(npix(:),npc);
         end

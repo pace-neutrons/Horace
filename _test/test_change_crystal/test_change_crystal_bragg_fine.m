@@ -63,7 +63,7 @@ classdef test_change_crystal_bragg_fine < TestCase
             sqw_tmp_file=cell(size(psi));
             for i=1:numel(psi)
                 wtmp=dummy_sqw (en, par_file, '', efix, emode, alatt, angdeg,...
-                    u, v, psi(i), omega, dpsi, gl, gs, [1,1,1,1], pix_range);
+                    u, v, psi(i), omega, dpsi, gl, gs, [1,1,1,1], pix_range,1000+i);
                 % Simulate cross-section on all the sqw files: place blobs at Bragg positions of the true lattice
                 wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[1,obj.qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
                 sqw_tmp_file{i}=fullfile(dir_out,['dummy_test_change_crystal_1_',num2str(i),'.sqw']);
