@@ -137,6 +137,10 @@ classdef test_head < TestCaseWithSave
 
             % no creation date in old files
             hdd.creation_date = hd.creation_date;
+            % loader returns inf ranges stored in old files, but correct 
+            % dnd loader tries to regularize this:
+            hd.img_range = replace_inf_range(hd.img_range);
+            hd.iint = hd.img_range(:,hd.iax);
             assertEqualToTol(hd,hdd,1.e-7)
         end
 
