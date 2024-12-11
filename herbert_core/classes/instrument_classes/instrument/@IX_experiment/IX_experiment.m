@@ -295,7 +295,7 @@ classdef IX_experiment < Goniometer
             % Inputs:
             % obj             -- single instance or array of IX_experiment
             %                    objects
-            % exper_cellarray -- cellarray containing IX_experiments arrays 
+            % exper_cellarray -- cellarray containing IX_experiments arrays
             %                    or Experiment classes to combine their
             %                    IX_experiments into obj.
             % allow_eq_headers-- if true, headers with the same runid and
@@ -306,10 +306,10 @@ classdef IX_experiment < Goniometer
             %                    and values.
             %                    IX_experiments with same run_id and
             %                    different values are always rejected.
-            % keep_runid      -- boolean, which includes true if run_id-s
-            %                    stored in IX_experiment data should be
-            %                    kept or final obj run_id should be
-            %                    recalculated.
+            % keep_runid      -- true if run_id-s stored in input IX_experiment-s
+            %                    should be kept or false if final obj
+            %                    run_id should be  recalculated starting
+            %                    from 1 to number of kept runs.
             % WARNING:        -- run_id(s) modified if keep_runid == false
             %                    must be synchronized with run_id(s) stored
             %                    in pixels, which means that keep_runid ==
@@ -317,7 +317,9 @@ classdef IX_experiment < Goniometer
             %                    file generation only.
             % Optional:
             % runid_map       -- the map containing information about
-            %                    run_id(s) stored in the object.
+            %                    run_id(s) stored in the object as keys
+            %                    and pointing to the number of element in
+            %                    obj array as the value.
             %
             % Returns:
             % obj             -- resulting array, containing unique

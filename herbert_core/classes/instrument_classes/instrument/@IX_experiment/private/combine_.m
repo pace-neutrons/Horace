@@ -9,14 +9,20 @@ function [obj,file_id_array,skipped_inputs,this_runid_map] = combine_(obj,exper_
 % exper_cellarray -- cellarray containing IX_experiments arrays
 %                    or Experiment classes to combine their IX_experiments
 %                    into obj.
-% keep_runid      -- boolean, which includes true if run_id-s
-%                    stored in IX_experiment data should be
-%                    kept or final obj run_id should be
-%                    recalculated.
+% allow_eq_headers-- if true, headers with the same runid and
+%                    same values are allowed and accounted for
+%                    in combine operations. If false, routine
+%                    throws HORACE:IX_experiment:invalid_argument
+%                    if the IX_experiment have the same run_id
+%                    and the same values.
+% keep_runid      -- true if run_id-s stored in input IX_experiment-s 
+%                    should be kept or false if final obj run_id should be
+%                    recalculated starting from 1 to number of kept runs.
 % WARNING:        -- run_id(s) modified if keep_runid == false
 %                    must be synchronized with run_id(s) stored
 %                    in pixels, which means that keep_runid ==
-%                    false could be used mainly in tests
+%                    false could be used mainly in tests or in gen_sqw
+%                    operations
 % Optional:
 % this_runid_map  -- the map containing information about
 %                    run_id(s) stored in the object as keys
