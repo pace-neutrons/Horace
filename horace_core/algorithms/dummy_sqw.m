@@ -45,7 +45,15 @@ function [tmp_sqw, grid_size, img_db_range] = dummy_sqw (en, par_file, sqw_file,
 %                  scalar grid_size_in, which is too big to be 1000^4.
 %                  If provided, specifies the unique number, which
 %                  distinguish different runs one from another. If not,
-%                  function returns 
+%                  function generates tmp_sqw with default run_id == 1000. 
+% WARNING:
+%                  If you intend to generate multiple dummy_sqw objects in
+%                  an external loop with different input parameters 
+%                  with purpose to combine  them together later, you need
+%                  to give them different run_id(s)
+%                  Combine procedure will refuse combining tmp/sqw objects
+%                  with the same run_id-s and different input parameters.
+%                  
 %   grid_size_in   Scalar or row vector of grid dimensions. The default
 %                  size will depend on the product of energy bins and detector elements
 %                  summed across all the spe files.

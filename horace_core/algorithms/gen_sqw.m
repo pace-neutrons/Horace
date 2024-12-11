@@ -100,6 +100,7 @@ function [tmp_file,grid_size,data_range,varargout] = gen_sqw (spe_file, par_file
 
 % T.G.Perring  14 August 2007
 % T.G.Perring  19 March 2013   Massively updated, also includes functionality of accumulate_sqw
+% August 2024 -- substantially modified for Horace-4
 
 % *** Possible improvements
 % - Cleverer choice of grid size on the basis of number of data points in the file

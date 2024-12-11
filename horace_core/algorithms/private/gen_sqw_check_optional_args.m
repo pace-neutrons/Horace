@@ -29,6 +29,19 @@ function [present,grid,pix_db_range,instrument,sample,run_id]=gen_sqw_check_opti
 %                       it needs to be autoscaled or set later)
 %   instrument_in       Structure or object [scalar or array]
 %   sample_in           Structure or object [scalar or array]
+%   run_id         Number, larger than 1000 to distinguish if from possible
+%                  scalar grid_size_in, which is too big to be 1000^4.
+%                  If provided, specifies the unique number, which
+%                  distinguish different runs one from another. If not,
+%                  function generates tmp_sqw with default run_id == 1000. 
+% WARNING:
+%                  If you intend to generate multiple dummy_sqw objects in
+%                  an external loop with different input parameters 
+%                  with purpose to combine  them together later, you need
+%                  to give them different run_id(s)
+%                  Combine procedure will refuse combining tmp/sqw objects with
+%                  the same run_id-s and different input parameters.
+
 %
 % Output:
 % -------
@@ -47,7 +60,8 @@ function [present,grid,pix_db_range,instrument,sample,run_id]=gen_sqw_check_opti
 
 
 % Set default return arguments in case of error
-present=struct('grid',false,'pix_db_range',false,'instrument',false,'sample',false);
+present=struct('grid',false,'pix_db_range',false, ...
+    'instrument',false,'sample',false,'run_id',false);
 grid=[]; pix_db_range=[]; instrument=[]; sample=[];
 
 
@@ -72,10 +86,11 @@ end
 
 % Check arguments
 % if varargin contains scalar value bigger than 1000, this value is runid
-runid_present = cellfun(@(x)((numel(x)==1||numel(x)==nfile) && all(x>=1000)),varargin);
+runid_present = cellfun(@(x)((numel(x)==nfile) && all(x>=1000)),varargin);
 if any(runid_present)
     run_id = varargin{runid_present};
-    argi = varargin(~runid_present);
+    argi   = varargin(~runid_present);
+    present.run_id = true;
 else
     run_id = 1000:(1000+nfile-1);
     argi = varargin;
