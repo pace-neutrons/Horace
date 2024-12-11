@@ -126,7 +126,7 @@ classdef IX_experiment < Goniometer
         end
         function idmap = get_runid_map(obj)
             % retrieve all run_ids, which may be present in the array of
-            % rundata objects and build run_id map from them. run_id map 
+            % rundata objects and build run_id map from them. run_id map
             % used for finding particular element's position given its
             % run_id
             ind = 1:numel(obj);
@@ -285,17 +285,19 @@ classdef IX_experiment < Goniometer
             obj.hash_ =  hash;
         end
         %
-        function [obj,file_id_array,skipped_inputs,this_runid_map] = combine(obj,exper_cellarray,allow_eq_headers,keep_runid,varargin)
+        function [obj,file_id_array,skipped_inputs,this_runid_map] = ...
+                combine(obj,exper_cellarray,allow_eq_headers,keep_runid,varargin)
             % method combines input IX_experiment array(s) with elements
             % contained in exper_cellarray, identifying possible duplicates
             % and either ignoring them, or throwing error depending on
-            % input keys.
+            % input parameters.
             %
             % Inputs:
-            % obj             -- sinle instance or array of IX_experiment objects
-            % exper_cellarray -- exper_cellarray cellarray containing
-            %                    IX_experiments arrays or Experiment classes
-            %                    to cobine their IX_experiments into obj.
+            % obj             -- single instance or array of IX_experiment
+            %                    objects
+            % exper_cellarray -- cellarray containing IX_experiments arrays 
+            %                    or Experiment classes to combine their
+            %                    IX_experiments into obj.
             % allow_eq_headers-- if true, headers with the same runid and
             %                    same values are allowed and accounted for
             %                    in combine operations. If false, routine
@@ -312,7 +314,7 @@ classdef IX_experiment < Goniometer
             %                    must be synchronized with run_id(s) stored
             %                    in pixels, which means that keep_runid ==
             %                    false could be used in tests or in sqw
-            %                    file generation.
+            %                    file generation only.
             % Optional:
             % runid_map       -- the map containing information about
             %                    run_id(s) stored in the object.
@@ -324,15 +326,18 @@ classdef IX_experiment < Goniometer
             % skipped_inputs  -- cellarray of logical arrays containing true where
             %                    input object was dropped and false where it has been
             %                    kept
-            % file_id_array   -- array contains run_ids for each input combined
-            %                    IX_experiment value.
-            %                    if some IX_experiments with equal run_id(s) and values
-            %                    were rejected, some elements of this array will
-            %                    contain the same values
-            %
-            % this_runid_map --  the map which connects run_id(s) of data, stored in
-            %                    the obj with the positions of the data objects in the
-            %                    object array.
+            % file_id_array   -- array contains run_ids for each input
+            %                    IX_experiment value present in exper_cellarray.
+            %                    Where input IX_experiments with equal run_id-s
+            %                    and values are rejected, corresponding
+            %                    elements of this array contain the
+            %                    values of rejected run_id-s. These values
+            %                    will be used  in calculations of pixels
+            %                    run_id for each contributing file.
+            % this_runid_map --  the map which connects run_id(s) of data,
+            %                    stored in the obj as keys, with the
+            %                    positions of the data objects in the
+            %                    object array as values.
             if nargin < 3
                 allow_eq_headers = false;
             end

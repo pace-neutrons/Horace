@@ -3,8 +3,8 @@ function img_range = replace_inf_range(img_range)
 % in old sqw or dnd objects
 %
 % Inputs:
-% img_range  -- 2xN array of min/max values with possible +-inf values
-%               present in it
+% img_range  -- 2xN array of min/max values with possible -+inf values
+%               present in it.
 % Returns:
 % img_range  -- the same array of ranges, modifies so that inf ranges are
 %               replaced by closest defined value e.g:
@@ -18,8 +18,10 @@ function img_range = replace_inf_range(img_range)
 %
 % Horace-4 does not support inf ranges any more.
 % Unlike previous Horace version, where  -inf:inf mean whole integration
-% range, dnd with 0-integration range is meaningless for dnd obj,
-% so will set +-0
+% range, dnd with inf-integration range does not work in number of cases.
+% This procedure is used to replace inf range to [0-eps,0+eps] range if
+% both ranges are inf or extends present range by eps if only one range is
+% present.
 %
 eps_single = double(eps('single'));
 min_is_inf = isinf(img_range(1,:));

@@ -1,12 +1,14 @@
 function [obj,file_id_array,skipped_inputs,this_runid_map] = combine_(obj,exper_cellarray,allow_equal_headers,keep_runid,varargin)
 % COMBINE_ : properly combines input IX_experiment array with elements
 % contained in exper_cellarray, identifying possible duplicates
-% and either ignoring them, or throwing error depending on input keys.
+% and either ignoring them, or throwing error depending on the input
+% parameters.
 %
 % Inputs:
-% obj             -- sinle instance or array of IX_experiment objects
-% exper_cellarray -- exper_cellarray cellarray containing
-%                     IX_experiments arrays
+% obj             -- single instance or array of IX_experiment objects
+% exper_cellarray -- cellarray containing IX_experiments arrays
+%                    or Experiment classes to combine their IX_experiments
+%                    into obj.
 % keep_runid      -- boolean, which includes true if run_id-s
 %                    stored in IX_experiment data should be
 %                    kept or final obj run_id should be
@@ -18,23 +20,26 @@ function [obj,file_id_array,skipped_inputs,this_runid_map] = combine_(obj,exper_
 % Optional:
 % this_runid_map  -- the map containing information about
 %                    run_id(s) stored in the object as keys
-%                    and pointing to the nuber of element in obj
+%                    and pointing to the number of element in obj array
 %                    as value.
 %
 % Returns:
 % obj             -- resulting array, containing unique
 %                    instances of IX_experiment classes with
 %                    all non-unique IX_experiments excluded.
-% skipped_inputs  -- cellarray of logical arrays containing true where
-%                    input object was dropped and false where it has been
-%                    kept
-% file_id_array   -- array contains run_ids for each input IX_experiment value.
-%                    if some IX_experiments with equal run_id(s) and parameters
-% values
-%                    were rejected, some elements of this array will
-%                    contain the same values to be used in calculations of
-%                    pixels run_id for each contributed file.
-%
+% skipped_inputs  -- cellarray (with size of input exper_cellarray) of
+%                    logical arrays, (each of size of corresponding
+%                    exper_cellarray element)containing true where input
+%                    object was dropped from output obj and false
+%                    where it has been kept.
+% file_id_array   -- array contains run_ids for each input
+%                    IX_experiment value present in exper_cellarray.
+%                    Where input IX_experiments with equal run_id-s
+%                    and values are rejected, corresponding
+%                    elements of this array contain the
+%                    values of rejected run_id-s. These values will be used
+%                    in calculations of pixels run_id for each contributing
+%                    file.
 % this_runid_map --  the map which connects run_id(s) of data, stored in
 %                    the obj with the positions of the data objects in the
 %                    object array.
@@ -53,7 +58,8 @@ if isempty(exper_cellarray)
     return;
 end
 
-if isa(exper_cellarray{1},'Experiment')
+if isa(exper_cellarray{1},'Experiment') % extract IX_experiments to combine
+    % them with input object.
     exper_cellarray = cellfun(@(x)(x.expdata),exper_cellarray,'UniformOutput',false);
 end
 n_existing_runs = numel(obj);
@@ -61,7 +67,7 @@ n_existing_runs = numel(obj);
 n_runs = cellfun(@(x)numel(x),exper_cellarray);
 n_runs = sum(n_runs)+n_existing_runs;
 % Create file_id list for all input headers regardless they are included or
-% not.
+% in final result or not.
 file_id_array = zeros(1,n_runs);
 id_now = arrayfun(@(x)x.run_id,obj);
 file_id_array(1:n_existing_runs) = id_now;
@@ -76,23 +82,23 @@ n_exper_to_add = numel(exper_cellarray);
 skipped_inputs = cell(1,n_exper_to_add);
 ic = n_existing_runs;
 for i=1:n_exper_to_add
-    % retrieve arrays and maps for additional experiment to add
+    % retrieve arrays for additional IX_experiment-s to add to result
     add_exper= exper_cellarray{i};
     n_runs   = numel(add_exper);
     skipped_input = false(1,n_runs);
     for j=1:n_runs
         ic = ic+1;
-        % extract particular IX_info to check for addition
+        % extract particular IX_experiments to check for addition
         add_IX_exper      = add_exper(j);
         run_id            = add_IX_exper.run_id;
         file_id_array(ic) = run_id; % this is run_id for current IX_experiment
 
-        if this_runid_map.isKey(run_id) % run_id is already added to combine or was there
+        if this_runid_map.isKey(run_id) % run_id is already added to combine.
             % check if runs with the same run_id contain the same
             % IX_experiments
             present_run_pos  = this_runid_map(run_id);
             present_IX_exper = base_runs{present_run_pos};
-            % TODO: use hashable
+            % TODO: use hashable methods
             [this_hash,present_IX_exper,is_new] = present_IX_exper.get_neq_hash();
             if is_new
                 % store it back not to recaclulate hash again in a future
@@ -103,7 +109,7 @@ for i=1:n_exper_to_add
                 if ~allow_equal_headers
                     error('HORACE:IX_experiment:invalid_argument',[...
                         'Can not combine such runs.\n' ...
-                        'efix, psi, omega, dpsi, gl, gs cannot be the same for two runs with the same run_id\n' ...
+                        'filename, efix, psi, omega, dpsi, gl, gs cannot be the same for two runs with the same run_id\n' ...
                         'File: N%d, contributed run: %d, filename %s is the same as the already found RunN:%d, Run_id:%d'], ...
                         i,j,add_IX_exper.filename, present_run_pos,run_id);
                 end
