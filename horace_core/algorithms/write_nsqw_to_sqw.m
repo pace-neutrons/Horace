@@ -19,7 +19,7 @@ function [img_db_range,pix_data_range,wout]=write_nsqw_to_sqw (infiles, outfile,
 %                       look at  Experiment.combine_experiments method, as
 %                       this method performs actual header combining and
 %                       checks.
-% -parallel          -- combine files using Herbert parallel framework.
+% -parallel          -- combine files using parallel framework.
 %                       this is duplicate for hpc_config option so either
 %                       this keyword or hpc_config option or the instance
 %                       of the JobDispatcher has to be present to combine
@@ -123,7 +123,7 @@ end
 if keep_runid
     argi = ['-keep_runid';argi(:)];
 end
-[sqw_mem_part,~,job_disp] = collect_sqw_metadata(infiles,pix_data_range,job_disp_4head,argi{:});
+[sqw_mem_part,~,run_id,job_disp] = collect_sqw_metadata(infiles,pix_data_range,job_disp_4head,argi{:});
 if ~isempty(job_disp)
     job_disp.finalize_all();
 end
@@ -143,16 +143,11 @@ end
 page_op         = PageOp_join_sqw;
 page_op.outfile = outfile;
 %
-if keep_runid
-    run_id = [];
-else
-    run_id = sqw_mem_part.runid_map.keys();
-    run_id = [run_id{:}];
-end
+
 hpc = hpc_config;
 use_mex = use_mex && strncmp(hpc.combine_sqw_using,'mex',3);
 [page_op,wout]  = page_op.init(sqw_mem_part,run_id,use_mex);
-% TODO: Re #1320 do not load result in memory and do not initilize
+% TODO: Re #1320 do not load result in memory and do not initialize
 % filebacked operations if it is not requested
 wout            = sqw.apply_op(wout,page_op);
 

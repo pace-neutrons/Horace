@@ -42,7 +42,7 @@ function [tmp_file,grid_size,data_range,varargout] = gen_sqw (spe_file, par_file
 %                   Default if not given or [] is is [50,50,50,50]
 %   pix_db_range_in Range of data grid for output as a 2x4 matrix:
 %                              [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
-%                   Default if not given or [] is the smallest hypercuboid that encloses the whole pixel range.
+%                   Default if not given or [] is the smallest hyper-cuboid that encloses the whole pixel range.
 %                   calculated from the detector positions and min/max
 %                   values of energy transfer
 %   instrument      Structure or object containing instrument information [scalar or array length nfile]
@@ -100,6 +100,7 @@ function [tmp_file,grid_size,data_range,varargout] = gen_sqw (spe_file, par_file
 
 % T.G.Perring  14 August 2007
 % T.G.Perring  19 March 2013   Massively updated, also includes functionality of accumulate_sqw
+% August 2024 -- substantially modified for Horace-4
 
 % *** Possible improvements
 % - Cleverer choice of grid size on the basis of number of data points in the file

@@ -38,4 +38,3 @@ v=(rlu_to_cryst0*rlu_expected')';
 dv=v-[x1(1:nv),x2(1:nv),x3(1:nv)];
 
 dist=reshape(dv',3*nv,1)./repmat(sqrt(sum(v.^2,2)),3,1);
-
