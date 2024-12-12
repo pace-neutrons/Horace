@@ -1,4 +1,4 @@
-function s=neutron_constants
+function s=neutron_constants(constant_name)
 % Return a structure with constants for neutron units manipulation
 %
 %   >> s=neutron_constants      % return structure
@@ -24,7 +24,11 @@ if isempty(structure)
 end
 
 if nargout>0
-    s=structure;
+    if narin == 0
+        s=structure;
+    else
+        s = structure.(constant_name);
+    end
 else
     nam=fieldnames(structure);
     disp('Available constants:')
