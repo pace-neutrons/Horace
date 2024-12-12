@@ -171,6 +171,24 @@ classdef aProjectionBase < serializable
             end
             [obj,par] = init(obj,varargin{:});
         end
+        function obj = copy_proj_param_from_source(obj,cut_source)
+            % a projection may need some information from the object,
+            % it used to process. For example, all projections used for cut
+            % need to know lattice parameters of sqw object used as source
+            %
+            % this is generic method, which may be overloaded by specific
+            % projections, which may want more information from the source
+            % sqw
+            source_proj = cut_source.proj;
+            %
+            %Retrived lattice from the source object
+            obj.do_check_combo_arg = false;
+            obj.alatt = source_proj.alatt;
+            obj.angdeg = source_proj.angdeg;
+
+            obj.do_check_combo_arg = true;
+            obj = obj.check_combo_arg();
+        end
         %
         function [obj,remains] = init(obj,varargin)
             % Method normally used to initialize an empty object.
@@ -954,7 +972,7 @@ classdef aProjectionBase < serializable
             %                 for indexes to include
             % en_inside    -- 1D logical array, containing true, for
             %                 contributing cells (n_cells = n_edges-1) for
-            %                 orthogonal 1D indexes on dE lattice 
+            %                 orthogonal 1D indexes on dE lattice
             %
             % Uses knowledge about linear arrangement of 4-D array of indexes
             % in memory and on disk

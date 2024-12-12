@@ -226,18 +226,11 @@ for i=1:npbin_expected
 end
 
 if opt.proj_given
-    % There are currently no situations where we want to define lattice in
-    % projection. so always take lattice from the source object
-    source_proj = obj.proj;
-    proj.do_check_combo_arg = false;
-
-    proj.alatt = source_proj.alatt;
-    proj.angdeg = source_proj.angdeg;
-
-    proj.do_check_combo_arg = true;
-    proj = proj.check_combo_arg();
-    %end
-
+    %
+    % Take source parameters, which projection may need to
+    % use in its transformation from source to target coordinate
+    % system.
+    proj = proj.copy_proj_param_from_source(obj);
 else % it may be fewer parameters then actual dimensions and
     % if no projection is given, we would like to append missing binning
     % parameters with their default values.
