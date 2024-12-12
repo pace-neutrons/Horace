@@ -49,3 +49,6 @@ end
 %if do_rehashify
 %    obj = obj.rehashify_all(with_checks);
 %end
+if isempty(obj.stored_hashes_) && ~isempty(obj.unique_objects)
+    obj = obj.rehashify_all(with_checks);
+end
