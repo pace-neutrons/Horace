@@ -496,5 +496,15 @@ classdef test_unique_objects < TestCase
             assertTrue(isa(arr{2},'unique_objects_container'));
         end
         
+        function test_hashing_preserved_over_save_and_load(obj)
+            uoc = unique_objects_container('baseclass','IX_inst');
+            uoc{1} = obj.mi1;
+            uoc{2} = IX_null_inst();
+            save('store2020_1.mat','uoc');
+            zzz = load('store2020_1.mat');
+            assertEqual(uoc.stored_hashes, zzz.uoc.stored_hashes);
+            
+        end
+        
     end
 end
