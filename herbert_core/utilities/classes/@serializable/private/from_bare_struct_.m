@@ -79,6 +79,7 @@ for i=1:nobj
     obj(i).do_check_combo_arg_ = true;
     % Check interdependent properties. If the object is invalid, an
     % exception is thrown
+
     obj(i) = obj(i).check_combo_arg();
 end
 if nobj > 1
