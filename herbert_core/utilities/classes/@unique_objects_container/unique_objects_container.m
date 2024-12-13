@@ -195,7 +195,10 @@ classdef unique_objects_container < serializable
                 error('HERBERT:unique_objects_container:invalid_set', ...
                     'attempt to set unique objects in container outside of loadobj');
             end
-            %--{
+            %{
+            % test that the current hashing reproduces the hashing loaded
+            % from file. Note that this code will cause some tests to fail
+            % that deliberately corrupt the container.
             if ~isempty(self.stored_hashes_)
                 for ii = 1:numel(self.stored_hashes_)
                     hash = self.stored_hashes_{ii};
@@ -205,7 +208,7 @@ classdef unique_objects_container < serializable
                     end
                 end
             end
-            %--}
+            %}
         end
         %
         function x = get.stored_hashes(self)
@@ -226,7 +229,10 @@ classdef unique_objects_container < serializable
                 error('HERBERT:unique_objects_container:invalid_set', ...
                     'attempt to set stored hashes in container outside of loadobj');
             end
-            %--{
+            %{
+            % test that the current hashing reproduces the hashing loaded
+            % from file. Note that this code will cause some tests to fail
+            % that deliberately corrupt the container.
             if ~isempty(self.unique_objects_)
                 for ii = 1:numel(self.unique_objects)
                     obj = self.unique_objects_{ii};
@@ -236,7 +242,7 @@ classdef unique_objects_container < serializable
                     end
                 end
             end
-            %--}
+            %}
         end
         %
         function x = get.idx(self)
