@@ -63,7 +63,8 @@ if emode_c == 2
     end
 end
 % get fields to compare against
-comp_fields   = IX_experiment.unique_prop;
+tmp_exp = IX_experiment();
+comp_fields   = tmp_exp.hashableFields();
 n_comp_fields = numel(comp_fields);
 comp_val      = cell(numel(comp_fields),numel(spe_file));
 pstruct       = cell2struct(comp_val,comp_fields);

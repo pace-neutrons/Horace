@@ -20,8 +20,5 @@ if use_mex
             ser = hlp_serialize(a);
         end
     end
-else
-    ser = hlp_serialize(a);
 end
-
-
+ser = hlp_serialize(a);
