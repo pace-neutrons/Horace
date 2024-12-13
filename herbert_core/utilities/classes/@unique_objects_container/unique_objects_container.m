@@ -90,11 +90,6 @@ classdef unique_objects_container < serializable
         % (default respecified in constructor inputParser)
         n_duplicates_ = zeros(1,0);
     end
-    properties(Access = private)
-        % is set to true if we decide not to use default stream conversion
-        % function
-        non_default_f_conversion_set_ = false;
-    end
 
     properties (Dependent)
         n_objects;
@@ -129,23 +124,10 @@ classdef unique_objects_container < serializable
     % Dependent properties set/get functions and subsrefs/subsassign
     % methods
     methods
-        %
-        function x = expose_unique_objects(self)
-            %EXPOSE_UNIQUE_OBJECTS - return the cell array containing the
-            % unique objects in this container. This provides the interface for
-            % using this functionality outside of saveobj. It is allowed so
-            % that users can scan the properties of this container without
-            % repeating the scan for many duplicates. Note that this does break
-            % the encapsulation of the class in some sense.
-
-            x = self.unique_objects_;
-        end
 
         function x = get.unique_objects(self)
             %GET.UNIQUE_OBJECTS Return the cell array containing the unique
             % objects in this container. This access is solely for saveobj.
-            % Users wishing to do a scan by unique objects outside of saveobj
-            % should use expose_unique_objects().
 
             x = self.unique_objects_;
         end
@@ -162,26 +144,12 @@ classdef unique_objects_container < serializable
             % NB this set operation should only be done in environments such as
             % loadobj which disable combo arg checking
 
-            if ~self.do_check_combo_arg_
-                if ~iscell(val)
-                    val = {val};
-                end
-                self.unique_objects_ = val;
-            else
-                error('HERBERT:unique_objects_container:invalid_set', ...
-                    'attempt to set unique objects in container outside of loadobj');
+            self.unique_objects_ = val;
+            check_existing = ~isempty(self.stored_hashes_)||(isempty(self.idx_));
+            self.stored_hashes_  = {};
+            if self.do_check_combo_arg_
+                self = self.check_combo_arg(check_existing);
             end
-            %--{
-            if ~isempty(self.stored_hashes_)
-                for ii = 1:numel(self.stored_hashes_)
-                    hash = self.stored_hashes_{ii};
-                    [self.unique_objects_{ii},hash2] = build_hash(self.unique_objects_{ii});
-                    if hash ~= hash2
-                        error("bad hash");
-                    end
-                end
-            end
-            %--}
         end
         %
         function x = get.stored_hashes(self)
@@ -189,31 +157,7 @@ classdef unique_objects_container < serializable
             % objects. Only really useful for debugging.
             x = self.stored_hashes_;
         end
-        
-        function self = set.stored_hashes(self, val)
-            %GET.STORED_HASHES - list the hashes corresponding to the unique
-            % objects. Only really useful for debugging.
-            if ~self.do_check_combo_arg_
-                if ~iscell(val)
-                    val = {val};
-                end
-                self.stored_hashes_ = val;
-            else
-                error('HERBERT:unique_objects_container:invalid_set', ...
-                    'attempt to set stored hashes in container outside of loadobj');
-            end
-            %--{
-            if ~isempty(self.unique_objects_)
-                for ii = 1:numel(self.unique_objects)
-                    obj = self.unique_objects_{ii};
-                    [obj,hash2] = build_hash(obj);
-                    if hash ~= hash2
-                        error("bad hash");
-                    end
-                end
-            end
-            %--}
-        end
+
         %
         function x = get.idx(self)
             %GET.IDX - get the indices of each stored object in the container
@@ -321,8 +265,8 @@ classdef unique_objects_container < serializable
                 elseif nuix == numel(self.idx_)+1
                     if numel(idxstr)>1
                         error('HERBERT:unique_objects_container:invalid_subscript', ...
-                              ['when adding to the end of a container, additionally setting ', ...
-                               'properties is not permitted']);
+                            ['when adding to the end of a container, additionally setting ', ...
+                            'properties is not permitted']);
                     end
                     self = self.add(val);
                     return;
@@ -355,7 +299,7 @@ classdef unique_objects_container < serializable
     % OTHER
     %----------------------------------------------------------------------
     methods
-        function [is,unique_ind] = contains(obj,value)
+        function [is,unique_ind,obj] = contains(obj,value)
             % check if the container has the objects of the class "value"
             % if the value is char, or the the object equal value, if the
             % value is the object of the kind, stored in container
@@ -367,7 +311,8 @@ classdef unique_objects_container < serializable
             % unique_ind
             %         -- if requested, the positions of the sample in the
             %            unique objects container
-            [is,unique_ind] = contains_(obj,value,nargout);
+            % obj     -- obj, which if hashable, contains calculated hash
+            [is,unique_ind,obj] = contains_(obj,value,nargout);
         end
 
         function obj = replicate_runs(obj,n_objects)
@@ -399,7 +344,7 @@ classdef unique_objects_container < serializable
                 newself = newself.add(item);
             end
         end
-        
+
         function self = rehashify_all(self,with_checks)
             % recalculate hashes of all objects, stored in the container
             %
@@ -411,7 +356,7 @@ classdef unique_objects_container < serializable
             end
             self.stored_hashes_ =cell(1,self.n_unique);
             for i=1:self.n_unique
-                [self.unique_objects{i},hash] = build_hash(self.unique_objects{i});
+                [self.unique_objects_{i},hash] = build_hash(self.unique_objects{i});
                 if with_checks
                     is = ismember(hash,self.stored_hashes_(1:i-1));
                     if is
@@ -486,14 +431,14 @@ classdef unique_objects_container < serializable
         function n =  get_nruns(self)
             %GET_NRUNS non-dependent-property form of n_runs
             % for use with arrayfun in object_lookup
-            
+
             n = numel(self.idx_);
         end
         function n = runs_sz(self)
             %RUNS_SZ converts n_runs to the form of output from size
             % to put unique_objects_container on the same footing as
             % array/cell in object_lookup
-            
+
             n = size(self.idx_);
         end
 
@@ -710,14 +655,14 @@ classdef unique_objects_container < serializable
                 newself = newself.add(self.get(i));
             end
         end
-        
+
         function field_vals = get_unique_field(self, field)
             % determine type of unique_objects_container to make from the
             % object feld type, and construct the container
             s1 = self.get(1);
             v = s1.(field);
             field_vals = unique_objects_container(class(v));
-            
+
             % make container of possible field values from the unique contents of self
             % this will do the minimal hashing of the field values
             poss_field_vals = unique_objects_container(class(v));
@@ -727,7 +672,7 @@ classdef unique_objects_container < serializable
                 v = sii.(field);
                 poss_field_vals = poss_field_vals.add_single_(v);
             end
-            
+
             % make a container for the fields in order of the objects in self using the hash
             % info previously put into poss_field_vaues
             for ii=1:self.n_runs
@@ -744,9 +689,9 @@ classdef unique_objects_container < serializable
                 end
             end
         end
-        
+
         function val = hash(self,index)
-        % accessor for the stored hashes
+            % accessor for the stored hashes
             val = self.stored_hashes_{ self.idx_(index) };
         end
 
@@ -758,9 +703,7 @@ classdef unique_objects_container < serializable
         fields_to_save_ = {
             'baseclass',     ...
             'unique_objects',...
-            'stored_hashes', ...
-            'idx',           ...
-            'conv_func_string'};
+            'idx'};
     end
 
     methods
@@ -772,36 +715,27 @@ classdef unique_objects_container < serializable
             ver = 1;
         end
 
-        function flds = saveableFields(obj)
+        function flds = saveableFields(~)
             % get independent fields, which fully define the state of the
             % serializable object.
-            if obj.non_default_f_conversion_set_
-                flds = unique_objects_container.fields_to_save_;
-            else % do not store conversion function
-                flds = unique_objects_container.fields_to_save_(1:end-1);
-            end
+            flds = unique_objects_container.fields_to_save_;
         end
 
-        function obj = check_combo_arg(obj,do_rehashify,with_checks)
+        function obj = check_combo_arg(obj,with_checks)
             % runs after changing property or number of properties to check
             % the consistency of the changes against all other relevant
             % properties
             %
             % Inputs:
-            % do_rehashify -- if true, run rehashify procedure. If not
-            %                 provided, assumed true
             % with_checks  -- if true, each following hash is compared with
             %                 the previous hashes and if coincedence found,
             %                 throw the error. Necessary when replacing the
             %                 unique_objects to check that new objects are
             %                 indeed unique. The default is false.
             if nargin == 1
-                do_rehashify = true;
-                with_checks  = false;
-            elseif nargin == 2
                 with_checks  = false;
             end
-            obj = check_combo_arg_(obj,do_rehashify,with_checks);
+            obj = check_combo_arg_(obj,with_checks);
         end
     end
 
@@ -817,7 +751,7 @@ classdef unique_objects_container < serializable
             %    obj.check_combo_arg(true,true);
             %end
         end
-        
+
         function out = concatenate(objs, type)
             %CONCATENATE takes the unique_object and idx (index) arrays from
             % an array of one or more unique_object_containers and concatenates
@@ -834,10 +768,10 @@ classdef unique_objects_container < serializable
             % -------
             % - out - single unique_objects_container combining the contents of
             %         the elements of the input array objs
-        
+
             if isempty(objs)
                 error('HERBERT:unique_objects_container:invalid_input', ...
-                      'at least one object must be supplied to concatenate');
+                    'at least one object must be supplied to concatenate');
             end
 
             concat_cells = strcmp(type,'{}');
@@ -869,14 +803,14 @@ classdef unique_objects_container < serializable
                             [~,index] = ismember(out_hsh, out.stored_hashes_);
                             if index==0, index = []; end
                             out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
-                            
+
                             %out = out.add( objs(ii).get(jj) );
                         end
                     end
                 end
             end
         end
-        
+
     end % static methods
 
 end % classdef unique_objects_container

@@ -1,4 +1,4 @@
-function [is,unique_ind] = contains_(obj,template,nout)
+function [is,unique_ind,template] = contains_(obj,template,nout)
 % check if the container has the objects of the class "template"
 % if the template is char, or the the object equal to template, if the
 % template is the object of the kind, stored in the container
@@ -22,7 +22,7 @@ if (ischar(template) && ~strcmp(obj.baseclass_,'char')) || ...   % compare again
         unique_ind = find(belongs);
     end
 else % compare against value
-    the_hash = obj.hashify(template);
+    [template,the_hash] = build_hash(template);
     if nout == 1
         is = ismember(the_hash,obj.stored_hashes_);
         unique_ind = [];

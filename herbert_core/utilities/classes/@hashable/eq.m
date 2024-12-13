@@ -1,4 +1,4 @@
-function [iseq, mess] = eq (obj1, obj2, varargin)
+function iseq = eq (obj1, obj2)
 % Return a logical variable stating if two serializable objects are equal or not
 %
 %   >> [iseq, mess] = eq (obj1, obj2)
@@ -10,19 +10,7 @@ function [iseq, mess] = eq (obj1, obj2, varargin)
 %
 %   obj2        Object on right-hand side
 %
-% Optional:
-%   p1, p2,...  Any set of parameters that the equal_to_tol function accepts
-%
 % See also equal_to_tol
-
-
-names = cell(2,1);
-if nargout == 2
-    names{1} = inputname(1);
-    names{2} = inputname(2);
-    [iseq, mess] = eq_ (obj1, obj2, nargout, names, varargin{:});
-else
-    iseq = eq_ (obj1, obj2, nargout, names, varargin{:});
-end
-
-end
+[~,hash1] = build_hash(obj1);
+[~,hash2] = build_hash(obj2);
+iseq = strcmp(hash1,hash2);

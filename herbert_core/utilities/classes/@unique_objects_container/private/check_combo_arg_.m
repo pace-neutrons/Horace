@@ -1,4 +1,4 @@
-function obj = check_combo_arg_(obj,do_rehashify,with_checks)
+function obj = check_combo_arg_(obj,with_checks)
 % runs after changing property or number of properties to check
 % the consistency of the changes against all other relevant
 % properties
@@ -45,10 +45,7 @@ if ~isempty(obj.baseclass_)
             obj.baseclass,disp2str(non_type_ind),class(invalid_obj))
     end
 end
-% not doing rehashify here as hashes are now loaded from a saved object
-%if do_rehashify
-%    obj = obj.rehashify_all(with_checks);
-%end
+%
 if isempty(obj.stored_hashes_) && ~isempty(obj.unique_objects)
     obj = obj.rehashify_all(with_checks);
 end

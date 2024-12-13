@@ -1,5 +1,5 @@
 function [obj,arr] = to_hashable_array_ (obj)
-% Retrieve information specifying 
+% Retrieve information specifying
 %
 %   >> S = to_hashable_array_(obj)
 %
@@ -14,20 +14,39 @@ function [obj,arr] = to_hashable_array_ (obj)
 %                 hash
 
 
-% Get saveable fields
+% Get hasing fields, used for extracting values, explicitly specifying
+% class state
 field_names = hashingFields (obj(1));
 
 % Recursively turn serializable fields into structures
-cell_dat = cell (numel(field_names), numel(obj));
+arr = cell (1,numel(field_names)*numel(obj));
+ic = 0;
 for j = 1:numel(obj)
     obj_tmp = obj(j);   % get pointer to jth object to save expensive indexing
     for i = 1:numel(field_names)
+        ic = ic+1;
         field_name = field_names{i};
         val = obj_tmp.(field_name);
         if isa(val,'hashable')
-            [val,hash] = build_hash(val);
+            [val,hash,new_hash] = build_hash(val);
+            if new_hash
+                obj(j).(field_name) = val;
+            end
+            arr{ic} = typecast(hash,'uint8');
+        elseif isdouble(val)
+            arr{ic} = typecast(single(round(val,7)),'uint8');
+        elseif issingle(val)
+            arr{ic} = typecast(single(round(val,6)),'uint8');
+        elseif isnumeric(val)||islogical(val)
+            arr{ic} = typecast(val,'uint8');
+        elseif istext(val)
+            arr{ic} = uint8(char(val));
+        elseif isstruct(val)
+            [val,arr{ic}] = build_hash(val);
+            obj(j).(field_name) = val;
         else
+            arr{ic}= serialize(val);
         end
-        cell_dat{i,j} = val;
     end
 end
+arr = [arr(:)];

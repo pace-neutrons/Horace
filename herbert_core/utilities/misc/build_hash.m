@@ -1,4 +1,4 @@
-function [obj,hash] = build_hash(obj)
+function [obj,hash,is_calculated] = build_hash(obj)
 % makes a hash from the argument object which will be unique
 % when generated from any identical object
 %
@@ -7,17 +7,20 @@ function [obj,hash] = build_hash(obj)
 %
 % Output:
 % obj      -- unchanged object. Present here to maintain interface, common
-%             with hashable and other
+%             with the same named method in hashable.
 % hash     -- the resulting hash, a row vector of uint8's
+% is_calsulated
+%          --  always true, kept to support common interface to hashable
 %
 
+is_calculated = true;
 % get config to use use_mex
 use_mex = config_store.instance().get_value('hor_config','use_mex');
 persistent Engine;
 % In case the java engine is going to be used, initialise it as
 % a persistent object
-if isa(obj,'serializable')
-    bytestream = (obj.serialize());
+if isa(obj,'uint8')
+    bytestream = obj;
 else
     bytestream = serialize(obj);
 end
@@ -48,6 +51,5 @@ else
     hash3 = cellstr(hash2);
     hash4 = horzcat(hash3{:});
     hash = lower(hash4); % reduces hash value to at least 64 bits! TODO:
-    % validate if it is possible to use 
-end
+    % validate if it is possible to use
 end
