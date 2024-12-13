@@ -89,12 +89,6 @@ classdef unique_objects_container < serializable
         baseclass_ = ''; % if not empty, name of the baseclass suitable for isa calls
         % (default respecified in constructor inputParser)
         n_duplicates_ = zeros(1,0);
-
-        % hashify  defaults to this undocumented java function handle
-        % if you try to store objects non-children for serializable and
-        % the function to convert objects to bytes has not been set
-        % explicitly
-        convert_to_stream_f_ = @getByteStreamFromArray;
     end
     properties(Access = private)
         % is set to true if we decide not to use default stream conversion
@@ -135,24 +129,6 @@ classdef unique_objects_container < serializable
     % Dependent properties set/get functions and subsrefs/subsassign
     % methods
     methods
-        function val = get.conv_func_string(obj)
-            %GET.CONV_STRING_FUNCTION - report the function handle used to
-            % generate hashes
-            val = func2str(obj.convert_to_stream_f_);
-        end
-        function obj = set.conv_func_string(obj,val)
-            %SET.CONV_STRING_FUNCTION - set the function handle used to
-            % generate hashes. Should only be used with loadobj. After the
-            % container is created, changing this functionmid-stream may
-            % invalidate the comparison for unique objects.
-
-            if ~(ischar(val)||isstring(val))
-                error('HERBERT:unique_obj_container:invalid_argument',...
-                    'convert_to_stream_f_string must be a string convertable to function. It is %s',...
-                    class(val))
-            end
-            obj.convert_to_stream_f = str2func(val);
-        end
         %
         function x = expose_unique_objects(self)
             %EXPOSE_UNIQUE_OBJECTS - return the cell array containing the
@@ -199,7 +175,7 @@ classdef unique_objects_container < serializable
             if ~isempty(self.stored_hashes_)
                 for ii = 1:numel(self.stored_hashes_)
                     hash = self.stored_hashes_{ii};
-                    hash2 = Hashing.hashify_obj(self.unique_objects_{ii});
+                    [self.unique_objects_{ii},hash2] = build_hash(self.unique_objects_{ii});
                     if hash ~= hash2
                         error("bad hash");
                     end
@@ -230,8 +206,8 @@ classdef unique_objects_container < serializable
             if ~isempty(self.unique_objects_)
                 for ii = 1:numel(self.unique_objects)
                     obj = self.unique_objects_{ii};
-                    hash = Hashing.hashify_obj(obj);
-                    if hash ~= self.stored_hashes_{ii}
+                    [obj,hash2] = build_hash(obj);
+                    if hash ~= hash2
                         error("bad hash");
                     end
                 end
@@ -290,28 +266,6 @@ classdef unique_objects_container < serializable
 
             if self.do_check_combo_arg_
                 self = self.check_combo_arg(false);
-            end
-        end
-        %
-        function x = get.convert_to_stream_f(self)
-            %GET.CONVERT_TO_STREAM - retrieve the hashing function
-            x = self.convert_to_stream_f_;
-        end
-        function self = set.convert_to_stream_f(self,val)
-            %SET.CONVERT_TO_STREAM - (re)set the hashing function
-            % This may invalidate the contents by changing the hashing function
-            % so should not be used if the container is not empty
-            if ~(isempty(val)|| isa(val,'function_handle'))
-                error('HERBERT:unique_objects_container:invalid_argument',...
-                    'this method accepts function handles for serializing objects only')
-            end
-            if isequal(self.convert_to_stream_f_,val)
-                return;
-            end
-            self.convert_to_stream_f_ = val;
-            self.non_default_f_conversion_set_  = true;
-            if self.do_check_combo_arg_
-                self = self.check_combo_arg(true,false);
             end
         end
         %
@@ -446,28 +400,6 @@ classdef unique_objects_container < serializable
             end
         end
         
-        function hash = hashify(self,obj,reset_count)
-            % makes a hash from the argument object
-            % which will be unique to any identical object
-            %
-            % Input:
-            % - obj : object to be hashed
-            % - reset_count : if counting hash calcs is exposed in
-            % hashify_obj then this resets the count
-            % Output:
-            % - hash : the resulting has, a row vector of uint8's
-            %
-            % this method started out as an instance method but now
-            % contains no references to self. For simplicity, keeping the
-            % original method (this one) as a wrapper to the static method
-            % now used => no other code changes
-            if nargin<=2
-                hash = Hashing.hashify_obj(obj);
-            else
-                hash = Hashing.hashify_obj(obj,reset_count);
-            end
-        end
-
         function self = rehashify_all(self,with_checks)
             % recalculate hashes of all objects, stored in the container
             %
@@ -479,7 +411,7 @@ classdef unique_objects_container < serializable
             end
             self.stored_hashes_ =cell(1,self.n_unique);
             for i=1:self.n_unique
-                hash = self.hashify(self.unique_objects{i});
+                [self.unique_objects{i},hash] = build_hash(self.unique_objects{i});
                 if with_checks
                     is = ismember(hash,self.stored_hashes_(1:i-1));
                     if is
@@ -493,7 +425,7 @@ classdef unique_objects_container < serializable
     end
 
     methods
-        function [ix, hash] = find_in_container(self,obj)
+        function [ix, hash,obj] = find_in_container(self,obj)
             %FIND_IN_CONTAINER Finds if obj is contained in self
             % Input:
             % - obj : the object which may or may not be uniquely contained
@@ -503,7 +435,7 @@ classdef unique_objects_container < serializable
             %          if it is stored, otherwise empty []
             % - hash : the hash of the object from hashify
             %
-            hash = self.hashify(obj);
+            [obj,hash] = build_hash(obj);
             if isempty(self.stored_hashes_)
                 ix = []; % object not stored as nothing is stored
             else
@@ -528,9 +460,6 @@ classdef unique_objects_container < serializable
             %                               conversion for hashify
 
             flds = self.saveableFields();
-            flds = [flds(:);'convert_to_stream_f']; % convert_to_stream
-            % function is not present in saveable properties but may be present
-            % as input too.
             % standard serializable constructor
             self = self.set_positional_and_key_val_arguments(...
                 flds,false,varargin{:});
@@ -648,7 +577,7 @@ classdef unique_objects_container < serializable
 
             % check if you're trying to replace an object with an identical
             % one. If so silently return.
-            objhash = self.hashify(obj);
+            [obj,objhash] = build_hash(obj);
             curhash = self.stored_hashes_{self.idx_(nuix)};
             if isequal(objhash, curhash)
                 return;
@@ -665,7 +594,7 @@ classdef unique_objects_container < serializable
             % returned as the index to the object in the container.
             % hash is returned as the hash of the object. If ix is empty
             % then the object is not in the container.
-            [ix,hash] = self.find_in_container(obj);
+            [ix,hash,obj] = self.find_in_container(obj);
 
             % If the object is not in the container.
             % store the hash in the stored hashes
@@ -776,9 +705,7 @@ classdef unique_objects_container < serializable
             % This is only used for tests and so its efficiency is not
             % important.
             newself = unique_objects_container('baseclass',self.baseclass);%,'convert_to_stream_f',self.convert_to_stream_f');
-            % It is unclear why specifying convert_to_stream_f in the
-            % constructor causes a failure but it works if specified next.
-            newself.convert_to_stream_f = self.convert_to_stream_f;
+
             for i=1:self.n_objects
                 newself = newself.add(self.get(i));
             end
@@ -929,7 +856,7 @@ classdef unique_objects_container < serializable
                             out_obj = objs{ii}.get(jj);
                             out_hsh = objs{ii}.hash(jj);
                             [~,index] = ismember(out_hsh, out.stored_hashes_);
-                            if index==0, index = []; end;
+                            if index==0, index = []; end
                             out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
                         end
                     end
@@ -940,7 +867,7 @@ classdef unique_objects_container < serializable
                             out_obj = objs(ii).get(jj);
                             out_hsh = objs(ii).hash(jj);
                             [~,index] = ismember(out_hsh, out.stored_hashes_);
-                            if index==0, index = [], end;
+                            if index==0, index = []; end
                             out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
                             
                             %out = out.add( objs(ii).get(jj) );
