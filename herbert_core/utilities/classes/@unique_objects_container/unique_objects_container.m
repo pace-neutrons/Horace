@@ -124,6 +124,14 @@ classdef unique_objects_container < serializable
     % Dependent properties set/get functions and subsrefs/subsassign
     % methods
     methods
+        function self = clear(self)
+            % empty container. unique_object_container interface request. 
+            % TODO: remove?
+            self.idx_ = zeros(1,0);
+            self.unique_objects_=cell(1,0); % the actual unique objects - initialised in constructor by type
+            self.stored_hashes_ = cell(1,0);  % their hashes are stored
+            self.n_duplicates_ =  zeros(1,0);            
+        end
 
         function x = get.unique_objects(self)
             %GET.UNIQUE_OBJECTS Return the cell array containing the unique

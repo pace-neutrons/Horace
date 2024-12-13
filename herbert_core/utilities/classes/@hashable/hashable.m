@@ -1,6 +1,5 @@
 classdef hashable < serializable
     %
-
     properties (Access=protected)
         hash_value_ = []
     end
