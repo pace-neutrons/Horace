@@ -12,10 +12,12 @@ classdef IX_experiment < Goniometer
     %
     % Run-id is notionally related to real experimental run, but actually
     % have meaning of a tag, which connects particular IX_experiment with
-    % particular pixel (neutron event).
+    % particular pixel (neutron event). This is the logical connection,
+    % build at sqw generation and mainteined during operations with sqw
+    % object
     %
-    % Run-id connection with actual experiment run is useful but
-    % non-reliable feature.
+    % Run-id connection with actual experimental run is useful but
+    % non-guaranteed feature.
     properties(Dependent)
         filename; % name of the file which was the source of data for this
         %         % experiment
@@ -44,13 +46,6 @@ classdef IX_experiment < Goniometer
         % format files.
         ulabel = {'','','',''};
         ulen = [1,1,1,1];
-    end
-    properties(Constant)
-        % the list of properties which define IX_experiment uniqueness
-        % if all properties values are the same, IX_experiments are
-        % considered the same
-        unique_prop = {'filename','cu','cv','efix',...
-            'psi', 'omega', 'dpsi', 'gl', 'gs'}
     end
 
     properties(Hidden)
@@ -397,14 +392,17 @@ classdef IX_experiment < Goniometer
             base= constructionFields@Goniometer(obj);
             flds = [IX_experiment.fields_to_save_(:);base(:)];
         end
-        function flds = hashableFields(obj)
+        function flds = hashableFields(~)
             % run_id connects pixels with headers in experiment data.
             % We allow two IX_experiments with the same run-id to be equal
             % Also two experiments with the same filename but different
             % filepath are the same
-            flds = obj.saveableFields();
-            is_runid = ismember(flds,{'run_id','filepath'});
-            flds  = flds(~is_runid);
+            %
+            % the list of properties which define IX_experiment uniqueness
+            % if hashes, build on these properties values are the same,
+            % IX_experiments are considered the same
+            flds= {'filename','cu','cv','efix',...
+                'psi', 'omega', 'dpsi', 'gl', 'gs'};
         end
 
         function ver  = classVersion(~)

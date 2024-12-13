@@ -474,7 +474,9 @@ classdef test_unique_objects < TestCase
             uoc = unique_objects_container('baseclass','IX_inst');
             uoc{1} = obj.mi1;
             uoc{2} = IX_null_inst();
-            save('store2020_1.mat','uoc');
+            test_data = 'store2020_1.mat';
+            clOb = onCleanup(@()delete(test_data));
+            save(test_data,'uoc');
             zzz = load('store2020_1.mat');
             assertEqual(uoc.stored_hashes, zzz.uoc.stored_hashes);
             
