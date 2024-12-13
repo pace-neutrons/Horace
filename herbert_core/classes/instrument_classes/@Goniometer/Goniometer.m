@@ -1,4 +1,4 @@
-classdef Goniometer < serializable
+classdef Goniometer < hashable
     % class describes main properties of a goniometer used to orient
     % sample in a spectrometer for neutron scattering or x-ray investigation.
     % and contains various service functions to work with such goniometer

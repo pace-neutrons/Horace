@@ -1,8 +1,7 @@
-function [isne, mess] = ne (obj1, obj2, varargin)
-% Return a logical variable stating if two serializable objects are unequal or not
+function isneq = ne(obj1, obj2)
+% Return a logical variable stating if two serializable objects are equal or not
 %
-%   >> [iseq, mess] = ne (obj1, obj2)
-%   >> [iseq, mess] = ne (obj1, obj2, p1, p2, ...)
+%   >> isne = ne (obj1, obj2)
 %
 % Input:
 % ------
@@ -10,23 +9,20 @@ function [isne, mess] = ne (obj1, obj2, varargin)
 %
 %   obj2        Object on right-hand side
 %
-% Optional:
-%   p1, p2,...  Any set of parameters that the equal_to_tol function accepts
-%
 % See also equal_to_tol
 
-% TODO: can be done more efficiently as eq needs to check all
-% the fields and ne may return when found first non-equal field
-
-
-names = cell(2,1);
-if nargout == 2
-    names{1} = inputname(1);
-    names{2} = inputname(2);
-    [iseq, mess] = eq_ (obj1, obj2, nargout, names, varargin{:});
-else
-    iseq = eq_ (obj1, obj2, nargout, names, varargin{:});
+% sizes of objects are different
+if ~all(size(obj1)==size(obj2))
+    isneq = true;
+    return;
 end
-isne = ~iseq;
-
+isneq = false;
+for i=1:numel(obj1)
+    [~,hash1] = build_hash(obj1(i));
+    [~,hash2] = build_hash(obj2(i));
+    iseq = isequal(hash1,hash2);
+    if ~iseq
+        isneq = true;
+        return;
+    end
 end

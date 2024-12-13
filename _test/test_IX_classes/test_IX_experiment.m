@@ -22,6 +22,9 @@ classdef test_IX_experiment <  TestCase
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,false);
 
+            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            assertTrue(all(hash_defined));
+
             data = [data(1:6),data(8:10)];
             for i=1:9
                 data(i).run_id = i;
@@ -49,6 +52,9 @@ classdef test_IX_experiment <  TestCase
             Input = num2cell(data);
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,false);
+            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            assertTrue(all(hash_defined));
+
 
             for i=1:10
                 data(i).run_id = i;
@@ -69,6 +75,10 @@ classdef test_IX_experiment <  TestCase
         function test_combine_empty_change_ID(~)
             data = test_IX_experiment.build_IX_array(10);
             [result,file_id_array,skipped_inputs,this_runid_map] = data.combine({},true,false);
+
+            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            assertTrue(all(hash_defined));
+
             for i=1:10
                 data(i).run_id = i;
             end
@@ -92,6 +102,10 @@ classdef test_IX_experiment <  TestCase
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,true);
 
+            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            assertTrue(all(hash_defined));
+
+
             cai = [Input{1},Input{2}(2:10),Input{3}(2:10)];
             assertEqual(cai,result);
             assertEqual(file_id_array,fids);
@@ -114,6 +128,9 @@ classdef test_IX_experiment <  TestCase
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end));
 
+            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            assertTrue(all(hash_defined));
+            
             cai = [Input{:}];
             assertEqual(cai,result);
             assertEqual(file_id_array,fids);
@@ -137,6 +154,9 @@ classdef test_IX_experiment <  TestCase
             Input = num2cell(data);
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,true);
+            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            assertTrue(all(hash_defined));
+            
 
             assertEqual([data(1:6),data(8:10)],result);
             assertEqual(file_id_array,fids);
@@ -156,6 +176,9 @@ classdef test_IX_experiment <  TestCase
         function test_combine_empty(~)
             [data,fids] = test_IX_experiment.build_IX_array(10);
             [result,file_id_array,skipped_inputs,this_runid_map] = data.combine({},true,true);
+            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            assertTrue(all(hash_defined));
+
 
             assertEqual(data,result);
             assertEqual(fids,file_id_array);
@@ -185,6 +208,9 @@ classdef test_IX_experiment <  TestCase
             Input = num2cell(data);
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end));
+            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            assertTrue(all(hash_defined));
+            
 
             assertEqual(data,result);
             assertEqual(file_id_array,fids);
@@ -205,8 +231,8 @@ classdef test_IX_experiment <  TestCase
             exp2 = exp1;
             exp2.omega = 4;
 
-            ch1 = exp1.get_neq_hash();
-            ch2 = exp2.get_neq_hash();
+            ch1 = exp1.build_hash();
+            ch2 = exp2.build_hash();
             assertFalse(isequal(ch1,ch2));
         end
         function test_goniometer_key_construction(~)
@@ -239,8 +265,8 @@ classdef test_IX_experiment <  TestCase
             exp2 = exp1;
             exp2.filepath = 'other_path';
 
-            ch1 = exp1.get_neq_hash();
-            ch2 = exp2.get_neq_hash();
+            ch1 = exp1.build_hash();
+            ch2 = exp2.build_hash();
             assertEqual(ch1,ch2);
         end
 
@@ -333,7 +359,7 @@ classdef test_IX_experiment <  TestCase
             v1_struct.version = 1;
             v1_struct.array_dat = rmfield(v1_struct.array_dat,'run_id');
 
-            exp_rec = serializable.from_struct(v1_struct);
+            exp_rec = hashable.from_struct(v1_struct);
             % old IX_experiment structures in all practical cases were storing
             % angular units in radian, so we restoring old versions as
             % radians

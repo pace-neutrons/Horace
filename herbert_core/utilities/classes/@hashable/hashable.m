@@ -3,6 +3,10 @@ classdef hashable < serializable
     properties (Access=protected)
         hash_value_ = []
     end
+    properties(Dependent,Hidden)
+        % expose internal hash_value_ value for debugging purposes
+        hash_value;
+    end
 
     %---------------------------------------------------------------------------
     %   INTERFACE
@@ -10,7 +14,7 @@ classdef hashable < serializable
     %   Convert object or array of objects to/from a structure
     %---------------------------------------------------------------------------
     methods
-        function flds = hashingFields (obj)
+        function flds = hashableFields(obj)
             % function provides set of fields which define hash. By
             % default, equal to saveableFields, but different to give
             % possibility to overload.
@@ -21,12 +25,21 @@ classdef hashable < serializable
             %
             flds = obj.saveableFields();
         end
+        function val = get.hash_value(obj)
+            val = obj.hash_value_;
+        end
 
         function S = to_struct (obj)
             % overload to_struct to add hash to it if hash was available
             S = to_struct@serializable(obj);
-            if ~isempty(obj.hash_value_)
-                S.hash_value = obj.hash_value_;
+            if numel(obj)>1
+                for i=1:numel(obj)
+                    S.array_dat(i).hash_value = obj(i).hash_value_;
+                end
+            else
+                if ~isempty(obj.hash_value_)
+                    S.hash_value = obj.hash_value_;
+                end
             end
         end
         function [obj,bytestream] = to_hashable_array(obj)
@@ -57,6 +70,7 @@ classdef hashable < serializable
             is_calculated = true;
             [obj,bytestream] = to_hashable_array(obj);
             [~,hash] = build_hash(bytestream);
+            obj.hash_value_ = hash;
         end
     end
 
@@ -64,9 +78,18 @@ classdef hashable < serializable
         function obj = from_struct (S, varargin)
             % overload from_struct to restore hash if available
             obj = serializable.from_struct(S,varargin{:});
-            if isfield(S,'hash_value')
-                obj.hash_value_ = S.hash_value;
+            if numel(obj)>1
+                for i=1:numel(obj)
+                    if isfield(S.array_dat(i),'hash_value')
+                        obj(i).hash_value_ = S.array_dat(i).hash_value;
+                    end
+                end
+            else
+                if isfield(S,'hash_value')
+                    obj.hash_value_ = S.hash_value;
+                end
             end
+
         end
     end
 
@@ -81,9 +104,7 @@ classdef hashable < serializable
 
         % Return logical variable stating if two serializable objects are
         % unequal or not
-        function isne = ne (obj1, obj2)
-            isne = ~eq(obj1,obj2);
-        end
+        isne = ne (obj1, obj2)
     end
 
     %---------------------------------------------------------------------------

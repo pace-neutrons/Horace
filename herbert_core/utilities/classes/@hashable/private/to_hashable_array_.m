@@ -16,7 +16,7 @@ function [obj,arr] = to_hashable_array_ (obj)
 
 % Get hasing fields, used for extracting values, explicitly specifying
 % class state
-field_names = hashingFields (obj(1));
+field_names = hashableFields (obj(1));
 
 % Recursively turn serializable fields into structures
 arr = cell (1,numel(field_names)*numel(obj));
@@ -32,21 +32,29 @@ for j = 1:numel(obj)
             if new_hash
                 obj(j).(field_name) = val;
             end
-            arr{ic} = typecast(hash,'uint8');
-        elseif isdouble(val)
-            arr{ic} = typecast(single(round(val,7)),'uint8');
-        elseif issingle(val)
-            arr{ic} = typecast(single(round(val,6)),'uint8');
-        elseif isnumeric(val)||islogical(val)
-            arr{ic} = typecast(val,'uint8');
+            tm = typecast(hash,'uint8');
+            arr{ic} = tm(:);
+        elseif isa(val,'double')
+            tm = typecast(single(round(val,7)),'uint8');
+            arr{ic} =tm(:);
+        elseif isa(val,'single')
+            tm = typecast(single(round(val,6)),'uint8');
+            arr{ic} = tm(:);
+        elseif isnumeric(val)
+            tm = typecast(val,'uint8');
+            arr{ic} = tm(:);
+        elseif islogical(val)
+            arr{ic} = uint8(val);
         elseif istext(val)
-            arr{ic} = uint8(char(val));
+            arr{ic} = uint8(char(val)).';
         elseif isstruct(val)
-            [val,arr{ic}] = build_hash(val);
+            [val,hash] = build_hash(val);
+            tm = typecast(hash,'uint8');
+            arr{ic} = tm(:);
             obj(j).(field_name) = val;
         else
             arr{ic}= serialize(val);
         end
     end
 end
-arr = [arr(:)];
+arr = cat(1,arr{:});

@@ -59,7 +59,7 @@ if isempty(exper_cellarray)
     if ~keep_runid
         [obj,this_runid_map,file_id_array] = recalc_runid(obj,this_runid_map,file_id_array);
     end
-
+    obj = arrayfun(@(x)build_hash(x),obj);
     skipped_inputs = {};
     return;
 end
@@ -81,7 +81,8 @@ file_id_array(1:n_existing_runs) = id_now;
 % allocate space for all input headers (final array will be shrinked if not
 % all included in the result)
 base_runs     = cell(1,n_runs);
-base_runs(1:n_existing_runs) = num2cell(obj);
+obj_cell = arrayfun(@(x)build_hash(x),obj,'UniformOutput',false);
+base_runs(1:n_existing_runs) = obj_cell;
 
 
 n_exper_to_add = numel(exper_cellarray);
@@ -96,6 +97,8 @@ for i=1:n_exper_to_add
         ic = ic+1;
         % extract particular IX_experiments to check for addition
         add_IX_exper      = add_exper(j);
+        % hash will be used either forewer in a future, or in comparison below.
+        add_IX_exper      = add_IX_exper.build_hash();        
         run_id            = add_IX_exper.run_id;
         file_id_array(ic) = run_id; % this is run_id for current IX_experiment
 
@@ -104,14 +107,14 @@ for i=1:n_exper_to_add
             % IX_experiments
             present_run_pos  = this_runid_map(run_id);
             present_IX_exper = base_runs{present_run_pos};
-            % TODO: use hashable methods
-            [this_hash,present_IX_exper,is_new] = present_IX_exper.get_neq_hash();
+
+            [present_IX_exper,~,is_new] = present_IX_exper.build_hash();
             if is_new
                 % store it back not to recaclulate hash again in a future
                 base_runs{present_run_pos} = present_IX_exper;
             end
-            add_hash = add_IX_exper.get_neq_hash();
-            if strcmp(this_hash,add_hash)
+
+            if present_IX_exper==add_IX_exper
                 if ~allow_equal_headers
                     error('HORACE:IX_experiment:invalid_argument',[...
                         'Can not combine such runs.\n' ...
@@ -136,6 +139,7 @@ for i=1:n_exper_to_add
         % store new unique run to add to existing ones
         n_existing_runs           = n_existing_runs+1;
         this_runid_map(run_id)    = n_existing_runs;
+
         base_runs{n_existing_runs}= add_IX_exper;
     end
     skipped_inputs{i} = skipped_input;

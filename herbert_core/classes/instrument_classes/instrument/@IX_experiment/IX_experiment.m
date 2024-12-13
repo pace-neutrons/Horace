@@ -3,8 +3,19 @@ classdef IX_experiment < Goniometer
     %single run into Crystal Cartesian coordinate system during sqw file
     %generation
     %
-    % Should be replaced by instr_proj in a future.
-
+    % may be replaced by instr_proj in a future or may be should build
+    % close ties with such projection.
+    %
+    % NOTE:
+    % Two IX_experiments with the same gonioneter, energy+mode and short
+    % filename but with different run_id are considered equal.
+    %
+    % Run-id is notionally related to real experimental run, but actually
+    % have meaning of a tag, which connects particular IX_experiment with
+    % particular pixel (neutron event).
+    %
+    % Run-id connection with actual experiment run is useful but
+    % non-reliable feature.
     properties(Dependent)
         filename; % name of the file which was the source of data for this
         %         % experiment
@@ -56,10 +67,6 @@ classdef IX_experiment < Goniometer
         efix_ = 0;
         u_to_rlu_ = [];
     end
-    properties(Access= private)
-        % the hash used to compare IX_experiments for equality
-        hash_ = [];
-    end
     methods
         function obj = IX_experiment(varargin)
             % IX_EXPERIMENT Construct an instance of this class
@@ -91,7 +98,7 @@ classdef IX_experiment < Goniometer
                     class(val))
             end
             obj.filename_     = val;
-            obj.hash_  = [];
+            obj.hash_value_  = [];
         end
         %
         function fn = get.filepath(obj)
@@ -116,7 +123,6 @@ classdef IX_experiment < Goniometer
                     class(val),numel(val))
             end
             obj.run_id_ = val;
-            obj.hash_  = [];
         end
         function ids = get_run_ids(obj)
             % retrieve all run_ids, which may be present in the array of
@@ -145,7 +151,7 @@ classdef IX_experiment < Goniometer
                     disp2str(val));
             end
             obj.emode_ = val;
-            obj.hash_  = [];
+            obj.hash_value_  = [];
         end
 
         %
@@ -159,7 +165,7 @@ classdef IX_experiment < Goniometer
                     class(val));
             end
             obj.en_ = val(:);
-            obj.hash_  = [];
+            obj.hash_value_  = [];
         end
         %
         function ef = get.efix(obj)
@@ -171,7 +177,7 @@ classdef IX_experiment < Goniometer
                     'efix (incident energy) can not be negative')
             end
             obj.efix_ = val;
-            obj.hash_  = [];
+            obj.hash_value_  = [];
         end
         %
         function mat = get.u_to_rlu(obj)
@@ -222,7 +228,7 @@ classdef IX_experiment < Goniometer
                     class(val));
             end
             obj = obj.from_bare_struct(val);
-            obj.hash_  = [];
+            obj.hash_value_  = [];
         end
     end
     %----------------------------------------------------------------------
@@ -265,25 +271,6 @@ classdef IX_experiment < Goniometer
             old_hdr = convert_to_binfile_header_(obj,mode,arg1,arg2,nomangle);
         end
         %
-        function [hash,obj,is_new] = get_neq_hash(obj)
-            % get hash used for comparison of IX_experiment objects against
-            % equality while building sqw objects
-
-            % At present, we insist that the contributing spe data are distinct in that:
-            %   - efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
-            if ~isempty(obj.hash_)
-                hash   = obj.hash_;
-                is_new = false;
-                return;
-            end
-            % list of properties which can not be all equal for
-            % experiments to be diffetent
-            comp_prop = IX_experiment.unique_prop ;
-
-            hash   = IX_experiment.get_comparison_hash(obj,comp_prop);
-            is_new = true;
-            obj.hash_ =  hash;
-        end
         %
         function [obj,file_id_array,skipped_inputs,this_runid_map] = ...
                 combine(obj,exper_cellarray,allow_eq_headers,keep_runid,varargin)
@@ -355,13 +342,13 @@ classdef IX_experiment < Goniometer
         function obj = check_and_set_uv(obj,name,val)
             % main overloadable setter for u and v
             obj = check_and_set_uv@Goniometer(obj,name,val);
-            obj.hash_  = [];
+            obj.hash_value_  = [];
         end
 
         function [val,obj] = check_angular_val(obj,val)
             % main overloadable setter function for goniometer angles
             [val,obj] = check_angular_val@Goniometer(obj,val);
-            obj.hash_ = [];
+            obj.hash_value_ = [];
         end
 
     end
@@ -432,7 +419,15 @@ classdef IX_experiment < Goniometer
         function flds = constructionFields(obj)
             base= constructionFields@Goniometer(obj);
             flds = [IX_experiment.fields_to_save_(:);base(:)];
-
+        end
+        function flds = hashableFields(obj)
+            % run_id connects pixels with headers in experiment data.
+            % We allow two IX_experiments with the same run-id to be equal
+            % Also two experiments with the same filename but different
+            % filepath are the same
+            flds = obj.saveableFields();
+            is_runid = ismember(flds,{'run_id','filepath'});
+            flds  = flds(~is_runid);
         end
 
         function ver  = classVersion(~)
@@ -443,7 +438,7 @@ classdef IX_experiment < Goniometer
             % verify interdependent variables and the validity of the
             % obtained lattice object
             obj = check_combo_arg@Goniometer(obj);
-            obj.hash_ = [];
+            obj.hash_value_ = [];
             if isscalar(obj.efix_) && obj.efix_ == 0 && obj.emode_ ~=0
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'efix (incident energy) can be 0 in elastic mode only. Emode=%d', ...
@@ -492,7 +487,6 @@ classdef IX_experiment < Goniometer
                 end
             end
         end
-
     end
 
     methods(Static)

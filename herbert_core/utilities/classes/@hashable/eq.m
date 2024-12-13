@@ -11,6 +11,15 @@ function iseq = eq (obj1, obj2)
 %   obj2        Object on right-hand side
 %
 % See also equal_to_tol
-[~,hash1] = build_hash(obj1);
-[~,hash2] = build_hash(obj2);
-iseq = strcmp(hash1,hash2);
+if ~all(size(obj1)==size(obj2))
+    iseq = false;
+    return;
+end
+for i=1:numel(obj1)
+    [~,hash1] = build_hash(obj1(i));
+    [~,hash2] = build_hash(obj2(i));
+    iseq = isequal(hash1,hash2);
+    if ~iseq
+        return;
+    end
+end
