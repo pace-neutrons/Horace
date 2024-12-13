@@ -17,8 +17,11 @@ if use_mex
                 warning(ME.identifier,'%s',ME.message);
             end
             wc = wc+1;
+            ser = hlp_serialize(a);
         end
     end
+else
+    ser = hlp_serialize(a);
 end
 
-ser = hlp_serialize(a);
+

@@ -175,13 +175,13 @@ classdef test_main_mex < TestCase
             
             % make hashes with mex off
             hcf.use_mex = false;
-            hash1_nomex = build_hash(obj1);
-            hash2_nomex = build_hash(obj2);
+            [~,hash1_nomex] = build_hash(obj1);
+            [~,hash2_nomex] = build_hash(obj2);
             
             % make hashes with mex on
             hcf.use_mex = true;
-            hash1_mex = build_hash(obj1);
-            hash2_mex = build_hash(obj2);
+            [~,hash1_mex] = build_hash(obj1);
+            [~,hash2_mex] = build_hash(obj2);
             
             % compare mex and nomex hashes
             assertTrue( strcmp(hash1_nomex, hash1_mex) );
