@@ -353,29 +353,6 @@ classdef IX_experiment < Goniometer
 
     end
     methods(Static)
-        function hash = get_comparison_hash(comp_obj,prop_list)
-            % get hash to check partial set of properties for comparison
-            % Inputs:
-            % comp_obj  -- object for partial hashing
-            % prop_list -- the list of properties of comp_obj object
-            %              to extract values and build comparison hash
-            %
-            n_par = numel(prop_list);
-            contents = cell(1,n_par);
-            for i=1:n_par
-                contents{i} = comp_obj.(prop_list{i});
-                if istext(contents{i})
-                    contents{i} = uint8(contents{i});
-                elseif isnumeric(contents{i})
-                    contents{i} = typecast(single(contents{i}),'uint8');
-                else
-                    contents{i} = typecast(contents{i},'uint8');
-                end
-            end
-            contents = cell2mat(contents);
-            hash = Hashing.hashify_obj(contents);
-        end
-
         %------------------------------------------------------------------
         % SQW_binfile_common methods related to saving to old format binfile and
         % run_id scrambling:
