@@ -122,14 +122,8 @@ classdef kf_sphere_proj<sphere_proj
             %            defined by object properties
             %
             if isa(pix_data,'PixelDataBase')
-                if pix_data.is_corrected
-                    error('HORACE:kf_sphere_proj:not_implemented', ...
-                        'Misaligned pixels are not yet implemented');
-                    %pix_cc = pix_data.get_raw_data('q_coordinates');
-                else
-                    pix_cc = pix_data.q_coordinates;
-                end
-                shift_ei = obj.offset(4) ~=0;
+                pix_cc = pix_data.q_coordinates;
+                shift_ei = obj.offset(4) ~=0; % its ginored for the time being
 
                 ndim = 3;
                 input_is_obj = true;
@@ -146,7 +140,7 @@ classdef kf_sphere_proj<sphere_proj
                 kf = obj.ki_-pix_cc(1:3,:);
             end
             pix_transformed = transform_pix_to_img@sphere_proj(obj,kf,varargin{:});
-            if ndim == 4
+            if ndim > 3
                 if input_is_obj
                     pix_transformed = [pix_transformed;pix_data.dE];
                 else

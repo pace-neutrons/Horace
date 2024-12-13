@@ -178,7 +178,7 @@ classdef CurveProjBase <aProjectionBase
                 obj = obj.check_combo_arg();
             end
         end
-        function obj = set_img_scales(obj,varargin)
+        function obj = set_img_scales(~,varargin)
             error('HORACE:CurveProjBase:invalid_argument', ...
                 'You can not set image scales directly. Use projection type instead')
         end
