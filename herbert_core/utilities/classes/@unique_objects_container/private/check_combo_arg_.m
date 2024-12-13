@@ -45,6 +45,10 @@ if ~isempty(obj.baseclass_)
             obj.baseclass,disp2str(non_type_ind),class(invalid_obj))
     end
 end
-if do_rehashify
+% not doing rehashify here as hashes are now loaded from a saved object
+%if do_rehashify
+%    obj = obj.rehashify_all(with_checks);
+%end
+if isempty(obj.stored_hashes_) && ~isempty(obj.unique_objects)
     obj = obj.rehashify_all(with_checks);
 end
