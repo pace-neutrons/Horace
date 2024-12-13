@@ -500,8 +500,16 @@ classdef test_unique_objects < TestCase
             uoc = unique_objects_container('baseclass','IX_inst');
             uoc{1} = obj.mi1;
             uoc{2} = IX_null_inst();
-            save('store2020_1.mat','uoc');
+            % store the current uoc and compare its save/load with the
+            % initial construct
+            save('store_current.mat','uoc');
+            zzz = load('store_current.mat');
+            assertEqual(uoc.stored_hashes, zzz.uoc.stored_hashes);
+            % load the one created with R2020b and compare
             zzz = load('store2020_1.mat');
+            assertEqual(uoc.stored_hashes, zzz.uoc.stored_hashes);
+            % load the one created with r2024b and compare
+            zzz = load('store2024_1.mat');
             assertEqual(uoc.stored_hashes, zzz.uoc.stored_hashes);
             
         end
