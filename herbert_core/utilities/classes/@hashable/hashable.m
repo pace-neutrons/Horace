@@ -81,6 +81,16 @@ classdef hashable < serializable
                 hash = hash{1};
             end
         end
+   
+        function [ok,mess] = equal_to_tol(obj,other_obj,varargin)
+            % overload for equal_to_tol method. Very crude. 
+            % expected to be improved for Re #1147
+            ok = eq(obj,other_obj);
+            mess=[];
+            if ~ok
+                mess = 'objects to compare have different hashes';
+            end
+        end
     end
 
     methods (Static)
