@@ -50,6 +50,5 @@ else
     hash2 = dec2hex(hash1);
     hash3 = cellstr(hash2);
     hash4 = horzcat(hash3{:});
-    hash = lower(hash4); % reduces hash value to at least 64 bits! TODO:
-    % validate if it is possible to use
+    hash = lower(hash4); 
 end

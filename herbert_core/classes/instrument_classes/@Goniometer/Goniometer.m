@@ -245,7 +245,8 @@ classdef Goniometer < hashable
         end
         function [val,obj] = check_angular_val(obj,val)
             % main over-loadable setter function for goniometer angles
-            val = check_angular_set_(obj,val);
+            [val,obj] = check_angular_set_(obj,val);
+            obj.hash_value_ = [];
         end
         function uf = get_undef_fields(obj)
             % get list of undefined fields
@@ -288,6 +289,7 @@ classdef Goniometer < hashable
             % verify interdependent variables and the validity of the
             % obtained lattice object
             obj = check_combo_arg_(obj);
+            obj.hash_value_ = [];
         end
         function obj = from_bare_struct (obj, S)
             %

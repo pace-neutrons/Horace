@@ -1,17 +1,19 @@
 function [obj,arr] = to_hashable_array_ (obj)
 % Retrieve information specifying
 %
-%   >> S = to_hashable_array_(obj)
+%   >>[obj,S] = to_hashable_array_(obj)
 %
 % Input:
 % ------
-%   obj            Object or array of objects which are hashable
+%   obj -- Object or array of objects which are hashable
 %
 %
 % Output:
 % -------
-%  arr            array of unique data -- basis for building unique object
-%                 hash
+%  obj  --  input object, containing possible children hashable objects
+%           wich calculated hashes
+%  arr  --  uint8 array of unique data -- basis for building unique object
+%           hash.
 
 
 % Get hasing fields, used for extracting values, explicitly specifying
@@ -32,19 +34,22 @@ for j = 1:numel(obj)
             if new_hash
                 obj(j).(field_name) = val;
             end
+            if iscell(hash) % use array of hashes as source for final hash
+                hash = strjoin(hash ,'');
+            end
             tm = typecast(hash,'uint8');
             arr{ic} = tm(:);
         elseif isa(val,'double')
-            tm = typecast(single(round(val,7)),'uint8');
+            tm = typecast(single(round(val(:),7)),'uint8');
             arr{ic} =tm(:);
         elseif isa(val,'single')
-            tm = typecast(single(round(val,6)),'uint8');
+            tm = typecast(single(round(val(:),6)),'uint8');
             arr{ic} = tm(:);
         elseif isnumeric(val)
-            tm = typecast(val,'uint8');
+            tm = typecast(val(:),'uint8');
             arr{ic} = tm(:);
         elseif islogical(val)
-            arr{ic} = uint8(val);
+            arr{ic} = uint8(val(:));
         elseif istext(val)
             arr{ic} = uint8(char(val)).';
         elseif isstruct(val)

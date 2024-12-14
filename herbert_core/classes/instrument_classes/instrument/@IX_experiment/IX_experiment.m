@@ -332,21 +332,6 @@ classdef IX_experiment < Goniometer
         end
         %
     end
-    methods(Access=protected)
-        %
-        function obj = check_and_set_uv(obj,name,val)
-            % main overloadable setter for u and v
-            obj = check_and_set_uv@Goniometer(obj,name,val);
-            obj.hash_value_  = [];
-        end
-
-        function [val,obj] = check_angular_val(obj,val)
-            % main overloadable setter function for goniometer angles
-            [val,obj] = check_angular_val@Goniometer(obj,val);
-            obj.hash_value_ = [];
-        end
-
-    end
     methods(Static)
         %------------------------------------------------------------------
         % SQW_binfile_common methods related to saving to old format binfile and

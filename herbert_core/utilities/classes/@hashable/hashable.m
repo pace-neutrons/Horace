@@ -1,7 +1,7 @@
 classdef hashable < serializable
     %
     properties (Access=protected)
-        hash_value_ = []
+        hash_value_ = [];
     end
     properties(Dependent,Hidden)
         % expose internal hash_value_ value for debugging purposes
@@ -32,64 +32,69 @@ classdef hashable < serializable
         function S = to_struct (obj)
             % overload to_struct to add hash to it if hash was available
             S = to_struct@serializable(obj);
-            if numel(obj)>1
-                for i=1:numel(obj)
-                    S.array_dat(i).hash_value = obj(i).hash_value_;
-                end
-            else
-                if ~isempty(obj.hash_value_)
-                    S.hash_value = obj.hash_value_;
-                end
-            end
+            % make hash value
+            S.hash_value = arrayfun(@(x)x.hash_value_,obj,'UniformOutput',false);
         end
+
         function [obj,bytestream] = to_hashable_array(obj)
-            % Function which extracts distignuishable information from the
-            % object to use as basis for the hash which describes this
+            % Function extracts distignuishable information from the
+            % object to use as the basis for the hash which describes this
             % object.
+            % Extracts and converts into bytestream the values of fields,
+            % provided by hashableFields method.
+            % Input:
+            %   obj -- Object or array of objects which are hashable
+            % Returns:
+            %  obj  --  input object,modified if has children hashable
+            %           objects. These objects have their hashes calculated
+            %           recursively.
+            %  arr  --  uint8 array of unique data -- basis for building
+            %           unique object hash.
+
             [obj,bytestream] = to_hashable_array_(obj);
         end
-
-
         function [obj,hash,is_calculated] = build_hash(obj)
-            % calculate hash if it not available
+            % Class specific calculation of hash if it is not available
+            % for this object
+            %
             % Inputs:
-            % obj -- hashable object
+            % obj -- hashable object or array of objects
             % Returns:
-            % obj  -- hashable object with hash value stored inside
-            % hash -- value of hash, defining state of the object
+            % obj  -- hashable object or array of objects with hash value(s)
+            %         stored in hash_value_  property(ies).
+            % hash -- the value of hash, defining state of the object.
+            %         or cellaray of hashes for all objects in array.
             % is_calculated
-            %      -- if true, the hash value was calculated for the
-            %         object. If false, object have hash, already attached
-            %         to it so the only thing we did was restoring this
-            %         hash.
-            is_calculated = false;
-            if ~isempty(obj.hash_value_)
-                hash = obj.hash_value_;
-                return;
+            %      -- if true, the hash value(s) were calculated at least
+            %         for some objects in the array,
+            %         If false, all objects have hashes, already attached
+            %         to it so the function have returned stored value.
+            %
+            nobj = numel(obj);
+            is_calculated = false(1,nobj);
+            hash = cell(1,nobj);
+            for i=1:numel(obj)
+                [obj(i),hash{i},is_calculated(i)] = build_single_hash_(obj(i));
             end
-            is_calculated = true;
-            [obj,bytestream] = to_hashable_array(obj);
-            [~,hash] = build_hash(bytestream);
-            obj.hash_value_ = hash;
+            is_calculated = any(is_calculated);
+            if numel(hash) == 1
+                hash = hash{1};
+            end
         end
     end
 
     methods (Static)
         function obj = from_struct (S, varargin)
-            % overload from_struct to restore hash if available
+            % overload from_struct to restore object and set its hash
+            % if hash was present in the structure
             obj = serializable.from_struct(S,varargin{:});
-            if numel(obj)>1
-                for i=1:numel(obj)
-                    if isfield(S.array_dat(i),'hash_value')
-                        obj(i).hash_value_ = S.array_dat(i).hash_value;
-                    end
-                end
-            else
-                if isfield(S,'hash_value')
-                    obj.hash_value_ = S.hash_value;
+            if isfield(S,'hash_value') % protection agains old hashable
+                % objects stored without hash values
+                hash = S.hash_value;
+                for i=1:numel(hash)
+                    obj(i).hash_value_ = hash{i};
                 end
             end
-
         end
     end
 
