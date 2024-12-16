@@ -2,7 +2,7 @@ function [obj,hash,is_calculated] = build_single_hash_(obj)
 % build or restore hash for single hashable object
 %
 is_calculated = false;
-if ~isnan(obj.hash_value_)
+if obj.hash_defined
     hash = obj.hash_value_;
     return;
 end

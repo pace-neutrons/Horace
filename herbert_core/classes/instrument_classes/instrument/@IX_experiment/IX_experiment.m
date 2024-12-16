@@ -7,13 +7,13 @@ classdef IX_experiment < Goniometer
     % close ties with such projection.
     %
     % NOTE:
-    % Two IX_experiments with the same gonioneter, energy+mode and short
+    % Two IX_experiments with the same goniometer, energy+mode and short
     % filename but with different run_id are considered equal.
     %
     % Run-id is notionally related to real experimental run, but actually
     % have meaning of a tag, which connects particular IX_experiment with
     % particular pixel (neutron event). This is the logical connection,
-    % build at sqw generation and mainteined during operations with sqw
+    % build at sqw generation and maintained during operations with sqw
     % object
     %
     % Run-id connection with actual experimental run is useful but
@@ -93,7 +93,7 @@ classdef IX_experiment < Goniometer
                     class(val))
             end
             obj.filename_     = val;
-            obj.hash_value_  = [];
+            obj = obj.clear_hash();
         end
         %
         function fn = get.filepath(obj)
@@ -146,7 +146,7 @@ classdef IX_experiment < Goniometer
                     disp2str(val));
             end
             obj.emode_ = val;
-            obj.hash_value_  = [];
+            obj = obj.clear_hash();
         end
 
         %
@@ -160,7 +160,7 @@ classdef IX_experiment < Goniometer
                     class(val));
             end
             obj.en_ = val(:);
-            obj.hash_value_  = [];
+            obj = obj.clear_hash();
         end
         %
         function ef = get.efix(obj)
@@ -172,7 +172,7 @@ classdef IX_experiment < Goniometer
                     'efix (incident energy) can not be negative')
             end
             obj.efix_ = val;
-            obj.hash_value_  = [];
+            obj = obj.clear_hash();
         end
         %
         function mat = get.u_to_rlu(obj)
@@ -223,7 +223,7 @@ classdef IX_experiment < Goniometer
                     class(val));
             end
             obj = obj.from_bare_struct(val);
-            obj.hash_value_  = [];
+            obj = obj.clear_hash();
         end
     end
     %----------------------------------------------------------------------
@@ -398,7 +398,7 @@ classdef IX_experiment < Goniometer
             % verify interdependent variables and the validity of the
             % obtained lattice object
             obj = check_combo_arg@Goniometer(obj);
-            obj.hash_value_ = [];
+            obj = obj.clear_hash();
             if isscalar(obj.efix_) && obj.efix_ == 0 && obj.emode_ ~=0
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'efix (incident energy) can be 0 in elastic mode only. Emode=%d', ...

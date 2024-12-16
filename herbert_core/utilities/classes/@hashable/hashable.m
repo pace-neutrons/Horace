@@ -6,6 +6,12 @@ classdef hashable < serializable
     properties(Dependent,Hidden)
         % expose internal hash_value_ value for debugging purposes
         hash_value;
+
+        % returns true if hash have been calculated and stored with the object
+        % and false otherwise.
+        hash_defined; % Provided to simplify possible future hash
+        % type replacement, e.g. from char value to uint64 or something
+        % similar.
     end
 
     %---------------------------------------------------------------------------
@@ -25,25 +31,35 @@ classdef hashable < serializable
             %
             flds = obj.saveableFields();
         end
+        function obj = clear_hash(obj)
+            % function clears the hash value, stored with the object.
+            % Provided as part of interface and should be used 
+            % to allow simple replacement of hash implementation if we
+            % decide to use different hash type in a future.
+            obj.hash_value_ = [];
+        end
         function val = get.hash_value(obj)
             val = obj.hash_value_;
+        end
+        function is = get.hash_defined(obj)
+            is  = ~isempty(obj.hash_value_);
         end
 
         function S = to_struct (obj)
             % overload to_struct to add hash to it if hash was available
             S = to_struct@serializable(obj);
-            % make hash value
+            % attach hash value to the resulting structure
             S.hash_value = arrayfun(@(x)x.hash_value_,obj,'UniformOutput',false);
         end
 
         function [obj,bytestream] = to_hashable_array(obj)
-            % Function extracts distignuishable information from the
+            % Function extracts distinguishable information from the
             % object to use as the basis for the hash which describes this
             % object.
-            % Extracts and converts into bytestream the values of fields,
+            % Extracts and converts into byte-stream the values of fields,
             % provided by hashableFields method.
             % Input:
-            %   obj -- Object or array of objects which are hashable
+            %  obj  --  Object or array of objects which are hashable
             % Returns:
             %  obj  --  input object,modified if has children hashable
             %           objects. These objects have their hashes calculated
@@ -54,8 +70,9 @@ classdef hashable < serializable
             [obj,bytestream] = to_hashable_array_(obj);
         end
         function [obj,hash,is_calculated] = build_hash(obj)
-            % Class specific calculation of hash if it is not available
-            % for this object
+            % Class specific calculation of hash if it is not already present
+            % in this object. If it is present, it returns existing value
+            % of the hash and unchanged object.
             %
             % Inputs:
             % obj -- hashable object or array of objects
@@ -63,12 +80,12 @@ classdef hashable < serializable
             % obj  -- hashable object or array of objects with hash value(s)
             %         stored in hash_value_  property(ies).
             % hash -- the value of hash, defining state of the object.
-            %         or cellaray of hashes for all objects in array.
+            %         or cellarray of hashes for all objects in array.
             % is_calculated
             %      -- if true, the hash value(s) were calculated at least
-            %         for some objects in the array,
+            %         for some objects in the array or structure of objects.
             %         If false, all objects have hashes, already attached
-            %         to it so the function have returned stored value.
+            %         to it so the function have returned the stored value.
             %
             nobj = numel(obj);
             is_calculated = false(1,nobj);
@@ -81,9 +98,9 @@ classdef hashable < serializable
                 hash = hash{1};
             end
         end
-   
+
         function [ok,mess] = equal_to_tol(obj,other_obj,varargin)
-            % overload for equal_to_tol method. Very crude. 
+            % overload for equal_to_tol method. Very crude.
             % expected to be improved for Re #1147
             ok = eq(obj,other_obj);
             mess=[];
@@ -98,7 +115,7 @@ classdef hashable < serializable
             % overload from_struct to restore object and set its hash
             % if hash was present in the structure
             obj = serializable.from_struct(S,varargin{:});
-            if isfield(S,'hash_value') % protection agains old hashable
+            if isfield(S,'hash_value') % protection against old hashable
                 % objects stored without hash values
                 hash = S.hash_value;
                 for i=1:numel(hash)
@@ -128,10 +145,10 @@ classdef hashable < serializable
     methods
         function obj = check_combo_arg (obj)
             % overload check_combo_arg. Normally arguments have changed
-            % so existihg hashes should be destroyed. If they are not,
+            % so existing hashes should be destroyed. If they are not,
             % overload this function for your class appropriately
             obj = check_combo_arg@serializable(obj);
-            obj.hash_value_ = [];
+            obj = obj.clear_hash();
         end
     end
 end

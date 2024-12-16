@@ -22,7 +22,7 @@ classdef test_IX_experiment <  TestCase
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,false);
 
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            hash_defined = arrayfun(@(x)(x.hash_defined),result);
             assertTrue(all(hash_defined));
 
             data = [data(1:6),data(8:10)];
@@ -52,7 +52,7 @@ classdef test_IX_experiment <  TestCase
             Input = num2cell(data);
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,false);
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            hash_defined = arrayfun(@(x)(x.hash_defined),result);
             assertTrue(all(hash_defined));
 
 
@@ -76,7 +76,7 @@ classdef test_IX_experiment <  TestCase
             data = test_IX_experiment.build_IX_array(10);
             [result,file_id_array,skipped_inputs,this_runid_map] = data.combine({},true,false);
 
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            hash_defined = arrayfun(@(x)(x.hash_defined),result);
             assertTrue(all(hash_defined));
 
             for i=1:10
@@ -102,7 +102,7 @@ classdef test_IX_experiment <  TestCase
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,true);
 
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            hash_defined = arrayfun(@(x)(x.hash_defined),result);
             assertTrue(all(hash_defined));
 
 
@@ -128,7 +128,7 @@ classdef test_IX_experiment <  TestCase
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end));
 
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            hash_defined = arrayfun(@(x)(x.hash_defined),result);
             assertTrue(all(hash_defined));
             
             cai = [Input{:}];
@@ -154,7 +154,7 @@ classdef test_IX_experiment <  TestCase
             Input = num2cell(data);
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,true);
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            hash_defined = arrayfun(@(x)(x.hash_defined),result);
             assertTrue(all(hash_defined));
             
 
@@ -176,7 +176,7 @@ classdef test_IX_experiment <  TestCase
         function test_combine_empty(~)
             [data,fids] = test_IX_experiment.build_IX_array(10);
             [result,file_id_array,skipped_inputs,this_runid_map] = data.combine({},true,true);
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            hash_defined = arrayfun(@(x)(x.hash_defined),result);
             assertTrue(all(hash_defined));
 
 
@@ -208,7 +208,7 @@ classdef test_IX_experiment <  TestCase
             Input = num2cell(data);
 
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end));
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),result);
+            hash_defined = arrayfun(@(x)(x.hash_defined),result);
             assertTrue(all(hash_defined));
             
 

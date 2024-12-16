@@ -188,7 +188,7 @@ classdef Goniometer < hashable
     %======================================================================
     % partial load and angular transformations.
     methods
-        % ANGULAR TRANSFORMATIONS (is it necessary? A bit overcomplecated
+        % ANGULAR TRANSFORMATIONS (is it necessary? A bit overcomplicated
         % usage)
         %------------------------------------------------------------------
         function units = get.angular_units(obj)
@@ -246,7 +246,7 @@ classdef Goniometer < hashable
         function [val,obj] = check_angular_val(obj,val)
             % main over-loadable setter function for goniometer angles
             [val,obj] = check_angular_set_(obj,val);
-            obj.hash_value_ = [];
+            obj = obj.clear_hash();
         end
         function uf = get_undef_fields(obj)
             % get list of undefined fields
@@ -289,7 +289,7 @@ classdef Goniometer < hashable
             % verify interdependent variables and the validity of the
             % obtained lattice object
             obj = check_combo_arg_(obj);
-            obj.hash_value_ = [];
+            obj = obj.clear_hash();
         end
         function obj = from_bare_struct (obj, S)
             %

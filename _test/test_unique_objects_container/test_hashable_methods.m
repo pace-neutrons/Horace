@@ -22,7 +22,7 @@ classdef test_hashable_methods <  TestCase
             assertTrue(is_new);
 
 
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),data);
+            hash_defined = arrayfun(@(x)(x.hash_defined),data);
             assertTrue(all(hash_defined));
 
             S = data.to_struct();
@@ -36,7 +36,7 @@ classdef test_hashable_methods <  TestCase
             rec_data = hashable.from_struct(S);
 
             assertEqual(data,rec_data);
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),rec_data);
+            hash_defined = arrayfun(@(x)(x.hash_defined),rec_data);
             assertTrue(all(hash_defined));
         end
         function test_exposing_hash_value(~)
@@ -46,7 +46,7 @@ classdef test_hashable_methods <  TestCase
             assertTrue(is_new);
 
 
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),data);
+            hash_defined = arrayfun(@(x)(x.hash_defined),data);
             assertTrue(all(hash_defined));
 
             S = data.to_struct();
@@ -60,7 +60,7 @@ classdef test_hashable_methods <  TestCase
             rec_data = hashable.from_struct(S);
 
             assertEqual(data,rec_data);
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),rec_data);
+            hash_defined = arrayfun(@(x)(x.hash_defined),rec_data);
             assertTrue(all(hash_defined));
 
         end
@@ -68,7 +68,7 @@ classdef test_hashable_methods <  TestCase
         function test_exposing_empty_hash_array(~)
             data = test_hashable_methods.build_IX_array(10);
 
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),data);
+            hash_defined = arrayfun(@(x)(x.hash_defined),data);
             assertFalse(any(hash_defined));
 
             S = data.to_struct();
@@ -86,7 +86,7 @@ classdef test_hashable_methods <  TestCase
         function test_exposing_empty_hash_value(~)
             data = test_hashable_methods.build_IX_array(1);
 
-            hash_defined = arrayfun(@(x)~isempty(x.hash_value),data);
+            hash_defined = arrayfun(@(x)(x.hash_defined),data);
             assertFalse(any(hash_defined));
 
             S = data.to_struct();
