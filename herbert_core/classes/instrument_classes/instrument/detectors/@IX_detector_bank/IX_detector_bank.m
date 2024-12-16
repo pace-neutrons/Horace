@@ -1,8 +1,8 @@
-classdef IX_detector_bank < serializable
+classdef IX_detector_bank < hashable
     % IX_detector_bank    Defines a detector bank for detectors of one type
     % The object contains detector positional information and the detector
     % information for a detector bank of a single detector type (for example an
-    % array of 3He tubes, or an array of slab deteectors).
+    % array of 3He tubes, or an array of slab detectors).
     
     properties (Access=private)
         % Detector identifiers, integers greater than 0 (column vector)

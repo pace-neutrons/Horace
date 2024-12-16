@@ -1,4 +1,4 @@
-classdef IX_doubledisk_chopper < serializable
+classdef IX_doubledisk_chopper < hashable
     % Double disk chopper class definition
 
     properties (Access=protected)
@@ -122,6 +122,7 @@ classdef IX_doubledisk_chopper < serializable
                 error('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
                     'Disk chopper name must be a character string (or empty string)')
             end
+            obj = obj.clear_hash();
         end
 
         function obj=set.distance(obj,val)
@@ -132,6 +133,7 @@ classdef IX_doubledisk_chopper < serializable
                 error('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
                     'Distance must be a numeric scalar')
             end
+            obj = obj.clear_hash();
         end
 
         function obj=set.frequency(obj,val)
@@ -182,6 +184,7 @@ classdef IX_doubledisk_chopper < serializable
 
         function obj=set.aperture_height(obj,val)
             obj = check_and_set_positive_scalar_(obj,'aperture_height_',val);
+            obj = obj.clear_hash();
         end
 
         function obj=set.jitter(obj,val)
@@ -290,6 +293,7 @@ classdef IX_doubledisk_chopper < serializable
             if do_recompute_pdf
                 obj.pdf_ = recompute_pdf_(obj);   % recompute the lookup table
             end
+            obj = obj.clear_hash();
         end
     end
     methods(Access=protected)

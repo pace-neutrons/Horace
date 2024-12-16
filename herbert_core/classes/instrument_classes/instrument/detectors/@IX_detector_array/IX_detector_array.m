@@ -1,4 +1,4 @@
-classdef IX_detector_array < serializable
+classdef IX_detector_array < hashable
     % Full description of a set of detector banks. Each bank is made up of
     % an array of detectors of a single type e.g. one can contain an array
     % of 3He tubes (an object of class IX_det_He3tube), another an array of
@@ -12,7 +12,7 @@ classdef IX_detector_array < serializable
     %       across all of the detector banks, not just within one detector
     %       bank (which is all that an instance of IX_detector_bank will
     %       ensure).
-    %   (2) Methods such as calculation of detector efficieny will operate
+    %   (2) Methods such as calculation of detector efficiency will operate
     %       on the entire IX_detector_array, calling the correct functions
     %       for each of the different detector types in the different
     %       banks.
@@ -23,14 +23,14 @@ classdef IX_detector_array < serializable
     % single detector bank of heterogeneous detector types. For example, get
     % methods of IX_detector_bank which are generic for all detector types, such
     % as x2 (sample-detector distance) and phi and azim (scattering angles),
-    % return the values for all detectors in the array of detectgor banks.
+    % return the values for all detectors in the array of detector banks.
     % Similarly, the set methods for these properties apply across all of the
     % detectors. This is useful, for example, when setting the distances and
     % scattering angles after a recalibration.
     %
     % To get or set properties that are specific to a particular detector type,
     % you need to get a particular detector bank, and get or set its properties
-    % using the approperiate getter and setter methods. For example, it has no
+    % using the appropriate getter and setter methods. For example, it has no
     % meaning to ask for the 3He pressure for an IX_detector_array if it
     % contains banks of scintillator detectors. Once you have changed the
     % properties of a particular detector bank, you can then set the detector

@@ -1,4 +1,4 @@
-classdef IX_aperture < serializable
+classdef IX_aperture < hashable
     % Aperture class definition
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
@@ -85,14 +85,15 @@ classdef IX_aperture < serializable
         % for the non-dependent properties. However, any interdependencies with
         % other properties must be checked here.
         function obj=set.name(obj,val)
-            if is_string(val)
-                obj.name_=val;
-            else
+            if ~is_string(val)
                 error('HERBERT:IX_apperture:invalid_argument',...
                     'Sample name must be a character string (or empty string)')
             end
 
             obj.name_=val;
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
 
         function obj=set.distance(obj,val)
@@ -103,6 +104,10 @@ classdef IX_aperture < serializable
                 error('HERBERT:IX_apperture:invalid_argument',...
                     'Distance must be a numeric scalar')
             end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+
         end
 
         function obj=set.width(obj,val)
@@ -113,15 +118,23 @@ classdef IX_aperture < serializable
                 error('HERBERT:IX_apperture:invalid_argument',...
                     'Aperture width must be a numeric scalar greater than or equal to zero')
             end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+
         end
 
         function obj=set.height(obj,val)
             if isscalar(val) && isnumeric(val) && val>=0
                 obj.height_=val;
                 obj.mandatory_field_set_(3)=true;
+
             else
                 error('HERBERT:IX_apperture:invalid_argument',...
                     'Aperture height must be a numeric scalar greater than or equal to zero')
+            end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
             end
         end
 
@@ -176,7 +189,7 @@ classdef IX_aperture < serializable
             % problem it they are not, after recomputing dependent variables
             %  if requested.
 
-
+            obj = obj.clear_hash();
             if ~all(obj.mandatory_field_set_)
                 mandatory_field_names = obj.saveableFields('mandatory');
                 error('HERBERT:IX_aperture:invalid_argument', ...
