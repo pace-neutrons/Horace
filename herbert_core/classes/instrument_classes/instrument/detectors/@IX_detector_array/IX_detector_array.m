@@ -558,6 +558,10 @@ classdef IX_detector_array < hashable
             val.filename = obj.filename_;
             val.filepath = obj.filepath_;        
         end
+        function obj = check_combo_arg(obj)
+        % TODO: at least array equal length should be validated
+            obj = obj.clear_hash();        
+        end
     end
     
     methods(Static)
