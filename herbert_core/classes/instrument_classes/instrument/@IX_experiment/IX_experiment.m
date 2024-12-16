@@ -8,16 +8,18 @@ classdef IX_experiment < Goniometer
     %
     % NOTE:
     % Two IX_experiments with the same goniometer, energy+mode and short
-    % filename but with different run_id are considered equal.
+    % filename but with different run_id are considered equal. This is
+    % because hashableFields for IX_experiment do not include rin_id fields
+    % so hash is not affected by its value.
     %
     % Run-id is notionally related to real experimental run, but actually
     % have meaning of a tag, which connects particular IX_experiment with
-    % particular pixel (neutron event). This is the logical connection,
+    % particular pixel (neutron event) through This is the logical connection,
     % build at sqw generation and maintained during operations with sqw
     % object
     %
     % Run-id connection with actual experimental run is useful but
-    % non-guaranteed feature.
+    % not-mandatory feature.
     properties(Dependent)
         filename; % name of the file which was the source of data for this
         %         % experiment
