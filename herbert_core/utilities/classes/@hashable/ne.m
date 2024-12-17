@@ -1,7 +1,8 @@
 function isneq = ne(obj1, obj2)
-% Return a logical variable stating if two serializable objects are equal or not
+% Return a logical variable stating if two hashable objects
+% or object arrays are equal or not
 %
-%   >> isne = ne (obj1, obj2)
+%   >> isneq = ne (obj1, obj2)
 %
 % Input:
 % ------

@@ -97,7 +97,7 @@ for i=1:n_exper_to_add
         ic = ic+1;
         % extract particular IX_experiments to check for addition
         add_IX_exper      = add_exper(j);
-        % hash will be used either forewer in a future, or in comparison below.
+        % hash will be used either forever in a future, or in comparison below.
         add_IX_exper      = add_IX_exper.build_hash();        
         run_id            = add_IX_exper.run_id;
         file_id_array(ic) = run_id; % this is run_id for current IX_experiment
