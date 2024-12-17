@@ -44,10 +44,20 @@ for i=1:n_inputs
         pref_acc = sqw_formats_factory.instance().get_pref_access('sqw');
         if isa(ld,class(pref_acc))
             ld_new = ld;
+            ld_new = ld_new.reopen_to_write();
         else
             ld_new  = ld.upgrade_file_format();
             ld.delete();
         end
+        % upgrade containers stored in experiment. Just in case. Should be
+        % reason you upgrading after all.
+        exper = ld_new.get_exp_info(); % when loaded, hashes were calculated 
+        % if were missing from disk. Now they are in memory so put them
+        % back to disk for future usage.
+        ld_new = ld_new.put_instruments(exper.instruments);
+        ld_new = ld_new.put_samples(exper.samples);
+        ld_new = ld_new.put_det_info(exper.detector_arrays);        
+
 
         if upgrade_ranges %
             if nargout > 0
