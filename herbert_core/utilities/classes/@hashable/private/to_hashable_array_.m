@@ -32,7 +32,11 @@ for j = 1:numel(obj)
         if isa(val,'hashable')
             [val,hash,new_hash] = build_hash(val);
             if new_hash
+                obj(j).do_check_combo_arg = false; % if this operation is
+                % part of constructor we do not need to check combo_values.
+                % If may fail.
                 obj(j).(field_name) = val;
+                obj(j).do_check_combo_arg = true;                
             end
             if iscell(hash) % use array of hashes as source for final hash
                 hash = strjoin(hash ,'');
