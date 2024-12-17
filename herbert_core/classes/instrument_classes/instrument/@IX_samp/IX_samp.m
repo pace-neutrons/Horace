@@ -105,6 +105,7 @@ classdef IX_samp  < hashable
         function obj=set.alatt(obj,val)
             if isempty(val)
                 obj.alatt_ = [];
+                obj = obj.clear_hash();
                 return;
             end
             if ~isnumeric(val)
@@ -132,6 +133,7 @@ classdef IX_samp  < hashable
         function obj=set.angdeg(obj,val)
             if isempty(val)
                 obj.angdeg_ = [];
+                obj = obj.clear_hash();
                 return;
             end
             if ~isnumeric(val)
