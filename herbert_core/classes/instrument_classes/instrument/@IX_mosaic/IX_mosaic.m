@@ -222,6 +222,7 @@ classdef IX_mosaic < hashable
         end
         function obj=set.parameters(obj,val)
             obj.parameters_=val;
+            obj = obj.clear_hash();
         end
         %------------------------------------------------------------------
         % Get methods for dependent properties

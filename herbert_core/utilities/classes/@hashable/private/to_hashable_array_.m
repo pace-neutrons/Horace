@@ -37,7 +37,7 @@ for j = 1:numel(obj)
             if iscell(hash) % use array of hashes as source for final hash
                 hash = strjoin(hash ,'');
             end
-            tm = typecast(hash,'uint8');
+            tm = uint8(hash); % beware of possibility hash changing type in a future
             arr{ic} = tm(:);
         elseif isa(val,'double')
             tm = typecast(single(round(val(:),7)),'uint8');
