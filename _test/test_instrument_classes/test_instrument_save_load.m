@@ -23,6 +23,15 @@ classdef test_instrument_save_load < TestCaseWithSave
 
             obj.save()
         end
+        %------------------------------------------------------------------
+        function test_hashable_prop_MAPS(self)
+            frm_inst_ref = self.inst_DGfermi;
+            hashable_obj_tester(frm_inst_ref );
+        end        
+        function test_hashable_prop_LET(self)
+            disk_inst_ref = self.inst_DGdisk;
+            hashable_obj_tester(disk_inst_ref );
+        end
 
         %--------------------------------------------------------------------------
         function test_DGdisk_mat (self)

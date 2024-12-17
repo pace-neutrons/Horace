@@ -7,31 +7,43 @@ classdef test_IX_detectors_3 < TestCaseWithSave
         atms
         path
     end
-    
+
     methods
         %--------------------------------------------------------------------------
         function self = test_IX_detectors_3 (name)
             self@TestCaseWithSave(name);
-            
+
             % Arrays for construction of detectors
             dia(1) = 0.0254;  height(1) = 0.015; thick(1) = 6.35e-4; atms(1) = 10; th(1) = pi/2;
             dia(2) = 0.0300;  height(2) = 0.025; thick(2) = 10.0e-4; atms(2) = 6;  th(2) = 0.9;
             dia(3) = 0.0400;  height(3) = 0.035; thick(3) = 15.0e-4; atms(3) = 4;  th(3) = 0.775;
             dia(4) = 0.0400;  height(4) = 0.035; thick(4) = 15.0e-4; atms(4) = 7;  th(4) = 0.775;
             dia(5) = 0.0400;  height(5) = 0.035; thick(5) = 15.0e-4; atms(5) = 9;  th(5) = 0.775;
-            
+
             self.dia = dia;
             self.height = height;self;
             self.thick = thick;
             self.atms = atms;
             self.path = [sin(th); zeros(size(th)); cos(th)];
-            
+
             self.save()
         end
-        
+        %------------------------------------------------------------------
+        function test_hashable_prop_det_array(self)
+            dets = construct_detectors(self);
+            det = dets(1);
+            id = (1:99)';
+            x2 = (0.0001:0.0001:0.0099)';
+            phi = (1.8:1.8:179.999)';
+            azim = (1.8:1.8:179.999)';
+            array = IX_detector_array(id,x2,phi,azim,det);
+
+            hashable_obj_tester(array);
+        end
+
         %--------------------------------------------------------------------------
         function test_det_bank_construction (self)
-            skipTest('should be removed by merge');            
+            skipTest('should be removed by merge');
             [dets, det_array] = construct_detectors(self);
             det = dets(1);
             id = (1:99)';
@@ -45,10 +57,10 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             assertEqual(bank.azim, azim);
             assertEqual(bank.det.replicate(-1), det);
         end
-        
+
         %--------------------------------------------------------------------------
         function test_det_bank_changed_order (self)
-            skipTest('should be removed by merge');            
+            skipTest('should be removed by merge');
             [dets, det_array] = construct_detectors(self);
             det = dets(1);
             id = (99:-1:1)';
@@ -62,10 +74,10 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             assertEqual(bank.azim, azim);
             assertEqual(bank.det.replicate(-1), det);
         end
-        
+
         %--------------------------------------------------------------------------
         function test_det_bank_saveload (self)
-            
+
             % test save and load for the current version (v2)
             [dets, det_array] = construct_detectors(self);
             det = dets(1);
@@ -78,16 +90,16 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             clob = onCleanup(@()(delete('detbank.mat')));
             data = load('detbank.mat');
             assertEqual(data.bank, bank);
-            
+
             % test load for a .mat file produced by saving the previous
             % version 1 (using the 'combined' field)
             data_v1 = load('detbank_v1.mat');
             assertEqual(data_v1.bank, bank);
         end
-        
+
         %--------------------------------------------------------------------------
         function test_det_bank_default_slab_constructor_saveload(self)
-            
+
             skipTest('should be removed by merge');
             % construct a detector bank with a default IX_det_slab
             % and check its initialisation
@@ -100,7 +112,7 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             assertEqual(bank.x2,x2);
             assertEqual(bank.phi,phi);
             assertEqual(bank.azim,azim);
-            
+
             % testing the bank constructor with the default IX_det_slab.
             % this now tests that the mandatory fields are constructed.
             % First we get out the fields-set logical (not public)
@@ -115,10 +127,10 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             assertEqual(bank.det.depth,zeros(99,1));
             assertEqual(bank.det.height,zeros(99,1));
             assertEqual(bank.det.atten,zeros(99,1));
-            
+
             % now save and reload the bank
             save('bank.mat','bank');
-            clob = onCleanup(@()(delete('bank.mat')));  
+            clob = onCleanup(@()(delete('bank.mat')));
             xxx = load('bank.mat');
             clob2 = set_temporary_warning('off','MATLAB:structOnObject')
             mandatory = struct(bank.det).mandatory_field_set_;
@@ -131,7 +143,7 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             assertEqual(xxx.bank.det.depth,zeros(99,1));
             assertEqual(xxx.bank.det.height,zeros(99,1));
             assertEqual(xxx.bank.det.atten,zeros(99,1));
-            
+
             % construct an IX-detector_array straight from the bank inputs
             arr = IX_detector_array(id,x2,phi,azim,IX_det_slab());
             % test that the resulting internal detector bank is correct
@@ -145,7 +157,7 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             assertEqual(arr.x2, x2);
             assertEqual(arr.phi, phi);
             assertEqual(arr.azim, azim);
-            
+
             % test construction of an IX_detector_array from a single
             % pre-constructed bank
             arr = IX_detector_array(bank);
@@ -160,14 +172,14 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             assertEqual(arr.x2, x2);
             assertEqual(arr.phi, phi);
             assertEqual(arr.azim, azim);
-            
+
             % test construction of an IX_detector_array from a struct
             % emulating a detpar struct
             % NB here the default behaviour gives an initialised
             %    IX_detector_TobyfitClassic, not a default IX_det_slab
             bstruc = struct('group',id,'x2',x2,'phi',phi,'azim',azim, ...
-                            'width',ones(99,1), 'height', ones(99,1), ...
-                            'filename', '', 'filepath', '');
+                'width',ones(99,1), 'height', ones(99,1), ...
+                'filename', '', 'filepath', '');
             arr = IX_detector_array(bstruc);
             % test that the resulting internal detector bank is correct
             assertEqual(arr.det_bank.id, id);
@@ -180,10 +192,10 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             assertEqual(arr.x2, x2);
             assertEqual(arr.phi, phi);
             assertEqual(arr.azim, azim);
-            
+
             % test save and reload of the array
             save('arr.mat','arr');
-            clob2 = onCleanup(@()(delete('arr.mat')));  
+            clob2 = onCleanup(@()(delete('arr.mat')));
             yyy = load('arr.mat');
             % test that the resulting internal detector bank is correct
             assertEqual(yyy.arr.det_bank.id, id);
@@ -197,7 +209,7 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             assertEqual(yyy.arr.phi, phi);
             assertEqual(yyy.arr.azim, azim);
         end
-        
+
         %--------------------------------------------------------------------------
         function test_det_array_construction_from_data_items (self)
             [dets, det_array] = construct_detectors(self);
@@ -212,7 +224,7 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             data = load('detarray.mat');
             assertEqual(data.array, array);
         end
-        
+
         %--------------------------------------------------------------------------
         function test_det_array_construction_from_detpar_struct (self)
             [dets, det_array] = construct_detectors(self);
@@ -240,8 +252,8 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             data = load('detarray2.mat');
             assertEqual(data.array, array);
         end
-        
-         
+
+
         %--------------------------------------------------------------------------
         % Utility methods
         %--------------------------------------------------------------------------
@@ -250,11 +262,11 @@ classdef test_IX_detectors_3 < TestCaseWithSave
                 dets(i) = IX_det_He3tube (self.dia(i), self.height(i), self.thick(i), self.atms(i));
             end
             det_arr = IX_det_He3tube (self.dia, self.height, self.thick, self.atms);
-            
+
         end
-        
+
         %--------------------------------------------------------------------------
     end
-    
-    
+
+
 end

@@ -14,6 +14,11 @@ classdef test_IX_experiment <  TestCase
             end
             obj = obj@TestCase(name);
         end
+        %
+        function test_hashable_prop(~)
+            exper = test_IX_experiment.build_IX_array(1);
+            hashable_obj_tester(exper);
+        end
         %==================================================================
         function test_combine_single_runs_eq_headers_changeID(~)
             data = test_IX_experiment.build_IX_array(10);
@@ -130,7 +135,7 @@ classdef test_IX_experiment <  TestCase
 
             hash_defined = arrayfun(@(x)(x.hash_defined),result);
             assertTrue(all(hash_defined));
-            
+
             cai = [Input{:}];
             assertEqual(cai,result);
             assertEqual(file_id_array,fids);
@@ -156,7 +161,7 @@ classdef test_IX_experiment <  TestCase
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end),true,true);
             hash_defined = arrayfun(@(x)(x.hash_defined),result);
             assertTrue(all(hash_defined));
-            
+
 
             assertEqual([data(1:6),data(8:10)],result);
             assertEqual(file_id_array,fids);
@@ -210,7 +215,7 @@ classdef test_IX_experiment <  TestCase
             [result,file_id_array,skipped_inputs,this_runid_map] = Input{1}.combine(Input(2:end));
             hash_defined = arrayfun(@(x)(x.hash_defined),result);
             assertTrue(all(hash_defined));
-            
+
 
             assertEqual(data,result);
             assertEqual(file_id_array,fids);

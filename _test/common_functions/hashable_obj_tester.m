@@ -1,4 +1,4 @@
-function hashable_obj_tester(hobj,values)
+function hashable_obj_tester(hobj,values,names)
 %hashable_obj_tester Generic function which validates correct hashable
 %object operations.
 %
@@ -13,9 +13,16 @@ function hashable_obj_tester(hobj,values)
 %          properties and values of this properties compartible with
 %          serializeble, i.e. setting property do not contradict to other
 %          properties, validated through check_combo_arg method
+% names -- list of the properties to set to check hashable object.
+%          If missing, use hashableFields
 %
+if ~exist('names','var')
+    flds = hobj.hashableFields();
+else
+    flds = names;
+end
 
-flds = hobj.hashableFields();
+
 n_flds = numel(flds);
 if ~exist('values','var')
     values = cellfun(@(x)hobj.(x),flds,'UniformOutput',false);

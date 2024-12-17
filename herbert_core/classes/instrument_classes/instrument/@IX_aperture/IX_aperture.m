@@ -91,9 +91,7 @@ classdef IX_aperture < hashable
             end
 
             obj.name_=val;
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
+            obj = obj.clear_hash();            
         end
 
         function obj=set.distance(obj,val)
