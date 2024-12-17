@@ -28,7 +28,10 @@ end
 for i=1:n_flds
     assertTrue(hobj.hash_defined)
     hobj.(flds{i}) = values{i};
-    assertFalse(hobj.hash_defined)
+    if hobj.hash_defined
+        assertFalse(true, ...
+            sprintf('*** Hash remains defined for changed property: %s ',flds{i}));
+    end
     hobj = hobj.build_hash();
 end
 

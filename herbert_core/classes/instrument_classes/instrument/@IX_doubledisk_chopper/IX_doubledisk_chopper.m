@@ -143,7 +143,7 @@ classdef IX_doubledisk_chopper < hashable
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
                 recompute_pdf = obj.frequency_~=val_old;  % recompute the lookup table
-                obj.pdf_ = obj.check_combo_arg(recompute_pdf );
+                obj = obj.check_combo_arg(recompute_pdf );
             end
         end
 
@@ -155,7 +155,7 @@ classdef IX_doubledisk_chopper < hashable
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
                 recompute_pdf = obj.radius_~=val_old;  % recompute the lookup table
-                obj.pdf_ = obj.check_combo_arg(recompute_pdf );
+                obj = obj.check_combo_arg(recompute_pdf );
             end
         end
 
@@ -166,7 +166,7 @@ classdef IX_doubledisk_chopper < hashable
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
                 recompute_pdf = obj.slot_width_~=val_old;
-                obj.pdf_ = obj.check_combo_arg(recompute_pdf);
+                obj = obj.check_combo_arg(recompute_pdf);
             end
         end
 
@@ -178,7 +178,7 @@ classdef IX_doubledisk_chopper < hashable
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
                 recompute_pdf = obj.aperture_width_~=val_old;
-                obj.pdf_ = obj.check_combo_arg(recompute_pdf);
+                obj = obj.check_combo_arg(recompute_pdf);
             end
         end
 
@@ -194,7 +194,7 @@ classdef IX_doubledisk_chopper < hashable
                 % pdf recalculations if multiple properties are set
 
                 recompute_pdf =  obj.jitter_~=val_old;
-                obj.pdf_ = obj.check_combo_arg(recompute_pdf);
+                obj = obj.check_combo_arg(recompute_pdf);
             end
         end
 
@@ -281,7 +281,7 @@ classdef IX_doubledisk_chopper < hashable
                 if obj.aperture_width_<obj.slot_width
                     warning('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
                         'aperture_width=%g have been set smaller than the slot_width=%g. This is incorrect so will use slot_width as aperture_width',...
-                        obj.aperture_width_,obj.slod_width)
+                        obj.aperture_width_,obj.slot_width)
                     obj.aperture_width = obj.slot_width;
                     do_recompute_pdf= true;
                 end
@@ -292,8 +292,8 @@ classdef IX_doubledisk_chopper < hashable
             end
             if do_recompute_pdf
                 obj.pdf_ = recompute_pdf_(obj);   % recompute the lookup table
+                obj = obj.clear_hash();                
             end
-            obj = obj.clear_hash();
         end
     end
     methods(Access=protected)

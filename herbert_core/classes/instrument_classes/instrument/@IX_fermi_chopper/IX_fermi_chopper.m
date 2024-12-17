@@ -199,6 +199,7 @@ classdef IX_fermi_chopper < hashable
             end
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg(false);
+                obj = obj.clear_hash();
             end
         end
 
@@ -395,8 +396,9 @@ classdef IX_fermi_chopper < hashable
 
             if do_recompute_pdf
                 obj.pdf_ = recompute_pdf_(obj);   % recompute the lookup table
+                obj = obj.clear_hash();           % clear hash as object is different
             end
-            obj = obj.clear_hash();
+
         end
     end
     methods(Access=protected)
