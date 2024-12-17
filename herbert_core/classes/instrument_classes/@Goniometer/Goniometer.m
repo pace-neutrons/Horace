@@ -188,8 +188,10 @@ classdef Goniometer < hashable
     %======================================================================
     % partial load and angular transformations.
     methods
-        % ANGULAR TRANSFORMATIONS (is it necessary? A bit overcomplicated
-        % usage)
+        % ANGULAR TRANSFORMATIONS (NOTE TO DEV: is it necessary? A bit overcomplicated
+        % usage as you need to ensure that initial units setting are correct.
+        % From other side, if you have not provided correct initial units, everything
+        % would be wrong anyway)
         %------------------------------------------------------------------
         function units = get.angular_units(obj)
             if obj.angular_is_degree_

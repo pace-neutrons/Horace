@@ -3,14 +3,14 @@ function [obj,hash,is_calculated] = build_single_hash_(obj)
 % Inputs:
 % obj -- hashable object.
 % Returns:
-% obj  -- hashable object with hash value(s) stored in hash_value_ property.
+% obj  -- input object modified by hash value(s) stored in hash_value_ property.
 % hash -- the value of hash, defining state of the object.
 %
 % is_calculated
-%      -- if true, the hash value wos calculated for input object or 
-%         some hashable sumbobjects of this object
+%      -- if true, the hash value was calculated for input object or 
+%         some hashable sub-objects of this object
 %         If false, all objects have hashes, already attached
-%         to it so the function have returned the stored value.
+%         to them so the function have returned the stored value.
  
 is_calculated = false;
 if obj.hash_defined
