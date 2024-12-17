@@ -36,12 +36,14 @@ classdef test_unique_references < TestCase
             sqw1 = sqw.generate_cube_sqw(4);
             sqw1.experiment_info.instruments=obj.mi1;
             assertTrue(isa(sqw1.experiment_info.instruments(1),'IX_inst_DGfermi'))
+            assertTrue(sqw1.experiment_info.instruments(1).hash_defined)
 
             sqw2 = sqw.generate_cube_sqw(5);
             sqw2.experiment_info.instruments =obj.li;
             assertTrue(isa(sqw2.experiment_info.instruments(1),'IX_inst_DGdisk'))
             glc = unique_references_container.global_container( ...
                 'value','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+            assertTrue(sqw1.experiment_info.instruments(1).hash_defined)
 
             assertEqual(glc.n_objects,3);
             contents = glc.unique_objects();
@@ -63,12 +65,15 @@ classdef test_unique_references < TestCase
             assertTrue(isa(lobj.sqw2.experiment_info.instruments(1),'IX_inst_DGdisk'))
             glc = unique_references_container.global_container( ...
                 'value','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+            assertTrue(lobj.sqw2.experiment_info.instruments(1).hash_defined)
 
             assertEqual(glc.n_objects,1);
             contents = glc.unique_objects();
             classnames = cellfun(@class,contents,'UniformOutput',false);
 
-            assertTrue(ismember('IX_inst_DGdisk',classnames));
+            is_disk = ismember(classnames,'IX_inst_DGdisk');
+            assertTrue(any(is_disk));
+
             assertFalse(ismember('IX_inst_DGfermi',classnames));
         end
 
@@ -120,6 +125,8 @@ classdef test_unique_references < TestCase
             assertEqual(gc.n_objects,3);
             assertEqual(gc.unique_objects{1},ex2_rec.samples(1));
             assertEqual(gc.unique_objects{3},ex2_rec.samples(3));
+            assertTrue(gc.unique_objects{1}.hash_defined)
+            assertTrue(gc.unique_objects{3}.hash_defined)            
         end
         %
         function test_save_load_add_to_experiment(obj)
