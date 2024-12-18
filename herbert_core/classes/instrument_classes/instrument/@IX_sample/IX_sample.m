@@ -149,6 +149,7 @@ classdef IX_sample < IX_samp
                 error('HERBERT:IX_sample:invalid_argument',...
                     'Mosaic spread must be numeric or an IX_mosaic object')
             end
+            obj = obj.clear_hash();
         end
 
         function obj=set.temperature(obj,val)
@@ -158,6 +159,7 @@ classdef IX_sample < IX_samp
                 error('HERBERT:IX_sample:invalid_argument',...
                     'Temperature must be numeric scalar greater than or equal to zero')
             end
+            obj = obj.clear_hash();
         end
 
         function obj=set.hall_symbol(obj,val)
@@ -171,6 +173,7 @@ classdef IX_sample < IX_samp
                         'Sample Hall symbol must be a character string (or empty string)')
                 end
             end
+            obj = obj.clear_hash();
         end
         function obj=set.xgeom(obj,val)
             if isnumeric(val) && numel(val)==3 && ~all(val==0)
@@ -220,6 +223,7 @@ classdef IX_sample < IX_samp
                 error('HERBERT:IX_sample:invalid_argument',...
                     'single_crystal must true or false (or 1 or 0)')
             end
+            obj = obj.clear_hash();
         end
 
         function obj=set.shape(obj,val)
@@ -352,6 +356,7 @@ classdef IX_sample < IX_samp
                 error('HERBERT:IX_sample:invalid_argument',...
                     'The number of shape parameters is not correct for the sample type')
             end
+            obj = obj.clear_hash();
         end
     end
 

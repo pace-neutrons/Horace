@@ -44,7 +44,17 @@ classdef test_IX_inst < TestCaseWithSave
 
             self.save()
         end
-
+        %--------------------------------------------------------------------------
+        function test_hashable_prop_DGfermi(self)
+            ap = IX_inst_DGfermi (self.mod_DGfermi, self.ap_DGfermi, self.chop_DGfermi);
+            hashable_obj_tester(ap);
+        end
+        function test_hashable_prop_DGdisk(self)
+            ap = IX_inst_DGdisk (self.mod_DGdisk, self.shape_DGdisk, self.mono_DGdisk,...
+                self.hdiv_DGdisk, self.vdiv_DGdisk);
+            hashable_obj_tester(ap);
+        end
+        
         %--------------------------------------------------------------------------
         function test_create_DGfermi (self)
             % Test creation of Fermi instrument
