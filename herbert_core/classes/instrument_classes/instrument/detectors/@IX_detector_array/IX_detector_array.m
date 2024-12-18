@@ -596,6 +596,11 @@ classdef IX_detector_array < hashable
             % Current version of class definition
             ver = 1;
         end
+        function flds = hashableFields(~)
+            % Return cellarray of properties defining the class hash for
+            % comparison
+            flds = {'det_bank', 'filename'};
+        end
 
         function flds = saveableFields(~)
             % Return cellarray of properties defining the class

@@ -2,7 +2,6 @@ function iseq = eq (obj1, obj2)
 % Return a logical variable stating if two serializable objects are equal or not
 %
 %   >> [iseq, mess] = eq (obj1, obj2)
-%   >> [iseq, mess] = eq (obj1, obj2, p1, p2, ...)
 %
 % Input:
 % ------
@@ -11,6 +10,10 @@ function iseq = eq (obj1, obj2)
 %   obj2        Object on right-hand side
 %
 % See also equal_to_tol
+if ~isa(obj2,class(obj1))
+    iseq = false;
+    return;
+end
 if ~all(size(obj1)==size(obj2))
     iseq = false;
     return;
