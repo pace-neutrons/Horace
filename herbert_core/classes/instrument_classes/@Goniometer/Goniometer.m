@@ -1,4 +1,4 @@
-classdef Goniometer < serializable
+classdef Goniometer < hashable
     % class describes main properties of a goniometer used to orient
     % sample in a spectrometer for neutron scattering or x-ray investigation.
     % and contains various service functions to work with such goniometer
@@ -188,8 +188,10 @@ classdef Goniometer < serializable
     %======================================================================
     % partial load and angular transformations.
     methods
-        % ANGULAR TRANSFORMATIONS (is it necessary? A bit overcomplecated
-        % usage)
+        % ANGULAR TRANSFORMATIONS (NOTE TO DEV: is it necessary? A bit overcomplicated
+        % usage as you need to ensure that initial units setting are correct.
+        % From other side, if you have not provided correct initial units, everything
+        % would be wrong anyway)
         %------------------------------------------------------------------
         function units = get.angular_units(obj)
             if obj.angular_is_degree_
@@ -245,7 +247,8 @@ classdef Goniometer < serializable
         end
         function [val,obj] = check_angular_val(obj,val)
             % main over-loadable setter function for goniometer angles
-            val = check_angular_set_(obj,val);
+            [val,obj] = check_angular_set_(obj,val);
+            obj = obj.clear_hash();
         end
         function uf = get_undef_fields(obj)
             % get list of undefined fields
@@ -288,6 +291,7 @@ classdef Goniometer < serializable
             % verify interdependent variables and the validity of the
             % obtained lattice object
             obj = check_combo_arg_(obj);
+            obj = obj.clear_hash();
         end
         function obj = from_bare_struct (obj, S)
             %

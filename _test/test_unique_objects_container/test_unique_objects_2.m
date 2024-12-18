@@ -30,7 +30,7 @@ classdef test_unique_objects_2 < TestCase
             % place them in the HHH urc which we create
             u1 = unique_references_container('HHH','unique_fields_example_class');
             % use this rather clunky method to reset the hashify counter
-            u1.global_container('value','HHH').hashify([],true);
+            u1.global_container('value','HHH').clear();
             % add 3 objects to u1. this just makes a container with 3
             % elements we can index - could have used an array or cell
             u1 = u1.add(ec333);

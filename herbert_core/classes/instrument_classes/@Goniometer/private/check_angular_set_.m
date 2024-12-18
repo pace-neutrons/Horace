@@ -1,4 +1,4 @@
-function val=check_angular_set_(obj,val)
+function [val,obj]=check_angular_set_(obj,val)
 % function checks if single angular value one tries to set is correct
 %
 if ~isnumeric(val)

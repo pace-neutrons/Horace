@@ -187,17 +187,6 @@ classdef (Abstract=true) serializable
 
 
     %---------------------------------------------------------------------------
-    % Constructor
-    %---------------------------------------------------------------------------
-    methods
-        function obj = serializable()
-            % Class constructor.
-            % Does nothing except enable methods of the base serializable class
-            % to be accessed.
-        end
-    end
-
-    %---------------------------------------------------------------------------
     %   ABSTRACT INTERFACE THAT MUST BE DEFINED IN CHILD CLASS
     %---------------------------------------------------------------------------
     methods (Abstract, Access=public)
