@@ -57,6 +57,8 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         % calculate function defined on hkle values of sqw obect and return
         % object with image and pixels containing values of this function.
         wout = sqw_eval(win, sqwfunc, pars, varargin);
+        % Check if two sqw objects are equal to a given tolerance
+        [ok, mess] = equal_to_tol(w1, w2, varargin)
     end
     %----------------------------------------------------------------------
     % PageOp abstract protected methods
@@ -144,7 +146,6 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         end
         %
     end
-
     methods  % Public
         [sel,ok,mess] = mask_points(win, varargin);
         cl = save(w, varargin);
@@ -173,8 +174,6 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
             % Process arguments of func_eval function
             [func_handle, pars, opts] = parse_funceval_args_(win, func_handle, pars, varargin{:});
         end
-
-        [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate function
         % on an image stored in an sqw object

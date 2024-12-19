@@ -1,4 +1,4 @@
-function [ok,mess]=equal_to_tol(a,b,varargin)
+function [ok,mess,opt]=equal_to_tol(a,b,varargin)
 % Check if two arguments are equal within a specified tolerance
 %
 %   >> ok = equal_to_tol (a, b)
@@ -114,19 +114,13 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 % The following code is pretty complex as it has to handle legacy input as
 % well. Touch at your peril!
 
-ok = true;
-mess = '';
 
 warn = warning('off','MATLAB:structOnObject');
 cleanup_obj = onCleanup(@()warning(warn));
-
-% Get names of input variables, if can
-
-name_a = variable_name(inputname(1), false, 1, 1, 'input_1');
-name_b = variable_name(inputname(2), false, 1, 1, 'input_2');
-
-%
-opt = parse_equal_to_tol_inputs(name_a,name_b,varargin{:});
+[ok,mess,~,opt] = process_inputs_for_eq_to_tol(a, b, inputname(1), inputname(2), varargin{:});
+if ~ok
+    return
+end
 %
 % Now perform comparison
 try
@@ -196,7 +190,6 @@ elseif isobject(a) && isobject(b)
         end
         return;
     end
-
     try
         fieldsA = {meta.class.fromName(class(a)).PropertyList(:).Name};
         fieldsB = {meta.class.fromName(class(b)).PropertyList(:).Name};
@@ -349,12 +342,13 @@ elseif ischar(a) && ischar(b)
             '%s and %s: Sizes of character arrays being compared are not equal',...
             opt.name_a,opt.name_b);
     end
-
+    is_datetime = false;
     if isrow(a) && ~isempty(regexp(a, '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}','once'))
         % Probably dealing with datetime string
         try
             a = main_header_cl.convert_datetime_from_str(a);
             b = main_header_cl.convert_datetime_from_str(b);
+            is_datetime= true;
             % Allow separation of up to 1 minute to be same
             if abs(posixtime(a) - posixtime(b)) < 60
                 return
@@ -364,9 +358,14 @@ elseif ischar(a) && ischar(b)
     end
 
     if ~strcmp(a,b)
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Character arrays being compared are not equal',...
-            opt.name_a,opt.name_b);
+        if is_datetime
+            mess = sprintf('Object %s with Time=%s  and object %s, with Time=%s are different for more than a minute', ...
+                opt.name_a,a,opt.name_b,b);
+        else
+            mess = sprintf('%s and %s: Character arrays being compared are not equal', ...
+                opt.name_a,opt.name_b);
+        end
+        error('HERBERT:equal_to_tol:inputs_mismatch',mess);
     end
 
 elseif strcmp(class(a),class(b))

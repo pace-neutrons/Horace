@@ -44,49 +44,57 @@ function [ok, mess] = equal_to_tol(w1, w2, varargin)
 %           'min_denominator' (see below)]
 %
 % Valid keywords are:
-%  'nan_equal'      Treat NaNs as equal (true or false; default=true)
+%  '-nan_equal'      Treat NaNs as equal (true or false; default=true). If
+%                    you want to change this, provide {nan_rqual, false} pair
 %
-%  'ignore_str'     Ignore the length and content of strings or cell arrays
+%  '-ignore_str'     Ignore the length and content of strings or cell arrays
 %                  of strings (true or false; default=false)
 %
-%  'reorder'        Ignore the order of pixels within each bin
-%                  (true or false; default=true)
-%                   Only applies if sqw-type object
-%
-%  'fraction'       Compare pixels in only a fraction of the non-empty bins
-%                  (0<= fracton <= 1; default=1 i.e. test all bins)
+%  '-reorder'        Ignore the order of pixels within each bin
+%                    (true or false; default=true)
 %                   Only applies if sqw-type object
 %  '-ignore_date'   (provided without additional values, so its presence in
 %                    the sequence of keywords means true). If provided,
 %                    ignore file creation date stored in main header.
 %
+%  'fraction'       Compare pixels in only a fraction of the non-empty bins
+%                  (0<= fracton <= 1; default=1 i.e. test all bins)
+%                   Only applies if sqw-type object
+%
 %  	The reorder and fraction options are available because the order of the
 %   pixels within the pix array for a given bin is unimportant. Reordering
 %   takes time, however, so the option to test on a few bins is given.
 
-[is,mess] = is_type_and_shape_equal(w1,w2);
-if ~is
-    is_recursive = cellfun(@(x)(isstruct(x)&&isfield(x,'recursive_call')),varargin);
-    if any(is_recursive)
-        opt = varargin{is_recursive};
-        mess = sprintf(['Object %s and %s are different\n' ...
-            'Reason: %s'], ...
-            opt.name_a,opt.name_b,mess);
-    end
+%
+[ok,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(w1, w2, inputname(1), inputname(2), varargin{:});
+if ~ok
     return;
 end
+if ~is_recursive && ~defined.nan_equal
+    opt.nan_equal = true;
+end
+if ~is_recursive && ~defined.reorder
+    opt.reorder = true;
+end
+
 % Perform comparison
 sz = size(w1);
 for i = 1:numel(w1)
-    in_name = cell(1, 2);
-    in_name{1} = variable_name(inputname(1), false, sz, i, 'input_1');
-    in_name{2} = variable_name(inputname(2), false, sz, i, 'input_2');
+    name_a = variable_name(inputname(1), false, sz, i, 'input_1');
+    name_b = variable_name(inputname(2), false, sz, i, 'input_2');
+    if is_recursive
+        opt.name_a = [opt.name_a,'.',name_a];
+        opt.name_b = [opt.name_b,'.',name_b];
+    else
+        if numel(w1)>1 % the variables will be with size-brackets
+            % and we do not want them for only one object
+            if ~defined.name_a; opt.name_a = name_a; end
+            if ~defined.name_b; opt.name_b = name_b; end
+        end
+    end
     %
-    opt = parse_equal_to_tol_inputs(in_name{1},in_name{2},varargin{:});
-    %
-    [ok, mess] = equal_to_tol_internal(w1, w2, opt);
+    [ok, mess] = equal_to_tol@serializable(w1, w2, opt);
     if ~ok
         return
     end
 end
-

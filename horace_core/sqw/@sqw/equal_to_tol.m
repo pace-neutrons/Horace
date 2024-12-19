@@ -1,8 +1,16 @@
-function [ok, mess] = equal_to_tol_internal_(w1, w2, opt)
-% Compare scalar sqw objects of same type
-
-
-% Check for presence of reorder and/or fraction option(s) (only relevant if sqw-type)
+function [ok, mess] = equal_to_tol(w1, w2,varargin)
+%
+%
+[ok,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(w1, w2, inputname(1), inputname(2), varargin{:});
+if ~ok
+    return;
+end
+if ~is_recursive && ~defined.nan_equal
+    opt.nan_equal = true;
+end
+if ~is_recursive && ~defined.reorder
+    opt.reorder = true;
+end
 
 % Test equality of sqw class fields, excluding the raw pixels which is performed
 % below. Pass class fields to the generic equal_to_tol.
@@ -34,19 +42,21 @@ for idx = 1:numel(class_fields)
             tmp2.creation_date = tmp1.creation_date;
         end
     end
-    opt.name_a = [opt.name_a,'.',field_name];
-    opt.name_b = [opt.name_b,'.',field_name];
+    lopt = opt;
+    lopt.name_a = [opt.name_a,'.',field_name];
+    lopt.name_b = [opt.name_b,'.',field_name];
 
-    [ok, mess] = equal_to_tol(tmp1, tmp2,opt);
+    [ok, mess] = equal_to_tol(tmp1, tmp2, opt);
     if ~ok
         return; % break on first failure
     end
 end
 
 % Compare pix
+if opt.reorder
+    opt.npix = w1.pix.num_pixels;
+end
 opt.name_a = [opt.name_a,'.pix'];
 opt.name_b = [opt.name_b,'.pix'];
-opt.name_provided = true;
-
-[ok, mess] = equal_to_tol(w1.pix, w2.pix, opt);
+[ok, mess] = equal_to_tol(w1.pix, w2.pix,opt);
 end

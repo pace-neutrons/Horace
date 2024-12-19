@@ -1,4 +1,82 @@
-function opt = parse_equal_to_tol_inputs(name_a,name_b,varargin)
+function [iseq,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(obj1, obj2, in_name1, in_name2, varargin)
+% The common part of equal_to_tol operator serializable and children
+% or equal to tol can use to process input options and common comparison code,
+% i.e. comparison for object type and shapes
+%
+% Input:
+% ------
+% obj1     -- first object or array of objects to compare
+% obj2     -- second object or array of objects to compare
+% in_name1 -- string which defines obj1 name for easy logging.
+%             usually results of inputname(1) function
+% in_name2 -- string which defines obj2 name for easy logging.
+%             usually results of inputname(2) function
+% Optional:
+% varargin --
+%    either:  list of optional parameters of comparison to
+%             process, as accepted by equal_to_tol operation.
+%             Note: the default is tolerance (relative and absolute)
+%             of 1e-9 is acceptable
+%    or   --  structure with fields equal names of the equal_to_tol
+%             parameters and their values as values for fields of this
+%             structure.
+%
+%
+% Output:
+% -------
+% iseq    -- logical, which is true if sizes,types and shapes of input
+%            objects are the same.
+% mess    -- empty if iseq == true. Describes what is different in obj1 and
+%            obj2 otherwise.
+% opt     -- structure, whith fields equal to names of equal_to_tol
+%            parameters and their values as values of fields in this
+%            structure. Contains all fields acceptable by equal_to_tol
+%            functio by its every overload
+% defined -- structure, wich fields equal to names of equal_to_toll
+%            parameters and logical values set to true where parameters
+%            were defined and false where they were not.
+%
+[iseq,mess] = is_type_and_shape_equal(obj1,obj2);
+% check if equal_to_toll has been called from other eq_to_tol procedure.
+is_opt_structure = cellfun(@(x)isstruct(x)&&isfield(x,'recursive_call'),varargin);
+is_recursive = any(is_opt_structure);
+if ~iseq
+    if is_recursive
+        opt = varargin{is_recursive};
+        mess = sprintf(['Object %s and %s are different\n' ...
+            'Reason: %s'], ...
+            opt.name_a,opt.name_b,mess);
+    else
+        opt     = struct();        
+    end
+    defined = opt ;
+    return;
+end
+if is_recursive
+    opt  = varargin{is_opt_structure};
+    argi = varargin(~is_opt_structure);
+    flds = fieldnames(opt);
+    val  = num2cell(false(numel(flds),1)); % nothing defined here.
+    % we process it recursively, so everything was defined and validated
+    % earlier.
+    defined = cell2struct(val,flds);
+    if ~isempty(argi) % process additional arguments provided on this level of recursion
+        [opt,defined]= parse_equal_to_tol_inputs(opt,argi{:});
+    end
+else
+    % Get names of input variables, if can and not already provided
+    [opt,defined] = parse_equal_to_tol_inputs('','',varargin{:});
+    if ~defined.name_a
+        opt.name_a = variable_name(in_name1, false, 1, 1, 'input_1');
+    end
+    if ~defined.name_b
+        opt.name_b = variable_name(in_name2, false, 1, 1, 'input_2');
+    end
+end
+end
+
+
+function [opt,present] = parse_equal_to_tol_inputs(varargin)
 % PARSE_EQUAL_TO_TOL_INPUTS validates inputs for equal_to_tol function
 % and returns standard form of these inputs.
 %
@@ -10,8 +88,11 @@ function opt = parse_equal_to_tol_inputs(name_a,name_b,varargin)
 % in multiple classes
 %   >> opt = parse_equal_to_tol_inputs(name_a,name_b);
 %   >> opt = equal_to_tol (name_a,name_b, tol)
+%   >> opt = parse_equal_to_tol_inputs(opt,tol);
 %   >> opt = equal_to_tol (..., keyword1, val1, keyword2, val2,...)
+%   >> opt = parse_equal_to_tol_inputs(opt,keyword1, val1, keyword2, val2,...);
 %   >> opt = equal_to_tol (...,-key1,-key2,...)
+%   >> opt = equal_to_tol (opt,-key1,-key2,keyword1, val1,...)
 %   >> opt = equal_to_tol (...,opt)
 %
 % Input:
@@ -95,36 +176,55 @@ function opt = parse_equal_to_tol_inputs(name_a,name_b,varargin)
 nargi = nargin;
 is_recursive = cellfun(@(x)isstruct(x)&&isfield(x,'recursive_call'),varargin);
 if any(is_recursive)
-    nargi = nargi-1;
-    opt = varargin{is_recursive};
+    opt  = varargin{is_recursive};
     argi = varargin(~is_recursive);
-    if nargi == 2
-        if isfield(opt,'name_is_provided')
-            opt = rmfield(opt,'name_is_provided');
-        else
-            opt.name_a = [opt.name_a,'.',name_a];
-            opt.name_b = [opt.name_b,'.',name_b];
-        end
-        return
-    end
-else
-    argi = varargin;
-end
-if nargi == 3 && isnumeric(varargin{1})
-    % Determine if legacy input; it must be if tol is scalar
-    if isscalar(varargin{1})
-        tol=check_tol(varargin{1},0);
+    if istext(argi{1}) && istext(argi{2})
+        % Named form
+        name_a = varargin{1};
+        name_b = varargin{2};
+        name_a = [opt.name_a,'.',name_a];
+        name_b = [opt.name_b,'.',name_b];
+        argi = varargin(3:end);
     else
-        tol=check_tol(varargin{1});
+        name_a = opt.name_a;
+        name_b = opt.name_b;
+    end
+    % extract additional parameters may be provided on this level and add
+    % them to opt, replacing values, existing there.
+    [opt1,present] = parse_equal_to_tol_inputs(name_a,name_b,argi{:});
+    is_present = struct2cell(present);
+    is_present = [is_present{:}];
+    flds = fieldnames(present);
+    missing_flds = flds(~is_present);
+    if numel(missing_flds) ~= 0
+        opt1 = rmfield(opt1,missing_flds);
+    end
+    flds = fieldnames(opt1);
+    for i=1:numel(flds)
+        opt.(flds{i}) = opt1.(flds{i});
+    end
+    return
+
+else
+    name_a = varargin{1};
+    name_b = varargin{2};
+    argi = varargin(3:end);
+end
+if nargi == 3 && isnumeric(argi{1})
+    % Determine if legacy input; it must be if tol is scalar
+    if isscalar(argi{1})
+        tol=check_tol(argi{1},0);
+    else
+        tol=check_tol(argi{1});
     end
 else
     tol = [0,0];
 end
 
 % process non_recursive inputs
-keys = {'-ignore_str','-throw_on_err','-nan_different','-ignore_date',...
+keys = {'-ignore_str','-throw_on_err','-nan_equal','-ignore_date',...
     '-reorder'};
-[ok,mess,ignore_str,throw_on_difference,nan_different,ignore_date,reorder,argi] =...
+[ok,mess,ignore_str,throw_on_difference,nan_equal,ignore_date,reorder,argi] =...
     parse_char_options(argi,keys);
 if ~ok
     error('HERBERT:parse_equal_to_tol:invalid_arguments',mess);
@@ -135,7 +235,7 @@ opt = struct(...
     'abstolerance',0,...
     'reltolerance',0,...
     'ignore_str',ignore_str,...
-    'nan_equal',nan_different,...
+    'nan_equal',nan_equal,...
     'name_a',name_a,...
     'name_b',name_b,...
     'min_denominator',0,...
@@ -154,6 +254,7 @@ cntl.keys_at_end=false;  % as may have name_a or name_b appear first in some cas
 opt = check_reoder_and_fraction(opt,present);
 
 opt = extract_tolerance(opt,par,present);
+present.tol = true; % tol is present after this operation
 
 % check other possible arguments
 if present.ignore_str
@@ -172,13 +273,6 @@ if present.nan_equal
             'Check ''nan_equal'' is logical scalar (or 0 or 1)')
     end
 end
-if present.name_a
-    opt.name_a = [opt.name_a,'.',name_a];
-end
-if present.name_b
-    opt.name_b = [opt.name_b,'.',name_b];
-end
-
 opt.recursive_call = true;
 end
 

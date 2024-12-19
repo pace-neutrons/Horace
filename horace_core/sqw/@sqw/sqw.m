@@ -184,6 +184,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % Calculate hkl,en of datest pixels using detectors and experiment
         % info
         qw=calculate_qw_pixels2(win)
+        % Check if two sqw objects are equal to a given tolerance
+        [ok, mess] = equal_to_tol(w1, w2, varargin)
+        
     end
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting
@@ -480,11 +483,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
 
         wout = sqw_eval_pix(w, sqwfunc, ave_pix, pars, outfilecell, i);
 
-        function  [ok, mess] = equal_to_tol_internal(w1, w2,opt)
-            % compare two sqw objects according to internal comparison
-            % algorithm
-            [ok, mess] = equal_to_tol_internal_(w1, w2,opt);
-        end
         function obj = init_from_file(obj, in_struc)
             % Initialize SQW from file or file accessor
             obj = init_sqw_from_file_(obj, in_struc);

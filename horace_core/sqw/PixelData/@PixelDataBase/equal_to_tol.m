@@ -56,11 +56,21 @@ function [ok, mess] = equal_to_tol(pix, other_pix, varargin)
 %
 
 % Get names of input variables, if can
-name_a = variable_name(inputname(1), false, size(pix), 1, 'input_1');
-name_b = variable_name(inputname(2), false, size(other_pix), 1, 'input_2');
-
-opt = parse_equal_to_tol_inputs(name_a,name_b,varargin{:});
-
+% check if equal_to_toll has been called from other eq_to_tol procedure.
+is_opt_structure = cellfun(@(x)isstruct(x)&&isfield(x,'recursive_call'),varargin);
+if any(is_opt_structure)
+    opt  = varargin{is_opt_structure};
+    argi = varargin(~is_opt_structure);
+    if ~isempty(argi) % process additional arguments
+        opt = parse_equal_to_tol_inputs(opt,argi{:});
+    end
+else
+    % Get names of input variables, if can
+    name_a = variable_name(inputname(1), false, numel(pix), 1, 'input_1');
+    name_b = variable_name(inputname(2), false, numel(other_pix), 1, 'input_2');
+    %
+    opt = parse_equal_to_tol_inputs(name_a,name_b,varargin{:});
+end
 
 [ok, mess] = validate_other_pix(pix, other_pix);
 if ~ok

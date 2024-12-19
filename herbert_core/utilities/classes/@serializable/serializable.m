@@ -320,14 +320,6 @@ classdef (Abstract=true) serializable
         [iseq,mess]  = equal_to_tol(obj1,obj2,varargin);
     end
 
-    methods (Access=protected)
-        % Pre-comparison of objects in overloaded method eq for serializable
-        % objects in the case when the default method needs to be customised
-        [is, mess, name_a, name_b, namer, argi] = process_inputs_for_eq (...
-            lhs_obj, rhs_obj, narg_out, names, varargin)
-    end
-
-
     %---------------------------------------------------------------------------
     %   Object validation
     %---------------------------------------------------------------------------
