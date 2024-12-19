@@ -117,7 +117,8 @@ function [ok,mess,opt]=equal_to_tol(a,b,varargin)
 
 warn = warning('off','MATLAB:structOnObject');
 cleanup_obj = onCleanup(@()warning(warn));
-[ok,mess,~,opt] = process_inputs_for_eq_to_tol(a, b, inputname(1), inputname(2), varargin{:});
+[ok,mess,~,opt] = process_inputs_for_eq_to_tol(a, b, ...
+    inputname(1), inputname(2),true, varargin{:});
 if ~ok
     return
 end

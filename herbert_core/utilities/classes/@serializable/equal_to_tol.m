@@ -55,7 +55,8 @@ function [iseq, mess] = equal_to_tol(obj1, obj2, varargin)
 %   p1, p2,...  Any set of parameters that the equal_to_tol function accepts
 %
 
-[iseq,mess,is_recursive,opt] = process_inputs_for_eq_to_tol(obj1, obj2, inputname(1), inputname(2), varargin{:});
+[iseq,mess,is_recursive,opt] = process_inputs_for_eq_to_tol(obj1, obj2, ...
+    inputname(1), inputname(2),true,varargin{:});
 if ~iseq
     return;
 end

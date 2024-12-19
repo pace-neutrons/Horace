@@ -1,4 +1,4 @@
-function [iseq,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(obj1, obj2, in_name1, in_name2, varargin)
+function [iseq,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(obj1, obj2, in_name1, in_name2, check_shape,varargin)
 % The common part of equal_to_tol operator serializable and children
 % or equal to tol can use to process input options and common comparison code,
 % i.e. comparison for object type and shapes
@@ -36,7 +36,12 @@ function [iseq,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(obj
 %            parameters and logical values set to true where parameters
 %            were defined and false where they were not.
 %
-[iseq,mess] = is_type_and_shape_equal(obj1,obj2);
+if check_shape
+    [iseq,mess] = is_type_and_shape_equal(obj1,obj2);
+else
+    iseq = true;
+    mess = '';
+end
 % check if equal_to_toll has been called from other eq_to_tol procedure.
 is_opt_structure = cellfun(@(x)isstruct(x)&&isfield(x,'recursive_call'),varargin);
 is_recursive = any(is_opt_structure);
@@ -47,7 +52,7 @@ if ~iseq
             'Reason: %s'], ...
             opt.name_a,opt.name_b,mess);
     else
-        opt     = struct();        
+        opt     = struct();
     end
     defined = opt ;
     return;
@@ -243,7 +248,7 @@ opt = struct(...
     'ignore_date' ,ignore_date, ... % equal_to_tol sqw/dnd
     'reorder',     reorder,     ... % equal_to_tol sqw/pix
     'fraction',1,               ... % equal_to_tol sqw/pix
-    'npix',[]                   ... % equal_to_tol pix
+    'npix',[]                   ... % equal_to_tol pix. This is dnd.npix(:) provided to support pixels ordering
     );
 
 cntl.keys_once  =false;  % so name_a and name_b can be overridden by input arguments
@@ -272,6 +277,11 @@ if present.nan_equal
         error('HERBERT:equal_to_tol:invalid_argument',...
             'Check ''nan_equal'' is logical scalar (or 0 or 1)')
     end
+end
+if present.fraction &&(~isnumeric(opt.fraction) || opt.fraction < 0 || opt.fraction > 1)
+    error('HERBERT:equal_to_tol', ...
+        '''fraction'' must lie in the range 0 to 1 inclusive')
+
 end
 opt.recursive_call = true;
 end

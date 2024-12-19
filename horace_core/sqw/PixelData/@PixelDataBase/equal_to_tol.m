@@ -55,22 +55,8 @@ function [ok, mess] = equal_to_tol(pix, other_pix, varargin)
 %            (default = 'input_2').
 %
 
-% Get names of input variables, if can
-% check if equal_to_toll has been called from other eq_to_tol procedure.
-is_opt_structure = cellfun(@(x)isstruct(x)&&isfield(x,'recursive_call'),varargin);
-if any(is_opt_structure)
-    opt  = varargin{is_opt_structure};
-    argi = varargin(~is_opt_structure);
-    if ~isempty(argi) % process additional arguments
-        opt = parse_equal_to_tol_inputs(opt,argi{:});
-    end
-else
-    % Get names of input variables, if can
-    name_a = variable_name(inputname(1), false, numel(pix), 1, 'input_1');
-    name_b = variable_name(inputname(2), false, numel(other_pix), 1, 'input_2');
-    %
-    opt = parse_equal_to_tol_inputs(name_a,name_b,varargin{:});
-end
+[~,~,~,opt] = process_inputs_for_eq_to_tol(pix, other_pix, ...
+    inputname(1), inputname(2), false,varargin{:});
 
 [ok, mess] = validate_other_pix(pix, other_pix);
 if ~ok
@@ -87,7 +73,7 @@ end
 if opt.reorder
     [ok, mess] = compare_reorder(pix, other_pix, opt);
 elseif opt.fraction ~= 1
-    [ok, mess] = compare_frac(pix, other_pix, opt.fraction);
+    [ok, mess] = compare_frac(pix, other_pix, opt);
 else
     [ok, mess] = compare_raw(pix, other_pix, opt);
 end
@@ -141,10 +127,10 @@ end
 
 end
 
-function [ok, mess] = compare_frac(pix, other_pix, frac, opt)
+function [ok, mess] = compare_frac(pix, other_pix, opt)
 
-compare_spacing = floor(1 / frac);
-compare_count = pix.num_pixels * frac;
+compare_spacing = floor(1 / opt.fraction);
+compare_count = pix.num_pixels * opt.fraction;
 chunk_size = get(hor_config, 'mem_chunk_size')*compare_spacing;
 
 for i = 1:chunk_size:pix.num_pixels
