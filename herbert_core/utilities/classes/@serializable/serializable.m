@@ -307,11 +307,17 @@ classdef (Abstract=true) serializable
     methods
         % Return logical variable stating if two serializable objects are equal
         % or not
-        [iseq, mess] = eq (obj1, obj2, varargin)
+        function iseq = eq (obj1, obj2)
+            iseq  = equal_to_tol(obj1,obj2);            
+        end
 
         % Return logical variable stating if two serializable objects are
         % unequal or not
-        [isne, mess] = ne (obj1, obj2, varargin)
+        isne = ne (obj1, obj2)
+
+        % Return logical variable stating if two serializable objects are equal
+        % or not given some conditions of their equality.
+        [iseq,mess]  = equal_to_tol(obj1,obj2,varargin);
     end
 
     methods (Access=protected)

@@ -11,12 +11,12 @@ function isneq = ne(obj1, obj2)
 %   obj2        Object on right-hand side
 %
 % See also equal_to_tol
-
-% sizes of objects are different
-if ~all(size(obj1)==size(obj2))
-    isneq = true;
+iseq = is_type_and_shape_equal(obj1,obj2);
+if ~iseq
+    isneq = false;
     return;
 end
+
 isneq = false;
 for i=1:numel(obj1)
     [~,hash1] = build_hash(obj1(i));

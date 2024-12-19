@@ -55,7 +55,12 @@ function [ok, mess] = equal_to_tol(pix, other_pix, varargin)
 %            (default = 'input_2').
 %
 
-[opt, argi] = parse_args(varargin{:});
+% Get names of input variables, if can
+name_a = variable_name(inputname(1), false, size(pix), 1, 'input_1');
+name_b = variable_name(inputname(2), false, size(other_pix), 1, 'input_2');
+
+opt = parse_equal_to_tol_inputs(name_a,name_b,varargin{:});
+
 
 [ok, mess] = validate_other_pix(pix, other_pix);
 if ~ok
@@ -70,16 +75,16 @@ if pix.num_pixels == 0
 end
 
 if opt.reorder
-    [ok, mess] = compare_reorder(pix, other_pix, opt, argi);
+    [ok, mess] = compare_reorder(pix, other_pix, opt);
 elseif opt.fraction ~= 1
-    [ok, mess] = compare_frac(pix, other_pix, opt.fraction, argi);
+    [ok, mess] = compare_frac(pix, other_pix, opt.fraction);
 else
-    [ok, mess] = compare_raw(pix, other_pix, argi);
+    [ok, mess] = compare_raw(pix, other_pix, opt);
 end
 
 end
 
-function [ok, mess] = compare_raw(pix, other_pix, argi)
+function [ok, mess] = compare_raw(pix, other_pix, opt)
 is_fb = [pix.is_filebacked, other_pix.is_filebacked];
 
 if all(is_fb)
@@ -88,7 +93,7 @@ if all(is_fb)
         pix.page_num = i;
         other_pix.page_num = i;
 
-        [ok, mess] = equal_to_tol(pix.data, other_pix.data, argi{:});
+        [ok, mess] = equal_to_tol(pix.data, other_pix.data, opt);
         if ~ok
             [start_idx, end_idx] = pix.get_page_idx_();
             mess = process_message(mess, start_idx);
@@ -109,7 +114,7 @@ elseif any(is_fb)
         fb.page_num = i;
 
         [start_idx, end_idx] = fb.get_page_idx_();
-        [ok, mess] = equal_to_tol(fb.data, other.data(:, start_idx:end_idx), argi{:});
+        [ok, mess] = equal_to_tol(fb.data, other.data(:, start_idx:end_idx), opt);
 
         if ~ok
             mess = process_message(mess, start_idx);
@@ -119,14 +124,14 @@ elseif any(is_fb)
     end
 
 else
-    [ok, mess] = equal_to_tol(pix.data, other_pix.data, argi{:});
+    [ok, mess] = equal_to_tol(pix.data, other_pix.data,opt);
     mess = process_message(mess);
 end
 
 
 end
 
-function [ok, mess] = compare_frac(pix, other_pix, frac, argi)
+function [ok, mess] = compare_frac(pix, other_pix, frac, opt)
 
 compare_spacing = floor(1 / frac);
 compare_count = pix.num_pixels * frac;
@@ -137,7 +142,7 @@ for i = 1:chunk_size:pix.num_pixels
     range = round(i:compare_spacing:lim);
     candidate_a = pix.data(range);
     candidate_b = other_pix.data(range);
-    [ok, mess] = equal_to_tol(candidate_a, candidate_b, argi{:});
+    [ok, mess] = equal_to_tol(candidate_a, candidate_b, opt);
 
     if ~ok
         mess = process_message(mess, i, compare_spacing);
@@ -147,14 +152,12 @@ end
 
 end
 
-function [ok, mess] = compare_reorder(pix1, pix2, opt, argi)
-
-npix = opt.npix;
-
-if isempty(npix)
+function [ok, mess] = compare_reorder(pix1, pix2, opt)
+if ~isfield(opt,'npix') || isempty(opt.npix)
     error('HORACE:equal_to_tol:invalid_argument', ...
         'Requested pixel reorder, did not provide npix')
 end
+npix = opt.npix;
 %
 %     if sum(npix, 'all') ~= pix1.num_pixels
 %         error('HORACE:equal_to_tol:invalid_argument', ...
@@ -188,7 +191,7 @@ for i = 1:mem_chunk_size:numel(pix_ind)
     s2 = s2.data(:,ix2);
 
     % Now compare retained pixels
-    [ok, mess] = equal_to_tol(s1, s2, argi{:});
+    [ok, mess] = equal_to_tol(s1, s2, opt);
     if ~ok
         mess = process_message(mess, i, compare_spacing, ix1, ix2);
         return;
@@ -215,28 +218,6 @@ if pix.num_pixels ~= other_pix.num_pixels
         pix.num_pixels, other_pix.num_pixels);
     return;
 end
-end
-
-function [opt, argi] = parse_args(varargin)
-parser = inputParser();
-parser.addOptional('tol', [0, 0], @(x) (numel(x) <= 2));
-parser.addParameter('nan_equal', true, @islognumscalar);
-parser.addParameter('name_a', 'input_1', @ischar);
-parser.addParameter('name_b', 'input_2', @ischar);
-parser.addParameter('reorder', false, @islognumscalar);
-parser.addParameter('npix', [], @isnumeric);
-parser.addParameter('fraction', 1, @(x) isnumeric(x) && x > 0 && x <= 1)
-parser.KeepUnmatched = true;  % ignore unmatched parameters
-parser.parse(varargin{:});
-
-opt = parser.Results;
-
-if isscalar(opt.tol) && opt.tol < 0
-    opt.tol = [0, abs(opt.tol)];
-end
-
-% Args for base equal_to_tol
-argi = {'tol', opt.tol, 'nan_equal', opt.nan_equal, 'name_a', opt.name_a, 'name_b', opt.name_b};
 end
 
 function mess = process_message(mess, offset, spacing, ix1, ix2)

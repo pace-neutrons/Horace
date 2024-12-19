@@ -480,10 +480,10 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
 
         wout = sqw_eval_pix(w, sqwfunc, ave_pix, pars, outfilecell, i);
 
-        function  [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
+        function  [ok, mess] = equal_to_tol_internal(w1, w2,opt)
             % compare two sqw objects according to internal comparison
             % algorithm
-            [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
+            [ok, mess] = equal_to_tol_internal_(w1, w2,opt);
         end
         function obj = init_from_file(obj, in_struc)
             % Initialize SQW from file or file accessor

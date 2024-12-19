@@ -77,6 +77,11 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %  'name_b'         Explicit name of variable b for use in messages.
 %                   The same comments apply as for 'name_a' except the
 %                  default is 'input_2'
+%  'ignore_str'    Ignore the length and content of strings or cell arrays
+%                  of strings (true or false; default=false)
+%
+%   throw_on_err   Instead of returning error codes, thow error if
+%                  comparison returns false
 %
 %
 % Output:
@@ -117,21 +122,11 @@ mess = '';
 warn = warning('off','MATLAB:structOnObject');
 cleanup_obj = onCleanup(@()warning(warn));
 
-
 % Get names of input variables, if can
-name_a_default = 'lhs_obj';
-name_b_default = 'rhs_obj';
-name_a = inputname(1);
-name_b = inputname(2);
-if isempty(name_a)
-    name_a = name_a_default;
-end
-if isempty(name_b)
-    name_b = name_b_default;
-end
 
-% Lazy handling of MATLAB strings
-[a,b] = convertStringsToChars(a,b);
+name_a = variable_name(inputname(1), false, 1, 1, 'input_1');
+name_b = variable_name(inputname(2), false, 1, 1, 'input_2');
+
 
 % Parse input arguments
 if nargin==2
@@ -291,7 +286,10 @@ end
 
 % Now perform comparison
 try
-    equal_to_tol_private(a,b,opt,name_a,name_b);
+    % Lazy handling of MATLAB strings
+    [a,b] = convertStringsToChars(a,b);
+
+    equal_to_tol_private(a,b,opt);
 catch ME
     if opt.throw_on_err
         rethrow(ME)
@@ -383,11 +381,11 @@ elseif isobject(a) && isobject(b)
     % Both arguments are objects
     % --------------------------
     % Check sizes of arrays are the same
-    sz=size(a);
-    if ~isequal(sz,size(b))
+    [is,mess] = is_type_and_shape_equal(a,b);
+    if ~is
         error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Sizes of arrays of objects being compared are not equal',...
-            name_a,name_b);
+            'Comparing: %s and %s: %s',...
+            opt.name_a,opt.name_b,mess);
     end
     if ismethod(a,'eq') && ~isa(a, 'PixelDataBase')
         try
