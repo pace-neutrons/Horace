@@ -1,4 +1,4 @@
-classdef test_equal_to_tol < TestCase 
+classdef test_equal_to_tol < TestCase
     properties
         clOb;
 
@@ -39,7 +39,8 @@ classdef test_equal_to_tol < TestCase
             assertEqualToTol('2023-07-18T18:47:01', '2023-07-18T18:47:59');
             [ok, mess] = equal_to_tol('2023-07-18T18:47:41', '2023-07-18T18:49:41');
             assertFalse(ok);
-            assertEqual(mess, 'lhs_obj and rhs_obj: Character arrays being compared are not equal');
+            assertEqual(mess, ...
+                'Object input_1 with Time=18-Jul-2023 18:47:41  and object input_2, with Time=18-Jul-2023 18:49:41 are different for more than a minute');
         end
 
         function test_the_same_sqw_objects_are_equal(obj)
@@ -51,7 +52,8 @@ classdef test_equal_to_tol < TestCase
             dnd_2d_ = read_dnd(obj.test_dnd_file_path);
             [ok, mess] = equal_to_tol(obj.sqw_2d, dnd_2d_);
             assertFalse(ok);
-            assertEqual(mess, 'Objects being compared are not the same type');
+            assertTrue(...
+            strcmp(mess, 'Different types. First object  class is: sqw and second object  class is: d2d'));
         end
 
         function test_the_same_sqw_objects_are_equal_with_no_pix_reorder(obj)
@@ -91,7 +93,7 @@ classdef test_equal_to_tol < TestCase
         end
 
         function test_paged_sqw_objects_equal_if_pix_within_each_bin_shuffled(obj)
-            coWarn = set_temporary_warning('off','HORACE:invalid_data_range');            
+            coWarn = set_temporary_warning('off','HORACE:invalid_data_range');
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
 
@@ -112,7 +114,7 @@ classdef test_equal_to_tol < TestCase
         end
 
         function test_paged_sqw_ne_if_pix_within_bin_shuffled_and_reorder_false(obj)
-            coWarn = set_temporary_warning('off','HORACE:invalid_data_range');                        
+            coWarn = set_temporary_warning('off','HORACE:invalid_data_range');
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
 
@@ -175,7 +177,7 @@ classdef test_equal_to_tol < TestCase
             % equality of pixels. So, in one of the sqw objects, we zero out all
             % the bins we do not intend to compare. This way, if we do compare any
             % of those bins, there will be a mismatch.
-            coWarn = set_temporary_warning('off','HORACE:invalid_data_range');            
+            coWarn = set_temporary_warning('off','HORACE:invalid_data_range');
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
@@ -221,14 +223,14 @@ classdef test_equal_to_tol < TestCase
         end
 
         function test_equal_to_tol_true_for_eq_sqw_reorder_false_with_fraction(obj)
-            coWarn = set_temporary_warning('off','HORACE:invalid_data_range');                        
+            coWarn = set_temporary_warning('off','HORACE:invalid_data_range');
             sqw_copy = copy(obj.sqw_2d_paged);
             assertEqualToTol(obj.sqw_2d_paged, sqw_copy, 'fraction', 0.5, ...
                 'reorder', false);
         end
 
         function test_equal_to_tol_can_be_called_with_negative_tol_for_rel_tol(obj)
-            coWarn = set_temporary_warning('off','HORACE:invalid_data_range');                        
+            coWarn = set_temporary_warning('off','HORACE:invalid_data_range');
             sqw_copy = copy(obj.sqw_2d_paged);
             rel_tol = 1e-5;
             assertEqualToTol(sqw_copy, obj.sqw_2d_paged, -rel_tol);

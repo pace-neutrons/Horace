@@ -33,7 +33,7 @@ classdef hashable < serializable
         end
         function obj = clear_hash(obj)
             % function clears the hash value, stored with the object.
-            % Provided as part of interface and should be used 
+            % Provided as part of interface and should be used
             % to allow simple replacement of hash implementation if we
             % decide to use different hash type in a future.
             obj.hash_value_ = [];
@@ -98,16 +98,6 @@ classdef hashable < serializable
                 hash = hash{1};
             end
         end
-
-        function [ok,mess] = equal_to_tol(obj,other_obj,varargin)
-            % overload for equal_to_tol method. Very crude.
-            % expected to be improved for Re #1147
-            ok = eq(obj,other_obj);
-            mess=[];
-            if ~ok
-                mess = 'objects to compare have different hashes';
-            end
-        end
     end
 
     methods (Static)
@@ -124,7 +114,6 @@ classdef hashable < serializable
             end
         end
     end
-
 
     %---------------------------------------------------------------------------
     %   Testing equality of hashable objects

@@ -587,9 +587,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             error('HORACE:DnDBase:runtime_error', ...
                 'sqw_eval_pix can not be invoked on dnd object');
         end
-        function [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
-            [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
-        end
         %
         function obj = set_senpix(obj,val,field)
             % set signal error or npix value to a class field

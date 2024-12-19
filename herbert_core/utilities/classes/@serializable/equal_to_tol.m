@@ -1,5 +1,5 @@
-function [ok, mess] = equal_to_tol(w1, w2, varargin)
-% Check if two sqw objects are equal to a given tolerance
+function [iseq, mess] = equal_to_tol(obj1, obj2, varargin)
+% Return a logical variable stating if two serializable objects are equal or not
 %
 %   >> ok = equal_to_tol (a, b)
 %   >> ok = equal_to_tol (a, b, tol)
@@ -44,42 +44,25 @@ function [ok, mess] = equal_to_tol(w1, w2, varargin)
 %           'min_denominator' (see below)]
 %
 % Valid keywords are:
-%  '-nan_equal'      Treat NaNs as equal (true or false; default=true). If
-%                    you want to change this, provide {nan_rqual, false} pair
+%  'nan_equal'      Treat NaNs as equal (true or false; default=true)
 %
-%  '-ignore_str'     Ignore the length and content of strings or cell arrays
+%  'ignore_str'     Ignore the length and content of strings or cell arrays
 %                  of strings (true or false; default=false)
 %
-%  '-reorder'        Ignore the order of pixels within each bin
-%                    (true or false; default=true)
-%                   Only applies if sqw-type object
-%  '-ignore_date'   (provided without additional values, so its presence in
-%                    the sequence of keywords means true). If provided,
-%                    ignore file creation date stored in main header.
+%   obj2        Object on right-hand side
 %
-%  'fraction'       Compare pixels in only a fraction of the non-empty bins
-%                  (0<= fracton <= 1; default=1 i.e. test all bins)
-%                   Only applies if sqw-type object
+% Optional:
+%   p1, p2,...  Any set of parameters that the equal_to_tol function accepts
 %
-%  	The reorder and fraction options are available because the order of the
-%   pixels within the pix array for a given bin is unimportant. Reordering
-%   takes time, however, so the option to test on a few bins is given.
 
-%
-[ok,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(w1, w2, inputname(1), inputname(2),true, varargin{:});
-if ~ok
+[iseq,mess,is_recursive,opt] = process_inputs_for_eq_to_tol(obj1, obj2, ...
+    inputname(1), inputname(2),true,varargin{:});
+if ~iseq
     return;
 end
-if ~is_recursive && ~defined.nan_equal
-    opt.nan_equal = true;
-end
-if ~is_recursive && ~defined.reorder
-    opt.reorder = true;
-end
-
 % Perform comparison
-sz = size(w1);
-for i = 1:numel(w1)
+sz = size(obj1);
+for i = 1:numel(obj1)
     name_a = variable_name(inputname(1), false, sz, i, 'input_1');
     name_b = variable_name(inputname(2), false, sz, i, 'input_2');
     if is_recursive
@@ -88,13 +71,14 @@ for i = 1:numel(w1)
     else
         if numel(w1)>1 % the variables will be with size-brackets
             % and we do not want them for only one object
-            if ~defined.name_a; opt.name_a = name_a; end
-            if ~defined.name_b; opt.name_b = name_b; end
+            opt.name_a = name_a;
+            opt.name_b = name_b;
         end
     end
     %
-    [ok, mess] = equal_to_tol@serializable(w1, w2, opt);
-    if ~ok
+    [iseq, mess] = equal_to_tol_(obj1, obj2, opt);
+    if ~iseq
         return
     end
 end
+
