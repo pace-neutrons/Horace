@@ -15,6 +15,9 @@ if ~isequal(size(obj1), size(obj2))
         disp2str(size(obj1),disp2st(size(obj2))));
     return
 end
+if isa(obj1,'function_handle') && isa(obj2,'function_handle')
+    return
+end
 
 % Check that corresponding objects in the array have the same type
 for i = 1:numel(obj1)

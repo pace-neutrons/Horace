@@ -69,7 +69,7 @@ elseif istext(custom_message)
         [~,~,~,opt] = process_inputs_for_eq_to_tol('','','','',false);
         keys = fieldnames(opt);
         if ismember(custom_message,keys)
-            argi =[custom_message;varargin(:)];
+            argi =[custom_message;tol;varargin(:)];
             custom_message = '';
         else
             argi = varargin;
