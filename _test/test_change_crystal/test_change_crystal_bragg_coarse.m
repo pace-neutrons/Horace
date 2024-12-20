@@ -834,7 +834,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 alatt0,angdeg0, bragg_pos);
             hpc = hpc_config;
             assertTrue(hpc.parallel_multifit);
-            assertEqualWithSave(obj,corr,1.e-8)
+            assertEqualWithSave(obj,corr,'',1.e-8)
         end
 
         function test_bragg_pos(obj)
