@@ -91,33 +91,25 @@ end
 if ~ (issparse(A) == issparse(B))
     message = xunit.utils.comparisonMessage(custom_message, ...
         'One input is sparse and the other is not.', A, B);
-    throwAsCaller(MException('assertEqual:sparsityNotEqual', '%s', message));
+    error('assertEqual:sparsityNotEqual', '%s', message);
 end
 
 if ~strcmp(class(A), class(B))
     message = xunit.utils.comparisonMessage(custom_message, ...
         'The inputs differ in class.', A, B);
-    throwAsCaller(MException('assertEqual:classNotEqual', '%s', message));
+    error('assertEqual:classNotEqual', '%s', message);
 end
 if strncmp(class(A),'matlab.',7) % comparing user interface (persumably figures)
     ok = isequal(A,B);
     if ~ok
-        throwAsCaller(MException('assertEqual:classNotEqual', ...
-            'Internal classes %s are different according to isequal',class(A)));        
+        error('assertEqual:classNotEqual', ...
+            'Internal classes %s are different according to isequal',class(A));        
     end
     return;
 end
 
-[ok,mess] = equal_to_tol(A,B,argi{:});
+[ok,message] = equal_to_tol(A,B,argi{:});
 if ~ok
-    if verLessThan('Matlab','R2016a')
-        nl = sprintf('\n');
-    else
-        nl = newline;
-    end
-    message = xunit.utils.comparisonMessage(custom_message, ...
-        'Inputs are not equal.', A, B);
-    message = [message,nl,mess];
-    throwAsCaller(MException('assertEqual:nonEqual', '%s', message));
+    error('assertEqual:nonEqual', '%s', message);
 end
 

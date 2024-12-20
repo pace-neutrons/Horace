@@ -50,7 +50,7 @@ if isa(obj1,'matlab.mixin.Heterogeneous')
 else
     if isempty(obj1) % sizes already verified and are equal
         return;
-    elseif ~isa(obj2(1),class(obj1(1)))
+    elseif ~isa(obj2,class(obj1))
         if isempty(opt)
             opt = struct('name_a','input_1','name_b','input_2');
         end
