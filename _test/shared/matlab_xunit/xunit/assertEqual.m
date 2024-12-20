@@ -12,7 +12,8 @@ function assertEqual(A, B, custom_message,tol,varargin)
 % Optional:
 % custom message  -- if provided, exception would contan the message
 %                    provided here. Message can not start with '-' symbol
-%                    and be equal to any key accepted by equal_to_tol
+%                    or be equal to any key accepted by equal_to_tol
+%                    function.
 % tol             -- tolerance. See below for details.
 % varargin        -- any list of additional keys starting with '-' or
 %                    key-value pairs equal_to_toll would accept.

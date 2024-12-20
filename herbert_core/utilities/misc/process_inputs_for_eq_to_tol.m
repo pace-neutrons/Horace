@@ -3,6 +3,12 @@ function [iseq,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(obj
 % or equal to tol can use to process input options and common comparison code,
 % i.e. comparison for object type and shapes
 %
+% NOTE:
+% Expect all possible equal_to_toll overload keys to be specified here.
+% This is necessary because routine works recursively, so any call to any
+% equal_to_tol version may meet other equal_to_tol overload somewhere
+% inside the tree of recursive options.
+%
 % Input:
 % ------
 % obj1     -- first object or array of objects to compare
@@ -35,6 +41,7 @@ function [iseq,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(obj
 % defined -- structure, wich fields equal to names of equal_to_toll
 %            parameters and logical values set to true where parameters
 %            were defined and false where they were not.
+%
 %
 if check_shape
     [iseq,mess] = is_type_and_shape_equal(obj1,obj2);
@@ -85,9 +92,6 @@ function [opt,present] = parse_equal_to_tol_inputs(varargin)
 % PARSE_EQUAL_TO_TOL_INPUTS validates inputs for equal_to_tol function
 % and returns standard form of these inputs.
 %
-% NOTE:
-% Basic solution. Expect all possible equal_to_toll overload keys to be
-% specified here. See Re #
 %
 % The method is separated to be provided to multiple equal_to_tol overloads
 % in multiple classes
@@ -177,6 +181,15 @@ function [opt,present] = parse_equal_to_tol_inputs(varargin)
 % Retuns:
 % opt   -- structure with fields, provided above, which contains default or
 %          processed variables.
+%
+%
+% Original author: T.G.Perring
+%
+%
+% The following code is pretty complex as it has to handle legacy input as
+% well. Touch at your peril!
+
+
 
 nargi = nargin;
 is_recursive = cellfun(@(x)isstruct(x)&&isfield(x,'recursive_call'),varargin);
@@ -386,7 +399,7 @@ elseif numel(par)==0
             error('HERBERT:equal_to_tol:invalid_argument',...
                 '''min_denominator'' is only valid for legacy argument format')
         end
-        if present.tol 
+        if present.tol
             present.tolerance = true;
             opt.tolerance     = opt.tol;
         end

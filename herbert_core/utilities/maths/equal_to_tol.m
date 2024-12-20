@@ -86,6 +86,14 @@ function [ok,mess,opt]=equal_to_tol(a,b,varargin)
 % -------
 %   ok      true if every element satisfies tolerance criterion, false if not
 %   mess    error message if ~ok ('' if ok)
+% 
+% Optional:
+% opt              a structure containing all fields equal_to_tol may
+%                  accept with either default values or values, extracted
+%                  from input parameters. 
+%                  Currently used in tests only and probably should remain this way.
+%                  Call  process_inputs_for_eq_to_tol procedure to obtain these keys
+%                  as fields of its output structure.
 %
 %
 % -----------------------------
@@ -107,12 +115,6 @@ function [ok,mess,opt]=equal_to_tol(a,b,varargin)
 % with
 %       tol = [|rel_tol|*min_denominator, |rel_tol|]
 
-
-% Original author: T.G.Perring
-%
-%
-% The following code is pretty complex as it has to handle legacy input as
-% well. Touch at your peril!
 
 
 warn = warning('off','MATLAB:structOnObject');
