@@ -12,6 +12,7 @@ function assertEqual(A, B, custom_message,tol,varargin)
 % Optional:
 % custom message  -- if provided, exception would contan the message
 %                    provided here. Message can not start with '-' symbol
+%                    and be equal to any key accepted by equal_to_tol
 % tol             -- tolerance. See below for details.
 % varargin        -- any list of additional keys starting with '-' or
 %                    key-value pairs equal_to_toll would accept.
@@ -70,6 +71,8 @@ elseif istext(custom_message)
         if ismember(custom_message,keys)
             argi =[custom_message;varargin(:)];
             custom_message = '';
+        else
+            argi = varargin;
         end
     end
 end

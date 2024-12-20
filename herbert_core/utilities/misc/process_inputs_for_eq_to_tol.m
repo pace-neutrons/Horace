@@ -366,7 +366,7 @@ if numel(par)==1 && isnumeric(par{1})
     end
 elseif numel(par)==0
     % No tolerance parameter given, so determine from keywords if possible.
-    if ~any([present.tolerance, present.abstolerance, present.reltolerance])
+    if ~any([present.tolerance, present.abstolerance, present.reltolerance,present.tol])
         % No tolerance keywords present - use default tol; still unresolved
         % if legacy or not, but presence of min_denominator will not make any
         % difference to the test. Just need to check it is valid if given
@@ -385,6 +385,10 @@ elseif numel(par)==0
         if present.min_denominator
             error('HERBERT:equal_to_tol:invalid_argument',...
                 '''min_denominator'' is only valid for legacy argument format')
+        end
+        if present.tol 
+            present.tolerance = true;
+            opt.tolerance     = opt.tol;
         end
 
         % Determine tolerance
