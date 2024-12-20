@@ -86,11 +86,11 @@ function [ok,mess,opt]=equal_to_tol(a,b,varargin)
 % -------
 %   ok      true if every element satisfies tolerance criterion, false if not
 %   mess    error message if ~ok ('' if ok)
-% 
+%
 % Optional:
 % opt              a structure containing all fields equal_to_tol may
 %                  accept with either default values or values, extracted
-%                  from input parameters. 
+%                  from input parameters.
 %                  Currently used in tests only and probably should remain this way.
 %                  Call  process_inputs_for_eq_to_tol procedure to obtain these keys
 %                  as fields of its output structure.
@@ -127,9 +127,6 @@ end
 %
 % Now perform comparison
 try
-    % Lazy handling of MATLAB strings
-    [a,b] = convertStringsToChars(a,b);
-
     equal_to_tol_private(a,b,opt);
 catch ME
     if opt.throw_on_err
@@ -165,8 +162,9 @@ function equal_to_tol_private(a,b,opt)
 %   name_a      Name of first variable
 %   name_b      Name of second variable
 
-
-if opt.ignore_str && (iscellstr(a)||istext(a)) && (iscellstr(b)||istext(b))
+% Lazy handling of MATLAB strings
+[a,b] = convertStringsToChars(a,b);
+if opt.ignore_str && (iscellstr(a)||ischar(a)) && (iscellstr(b)||ischar(b))
     % Case of strings and cell array of strings if they are to be ignored
     % If cell arrays of strings then contents and number of strings are
     % ignored e.g. {'Hello','Mr'}, {'Dog'} and '' are all considered equal
@@ -192,6 +190,14 @@ elseif isobject(a) && isobject(b)
                 opt.name_a,opt.name_b,mess);
         end
         return;
+    end
+    if ismethod(a,'isequal')
+        ok = isequal(a,b);
+        if ok
+            return
+        end
+        % otherwise, try more elaborate comparison, which may request
+        % analyzing
     end
     try
         fieldsA = {meta.class.fromName(class(a)).PropertyList(:).Name};
