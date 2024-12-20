@@ -43,15 +43,21 @@ function [iseq,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(obj
 %            were defined and false where they were not.
 %
 %
+% check if equal_to_toll has been called from other eq_to_tol procedure.
+is_opt_structure = cellfun(@(x)isstruct(x)&&isfield(x,'recursive_call'),varargin);
+is_recursive = any(is_opt_structure);
+if is_recursive
+    opt  = varargin{is_opt_structure};
+else
+    opt = [];
+end
+
 if check_shape
-    [iseq,mess] = is_type_and_shape_equal(obj1,obj2);
+    [iseq,mess] = is_type_and_shape_equal(obj1,obj2,opt);
 else
     iseq = true;
     mess = '';
 end
-% check if equal_to_toll has been called from other eq_to_tol procedure.
-is_opt_structure = cellfun(@(x)isstruct(x)&&isfield(x,'recursive_call'),varargin);
-is_recursive = any(is_opt_structure);
 if ~iseq
     if is_recursive
         opt = varargin{is_recursive};
@@ -65,7 +71,6 @@ if ~iseq
     return;
 end
 if is_recursive
-    opt  = varargin{is_opt_structure};
     argi = varargin(~is_opt_structure);
     flds = fieldnames(opt);
     val  = num2cell(false(numel(flds),1)); % nothing defined here.

@@ -1,4 +1,4 @@
-function [is,mess] = is_type_and_shape_equal(obj1,obj2)
+function [is,mess] = is_type_and_shape_equal(obj1,obj2,opt)
 %COMPARE_TYPE_AND_SHAPE Part of generic procedure to compare objects in
 %various classes.
 %
@@ -7,9 +7,18 @@ function [is,mess] = is_type_and_shape_equal(obj1,obj2)
 %
 is = true;
 mess = '';
-
+if ~isempty(opt)
+    ignore_str = opt.ignore_str;
+else
+    ignore_str = false;
+end
+if ignore_str
+    check_size = istext(obj1)&&istext(obj2)&&~ignore_str;
+else
+    check_size = true;
+end
 % Check array sizes match
-if ~isequal(size(obj1), size(obj2))
+if check_size && ~isequal(size(obj1), size(obj2))
     is = false;
     mess = sprintf("Different sizes. Size of first object is: [%s] and second is: [%s]", ...
         disp2str(size(obj1)),disp2str(size(obj2)));

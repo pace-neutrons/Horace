@@ -74,12 +74,12 @@ function [ok,mess,opt]=equal_to_tol(a,b,varargin)
 %  'ignore_str'    Ignore the length and content of strings or cell arrays
 %                  of strings (true or false; default=false)
 %
-%   throw_on_err   Instead of returning error codes, thow error if
+%   throw_on_err   Instead of returning error codes, throw error if
 %                  comparison returns false
 %
 % Valid keys (if present, true, if absent, false) are:
 % '-ignore_str'    Ignore the length and content of strings or cell arrays
-% '-throw_on_err'  Instead of returning error codes, thow error if
+% '-throw_on_err'  Instead of returning error codes, though error if
 %                  comparison returns false.
 %
 % Output:
@@ -177,7 +177,7 @@ elseif isobject(a) && isobject(b)
     % Both arguments are objects
     % --------------------------
     % Check sizes of arrays are the same
-    [is,mess] = is_type_and_shape_equal(a,b);
+    [is,mess] = is_type_and_shape_equal(a,b,opt);
     if ~is
         error('HERBERT:equal_to_tol:inputs_mismatch',...
             'Comparing: %s and %s: %s',...
@@ -401,7 +401,7 @@ end
 
 %--------------------------------------------------------------------------------------------------
 function equal_to_tol_numeric(a,b,opt)
-% Check two arrays have smae size and each element is the same within
+% Check two arrays have same size and each element is the same within
 % requested relative or absolute tolerance.
 
 tol = opt.tol;
@@ -416,7 +416,7 @@ if any(sz ~= size(b))
         name_a,name_b);
 end
 
-% Turn arrays into vectors (avoids problems with matlab changing shapes
+% Turn arrays into vectors (avoids problems with MATLAB changing shapes
 % of arrays when logical filtering is performed
 a=a(:);
 b=b(:);
@@ -454,7 +454,7 @@ if any(infs_mark)   % Inf elements are present
 
         ind=find(infs_mark,1);
         error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Inf elements have different signs; first occurence at element %s',...
+            '%s and %s: Inf elements have different signs; first occurrence at element %s',...
             name_a,name_b,['(',arraystr(sz,ind),')']);
     end
     a=a(~infs_mark);            % filter out Inf elements from further consideration

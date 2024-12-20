@@ -20,7 +20,8 @@ function [iseq, mess] =equal_to_tol_single_(obj1, obj2,opt)
 %
 
 flds = obj1.saveableFields();
-
+iseq = true;
+mess = '';
 for i=1:numel(flds)
     lopt = opt;
     lopt.name_a = [opt.name_a,'.',flds{i}];
@@ -28,6 +29,9 @@ for i=1:numel(flds)
 
     tmp1 = obj1.(flds{i});
     tmp2 = obj2.(flds{i});
+    if opt.ignore_str && istext(tmp1) && istext(tmp2)
+        continue;
+    end
     [iseq,mess] = equal_to_tol (tmp1 , tmp2, lopt);
     if ~iseq
         return;
