@@ -71,7 +71,7 @@ for i = 1:numel(obj1)
         opt.name_b = variable_name(name_b, false, sz, i, 'input_1');
     end
     %
-    [iseq, mess] = equal_to_tol_(obj1, obj2, opt);
+    [iseq, mess] = equal_to_tol_single(obj1, obj2, opt);
     if ~iseq
         return
     end

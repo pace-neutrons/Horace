@@ -127,6 +127,30 @@ classdef hashable < serializable
         % unequal or not
         isne = ne (obj1, obj2)
     end
+    methods(Access=protected)
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt)
+            % internal procedure used by equal_to_toll method to compare
+            % single pair of hashable objects. 
+            % 
+            % Overloads similar one in serializable class.
+            %
+            % Input:
+            % obj       -- first object to compare
+            % other_obj -- second object to compare
+            % opt       -- the structure containing fieldnames and their
+            %              values as accepted by generic equal_to_tol
+            %              procedure or retruned by
+            %              process_inputs_for_eq_to_tol function
+            %
+            % Returns:
+            % iseq      -- logical containing true if objects are equal and
+            %              false otherwise.
+            % mess      -- char array empty if iseq == true or containing
+            %              more information on the reason behind the
+            %              difference if iseq == false
+            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt);
+        end
+    end
 
     %---------------------------------------------------------------------------
     %   Object validation

@@ -11,8 +11,8 @@ mess = '';
 % Check array sizes match
 if ~isequal(size(obj1), size(obj2))
     is = false;
-    mess = sprintf("Different sizes. Size of first object is: %s and second is: %s", ...
-        disp2str(size(obj1),disp2st(size(obj2))));
+    mess = sprintf("Different sizes. Size of first object is: [%s] and second is: [%s]", ...
+        disp2str(size(obj1)),disp2str(size(obj2)));
     return
 end
 if isa(obj1,'function_handle') && isa(obj2,'function_handle')
@@ -27,7 +27,7 @@ for i = 1:numel(obj1)
             elmtstr = ['(element ', num2str(i), ')'];
         end
         is = false;
-        mess = sprintf("Different types. First object %s class is: %s and second object %s class is: %s", ...
+        mess = sprintf('Different types. First object: "%s" class: "%s" and second object: "%s" clas: "%s"', ...
             elmtstr,class(obj1(i)),elmtstr,class(obj2(i)));
 
         return

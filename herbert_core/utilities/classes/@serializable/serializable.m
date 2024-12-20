@@ -308,7 +308,7 @@ classdef (Abstract=true) serializable
         % Return logical variable stating if two serializable objects are equal
         % or not
         function iseq = eq (obj1, obj2)
-            iseq  = equal_to_tol(obj1,obj2);            
+            iseq  = equal_to_tol(obj1,obj2);
         end
 
         % Return logical variable stating if two serializable objects are
@@ -332,6 +332,26 @@ classdef (Abstract=true) serializable
         % Utility to simplify the code of a class constructor
         [obj, remains] = set_positional_and_key_val_arguments (obj, ...
             positional_param_names_list, old_keyval_compat, varargin)
+
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt)
+            % internal procedure used by equal_to_toll method to compare
+            % single pair of serializable objects
+            % Input:
+            % obj       -- first object to compare
+            % other_obj -- second object to compare
+            % opt       -- the structure containing fieldnames and their
+            %              values as accepted by generic equal_to_tol
+            %              procedure or retruned by
+            %              process_inputs_for_eq_to_tol function
+            %
+            % Returns:
+            % iseq      -- logical containing true if objects are equal and
+            %              false otherwise.
+            % mess      -- char array empty if iseq == true or containing
+            %              more information on the reason behind the
+            %              difference if iseq == false
+            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt);
+        end
     end
 
     methods
