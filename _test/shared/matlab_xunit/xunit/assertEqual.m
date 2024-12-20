@@ -76,6 +76,8 @@ elseif istext(custom_message)
             argi = varargin;
         end
     end
+else
+    argi = varargin;
 end
 
 name_a = variable_name(inputname(1), false, 1, 1, 'input_1');

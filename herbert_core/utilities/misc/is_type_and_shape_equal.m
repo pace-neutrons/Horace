@@ -19,10 +19,14 @@ else
 end
 % Check array sizes match
 if check_size && ~isequal(size(obj1), size(obj2))
-    is = false;
-    mess = sprintf("Different sizes. Size of first object is: [%s] and second is: [%s]", ...
-        disp2str(size(obj1)),disp2str(size(obj2)));
-    return
+    if isempty(obj1) && isempty(obj2)
+        return;
+    else
+        is = false;
+        mess = sprintf("Different sizes. Size of first object is: [%s] and second is: [%s]", ...
+            disp2str(size(obj1)),disp2str(size(obj2)));
+        return
+    end
 end
 if isa(obj1,'function_handle') && isa(obj2,'function_handle')
     return
@@ -44,7 +48,12 @@ if isa(obj1,'matlab.mixin.Heterogeneous')
         end
     end
 else
-    if ~isa(obj2(1),class(obj1(1)))
+    if isempty(obj1) % sizes already verified and are equal
+        return;
+    elseif ~isa(obj2(1),class(obj1(1)))
+        if isempty(opt)
+            opt = struct('name_a','input_1','name_b','input_2');
+        end
         is = false;
         mess = sprintf('Different types. First object: "%s" has class: "%s" and second object: "%s" class: "%s"', ...
             opt.name_a,class(obj1), opt.name_b,class(obj2));

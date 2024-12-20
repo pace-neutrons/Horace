@@ -235,6 +235,7 @@ elseif isobject(a) && isobject(b)
     else
         name_a = opt.name_a;
         name_b = opt.name_b;
+        sz = size(a);
         for i=1:numel(a)
 
             name_a_ind = [name_a,'(',arraystr(sz,i),')'];

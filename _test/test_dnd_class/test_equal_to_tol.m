@@ -39,7 +39,7 @@ classdef test_equal_to_tol < TestCase
             [ok, mess] = equal_to_tol(obj.dnd_2d, sqw_2d);
             assertFalse(ok);
             assertTrue( ...
-                strcmp(mess, 'Different types. First object  class is: d2d and second object  class is: sqw'));
+                strcmp(mess, 'Different types. First object: "input_1" has class: "d2d" and second object: "input_2" class: "sqw"'));
         end
 
         function test_different_d2d_objects_are_not_equal(obj)
