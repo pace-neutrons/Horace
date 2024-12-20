@@ -59,7 +59,7 @@ classdef test_loader_nxspe < TestCase
             str = ld.to_struct();
             ld_rec = serializable.from_struct(str);
 
-            assertEqual(ld,ld_rec);
+            assertEqual(ld,ld_rec,'-nan_equal');
         end
 
         function test_saveload_loader_onfile(obj)
@@ -521,7 +521,7 @@ classdef test_loader_nxspe < TestCase
 
             lx = lx.load_data();
             lx.ERR=ones(nen,ndet);
-            assertEqual(S,lx.S);
+            assertEqual(S,lx.S,'-nan_equal');
             assertEqual(ones(nen,ndet),lx.ERR);
             assertEqual(det,lx.det_par);
 
