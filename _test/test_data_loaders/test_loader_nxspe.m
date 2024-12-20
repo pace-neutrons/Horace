@@ -528,14 +528,14 @@ classdef test_loader_nxspe < TestCase
             lx = lx.load_data();
             lx.det_par = ones(6,ndet);
             lx = lx.load('-keep');
-            assertEqual(S,lx.S);
+            assertEqual(S,lx.S,'-nan_equal');
             assertEqual(ERR,lx.ERR);
             one_det = get_hor_format(ones(6,ndet));
             assertEqual(one_det ,lx.det_par);
 
             lx.S=[];
             lx = lx.load('-keep');
-            assertEqual(S,lx.S);
+            assertEqual(S,lx.S,'-nan_equal');
             assertEqual(ERR,lx.ERR);
             assertEqual(one_det ,lx.det_par);
         end
