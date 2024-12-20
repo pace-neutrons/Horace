@@ -77,20 +77,15 @@ if ~is_recursive && ~defined.reorder
     opt.reorder = true;
 end
 
+name_a = opt.name_a;
+name_b = opt.name_b;
 % Perform comparison
 sz = size(w1);
 for i = 1:numel(w1)
-    name_a = variable_name(inputname(1), false, sz, i, 'input_1');
-    name_b = variable_name(inputname(2), false, sz, i, 'input_2');
-    if is_recursive
-        opt.name_a = [opt.name_a,'.',name_a];
-        opt.name_b = [opt.name_b,'.',name_b];
-    else
-        if numel(w1)>1 % the variables will be with size-brackets
-            % and we do not want them for only one object
-            if ~defined.name_a; opt.name_a = name_a; end
-            if ~defined.name_b; opt.name_b = name_b; end
-        end
+    if numel(w1)>1  % the variables will be with
+        % size-brackets and we do not want them for only one object
+        opt.name_a = variable_name(name_a, false, sz, i, 'input_1');
+        opt.name_b = variable_name(name_b, false, sz, i, 'input_1');
     end
     %
     [ok, mess] = equal_to_tol@serializable(w1, w2, opt);

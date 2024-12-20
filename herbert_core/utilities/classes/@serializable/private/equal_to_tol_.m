@@ -16,8 +16,18 @@ end
 function [iseq, mess] = eq_single (obj1, obj2, opt)
 % Compare single pair of serializeble objects
 
-struc1 = obj1.to_bare_struct();
-struc2 = obj2.to_bare_struct();
-[iseq,mess] = equal_to_tol (struc1, struc2, opt);
+flds = obj1.saveableFields();
 
+for i=1:numel(flds)
+    lopt = opt;
+    lopt.name_a = [opt.name_a,'.',flds{i}];
+    lopt.name_b = [opt.name_b,'.',flds{i}];
+
+    tmp1 = obj1.(flds{i});
+    tmp2 = obj2.(flds{i});
+    [iseq,mess] = equal_to_tol (tmp1 , tmp2, lopt);
+    if ~iseq
+        return;
+    end
+end
 end

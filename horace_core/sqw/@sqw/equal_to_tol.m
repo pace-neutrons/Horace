@@ -47,7 +47,7 @@ for idx = 1:numel(class_fields)
     lopt.name_a = [opt.name_a,'.',field_name];
     lopt.name_b = [opt.name_b,'.',field_name];
 
-    [ok, mess] = equal_to_tol(tmp1, tmp2, opt);
+    [ok, mess] = equal_to_tol(tmp1, tmp2, lopt);
     if ~ok
         return; % break on first failure
     end

@@ -55,25 +55,20 @@ function [iseq, mess] = equal_to_tol(obj1, obj2, varargin)
 %   p1, p2,...  Any set of parameters that the equal_to_tol function accepts
 %
 
-[iseq,mess,is_recursive,opt] = process_inputs_for_eq_to_tol(obj1, obj2, ...
+[iseq,mess,~,opt] = process_inputs_for_eq_to_tol(obj1, obj2, ...
     inputname(1), inputname(2),true,varargin{:});
 if ~iseq
     return;
 end
+name_a = opt.name_a;
+name_b = opt.name_b;
 % Perform comparison
 sz = size(obj1);
 for i = 1:numel(obj1)
-    name_a = variable_name(inputname(1), false, sz, i, 'input_1');
-    name_b = variable_name(inputname(2), false, sz, i, 'input_2');
-    if is_recursive
-        opt.name_a = [opt.name_a,'.',name_a];
-        opt.name_b = [opt.name_b,'.',name_b];
-    else
-        if numel(obj1)>1 % the variables will be with size-brackets
-            % and we do not want them for only one object
-            opt.name_a = name_a;
-            opt.name_b = name_b;
-        end
+    if numel(obj1)>1  % the variables will be with
+        % size-brackets and we do not want them for only one object
+        opt.name_a = variable_name(name_a, false, sz, i, 'input_1');
+        opt.name_b = variable_name(name_b, false, sz, i, 'input_1');
     end
     %
     [iseq, mess] = equal_to_tol_(obj1, obj2, opt);
