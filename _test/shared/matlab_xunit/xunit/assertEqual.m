@@ -68,17 +68,6 @@ name_b = inputname(2);
 if isempty(name_b)
     name_b ='B';
 end
-if nargin<4 && isa(A,'serializable') &&~isa(A,'hashable') %TODO: Remove complex eq in serializable!
-    % Re #1147
-    [ok,custom_message] = eq(A,B,'name_a',name_a,'name_b',name_b);
-    if ok
-        return
-    end
-    message = xunit.utils.comparisonMessage(custom_message, ...
-        'Inputs are not equal according to classes comparison operator', A, B);
-    throwAsCaller(MException('assertEqual:nonEqual', '%s', message));
-end
-
 
 [ok,mess] = equal_to_tol(A,B,tol,'name_a',name_a,'name_b',name_b);
 if ~ok

@@ -69,7 +69,7 @@ for i = 1:numel(obj1)
         opt.name_a = [opt.name_a,'.',name_a];
         opt.name_b = [opt.name_b,'.',name_b];
     else
-        if numel(w1)>1 % the variables will be with size-brackets
+        if numel(obj1)>1 % the variables will be with size-brackets
             % and we do not want them for only one object
             opt.name_a = name_a;
             opt.name_b = name_b;
