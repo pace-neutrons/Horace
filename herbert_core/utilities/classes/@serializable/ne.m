@@ -17,5 +17,5 @@ function isne = ne (obj1, obj2)
 % TODO: can be done more efficiently as eq needs to check all
 % the fields and ne may return when found first non-equal field
 
-isne = ~iseq(obj1,obj2);
+isne = ~eq(obj1,obj2);
 

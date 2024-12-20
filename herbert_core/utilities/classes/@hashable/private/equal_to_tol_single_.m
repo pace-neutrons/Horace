@@ -6,9 +6,9 @@ function [iseq, mess] =equal_to_tol_single_(obj1, obj2,opt)
 % Input:
 % obj       -- first object to compare
 % other_obj -- second object to compare
-% opt       -- the structure containing fieldnames and their
+% opt       -- the structure containing field-names and their
 %              values as accepted by generic equal_to_tol
-%              procedure or retruned by
+%              procedure or returned by
 %              process_inputs_for_eq_to_tol function
 %
 % Returns:
