@@ -1,9 +1,9 @@
-function [ok, mess] = equal_to_tol(w1, w2,varargin)
+function [iseq, mess] = equal_to_tol(w1, w2,varargin)
 %
 %
-[ok,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(w1, w2, ...
+[iseq,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(w1, w2, ...
     inputname(1), inputname(2),true, varargin{:});
-if ~ok
+if ~iseq
     return;
 end
 if ~is_recursive && ~defined.nan_equal
@@ -12,7 +12,26 @@ end
 if ~is_recursive && ~defined.reorder
     opt.reorder = true;
 end
+name_a = opt.name_a;
+name_b = opt.name_b;
+% Perform comparison
+sz = size(w1);
+is_cell = iscell(w1);
+for i = 1:numel(w1)
+    if numel(w1)>1  % the variables will be with
+        % size-brackets and we do not want them for only one object
+        opt.name_a = variable_name(name_a, is_cell, sz, i, 'input_1');
+        opt.name_b = variable_name(name_b, is_cell, sz, i, 'input_1');
+    end
+    %
+    [iseq, mess] = equal_to_tol_single_(w1(i), w2(i), opt);
+    if ~iseq
+        return
+    end
+end
+end
 
+function  [ok, mess] = equal_to_tol_single_(w1, w2, opt)
 % Test equality of sqw class fields, excluding the raw pixels which is performed
 % below. Pass class fields to the generic equal_to_tol.
 class_fields = properties(w1);

@@ -66,7 +66,8 @@ function [ok, mess] = equal_to_tol(w1, w2, varargin)
 %   takes time, however, so the option to test on a few bins is given.
 
 %
-[ok,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(w1, w2, inputname(1), inputname(2),true, varargin{:});
+[ok,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(w1, w2, ...
+    inputname(1), inputname(2),true, varargin{:});
 if ~ok
     return;
 end
@@ -88,7 +89,7 @@ for i = 1:numel(w1)
         opt.name_b = variable_name(name_b, false, sz, i, 'input_1');
     end
     %
-    [ok, mess] = equal_to_tol@serializable(w1, w2, opt);
+    [ok, mess] = equal_to_tol@serializable(w1(i), w2(i), opt);
     if ~ok
         return
     end
