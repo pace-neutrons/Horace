@@ -1,4 +1,4 @@
-function assertEqual(A, B, custom_message,tol)
+function assertEqual(A, B, custom_message,tol,varargin)
 %assertEqual Assert that inputs are equal
 %   assertEqual(A, B) throws an exception if A and B are not equal.  A and B
 %   must have the same class and sparsity to be considered equal.
@@ -6,10 +6,20 @@ function assertEqual(A, B, custom_message,tol)
 %   assertEqual(A, B, MESSAGE) prepends the string MESSAGE to the assertion
 %   message if A and B are not equal.
 %
+% Inputs:
+% A      -- one object to compare
+% B      -- another object to compare
+% Optional:
+% custom message  -- if provided, exception would contan the message
+%                    provided here. Message can not start with '-' symbol
+% tol             -- tolerance. See below for details.
+% varargin        -- any list of additional keys starting with '-' or
+%                    key-value pairs equal_to_toll would accept.
+%
 %   Examples
 %   --------
 %   % This call returns silently.
-%   assertEqual([1 NaN 2], [1 NaN 2]);
+%   assertEqual([1 NaN 2], [1 NaN 2],'-nan_equal');
 %
 %   % This call throws an error.
 %   assertEqual({'A', 'B', 'C'}, {'A', 'foo', 'C'});
@@ -41,12 +51,35 @@ function assertEqual(A, B, custom_message,tol)
 
 %   Steven L. Eddins
 %   Copyright 2008-2010 The MathWorks, Inc.
+%
+% MODIFIED FOR HORACE
+% 12-2024
 
 if nargin < 3
     custom_message = '';
+    argi = varargin;
+elseif istext(custom_message)
+    if startsWith(custom_message,'-')
+        % key in the form '-key' is provided
+        argi =[custom_message;varargin(:)];
+        custom_message = '';
+    else
+        % retrieve list of keys, accepted by equal_to_tol;
+        [~,~,~,opt] = process_inputs_for_eq_to_tol('','','','',false);
+        keys = fieldnames(opt);
+        if ismember(custom_message,keys)
+            argi =[custom_message;varargin(:)];
+            custom_message = '';
+        end
+    end
 end
+
+name_a = variable_name(inputname(1), false, 1, 1, 'input_1');
+name_b = variable_name(inputname(2), false, 1, 1, 'input_2');
 if nargin < 4
-    tol = [0,0];
+    argi = ['tol';[0,0];'name_a';name_a;'name_b';name_b;argi(:)];
+else
+    argi = ['tol';tol;argi(:)];
 end
 
 if ~ (issparse(A) == issparse(B))
@@ -60,16 +93,8 @@ if ~strcmp(class(A), class(B))
         'The inputs differ in class.', A, B);
     throwAsCaller(MException('assertEqual:classNotEqual', '%s', message));
 end
-name_a = inputname(1);
-if isempty(name_a)
-    name_a ='A';
-end
-name_b = inputname(2);
-if isempty(name_b)
-    name_b ='B';
-end
 
-[ok,mess] = equal_to_tol(A,B,tol,'name_a',name_a,'name_b',name_b);
+[ok,mess] = equal_to_tol(A,B,argi{:});
 if ~ok
     if verLessThan('Matlab','R2016a')
         nl = sprintf('\n');
