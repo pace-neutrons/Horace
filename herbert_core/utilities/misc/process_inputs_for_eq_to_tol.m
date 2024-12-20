@@ -34,11 +34,11 @@ function [iseq,mess,is_recursive,opt,defined] = process_inputs_for_eq_to_tol(obj
 %            objects are the same.
 % mess    -- empty if iseq == true. Describes what is different in obj1 and
 %            obj2 otherwise.
-% opt     -- structure, whith fields equal to names of equal_to_tol
+% opt     -- structure, with fields equal to names of equal_to_tol
 %            parameters and their values as values of fields in this
 %            structure. Contains all fields acceptable by equal_to_tol
-%            functio by its every overload
-% defined -- structure, wich fields equal to names of equal_to_toll
+%            function by its every overload
+% defined -- structure, with fields equal to names of equal_to_toll
 %            parameters and logical values set to true where parameters
 %            were defined and false where they were not.
 %
