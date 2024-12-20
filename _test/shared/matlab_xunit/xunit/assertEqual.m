@@ -96,6 +96,14 @@ if ~strcmp(class(A), class(B))
         'The inputs differ in class.', A, B);
     throwAsCaller(MException('assertEqual:classNotEqual', '%s', message));
 end
+if strncmp(class(A),'matlab.',7) % comparing user interface (persumably figures)
+    ok = isequal(A,B);
+    if ~ok
+        throwAsCaller(MException('assertEqual:classNotEqual', ...
+            'Internal classes %s are different according to isequal',class(A)));        
+    end
+    return;
+end
 
 [ok,mess] = equal_to_tol(A,B,argi{:});
 if ~ok
