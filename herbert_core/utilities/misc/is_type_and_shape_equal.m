@@ -51,6 +51,13 @@ else
     if isempty(obj1) % sizes already verified and are equal
         return;
     elseif ~isa(obj2,class(obj1))
+        if isnumeric(obj1) && isnumeric(obj2)
+            is = ismember({class(obj1),class(obj2)},{'single','double','int32','uint32','int64','uint64'});
+            if all(is) % alow numerical comparion of different types of numerical objects
+                is = true;
+                return;
+            end
+        end
         if isempty(opt)
             opt = struct('name_a','input_1','name_b','input_2');
         end
