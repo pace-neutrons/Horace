@@ -78,7 +78,11 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
 
     methods(Sealed)
-
+        function [iseq,mess] = equal_to_tol(obj1,obj2,varargin)
+            % overload equal_to_tol as this method requested to be called
+            % on serializable interface
+            [iseq,mess] = equal_to_tol@serializable(obj1,obj2,varargin{:});
+        end
         function vec = transform_vec(obj, vec)
             % Transform a vector or list of vectors according to array of
             % Symops stored in `obj`.

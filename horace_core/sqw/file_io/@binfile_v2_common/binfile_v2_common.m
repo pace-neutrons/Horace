@@ -291,7 +291,7 @@ classdef binfile_v2_common < horace_binfile_interface
                 filename = obj.full_filename;
             end
             [obj,file_exist,old_ldr] = set_file_to_update@horace_binfile_interface(obj,filename,nargout);
-            if old_ldr == obj
+            if isa(obj,class(old_ldr))
                 if file_exist
                     obj.upgrade_headers_ = false;
                 else

@@ -59,7 +59,7 @@ classdef test_loader_nxspe < TestCase
             str = ld.to_struct();
             ld_rec = serializable.from_struct(str);
 
-            assertEqual(ld,ld_rec);
+            assertEqual(ld,ld_rec,'-nan_equal');
         end
 
         function test_saveload_loader_onfile(obj)
@@ -265,7 +265,7 @@ classdef test_loader_nxspe < TestCase
                 'inst_merlin_ei120_600hz.nxspe'};
             for ii = 1:numel(nxspes)
                 nxspe_inst = loader_nxspe(f_name(obj, nxspes{ii})).get_instrument();
-                assertEqual(nxspe_inst.to_struct(), ref_inst{ii}.to_struct(), '', [1e-9, 0.01]);
+                assertEqual(nxspe_inst, ref_inst{ii}, '', [1e-9, 0.01]);
             end
         end
 
@@ -521,21 +521,21 @@ classdef test_loader_nxspe < TestCase
 
             lx = lx.load_data();
             lx.ERR=ones(nen,ndet);
-            assertEqual(S,lx.S);
+            assertEqual(S,lx.S,'-nan_equal');
             assertEqual(ones(nen,ndet),lx.ERR);
             assertEqual(det,lx.det_par);
 
             lx = lx.load_data();
             lx.det_par = ones(6,ndet);
             lx = lx.load('-keep');
-            assertEqual(S,lx.S);
+            assertEqual(S,lx.S,'-nan_equal');
             assertEqual(ERR,lx.ERR);
             one_det = get_hor_format(ones(6,ndet));
             assertEqual(one_det ,lx.det_par);
 
             lx.S=[];
             lx = lx.load('-keep');
-            assertEqual(S,lx.S);
+            assertEqual(S,lx.S,'-nan_equal');
             assertEqual(ERR,lx.ERR);
             assertEqual(one_det ,lx.det_par);
         end

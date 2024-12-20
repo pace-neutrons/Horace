@@ -250,7 +250,6 @@ classdef horace_binfile_interface < serializable
 
         % the function returns standard head information about sqw/dnd file
         hd = head(obj,varargin)
-
     end
     methods(Abstract,Access=protected)
         % init file accessors from sqw object in memory
@@ -387,6 +386,35 @@ classdef horace_binfile_interface < serializable
             [mess,res] = ferror(obj.file_id_);
             if res ~= 0; error('HORACE:sqw_file_insterface:io_error',...
                     '%s -- Reason: %s',pos_mess,mess);
+            end
+        end
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt)
+            % internal procedure used by equal_to_toll method to compare
+            % single pair of faccess objects
+            % Input:
+            % obj       -- first object to compare
+            % other_obj -- second object to compare
+            % opt       -- the structure containing fieldnames and their
+            %              values as accepted by generic equal_to_tol
+            %              procedure or retruned by
+            %              process_inputs_for_eq_to_tol function
+            %
+            %TODO: this is fudge implementation. Re #1795 should provide a
+            %proper one.
+            %
+            % Returns:
+            % iseq      -- logical containing true if objects are equal and
+            %              false otherwise.
+            % mess      -- char array empty if iseq == true or containing
+            %              more information on the reason behind the
+            %              difference if iseq == false
+            mess = '';
+            iseq = isequal(obj,other_obj);
+            if ~iseq
+                clOb =  set_temporary_warning('off','MATLAB:structOnObject');
+                s1 = struct(obj);
+                s2 = struct(other_obj);
+                [iseq,mess] = equal_to_tol(s1,s2,opt);
             end
         end
     end

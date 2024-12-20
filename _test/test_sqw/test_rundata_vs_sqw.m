@@ -206,7 +206,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             assertEqualToTolWithSave(obj,sq4,'ignore_str',true,'tol',1.e-7);
 
             rdr = rundatah(sq4);
-            assertEqualToTol(rdr,rd,'ignore_str',true,'tol',1.e-7);
+            assertEqualToTol(rdr,rd,'ignore_str',true,'tol',1.e-7,'-nan_equal');
 
         end
 

@@ -137,10 +137,3 @@ sqw_file_from_nxspe = fullfile(tmp_dir(),'fm_simple_cubic_from_nxspe.sqw');
 
 gen_sqw (nxspe_files, [], sqw_file_from_nxspe, efix, emode, alatt, angdeg, u, v, psi, ...
     omega, dpsi, gl, gs, instru, sample);
-
-
-
-
-
-
-

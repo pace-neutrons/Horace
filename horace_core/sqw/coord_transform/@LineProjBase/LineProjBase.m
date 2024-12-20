@@ -287,8 +287,8 @@ classdef LineProjBase < aProjectionBase
             end
         end
         %
-        function [is,mess] = eq(obj,other_obj,varargin)
-            % Overloaded equality operator comparing the projection
+        function [iseq,mess] = equal_to_tol(obj,other_obj,varargin)
+            % Overloaded equal_to_tol operator comparing the projection
             % transformation rather then all projection properties
             %
             % Different projection property values may define the same
@@ -310,37 +310,37 @@ classdef LineProjBase < aProjectionBase
             % occurs (used in unit tests to indicate the details of
             % inequality)
 
-            if nargout == 2
-                if nargin>2
-                    names = LineProjBase.extract_eq_neq_names(varargin{:});
-                else
-                    names = cell(2,1);
-                    names{1} = inputname(1);
-                    names{2} = inputname(2);
-                end
-                [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
-            else
-                is = eq_(obj,other_obj,nargout,cell(2,1),varargin{:});
+            [~,~,~,opt] = process_inputs_for_eq_to_tol( ...
+                obj, other_obj, ...
+                inputname(1), inputname(2),false,varargin{:});
+            if ~isa(obj,'LineProjBase') && isa(other_obj,'LineProjBase')
+                iseq = false;
+                mess = sprintf('Class: "%s" of the object: "%s" and Class: "%s" of the object: "%s" do not have LineProjBase parent',...
+                    class(obj),opt.name_a,class(other_obj),opt.name_b);
+                return;
             end
-        end
+            if any(size(obj) ~= size(other_obj))
+                iseq = false;
+                mess = sprintf('Size: [%s] of the object: "%s" and Size: [%s] of the object: "%s" are different',...
+                    disp2str(size(obj)),opt.name_a,disp2str(size(other_obj)),opt.name_b);
+            end
+            name_a = opt.name_a;
+            name_b = opt.name_b;
 
-        function [nis,mess] = ne(obj,other_obj,varargin)
-            % Non-equality operator expressed through equality operator
-            %
-            if nargout == 2
-                if nargin > 2
-                    names = line_proj.extract_eq_neq_names(varargin{:});
-                else
-                    names{1} = inputname(1);
-                    names{2} = inputname(2);
+            % Perform comparison
+            sz = size(obj);
+            for i = 1:numel(obj)
+                if numel(obj)>1 % the variables will be with
+                    % size-brackets and we do not want them for only one object
+                    opt.name_a = variable_name(name_a, false, sz, i, 'input_1');
+                    opt.name_b = variable_name(name_b, false, sz, i, 'input_2');
                 end
-                [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
-            else
-                is = eq_(obj,other_obj,nargout,cell(2,1),varargin{:});
+                [iseq,mess] = eq_to_tol_(obj,other_obj,opt);
+                if ~iseq
+                    return;
+                end
             end
-            nis = ~is;
         end
-        %
     end
     methods(Static)
         function lst = data_sqw_dnd_export_list()
@@ -443,26 +443,6 @@ classdef LineProjBase < aProjectionBase
 
             new_range = [centre-0.5*size(:),centre+0.5*size(:)]';
             ax_block.img_range(:,1:3) = new_range;
-        end
-    end
-    methods(Static,Access=private)
-        function names = extract_eq_neq_names(varargin)
-            % function helps to parse inputs of eq/neq functions in case
-            % when it called within the chain of other functions containing
-            % input parameters
-            % if varargin contains
-            names = cell(2,1);
-            argi = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false);
-            is = ismember(argi,'name_a');
-            if any(is)
-                ind = find(is);
-                names{1} = varargin{ind+1};
-            end
-            is = ismember(argi,'name_b');
-            if any(is)
-                ind = find(is);
-                names{2} = varargin{ind+1};
-            end
         end
     end
     methods(Access=protected)
