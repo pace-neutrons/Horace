@@ -148,7 +148,7 @@ classdef hashable < serializable
             % mess      -- char array empty if iseq == true or containing
             %              more information on the reason behind the
             %              difference if iseq == false
-            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt);
+            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt,varargin{:});
         end
     end
 

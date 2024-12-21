@@ -1,4 +1,4 @@
-function [iseq, mess] =equal_to_tol_single_(obj1, obj2,opt,defined)
+function [iseq, mess] =equal_to_tol_single_(obj1, obj2,opt,varargin)
 % Compare single pair of DnDBase objects
 %
 % internal procedure used by equal_to_toll method to compare
@@ -30,7 +30,7 @@ for i=1:numel(flds)
 
     tmp1 = obj1.(flds{i});
     tmp2 = obj2.(flds{i});
-    if ignore_str && istext(tmp1)
+    if ignore_str && istext(tmp1) && istext(tmp2)
         continue;
     end
     if ismember(flds{i},{'s','e'}) % compare signal and error as single values
@@ -38,7 +38,7 @@ for i=1:numel(flds)
         tmp1 = single(tmp1);
         tmp2 = single(tmp2);
     end
-    [iseq,mess] = equal_to_tol (tmp1 , tmp2, lopt);
+    [iseq,mess] = equal_to_tol (tmp1 , tmp2, lopt,varargin{:});
     if ~iseq
         return;
     end

@@ -55,11 +55,21 @@ function [iseq, mess] = equal_to_tol(obj1, obj2, varargin)
 %   p1, p2,...  Any set of parameters that the equal_to_tol function accepts
 %
 
-[iseq,mess,~,opt,defined] = process_inputs_for_eq_to_tol(obj1, obj2, ...
-    inputname(1), inputname(2),true,varargin{:});
-if ~iseq
-    return;
-end
+% what parameters defaylts are different between this method and defaults,
+% defined in plain equal_to_tol. 
+class_defaults = struct( ...
+        'reorder'      ,true,...
+        'nan_equal'    ,true...
+        );
+[opt,present] = eq_to_tol_process_inputs(inputname(1), inputname(2),class_defaults,...
+    varargin{:});
+
+[is,mess] = eq_to_tol_type_equal(obj1,obj2,opt.name_a,opt.name_b);
+if ~is;  return; end
+
+[is,mess] = eq_to_tol_shape_equal(obj1,obj2,opt.name_a,opt.name_b,opt.ignore_str);
+if ~is; return;end
+
 name_a = opt.name_a;
 name_b = opt.name_b;
 % Perform comparison
@@ -71,7 +81,7 @@ for i = 1:numel(obj1)
         opt.name_b = variable_name(name_b, false, sz, i, 'input_1');
     end
     %
-    [iseq, mess] = equal_to_tol_single(obj1(i), obj2(i), opt,defined);
+    [iseq, mess] = equal_to_tol_single(obj1(i), obj2(i), opt,present);
     if ~iseq
         return
     end

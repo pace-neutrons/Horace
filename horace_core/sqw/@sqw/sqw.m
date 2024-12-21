@@ -184,9 +184,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         % Calculate hkl,en of datest pixels using detectors and experiment
         % info
         qw=calculate_qw_pixels2(win)
-        % Check if two sqw objects are equal to a given tolerance
-        [ok, mess] = equal_to_tol(w1, w2, varargin)
-        
     end
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting
@@ -477,6 +474,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
 
     %======================================================================
     methods(Access = protected)
+        % Check if two sqw objects are equal to a given tolerance
+        [ok, mess] = equal_to_tol_single(w1, w2, varargin)
+        
         % Re #962 TODO: probably delete it
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         % binning of an sqw or dnd object

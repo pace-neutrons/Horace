@@ -1,4 +1,4 @@
-function [is,mess] = eq_to_tol_(obj,other_obj,opt)
+function [iseq,mess] = eq_to_tol_single_(obj1,obj2,opt,defined)
 % Check equality of two ortho projections or two arrays of
 % line_projections comparting the projection transformation
 % instead of  all projection properties
@@ -21,10 +21,6 @@ function [is,mess] = eq_to_tol_(obj,other_obj,opt)
 %           occures (used in unit tests to indicate the details of an
 %           inequality)
 
-[is,mess] = eq_single(obj,other_obj,opt.name_a,opt.name_b,opt);
-end
-
-function [iseq,mess] = eq_single(obj1,obj2,name_a_val,name_b_val,opt)
 % compare single pair of line_proj checking the transformation itself
 %
 if obj1.alatt_defined && obj1.angdeg_defined
@@ -44,7 +40,7 @@ if obj1_undefined && obj2_undefined
     opt.name_a = ['Undefined object: ',name_a_val];
     opt.name_b = ['Undefined object: ',name_a_val];
 
-    [iseq,mess] = equal_to_tol(obj1.to_bare_struct(),obj2.to_bare_struct(),opt);
+    [iseq,mess] = equal_to_tol(obj1.to_bare_struct(),obj2.to_bare_struct(),opt,defined);
     return;
 elseif obj1_undefined && ~obj2_undefined
     iseq = false;
@@ -60,7 +56,7 @@ end
 % both defined to compare them properly
 opt.name_a = [name_a_val,'.q_to_img'];
 opt.name_b = [name_b_val,'.q_to_img'];
-[mat_eq,mess1] = equal_to_tol(q_to_img_1,q_to_img_2,opt);
+[mat_eq,mess1] = equal_to_tol(q_to_img_1,q_to_img_2,opt,defined);
 if ~mat_eq
     mess1 = sprintf('Q_to_img: %s\n',mess1);
 end

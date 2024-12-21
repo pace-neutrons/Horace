@@ -32,7 +32,7 @@ for i=1:numel(flds)
     if opt.ignore_str && istext(tmp1) && istext(tmp2)
         continue;
     end
-    [iseq,mess] = equal_to_tol (tmp1 , tmp2, lopt);
+    [iseq,mess] = equal_to_tol (tmp1 , tmp2, lopt,varargin{:});
     if ~iseq
         return;
     end

@@ -287,59 +287,31 @@ classdef LineProjBase < aProjectionBase
             end
         end
         %
-        function [iseq,mess] = equal_to_tol(obj,other_obj,varargin)
-            % Overloaded equal_to_tol operator comparing the projection
-            % transformation rather then all projection properties
+        function [is,mess] = eq_to_tol_type_equal(obj1,obj2,name_a,name_b)
+            % Helper function used by equal_to_tol to validate if types of
+            % two objects is equal for purposes of equal_to_tol comparison
+            % procedure.
             %
-            % Different projection property values may define the same
-            % transformation, so the projections, which define the same
-            % transformation should be considered the equal.
+            % Overload used in equal_to_tol to check types allowed for compariosn
+            % line_proj allow comparison of two any LineProjBase children
             %
             % Inputs:
-            % other_obj -- the object or array of objects to compare with
-            %               current object
+            % obj1    -- LineProjBase object 1 to compare
+            % obj2    -- presumably LineProjBase object 2 to compare (will
+            %            be verified here)
+            %
             % Optional:
-            % any set of parameters equal_to_tol function would accept, as
-            % eq uses equal_to_tol function internally
+            % name_a  -- the name of first object in comparison
+            % name_b  -- the name of second object in comparison
+            %            These names become part of information message in
+            %            case if objects types are different.
             %
             % Returns:
-            % True if the objects define the sample pixel transformation and
-            %      false if not.
-            % Optional:
-            % message, describing in more details where non-equality
-            % occurs (used in unit tests to indicate the details of
-            % inequality)
-
-            [~,~,~,opt] = process_inputs_for_eq_to_tol( ...
-                obj, other_obj, ...
-                inputname(1), inputname(2),false,varargin{:});
-            if ~isa(obj,'LineProjBase') && isa(other_obj,'LineProjBase')
-                iseq = false;
-                mess = sprintf('Class: "%s" of the object: "%s" and Class: "%s" of the object: "%s" do not have LineProjBase parent',...
-                    class(obj),opt.name_a,class(other_obj),opt.name_b);
-                return;
-            end
-            if any(size(obj) ~= size(other_obj))
-                iseq = false;
-                mess = sprintf('Size: [%s] of the object: "%s" and Size: [%s] of the object: "%s" are different',...
-                    disp2str(size(obj)),opt.name_a,disp2str(size(other_obj)),opt.name_b);
-            end
-            name_a = opt.name_a;
-            name_b = opt.name_b;
-
-            % Perform comparison
-            sz = size(obj);
-            for i = 1:numel(obj)
-                if numel(obj)>1 % the variables will be with
-                    % size-brackets and we do not want them for only one object
-                    opt.name_a = variable_name(name_a, false, sz, i, 'input_1');
-                    opt.name_b = variable_name(name_b, false, sz, i, 'input_2');
-                end
-                [iseq,mess] = eq_to_tol_(obj,other_obj,opt);
-                if ~iseq
-                    return;
-                end
-            end
+            % is      -- true if objects types are equal and false if not.
+            % mess    -- the message providing additinal information about
+            %            object types it the types are different
+            %
+            [is,mess] = eq_to_tol_type_equal_(obj1,obj2,name_a,name_b);
         end
     end
     methods(Static)
@@ -354,6 +326,30 @@ classdef LineProjBase < aProjectionBase
     end
     %======================================================================
     methods(Access=protected)
+        function [iseq,mess] = equal_to_tol_single(obj,other_obj,opt,varargin)
+            % Check equality of two LineProjBase projections   comparting the
+            % projection transformation instead of  all projection properties
+            %
+            % Different projection property values may define the same
+            % transformation, so the projections, which define the same
+            % transformation should be considered the equal.
+            %
+            % Inputs:
+            % obj  -- LineProjBase object to compare
+            % other_obj -- the object to compare with
+            %               current object
+            % opt       -- the structure, process_inputs_for_eq_to_tol returns
+            %
+            % Returns:
+            % is     -- True if the objects define the sampe pixel transformation and
+            %           false if not.
+            %
+            % mess   -- describing in more details where non-equality
+            %           occures (used in unit tests to indicate the details of an
+            %           inequality)
+            [iseq,mess] = eq_to_tol_single_(obj,other_obj,opt,varargin{:});
+        end
+
         function name = get_axes_name(~)
             % return the name of the axes class, which corresponds to this
             % projection
