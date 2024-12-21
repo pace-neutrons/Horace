@@ -64,32 +64,34 @@ if pix.num_pixels == 0
 end
 
 if opt.reorder
-    [ok, mess] = compare_reorder(pix, other_pix, opt);
+    if isempty(opt.npix)
+        opt.npix = pix.num_pixels; % presume pixels are not ordered so all
+        % have to be compared
+    end
+    [ok, mess] = compare_reorder(pix, other_pix, opt,varargin{:});
 elseif opt.fraction ~= 1
-    [ok, mess] = compare_frac(pix, other_pix, opt);
+    [ok, mess] = compare_frac(pix, other_pix, opt,varargin{:});
 else
-    [ok, mess] = compare_raw(pix, other_pix, opt);
+    [ok, mess] = compare_raw(pix, other_pix, opt,varargin{:});
 end
 
 end
 
-function [ok, mess] = compare_raw(pix, other_pix, opt)
+function [ok, mess] = compare_raw(pix, other_pix, opt,present)
 is_fb = [pix.is_filebacked, other_pix.is_filebacked];
 
 if all(is_fb)
-
     for i = 1:pix.num_pages
         pix.page_num = i;
         other_pix.page_num = i;
 
-        [ok, mess] = equal_to_tol(pix.data, other_pix.data, opt);
+        [ok, mess] = equal_to_tol(pix.data, other_pix.data, opt,present);
         if ~ok
             [start_idx, end_idx] = pix.get_page_idx_();
             mess = process_message(mess, start_idx);
             break;
         end
     end
-
 elseif any(is_fb)
     if is_fb(1)
         fb = pix;
@@ -103,27 +105,24 @@ elseif any(is_fb)
         fb.page_num = i;
 
         [start_idx, end_idx] = fb.get_page_idx_();
-        [ok, mess] = equal_to_tol(fb.data, other.data(:, start_idx:end_idx), opt);
+        [ok, mess] = equal_to_tol(fb.data, other.data(:, start_idx:end_idx), opt,present);
 
         if ~ok
             mess = process_message(mess, start_idx);
             break;
         end
-
     end
 
 else
-    [ok, mess] = equal_to_tol(pix.data, other_pix.data,opt);
+    [ok, mess] = equal_to_tol(pix.data, other_pix.data,opt,present);
     mess = process_message(mess);
 end
-
-
 end
 
-function [ok, mess] = compare_frac(pix, other_pix, opt)
+function [ok, mess] = compare_frac(pix, other_pix, opt,present)
 
 compare_spacing = floor(1 / opt.fraction);
-compare_count = pix.num_pixels * opt.fraction;
+%compare_count = pix.num_pixels * opt.fraction;
 chunk_size = get(hor_config, 'mem_chunk_size')*compare_spacing;
 
 for i = 1:chunk_size:pix.num_pixels
@@ -131,7 +130,7 @@ for i = 1:chunk_size:pix.num_pixels
     range = round(i:compare_spacing:lim);
     candidate_a = pix.data(range);
     candidate_b = other_pix.data(range);
-    [ok, mess] = equal_to_tol(candidate_a, candidate_b, opt);
+    [ok, mess] = equal_to_tol(candidate_a, candidate_b, opt,present);
 
     if ~ok
         mess = process_message(mess, i, compare_spacing);
@@ -141,7 +140,7 @@ end
 
 end
 
-function [ok, mess] = compare_reorder(pix1, pix2, opt)
+function [ok, mess] = compare_reorder(pix1, pix2, opt,present)
 if ~isfield(opt,'npix') || isempty(opt.npix)
     error('HORACE:equal_to_tol:invalid_argument', ...
         'Requested pixel reorder, did not provide npix')
@@ -180,7 +179,7 @@ for i = 1:mem_chunk_size:numel(pix_ind)
     s2 = s2.data(:,ix2);
 
     % Now compare retained pixels
-    [ok, mess] = equal_to_tol(s1, s2, opt);
+    [ok, mess] = equal_to_tol(s1, s2, opt,present);
     if ~ok
         mess = process_message(mess, i, compare_spacing, ix1, ix2);
         return;
@@ -189,25 +188,6 @@ end
 
 end
 
-function [ok, mess] = validate_other_pix(pix, other_pix)
-ok = true;
-mess = '';
-
-if ~isa(other_pix, 'PixelDataBase')
-    ok = false;
-    mess = sprintf('Objects of class ''%s'' and ''%s'' cannot be equal.', ...
-        class(pix), class(other_pix));
-    return;
-end
-
-if pix.num_pixels ~= other_pix.num_pixels
-    ok = false;
-    mess = sprintf(['PixelData objects are not equal. ' ...
-        'Argument 1 has %i pixels, argument 2 has %i'], ...
-        pix.num_pixels, other_pix.num_pixels);
-    return;
-end
-end
 
 function mess = process_message(mess, offset, spacing, ix1, ix2)
 % Reprocess error message to give accurate pixel numbers and column name

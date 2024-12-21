@@ -1,4 +1,4 @@
-function [is,mess] = eq_to_tol_type_equal_(obj1,obj2,name_a,name_b)
+function [is,mess] = eq_to_tol_type_equal_(pix1,pix2,name_a,name_b)
 % Helper function used by equal_to_tol to validate
 % if type of two objects is equal for purposes of equal_to_tol comparison
 % procedure
@@ -23,9 +23,14 @@ function [is,mess] = eq_to_tol_type_equal_(obj1,obj2,name_a,name_b)
 is   = true;
 mess = '';
 
-% first object is certanly PixelDataBase. Check second
-if isa(obj2,'PixelDataBase')
-    return;
+% first object is certanly PixelDataBase. Check sececond
+
+right_type = isa(pix2,'PixelDataBase');
+if right_type
+    right_npix = pix1.num_pixels == pix2.num_pixels;
+    if right_npix
+        return
+    end
 end
 
 if nargin<3
@@ -36,6 +41,13 @@ if nargin<4
 end
 
 is = false;
-mess = sprintf('Objects have different types. "%s" has class: "%s" and "%s" class: "%s"', ...
-    name_a,class(obj1), name_b,class(obj2));
+if ~right_type
+    mess = sprintf('Objects have different types. var:"%s" has class: "%s" and var:"%s" class: "%s"', ...
+        name_a,class(pix1), name_b,class(pix2));
+    return;
+end
+
+mess = sprintf(['PixelData objects have different number of pixels. ', ...
+    'var:%s has: %i pixels and var:%s has: %i'], ...
+    name_a,pix1.num_pixels,name_b, pix2.num_pixels);
 end

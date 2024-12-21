@@ -100,8 +100,8 @@ else    % recursive call to processing inputs.
         % whith value, different from default. This is not exactly true
         % as you may request to set default value, but would be good
         % approximation to truth.
-        present = opt;
-        flds = fieldnames(opt);
+        present = global_par;
+        flds = fieldnames(global_par);
         for i=1:numel(flds)
             fld = flds{i};
             present.(fld) = ~isequal(global_par.(fld),opt.(fld));

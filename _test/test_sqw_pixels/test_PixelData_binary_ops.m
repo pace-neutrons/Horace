@@ -178,7 +178,7 @@ classdef test_PixelData_binary_ops < TestCase
 
             assertEqual(pix_result.signal, operand./pix.signal);
             expected_var = pix.variance.*((pix_result.signal./pix.signal).^2);
-            assertEqual(pix_result.variance, expected_var);
+            assertEqual(pix_result.variance, expected_var,'-nan_equal');
             assertEqual(pix_result.data(1:7, :), pix.data(1:7, :));
         end
 

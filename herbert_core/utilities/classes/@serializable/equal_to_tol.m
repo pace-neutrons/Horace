@@ -64,11 +64,11 @@ class_defaults = struct( ...
 [opt,present] = eq_to_tol_process_inputs(inputname(1), inputname(2),class_defaults,...
     varargin{:});
 
-[is,mess] = eq_to_tol_type_equal(obj1,obj2,opt.name_a,opt.name_b);
-if ~is;  return; end
+[iseq,mess] = eq_to_tol_type_equal(obj1,obj2,opt.name_a,opt.name_b);
+if ~iseq;  return; end
 
-[is,mess] = eq_to_tol_shape_equal(obj1,obj2,opt.name_a,opt.name_b,opt.ignore_str);
-if ~is; return;end
+[iseq,mess] = eq_to_tol_shape_equal(obj1,obj2,opt.name_a,opt.name_b,opt.ignore_str);
+if ~iseq; return;end
 
 name_a = opt.name_a;
 name_b = opt.name_b;
