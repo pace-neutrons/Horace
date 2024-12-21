@@ -117,17 +117,16 @@ function [ok,mess,opt]=equal_to_tol(a,b,varargin)
 
 
 
-warn = warning('off','MATLAB:structOnObject');
-cleanup_obj = onCleanup(@()warning(warn));
-[ok,mess,~,opt] = process_inputs_for_eq_to_tol(a, b, ...
-    inputname(1), inputname(2),true, varargin{:});
-if ~ok
-    return
-end
+cleanup_obj = set_temporary_warning('off','MATLAB:structOnObject');
+%
+[opt,present] = eq_to_tol_process_inputs(inputname(1), inputname(2),'',...
+    varargin{:});
 %
 % Now perform comparison
 try
-    equal_to_tol_private(a,b,opt);
+    equal_to_tol_private(a,b,opt,present);
+    ok = true;
+    mess = [];
 catch ME
     if opt.throw_on_err
         rethrow(ME)
@@ -142,11 +141,11 @@ end
 end
 
 %--------------------------------------------------------------------------------------------------
-function equal_to_tol_private(a,b,opt)
+function equal_to_tol_private(a,b,opt,present)
 % Check the equality of two arguments within defined tolerance
 % Used by public functions equal_to_tol and equaln_to_tol
 %
-%   >> equal_to_tol_private (a, b, opt, obj_name)
+%   >> equal_to_tol_private (a, b, opt, present)
 %
 % Input:
 % ------
@@ -164,6 +163,14 @@ function equal_to_tol_private(a,b,opt)
 
 % Lazy handling of MATLAB strings
 [a,b] = convertStringsToChars(a,b);
+[is,mess] = eq_to_tol_type_equal(a,b,opt.name_a,opt.name_b);
+if ~is
+     error('HERBERT:equal_to_tol:inputs_mismatch',mess);
+end
+[is,mess] = eq_to_tol_shape_equal(a,b,opt.name_a,opt.name_b,opt.ignore_str);
+if ~is
+     error('HERBERT:equal_to_tol:inputs_mismatch',mess);
+end
 if opt.ignore_str && (iscellstr(a)||ischar(a)) && (iscellstr(b)||ischar(b))
     % Case of strings and cell array of strings if they are to be ignored
     % If cell arrays of strings then contents and number of strings are
@@ -174,15 +181,8 @@ elseif isobject(a) && isobject(b)
     % --------------------------
     % Both arguments are objects
     % --------------------------
-    % Check sizes of arrays are the same
-    [is,mess] = is_type_and_shape_equal(a,b,opt);
-    if ~is
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            'Comparing: %s and %s: %s',...
-            opt.name_a,opt.name_b,mess);
-    end
     if ismethod(a,'equal_to_tol')
-        [ok,mess] = equal_to_tol(a,b,opt);
+        [ok,mess] = equal_to_tol(a,b,opt,present);
         if ~ok
             error('HERBERT:equal_to_tol:inputs_mismatch',...
                 ['%s and %s: Objects are not equal due to class-specific equal_to_tol method\n',...
@@ -236,7 +236,7 @@ elseif isobject(a) && isobject(b)
             lopt = opt;
             lopt.name_a = [name_a_ind,'.',fieldsA{j}];
             lopt.name_b = [name_b_ind,'.',fieldsA{j}];
-            equal_to_tol_private(Sa.(fieldsA{j}), Sb.(fieldsA{j}), lopt);
+            equal_to_tol_private(Sa.(fieldsA{j}), Sb.(fieldsA{j}), lopt,present);
         end
     else
         name_a = opt.name_a;
@@ -256,7 +256,7 @@ elseif isobject(a) && isobject(b)
                 lopt.name_a = [name_a_ind,'.',fieldsA{j}];
                 lopt.name_b = [name_b_ind,'.',fieldsA{j}];
 
-                equal_to_tol_private(Sa.(fieldsA{j}), Sb.(fieldsA{j}), lopt);
+                equal_to_tol_private(Sa.(fieldsA{j}), Sb.(fieldsA{j}), lopt,present);
             end
         end
     end
@@ -265,14 +265,6 @@ elseif isstruct(a) && isstruct(b)
     % -----------------------------
     % Both arguments are structures
     % -----------------------------
-    % Check sizes of structure arrays are the same
-    sz=size(a);
-    if ~isequal(sz,size(b))
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Sizes of arrays of structures being compared are not equal',...
-            opt.name_a,opt.name_b);
-    end
-
     % Check fieldnames are identical
     fieldsA = fieldnames(a);
     fieldsB = fieldnames(b);
@@ -295,7 +287,7 @@ elseif isstruct(a) && isstruct(b)
             lopt.name_a = [name_a,'.',fieldsA{j}];
             lopt.name_b = [name_b,'.',fieldsA{j}];
 
-            equal_to_tol_private (a.(fieldsA{j}),b.(fieldsA{j}), lopt);
+            equal_to_tol_private (a.(fieldsA{j}),b.(fieldsA{j}), lopt,present);
         end
 
     else
@@ -317,13 +309,6 @@ elseif iscell(a) && iscell(b)
     % ------------------------------
     % Both arguments are cell arrays
     % ------------------------------
-    % Check sizes of structure arrays are the same
-    sz=size(a);
-    if ~isequal(sz,size(b))
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Sizes of cell arrays being compared are not equal',...
-            opt.name_a,opt.name_b);
-    end
 
     name_a = opt.name_a;
     name_b = opt.name_b;
@@ -333,7 +318,7 @@ elseif iscell(a) && iscell(b)
         lopt.name_a =[name_a,'{',arraystr(sz,i),'}'];
         lopt.name_b = [name_b,'{',arraystr(sz,i),'}'];
 
-        equal_to_tol_private (a{i} ,b{i}, lopt);
+        equal_to_tol_private (a{i} ,b{i}, lopt,present);
     end
 
 elseif isnumeric(a) && isnumeric(b)
@@ -346,12 +331,6 @@ elseif ischar(a) && ischar(b)
     % -----------------------------------
     % Both arguments are character arrays
     % -----------------------------------
-    % Check sizes of structure arrays are the same
-    if ~isequal(size(a),size(b))
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Sizes of character arrays being compared are not equal',...
-            opt.name_a,opt.name_b);
-    end
     is_datetime = false;
     if isrow(a) && ~isempty(regexp(a, '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}','once'))
         % Probably dealing with datetime string
@@ -383,13 +362,6 @@ elseif strcmp(class(a),class(b))
     % Catch-all for anything else - should hsve been caught by the cases above
     % but Alex had added it (I think), so maybe it was needed
     % ------------------------------------------------------------------------
-    if ~isequal(size(a),size(b))
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Sizes of arrays of objects being compared are not equal',...
-            opt.name_a,opt.name_b);
-
-    end
-
     if ~isequal(a,b)
         error('HERBERT:equal_to_tol:inputs_mismatch',...
             '%s and %s: Object (or object arrays) are not equal',...

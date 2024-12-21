@@ -55,7 +55,7 @@ function [iseq, mess] = equal_to_tol(obj1, obj2, varargin)
 %   p1, p2,...  Any set of parameters that the equal_to_tol function accepts
 %
 
-[iseq,mess,~,opt] = process_inputs_for_eq_to_tol(obj1, obj2, ...
+[iseq,mess,~,opt,defined] = process_inputs_for_eq_to_tol(obj1, obj2, ...
     inputname(1), inputname(2),true,varargin{:});
 if ~iseq
     return;
@@ -71,7 +71,7 @@ for i = 1:numel(obj1)
         opt.name_b = variable_name(name_b, false, sz, i, 'input_1');
     end
     %
-    [iseq, mess] = equal_to_tol_single(obj1(i), obj2(i), opt);
+    [iseq, mess] = equal_to_tol_single(obj1(i), obj2(i), opt,defined);
     if ~iseq
         return
     end

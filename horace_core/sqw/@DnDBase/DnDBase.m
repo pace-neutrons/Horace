@@ -616,7 +616,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             %DnD objects never filebacked
             is = false;
         end
-        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt)
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
             % internal procedure used by equal_to_toll method to compare
             % single pair of DnDBase objects
             % Input:
@@ -633,7 +633,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             % mess      -- char array empty if iseq == true or containing
             %              more information on the reason behind the
             %              difference if iseq == false
-            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt);
+            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt,varargin{:});
         end        
 
     end

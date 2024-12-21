@@ -58,7 +58,7 @@ spe_new=spe(w);
 spe_zer = spe_new.ERR==0;
 spe_new.ERR(spe_zer)=nan;
 %
-[ok,mess]=equal_to_tol(spe_new,spe_ref,[-5e-7,5e-7],'-ignore_str','-nan_equal');
+[ok,mess]=equal_to_tol(spe_new,spe_ref,[5e-7,5e-7],'-ignore_str','-nan_equal');
 if ~ok
     assertTrue(false,...
         ['original spe file and sqw->spe conversion are different, error: '...

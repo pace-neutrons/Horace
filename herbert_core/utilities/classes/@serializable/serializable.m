@@ -333,7 +333,7 @@ classdef (Abstract=true) serializable
         [obj, remains] = set_positional_and_key_val_arguments (obj, ...
             positional_param_names_list, old_keyval_compat, varargin)
 
-        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt)
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
             % internal procedure used by equal_to_toll method to compare
             % single pair of serializable objects
             % Input:
@@ -350,7 +350,7 @@ classdef (Abstract=true) serializable
             % mess      -- char array empty if iseq == true or containing
             %              more information on the reason behind the
             %              difference if iseq == false
-            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt);
+            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt,varargin{:});
         end
     end
 

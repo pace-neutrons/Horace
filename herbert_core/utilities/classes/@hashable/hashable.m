@@ -128,7 +128,7 @@ classdef hashable < serializable
         isne = ne (obj1, obj2)
     end
     methods(Access=protected)
-        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt)
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
             % internal procedure used by equal_to_toll method to compare
             % single pair of hashable objects. 
             % 

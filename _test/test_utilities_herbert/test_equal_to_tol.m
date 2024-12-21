@@ -13,6 +13,7 @@ classdef test_equal_to_tol < TestCase
             a = 10;
             b = 10.05;
             [ok,mess,opt] = equal_to_tol(a,b,0.1);
+
             assertTrue(ok)
             assertTrue(isempty(mess));
             assertEqual(opt.name_a,'a');
@@ -20,7 +21,11 @@ classdef test_equal_to_tol < TestCase
             assertEqual(opt.tol,[0.1,0]);
             assertTrue(opt.recursive_call);
 
-            [ok,mess,opt] = equal_to_tol(a,b,opt,[0.2,0.1]);
+            [opt1,present] = eq_to_tol_process_inputs('a','b','',0.1);   
+            assertEqual(opt,opt1);
+
+            % test "recursive" call
+            [ok,mess,opt] = equal_to_tol(a,b,opt,present,[0.2,0.1]);
             assertTrue(ok)
             assertTrue(isempty(mess));
             assertEqual(opt.name_a,'a');

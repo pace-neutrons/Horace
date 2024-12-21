@@ -1,4 +1,4 @@
-function [ok, mess] = equal_to_tol(pix, other_pix, varargin)
+function [ok, mess] = equal_to_tol_single(pix, other_pix, opt,defined)
 %% EQUAL_TO_TOL Check if two PixelData objects are equal to a given tolerance
 %
 % Input:
@@ -55,8 +55,10 @@ function [ok, mess] = equal_to_tol(pix, other_pix, varargin)
 %            (default = 'input_2').
 %
 
-[~,~,~,opt] = process_inputs_for_eq_to_tol(pix, other_pix, ...
-    inputname(1), inputname(2), false,varargin{:});
+% change default behaviour of nan
+if ~defined.nan_equal
+    opt.nan_equal = true;
+end
 
 [ok, mess] = validate_other_pix(pix, other_pix);
 if ~ok

@@ -418,7 +418,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
 
-        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
+
 
         function obj = invalidate_range(obj,fld)
             % set the data range to inverse values
@@ -771,6 +771,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     % Overloadable protected getters/setters for properties
     methods(Access=protected)        %
+        % check equivalence between two pixel objects
+        [ok, mess] = equal_to_tol_single(obj, other_pix, opt,defined);
         function val = check_set_prop(obj,fld,val)
             % check input parameters of set_property function
             if ~isnumeric(val)

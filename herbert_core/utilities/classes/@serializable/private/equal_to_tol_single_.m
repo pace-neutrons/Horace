@@ -1,4 +1,4 @@
-function [iseq, mess] =equal_to_tol_single_(obj1, obj2,opt)
+function [iseq, mess] =equal_to_tol_single_(obj1, obj2,opt,varargin)
 % Compare single pair of serializeble objects
 %
 % internal procedure used by equal_to_toll method to compare
