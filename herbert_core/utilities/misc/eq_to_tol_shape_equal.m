@@ -33,6 +33,8 @@ if istext(obj1)
     if ignore_str
         return;
     end
+end
+if isstring(obj1)
     sz1 = strlength(obj1);
     sz2 = strlength(obj2);
 else
