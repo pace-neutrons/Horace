@@ -23,6 +23,8 @@ function [iseq,mess] = eq_to_tol_single_(obj1,obj2,opt,defined)
 
 % compare single pair of line_proj checking the transformation itself
 %
+name_a_val = opt.name_a;
+name_b_val = opt.name_b;
 if obj1.alatt_defined && obj1.angdeg_defined
     [q_to_img_1,shift_1,ulen1] = obj1.get_pix_img_transformation(4);
     obj1_undefined = false;
