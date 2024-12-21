@@ -69,7 +69,7 @@ global_par = struct(...
 % check if equal_to_toll has been called from other eq_to_tol procedure.
 if ~isempty(varargin)
     opt_guess = varargin{1};
-    first_call  = ~isstruct(opt_guess)&&isfield(opt_guess ,'recursive_call');
+    first_call  = ~(isstruct(opt_guess)&&isfield(opt_guess ,'recursive_call'));
 else
     first_call  = true;
 end
@@ -92,7 +92,21 @@ if first_call
     [opt,present] = parse_equal_to_tol_inputs(global_par,varargin{:});
 else    % recursive call to processing inputs.
     opt     = opt_guess;
-    present = varargin{2};
+    % protect yourself agains receiving call without "present" structure
+    % provided
+    if numel(varargin)>1
+        present = varargin{2};
+    else %restore "present" structure assuming that present are fields
+        % whith value, different from default. This is not exactly true
+        % as you may request to set default value, but would be good
+        % approximation to truth.
+        present = opt;
+        flds = fieldnames(opt);
+        for i=1:numel(flds)
+            fld = flds{i};
+            present.(fld) = ~isequal(global_par.(fld),opt.(fld));
+        end
+    end
     % Modify defaults which have not been alreary modified with
     % class_default specific values.
     if ~isempty(class_defaults)

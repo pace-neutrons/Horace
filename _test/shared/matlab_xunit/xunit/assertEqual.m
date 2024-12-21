@@ -67,7 +67,9 @@ elseif istext(custom_message)
         custom_message = '';
     else
         % retrieve list of keys, accepted by equal_to_tol;
-        [~,~,~,opt] = process_inputs_for_eq_to_tol('','','','',false);
+        opt = eq_to_tol_process_inputs('','','');
+        % check if one of the key-value pairs of equal_to_tol is erroneusly
+        % taken as custom message
         keys = fieldnames(opt);
         if ismember(custom_message,keys)
             argi =[custom_message;tol;varargin(:)];
@@ -110,6 +112,9 @@ end
 
 [ok,message] = equal_to_tol(A,B,argi{:});
 if ~ok
-    error('assertEqual:nonEqual', '%s', message);
+    if ~isempty(custom_message)
+        message = sprintf('%s\n*** Reason %s',custom_message,message);
+    end
+    error('assertEqual:nonEqual',message);
 end
 

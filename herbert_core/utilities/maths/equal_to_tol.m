@@ -291,6 +291,7 @@ elseif isstruct(a) && isstruct(b)
         end
 
     else
+        sz = size(a); % b was verified earlier
         for i=1:numel(a)
             name_a_ind = [name_a,'(',arraystr(sz,i),')'];
             name_b_ind = [name_b,'(',arraystr(sz,i),')'];
@@ -300,7 +301,7 @@ elseif isstruct(a) && isstruct(b)
                 lopt.name_b = [name_b_ind,'.',fieldsA{j}];
 
                 equal_to_tol_private (a(i).(fieldsA{j}),...
-                    b(i).(fieldsA{j}), lopt);
+                    b(i).(fieldsA{j}), lopt,present);
             end
         end
     end
@@ -309,7 +310,8 @@ elseif iscell(a) && iscell(b)
     % ------------------------------
     % Both arguments are cell arrays
     % ------------------------------
-
+    sz = size(a); % b was verified earlier
+    %
     name_a = opt.name_a;
     name_b = opt.name_b;
     % Check contents of each element of the arrays
