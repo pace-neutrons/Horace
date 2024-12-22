@@ -598,8 +598,10 @@ classdef IX_detector_array < hashable
         end
         function flds = hashableFields(~)
             % Return cellarray of properties defining the class hash for
-            % comparison
-            flds = {'det_bank', 'filename'};
+            % comparison. Filename and filepath should not be used in
+            % hashes as detectors retrieved from different experiment files
+            % are usually the same.
+            flds = {'det_bank'};
         end
 
         function flds = saveableFields(~)
