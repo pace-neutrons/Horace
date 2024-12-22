@@ -159,38 +159,38 @@ classdef test_main_mex < TestCase
 
             assertEqual(size(pix_c.data, 1), 9);
         end
-        
+
         function test_hashing(~)
-            
+
             hcf = hor_config;
-            
+
             % store original value in config to restore at end of test
             use_mex = hcf.use_mex;
             cl0b = onCleanup( @()hcf.set('use_mex', use_mex) );
-            
+
             % object to test for native Matlab types
             obj1 = 'hello';
             % object to test for subclasses of serializable
             obj2 = IX_inst_DGfermi();
-            
+
             % make hashes with mex off
             hcf.use_mex = false;
             [~,hash1_nomex] = build_hash(obj1);
             [~,hash2_nomex] = build_hash(obj2);
-            
+
             % make hashes with mex on
             hcf.use_mex = true;
             [~,hash1_mex] = build_hash(obj1);
             [~,hash2_mex] = build_hash(obj2);
-            
+
             % compare mex and nomex hashes
             assertTrue( strcmp(hash1_nomex, hash1_mex) );
             assertTrue( strcmp(hash2_nomex, hash2_mex) );
-            
+
             % compare hashes against previously recorded values
             assertTrue( strcmp(hash1_nomex, 'b7e33a9818a21b4a33425f56c7751a4a') );
-            assertTrue( strcmp(hash2_nomex, '1126c4e1f9a655b8c8639289d7820c69') );
-            
+            assertTrue( strcmp(hash2_nomex, 'a656e2a223791fc39723949baebfddbc') );
+
             % check that the GetMD5 code is present in the mex functions
             % and that the check for this is correctly set up
             mex_list = check_horace_mex;
