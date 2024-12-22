@@ -67,7 +67,7 @@ classdef test_loader_ascii < TestCase
             str = ld.to_struct();
             ld_rec = serializable.from_struct(str);
 
-            assertEqual(ld,ld_rec);
+            assertEqual(ld,ld_rec,'-nan_equal');
         end
 
         function test_saveload_loader_onfile(obj)
@@ -126,7 +126,7 @@ classdef test_loader_ascii < TestCase
             str = loader.to_struct();
             ldr_rec = serializable.from_struct(str);
 
-            assertEqual(loader,ldr_rec);
+            assertEqual(loader,ldr_rec,'-nan_equal');
         end
 
         function test_load_spe(obj)

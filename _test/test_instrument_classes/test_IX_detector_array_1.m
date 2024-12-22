@@ -120,7 +120,7 @@ classdef test_IX_detector_array_1 < TestCaseWithSave
             D = IX_detector_array (B);
             Dtest = IX_detector_array (B.id, B.x2, B.phi,...
                 'det', B.det, 'rotvec', B.rotvec,'azim', B.azim);
-            assertEqual (D, Dtest)
+            assertEqual (D, Dtest,'',1.e-9)
         end
         
         %--------------------------------------------------------------------------

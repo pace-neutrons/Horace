@@ -272,7 +272,7 @@ classdef test_IX_experiment <  TestCase
 
             ch1 = exp1.build_hash();
             ch2 = exp2.build_hash();
-            assertEqual(ch1,ch2);
+            assertEqual(ch1,ch2,'-ignore_str');
         end
 
         function test_convert_to_and_from_old_binfile_headers(~)
@@ -294,7 +294,7 @@ classdef test_IX_experiment <  TestCase
             exp.run_id = NaN;
             % old headers are stored in radians
             exp.angular_units = 'rad';
-            assertEqual(exp,exp_rec);
+            assertEqual(exp,exp_rec,'-nan_equal');
         end
         function test_get_runids(~)
             exp = [IX_experiment(),IX_experiment()];
@@ -372,7 +372,7 @@ classdef test_IX_experiment <  TestCase
                 exp(i).angular_is_degree = false;
             end
 
-            assertEqual(exp,exp_rec);
+            assertEqual(exp,exp_rec,'-nan_equal');
         end
 
         function test_recover_from_v1_structure_single(~)
@@ -393,7 +393,7 @@ classdef test_IX_experiment <  TestCase
             exp.angular_is_degree = false;
 
 
-            assertEqual(exp,exp_rec);
+            assertEqual(exp,exp_rec,'-nan_equal');
         end
 
         function test_set_invalid_runid_throws(~)

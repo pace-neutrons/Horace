@@ -38,7 +38,9 @@ classdef test_equal_to_tol < TestCase
             sqw_2d = sqw(obj.test_sqw_file_path);
             [ok, mess] = equal_to_tol(obj.dnd_2d, sqw_2d);
             assertFalse(ok);
-            assertEqual(mess, 'Objects being compared are not the same type');
+            assertTrue( ...
+                strcmp(mess, ...
+                'Objects have different types. "input_1" has class: "d2d" and "input_2" class: "sqw"'));
         end
 
         function test_different_d2d_objects_are_not_equal(obj)

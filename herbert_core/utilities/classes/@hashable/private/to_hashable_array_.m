@@ -5,13 +5,14 @@ function [obj,arr] = to_hashable_array_ (obj)
 %
 % Input:
 % ------
-%   obj -- Object or array of objects which are hashable
-%
+%   obj -- Object or array of objects which are hashable, possibly
+%          containing subobjects which are hashable with calculated
+%          or not calculated hashes.
 %
 % Output:
 % -------
 %  obj  --  input object, containing possible children hashable objects
-%           wich calculated hashes
+%           wich calculated hashes.
 %  arr  --  uint8 array of unique data -- basis for building unique object
 %           hash.
 
@@ -34,9 +35,9 @@ for j = 1:numel(obj)
             if new_hash
                 obj(j).do_check_combo_arg = false; % if this operation is
                 % part of constructor we do not need to check combo_values.
-                % If may fail.
+                % It may fail.
                 obj(j).(field_name) = val;
-                obj(j).do_check_combo_arg = true;                
+                obj(j).do_check_combo_arg = true;
             end
             if iscell(hash) % use array of hashes as source for final hash
                 hash = strjoin(hash ,'');

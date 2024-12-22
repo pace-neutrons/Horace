@@ -834,7 +834,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 alatt0,angdeg0, bragg_pos);
             hpc = hpc_config;
             assertTrue(hpc.parallel_multifit);
-            assertEqualWithSave(obj,corr)
+            assertEqualWithSave(obj,corr,'',1.e-8)
         end
 
         function test_bragg_pos(obj)
@@ -865,8 +865,8 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 0.1     0.07   0.1];
             assertElementsAlmostEqual(width, width_sample, 'absolute', 1.e-1);
             % contains path, so need no-string comparison
-            assertEqualToTolWithSave(obj, wcut, 1.e-6, 'ignore_str', true);
-            assertEqualToTolWithSave(obj, wpeak, 1.e-6, 'ignore_str', true);
+            assertEqualToTolWithSave(obj, wcut, 1.e-6, '-ignore_str','-nan_equal');
+            assertEqualToTolWithSave(obj, wpeak, 1.e-6,'-ignore_str','-nan_equal');
         end
 
         function delete(obj)

@@ -118,7 +118,7 @@ classdef test_sqw_binary_ops < TestCase
 
             assertEqual(w_res.pix.signal, operand./w1.pix.signal);
             expected_var = w1.pix.variance.*((w_res.pix.signal./w1.pix.signal).^2);
-            assertEqual(w_res.pix.variance, expected_var);
+            assertEqual(w_res.pix.variance, expected_var,'-nan_equal');
 
             ws = recompute_bin_data(w_res);
             assertEqualToTol(ws.data,w_res.data);

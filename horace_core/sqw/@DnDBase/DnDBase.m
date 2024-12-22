@@ -587,9 +587,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             error('HORACE:DnDBase:runtime_error', ...
                 'sqw_eval_pix can not be invoked on dnd object');
         end
-        function [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
-            [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
-        end
         %
         function obj = set_senpix(obj,val,field)
             % set signal error or npix value to a class field
@@ -619,6 +616,25 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             %DnD objects never filebacked
             is = false;
         end
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
+            % internal procedure used by equal_to_toll method to compare
+            % single pair of DnDBase objects
+            % Input:
+            % obj       -- first object to compare
+            % other_obj -- second object to compare
+            % opt       -- the structure containing fieldnames and their
+            %              values as accepted by generic equal_to_tol
+            %              procedure or retruned by
+            %              process_inputs_for_eq_to_tol function
+            %
+            % Returns:
+            % iseq      -- logical containing true if objects are equal and
+            %              false otherwise.
+            % mess      -- char array empty if iseq == true or containing
+            %              more information on the reason behind the
+            %              difference if iseq == false
+            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt,varargin{:});
+        end        
 
     end
     %======================================================================

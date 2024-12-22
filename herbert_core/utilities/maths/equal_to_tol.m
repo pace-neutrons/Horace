@@ -1,4 +1,4 @@
-function [ok,mess]=equal_to_tol(a,b,varargin)
+function [ok,mess,opt]=equal_to_tol(a,b,varargin)
 % Check if two arguments are equal within a specified tolerance
 %
 %   >> ok = equal_to_tol (a, b)
@@ -73,19 +73,27 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %                  default is 'input_2'
 %  'ignore_str'    Ignore the length and content of strings or cell arrays
 %                  of strings (true or false; default=false)
-%                  
-%   throw_on_err   Instead of returning error codes, thow error if
+%
+%   throw_on_err   Instead of returning error codes, throw error if
 %                  comparison returns false
 %
 % Valid keys (if present, true, if absent, false) are:
 % '-ignore_str'    Ignore the length and content of strings or cell arrays
-% '-throw_on_err'  Instead of returning error codes, thow error if
+% '-throw_on_err'  Instead of returning error codes, though error if
 %                  comparison returns false.
 %
 % Output:
 % -------
 %   ok      true if every element satisfies tolerance criterion, false if not
 %   mess    error message if ~ok ('' if ok)
+%
+% Optional:
+% opt              a structure containing all fields equal_to_tol may
+%                  accept with either default values or values, extracted
+%                  from input parameters.
+%                  Currently used in tests only and probably should remain this way.
+%                  Call  process_inputs_for_eq_to_tol procedure to obtain these keys
+%                  as fields of its output structure.
 %
 %
 % -----------------------------
@@ -108,38 +116,17 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %       tol = [|rel_tol|*min_denominator, |rel_tol|]
 
 
-% Original author: T.G.Perring
+
+cleanup_obj = set_temporary_warning('off','MATLAB:structOnObject');
 %
-%
-% The following code is pretty complex as it has to handle legacy input as
-% well. Touch at your peril!
-
-ok = true;
-mess = '';
-
-warn = warning('off','MATLAB:structOnObject');
-cleanup_obj = onCleanup(@()warning(warn));
-
-
-% Get names of input variables, if can
-name_a_default = 'lhs_obj';
-name_b_default = 'rhs_obj';
-name_a = inputname(1);
-name_b = inputname(2);
-if isempty(name_a)
-    name_a = name_a_default;
-end
-if isempty(name_b)
-    name_b = name_b_default;
-end
-% Lazy handling of MATLAB strings
-[a,b] = convertStringsToChars(a,b);
-%
-opt = parse_equal_to_tol_inputs(name_a,name_b,varargin{:});
+[opt,present] = eq_to_tol_process_inputs(inputname(1), inputname(2),'',...
+    varargin{:});
 %
 % Now perform comparison
 try
-    equal_to_tol_private(a,b,opt);
+    equal_to_tol_private(a,b,opt,present);
+    ok = true;
+    mess = [];
 catch ME
     if opt.throw_on_err
         rethrow(ME)
@@ -154,11 +141,11 @@ end
 end
 
 %--------------------------------------------------------------------------------------------------
-function equal_to_tol_private(a,b,opt)
+function equal_to_tol_private(a,b,opt,present)
 % Check the equality of two arguments within defined tolerance
 % Used by public functions equal_to_tol and equaln_to_tol
 %
-%   >> equal_to_tol_private (a, b, opt, obj_name)
+%   >> equal_to_tol_private (a, b, opt, present)
 %
 % Input:
 % ------
@@ -174,8 +161,17 @@ function equal_to_tol_private(a,b,opt)
 %   name_a      Name of first variable
 %   name_b      Name of second variable
 
-
-if opt.ignore_str && (iscellstr(a)||istext(a)) && (iscellstr(b)||istext(b))
+% Lazy handling of MATLAB strings
+[a,b] = convertStringsToChars(a,b);
+[is,mess] = eq_to_tol_type_equal(a,b,opt.name_a,opt.name_b);
+if ~is
+     error('HERBERT:equal_to_tol:inputs_mismatch',mess);
+end
+[is,mess] = eq_to_tol_shape_equal(a,b,opt.name_a,opt.name_b,opt.ignore_str);
+if ~is
+     error('HERBERT:equal_to_tol:inputs_mismatch',mess);
+end
+if opt.ignore_str && (iscellstr(a)||ischar(a)) && (iscellstr(b)||ischar(b))
     % Case of strings and cell array of strings if they are to be ignored
     % If cell arrays of strings then contents and number of strings are
     % ignored e.g. {'Hello','Mr'}, {'Dog'} and '' are all considered equal
@@ -185,15 +181,8 @@ elseif isobject(a) && isobject(b)
     % --------------------------
     % Both arguments are objects
     % --------------------------
-    % Check sizes of arrays are the same
-    sz=size(a);
-    if ~isequal(sz,size(b))
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Sizes of arrays of objects being compared are not equal',...
-            opt.name_a,opt.name_b);
-    end
     if ismethod(a,'equal_to_tol')
-        [ok,mess] = equal_to_tol(a,b,opt);
+        [ok,mess] = equal_to_tol(a,b,opt,present);
         if ~ok
             error('HERBERT:equal_to_tol:inputs_mismatch',...
                 ['%s and %s: Objects are not equal due to class-specific equal_to_tol method\n',...
@@ -202,7 +191,14 @@ elseif isobject(a) && isobject(b)
         end
         return;
     end
-
+    if ismethod(a,'isequal')
+        ok = isequal(a,b);
+        if ok
+            return
+        end
+        % otherwise, try more elaborate comparison, which may request
+        % analyzing
+    end
     try
         fieldsA = {meta.class.fromName(class(a)).PropertyList(:).Name};
         fieldsB = {meta.class.fromName(class(b)).PropertyList(:).Name};
@@ -240,11 +236,12 @@ elseif isobject(a) && isobject(b)
             lopt = opt;
             lopt.name_a = [name_a_ind,'.',fieldsA{j}];
             lopt.name_b = [name_b_ind,'.',fieldsA{j}];
-            equal_to_tol_private(Sa.(fieldsA{j}), Sb.(fieldsA{j}), lopt);
+            equal_to_tol_private(Sa.(fieldsA{j}), Sb.(fieldsA{j}), lopt,present);
         end
     else
         name_a = opt.name_a;
         name_b = opt.name_b;
+        sz = size(a);
         for i=1:numel(a)
 
             name_a_ind = [name_a,'(',arraystr(sz,i),')'];
@@ -259,7 +256,7 @@ elseif isobject(a) && isobject(b)
                 lopt.name_a = [name_a_ind,'.',fieldsA{j}];
                 lopt.name_b = [name_b_ind,'.',fieldsA{j}];
 
-                equal_to_tol_private(Sa.(fieldsA{j}), Sb.(fieldsA{j}), lopt);
+                equal_to_tol_private(Sa.(fieldsA{j}), Sb.(fieldsA{j}), lopt,present);
             end
         end
     end
@@ -268,14 +265,6 @@ elseif isstruct(a) && isstruct(b)
     % -----------------------------
     % Both arguments are structures
     % -----------------------------
-    % Check sizes of structure arrays are the same
-    sz=size(a);
-    if ~isequal(sz,size(b))
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Sizes of arrays of structures being compared are not equal',...
-            opt.name_a,opt.name_b);
-    end
-
     % Check fieldnames are identical
     fieldsA = fieldnames(a);
     fieldsB = fieldnames(b);
@@ -298,10 +287,11 @@ elseif isstruct(a) && isstruct(b)
             lopt.name_a = [name_a,'.',fieldsA{j}];
             lopt.name_b = [name_b,'.',fieldsA{j}];
 
-            equal_to_tol_private (a.(fieldsA{j}),b.(fieldsA{j}), lopt);
+            equal_to_tol_private (a.(fieldsA{j}),b.(fieldsA{j}), lopt,present);
         end
 
     else
+        sz = size(a); % b was verified earlier
         for i=1:numel(a)
             name_a_ind = [name_a,'(',arraystr(sz,i),')'];
             name_b_ind = [name_b,'(',arraystr(sz,i),')'];
@@ -311,7 +301,7 @@ elseif isstruct(a) && isstruct(b)
                 lopt.name_b = [name_b_ind,'.',fieldsA{j}];
 
                 equal_to_tol_private (a(i).(fieldsA{j}),...
-                    b(i).(fieldsA{j}), lopt);
+                    b(i).(fieldsA{j}), lopt,present);
             end
         end
     end
@@ -320,14 +310,8 @@ elseif iscell(a) && iscell(b)
     % ------------------------------
     % Both arguments are cell arrays
     % ------------------------------
-    % Check sizes of structure arrays are the same
-    sz=size(a);
-    if ~isequal(sz,size(b))
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Sizes of cell arrays being compared are not equal',...
-            opt.name_a,opt.name_b);
-    end
-
+    sz = size(a); % b was verified earlier
+    %
     name_a = opt.name_a;
     name_b = opt.name_b;
     % Check contents of each element of the arrays
@@ -336,7 +320,7 @@ elseif iscell(a) && iscell(b)
         lopt.name_a =[name_a,'{',arraystr(sz,i),'}'];
         lopt.name_b = [name_b,'{',arraystr(sz,i),'}'];
 
-        equal_to_tol_private (a{i} ,b{i}, lopt);
+        equal_to_tol_private (a{i} ,b{i}, lopt,present);
     end
 
 elseif isnumeric(a) && isnumeric(b)
@@ -349,18 +333,13 @@ elseif ischar(a) && ischar(b)
     % -----------------------------------
     % Both arguments are character arrays
     % -----------------------------------
-    % Check sizes of structure arrays are the same
-    if ~isequal(size(a),size(b))
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Sizes of character arrays being compared are not equal',...
-            opt.name_a,opt.name_b);
-    end
-
+    is_datetime = false;
     if isrow(a) && ~isempty(regexp(a, '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}','once'))
         % Probably dealing with datetime string
         try
             a = main_header_cl.convert_datetime_from_str(a);
             b = main_header_cl.convert_datetime_from_str(b);
+            is_datetime= true;
             % Allow separation of up to 1 minute to be same
             if abs(posixtime(a) - posixtime(b)) < 60
                 return
@@ -370,9 +349,14 @@ elseif ischar(a) && ischar(b)
     end
 
     if ~strcmp(a,b)
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Character arrays being compared are not equal',...
-            opt.name_a,opt.name_b);
+        if is_datetime
+            mess = sprintf('Object %s with Time=%s  and object %s, with Time=%s are different for more than a minute', ...
+                opt.name_a,a,opt.name_b,b);
+        else
+            mess = sprintf('%s and %s: Character arrays being compared are not equal', ...
+                opt.name_a,opt.name_b);
+        end
+        error('HERBERT:equal_to_tol:inputs_mismatch',mess);
     end
 
 elseif strcmp(class(a),class(b))
@@ -380,13 +364,6 @@ elseif strcmp(class(a),class(b))
     % Catch-all for anything else - should hsve been caught by the cases above
     % but Alex had added it (I think), so maybe it was needed
     % ------------------------------------------------------------------------
-    if ~isequal(size(a),size(b))
-        error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Sizes of arrays of objects being compared are not equal',...
-            opt.name_a,opt.name_b);
-
-    end
-
     if ~isequal(a,b)
         error('HERBERT:equal_to_tol:inputs_mismatch',...
             '%s and %s: Object (or object arrays) are not equal',...
@@ -405,7 +382,7 @@ end
 
 %--------------------------------------------------------------------------------------------------
 function equal_to_tol_numeric(a,b,opt)
-% Check two arrays have smae size and each element is the same within
+% Check two arrays have same size and each element is the same within
 % requested relative or absolute tolerance.
 
 tol = opt.tol;
@@ -420,7 +397,7 @@ if any(sz ~= size(b))
         name_a,name_b);
 end
 
-% Turn arrays into vectors (avoids problems with matlab changing shapes
+% Turn arrays into vectors (avoids problems with MATLAB changing shapes
 % of arrays when logical filtering is performed
 a=a(:);
 b=b(:);
@@ -458,7 +435,7 @@ if any(infs_mark)   % Inf elements are present
 
         ind=find(infs_mark,1);
         error('HERBERT:equal_to_tol:inputs_mismatch',...
-            '%s and %s: Inf elements have different signs; first occurence at element %s',...
+            '%s and %s: Inf elements have different signs; first occurrence at element %s',...
             name_a,name_b,['(',arraystr(sz,ind),')']);
     end
     a=a(~infs_mark);            % filter out Inf elements from further consideration

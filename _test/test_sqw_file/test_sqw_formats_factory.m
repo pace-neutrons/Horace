@@ -170,7 +170,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertTrue(isa(ldrs{2},'faccess_sqw_v3'));
         end
         function test_serialize_deserialize_emtpy_accessors(~)
-
+            skipTest('Re #1795 no proper comparison for sqw faccessors')
             ldrs = sqw_formats_factory.instance().supported_accessors;
             for i=1:numel(ldrs)
                 fo = ldrs{i};

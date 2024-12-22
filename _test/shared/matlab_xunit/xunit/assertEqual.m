@@ -1,4 +1,4 @@
-function assertEqual(A, B, custom_message,tol)
+function assertEqual(A, B, custom_message,tol,varargin)
 %assertEqual Assert that inputs are equal
 %   assertEqual(A, B) throws an exception if A and B are not equal.  A and B
 %   must have the same class and sparsity to be considered equal.
@@ -6,10 +6,22 @@ function assertEqual(A, B, custom_message,tol)
 %   assertEqual(A, B, MESSAGE) prepends the string MESSAGE to the assertion
 %   message if A and B are not equal.
 %
+% Inputs:
+% A      -- one object to compare
+% B      -- another object to compare
+% Optional:
+% custom message  -- if provided, exception would contan the message
+%                    provided here. Message can not start with '-' symbol
+%                    or be equal to any key accepted by equal_to_tol
+%                    function.
+% tol             -- tolerance. See below for details.
+% varargin        -- any list of additional keys starting with '-' or
+%                    key-value pairs equal_to_toll would accept.
+%
 %   Examples
 %   --------
 %   % This call returns silently.
-%   assertEqual([1 NaN 2], [1 NaN 2]);
+%   assertEqual([1 NaN 2], [1 NaN 2],'-nan_equal');
 %
 %   % This call throws an error.
 %   assertEqual({'A', 'B', 'C'}, {'A', 'foo', 'C'});
@@ -41,55 +53,68 @@ function assertEqual(A, B, custom_message,tol)
 
 %   Steven L. Eddins
 %   Copyright 2008-2010 The MathWorks, Inc.
+%
+% MODIFIED FOR HORACE
+% 12-2024
 
 if nargin < 3
     custom_message = '';
+    argi = varargin;
+elseif istext(custom_message)
+    if startsWith(custom_message,'-')
+        % key in the form '-key' is provided
+        argi =[custom_message;varargin(:)];
+        custom_message = '';
+    else
+        % retrieve list of keys, accepted by equal_to_tol;
+        opt = eq_to_tol_process_inputs('','','');
+        % check if one of the key-value pairs of equal_to_tol is erroneusly
+        % taken as custom message
+        keys = fieldnames(opt);
+        if ismember(custom_message,keys)
+            argi =[custom_message;tol;varargin(:)];
+            custom_message = '';
+        else
+            argi = varargin;
+        end
+    end
+else
+    argi = varargin;
 end
+
+name_a = variable_name(inputname(1), false, 1, 1, 'input_1');
+name_b = variable_name(inputname(2), false, 1, 1, 'input_2');
 if nargin < 4
-    tol = [0,0];
+    argi = ['tol';[0,0];'name_a';name_a;'name_b';name_b;argi(:)];
+else
+    argi = ['tol';tol;argi(:)];
 end
 
 if ~ (issparse(A) == issparse(B))
     message = xunit.utils.comparisonMessage(custom_message, ...
         'One input is sparse and the other is not.', A, B);
-    throwAsCaller(MException('assertEqual:sparsityNotEqual', '%s', message));
+    error('assertEqual:sparsityNotEqual', '%s', message);
 end
 
 if ~strcmp(class(A), class(B))
     message = xunit.utils.comparisonMessage(custom_message, ...
         'The inputs differ in class.', A, B);
-    throwAsCaller(MException('assertEqual:classNotEqual', '%s', message));
+    error('assertEqual:classNotEqual', '%s', message);
 end
-name_a = inputname(1);
-if isempty(name_a)
-    name_a ='A';
-end
-name_b = inputname(2);
-if isempty(name_b)
-    name_b ='B';
-end
-if nargin<4 && isa(A,'serializable') &&~isa(A,'hashable') %TODO: Remove complex eq in serializable!
-    % Re #1147
-    [ok,custom_message] = eq(A,B,'name_a',name_a,'name_b',name_b);
-    if ok
-        return
+if strncmp(class(A),'matlab.',7) % comparing user interface (persumably figures)
+    ok = isequal(A,B);
+    if ~ok
+        error('assertEqual:classNotEqual', ...
+            'Internal classes %s are different according to isequal',class(A));        
     end
-    message = xunit.utils.comparisonMessage(custom_message, ...
-        'Inputs are not equal according to classes comparison operator', A, B);
-    throwAsCaller(MException('assertEqual:nonEqual', '%s', message));
+    return;
 end
 
-
-[ok,mess] = equal_to_tol(A,B,tol,'name_a',name_a,'name_b',name_b);
+[ok,message] = equal_to_tol(A,B,argi{:});
 if ~ok
-    if verLessThan('Matlab','R2016a')
-        nl = sprintf('\n');
-    else
-        nl = newline;
+    if ~isempty(custom_message)
+        message = sprintf('%s\n*** Reason %s',custom_message,message);
     end
-    message = xunit.utils.comparisonMessage(custom_message, ...
-        'Inputs are not equal.', A, B);
-    message = [message,nl,mess];
-    throwAsCaller(MException('assertEqual:nonEqual', '%s', message));
+    error('assertEqual:nonEqual',message);
 end
 

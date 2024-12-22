@@ -67,7 +67,7 @@ classdef test_rundata < TestCase
             ld = load(tf);
             assertTrue(ld.rd.isvalid);
 
-            assertEqual(ld.rd,rd);
+            assertEqual(ld.rd,rd,'-nan_equal');
         end
 
         function test_custom_save_loadobj_ei_fixed(obj)
@@ -85,7 +85,7 @@ classdef test_rundata < TestCase
             save(tf,'rd');
             ld = load(tf);
 
-            assertEqual(ld.rd,rd);
+            assertEqual(ld.rd,rd,'-nan_equal');
         end
 
         function test_wrong_first_argument_has_to_be_fileName(~)
@@ -292,7 +292,7 @@ classdef test_rundata < TestCase
             S=run.S;
             assertFalse(isempty(S));
             run_str = struct(run);
-            assertEqual(S,run_str.S);
+            assertEqual(S,run_str.S,'-nan_equal');
             warning(wr);
         end
 
@@ -353,7 +353,7 @@ classdef test_rundata < TestCase
             ld=ld.load();
 
             assertEqual(ld.efix,run.efix);
-            assertEqual(ld.S,run.S);
+            assertEqual(ld.S,run.S,'-nan_equal');
             assertEqual(ld.psi,10);
             det1=ld.det_par;
             det2=run.det_par;
@@ -437,7 +437,7 @@ classdef test_rundata < TestCase
             run  = run.load();
             db   = run.serialize();
             runr = rundata.deserialize(db);
-            assertEqual(run,runr);
+            assertEqual(run,runr,'-nan_equal');
         end
 
         function test_load_metadata(obj)
