@@ -21,7 +21,8 @@ function [obj,arr] = to_hashable_array_ (obj)
 % class state
 field_names = hashableFields (obj(1));
 
-% Recursively turn serializable fields into structures
+% Recursively turn hashable fields values into array which defines
+% object's hash
 arr = cell (1,numel(field_names)*numel(obj));
 ic = 0;
 for j = 1:numel(obj)
@@ -39,10 +40,16 @@ for j = 1:numel(obj)
                 obj(j).(field_name) = val;
                 obj(j).do_check_combo_arg = true;
             end
+            %-----> hash class dependent block
+            % the operation below work only for MD5 hash in string form
+            % if we ever decided to switch to uint64-bit hash, operations
+            % with container modification become an order of magnitude
+            % faster. This block must change is such case.
             if iscell(hash) % use array of hashes as source for final hash
                 hash = strjoin(hash ,'');
             end
-            tm = uint8(hash); % beware of possibility hash changing type in a future
+            tm = uint8(hash); % use typecast for numeric hash.
+            %<----- end of hash-class dependent block
             arr{ic} = tm(:);
         elseif isa(val,'double')
             tm = typecast(single(round(val(:),7)),'uint8');
