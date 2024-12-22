@@ -24,7 +24,7 @@ is   = true;
 mess = '';
 
 % Check that corresponding objects have the same type
-if isempty(obj1)&&isempty(obj2) % empty objects are the same type regardless of Matlab type
+if all(isempty(obj1)&isempty(obj2)) % empty objects are the same type regardless of Matlab type
     return;
 end
 

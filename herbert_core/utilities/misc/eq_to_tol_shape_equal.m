@@ -25,7 +25,7 @@ mess = '';
 is = true;
 
 % Check that corresponding objects have the same type
-if isempty(obj1)&&isempty(obj2) % empty objects are the same size regardless
+if all(isempty(obj1)&isempty(obj2)) % empty objects are the same size regardless
     % of Matlab zero sizes
     return;
 end
