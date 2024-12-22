@@ -388,7 +388,7 @@ classdef horace_binfile_interface < serializable
                     '%s -- Reason: %s',pos_mess,mess);
             end
         end
-        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt)
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
             % internal procedure used by equal_to_toll method to compare
             % single pair of faccess objects
             % Input:
@@ -414,7 +414,7 @@ classdef horace_binfile_interface < serializable
                 clOb =  set_temporary_warning('off','MATLAB:structOnObject');
                 s1 = struct(obj);
                 s2 = struct(other_obj);
-                [iseq,mess] = equal_to_tol(s1,s2,opt);
+                [iseq,mess] = equal_to_tol(s1,s2,opt,varargin{:});
             end
         end
     end
