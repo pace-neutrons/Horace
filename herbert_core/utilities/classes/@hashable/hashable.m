@@ -33,7 +33,7 @@ classdef hashable < serializable
         end
         function obj = clear_hash(obj)
             % function clears the hash value, stored with the object.
-            % Provided as part of interface and should be used 
+            % Provided as part of interface and should be used
             % to allow simple replacement of hash implementation if we
             % decide to use different hash type in a future.
             obj.hash_value_ = [];
@@ -98,16 +98,6 @@ classdef hashable < serializable
                 hash = hash{1};
             end
         end
-
-        function [ok,mess] = equal_to_tol(obj,other_obj,varargin)
-            % overload for equal_to_tol method. Very crude.
-            % expected to be improved for Re #1147
-            ok = eq(obj,other_obj);
-            mess=[];
-            if ~ok
-                mess = 'objects to compare have different hashes';
-            end
-        end
     end
 
     methods (Static)
@@ -125,7 +115,6 @@ classdef hashable < serializable
         end
     end
 
-
     %---------------------------------------------------------------------------
     %   Testing equality of hashable objects
     %---------------------------------------------------------------------------
@@ -137,6 +126,30 @@ classdef hashable < serializable
         % Return logical variable stating if two serializable objects are
         % unequal or not
         isne = ne (obj1, obj2)
+    end
+    methods(Access=protected)
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
+            % internal procedure used by equal_to_toll method to compare
+            % single pair of hashable objects. 
+            % 
+            % Overloads similar one in serializable class.
+            %
+            % Input:
+            % obj       -- first object to compare
+            % other_obj -- second object to compare
+            % opt       -- the structure containing fieldnames and their
+            %              values as accepted by generic equal_to_tol
+            %              procedure or retruned by
+            %              process_inputs_for_eq_to_tol function
+            %
+            % Returns:
+            % iseq      -- logical containing true if objects are equal and
+            %              false otherwise.
+            % mess      -- char array empty if iseq == true or containing
+            %              more information on the reason behind the
+            %              difference if iseq == false
+            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt,varargin{:});
+        end
     end
 
     %---------------------------------------------------------------------------

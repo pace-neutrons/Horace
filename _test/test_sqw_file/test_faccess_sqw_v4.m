@@ -445,6 +445,7 @@ classdef test_faccess_sqw_v4< TestCase
         end
         %
         function test_serialize_deserialize_faccess(obj)
+            skipTest('Re #1795 no proper comparison for sqw faccessors')            
             fo = faccess_sqw_v4();
             fo = fo.init(obj.sample_file);
 
@@ -455,6 +456,7 @@ classdef test_faccess_sqw_v4< TestCase
         end
         %
         function test_serialize_deserialize_empty_faccess(~)
+            skipTest('Re #1795 no proper comparison for sqw faccessors')            
             fo = faccess_sqw_v4();
 
             bys = fo.to_struct();

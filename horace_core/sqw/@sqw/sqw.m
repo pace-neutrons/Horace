@@ -474,17 +474,15 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
 
     %======================================================================
     methods(Access = protected)
+        % Check if two sqw objects are equal to a given tolerance
+        [ok, mess] = equal_to_tol_single(w1, w2, varargin)
+        
         % Re #962 TODO: probably delete it
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         % binning of an sqw or dnd object
 
         wout = sqw_eval_pix(w, sqwfunc, ave_pix, pars, outfilecell, i);
 
-        function  [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
-            % compare two sqw objects according to internal comparison
-            % algorithm
-            [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
-        end
         function obj = init_from_file(obj, in_struc)
             % Initialize SQW from file or file accessor
             obj = init_sqw_from_file_(obj, in_struc);

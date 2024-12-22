@@ -42,7 +42,7 @@ classdef test_read_spe < TestCase
             [S,ERR,en]  = read_spe(spe_file);
             [Sl,ERRl,enl] = read_spe(spe_file,'-legacy');
 
-            assertEqual(Sl,S);
+            assertEqual(Sl,S,'-nan_equal');
             assertEqual(ERRl,ERR);
             assertEqual(enl,en);
         end

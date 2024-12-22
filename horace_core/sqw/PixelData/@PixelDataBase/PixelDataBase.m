@@ -418,7 +418,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
 
-        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
+
 
         function obj = invalidate_range(obj,fld)
             % set the data range to inverse values
@@ -465,6 +465,31 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
                     'data_range should be [2x9] array of data ranges');
             end
             obj.data_range_ = data_range;
+        end
+        function [is,mess] = eq_to_tol_type_equal(obj1,obj2,name_a,name_b)
+            % Helper function used by equal_to_tol to validate if types of 
+            % two objects is equal for purposes of equal_to_tol comparison
+            % procedure.
+            %
+            % Overload used in equal_to_tols to check types allowed for compariosn
+            % pixes allow comparison of two classes PixelDataMemory and PixelDataFile
+            %
+            % Inputs:
+            % obj1    -- PixelDatBase object 1 to compare
+            % obj2    -- presumably PixelDatBase object 2 to compare.
+            %
+            % Optional:
+            % name_a  -- the name of first object in comparison
+            % name_b  -- the name of second object in comparison
+            %            These names become part of information message in
+            %            case if objects types are different.
+            %
+            % Returns:
+            % is      -- true if objects types are equal and false if not.
+            % mess    -- the message providing additinal information about
+            %            object types it the types are different
+            %
+            [is,mess] = eq_to_tol_type_equal_(obj1,obj2,name_a,name_b);
         end
     end
     %======================================================================
@@ -771,6 +796,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     % Overloadable protected getters/setters for properties
     methods(Access=protected)        %
+        % check equivalence between two pixel objects
+        [ok, mess] = equal_to_tol_single(obj, other_pix, opt,varargin);
         function val = check_set_prop(obj,fld,val)
             % check input parameters of set_property function
             if ~isnumeric(val)

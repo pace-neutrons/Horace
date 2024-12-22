@@ -67,7 +67,7 @@ classdef test_serializable_class < TestCase
             tc1 = serializableTester2(1,1:20,3);
             tc2 = serializableTester2(1,1:20,3);
 
-            [iseq,mess] = tc1.eq(tc2);
+            [iseq,mess] = tc1.equal_to_tol(tc2);
             assertTrue(iseq);
             assertTrue(isempty(mess));
         end
@@ -547,10 +547,11 @@ classdef test_serializable_class < TestCase
             tc1 = tc;
             tc1.Prop_class1_1 = 10;
 
-            [is,mess] = tc.eq(tc1);
+            [is,mess] = tc.equal_to_tol(tc1);
             assertFalse(is);
-            assertEqual(mess, ...
-                'tc.Prop_class1_1 and tc1.Prop_class1_1: Relative and absolute tolerance failure; max. error = 10 (absolute) at element (1)');
+            assertTrue( ...
+                strcmp(mess, ...
+                'tc.Prop_class1_1 and tc1.Prop_class1_1: Not all elements are equal; max. error = 10 at element (1)'));
         end
 
 

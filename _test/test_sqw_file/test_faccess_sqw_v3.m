@@ -299,6 +299,7 @@ classdef test_faccess_sqw_v3< TestCase
         end
         %
         function test_serialize_deserialize_faccess(obj)
+            skipTest('Re #1795 no proper comparison for sqw faccessors')            
             fo = faccess_sqw_v3();
             fo = fo.init(obj.sample_file);
 

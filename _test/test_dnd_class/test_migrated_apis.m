@@ -152,14 +152,14 @@ classdef test_migrated_apis < TestCaseWithSave
             sqw_2d_obj = read_sqw(obj.test_sqw_2d_fullpath);
             result = sqw_2d_obj.xye();
 
-            assertEqualToTolWithSave(obj, result,'tol',1.e-7);
+            assertEqualToTolWithSave(obj, result,'tol',1.e-7,'-nan_equal');
         end
 
         function test_xye_returns_bin_centres_and_errors(obj)
             dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
             result = dnd_2d_obj.xye();
 
-            assertEqualToTolWithSave(obj,result,'tol',1.e-7);
+            assertEqualToTolWithSave(obj,result,'tol',1.e-7,'-nan_equal');
         end
 
         function test_xye_sets_NaN_default_null_value(obj)
@@ -167,7 +167,7 @@ classdef test_migrated_apis < TestCaseWithSave
 
             result = dnd_2d_obj.xye();
 
-            assertEqual(result.y(1,1), NaN);
+            assertEqual(result.y(1,1), NaN,'-nan_equal');
         end
 
         function test_xye_sets_user_specified_null_value(obj)
