@@ -76,6 +76,6 @@ for i=1:numel(varargin)
         tmp = load(fullfile(filepath,'saved_class_versions_as_mat_files',flname),arg_name);
         assertEqual(varargin{i},tmp.(arg_name), ...
             sprintf('*** ERROR: Argument %s read from %s does not match original',arg_name,flname), ...
-            1.e-9);
+            1.e-12);
     end
 end
