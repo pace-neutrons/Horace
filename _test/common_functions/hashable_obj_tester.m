@@ -6,13 +6,23 @@ function hashable_obj_tester(hobj,values,names)
 % and hash is stored-restored correctly
 %
 % Inputs:
-% hobj  -- instance of hashable object, better with proper values set
+% hobj  -- instance of hashable object, with proper values set to
+%          its properties. hobj build with empty constructor may not be
+%          acceptable.
 % Optional
 % values-- cellarray of values to set to hashable object. If present, have
 %          to have number of elements equal to number of hashable
 %          properties and values of this properties compartible with
 %          serializeble, i.e. setting property do not contradict to other
-%          properties, validated through check_combo_arg method
+%          properties, validated through check_combo_arg method.
+%          If missing, will use current values of hashable properties.
+%
+%          Majority of hashable objects do not verify if input property
+%          value have changed from its current value and invalidate hash
+%          anyway. Small subset of hashable objects do check if properties
+%          chanded so they need these valus different from the values
+%          already set in the input hobj.
+% 
 % names -- list of the properties to set to check hashable object.
 %          If missing, use hashableFields
 %
@@ -42,15 +52,19 @@ for i=1:n_flds
     hobj = hobj.build_hash();
 end
 
+% check if hobj converts into serizliable structure 
 S = hobj.to_struct();
-rec_obj= hobj.from_struct(S);
+% and can be successfuly restored back from it, keeping hash intact
+rec_obj= hashable.from_struct(S);
 
 assertTrue(hobj.hash_defined);
 assertTrue(hobj == rec_obj)
 
 obj_arr = [hobj,hobj];
+% check if array of hobj converts into serizliable structure 
 S = obj_arr.to_struct();
-rec_arr= hobj.from_struct(S);
+% and can be successfuly restored back from it, keeping hash intact
+rec_arr= hashable.from_struct(S);
 
 assertTrue(rec_arr.hash_defined);
 assertTrue(obj_arr == rec_arr)
