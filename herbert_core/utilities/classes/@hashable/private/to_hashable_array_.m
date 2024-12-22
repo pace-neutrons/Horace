@@ -23,8 +23,9 @@ field_names = hashableFields (obj(1));
 
 % Recursively turn hashable fields values into array which defines
 % object's hash
-arr = cell (1,numel(field_names)*numel(obj));
-ic = 0;
+arr = cell (1,numel(field_names)*numel(obj)+1);
+arr{1} = uint8(class(obj))';
+ic = 1;
 for j = 1:numel(obj)
     obj_tmp = obj(j);   % get cow pointer to j-th object to save expensive indexing
     for i = 1:numel(field_names)
