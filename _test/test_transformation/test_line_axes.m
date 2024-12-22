@@ -1004,7 +1004,7 @@ end
             ab = line_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
 
             idx = ab.bin_points([12 12 12 12]);
-            assertEqual(idx, [NaN NaN NaN NaN])
+            assertEqual(idx, [NaN NaN NaN NaN],'-nan_equal')
         end
 
         function test_line_axes_bin_points_wrong_dims(~)
