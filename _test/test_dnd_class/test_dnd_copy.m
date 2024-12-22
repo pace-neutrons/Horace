@@ -33,7 +33,7 @@ classdef test_dnd_copy < TestCase
             [ok, mess] = equal_to_tol(dnd_2d, sqw_2d);
             assertFalse(ok);
             assertTrue(strcmp(mess, ...
-                'Different types. First object: "input_1" has class: "d2d" and second object: "input_2" class: "sqw"'));
+                'Objects have different types. "dnd_2d" has class: "d2d" and "sqw_2d" class: "sqw"'));
         end
 
         function test_copy_returns_distinct_object(obj)
