@@ -115,7 +115,10 @@ elseif any(is_fb)
 
 else
     [ok, mess] = equal_to_tol(pix.data, other_pix.data,opt,present);
-    mess = process_message(mess);
+    if ~ok
+
+        mess = process_message(mess);
+    end
 end
 end
 

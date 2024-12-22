@@ -53,7 +53,7 @@ classdef test_equal_to_tol < TestCase
             [ok, mess] = equal_to_tol(obj.sqw_2d, dnd_2d_);
             assertFalse(ok);
             assertTrue(...
-            strcmp(mess, 'Different types. First object  class is: sqw and second object  class is: d2d'));
+            strcmp(mess, 'Objects have different types. "input_1" has class: "sqw" and "input_2" class: "d2d"'));
         end
 
         function test_the_same_sqw_objects_are_equal_with_no_pix_reorder(obj)
