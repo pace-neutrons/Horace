@@ -28,14 +28,14 @@ classdef test_instrument_save_load < TestCaseWithSave
         function test_DGdisk_mat (self)
             disk_inst_ref = self.inst_DGdisk;
 
-            assertEqualWithSave(self,disk_inst_ref)
+            assertEqualWithSave(self,disk_inst_ref,'',1.e-9)
         end
 
         %--------------------------------------------------------------------------
         function test_DGfermi_mat (self)
             fermi_inst_ref = self.inst_DGfermi;
 
-            assertEqualWithSave(self,fermi_inst_ref)
+            assertEqualWithSave(self,fermi_inst_ref,'',1.e-9)
         end
 
         %--------------------------------------------------------------------------
@@ -44,7 +44,7 @@ classdef test_instrument_save_load < TestCaseWithSave
             bytes = hlp_serialize(inst_ref);
             inst = hlp_deserialize(bytes);
 
-            assertEqual(inst_ref,inst)
+            assertEqual(inst_ref,inst,'',1.e-9)
         end
 
         %--------------------------------------------------------------------------
@@ -53,7 +53,7 @@ classdef test_instrument_save_load < TestCaseWithSave
             bytes = hlp_serialize(inst_ref);
             inst = hlp_deserialize(bytes);
 
-            assertEqual(inst_ref,inst)
+            assertEqual(inst_ref,inst,'',1.e-9)
         end
 
         %--------------------------------------------------------------------------
