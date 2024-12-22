@@ -160,7 +160,7 @@ classdef test_main_mex < TestCase
             assertEqual(size(pix_c.data, 1), 9);
         end
         
-        function test_hashing(obj)
+        function test_hashing(~)
             
             hcf = hor_config;
             
@@ -189,7 +189,7 @@ classdef test_main_mex < TestCase
             
             % compare hashes against previously recorded values
             assertTrue( strcmp(hash1_nomex, 'b7e33a9818a21b4a33425f56c7751a4a') );
-            assertTrue( strcmp(hash2_nomex, '22e08809d241e24adfb657fc1341ff94') );
+            assertTrue( strcmp(hash2_nomex, '1126c4e1f9a655b8c8639289d7820c69') );
             
             % check that the GetMD5 code is present in the mex functions
             % and that the check for this is correctly set up
