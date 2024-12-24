@@ -105,8 +105,10 @@ classdef test_multifit_horace_1 < TestCaseWithSave
         % ------------------------------------------------------------------------------------------------
         function obj = test_fit_multidimensional_dataset(obj)
             % Example of simultaneously fitting more than one sqw object
-
-            mss = multifit_sqw_sqw([obj.w4ddata]);
+            % 
+            disp('Re #1790 identifying issues present on Jenkins only')
+            disp(obj.w4ddata.detpar.unique_objects.unique_objects)
+            mss = multifit_sqw_sqw(obj.w4ddata);
             mss = mss.set_fun(@sqw_bcc_hfm,  [75,5,2.7,10,-75]);  % set foreground function(s)
             mss = mss.set_free([1,1,1,1,0]); % set which parameters are floating
             mss = mss.set_bfun(@linear_bkgd_sqw,0); % set background function(s)
@@ -115,6 +117,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             % Simulate at the initial parameter values
             wsim_1 = mss.simulate();
+            disp(wsim_1.detpar.unique_objects.unique_objects)
             %c2s = cut(wsim_1,[],[],[-0.1,0.1],[100,120]);
 
             % And now fit
