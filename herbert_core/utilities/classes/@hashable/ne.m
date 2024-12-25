@@ -12,6 +12,11 @@ function isneq = ne(obj1, obj2)
 %
 % See also equal_to_tol
 
+% classes are different
+if ~isa(obj2,class(obj1))
+    isneq = true;
+    return;
+end
 % sizes of objects are different
 if ~all(size(obj1)==size(obj2))
     isneq = true;

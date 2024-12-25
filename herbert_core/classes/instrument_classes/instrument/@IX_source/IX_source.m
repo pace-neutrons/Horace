@@ -1,4 +1,4 @@
-classdef IX_source < serializable
+classdef IX_source < hashable
     % Neutron source information
     % Basic information about the source, such as name, target_name and
     % operating frequency
@@ -86,6 +86,7 @@ classdef IX_source < serializable
                     ' Its type is: %s and value %s'], ...
                     class(val),disp2str(val))
             end
+            obj = obj.clear_hash();
         end
 
         function obj=set.target_name(obj,val)
@@ -100,6 +101,7 @@ classdef IX_source < serializable
                     class(val),disp2str(val))
             end
             obj.target_name_ = char(val);
+            obj = obj.clear_hash();
         end
 
         function obj=set.frequency(obj,val)
@@ -111,6 +113,7 @@ classdef IX_source < serializable
                     'The target frequency must be a non-negative number')
             end
             obj.frequency_ = val;
+            obj = obj.clear_hash();
         end
         %------------------------------------------------------------------
         % Get methods for dependent properties

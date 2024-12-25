@@ -30,6 +30,11 @@ classdef test_IX_moderator < TestCaseWithSave
 
             obj.save()
         end
+        %--------------------------------------------------------------------------
+        function test_hashable_prop(~)
+            ap = IX_moderator(15,30,'ikcarp',[5,25,0.13]);
+            hashable_obj_tester(ap);
+        end
 
         %--------------------------------------------------------------------------
         function test_pulse_shape_default (~)

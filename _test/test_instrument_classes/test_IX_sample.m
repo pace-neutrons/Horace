@@ -45,7 +45,11 @@ classdef test_IX_sample < TestCaseWithSave
 
             assertEqual(sample,samp_rec);
         end
-
+        %--------------------------------------------------------------------------
+        function test_hashable_prop(~)
+            ap = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'eta', 4134);
+            hashable_obj_tester(ap);
+        end
         %--------------------------------------------------------------------------
         function test_IX_sample_constructor_error_if_required_args_missing(~)
             f = @()IX_sample([1,0,0],[0,1,0],'cuboid');

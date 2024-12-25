@@ -25,6 +25,11 @@ classdef test_IX_divergence_profile < TestCaseWithSave
 
             obj.save()
         end
+        function test_hashable_prop(self)
+            div = IX_divergence_profile (self.ang,'name','in-pile','profile',self.y);
+            hashable_obj_tester(div);
+        end
+        
 
         %--------------------------------------------------------------------------
         function test_1 (self)

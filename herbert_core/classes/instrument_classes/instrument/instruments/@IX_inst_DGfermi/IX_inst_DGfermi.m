@@ -70,6 +70,7 @@ classdef IX_inst_DGfermi < IX_inst
         function obj=set.energy(obj,val)
             obj.moderator_.energy = val;
             obj.fermi_chopper_.energy = val;
+            obj = obj.clear_hash();
         end
 
         %------------------------------------------------------------------
@@ -174,6 +175,7 @@ classdef IX_inst_DGfermi < IX_inst
                     'missing properties are: %s'],...
                     disp2str(mand_fields ),disp2str(mand_fields (~obj.mandatory_inst_fields_)))
             end
+            obj = obj.clear_hash();
         end
 
     end
