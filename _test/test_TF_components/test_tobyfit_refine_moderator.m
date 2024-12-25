@@ -32,9 +32,9 @@ classdef test_tobyfit_refine_moderator < TestCaseWithSave
 
             % Initialise test object properties
             obj.w1inc = w1inc;      % Cut over purely incoherent line
-            tol_sig = 0.3;     % tolerance as multiple of st. dev. of reference value
+            tol_sig = 0.25;     % tolerance as multiple of st. dev. of reference value
             tol_abs = 0;        % absolute tolerance
-            tol_rel = 0;        % relative tolerance
+            tol_rel = 0.01;     % relative tolerance
             obj.tolerance = [tol_sig, tol_abs, tol_rel];
             obj.seed = 0;
             obj.mc = 2;
