@@ -122,7 +122,7 @@ classdef unique_references_container < serializable
         % instruments and samples
 
         unique_objects; % returns unique_objects_container. Hidden not to
-        % expose expensive operation to view 
+        % expose expensive operation to view but widely used in access/save/load operations 
     end
 
     methods % property (and method) set/get

@@ -67,7 +67,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
 
         experiment_info_ = []; %Experiment(); now at start of constructor;
         % detectors array
-        detpar_  = struct([]);
 
         % holder for image data, e.g. appropriate dnd object
         data_;
@@ -529,7 +528,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     %======================================================================
     % SERIALIZABLE INTERFACE
     properties(Constant,Access=protected)
-        fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
+        fields_to_save_ = {'main_header','experiment_info','data','pix'};
     end
     %
     methods
@@ -538,7 +537,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 5;
+            ver = 6;
+            % version 6 detpar is saved/lodaded through experiment_info
             % version 5 -- support for loading previous version
             % data in case if the data were realigned
         end
