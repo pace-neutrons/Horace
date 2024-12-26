@@ -859,6 +859,7 @@ classdef unique_references_container < serializable
 
             if strcmpi(opflag,'list')
                 disp(glcontainer);
+                glc = glcontainer;
                 return;
             end
 
