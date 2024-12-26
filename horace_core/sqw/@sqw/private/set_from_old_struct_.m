@@ -123,7 +123,7 @@ if S.version == 4
         obj.pix.alignment_matr = al_info.rotmat;
     end
 end
-if S.version == 5
+if S.version < 5
     % may contain detpar stored in their own field and not present within
     % the experiment_info
     if obj.experiment_info.detector_arrays.n_objects == 0
