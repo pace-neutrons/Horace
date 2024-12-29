@@ -145,7 +145,7 @@ classdef test_join < TestCase
             %
             assertEqual(obj.sample_obj.detpar,reformed_obj.detpar)
             %reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
-            % This is the issue Re #1147 should arrdess
+            % This is the issue Re #1147 should address this
             clear clConf;
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
 
@@ -195,12 +195,12 @@ classdef test_join < TestCase
             % to compare filebacked and memory backed object properly, here
             % we need to have compatible page sizes. The comparison will
             % fail otherwise. Re #1147 -- should fix that.
-            clear clConf; % this makes page sizes comartible
+            clear clConf; % this makes page sizes compatible
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
 
             clear reformed_obj
             assertFalse(isfile(targ_file));
-
+            skipTest("Re #1147 Equal_to_toll does not work correctly with arbitrary pages")
         end
         %
         function test_join_saves_filebacked_on_request(obj)
