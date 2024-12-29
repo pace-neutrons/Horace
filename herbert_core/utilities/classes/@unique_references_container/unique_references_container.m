@@ -103,14 +103,11 @@ classdef unique_references_container < serializable
     properties (Access = protected)
         idx_ = zeros(1,0); %  array of unique global indices for each object stored
         stored_baseclass_ = ''; % the baseclass
-        global_name_; % name of category referencing a global container backing this one
     end
 
     properties (Dependent)
-        % saveable fields for save/loadobj
+        % Name of the class, this container holds
         stored_baseclass;
-        global_name;    % category name for singleton storage
-
         % other dependent properties
         n_unique_objects; % number of unique_objects (without creating it)
         idx; % object indices into the global unique objects container.
@@ -126,28 +123,6 @@ classdef unique_references_container < serializable
     end
 
     methods % property (and method) set/get
-
-        function self = set_all(self,v)
-            %SET_ALL - used to reset the whole container to a single
-            % value (NB alternative implementation property set.all not used,
-            % as `all` has other meanings in Matlab)
-            %
-            % Input:
-            % - v: scalar value to set all object in the container to
-
-            if numel(v)==self.n_objects
-                for i=1:self.n_objects
-                    self = self.local_assign_(v(i),i); % self{i}=v does not work inside class
-                end
-            elseif numel(v)==1
-                for i=1:self.n_objects
-                    self = self.local_assign_(v,i); % self{i}=v does not work inside class
-                end
-            else
-                error('HERBERT:unique_objects_container:invalid_argument', ...
-                    'assigned value must be scalar or have right number of objects');
-            end
-        end
 
         function val = get.idx(self)
             %GET.IDX - list of indices into the global container
@@ -309,6 +284,28 @@ classdef unique_references_container < serializable
             end
         end
 
+        function self = set_all(self,v)
+            %SET_ALL - used to reset the whole container to a single
+            % value (NB alternative implementation property set.all not used,
+            % as `all` has other meanings in Matlab)
+            %
+            % Input:
+            % - v: scalar value to set all object in the container to
+
+            if numel(v)==self.n_objects
+                for i=1:self.n_objects
+                    self = self.local_assign_(v(i),i); % self{i}=v does not work inside class
+                end
+            elseif numel(v)==1
+                for i=1:self.n_objects
+                    self = self.local_assign_(v,i); % self{i}=v does not work inside class
+                end
+            else
+                error('HERBERT:unique_objects_container:invalid_argument', ...
+                    'assigned value must be scalar or have right number of objects');
+            end
+        end        
+
     end
 
     methods % constructor
@@ -323,8 +320,7 @@ classdef unique_references_container < serializable
             %           for current contents
             % - basecl: base class for all objects contained
 
-            obj = obj@serializable();
-            if nargin==2
+            if nargin==1
                 glname = varargin{1};
                 basecl = varargin{2};
                 obj = obj.init(glname,basecl);
@@ -810,139 +806,6 @@ classdef unique_references_container < serializable
     end
 
     methods (Static)
-
-        % the global container is a persistent struct in static method
-        % global_container. This contains one field for each category (or
-        % global name). Each field contains a unique_objects_container with
-        % the relevant baseclass.
-
-        function glc = global_container(opflag, glname, arg3)
-            %GLOBAL_CONTAINER - method of accessing the global container for
-            % the operations described below
-            %
-            % Inputs:
-            % -------
-            % - opflag:  name of operation:
-            %            (external access)
-            %            'init'  - create the category glname
-            %                      arg3 is the baseclass
-            %            'value' - return the container for the category
-            %                      arg3 is not used
-            %            'list'  - return struct of the global containers
-            %            (internal access only)
-            %            'reset' - change the container for the category as
-            %                      it has been modified. Used because it is
-            %                      not a handle class.
-            %                      arg3 is the new container being set
-            %                      (normally the output from add or reset)
-            %            (debugging access only)
-            %            'CLEAR' - removes the container for the category
-            %                      this invalidates ALL containers, so
-            %                      should not be used for normal operation
-            %                      arg3 is not used
-            %
-            % Outputs:
-            % --------
-            % - glc:    the global container being returned for this
-            %           category
-
-            persistent glcontainer;
-
-            % If the global container does not exist, initialise it with no
-            % categories
-            if isempty(glcontainer)
-                glcontainer = struct();
-            elseif strcmpi(opflag,'CLEAR_ALL')
-                glcontainer = struct();
-                return;
-            end
-
-            if strcmpi(opflag,'list')
-                disp(glcontainer);
-                glc = glcontainer;
-                return;
-            end
-
-            % check minimum arguments
-            if nargin<2
-                error('HERBERT:unique_references_container:invalid_argument', ...
-                    'must be at least 2 arguments');
-            end
-
-            % check category name has correct type
-            if ~ischar(glname)
-                error('HERBERT:unique_references_container:invalid_argument', ...
-                    'global container name is %s not char',glname);
-            end
-
-            % if the category has not yet been created anywhere
-            % create a global container for it
-            if ~isfield(glcontainer,glname)
-                switch opflag
-                    case 'init'
-                        if nargin < 3
-                            error('HERBERT:unique_references_container:invalid_argument', ...
-                                'missing arg3 == stored baseclass');
-                        end
-                        baseclass = arg3;
-                        glcontainer.(glname) = ...
-                            unique_objects_container('baseclass', baseclass);
-                        return;
-
-                    case 'CLEAR'
-                        % do nothing - as the field hasn't been created yet
-                        % leave the global container as it
-                        return;
-
-                    otherwise
-                        error('HERBERT:unique_references_container:invalid_argument', ...
-                            ['try to set up a global container for glname %s' ...
-                            ' without the init opflag'], glname);
-                end
-            end
-
-            switch opflag
-                case 'CLEAR'
-
-                    % put a new empty container in for this category
-                    warning('HERBERT:unique_references_container:debug_only_argument', ...
-                        ['DEBUG ONLY: clearing the global container for glname ' ...
-                        '. This will invalidate all local containers for ' ...
-                        ' this glname']);
-                    glcontainer.(glname) = ...
-                        unique_objects_container('baseclass', glcontainer.(glname).baseclass);
-                    return;
-
-                case 'init'
-                    % do nothing, the global container for this category
-                    % already exists
-                    return;
-
-                case 'value'
-                    glc = glcontainer.(glname);
-                    return;
-
-                case 'reset'
-                    if nargin < 3
-                        error('HERBERT:unique_references_container:invalid_argument', ...
-                            'missing arg3 == newcontainer');
-                    end
-                    newcontainer = arg3;
-                    if isa(newcontainer, 'unique_objects_container')
-                        glcontainer.(glname) = newcontainer;
-                        return;
-                    else
-                        error('HERBERT:unique_references_container:invalid_argument', ...
-                            ['attempt to reset container to something that is not', ...
-                            ' a unique_objects_container']);
-                    end
-
-                otherwise
-                    error('HERBERT:unique_references_container:invalid_argument', ...
-                        'invalid action on the global container')
-
-            end
-        end
 %==========================================================================
         % (save)/load functionality via serializable
         % save done via serializable directly
@@ -958,7 +821,6 @@ classdef unique_references_container < serializable
     properties (Constant, Access=private) % serializable interface
         fields_to_save_ = { ...
             'stored_baseclass', ...
-            'global_name', ... % must come before unique_objects
             'unique_objects', ...
             };
     end
