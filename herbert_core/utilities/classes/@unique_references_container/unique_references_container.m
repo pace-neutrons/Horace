@@ -82,12 +82,8 @@ classdef unique_references_container < serializable
     %USAGE WITH SQW OBJECTS
     % The instruments, detectors and samples in the experiment_info field of an SQW
     % are stored as unique_references_arrays. The global names for these
-    % uses are
-    % GLOBAL_NAME_INSTRUMENTS_CONTAINER
-    % and
-    % GLOBAL_NAME_SAMPLES_CONTAINER
-    % and
-    % GLOBAL_NAME_DETECTORS_CONTAINER.
+    % containers equal to the names of the correspondent base classes.
+    %
     % You are free to use other categories for your own containers but
     % should leave these categories for Horace's SQW objects.
     %
@@ -110,7 +106,7 @@ classdef unique_references_container < serializable
         stored_baseclass;
         % other dependent properties
         n_unique_objects; % number of unique_objects (without creating it)
-        idx; % object indices into the global unique objects container.
+        idx;              % object indices into the global unique objects container.
         n_objects; % numel(idx)
     end
     properties(Dependent,Hidden=true)
@@ -119,7 +115,7 @@ classdef unique_references_container < serializable
         % instruments and samples
 
         unique_objects; % returns unique_objects_container. Hidden not to
-        % expose expensive operation to view but widely used in access/save/load operations 
+        % expose expensive operation to view but widely used in access/save/load operations
     end
 
     methods % property (and method) set/get
@@ -165,29 +161,6 @@ classdef unique_references_container < serializable
         end
         % NB n_objects only set by adding objects to the container
 
-        function val = get.global_name(self)
-            % GET.GLOBAL_NAME - the category name for this container where
-            %                        the actual objects are stored
-            val = self.global_name_;
-        end
-        function self = set.global_name(self,val)
-            % SET.GLOBAL_NAME - the category name for this container where
-            %                        the actual objects are stored
-            % Input:
-            % ------
-            % - val: char string with the global name of the singleton
-            %        container. Can only be set once.
-            if ~(ischar(val)||isstring(val))
-                error('HERBERT:unique_references_container:invalid_argument', ...
-                    'global name must be char');
-            end
-            if ~isempty(self.global_name)
-                error('HERBERT:unique_references_container:invalid_argument', ...
-                    'global name cannot be reset once set');
-            end
-            self.global_name_ = val;
-        end
-
         function uoca = expose_unique_objects(self)
             %EXPOSE_UNIQUE_OBJECTS - returns the unique objects contained in
             % self as a cell array. This allows the user to scan unique objects
@@ -195,7 +168,7 @@ classdef unique_references_container < serializable
             % intended to expose the implementation of the container.
 
             % obtain a unique_objects_container with the unique objects
-            uoca = self.unique_objects;
+            uoca = unique_obj_store.instance().get_objects(self.stored_baseclass);
             % convert it to a cell array for external use
             uoca = uoca.unique_objects;
         end
@@ -211,14 +184,12 @@ classdef unique_references_container < serializable
             % property get on uoc but it is preferable to use the
             % expose_unique_objects method which does this in an encapsulated fashion.
 
-            uoc = unique_objects_container('baseclass', self.stored_baseclass);
-            %glc = self.global_container('value', self.global_name_);
+            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            uoc     = unique_objects_container('baseclass',self.stored_baseclass);
             for ii=1:self.n_objects
-                obj   = self.get(ii);
-                [obj,hash]  = build_hash(obj);
-                [~,index]   = ismember(hash,uoc.stored_hashes_);
-                if index==0, index=[]; end
-                uoc = uoc.add_single_(obj,index,hash);
+                glob_idx  = self.idx(ii);
+                obj   = storage(glob_idx);
+                uoc   = uoc.add(obj);
             end
         end
 
@@ -237,35 +208,13 @@ classdef unique_references_container < serializable
                 error('HERBERT:unique_references_container:invalid_argument', ...
                     'unique_objects must be a unique_objects_container');
             end
-            % global_name and baseclass should already have been set when loading
-            self = self.init( self.global_name, self.stored_baseclass );
-            % baseclass should already have been set when loading
-            if ~strcmp( val.baseclass, self.stored_baseclass )
-                error('HERBERT:unique_references_container:invalid_argument', ...
-                    'set unique objects with wrong stored baseclass');
+            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            self.idx_ = zeros(1,val.n_objects);
+            for i=1:val.n_objects
+                [storage,ids] = storage.add(val(i));
+                self.idx_(i) = ids;
             end
-
-            % get global container
-            glc = self.global_container('value',self.global_name);
-            % reinitialise the indices of this container as empty
-            % to purge this container of existing contents
-            self.idx_ = zeros(1,0);
-
-            % repopulate container with contents of val
-            for ii = 1:val.n_objects
-                obj = val.get(ii);
-                [obj,hash] = build_hash(obj);
-                [~,loc] = ismember( hash, glc.stored_hashes_ );
-                if loc == 0 || isempty(loc)
-                    self = self.add_single_( obj, [], hash );
-                else
-                    self = self.add_single_( obj, loc, hash );
-                end
-            end
-            if val.n_objects ~= self.n_objects
-                error('HORACE:unique_references_container:runtime_error', ...
-                    'number of objects added does not match');
-            end
+            unique_obj_store.instance().set_objects(storage);
         end
 
         function n = get.n_unique_objects(self)
@@ -277,10 +226,10 @@ classdef unique_references_container < serializable
             % indices into the singleton container. Abandoned implementation
             % left in case it becomes useful.
             unique_indices = unique( self.idx_ );
-            glc = self.global_container('value', self.global_name_);
+            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
             unique_objects = cell( 1,numel(unique_indices) );
             for i = 1:numel(unique_indices)
-                unique_objects{i} = glc{ unique_indices(i) };
+                unique_objects{i} = storage{unique_indices(i)};
             end
         end
 
@@ -291,20 +240,38 @@ classdef unique_references_container < serializable
             %
             % Input:
             % - v: scalar value to set all object in the container to
+            %      replicate in
+            if ~isa(v,self.stored_baseclass)||~(isa(v,'unique_objects_container')&&strcmp(v.baseclass,self.stored_baseclass))
+                targ_class = class(v);
+                if strcmp(targ_class,'unique_objects_container')
+                    targ_class = v.baseclass;
+                end
+                error('HERBERT:unique_objects_container:invalid_argument', ...
+                    ['assigned value must have the same class as the one already present in the container.\n' ...
+                    'Present class: "%s", Setting: "%s"'], ...
+                    self.stored_baseclass,targ_class);
+                % altergatively, we may reset the container class here.
+            end
 
+            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
             if numel(v)==self.n_objects
+                self.idx_ = zeros(1,self.n_objects);
                 for i=1:self.n_objects
-                    self = self.local_assign_(v(i),i); % self{i}=v does not work inside class
+                    [storage,igdx] = storage.add(v(i));
+                    self.idx_(i) = igdx;
                 end
             elseif numel(v)==1
-                for i=1:self.n_objects
-                    self = self.local_assign_(v,i); % self{i}=v does not work inside class
+                [is,idgs] = storage.contains(v);
+                if ~is
+                    [storage,idgs] = storage.add(v);
                 end
+                self.idx_ = repmat(idgs,1,self.n_objects);
             else
                 error('HERBERT:unique_objects_container:invalid_argument', ...
                     'assigned value must be scalar or have right number of objects');
             end
-        end        
+            unique_obj_store.instance().set_objects(storage);
+        end
 
     end
 
@@ -341,67 +308,67 @@ classdef unique_references_container < serializable
     end
 
     methods % overloaded indexers, subsets, find functions
-
-        function field_vals = get_unique_field(self, field)
-            %GET_UNIQUE_FIELD each of the unique objects referred to by self
-            % should have a property named 'field'. The code below takes each of the
-            % referred objects in turn, extracts the object referred to by
-            % 'field' and stores it in the unique_OBJECTS_container field_vals
-            % created here. field_vals will then contain unique copies of all
-            % the values of 'field' within the objects referred to in self, indexed
-            % in the same way as the original referred objects.
-
-            % determine type of unique_references_container to make from the
-            % object field type
-            s1 = self.get(1);
-            v = s1.(field);
-
-            % initialise the final output container (a unique_references_container)
-            % to hold the unique field value objects from objects in this container
-            % which are of type class(v).
-            glob_name = ['GLOBAL_NAME_FIELD_',class(v)];
-            field_vals = unique_references_container(glob_name,class(v));
-
-            %
-            % get a list without duplicates of indices to the objects in self
-            % these are the indices into the global container
-            uix = unique( self.idx_, 'stable');
-            % get the global container (a unique_objects_container)
-            glc = self.global_container('value',self.global_name_);
-            % get the unique field objects out of it, and their hashes
-            % by placing them in another temporary unique_references_container
-            % this minimises the number of times the field object has to be hashed
-            poss_field_vals = unique_references_container(glob_name,class(v));
-            for ii=1:numel(uix)
-                sii = glc{ uix(ii) };
-                v = sii.(field);
-                poss_field_vals = poss_field_vals.add_single_(v);
-            end
-
-            % now we construct the main unique_references_container `field_vals` of
-            % all the field values within objects in self
-            for ii=1:self.n_objects
-                sii = self.get(ii); % get the object
-                v = sii.(field);    % get its field
-                index = self.idx_(ii); % get its global index
-                [~,loc] = ismember(index,uix); % find where it is in the list of
-                % unique indices for objects
-                hash = poss_field_vals.hash(loc); % find the hash at that location
-                % find if that hash is in the hashes already in field
-                % values and if so where it is
-                glc = field_vals.global_container('value',glob_name);
-                [~,loc]=ismember(hash,glc.stored_hashes_);
-                % if we already have it, add the field object via that
-                % location
-                if loc>0
-                    field_vals = field_vals.add_single_(v,loc,hash);
-                    % if we don't , add it without a location (it will go at
-                    % the end as a new object/hash
-                else
-                    field_vals = field_vals.add_single_(v,[],hash);
-                end
-            end
-        end
+        %
+        % function field_vals = get_unique_field(self, field)
+        %     %GET_UNIQUE_FIELD each of the unique objects referred to by self
+        %     % should have a property named 'field'. The code below takes each of the
+        %     % referred objects in turn, extracts the object referred to by
+        %     % 'field' and stores it in the unique_OBJECTS_container field_vals
+        %     % created here. field_vals will then contain unique copies of all
+        %     % the values of 'field' within the objects referred to in self, indexed
+        %     % in the same way as the original referred objects.
+        %
+        %     % determine type of unique_references_container to make from the
+        %     % object field type
+        %     s1 = self.get(1);
+        %     v = s1.(field);
+        %
+        %     % initialise the final output container (a unique_references_container)
+        %     % to hold the unique field value objects from objects in this container
+        %     % which are of type class(v).
+        %     glob_name = ['GLOBAL_NAME_FIELD_',class(v)];
+        %     field_vals = unique_references_container(glob_name,class(v));
+        %
+        %     %
+        %     % get a list without duplicates of indices to the objects in self
+        %     % these are the indices into the global container
+        %     uix = unique( self.idx_, 'stable');
+        %     % get the global container (a unique_objects_container)
+        %     glc = self.global_container('value',self.global_name_);
+        %     % get the unique field objects out of it, and their hashes
+        %     % by placing them in another temporary unique_references_container
+        %     % this minimises the number of times the field object has to be hashed
+        %     poss_field_vals = unique_references_container(glob_name,class(v));
+        %     for ii=1:numel(uix)
+        %         sii = glc{ uix(ii) };
+        %         v = sii.(field);
+        %         poss_field_vals = poss_field_vals.add_single_(v);
+        %     end
+        %
+        %     % now we construct the main unique_references_container `field_vals` of
+        %     % all the field values within objects in self
+        %     for ii=1:self.n_objects
+        %         sii = self.get(ii); % get the object
+        %         v = sii.(field);    % get its field
+        %         index = self.idx_(ii); % get its global index
+        %         [~,loc] = ismember(index,uix); % find where it is in the list of
+        %         % unique indices for objects
+        %         hash = poss_field_vals.hash(loc); % find the hash at that location
+        %         % find if that hash is in the hashes already in field
+        %         % values and if so where it is
+        %         glc = field_vals.global_container('value',glob_name);
+        %         [~,loc]=ismember(hash,glc.stored_hashes_);
+        %         % if we already have it, add the field object via that
+        %         % location
+        %         if loc>0
+        %             field_vals = field_vals.add_single_(v,loc,hash);
+        %             % if we don't , add it without a location (it will go at
+        %             % the end as a new object/hash
+        %         else
+        %             field_vals = field_vals.add_single_(v,[],hash);
+        %         end
+        %     end
+        % end
 
         function varargout = subsref(self, idxstr)
             if numel(self)>1 % input is array or cell of unique_references_containers
@@ -502,13 +469,15 @@ classdef unique_references_container < serializable
         end
 
         function [obj_idx,obj] = find_in_container(self, obj)
-            glc = self.global_container('value',self.global_name_);
-            [ix,~,obj] = glc.find_in_container(obj);
-            inglc = ismember(ix, self.idx_);
-            if ~any(inglc)
-                obj_idx = [];
-            else
-                obj_idx = ix;
+            obj_idx = [];
+            storage = unique_obj_store.instance().get_objects(obj.stored_baseclass);
+            igx = storage.find_in_container(obj);
+            if isempty(igx )
+                return;
+            end
+            inglc = find(igx == self.idx_,1);
+            if ~isempty(inglc)
+                obj_idx = self.igx_(inglc);
             end
         end
     end
@@ -520,98 +489,99 @@ classdef unique_references_container < serializable
 
         function val = get(self,index)
             %GET - alternative access method: obj.get(i)===obj{i}
-            glc = self.global_container('value',self.global_name_);
-            val = glc{ self.idx(index) };
+            storage = unique_obj_store.instance().get_objects(obj.stored_baseclass);
+            val =storage{ self.idx(index) };
         end
 
         function val = hash(self,index)
             %HASH - for a given `index` into the container, return the associated hash
             % this prevents the calling code from having to recalculate the hash since it is already known
-            glc = self.global_container('value',self.global_name_);
-            val = glc.stored_hashes_{ self.idx(index) } ;
+            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            obj      =storage{ self.idx(index) };
+            val      = build_hash(obj);
         end
         %
-        function [self, nuix] = add_single_(self,inobj,glindex,hash)
-            %ADD_SINGLE - add a single object obj at the end of the container
-            % if the existing location of inobj in the global container (`inobj`) is known together
-            % with its associated `hash` then these are used instead of recalculating the hash
-            if isempty(self.stored_baseclass_)
-                error('HERBERT:unique_references_container:runtime_error', ...
-                    'stored baseclass unset');
-            end
-            if ~isa(inobj,self.stored_baseclass_)
-                warning('HERBERT:unique_references_container:invalid_argument', ...
-                    'not correct stored base class; object was not added');
-                nuix = 0;
-                return;
-            end
-            if isempty(self.global_name_)
-                error('HERBERT:unique_references_container:runtime_error', ...
-                    'global name unset');
-            end
-
-            if nargin<=2
-                % have to recalculate the hash and the position of `inobj` in the global container as
-                % this info is not in the additional arguments
-                [glindex, hash,inobj] = self.global_container('value',self.global_name_).find_in_container(inobj);
-            end
-            if isempty(glindex)
-                glcont = self.global_container('value',self.global_name_);
-                [glcont,glindex] = glcont.add_single_(inobj,[],hash);
-                self.global_container('reset',self.global_name_,glcont);
-            end
-            self.idx_ = [ self.idx(:)', glindex ];
-            nuix = numel(self.idx_);
-        end
-
-        function [self, nuix] = add_copies_(self,obj,n)
-            %ADD_COPIES - add a single object obj at the end of the container
-            % multiple times
-            %
-            % Input:
-            % ------
-            % obj - the single object to be added. This must not be a
-            %       unique container or an array of size.1 or cell.
-            % n   - the number of copies to add
-            %
-            % Output
-            % ------
-            % self - the revised container with the additional indices for
-            %        the added objects
-            % nuix - the range of added non-unique indices
-
-            if isempty(self.stored_baseclass_)
-                error('HERBERT:unique_references_container:incomplete_setup', ...
-                    'stored baseclass unset');
-            end
-            if ~isa(obj,self.stored_baseclass_)
-                warning('HERBERT:unique_references_container:invalid_argument', ...
-                    'not correct stored base class; object was not added');
-                nuix = 0;
-                return;
-            end
-            if isempty(self.global_name_)
-                error('HERBERT:unique_references_container:incomplete_setup', ...
-                    'global name unset');
-            end
-            [glindex, ~,obj] = self.global_container('value',self.global_name_).find_in_container(obj);
-            if isempty(glindex)
-                glcont = self.global_container('value',self.global_name_);
-                [glcont,glindex] = glcont.add(obj);
-                if glindex == 0
-                    % object was not added
-                    nuix = 0;
-                    return
-                end
-                self.global_container('reset',self.global_name_,glcont);
-            end
-            multiple_copies = repmat( glindex, n, 1);
-            oldsize = numel(self.idx_);
-            self.idx_ = [ self.idx(:)', multiple_copies(:)' ];
-            newsize = numel(self.idx_);
-            nuix = oldsize+1:newsize;
-        end
-
+        % function [self, nuix] = add_single_(self,inobj,glindex,hash)
+        %     %ADD_SINGLE - add a single object obj at the end of the container
+        %     % if the existing location of inobj in the global container (`inobj`) is known together
+        %     % with its associated `hash` then these are used instead of recalculating the hash
+        %     if isempty(self.stored_baseclass_)
+        %         error('HERBERT:unique_references_container:runtime_error', ...
+        %             'stored baseclass unset');
+        %     end
+        %     if ~isa(inobj,self.stored_baseclass_)
+        %         warning('HERBERT:unique_references_container:invalid_argument', ...
+        %             'not correct stored base class; object was not added');
+        %         nuix = 0;
+        %         return;
+        %     end
+        %     if isempty(self.global_name_)
+        %         error('HERBERT:unique_references_container:runtime_error', ...
+        %             'global name unset');
+        %     end
+        % 
+        %     if nargin<=2
+        %         % have to recalculate the hash and the position of `inobj` in the global container as
+        %         % this info is not in the additional arguments
+        %         [glindex, hash,inobj] = self.global_container('value',self.global_name_).find_in_container(inobj);
+        %     end
+        %     if isempty(glindex)
+        %         glcont = self.global_container('value',self.global_name_);
+        %         [glcont,glindex] = glcont.add_single_(inobj,[],hash);
+        %         self.global_container('reset',self.global_name_,glcont);
+        %     end
+        %     self.idx_ = [ self.idx(:)', glindex ];
+        %     nuix = numel(self.idx_);
+        % end
+        % 
+        % function [self, nuix] = add_copies_(self,obj,n)
+        %     %ADD_COPIES - add a single object obj at the end of the container
+        %     % multiple times
+        %     %
+        %     % Input:
+        %     % ------
+        %     % obj - the single object to be added. This must not be a
+        %     %       unique container or an array of size.1 or cell.
+        %     % n   - the number of copies to add
+        %     %
+        %     % Output
+        %     % ------
+        %     % self - the revised container with the additional indices for
+        %     %        the added objects
+        %     % nuix - the range of added non-unique indices
+        % 
+        %     if isempty(self.stored_baseclass_)
+        %         error('HERBERT:unique_references_container:incomplete_setup', ...
+        %             'stored baseclass unset');
+        %     end
+        %     if ~isa(obj,self.stored_baseclass_)
+        %         warning('HERBERT:unique_references_container:invalid_argument', ...
+        %             'not correct stored base class; object was not added');
+        %         nuix = 0;
+        %         return;
+        %     end
+        %     if isempty(self.global_name_)
+        %         error('HERBERT:unique_references_container:incomplete_setup', ...
+        %             'global name unset');
+        %     end
+        %     [glindex, ~,obj] = self.global_container('value',self.global_name_).find_in_container(obj);
+        %     if isempty(glindex)
+        %         glcont = self.global_container('value',self.global_name_);
+        %         [glcont,glindex] = glcont.add(obj);
+        %         if glindex == 0
+        %             % object was not added
+        %             nuix = 0;
+        %             return
+        %         end
+        %         self.global_container('reset',self.global_name_,glcont);
+        %     end
+        %     multiple_copies = repmat( glindex, n, 1);
+        %     oldsize = numel(self.idx_);
+        %     self.idx_ = [ self.idx(:)', multiple_copies(:)' ];
+        %     newsize = numel(self.idx_);
+        %     nuix = oldsize+1:newsize;
+        % end
+        % 
         function [self, nuix] = add(self, obj)
             %ADD -
             % add (possibly contents of multiple) objects at the end of the
@@ -635,41 +605,28 @@ classdef unique_references_container < serializable
             %   they will be split up into their elements to be added here;
             %   a single element cell is thus converted to that element.
 
-            if ~ischar(obj) && (numel(obj)>1 || iscell(obj) || ...
-                    isa(obj, 'unique_objects_container'))
 
-                % Set flag that there are no elements
-                nobj = 0;
-
-                % find number of elements to process for the different
-                % types of containers
-                if isa(obj, 'unique_objects_container')
-                    nobj = obj.n_objects;
-                elseif numel(obj)>1 || iscell(obj)
-                    nobj = numel(obj);
-                end
-
-                % if there are elements to process, add them
-                if nobj>0
-                    nuix = zeros(1,nobj);
-                    if iscell(obj)
-                        for i=1:nobj
-                            [self,nuix(i)] = self.add_single_(obj{i});
-                        end
-                    else
-                        for i=1:nobj
-                            [self,nuix(i)] = self.add_single_(obj(i));
-                        end
-                    end
-                end
-                return;
+            n_add_obj = numel(obj);
+            if isa(obj, 'unique_objects_container')
+                n_add_obj = obj.n_objects;
             end
-
-            % otherwise we have a single object or char array
-            % add it to the container. Failure will return nuix==0 and
-            % produce a warning.
-
-            [self,nuix] = self.add_single_(obj);
+            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            idxl = self.idx_;
+            self.idx_ = zeros(1,numel(idxl)+n_add_obj);
+            self.idx_(1:numel(idxl)) = idxl;
+            ic = numel(idxl)+1;
+            nuix = zeros(1,n_add_obj);
+            for i=1:n_add_obj
+                if iscell(obj)
+                    [storage,igdx] = storage.add(obj{i});
+                else
+                    [storage,igdx] = storage.add(obj(i));
+                end
+                self.idx_(ic) = igdx;
+                nuix(i) = ic;
+                ic = ic+1;
+            end
+            unique_obj_store.instance().set_objects(storage);
         end
 
         function self = replicate_runs(self, n_objects)
@@ -714,28 +671,20 @@ classdef unique_references_container < serializable
             % - nuix: (non-unique index) position at which it is to be
             %         inserted.
             % The old value is overwritten.
-
-            [glindex, ~,obj] = self.global_container('value',self.global_name_).find_in_container(obj);
-            if numel(glindex)>1
-                % unlikely error state but catching just in case
-                error('HORACE:unique_references_container___replace:invalid_state', ...
-                    'more than one location index found');
+            if nuix<1 || nuix>self.n_objects
+                error('HORACE:unique_references_container:invalid_argument', ...
+                    'index for replacement "%d" lies out of the current object boundaries: %d', ...
+                    nuix,self.n_objects);
             end
-            if isempty(glindex)
-                [glcont,glindex] = ...
-                    self.global_container('value',self.global_name_).add_single_(obj);
-                if numel(glindex)>1
-                    % again, unlikely error, but just in case
-                    error('HORACE:unique_references_container___replace:invalid_state', ...
-                        'more than one location index found');
-                end
-                if glindex == 0
-                    % object was not replaced
-                    return
-                end
-                self.global_container('reset',self.global_name_,glcont);
+            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            [igdx,~,obj] = storage.find_in_container(obj);
+            if ~isempty(igdx)
+                self.idx_(nuix) = igdx;
+                return;
             end
-            self.idx_(nuix) = glindex;
+            [self,igdx] = storage.add(obj);
+            self.idx_(nuix) = igdx;
+            unique_obj_store.instance().set_objects(storage);
         end
 
         function [self] = replace_all(self,obj)
@@ -747,20 +696,15 @@ classdef unique_references_container < serializable
             %         to replace all existing content
             %
             % The old values are overwritten.
-
-            [glindex, ~,obj] = self.global_container('value',self.global_name_) ...
-                .find_in_container(obj);
-            if isempty(glindex)
-                [glcont,glindex] = ...
-                    self.global_container('value',self.global_name_).add(obj);
-                if glindex == 0
-                    % object was not replaced
-                    return
-                end
-                self.global_container('reset',self.global_name_,glcont);
+            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            [igdx,~,obj] = storage.find_in_container(obj);
+            if ~isempty(igdx)
+                self.idx_(:) = igdx;
+                return;
             end
-            sz = self.n_runs;
-            self.idx_ = repmat(glindex, sz, 1) ;
+            [self,igdx] = storage.add(obj);
+            self.idx_(:) = igdx;
+            unique_obj_store.instance().set_objects(storage);
         end
     end
 
@@ -780,33 +724,25 @@ classdef unique_references_container < serializable
             %                 ==[] if not found
 
             % get out the global container for this container
-            glc = self.global_container('value', self.global_name_);
-
-            % check if item is a class name - i.e. is char-type unless
-            % the container contains char-type items
-            if (ischar(item)   && ~strcmp(self.stored_baseclass, 'char')) || ...
-                    (isstring(item) && ~strcmp(self.stored_baseclass, 'string'))
-                belongs = arrayfun( @(i) isa ( glc{i}, item), self.idx_ );
-                is = any(belongs);
-                unique_index = find(belongs);
-
-                % check if item is an actual object which might be stored
-                % in the global container
-            else
-                [ix,~,item] = glc.find_in_container(item);
-
-                if ~ismember(ix, self.idx_)
-                    ix = [];
-                end
-                is = ~isempty(ix);
-                unique_index = ix;
+            is = false;
+            unique_index = [];
+            if ~isa(item,self.stored_baseclass)
+                return;
+            end
+            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            [igdx,~,item] = storage.find_in_container(item);
+            if isempty(igdx)
+                return;
+            end
+            unique_index = find(igdx == self.idx_,1);
+            if ~isempty(unique_index)
+                is = true;
             end
         end
-
     end
 
     methods (Static)
-%==========================================================================
+        %==========================================================================
         % (save)/load functionality via serializable
         % save done via serializable directly
 
@@ -824,7 +760,7 @@ classdef unique_references_container < serializable
             'unique_objects', ...
             };
     end
-    
+
     methods % serializable interface
         function flds = saveableFields(obj)
             flds = obj.fields_to_save_;
@@ -833,5 +769,5 @@ classdef unique_references_container < serializable
         function ver = classVersion(~)
             ver = 1;
         end
-    end    
+    end
 end

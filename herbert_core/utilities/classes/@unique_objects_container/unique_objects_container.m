@@ -388,10 +388,10 @@ classdef unique_objects_container < serializable
             %          if it is stored, otherwise empty []
             % - hash : the hash of the object from hashify
             %
-            [obj,hash] = build_hash(obj);
             if isempty(self.stored_hashes_)
                 ix = []; % object not stored as nothing is stored
             else
+                [obj,hash] = build_hash(obj);                
                 % get intersection of array stored_hashes_ with (single) array
                 % hash from hashify. Calculates the index of the hash in
                 % stored_hashes.

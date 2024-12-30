@@ -11,7 +11,7 @@ classdef unique_obj_store<handle
         typenames;
     end
     properties(Access=private)
-        % structure, used for storing  
+        % structure, used for storing
         stor_holder_ = struct();
     end
 
@@ -23,7 +23,27 @@ classdef unique_obj_store<handle
         function nt = get.typenames(obj)
             % Return names of classes, stored within the storage
             nt = fieldnames(obj.stor_holder_);
-        end        
+        end
+        function stor = get_objects(obj,class_name)
+            % return unique storage container for objects, defined by
+            % specified class name
+            if isfield(obj.stor_holder_,class_name)
+                stor = obj.stor_holder_.(class_name);
+            else
+                stor = unique_objects_container(class_name);
+            end
+        end
+        function obj = set_objects(obj,unique_storage)
+            % return unique storage container for objects, defined by
+            % specified class name
+            if ~isa(unique_storage,'unique_objects_container')
+                error('HERBERT:unique_obj_storage:invalid_argument', ...
+                    'Only unique_object_container may be set as storage of unique objects. Attempt to set %s', ...
+                    class(unique_storage))
+            end
+            fname = unique_storage.baseclass;
+            obj.stor_holder_.(fname) = unique_storage;
+        end
     end
     methods(Static)
         function obj = instance(varargin)
@@ -31,7 +51,7 @@ classdef unique_obj_store<handle
             %
             % Usage:
             %>>con = unique_obj_store.instance(); returns unique instance
-            % of the 
+            % of the
             %
             % con = unique_obj_store.instance('clear');
             % Where optional parameter does the following:
