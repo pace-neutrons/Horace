@@ -1,6 +1,6 @@
 classdef unique_obj_store<handle
-    %UNIQUE_OBJ_STORE contains information about unique objects used by
-    %unique references container as reference point
+    %UNIQUE_OBJ_STORE contains unique objects used by
+    %unique references container as reference point.
     %
     %
 

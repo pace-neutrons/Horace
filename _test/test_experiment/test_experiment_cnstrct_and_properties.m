@@ -21,7 +21,6 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertEqual(expt.n_runs,0);
 
             assertTrue( isa( expt.samples, 'unique_references_container' ) );
-            assertEqual( expt.samples.global_name, 'GLOBAL_NAME_SAMPLES_CONTAINER' );
             assertEqual( expt.samples.n_runs, 0 );
             function throw1()
                 expt.samples{1};
@@ -29,7 +28,6 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_subscript');
 
             assertTrue( isa( expt.instruments, 'unique_references_container' ) );
-            assertEqual( expt.instruments.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
             assertEqual( expt.instruments.n_runs, 0 );
             function throw2()
                 expt.instruments{1};
@@ -37,7 +35,6 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_subscript');
 
             assertTrue( isa( expt.detector_arrays, 'unique_references_container' ) );
-            assertEqual( expt.detector_arrays.global_name, 'GLOBAL_NAME_DETECTORS_CONTAINER' );
             assertEqual( expt.detector_arrays.n_runs, 0 );
             function throw3()
                 expt.detector_arrays{1};
@@ -237,14 +234,12 @@ classdef test_experiment_cnstrct_and_properties < TestCase
 
             load(tmpfile, 'expt');
             assertTrue( isa( expt.samples, 'unique_references_container' ) );
-            assertEqual( expt.samples.global_name, 'GLOBAL_NAME_SAMPLES_CONTAINER' );
             assertEqual( expt.samples.n_runs, 0 );
             function throw1()
                 expt.samples{1};
             end
             assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_subscript');
             assertTrue( isa( expt.instruments, 'unique_references_container' ) );
-            assertEqual( expt.instruments.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
             assertEqual( expt.instruments.n_runs, 0 );
             function throw2()
                 expt.instruments{1};
@@ -301,17 +296,17 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             % expt.samples = {samples};
 
             assertEqual(expt.samples{1}, samples);
-            urc = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
+            urc = unique_references_container('IX_samp');
             urc = urc.add(samples);
             assertEqual(expt.samples,  urc);
 
             assertEqual(expt.instruments{1}, instruments);
-            urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
+            urc = unique_references_container('IX_inst');
             urc = urc.add(instruments);
             assertEqual(expt.instruments,  urc);
 
             assertEqual(expt.detector_arrays{1}, detectors);
-            urc = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
+            urc = unique_references_container('IX_detector_array');
             urc = urc.add(detectors);
             assertEqual(expt.detector_arrays,  urc);
 
@@ -339,17 +334,17 @@ classdef test_experiment_cnstrct_and_properties < TestCase
 
             load(tmpfile, 'expt');
             assertEqual(expt.samples{1}, samples);
-            urc = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
+            urc = unique_references_container('IX_samp');
             urc = urc.add(samples);
             assertEqual(expt.samples,  urc);
 
             assertEqual(expt.instruments{1}, instruments);
-            urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
+            urc = unique_references_container('IX_inst');
             urc = urc.add(instruments);
             assertEqual(expt.instruments,  urc);
 
             assertEqual(expt.detector_arrays{1}, detectors);
-            urc = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
+            urc = unique_references_container('IX_detector_array');
             urc = urc.add(detectors);
             assertEqual(expt.detector_arrays,  urc);
 

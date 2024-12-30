@@ -25,9 +25,9 @@ classdef object_lookup < serializable
     %
     %   object_elements - retrieve one or more elements from a given object array in the set
     %
-    %   func_eval_ind   - evaluate a method or function for indexed occurences in the object_lookup
+    %   func_eval_ind   - evaluate a method or function for indexed occurrences in the object_lookup
     %
-    %   rand_ind        - generate random points for indexed occurences in object_lookup
+    %   rand_ind        - generate random points for indexed occurrences in object_lookup
     %
     %
     % Relationship to pdf_table_lookup:
@@ -200,7 +200,7 @@ classdef object_lookup < serializable
             %                   object_lookup (objArr, 'repeat', {1,1,1,1,1})
             %               is equivalent to
             %                   object_lookup (repmat(objArr,[1,5]))
-            %               without the overhead of finding unique occurences of
+            %               without the overhead of finding unique occurrences of
             %               elements in objArr multiple times.
             %
             %
