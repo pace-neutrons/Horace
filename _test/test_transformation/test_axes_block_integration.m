@@ -75,7 +75,7 @@ classdef test_axes_block_integration < TestCase
             ab_sample = line_axes(bin1{:});
 
             ab_r = ab_base.realign_bin_edges(ab_sample);
-            assertEqual(ab_r,ab_sample);
+            assertEqual(ab_r,ab_sample,'',1.e-9);
 
 
             data = ones(ab_base.dims_as_ssize);

@@ -1,5 +1,5 @@
-function [ok, mess] = equal_to_tol(w1, w2, varargin)
-% Check if two sqw objects are equal to a given tolerance
+function [iseq, mess] = equal_to_tol(obj1, obj2, varargin)
+% Return a logical variable stating if two serializable objects are equal or not
 %
 %   >> ok = equal_to_tol (a, b)
 %   >> ok = equal_to_tol (a, b, tol)
@@ -49,69 +49,40 @@ function [ok, mess] = equal_to_tol(w1, w2, varargin)
 %  'ignore_str'     Ignore the length and content of strings or cell arrays
 %                  of strings (true or false; default=false)
 %
-%  'reorder'        Ignore the order of pixels within each bin
-%                  (true or false; default=true)
-%                   Only applies if sqw-type object
+%   obj2        Object on right-hand side
 %
-%  'fraction'       Compare pixels in only a fraction of the non-empty bins
-%                  (0<= fracton <= 1; default=1 i.e. test all bins)
-%                   Only applies if sqw-type object
-%  '-ignore_date'   (provided without additional values, so its presence in
-%                    the sequence of keywords means true). If provided,
-%                    ignore file creation date stored in main header.
+% Optional:
+%   p1, p2,...  Any set of parameters that the equal_to_tol function accepts
 %
-%  	The reorder and fraction options are available because the order of the
-%   pixels within the pix array for a given bin is unimportant. Reordering
-%   takes time, however, so the option to test on a few bins is given.
 
-% Check array sizes match
-if ~isequal(size(w1), size(w2))
-    ok = false;
-    mess = 'Sizes of object arrays being compared are not equal';
-    return
-end
+% what parameters defaylts are different between this method and defaults,
+% defined in plain equal_to_tol. 
+class_defaults = struct( ...
+        'reorder'      ,true,...
+        'nan_equal'    ,true...
+        );
+[opt,present] = eq_to_tol_process_inputs(inputname(1), inputname(2),class_defaults,...
+    varargin{:});
 
-% Check that corresponding objects in the array have the same type
-base_message = 'Objects being compared are not the same type';
-for i = 1:numel(w1)
-    if ~strcmp(class(w1(i)),class(w2(i)))
-        elmtstr = '';
-        if numel(w1) > 1
-            elmtstr = ['(element ', num2str(i), ')'];
-        end
+[iseq,mess] = eq_to_tol_type_equal(obj1,obj2,opt.name_a,opt.name_b);
+if ~iseq;  return; end
 
-        ok = false;
-        if numel(w1) > 1
-            mess = [base_message, ' ', elmtstr];
-        else
-            mess = base_message;
-        end
-        return
-    end
-end
+[iseq,mess] = eq_to_tol_shape_equal(obj1,obj2,opt.name_a,opt.name_b,opt.ignore_str);
+if ~iseq; return;end
 
+name_a = opt.name_a;
+name_b = opt.name_b;
 % Perform comparison
-sz = size(w1);
-for i = 1:numel(w1)
-    in_name = cell(1, 2);
-    in_name{1} = variable_name(inputname(1), false, sz, i, 'input_1');
-    in_name{2} = variable_name(inputname(2), false, sz, i, 'input_2');
-    if nargin > 2
-        opt = {'name_a', 'name_b'};
-        [keyval_list, other] = extract_keyvalues(varargin, opt);
-        if ~isempty(keyval_list)
-            ic = 1;
-            for j = 1:2:numel(keyval_list) - 1
-                in_name{ic} = variable_name(keyval_list{j+1}, false, sz, i);
-                ic = ic + 1;
-            end
-        end
-    else
-        other = varargin;
+sz = size(obj1);
+for i = 1:numel(obj1)
+    if numel(obj1)>1  % the variables will be with
+        % size-brackets and we do not want them for only one object
+        opt.name_a = variable_name(name_a, false, sz, i, 'input_1');
+        opt.name_b = variable_name(name_b, false, sz, i, 'input_1');
     end
-
-    [ok, mess] = equal_to_tol_internal(w1(i), w2(i), in_name{1}, in_name{2}, other{:});
-    if ~ok
+    %
+    [iseq, mess] = equal_to_tol_single(obj1(i), obj2(i), opt,present);
+    if ~iseq
         return
     end
 end

@@ -287,60 +287,32 @@ classdef LineProjBase < aProjectionBase
             end
         end
         %
-        function [is,mess] = eq(obj,other_obj,varargin)
-            % Overloaded equality operator comparing the projection
-            % transformation rather then all projection properties
+        function [is,mess] = eq_to_tol_type_equal(obj1,obj2,name_a,name_b)
+            % Helper function used by equal_to_tol to validate if types of
+            % two objects is equal for purposes of equal_to_tol comparison
+            % procedure.
             %
-            % Different projection property values may define the same
-            % transformation, so the projections, which define the same
-            % transformation should be considered the equal.
+            % Overload used in equal_to_tol to check types allowed for compariosn
+            % line_proj allow comparison of two any LineProjBase children
             %
             % Inputs:
-            % other_obj -- the object or array of objects to compare with
-            %               current object
+            % obj1    -- LineProjBase object 1 to compare
+            % obj2    -- presumably LineProjBase object 2 to compare (will
+            %            be verified here)
+            %
             % Optional:
-            % any set of parameters equal_to_tol function would accept, as
-            % eq uses equal_to_tol function internally
+            % name_a  -- the name of first object in comparison
+            % name_b  -- the name of second object in comparison
+            %            These names become part of information message in
+            %            case if objects types are different.
             %
             % Returns:
-            % True if the objects define the sample pixel transformation and
-            %      false if not.
-            % Optional:
-            % message, describing in more details where non-equality
-            % occurs (used in unit tests to indicate the details of
-            % inequality)
-
-            if nargout == 2
-                if nargin>2
-                    names = LineProjBase.extract_eq_neq_names(varargin{:});
-                else
-                    names = cell(2,1);
-                    names{1} = inputname(1);
-                    names{2} = inputname(2);
-                end
-                [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
-            else
-                is = eq_(obj,other_obj,nargout,cell(2,1),varargin{:});
-            end
-        end
-
-        function [nis,mess] = ne(obj,other_obj,varargin)
-            % Non-equality operator expressed through equality operator
+            % is      -- true if objects types are equal and false if not.
+            % mess    -- the message providing additinal information about
+            %            object types it the types are different
             %
-            if nargout == 2
-                if nargin > 2
-                    names = line_proj.extract_eq_neq_names(varargin{:});
-                else
-                    names{1} = inputname(1);
-                    names{2} = inputname(2);
-                end
-                [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
-            else
-                is = eq_(obj,other_obj,nargout,cell(2,1),varargin{:});
-            end
-            nis = ~is;
+            [is,mess] = eq_to_tol_type_equal_(obj1,obj2,name_a,name_b);
         end
-        %
     end
     methods(Static)
         function lst = data_sqw_dnd_export_list()
@@ -354,6 +326,30 @@ classdef LineProjBase < aProjectionBase
     end
     %======================================================================
     methods(Access=protected)
+        function [iseq,mess] = equal_to_tol_single(obj,other_obj,opt,varargin)
+            % Check equality of two LineProjBase projections   comparting the
+            % projection transformation instead of  all projection properties
+            %
+            % Different projection property values may define the same
+            % transformation, so the projections, which define the same
+            % transformation should be considered the equal.
+            %
+            % Inputs:
+            % obj  -- LineProjBase object to compare
+            % other_obj -- the object to compare with
+            %               current object
+            % opt       -- the structure, process_inputs_for_eq_to_tol returns
+            %
+            % Returns:
+            % is     -- True if the objects define the sampe pixel transformation and
+            %           false if not.
+            %
+            % mess   -- describing in more details where non-equality
+            %           occures (used in unit tests to indicate the details of an
+            %           inequality)
+            [iseq,mess] = eq_to_tol_single_(obj,other_obj,opt,varargin{:});
+        end
+
         function name = get_axes_name(~)
             % return the name of the axes class, which corresponds to this
             % projection
@@ -443,26 +439,6 @@ classdef LineProjBase < aProjectionBase
 
             new_range = [centre-0.5*size(:),centre+0.5*size(:)]';
             ax_block.img_range(:,1:3) = new_range;
-        end
-    end
-    methods(Static,Access=private)
-        function names = extract_eq_neq_names(varargin)
-            % function helps to parse inputs of eq/neq functions in case
-            % when it called within the chain of other functions containing
-            % input parameters
-            % if varargin contains
-            names = cell(2,1);
-            argi = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false);
-            is = ismember(argi,'name_a');
-            if any(is)
-                ind = find(is);
-                names{1} = varargin{ind+1};
-            end
-            is = ismember(argi,'name_b');
-            if any(is)
-                ind = find(is);
-                names{2} = varargin{ind+1};
-            end
         end
     end
     methods(Access=protected)

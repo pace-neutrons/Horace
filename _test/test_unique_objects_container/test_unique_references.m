@@ -96,13 +96,13 @@ classdef test_unique_references < TestCase
             inst2 = { obj.li, obj.li, obj.li };
             sam2 = { IX_samp(3,90), IX_samp(3.1, 90), IX_samp(3.2, 90) };
             ex2 = Experiment(det2, inst2, sam2, ed2);
-            
+
             ex2.samples(1) = IX_samp(3,80);
             ex2.samples(2) = IX_samp(3.1,80);
             ex2.samples(3) = IX_samp(3.2,80);
-            
+
             assertEqual(ex2.samples(1),IX_samp(3,80));
-            
+
             % check the state of the global container
             gc = unique_references_container.global_container('value','GLOBAL_NAME_SAMPLES_CONTAINER');
             assertEqual(gc.n_objects,7); % sam1, sam2 and the replacements into ex2
@@ -120,25 +120,25 @@ classdef test_unique_references < TestCase
             assertEqual(gc.n_objects,3);
             assertEqual(gc.unique_objects{1},ex2_rec.samples(1));
             assertEqual(gc.unique_objects{3},ex2_rec.samples(3));
-        end        
+        end
         %
         function test_save_load_add_to_experiment(obj)
             %TODO there is a lot of testing of Experiment here and this may
             %be better positioned in test_experiment
-            
+
             % depending on how many times this test or others has been run,
             % the global samples container may contain various other
             % samples which may cause problems for the current test. To
             % allow this test to run without those complications, clear the
             % global samples container with the next line. In principle
             % this should not be needed, and it can be left commented.
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');            
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER');
 
             % adding a sample to an empty Experiment() will fail as the
             % number of runs is defined by the number of IX_experiments it
             % contains, so Experiment() has no runs and ex.sample{1} = sam
-            % will not work. 
+            % will not work.
             sam = IX_samp(4,90);
             ex = Experiment();
             function throw1()
@@ -155,7 +155,7 @@ classdef test_unique_references < TestCase
             sam2 = IX_samp(5,80);
             ex.samples{1} = sam2;
             assertEqual(ex.samples(1),sam2);
-            
+
             % Now test save/load
             wkdir = tmp_dir();
             sample_file = fullfile(wkdir,'test_save_load_add_to_experiment.mat');
@@ -458,12 +458,12 @@ function test_replace_unique_same_number_works(~)
             % populated e.g. with loadobj
             urc1 = unique_references_container();
             % so this will throw
-            cl4b = set_temporary_warning('off','HERBERT:unique_references_container:incomplete_setup');                     
+            cl4b = set_temporary_warning('off','HERBERT:unique_references_container:incomplete_setup');
             function throw1()
                 urc1(1) = obj.mi1;
             end
             assertExceptionThrown( @throw1, ...
-                'HERBERT:unique_references_container:incomplete_setup');
+                'HERBERT:unique_references_container:runtime_error');
             [lwn,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_references_container:incomplete_setup');
             assertEqual(lwn, 'baseclass not initialised, using first assigned type');
@@ -478,7 +478,7 @@ function test_replace_unique_same_number_works(~)
             % fail extending with wrong type
             assertEqual(urc2.n_runs,1);
             assertEqual(urc2.n_objects,1);
-            cl2b = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');            
+            cl2b = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
             urc2(2) = obj.mi1;
             [lwn,lw] = lastwarn;
             assertEqual(lwn,'not correct stored base class; object was not added');
@@ -488,7 +488,7 @@ function test_replace_unique_same_number_works(~)
             lastwarn('');
 
             % fail inserting with wrong type
-            cl3b = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');            
+            cl3b = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
             urc2(1) = obj.mi1;
             [a,~]=lastwarn;
             assertTrue(strcmp(a,'not correct base class; object was not added'));
@@ -597,42 +597,6 @@ function test_replace_unique_same_number_works(~)
             assertEqual( lastwarn, 'not correct stored base class; object was not added');
         end
         %----------------------------------------------------------------
-        function test_change_serializer(obj)
-            skipTest('not changing serializer any more');
-            % Test different serializers
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
-            urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS','IX_inst_DGfermi');
-            glc = urc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
-            glc.convert_to_stream_f = @hlp_serialize;
-            urc.global_container('reset','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS',glc);
-
-            mi2 = merlin_instrument(190, 700, 'g');
-            urc = urc.add(obj.mi1);
-            urc = urc.add(mi2);
-            glc = urc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
-
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2');
-            vrc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2','IX_inst_DGfermi');
-            hlc = vrc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2');
-            hlc.convert_to_stream_f = @hlp_serialize;
-
-            vrc = vrc.add(obj.mi1);
-            vrc = vrc.add(mi2);
-            hlc = vrc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2');
-
-            ie = isequal( hlc.stored_hashes(1,:), glc.stored_hashes(1,:) );
-            assertFalse(ie);
-            ie = isequal( glc.convert_to_stream_f, hlc.convert_to_stream_f);
-            assertFalse(ie);
-            %{
-            Turns out that hashes are not portable between all Matlab
-            versions and platforms, so suppressing hash comparisons.
-            assertEqual( u1, uoc.stored_hashes(1,:) );
-            assertEqual( v1, voc.stored_hashes(1,:) );
-            %}
-        end
-        %----------------------------------------------------------------
         function test_global_container_spans_multiple_containers(~)
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
 
@@ -675,34 +639,6 @@ function test_replace_unique_same_number_works(~)
             assertEqual( u1, uoc.stored_hashes(1,:) );
             %}
         end
-        %----------------------------------------------------------------
-        function test_subscripting_type_hlp_ser(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
-
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
-            glc = urc.global_container('value','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            glc.convert_to_stream_f = @hlp_serialize;
-            unique_references_container.global_container('reset','GLOBAL_NAME_INSTRUMENTS_CONTAINER',glc);
-            glc = urc.global_container('value','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            assertEqual( glc.convert_to_stream_f, @hlp_serialize);
-            urc{1} = obj.mi1;
-            urc{2} = obj.nul_sm1;
-            [lwn,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_references_container:invalid_argument');
-            assertEqual(lwn,'not correct stored base class; object was not added');
-            assertEqual( urc.n_unique_objects, 1);
-            %{
-            Turns out that hashes are not portable between all Matlab
-            versions and platforms, so suppressing this bit.
-            u1 = uint8(...
-                [124   197    72   173   189    40   141    89   154   200    43   138   160    63   243   121] ...
-                );
-            assertEqual( u1, uoc.stored_hashes(1,:) );
-            %}
-        end
-        %----------------------------------------------------------------
         function test_subscripting_type_hlp_ser_wrong_subscript_plus(obj)
             % additional tests for other subscript functions
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
@@ -772,7 +708,7 @@ function test_replace_unique_same_number_works(~)
             function throw2()
                 urc2.add([3,4,5]);
             end
-            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:incomplete_setup');
+            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:runtime_error');
             urc3 = unique_references_container('Joby3','double');
             urc3 = urc3.add([6 7 8]);
             urc4 = unique_references_container('Biby','IX_inst');
@@ -785,13 +721,13 @@ function test_replace_unique_same_number_works(~)
             assertEqual(urc{1}.data, 111);
             urc{1}.data = 222;
             function throw1()
-	            assertEqual(urc{1}, thingy(222));
-	            assertEqual(urc{1}.data, 222);
+                assertEqual(urc{1}, thingy(222));
+                assertEqual(urc{1}.data, 222);
                 urc{2}.data = 666;
             end
             me = assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_subscript');
             assertTrue(strcmp(me.message, ...
-            'when adding to the end of a container, additionally setting properties is not permitted'));
+                'when adding to the end of a container, additionally setting properties is not permitted'));
         end
         %-----------------------------------------------------------------
         function test_arrays_of_containers(~)

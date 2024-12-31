@@ -187,17 +187,6 @@ classdef (Abstract=true) serializable
 
 
     %---------------------------------------------------------------------------
-    % Constructor
-    %---------------------------------------------------------------------------
-    methods
-        function obj = serializable()
-            % Class constructor.
-            % Does nothing except enable methods of the base serializable class
-            % to be accessed.
-        end
-    end
-
-    %---------------------------------------------------------------------------
     %   ABSTRACT INTERFACE THAT MUST BE DEFINED IN CHILD CLASS
     %---------------------------------------------------------------------------
     methods (Abstract, Access=public)
@@ -318,20 +307,18 @@ classdef (Abstract=true) serializable
     methods
         % Return logical variable stating if two serializable objects are equal
         % or not
-        [iseq, mess] = eq (obj1, obj2, varargin)
+        function iseq = eq (obj1, obj2)
+            iseq  = equal_to_tol(obj1,obj2);
+        end
 
         % Return logical variable stating if two serializable objects are
         % unequal or not
-        [isne, mess] = ne (obj1, obj2, varargin)
-    end
+        isne = ne (obj1, obj2)
 
-    methods (Access=protected)
-        % Pre-comparison of objects in overloaded method eq for serializable
-        % objects in the case when the default method needs to be customised
-        [is, mess, name_a, name_b, namer, argi] = process_inputs_for_eq (...
-            lhs_obj, rhs_obj, narg_out, names, varargin)
+        % Return logical variable stating if two serializable objects are equal
+        % or not given some conditions of their equality.
+        [iseq,mess]  = equal_to_tol(obj1,obj2,varargin);
     end
-
 
     %---------------------------------------------------------------------------
     %   Object validation
@@ -345,6 +332,26 @@ classdef (Abstract=true) serializable
         % Utility to simplify the code of a class constructor
         [obj, remains] = set_positional_and_key_val_arguments (obj, ...
             positional_param_names_list, old_keyval_compat, varargin)
+
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
+            % internal procedure used by equal_to_toll method to compare
+            % single pair of serializable objects
+            % Input:
+            % obj       -- first object to compare
+            % other_obj -- second object to compare
+            % opt       -- the structure containing fieldnames and their
+            %              values as accepted by generic equal_to_tol
+            %              procedure or retruned by
+            %              process_inputs_for_eq_to_tol function
+            %
+            % Returns:
+            % iseq      -- logical containing true if objects are equal and
+            %              false otherwise.
+            % mess      -- char array empty if iseq == true or containing
+            %              more information on the reason behind the
+            %              difference if iseq == false
+            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt,varargin{:});
+        end
     end
 
     methods
