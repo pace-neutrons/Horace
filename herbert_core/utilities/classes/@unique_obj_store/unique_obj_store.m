@@ -44,6 +44,12 @@ classdef unique_obj_store<handle
             fname = unique_storage.baseclass;
             obj.stor_holder_.(fname) = unique_storage;
         end
+        function obj = clear(obj,class_name)
+            % clear from store particular type of unique objects
+            if isfield(obj.stor_holder_,class_name)
+                obj.stor_holder_ = rmfield(obj.stor_holder_,class_name);
+            end
+        end
     end
     methods(Static)
         function obj = instance(varargin)

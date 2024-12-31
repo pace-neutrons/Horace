@@ -126,7 +126,7 @@ classdef test_unique_references < TestCase
             assertEqual(gc.unique_objects{1},ex2_rec.samples(1));
             assertEqual(gc.unique_objects{3},ex2_rec.samples(3));
             assertTrue(gc.unique_objects{1}.hash_defined)
-            assertTrue(gc.unique_objects{3}.hash_defined)            
+            assertTrue(gc.unique_objects{3}.hash_defined)
         end
         %
         function test_save_load_add_to_experiment(obj)
@@ -722,7 +722,7 @@ function test_replace_unique_same_number_works(~)
         end
         %-----------------------------------------------------------------
         function test_use_properties(~)
-            urc = unique_references_container('global_thingies','thingy');
+            urc = unique_references_container('thingy_tester');
             urc{1} = thingy(111);
             assertEqual(urc{1}, thingy(111));
             assertEqual(urc{1}.data, 111);
@@ -737,22 +737,98 @@ function test_replace_unique_same_number_works(~)
                 'when adding to the end of a container, additionally setting properties is not permitted'));
         end
         %-----------------------------------------------------------------
-        function test_arrays_of_containers(~)
-            urc1 = unique_references_container('global_test_doubles','double');
-            urc1 = urc1.add([6 7]);
-            urc2 = unique_references_container('global_test_doubles','double');
-            urc2 = urc2.add([8 9]);
-            % make an array of unique_references_containers, test that
-            % subscripting it will give the individual container.
-            arr = [urc1 urc2];
-            assertTrue(isa(arr(2),'unique_references_container'));
-            % it is not possible to distinguish an array of one container
-            % from the container itself, so subscripting it may return
-            % element one of its contents.
-            % For this reason always prefer cellarrays of these containers;
-            % the next lines test the same thing for cells
-            arr = {urc1 urc2};
-            assertTrue(isa(arr{2},'unique_references_container'));
+        function test_two_urc_work_fine(~)
+            function clearer()
+                unique_obj_store.instance().clear('double');
+            end
+            clOb = onCleanup(@()clearer);
+
+            urc1 = unique_references_container('double');
+            urc1 = urc1.add([2,3,6,7,3]);
+            urc2 = unique_references_container('double');
+            urc2 = urc2.add([8,9,3,2,2]);
+
+            assertEqual(urc1.n_unique_objects,4);
+            assertEqual(urc1.n_objects,5);
+            assertEqual(urc1.idx,[1,2,3,4,2]);
+
+            assertEqual(urc2.n_unique_objects,4);
+            assertEqual(urc1.n_objects,5);
+            assertEqual(urc1.idx,[5,6,2,1,1]);
+
+            % each corresponding unique objects container
+            % contains its own objects only
+            uoc1 = urc1.unique_objects;
+            assertEqual(uoc1.n_objects,5)
+
+            assertEqual(uoc1.n_unique,4)
+            assertEqual(uoc1.baseclass,'double')
+            assertEqual(uoc1.idx,[1 2 3 4 2])
+            assertEqual(uoc1.unique_objects,{2,3,6,7});
+            assertEqual(uoc1.n_duplicates,[1 2 1 1])
+
+            uoc2 = urc2.unique_objects;
+            assertEqual(uoc2.n_objects,5)
+
+            assertEqual(uoc2.n_unique,4)
+            assertEqual(uoc2.baseclass,'double')
+            assertEqual(uoc2.idx,[1 2 3 4])
+            assertEqual(uoc2.unique_objects,{8,9,3,2});
+            assertEqual(uoc2.n_duplicates,[1 1 1 2])
+
+
+        end
+        %
+        function test_one_urc_works(~)
+            unique_obj_store.instance().clear('double');
+            function clearer()
+                unique_obj_store.instance().clear('double');
+            end
+            clOb = onCleanup(@()clearer);
+            urc1 = unique_references_container('double');
+
+            urc1 = urc1.add([1,2]);
+            urc1 = urc1.add([1,2,3,5]);
+            urc1 = urc1.add([1,2]);
+
+            assertEqual(urc1.n_unique_objects,4);
+            assertEqual(urc1.n_objects,8);
+            assertEqual(urc1.idx,[1,2,1,2,3,4,1,2]);
+
+            assertEqual(urc1(1),1);
+            assertEqual(urc1(2),2);
+            assertEqual(urc1(3),1);
+            assertEqual(urc1(4),2);
+            assertEqual(urc1(5),3);
+            assertEqual(urc1(6),5);
+            assertEqual(urc1(7),1);
+            assertEqual(urc1(8),2);
+
+            uobj = urc1.expose_unique_objects();
+            assertTrue(iscell(uobj));
+            assertEqual(uobj{1},1);
+            assertEqual(uobj{2},2);
+            assertEqual(uobj{3},3);
+            assertEqual(uobj{4},5);
+
+            uoc1 = urc1.unique_objects;
+            assertEqual(uoc1.n_objects,8)
+
+            assertEqual(uoc1.n_unique,4)
+            assertEqual(uoc1.baseclass,'double')
+            assertEqual(uoc1.idx,[1 2 1 2 3 4 1 2])
+            assertEqual(uoc1.unique_objects,{1,2, 3,  5});
+            assertEqual(uoc1.n_duplicates,[3 3 1 1])
+
+        end
+
+        function test_one_empty_urc(~)
+            urc1 = unique_references_container('double');
+
+            assertEqual(urc1.stored_baseclass,'double');
+            assertEqual(urc1.n_unique_objects,0);
+            assertEqual(urc1.n_objects,0);
+            assertTrue(isempty(urc1.idx));
         end
     end
 end

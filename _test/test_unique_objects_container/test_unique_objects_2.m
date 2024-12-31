@@ -19,7 +19,7 @@ classdef test_unique_objects_2 < TestCase
             
             % clear the urc global container for id HHH
             % NB urc == unique_references_container
-            unique_references_container.global_container('CLEAR','HHH');
+            unique_obj_store.instance().clear('unique_fields_example_class');
 
             % create 3 objects of unique_fields_example_class (available in
             % this directory) containing IX_insts with distinguishing
@@ -28,9 +28,8 @@ classdef test_unique_objects_2 < TestCase
             ec666 =unique_fields_example_class('666',IX_inst('name','666'));
             ec999 =unique_fields_example_class('999',IX_inst('name','999'));
             % place them in the HHH urc which we create
-            u1 = unique_references_container('HHH','unique_fields_example_class');
-            % use this rather clunky method to reset the hashify counter
-            u1.global_container('value','HHH').clear();
+            u1 = unique_references_container('unique_fields_example_class');
+
             % add 3 objects to u1. this just makes a container with 3
             % elements we can index - could have used an array or cell
             u1 = u1.add(ec333);
@@ -44,7 +43,7 @@ classdef test_unique_objects_2 < TestCase
             obj.idx = [1 2 3 3 2 1 2 2 3 1 1 1 3 3 1 2 2];
             % make anothr urc which can store these
             % unique_fields_example_class objects
-            obj.u2 = unique_references_container('HHH','unique_fields_example_class');
+            obj.u2 = unique_references_container('unique_fields_example_class');
             % fill it with copies from u1 according to the index values in
             % idx
             for ii=1:numel(obj.idx)

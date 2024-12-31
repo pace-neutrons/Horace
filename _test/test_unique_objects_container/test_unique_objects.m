@@ -471,16 +471,46 @@ classdef test_unique_objects < TestCase
         end
         
         function test_hashing_preserved_over_save_and_load(obj)
-            uoc = unique_objects_container('baseclass','IX_inst');
+            uoc = unique_objects_container('IX_inst');
             uoc{1} = obj.mi1;
             uoc{2} = IX_null_inst();
+            for i=1:2
+                tobj = uoc{i};
+                [~,~,is_calculated] = build_hash(tobj);
+                assertFalse(is_calculated); % hash restored
+            end
+            
             test_data = 'store2020_1.mat';
             clOb = onCleanup(@()delete(test_data));
             save(test_data,'uoc');
             zzz = load('store2020_1.mat');
             assertEqual(uoc.stored_hashes, zzz.uoc.stored_hashes);
+            for i=1:2
+                tobj =zzz.uoc{i};
+                [~,~,is_calculated] = build_hash(tobj);
+                assertFalse(is_calculated); % hash restored
+            end
             
         end
-        
+        function test_hashing_preserved_over_to_from_struct(obj)
+            uoc = unique_objects_container('IX_inst');
+            uoc{1} = obj.mi1;
+            uoc{2} = IX_null_inst();
+            for i=1:2
+                tobj = uoc{i};
+                [~,~,is_calculated] = build_hash(tobj);
+                assertFalse(is_calculated); % hash restored
+            end
+            
+            Suoc   = uoc.to_struct();
+            uocr = serializable.from_struct(Suoc);
+            for i=1:2
+                tobj = uoc{i};
+                [~,~,is_calculated] = build_hash(tobj);
+                assertFalse(is_calculated); % hash restored
+            end
+
+            assertEqual(uoc.stored_hashes, uocr.stored_hashes);            
+        end                
     end
 end

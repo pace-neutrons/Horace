@@ -125,12 +125,12 @@ classdef unique_objects_container < serializable
     % methods
     methods
         function self = clear(self)
-            % empty container. unique_object_container interface request. 
+            % empty container. unique_object_container interface request.
             % TODO: remove?
             self.idx_ = zeros(1,0);
             self.unique_objects_=cell(1,0); % the actual unique objects - initialised in constructor by type
             self.stored_hashes_ = cell(1,0);  % their hashes are stored
-            self.n_duplicates_ =  zeros(1,0);            
+            self.n_duplicates_ =  zeros(1,0);
         end
 
         function x = get.unique_objects(self)
@@ -388,10 +388,10 @@ classdef unique_objects_container < serializable
             %          if it is stored, otherwise empty []
             % - hash : the hash of the object from hashify
             %
+            [obj,hash] = build_hash(obj);
             if isempty(self.stored_hashes_)
                 ix = []; % object not stored as nothing is stored
             else
-                [obj,hash] = build_hash(obj);                
                 % get intersection of array stored_hashes_ with (single) array
                 % hash from hashify. Calculates the index of the hash in
                 % stored_hashes.
@@ -461,6 +461,33 @@ classdef unique_objects_container < serializable
                 [sset,~] = sset.add(item);
             end
         end
+        function [self,uidx] = add_if_new(self,obj)
+            %ADD_IF_NEW adds an object to the container if it is not
+            %already there. If object is already in the container,
+            %number of object duplicates increases.
+            %
+            % Returns:
+            % self   -- modified container with object present or duplicate
+            %           counter increased.
+            % uidx   -- unique index of object in the container
+            %
+            if ~ischar(obj) && numel(obj)>1
+                nobj = numel(obj);
+                uidx = zeros(1,nobj);
+                if iscell(obj)
+                    for i = 1:nobj
+                        [self,uidx(i)]=self.add_if_new(obj{i});
+                    end
+                else
+                    for i = 1:nobj
+                        [self,uidx(i)]=self.add_if_new(obj(i));
+                    end
+
+                end
+                return;
+            end
+            [self,uidx] = add_if_new_single_(self,obj);
+        end
 
         function [self,nuix] = add(self,obj)
             %ADD adds an object to the container
@@ -480,7 +507,7 @@ classdef unique_objects_container < serializable
             % container is implicit in the size of idx_.
 
             % process addition of multiple objects at once.
-            if ~ischar(obj) && (numel(obj)>1 || iscell(obj))
+            if ~ischar(obj) && numel(obj)>1
                 nobj = numel(obj);
                 nuix = zeros(1,nobj);
                 if iscell(obj)
@@ -493,13 +520,6 @@ classdef unique_objects_container < serializable
                     end
 
                 end
-                return;
-            end
-            % check that obj is of the appropriate base class
-            if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
-                warning('HERBERT:unique_objects_container:invalid_argument', ...
-                    'not correct base class; object was not added');
-                nuix = 0;
                 return;
             end
             [self,nuix] = add_single_(self,obj);
