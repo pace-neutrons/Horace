@@ -492,7 +492,8 @@ else
         end
     else
         chisqr_red = c_best/nnorm;
-        warning('WARNING: Convergence not achieved')
+        warning('HORACE:tobyfit', ...
+            'WARNING: Convergence not achieved')
     end
 
 end
