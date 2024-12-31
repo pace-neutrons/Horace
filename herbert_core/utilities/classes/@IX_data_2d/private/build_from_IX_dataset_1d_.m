@@ -265,10 +265,9 @@ for i=1:n
     w2(i).signal_ = sig;
     w2(i).error_  = err;
     
-    [ok,mess] = w2(i).check_joint_fields();
-    if ok 
-        w2(i).valid_ = true;
-    else % can happen only if input 1D objects are incorrect
+    [w2(i),ok,mess] = w2(i).check_joint_fields_();
+    if ~ok 
+        % can happen only if input 1D objects are incorrect
         error('IX_dataset_2d:runtime_error',mess);
     end
     

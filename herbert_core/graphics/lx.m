@@ -1,123 +1,77 @@
 function varargout = lx (varargin)
-% Change x limits current figure
+% Change x-axis limits for the current axes on the current figure.
 %
 % Replot with change of limits:
-%   >> lx (xlo, xhi)
-% or
+%   >> lx (xlo, xhi)    % Sets limits to xlo to xhi; the limits retained for
+%                       % further overplotting
+%   Equivalently:
 %   >> lx  xlo  xhi
-% or
-%   >> lx           % set x limits to include all data
-% or
-%   >> lx ('round') % set x limits to rounded limits that encompass data
-%   >> lx  round 
+%
+% Change limits to autoscale to encompass all data:
+%   >> lx               % Set limits to match the range of the data.
+%                       % The limits automatically change to accommodate further
+%                       % overplotting
+%
+%   The default automatic limit method is to exactly match the range of the data.
+%   Automatic limits can be set and the default behaviour altered for all
+%   subsequent overplotting to the current figure withone of the options:
+%
+%   >> lx ('padded')    % Add a thin margin of padding each side of the full data range
+%   >> lx ('rounded')   % Equivalent syntax
+%   >> lx ('tickaligned') % Align to tick marks while still encompassing the full data range
+%   >> lx ('tight')     % [Default] Fit the limits to tightly match the full data range
+%
+%   Equivalently:
+%   >> lx  padded       % limit method set without parentheses
+%   >> lx  rounded
+%       :
 %
 % Return current limits (without changing range):
 %   >> [xlo, xhi] = lx
 %
-% Replot with several limits in sequence (hit <CR> to move to next in sequence)
-%   >> lx ([xlo1,xhi2],[xlo2,xhi2],...)
-% or
-%   >> lx ({[xlo1,xhi2],[xlo2,xhi2],...})
+% Replot several times with different limits in sequence:
+%   (Change limits to first pair [xlo(1),xhi(1)], then hit <CR> to change to the
+%   next pair in then sequence, [xlo(2),xhi(2)], and so on)
+%   >> lx (xlo, xhi)    % xlo and xhi are arrays with the same number of
+%                       % elements;
+%   Equivalently:
+%   >> lx  xlo  xhi
+%
+%   or, for backwards compatibility:
+%   >> lx ([xlo1,xhi2], [xlo2,xhi2],...)    % xlo1, xhi1, xlo2, xhi2... scalars
+%   >> lx ({[xlo1,xhi2],[xlo2,xhi2],...})   % equivalent syntax
+%
+%
+% This function closely mimics the matlab intrinsic function xlim
+%
+% See also xlim
 
 
-% Get figure
-if isempty(findall(0,'Type','figure'))
-    disp('No current figure - change x limits ignored')
-    return
-end
-
-% Get x range
-if nargin==0  || (nargin==1 && ischar(varargin{1}))
-    if nargout==0
-        % Get x axis limits for entire data range
-        range = graph_range(gcf,'evaluate');
-        xrange=range.x;
-        
-        if xrange(1)==xrange(2)
-            error('The upper and lower limits of the data are equal')
-        end
-        
-        % Read 'round' from either function syntax or command syntax
-        if nargin==1
-            if strcmpi(varargin{1},'round')
-                xrange = round_range (xrange);
-            else
-                error('Unrecognised option')
-            end
-        end
-        
-        xrange={xrange};
-    else
-        % Return current x-axis limits
-        range = get(gca,'Xlim');
-        if nargout>=1, varargout{1} = range(1); end
-        if nargout>=2, varargout{2} = range(2); end
-        return
-    end
-    
-elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnumeric(varargin{2})||numel(varargin{2})==1)
-    % Read scalar xlo and xhi from either function syntax or command syntax
-    xlo=varargin{1};
-    xhi=varargin{2};
-    
-    xrange=zeros(1,2);
-    if isnumeric(xlo) && isscalar(xlo)
-        xrange(1)=xlo;
-    elseif ~isempty(xlo) && is_string(xlo)
+% Resolve input arguments
+if nargin>0 && all(cellfun(@(x)(is_string(x) & ~isempty(x)), varargin))
+    % All input arguments are character vectors - the function could have
+    % been called with command syntax.
+    %
+    % The only valid case of command syntax where valid input arguments are not
+    % character strings is two arguments giving the lower and upper limits plot
+    % limits. It is only this case that needs to have evaluation in the caller
+    % workspace performed in order to resolve passed variable names or
+    % expressions.
+    if nargin==2
         try
-            xrange(1) = evalin('caller',xlo);
+            args = {evalin('caller',varargin{1}), evalin('caller',varargin{2})};
         catch
-            error('Check input arguments');
+            error('HERBERT:graphics:invalid_argument', ['Check there are ', ...
+                'two input arguments giving the lower and upper ranges']);
         end
     else
-        error('Check input arguments');
+        args = varargin;
     end
-    
-    if isnumeric(xhi) && isscalar(xhi)
-        xrange(2)=xhi;
-    elseif ~isempty(xhi) && is_string(xhi)
-        try
-            xrange(2) = evalin('caller',xhi);
-        catch
-            error('Check input arguments');
-        end
-    else
-        error('Check input arguments');
-    end
-    
-    if xrange(1)>=xrange(2)
-        error('Check xlo < xhi')
-    end
-    
-    xrange={xrange};
-    
-elseif nargin==1 && iscell(varargin{1})
-    % Must be cell array of pairs of limits
-    nlim=numel(varargin{1});
-    for i=1:nlim
-        if ~isnumeric(varargin{1}{i})||numel(varargin{1}{i})~=2
-            error('Check x-limits are a cell array of two-element numeric vectors')
-        elseif varargin{1}{i}(1)>=varargin{1}{i}(2)
-            error('Check xlo < xhi  for all pairs of limits')
-        end
-    end
-    xrange=varargin{1};
-    
 else
-    % One or more two element numeric vectors
-    for i=1:nargin
-        if ~isnumeric(varargin{i})||numel(varargin{i})~=2
-            error('Check syntax of x-limits')
-        elseif varargin{i}(1)>=varargin{i}(2)
-            error('Check xlo < xhi  for all pairs of limits')
-        end
-    end
-    xrange=varargin;
-    
+    % Must have been function syntax
+    args = varargin;
 end
 
-% Change limits
-for i=1:numel(xrange)
-    set (gca, 'Xlim', xrange{i})
-    if i~=numel(xrange), input('hit <CR> to continue'), end
-end
+
+% Perform the operation
+[varargout{1:nargout}] = set_limits ('X', args{:});

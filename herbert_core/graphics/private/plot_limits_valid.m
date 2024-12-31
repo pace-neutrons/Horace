@@ -1,15 +1,15 @@
-function [ok,mess] = plot_lims_valid (lims, varargin)
+function [ok,mess] = plot_limits_valid (lims, varargin)
 % Check that plot limits have correct format
 %
-%   >> [ok,mess] = plot_lims_valid (lims, arg1, arg2,...)
+%   >> [ok,mess] = plot_limits_valid (lims, arg1, arg2,...)
 %
 % If lims=='xy' or 'xyz':
-%   >> [ok,mess] = plot_lims_valid (lims)
-%   >> [ok,mess] = plot_lims_valid (lims, xlo, xhi)
-%   >> [ok,mess] = plot_lims_valid (lims, xlo, xhi, ylo, yhi)
+%   >> [ok,mess] = plot_limits_valid (lims)
+%   >> [ok,mess] = plot_limits_valid (lims, xlo, xhi)
+%   >> [ok,mess] = plot_limits_valid (lims, xlo, xhi, ylo, yhi)
 %
 % and, if lims=='xyz' only:
-%   >> [ok,mess] = plot_lims_valid (lims, xlo, xhi, ylo, yhi, zlo, zhi)
+%   >> [ok,mess] = plot_limits_valid (lims, xlo, xhi, ylo, yhi, zlo, zhi)
 %
 % If not OK, then returns suitable error message
 
