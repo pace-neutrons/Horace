@@ -38,10 +38,6 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             obj.w2data = read_sqw(fullfile(data_dir,'w2data.sqw'));
             hp = horace_paths;
             obj.w4ddata = read_sqw(fullfile(hp.test_common,'sqw_4d.sqw'));
-            disp("*********************************************************")
-            disp('Re #1790 identifying issues present on Jenkins only')
-            disp(obj.w4ddata.experiment_info.detector_arrays)
-            disp("*********************************************************")
             obj.win=[obj.w1data,obj.w2data];     % combine the two cuts into an array of sqw objects and fit
 
             % Save reference results, if '-save' option is requested
@@ -110,11 +106,6 @@ classdef test_multifit_horace_1 < TestCaseWithSave
         function obj = test_fit_multidimensional_dataset(obj)
             % Example of simultaneously fitting more than one sqw object
             %
-            disp("*********************************************************")
-            disp('Re #1790 identifying issues present on Jenkins only')
-            disp(obj.w4ddata.experiment_info.detector_arrays)
-            disp(obj.w4ddata.detpar.unique_objects.unique_objects)
-            disp("*********************************************************")
             mss = multifit_sqw_sqw(obj.w4ddata);
             mss = mss.set_fun(@sqw_bcc_hfm,  [75,5,2.7,10,-75]);  % set foreground function(s)
             mss = mss.set_free([1,1,1,1,0]); % set which parameters are floating
@@ -124,7 +115,6 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             % Simulate at the initial parameter values
             wsim_1 = mss.simulate();
-            disp(wsim_1.detpar.unique_objects.unique_objects)
             %c2s = cut(wsim_1,[],[],[-0.1,0.1],[100,120]);
 
             % And now fit
