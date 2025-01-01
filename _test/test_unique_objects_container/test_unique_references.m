@@ -3,6 +3,11 @@ classdef test_unique_references < TestCase
         mi1;
         li;
         nul_sm1;
+
+        % Place for useful contents of the current unique_obj_store.
+        urc_instruments_current
+        urc_samples_current
+        urc_detectors_current
     end
 
     methods
@@ -18,18 +23,24 @@ classdef test_unique_references < TestCase
             obj.mi1 = merlin_instrument(180, 600, 'g');
             obj.li  = let_instrument(5, 240, 80, 20, 1);
             obj.nul_sm1 = IX_null_sample();
-
+            % Store contents of the unique_store
+            obj.urc_instruments_current = unique_obj_store.instance().get_objects('IX_inst');
+            unique_obj_store.instance().clear('IX_inst');
+            obj.urc_samples_current  = unique_obj_store.instance().get_objects('IX_sample');
+            unique_obj_store.instance().clear('IX_sample');
+            obj.urc_detectors_current = unique_obj_store.instance().get_objects('IX_detector_array');
+            unique_obj_store.instance().clear('IX_detector_array');
         end
-
-        function delete(~)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            unique_references_container.global_container( ...
-                'CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            unique_references_container.global_container( ...
-                'CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER')
+        function delete(obj)
+            % retrive essential store state, present before this test was
+            % runing
+            unique_obj_store.instance().set_objects(obj.urc_instruments_current);
+            unique_obj_store.instance().set_objects(obj.urc_samples_current);
+            unique_obj_store.instance().set_objects(obj.urc_detectors_current);
         end
 
         function test_unique_reference_non_pollute_ws(obj)
+
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container( ...
                 'CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
@@ -175,13 +186,15 @@ classdef test_unique_references < TestCase
         %
         %------------------------------------------------------------------
         function test_basic_doubles_container(~)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            urc = unique_references_container('GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES', 'double');
-            urc.global_container('CLEAR', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
-            glc = urc.global_container('value', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
-            assertTrue( isa( glc, 'unique_objects_container') );
+            function clearer()
+                unique_obj_store.instance().clear('double');
+            end
+            clOb = onCleanup(@()clearer);
+            urc = unique_references_container('double');
+
+            glc = unique_obj_store.instance().get_objects('double');
             assertEqual( glc.n_objects, 0);
-            assertEqual( urc.global_name, 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES' );
+
             urc = urc.add(0.111);
             urc = urc.add(0.222);
             urc = urc.add(0.333);
@@ -216,16 +229,20 @@ classdef test_unique_references < TestCase
             assertTrue(is);
             assertEqual(ind,[1 2 3 4]);
 
-            glc = urc.global_container('value', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
+            glc = unique_obj_store.instance().get_objects('double');
+            assertEqual( glc.n_objects, 0);
+
             assertTrue( isa( glc, 'unique_objects_container') );
             assertEqual( glc.n_objects, 4);
         end
 
         function test_save_load(~)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            urc = unique_references_container('GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES', 'double');
-            urc.global_container('CLEAR', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
-            glc = urc.global_container('value', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
+            function clearer()
+                unique_obj_store.instance().clear('double');
+            end
+            clOb = onCleanup(@()clearer);
+            urc = unique_references_container('double');
+
             urc = urc.add(0.111);
             urc = urc.add(0.222);
             urc = urc.add(0.333);
@@ -237,9 +254,12 @@ classdef test_unique_references < TestCase
         end
 
         function test_add_multiple(~)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            urc = unique_references_container('GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES', 'double');
-            urc.global_container('CLEAR', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
+            function clearer()
+                unique_obj_store.instance().clear('double');
+            end
+            clOb = onCleanup(@()clearer);
+            urc = unique_references_container('double');
+            
             urc = urc.add([0.222 0.333 0.444]);
             urc = urc.add({0.555 0.666});
             uoc = unique_objects_container('baseclass','double');
@@ -252,16 +272,12 @@ classdef test_unique_references < TestCase
         end
 
         function test_basic_instruments_container(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-
-
-            urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER', 'IX_inst');
-            urc.global_container('CLEAR', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            glc = urc.global_container('value', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            assertTrue( isa( glc, 'unique_objects_container') );
-            assertEqual( glc.n_objects, 0);
-            assertEqual( urc.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
-
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst');
+            end
+            clOb = onCleanup(@()clearer);
+            urc = unique_references_container('IX_inst');
+            
             urc = urc.add(obj.mi1);
             urc = urc.add(IX_null_inst());
             % testing a different merlin instrument from obj.mi1 above
@@ -273,7 +289,7 @@ classdef test_unique_references < TestCase
 
             assertEqual(urc.n_runs,5)
             assertEqual(urc.n_objects,5)
-            assertEqual(urc.n_unique_objects,3);
+            assertEqual(urc.n_unique,3);
 
             % with nargout==2
             [is,ind] = urc.contains(obj.mi1);
@@ -304,10 +320,12 @@ classdef test_unique_references < TestCase
             assertTrue(is);
             assertEqual(ind,[2 5]);
 
-            glc = urc.global_container('value', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+            %-----
+            glc = unique_obj_store.instance('IX_inst');
             assertTrue( isa( glc, 'unique_objects_container') );
             assertEqual( glc.n_objects, 3);
-            assertEqual( urc.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
+            assertEqual( glc.n_unique, 3);            
+
 
             inst = IX_null_inst();
             inst.name = 'NULL';
@@ -319,10 +337,9 @@ classdef test_unique_references < TestCase
             inst = urc{4};
             assertEqual( inst.name,'NULL' );
 
-            glc = urc.global_container('value', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+            glc = unique_obj_store.instance('IX_inst');
             assertTrue( isa( glc, 'unique_objects_container') );
             assertEqual( glc.n_objects, 4);
-            assertEqual( urc.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
 
             % test contains for a class name instead of an object value
             [is,ind] = urc.contains('IX_null_inst');
@@ -330,16 +347,13 @@ classdef test_unique_references < TestCase
             assertEqual(ind, [2 4 5]);
         end
 
-        function test_add_non_unique_objects(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-
-            % make a unique_objects_container (empty)
-            urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER', 'IX_inst');
-            urc.global_container('CLEAR', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            glc = urc.global_container('value', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            assertTrue( isa( glc, 'unique_objects_container') );
-            assertEqual( glc.n_objects, 0);
-            assertEqual( urc.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
+        function test_add_non_unique(obj)
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst');
+            end
+            clOb = onCleanup(@()clearer);
+            urc = unique_references_container('IX_inst');
+            
 
             % add 3 identical instruments to the container
             urc{1} = obj.li;
@@ -357,7 +371,7 @@ classdef test_unique_references < TestCase
 
             % test that there are only 2 uniquely different instruments in
             % the container
-            assertEqual( urc.n_unique_objects, 2 );
+            assertEqual( urc.n_unique, 2 );
 
 
             % test that the first 3 instruments in the container are the
@@ -382,11 +396,13 @@ classdef test_unique_references < TestCase
             assertEqual( obj.li, urc{6} );
         end
 
-        function test_replace_unique_different_number_throw(~)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+        function test_replace_unique_different_type_throw(~)
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+            urc = unique_references_container('char');
 
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS');
-            urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS','char');
             urc(1) = 'aaaaa';
             urc(2) = 'bbbb';
             urc(3) = 'bbbb';
@@ -398,12 +414,29 @@ classdef test_unique_references < TestCase
             end
             assertExceptionThrown(@thrower, ...
                 'HERBERT:unique_references_container:invalid_argument');
-
+        end
+        function test_replace_unique_proper_type_works(~)        
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+            urc = unique_references_container('char');            
+            
             uoc = unique_objects_container('baseclass','char');
             uoc{1} = 'xxxx';
             uoc{2} = 'yyyy';
             uoc{3} = 'zzzz';
             urc.unique_objects = uoc;
+
+            assertEqual(urc.n_objects,3)
+            assertEqual(urc.n_unique,3)            
+        end
+        function test_replace_unique_wrong_type_container_throws(~)                    
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+            urc = unique_references_container('char');
 
             uoc = unique_objects_container('baseclass','double');
             uoc{1} = 0.111;
@@ -417,10 +450,12 @@ classdef test_unique_references < TestCase
         end
 
         function test_replace_unique_objects_with_cellarray_throw(~)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS');
-            urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS','char');
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+            
+            urc = unique_references_container('char');
             urc(1) = 'aaaaa';
             urc(2) = 'bbbb';
             urc(3) = 'bbbb';
@@ -429,88 +464,96 @@ classdef test_unique_references < TestCase
             end
             assertExceptionThrown(@thrower, ...
                 'HERBERT:unique_references_container:invalid_argument');
-
         end
 
-        %{
-        % commenting out rather than skipping but still keeping for future
-        % reference including the skip
-function test_replace_unique_same_number_works(~)
-            skipTest(['This does not work for unique_reference_containers ', ...
-                      ' as they do not separately store the unique objects.', ...
-                      ' Test kept and skipped as a reminder of this.']);
-            unique_references_container.global_container('CLEAR','CStrings');
-            urc = unique_references_container('CStrings','char');
+        function test_replace_unique_same_number_works(~)
+            % replace unique objects in the container
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+
+            urc = unique_references_container('char');
             urc(1) = 'aaaaa';
             urc(2) = 'bbbb';
             urc(3) = 'bbbb';
+            assertEqual(urc.n_objects,3)
+            assertEqual(urc.n_unique,2)
 
-            uoc2 = unique_objects_container('baseclass','char');
+            uoc2 = unique_objects_container('char');
             uoc2(1) = 'dd';
             uoc2(2) = 'cc';
             urc.unique_objects = uoc2;
 
             assertEqual(urc(1),'dd')
             assertEqual(urc(2),'cc')
-            assertEqual(urc(3),'cc')
+            assertEqual(urc.n_objects,2)
+            assertEqual(urc.n_unique,2)
         end
-        %}
 
-        function test_baseclass_issues(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
+
+        function test_baseclass_issues_incomplete_setup(obj)
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst');
+            end
+            clOb = onCleanup(@()clearer);
+
             clOb2 = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
-            clOb3 = set_temporary_warning('off','HERBERT:unique_references_container:incomplete_setup');
             % legal constructor with no arguments but cannot be used until
             % populated e.g. with loadobj
             urc1 = unique_references_container();
             % so this will throw
-            cl4b = set_temporary_warning('off','HERBERT:unique_references_container:incomplete_setup');
             function throw1()
                 urc1(1) = obj.mi1;
             end
             assertExceptionThrown( @throw1, ...
                 'HERBERT:unique_references_container:runtime_error');
             [lwn,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_references_container:incomplete_setup');
+            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument');
             assertEqual(lwn, 'baseclass not initialised, using first assigned type');
-            clear cl4b;
             lastwarn('');
 
+        end
+        function test_baseclass_issues_different_input(obj)
             % setup container of char
-            unique_references_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS2');
-            urc2 = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS2','char');
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+            urc2 = unique_references_container('char');
             urc2(1) = 'aaaaa'; % should work fine
+            cl2b = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
 
             % fail extending with wrong type
             assertEqual(urc2.n_runs,1);
             assertEqual(urc2.n_objects,1);
-            cl2b = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
+
             urc2(2) = obj.mi1;
             [lwn,lw] = lastwarn;
-            assertEqual(lwn,'not correct stored base class; object was not added');
+            assertEqual(lwn,'not correct base class; object was not added');
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
             assertEqual(urc2.n_objects,1); % warning was issued and object was not added
-            clear cl2b;
             lastwarn('');
 
             % fail inserting with wrong type
-            cl3b = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
             urc2(1) = obj.mi1;
             [a,~]=lastwarn;
             assertTrue(strcmp(a,'not correct base class; object was not added'));
             assertEqual( urc2(1),'aaaaa'); % warning was issued and object was not replaced
+            assertEqual(urc2.n_runs,1); % warning was issued and object was not added
+            assertEqual(urc2.n_objects,1); % warning was issued and object was not added
         end
 
         %----------------------------------------------------------------
-        function test_add_similar_non_unique_objects(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+        function test_add_similar_non_unique_objects_using_add(obj)
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst_DGfermi');
+            end
+            clOb = onCleanup(@()clearer);
+            urc = unique_references_container('IX_inst_DGfermi');
 
             mi2 = merlin_instrument(190, 700, 'g');
             assertFalse( isequal(obj.mi1,mi2) );
-
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
-            urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS','IX_inst_DGfermi');
             [urc,nuix] = urc.add(obj.mi1);
             assertEqual( nuix, 1 );
             [urc,nuix] = urc.add(mi2);
@@ -522,14 +565,17 @@ function test_replace_unique_same_number_works(~)
             [urc,nuix] = urc.add(mi2);
             assertEqual( nuix, 5 );
             assertEqual( urc.unique_objects.n_unique, 2);
-            assertEqual( urc.n_unique_objects, 2);
+            assertEqual( urc.n_unique, 2);
             assertEqual( numel(urc.idx), 5 );
             assertEqual( obj.mi1, urc(3) );
             assertEqual( mi2, urc.get(5) );
-
-            % repeat using subscript assign rather than add
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
-            urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS','IX_inst_DGfermi');
+        end
+        function test_add_similar_non_unique_objects_using_subscript(obj)
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst_DGfermi');
+            end
+            clOb = onCleanup(@()clearer);
+            urc = unique_references_container('IX_inst_DGfermi');
             urc{1} = obj.mi1;
             assertEqual( urc.n_runs, 1);
             assertEqual( urc.n_objects, 1);
@@ -539,19 +585,27 @@ function test_replace_unique_same_number_works(~)
             urc{3} = obj.mi1;
             assertEqual( urc.n_runs, 3);
             assertEqual( urc.n_objects, 3);
-            assertEqual( urc.n_unique_objects, 2);
+            assertEqual( urc.n_unique, 2);
             urc(4) = mi2;
             assertEqual( urc.n_runs, 4);
             assertEqual( urc.n_objects, 4);
-            assertEqual( urc.n_unique_objects, 2);
+            assertEqual( urc.n_unique, 2);
             urc(5) = mi2;
             assertEqual( urc.n_runs, 5);
             assertEqual( urc.n_objects, 5);
             assertEqual((urc.unique_objects.n_unique), 2);
-            assertEqual( urc.n_unique_objects, 2);
+            assertEqual( urc.n_unique, 2);
             assertEqual( numel(urc.idx), 5);
             assertEqual( obj.mi1, urc.get(3) );
             assertEqual( mi2, urc(5) );
+        end
+        %
+        function test_add_similar_non_unique_objects_using_subs_fail_out_range(obj)
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst_DGfermi');
+            end
+            clOb = onCleanup(@()clearer);
+            urc = unique_references_container('IX_inst_DGfermi');
 
             % check for fail outside range
             function throw171()
@@ -566,12 +620,15 @@ function test_replace_unique_same_number_works(~)
                 'HERBERT:unique_references_container:invalid_argument');
         end
         %----------------------------------------------------------------
-        function test_add_different_types(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
+        function test_add_different_types_sample(obj)
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst_DGfermi');
+            end
+            clOb = onCleanup(@()clearer);
 
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
-            urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS','IX_inst_DGfermi');
+            clOb1 = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
+
+            urc = unique_objects_container('IX_inst_DGfermi');
             % object of correct type added
             urc = urc.add(obj.mi1);
             % object of incorrect type not added, warning issued, size
@@ -582,10 +639,16 @@ function test_replace_unique_same_number_works(~)
             % object not added, size unchanges, warning issued
             assertEqual( urc.n_runs, 1);
             assertEqual( urc.n_objects, 1);
-            assertEqual( lastwarn, 'not correct stored base class; object was not added');
+            assertEqual( lastwarn, 'not correct base class; object was not added');
+        end
+        function test_add_different_types_instrument(obj)
+            function clearer()
+                unique_obj_store.instance().clear('IX_null_sample');
+            end
+            clOb = onCleanup(@()clearer);
+            clOb1 = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
 
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_NULLSAMPLES');
-            urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_NULLSAMPLES','IX_null_sample');
+            urc = unique_references_container('IX_null_sample');
             % object of correct type added
             [urc, nuix] = urc.add(obj.nul_sm1);
             % object of incorrect type not added, warning issued, size
@@ -594,22 +657,24 @@ function test_replace_unique_same_number_works(~)
             assertEqual( urc.n_runs, 1 );
             assertEqual( urc.n_objects, 1 );
             [urc, nuix] = urc.add(obj.mi1);
-            assertEqual(lastwarn,'not correct stored base class; object was not added');
+            assertEqual(lastwarn,'not correct base class; object was not added');
 
             % object of incorrect type not added, warning issued, size
             % still 1, addition index 0 => not added
-            assertEqual(nuix, 0);
+            assertTrue(isempty(nuix));
             assertEqual( urc.n_runs, 1 );
             assertEqual( urc.n_objects, 1 );
-            assertEqual( lastwarn, 'not correct stored base class; object was not added');
+            assertEqual( lastwarn, 'not correct base class; object was not added');
         end
         %----------------------------------------------------------------
         function test_global_container_spans_multiple_containers(~)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst_DGfermi');
+            end
+            clOb = onCleanup(@()clearer);
 
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
-            urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS','IX_inst_DGfermi');
-            vrc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS','IX_inst_DGfermi');
+            urc = unique_references_container('IX_inst_DGfermi');
+            vrc = unique_references_container('IX_inst_DGfermi');
 
             mi1 = merlin_instrument(190, 700, 'g');
             mi2 = merlin_instrument(200, 700, 'g');
@@ -621,48 +686,37 @@ function test_replace_unique_same_number_works(~)
             vrc = urc.add(mi3);
             vrc = urc.add(mi4);
 
-            glc = urc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
-            hlc = vrc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
+            glc = unique_obj_store.instance().get_objects('IX_inst_DGfermi');
+            hlc = unique_obj_store.instance().get_objects('IX_inst_DGfermi');
             assertEqual( glc, hlc);
             assertEqual( glc.n_objects, hlc.n_objects );
             assertEqual( glc.n_objects, 4 );
         end
         %----------------------------------------------------------------
         function test_subscripting_type(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
+            clwarn = set_temporary_warning('off', 'HERBERT:unique_objects_container:invalid_argument');
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst');
+            end
+            clOb = onCleanup(@()clearer);
 
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
+            urc = unique_references_container('IX_inst');
             urc{1} = obj.mi1;
             urc{2} = obj.nul_sm1;
             [lwn,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_references_container:invalid_argument');
-            assertEqual(lwn,'not correct stored base class; object was not added');
-            assertEqual( urc.n_unique_objects, 1);
-            %{
-            Turns out that hashes are not portable between all Matlab
-            versions and platforms, so suppressing this bit.
-            assertEqual( u1, uoc.stored_hashes(1,:) );
-            %}
-        end
-        function test_subscripting_type_hlp_ser_wrong_subscript_plus(obj)
-            % additional tests for other subscript functions
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
-            function set_urc()
-                urc{2} = obj.mi1;
-            end
-            ex = assertExceptionThrown(@()set_urc,'HERBERT:unique_references_container:invalid_argument');
-            assertEqual(ex.message,'subscript 2 out of range 1..0')
+            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument');
+            assertEqual(lwn,'not correct base class; object was not added');
+            assertEqual( urc.n_unique, 1);
         end
         %----------------------------------------------------------------
         function test_subscripting_type_hlp_ser_wrong_subscript_minus(obj)
             % additional tests for other subscript functions
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst');
+            end
+            clOb = onCleanup(@()clearer);
+
+            urc = unique_references_container('IX_inst');
             function set_urc()
                 urc{2} = obj.mi1;
             end
@@ -672,28 +726,37 @@ function test_replace_unique_same_number_works(~)
         end
         %-----------------------------------------------------------------
         function test_expand_to_nruns(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst');
+            end
+            clOb = onCleanup(@()clearer);
+
+            urc = unique_references_container('IX_inst');
             urc{1} = obj.mi1;
             assertEqual(urc.n_runs,1)
             assertEqual(urc.n_objects,1)
-            assertEqual(urc.n_unique_objects,1)
+            assertEqual(urc.n_unique,1)
 
             urc = urc.replicate_runs(10);
             assertEqual(urc.n_runs,10);
             assertEqual(urc.n_objects,10);
-            assertEqual(urc.n_unique_objects,1);
+            assertEqual(urc.n_unique,1);
+            %------
+            stor = unique_obj_store.instance().get_objects('IX_inst');
+            assertEqual(stor.n_objects,1)
+            assertEqual(stor.n_unique,1)
+            assertEqual(stor.unique_objects{1},obj.mi1)
+            assertEqual(stor.n_duplicates,10);
+
         end
         %-----------------------------------------------------------------
-        function test_serialization_empty(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
-            urc_str = urc.to_struct();
+        function test_serialzation_with_values(obj)
+            function clearer()
+                unique_obj_store.instance().clear('IX_inst');
+            end
+            clOb = onCleanup(@()clearer);
 
-            urc_rec = serializable.from_struct(urc_str);
-            assertEqual(urc,urc_rec)
+            urc = unique_references_container('IX_inst');
 
             urc{1} = obj.mi1;
             urc{2} = obj.mi1;
@@ -701,40 +764,141 @@ function test_replace_unique_same_number_works(~)
 
             urc_rec = serializable.from_struct(urc_str);
             assertEqual(urc,urc_rec);
+            %-----
+            stor = unique_obj_store.instance().get_objects('IX_inst');
+            assertEqual(stor.n_objects,1)
+            assertEqual(stor.n_unique,1)
+            assertEqual(stor.unique_objects{1},obj.mi1)
+            assertEqual(stor.n_duplicates,4);
+        end
+        function test_serialization_empty(~)
+            unique_obj_store.instance().clear('IX_inst');
+            urc = unique_references_container('IX_inst');
+            urc_str = urc.to_struct();
+
+            urc_rec = serializable.from_struct(urc_str);
+            assertEqual(urc,urc_rec)
+        end
+        %
+        function test_put_to_get_from_unique_obj_container(~)
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+
+            urc = unique_references_container('char');
+            urc(1) = 'amama';
+            urc(2) = 'blabal';
+            urc(3) = 'blabal';
+            urc(4) = 'amama';
+            assertEqual(urc.n_objects,4)
+            assertEqual(urc.n_unique,2)
+
+            %-----
+            stor = unique_obj_store.instance().get_objects('char');
+            assertEqual(stor.n_objects,2)
+            assertEqual(stor.n_unique,2)
+            assertEqual(stor.unique_objects{1},'amama')
+            assertEqual(stor.unique_objects{2},'blabal')
+            assertEqual(stor.n_duplicates,[2,2]);
+
+
+            uoc = urc.unique_objects;
+            assertEqual(uoc.n_objects,4);
+            assertEqual(uoc.n_unique,2);
+
+            ur2 = unique_references_container('char');
+            ur2.unique_objects = uoc;
+
+            assertEqual(urc,ur2)
+            %-----
+            stor = unique_obj_store.instance().get_objects('char');
+            assertEqual(stor.n_objects,2)
+            assertEqual(stor.n_unique,2)
+            assertEqual(stor.unique_objects{1},'amama')
+            assertEqual(stor.unique_objects{2},'blabal')
+            assertEqual(stor.n_duplicates,[4,4]);
+
         end
         %-----------------------------------------------------------------
         function test_property_reset_issues(~)
-            urc = unique_references_container('Joby','double');
+            function clearer()
+                unique_obj_store.instance().clear('double');
+            end
+            clOb = onCleanup(@()clearer);
+
+
+            urc = unique_references_container('double');
             urc = urc.add([3,4,5]);
             function throw()
                 urc.stored_baseclass = 'IX_inst';
             end
             assertExceptionThrown(@throw, 'HERBERT:unique_references_container:invalid_argument');
-            urc.stored_baseclass = 'double';
-            urc2 = unique_references_container('Joby2','');
+            urc2 = unique_references_container('Joby2');
             function throw2()
                 urc2.add([3,4,5]);
             end
             assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:runtime_error');
-            urc3 = unique_references_container('Joby3','double');
-            urc3 = urc3.add([6 7 8]);
-            urc4 = unique_references_container('Biby','IX_inst');
         end
         %-----------------------------------------------------------------
-        function test_use_properties(~)
+        function test_use_properties_two_references(~)
+            % add two the same objects from two different unique references
+            % containers and change object in one of them
+            function clearer()
+                unique_obj_store.instance().clear('thingy_tester');
+            end
+            clOb = onCleanup(@()clearer);
+
+            urc1 = unique_references_container('thingy_tester');
+            urc2 = unique_references_container('thingy_tester');
+            urc1{1} = thingy_tester(111);
+            urc2{1} = thingy_tester(111);
+            assertEqual(urc1{1}, thingy_tester(111));
+            assertEqual(urc2{1}, thingy_tester(111));
+            assertEqual(urc1{1}.data, 111);
+            assertEqual(urc2{1}.data, 111);
+            %-----
+            stor = unique_obj_store.instance().get_objects('thingy_tester');
+            assertEqual(stor.n_objects,1)
+            assertEqual(stor.n_unique,1)
+            assertEqual(stor.unique_objects{1},thingy_tester(111))
+            %-----
+            urc1{1}.data = 222;
+            assertEqual(urc1{1}, thingy_tester(222));
+            assertEqual(urc2{1}, thingy_tester(111));
+
+            %-----
+            stor = unique_obj_store.instance().get_objects('thingy_tester');
+            assertEqual(stor.n_objects,2)
+            assertEqual(stor.n_unique,2)
+            assertEqual(stor.unique_objects{1},thingy_tester(111))
+            assertEqual(stor.unique_objects{2},thingy_tester(222))
+            assertEqual(stor.n_duplicates,[1,1]);
+        end
+
+        function test_use_properties_one_reference(~)
+            function clearer()
+                unique_obj_store.instance().clear('thingy_tester');
+            end
+            clOb = onCleanup(@()clearer);
+
             urc = unique_references_container('thingy_tester');
-            urc{1} = thingy(111);
-            assertEqual(urc{1}, thingy(111));
+            urc{1} = thingy_tester(111);
+            assertEqual(urc{1}, thingy_tester(111));
             assertEqual(urc{1}.data, 111);
             urc{1}.data = 222;
             function throw1()
-                assertEqual(urc{1}, thingy(222));
+                assertEqual(urc{1}, thingy_tester(222));
                 assertEqual(urc{1}.data, 222);
                 urc{2}.data = 666;
             end
-            me = assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_subscript');
+            me = assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_argument');
             assertTrue(strcmp(me.message, ...
                 'when adding to the end of a container, additionally setting properties is not permitted'));
+            stor = unique_obj_store.instance().get_objects('thingy_tester');
+            assertEqual(stor.n_objects,1)
+            assertEqual(stor.n_unique,1)
+            assertEqual(stor.unique_objects{1},thingy_tester(222))
         end
         %-----------------------------------------------------------------
         function test_two_urc_work_fine(~)
@@ -748,13 +912,13 @@ function test_replace_unique_same_number_works(~)
             urc2 = unique_references_container('double');
             urc2 = urc2.add([8,9,3,2,2]);
 
-            assertEqual(urc1.n_unique_objects,4);
+            assertEqual(urc1.n_unique,4);
             assertEqual(urc1.n_objects,5);
             assertEqual(urc1.idx,[1,2,3,4,2]);
 
-            assertEqual(urc2.n_unique_objects,4);
-            assertEqual(urc1.n_objects,5);
-            assertEqual(urc1.idx,[5,6,2,1,1]);
+            assertEqual(urc2.n_unique,4);
+            assertEqual(urc2.n_objects,5);
+            assertEqual(urc2.idx,[5,6,2,1,1]);
 
             % each corresponding unique objects container
             % contains its own objects only
@@ -775,10 +939,8 @@ function test_replace_unique_same_number_works(~)
             assertEqual(uoc2.idx,[1 2 3 4])
             assertEqual(uoc2.unique_objects,{8,9,3,2});
             assertEqual(uoc2.n_duplicates,[1 1 1 2])
-
-
         end
-        %
+
         function test_one_urc_works(~)
             unique_obj_store.instance().clear('double');
             function clearer()
@@ -791,7 +953,7 @@ function test_replace_unique_same_number_works(~)
             urc1 = urc1.add([1,2,3,5]);
             urc1 = urc1.add([1,2]);
 
-            assertEqual(urc1.n_unique_objects,4);
+            assertEqual(urc1.n_unique,4);
             assertEqual(urc1.n_objects,8);
             assertEqual(urc1.idx,[1,2,1,2,3,4,1,2]);
 
@@ -803,6 +965,7 @@ function test_replace_unique_same_number_works(~)
             assertEqual(urc1(6),5);
             assertEqual(urc1(7),1);
             assertEqual(urc1(8),2);
+            assertEqual(urc1(1:3),[1,2,1]);
 
             uobj = urc1.expose_unique_objects();
             assertTrue(iscell(uobj));
@@ -826,7 +989,7 @@ function test_replace_unique_same_number_works(~)
             urc1 = unique_references_container('double');
 
             assertEqual(urc1.stored_baseclass,'double');
-            assertEqual(urc1.n_unique_objects,0);
+            assertEqual(urc1.n_unique,0);
             assertEqual(urc1.n_objects,0);
             assertTrue(isempty(urc1.idx));
         end

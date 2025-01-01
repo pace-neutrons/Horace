@@ -4,14 +4,11 @@ function obj = check_combo_arg_(obj,with_checks)
 % properties
 %
 % Inputs:
-% do_rehashify -- if true, run rehashify procedure.
-%
 % with_checks  -- if true, each following hash is compared with
 %                 the previous hashes and if coincedence found,
 %                 throw the error. Necessary when replacing the
 %                 unique_objects to check that new objects are
 %                 indeed unique.
-
 
 max_idx = max(obj.idx_);
 if max_idx ~= obj.n_unique
@@ -44,6 +41,11 @@ if ~isempty(obj.baseclass_)
             'The type of the container is set to %s but the objects %s are of different type=%s',...
             obj.baseclass,disp2str(non_type_ind),class(invalid_obj))
     end
+end
+if obj.n_unique ~= numel(obj.n_duplicates_)
+    error('HERBERT:unique_objects_container:invalid_argument',...
+        'Size of array of unique objects: %d does not corresponds to size of array of its duplicates: %d', ...
+        obj.n_unique,numel(obj.n_duplicates_));
 end
 %
 if isempty(obj.stored_hashes_) && ~isempty(obj.unique_objects)

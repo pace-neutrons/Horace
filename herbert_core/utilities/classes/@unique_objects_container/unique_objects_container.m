@@ -90,12 +90,13 @@ classdef unique_objects_container < serializable
         % (default respecified in constructor inputParser)
         n_duplicates_ = zeros(1,0);
     end
-
-    properties (Dependent)
-        n_objects;
+    properties(Dependent,Hidden=true)
         n_runs; % duplicate of n_objects that names the normal usage in Horace
         % of this container for storing possibly duplicated
         % instruments or samples per run.
+    end
+    properties (Dependent)
+        n_objects;
         n_unique;
         %
         baseclass;
@@ -135,9 +136,13 @@ classdef unique_objects_container < serializable
 
         function x = get.unique_objects(self)
             %GET.UNIQUE_OBJECTS Return the cell array containing the unique
-            % objects in this container. This access is solely for saveobj.
-
+            % objects in this container.
             x = self.unique_objects_;
+        end
+        function is = is_in(obj,idx)
+            % returns true if input idx is within local indixes range
+            % of the container or false otherwise
+            is = all(idx>0 & idx<=numel(obj.idx_));
         end
 
         function self = set.unique_objects(self, val)
@@ -185,12 +190,10 @@ classdef unique_objects_container < serializable
                     'idx are the indexes so they must be positive only. Minum of indexes provided is: %d', ...
                     min(val))
             end
-            if ~self.do_check_combo_arg_
-                self.idx_ = val(:)';
-                self.n_duplicates_ = accumarray(self.idx_',1)';
-            else
-                error('HERBERT:unique_objects_container:invalid_set', ...
-                    'attempt to set idx in container outside of loadobj');
+
+            self.idx_ = val(:)';
+            if self.do_check_combo_arg_
+                self = self.check_combo_arg(false);
             end
         end
         %
@@ -224,6 +227,21 @@ classdef unique_objects_container < serializable
         function x = get.n_duplicates(self)
             x = self.n_duplicates_;
         end
+        function self = set.n_duplicates(self,value)
+            if ~isnumeric(value)
+                error('HERBERT:unique_obj_container:invalid_argument',...
+                    'n_duplicates may be only array of numeric values, identifying the number of object duplicates for each unique object');
+            end
+            if any(value(:)<0)
+                error('HERBERT:unique_obj_container:invalid_argument',...
+                    'n_duplicates may be only array of non-negative numeric values, identifying the number of object duplicates for each unique object');
+            end
+
+            self.n_duplicates_ = value(:)';
+            if self.do_check_combo_arg_
+                self = self.check_combo_arg(false);
+            end
+        end
         %-----------------------------------------------------------------
         % Overloaded indexers
         function varargout = subsref(self,idxstr)
@@ -234,22 +252,19 @@ classdef unique_objects_container < serializable
             % overloaded indexing for retrieving object from container
             switch idxstr(1).type
                 case {'()','{}'}
-                    if iscell(self.unique_objects_)
-                        b = idxstr(1).subs{:};
-                        if isempty(self.unique_objects_)
-                            varargout{1} = self.unique_objects_;
-                        else
-                            c = self.unique_objects_{self.idx_(b)};
-                            if numel(idxstr)==1
-                                varargout{1} = c;
-                            else
-                                idx2 = idxstr(2:end);
-                                [varargout{1:nargout}] = builtin('subsref',c,idx2);
-                            end
-                        end
+                    b = idxstr(1).subs{:};
+                    if isempty(self.unique_objects_)
+                        varargout{1} = self.unique_objects_;
                     else
-                        error('HERBERT:unique_objects_container:invalid_argument', ...
-                            'braces for array storage');
+                        c = self.unique_objects_(self.idx_(b));
+                        if isscalar(idxstr)
+                            varargout{1} = [c{:}];
+                        else
+                            idx2 = idxstr(2:end);
+                            [varargout{1:nargout}] = builtin('subsref',[c{:}],idx2);
+                        end
+
+
                     end
                 case '.'
                     [varargout{1:nargout}] = builtin('subsref',self,idxstr);
@@ -400,6 +415,25 @@ classdef unique_objects_container < serializable
                     ix = []; % ismember returns 0 in this case, not []
                 end
             end
+        end
+        %
+        function self = decrease_duplication(self,gidx)
+            % method decreases number of current object duplicates by one
+            % at given unique object identifyer.
+            %
+            % WARNING: should be used in cooperation with appropriate
+            %          methods of unique references container as may easy break
+            %          contaner validity if used alone.
+            % TODO:    Incomplete. Needs  unique object deleteon when nuber
+            %          of references decreases to 0
+            %          May be superseeded by proper n_duplicates setter
+            if gidx<1 || gidx>numel(self.n_duplicates)
+                error('HERBERT:unique_objects_container:invalid_argument',[ ...
+                    'Attempt to decrease duplication of the missing object at %d\n' ...
+                    'There are only %d unique objects in container'], ...
+                    gidx,numel(self.n_duplicates))
+            end
+            self.n_duplicates_(gidx) = self.n_duplicates_(gidx)-1;
         end
     end
 
@@ -731,7 +765,8 @@ classdef unique_objects_container < serializable
         fields_to_save_ = {
             'baseclass',     ...
             'unique_objects',...
-            'idx'};
+            'idx',...
+            'n_duplicates'};
     end
 
     methods
@@ -740,7 +775,7 @@ classdef unique_objects_container < serializable
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 1;
+            ver = 2;
         end
 
         function flds = saveableFields(~)
@@ -748,6 +783,7 @@ classdef unique_objects_container < serializable
             % serializable object.
             flds = unique_objects_container.fields_to_save_;
         end
+
 
         function obj = check_combo_arg(obj,with_checks)
             % runs after changing property or number of properties to check
@@ -831,8 +867,6 @@ classdef unique_objects_container < serializable
                             [~,index] = ismember(out_hsh, out.stored_hashes_);
                             if index==0, index = []; end
                             out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
-
-                            %out = out.add( objs(ii).get(jj) );
                         end
                     end
                 end
@@ -840,5 +874,16 @@ classdef unique_objects_container < serializable
         end
 
     end % static methods
+    methods(Access=protected)
+        function  [S,obj] = convert_old_struct (obj, S, ver)
+            % convert old structure of unique object container into the
+            % one, which support unique_object_storage and number of
+            % duplicates
+            if ver == 1
+                S.n_duplicates = accumarray(S.idx',1)';
+            end
+
+        end
+    end
 
 end % classdef unique_objects_container

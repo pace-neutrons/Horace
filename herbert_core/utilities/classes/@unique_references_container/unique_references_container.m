@@ -56,10 +56,9 @@ classdef unique_references_container < serializable
     % >> s.info = 'new_info';
     % >> u{3} = s.
     % %
-    % >> myurc = unique_references_container(GLOBAL_NAME, stored_base_type)
+    % >> myurc = unique_references_container(stored_base_type)
     % where stored_base_type will be a common superclass of all objects in
-    % the container and GLOBAL_NAME will connect the container with a
-    % global container of this category tag.
+    % the container
     %
     % Usage issues:
     % It is possible to extract the cell array containing the unique
@@ -98,14 +97,14 @@ classdef unique_references_container < serializable
 
     properties (Access = protected)
         idx_ = zeros(1,0); %  array of unique global indices for each object stored
-        stored_baseclass_ = ''; % the baseclass
+        baseclass_ = ''; % the baseclass
     end
 
     properties (Dependent)
         % Name of the class, this container holds
-        stored_baseclass;
+        baseclass;
         % other dependent properties
-        n_unique_objects; % number of unique_objects (without creating it)
+        n_unique; % number of unique_objects (without creating it)
         idx;              % object indices into the global unique objects container.
         n_objects; % numel(idx)
     end
@@ -126,12 +125,12 @@ classdef unique_references_container < serializable
             val = self.idx_;
         end
 
-        function val = get.stored_baseclass(self)
-            %GET.STORED_BASECLASS - base class for all objects in the container
-            val = self.stored_baseclass_;
+        function val = get.baseclass(self)
+            %GET.BASECLASS - base class for all objects in the container
+            val = self.baseclass_;
         end
-        function self = set.stored_baseclass(self,val)
-            %SET.STORED_BASECLASS - set a baseclass for this container
+        function self = set.baseclass(self,val)
+            %SET.BASECLASS - set a baseclass for this container
             % this is really only to be used by loadobj.
             % otherwise the code below permissively resets the baseclass
             % only if the container has not been populated. But really
@@ -139,9 +138,9 @@ classdef unique_references_container < serializable
             if ~(ischar(val)||isstring(val))
                 val = class(val);
             end
-            if self.n_objects == 0 && isempty(self.stored_baseclass_)
-                self.stored_baseclass_ = val;
-            elseif strcmp(val,self.stored_baseclass_)
+            if self.n_objects == 0 && isempty(self.baseclass_)
+                self.baseclass_ = val;
+            elseif strcmp(val,self.baseclass_)
                 % silently ignore resetting baseclass to the same value
             else
                 error('HERBERT:unique_references_container:invalid_argument', ...
@@ -162,15 +161,16 @@ classdef unique_references_container < serializable
         % NB n_objects only set by adding objects to the container
 
         function uoca = expose_unique_objects(self)
-            %EXPOSE_UNIQUE_OBJECTS - returns the unique objects contained in
+            %EXPOSE_UNIQUE_OBJECTS - returns the unique objects referred by
             % self as a cell array. This allows the user to scan unique objects
             % for a property without having to rescan for duplicates. It is not
             % intended to expose the implementation of the container.
 
             % obtain a unique_objects_container with the unique objects
-            uoca = unique_obj_store.instance().get_objects(self.stored_baseclass);
-            % convert it to a cell array for external use
-            uoca = uoca.unique_objects;
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
+            uidx = unique(self.idx_);
+            % retrieve unique objects referred here as a cell array for external use
+            uoca = arrayfun(@(idx)(storage(idx)),uidx,'UniformOutput',false);
         end
 
         function uoc = get.unique_objects(self)
@@ -184,11 +184,11 @@ classdef unique_references_container < serializable
             % property get on uoc but it is preferable to use the
             % expose_unique_objects method which does this in an encapsulated fashion.
 
-            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
-            uoc     = unique_objects_container('baseclass',self.stored_baseclass);
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
+            uoc     = unique_objects_container(self.baseclass);
             for ii=1:self.n_objects
-                glob_idx  = self.idx(ii);
-                obj   = storage(glob_idx);
+                gidx  = self.idx(ii);
+                obj   = storage(gidx);
                 uoc   = uoc.add(obj);
             end
         end
@@ -208,16 +208,21 @@ classdef unique_references_container < serializable
                 error('HERBERT:unique_references_container:invalid_argument', ...
                     'unique_objects must be a unique_objects_container');
             end
-            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            % unique_obj_container resets everything, so no point of
+            % throwing in this situation. Just reset target
+            if ~strcmp(self.baseclass,val.baseclass)
+                self.baseclass_ = val.baseclass;
+            end
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
             self.idx_ = zeros(1,val.n_objects);
             for i=1:val.n_objects
-                [storage,ids] = storage.add(val(i));
-                self.idx_(i) = ids;
+                [storage,gidx] = storage.add_if_new(val(i));
+                self.idx_(i) = gidx;
             end
             unique_obj_store.instance().set_objects(storage);
         end
 
-        function n = get.n_unique_objects(self)
+        function n = get.n_unique(self)
             n = numel( unique(self.idx_) );
         end
 
@@ -226,7 +231,7 @@ classdef unique_references_container < serializable
             % indices into the singleton container. Abandoned implementation
             % left in case it becomes useful.
             unique_indices = unique( self.idx_ );
-            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
             unique_objects = cell( 1,numel(unique_indices) );
             for i = 1:numel(unique_indices)
                 unique_objects{i} = storage{unique_indices(i)};
@@ -241,7 +246,7 @@ classdef unique_references_container < serializable
             % Input:
             % - v: scalar value to set all object in the container to
             %      replicate in
-            if ~isa(v,self.stored_baseclass)||~(isa(v,'unique_objects_container')&&strcmp(v.baseclass,self.stored_baseclass))
+            if ~isa(v,self.baseclass)||~(isa(v,'unique_objects_container')&&strcmp(v.baseclass,self.baseclass))
                 targ_class = class(v);
                 if strcmp(targ_class,'unique_objects_container')
                     targ_class = v.baseclass;
@@ -249,11 +254,11 @@ classdef unique_references_container < serializable
                 error('HERBERT:unique_objects_container:invalid_argument', ...
                     ['assigned value must have the same class as the one already present in the container.\n' ...
                     'Present class: "%s", Setting: "%s"'], ...
-                    self.stored_baseclass,targ_class);
+                    self.baseclass,targ_class);
                 % altergatively, we may reset the container class here.
             end
 
-            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
             if numel(v)==self.n_objects
                 self.idx_ = zeros(1,self.n_objects);
                 for i=1:self.n_objects
@@ -296,11 +301,13 @@ classdef unique_references_container < serializable
                 flds,false,varargin{:});
         end
 
-        function self = init(self, glname, basecl)
-            %INIT - constructor implementation for case with 2 arguments
-            self.global_name_ = glname;
-            self.stored_baseclass_ = basecl;
-            self.global_container('init',glname,basecl);
+        function self = init(self, varargin)
+            %INIT - constructor implementation for initializing empty
+            %container
+            flds = self.saveableFields();
+            % standard serializable constructor
+            self = self.set_positional_and_key_val_arguments(...
+                flds,false,varargin{:});
         end
     end
 
@@ -376,22 +383,21 @@ classdef unique_references_container < serializable
                 case {'()','{}'}
                     b = idxstr(1).subs{:};
                     if any(b<1)
-                        error('HERBERT:unique_references_container:invalid_subscript', ...
+                        error('HERBERT:unique_references_container:invalid_argument', ...
                             'subscript must be positive');
                     end
                     if any(b>numel(self.idx_))
                         if numel(self.idx_)>0
-                            error('HERBERT:unique_references_container:invalid_subscript',...
+                            error('HERBERT:unique_references_container:invalid_argument',...
                                 'subscript must be less than %d',numel(self.idx_)+1);
                         else
-                            error('HERBERT:unique_references_container:invalid_subscript',...
+                            error('HERBERT:unique_references_container:invalid_argument',...
                                 'container is empty and cannot take a subscript');
                         end
                     end
                     glindex = self.idx_(b);
-                    glc = self.global_container('value',self.global_name_);
-                    c = glc(glindex);
-                    if numel(idxstr)==1
+                    c = unique_obj_store.instance().get_value(self.baseclass,glindex);
+                    if isscalar(idxstr)
                         varargout{1} = c;
                     else
                         idx2 = idxstr(2:end);
@@ -404,8 +410,8 @@ classdef unique_references_container < serializable
 
         function self = local_assign_(self,val,nuix)
             %LOCAL_ASSIGN - replacement for self{nuix}=val which does not work inside the class
-            if isempty(self.stored_baseclass_)
-                self.stored_baseclass = class(val);
+            if isempty(self.baseclass_)
+                self.baseclass = class(val);
                 warning('HERBERT:unique_references_container:incomplete_setup', ...
                     'baseclass not initialised, using first assigned type');
             end
@@ -424,12 +430,12 @@ classdef unique_references_container < serializable
                 self = builtin('subsasgn',self,idxstr,varargin{:});
             else % idxstr(1).type=='()'/'{}'
                 val = varargin{1}; % value to assign
-                if isempty(self.stored_baseclass_)
-                    self.stored_baseclass = class(val);
+                if isempty(self.baseclass_)
+                    self.baseclass = class(val);
                     warning('HERBERT:unique_references_container:incomplete_setup', ...
                         'baseclass not initialised, using first assigned type');
                 end
-                if ~isa(val,self.stored_baseclass)
+                if ~isa(val,self.baseclass)
                     %error('HERBERT:unique_references_container:invalid_argument', ...
                     %      'assigning object with wrong baseclass');
                 end
@@ -439,7 +445,7 @@ classdef unique_references_container < serializable
                         'subscript %d out of range 1..%d', nuix, numel(self.idx_));
                 elseif nuix == self.n_objects+1
                     if numel(idxstr)>1
-                        error('HERBERT:unique_references_container:invalid_subscript', ...
+                        error('HERBERT:unique_references_container:invalid_argument', ...
                             ['when adding to the end of a container, additionally setting ', ...
                             'properties is not permitted']);
                     end
@@ -458,7 +464,7 @@ classdef unique_references_container < serializable
         end
 
         function sset = get_subset(self, indices)
-            sset = unique_objects_container('baseclass', self.stored_baseclass);
+            sset = unique_objects_container('baseclass', self.baseclass);
             for i=indices
                 item = self.get(i);
                 [sset,~] = sset.add(item);
@@ -486,14 +492,14 @@ classdef unique_references_container < serializable
 
         function val = get(self,index)
             %GET - alternative access method: obj.get(i)===obj{i}
-            storage = unique_obj_store.instance().get_objects(obj.stored_baseclass);
-            val =storage{ self.idx(index) };
+            ngidx = self.idx_(index);
+            val = unique_obj_store.instance().get_value(self.baseclass,ngidx);
         end
 
         function val = hash(self,index)
             %HASH - for a given `index` into the container, return the associated hash
             % this prevents the calling code from having to recalculate the hash since it is already known
-            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
             obj      =storage{ self.idx(index) };
             val      = build_hash(obj);
         end
@@ -571,27 +577,40 @@ classdef unique_references_container < serializable
 
 
             n_add_obj = numel(obj);
+            type = 'g';
             if isa(obj, 'unique_objects_container')
                 n_add_obj = obj.n_objects;
             elseif ischar(obj)
+                type = 'h';
                 n_add_obj = 1;
+            elseif iscell(obj)
+                type= 'e';
             end
-            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
-            idxl = self.idx_;
-            self.idx_ = zeros(1,numel(idxl)+n_add_obj);
-            self.idx_(1:numel(idxl)) = idxl;
-            ic = numel(idxl)+1;
-            nuix = zeros(1,n_add_obj);
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
+            idx_add = cell(1,n_add_obj);
+            nuix = cell(1,n_add_obj);
+            n_existing = numel(self.idx_);
+            ic = n_existing;
             for i=1:n_add_obj
-                if iscell(obj)
-                    [storage,igdx] = storage.add_if_new(obj{i});
-                else
-                    [storage,igdx] = storage.add_if_new(obj(i));
+                switch(type)
+                    case('g')
+                        [storage,igdx] = storage.add_if_new(obj(i));
+                    case('e')
+                        [storage,igdx] = storage.add_if_new(obj{i});
+                    case('h')
+                        [storage,igdx] = storage.add_if_new(obj);
                 end
-                self.idx_(ic) = igdx;
-                nuix(i) = ic;
+                % probably easier just prohibit insertion of different type
+                % objects
+                idx_add{i} = igdx;
+                if isempty(igdx)
+                    continue;
+                end
                 ic = ic+1;
+                nuix{i} = ic;
             end
+            self.idx_ = [self.idx_(:);[idx_add{:}]]';
+            nuix = [nuix{:}];
             unique_obj_store.instance().set_objects(storage);
         end
 
@@ -610,10 +629,10 @@ classdef unique_references_container < serializable
                     ['n_objects can only be a positive numeric scalar; ', ...
                     ' instead it is %d, class %s'], n_objects, class(n_objects));
             end
-            if self.n_unique_objects>1
+            if self.n_unique>1
                 error('HERBERT:unique_references_container:invalid_argument', ...
                     ['existing container must hold only one unique object; ', ...
-                    ' instead it is %d'], self.n_unique_objects);
+                    ' instead it is %d'], self.n_unique);
             end
             if n_objects<self.n_objects
                 error('HERBERT:unique_references_container:invalid_argument', ...
@@ -622,11 +641,14 @@ classdef unique_references_container < serializable
             end
             uix = self.idx(1);
             self.idx_ = zeros( n_objects, 1 )+uix;
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
+            storage.n_duplicates(uix) = storage.n_duplicates(uix)+n_objects-1;
+            unique_obj_store.instance().set_objects(storage);
         end
 
 
         % substitute object obj at position nuix in container
-        function [self] = replace(self,obj,nuix)
+        function self = replace(self,obj,nuix)
             %REPLACE - substitute object obj at position nuix in container
             % Equivalent to self{nuix}=obj (which would not work inside the
             % container) and used to implement it.
@@ -642,14 +664,21 @@ classdef unique_references_container < serializable
                     'index for replacement "%d" lies out of the current object boundaries: %d', ...
                     nuix,self.n_objects);
             end
-            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
-            [igdx,~,obj] = storage.find_in_container(obj);
-            if ~isempty(igdx)
-                self.idx_(nuix) = igdx;
-                return;
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
+            gidx = self.idx_(nuix);
+            if storage.n_duplicates(gidx)>1 % this needs proper destruction
+                % of presious references not to increase unique storage unnecessary
+                [storage,gidx_new]= storage.add_if_new(obj);
+                % if this is new object, decrease its number of copies by
+                % one
+                if gidx ~= gidx_new
+                    storage = storage.decrease_duplication(gidx);
+                    self.idx_(nuix) = gidx_new;
+                end
+
+            else
+                storage(gidx) = obj;
             end
-            [self,igdx] = storage.add(obj);
-            self.idx_(nuix) = igdx;
             unique_obj_store.instance().set_objects(storage);
         end
 
@@ -662,7 +691,7 @@ classdef unique_references_container < serializable
             %         to replace all existing content
             %
             % The old values are overwritten.
-            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
             [igdx,~,obj] = storage.find_in_container(obj);
             if ~isempty(igdx)
                 self.idx_(:) = igdx;
@@ -692,10 +721,10 @@ classdef unique_references_container < serializable
             % get out the global container for this container
             is = false;
             unique_index = [];
-            if ~isa(item,self.stored_baseclass)
+            if ~isa(item,self.baseclass)
                 return;
             end
-            storage = unique_obj_store.instance().get_objects(self.stored_baseclass);
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
             [igdx,~,item] = storage.find_in_container(item);
             if isempty(igdx)
                 return;
@@ -722,7 +751,7 @@ classdef unique_references_container < serializable
     end
     properties (Constant, Access=private) % serializable interface
         fields_to_save_ = { ...
-            'stored_baseclass', ...
+            'baseclass', ...
             'unique_objects', ...
             };
     end
@@ -733,7 +762,18 @@ classdef unique_references_container < serializable
         end
 
         function ver = classVersion(~)
-            ver = 1;
+            ver = 2;
         end
     end
+    methods(Access=protected)
+        function  [S,obj] = convert_old_struct (obj, S, ver)
+            % convert old structure of unique object container into the
+            % one, which support unique_object_storage and number of
+            % duplicates
+            if ver == 1
+                S.baseclass = S.stored_baseclass;
+            end
+        end
+    end
+
 end

@@ -436,14 +436,14 @@ classdef test_unique_objects < TestCase
             assertEqual(uoc,uoc_rec)
         end
         %-----------------------------------------------------------------
-        function test_use_properties(obj)
-            urc = unique_objects_container('thingy');
-            urc{1} = thingy(111);
-            assertEqual(urc{1}, thingy(111));
+        function test_use_properties(~)
+            urc = unique_objects_container('thingy_tester');
+            urc{1} = thingy_tester(111);
+            assertEqual(urc{1}, thingy_tester(111));
             assertEqual(urc{1}.data, 111);
             urc{1}.data = 222;
             function throw1()
-                assertEqual(urc{1}, thingy(222));
+                assertEqual(urc{1}, thingy_tester(222));
                 assertEqual(urc{1}.data, 222);
                 urc{2}.data = 666;
             end

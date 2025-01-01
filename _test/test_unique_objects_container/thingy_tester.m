@@ -1,4 +1,4 @@
-classdef thingy_tester < hashable
+classdef thingy_tester < serializable
     %THINGY Simple class with public property data
     %   Used for demonstrating ability of unique_objects_container to set a
     %   property of one of its subscripted items.
@@ -23,7 +23,7 @@ classdef thingy_tester < hashable
             % adds the first element of data==1
             % resets the first element so data==9
             uoc = unique_objects_container('thingy_tester');
-            th = thingy(1);
+            th = thingy_tester(1);
             uoc{1} = th;
             disp(uoc{1});
             uoc{1}.data = 9;

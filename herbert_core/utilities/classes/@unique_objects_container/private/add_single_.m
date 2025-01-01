@@ -24,7 +24,7 @@ function [self,nuix] = add_single_(self,obj,ix,hash)
 if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
     warning('HERBERT:unique_objects_container:invalid_argument', ...
         'not correct base class; object was not added');
-    nuix = 0;
+    nuix = [];
     return;
 end
 

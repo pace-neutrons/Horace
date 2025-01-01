@@ -1,6 +1,6 @@
 classdef unique_obj_store<handle
     %UNIQUE_OBJ_STORE contains unique objects used by
-    %unique references container as reference point.
+    %unique references container as the reference point.
     %
     %
 
@@ -44,8 +44,35 @@ classdef unique_obj_store<handle
             fname = unique_storage.baseclass;
             obj.stor_holder_.(fname) = unique_storage;
         end
+        function val = get_value(obj,class_name,glidx)
+            % return the value, stored in global memory at index provided
+            % as input.
+            % Throws if no such class store is currently in memory
+            % or no object is stored at particular index.
+            if ~isfield(obj.stor_holder_,class_name)
+                error('HERBERT:unique_obj_store:invalid_argument',...
+                    'Attempt to get value from emtpy store: %s',...
+                    class_name);
+            end
+            stor = obj.stor_holder_.(class_name);
+            if stor.is_in(glidx)
+                val = stor(glidx);
+            else
+                error('HERBERT:unique_obj_store:invalid_argument',...
+                    'Global index %d is outsie of the ranges [1,%d] of global store: %s', ...
+                    glidx,stor.n_objects,class_name);
+            end
+        end
         function obj = clear(obj,class_name)
-            % clear from store particular type of unique objects
+            % Clear from store particular type of unique objects
+            % Input:
+            % class_name  -- class name of the objects to remove from
+            %                storage
+            %
+            % WARNING: calling this method would invalidate all
+            % unique_rererences containers referring to this class.
+            % USE CAREFULY, normally in tests, do avoid test side-effects
+            %
             if isfield(obj.stor_holder_,class_name)
                 obj.stor_holder_ = rmfield(obj.stor_holder_,class_name);
             end

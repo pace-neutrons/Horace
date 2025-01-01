@@ -17,7 +17,7 @@ function [self,uidx] = add_if_new_single_(self,obj)
 if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
     warning('HERBERT:unique_objects_container:invalid_argument', ...
         'not correct base class; object was not added');
-    uidx = 0;
+    uidx = [];
     return;
 end
 
