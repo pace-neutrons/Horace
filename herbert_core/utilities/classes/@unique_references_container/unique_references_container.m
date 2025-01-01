@@ -135,17 +135,14 @@ classdef unique_references_container < serializable
             % otherwise the code below permissively resets the baseclass
             % only if the container has not been populated. But really
             % better to set this on construction outside of loadobj
-            if ~(ischar(val)||isstring(val))
+            if ~istext(val)
                 val = class(val);
             end
-            if self.n_objects == 0 && isempty(self.baseclass_)
-                self.baseclass_ = val;
-            elseif strcmp(val,self.baseclass_)
-                % silently ignore resetting baseclass to the same value
-            else
+            if self.n_objects ~=0 && ~strcmp(val,self.baseclass_)
                 error('HERBERT:unique_references_container:invalid_argument', ...
-                    'stored baseclass cannot be reset differently once set');
+                    'stored baseclass cannot be reset differently once set if container contains any objects');
             end
+            self.baseclass_ = char(val);
         end
 
         function val = get.n_objects(self)
@@ -210,8 +207,17 @@ classdef unique_references_container < serializable
             end
             % unique_obj_container resets everything, so no point of
             % throwing in this situation. Just reset target
+            if isempty(self.baseclass)
+                self.baseclass_  = val.baseclass;
+            end
             if ~strcmp(self.baseclass,val.baseclass)
-                self.baseclass_ = val.baseclass;
+                if self.n_objects>0
+                    error('HERBERT:unique_references_container:invalid_argument', ...
+                        'Can not asign unique objects of type "%s" to non-empty container of type "%s"',...
+                        val.baseclass,self.baseclass);
+                else
+                    self.baseclass_ = val.baseclass;
+                end
             end
             storage = unique_obj_store.instance().get_objects(self.baseclass);
             self.idx_ = zeros(1,val.n_objects);
@@ -433,11 +439,14 @@ classdef unique_references_container < serializable
                 if isempty(self.baseclass_)
                     self.baseclass = class(val);
                     warning('HERBERT:unique_references_container:incomplete_setup', ...
-                        'baseclass not initialised, using first assigned type');
+                        'baseclass not initialised, using first assigned type: "%s"', ...
+                        self.baseclass);
                 end
-                if ~isa(val,self.baseclass)
-                    %error('HERBERT:unique_references_container:invalid_argument', ...
-                    %      'assigning object with wrong baseclass');
+                if ~isa(val,self.baseclass) && isscalar(idxstr)
+                    warning('HERBERT:unique_references_container:invalid_argument', ...
+                           'Attempt to assign object of class "%s" to container with baseclass "%s" ignored', ...
+                           class(val),self.baseclass);
+                    return
                 end
                 nuix = idxstr(1).subs{:};
                 if nuix<1 || nuix>self.n_objects+1
@@ -609,7 +618,7 @@ classdef unique_references_container < serializable
                 ic = ic+1;
                 nuix{i} = ic;
             end
-            self.idx_ = [self.idx_(:);[idx_add{:}]]';
+            self.idx_ = [self.idx_,[idx_add{:}]];
             nuix = [nuix{:}];
             unique_obj_store.instance().set_objects(storage);
         end
@@ -672,7 +681,7 @@ classdef unique_references_container < serializable
                 % if this is new object, decrease its number of copies by
                 % one
                 if gidx ~= gidx_new
-                    storage = storage.decrease_duplication(gidx);
+                    storage.n_duplicates(gidx) = storage.n_duplicates(gidx)-1;
                     self.idx_(nuix) = gidx_new;
                 end
 
@@ -705,7 +714,7 @@ classdef unique_references_container < serializable
 
     methods % check contents
 
-        function [is, unique_index,item] = contains(self, item)
+        function [is, first_index,item] = contains(self, item)
             %CONTAINS - find if item is present in the container,
             %
             % Input
@@ -715,12 +724,13 @@ classdef unique_references_container < serializable
             % Output:
             % -------
             % - is:           logical true if item is in the container, else false
-            % - unique_index: locations in the container where it is found
-            %                 ==[] if not found
+            % - first_index:  first locations in the unique references container 
+            %                 if it is found
+            %            ==[] if not found
 
             % get out the global container for this container
             is = false;
-            unique_index = [];
+            first_index = [];
             if ~isa(item,self.baseclass)
                 return;
             end
@@ -729,8 +739,8 @@ classdef unique_references_container < serializable
             if isempty(igdx)
                 return;
             end
-            unique_index = find(igdx == self.idx_,1);
-            if ~isempty(unique_index)
+            first_index = find(igdx == self.idx_,1);
+            if ~isempty(first_index)
                 is = true;
             end
         end

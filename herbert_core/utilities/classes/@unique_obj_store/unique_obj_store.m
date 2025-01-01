@@ -9,21 +9,43 @@ classdef unique_obj_store<handle
         n_types;
         % names of the unique objects, places in the store
         typenames;
+        % number of unique objects of each type, located in the global store
+        n_unique_per_type
+    end
+    properties(Dependent,Hidden=true)
+        % number of objects of each type, located in the global store
+        % This is for debugging only, as correctly working store should
+        % contan unique objects only, so number of unique objects above
+        % should be equal to number of each type objects
+        n_obj_per_type
     end
     properties(Access=private)
         % structure, used for storing
         stor_holder_ = struct();
     end
-
+    %----------------------------------------------------------------------
+    % convenience interface
     methods
         function nt = get.n_types(obj)
             % Return number of unique types stored within the class
             nt = numel(fieldnames(obj.stor_holder_));
         end
-        function nt = get.typenames(obj)
+        function fn = get.typenames(obj)
             % Return names of classes, stored within the storage
-            nt = fieldnames(obj.stor_holder_);
+            fn = fieldnames(obj.stor_holder_)';
         end
+        function nu = get.n_unique_per_type(obj)
+            fn = fieldnames(obj.stor_holder_);
+            nu = (cellfun(@(x)(obj.stor_holder_.(x).n_unique),fn))';
+        end
+        function nu = get.n_obj_per_type(obj)
+            fn = fieldnames(obj.stor_holder_);
+            nu = (cellfun(@(x)(obj.stor_holder_.(x).n_objects),fn))';
+        end
+    end
+    %----------------------------------------------------------------------
+    % store operations
+    methods
         function stor = get_objects(obj,class_name)
             % return unique storage container for objects, defined by
             % specified class name
@@ -41,8 +63,13 @@ classdef unique_obj_store<handle
                     'Only unique_object_container may be set as storage of unique objects. Attempt to set %s', ...
                     class(unique_storage))
             end
-            fname = unique_storage.baseclass;
-            obj.stor_holder_.(fname) = unique_storage;
+            fldname = unique_storage.baseclass;
+            if unique_storage.n_objects == 0 && ~isfield(obj.stor_holder_,fldname)
+                % do not initialize storage by empty container. It is
+                % unnecessary
+                return;
+            end
+            obj.stor_holder_.(fldname) = unique_storage;
         end
         function val = get_value(obj,class_name,glidx)
             % return the value, stored in global memory at index provided
@@ -116,8 +143,8 @@ classdef unique_obj_store<handle
     end
     methods(Access=private)
         % Guard the constructor against external invocation.  We only want
-        % to allow a single instance of this class.  See description in
-        % Singleton superclass.
+        % to allow a single instance of this class.  See description of
+        % Singleton class
         function obj= unique_obj_store(varargin)
             % create and initialize config_store;
             obj.stor_holder_ = struct();

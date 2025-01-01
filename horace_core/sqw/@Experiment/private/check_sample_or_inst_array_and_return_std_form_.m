@@ -26,12 +26,11 @@ function std_form = check_sample_or_inst_array_and_return_std_form_(...
 % type, then just copy it into place, making sure it is the right base
 % type.
 if isa(sid,'unique_references_container')
-    is = strcmp(class_base, sid.stored_baseclass);
+    is = strcmp(class_base, sid.baseclass);
     if ~is
         error('HORACE:Experiment:invalid_argument',...
             'unique_references_container of wrong type');
     end
-    global_name = sid.global_name;
     std_form = sid;
     return
 end
@@ -53,7 +52,7 @@ elseif iscell(sid)
     end
     std_form = std_form.add(sid);
 elseif isa(sid,'unique_objects_container')
-    is = strcmp( sid.baseclass, std_form.stored_baseclass);
+    is = strcmp( sid.baseclass, std_form.baseclass);
     if ~all(is)
         error('HORACE:Experiment:invalid_argument', ...
               ['must be inst, detector or sample as appropriate ', ...

@@ -417,24 +417,6 @@ classdef unique_objects_container < serializable
             end
         end
         %
-        function self = decrease_duplication(self,gidx)
-            % method decreases number of current object duplicates by one
-            % at given unique object identifyer.
-            %
-            % WARNING: should be used in cooperation with appropriate
-            %          methods of unique references container as may easy break
-            %          contaner validity if used alone.
-            % TODO:    Incomplete. Needs  unique object deleteon when nuber
-            %          of references decreases to 0
-            %          May be superseeded by proper n_duplicates setter
-            if gidx<1 || gidx>numel(self.n_duplicates)
-                error('HERBERT:unique_objects_container:invalid_argument',[ ...
-                    'Attempt to decrease duplication of the missing object at %d\n' ...
-                    'There are only %d unique objects in container'], ...
-                    gidx,numel(self.n_duplicates))
-            end
-            self.n_duplicates_(gidx) = self.n_duplicates_(gidx)-1;
-        end
     end
 
     methods
